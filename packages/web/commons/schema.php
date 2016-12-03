@@ -3503,3 +3503,17 @@ $this->schema[] = array(
     . "'FOG Linux Service TTY Output' WHERE `settingCategory`="
     . "'FOG Service TTY Output'"
 );
+// 240
+$this->schema[] = array(
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_CLIENT_BANNER_IMAGE', 'This setting defines an image for"
+    . " the banner on the fog client.','','FOG Client'),"
+    . "('FOG_CLIENT_BANNER_SHA', 'This setting stores the sha value of"
+    . " the banner to be applied.','','FOG Client'),"
+    . "('FOG_CLIENT_COMPANY_NAME', 'This setting defines the name you"
+    . " would like presented on the client.','','FOG Client'),"
+    . "('FOG_CLIENT_COMPANY_PROGRESS_COLOR', 'This setting is the hex color code"
+    . " you want progress bar colors to display as.','','FOG Client')"
+);

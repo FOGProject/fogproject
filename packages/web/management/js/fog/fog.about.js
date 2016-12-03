@@ -43,4 +43,10 @@ $(function() {
     $('#kernelsel').change(function(e) {
         this.form.submit();
     });
+    $('#bannerimg').click(function(e) {
+        e.preventDefault();
+        name = $(this).attr('identi');
+        console.log(name);
+        $('#uploader').html('<input type="file" name="'+name+'"/>').find('input').click();
+    });
 });

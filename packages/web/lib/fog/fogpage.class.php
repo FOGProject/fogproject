@@ -2655,11 +2655,24 @@ abstract class FOGPage extends FOGBase
     public function requestClientInfo()
     {
         if (isset($_REQUEST['configure'])) {
-            $Services = self::getSubObjectIDs(
+            list(
+                $bannerimg,
+                $bannersha,
+                $checkin,
+                $coname,
+                $pcolor,
+                $maxsize,
+                $timeout,
+                $freboot
+            ) = self::getSubObjectIDs(
                 'Service',
                 array(
                     'name' => array(
+                        'FOG_CLIENT_BANNER_IMAGE',
+                        'FOG_CLIENT_BANNER_SHA',
                         'FOG_CLIENT_CHECKIN_TIME',
+                        'FOG_CLIENT_COMPANY_NAME',
+                        'FOG_CLIENT_COMPANY_PROGRESS_COLOR',
                         'FOG_CLIENT_MAXSIZE',
                         'FOG_GRACE_TIMEOUT',
                         'FOG_TASK_FORCE_REBOOT'
@@ -2672,10 +2685,23 @@ abstract class FOGPage extends FOGBase
                 false,
                 ''
             );
-            $vals['sleep'] = $Services[0] + mt_rand(1, 91);
-            $vals['maxsize'] = $Services[1];
-            $vals['promptTime'] = $Services[2];
-            $vals['force'] = (bool)$Services[3];
+            $vals = array(
+                'sleep' => $checkin + mt_rand(1, 91),
+                'maxsize' => $maxsize,
+                'promptTime' => $timeout,
+                'force' => (bool)$freboot,
+                'bannerurl' => (
+                    $bannerimg ?
+                    sprintf(
+                        '../management/other/%s',
+                        $bannerimg
+                    ) :
+                    ''
+                ),
+                'bannersha' => $bannersha,
+                'color' => "#$pcolor",
+                'name' => $coname
+            );
             echo json_encode($vals);
             exit;
         }

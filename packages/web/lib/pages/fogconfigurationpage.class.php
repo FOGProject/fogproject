@@ -1372,7 +1372,8 @@ class FOGConfigurationPage extends FOGPage
         $this->title = _('FOG System Settings');
         printf(
             '<p class="hostgroup">%s</p><form method='
-            . '"post" action="%s"><div id="tab-container-1">',
+            . '"post" action="%s" enctype="multipart/form-data">'
+            . '<div id="tab-container-1">',
             _('This section allows you to customize or alter ')
             . _('the way in which FOG operates. ')
             . _('Please be very careful changing any of ')
@@ -1638,6 +1639,26 @@ class FOGConfigurationPage extends FOGPage
                     $type = '<textarea rows="5" name="${service_id}">'
                         . '${service_value}</textarea>';
                     break;
+                case 'FOG_CLIENT_BANNER_IMAGE':
+                    $set = trim($Service->get('value'));
+                    if (!$set) {
+                        $type = '<input type="file" name="${service_id}"/>';
+                    } else {
+                        $type = sprintf(
+                            '<label id="uploader" for="bannerimg">%s'
+                            . '<a href="#" id="bannerimg" identi='
+                            . '"${service_id}"> <i class='
+                            . '"fa fa-arrow-up noBorder"></i></a></label>',
+                            basename($set)
+                        );
+                    }
+                    break;
+                case 'FOG_CLIENT_BANNER_SHA':
+                    $type = '<input readonly name="${service_id}" type='
+                        . '"text" value="'
+                        . $Service->get('value')
+                        . '"/>';
+                    break;
                 default:
                     $type = '<input id="${service_name}" type='
                         . '"text" name="${service_id}" value='
@@ -1871,6 +1892,35 @@ class FOGConfigurationPage extends FOGPage
                 break;
             case 'FOG_AD_DEFAULT_PASSWORD':
                 $set = $this->encryptpw($set);
+                break;
+            case 'FOG_CLIENT_BANNER_SHA':
+                continue 2;
+            case 'FOG_CLIENT_BANNER_IMAGE':
+                $set = preg_replace(
+                    '/[^-\w\.]+/',
+                    '_',
+                    trim(basename($_FILES[$key]['name']))
+                );
+                $src = sprintf(
+                    '%s/%s',
+                    dirname($_FILES[$key]['tmp_name']),
+                    basename($_FILES[$key]['tmp_name'])
+                );
+                $dest = sprintf(
+                    '%s/management/other/%s',
+                    BASEPATH,
+                    $set
+                );
+                $hash = hash_file(
+                    'sha512',
+                    $src
+                );
+                if (!move_uploaded_file($src, $dest)) {
+                    self::setSetting('FOG_CLIENT_BANNER_SHA', '');
+                    $set = '';
+                } else {
+                    self::setSetting('FOG_CLIENT_BANNER_SHA', $hash);
+                }
                 break;
             default:
                 break;
