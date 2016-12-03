@@ -165,6 +165,84 @@ class Initiator
         }
     }
     /**
+     * Stores session csrf token.
+     *
+     * @param string $key   The session key to store.
+     * @param string $value The value to store.
+     *
+     * @return void
+     */
+    public static function storeInSession($key, $value)
+    {
+        /**
+         * If session isn't set return immediately.
+         */
+        if (!isset($_SESSION)) {
+            return;
+        }
+        $_SESSION[$key] = $value;
+    }
+    /**
+     * Unset the session token.
+     *
+     * @param string $key The key to unset.
+     *
+     * @return void
+     */
+    public static function unsetSession($key)
+    {
+        if (!isset($_SESSION)) {
+            return;
+        }
+        $_SESSION[$key] = ' ';
+        unset($_SESSION[$key]);
+    }
+    /**
+     * Get from session.
+     *
+     * @param string $key The key to get.
+     *
+     * @return string|bool
+     */
+    public static function getFromSession($key)
+    {
+        if (!isset($_SESSION[$key])) {
+            return false;
+        }
+        return $_SESSION[$key];
+    }
+    /**
+     * Generates token for csrf prevention.
+     *
+     * @param string $formname The form name to generate token for.
+     *
+     * @return string
+     */
+    public static function csrfGenToken($formname)
+    {
+        if (function_exists('random_bytes')) {
+            $token = bin2hex(
+                random_bytes(64)
+            );
+        }
+        if (function_exists('mcrypt_create_iv')) {
+            $token = bin2hex(
+                mcrypt_create_iv(
+                    64,
+                    MCRYPT_DEV_URANDOM
+                )
+            );
+        }
+        if (function_exists('openssl_random_pseudo_bytes')) {
+            $token = bin2hex(
+                openssl_random_pseudo_bytes(
+                    64
+                )
+            );
+        }
+        self::storeInSession($formname, $token);
+    }
+    /**
      * Gets the base path and sets WEB_ROOT constant
      *
      * @return string the base path as determined.
