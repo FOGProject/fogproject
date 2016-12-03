@@ -202,27 +202,23 @@ class UserManagementPage extends FOGPage
             if (!$User->save()) {
                 throw new Exception(_('Failed to create user'));
             }
-            self::$HookManager
-                ->processEvent(
-                    'USER_ADD_SUCCESS',
-                    array('User' => &$User)
-                );
-            $this->setMessage(
-                sprintf(
-                    '%s<br/>%s',
-                    _('User created'),
-                    _('You may now create another')
-                )
+            $hook = 'USER_ADD_SUCCESS';
+            $msg = sprintf(
+                '%s<br/>%s',
+                _('User created'),
+                _('You may now create another')
             );
         } catch (Exception $e) {
-            self::$HookManager
-                ->processEvent(
-                    'USER_ADD_FAIL',
-                    array('User' => &$User)
-                );
-            $this->setMessage($e->getMessage());
+            $hook = 'USER_ADD_FAIL';
+            $msg = $e->getMessage();
         }
         unset($User);
+        self::$HookManager
+            ->processEvent(
+                $hook,
+                array('User' => &$User)
+            );
+        $this->setMessage($msg);
         $this->redirect($this->formAction);
     }
     /**
@@ -325,20 +321,18 @@ class UserManagementPage extends FOGPage
             if (!$this->obj->save()) {
                 throw new Exception(_('User update failed'));
             }
-            self::$HookManager
-                ->processEvent(
-                    'USER_UPDATE_SUCCESS',
-                    array('User' => &$this->obj)
-                );
-            $this->setMessage(_('User updated'));
+            $hook = 'USER_UPDATE_SUCCESS';
+            $msg = _('User updated');
         } catch (Exception $e) {
-            self::$HookManager
-                ->processEvent(
-                    'USER_UPDATE_FAIL',
-                    array('User' => &$this->obj)
-                );
-            $this->setMessage($e->getMessage());
+            $hook = 'USER_UPDATE_FAIL';
+            $msg = $e->getMessage();
         }
+        self::$HookManager
+            ->processEvent(
+                $hook,
+                array('User' => &$this->obj)
+            );
+        $this->setMessage($msg);
         $this->redirect($this->formAction);
     }
 }
