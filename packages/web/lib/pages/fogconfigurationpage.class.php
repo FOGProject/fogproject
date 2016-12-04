@@ -1635,6 +1635,7 @@ class FOGConfigurationPage extends FOGPage
                         )
                     );
                     break;
+                case 'FOG_COMPANY_TOS':
                 case 'FOG_AD_DEFAULT_OU':
                     $type = '<textarea rows="5" name="${service_id}">'
                         . '${service_value}</textarea>';

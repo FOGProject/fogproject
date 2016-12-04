@@ -1739,6 +1739,26 @@ class ReportManagementPage extends FOGPage
             _('Export PDF'),
             self::$pdffile
         );
+        list(
+            $coname,
+            $subname,
+            $tos
+        ) = self::getSubObjectIDs(
+            'Service',
+            array(
+                'name' => array(
+                    'FOG_CLIENT_COMPANY_NAME',
+                    'FOG_CLIENT_COMPANY_SUBNAME',
+                    'FOG_COMPANY_TOS'
+                )
+            ),
+            'value',
+            false,
+            'AND',
+            'name',
+            false,
+            ''
+        );
         $this->ReportMaker->appendHTML(
             sprintf(
                 '<!-- FOOTER CENTER "$PAGE %s $PAGES - %s: %s" -->'
@@ -1770,8 +1790,8 @@ class ReportManagementPage extends FOGPage
                 _('Printed'),
                 $this->formatTime('', 'D M j G:i:s T Y'),
                 _('Equipment Loan'),
-                _('[Organization Here]'),
-                _('[sub-unit here]'),
+                $coname,
+                $subname,
                 _('PC Check-out Agreement'),
                 _('Personal Information'),
                 _('Name'),
@@ -1848,7 +1868,7 @@ class ReportManagementPage extends FOGPage
                 _('Printed'),
                 $this->formatTime('', 'D M j G:i:s T Y'),
                 _('Terms and Conditions'),
-                _('Your terms and conditions here'),
+                $tos,
                 str_pad(_('Signed'), 25),
                 str_repeat('_', 65),
                 str_pad(_('Date'), 25),
