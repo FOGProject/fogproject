@@ -1659,6 +1659,13 @@ class FOGConfigurationPage extends FOGPage
                         . $Service->get('value')
                         . '"/>';
                     break;
+                case 'FOG_CLIENT_COMPANY_PROGRESS_COLOR':
+                    $type = '<input name="${service_id}" type='
+                        . '"text" maxlength="6" value="'
+                        . $Service->get('value')
+                        . '" '
+                        . 'class="jscolor"/>';
+                    break;
                 default:
                     $type = '<input id="${service_name}" type='
                         . '"text" name="${service_id}" value='
@@ -1896,6 +1903,9 @@ class FOGConfigurationPage extends FOGPage
             case 'FOG_CLIENT_BANNER_SHA':
                 continue 2;
             case 'FOG_CLIENT_BANNER_IMAGE':
+                if (!$_FILES || !$_FILES[$key]) {
+                    continue 2;
+                }
                 $set = preg_replace(
                     '/[^-\w\.]+/',
                     '_',
@@ -1906,6 +1916,24 @@ class FOGConfigurationPage extends FOGPage
                     dirname($_FILES[$key]['tmp_name']),
                     basename($_FILES[$key]['tmp_name'])
                 );
+                list(
+                    $width,
+                    $height,
+                    $type,
+                    $attr
+                ) = getimagesize($src);
+                if ($width > 650) {
+                    $this->setMessage(
+                        _('Width must be 650 or less')
+                    );
+                    $this->redirect($this->formAction);
+                }
+                if ($height > 120) {
+                    $this->setMessage(
+                        _('Width must be 120 or less')
+                    );
+                    $this->redirect($this->formAction);
+                }
                 $dest = sprintf(
                     '%s/management/other/%s',
                     BASEPATH,

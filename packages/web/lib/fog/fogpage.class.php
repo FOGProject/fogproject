@@ -2690,17 +2690,17 @@ abstract class FOGPage extends FOGBase
                 'maxsize' => $maxsize,
                 'promptTime' => $timeout,
                 'force' => (bool)$freboot,
-                'bannerurl' => (
+                'bannerURL' => (
                     $bannerimg ?
                     sprintf(
-                        '../management/other/%s',
+                        '/management/other/%s',
                         $bannerimg
                     ) :
                     ''
                 ),
-                'bannersha' => $bannersha,
+                'bannerHash' => strtoupper($bannersha),
                 'color' => "#$pcolor",
-                'name' => $coname
+                'company' => $coname
             );
             echo json_encode($vals);
             exit;
