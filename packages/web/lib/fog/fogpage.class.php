@@ -2659,9 +2659,9 @@ abstract class FOGPage extends FOGBase
                 $bannerimg,
                 $bannersha,
                 $checkin,
-                $coname,
-                $pcolor,
                 $maxsize,
+                $pcolor,
+                $coname,
                 $timeout,
                 $freboot
             ) = self::getSubObjectIDs(
@@ -2671,9 +2671,9 @@ abstract class FOGPage extends FOGBase
                         'FOG_CLIENT_BANNER_IMAGE',
                         'FOG_CLIENT_BANNER_SHA',
                         'FOG_CLIENT_CHECKIN_TIME',
-                        'FOG_CLIENT_COMPANY_NAME',
-                        'FOG_CLIENT_COMPANY_PROGRESS_COLOR',
                         'FOG_CLIENT_MAXSIZE',
+                        'FOG_COMPANY_COLOR',
+                        'FOG_COMPANY_NAME',
                         'FOG_GRACE_TIMEOUT',
                         'FOG_TASK_FORCE_REBOOT'
                     )

@@ -1046,7 +1046,7 @@ class ReportManagementPage extends FOGPage
     }
     /**
      * Submit the searched requests and return the info.
-     * 
+     *
      * @return void
      */
     public function usertrackPost()
@@ -1747,8 +1747,8 @@ class ReportManagementPage extends FOGPage
             'Service',
             array(
                 'name' => array(
-                    'FOG_CLIENT_COMPANY_NAME',
-                    'FOG_CLIENT_COMPANY_SUBNAME',
+                    'FOG_COMPANY_NAME',
+                    'FOG_COMPANY_SUBNAME',
                     'FOG_COMPANY_TOS'
                 )
             ),

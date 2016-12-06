@@ -309,8 +309,8 @@ class StorageManagementPage extends FOGPage
             self::$foglang['IsMasterNode'] => sprintf(
                 '<input type="checkbox" name="isMaster"%s/>&nbsp;&nbsp;%s',
                 (
-                    isset($_REQUEST['isMaster']) ? 
-                    ' checked' : 
+                    isset($_REQUEST['isMaster']) ?
+                    ' checked' :
                     ''
                 ),
                 sprintf(

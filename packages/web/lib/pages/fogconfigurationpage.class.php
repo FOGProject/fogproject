@@ -1660,7 +1660,7 @@ class FOGConfigurationPage extends FOGPage
                         . $Service->get('value')
                         . '"/>';
                     break;
-                case 'FOG_CLIENT_COMPANY_PROGRESS_COLOR':
+                case 'FOG_COMPANY_COLOR':
                     $type = '<input name="${service_id}" type='
                         . '"text" maxlength="6" value="'
                         . $Service->get('value')

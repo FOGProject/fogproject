@@ -3530,3 +3530,17 @@ $this->schema[] = array(
     . "`settingKey` IN ('FOG_CLIENT_BANNER_IMAGE','FOG_CLIENT_BANNER_SHA',"
     . "'FOG_CLIENT_COMPANY_NAME','FOG_CLIENT_COMPANY_PROGRESS_COLOR')"
 );
+// 242
+$this->schema[] = array(
+    "UPDATE `globalSettings` SET `settingKey`='FOG_COMPANY_NAME' WHERE "
+    . "`settingKey`='FOG_CLIENT_COMPANY_NAME'",
+    "UPDATE `globalSettings` SET `settingKey`='FOG_COMPANY_SUBNAME',"
+    . "`settingDesc`='This allows setting the sub unit, and is only used "
+    . " on the Equipment loan report for tracking.' WHERE "
+    . "`settingKey`='FOG_CLIENT_COMPANY_SUBNAME'",
+    "UPDATE `globalSettings` SET `settingKey`='FOG_COMPANY_COLOR' WHERE "
+    . "`settingKey`='FOG_CLIENT_COMPANY_PROGRESS_COLOR'",
+    "UPDATE `globalSettings` SET `settingDesc`='This setting defines an image "
+    . "for the banner on the fog client. Max width is 650 pixels, Max height is "
+    . "120 pixels.' WHERE `settingKEY`='FOG_CLIENT_BANNER_IMAGE'"
+);
