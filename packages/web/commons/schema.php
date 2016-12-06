@@ -3541,6 +3541,6 @@ $this->schema[] = array(
     "UPDATE `globalSettings` SET `settingKey`='FOG_COMPANY_COLOR' WHERE "
     . "`settingKey`='FOG_CLIENT_COMPANY_PROGRESS_COLOR'",
     "UPDATE `globalSettings` SET `settingDesc`='This setting defines an image "
-    . "for the banner on the fog client. Max width is 650 pixels, Max height is "
-    . "120 pixels.' WHERE `settingKEY`='FOG_CLIENT_BANNER_IMAGE'"
+    . "for the banner on the fog client. The width must be 650 pixels, and "
+    . "the height must be 120 pixels.' WHERE `settingKey`='FOG_CLIENT_BANNER_IMAGE'"
 );

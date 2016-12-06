@@ -1923,15 +1923,15 @@ class FOGConfigurationPage extends FOGPage
                     $type,
                     $attr
                 ) = getimagesize($src);
-                if ($width > 650) {
+                if ($width != 650) {
                     $this->setMessage(
-                        _('Width must be 650 or less')
+                        _('Width must be 650 pixels.')
                     );
                     $this->redirect($this->formAction);
                 }
-                if ($height > 120) {
+                if ($height != 120) {
                     $this->setMessage(
-                        _('Width must be 120 or less')
+                        _('Height must be 120 pixels.')
                     );
                     $this->redirect($this->formAction);
                 }
