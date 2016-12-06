@@ -3515,7 +3515,7 @@ $this->schema[] = array(
     . "('FOG_CLIENT_COMPANY_NAME', 'This setting defines the name you"
     . " would like presented on the client.','','Rebranding'),"
     . "('FOG_CLIENT_COMPANY_PROGRESS_COLOR', 'This setting is the hex color code"
-    . " you want progress bar colors to display as.','','Rebranding'),"
+    . " you want progress bar colors to display as.','','Rebranding')"
 );
 // 241
 $this->schema[] = array(
@@ -3532,6 +3532,41 @@ $this->schema[] = array(
 );
 // 242
 $this->schema[] = array(
+    "UPDATE `globalSettings` SET `settingKey`='FOG_COMPANY_NAME' WHERE "
+    . "`settingKey`='FOG_CLIENT_COMPANY_NAME'",
+    "UPDATE `globalSettings` SET `settingKey`='FOG_COMPANY_SUBNAME',"
+    . "`settingDesc`='This allows setting the sub unit, and is only used "
+    . " on the Equipment loan report for tracking.' WHERE "
+    . "`settingKey`='FOG_CLIENT_COMPANY_SUBNAME'",
+    "UPDATE `globalSettings` SET `settingKey`='FOG_COMPANY_COLOR' WHERE "
+    . "`settingKey`='FOG_CLIENT_COMPANY_PROGRESS_COLOR'",
+    "UPDATE `globalSettings` SET `settingDesc`='This setting defines an image "
+    . "for the banner on the fog client. The width must be 650 pixels, and "
+    . "the height must be 120 pixels.' WHERE `settingKey`='FOG_CLIENT_BANNER_IMAGE'"
+);
+// 243
+$this->schema[] = array(
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_CLIENT_BANNER_IMAGE', 'This setting defines an image for"
+    . " the banner on the fog client.','','Rebranding'),"
+    . "('FOG_CLIENT_BANNER_SHA', 'This setting stores the sha value of"
+    . " the banner to be applied.','','Rebranding'),"
+    . "('FOG_CLIENT_COMPANY_NAME', 'This setting defines the name you"
+    . " would like presented on the client.','','Rebranding'),"
+    . "('FOG_CLIENT_COMPANY_PROGRESS_COLOR', 'This setting is the hex color code"
+    . " you want progress bar colors to display as.','','Rebranding')",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_COMPANY_TOS','This allows setting the company terms of service.',"
+    . "'', 'Rebranding'),"
+    . "('FOG_CLIENT_COMPANY_SUBNAME','This allows setting the company sub unit.',"
+    . "'', 'Rebranding')",
+    "UPDATE `globalSettings` SET `settingCategory`='Rebranding' WHERE "
+    . "`settingKey` IN ('FOG_CLIENT_BANNER_IMAGE','FOG_CLIENT_BANNER_SHA',"
+    . "'FOG_CLIENT_COMPANY_NAME','FOG_CLIENT_COMPANY_PROGRESS_COLOR')",
     "UPDATE `globalSettings` SET `settingKey`='FOG_COMPANY_NAME' WHERE "
     . "`settingKey`='FOG_CLIENT_COMPANY_NAME'",
     "UPDATE `globalSettings` SET `settingKey`='FOG_COMPANY_SUBNAME',"
