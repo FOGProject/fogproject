@@ -296,7 +296,7 @@ class AddLocationHost extends Hook
         $this->arrayInsertAfter(
             "\nImaged From (Location): ",
             $arguments['email'],
-            "\nImageLocation=",
+            "\nImagingLocation=",
             $locName
         );
     }
