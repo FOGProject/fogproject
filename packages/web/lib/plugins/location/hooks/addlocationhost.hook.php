@@ -283,7 +283,7 @@ class AddLocationHost extends Hook
             if (!$Location->isValid()) {
                 continue;
             }
-            $locName = $Location->getLocation()->get('id');
+            $locName = $Location->getLocation()->get('name');
             unset($Location);
             break;
         }
