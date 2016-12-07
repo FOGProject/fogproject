@@ -262,14 +262,24 @@ abstract class FOGPage extends FOGBase
             return $this->{$sub}();
         }
         $this->childClass = ucfirst($this->node);
-        $ref = preg_match(
-            '#node=storage&sub=.*storageGroup#i',
-            self::$querystring
-        );
+        if ($node == 'storage') {
+            $ref = preg_match(
+                '#node=storage&sub=storageGroup#i',
+                $_SERVER['HTTP_REFERER']
+            );
+        } else {
+            $ref = preg_match(
+                '#node=storage&sub=.*storageGroup#i',
+                self::$querystring
+            );
+        }
         if ($ref) {
             $this->childClass .= 'Group';
         } elseif ($node == 'storage') {
             $this->childClass = 'StorageNode';
+        }
+        if (strtolower($this->childClass) === 'storagenodegroup') {
+            $this->childClass = 'StorageGroup';
         }
         if (!empty($name)) {
             $this->name = $name;
@@ -1820,7 +1830,7 @@ abstract class FOGPage extends FOGBase
             array('removing' => &$_REQUEST['remitems'])
         );
         if ((int)$_REQUEST['storagegroup'] === 1) {
-            $this->childClass .= 'Group';
+            $this->childClass = 'StorageGroup';
         }
         self::getClass($this->childClass)
             ->getManager()
