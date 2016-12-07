@@ -45,8 +45,13 @@ $(function() {
     });
     $('#bannerimg').click(function(e) {
         e.preventDefault();
+        $('input[name="banner"]').val('');
         name = $(this).attr('identi');
-        console.log(name);
-        $('#uploader').html('<input type="file" name="'+name+'"/>').find('input').click();
+        $('#uploader').html('<input type="file" name="'+name+'" class="newbanner"/>').find('input').click();
+    });
+    $(document).on('change', '.newbanner', function(e) {
+        filename = this.value;
+        filename = filename.replace(/\\/g, '/').replace(/.*\//, "");
+        $('input[name="banner"]').val(filename);
     });
 });

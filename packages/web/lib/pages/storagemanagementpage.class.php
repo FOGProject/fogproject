@@ -725,7 +725,7 @@ class StorageManagementPage extends FOGPage
             if (!$name) {
                 throw new Exception(self::$foglang['StorageNameRequired']);
             }
-            $exists = self::getCalss('StorageNodeManager')
+            $exists = self::getClass('StorageNodeManager')
                 ->exists($name, $this->obj->get('id'));
             if ($this->obj->get('name') != $name
                 && $exists
@@ -748,7 +748,7 @@ class StorageManagementPage extends FOGPage
                 throw new Exception(self::$foglang['StoragePassRequired']);
             }
             if (is_numeric($bandwidth)
-                && $bandwidth < 1
+                && $bandwidth < 0
             ) {
                 throw new Exception(_('Bandwidth should be greater than 0'));
             }

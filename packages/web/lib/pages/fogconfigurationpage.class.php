@@ -1643,14 +1643,18 @@ class FOGConfigurationPage extends FOGPage
                 case 'FOG_CLIENT_BANNER_IMAGE':
                     $set = trim($Service->get('value'));
                     if (!$set) {
-                        $type = '<input type="file" name="${service_id}"/>';
+                        $type = '<input type="file" name="${service_id}" '
+                            . 'class="newbanner"/>'
+                            . '<input type="hidden" value="" name="banner"/>';
                     } else {
                         $type = sprintf(
                             '<label id="uploader" for="bannerimg">%s'
                             . '<a href="#" id="bannerimg" identi='
                             . '"${service_id}"> <i class='
-                            . '"fa fa-arrow-up noBorder"></i></a></label>',
-                            basename($set)
+                            . '"fa fa-arrow-up noBorder"></i></a></label>'
+                            . '<input type="hidden" value="%s" name="banner"/>',
+                            basename($set),
+                            $Service->get('value')
                         );
                     }
                     break;
@@ -1665,7 +1669,7 @@ class FOGConfigurationPage extends FOGPage
                         . '"text" maxlength="6" value="'
                         . $Service->get('value')
                         . '" '
-                        . 'class="jscolor"/>';
+                        . 'class="jscolor {required:false} {refine:false}"/>';
                     break;
                 default:
                     $type = '<input id="${service_name}" type='
@@ -1904,7 +1908,15 @@ class FOGConfigurationPage extends FOGPage
             case 'FOG_CLIENT_BANNER_SHA':
                 continue 2;
             case 'FOG_CLIENT_BANNER_IMAGE':
-                if (!$_FILES || !$_FILES[$key]) {
+                $Service
+                    ->set('value', $_REQUEST['banner'])
+                    ->save();
+                if (!$_REQUEST['banner']) {
+                    self::setSetting('FOG_CLIENT_BANNER_SHA', '');
+                }
+                if (!($_FILES[$key]['name']
+                    && file_exists($_FILES[$key]['tmp_name']))
+                ) {
                     continue 2;
                 }
                 $set = preg_replace(

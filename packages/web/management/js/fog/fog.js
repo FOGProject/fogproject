@@ -157,7 +157,7 @@ function AJAXServerTime() {
     /**
      * On any form submission, attempt to trim the input fields automatically.
      */
-    $('input, textarea').focusout(function() {
+    $('input[type!="file"], textarea').focusout(function() {
         this.value=$(this).val().trim();
     });
     $('form').children().each(function() {
