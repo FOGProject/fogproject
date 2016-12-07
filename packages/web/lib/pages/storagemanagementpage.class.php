@@ -1213,6 +1213,7 @@ class StorageManagementPage extends FOGPage
             '<form method="post" action="%s" class="c">',
             $this->formAction
         );
+        echo '<div id="deleteDiv"></div>';
         self::$HookManager
             ->processEvent(
                 'STORAGE_GROUP_DELETE',
