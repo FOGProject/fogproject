@@ -283,8 +283,8 @@ class DashboardPage extends FOGPage
             _('Imaging Over the last 30 days')
         );
         ob_start();
-        $start = self::niceDate()->modify('-31 days');
-        $end = self::niceDate()->setTime(23, 25, 59);
+        $start = self::niceDate()->setTime(00, 00, 00)->modify('-30 days');
+        $end = self::niceDate()->setTime(23, 59, 59);
         $int = new DateInterval('P1D');
         $DatePeriod = new DatePeriod($start, $int, $end);
         $dates = iterator_to_array($DatePeriod);
