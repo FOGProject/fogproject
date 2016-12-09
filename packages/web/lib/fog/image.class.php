@@ -479,6 +479,20 @@ class Image extends FOGController
      */
     public function setPrimaryGroup($groupID)
     {
+        $exists = self::getSubObjectIDs(
+            'ImageAssociation',
+            array(
+                'imageID' => $this->get('id'),
+                'storagegroupID' => $groupID
+            ),
+            'storagegroupID'
+        );
+        if (count($exists) < 1) {
+            self::getClass('ImageAssociation')
+                ->set('imageID', $this->get('id'))
+                ->set('storagegroupID', $groupID)
+                ->save();
+        }
         /**
          * Unset all current groups to non-primary
          */

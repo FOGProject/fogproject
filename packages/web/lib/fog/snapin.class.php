@@ -410,6 +410,20 @@ class Snapin extends FOGController
      */
     public function setPrimaryGroup($groupID)
     {
+        $exists = self::getSubObjectIDs(
+            'SnapinGroupAssociation',
+            array(
+                'snapinID' => $this->get('id'),
+                'storagegroupID' => $groupID
+            ),
+            'storagegroupID'
+        );
+        if (count($exists) < 1) {
+            self::getClass('SnapinGroupAssociation')
+                ->set('snapinID', $this->get('id'))
+                ->set('storagegroupID', $groupID)
+                ->save();
+        }
         /**
          * Unset all current groups to non-primary
          */

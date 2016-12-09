@@ -269,7 +269,7 @@ class ImageManagementPage extends FOGPage
              * @return double
              */
             $servSize = function (&$path, &$StorageNode) {
-                return (double)$this->getFTPByteSize(
+                return $this->getFTPByteSize(
                     $StorageNode,
                     sprintf(
                         '%s/%s',
