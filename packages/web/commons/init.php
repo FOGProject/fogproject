@@ -494,33 +494,4 @@ class Initiator
 }
 Initiator::sanitizeItems();
 Initiator::startInit();
-$FOGFTP = new FOGFTP();
-$FOGCore = new FOGCore();
-$DB = FOGCore::getClass('DatabaseManager')
-    ->establish()
-    ->getDB();
-FOGCore::setSessionEnv();
-$TimeZone = $_SESSION['TimeZone'];
-if (isset($_SESSION['FOG_USER'])) {
-    $currentUser = new User($_SESSION['FOG_USER']);
-} else {
-    $currentUser = new User(0);
-}
-$HookManager = FOGCore::getClass('HookManager');
-$HookManager
-    ->load();
-$EventManager = FOGCore::getClass('EventManager');
-$EventManager
-    ->load();
-$FOGURLRequests = FOGCore::getClass('FOGURLRequests');
-$subs = array(
-    'configure',
-    'authorize',
-    'requestClientInfo'
-);
-if (in_array($sub, $subs)) {
-    new DashboardPage();
-    unset($subs);
-    exit;
-}
-unset($subs);
+new LoadGlobals();
