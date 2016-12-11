@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-11 15:19-0500\n"
+"POT-Creation-Date: 2016-12-11 15:27-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -203,9 +203,9 @@ msgstr "Record non trovato, errore: %s"
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:62
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:122
 #: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:54
-#: /var/www/fog/lib/service/fogservice.class.php:376
-#: /var/www/fog/lib/service/fogservice.class.php:405
-#: /var/www/fog/lib/service/fogservice.class.php:483
+#: /var/www/fog/lib/service/fogservice.class.php:377
+#: /var/www/fog/lib/service/fogservice.class.php:406
+#: /var/www/fog/lib/service/fogservice.class.php:484
 #: /var/www/fog/commons/text.php:66
 msgid "Name"
 msgstr "Nome"
@@ -6875,7 +6875,7 @@ msgid "No snapins associated with this group as master"
 msgstr "Non ci sono snapins associati con questo host"
 
 #: /var/www/fog/lib/service/snapinhash.class.php:157
-#: /var/www/fog/lib/service/fogservice.class.php:390
+#: /var/www/fog/lib/service/fogservice.class.php:391
 msgid "Found"
 msgstr ""
 
@@ -7020,69 +7020,69 @@ msgstr ""
 msgid "Waiting for mysql to be available"
 msgstr "In attesa di mysql sia disponibile"
 
-#: /var/www/fog/lib/service/fogservice.class.php:350
+#: /var/www/fog/lib/service/fogservice.class.php:351
 #, fuzzy
 msgid "I am not the master for this group"
 msgstr " * Io non sono il padrone"
 
-#: /var/www/fog/lib/service/fogservice.class.php:366
-#: /var/www/fog/lib/service/fogservice.class.php:473
+#: /var/www/fog/lib/service/fogservice.class.php:367
+#: /var/www/fog/lib/service/fogservice.class.php:474
 msgid "Not syncing"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:368
-#: /var/www/fog/lib/service/fogservice.class.php:475
+#: /var/www/fog/lib/service/fogservice.class.php:369
+#: /var/www/fog/lib/service/fogservice.class.php:476
 msgid "between"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:383
+#: /var/www/fog/lib/service/fogservice.class.php:384
 msgid "There are no other members to sync to"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:392
+#: /var/www/fog/lib/service/fogservice.class.php:393
 #, fuzzy
 msgid "to transfer to"
 msgstr "Immagine registro trasferimenti"
 
-#: /var/www/fog/lib/service/fogservice.class.php:458
+#: /var/www/fog/lib/service/fogservice.class.php:459
 #, fuzzy
 msgid "Replication already running with PID"
 msgstr "Larghezza di banda replica"
 
-#: /var/www/fog/lib/service/fogservice.class.php:490
+#: /var/www/fog/lib/service/fogservice.class.php:491
 #, fuzzy
 msgid "File or path cannot be reached"
 msgstr " | File o il percorso non può essere raggiunto"
 
-#: /var/www/fog/lib/service/fogservice.class.php:510
+#: /var/www/fog/lib/service/fogservice.class.php:511
 #, fuzzy
 msgid "Cannot connect to"
 msgstr "Impossibile connettersi al nodo."
 
-#: /var/www/fog/lib/service/fogservice.class.php:596
+#: /var/www/fog/lib/service/fogservice.class.php:597
 msgid "Files do not match"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:602
+#: /var/www/fog/lib/service/fogservice.class.php:603
 #, fuzzy
 msgid "Deleting remote file"
 msgstr "Menu Create fallita"
 
-#: /var/www/fog/lib/service/fogservice.class.php:613
+#: /var/www/fog/lib/service/fogservice.class.php:614
 msgid "No need to sync"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:615
+#: /var/www/fog/lib/service/fogservice.class.php:616
 #, fuzzy
 msgid "file to"
 msgstr "Non è riuscito a"
 
-#: /var/www/fog/lib/service/fogservice.class.php:638
+#: /var/www/fog/lib/service/fogservice.class.php:639
 #, fuzzy
 msgid "Starting Sync Actions"
 msgstr " * A partire sincronizzazione delle azioni"
 
-#: /var/www/fog/lib/service/fogservice.class.php:682
+#: /var/www/fog/lib/service/fogservice.class.php:683
 msgid "Started sync for"
 msgstr "sincronizzazione introduttiva per"
 

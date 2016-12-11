@@ -252,7 +252,8 @@ abstract class FOGService extends FOGBase
                 unlink($path);
             }
         }
-        $test = fwrite(
+        $fh = fopen($path, 'wb');
+        fwrite(
             $fh,
             sprintf(
                 '[%s] %s',
