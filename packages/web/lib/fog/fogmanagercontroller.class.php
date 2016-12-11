@@ -1292,7 +1292,7 @@ abstract class FOGManagerController extends FOGBase
                 '%sID',
                 strtolower($this->childClass)
             );
-            if (!class_exists($assoc, false)) {
+            if (!class_exists($assoc)) {
                 break;
             }
             if (count($itemIDs) && !count($HostIDs)) {
