@@ -569,11 +569,6 @@ class MulticastManager extends FOGService
             } catch (Exception $e) {
                 self::outall($e->getMessage());
             }
-            $str = str_pad('+', 75, '-');
-            self::out(
-                $str,
-                static::$dev
-            );
             $tmpTime = self::getSetting(self::$sleeptime);
             if (static::$zzz != $tmpTime) {
                 static::$zzz = $tmpTime ? $tmpTime : 10;
@@ -601,12 +596,6 @@ class MulticastManager extends FOGService
      */
     public function serviceRun()
     {
-        self::out(
-            ' ',
-            static::$dev
-        );
-        $str = str_pad('+', 75, '-');
-        self::out($str, static::$dev);
         $this->_serviceLoop();
     }
 }

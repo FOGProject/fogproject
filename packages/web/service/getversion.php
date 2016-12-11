@@ -44,12 +44,6 @@ if (isset($_REQUEST['client'])) {
     );
 } elseif (isset($_REQUEST['url'])) {
     $url = $_REQUEST['url'];
-    $test = $FOGURLRequests->isAvailable($url);
-    $test = array_shift($test);
-    if (false === $test) {
-        echo _('Connection appears to be unavailable');
-        exit;
-    }
     $res = $FOGURLRequests
         ->process($_REQUEST['url']);
     $ver = array_shift($res);

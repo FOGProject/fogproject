@@ -1493,9 +1493,6 @@ abstract class FOGPage extends FOGBase
                             . _('and cannot be captured')
                         );
                     }
-                    if ($TaskType->isDeploy()) {
-                        $this->obj->checkIfExist($TaskType->get('id'));
-                    }
                 } elseif ($this->obj instanceof Group) {
                     if ($TaskType->isCapture()) {
                         throw new Exception(

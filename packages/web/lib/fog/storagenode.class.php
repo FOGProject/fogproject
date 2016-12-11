@@ -172,12 +172,6 @@ class StorageNode extends FOGController
             $this->get('ip'),
             '%s'
         );
-        $test = self::$FOGURLRequests->isAvailable($url);
-        $test = array_shift($test);
-        if (false === $test) {
-            $this->set('logfiles', array());
-            return;
-        }
         $paths = array(
             '/var/log/nginx',
             '/var/log/httpd',
@@ -188,16 +182,11 @@ class StorageNode extends FOGController
             '/var/log/php5-fpm',
             '/var/log/php5.6-fpm',
         );
-        $urls = array();
-        foreach ($paths as &$path) {
-            $urls[] = sprintf(
-                $url,
-                urlencode($path)
-            );
-            unset($path);
-        }
-        unset($paths);
-        $paths = self::$FOGURLRequests->process($urls);
+        $url = sprintf(
+            $url,
+            urlencode(implode(':', $paths))
+        );
+        $paths = self::$FOGURLRequests->process($url);
         foreach ((array) $paths as $index => &$response) {
             $tmppath = array_merge(
                 (array) $tmppath,
@@ -222,15 +211,6 @@ class StorageNode extends FOGController
             'http://%s/fog/status/getfiles.php',
             $this->get('ip')
         );
-        $test = self::$FOGURLRequests->isAvailable($url);
-        $test = array_shift($test);
-        if ($test === false) {
-            $this
-                ->set('images', array())
-                ->set('logfiles', array())
-                ->set('snapinfiles', array());
-            return;
-        }
         $keys = array(
             'images' => urlencode($this->get('path')),
             'snapinfiles' => urlencode($this->get('snapinpath'))

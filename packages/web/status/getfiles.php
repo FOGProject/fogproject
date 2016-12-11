@@ -23,22 +23,29 @@
  */
 require '../commons/base.inc.php';
 $decodedPath = urldecode($_REQUEST['path']);
-if (!(is_dir($decodedPath)
-    && file_exists($decodedPath)
-    && is_readable($decodedPath))
-) {
-    echo json_encode(_('Path is unavailable'));
+$paths = explode(':', $decodedPath);
+foreach ((array)$paths as &$decodedPath) {
+    if (!(is_dir($decodedPath)
+        && file_exists($decodedPath)
+        && is_readable($decodedPath))
+    ) {
+        $files[] = json_encode(_('Path is unavailable'));
+        continue;
+    }
+    $replaced_dir_sep = preg_replace(
+        '#[\\/]#',
+        DIRECTORY_SEPARATOR,
+        $decodedPath
+    );
+    $glob_str = sprintf(
+        '%s%s*',
+        $replaced_dir_sep,
+        DIRECTORY_SEPARATOR
+    );
+    $files = array_merge(
+        (array) $files,
+        (array) glob($glob_str)
+    );
 }
-$replaced_dir_sep = preg_replace(
-    '#[\\/]#',
-    DIRECTORY_SEPARATOR,
-    $decodedPath
-);
-$glob_str = sprintf(
-    '%s%s*',
-    $replaced_dir_sep,
-    DIRECTORY_SEPARATOR
-);
-$files = glob($glob_str);
 echo json_encode($files);
 exit;

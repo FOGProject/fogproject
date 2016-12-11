@@ -2165,7 +2165,7 @@ abstract class FOGBase
         if (empty($macStr)) {
             return;
         }
-        $url = 'http://%s%smanagement/index.php?';
+        $url = 'http://%s/fog/management/index.php?';
         $url .= 'node=client&sub=wakeEmUp';
         $nodeURLs = array();
         $macCount = count($macs);
@@ -2179,44 +2179,20 @@ abstract class FOGBase
                 )
             );
         foreach ((array) $Nodes as &$Node) {
-            if (!$Node->isValid()) {
-                continue;
-            }
-            $curroot = trim($Node->get('webroot'), '/');
-            $curroot = trim($curroot);
-            $webroot = sprintf(
-                '/%s',
-                (
-                    strlen($curroot) > 1 ?
-                    sprintf(
-                        '%s/',
-                        $curroot
-                    ) :
-                    ''
-                )
-            );
             $ip = $Node->get('ip');
-            $testurls[] = sprintf(
-                'http://%s%smanagement/index.php',
-                $ip,
-                $webroot
-            );
             $nodeURLs[] = sprintf(
                 $url,
-                $ip,
-                $webroot
+                $ip
             );
             unset($Node);
         }
         list(
-            $gHost,
-            $gRoot
+            $gHost
         ) = self::getSubObjectIDs(
             'Service',
             array(
                 'name' => array(
-                    'FOG_WEB_HOST',
-                    'FOG_WEB_ROOT',
+                    'FOG_WEB_HOST'
                 ),
             ),
             'value',
@@ -2226,31 +2202,7 @@ abstract class FOGBase
             false,
             ''
         );
-        $curroot = $gRoot;
-        $curroot = trim($curroot, '/');
-        $curroot = trim($curroot);
-        $webroot = sprintf(
-            '/%s',
-            (
-                strlen($curroot) > 1 ?
-                sprintf(
-                    '%s/',
-                    $curroot
-                ) :
-                ''
-            )
-        );
         $ip = $gHost;
-        $testurls[] = sprintf(
-            'http://%s%smanagement/index.php',
-            $ip,
-            $webroot
-        );
-        $test = array_filter(self::$FOGURLRequests->isAvailable($testurls));
-        $nodeURLs = array_intersect_key($nodeURLs, $test);
-        if (count($nodeURLs) < 1) {
-            return;
-        }
         self::$FOGURLRequests->process(
             $nodeURLs,
             'POST',

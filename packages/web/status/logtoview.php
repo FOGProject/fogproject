@@ -104,37 +104,27 @@ $url = trim(
 );
 $ip = $FOGCore->resolveHostname($url);
 if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
-    echo json_encode(_('IP Passed is incorrect'));
-} else {
-    if ($url != $ip) {
-        $ip = $url;
-    }
-    $pat = sprintf('#%s#', $ip);
-    if (preg_match($pat, $_SERVER['HTTP_HOST'])) {
-        echo json_encode($vals($_REQUEST['reverse'], $HookManager));
-    } else {
-        $url = sprintf('http://%s/fog/status/logtoview.php', $ip);
-        $testurl = sprintf(
-            'http://%s/fog/management/index.php',
-            $ip
-        );
-        $test = $FOGURLRequests->isAvailable($testurl);
-        $test = array_shift($test);
-        if (false === $test) {
-            echo _('Node is not available!');
-            exit;
-        }
-        $response = $FOGURLRequests->process(
-            $url,
-            'POST',
-            array(
-                'ip'=>$FOGCore->aesencrypt($ip),
-                'file'=>$_REQUEST['file'],
-                'lines'=>$_REQUEST['lines'],
-                'reverse'=> $_REQUEST['reverse']
-            )
-        );
-        echo array_shift($response);
-    }
+    return print json_encode(_('IP Passed is incorrect'));
+} elseif ($url != $ip) {
+    $ip = $url;
 }
-exit;
+$pat = sprintf('#%s#', $ip);
+if (preg_match($pat, $_SERVER['HTTP_HOST'])) {
+    return print json_encode($vals($_REQUEST['reverse'], $HookManager));
+}
+$url = sprintf('http://%s/fog/status/logtoview.php', $ip);
+$testurl = sprintf(
+    'http://%s/fog/management/index.php',
+    $ip
+);
+$response = $FOGURLRequests->process(
+    $url,
+    'POST',
+    array(
+        'ip'=>$FOGCore->aesencrypt($ip),
+        'file'=>$_REQUEST['file'],
+        'lines'=>$_REQUEST['lines'],
+        'reverse'=> $_REQUEST['reverse']
+    )
+);
+echo array_shift($response);

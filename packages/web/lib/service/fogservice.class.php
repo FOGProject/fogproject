@@ -220,27 +220,8 @@ abstract class FOGService extends FOGBase
      */
     public function outall($string)
     {
-        self::out("$string\n", static::$dev);
         self::wlog("$string\n", static::$log);
         return;
-    }
-    /**
-     * Outputs the string to the tty/device
-     *
-     * @param string $string the string to output
-     * @param string $device the place to output
-     *
-     * @return void
-     */
-    protected static function out($string, $device)
-    {
-        if (!$fh = fopen($device, 'wb')) {
-            return;
-        }
-        if (fwrite($fh, "$string\n") === false) {
-            return;
-        }
-        fclose($fh);
     }
     /**
      * Get's the current datetime
@@ -271,12 +252,6 @@ abstract class FOGService extends FOGBase
                 unlink($path);
             }
         }
-        if (!$fh = fopen($path, 'ab')) {
-            self::out(
-                "\n * Error: Unable to open file: $path\n",
-                static::$dev
-            );
-        }
         $test = fwrite(
             $fh,
             sprintf(
@@ -285,12 +260,6 @@ abstract class FOGService extends FOGBase
                 $string
             )
         );
-        if (false === $test) {
-            self::out(
-                "\n * Error: Unable to write to file: $path\n",
-                static::$dev
-            );
-        }
         fclose($fh);
     }
     /**
@@ -333,14 +302,6 @@ abstract class FOGService extends FOGBase
                 )
             );
         }
-        self::out(
-            '',
-            static::$dev
-        );
-        self::out(
-            '+---------------------------------------------------------',
-            static::$dev
-        );
     }
     /**
      * Replicates data without having to keep repeating

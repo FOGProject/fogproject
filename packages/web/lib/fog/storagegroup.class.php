@@ -116,25 +116,15 @@ class StorageGroup extends FOGController
      */
     protected function loadEnablednodes()
     {
-        global $node;
         $find = array(
             'storagegroupID' => $this->get('id'),
             'id' => $this->get('allnodes'),
             'isEnabled' => 1
         );
-        $nodes = $this->getSubObjectIDs(
-            'StorageNode',
-            $find
-        );
-        $this->set('enablednodes', $nodes);
-        return;
+        $nodes = $this->getClass('StorageNodeManager')->find($find);
         $nodeids = array();
         $testurls = array();
         foreach ($nodes as &$node) {
-            if (!$node->isValid()) {
-                unset($node);
-                continue;
-            }
             if ($node->get('maxClients') < 1) {
                 unset($node);
                 continue;

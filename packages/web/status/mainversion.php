@@ -24,22 +24,15 @@ session_write_close();
 ignore_user_abort(true);
 set_time_limit(0);
 $url = 'https://fogproject.org/version/index.php';
-$test = $FOGURLRequests->isAvailable($url);
-$test = array_shift($test);
-if (false === $test) {
-    echo json_encode('Unavailable');
-    exit;
-} else {
-    $data = array(
-        'version' => FOG_VERSION,
-    );
-    $res = $FOGURLRequests->process(
-        $url,
-        'POST',
-        $data
-    );
-    $res = array_shift($res);
-    $res = json_encode($res);
-    echo $res;
-    exit;
-}
+$data = array(
+    'version' => FOG_VERSION,
+);
+$res = $FOGURLRequests->process(
+    $url,
+    'POST',
+    $data
+);
+$res = array_shift($res);
+$res = json_encode($res);
+echo $res;
+exit;

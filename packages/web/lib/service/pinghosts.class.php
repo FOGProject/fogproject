@@ -205,14 +205,7 @@ class PingHosts extends FOGService
      */
     public function serviceRun()
     {
-        self::out(
-            ' ',
-            static::$dev
-        );
-        $str = str_pad('+', 75, '-');
-        self::out($str, static::$dev);
         $this->_commonOutput();
-        self::out($str, static::$dev);
         parent::serviceRun();
     }
 }

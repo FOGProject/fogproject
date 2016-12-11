@@ -68,7 +68,6 @@ class LoadGlobals extends FOGBase
         }
         self::$_loadedglobals = true;
         unset($subs);
-
     }
     /**
      * Initializes directly.
