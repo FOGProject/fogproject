@@ -44,3 +44,6 @@ require 'init.php';
  * All output should be sanitized for faster browser experience.
  */
 ob_start(array('Initiator', 'sanitizeOutput'));
+Initiator::sanitizeItems();
+Initiator::startInit();
+new LoadGlobals();

@@ -492,6 +492,3 @@ class Initiator
         return $buffer;
     }
 }
-Initiator::sanitizeItems();
-Initiator::startInit();
-new LoadGlobals();
