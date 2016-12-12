@@ -236,7 +236,7 @@ putDataBack() {
     [[ $mc == yes ]] && usleep 10000000 || usleep 3000000
     case $imgType in
         dd)
-            restorePartition "$hd" 1 "$imagePath/$img" "$mc"
+            restorePartition "$hd" 1 "$imagePath/$img.*" "$mc"
             ;;
         n|mps|mpa)
             [[ $imgType == +(n|mps) ]] && disks="$hd"
