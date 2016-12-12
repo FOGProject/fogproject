@@ -189,6 +189,14 @@ class ReportMaker extends FOGBase
             break;
         case 2:
             $filename = $this->_filename;
+            $htmlfile = sprintf(
+                '%s.html',
+                $filename
+            );
+            $html = sprintf(
+                '<html><body>%s</body></html>',
+                implode((array)$this->_strHTML)
+            );
             $logoimage = trim(
                 self::getSetting('FOG_CLIENT_BANNER_IMAGE')
             );
@@ -197,11 +205,8 @@ class ReportMaker extends FOGBase
                     '--logoimage %s',
                     escapeshellarg(
                         sprintf(
-                            '%s%smanagement%sother%s%s',
-                            BASEPATH,
-                            DIRECTORY_SEPARATOR,
-                            DIRECTORY_SEPARATOR,
-                            DIRECTORY_SEPARATOR,
+                            'http://%s/fog/management/other/%s',
+                            $_SERVER['HTTP_HOST'],
                             $logoimage
                         )
                     )
@@ -209,54 +214,40 @@ class ReportMaker extends FOGBase
             }
             $cmd = array(
                 'htmldoc',
+                '--webpage',
                 '--quiet',
                 '--gray',
-                '--textfont helvetica',
-                '--bodyfont helvetica',
                 $logoimage,
-                '--headfootsize 10',
+                '--header l',
                 '--footer D/1',
-                '--fontsize 9',
+                '--headfootsize 8',
                 '--size letter',
                 '-t pdf14',
-                '--links',
-                '--linkstyle plain',
-                '--numbered',
-                '--no-localfiles',
-                '--jpeg',
-                '--left 0.25in',
-                '--right 0.25in',
-                '--top 0.25in',
-                '--bottom 0.25in',
-                '--webpage',
-                '-'
+                '--no-compression',
+                $htmlfile
             );
             $cmd = implode(' ', (array)$cmd);
-            $proc = proc_open(
-                $cmd,
-                array(
-                    0 => array('pipe', 'r'),
-                    1 => array('pipe', 'w'),
-                ),
-                $pipes
-            );
-            fwrite(
-                $pipes[0],
-                sprintf(
-                    '<html><body>%s</body></html>',
-                    implode("\n", (array) $this->_strHTML)
-                )
-            );
-            fclose($pipes[0]);
+            if (!$handle = fopen($htmlfile, 'w')) {
+                break;
+            }
+            if (!fwrite($handle, $html)) {
+                fclose($handle);
+                unlink($htmlfile);
+            }
+            fclose($handle);
             ob_start();
-            fpassthru($pipes[1]);
-            fclose($pipes[1]);
+            passthru($cmd);
             $pdf = ob_get_clean();
-            $status = proc_close($proc);
-            unset($status, $this->_strHTML);
-            header('Content-Type: application/octet-stream');
+            unlink($htmlfile);
+            header('Content-type: application/pdf');
             header("Content-Disposition: attachment; filename=$filename.pdf");
             echo $pdf;
+            unset(
+                $pdf,
+                $html,
+                $htmlfile,
+                $this->_strHTML
+            );
             break;
         case 3:
             $SchemaSave = FOGCore::getClass('Schema');
