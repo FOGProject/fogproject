@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-13 12:54-0500\n"
+"POT-Creation-Date: 2016-12-13 15:45-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -728,7 +728,7 @@ msgstr "Evento debe ser una cadena"
 
 #: /var/www/fog/lib/fog/fogbase.class.php:2120
 #: /var/www/fog/lib/fog/fogftp.class.php:372
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2232
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2229
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:85
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:843
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:850
@@ -1557,7 +1557,7 @@ msgstr "Añadir"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1400
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1446
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1708
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:999
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:996
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:270
 #: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:90
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:164
@@ -1696,7 +1696,7 @@ msgid "table backup"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3327
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2295
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2292
 #: /var/www/fog/commons/text.php:98
 msgid "Export"
 msgstr "Exportar"
@@ -1778,7 +1778,7 @@ msgid "Row"
 msgstr "Fila"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3622
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2313
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2310
 msgid "Import"
 msgstr "Importar"
 
@@ -1905,7 +1905,7 @@ msgstr "no Protegido"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:387
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:788
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:924
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:921
 msgid "Protected"
 msgstr "Protegido"
 
@@ -1938,7 +1938,7 @@ msgstr "imagen Habilitado"
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:545
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:804
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:535
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:960
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:957
 msgid "Replicate?"
 msgstr "¿Reproducir exactamente?"
 
@@ -2021,8 +2021,8 @@ msgstr "Editar definición de imagen"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:849
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:922
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1036
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1096
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1033
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1093
 #: /var/www/fog/commons/text.php:374
 msgid "Storage Group Name"
 msgstr "Nombre del grupo de almacenamiento"
@@ -2032,7 +2032,7 @@ msgid "Check here to see groups not assigned this image"
 msgstr "Marque aquí para ver los grupos no asignado esta imagen"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:903
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1081
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1078
 msgid "Modify group association for"
 msgstr "Modificar asociación de grupos de"
 
@@ -2045,12 +2045,12 @@ msgid "Add Image to Group(s)"
 msgstr "Agregar la imagen al Grupo (s)"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:945
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1119
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1116
 msgid "Primary Group Selector"
 msgstr "Selector de grupos primarios"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:989
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1161
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1158
 msgid "Update Primary Group"
 msgstr "Actualización de Grupo Primario"
 
@@ -2262,39 +2262,39 @@ msgstr "el uso de la ranura del grupo de almacenamiento del nodo seleccionado"
 msgid "Storage Group Activity"
 msgstr "Grupo de almacenamiento de Actividad"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:261
+#: /var/www/fog/lib/pages/dashboardpage.class.php:258
 msgid "The selected node's image storage disk usage"
 msgstr "el uso del disco de almacenamiento de imágenes del nodo seleccionado"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:262
+#: /var/www/fog/lib/pages/dashboardpage.class.php:259
 msgid "Storage Node Disk Usage"
 msgstr "Uso del disco nodo de almacenamiento"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:283
+#: /var/www/fog/lib/pages/dashboardpage.class.php:280
 msgid "Imaging Over the last 30 days"
 msgstr "Imaging lo largo de los últimos 30 días"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:343
+#: /var/www/fog/lib/pages/dashboardpage.class.php:340
 msgid "1 hour"
 msgstr "1 hora"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:345
+#: /var/www/fog/lib/pages/dashboardpage.class.php:342
 msgid "30 Minutes"
 msgstr "30 minutos"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:347
+#: /var/www/fog/lib/pages/dashboardpage.class.php:344
 msgid "10 Minutes"
 msgstr "10 minutos"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:349
+#: /var/www/fog/lib/pages/dashboardpage.class.php:346
 msgid "2 Minutes"
 msgstr "2 minutos"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:392
+#: /var/www/fog/lib/pages/dashboardpage.class.php:389
 msgid "Invalid storage node"
 msgstr "nodo de almacenamiento no válido"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:395
+#: /var/www/fog/lib/pages/dashboardpage.class.php:392
 msgid "Graph is disabled for this node"
 msgstr "Gráfico está deshabilitado para este nodo"
 
@@ -2938,82 +2938,82 @@ msgstr ""
 msgid "Height must be 120 pixels."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2065
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2062
 msgid "Service Master"
 msgstr "Maestro servicio"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2074
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2071
 #: /var/www/fog/lib/service/taskscheduler.class.php:202
 #: /var/www/fog/commons/text.php:102
 msgid "Multicast"
 msgstr "multidifusión"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2083
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2080
 msgid "Scheduler"
 msgstr "Programador"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2092
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2089
 msgid "Image Replicator"
 msgstr "replicador de imagen"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2101
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2098
 msgid "Snapin Replicator"
 msgstr "snapin replicador"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2110
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2107
 #, fuzzy
 msgid "Snapin Hash"
 msgstr "Camino snapin"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2119
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2116
 msgid "Ping Hosts"
 msgstr "Los anfitriones de ping"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2161
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2158
 msgid "Image Transfer Log"
 msgstr "Transferencia de imágenes Entrar"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2175
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2172
 msgid "Snapin Transfer Log"
 msgstr "Snapin del registro de transacciones"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2227
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2224
 msgid "FOG Log Viewer"
 msgstr "FOG Visor de registro"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2234
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2231
 msgid "Number of lines"
 msgstr "Número de líneas"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2268
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2265
 msgid "Reverse the file: (newest on top)"
 msgstr "Revertir el archivo: (el más reciente en la parte superior)"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2292
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2289
 msgid "Click the button to export the database."
 msgstr "Haga clic en el botón para exportar la base de datos."
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2304
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2301
 msgid "Import a previous backup file."
 msgstr "Importar un archivo de copia de seguridad anterior."
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2346
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2343
 msgid "Database Imported and added successfully"
 msgstr "Base de datos importada y ha añadido con éxito"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2348
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2345
 msgid "Errors detected on import"
 msgstr "Los errores detectados en la importación"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2354
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2351
 msgid "Database changes reverted"
 msgstr "base de datos cambia revirtieron"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2358
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2355
 msgid "Errors on revert detected"
 msgstr "Los errores en Revert detectados"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2364
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2361
 msgid "There were errors during import"
 msgstr "Se han producido errores durante la importación"
 
@@ -3224,7 +3224,7 @@ msgstr "Añadir Evento (formato de 24 horas)"
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:86
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:299
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:426
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:831
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:828
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:403
 #: /var/www/fog/commons/text.php:293
 msgid "Please select an option"
@@ -3534,7 +3534,7 @@ msgstr "Información general"
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:354
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1946
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:665
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1241
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1238
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:56
 #: /var/www/fog/lib/plugins/fileintegrity/pages/fileintegritymanagementpage.class.php:63
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:75
@@ -3963,7 +3963,7 @@ msgstr "snapins"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2055
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:157
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:433
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:835
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:832
 msgid "Snapin Name"
 msgstr "Nombre snapin"
 
@@ -4608,7 +4608,7 @@ msgstr "Cargar un informe FOG"
 
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:172
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:497
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:898
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:895
 msgid "Max Size"
 msgstr "Tamaño máximo"
 
@@ -4914,13 +4914,13 @@ msgstr "snapin ID"
 
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1533
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:438
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:859
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:856
 msgid "Snapin Description"
 msgstr "Descripción snapin"
 
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1534
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:496
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:897
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:894
 msgid "Snapin File"
 msgstr "archivo snapin"
 
@@ -4930,7 +4930,7 @@ msgstr "SNAPin Args"
 
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1536
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:477
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:878
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:875
 msgid "Snapin Run With"
 msgstr "Snapin corrido con los"
 
@@ -5595,96 +5595,96 @@ msgid "New Snapin"
 msgstr "Agregar nuevo Complemento"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:444
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:840
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:837
 #, fuzzy
 msgid "Snapin Type"
 msgstr "Plantilla snapin"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:454
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:851
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:848
 #, fuzzy
 msgid "Normal Snapin"
 msgstr "Complemento no válido"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:461
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:857
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:854
 #, fuzzy
 msgid "Snapin Pack"
 msgstr "Camino snapin"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:466
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:867
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:864
 msgid "Snapin Template"
 msgstr "Plantilla snapin"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:467
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:868
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:865
 #, fuzzy
 msgid "Snapin Pack Template"
 msgstr "Plantilla snapin"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:478
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:879
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:876
 #, fuzzy
 msgid "Snapin Pack File"
 msgstr "archivo snapin"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:487
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:888
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:885
 msgid "Snapin Run With Argument"
 msgstr "Snapin Ejecutar con el argumento"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:488
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:889
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:886
 #, fuzzy
 msgid "Snapin Pack Arguments"
 msgstr "Argumentos SNAPin"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:506
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:908
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:905
 msgid "Snapin File (exists)"
 msgstr "Snapin de archivos (existe)"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:515
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:917
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:914
 msgid "Snapin Arguments"
 msgstr "Argumentos SNAPin"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:522
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:951
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:948
 msgid "Snapin Enabled"
 msgstr "snapin Habilitado"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:527
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:969
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:966
 #, fuzzy
 msgid "Snapin Arguments Hidden"
 msgstr "Argumentos SNAPin"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:531
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:978
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:975
 #, fuzzy
 msgid "Snapin Timeout (seconds)"
 msgstr "Tiempo de espera de menú (en segundos)"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:540
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:933
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:930
 msgid "Reboot after install"
 msgstr "Reinicio tras la instalación"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:544
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:942
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:939
 msgid "Shutdown after install"
 msgstr "Apagado después de instalar"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:550
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:985
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:982
 msgid "Snapin Command"
 msgstr "Comando snapin"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:551
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:986
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:992
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:983
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:989
 msgid "read-only"
 msgstr ""
 
@@ -5717,7 +5717,7 @@ msgid "FTP Connection has failed"
 msgstr "Conexión FTP ha fallado"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:676
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1250
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1247
 #, fuzzy
 msgid "Failed to add snapin"
 msgstr "No se pudo añadir el archivo snapin / actualización"
@@ -5729,7 +5729,7 @@ msgstr ""
 "No se pudo agregar snapin, incapaz de localizar el directorio de snapin."
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:684
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1256
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1253
 msgid "Failed to add/update snapin file"
 msgstr "No se pudo añadir el archivo snapin / actualización"
 
@@ -5742,62 +5742,62 @@ msgstr "Añadir fallidos SNAPin!"
 msgid "Snapin created"
 msgstr "snapin actualizado"
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:990
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:987
 #, fuzzy
 msgid "File Hash"
 msgstr "Archivo"
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1079
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1076
 msgid "Check here to see groups not assigned with this snapin"
 msgstr "Marque aquí para ver los grupos que no están asignados con este snapin"
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1083
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1080
 msgid "Add snapin to groups"
 msgstr "Añadir snapin a los grupos"
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1088
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1085
 msgid "Add Snapin to Group(s)"
 msgstr "Añadir Complemento de Grupo (s)"
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1162
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1159
 msgid "Deleted selected group associations"
 msgstr "asociaciones de grupos seleccionados eliminados"
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1186
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1183
 msgid "Please enter a name to give this Snapin"
 msgstr "Por favor, introduzca un nombre para darle a este Complemento"
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1192
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1189
 msgid "Snapin with that name already exists"
 msgstr "SNAPin con ese nombre ya existe"
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1203
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1200
 #, fuzzy
 msgid "A file to use for the snapin"
 msgstr "No se pudo encontrar el archivo snapin"
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1204
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1201
 msgid "must be either uploaded or chosen"
 msgstr ""
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1205
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1202
 #, fuzzy
 msgid "from the already present list"
 msgstr "Impresora ya existe"
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1243
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1240
 msgid "FTP connection has failed"
 msgstr "conexión FTP ha fallado"
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1294
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1291
 msgid "Snapin must be assigned to one Storage Group"
 msgstr "Snapin debe ser asignado a un grupo de almacenamiento"
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1302
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1299
 msgid "Snapin update failed"
 msgstr "snapin actualización falló"
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1311
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1308
 msgid "Snapin updated"
 msgstr "snapin actualizado"
 

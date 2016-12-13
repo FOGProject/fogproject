@@ -783,9 +783,6 @@ class SnapinManagementPage extends FOGPage
          */
         $nodeIDs = array();
         foreach ((array)$StorageGroups as &$StorageGroup) {
-            if (!$StorageGroup->isValid()) {
-                continue;
-            }
             $nodeIDs = array_merge(
                 (array)$nodeIDs,
                 (array)$StorageGroup->get('enablednodes')

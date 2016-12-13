@@ -1993,9 +1993,6 @@ class FOGConfigurationPage extends FOGPage
         $StorageGroups = self::getClass('StorageGroupManager')
             ->find();
         foreach ((array)$StorageGroups as &$StorageGroup) {
-            if (!$StorageGroup->isValid()) {
-                continue;
-            }
             if (!count($StorageGroup->get('enablednodes'))) {
                 continue;
             }
