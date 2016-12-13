@@ -237,6 +237,9 @@ class StorageGroup extends FOGController
         ) {
             $masternode = @min($this->get('enablednodes'));
         }
+        if (!$masternode > 0) {
+            $masternode = @min($this->get('allnodes'));
+        }
         return new StorageNode($masternode);
     }
     /**
