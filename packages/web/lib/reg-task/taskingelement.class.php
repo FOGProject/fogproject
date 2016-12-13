@@ -203,7 +203,7 @@ abstract class TaskingElement extends FOGBase
     protected static function checkStorageNodes(&$StorageGroup)
     {
         $getter = 'enablednodes';
-        if (count($this->StorageGroup->get($getter)) < 1) {
+        if (count($StorageGroup->get($getter)) < 1) {
             $getter = 'allnodes';
         }
         if (count($StorageGroup->get($getter)) < 1) {
