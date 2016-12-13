@@ -27,7 +27,7 @@ try {
     if (!$Inventory instanceof Inventory
         || !$Inventory->isValid()
     ) {
-        $Inventory = self::getClass('Inventory')
+        $Inventory = FOGCore::getClass('Inventory')
             ->set('hostID', $Host->get('id'));
     }
     foreach ($_REQUEST as $var => &$val) {
