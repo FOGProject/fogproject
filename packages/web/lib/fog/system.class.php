@@ -56,7 +56,7 @@ class System
         define('FOG_VERSION', '1.3.0-RC-36');
         define('FOG_SCHEMA', 244);
         define('FOG_BCACHE_VER', 106);
-        define('FOG_SVN_REVISION', 6046);
+        define('FOG_SVN_REVISION', 6047);
         define('FOG_CLIENT_VERSION', '0.11.7');
     }
 }

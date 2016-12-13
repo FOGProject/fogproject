@@ -126,9 +126,13 @@ abstract class TaskingElement extends FOGBase
                 $this->Image = $this
                     ->Task
                     ->getImage();
+                $getter = 'enablednodes';
+                if (count($this->StorageGroup->get($getter)) < 1) {
+                    $getter = 'allnodes';
+                }
                 $this->StorageNodes = self::getClass('StorageNodeManager')
                     ->find(
-                        array('id' => $this->StorageGroup->get('enablednodes'))
+                        array('id' => $this->StorageGroup->get($getter))
                     );
                 if ($this->Task->isCapture()
                     || $this->Task->isMulticast()
@@ -198,7 +202,11 @@ abstract class TaskingElement extends FOGBase
      */
     protected static function checkStorageNodes(&$StorageGroup)
     {
-        if (!$StorageGroup->get('enablednodes')) {
+        $getter = 'enablednodes';
+        if (count($this->StorageGroup->get($getter)) < 1) {
+            $getter = 'allnodes';
+        }
+        if (count($StorageGroup->get($getter)) < 1) {
             throw new Exception(
                 sprintf(
                     '%s, %s?',
