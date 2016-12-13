@@ -410,6 +410,7 @@ class Registration extends FOGBase
             if ($imageid
                 && $this->Host->getImageMemberFromHostID()
             ) {
+                $this->Host->load();
                 $imageTest = $this
                     ->Host
                     ->createImagePackage(

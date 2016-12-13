@@ -19,7 +19,7 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-require WEBROOT.'/commons/init.php';
+require WEBROOT.'/commons/base.inc.php';
 $service_logpath = sprintf(
     '/%s/%s',
     trim(FOGCore::getSetting('SERVICE_LOG_PATH'), '/'),
