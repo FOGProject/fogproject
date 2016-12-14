@@ -731,6 +731,11 @@ class LDAP extends FOGController
                     ENT_QUOTES,
                     'utf-8'
                 );
+                $dn = mb_convert_case(
+                    $dn,
+                    MB_CASE_LOWER,
+                    'utf-8'
+                );
             }
             $this->set($key, $dn);
         }
