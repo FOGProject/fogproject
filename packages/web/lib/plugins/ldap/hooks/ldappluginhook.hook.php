@@ -95,19 +95,14 @@ class LDAPPluginHook extends Hook
         /**
          * Create our new user (initially at least
          */
-        self::$FOGUser = self::getClass('User')
-            ->set('name', $user);
         foreach ((array)$ldaps as &$ldap) {
             $access = $ldap->authLDAP($user, $pass);
             unset($ldap);
             switch ($access) {
-            case false:
-                // Reset user object and Skip this
-                self::$FOGUser = self::getClass('User');
-                continue 2;
             case 2:
                 // This is an admin account, break the loop
                 self::$FOGUser
+                    ->set('name', $user)
                     ->set('password', $pass)
                     ->set('type', 990)
                     ->save();
@@ -115,6 +110,7 @@ class LDAPPluginHook extends Hook
             case 1:
                 // This is an unprivileged user account.
                 self::$FOGUser
+                    ->set('name', $user)
                     ->set('password', $pass)
                     ->set('type', 991)
                     ->save();

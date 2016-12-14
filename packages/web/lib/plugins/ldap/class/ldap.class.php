@@ -427,10 +427,13 @@ class LDAP extends FOGController
             /**
              * If our ways here don't work, return immediately
              */
-            if (!@$this->bind($userDN, $pass)
-                && !@$this->bind($userDN1, $pass)
-                && !@$this->bind($userDN2, $pass)
-            ) {
+            if (!@$this->bind($userDN, $pass)) {
+                $userDN = $userDN1;
+            }
+            if (!@$this->bind($userDN, $pass)) {
+                $userDN = $userDN2;
+            }
+            if (!@$this->bind($userDN, $pass)) {
                 $this->unbind();
                 return false;
             }
@@ -506,144 +509,142 @@ class LDAP extends FOGController
          * Read in the attributes
          */
         $result = $this->_result($grpSearchDN, $filter, $attr);
+        if (false !== $result) {
+            return 2;
+        }
         /**
          * If no record is returned then user is not in the
          * admin group. Change the filter and check the mobile
          * group for membership.
          */
-        if ($result === false) {
-            $filter = sprintf(
-                '(&(objectcategory=*)(name=%s)(member=%s))',
-                $userGroup,
-                $this->escape($userDN, null, LDAP_ESCAPE_FILTER)
-            );
+        $filter = sprintf(
+            '(&(objectcategory=*)(name=%s)(member=%s))',
+            $userGroup,
+            $this->escape($userDN, null, LDAP_ESCAPE_FILTER)
+        );
+        /**
+         * The attribute to get.
+         */
+        $attr = array($grpMemAttr);
+        /**
+         * Execute the ldap query
+         */
+        $result = $this->_result($grpSearchDN, $filter, $attr);
+        /**
+         * If no record is returned then lets try the looping method
+         */
+        if (false !== $result) {
+            return 1;
+        }
+        /**
+         * Setup the generalized filter
+         */
+        $filter = sprintf(
+            '(%s=*)',
+            $grpMemAttr
+        );
+        /**
+         * The attribute to get.
+         */
+        $attr = array($grpMemAttr);
+        /**
+         * Read in the attributes
+         */
+        $result = $this->_result($grpSearchDN, $filter, $attr);
+        /**
+         * Return immediately if the result is false
+         */
+        if (false === $result) {
+            $this->unbind();
+            return false;
+        }
+        /**
+         * Get the entries found
+         */
+        $entries = $this->get_entries($result);
+        /**
+         * Setup pattern for later, the i means ignore case
+         */
+        $pat = sprintf(
+            '#%s#i',
+            $userDN
+        );
+        /**
+         * Check groups for membership
+         */
+        foreach ((array)$entries as &$entry) {
             /**
-             * The attribute to get.
+             * If this cycle doesn't have the dn, skip it
              */
-            $attr = array($grpMemAttr);
-            /**
-             * Execute the ldap query
-             */
-            $result = $this->_result($grpSearchDN, $filter, $attr);
-            /**
-             * If no record is returned then lets try the looping method
-             */
-            if ($result === false) {
-                /**
-                 * Setup the generalized filter
-                 */
-                $filter = sprintf(
-                    '(%s=*)',
-                    $grpMemAttr
-                );
-                /**
-                 * The attribute to get.
-                 */
-                $attr = array($grpMemAttr);
-                /**
-                 * Read in the attributes
-                 */
-                $result = $this->_result($grpSearchDN, $filter, $attr);
-                /**
-                 * Return immediately if the result is false
-                 */
-                if ($result === false) {
-                    $this->unbind();
-                    return false;
-                }
-                /**
-                 * Get the entries found
-                 */
-                $entries = $this->get_entries($result);
-                /**
-                 * Setup pattern for later, the i means ignore case
-                 */
-                $pat = sprintf(
-                    '#%s#i',
-                    $userDN
-                );
-                /**
-                 * Check groups for membership
-                 */
-                foreach ((array)$entries as &$entry) {
-                    /**
-                     * If this cycle doesn't have the dn, skip it
-                     */
-                    if (!isset($entry['dn'])) {
-                        continue;
-                    }
-                    /**
-                     * Get the dn entry we need to test against
-                     */
-                    $dn = $entry['dn'];
-                    /**
-                     * Get the users related to this dn
-                     */
-                    $users = $entry[$grpMemAttr];
-                    /**
-                     * Tests the presence of our admin group
-                     */
-                    $admin = strpos($dn, $adminGroup);
-                    /**
-                     * Tests the presence of our mobile group
-                     */
-                    $user = strpos($dn, $userGroup);
-                    /**
-                     * If we can't find our relative dn
-                     * set go back to top of loop.
-                     */
-                    if (false === $admin
-                        && false === $user
-                    ) {
-                        continue;
-                    }
-                    /**
-                     * If the dn is in the admin scope
-                     */
-                    if (false !== $admin) {
-                        /**
-                         * Test if the user dn exists in this group
-                         */
-                        $adm = preg_grep($pat, $users);
-                        /**
-                         * Ensure we only return "filled" items
-                         */
-                        $adm = array_filter($adm);
-                        /**
-                         * If so, no need to move on, set access level and break loop
-                         */
-                        if (count($adm) > 0) {
-                            $accessLevel = 2;
-                            break;
-                        }
-                    }
-                    /**
-                     * If the dn is in the mobile scope
-                     */
-                    if (false !== $user) {
-                        /**
-                         * Test if the user dn exists in this group
-                         */
-                        $usr = preg_grep($pat, $users);
-                        /**
-                         * Ensure we only return "filled" items
-                         */
-                        $usr = array_filter($usr);
-                        /**
-                         * If so, set our access level. We remain in loop
-                         * so if another group has this same user as admin
-                         * it can get it's proper permissions.
-                         */
-                        if (count($usr) > 0) {
-                            $accessLevel = 1;
-                        }
-                    }
-                }
-            } else {
-                $accessLevel = 1;
+            if (!isset($entry['dn'])) {
+                continue;
             }
-        } else {
-            $accessLevel = 2;
+            /**
+             * Get the dn entry we need to test against
+             */
+            $dn = $entry['dn'];
+            /**
+             * Get the users related to this dn
+             */
+            $users = $entry[$grpMemAttr];
+            /**
+             * Tests the presence of our admin group
+             */
+            $admin = strpos($dn, $adminGroup);
+            /**
+             * Tests the presence of our mobile group
+             */
+            $user = strpos($dn, $userGroup);
+            /**
+             * If we can't find our relative dn
+             * set go back to top of loop.
+             */
+            if (false === $admin
+                && false === $user
+            ) {
+                continue;
+            }
+            /**
+             * If the dn is in the admin scope
+             */
+            if (false !== $admin) {
+                /**
+                 * Test if the user dn exists in this group
+                 */
+                $adm = preg_grep($pat, $users);
+                /**
+                 * Ensure we only return "filled" items
+                 */
+                $adm = array_filter($adm);
+                /**
+                 * If so, no need to move on, set access level and break loop
+                 */
+                if (count($adm) > 0) {
+                    $accessLevel = 2;
+                    break;
+                }
+            }
+            /**
+             * If the dn is in the mobile scope
+             */
+            if (false !== $user) {
+                /**
+                 * Test if the user dn exists in this group
+                 */
+                $usr = preg_grep($pat, $users);
+                /**
+                 * Ensure we only return "filled" items
+                 */
+                $usr = array_filter($usr);
+                /**
+                 * If so, set our access level. We remain in loop
+                 * so if another group has this same user as admin
+                 * it can get it's proper permissions.
+                 */
+                if (count($usr) > 0) {
+                    $accessLevel = 1;
+                }
+            }
         }
         /**
          * Return the access level
