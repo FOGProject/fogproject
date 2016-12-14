@@ -593,7 +593,6 @@ while [[ -z $blGo ]]; do
                     writeUpdateFile
                     linkOptFogDir
                     updateStorageNodeCredentials
-                    #
                     echo
                     echo " * Setup complete"
                     echo
