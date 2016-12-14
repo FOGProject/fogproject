@@ -78,16 +78,12 @@ class FileIntegrityManagementPage extends FOGPage
             array(),
         );
         self::$returnData = function (&$FileIntegrity) {
-            if (!$FileIntegrity->isValid()) {
-                return;
-            }
-            $FileIntegrity->load();
             $this->data[] = array(
-                'checksum'=>$FileIntegrity->get('checksum'),
-                'modtime'=>$FileIntegrity->get('modtime'),
-                'storagenodeID'=>$FileIntegrity->get('storageNode')->get('id'),
-                'storage_name'=>$FileIntegrity->get('storageNode')->get('name'),
-                'file_path'=>$FileIntegrity->get('path'),
+                'checksum' => $FileIntegrity->get('checksum'),
+                'modtime' => $FileIntegrity->get('modtime'),
+                'storagenodeID' => $FileIntegrity->get('storageNode')->get('id'),
+                'storage_name' => $FileIntegrity->get('storageNode')->get('name'),
+                'file_path' => $FileIntegrity->get('path'),
             );
             unset($FileIntegrity);
         };

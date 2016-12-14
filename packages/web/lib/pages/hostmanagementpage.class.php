@@ -2496,7 +2496,9 @@ class HostManagementPage extends FOGPage
         try {
             $Group = self::getClass('Group', $_REQUEST['group']);
             if (!empty($_REQUEST['group_new'])) {
-                $Group->set('name', $_REQUEST['group_new'])->load('name');
+                $Group
+                    ->set('name', $_REQUEST['group_new'])
+                    ->load('name');
             }
             $Group->addHost($_REQUEST['hostIDArray']);
             if (!$Group->save()) {

@@ -147,10 +147,7 @@ class Plugin extends FOGController
      */
     private function _getDirs()
     {
-        $Service = self::getClass('Service')
-            ->set('name', 'FOG_PLUGINSYS_DIR')
-            ->load('name');
-        $dir = trim($Service->get('value'));
+        $dir = trim(self::getSetting('FOG_PLUGINSYS_DIR'));
         if ($dir != '../lib/plugins/') {
             $Service
                 ->set('value', '../lib/plugins/')

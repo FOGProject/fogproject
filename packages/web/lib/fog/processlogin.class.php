@@ -244,12 +244,10 @@ class ProcessLogin extends FOGPage
                     'password' => $this->_password
                 )
             );
-        if (!self::$FOGUser->isValid()) {
-            self::$FOGUser = self::$FOGCore->attemptLogin(
-                $this->_username,
-                $this->_password
-            );
-        }
+        self::$FOGUser = self::$FOGCore->attemptLogin(
+            $this->_username,
+            $this->_password
+        );
         if (!self::$FOGUser->isValid()) {
             $this->_setRedirMode();
         }

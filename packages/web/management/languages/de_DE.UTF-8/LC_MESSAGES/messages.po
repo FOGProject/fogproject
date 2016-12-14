@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-13 15:45-0500\n"
+"POT-Creation-Date: 2016-12-14 06:24-0500\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -423,7 +423,7 @@ msgid "Array type"
 msgstr "Array mit Daten"
 
 #: /var/www/fog/lib/fog/fogcontroller.class.php:907
-#: /var/www/fog/lib/fog/fogbase.class.php:2118
+#: /var/www/fog/lib/fog/fogbase.class.php:2121
 #: /var/www/fog/lib/fog/fogftp.class.php:370
 #: /var/www/fog/lib/pages/taskmobile.class.php:45
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:975
@@ -723,12 +723,12 @@ msgstr "Veranstaltung muss eine Zeichenfolge sein."
 msgid "String must be a string"
 msgstr "Veranstaltung muss eine Zeichenfolge sein."
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1884
+#: /var/www/fog/lib/fog/fogbase.class.php:1881
 #, fuzzy
 msgid "Key must be a string"
 msgstr "Veranstaltung muss eine Zeichenfolge sein."
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2120
+#: /var/www/fog/lib/fog/fogbase.class.php:2123
 #: /var/www/fog/lib/fog/fogftp.class.php:372
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2229
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:85
@@ -739,12 +739,12 @@ msgstr "Veranstaltung muss eine Zeichenfolge sein."
 msgid "File"
 msgstr "Datei"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2122
+#: /var/www/fog/lib/fog/fogbase.class.php:2125
 #: /var/www/fog/lib/fog/fogftp.class.php:374
 msgid "Line"
 msgstr "Linie"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2124
+#: /var/www/fog/lib/fog/fogbase.class.php:2127
 #: /var/www/fog/lib/fog/fogftp.class.php:376
 #: /var/www/fog/lib/db/mysql.class.php:189
 msgid "Message"
@@ -865,23 +865,23 @@ msgstr "Feld und Werte müssen nicht gleich Parameter."
 msgid "Need the table name to drop"
 msgstr ""
 
-#: /var/www/fog/lib/fog/user.class.php:197
+#: /var/www/fog/lib/fog/user.class.php:195
 msgid "user successfully logged in"
 msgstr "Benutzer erfolgreich angemeldet"
 
-#: /var/www/fog/lib/fog/user.class.php:206
+#: /var/www/fog/lib/fog/user.class.php:204
 msgid "user failed to login"
 msgstr "Benutzer nicht anmelden"
 
-#: /var/www/fog/lib/fog/user.class.php:306
+#: /var/www/fog/lib/fog/user.class.php:304
 msgid "IP Address Changed"
 msgstr "IP-Adresse geändert"
 
-#: /var/www/fog/lib/fog/user.class.php:315
+#: /var/www/fog/lib/fog/user.class.php:313
 msgid "User Agent Changed"
 msgstr "User-Agent geändert"
 
-#: /var/www/fog/lib/fog/user.class.php:324
+#: /var/www/fog/lib/fog/user.class.php:322
 msgid "Session altered improperly"
 msgstr "Sitzung nicht ordnungsgemäß geändert"
 
@@ -2218,13 +2218,13 @@ msgstr "Ausstehende Gastgeber"
 
 #: /var/www/fog/lib/pages/dashboardpage.class.php:159
 #: /var/www/fog/lib/pages/dashboardpage.class.php:168
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:217
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:216
 msgid "Click"
 msgstr "Klicken Sie auf"
 
 #: /var/www/fog/lib/pages/dashboardpage.class.php:162
 #: /var/www/fog/lib/pages/dashboardpage.class.php:171
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:218
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:217
 #: /var/www/fog/commons/text.php:92
 msgid "here"
 msgstr "Hier"
@@ -4574,23 +4574,23 @@ msgstr "Datum"
 msgid "Database SQL"
 msgstr ""
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:202
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:201
 msgid "Install / Update Failed!"
 msgstr "Installation / Update fehlgeschlagen!"
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:207
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:206
 msgid "The following errors occurred"
 msgstr "Der folgende Fehler aufgetreten"
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:216
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:215
 msgid "Install / Update Successful!"
 msgstr "Installation / Update erfolgreich!"
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:219
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:218
 msgid "to login"
 msgstr "anmelden"
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:224
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:223
 msgid "The following errors occured"
 msgstr "Der folgende Fehler aufgetreten"
 
@@ -5569,15 +5569,15 @@ msgstr "Host-Update fehlgeschlagen"
 msgid "Host updated"
 msgstr "Benutzer aktualisiert"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2503
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2505
 msgid "Failed to create new Group"
 msgstr "Fehler beim Erstellen der neuen Gruppe"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2505
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2507
 msgid "Successfully associated Hosts with the Group "
 msgstr "Erfolgreich damit verbundenen Hosts mit der Gruppe "
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2509
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2511
 msgid "Failed to Associate Hosts with Group"
 msgstr "Fehler beim Gastgeber Gruppe zuordnen"
 

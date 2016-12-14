@@ -1773,9 +1773,6 @@ abstract class FOGBase
         if (!is_string($string)) {
             throw new Exception(_('String must be a string'));
         }
-        if (!(self::$FOGUser instanceof User && self::$FOGUser->isValid())) {
-            return;
-        }
         $string = sprintf(
             '[%s] %s',
             self::niceDate()->format('Y-m-d H:i:s'),
@@ -1890,7 +1887,13 @@ abstract class FOGBase
             ->load('name')
             ->get('value');
 
-        return trim(str_replace($findStr, $repStr, $value));
+        return trim(
+            str_replace(
+                $findStr,
+                $repStr,
+                $value
+            )
+        );
     }
     /**
      * Set global setting value by key.

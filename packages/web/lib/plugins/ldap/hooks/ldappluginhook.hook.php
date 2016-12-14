@@ -64,10 +64,6 @@ class LDAPPluginHook extends Hook
         }
         $user = trim($arguments['username']);
         $pass = trim($arguments['password']);
-        self::$FOGUser = self::$FOGCore->attemptLogin(
-            $user,
-            $pass
-        );
         $ldapTypes = array(990, 991);
         /**
          * Check the user and validate the type is not
@@ -102,9 +98,6 @@ class LDAPPluginHook extends Hook
         self::$FOGUser = self::getClass('User')
             ->set('name', $user);
         foreach ((array)$ldaps as &$ldap) {
-            if (!$ldap->isValid()) {
-                continue;
-            }
             $access = $ldap->authLDAP($user, $pass);
             unset($ldap);
             switch ($access) {
