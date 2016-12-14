@@ -494,15 +494,14 @@ class LDAP extends FOGController
          * Setup our new filter
          */
         $filter = sprintf(
-            '(&(objectcategory=%s)(name=%s)(member=%s))',
-            $grpMemAttr,
+            '(&(objectcategory=*)(name=%s)(member=%s))',
             $adminGroup,
             $this->escape($userDN, null, LDAP_ESCAPE_FILTER)
         );
         /**
          * The attribute to get.
          */
-        $attr = array('dn');
+        $attr = array($grpMemAttr);
         /**
          * Read in the attributes
          */
@@ -514,15 +513,14 @@ class LDAP extends FOGController
          */
         if ($result === false) {
             $filter = sprintf(
-                '(&(objectcategory=%s)(name=%s)(member=%s))',
-                $grpMemAttr,
+                '(&(objectcategory=*)(name=%s)(member=%s))',
                 $userGroup,
                 $this->escape($userDN, null, LDAP_ESCAPE_FILTER)
             );
             /**
              * The attribute to get.
              */
-            $attr = array('dn');
+            $attr = array($grpMemAttr);
             /**
              * Execute the ldap query
              */
@@ -725,6 +723,15 @@ class LDAP extends FOGController
         if (in_array($key, $keys)) {
             $dn = trim(parent::get($key));
             $dn = strtolower($dn);
+            if ($key === 'adminGroup'
+                || $key === 'userGroup'
+            ) {
+                $dn = html_entity_decode(
+                    $dn,
+                    ENT_QUOTES,
+                    'utf-8'
+                );
+            }
             $this->set($key, $dn);
         }
         return parent::get($key);

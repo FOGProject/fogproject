@@ -1274,7 +1274,10 @@ abstract class FOGBase
         $array[$old_key] = trim($array[$old_key]);
         if (!self::$service && is_string($array[$old_key])) {
             $array[$new_key] = htmlentities(
-                $array[$old_key],
+                mb_convert_encoding(
+                    $array[$old_key],
+                    'utf-8'
+                ),
                 ENT_QUOTES,
                 'utf-8'
             );
