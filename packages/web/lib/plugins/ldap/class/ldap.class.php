@@ -438,6 +438,25 @@ class LDAP extends FOGController
                 return false;
             }
         }
+        $attr = array('dn');
+        $filter = sprintf(
+            '(&(|(objectcategory=person)(objectclass=person))(%s=%s))',
+            $usrNamAttr,
+            $user
+        );
+        $result = $this->_result($searchDN, $filter, $attr);
+        if (false === $result) {
+            $this->unbind();
+            return false;
+        }
+        /**
+         * Only one entry
+         */
+        $entries = $this->get_entries($result);
+        /**
+         * Pull out the user dn
+         */
+        $userDN = $entries[0]['dn'];
         /**
          * If use group match is used, get access level,
          * otherwise group scanning isn't used. Assume all
