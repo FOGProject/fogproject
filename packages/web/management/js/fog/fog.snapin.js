@@ -34,35 +34,33 @@ $(function() {
     })
     $('.snapinpack-input').on('change blur',function(e) {
         if (this.value == 1) {
-            $('.packnotemplate').hide();
-            $('.packtemplate').show();
-            $('.packnochangerw').hide();
-            $('.packchangerw').show();
-            $('.packnochangerwa').hide();
-            $('.packchangerwa').show();
-            $('.packhide').hide();
+            $('.packnotemplate, .packnochangerw, .packnochangerwa, .packhide').hide();
+            $('.packtemplate, .packchangerw, .packchangerwa').show();
         } else {
-            $('.packnotemplate').show();
-            $('.packtemplate').hide();
-            $('.packnochangerw').show();
-            $('.packchangerw').hide();
-            $('.packnochangerwa').show();
-            $('.packchangerwa').hide();
-            $('.packhide').show();
+            $('.packnotemplate, .packnochangerw, .packnochangerwa, .packhide').show();
+            $('.packtemplate, .packchangerw, .packchangerwa').hide();
         }
+        updateCmdStore();
     });
     $('.snapinpack-input').trigger('change');
 });
 function updateCmdStore() {
     if (typeof $('.cmdlet3').val() === 'undefined') return;
+    cmd1 = $('.cmdlet1').val();
+    cmd2 = $('.cmdlet2').val();
+    cmd3 = $('.cmdlet3').val();
+    cmd4 = $('.cmdlet4').val();
     test = $('[type="file"]')
     if (test.length < 1) {
-        test = $('select.cmdlet3').val();
+        cmd3 = $('select.cmdlet3').val();
     } else {
         test = test[0].files.length;
-        if (test < 1) test = $('select.cmdlet3').val();
-        else test = $('[type="file"]')[0].files[0].name;
+        if (test < 1) cmd3 = $('select.cmdlet3').val();
+        else cmd3 = $('[type="file"]')[0].files[0].name;
     }
-    var snapCMD = [$('.cmdlet1').val(),$('.cmdlet2').val(),test,$('.cmdlet4').val()];
+    if ($('.snapinpack-input').val() == 1) {
+        cmd3 = '';
+    }
+    var snapCMD = [cmd1,cmd2,cmd3,cmd4];
     $('.snapincmd').val(snapCMD.join(' ')).css({width: '100%',border: 0,resize: 'none'});
 }
