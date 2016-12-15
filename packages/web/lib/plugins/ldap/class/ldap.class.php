@@ -410,7 +410,7 @@ class LDAP extends FOGController
              */
             $userDN = sprintf(
                 '%s=%s,%s',
-                $userNamAttr,
+                $usrNamAttr,
                 $user,
                 $searchDN
             );
@@ -515,9 +515,12 @@ class LDAP extends FOGController
         /**
          * Setup our new filter
          */
+        $adminGroups = explode(',', $adminGroup);
+        $adminGroups = array_map('trim', $adminGroups);
         $filter = sprintf(
-            '(&(objectcategory=*)(name=%s)(member=%s))',
-            $adminGroup,
+            '(&(|(name=%s))(%s=%s))',
+            implode(')(name=', $adminGroups),
+            $grpMemAttr,
             $this->escape($userDN, null, LDAP_ESCAPE_FILTER)
         );
         /**
@@ -536,9 +539,12 @@ class LDAP extends FOGController
          * admin group. Change the filter and check the mobile
          * group for membership.
          */
+        $userGroups = explode(',', $userGroup);
+        $userGroups = array_map('trim', $userGroups);
         $filter = sprintf(
-            '(&(objectcategory=*)(name=%s)(member=%s))',
-            $userGroup,
+            '(&(|(name=%s))(%s=%s))',
+            implode(')(name=', $userGroups),
+            $grpMemAttr,
             $this->escape($userDN, null, LDAP_ESCAPE_FILTER)
         );
         /**
