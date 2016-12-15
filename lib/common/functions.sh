@@ -1643,13 +1643,7 @@ configureHttpd() {
             cp -Rf ${backupPath}/fog_web_${version}.BACKUP/* $webdirdest/
             errorStat $?
             dots "Ensuring all classes are lowercased"
-            for i in $(find $webdirdest -type f -name "*[A-Z]*\.class\.php"); do
-                mv "$i" "$(echo $i | tr A-Z a-z)" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            done
-            for i in $(find $webdirdest -type f -name "*[A-Z]*\.event\.php"); do
-                mv "$i" "$(echo $i | tr A-Z a-z)" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            done
-            for i in $(find $webdirdest -type f -name "*[A-Z]*\.hook\.php"); do
+            for i in $(find $webdirdest -type f -name "*[A-Z]*\.class\.php" -o -name "*[A-Z]*\.event\.php" -o -name "*[A-Z]*\.hook\.php"); do
                 mv "$i" "$(echo $i | tr A-Z a-z)" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             done
             errorStat $?
@@ -1660,13 +1654,9 @@ configureHttpd() {
     errorStat $?
     if [[ $installlang -eq 1 ]]; then
         dots "Creating the language binaries"
-        msgfmt -o $webdirdest/management/languages/de_DE.UTF-8/LC_MESSAGES/messages.mo $webdirdest/management/languages/de_DE.UTF-8/LC_MESSAGES/messages.po
-        msgfmt -o $webdirdest/management/languages/en_US.UTF-8/LC_MESSAGES/messages.mo $webdirdest/management/languages/en_US.UTF-8/LC_MESSAGES/messages.po
-        msgfmt -o $webdirdest/management/languages/es_ES.UTF-8/LC_MESSAGES/messages.mo $webdirdest/management/languages/es_ES.UTF-8/LC_MESSAGES/messages.po
-        msgfmt -o $webdirdest/management/languages/fr_FR.UTF-8/LC_MESSAGES/messages.mo $webdirdest/management/languages/fr_FR.UTF-8/LC_MESSAGES/messages.po
-        msgfmt -o $webdirdest/management/languages/it_IT.UTF-8/LC_MESSAGES/messages.mo $webdirdest/management/languages/it_IT.UTF-8/LC_MESSAGES/messages.po
-        msgfmt -o $webdirdest/management/languages/pt_BR.UTF-8/LC_MESSAGES/messages.mo $webdirdest/management/languages/pt_BR.UTF-8/LC_MESSAGES/messages.po
-        msgfmt -o $webdirdest/management/languages/zh_CN.UTF-8/LC_MESSAGES/messages.mo $webdirdest/management/languages/zh_CN.UTF-8/LC_MESSAGES/messages.po
+        langpath="${webdirdest}/management/languages"
+        languagesfound=$(find $langpath -maxdepth 1 -type d -exec basename {} \; | awk -F. '/\./ {print $1}')
+        languagemogen "$languagesfound" "$langpath"
         echo "Done"
     fi
     dots "Creating config file"
@@ -2073,4 +2063,17 @@ vercomp() {
         fi
     done
     return 0
+}
+languagemogen() {
+    local languages="$1"
+    local langpath="$2"
+    local IFS=$'\n'
+    local lang=''
+    for lang in ${languages[@]}; do
+        [[ ! -d "${langpath}/${lang}.UTF-8" ]] && continue
+        msgfmt -o \
+            "${langpath}/${lang}.UTF-8/LC_MESSAGES/messages.mo" \
+            "${langpath}/${lang}.UTF-8/LC_MESSAGES/messages.po" \
+            >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    done
 }
