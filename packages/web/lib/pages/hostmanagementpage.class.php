@@ -1885,9 +1885,6 @@ class HostManagementPage extends FOGPage
                     )
                 );
             foreach ((array)$UserLogins as &$UserLogin) {
-                if (!$UserLogin->isValid()) {
-                    continue;
-                }
                 if ($UserLogin->get('date') == $_REQUEST['dte']) {
                     $this->data[] = array(
                         'action' => (
@@ -2532,7 +2529,6 @@ class HostManagementPage extends FOGPage
                     'hostID' => $this->obj->get('id'),
                     'date' => $_REQUEST['dte'],
                     'action' => array(
-                        null,
                         '',
                         0,
                         1
@@ -2543,12 +2539,6 @@ class HostManagementPage extends FOGPage
                 'DESC'
             );
         foreach ((array)$UserTracks as &$Login) {
-            if (!$Login->isValid()) {
-                continue;
-            }
-            if ($Login->get('username') == 'Array') {
-                continue;
-            }
             $time = self::niceDate($Login->get('datetime'))
                 ->format('U');
             if (!$Data[$Login->get('username')]) {
@@ -2574,7 +2564,7 @@ class HostManagementPage extends FOGPage
             }
             unset($Login);
         }
-        unset($Users);
+        unset($UserTracks);
         echo json_encode($data);
         exit;
     }

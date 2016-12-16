@@ -1,5 +1,5 @@
 var LoginHistory = $('#login-history');
-var LoginHistoryDate = $('#loghist-date');
+var LoginHistoryDate = $('.loghist-date');
 var LoginHistoryData = new Array();
 var Labels = new Array();
 var LabelData = new Array();
