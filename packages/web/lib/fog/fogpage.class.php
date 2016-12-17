@@ -2055,6 +2055,7 @@ abstract class FOGPage extends FOGBase
         if ($this->obj->isValid()) {
             $ADOU = trim($this->obj->get('ADOU'));
             $ADOU = preg_replace('#;#', '', $ADOU);
+            $optFound = $ADOU;
         }
         if (count($OUs) > 1) {
             ob_start();
