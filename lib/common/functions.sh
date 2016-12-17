@@ -1781,18 +1781,18 @@ class Config
     }
 }" > "${webdirdest}/lib/fog/config.class.php"
     errorStat $?
-    clientVer="$(awk -F\' /"define\('FOG_CLIENT_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
-
-    clienturl="https://github.com/FOGProject/fog-client/releases/download/${clientVer}/FOGService.msi"
-    siurl="https://github.com/FOGProject/fog-client/releases/download/${clientVer}/SmartInstaller.exe"
-    [[ ! -d $workingdir/checksum_init ]] && mkdir -p $workingdir/checksum_init >/dev/null 2>&1
-    [[ ! -d $workingdir/checksum_kernel ]] && mkdir -p $workingdir/checksum_kernel >/dev/null 2>&1
-    dots "Getting checksum files for kernels and inits"
-    curl --silent -ko "${workingdir}/checksum_init/checksums" https://fogproject.org/inits/index.php -ko "${workingdir}/checksum_kernel/checksums" https://fogproject.org/kernels/index.php >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    errorStat $?
     if [[ $fullrelease -eq 0 ]]; then
         downloadfiles
     else
+        if [[ ! -f ../binaries${fullrelease}.zip ]]; then
+            dots "Downloading binaries needed"
+            curl --silent -ko "../binaries${fullrelease}.zip" "https://fogproject.org/binaries${fullrelease}.zip" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            errorStat $?
+            cwd=$(pwd)
+            cd ..
+            unzip binaries${fullrelease}.zip
+            cd $cwd
+        fi
         [[ -d ../packages/clientfiles/ ]] && cp -f "../packages/clientfiles/*" "${webdirdest}/client/" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         [[ -d ../packages/kernels/ ]] && cp -f "../packages/kernels/*" "${webdirdest}/service/ipxe/" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         [[ -d ../packages/inits/ ]] && cp -f "../packages/inits/*" "${webdirdest}/service/ipxe/" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -1852,6 +1852,14 @@ class Config
     chown -R ${apacheuser}:${apacheuser} "$webdirdest"
 }
 downloadfiles() {
+    clientVer="$(awk -F\' /"define\('FOG_CLIENT_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
+    clienturl="https://github.com/FOGProject/fog-client/releases/download/${clientVer}/FOGService.msi"
+    siurl="https://github.com/FOGProject/fog-client/releases/download/${clientVer}/SmartInstaller.exe"
+    [[ ! -d $workingdir/checksum_init ]] && mkdir -p $workingdir/checksum_init >/dev/null 2>&1
+    [[ ! -d $workingdir/checksum_kernel ]] && mkdir -p $workingdir/checksum_kernel >/dev/null 2>&1
+    dots "Getting checksum files for kernels and inits"
+    curl --silent -ko "${workingdir}/checksum_init/checksums" https://fogproject.org/inits/index.php -ko "${workingdir}/checksum_kernel/checksums" https://fogproject.org/kernels/index.php >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    errorStat $?
     dots "Downloading inits, kernels, and the fog client"
     curl --silent -ko "${webdirdest}/service/ipxe/init.xz" https://fogproject.org/inits/init.xz -ko "${webdirdest}/service/ipxe/init_32.xz" https://fogproject.org/inits/init_32.xz -ko "${webdirdest}/service/ipxe/bzImage" https://fogproject.org/kernels/bzImage -ko "${webdirdest}/service/ipxe/bzImage32" https://fogproject.org/kernels/bzImage32 >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && curl --silent -ko "${webdirdest}/client/FOGService.msi" -L $clienturl -ko "${webdirdest}/client/SmartInstaller.exe" -L $siurl >> $workingdir/error_logs/fog_error_${version}.log 2>&1
     errorStat $?
