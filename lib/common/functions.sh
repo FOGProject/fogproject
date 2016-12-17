@@ -1781,17 +1781,19 @@ class Config
     }
 }" > "${webdirdest}/lib/fog/config.class.php"
     errorStat $?
-    if [[ $fullrelease -eq 0 ]]; then
+    if [[ $fullrelease == 0 ]]; then
         downloadfiles
     else
         if [[ ! -f ../binaries${fullrelease}.zip ]]; then
             dots "Downloading binaries needed"
             curl --silent -ko "../binaries${fullrelease}.zip" "https://fogproject.org/binaries${fullrelease}.zip" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             errorStat $?
+            dots "Unzipping the binaries"
             cwd=$(pwd)
             cd ..
-            unzip binaries${fullrelease}.zip
+            unzip binaries${fullrelease}.zip >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             cd $cwd
+            echo "Done"
         fi
         [[ -d ../packages/clientfiles/ ]] && cp -f "../packages/clientfiles/*" "${webdirdest}/client/" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         [[ -d ../packages/kernels/ ]] && cp -f "../packages/kernels/*" "${webdirdest}/service/ipxe/" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
