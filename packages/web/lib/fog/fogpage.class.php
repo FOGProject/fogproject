@@ -2647,6 +2647,12 @@ abstract class FOGPage extends FOGBase
                 );
                 exit;
             }
+            if ($e->getMessage() == '#!ist') {
+                echo json_encode(
+                    array('error' => 'ist')
+                );
+                exit;
+            }
             echo  $e->getMessage();
         }
         exit;
@@ -2809,7 +2815,14 @@ abstract class FOGPage extends FOGBase
                 }
                 unset($key);
             }
-            $this->sendData(json_encode($array, JSON_UNESCAPED_UNICODE), true, $array);
+            $this->sendData(
+                json_encode(
+                    $array,
+                    JSON_UNESCAPED_UNICODE
+                ),
+                true,
+                $array
+            );
             //echo json_encode($array, JSON_UNESCAPED_UNICODE);
         } catch (Exception $e) {
             echo $e->getMessage();
