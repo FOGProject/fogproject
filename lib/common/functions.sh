@@ -1236,6 +1236,8 @@ writeUpdateFile() {
         else
             echo "## Start of FOG Settings" > "$fogprogramdir/.fogsettings"
             echo "## Created by the FOG Installer" >> "$fogprogramdir/.fogsettings"
+            echo "## Find more information about this file in the FOG Project wiki:" >> "$fogprogramdir/.fogsettings"
+            echo "##     https://wiki.fogproject.org/wiki/index.php?title=.fogsettings" >> "$fogprogramdir/.fogsettings"
             echo "## Version: $version" >> "$fogprogramdir/.fogsettings"
             echo "## Install time: $tmpDte" >> "$fogprogramdir/.fogsettings"
             echo "ipaddress='$ipaddress'" >> "$fogprogramdir/.fogsettings"
@@ -1280,6 +1282,8 @@ writeUpdateFile() {
     else
         echo "## Start of FOG Settings" > "$fogprogramdir/.fogsettings"
         echo "## Created by the FOG Installer" >> "$fogprogramdir/.fogsettings"
+        echo "## Find more information about this file in the FOG Project wiki:" >> "$fogprogramdir/.fogsettings"
+        echo "##     https://wiki.fogproject.org/wiki/index.php?title=.fogsettings" >> "$fogprogramdir/.fogsettings"
         echo "## Version: $version" >> "$fogprogramdir/.fogsettings"
         echo "## Install time: $tmpDte" >> "$fogprogramdir/.fogsettings"
         echo "ipaddress='$ipaddress'" >> "$fogprogramdir/.fogsettings"
