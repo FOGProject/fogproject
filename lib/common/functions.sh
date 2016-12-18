@@ -1803,6 +1803,7 @@ class Config
         [[ -d ../packages/clientfiles/ ]] && cp -vf ../packages/clientfiles/* "${webdirdest}/client/" >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || errorStat 1
         [[ -d ../packages/kernels/ ]] && cp -vf ../packages/kernels/* "${webdirdest}/service/ipxe/" >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || errorStat 1
         [[ -d ../packages/inits/ ]] && cp -vf ../packages/inits/* "${webdirdest}/service/ipxe/" >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || errorStat 1
+        echo "Done"
     fi
     if [[ $osid -eq 2 ]]; then
         php -m | grep mysqlnd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
