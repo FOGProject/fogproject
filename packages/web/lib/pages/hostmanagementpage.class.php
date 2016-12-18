@@ -1881,27 +1881,75 @@ class HostManagementPage extends FOGPage
             $UserLogins = self::getClass('UserTrackingManager')
                 ->find(
                     array(
-                        'id' => $this->obj->get('users')
-                    )
+                        'hostID' => $this->obj->get('id'),
+                        'datetime' => '%'.$_REQUEST['dte'].'%',
+                        'action' => array(
+                            '',
+                            0,
+                            1
+                        )
+                    ),
+                    'AND',
+                    array('datetime', 'username')
                 );
-            foreach ((array)$UserLogins as &$UserLogin) {
-                if ($UserLogin->get('date') == $_REQUEST['dte']) {
+            $data = null;
+            $Data = array();
+            foreach ((array)$UserLogins as &$Login) {
+                $time = self::niceDate($Login->get('datetime'))
+                    ->format('U');
+                if (array_key_exists('login', $Data[$Login->get('username')])
+                    && $Login->get('action') > 0
+                ) {
+                    $Data[$Login->get('username')]['login'] = $time;
+                    $Data[$Login->get('username')]['logout'] = $time - 1;
+                    $data[] = $Data[$Login->get('username')];
                     $this->data[] = array(
-                        'action' => (
-                            $UserLogin->get('action') == 1 ?
-                            _('Login') :
-                            (
-                                $UserLogin->get('action') == 0 ?
-                                _('Logout') :
-                                ''
-                            )
+                        'action' => _('Logout'),
+                        'user_name' => $Login->get('username'),
+                        'user_time' => (
+                            self::niceDate()
+                                ->setTimestamp($time - 1)
+                                ->format('Y-m-d H:i:s')
                         ),
-                        'user_name' => $UserLogin->get('username'),
-                        'user_time' => $UserLogin->get('datetime'),
-                        'user_desc' => $UserLogin->get('description'),
+                        'user_desc' => sprintf(
+                            '%s.<br/><small>%s.</small>',
+                            _('Logout not found'),
+                            _('Setting logout to one second prior to next login')
+                        )
                     );
+                    $this->data[] = array(
+                        'action' => _('Login'),
+                        'user_name' => $Login->get('username'),
+                        'user_time' => (
+                            self::niceDate()
+                                ->setTimestamp($time)
+                                ->format('Y-m-d H:i:s')
+                        ),
+                        'user_desc' => $Login->get('description')
+                    );
+                    unset($Login);
+                    continue;
                 }
-                unset($UserLogin);
+                if ($Login->get('action') > 0) {
+                    $Data[$Login->get('username')]['login'] = $time;
+                } else {
+                    unset($Data[$Login->get('username')]['login']);
+                }
+                $this->data[] = array(
+                    'action' => (
+                        $Login->get('action') == 1 ?
+                        _('Login') :
+                        (
+                            $Login->get('action') == 0 ?
+                            _('Logout') :
+                            ''
+                        )
+                    ),
+                    'user_name' => $Login->get('username'),
+                    'user_time' => $Login->get('datetime'),
+                    'user_desc' => $Login->get('description'),
+                );
+                unset($Login);
             }
             self::$HookManager
                 ->processEvent(
@@ -2535,32 +2583,31 @@ class HostManagementPage extends FOGPage
                     )
                 ),
                 'AND',
-                'date',
+                array('datetime','username'),
                 'DESC'
             );
+        $data = null;
+        $Data = array();
         foreach ((array)$UserTracks as &$Login) {
             $time = self::niceDate($Login->get('datetime'))
                 ->format('U');
-            if (!$Data[$Login->get('username')]) {
-                $Data[$Login->get('username')] = array(
-                    'user' => $Login->get('username'),
-                    'min' => $MainDate,
-                    'max' => $MainDate_1
-                );
-            }
-            if ($Login->get('action')) {
+            $Data[$Login->get('username')]['user'] = $Login->get('username');
+            $Data[$Login->get('username')]['min'] = $MainDate;
+            $Data[$Login->get('username')]['max'] = $MainDate_1;
+            if (array_key_exists('login', $Data[$Login->get('username')])
+                && $Login->get('action') > 0
+            ) {
                 $Data[$Login->get('username')]['login'] = $time;
-            }
-            if (array_key_exists('login', $Data[$Login->get('username')])
-                && !$Login->get('action')
-            ) {
-                $Data[$Login->get('username')]['logout'] = $time;
-            }
-            if (array_key_exists('login', $Data[$Login->get('username')])
-                && array_key_exists('logout', $Data[$Login->get('username')])
-            ) {
+                $Data[$Login->get('username')]['logout'] = $time - 1;
                 $data[] = $Data[$Login->get('username')];
-                unset($Data[$Login->get('username')]);
+                continue;
+            }
+            if ($Login->get('action') > 0) {
+                $Data[$Login->get('username')]['login'] = $time;
+            } else {
+                $Data[$Login->get('username')]['logout'] = $time;
+                $data[] = $Data[$Login->get('username')];
+                unset($Data[$Login->get('username')]['login']);
             }
             unset($Login);
         }

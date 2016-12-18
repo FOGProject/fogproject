@@ -290,7 +290,20 @@ abstract class FOGManagerController extends FOGBase
                 $groupBy = '';
             }
         } else {
-            $orderBy = '';
+            $orderString = '';
+            foreach ((array)$orderBy as $order) {
+                $orderString .= sprintf(
+                    '`%s`.`%s` %s,',
+                    $this->databaseTable,
+                    $this->databaseFields[$order],
+                    $sort
+                );
+            }
+            $orderString = trim($orderString, ','.$sort);
+            $orderBy = sprintf(
+                'ORDER BY %s ',
+                $orderString
+            );
         }
         $join = $whereArrayAnd = array();
         $c = null;
