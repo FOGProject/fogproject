@@ -1647,13 +1647,7 @@ configureHttpd() {
             cp -Rf ${backupPath}/fog_web_${version}.BACKUP/* $webdirdest/
             errorStat $?
             dots "Ensuring all classes are lowercased"
-            for i in $(find $webdirdest -type f -name "*[A-Z]*\.class\.php"); do
-                mv "$i" "$(echo $i | tr A-Z a-z)" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            done
-            for i in $(find $webdirdest -type f -name "*[A-Z]*\.event\.php"); do
-                mv "$i" "$(echo $i | tr A-Z a-z)" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            done
-            for i in $(find $webdirdest -type f -name "*[A-Z]*\.hook\.php"); do
+            for i in $(find $webdirdest -type f -name "*[A-Z]*\.class\.php" -o -name "*[A-Z]*\.event\.php" -o -name "*[A-Z]*\.hook\.php"); do
                 mv "$i" "$(echo $i | tr A-Z a-z)" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             done
             errorStat $?
@@ -1664,13 +1658,9 @@ configureHttpd() {
     errorStat $?
     if [[ $installlang -eq 1 ]]; then
         dots "Creating the language binaries"
-        msgfmt -o $webdirdest/management/languages/de_DE.UTF-8/LC_MESSAGES/messages.mo $webdirdest/management/languages/de_DE.UTF-8/LC_MESSAGES/messages.po
-        msgfmt -o $webdirdest/management/languages/en_US.UTF-8/LC_MESSAGES/messages.mo $webdirdest/management/languages/en_US.UTF-8/LC_MESSAGES/messages.po
-        msgfmt -o $webdirdest/management/languages/es_ES.UTF-8/LC_MESSAGES/messages.mo $webdirdest/management/languages/es_ES.UTF-8/LC_MESSAGES/messages.po
-        msgfmt -o $webdirdest/management/languages/fr_FR.UTF-8/LC_MESSAGES/messages.mo $webdirdest/management/languages/fr_FR.UTF-8/LC_MESSAGES/messages.po
-        msgfmt -o $webdirdest/management/languages/it_IT.UTF-8/LC_MESSAGES/messages.mo $webdirdest/management/languages/it_IT.UTF-8/LC_MESSAGES/messages.po
-        msgfmt -o $webdirdest/management/languages/pt_BR.UTF-8/LC_MESSAGES/messages.mo $webdirdest/management/languages/pt_BR.UTF-8/LC_MESSAGES/messages.po
-        msgfmt -o $webdirdest/management/languages/zh_CN.UTF-8/LC_MESSAGES/messages.mo $webdirdest/management/languages/zh_CN.UTF-8/LC_MESSAGES/messages.po
+        langpath="${webdirdest}/management/languages"
+        languagesfound=$(find $langpath -maxdepth 1 -type d -exec basename {} \; | awk -F. '/\./ {print $1}')
+        languagemogen "$languagesfound" "$langpath"
         echo "Done"
     fi
     dots "Creating config file"
@@ -1795,8 +1785,80 @@ class Config
     }
 }" > "${webdirdest}/lib/fog/config.class.php"
     errorStat $?
+    if [[ $fullrelease == 0 ]]; then
+        downloadfiles
+    else
+        if [[ ! -f ../binaries${fullrelease}.zip ]]; then
+            dots "Downloading binaries needed"
+            curl --silent -ko "../binaries${fullrelease}.zip" "https://fogproject.org/binaries${fullrelease}.zip" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            errorStat $?
+            dots "Unzipping the binaries"
+            cwd=$(pwd)
+            cd ..
+            unzip binaries${fullrelease}.zip >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            cd $cwd
+            echo "Done"
+        fi
+        [[ -d ../packages/clientfiles/ ]] && cp -f "../packages/clientfiles/*" "${webdirdest}/client/" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        [[ -d ../packages/kernels/ ]] && cp -f "../packages/kernels/*" "${webdirdest}/service/ipxe/" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        [[ -d ../packages/inits/ ]] && cp -f "../packages/inits/*" "${webdirdest}/service/ipxe/" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    fi
+    if [[ $osid -eq 2 ]]; then
+        php -m | grep mysqlnd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        if [[ ! $? -eq 0 ]]; then
+            ${phpcmd}enmod mysqlnd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            if [[ ! $? -eq 0 ]]; then
+                if [[ -e /etc/php${php_ver}/conf.d/mysqlnd.ini ]]; then
+                    cp -f "/etc/php${php_ver}/conf.d/mysqlnd.ini" "/etc/php${php_ver}/mods-available/php${php_ver}-mysqlnd.ini" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    ${phpcmd}enmod mysqlnd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                fi
+            fi
+        fi
+        php -m | grep mcrypt >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        if [[ ! $? -eq 0 ]]; then
+            ${phpcmd}enmod mcrypt >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            if [[ ! $? -eq 0 ]]; then
+                if [[ -e /etc/php${php_ver}/conf.d/mcrypt.ini ]]; then
+                    cp -f "/etc/php${php_ver}/conf.d/mcrypt.ini" "/etc/php${php_ver}/mods-available/php${php_ver}-mcrypt.ini" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    ${phpcmd}enmod mcrypt >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                fi
+            fi
+        fi
+    fi
+    dots "Enabling apache and fpm services on boot"
+    if [[ $osid -eq 2 ]]; then
+        if [[ $systemctl == yes ]]; then
+            systemctl enable apache2 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            systemctl enable $phpfpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        else
+            sysv-rc-conf apache2 on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            sysv-rc-conf $phpfpm on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        fi
+    elif [[ $systemctl == yes ]]; then
+        systemctl enable httpd php-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    else
+        chkconfig php-fpm on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        chkconfig httpd on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    fi
+    errorStat $?
+    createSSLCA
+    dots "Changing permissions on apache log files"
+    chmod +rx $apachelogdir
+    chmod +rx $apacheerrlog
+    chmod +rx $apacheacclog
+    chown -R ${apacheuser}:${apacheuser} $webdirdest
+    errorStat $?
+    rm -f "$webdirdest/mobile/css/font-awesome.css" $webdirdest/mobile/{fonts,less,scss} &>>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    [[ -d /var/www/html/ && ! -e /var/www/html/fog/ ]] && ln -s "$webdirdest" /var/www/html/
+    [[ -d /var/www/ && ! -e /var/www/fog ]] && ln -s "$webdirdest" /var/www/
+    ln -s "$webdirdest/management/css/font-awesome.css" "$webdirdest/mobile/css/font-awesome.css"
+    ln -s "$webdirdest/management/fonts" "$webdirdest/mobile/"
+    ln -s "$webdirdest/management/less" "$webdirdest/mobile/"
+    ln -s "$webdirdest/management/scss" "$webdirdest/mobile/"
+    chown -R ${apacheuser}:${apacheuser} "$webdirdest"
+}
+downloadfiles() {
     clientVer="$(awk -F\' /"define\('FOG_CLIENT_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
-
     clienturl="https://github.com/FOGProject/fog-client/releases/download/${clientVer}/FOGService.msi"
     siurl="https://github.com/FOGProject/fog-client/releases/download/${clientVer}/SmartInstaller.exe"
     [[ ! -d $workingdir/checksum_init ]] && mkdir -p $workingdir/checksum_init >/dev/null 2>&1
@@ -1805,7 +1867,6 @@ class Config
     curl --silent -ko "${workingdir}/checksum_init/checksums" https://fogproject.org/inits/index.php -ko "${workingdir}/checksum_kernel/checksums" https://fogproject.org/kernels/index.php >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     errorStat $?
     dots "Downloading inits, kernels, and the fog client"
-    >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     curl --silent -ko "${webdirdest}/service/ipxe/init.xz" https://fogproject.org/inits/init.xz -ko "${webdirdest}/service/ipxe/init_32.xz" https://fogproject.org/inits/init_32.xz -ko "${webdirdest}/service/ipxe/bzImage" https://fogproject.org/kernels/bzImage -ko "${webdirdest}/service/ipxe/bzImage32" https://fogproject.org/kernels/bzImage32 >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && curl --silent -ko "${webdirdest}/client/FOGService.msi" -L $clienturl -ko "${webdirdest}/client/SmartInstaller.exe" -L $siurl >> $workingdir/error_logs/fog_error_${version}.log 2>&1
     errorStat $?
     dots "Comparing checksums of kernels and inits"
@@ -1870,59 +1931,6 @@ class Config
         [[ -z $exitFail ]] && exit 1
     fi
     echo "Done"
-    if [[ $osid -eq 2 ]]; then
-        php -m | grep mysqlnd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        if [[ ! $? -eq 0 ]]; then
-            ${phpcmd}enmod mysqlnd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            if [[ ! $? -eq 0 ]]; then
-                if [[ -e /etc/php${php_ver}/conf.d/mysqlnd.ini ]]; then
-                    cp -f "/etc/php${php_ver}/conf.d/mysqlnd.ini" "/etc/php${php_ver}/mods-available/php${php_ver}-mysqlnd.ini" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    ${phpcmd}enmod mysqlnd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                fi
-            fi
-        fi
-        php -m | grep mcrypt >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        if [[ ! $? -eq 0 ]]; then
-            ${phpcmd}enmod mcrypt >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            if [[ ! $? -eq 0 ]]; then
-                if [[ -e /etc/php${php_ver}/conf.d/mcrypt.ini ]]; then
-                    cp -f "/etc/php${php_ver}/conf.d/mcrypt.ini" "/etc/php${php_ver}/mods-available/php${php_ver}-mcrypt.ini" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    ${phpcmd}enmod mcrypt >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                fi
-            fi
-        fi
-    fi
-    dots "Enabling apache and fpm services on boot"
-    if [[ $osid -eq 2 ]]; then
-        if [[ $systemctl == yes ]]; then
-            systemctl enable apache2 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            systemctl enable $phpfpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        else
-            sysv-rc-conf apache2 on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            sysv-rc-conf $phpfpm on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        fi
-    elif [[ $systemctl == yes ]]; then
-        systemctl enable httpd php-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    else
-        chkconfig php-fpm on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        chkconfig httpd on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    fi
-    errorStat $?
-    createSSLCA
-    dots "Changing permissions on apache log files"
-    chmod +rx $apachelogdir
-    chmod +rx $apacheerrlog
-    chmod +rx $apacheacclog
-    chown -R ${apacheuser}:${apacheuser} $webdirdest
-    errorStat $?
-    rm -f "$webdirdest/mobile/css/font-awesome.css" $webdirdest/mobile/{fonts,less,scss} &>>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    [[ -d /var/www/html/ && ! -e /var/www/html/fog/ ]] && ln -s "$webdirdest" /var/www/html/
-    [[ -d /var/www/ && ! -e /var/www/fog ]] && ln -s "$webdirdest" /var/www/
-    ln -s "$webdirdest/management/css/font-awesome.css" "$webdirdest/mobile/css/font-awesome.css"
-    ln -s "$webdirdest/management/fonts" "$webdirdest/mobile/"
-    ln -s "$webdirdest/management/less" "$webdirdest/mobile/"
-    ln -s "$webdirdest/management/scss" "$webdirdest/mobile/"
-    chown -R ${apacheuser}:${apacheuser} "$webdirdest"
 }
 configureDHCP() {
     dots "Setting up and starting DHCP Server"
@@ -2069,4 +2077,17 @@ vercomp() {
         fi
     done
     return 0
+}
+languagemogen() {
+    local languages="$1"
+    local langpath="$2"
+    local IFS=$'\n'
+    local lang=''
+    for lang in ${languages[@]}; do
+        [[ ! -d "${langpath}/${lang}.UTF-8" ]] && continue
+        msgfmt -o \
+            "${langpath}/${lang}.UTF-8/LC_MESSAGES/messages.mo" \
+            "${langpath}/${lang}.UTF-8/LC_MESSAGES/messages.po" \
+            >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    done
 }

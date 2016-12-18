@@ -72,7 +72,7 @@ abstract class Event extends FOGBase
     {
         parent::__construct();
         if (!self::$FOGUser->isValid()) {
-            self::$FOGUser = self::getClass('User', $_SESSION['FOG_USER']);
+            self::$FOGUser = new User($_SESSION['FOG_USER']);
         }
     }
     /**

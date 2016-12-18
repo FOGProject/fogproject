@@ -70,13 +70,13 @@ abstract class FOGManagerController extends FOGBase
      *
      * @var string
      */
-    protected $loadQueryTemplate = 'SELECT %s FROM `%s` %s %s %s %s %s';
+    protected $loadQueryTemplate = 'SELECT %s FROM `%s` %s %s %s %s';
     /**
      * The load groupby template.
      *
      * @var string
      */
-    protected $loadQueryGroupTemplate = 'SELECT %s FROM (%s) `%s` %s %s %s %s %s';
+    protected $loadQueryGroupTemplate = 'SELECT %s FROM (%s) `%s` %s %s %s %s';
     /**
      * The count template.
      *
@@ -274,11 +274,12 @@ abstract class FOGManagerController extends FOGBase
         }
         if (!is_array($orderBy)) {
             $orderBy = sprintf(
-                'ORDER BY %s`%s`.`%s`%s',
+                'ORDER BY %s`%s`.`%s`%s %s',
                 ($orderBy == 'name' ? 'LOWER(' : ''),
                 $this->databaseTable,
                 $this->databaseFields[$orderBy],
-                ($orderBy == 'name' ? ')' : '')
+                ($orderBy == 'name' ? ')' : ''),
+                $sort
             );
             if ($groupBy) {
                 $groupBy = sprintf(
@@ -290,7 +291,21 @@ abstract class FOGManagerController extends FOGBase
                 $groupBy = '';
             }
         } else {
-            $orderBy = '';
+            $orderString = '';
+            foreach ((array)$orderBy as $i => &$order) {
+                $orderString .= sprintf(
+                    '`%s`.`%s` %s,',
+                    $this->databaseTable,
+                    $this->databaseFields[$order],
+                    is_array($sort) ? $sort[$i] : $sort
+                );
+                unset($order);
+            }
+            $orderString = trim($orderString, ','.$sort);
+            $orderBy = sprintf(
+                'ORDER BY %s ',
+                $orderString
+            );
         }
         $join = $whereArrayAnd = array();
         $c = null;
@@ -376,8 +391,7 @@ abstract class FOGManagerController extends FOGBase
                 ) :
                 ''
             ),
-            $orderBy,
-            $sort
+            $orderBy
         );
         if ($groupBy) {
             $query = sprintf(
@@ -424,8 +438,7 @@ abstract class FOGManagerController extends FOGBase
                     ''
                 ),
                 $groupBy,
-                $orderBy,
-                $sort
+                $orderBy
             );
         }
         $data = array();

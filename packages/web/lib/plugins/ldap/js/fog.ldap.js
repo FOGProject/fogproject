@@ -25,7 +25,7 @@ function ldapSetFields(indx) {
             break;
         case 'msad':
             usrAttr = 'samAccountName';
-            grpAttr = 'memberOf';
+            grpAttr = 'member';
             break;
         case 'open':
             usrAttr = 'cn';

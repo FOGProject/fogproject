@@ -1274,7 +1274,10 @@ abstract class FOGBase
         $array[$old_key] = trim($array[$old_key]);
         if (!self::$service && is_string($array[$old_key])) {
             $array[$new_key] = htmlentities(
-                $array[$old_key],
+                mb_convert_encoding(
+                    $array[$old_key],
+                    'utf-8'
+                ),
                 ENT_QUOTES,
                 'utf-8'
             );
@@ -1773,9 +1776,6 @@ abstract class FOGBase
         if (!is_string($string)) {
             throw new Exception(_('String must be a string'));
         }
-        if (!(self::$FOGUser instanceof User && self::$FOGUser->isValid())) {
-            return;
-        }
         $string = sprintf(
             '[%s] %s',
             self::niceDate()->format('Y-m-d H:i:s'),
@@ -1890,7 +1890,13 @@ abstract class FOGBase
             ->load('name')
             ->get('value');
 
-        return trim(str_replace($findStr, $repStr, $value));
+        return trim(
+            str_replace(
+                $findStr,
+                $repStr,
+                $value
+            )
+        );
     }
     /**
      * Set global setting value by key.

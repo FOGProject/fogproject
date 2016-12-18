@@ -1,5 +1,5 @@
 var LoginHistory = $('#login-history');
-var LoginHistoryDate = $('#loghist-date');
+var LoginHistoryDate = $('.loghist-date');
 var LoginHistoryData = new Array();
 var Labels = new Array();
 var LabelData = new Array();
@@ -8,10 +8,11 @@ var LoginDateMin = new Array();
 var LoginDateMax = new Array();
 function UpdateLoginGraph() {
     url = location.href.replace('edit','hostlogins');
+    dte = LoginHistoryDate.val();
     $.post(
         url,
         {
-            dte: LoginHistoryDate.val()
+            dte: dte
         },
         function(data) {
             UpdateLoginGraphPlot(data);
@@ -19,10 +20,10 @@ function UpdateLoginGraph() {
     );
 }
 function UpdateLoginGraphPlot(data) {
-    if (data == null) {
+    data = $.parseJSON(data);
+    if (data === null) {
         return;
     }
-    data = $.parseJSON(data);
     j = 0;
     $.each(data, function (index, value) {
         min1 = new Date(value.min * 1000).getTime();

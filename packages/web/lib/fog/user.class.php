@@ -175,8 +175,6 @@ class User extends FOGController
                 ->set('id', $tmpUser->get('id'))
                 ->set('name', $tmpUser->get('name'))
                 ->set('password', '', true)
-                ->set('type', $tmpUser->get('type'))
-                ->load()
                 ->set('type', $type);
             unset($tmpUser);
             if (!$this->_sessionID) {
@@ -214,7 +212,7 @@ class User extends FOGController
             self::$HookManager->processEvent(
                 'LoginFail',
                 array(
-                    'username' => $username,
+                    'username' => &$username,
                     'password' => &$password
                 )
             );
