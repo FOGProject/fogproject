@@ -1890,7 +1890,7 @@ class HostManagementPage extends FOGPage
                         )
                     ),
                     'AND',
-                    array('datetime', 'username')
+                    array('username', 'datetime')
                 );
             $data = null;
             $Data = array();
