@@ -295,7 +295,7 @@ else
         [[ -z $OSVersion ]] && OSVersion=$(sed -n 's/^VERSION_ID=\([^.]*\).*/\1/p' /etc/os-release | tr -d '"')
     elif [[ -f /etc/redhat-release ]]; then
         [[ -z $linuxReleaseName ]] && linuxReleaseName=$(cat /etc/redhat-release | awk '{print $1}')
-        [[ -z $OSVersion ]] && OSVersion=$(cat /etc/redhat-release | sed s/.*release\ // | sed s/\ .*//)
+        [[ -z $OSVersion ]] && OSVersion=$(cat /etc/redhat-release | sed s/.*release\ // | sed s/\ .*// | awk -F. '{print $1}')
     elif [[ -f /etc/debian_version ]]; then
         [[ -z $linuxReleaseName ]] && linuxReleaseName='Debian'
         [[ -z $OSVersion ]] && OSVersion=$(cat /etc/debian_version)
