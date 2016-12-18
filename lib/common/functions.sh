@@ -539,6 +539,7 @@ addUbuntuRepo() {
 }
 installPackages() {
     [[ $installlang -eq 1 ]] && packages="$packages gettext"
+    packages="$packages unzip"
     dots "Adding needed repository"
     case $osid in
         1)
@@ -1792,13 +1793,13 @@ class Config
             dots "Downloading binaries needed"
             curl --silent -ko "../binaries${fullrelease}.zip" "https://fogproject.org/binaries${fullrelease}.zip" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             errorStat $?
-            dots "Unzipping the binaries"
-            cwd=$(pwd)
-            cd ..
-            unzip binaries${fullrelease}.zip >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            cd $cwd
-            echo "Done"
         fi
+        dots "Unzipping the binaries"
+        cwd=$(pwd)
+        cd ..
+        unzip binaries${fullrelease}.zip >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        cd $cwd
+        echo "Done"
         dots "Copying binaries where needed"
         [[ -d ../packages/clientfiles/ ]] && cp -vf ../packages/clientfiles/* "${webdirdest}/client/" >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || errorStat 1
         [[ -d ../packages/kernels/ ]] && cp -vf ../packages/kernels/* "${webdirdest}/service/ipxe/" >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || errorStat 1
