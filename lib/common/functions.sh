@@ -1797,7 +1797,7 @@ class Config
         dots "Unzipping the binaries"
         cwd=$(pwd)
         cd ..
-        unzip binaries${fullrelease}.zip >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        unzip -ov binaries${fullrelease}.zip >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         cd $cwd
         echo "Done"
         dots "Copying binaries where needed"
