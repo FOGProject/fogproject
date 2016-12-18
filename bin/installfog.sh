@@ -21,7 +21,6 @@ if [[ ! $EUID -eq 0 ]]; then
     exec sudo $0 $@ || echo "FOG Installation must be run as root user"
     exit 1 # Fail Sudo
 fi
-fullrelease=0
 . ../lib/common/functions.sh
 help() {
     echo -e "Usage: $0 [-h?dEUuHSCKYXT] [-f <filename>]"
@@ -408,6 +407,7 @@ if [[ -z $backupPath ]]; then
 fi
 [[ -z $bootfilename ]] && bootfilename="undionly.kpxe"
 [[ ! $doupdate -eq 1 || ! $fogupdateloaded -eq 1 ]] && . ../lib/common/input.sh
+fullrelease='1.3.0'
 echo
 echo "   ######################################################################"
 echo "   #     FOG now has everything it needs for this setup, but please     #"
