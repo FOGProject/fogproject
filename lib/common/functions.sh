@@ -1799,9 +1799,10 @@ class Config
             cd $cwd
             echo "Done"
         fi
-        [[ -d ../packages/clientfiles/ ]] && cp -f "../packages/clientfiles/*" "${webdirdest}/client/" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        [[ -d ../packages/kernels/ ]] && cp -f "../packages/kernels/*" "${webdirdest}/service/ipxe/" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        [[ -d ../packages/inits/ ]] && cp -f "../packages/inits/*" "${webdirdest}/service/ipxe/" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        dots "Copying binaries where needed"
+        [[ -d ../packages/clientfiles/ ]] && cp -vf "../packages/clientfiles/*" "${webdirdest}/client/" >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || errorStat 1
+        [[ -d ../packages/kernels/ ]] && cp -vf "../packages/kernels/*" "${webdirdest}/service/ipxe/" >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || errorStat 1
+        [[ -d ../packages/inits/ ]] && cp -vf "../packages/inits/*" "${webdirdest}/service/ipxe/" >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || errorStat 1
     fi
     if [[ $osid -eq 2 ]]; then
         php -m | grep mysqlnd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
