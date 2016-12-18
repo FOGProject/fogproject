@@ -46,10 +46,11 @@ case $linuxReleaseName in
             [[ -z $packagelist ]] && packagelist="yum --enablerepo=$repos list"
             [[ -z $packageupdater ]] && packageupdater="yum -y --enablerepo=$repos update"
             [[ -z $packmanUpdate ]] && packmanUpdate="yum -y --enablerepo=$repos check-update"
+            pkginst=$(command -v dnf)
+            [[ -z $pkginst ]] && pkginst=$(command -v yum)
             command -v yum-config-manager >/dev/null 2>&1
-            [[ ! $? -eq 0 ]] && $packageinstaller yum-utils >/dev/null 2>&1
-            command -v yum-config-manager >/dev/null 2>&1
-            [[ $? -eq 0 ]] && repoenable="yum-config-manager --enable"
+            [[ ! $? -eq 0 ]] && $pkginst yum-utils >/dev/null 2>&1
+            [[ -z $repoenable ]] && repoenable="yum-config-manager --enable"
         fi
         [[ -z $dhcpname ]] && dhcpname="dhcp"
         ;;

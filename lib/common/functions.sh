@@ -545,7 +545,7 @@ installPackages() {
         1)
             pkginst=$(command -v dnf)
             [[ -z $pkginst ]] && pkginst=$(command -v yum)
-            pkginst=$(echo $pkginst -y install)
+            pkginst="$pkginst -y install"
             packages="$packages php-bcmath bc"
             packages="${packages// mod_fastcgi/}"
             packages="${packages// mod_evasive/}"
@@ -561,8 +561,12 @@ installPackages() {
                     fi
                     ;;
                 *)
-                    $pkginst epel-release >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     repo="enterprise"
+                    x="epel-release"
+                    eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    if [[ ! $? -eq 0 ]]; then
+                        $pkginst epel-release >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    fi
                     ;;
             esac
             y="http://rpms.remirepo.net/$repo/remi-release-${OSVersion}.rpm"
@@ -573,8 +577,8 @@ installPackages() {
                 rpm --import "http://rpms.remirepo.net/RPM-GPG-KEY-remi" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             fi
             if [[ -n $repoenable ]]; then
-                eval $repoenable remi >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
-                eval $repoenable remi-php56 >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
+                $repoenable remi >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
+                $repoenable remi-php56 >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
             fi
             ;;
         2)
