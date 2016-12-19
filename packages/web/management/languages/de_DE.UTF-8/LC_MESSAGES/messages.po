@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-18 11:59-0500\n"
+"POT-Creation-Date: 2016-12-19 13:03-0500\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -7339,7 +7339,7 @@ msgid "Failed to update/create image log"
 msgstr "Fehler beim Update/Bild Protokoll erstellen"
 
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:165
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:422
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:423
 msgid "Failed to update Task"
 msgstr "Fehler beim Aktualisieren der Aufgabe"
 
@@ -7392,17 +7392,17 @@ msgstr "nach Erledigung der Aufgabe"
 msgid "Call"
 msgstr ""
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:419
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:420
 #, fuzzy
 msgid "Failed to update Host"
 msgstr "Fehler beim Aktualisieren"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:425
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:426
 #, fuzzy
 msgid "Failed to update task log"
 msgstr "Fehler beim Aktualisieren der Aufgabe"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:429
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:430
 #, fuzzy
 msgid "Failed to update imaging log"
 msgstr "Fehler beim Update/Bild Protokoll erstellen"

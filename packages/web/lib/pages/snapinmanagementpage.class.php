@@ -684,7 +684,7 @@ class SnapinManagementPage extends FOGPage
                     throw new Exception(_('Failed to add/update snapin file'));
                 }
                 self::$FOGFTP
-                    ->chmod(0755, $dest)
+                    ->chmod(0777, $dest)
                     ->close();
             }
             $reboot = false;
@@ -1253,7 +1253,7 @@ class SnapinManagementPage extends FOGPage
                         throw new Exception(_('Failed to add/update snapin file'));
                     }
                     self::$FOGFTP
-                        ->chmod(0755, $dest)
+                        ->chmod(0777, $dest)
                         ->close();
                 }
                 $this->obj

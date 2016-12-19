@@ -992,7 +992,7 @@ configureSnapins() {
     dots "Setting up FOG Snapins"
     mkdir -p $snapindir >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     if [[ -d $snapindir ]]; then
-        chmod -R 775 $snapindir
+        chmod -R 777 $snapindir
         chown -R fog:$apacheuser $snapindir
     fi
     errorStat $?
@@ -1047,29 +1047,19 @@ linkOptFogDir() {
 }
 configureStorage() {
     dots "Setting up storage"
-    if [[ ! -d $storageLocation ]]; then
-        mkdir $storageLocation >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        chmod -R 777 $storageLocation >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    [[ ! -d $storageLocation ]] && mkdir $storageLocation >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    [[ ! -f $storageLocation/.mntcheck ]] && touch $storageLocation/.mntcheck >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    [[ ! -d $storageLocation/postdownloadscripts ]] && mkdir $storageLocation/postdownloadscripts >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    if [[ ! -f $storageLocation/postdownloadscripts/fog.postdownload ]]; then
+        echo "#!/bin/sh" >"$storageLocation/postdownloadscripts/fog.postdownload"
+        echo "## This file serves as a starting point to call your custom postimaging scripts." >>"$storageLocation/postdownloadscripts/fog.postdownload"
+        echo "## <SCRIPTNAME> should be changed to the script you're planning to use." >>"$storageLocation/postdownloadscripts/fog.postdownload"
+        echo "## Syntax of post download scripts are" >>"$storageLocation/postdownloadscripts/fog.postdownload"
+        echo "#. \${postdownpath}<SCRIPTNAME>" > "$storageLocation/postdownloadscripts/fog.postdownload"
     fi
-    if [[ ! -f $storageLocation/.mntcheck ]]; then
-        touch $storageLocation/.mntcheck >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        chmod 777 $storageLocation/.mntcheck >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    fi
-    if [[ ! -d $storageLocation/postdownloadscripts ]]; then
-        mkdir $storageLocation/postdownloadscripts >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        if [[ ! -f $storageLocation/postdownloadscripts/fog.postdownload ]]; then
-            echo -e "#!/bin/sh\n## This file serves as a starting point to call your custom postimaging scripts.\n## <SCRIPTNAME> should be changed to the script you're planning to use.\n## Syntax of post download scripts are\n#. \${postdownpath}<SCRIPTNAME>" > "$storageLocation/postdownloadscripts/fog.postdownload"
-        fi
-        chmod -R 777 $storageLocation >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    fi
-    if [[ ! -d $storageLocationCapture ]]; then
-        mkdir $storageLocationCapture >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        chmod -R 777 $storageLocationCapture >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    fi
-    if [[ ! -f $storageLocationCapture/.mntcheck ]]; then
-        touch $storageLocationCapture/.mntcheck >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        chmod 777 $storageLocationCapture/.mntcheck >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    fi
+    [[ ! -d $storageLocationCapture ]] && mkdir $storageLocationCapture >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    [[ ! -f $storageLocationCapture/.mntcheck ]] && touch $storageLocationCapture/.mntcheck >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    chmod 777 $storageLocation $storageLocationCapture >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     errorStat $?
 }
 clearScreen() {
