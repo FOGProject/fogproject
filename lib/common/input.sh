@@ -44,7 +44,7 @@ if [[ $guessdefaults == 1 ]]; then
         strSuggestedSubMask=$(mask2cidr $strSuggestedSubMask)
     fi
     submask=$strSuggestedSubMask
-    strSuggestedRoute=$(ip route | tail -n1 | cut -d' ' -f3 | tr -d [:blank:])
+    strSuggestedRoute=$(ip route | grep -E eth0 | tail -n1 | cut -d' ' -f3 | tr -d [:blank:])
     if [[ -z $strSuggestedRoute ]]; then
         strSuggestedRoute=$(route -n | grep "^.*U.*${strSuggestedInterface}$"  | tail -n1)
         strSuggestedRoute=$(echo ${strSuggestedRoute:16:16} | tr -d [:blank:])
