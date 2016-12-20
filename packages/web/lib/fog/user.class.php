@@ -116,13 +116,24 @@ class User extends FOGController
      * @param string $password  the password to test
      * @param string $adminTest the admin test
      *
-     * @return object
+     * @return bool 
      */
     public function passwordValidate(
         $username,
         $password,
         $adminTest = false
     ) {
+        /**
+         * Test the username for funky characters and return
+         * immediately if found.
+         */
+        $test = preg_match(
+            '/[\-\_\@\.\\\[:space:]]/',
+            $username
+        );
+        if ($test) {
+            return false;
+        }
         $tmpUser = self::getClass('User')
             ->set('name', $username)
             ->load('name');
@@ -148,7 +159,7 @@ class User extends FOGController
      * @param string $username the username
      * @param string $password the password
      *
-     * @return bool
+     * @return object
      */
     public function validatePw(
         $username,

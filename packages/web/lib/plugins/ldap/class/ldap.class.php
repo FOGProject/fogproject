@@ -241,18 +241,16 @@ class LDAP extends FOGController
             return false;
         }
         /**
-         * Clean up username.  We only want the user's short name
-         * without any domain component.
-         *
-         * Regex is: any characters that are NOT A-Z, a-z, 0-9, -,
-         * _, @, or .
+         * Test the username for funky characters and return
+         * immediately if found.
          */
-        $user = preg_replace(
-            '/[\-\_\@\.\\\ ]/',
-            '',
+        $test = preg_match(
+            '/[\-\_\@\.\\\[:space:]]/',
             $user
         );
-        $user = trim($user);
+        if ($test) {
+            return false;
+        }
         /**
          * If, after character checking, the user is empty
          *

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-19 13:03-0500\n"
+"POT-Creation-Date: 2016-12-20 17:54-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -854,23 +854,23 @@ msgstr "场和值不具有相等的参数。"
 msgid "Need the table name to drop"
 msgstr ""
 
-#: /var/www/fog/lib/fog/user.class.php:195
+#: /var/www/fog/lib/fog/user.class.php:206
 msgid "user successfully logged in"
 msgstr "用户成功登录"
 
-#: /var/www/fog/lib/fog/user.class.php:204
+#: /var/www/fog/lib/fog/user.class.php:215
 msgid "user failed to login"
 msgstr "用户登录失败"
 
-#: /var/www/fog/lib/fog/user.class.php:304
+#: /var/www/fog/lib/fog/user.class.php:315
 msgid "IP Address Changed"
 msgstr "更改IP地址"
 
-#: /var/www/fog/lib/fog/user.class.php:313
+#: /var/www/fog/lib/fog/user.class.php:324
 msgid "User Agent Changed"
 msgstr "用户代理更改"
 
-#: /var/www/fog/lib/fog/user.class.php:322
+#: /var/www/fog/lib/fog/user.class.php:333
 msgid "Session altered improperly"
 msgstr "会议修改不当"
 
