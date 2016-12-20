@@ -248,7 +248,7 @@ class LDAP extends FOGController
          * _, @, or .
          */
         $user = preg_replace(
-            '/[^a-zA-Z0-9\-\_\@\.]/',
+            '/[\-\_\@\.\\\ ]/',
             '',
             $user
         );
