@@ -166,10 +166,6 @@ class LDAP extends FOGController
     private function _ldapParseDn($dn)
     {
         /**
-         * Ensure we use the DN in utf-8 format
-         */
-        $dn = mb_convert_encoding($dn, 'utf-8');
-        /**
          * Explode the DN into it's sub components.
          */
         $parser = $this->explode_dn($dn, 0);
@@ -188,7 +184,7 @@ class LDAP extends FOGController
                     $data
                 ) = explode('=', $value);
                 $prefix = strtoupper($prefix);
-                $pat = preg_replace_callback(
+                preg_replace_callback(
                     "/\\\([0-9A-Fa-f]{2})/",
                     function ($matches) {
                         foreach ((array)$matches as &$match) {
@@ -749,20 +745,16 @@ class LDAP extends FOGController
         if (in_array($key, $keys)) {
             $dn = trim(parent::get($key));
             $dn = strtolower($dn);
-            if ($key === 'adminGroup'
-                || $key === 'userGroup'
-            ) {
-                $dn = html_entity_decode(
-                    $dn,
-                    ENT_QUOTES,
-                    'utf-8'
-                );
-                $dn = mb_convert_case(
-                    $dn,
-                    MB_CASE_LOWER,
-                    'utf-8'
-                );
-            }
+            $dn = html_entity_decode(
+                $dn,
+                ENT_QUOTES,
+                'utf-8'
+            );
+            $dn = mb_convert_case(
+                $dn,
+                MB_CASE_LOWER,
+                'utf-8'
+            );
             $this->set($key, $dn);
         }
         return parent::get($key);
