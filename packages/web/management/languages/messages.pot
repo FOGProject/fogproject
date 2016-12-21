@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-20 17:55-0500\n"
+"POT-Creation-Date: 2016-12-21 12:46-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3365,7 +3365,7 @@ msgstr ""
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:354
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1986
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:665
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1238
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1243
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:56
 #: /var/www/fog/lib/plugins/fileintegrity/pages/fileintegritymanagementpage.class.php:63
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:75
@@ -5465,7 +5465,7 @@ msgid "FTP Connection has failed"
 msgstr ""
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:676
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1247
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1252
 msgid "Failed to add snapin"
 msgstr ""
 
@@ -5474,7 +5474,7 @@ msgid "unable to locate snapin directory"
 msgstr ""
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:684
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1253
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1258
 msgid "Failed to add/update snapin file"
 msgstr ""
 
@@ -5526,19 +5526,19 @@ msgstr ""
 msgid "from the already present list"
 msgstr ""
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1240
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1245
 msgid "FTP connection has failed"
 msgstr ""
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1291
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1296
 msgid "Snapin must be assigned to one Storage Group"
 msgstr ""
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1299
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1304
 msgid "Snapin update failed"
 msgstr ""
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1308
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1313
 msgid "Snapin updated"
 msgstr ""
 

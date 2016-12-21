@@ -1218,8 +1218,13 @@ class SnapinManagementPage extends FOGPage
                     $hash = hash_file('sha512', $src);
                     $size = self::getFilesize($src);
                 } else {
-                    $hash = '';
-                    $size = 0;
+                    if ($snapinfile == $this->obj->get('file')) {
+                        $hash = $this->obj->get('hash');
+                        $size = $this->obj->get('size');
+                    } else {
+                        $hash = '';
+                        $size = 0;
+                    }
                 }
                 $dest = sprintf(
                     '/%s/%s',

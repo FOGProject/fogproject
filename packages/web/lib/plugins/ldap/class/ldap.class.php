@@ -398,7 +398,7 @@ class LDAP extends FOGController
             /**
              * Combine to get the Domain in information.
              */
-            $userDomain = implode('.', $parsedDN['DC']);
+            $userDomain = implode('.', (array)$parsedDN['DC']);
             /**
              * Setup a multitude of ways to bind
              */
@@ -513,7 +513,7 @@ class LDAP extends FOGController
         $adminGroups = array_map('trim', $adminGroups);
         $filter = sprintf(
             '(&(|(name=%s))(%s=%s))',
-            implode(')(name=', $adminGroups),
+            implode(')(name=', (array)$adminGroups),
             $grpMemAttr,
             $this->escape($userDN, null, LDAP_ESCAPE_FILTER)
         );
@@ -537,7 +537,7 @@ class LDAP extends FOGController
         $userGroups = array_map('trim', $userGroups);
         $filter = sprintf(
             '(&(|(name=%s))(%s=%s))',
-            implode(')(name=', $userGroups),
+            implode(')(name=', (array)$userGroups),
             $grpMemAttr,
             $this->escape($userDN, null, LDAP_ESCAPE_FILTER)
         );
