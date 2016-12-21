@@ -14,10 +14,11 @@ $(function() {
         URL = $(this).attr('urlcall');
         test = document.createElement('a');
         test.href = URL;
-        test2 = test.pathname+test.search;
+        test2 = '../'+test.pathname+test.search;
         $.ajax({
             context: this,
-            url: test.pathname+test.search,
+            url: test2,
+            type: 'POST',
             data: {
                 url: URL
             },

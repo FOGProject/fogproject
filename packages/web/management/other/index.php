@@ -126,7 +126,7 @@ if (!self::$isMobile) {
         );
     echo '<div id="content-inner">';
     printf(
-        '<h1>%s</h2>',
+        '<h1>%s</h1>',
         $this->sectionTitle
     );
     if (self::$FOGUser->isValid() && $this->pageTitle) {
