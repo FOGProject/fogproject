@@ -271,7 +271,7 @@ class TaskManagementPage extends FOGPage
             _('Tasking'),
         );
         $this->templates = array(
-            '<a href="?node=host&sub=edit&id=${id}"/>${name}</a>'
+            '<a href="?node=host&sub=edit&id=${id}">${name}</a>'
             . '<br/><small>${mac}</small>',
             '<small>${imagename}</small>',
             sprintf(
@@ -357,7 +357,7 @@ class TaskManagementPage extends FOGPage
             _('Tasking'),
         );
         $this->templates = array(
-            '<a href="?node=group&sub=edit&id=${id}"/>${name}</a>',
+            '<a href="?node=group&sub=edit&id=${id}">${name}</a>',
             sprintf(
                 '%s %s %s',
                 $mc,
