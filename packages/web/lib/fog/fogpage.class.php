@@ -1513,46 +1513,20 @@ abstract class FOGPage extends FOGBase
                         array('id' => $this->obj->get('hosts')),
                         'imageID'
                     );
-                    $StorageGroupIDs = self::getSubObjectIDs(
-                        'ImageAssociation',
-                        array('imageID' => $imageIDs),
-                        'storagegroupID'
-                    );
-                    $StorageNodes = self::getClass('StorageNodeManager')
-                        ->find(
-                            array(
-                                'storagegroupID' => $StorageGroupIDs,
-                                'isEnabled' => 1
-                            )
-                        );
-                    $hasImageIDs = array();
-                    foreach ((array)$StorageNodes as &$StorageNode) {
-                        if (!$StorageNode->isValid()) {
-                            continue;
-                        }
-                        $hasImageIDs = array_merge(
-                            $hasImageIDs,
-                            $StorageNode->get('images')
-                        );
-                        unset($StorageNode);
-                    }
                     $orig_hosts = $this->get('hosts');
-                    $hasImageIDs = array_unique($hasImageIDs);
-                    $storageImageIDs = array_intersect($imageIDs, $hasImageIDs);
                     $hostIDs = self::getSubObjectIDs(
                         'Host',
                         array(
                             'id' => $this->obj->get('hosts'),
-                            'imageID' => $storageImageIDs
+                            'imageID' => $imageIDs
                         )
                     );
                     if (count($hostIDs) < 1) {
                         throw new Exception(
                             sprintf(
-                                '%s %s %s',
-                                _('Theres no image definitions'),
-                                _('available on any node for the'),
-                                _('hosts in this group')
+                                '%s/%s.',
+                                _('No valid hosts found and'),
+                                _('or no valid images specified')
                             )
                         );
                     }
