@@ -635,6 +635,7 @@ installPackages() {
     packages=$(echo ${packages[@]} | tr ' ' '\n' | sort -u | tr '\n' ' ')
     echo -e " * Packages to be installed:\n\n\t$packages\n\n"
     newPackList=""
+    local toInstall=""
     for x in $packages; do
         case $x in
             mysql)
@@ -691,13 +692,24 @@ installPackages() {
         newPackList="$newPackList $x"
         dots "Installing package: $x"
         DEBIAN_FRONTEND=noninteractive $packageinstaller $x >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        errorStat $?
+        if [[ ! $? -eq 0 ]]; then
+            echo "Failed! (Will try later)"
+            [[ -z $toInstall ]] && toInstall="$x" || toInstall="$toInstall $x"
+        else
+            echo "OK"
+        fi
     done
     packages=$newPackList
     packages=$(echo ${packages[@]} | tr ' ' '\n' | sort -u | tr '\n' ' ')
     dots "Updating packages as needed"
     DEBIAN_FRONTEND=noninteractive $packageupdater $packages >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     echo "OK"
+    if [[ -n $toInstall ]]; then
+        toInstall=$(echo ${toInstall[@]} | tr ' ' '\n' | sort -u | tr '\n' ' ')
+        dots "Installing now everything is updated"
+        DEBIAN_FRONTEND=noninteractive $packageinstaller $toInstall >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        errorStat $?
+    fi
 }
 confirmPackageInstallation() {
     for x in $packages; do
