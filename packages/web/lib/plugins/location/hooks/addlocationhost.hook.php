@@ -101,9 +101,6 @@ class AddLocationHost extends Hook
                 continue;
             }
             foreach ((array)$Locations as &$Location) {
-                if (!$Location->getLocation()->isValid()) {
-                    continue;
-                }
                 $arguments['data'][$index]['location'] = $Location
                     ->getLocation()
                     ->get('name');
@@ -238,10 +235,10 @@ class AddLocationHost extends Hook
                 'hostID' => $arguments['Host']->get('id')
             )
         );
+        if (count($Locations) < 1) {
+            $arguments['report']->addCSVCell('');
+        }
         foreach ((array)$Locations as &$Location) {
-            if (!$Location->getLocation()->isValid()) {
-                continue;
-            }
             $arguments['report']->addCSVCell(
                 $Location->getLocation()->get('id')
             );
@@ -284,10 +281,10 @@ class AddLocationHost extends Hook
                 'hostID' => $arguments['Host']->get('id')
             )
         );
+        if (count($Locations) < 1) {
+            $locName = '';
+        }
         foreach ((array)$Locations as $Location) {
-            if (!$Location->getLocation()->isValid()) {
-                continue;
-            }
             $locName = $Location->getLocation()->get('name');
             unset($Location);
             break;
@@ -347,10 +344,10 @@ class AddLocationHost extends Hook
                 'hostID' => $arguments['Host']->get('id')
             )
         );
+        if (count($Locations) < 1) {
+            $arguments['repFields']['location'] = '';
+        }
         foreach ((array)$Locations as &$Location) {
-            if (!$Location->getLocation()->isValid()) {
-                continue;
-            }
             $arguments['repFields']['location'] = $Location
                 ->getLocation()
                 ->get('name');

@@ -93,9 +93,6 @@ class AddLocationTasks extends Hook
                 $arguments['data'][$i]['location'] = '';
             }
             foreach ((array)$Locations as &$Location) {
-                if (!$Location->isValid()) {
-                    continue;
-                }
                 $arguments['data'][$i]['location'] = $Location
                     ->getLocation()
                     ->get('name');

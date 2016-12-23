@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-22 20:43-0500\n"
+"POT-Creation-Date: 2016-12-22 20:59-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4953,7 +4953,7 @@ msgstr ""
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:401
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:771
-#: /var/www/fog/lib/plugins/location/hooks/addlocationhost.hook.php:152
+#: /var/www/fog/lib/plugins/location/hooks/addlocationhost.hook.php:149
 msgid "Host Product Key"
 msgstr ""
 
@@ -5961,7 +5961,7 @@ msgstr ""
 msgid "Location/Deployed"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/location/hooks/addlocationhost.hook.php:154
+#: /var/www/fog/lib/plugins/location/hooks/addlocationhost.hook.php:151
 msgid "Host Location"
 msgstr ""
 
