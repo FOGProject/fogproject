@@ -330,8 +330,7 @@ class ReportManagementPage extends FOGPage
         );
         $this->templates = array(
             '${createdBy}',
-            '${host_name}<br/><small>Storage Group: ${group_name}'
-            . '</small><br/><small>Storage Node: ${node_name}</small>',
+            '${host_name}',
             '<small>${start_date} ${start_time}</small>',
             '<small>${end_date} ${end_time}</small>',
             '${duration}',
@@ -401,22 +400,7 @@ class ReportManagementPage extends FOGPage
             $hostMac = $Host->get('mac');
             $hostDesc = $Host->get('description');
             unset($Host);
-            $TaskIDs = self::getSubObjectIDs(
-                'Task',
-                array(
-                    'checkInTime' => $ImagingLog->get('start'),
-                    'hostID' => $hostId
-                )
-            );
-            $TaskID = @max($TaskIDs);
-            $Task = new Task($TaskID);
-            $groupName = $Task->getStorageGroup()->get('name');
-            $nodeName = $Task->getStorageNode()->get('name');
-            $typeName = $Task->getTaskType()->get('name');
-            unset($Task);
-            if (!$typeName) {
-                $typeName = $ImagingLog->get('type');
-            }
+            $typeName = $ImagingLog->get('type');
             if (in_array($typeName, array('up', 'down'))) {
                 $typeName = $imgTypes[$typeName];
             }

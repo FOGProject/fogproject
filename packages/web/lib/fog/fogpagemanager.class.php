@@ -253,7 +253,7 @@ class FOGPageManager extends FOGBase
                 $class->attributes
             );
         }
-        $class->$method();
+        $class->{$method}();
         $this->resetRequest();
     }
     /**
