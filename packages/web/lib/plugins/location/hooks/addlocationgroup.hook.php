@@ -87,18 +87,17 @@ class AddLocationGroup extends Hook
         if ($node != 'group') {
             return;
         }
-        $Locations = self::getClass('LocationAssociationManager')->find(
+        $Locations = self::getSubObjectIDs(
+            'LocationAssociation',
             array(
                 'hostID' => $arguments['Group']->get('hosts')
             )
         );
-        foreach ((array)$Locations as &$Location) {
-            if (!$Location->isValid()) {
-                continue;
-            }
-            $locID = $Location->getLocation()->get('id');
-            unset($Location);
-            break;
+        $cnt = count($Locations);
+        if ($cnt !== 1) {
+            $locID = 0;
+        } else {
+            $locID = array_shift($cnt);
         }
         echo '<!-- Location --><div id="group-location">';
         printf(
