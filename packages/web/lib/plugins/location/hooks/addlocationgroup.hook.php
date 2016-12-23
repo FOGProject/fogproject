@@ -91,14 +91,16 @@ class AddLocationGroup extends Hook
             'LocationAssociation',
             array(
                 'hostID' => $arguments['Group']->get('hosts')
-            )
+            ),
+            'locationID'
         );
         $cnt = count($Locations);
         if ($cnt !== 1) {
             $locID = 0;
         } else {
-            $locID = array_shift($cnt);
+            $locID = array_shift($Locations);
         }
+        unset($Locations);
         echo '<!-- Location --><div id="group-location">';
         printf(
             '<h2>%s: %s</h2>',

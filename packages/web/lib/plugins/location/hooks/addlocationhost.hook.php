@@ -96,11 +96,12 @@ class AddLocationHost extends Hook
                     'hostID' => $vals['id']
                 )
             );
-            if (count($Locations) < 1) {
+            if (count($Locations) !== 1) {
                 $arguments['data'][$index]['location'] = '';
+                continue;
             }
             foreach ((array)$Locations as &$Location) {
-                if (!$Location->isValid()) {
+                if (!$Location->getLocation()->isValid()) {
                     continue;
                 }
                 $arguments['data'][$index]['location'] = $Location
@@ -133,14 +134,18 @@ class AddLocationHost extends Hook
                 'hostID' => $arguments['Host']->get('id')
             )
         );
-        $locID = 0;
-        foreach ((array)$Locations as &$Location) {
-            if (!$Location->isValid()) {
-                continue;
-            }
-            $locID = $Location->getLocation()->get('id');
-            unset($Location);
-            break;
+        $Locations = self::getSubObjectIDs(
+            'LocationAssociation',
+            array(
+                'hostID' => $arguments['Host']->get('id')
+            ),
+            'locationID'
+        );
+        $cnt = count($Locations);
+        if ($cnt !== 1) {
+            $locID = 0;
+        } else {
+            $locID = array_shift($Locations);
         }
         unset($Locations);
         $this->arrayInsertAfter(
@@ -234,7 +239,7 @@ class AddLocationHost extends Hook
             )
         );
         foreach ((array)$Locations as &$Location) {
-            if (!$Location->isValid()) {
+            if (!$Location->getLocation()->isValid()) {
                 continue;
             }
             $arguments['report']->addCSVCell(
@@ -280,7 +285,7 @@ class AddLocationHost extends Hook
             )
         );
         foreach ((array)$Locations as $Location) {
-            if (!$Location->isValid()) {
+            if (!$Location->getLocation()->isValid()) {
                 continue;
             }
             $locName = $Location->getLocation()->get('name');
@@ -343,7 +348,7 @@ class AddLocationHost extends Hook
             )
         );
         foreach ((array)$Locations as &$Location) {
-            if (!$Location->isValid()) {
+            if (!$Location->getLocation()->isValid()) {
                 continue;
             }
             $arguments['repFields']['location'] = $Location

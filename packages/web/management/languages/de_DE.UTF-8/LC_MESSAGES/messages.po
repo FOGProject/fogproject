@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-22 20:03-0500\n"
+"POT-Creation-Date: 2016-12-22 20:43-0500\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -5179,7 +5179,7 @@ msgstr "Host-Beschreibung"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:401
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:771
-#: /var/www/fog/lib/plugins/location/hooks/addlocationhost.hook.php:147
+#: /var/www/fog/lib/plugins/location/hooks/addlocationhost.hook.php:152
 msgid "Host Product Key"
 msgstr "Host-Produkt-Schlüssel"
 
@@ -6253,7 +6253,7 @@ msgstr ""
 msgid "Location/Deployed"
 msgstr "Lage/bereitgestellt"
 
-#: /var/www/fog/lib/plugins/location/hooks/addlocationhost.hook.php:149
+#: /var/www/fog/lib/plugins/location/hooks/addlocationhost.hook.php:154
 msgid "Host Location"
 msgstr "Host-Standort"
 
@@ -6288,12 +6288,12 @@ msgstr ""
 msgid "Location Association"
 msgstr "Bild-Verband"
 
-#: /var/www/fog/lib/plugins/location/hooks/addlocationgroup.hook.php:105
+#: /var/www/fog/lib/plugins/location/hooks/addlocationgroup.hook.php:107
 #, fuzzy
 msgid "Location Association for"
 msgstr "Bild-Verein für"
 
-#: /var/www/fog/lib/plugins/location/hooks/addlocationgroup.hook.php:125
+#: /var/www/fog/lib/plugins/location/hooks/addlocationgroup.hook.php:127
 #, fuzzy
 msgid "Update Locations"
 msgstr "Standorte"
