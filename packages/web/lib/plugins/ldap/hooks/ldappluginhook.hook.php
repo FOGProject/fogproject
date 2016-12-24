@@ -77,20 +77,18 @@ class LDAPPluginHook extends Hook
             }
         }
         /**
-         * Collects the user ids with our ldap entries.
-         */
-        $userIDs = self::getSubObjectIDs(
-            'User',
-            array('type' => $ldapTypes)
-        );
-        /**
          * Count the user ids and if any are there,
          * remove all the entries.
          */
-        global $node;
-        if (count($userIDs) > 0) {
+        if (!self::$ajax && count($userIDs) > 0) {
             self::getClass('UserManager')
-                ->destroy(array('id' => $userIDs));
+                ->destroy(
+                    array(
+                        'name' => $user,
+                        'type' => $ldapTypes,
+
+                    )
+                );
         }
         $ldaps = self::getClass('LDAPManager')->find();
         /**
@@ -116,6 +114,8 @@ class LDAPPluginHook extends Hook
                     ->set('type', 991)
                     ->save();
                 break;
+            default:
+                self::$FOGUser = new User();
             }
         }
         unset($ldaps);
