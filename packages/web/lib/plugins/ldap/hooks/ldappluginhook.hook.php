@@ -87,6 +87,7 @@ class LDAPPluginHook extends Hook
          * Count the user ids and if any are there,
          * remove all the entries.
          */
+        global $node;
         if (count($userIDs) > 0) {
             self::getClass('UserManager')
                 ->destroy(array('id' => $userIDs));
@@ -152,6 +153,24 @@ class LDAPPluginHook extends Hook
         }
         $arguments['types'] = array(990, 991);
     }
+    /**
+     * Tests if the user is containing the ldap types.
+     *
+     * @param mixed $arguments the item to adjust
+     *
+     * @return void
+     */
+    public function isLdapType($arguments)
+    {
+        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+            return;
+        }
+        $types = array(990, 991);
+        if (in_array($arguments['type'], $types)) {
+            $arguments['typeIsValid'] = false;
+        }
+        $arguments['types'] = array(990, 991);
+    }
 }
 $LDAPPluginHook = new LDAPPluginHook();
 $HookManager
@@ -176,5 +195,13 @@ $HookManager
         array(
             $LDAPPluginHook,
             'setTypeFilter'
+        )
+    );
+$HookManager
+    ->register(
+        'USER_TYPE_VALID',
+        array(
+            $LDAPPluginHook,
+            'isLdapType'
         )
     );

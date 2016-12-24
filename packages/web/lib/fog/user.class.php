@@ -137,6 +137,19 @@ class User extends FOGController
         $tmpUser = self::getClass('User')
             ->set('name', $username)
             ->load('name');
+        $typeIsValid = true;
+        $type = $tmpUser->get('type');
+        self::$HookManager
+            ->processEvent(
+                'USER_TYPE_VALID',
+                array(
+                    'type' => &$type,
+                    'typeIsValid' => &$typeIsValid
+                )
+            );
+        if (!$typeIsValid) {
+            return false;
+        }
         if (preg_match('#^[a-f0-9]{32}$#', $tmpUser->get('password'))
             && md5($password) === $tmpUser->get('password')
         ) {
@@ -208,6 +221,47 @@ class User extends FOGController
             );
             $this->_isLoggedIn();
         } else {
+            self::$HookManager
+                ->processEvent(
+                    'USER_LOGGING_IN',
+                    array(
+                        'username' => $username,
+                        'password' => $password
+                    )
+                );
+            if (self::$FOGUser->isValid()) {
+                $type = self::$FOGUser->get('type');
+                self::$HookManager
+                    ->processEvent(
+                        'USER_TYPE_HOOK',
+                        array('type' => &$type)
+                    );
+                $this
+                    ->set('id', self::$FOGUser->get('id'))
+                    ->set('name', self::$FOGUser->get('name'))
+                    ->set('password', '', true)
+                    ->set('type', $type);
+                if (!$this->_sessionID) {
+                    $this->_sessionID = session_id();
+                }
+                $this
+                    ->set('authUserAgent', $_SERVER['HTTP_USER_AGENT'])
+                    ->set('authIP', $_SERVER['REMOTE_ADDR'])
+                    ->set('authTime', time())
+                    ->set('authLastActivity', time())
+                    ->set('authID', $this->_sessionID);
+                $_SESSION['FOG_USER'] = $this->get('id');
+                $_SESSION['FOG_USERNAME'] = $this->get('name');
+                $this->log(
+                    sprintf(
+                        '%s %s.',
+                        $this->get('name'),
+                        _('user successfully logged in')
+                    )
+                );
+                $this->_isLoggedIn();
+                return $this;
+            }
             $this->log(
                 sprintf(
                     '%s %s.',

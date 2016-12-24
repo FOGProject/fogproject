@@ -337,7 +337,15 @@ class ReportManagementPage extends FOGPage
             '${image_name}',
             '${type}',
         );
-        array_pop($this->attributes);
+        $this->attributes = array(
+            array(),
+            array(),
+            array(),
+            array(),
+            array(),
+            array(),
+            array()
+        );
         $date1 = $_REQUEST['date1'];
         $date2 = $_REQUEST['date2'];
         if ($date1 > $date2) {

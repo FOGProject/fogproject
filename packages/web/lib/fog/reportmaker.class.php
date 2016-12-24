@@ -205,7 +205,12 @@ class ReportMaker extends FOGBase
                     '--logoimage %s',
                     escapeshellarg(
                         sprintf(
-                            'http://%s/fog/management/other/%s',
+                            'http%s://%s/fog/management/other/%s',
+                            (
+                                isset($_SERVER['HTTPS']) ?
+                                's' :
+                                ''
+                            ),
                             $_SERVER['HTTP_HOST'],
                             $logoimage
                         )
@@ -219,8 +224,7 @@ class ReportMaker extends FOGBase
                 '--gray',
                 $logoimage,
                 '--header l',
-                '--footer D/1',
-                '--headfootsize 8',
+                '--footer D1/1',
                 '--size letter',
                 '-t pdf14',
                 '--no-compression',
