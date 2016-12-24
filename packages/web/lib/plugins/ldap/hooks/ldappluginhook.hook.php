@@ -80,7 +80,7 @@ class LDAPPluginHook extends Hook
          * Count the user ids and if any are there,
          * remove all the entries.
          */
-        if (!self::$ajax && count($userIDs) > 0) {
+        if (!self::$ajax) {
             self::getClass('UserManager')
                 ->destroy(
                     array(
