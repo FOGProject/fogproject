@@ -4,7 +4,7 @@
 
  FOG is a free open-source cloning/imaging solution/rescue suite. FOG can be used to image Windows XP, Vista, Windows 7 and Window 8 PCs using PXE, PartClone, and a Web GUI to tie it together. Includes features like memory and disk test, disk wipe, av scan & task scheduling.
 
-## Install Stable (1.2.0)
+## Install Stable (1.3.0)
 
 0. Install and update your chosen linux server
 
@@ -12,9 +12,9 @@
 
  - All that is needed to start installation is to download the files to perform the install. Choose one of the following methods you prefer;
 
- - **tar/zip** `wget http://downloads.sourceforge.net/project/freeghost/FOG/fog_1.2.0/fog_1.2.0.tar.gz | tar -xzfC trunk/`
- - **SVN** ` svn checkout https://svn.code.sf.net/p/freeghost/code/tags/1.2.0/ fog_1.2.0/`
- - **git** There currently is no easy method to use GIT to install FOG version 1.2.0
+ - **tar/zip** `wget http://downloads.sourceforge.net/project/freeghost/FOG/fog_1.3.0/fog_1.3.0.tar.gz | tar -xzfC trunk/`
+ - **SVN** ` svn checkout https://svn.code.sf.net/p/freeghost/code/tags/1.3.0/ fog_1.3.0/`
+ - **git** There currently is no easy method to use GIT to install FOG version 1.3.0
 
 2. Go into the downloaded source/bin folder
 
@@ -26,7 +26,7 @@
 
 4. Enjoy
 
-## Install Development (1.3.0-dev) AKA trunk
+## Install Development AKA trunk
 
 0. Install and update your chosen linux server
 
