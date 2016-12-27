@@ -149,9 +149,7 @@ class Plugin extends FOGController
     {
         $dir = trim(self::getSetting('FOG_PLUGINSYS_DIR'));
         if ($dir != '../lib/plugins/') {
-            $Service
-                ->set('value', '../lib/plugins/')
-                ->save();
+            self::setSetting('FOG_PLUGINSYS_DIR', '../lib/plugins/');
             $dir = '../lib/plugins/';
         }
         $patternReplacer = function ($element) {
