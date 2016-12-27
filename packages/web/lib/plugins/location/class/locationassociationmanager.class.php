@@ -62,10 +62,7 @@ class LocationAssociationManager extends FOGManagerController
             ),
             array(
                 'laID',
-                array(
-                    'laHostID',
-                    'laLocationID'
-                )
+                'laHostID',
             ),
             'MyISAM',
             'utf8',

@@ -184,16 +184,11 @@ class AddLocationHost extends Hook
         if (str_replace('_', '-', $tab) != 'host-general') {
             return;
         }
-        if (!($_REQUEST['location']
-            && is_numeric($_REQUEST['location'])
-            && $_REQUEST['location'] > 0)
-        ) {
-            self::getClass('LocationAssociationManager')->destroy(
-                array(
-                    'hostID' => $arguments['Host']->get('id')
-                )
-            );
-        }
+        self::getClass('LocationAssociationManager')->destroy(
+            array(
+                'hostID' => $arguments['Host']->get('id')
+            )
+        );
         self::getClass('LocationAssociation')
             ->set('hostID', $arguments['Host']->get('id'))
             ->load('hostID')

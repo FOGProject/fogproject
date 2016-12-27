@@ -150,16 +150,15 @@ class AddLocationGroup extends Hook
         if ($tab != 'group-location') {
             return;
         }
-        if (!($_REQUEST['location']
+        self::getClass('LocationAssociationManager')->destroy(
+            array(
+                'hostID' => $arguments['Group']->get('hosts')
+            )
+        );
+        if ($_REQUEST['location']
             && is_numeric($_REQUEST['location'])
-            && $_REQUEST['location'] > 0)
+            && $_REQUEST['location'] > 0
         ) {
-            self::getClass('LocationAssociationManager')->destroy(
-                array(
-                    'hostID' => $arguments['Group']->get('hosts')
-                )
-            );
-        } else {
             $insert_fields = array('locationID','hostID');
             $insert_values = array();
             foreach ((array)$arguments['Group']->get('hosts') as &$hostID) {
