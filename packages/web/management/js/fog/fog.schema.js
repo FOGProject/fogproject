@@ -1,7 +1,6 @@
 var runInterval;
 $(function() {
     runDBCheck();
-    runInterval = setInterval(runDBCheck,1000);
     $('form').submit(function(e) {
         clearInterval(runInterval);
     });
@@ -18,6 +17,8 @@ function runDBCheck() {
                 $('#dbNotRunning').hide();
                 $('#dbRunning').show();
             }
-        }
+        },
+        complete: function() {
+            setTimeout(runDBCheck, 1000 - ((new Date().getTime() - startTime) % 1000));
     });
 }

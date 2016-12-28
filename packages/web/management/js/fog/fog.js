@@ -5,6 +5,7 @@
  *	Revision:	$Revision: 2430 $
  *	Last Update:	$LastChangedDate: 2014-10-16 11:55:06 -0400 (Thu, 16 Oct 2014) $
  ***/
+var startTime = new Date().getTime();
 var validatoropts,
     screenview,
     callme;
@@ -77,6 +78,9 @@ function AJAXServerTime() {
         type: 'post',
         success: function(data) {
             $('#showtime').html(data);
+        },
+        complete : function() {
+            setTimeout(AJAXServerTime, 60000 - ((new Date().getTime() - startTime) % 60000));
         }
     });
 }
@@ -105,7 +109,6 @@ function AJAXServerTime() {
     setupParserInfo();
     setupFogTableInfoFunction();
     AJAXServerTime();
-    setInterval(AJAXServerTime,60000);
     $('.list,.search,.storageGroup,.listhosts,.listgroups').click(function(e) {
         if (sub && $.inArray(sub,['list','search','storageGroup','listhosts','listgroups']) < 0) {
             return;

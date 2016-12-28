@@ -63,9 +63,7 @@ function buttonPress() {
     });
 }
 function ActiveTasksUpdate() {
-    clearInterval(AJAXTaskUpdate);
-    if (AJAXTaskRunning) AJAXTaskRunning.abort();
-    AJAXTaskRunning = $.ajax({
+    $.ajax({
         url: URL,
         dataType: 'json',
         beforeSend: function() {
@@ -84,12 +82,12 @@ function ActiveTasksUpdate() {
             }
             TableCheck();
             checkboxToggleSearchListPages();
-            AJAXTaskRunning = null;
-            AJAXTaskUpdate = setInterval(ActiveTasksUpdate,ActiveTasksUpdateInterval);
         },
         error: function(jqXHR, textStatus, errorThrown) {
             Loader.fogStatusUpdate(_L['ERROR_SEARCHING']+(errorThrown != '' ? errorThrown : '')).addClass('error').find('i').css({color:'red'});
-            AJAXTaskRunning = null;
         },
+        complete: function() {
+            setTimeout(ActiveTasksUpdate, ActiveTasksUpdateInterval - ((new Date().getTime() - startTime) % ActiveTasksUpdateInterval));
+        }
     });
 }
