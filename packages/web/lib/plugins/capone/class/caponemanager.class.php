@@ -64,7 +64,6 @@ class CaponeManager extends FOGManagerController
             ),
             array(
                 'cID',
-                'cImageID',
                 'cKey'
             ),
             'MyISAM',

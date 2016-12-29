@@ -87,7 +87,7 @@ class CaponeTasking extends FOGBase
                     $path = $Image->get('path');
                     $osid = $Image->get('osID');
                     $itid = $Image->get('imageTypeID');
-                    $ptid = $Image->get('imagePartitionTypeID');
+                    $ptid = $Image->getPartitionType();
                     $format = $Image->get('format');
                     printf(
                         "%s\n",
