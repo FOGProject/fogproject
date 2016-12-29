@@ -69,9 +69,6 @@ class CaponeTasking extends FOGBase
                         )
                     );
                 foreach ((array)$Capones as &$Capone) {
-                    if (!$Capone->isValid()) {
-                        continue;
-                    }
                     $Image = $Capone->getImage();
                     if (!$Image->isValid()) {
                         continue;

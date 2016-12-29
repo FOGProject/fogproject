@@ -54,7 +54,7 @@ class Capone extends FOGController
      *
      * @var array
      */
-    protected $databaseClassFieldRelationships = array(
+    protected $databaseFieldClassRelationships = array(
         'Image' => array(
             'id',
             'imageID',

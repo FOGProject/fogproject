@@ -176,13 +176,7 @@ function GraphDiskUsageUpdate() {
             .parents('a')
             .prop('href','?node=hwinfo&id='+NodeID);
         },
-        success: GraphDiskUsagePlots,
-        complete: function() {
-            if (diskinterval) {
-                clearTimeout(diskinterval);
-            }
-            diskinterval = setTimeout(GraphDiskUsageUpdate, diskusagetime - ((new Date().getTime() - startTime) % diskusagetime));
-        }
+        success: GraphDiskUsagePlots
     });
     $('[name="nodesel"] option').each(function(e) {
         URL = $(this).attr('urlcall');
@@ -221,6 +215,10 @@ function GraphDiskUsagePlots(data) {
     ];
     $.plot(GraphDiskUsage,GraphDiskUsageData,GraphDiskUsageOpts);
     GraphDiskUsage.addClass('loaded');
+    if (diskinterval) {
+        clearTimeout(diskinterval);
+    }
+    diskinterval = setTimeout(GraphDiskUsageUpdate, diskusagetime - ((new Date().getTime() - startTime) % diskusagetime));
 }
 // Bandwidth Functions
 function UpdateBandwidth() {
@@ -240,10 +238,6 @@ function UpdateBandwidth() {
         },
         complete: function() {
             GraphBandwidth.addClass('loaded');
-            if (bandinterval) {
-                clearTimeout(bandinterval);
-            }
-            bandinterval = setTimeout(UpdateBandwidth, bandwidthtime - ((new Date().getTime() - startTime) % bandwidthtime));
         }
     });
 }
@@ -282,6 +276,10 @@ function UpdateBandwidthGraph(data) {
     GraphData = new Array();
     for (i in GraphBandwidthData) GraphData.push({label: i+' ('+GraphBandwidthData[i].dev+')', data: (GraphBandwidthFilterTransmitActive ? GraphBandwidthData[i].tx : GraphBandwidthData[i].rx)});
     $.plot(GraphBandwidth,GraphData,GraphBandwidthOpts);
+    if (bandinterval) {
+        clearTimeout(bandinterval);
+    }
+    bandinterval = setTimeout(UpdateBandwidth, bandwidthtime - ((new Date().getTime() - startTime) % bandwidthtime));
 }
 // Client Count Functions.
 function UpdateClientCount() {
@@ -294,13 +292,7 @@ function UpdateClientCount() {
             id: GroupID
         },
         dataType: 'json',
-        success: UpdateClientCountPlot,
-        complete: function() {
-            if (clientinterval) {
-                clearTimeout(clientinterval);
-            }
-            clientinterval = setTimeout(UpdateClientCount, clientcounttime - ((new Date().getTime() - startTime) % clientcounttime));
-        }
+        success: UpdateClientCountPlot
     });
 }
 function UpdateClientCountPlot(data) {
@@ -313,4 +305,8 @@ function UpdateClientCountPlot(data) {
         {label:'Free',data:parseInt(data.ActivitySlots)}
     ];
     $.plot(GraphClient,UpdateClientCountData,UpdateClientCountOpts);
+    if (clientinterval) {
+        clearTimeout(clientinterval);
+    }
+    clientinterval = setTimeout(UpdateClientCount, clientcounttime - ((new Date().getTime() - startTime) % clientcounttime));
 }

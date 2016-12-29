@@ -1083,7 +1083,7 @@ abstract class FOGController extends FOGBase
             (array) $this->data,
             (array) $classData
         );
-        foreach ($this->databaseFieldClassRelationships as $class => &$fields) {
+        foreach ((array)$this->databaseFieldClassRelationships as $class => &$fields) {
             $class = self::getClass($class);
             $this->set(
                 $fields[2],
