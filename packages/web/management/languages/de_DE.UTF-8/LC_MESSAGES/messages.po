@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-23 19:33-0500\n"
+"POT-Creation-Date: 2016-12-29 20:31-0500\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -939,11 +939,7 @@ msgstr "Registriert"
 msgid "Set Failed"
 msgstr "Fehler beim"
 
-#: /var/www/fog/lib/fog/bootmenu.class.php:489
-msgid "Capone Deploy"
-msgstr "Capone bereitstellen"
-
-#: /var/www/fog/lib/fog/bootmenu.class.php:1481
+#: /var/www/fog/lib/fog/bootmenu.class.php:1356
 #, fuzzy
 msgid "No valid storage nodes found"
 msgstr "Ungültige Speicherknoten"
@@ -5966,20 +5962,25 @@ msgstr "Plugin installiert!"
 msgid "Settings Updated"
 msgstr "Einstellungen aktualisiert"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:604
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:599
+#, fuzzy
+msgid "Must have an image associated"
+msgstr "Snap-in muss zu einer Gruppe verknüpft haben"
+
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:607
 msgid "Failed to save assignment"
 msgstr "Fehler beim Speichern der Zuordnung"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:606
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:609
 msgid "Assignment saved successfully"
 msgstr "Auftrag erfolgreich gespeichert"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:612
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:615
 #, fuzzy
 msgid "Destroyed assignments"
 msgstr "Zerstörte Zuordnung"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:614
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:617
 msgid "Destroyed assignment"
 msgstr "Zerstörte Zuordnung"
 
@@ -6724,6 +6725,10 @@ msgstr "Aktuelle Sendung"
 #: /var/www/fog/lib/plugins/wolbroadcast/hooks/addwolmenuitem.hook.php:65
 msgid "WOL Broadcast Management"
 msgstr "WOL Broadcast Management"
+
+#: /var/www/fog/lib/plugins/capone/hooks/addbootmenuitem.hook.php:72
+msgid "Capone Deploy"
+msgstr "Capone bereitstellen"
 
 #: /var/www/fog/lib/db/pdodb.class.php:90
 #: /var/www/fog/lib/db/mysql.class.php:16
@@ -9148,9 +9153,6 @@ msgstr "Es gibt keine Orte auf diesem Server."
 #~ msgstr ""
 #~ "Eine Datei für das Snap-in verwenden müssen entweder hochgeladen oder aus "
 #~ "der bereits vorhandenen Liste ausgewählt werden"
-
-#~ msgid "Must have snapin associated to a group"
-#~ msgstr "Snap-in muss zu einer Gruppe verknüpft haben"
 
 #~ msgid "Snapin added, Editing now!"
 #~ msgstr "Snap-in hinzugefügt, jetzt bearbeiten!"

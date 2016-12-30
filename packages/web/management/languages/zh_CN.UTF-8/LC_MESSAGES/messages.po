@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-23 19:33-0500\n"
+"POT-Creation-Date: 2016-12-29 20:31-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -928,11 +928,7 @@ msgstr "注册"
 msgid "Set Failed"
 msgstr "失败"
 
-#: /var/www/fog/lib/fog/bootmenu.class.php:489
-msgid "Capone Deploy"
-msgstr "卡波恩部署"
-
-#: /var/www/fog/lib/fog/bootmenu.class.php:1481
+#: /var/www/fog/lib/fog/bootmenu.class.php:1356
 #, fuzzy
 msgid "No valid storage nodes found"
 msgstr "无效的存储节点"
@@ -5926,20 +5922,25 @@ msgstr "插件安装好了！"
 msgid "Settings Updated"
 msgstr "设置更新"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:604
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:599
+#, fuzzy
+msgid "Must have an image associated"
+msgstr "必须有管理单元与组关联"
+
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:607
 msgid "Failed to save assignment"
 msgstr "无法保存分配"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:606
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:609
 msgid "Assignment saved successfully"
 msgstr "转让成功保存"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:612
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:615
 #, fuzzy
 msgid "Destroyed assignments"
 msgstr "销毁作业"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:614
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:617
 msgid "Destroyed assignment"
 msgstr "销毁作业"
 
@@ -6680,6 +6681,10 @@ msgstr "广播更新"
 #: /var/www/fog/lib/plugins/wolbroadcast/hooks/addwolmenuitem.hook.php:65
 msgid "WOL Broadcast Management"
 msgstr "WOL广播管理"
+
+#: /var/www/fog/lib/plugins/capone/hooks/addbootmenuitem.hook.php:72
+msgid "Capone Deploy"
+msgstr "卡波恩部署"
 
 #: /var/www/fog/lib/db/pdodb.class.php:90
 #: /var/www/fog/lib/db/mysql.class.php:16
@@ -9034,9 +9039,6 @@ msgstr "有此服务器上没有的位置。"
 #~ "A file to use for the snapin must be either uploaded or chosen from the "
 #~ "already present list"
 #~ msgstr "要使用的管理单元的文件必须要么上传或从已存在列表中选择"
-
-#~ msgid "Must have snapin associated to a group"
-#~ msgstr "必须有管理单元与组关联"
 
 #~ msgid "Snapin added, Editing now!"
 #~ msgstr "管理单元补充说，现在编辑！"

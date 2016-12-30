@@ -221,8 +221,6 @@ class BootMenu extends FOGBase
             'FOG_KEYMAP',
             'FOG_KEY_SEQUENCE',
             'FOG_MEMTEST_KERNEL',
-            'FOG_PLUGIN_CAPONE_DMI',
-            'FOG_PLUGIN_CAPONE_SHUTDOWN',
             'FOG_PXE_BOOT_IMAGE',
             'FOG_PXE_BOOT_IMAGE_32',
             'FOG_PXE_HIDDENMENU_TIMEOUT',
@@ -240,8 +238,6 @@ class BootMenu extends FOGBase
             $keymap,
             $keySequence,
             $memtest,
-            $caponeDMI,
-            $caponeShutdown,
             $imagefile,
             $init_32,
             $hiddenTimeout,
@@ -261,53 +257,6 @@ class BootMenu extends FOGBase
             false,
             ''
         );
-        if (!in_array('capone', (array)$_SESSION['PluginsInstalled'])) {
-            $serviceNames = array(
-                'FOG_EFI_BOOT_EXIT_TYPE',
-                'FOG_KERNEL_ARGS',
-                'FOG_KERNEL_DEBUG',
-                'FOG_KERNEL_LOGLEVEL',
-                'FOG_KERNEL_RAMDISK_SIZE',
-                'FOG_KEYMAP',
-                'FOG_KEY_SEQUENCE',
-                'FOG_MEMTEST_KERNEL',
-                'FOG_PXE_BOOT_IMAGE',
-                'FOG_PXE_BOOT_IMAGE_32',
-                'FOG_PXE_HIDDENMENU_TIMEOUT',
-                'FOG_PXE_MENU_HIDDEN',
-                'FOG_PXE_MENU_TIMEOUT',
-                'FOG_TFTP_PXE_KERNEL',
-                'FOG_TFTP_PXE_KERNEL_32',
-            );
-            list(
-                $exit,
-                $kernelArgs,
-                $kernelDebug,
-                $kernelLogLevel,
-                $kernelRamDisk,
-                $keymap,
-                $keySequence,
-                $memtest,
-                $imagefile,
-                $init_32,
-                $hiddenTimeout,
-                $hiddenmenu,
-                $menuTimeout,
-                $bzImage,
-                $bzImage32
-            ) = self::getSubObjectIDs(
-                'Service',
-                array(
-                    'name' => $serviceNames
-                ),
-                'value',
-                false,
-                'AND',
-                'name',
-                false,
-                ''
-            );
-        }
         $memdisk = 'memdisk';
         $loglevel = $kernelLogLevel;
         $ramsize = $kernelRamDisk;
@@ -394,15 +343,8 @@ class BootMenu extends FOGBase
             )
         );
         $this->_initrd = "imgfetch $imagefile";
-        self::_caponeMenu(
-            $this->_storage,
-            $this->_path,
-            $this->_shutdown,
-            $caponeDMI,
-            $caponeShutdown,
-            $StorageNode,
-            self::$FOGCore
-        );
+        self::$HookManager
+            ->processEvent('BOOT_MENU_ITEM');
         $PXEMenuID = @max(
             self::getSubObjectIDs(
                 'PXEMenuOptions',
@@ -447,73 +389,6 @@ class BootMenu extends FOGBase
         } else {
             $this->getTasking();
         }
-    }
-    /**
-     * If it doesn't exist, create the capone menu
-     *
-     * @param string      $storage     the storage
-     * @param string      $path        the path
-     * @param mixed       $shutdown    if shutdown is to be used
-     * @param string      $DMISet      Capone's dmi field
-     * @param mixed       $Shutdown    Capone's shutdown field
-     * @param StorageNode $StorageNode The Storage Node to use
-     * @param FOGCore     $FOGCore     FOGCore class
-     *
-     * @return void
-     */
-    private static function _caponeMenu(
-        &$storage,
-        &$path,
-        &$shutdown,
-        $DMISet,
-        $Shutdown,
-        &$StorageNode,
-        &$FOGCore
-    ) {
-        if (!in_array('capone', (array)$_SESSION['PluginsInstalled'])) {
-            return;
-        }
-        if (!$DMISet) {
-            return;
-        }
-        $storage = $StorageNode->get('ip');
-        $path = $StorageNode->get('path');
-        $shutdown = $Shutdown;
-        $dmi = $DMISet;
-        $args = trim("mode=capone shutdown=$shutdown");
-        $CaponeMenu = self::getClass('PXEMenuOptions')
-            ->set('name', 'fog.capone')
-            ->load('name');
-        if (!$CaponeMenu->isValid()) {
-            $CaponeMenu->set('name', 'fog.capone')
-                ->set('description', _('Capone Deploy'))
-                ->set('args', $args)
-                ->set('params', null)
-                ->set('default', 0)
-                ->set('regMenu', 2);
-        }
-        $setArgs = explode(' ', trim($CaponeMenu->get('args')));
-        $neededArgs = explode(' ', trim($args));
-        $sureArgs = array();
-        array_walk(
-            $setArgs,
-            function (&$arg, &$index) use (&$sureArgs) {
-                if (!preg_match('#^dmi=#', $arg)) {
-                    $sureArgs[] = $arg;
-                }
-            }
-        );
-        $setArgs = $sureArgs;
-        array_walk(
-            $neededArgs,
-            function (&$arg, &$index) use (&$setArgs) {
-                if (!in_array($arg, $setArgs)) {
-                    $setArgs[] = $arg;
-                }
-            }
-        );
-        $setArgs[] = sprintf('dmi=%s', $dmi);
-        $CaponeMenu->set('args', implode(' ', $setArgs))->save();
     }
     /**
      * Sets the default menu item

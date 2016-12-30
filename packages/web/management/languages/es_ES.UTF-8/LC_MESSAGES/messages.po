@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-23 19:33-0500\n"
+"POT-Creation-Date: 2016-12-29 20:31-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -935,11 +935,7 @@ msgstr "Registrado"
 msgid "Set Failed"
 msgstr "Ha fallado"
 
-#: /var/www/fog/lib/fog/bootmenu.class.php:489
-msgid "Capone Deploy"
-msgstr "Implementar Capone"
-
-#: /var/www/fog/lib/fog/bootmenu.class.php:1481
+#: /var/www/fog/lib/fog/bootmenu.class.php:1356
 #, fuzzy
 msgid "No valid storage nodes found"
 msgstr "nodo de almacenamiento no válido"
@@ -5961,20 +5957,25 @@ msgstr "Plugin Instalado!"
 msgid "Settings Updated"
 msgstr "Ajustes actualizan"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:604
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:599
+#, fuzzy
+msgid "Must have an image associated"
+msgstr "Debe haber SNAPin asociado a un grupo"
+
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:607
 msgid "Failed to save assignment"
 msgstr "No se pudo guardar la asignación"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:606
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:609
 msgid "Assignment saved successfully"
 msgstr "Asignación guardado correctamente"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:612
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:615
 #, fuzzy
 msgid "Destroyed assignments"
 msgstr "asignación destruida"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:614
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:617
 msgid "Destroyed assignment"
 msgstr "asignación destruida"
 
@@ -6718,6 +6719,10 @@ msgstr "Actualización de difusión"
 #: /var/www/fog/lib/plugins/wolbroadcast/hooks/addwolmenuitem.hook.php:65
 msgid "WOL Broadcast Management"
 msgstr "Gestión WOL Broadcast"
+
+#: /var/www/fog/lib/plugins/capone/hooks/addbootmenuitem.hook.php:72
+msgid "Capone Deploy"
+msgstr "Implementar Capone"
 
 #: /var/www/fog/lib/db/pdodb.class.php:90
 #: /var/www/fog/lib/db/mysql.class.php:16
@@ -9143,9 +9148,6 @@ msgstr "No hay lugares en este servidor."
 #~ msgstr ""
 #~ "Un archivo que se utilizará para la snapin se debe subir o elegido de la "
 #~ "lista ya está presente"
-
-#~ msgid "Must have snapin associated to a group"
-#~ msgstr "Debe haber SNAPin asociado a un grupo"
 
 #~ msgid "Snapin added, Editing now!"
 #~ msgstr "Snapin añadió, Edición de ahora!"

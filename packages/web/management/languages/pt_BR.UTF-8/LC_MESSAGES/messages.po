@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-23 19:33-0500\n"
+"POT-Creation-Date: 2016-12-29 20:31-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -935,11 +935,7 @@ msgstr "Registrado"
 msgid "Set Failed"
 msgstr "fracassado"
 
-#: /var/www/fog/lib/fog/bootmenu.class.php:489
-msgid "Capone Deploy"
-msgstr "Capone Deploy"
-
-#: /var/www/fog/lib/fog/bootmenu.class.php:1481
+#: /var/www/fog/lib/fog/bootmenu.class.php:1356
 #, fuzzy
 msgid "No valid storage nodes found"
 msgstr "nó de armazenamento inválido"
@@ -5949,20 +5945,25 @@ msgstr "Plugin instalado!"
 msgid "Settings Updated"
 msgstr "Configurações atualizadas"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:604
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:599
+#, fuzzy
+msgid "Must have an image associated"
+msgstr "Deve ter Snapin associado a um grupo"
+
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:607
 msgid "Failed to save assignment"
 msgstr "Falha ao salvar a atribuição"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:606
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:609
 msgid "Assignment saved successfully"
 msgstr "Atribuição salvas com sucesso"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:612
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:615
 #, fuzzy
 msgid "Destroyed assignments"
 msgstr "atribuição destruída"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:614
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:617
 msgid "Destroyed assignment"
 msgstr "atribuição destruída"
 
@@ -6705,6 +6706,10 @@ msgstr "transmitido Atualizado"
 #: /var/www/fog/lib/plugins/wolbroadcast/hooks/addwolmenuitem.hook.php:65
 msgid "WOL Broadcast Management"
 msgstr "Gestão WOL Transmissão"
+
+#: /var/www/fog/lib/plugins/capone/hooks/addbootmenuitem.hook.php:72
+msgid "Capone Deploy"
+msgstr "Capone Deploy"
 
 #: /var/www/fog/lib/db/pdodb.class.php:90
 #: /var/www/fog/lib/db/mysql.class.php:16
@@ -9121,9 +9126,6 @@ msgstr "Não há locais neste servidor."
 #~ msgstr ""
 #~ "Um arquivo a ser usado para o snap-in deve ser ou carregado ou escolhido "
 #~ "a partir do já presente lista"
-
-#~ msgid "Must have snapin associated to a group"
-#~ msgstr "Deve ter Snapin associado a um grupo"
 
 #~ msgid "Snapin added, Editing now!"
 #~ msgstr "Snapin acrescentou, edição agora!"

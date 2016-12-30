@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-23 19:33-0500\n"
+"POT-Creation-Date: 2016-12-29 20:31-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -934,11 +934,7 @@ msgstr "Registrato"
 msgid "Set Failed"
 msgstr "fallito"
 
-#: /var/www/fog/lib/fog/bootmenu.class.php:489
-msgid "Capone Deploy"
-msgstr "Capone Deploy"
-
-#: /var/www/fog/lib/fog/bootmenu.class.php:1481
+#: /var/www/fog/lib/fog/bootmenu.class.php:1356
 #, fuzzy
 msgid "No valid storage nodes found"
 msgstr "nodo di archiviazione non valido"
@@ -5953,20 +5949,25 @@ msgstr "Plugin Installed!"
 msgid "Settings Updated"
 msgstr "Impostazioni aggiornate"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:604
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:599
+#, fuzzy
+msgid "Must have an image associated"
+msgstr "Deve aver snap-in associato ad un gruppo"
+
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:607
 msgid "Failed to save assignment"
 msgstr "Impossibile salvare l'assegnazione"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:606
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:609
 msgid "Assignment saved successfully"
 msgstr "Assegnazione salvata"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:612
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:615
 #, fuzzy
 msgid "Destroyed assignments"
 msgstr "assegnazione distrutto"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:614
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:617
 msgid "Destroyed assignment"
 msgstr "assegnazione distrutto"
 
@@ -6711,6 +6712,10 @@ msgstr "Broadcast aggiornato"
 #: /var/www/fog/lib/plugins/wolbroadcast/hooks/addwolmenuitem.hook.php:65
 msgid "WOL Broadcast Management"
 msgstr "Gestione WOL Broadcast"
+
+#: /var/www/fog/lib/plugins/capone/hooks/addbootmenuitem.hook.php:72
+msgid "Capone Deploy"
+msgstr "Capone Deploy"
 
 #: /var/www/fog/lib/db/pdodb.class.php:90
 #: /var/www/fog/lib/db/mysql.class.php:16
@@ -9132,9 +9137,6 @@ msgstr "Non ci sono posizioni su questo server."
 #~ msgstr ""
 #~ "Un file da utilizzare per lo snap-in deve essere sia caricato o scelto "
 #~ "dalla lista già presente"
-
-#~ msgid "Must have snapin associated to a group"
-#~ msgstr "Deve aver snap-in associato ad un gruppo"
 
 #~ msgid "Snapin added, Editing now!"
 #~ msgstr "Snapin aggiunto, Modifica ora!"
