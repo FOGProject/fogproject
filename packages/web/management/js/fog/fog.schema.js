@@ -20,5 +20,6 @@ function runDBCheck() {
         },
         complete: function() {
             setTimeout(runDBCheck, 1000 - ((new Date().getTime() - startTime) % 1000));
+        }
     });
 }
