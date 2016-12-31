@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-29 20:31-0500\n"
+"POT-Creation-Date: 2016-12-30 19:13-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -34,18 +34,18 @@ msgstr "Impossibile aprire il file per la lettura"
 msgid "IP Passed is incorrect"
 msgstr "IP Passato è corretto"
 
-#: /var/www/fog/status/bandwidth.php:48
+#: /var/www/fog/status/bandwidth.php:44
 #, fuzzy
 msgid "Device must be a string"
 msgstr "Evento deve essere una stringa"
 
-#: /var/www/fog/status/bandwidth.php:51
+#: /var/www/fog/status/bandwidth.php:47
 #: /var/www/fog/lib/fog/fogbase.class.php:1217
 #, fuzzy
 msgid "File must be a string"
 msgstr "Evento deve essere una stringa"
 
-#: /var/www/fog/status/bandwidth.php:54
+#: /var/www/fog/status/bandwidth.php:50
 msgid "Only tx and rx bytes files can be read"
 msgstr ""
 

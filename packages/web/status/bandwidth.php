@@ -27,10 +27,6 @@ session_write_close();
 ignore_user_abort(true);
 set_time_limit(0);
 header('Content-Type: text/event-stream');
-$bandwidthtime =  FOGCore::getClass('Service')
-    ->set('name', 'FOG_BANDWIDTH_TIME')
-    ->load('name')
-    ->get('value');
 /**
  * Lambda for returning the bytes from the file requested.
  *
@@ -59,23 +55,6 @@ $getBytes = function ($dev, $file) {
     } else {
         $data = file_get_contents($path);
         return trim($data);
-    }
-};
-/**
- * Lambda for returning the converted data for bytes from bits.
- *
- * If the data passed is not numeric or 0 or less, return 0
- * otherwise formulate our data into Bps instead of bps.
- *
- * @param int|double $data the data to convert
- *
- * @return int|double
- */
-$retval = function ($data) {
-    if (!(is_numeric($data) && $data > 0)) {
-        return 0;
-    } else {
-        return round(($data / 1024) * 8, 2);
     }
 };
 // Make sure a device is set
@@ -132,16 +111,8 @@ if (!$dev) {
     exit;
 }
 // Set our rx and tx data values
-$rx_data[] = $getBytes($dev, 'rx_bytes');
-$tx_data[] = $getBytes($dev, 'tx_bytes');
-sleep($bandwidthtime);
-$rx_data[] = $getBytes($dev, 'rx_bytes');
-$tx_data[] = $getBytes($dev, 'tx_bytes');
-// Set our return data to converted.
-$rx = $rx_data[1] - $rx_data[0];
-$tx = $tx_data[1] - $tx_data[0];
-$rx = $retval($rx);
-$tx = $retval($tx);
+$rx = $getBytes($dev, 'rx_bytes');
+$tx = $getBytes($dev, 'tx_bytes');
 // Setup our return array
 $ret = array(
     'dev' => $dev,

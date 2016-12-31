@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-30 13:00-0500\n"
+"POT-Creation-Date: 2016-12-30 19:13-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -32,16 +32,16 @@ msgstr ""
 msgid "IP Passed is incorrect"
 msgstr ""
 
-#: /var/www/fog/status/bandwidth.php:48
+#: /var/www/fog/status/bandwidth.php:44
 msgid "Device must be a string"
 msgstr ""
 
-#: /var/www/fog/status/bandwidth.php:51
+#: /var/www/fog/status/bandwidth.php:47
 #: /var/www/fog/lib/fog/fogbase.class.php:1217
 msgid "File must be a string"
 msgstr ""
 
-#: /var/www/fog/status/bandwidth.php:54
+#: /var/www/fog/status/bandwidth.php:50
 msgid "Only tx and rx bytes files can be read"
 msgstr ""
 

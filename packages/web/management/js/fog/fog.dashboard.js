@@ -245,6 +245,17 @@ function UpdateBandwidthGraph(data) {
     if (data === null || typeof(data) === 'undefined') {
         data = '';
     }
+    function retval(d) {
+        if (parseInt(d) < 1) {
+            return 0;
+        } else {
+            val = Math.round(d / 1024 * 8 / bandwidthtime, 2);
+            if (val < 1) {
+                val = 0;
+            }
+            return val;
+        }
+    }
     var d = new Date();
     var tx = new Array();
     var rx = new Array();
@@ -259,16 +270,38 @@ function UpdateBandwidthGraph(data) {
             GraphBandwidthData[i].dev = new Array();
             GraphBandwidthData[i].tx = new Array();
             GraphBandwidthData[i].rx = new Array();
+            GraphBandwidthData[i].txd = new Array();
+            GraphBandwidthData[i].rxd = new Array();
         }
         while (GraphBandwidthData[i].tx.length >= GraphBandwidthMaxDataPoints) {
             GraphBandwidthData[i].tx.shift();
+            GraphBandwidthData[i].txd.shift();
+        }
+        while (GraphBandwidthData[i].rx.length >= GraphBandwidthMaxDataPoints) {
             GraphBandwidthData[i].rx.shift();
+            GraphBandwidthData[i].rxd.shift();
         }
         if (data[i] === null) data[i] = {dev: 'Unknown',tx: 0,rx:0};
-        if (data[i].dev === 'Unknown' && GraphBandwidthData[i].dev !== 'Unknown') data[i].dev = GraphBandwidthData[i].dev;
-        tx_rate = Math.round(data[i].tx / bandwidthtime, 2);
+        if (data[i].dev === 'Unknown'
+            && GraphBandwidthData[i].dev !== 'Unknown'
+        ) {
+            data[i].dev = GraphBandwidthData[i].dev;
+        }
+        txlength = GraphBandwidthData[i].txd.length - 1;
+        rxlength = GraphBandwidthData[i].rxd.length - 1;
+        lasttx = GraphBandwidthData[i].txd[txlength];
+        lastrx = GraphBandwidthData[i].rxd[rxlength];
+        tx_rate = 0;
+        rx_rate = 0;
+        if (txlength > 0 && parseInt(lasttx) > 0) {
+            tx_rate = retval(data[i].tx - lasttx);
+        }
+        if (rxlength > 0 && parseInt(lastrx) > 0) {
+            rx_rate = retval(data[i].rx - lastrx);
+        }
+        GraphBandwidthData[i].txd.push(data[i].tx);
+        GraphBandwidthData[i].rxd.push(data[i].rx);
         GraphBandwidthData[i].tx.push([Now,tx_rate]);
-        rx_rate = Math.round(data[i].rx / bandwidthtime, 2);
         GraphBandwidthData[i].rx.push([Now,rx_rate]);
         // Reset the old and new values for the next iteration.
         GraphBandwidthData[i].dev = data[i].dev;
