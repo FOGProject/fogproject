@@ -1,15 +1,43 @@
 <?php
+/**
+ * Creates or updates nodes.
+ *
+ * PHP version 5
+ *
+ * @category Create_Update_Node
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Creates or updates nodes.
+ *
+ * PHP version 5
+ *
+ * @category Create_Update_Node
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 require '../commons/base.inc.php';
-array_walk($_POST, function (&$val, &$key) {
-    if (isset($val)) {
-        $val = trim(base64_decode($val));
+foreach ((array)$_POST as $key => &$val) {
+    if (!isset($val)) {
+        continue;
     }
-});
+    $_POST[$key] = trim(
+        base64_decode($val)
+    );
+    unset($val);
+}
 if (!isset($_POST['fogverified'])) {
     return;
 }
 if (isset($_POST['newNode'])) {
-    if (FOGCore::getClass('StorageNodeManager')->count(array('ip'=>$_POST['ip'])) > 0) {
+    $exists = FOGCore::getClass('StorageNodeManager')
+        ->exists($_POST['ip'], '', 'ip');
+    if ($exists) {
         return;
     }
     FOGCore::getClass('StorageNode')
@@ -28,17 +56,16 @@ if (isset($_POST['newNode'])) {
         ->set('isEnabled', '1')
         ->save();
 } elseif (isset($_POST['nodePass'])) {
-    $Nodes = FOGCore::getClass('StorageNodeManager')->find(array('ip'=>$_POST['ip']));
-    array_walk($Nodes, function (&$Node, &$index) {
-        if (!$Node->isValid()) {
-            return;
-        }
+    $Nodes = FOGCore::getClass('StorageNodeManager')
+        ->find(array('ip' => $_POST['ip']));
+    foreach ((array)$Nodes as &$Node) {
         if ($Node->get('pass') === trim($_POST['pass'])) {
-            return;
+            continue;
         }
         $Node
             ->set('pass', trim($_POST['pass']))
             ->set('user', trim($_POST['user']))
             ->save();
-    });
+        unset($Node);
+    }
 }
