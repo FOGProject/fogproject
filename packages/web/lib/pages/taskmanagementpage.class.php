@@ -149,7 +149,7 @@ class TaskManagementPage extends FOGPage
                 'details_taskforce' => $forcetask,
                 'id' => $Task->get('id'),
                 'name' => $Task->get('name'),
-                'time' => $this->formatTime(
+                'time' => self::formatTime(
                     $Task->get('createdTime'),
                     'Y-m-d H:i:s'
                 ),
@@ -734,7 +734,7 @@ class TaskManagementPage extends FOGPage
                     self::getClass('MulticastSessionsAssociationManager')
                     ->count(array('msID' => $MulticastSession->get('id')))
                 ),
-                'start_date' => $this->formatTime(
+                'start_date' => self::formatTime(
                     $MulticastSession->get('starttime'),
                     'Y-m-d H:i:s'
                 ),
@@ -872,7 +872,7 @@ class TaskManagementPage extends FOGPage
                 'host_id' => $Host->get('id'),
                 'host_name' => $Host->get('name'),
                 'host_mac' => $Host->get('mac')->__toString(),
-                'startDate' => $this->formatTime(
+                'startDate' => self::formatTime(
                     $SnapinTask->get('checkin'),
                     'Y-m-d H:i:s'
                 ),

@@ -30,7 +30,7 @@ try {
         ->set('name', $vInfo[0])
         ->set('mac', strtolower($_REQUEST['mac']))
         ->set('file', $string[0])
-        ->set('date', $FOGCore->formatTime('now', 'Y-m-d H:i:s'))
+        ->set('date', FOGCore::formatTime('now', 'Y-m-d H:i:s'))
         ->set('mode', $_REQUEST['mode']);
     if (!$Virus->save()) {
         throw new Exception(_('Failed'));

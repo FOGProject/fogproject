@@ -44,11 +44,10 @@ $service_child_pid = 0;
  */
 function Service_Log_message($logpath, $name, $msg)
 {
-    global $FOGCore;
     $logfile = fopen($logpath, "a");
     $msg = sprintf(
         "[%s] %s %s\n",
-        $FOGCore->formatTime('now', 'm-d-y g:i:s a'),
+        FOGCore::formatTime('now', 'm-d-y g:i:s a'),
         $name,
         $msg
     );

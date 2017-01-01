@@ -23,9 +23,8 @@ require '../commons/base.inc.php';
 session_write_close();
 ignore_user_abort(true);
 set_time_limit(0);
-echo $FOGCore
-    ->formatTime(
-        'Now',
-        'D M d, Y G:i a'
-    );
+echo FOGCore::formatTime(
+    'Now',
+    'D M d, Y G:i a'
+);
 exit;

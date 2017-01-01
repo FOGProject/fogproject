@@ -2326,7 +2326,7 @@ abstract class FOGPage extends FOGBase
                         '%s%s_%s',
                         $backuppath,
                         $destfile,
-                        $this->formatTime('', 'Ymd_His')
+                        self::formatTime('', 'Ymd_His')
                     );
                     list(
                         $tftpPass,

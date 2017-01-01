@@ -958,13 +958,13 @@ abstract class FOGBase
      *
      * @return mixed
      */
-    public function formatTime($time, $format = false, $utc = false)
+    public static function formatTime($time, $format = false, $utc = false)
     {
         if (!$time instanceof DateTime) {
             $time = self::niceDate($time, $utc);
         }
         if ($format) {
-            if (!$this->validDate($time)) {
+            if (!self::validDate($time)) {
                 return _('No Data');
             }
 
@@ -977,7 +977,7 @@ abstract class FOGBase
         if (is_nan($diff)) {
             return _('Not a number');
         }
-        if (!$this->validDate($time)) {
+        if (!self::validDate($time)) {
             return _('No Data');
         }
         $date = $time->format('Y/m/d');
@@ -987,9 +987,9 @@ abstract class FOGBase
             } elseif ($diff < 0 && $absolute < 60) {
                 return 'Seconds from now';
             } elseif ($absolute < 3600) {
-                return $this->humanify($diff / 60, 'minute');
+                return self::humanify($diff / 60, 'minute');
             } else {
-                return $this->humanify($diff / 3600, 'hour');
+                return self::humanify($diff / 3600, 'hour');
             }
         }
         $dayAgo = clone $now;
@@ -1001,14 +1001,14 @@ abstract class FOGBase
         } elseif ($dayAhead->format('Y/m/d') == $date) {
             return 'Runs today at '.$time->format('H:i');
         } elseif ($absolute / 86400 <= 7) {
-            return $this->humanify($diff / 86400, 'day');
+            return self::humanify($diff / 86400, 'day');
         } elseif ($absolute / 604800 <= 5) {
-            return $this->humanify($diff / 604800, 'week');
+            return self::humanify($diff / 604800, 'week');
         } elseif ($absolute / 2628000 < 12) {
-            return $this->humanify($diff / 2628000, 'month');
+            return self::humanify($diff / 2628000, 'month');
         }
 
-        return $this->humanify($diff / 31536000, 'year');
+        return self::humanify($diff / 31536000, 'year');
     }
     /**
      * Checks if the time passed is valid or not.
@@ -1018,7 +1018,7 @@ abstract class FOGBase
      *
      * @return object
      */
-    protected function validDate($date, $format = '')
+    protected static function validDate($date, $format = '')
     {
         if ($format == 'N') {
             if ($date instanceof DateTime) {
@@ -1170,7 +1170,7 @@ abstract class FOGBase
      *
      * @return string
      */
-    protected function humanify($diff, $unit)
+    protected static function humanify($diff, $unit)
     {
         if (!is_numeric($diff)) {
             throw new Exception(_('Diff parameter must be numeric'));

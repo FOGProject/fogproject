@@ -143,7 +143,7 @@ class FileIntegrity extends FOGController
     private function _getModTime($item)
     {
         $stat = stat($item);
-        return $this->formatTime($stat['mtime'], 'Y-m-d H:i:s');
+        return self::formatTime($stat['mtime'], 'Y-m-d H:i:s');
     }
     /**
      * Gets image paths

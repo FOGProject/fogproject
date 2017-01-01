@@ -100,7 +100,7 @@ class SnapinTaskManager extends FOGManagerController
             '',
             array(
                 'stateID' => $cancelled,
-                'complete'=>$this->formatTime('', 'Y-m-d H:i:s')
+                'complete'=> self::formatTime('', 'Y-m-d H:i:s')
             )
         );
         /**

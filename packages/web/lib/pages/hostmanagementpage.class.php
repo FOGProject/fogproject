@@ -261,7 +261,7 @@ class HostManagementPage extends FOGPage
             }
             $this->data[] = array(
                 'id' => $Host->get('id'),
-                'deployed' => $this->formatTime(
+                'deployed' => self::formatTime(
                     $Host->get('deployed'),
                     'Y-m-d H:i:s'
                 ),
@@ -2018,7 +2018,7 @@ class HostManagementPage extends FOGPage
             }
             $start = $log->get('start');
             $end = $log->get('finish');
-            if (!$this->validDate($start) || !$this->validDate($end)) {
+            if (!self::validDate($start) || !self::validDate($end)) {
                 continue;
             }
             $diff = $this->diff($start, $end);
@@ -2131,24 +2131,24 @@ class HostManagementPage extends FOGPage
             }
             $start = self::niceDate($SnapinTask->get('checkin'));
             $end = self::niceDate($SnapinTask->get('complete'));
-            if (!$this->validDate($start)) {
+            if (!self::validDate($start)) {
                 continue;
             }
             if (!in_array($SnapinTask->get('stateID'), $doneStates)) {
                 $diff = _('Snapin task not completed');
-            } elseif (!$this->validDate($end)) {
+            } elseif (!self::validDate($end)) {
                 $diff = _('No complete time recorded');
             } else {
                 $diff = $this->diff($start, $end);
             }
             $this->data[] = array(
                 'snapin_name' => $Snapin->get('name'),
-                'snapin_start' => $this->formatTime(
+                'snapin_start' => self::formatTime(
                     $SnapinTask->get('checkin'), 'Y-m-d H:i:s'
                 ),
                 'snapin_end' => sprintf(
                     '<span class="icon" title="%s">%s</span>',
-                    $this->formatTime(
+                    self::formatTime(
                         $SnapinTask->get('complete'), 'Y-m-d H:i:s'
                     ),
                     self::getClass(

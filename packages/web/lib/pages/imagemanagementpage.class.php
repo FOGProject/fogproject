@@ -342,8 +342,8 @@ class ImageManagementPage extends FOGPage
              * If the date is valid format in Y-m-d H:i:s
              * and if not set to no valid data.
              */
-            if ($this->validDate($date)) {
-                $date = $this->formatTime($date, 'Y-m-d H:i:s');
+            if (self::validDate($date)) {
+                $date = self::formatTime($date, 'Y-m-d H:i:s');
             } else {
                 $date = _('No valid data');
             }
@@ -1268,7 +1268,7 @@ class ImageManagementPage extends FOGPage
                 'mc_count' => $MulticastSession->get('sessclients'),
                 'image_name' => $Image->get('name'),
                 'os' => $Image->getOS()->get('name'),
-                'mc_start' => $this->formatTime(
+                'mc_start' => self::formatTime(
                     $MulticastSession->get('starttime'),
                     'Y-m-d H:i:s'
                 ),
@@ -1350,7 +1350,7 @@ class ImageManagementPage extends FOGPage
                 ->set('stateID', 0)
                 ->set('sessclients', $_REQUEST['count'])
                 ->set('isDD', $Image->get('imageTypeID'))
-                ->set('starttime', $this->formatTime('now', 'Y-m-d H:i:s'))
+                ->set('starttime', self::formatTime('now', 'Y-m-d H:i:s'))
                 ->set('interface', $StorageNode->get('interface'))
                 ->set('logpath', $Image->get('path'))
                 ->set('storagegroupID', $StorageNode->get('id'))

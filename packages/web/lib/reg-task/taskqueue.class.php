@@ -32,7 +32,7 @@ class TaskQueue extends TaskingElement
         try {
             $this->Task
                 ->set('stateID', $this->getCheckedInState())
-                ->set('checkinTime', $this->formatTime('now', 'Y-m-d H:i:s'))
+                ->set('checkinTime', self::formatTime('now', 'Y-m-d H:i:s'))
                 ->save();
             if (!$this->Task->save()) {
                 throw new Exception(_('Failed to update task'));
@@ -160,7 +160,7 @@ class TaskQueue extends TaskingElement
             }
             $this->Task
                 ->set('stateID', $this->getProgressState())
-                ->set('checkInTime', $this->formatTime('now', 'Y-m-d H:i:s'));
+                ->set('checkInTime', self::formatTime('now', 'Y-m-d H:i:s'));
             if (!$this->Task->save()) {
                 throw new Exception(_('Failed to update Task'));
             }

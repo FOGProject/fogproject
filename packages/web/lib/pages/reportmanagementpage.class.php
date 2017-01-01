@@ -246,7 +246,7 @@ class ReportManagementPage extends FOGPage
                 $Date = array($Date);
             }
             $tmp = array_shift($Date);
-            if (!$this->validDate($tmp)) {
+            if (!self::validDate($tmp)) {
                 continue;
             }
             $Dates[] = $tmp;
@@ -390,8 +390,8 @@ class ReportManagementPage extends FOGPage
             $Host = $ImagingLog->getHost();
             $start = $ImagingLog->get('start');
             $end = $ImagingLog->get('finish');
-            if (!$this->validDate($start)
-                || !$this->validDate($end)
+            if (!self::validDate($start)
+                || !self::validDate($end)
             ) {
                 continue;
             }
@@ -895,7 +895,7 @@ class ReportManagementPage extends FOGPage
                 'vir_name' => $virusName,
                 'vir_file' => $virusFile,
                 'vir_mode' => $virusMode,
-                'vir_date' => $this->formatTime(
+                'vir_date' => self::formatTime(
                     $virusDate,
                     'Y-m-d H:i:s'
                 ),
@@ -1211,10 +1211,10 @@ class ReportManagementPage extends FOGPage
             );
         }
         foreach ((array)$UserSearchDates as &$DateTime) {
-            if (!$this->validDate($DateTime)) {
+            if (!self::validDate($DateTime)) {
                 continue;
             }
-            $Dates[] = $this->formatTime($DateTime, 'Y-m-d');
+            $Dates[] = self::formatTime($DateTime, 'Y-m-d');
             unset($DateTime);
         }
         unset($DateTime);
@@ -1356,7 +1356,7 @@ class ReportManagementPage extends FOGPage
                 'action'=>$logintext,
                 'username'=>$User->get('username'),
                 'hostname'=>$Host->get('name'),
-                'time'=>$this->formatTime($User->get('datetime'), 'Y-m-d H:i:s'),
+                'time'=> self::formatTime($User->get('datetime'), 'Y-m-d H:i:s'),
                 'desc'=>$User->get('description'),
             );
             $this->ReportMaker->addCSVCell($logintext);
@@ -1365,7 +1365,7 @@ class ReportManagementPage extends FOGPage
             $this->ReportMaker->addCSVCell($Host->get('mac'));
             $this->ReportMaker->addCSVCell($Host->get('description'));
             $this->ReportMaker->addCSVCell(
-                $this->formatTime(
+                self::formatTime(
                     $User->get('datetime'),
                     'Y-m-d H:i:s'
                 )
@@ -1417,7 +1417,7 @@ class ReportManagementPage extends FOGPage
                 $Date :
                 array_shift($Date)
             );
-            if (!$this->validDate($tmp)) {
+            if (!self::validDate($tmp)) {
                 continue;
             }
             $Dates[] = $tmp;
@@ -1551,8 +1551,8 @@ class ReportManagementPage extends FOGPage
             }
             $start = self::niceDate($SnapinTask->get('checkin'));
             $end = self::niceDate($SnapinTask->get('complete'));
-            if (!$this->validDate($start)
-                || !$this->validDate($end)
+            if (!self::validDate($start)
+                || !self::validDate($end)
             ) {
                 continue;
             }
@@ -1579,11 +1579,11 @@ class ReportManagementPage extends FOGPage
                 'snap_state' => $State->get('name'),
                 'snap_return' => $SnapinTask->get('return'),
                 'snap_detail' => $SnapinTask->get('detail'),
-                'snap_create' => $this->formatTime(
+                'snap_create' => self::formatTime(
                     $Snapin->get('createdTime'),
                     'Y-m-d'
                 ),
-                'snap_time'=>$this->formatTime(
+                'snap_time'=> self::formatTime(
                     $Snapin->get('createdTime'),
                     'H:i:s'
                 )
@@ -1602,37 +1602,37 @@ class ReportManagementPage extends FOGPage
             $this->ReportMaker->addCSVCell($SnapinTask->get('return'));
             $this->ReportMaker->addCSVCell($SnapinTask->get('detail'));
             $this->ReportMaker->addCSVCell(
-                $this->formatTime(
+                self::formatTime(
                     $Snapin->get('createdTime'),
                     'Y-m-d'
                 )
             );
             $this->ReportMaker->addCSVCell(
-                $this->formatTime(
+                self::formatTime(
                     $Snapin->get('createdTime'),
                     'H:i:s'
                 )
             );
             $this->ReportMaker->addCSVCell(
-                $this->formatTime(
+                self::formatTime(
                     $SnapinJob->get('createdTime'),
                     'Y-m-d'
                 )
             );
             $this->ReportMaker->addCSVCell(
-                $this->formatTime(
+                self::formatTime(
                     $SnapinJob->get('createdTime'),
                     'H:i:s'
                 )
             );
             $this->ReportMaker->addCSVCell(
-                $this->formatTime(
+                self::formatTime(
                     $SnapinTask->get('checkin'),
                     'Y-m-d'
                 )
             );
             $this->ReportMaker->addCSVCell(
-                $this->formatTime(
+                self::formatTime(
                     $SnapinTask->get('checkin'),
                     'H:i:s'
                 )
@@ -1780,7 +1780,7 @@ class ReportManagementPage extends FOGPage
                 . '<h4><b>%s: </b>%s</h4><h4><b>%s: </b>%s</h4>',
                 _('of'),
                 _('Printed'),
-                $this->formatTime('', 'D M j G:i:s T Y'),
+                self::formatTime('', 'D M j G:i:s T Y'),
                 _('Equipment Loan'),
                 $coname,
                 $subname,
@@ -1858,7 +1858,7 @@ class ReportManagementPage extends FOGPage
                 str_repeat('_', 65),
                 _('of'),
                 _('Printed'),
-                $this->formatTime('', 'D M j G:i:s T Y'),
+                self::formatTime('', 'D M j G:i:s T Y'),
                 _('Terms and Conditions'),
                 $tos,
                 str_pad(_('Signed'), 25),

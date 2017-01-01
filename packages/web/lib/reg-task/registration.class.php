@@ -98,7 +98,7 @@ class Registration extends FOGBase
             $this->description = sprintf(
                 '%s %s',
                 _('Created by FOG Reg on'),
-                $this->formatTime('now', 'F j, Y, g:i a')
+                self::formatTime('now', 'F j, Y, g:i a')
             );
             if (isset($_REQUEST['advanced'])) {
                 $this->_fullReg();

@@ -258,7 +258,7 @@ class ReportMaker extends FOGBase
             global $FOGCore;
             $backup_name = sprintf(
                 'fog_backup_%s.sql',
-                $FOGCore->formatTime('', 'Ymd_His')
+                self::formatTime('', 'Ymd_His')
             );
             $SchemaSave->exportdb($backup_name);
             unset($SchemaSave);

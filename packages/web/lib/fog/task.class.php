@@ -211,7 +211,7 @@ class Task extends TaskType
                     '',
                     array(
                         'clients' => 0,
-                        'completetime' => $this->formatTime('now', 'Y-m-d H:i:s'),
+                        'completetime' => self::formatTime('now', 'Y-m-d H:i:s'),
                         'stateID' => $this->getCancelledState()
                     )
                 );

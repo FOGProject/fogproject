@@ -28,7 +28,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
      */
     public function json()
     {
-        $date = $this->formatTime('', 'Y-m-d H:i:s');
+        $date = self::formatTime('', 'Y-m-d H:i:s');
         $HostName = $this->Host->get('name');
         $Task = $this->Host->get('task');
         $SnapinJob = $this->Host->get('snapinjob');
@@ -214,7 +214,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
      */
     public function send()
     {
-        $date = $this->formatTime('', 'Y-m-d H:i:s');
+        $date = self::formatTime('', 'Y-m-d H:i:s');
         $HostName = $this->Host->get('name');
         $Task = $this->Host->get('task');
         $SnapinJob = $this->Host->get('snapinjob');
