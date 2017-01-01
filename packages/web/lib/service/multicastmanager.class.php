@@ -160,12 +160,12 @@ class MulticastManager extends FOGService
         while (true) {
             $this->waitDbReady();
             $queuedStates = self::fastmerge(
-                $this->getQueuedStates(),
-                (array)$this->getProgressState()
+                self::getQueuedStates(),
+                (array)self::getProgressState()
             );
             $doneStates = array(
-                $this->getCompleteState(),
-                $this->getCancelledState()
+                self::getCompleteState(),
+                self::getCancelledState()
             );
             try {
                 $StorageNodes = $this->checkIfNodeMaster();
@@ -228,13 +228,13 @@ class MulticastManager extends FOGService
                                 'Task',
                                 array(
                                     'id' => $taskIDs,
-                                    'stateID' => $this->getCancelledState()
+                                    'stateID' => self::getCancelledState()
                                 )
                             );
                             $MultiSess = $RMTask->getSess();
                             $SessCancelled = $MultiSess->get('stateID')
                                 ==
-                                $this->getCancelledState();
+                                self::getCancelledState();
                             if ($SessCancelled
                                 || count($inTaskIDs) > 0
                             ) {
@@ -246,13 +246,13 @@ class MulticastManager extends FOGService
                                         array('id' => $taskIDs),
                                         '',
                                         array(
-                                            'stateID' => $this->getCancelledState()
+                                            'stateID' => self::getCancelledState()
                                         )
                                     );
                                 $MultiSess
                                     ->set(
                                         'stateID',
-                                        $this->getCancelledState()
+                                        self::getCancelledState()
                                     )->set('name', '')
                                     ->save();
                                 self::outall(
@@ -270,11 +270,11 @@ class MulticastManager extends FOGService
                                         array('id' => $taskIDs),
                                         '',
                                         array(
-                                            'stateID' => $this->getCompleteState()
+                                            'stateID' => self::getCompleteState()
                                         )
                                     );
                                 $MultiSess
-                                    ->set('stateID', $this->getCompleteState())
+                                    ->set('stateID', self::getCompleteState())
                                     ->save();
                                 self::outall(
                                     sprintf(
@@ -466,14 +466,14 @@ class MulticastManager extends FOGService
                                 'Task',
                                 array(
                                     'id' => $taskIDs,
-                                    'stateID' => $this->getCancelledState()
+                                    'stateID' => self::getCancelledState()
                                 )
                             );
                             $inTaskIDs = self::getSubObjectIDs(
                                 'Task',
                                 array(
                                     'id' => $taskIDs,
-                                    'stateID' => $this->getCompleteState()
+                                    'stateID' => self::getCompleteState()
                                 )
                             );
                             if (count($inTaskIDs) > 0) {
@@ -482,7 +482,7 @@ class MulticastManager extends FOGService
                             $MultiSess = $runningTask->getSess();
                             $SessCancelled = $MultiSess->get('stateID')
                                 ==
-                                $this->getCancelledState();
+                                self::getCancelledState();
                             if ($SessCancelled
                                 || count($inTaskCancelledIDs) > 0
                             ) {
@@ -543,7 +543,7 @@ class MulticastManager extends FOGService
                                             'completetime',
                                             self::niceDate()->format('Y-m-d H:i:s')
                                         )->set('name', '')
-                                        ->set('stateID', $this->getCompleteState())
+                                        ->set('stateID', self::getCompleteState())
                                         ->save();
                                     $KnownTasks = $this->_removeFromKnownList(
                                         $KnownTasks,

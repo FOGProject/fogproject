@@ -47,16 +47,16 @@ class SnapinClient extends FOGClient implements FOGClientSend
                 array(
                     'jobID' => $SnapinJob->get('id'),
                     'stateID' => self::fastmerge(
-                        $this->getQueuedStates(),
-                        (array)$this->getProgressState()
+                        self::getQueuedStates(),
+                        (array)self::getProgressState()
                     )
                 )
             );
         if ($STaskCount < 1) {
             if ($Task->isValid()) {
-                $Task->set('stateID', $this->getCompleteState())->save();
+                $Task->set('stateID', self::getCompleteState())->save();
             }
-            $SnapinJob->set('stateID', $this->getCompleteState())->save();
+            $SnapinJob->set('stateID', self::getCompleteState())->save();
             self::$EventManager->notify(
                 'HOST_SNAPIN_COMPLETE',
                 array(
@@ -68,11 +68,11 @@ class SnapinClient extends FOGClient implements FOGClientSend
         }
         if ($Task->isValid()) {
             $Task
-                ->set('stateID', $this->getCheckedInState())
+                ->set('stateID', self::getCheckedInState())
                 ->set('checkInTime', $date)
                 ->save();
         }
-        $SnapinJob->set('stateID', $this->getCheckedInState())->save();
+        $SnapinJob->set('stateID', self::getCheckedInState())->save();
         global $sub;
         if ($sub === 'requestClientInfo'
             || basename(self::$scriptname) === 'snapins.checkin.php'
@@ -82,8 +82,8 @@ class SnapinClient extends FOGClient implements FOGClientSend
                     'SnapinTask',
                     array(
                         'stateID' => self::fastmerge(
-                            $this->getQueuedStates(),
-                            (array)$this->getProgressState()
+                            self::getQueuedStates(),
+                            (array)self::getProgressState()
                         ),
                         'jobID' => $SnapinJob->get('id'),
                     ),
@@ -95,7 +95,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
                 );
                 if (count($snapinIDs) < 1) {
                     $SnapinJob
-                        ->set('stateID', $this->getCancelledState())
+                        ->set('stateID', self::getCancelledState())
                         ->save();
                     return array(
                         'error' => _('No valid tasks found')
@@ -117,8 +117,8 @@ class SnapinClient extends FOGClient implements FOGClientSend
                             'snapinID' => $Snapin->get('id'),
                             'jobID' => $SnapinJob->get('id'),
                             'stateID' => self::fastmerge(
-                                $this->getQueuedStates(),
-                                (array)$this->getProgressState()
+                                self::getQueuedStates(),
+                                (array)self::getProgressState()
                             )
                         )
                     );
@@ -173,7 +173,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
                     $hash = $Snapin->get('hash');
                     $SnapinTask
                         ->set('checkin', $date)
-                        ->set('stateID', $this->getCheckedInState())
+                        ->set('stateID', self::getCheckedInState())
                         ->save();
                     $action = '';
                     if ($Snapin->get('shutdown')) {
@@ -229,16 +229,16 @@ class SnapinClient extends FOGClient implements FOGClientSend
                 array(
                     'jobID' => $SnapinJob->get('id'),
                     'stateID' => self::fastmerge(
-                        $this->getQueuedStates(),
-                        (array)$this->getProgressState()
+                        self::getQueuedStates(),
+                        (array)self::getProgressState()
                     )
                 )
             );
         if ($STaskCount < 1) {
             if ($Task->isValid()) {
-                $Task->set('stateID', $this->getCompleteState())->save();
+                $Task->set('stateID', self::getCompleteState())->save();
             }
-            $SnapinJob->set('stateID', $this->getCompleteState())->save();
+            $SnapinJob->set('stateID', self::getCompleteState())->save();
             self::$EventManager->notify(
                 'HOST_SNAPIN_COMPLETE',
                 array(
@@ -250,19 +250,19 @@ class SnapinClient extends FOGClient implements FOGClientSend
         }
         if ($Task->isValid()) {
             $Task
-                ->set('stateID', $this->getCheckedInState())
+                ->set('stateID', self::getCheckedInState())
                 ->set('checkInTime', $date)
                 ->save();
         }
-        $SnapinJob->set('stateID', $this->getCheckedInState())->save();
+        $SnapinJob->set('stateID', self::getCheckedInState())->save();
         if (basename(self::$scriptname) === 'snapins.checkin.php') {
             if (!isset($_REQUEST['exitcode'])) {
                 $snapinIDs = self::getSubObjectIDs(
                     'SnapinTask',
                     array(
                         'stateID' => self::fastmerge(
-                            $this->getQueuedStates(),
-                            (array)$this->getProgressState()
+                            self::getQueuedStates(),
+                            (array)self::getProgressState()
                         ),
                         'jobID' => $SnapinJob->get('id'),
                     ),
@@ -274,7 +274,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
                 );
                 if (count($snapinIDs) < 1) {
                     $SnapinJob
-                        ->set('stateID', $this->getCancelledState())
+                        ->set('stateID', self::getCancelledState())
                         ->save();
                     throw new Exception(
                         sprintf(
@@ -291,7 +291,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
                 $Snapin = array_shift($Snapins);
                 if (!($Snapin instanceof Snapin && $Snapin->isValid())) {
                     $SnapinJob
-                        ->set('stateID', $this->getCancelledState())
+                        ->set('stateID', self::getCancelledState())
                         ->save();
                     throw new Exception(
                         sprintf(
@@ -307,8 +307,8 @@ class SnapinClient extends FOGClient implements FOGClientSend
                         'snapinID' => $Snapin->get('id'),
                         'jobID' => $SnapinJob->get('id'),
                         'stateID' => self::fastmerge(
-                            $this->getQueuedStates(),
-                            (array)$this->getProgressState()
+                            self::getQueuedStates(),
+                            (array)self::getProgressState()
                         )
                     )
                 );
@@ -411,8 +411,8 @@ class SnapinClient extends FOGClient implements FOGClientSend
             && !in_array(
                 $SnapinTask->get('stateID'),
                 array(
-                    $this->getCompleteState(),
-                    $this->getCancelledState()
+                    self::getCompleteState(),
+                    self::getCancelledState()
                 )
             ))
         ) {
@@ -435,7 +435,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
             );
         }
         $SnapinTask
-            ->set('stateID', $this->getCompleteState())
+            ->set('stateID', self::getCompleteState())
             ->set('return', $_REQUEST['exitcode'])
             ->set('details', $_REQUEST['exitdesc'])
             ->set('complete', $date)
@@ -454,16 +454,16 @@ class SnapinClient extends FOGClient implements FOGClientSend
                 array(
                     'jobID' => $SnapinJob->get('id'),
                     'stateID' => self::fastmerge(
-                        $this->getQueuedStates(),
-                        (array)$this->getProgressState()
+                        self::getQueuedStates(),
+                        (array)self::getProgressState()
                     )
                 )
             );
         if ($STaskCount < 1) {
             if ($Task->isValid()) {
-                $Task->set('stateID', $this->getCompleteState())->save();
+                $Task->set('stateID', self::getCompleteState())->save();
             }
-            $SnapinJob->set('stateID', $this->getCompleteState())->save();
+            $SnapinJob->set('stateID', self::getCompleteState())->save();
             self::$EventManager->notify(
                 'HOST_SNAPIN_COMPLETE',
                 array(
@@ -592,15 +592,15 @@ class SnapinClient extends FOGClient implements FOGClientSend
         );
         if ($Task->isValid()) {
             $Task
-                ->set('stateID', $this->getProgressState())
+                ->set('stateID', self::getProgressState())
                 ->set('checkInTime', $date)
                 ->save();
         }
         $SnapinJob
-            ->set('stateID', $this->getProgressState())
+            ->set('stateID', self::getProgressState())
             ->save();
         $SnapinTask
-            ->set('stateID', $this->getProgressState())
+            ->set('stateID', self::getProgressState())
             ->set('return', -1)
             ->set('details', _('Pending...'))
             ->save();

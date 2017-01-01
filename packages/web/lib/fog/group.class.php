@@ -389,8 +389,8 @@ class Group extends FOGController
             throw new Exception(_('Select a valid image'));
         }
         $states = self::fastmerge(
-            $this->getQueuedStates(),
-            (array) $this->getProgressState()
+            self::getQueuedStates(),
+            (array)self::getProgressState()
         );
         $TaskCount = self::getClass('TaskManager')
             ->count(
@@ -451,8 +451,8 @@ class Group extends FOGController
                 array(
                     'hostID' => $hostids,
                     'stateID' => self::fastmerge(
-                        $this->getQueuedStates(),
-                        (array) $this->getProgressState()
+                        self::getQueuedStates(),
+                        (array) self::getProgressState()
                     ),
                 )
             );
@@ -559,7 +559,7 @@ class Group extends FOGController
                         $username,
                         $hostIDs[$i],
                         0,
-                        $this->getQueuedState(),
+                        self::getQueuedState(),
                         $TaskType->get('id'),
                         $wol,
                         $Image->get('id'),
@@ -641,7 +641,7 @@ class Group extends FOGController
                         $username,
                         $hostIDs[$i],
                         0,
-                        $this->getQueuedState(),
+                        self::getQueuedState(),
                         $TaskType->get('id'),
                         $wol,
                         $imageIDs[$i],
@@ -685,7 +685,7 @@ class Group extends FOGController
                     $taskName,
                     $username,
                     $hostIDs[$i],
-                    $this->getQueuedState(),
+                    self::getQueuedState(),
                     $TaskType->get('id'),
                     $wol,
                 );
@@ -711,7 +711,7 @@ class Group extends FOGController
                     $taskName,
                     $username,
                     $hostIDs[$i],
-                    $this->getQueuedState(),
+                    self::getQueuedState(),
                     $TaskType->get('id'),
                     $wol,
                 );
@@ -797,7 +797,7 @@ class Group extends FOGController
             }
             $snapinJobs[] = array(
                 $hostID,
-                $this->getQueuedState(),
+                self::getQueuedState(),
                 $now->format('Y-m-d H:i:s'),
             );
         }
@@ -822,7 +822,7 @@ class Group extends FOGController
                 for ($j = 0; $j < $snapinCount; ++$j) {
                     $snapinTasks[] = array(
                         $jobID,
-                        $this->getQueuedState(),
+                        self::getQueuedState(),
                         $snapins[$hostID][$j],
                     );
                 }

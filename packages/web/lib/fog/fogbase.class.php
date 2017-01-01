@@ -1923,54 +1923,54 @@ abstract class FOGBase
      *
      * @return array
      */
-    public function getQueuedStates()
+    public static function getQueuedStates()
     {
-        return (array) self::getClass('TaskState')->getQueuedStates();
+        return (array)TaskState::getQueuedStates();
     }
     /**
      * Get queued state main id.
      *
      * @return int
      */
-    public function getQueuedState()
+    public static function getQueuedState()
     {
-        return self::getClass('TaskState')->getQueuedState();
+        return TaskState::getQueuedState();
     }
     /**
      * Get checked in state id.
      *
      * @return int
      */
-    public function getCheckedInState()
+    public static function getCheckedInState()
     {
-        return self::getClass('TaskState')->getCheckedInState();
+        return TaskState::getCheckedInState();
     }
     /**
      * Get in progress state id.
      *
      * @return int
      */
-    public function getProgressState()
+    public static function getProgressState()
     {
-        return self::getClass('TaskState')->getProgressState();
+        return TaskState::getProgressState();
     }
     /**
      * Get complete state id.
      *
      * @return int
      */
-    public function getCompleteState()
+    public static function getCompleteState()
     {
-        return self::getClass('TaskState')->getCompleteState();
+        return TaskState::getCompleteState();
     }
     /**
      * Get cancelled state id.
      *
      * @return int
      */
-    public function getCancelledState()
+    public static function getCancelledState()
     {
-        return self::getClass('TaskState')->getCancelledState();
+        return TaskState::getCancelledState();
     }
     /**
      * Put string between two strings.
@@ -1981,7 +1981,7 @@ abstract class FOGBase
      *
      * @return string
      */
-    public function stringBetween($string, $start, $end)
+    public static function stringBetween($string, $start, $end)
     {
         $string = " $string";
         $ini = strpos($string, $start);

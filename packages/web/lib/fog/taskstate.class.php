@@ -61,7 +61,7 @@ class TaskState extends FOGController
      *
      * @return array
      */
-    public function getQueuedStates()
+    public static function getQueuedStates()
     {
         $queuedStates = range(0, 2);
         self::$HookManager
@@ -76,7 +76,7 @@ class TaskState extends FOGController
      *
      * @return int
      */
-    public function getQueuedState()
+    public static function getQueuedState()
     {
         $queuedState = 1;
         self::$HookManager
@@ -91,7 +91,7 @@ class TaskState extends FOGController
      *
      * @return int
      */
-    public function getCheckedInState()
+    public static function getCheckedInState()
     {
         $checkedInState = 2;
         self::$HookManager
@@ -106,7 +106,7 @@ class TaskState extends FOGController
      *
      * @return int
      */
-    public function getProgressState()
+    public static function getProgressState()
     {
         $progressState = 3;
         self::$HookManager
@@ -121,7 +121,7 @@ class TaskState extends FOGController
      *
      * @return int
      */
-    public function getCompleteState()
+    public static function getCompleteState()
     {
         $completeState = 4;
         self::$HookManager
@@ -136,7 +136,7 @@ class TaskState extends FOGController
      *
      * @return int
      */
-    public function getCancelledState()
+    public static function getCancelledState()
     {
         $cancelledState = 5;
         self::$HookManager

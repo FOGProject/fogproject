@@ -170,7 +170,7 @@ class StorageGroup extends FOGController
         return (int)self::$_used['tot'] = self::getClass('TaskManager')
             ->count(
                 array(
-                    'stateID' => $this->getProgressState(),
+                    'stateID' => self::getProgressState(),
                     'storagenodeID' => $this->get('enablednodes'),
                     'typeID' => $this->get('usedtasks'),
                 )
@@ -189,7 +189,7 @@ class StorageGroup extends FOGController
         return (int)self::$_queued['tot'] = self::getClass('TaskManager')
             ->count(
                 array(
-                    'stateID' => $this->getQueuedStates(),
+                    'stateID' => self::getQueuedStates(),
                     'storagenodeID' => $this->get('enablednodes'),
                     'typeID' => $this->get('usedtasks'),
                 )

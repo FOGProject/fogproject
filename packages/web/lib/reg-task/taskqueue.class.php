@@ -31,7 +31,7 @@ class TaskQueue extends TaskingElement
     {
         try {
             $this->Task
-                ->set('stateID', $this->getCheckedInState())
+                ->set('stateID', self::getCheckedInState())
                 ->set('checkinTime', self::formatTime('now', 'Y-m-d H:i:s'))
                 ->save();
             if (!$this->Task->save()) {
@@ -65,7 +65,7 @@ class TaskQueue extends TaskingElement
                     }
                     $MulticastSession
                         ->set('clients', $clients)
-                        ->set('stateID', $this->getProgressState());
+                        ->set('stateID', self::getProgressState());
                     if (!$MulticastSession->save()) {
                         throw new Exception(_('Failed to update Session'));
                     }
@@ -159,7 +159,7 @@ class TaskQueue extends TaskingElement
                 }
             }
             $this->Task
-                ->set('stateID', $this->getProgressState())
+                ->set('stateID', self::getProgressState())
                 ->set('checkInTime', self::formatTime('now', 'Y-m-d H:i:s'));
             if (!$this->Task->save()) {
                 throw new Exception(_('Failed to update Task'));
@@ -217,7 +217,7 @@ class TaskQueue extends TaskingElement
         $SnapinTasks = self::getSubObjectIDs(
             'SnapinTask',
             array(
-                'stateID' => $this->getQueuedStates(),
+                'stateID' => self::getQueuedStates(),
                 'jobID' => $SnapinJob->get('id')
             ),
             'snapinID'
@@ -415,7 +415,7 @@ class TaskQueue extends TaskingElement
         $this->Task
             ->set('pct', 100)
             ->set('percent', 100)
-            ->set('stateID', $this->getCompleteState());
+            ->set('stateID', self::getCompleteState());
         if (!$this->Host->save()) {
             throw new Exception(_('Failed to update Host'));
         }

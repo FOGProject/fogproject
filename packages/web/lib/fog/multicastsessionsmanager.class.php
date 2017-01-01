@@ -83,7 +83,7 @@ class MulticastSessionsManager extends FOGManagerController
         /**
          * Get the current id for cancelled state.
          */
-        $cancelled = $this->getCancelledState();
+        $cancelled = self::getCancelledState();
         /**
          * Get sessions's associated task IDs (if any)
          */
@@ -100,7 +100,7 @@ class MulticastSessionsManager extends FOGManagerController
                 array('id' => $taskIDs),
                 '',
                 array(
-                    'stateID' => $this->getCancelledState()
+                    'stateID' => self::getCancelledState()
                 )
             );
         /*

@@ -1006,8 +1006,8 @@ class Host extends FOGController
             'SnapinJob',
             array(
                 'stateID' => self::fastmerge(
-                    $this->getQueuedStates(),
-                    (array)$this->getProgressState()
+                    self::getQueuedStates(),
+                    (array)self::getProgressState()
                 ),
                 'hostID' => $this->get('id')
             )
@@ -1024,8 +1024,8 @@ class Host extends FOGController
     {
         $find['hostID'] = $this->get('id');
         $find['stateID'] = self::fastmerge(
-            $this->getQueuedStates(),
-            (array)$this->getProgressState()
+            self::getQueuedStates(),
+            (array)self::getProgressState()
         );
         $types = array(
             'up',
@@ -1076,8 +1076,8 @@ class Host extends FOGController
     {
         $find = array(
             'stateID' => self::fastmerge(
-                $this->getQueuedStates(),
-                (array)$this->getProgressState()
+                self::getQueuedStates(),
+                (array)self::getProgressState()
             ),
             'hostID' => $this->get('id')
         );
@@ -1127,7 +1127,7 @@ class Host extends FOGController
             ->set('createdBy', $username)
             ->set('hostID', $this->get('id'))
             ->set('isForced', 0)
-            ->set('stateID', $this->getQueuedState())
+            ->set('stateID', self::getQueuedState())
             ->set('typeID', $taskTypeID)
             ->set('storagegroupID', $groupID)
             ->set('storagenodeID', $memID)
@@ -1158,8 +1158,8 @@ class Host extends FOGController
             array(
                 'hostID' => $this->get('id'),
                 'stateID' => self::fastmerge(
-                    $this->getQueuedStates(),
-                    (array)$this->getProgressState()
+                    self::getQueuedStates(),
+                    (array)self::getProgressState()
                 )
             )
         );
@@ -1168,29 +1168,29 @@ class Host extends FOGController
                 array(
                     'jobID' => $SnapinJobs,
                     'stateID' => self::fastmerge(
-                        $this->getQueuedStates(),
-                        (array)$this->getProgressState()
+                        self::getQueuedStates(),
+                        (array)self::getProgressState()
                     )
                 ),
                 '',
                 array(
                     'return' => -9999,
                     'details' => _('Cancelled due to new tasking.'),
-                    'stateID' => $this->getCancelledState()
+                    'stateID' => self::getCancelledState()
                 )
             );
         self::getClass('SnapinJobManager')
             ->update(
                 array('id' => $SnapinJobs),
                 '',
-                array('stateID' => $this->getCancelledState())
+                array('stateID' => self::getCancelledState())
             );
         $AllTasks = self::getSubObjectIDs(
             'Task',
             array(
                 'stateID' => self::fastmerge(
-                    $this->getQueuedStates(),
-                    (array)$this->getProgressState()
+                    self::getQueuedStates(),
+                    (array)self::getProgressState()
                 ),
                 'hostID' => $this->get('id')
             )
@@ -1205,7 +1205,7 @@ class Host extends FOGController
                     )
                 ),
                 '',
-                array('stateID' => $this->getCancelledState())
+                array('stateID' => self::getCancelledState())
             );
     }
     /**
@@ -1232,7 +1232,7 @@ class Host extends FOGController
             if (!$SnapinJob->isValid()) {
                 $SnapinJob
                     ->set('hostID', $this->get('id'))
-                    ->set('stateID', $this->getQueuedState())
+                    ->set('stateID', self::getQueuedState())
                     ->set(
                         'createdTime',
                         self::niceDate()
@@ -1423,8 +1423,8 @@ class Host extends FOGController
                 };
                 $assoc = false;
                 $showStates = self::fastmerge(
-                    $this->getQueuedStates(),
-                    (array)$this->getProgressState()
+                    self::getQueuedStates(),
+                    (array)self::getProgressState()
                 );
                 if ($sessionjoin) {
                     $MCSessions = self::getClass('MulticastSessionsManager')

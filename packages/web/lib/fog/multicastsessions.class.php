@@ -86,14 +86,14 @@ class MulticastSessions extends FOGController
                 array('id' => $taskIDs),
                 '',
                 array(
-                    'stateID' => $this->getCancelledState()
+                    'stateID' => self::getCancelledState()
                 )
             );
         self::getClass('MulticastSessionsAssociationManager')
             ->destroy(array('msID' => $this->get('id')));
         return $this->set(
             'stateID',
-            $this->getCancelledState()
+            self::getCancelledState()
         )->set(
             'name',
             ''

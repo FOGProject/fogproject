@@ -78,7 +78,7 @@ class BootTask extends Hook
             ->get('task')
             ->set(
                 'stateID',
-                $this->getCompleteState()
+                self::getCompleteState()
             )->save();
     }
 }

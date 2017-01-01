@@ -54,8 +54,8 @@ class MulticastTask extends FOGService
                 array(
                     'stateID' =>
                     self::fastmerge(
-                        $this->getQueuedStates(),
-                        (array)$this->getProgressState()
+                        self::getQueuedStates(),
+                        (array)self::getProgressState()
                     )
                 )
             );
@@ -80,7 +80,7 @@ class MulticastTask extends FOGService
                 $count = $MultiSess->get('sessclients');
             }
             if ($count < 1) {
-                $MultiSess->set('stateID', $this->getCancelledState())->save();
+                $MultiSess->set('stateID', self::getCancelledState())->save();
                 self::outall(
                     _('Task not created as there are no associated Tasks')
                 );
@@ -620,7 +620,7 @@ class MulticastTask extends FOGService
         $this->startTasking($this->getCMD(), $this->getUDPCastLogFile());
         $this->procRef = array_shift($this->procRef);
         $this->_MultiSess
-            ->set('stateID', $this->getQueuedState())
+            ->set('stateID', self::getQueuedState())
             ->save();
         return $this->isRunning($this->procRef);
     }

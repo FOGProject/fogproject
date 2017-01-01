@@ -1250,8 +1250,8 @@ class ImageManagementPage extends FOGPage
             ->find(
                 array(
                     'stateID' => self::fastmerge(
-                        (array)$this->getQueuedStates(),
-                        (array)$this->getProgressState()
+                        (array)self::getQueuedStates(),
+                        (array)self::getProgressState()
                     )
                 )
             );
@@ -1321,8 +1321,8 @@ class ImageManagementPage extends FOGPage
                 ->count(
                     array(
                         'stateID' => self::fastmerge(
-                            (array)$this->getQueuedStates(),
-                            (array)$this->getProgressState()
+                            (array)self::getQueuedStates(),
+                            (array)self::getProgressState()
                         )
                     )
                 );

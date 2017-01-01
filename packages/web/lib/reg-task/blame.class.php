@@ -41,7 +41,7 @@ class Blame extends TaskingElement
             ) {
                 $this
                     ->Task
-                    ->set('stateID', $this->getQueuedState());
+                    ->set('stateID', self::getQueuedState());
                 continue;
             }
             self::getClass('NodeFailure')
@@ -52,7 +52,7 @@ class Blame extends TaskingElement
                 ->set('hostID', $this->Host->get('id'))
                 ->save();
             $this->Task
-                ->set('stateID', $this->getQueuedState());
+                ->set('stateID', self::getQueuedState());
             unset($StorageNode);
         }
         if ($this->Task->save()) {

@@ -217,8 +217,8 @@ class TaskManagementPage extends FOGPage
         $Tasks = self::getClass('TaskManager')->find(
             array(
                 'stateID' => self::fastmerge(
-                    (array) $this->getQueuedStates(),
-                    (array) $this->getProgressState()
+                    (array) self::getQueuedStates(),
+                    (array) self::getProgressState()
                 )
             )
         );
@@ -710,8 +710,8 @@ class TaskManagementPage extends FOGPage
         $MultiSessions = self::getClass('MulticastSessionsManager')->find(
             array(
                 'stateID' => self::fastmerge(
-                    (array) $this->getQueuedStates(),
-                    (array) $this->getProgressState()
+                    (array) self::getQueuedStates(),
+                    (array) self::getProgressState()
                 )
             )
         );
@@ -834,8 +834,8 @@ class TaskManagementPage extends FOGPage
             )
         );
         $activestate = self::fastmerge(
-            (array) $this->getQueuedStates(),
-            (array) $this->getProgressState()
+            (array) self::getQueuedStates(),
+            (array) self::getProgressState()
         );
         $SnapinTasks = self::getClass('SnapinTaskManager')->find(
             array(

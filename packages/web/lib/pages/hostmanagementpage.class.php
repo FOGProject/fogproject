@@ -2118,8 +2118,8 @@ class HostManagementPage extends FOGPage
                 )
             );
         $doneStates = array(
-            $this->getCompleteState(),
-            $this->getCancelledState()
+            self::getCompleteState(),
+            self::getCancelledState()
         );
         foreach ((array)$SnapinTasks as &$SnapinTask) {
             if (!$SnapinTask->isValid()) {

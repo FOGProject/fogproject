@@ -2146,7 +2146,7 @@ class FOGConfigurationPage extends FOGPage
                 $logtype = 'access';
                 array_map($logparse, (array)$apacheacclog);
                 foreach ((array)$imgtransferlogs as &$file) {
-                    $str = $this->stringBetween(
+                    $str = self::stringBetween(
                         $file,
                         'transfer.',
                         '.log'
@@ -2160,7 +2160,7 @@ class FOGConfigurationPage extends FOGPage
                     unset($file);
                 }
                 foreach ((array)$snptransferlogs as &$file) {
-                    $str = $this->stringBetween(
+                    $str = self::stringBetween(
                         $file,
                         'transfer.',
                         '.log'

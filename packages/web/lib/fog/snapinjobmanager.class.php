@@ -83,7 +83,7 @@ class SnapinJobManager extends FOGManagerController
     public function cancel($snapinjobids)
     {
         $findWhere = array('id' => (array) $snapinjobids);
-        $cancelled = $this->getCancelledState();
+        $cancelled = self::getCancelledState();
 
         return $this->update(
             $findWhere,

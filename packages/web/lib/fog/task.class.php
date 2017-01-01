@@ -138,8 +138,8 @@ class Task extends TaskType
         $Tasks = $this->getManager()->find(
             array(
                 'stateID' => self::fastmerge(
-                    (array)$this->getQueuedStates(),
-                    (array)$this->getProgressState()
+                    (array)self::getQueuedStates(),
+                    (array)self::getProgressState()
                 ),
                 'typeID' => $used,
                 'storagegroupID' => $this->get('storagegroupID'),
@@ -189,12 +189,12 @@ class Task extends TaskType
                     '',
                     array(
                         'complete' => self::niceDate()->format('Y-m-d H:i:s'),
-                        'stateID' => $this->getCancelledState()
+                        'stateID' => self::getCancelledState()
                     )
                 );
             $SnapinJob->set(
                 'stateID',
-                $this->getCancelledState()
+                self::getCancelledState()
             )->save();
         }
         if ($this->isMulticast()) {
@@ -212,11 +212,11 @@ class Task extends TaskType
                     array(
                         'clients' => 0,
                         'completetime' => self::formatTime('now', 'Y-m-d H:i:s'),
-                        'stateID' => $this->getCancelledState()
+                        'stateID' => self::getCancelledState()
                     )
                 );
         }
-        $this->set('stateID', $this->getCancelledState())->save();
+        $this->set('stateID', self::getCancelledState())->save();
 
         return $this;
     }

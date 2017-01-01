@@ -56,7 +56,7 @@ try {
             FOGCore::getClass('SnapinTaskManager')
             ->count(
                 array(
-                    'stateID' => $FOGCore->getQueuedStates(),
+                    'stateID' => FOGCore::getQueuedStates(),
                     'jobID' => $SnapinJob->get('id')
                 )
             ) ?

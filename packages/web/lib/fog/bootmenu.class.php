@@ -697,8 +697,8 @@ class BootMenu extends FOGBase
         $findWhere = array(
             'name' => trim($_REQUEST['sessname']),
             'stateID' => self::fastmerge(
-                $this->getQueuedStates(),
-                (array)$this->getProgressState()
+                self::getQueuedStates(),
+                (array)self::getProgressState()
             ),
         );
         $Sessions = self::getClass('MulticastSessionsManager')

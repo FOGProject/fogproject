@@ -87,7 +87,7 @@ class TaskScheduler extends FOGService
     {
         try {
             $findWhere = array(
-                'stateID' => $this->getQueuedStates(),
+                'stateID' => self::getQueuedStates(),
                 'wol' => 1
             );
             $taskHostIDs = self::getSubObjectIDs(
