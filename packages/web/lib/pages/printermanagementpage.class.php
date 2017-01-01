@@ -248,7 +248,7 @@ class PrinterManagementPage extends FOGPage
         echo '</div>';
         unset($this->data);
         unset($fields['&nbsp;']);
-        $fields = array_merge(
+        $fields = self::fastmerge(
             $fields,
             array(
                 sprintf(
@@ -312,7 +312,7 @@ class PrinterManagementPage extends FOGPage
         $this->render();
         echo '</div>';
         unset($this->data);
-        $fields = array_merge(
+        $fields = self::fastmerge(
             $fields,
             array(
                 _('Printer Port') => sprintf(
@@ -535,7 +535,7 @@ class PrinterManagementPage extends FOGPage
         echo '</div>';
         unset($this->data);
         unset($fields['&nbsp;']);
-        $fields = array_merge(
+        $fields = self::fastmerge(
             $fields,
             array(
                 sprintf(
@@ -598,7 +598,7 @@ class PrinterManagementPage extends FOGPage
         $this->render();
         echo '</div>';
         unset($this->data);
-        $fields = array_merge(
+        $fields = self::fastmerge(
             $fields,
             array(
                 _('Printer Port') => sprintf(

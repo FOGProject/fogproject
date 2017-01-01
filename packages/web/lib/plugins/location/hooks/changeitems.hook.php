@@ -222,7 +222,7 @@ class ChangeItems extends Hook
             '',
             'storagenodeID'
         );
-        $storagenodeIDs = array_merge(
+        $storagenodeIDs = self::fastmerge(
             (array) $storagenodeIDs,
             (array) $arguments['MasterIDs']
         );

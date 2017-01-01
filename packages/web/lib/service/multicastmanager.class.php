@@ -159,7 +159,7 @@ class MulticastManager extends FOGService
     {
         while (true) {
             $this->waitDbReady();
-            $queuedStates = array_merge(
+            $queuedStates = self::fastmerge(
                 $this->getQueuedStates(),
                 (array)$this->getProgressState()
             );

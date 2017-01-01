@@ -137,7 +137,7 @@ class Task extends TaskType
         $used = explode(',', self::getSetting('FOG_USED_TASKS'));
         $Tasks = $this->getManager()->find(
             array(
-                'stateID' => array_merge(
+                'stateID' => self::fastmerge(
                     (array)$this->getQueuedStates(),
                     (array)$this->getProgressState()
                 ),

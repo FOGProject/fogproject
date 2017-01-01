@@ -53,7 +53,7 @@ class MulticastTask extends FOGService
             ->find(
                 array(
                     'stateID' =>
-                    array_merge(
+                    self::fastmerge(
                         $this->getQueuedStates(),
                         (array)$this->getProgressState()
                     )

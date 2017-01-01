@@ -1779,12 +1779,12 @@ class FOGConfigurationPage extends FOGPage
             'MULTICASESLEEPTIME' => true,
             // FOG Quick Registration
             'FOG_QUICKREG_AUTOPOP' => $checkbox,
-            'FOG_QUICKREG_IMG_ID' => array_merge(
+            'FOG_QUICKREG_IMG_ID' => self::fastmerge(
                 (array)0,
                 self::getSubObjectIDs('Image')
             ),
             'FOG_QUICKREG_SYS_NUMBER' => true,
-            'FOG_QUICKREG_GROUP_ASSOC' => array_merge(
+            'FOG_QUICKREG_GROUP_ASSOC' => self::fastmerge(
                 (array)0,
                 self::getSubObjectIDs('Group')
             ),

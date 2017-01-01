@@ -115,7 +115,7 @@ class SnapinTaskManager extends FOGManagerController
                 ->count(
                     array(
                         'jobID' => $jobID,
-                        'stateID' => array_merge(
+                        'stateID' => self::fastmerge(
                             (array) $this->getQueuedStates(),
                             (array) $this->getProgressState()
                         )

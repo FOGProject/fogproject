@@ -101,7 +101,7 @@ class SlackManagementPage extends FOGPage
             if (!$Slack->verifyToken()) {
                 throw new Exception(_('Invalid token passed'));
             }
-            if (array_search($user, array_merge((array)$Slack->getChannels(), (array)$Slack->getUsers())) === false) {
+            if (array_search($user, self::fastmerge((array)$Slack->getChannels(), (array)$Slack->getUsers())) === false) {
                 throw new Exception(_('Invalid user and/or channel passed'));
             }
             if (self::getClass('SlackManager')->exists($token, '', 'token') && self::getClass('SlackManager')->exists($usersend)) {

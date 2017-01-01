@@ -189,7 +189,7 @@ class FileIntegrity extends FOGController
      */
     public function processPathFiles()
     {
-        $files = array_merge(
+        $files = self::fastmerge(
             (array)self::$imagePaths,
             (array)self::$snapinFiles
         );

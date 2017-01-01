@@ -216,7 +216,7 @@ class TaskManagementPage extends FOGPage
         $this->data = array();
         $Tasks = self::getClass('TaskManager')->find(
             array(
-                'stateID' => array_merge(
+                'stateID' => self::fastmerge(
                     (array) $this->getQueuedStates(),
                     (array) $this->getProgressState()
                 )
@@ -709,7 +709,7 @@ class TaskManagementPage extends FOGPage
         );
         $MultiSessions = self::getClass('MulticastSessionsManager')->find(
             array(
-                'stateID' => array_merge(
+                'stateID' => self::fastmerge(
                     (array) $this->getQueuedStates(),
                     (array) $this->getProgressState()
                 )
@@ -833,7 +833,7 @@ class TaskManagementPage extends FOGPage
                 'width' => 40
             )
         );
-        $activestate = array_merge(
+        $activestate = self::fastmerge(
             (array) $this->getQueuedStates(),
             (array) $this->getProgressState()
         );

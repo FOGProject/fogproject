@@ -1608,7 +1608,7 @@ abstract class FOGBase
             $existingMACs = array_filter($existingMACs);
             $existingMACs = array_unique($existingMACs);
             $existingMACs = array_values($existingMACs);
-            $MACs = array_merge((array) $MACs, (array) $existingMACs);
+            $MACs = self::fastmerge((array) $MACs, (array) $existingMACs);
             $MACs = array_unique($MACs);
         }
         if ($client) {
@@ -2103,7 +2103,7 @@ abstract class FOGBase
         };
         $IPs = array_map($retIPs, (array) $IPs);
         $Names = array_map($retNames, (array) $IPs);
-        $output = array_merge($IPs, $Names);
+        $output = self::fastmerge($IPs, $Names);
         unset($IPs, $Names);
         natcasesort($output);
         self::$ips = array_values(array_filter(array_unique((array) $output)));
@@ -2218,5 +2218,30 @@ abstract class FOGBase
             false,
             false
         );
+    }
+    /**
+     * Faster array merge operation.
+     *
+     * @param array $array1 The array to merge with.
+     *
+     * @return array
+     */
+    public static function fastmerge($array1)
+    {
+        $others = func_get_args();
+        array_shift($others);
+        foreach ((array)$others as &$other) {
+            foreach ((array)$other as $key => &$oth) {
+                if (is_numeric($key)) {
+                    $array1[] = $oth;
+                    continue;
+                }
+                unset($oth);
+            }
+            $array1 += $other;
+            unset($other);
+        }
+
+        return $array1;
     }
 }

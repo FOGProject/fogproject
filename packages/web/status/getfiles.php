@@ -42,7 +42,7 @@ foreach ((array)$paths as &$decodedPath) {
         $replaced_dir_sep,
         DIRECTORY_SEPARATOR
     );
-    $files = array_merge(
+    $files = self::fastmerge(
         (array) $files,
         (array) glob($glob_str)
     );

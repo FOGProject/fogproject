@@ -1005,7 +1005,7 @@ class Host extends FOGController
         $sjID = self::getSubObjectIDs(
             'SnapinJob',
             array(
-                'stateID' => array_merge(
+                'stateID' => self::fastmerge(
                     $this->getQueuedStates(),
                     (array)$this->getProgressState()
                 ),
@@ -1023,7 +1023,7 @@ class Host extends FOGController
     protected function loadTask()
     {
         $find['hostID'] = $this->get('id');
-        $find['stateID'] = array_merge(
+        $find['stateID'] = self::fastmerge(
             $this->getQueuedStates(),
             (array)$this->getProgressState()
         );
@@ -1075,7 +1075,7 @@ class Host extends FOGController
     public function getActiveTaskCount()
     {
         $find = array(
-            'stateID' => array_merge(
+            'stateID' => self::fastmerge(
                 $this->getQueuedStates(),
                 (array)$this->getProgressState()
             ),
@@ -1157,7 +1157,7 @@ class Host extends FOGController
             'SnapinJob',
             array(
                 'hostID' => $this->get('id'),
-                'stateID' => array_merge(
+                'stateID' => self::fastmerge(
                     $this->getQueuedStates(),
                     (array)$this->getProgressState()
                 )
@@ -1167,7 +1167,7 @@ class Host extends FOGController
             ->update(
                 array(
                     'jobID' => $SnapinJobs,
-                    'stateID' => array_merge(
+                    'stateID' => self::fastmerge(
                         $this->getQueuedStates(),
                         (array)$this->getProgressState()
                     )
@@ -1188,7 +1188,7 @@ class Host extends FOGController
         $AllTasks = self::getSubObjectIDs(
             'Task',
             array(
-                'stateID' => array_merge(
+                'stateID' => self::fastmerge(
                     $this->getQueuedStates(),
                     (array)$this->getProgressState()
                 ),
@@ -1422,7 +1422,7 @@ class Host extends FOGController
                     return $MulticastSessions;
                 };
                 $assoc = false;
-                $showStates = array_merge(
+                $showStates = self::fastmerge(
                     $this->getQueuedStates(),
                     (array)$this->getProgressState()
                 );

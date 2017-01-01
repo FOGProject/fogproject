@@ -55,7 +55,7 @@ class HostManagementPage extends FOGPage
                 ) => self::$foglang['General'],
             );
             if (!$this->obj->get('pending')) {
-                $this->subMenu = array_merge(
+                $this->subMenu = self::fastmerge(
                     $this->subMenu,
                     array(
                         sprintf(
@@ -65,7 +65,7 @@ class HostManagementPage extends FOGPage
                     )
                 );
             }
-            $this->subMenu = array_merge(
+            $this->subMenu = self::fastmerge(
                 $this->subMenu,
                 array(
                     sprintf(

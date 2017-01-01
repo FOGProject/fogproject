@@ -783,7 +783,7 @@ class SnapinManagementPage extends FOGPage
          */
         $nodeIDs = array();
         foreach ((array)$StorageGroups as &$StorageGroup) {
-            $nodeIDs = array_merge(
+            $nodeIDs = self::fastmerge(
                 (array)$nodeIDs,
                 (array)$StorageGroup->get('enablednodes')
             );
@@ -808,7 +808,7 @@ class SnapinManagementPage extends FOGPage
                 if (!$StorageNode->isValid()) {
                     continue;
                 }
-                $filelist = array_merge(
+                $filelist = self::fastmerge(
                     (array)$filelist,
                     (array)$StorageNode->get('snapinfiles')
                 );

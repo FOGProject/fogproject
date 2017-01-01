@@ -99,7 +99,7 @@ class ServiceModule extends FOGClient implements FOGClientSend
         );
         if (in_array(
             $mod,
-            array_merge(
+            self::fastmerge(
                 (array)$globalDisabled,
                 (array)$hostDisabled
             )

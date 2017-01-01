@@ -1249,7 +1249,7 @@ class ImageManagementPage extends FOGPage
         $MCSessions = self::getClass('MulticastSessionsManager')
             ->find(
                 array(
-                    'stateID' => array_merge(
+                    'stateID' => self::fastmerge(
                         (array)$this->getQueuedStates(),
                         (array)$this->getProgressState()
                     )
@@ -1320,7 +1320,7 @@ class ImageManagementPage extends FOGPage
             $countmc = self::getClass('MulticastSessionsManager')
                 ->count(
                     array(
-                        'stateID' => array_merge(
+                        'stateID' => self::fastmerge(
                             (array)$this->getQueuedStates(),
                             (array)$this->getProgressState()
                         )

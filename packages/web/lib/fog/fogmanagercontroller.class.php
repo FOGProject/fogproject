@@ -797,7 +797,7 @@ abstract class FOGManagerController extends FOGBase
                 ''
             )
         );
-        $queryVals = array_merge(
+        $queryVals = self::fastmerge(
             (array) $updateVals,
             (array) $findVals
         );
@@ -1104,7 +1104,7 @@ abstract class FOGManagerController extends FOGBase
                 '',
                 'OR'
             );
-            $HostIDs = array_merge(
+            $HostIDs = self::fastmerge(
                 $HostIDs,
                 $macHostIDs,
                 $invHostIDs
@@ -1139,7 +1139,7 @@ abstract class FOGManagerController extends FOGBase
                 'OR'
             );
             if (count($ImageIDs) > 0) {
-                $itemIDs = array_merge(
+                $itemIDs = self::fastmerge(
                     $itemIDs,
                     self::getSubObjectIDs(
                         'Host',
@@ -1148,7 +1148,7 @@ abstract class FOGManagerController extends FOGBase
                 );
             }
             if (count($GroupIDs) > 0) {
-                $itemIDs = array_merge(
+                $itemIDs = self::fastmerge(
                     $itemIDs,
                     self::getSubObjectIDs(
                         'GroupAssociation',
@@ -1158,7 +1158,7 @@ abstract class FOGManagerController extends FOGBase
                 );
             }
             if (count($SnapinIDs) > 0) {
-                $itemIDs = array_merge(
+                $itemIDs = self::fastmerge(
                     $itemIDs,
                     self::getSubObjectIDs(
                         'SnapinAssociation',
@@ -1168,7 +1168,7 @@ abstract class FOGManagerController extends FOGBase
                 );
             }
             if (count($PrinterIDs) > 0) {
-                $itemIDs = array_merge(
+                $itemIDs = self::fastmerge(
                     $itemIDs,
                     self::getSubObjectIDs(
                         'PrinterAssociation',
@@ -1177,7 +1177,7 @@ abstract class FOGManagerController extends FOGBase
                     )
                 );
             }
-            $itemIDs = array_merge($itemIDs, $HostIDs);
+            $itemIDs = self::fastmerge($itemIDs, $HostIDs);
             $itemIDs = array_filter($itemIDs);
             $itemIDs = array_unique($itemIDs);
             break;
@@ -1188,7 +1188,7 @@ abstract class FOGManagerController extends FOGBase
                     array('id' => $HostIDs),
                     'imageID'
                 );
-                $itemIDs = array_merge($itemIDs, $ImageIDs);
+                $itemIDs = self::fastmerge($itemIDs, $ImageIDs);
             }
             $itemIDs = array_filter($itemIDs);
             $itemIDs = array_unique($itemIDs);
@@ -1230,7 +1230,7 @@ abstract class FOGManagerController extends FOGBase
                 'OR'
             );
             if (count($ImageIDs)) {
-                $itemIDs = array_merge(
+                $itemIDs = self::fastmerge(
                     $itemIDs,
                     self::getSubObjectIDs(
                         'Host',
@@ -1239,7 +1239,7 @@ abstract class FOGManagerController extends FOGBase
                 );
             }
             if (count($GroupIDs)) {
-                $itemIDs = array_merge(
+                $itemIDs = self::fastmerge(
                     $itemIDs,
                     self::getSubObjectIDs(
                         'GroupAssociation',
@@ -1249,7 +1249,7 @@ abstract class FOGManagerController extends FOGBase
                 );
             }
             if (count($SnapinIDs)) {
-                $itemIDs = array_merge(
+                $itemIDs = self::fastmerge(
                     $itemIDs,
                     self::getSubObjectIDs(
                         'SnapinAssociation',
@@ -1259,7 +1259,7 @@ abstract class FOGManagerController extends FOGBase
                 );
             }
             if (count($PrinterIDs)) {
-                $itemIDs = array_merge(
+                $itemIDs = self::fastmerge(
                     $itemIDs,
                     self::getSubObjectIDs(
                         'PrinterAssociation',
@@ -1269,7 +1269,7 @@ abstract class FOGManagerController extends FOGBase
                 );
             }
             if (count($TaskStateIDs)) {
-                $itemIDs = array_merge(
+                $itemIDs = self::fastmerge(
                     $itemIDs,
                     self::getSubObjectIDs(
                         'Task',
@@ -1278,7 +1278,7 @@ abstract class FOGManagerController extends FOGBase
                 );
             }
             if (count($TaskTypeIDs)) {
-                $itemIDs = array_merge(
+                $itemIDs = self::fastmerge(
                     $itemIDs,
                     self::getSubObjectIDs(
                         'Task',
@@ -1287,7 +1287,7 @@ abstract class FOGManagerController extends FOGBase
                 );
             }
             if (count($HostIDs)) {
-                $itemIDs = array_merge(
+                $itemIDs = self::fastmerge(
                     $itemIDs,
                     self::getSubObjectIDs(
                         'Task',
@@ -1311,7 +1311,7 @@ abstract class FOGManagerController extends FOGBase
             if (count($itemIDs) && !count($HostIDs)) {
                 break;
             }
-            $HostIDs = array_merge(
+            $HostIDs = self::fastmerge(
                 $HostIDs,
                 self::getSubObjectIDs(
                     $assoc,
@@ -1320,7 +1320,7 @@ abstract class FOGManagerController extends FOGBase
                 )
             );
             if (count($HostIDs)) {
-                $itemIDs = array_merge(
+                $itemIDs = self::fastmerge(
                     $itemIDs,
                     self::getSubObjectIDs(
                         $assoc,

@@ -57,7 +57,7 @@ class AddBroadcastAddresses extends Hook
         if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
             return;
         }
-        $arguments['broadcast'] = array_merge(
+        $arguments['broadcast'] = self::fastmerge(
             (array) $arguments['broadcast'],
             (array) self::getSubObjectIDs('Wolbroadcast', '', 'broadcast')
         );

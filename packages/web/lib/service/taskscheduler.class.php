@@ -161,7 +161,7 @@ class TaskScheduler extends FOGService
                         'onDemand' => array(0, '')
                     )
                 );
-            $Tasks = array_merge((array)$Tasks, (array)$PMs);
+            $Tasks = self::fastmerge((array)$Tasks, (array)$PMs);
             foreach ((array)$Tasks as &$Task) {
                 if (!$Task->isValid()) {
                     continue;

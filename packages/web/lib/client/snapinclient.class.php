@@ -46,7 +46,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
             ->count(
                 array(
                     'jobID' => $SnapinJob->get('id'),
-                    'stateID' => array_merge(
+                    'stateID' => self::fastmerge(
                         $this->getQueuedStates(),
                         (array)$this->getProgressState()
                     )
@@ -81,7 +81,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
                 $snapinIDs = self::getSubObjectIDs(
                     'SnapinTask',
                     array(
-                        'stateID' => array_merge(
+                        'stateID' => self::fastmerge(
                             $this->getQueuedStates(),
                             (array)$this->getProgressState()
                         ),
@@ -116,7 +116,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
                         array(
                             'snapinID' => $Snapin->get('id'),
                             'jobID' => $SnapinJob->get('id'),
-                            'stateID' => array_merge(
+                            'stateID' => self::fastmerge(
                                 $this->getQueuedStates(),
                                 (array)$this->getProgressState()
                             )
@@ -228,7 +228,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
             ->count(
                 array(
                     'jobID' => $SnapinJob->get('id'),
-                    'stateID' => array_merge(
+                    'stateID' => self::fastmerge(
                         $this->getQueuedStates(),
                         (array)$this->getProgressState()
                     )
@@ -260,7 +260,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
                 $snapinIDs = self::getSubObjectIDs(
                     'SnapinTask',
                     array(
-                        'stateID' => array_merge(
+                        'stateID' => self::fastmerge(
                             $this->getQueuedStates(),
                             (array)$this->getProgressState()
                         ),
@@ -306,7 +306,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
                     array(
                         'snapinID' => $Snapin->get('id'),
                         'jobID' => $SnapinJob->get('id'),
-                        'stateID' => array_merge(
+                        'stateID' => self::fastmerge(
                             $this->getQueuedStates(),
                             (array)$this->getProgressState()
                         )
@@ -453,7 +453,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
             ->count(
                 array(
                     'jobID' => $SnapinJob->get('id'),
-                    'stateID' => array_merge(
+                    'stateID' => self::fastmerge(
                         $this->getQueuedStates(),
                         (array)$this->getProgressState()
                     )

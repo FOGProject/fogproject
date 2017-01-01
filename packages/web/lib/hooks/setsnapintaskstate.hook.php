@@ -82,7 +82,7 @@ class SetSnapinTaskState extends Hook
      */
     public function addQueuedState($arguments)
     {
-        $arguments['queuedStates'] = array_merge(
+        $arguments['queuedStates'] = self::fastmerge(
             $arguments['queuedStates'],
             range(6, 75)
         );

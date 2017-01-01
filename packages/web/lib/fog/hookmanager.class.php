@@ -120,7 +120,7 @@ class HookManager extends EventManager
             '',
             'name'
         );
-        $tabsArr = array_merge(
+        $tabsArr = self::fastmerge(
             $settingCats,
             $pxeNames
         );
@@ -149,7 +149,10 @@ class HookManager extends EventManager
             'HOST_EDIT_AD',
             'GROUP_EDIT_AD',
         );
-        array_merge($this->events, $additional);
+        $this->events = self::fastmerge(
+            $this->events,
+            $additional
+        );
         natcasesort($this->events);
         $this->events = array_filter($this->events);
         $this->events = array_unique($this->events);
@@ -183,7 +186,7 @@ class HookManager extends EventManager
             if (!$active) {
                 continue;
             }
-            $mergedArr = array_merge(
+            $mergedArr = self::fastmerge(
                 array('event' => $event),
                 $arguments
             );

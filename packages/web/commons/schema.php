@@ -2144,7 +2144,7 @@ $this->schema[] = array(
     . "WHERE `pxeName`='fog.approvehost'",
 );
 // 130
-$this->schema[] = array_merge(
+$this->schema[] = self::fastmerge(
     array(
         "ALTER TABLE `hostMAC` ADD COLUMN `hmPrimary` INT DEFAULT 0 NOT NULL",
         "ALTER TABLE `hostMAC` ADD COLUMN `hmPending` INT DEFAULT 0 NOT NULL",
@@ -2227,7 +2227,7 @@ $this->schema[] = array(
     . "INT(11) NOT NULL AFTER msClients",
 );
 // 136
-$this->schema[] = array_merge(
+$this->schema[] = self::fastmerge(
     array(
         "ALTER TABLE `tasks` ADD COLUMN `taskImageID` "
         . "INT(11) NOT NULL AFTER `taskHostID`",
@@ -2289,7 +2289,7 @@ $this->schema[] = array(
     . "'noreply@\$\{server-name\}.com','FOG Email Settings')",
 );
 // 140
-$this->schema[] = array_merge(
+$this->schema[] = self::fastmerge(
     array(
         "CREATE TABLE IF NOT EXISTS `snapinGroupAssoc` ("
         . "`sgaID` mediumint(9) NOT NULL auto_increment,"
@@ -2436,7 +2436,7 @@ $this->schema[] = array();
 // 160
 $this->schema[] = array();
 // 161
-$this->schema[] = array_merge(
+$this->schema[] = self::fastmerge(
     $tmpSchema->dropDuplicateData(
         DATABASE_NAME,
         array(
@@ -2920,7 +2920,7 @@ $this->schema[] = array(
     "UPDATE `nfsGroupMembers` SET `ngmWebroot`='/fog/'",
 );
 // 189
-$this->schema[] = array_merge(
+$this->schema[] = self::fastmerge(
     $tmpSchema->dropDuplicateData(
         DATABASE_NAME,
         array(

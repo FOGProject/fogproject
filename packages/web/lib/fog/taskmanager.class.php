@@ -75,7 +75,7 @@ class TaskManager extends FOGManagerController
     public function cancel($taskids)
     {
         $cancelled = $this->getCancelledState();
-        $notComplete = array_merge(
+        $notComplete = self::fastmerge(
             (array)$this->getQueuedStates(),
             (array)$this->getProgressState()
         );

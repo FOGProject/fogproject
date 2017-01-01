@@ -388,7 +388,7 @@ class Group extends FOGController
         if (!$Image->isValid() && is_numeric($imageID)) {
             throw new Exception(_('Select a valid image'));
         }
-        $states = array_merge(
+        $states = self::fastmerge(
             $this->getQueuedStates(),
             (array) $this->getProgressState()
         );
@@ -450,7 +450,7 @@ class Group extends FOGController
             ->count(
                 array(
                     'hostID' => $hostids,
-                    'stateID' => array_merge(
+                    'stateID' => self::fastmerge(
                         $this->getQueuedStates(),
                         (array) $this->getProgressState()
                     ),

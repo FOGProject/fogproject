@@ -696,7 +696,7 @@ class BootMenu extends FOGBase
     {
         $findWhere = array(
             'name' => trim($_REQUEST['sessname']),
-            'stateID' => array_merge(
+            'stateID' => self::fastmerge(
                 $this->getQueuedStates(),
                 (array)$this->getProgressState()
             ),
@@ -1649,17 +1649,17 @@ class BootMenu extends FOGBase
                 }
             }
             $params = trim(implode("\n", (array)$params));
-            $Send = array_merge($Send, array($params));
+            $Send = self::fastmerge($Send, array($params));
         }
         switch ($option->get('id')) {
         case 1:
-            $Send = array_merge(
+            $Send = self::fastmerge(
                 $Send,
                 array("$this->_bootexittype || goto MENU")
             );
             break;
         case 2:
-            $Send = array_merge(
+            $Send = self::fastmerge(
                 $Send,
                 array(
                     "$this->_memdisk iso raw",
@@ -1669,7 +1669,7 @@ class BootMenu extends FOGBase
             );
             break;
         case 11:
-            $Send = array_merge(
+            $Send = self::fastmerge(
                 $Send,
                 array(
                     "chain -ar $this->_booturl/ipxe/advanced.php || "
@@ -1679,7 +1679,7 @@ class BootMenu extends FOGBase
             break;
         }
         if (!$params) {
-            $Send = array_merge(
+            $Send = self::fastmerge(
                 $Send,
                 array(
                     "$this->_kernel $this->_loglevel $type",
@@ -1742,7 +1742,7 @@ class BootMenu extends FOGBase
             false,
             ''
         );
-        $Send['head'] = array_merge(
+        $Send['head'] = self::fastmerge(
             array(
                 'cpuid --ext 29 && set arch x86_64 || set arch i386',
                 'goto get_console',
@@ -1772,7 +1772,7 @@ class BootMenu extends FOGBase
                 "registered as {$this->_Host->get(name)}!"
             );
         }
-        $Send['menustart'] = array_merge(
+        $Send['menustart'] = self::fastmerge(
             array(
                 ':MENU',
                 'menu',

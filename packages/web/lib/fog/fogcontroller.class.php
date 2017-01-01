@@ -1079,7 +1079,7 @@ abstract class FOGController extends FOGBase
                 unset($db_key, $obj_key);
             }
         }
-        $this->data = array_merge(
+        $this->data = self::fastmerge(
             (array) $this->data,
             (array) $classData
         );

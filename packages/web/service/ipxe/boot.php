@@ -21,7 +21,7 @@
  */
 require '../../commons/base.inc.php';
 header("Content-type: text/plain");
-$mac = array_merge(
+$mac = FOGCore::fastmerge(
     explode('|', $_REQUEST['mac']),
     explode('|', $_REQUEST['mac0']),
     explode('|', $_REQUEST['mac1']),

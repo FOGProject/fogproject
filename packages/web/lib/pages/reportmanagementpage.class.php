@@ -96,7 +96,7 @@ class ReportManagementPage extends FOGPage
         $reportlink = "?node={$this->node}&sub=file&f=";
         array_map(
             function (&$report) use (&$reportlink) {
-                $this->menu = array_merge(
+                $this->menu = self::fastmerge(
                     (array) $this->menu,
                     array(
                         sprintf(
@@ -120,7 +120,7 @@ class ReportManagementPage extends FOGPage
             },
             (array) self::_loadCustomReports()
         );
-        $this->menu = array_merge(
+        $this->menu = self::fastmerge(
             (array) $this->menu,
             array('upload' => self::$foglang['UploadRprts'])
         );
@@ -223,7 +223,7 @@ class ReportManagementPage extends FOGPage
             '${field}',
             '${input}',
         );
-        $AllDates = array_merge(
+        $AllDates = self::fastmerge(
             self::$DB->query(
                 "SELECT DATE_FORMAT(`ilStartTime`,'%Y-%m-%d') start FROM "
                 . "`imagingLog` WHERE DATE_FORMAT(`ilStartTime`,'%Y-%m-%d') "
@@ -1391,7 +1391,7 @@ class ReportManagementPage extends FOGPage
             '${field}',
             '${input}',
         );
-        $AllDates = array_merge(
+        $AllDates = self::fastmerge(
             self::$DB->query(
                 "SELECT DATE_FORMAT(`stCheckinDate`,'%Y-%m-%d') "
                 . "start FROM `snapinTasks` WHERE DATE_FORMAT("

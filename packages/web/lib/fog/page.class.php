@@ -263,7 +263,7 @@ class Page extends FOGBase
                 }
             );
             if (!self::$isMobile) {
-                $links = array_merge(
+                $links = self::fastmerge(
                     (array)$links,
                     array(
                         'hwinfo',

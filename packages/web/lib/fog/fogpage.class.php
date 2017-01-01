@@ -940,7 +940,7 @@ abstract class FOGPage extends FOGBase
             implode((array)$this->templates),
             $foundchanges
         );
-        $arrayReplace = array_merge(
+        $arrayReplace = self::fastmerge(
             $urlvars,
             (array)$data
         );
@@ -2767,7 +2767,7 @@ abstract class FOGPage extends FOGBase
                 }
                 $disabled = in_array(
                     $key,
-                    array_merge(
+                    self::fastmerge(
                         (array)$globalDisabled,
                         (array)$hostDisabled
                     )
@@ -3327,7 +3327,7 @@ abstract class FOGPage extends FOGBase
             if ($Item instanceof Host) {
                 $macs = $maccolumn = array();
                 $macs[] = $Item->get('mac');
-                $macs = array_merge($macs, $Item->get('additionalMACs'));
+                $macs = self::fastmerge($macs, $Item->get('additionalMACs'));
                 $macs = $this->parseMacList($macs);
                 foreach ((array)$macs as &$mac) {
                     if (!$mac->isValid()) {

@@ -152,7 +152,7 @@ class FOGSubMenu extends FOGBase
             }
         }
         if (is_array($this->items[$node][$variableSetter])) {
-            $this->items[$node][$variableSetter] = array_merge(
+            $this->items[$node][$variableSetter] = self::fastmerge(
                 $this->items[$node][$variableSetter],
                 $items
             );

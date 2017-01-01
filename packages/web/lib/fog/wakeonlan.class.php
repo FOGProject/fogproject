@@ -55,7 +55,7 @@ class WakeOnLan extends FOGBase
         ) {
             throw new Exception(self::$foglang['InvalidMAC']);
         }
-        $BroadCast = array_merge(
+        $BroadCast = self::fastmerge(
             (array) '255.255.255.255',
             self::$FOGCore->getBroadcast()
         );

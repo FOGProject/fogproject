@@ -98,7 +98,7 @@ class Snapin extends FOGController
             'SnapinJob',
             array(
                 'id' => $snapinJobIDs,
-                'stateID' => array_merge(
+                'stateID' => self::fastmerge(
                     $this->getQueuedStates(),
                     (array) $this->getProgressState()
                 ),

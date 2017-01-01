@@ -188,7 +188,7 @@ class StorageNode extends FOGController
         );
         $paths = self::$FOGURLRequests->process($url);
         foreach ((array) $paths as $index => &$response) {
-            $tmppath = array_merge(
+            $tmppath = self::fastmerge(
                 (array) $tmppath,
                 (array) json_decode($response, true)
             );

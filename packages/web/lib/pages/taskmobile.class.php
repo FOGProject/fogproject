@@ -148,7 +148,7 @@ class TaskMobile extends FOGPage
     {
         $Tasks = self::getClass('TaskManager')->find(
             array(
-                'stateID' => array_merge(
+                'stateID' => self::fastmerge(
                     (array) $this->getQueuedStates(),
                     (array) $this->getProgressState()
                 )
