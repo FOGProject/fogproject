@@ -59,7 +59,7 @@ abstract class FOGClient extends FOGBase
             if (self::$json && method_exists($this, 'json')) {
                 $method = 'json';
             }
-            $this->Host = $this->getHostItem(
+            $this->Host = self::getHostItem(
                 $service,
                 $encoded,
                 $hostnotrequired,

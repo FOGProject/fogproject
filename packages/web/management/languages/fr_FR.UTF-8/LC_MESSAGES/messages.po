@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-30 19:13-0500\n"
+"POT-Creation-Date: 2017-01-01 18:54-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3539,7 +3539,7 @@ msgstr "Informations générales"
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:75
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:138
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:259
-#: /var/www/fog/lib/reg-task/taskingelement.class.php:235
+#: /var/www/fog/lib/reg-task/taskingelement.class.php:234
 #: /var/www/fog/commons/text.php:308
 msgid "Storage Node"
 msgstr "nœud de stockage"
@@ -7251,32 +7251,32 @@ msgstr ""
 msgid "second"
 msgstr "Icône"
 
-#: /var/www/fog/lib/reg-task/taskingelement.class.php:170
+#: /var/www/fog/lib/reg-task/taskingelement.class.php:169
 #: /var/www/fog/service/progress.php:31
 msgid "No Active Task found for Host"
 msgstr "Aucune tâche active trouvée pour Host"
 
-#: /var/www/fog/lib/reg-task/taskingelement.class.php:190
+#: /var/www/fog/lib/reg-task/taskingelement.class.php:189
 #: /var/www/fog/lib/client/snapinclient.class.php:538
 msgid "Invalid Storage Group"
 msgstr "Groupe de stockage non valide"
 
-#: /var/www/fog/lib/reg-task/taskingelement.class.php:213
+#: /var/www/fog/lib/reg-task/taskingelement.class.php:212
 #, fuzzy
 msgid "Could not find a Storage Node in this group"
 msgstr ""
 "Impossible de trouver un nœud de stockage, est-il un permis dans ce groupe?"
 
-#: /var/www/fog/lib/reg-task/taskingelement.class.php:214
+#: /var/www/fog/lib/reg-task/taskingelement.class.php:213
 #, fuzzy
 msgid "is there one enabled"
 msgstr "L'image est pas activé"
 
-#: /var/www/fog/lib/reg-task/taskingelement.class.php:240
+#: /var/www/fog/lib/reg-task/taskingelement.class.php:239
 msgid "is open"
 msgstr ""
 
-#: /var/www/fog/lib/reg-task/taskingelement.class.php:241
+#: /var/www/fog/lib/reg-task/taskingelement.class.php:240
 #, fuzzy
 msgid "but has recently failed for this host"
 msgstr "est ouvert, mais a récemment échoué à cet hôte"

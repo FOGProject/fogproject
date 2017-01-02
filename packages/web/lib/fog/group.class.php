@@ -536,7 +536,7 @@ class Group extends FOGController
                     while ($randomnumber == $MulticastSession->get('port')) {
                         $randomnumber = mt_rand(24576, 32766) * 2;
                     }
-                    $this->setSetting('FOG_UDPCAST_STARTINGPORT', $randomnumber);
+                    self::setSetting('FOG_UDPCAST_STARTINGPORT', $randomnumber);
                 }
                 $hostIDs = $this->get('hosts');
                 $batchFields = array(
@@ -745,7 +745,7 @@ class Group extends FOGController
             ),
             'mac'
         );
-        $hostMACs = $this->parseMacList($hostMACs);
+        $hostMACs = self::parseMacList($hostMACs);
         if (count($hostMACs) > 0) {
             $macStr = implode(
                 '|',

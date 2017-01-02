@@ -389,7 +389,7 @@ class Host extends FOGController
                 'mac'
             );
             foreach ((array)$DBPriMACs as &$mac) {
-                if ($this->arrayStrpos($mac, $RealAddMACs) !== false) {
+                if (self::arrayStrpos($mac, $RealAddMACs) !== false) {
                     throw new Exception(
                         _('Cannot add Primary mac as additional mac')
                     );
@@ -488,7 +488,7 @@ class Host extends FOGController
                 'mac'
             );
             foreach ((array)$DBPriMACs as &$mac) {
-                if ($this->arrayStrpos($mac, $RealPendMACs)) {
+                if (self::arrayStrpos($mac, $RealPendMACs)) {
                     throw new Exception(
                         _('Cannot add a pre-existing primary mac')
                     );
@@ -1482,7 +1482,7 @@ class Host extends FOGController
                             ) {
                                 $randomnumber = mt_rand(24576, 32766)*2;
                             }
-                            $this->setSetting(
+                            self::setSetting(
                                 'FOG_UDPCAST_STARTINGPORT',
                                 $randomnumber
                             );
@@ -1586,7 +1586,7 @@ class Host extends FOGController
     public function addAddMAC($addArray, $pending = false)
     {
         $addArray = array_map('strtolower', (array)$addArray);
-        $addArray = $this->parseMacList($addArray);
+        $addArray = self::parseMacList($addArray);
         $addTo = $pending ? 'pendingMACs' : 'additionalMACs';
         foreach ((array)$addArray as &$mac) {
             $this->add($addTo, $mac);
@@ -1670,7 +1670,7 @@ class Host extends FOGController
      */
     public function addPriMAC($mac)
     {
-        $mac = $this->parseMacList($mac);
+        $mac = self::parseMacList($mac);
         if (count($mac) < 1) {
             throw new Exception(_('No viable macs to use'));
         }

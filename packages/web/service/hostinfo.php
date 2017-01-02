@@ -21,7 +21,7 @@
  */
 require '../commons/base.inc.php';
 header('Content-Type: text/plain');
-$Host = $FOGCore->getHostItem(false);
+$Host = FOGCore::getHostItem(false);
 $Task = $Host->get('task');
 $TaskType = FOGCore::getClass(
     'TaskType',
@@ -151,7 +151,7 @@ $mac = $_REQUEST['mac'];
 $MACs = $Host
     ->getMyMacs();
 $clientMacs = array_filter(
-    (array)$FOGCore->parseMacList(
+    (array)FOGCore::parseMacList(
         implode('|', (array)$MACs),
         false,
         true

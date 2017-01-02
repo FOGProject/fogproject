@@ -71,13 +71,13 @@ class Registration extends FOGBase
             return;
         }
         try {
-            $this->MACs = $this->getHostItem(
+            $this->MACs = self::getHostItem(
                 false,
                 true,
                 true,
                 true
             );
-            $this->Host = $this->getHostItem(
+            $this->Host = self::getHostItem(
                 false,
                 true,
                 true
@@ -390,7 +390,7 @@ class Registration extends FOGBase
             if (!self::getClass('Host')->isHostnameSafe($hostname)) {
                 $hostname = $this->macsimple;
             }
-            $this->setSetting('FOG_QUICKREG_SYS_NUMBER', ++$autoRegSysNumber);
+            self::setSetting('FOG_QUICKREG_SYS_NUMBER', ++$autoRegSysNumber);
             $this->Host = self::getClass('Host')
                 ->set('name', $hostname)
                 ->set('description', $this->description)

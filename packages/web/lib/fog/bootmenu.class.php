@@ -1407,7 +1407,7 @@ class BootMenu extends FOGBase
             $chkdsk = $chkdsk == 1 ? 0 : 1;
             $MACs = $this->_Host->getMyMacs();
             $clientMacs = array_filter(
-                (array)$this->parseMacList(
+                (array)self::parseMacList(
                     implode(
                         '|',
                         (array)$MACs

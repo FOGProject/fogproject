@@ -97,7 +97,7 @@ class Service extends FOGController
             'FOG_CLIENT_DISPLAYMANAGER_R' => $r,
         );
         foreach ($keySettings as $name => &$value) {
-            $this->setSetting($name, $value);
+            self::setSetting($name, $value);
             unset($value);
         }
     }

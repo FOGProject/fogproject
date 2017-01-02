@@ -2214,7 +2214,7 @@ class HostManagementPage extends FOGPage
                         _('MAC Address is required')
                     );
                 }
-                $mac = $this->parseMacList($_REQUEST['mac']);
+                $mac = self::parseMacList($_REQUEST['mac']);
                 if (count($mac) < 1) {
                     throw new Exception(
                         _('No valid macs returned')
@@ -2268,7 +2268,7 @@ class HostManagementPage extends FOGPage
                 if ($primac != $setmac) {
                     $this->obj->addPriMAC($mac->__toString());
                 }
-                $addmacs = $this->parseMacList($_REQUEST['additionalMACs']);
+                $addmacs = self::parseMacList($_REQUEST['additionalMACs']);
                 $macs = array();
                 foreach ((array)$addmacs as &$addmac) {
                     if (!$addmac->isValid()) {

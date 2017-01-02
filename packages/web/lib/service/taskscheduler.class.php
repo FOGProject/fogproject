@@ -105,7 +105,7 @@ class TaskScheduler extends FOGService
                     ),
                     'mac'
                 );
-                $hostMACs = $this->parseMacList($hostMACs);
+                $hostMACs = self::parseMacList($hostMACs);
                 $macCount = count($hostMACs);
                 if ($macCount > 0) {
                     self::outall(

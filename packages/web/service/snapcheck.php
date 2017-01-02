@@ -21,8 +21,7 @@
  */
 require '../commons/base.inc.php';
 try {
-    $Host = $FOGCore
-        ->getHostItem(false);
+    $Host = FOGCore::getHostItem(false);
     if (!$Host->isValid()) {
         throw new Exception('#!ih');
     }

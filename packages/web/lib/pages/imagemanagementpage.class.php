@@ -1315,7 +1315,7 @@ class ImageManagementPage extends FOGPage
                 );
             }
             if (is_numeric($_REQUEST['timeout']) && $_REQUEST['timeout'] > 0) {
-                $this->setSetting('FOG_UDPCAST_MAXWAIT', $_REQUEST['timeout']);
+                self::setSetting('FOG_UDPCAST_MAXWAIT', $_REQUEST['timeout']);
             }
             $countmc = self::getClass('MulticastSessionsManager')
                 ->count(
@@ -1362,7 +1362,7 @@ class ImageManagementPage extends FOGPage
             while ($randomnumber == $MulticastSession->get('port')) {
                 $randomnumber = mt_rand(24576, 32766)*2;
             }
-            $this->setSetting('FOG_UDPCAST_STARTINGPORT', $randomnumber);
+            self::setSetting('FOG_UDPCAST_STARTINGPORT', $randomnumber);
             $this->setMessage(
                 sprintf(
                     '%s<br/>%s %s %s',

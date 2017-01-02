@@ -31,5 +31,5 @@ $mac = array_filter($mac);
 $mac = array_unique($mac);
 $mac = array_values($mac);
 $_REQUEST['mac'] = implode('|', (array)$mac);
-$Host = $FOGCore->getHostItem(false, false, true);
+$Host = FOGCore::getHostItem(false, false, true);
 FOGCore::getClass('BootMenu', $Host);

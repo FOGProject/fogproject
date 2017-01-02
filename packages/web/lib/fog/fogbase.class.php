@@ -409,7 +409,7 @@ abstract class FOGBase
      *
      * @return array|object Returns either th macs or the host
      */
-    public function getHostItem(
+    public static function getHostItem(
         $service = true,
         $encoded = false,
         $hostnotrequired = false,
@@ -428,7 +428,7 @@ abstract class FOGBase
         $mac = trim($mac);
 
         // Parsing the macs
-        $MACs = $this->parseMacList($mac, !$service, $service);
+        $MACs = self::parseMacList($mac, !$service, $service);
 
         foreach ((array) $MACs as &$mac) {
             if (!$mac->isValid()) {
@@ -1548,7 +1548,7 @@ abstract class FOGBase
      *
      * @return array
      */
-    public function parseMacList(
+    public static function parseMacList(
         $stringlist,
         $image = false,
         $client = false
@@ -1719,7 +1719,7 @@ abstract class FOGBase
      *
      * @return bool
      */
-    protected function arrayStrpos($haystack, $needles, $case = true)
+    protected static function arrayStrpos($haystack, $needles, $case = true)
     {
         $cmd = sprintf('str%spos', ($case ? 'i' : ''));
         $mapinfo = array();
@@ -1908,7 +1908,7 @@ abstract class FOGBase
      *
      * @return this
      */
-    public function setSetting($key, $value)
+    public static function setSetting($key, $value)
     {
         self::getClass('ServiceManager')->update(
             array('name' => $key),
@@ -2159,7 +2159,7 @@ abstract class FOGBase
         session_write_close();
         ignore_user_abort(true);
         set_time_limit(0);
-        $macs = $this->parseMacList($macs);
+        $macs = self::parseMacList($macs);
         if (count($macs) < 1) {
             return;
         }

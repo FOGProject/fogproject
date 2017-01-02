@@ -28,8 +28,7 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
-$clientUpdate = (bool)$FOGCore
-    ->getSetting('FOG_CLIENT_AUTOUPDATE');
+$clientUpdate = (bool)FOGCore::getSetting('FOG_CLIENT_AUTOUPDATE');
 if (isset($_REQUEST['client'])) {
     $ver = (
         $clientUpdate ?

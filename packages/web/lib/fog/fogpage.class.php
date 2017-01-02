@@ -2560,7 +2560,7 @@ abstract class FOGPage extends FOGBase
     public function authorize()
     {
         try {
-            $Host = $this->getHostItem(true);
+            $Host = self::getHostItem(true);
             $data = array_values(
                 array_map(
                     'bin2hex',
@@ -2723,7 +2723,7 @@ abstract class FOGPage extends FOGBase
                 }
                 unset($key, $en);
             }
-            $this->Host = $this->getHostItem(
+            $this->Host = self::getHostItem(
                 true,
                 false,
                 false,
@@ -3277,7 +3277,7 @@ abstract class FOGPage extends FOGBase
      */
     public function wakeEmUp()
     {
-        $macs = $this->parseMacList($_REQUEST['mac']);
+        $macs = self::parseMacList($_REQUEST['mac']);
         if (count($macs) < 1) {
             return;
         }
@@ -3328,7 +3328,7 @@ abstract class FOGPage extends FOGBase
                 $macs = $maccolumn = array();
                 $macs[] = $Item->get('mac');
                 $macs = self::fastmerge($macs, $Item->get('additionalMACs'));
-                $macs = $this->parseMacList($macs);
+                $macs = self::parseMacList($macs);
                 foreach ((array)$macs as &$mac) {
                     if (!$mac->isValid()) {
                         continue;
@@ -3527,7 +3527,7 @@ abstract class FOGPage extends FOGBase
                 try {
                     $dbkeys = array_keys($this->databaseFields);
                     if ($Item instanceof Host) {
-                        $macs = $this->parseMacList($data[0]);
+                        $macs = self::parseMacList($data[0]);
                         $Host = self::getClass('HostManager')
                             ->getHostByMacAddresses($macs);
                         if ($Host

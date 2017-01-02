@@ -41,7 +41,7 @@ class WakeOnLan extends FOGBase
     public function __construct($mac)
     {
         parent::__construct();
-        self::$_arrMAC = $this->parseMacList($mac, true);
+        self::$_arrMAC = self::parseMacList($mac, true);
     }
     /**
      * Send the requests.

@@ -72,8 +72,7 @@ abstract class TaskingElement extends FOGBase
     {
         parent::__construct();
         try {
-            $this->Host = $this
-                ->getHostItem(false);
+            $this->Host = self::getHostItem(false);
             $this->Task = $this
                 ->Host
                 ->get('task');
