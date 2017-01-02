@@ -103,11 +103,9 @@ abstract class PushbulletExtends extends Event
     public function onEvent($event, $data)
     {
         self::$elements = $data;
-        $objects = self::getClass('PushbulletManager')
-            ->find();
         array_map(
             self::$eventloop,
-            (array)$objects
+            (array)self::getClass('PushbulletManager')->find()
         );
     }
 }

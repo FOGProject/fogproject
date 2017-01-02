@@ -90,11 +90,12 @@ class LDAPPluginHook extends Hook
                     )
                 );
         }
-        $ldaps = self::getClass('LDAPManager')->find();
         /**
          * Create our new user (initially at least
          */
-        foreach ((array)$ldaps as &$ldap) {
+        foreach ((array)self::getClass('LDAPManager')
+            ->find() as &$ldap
+        ) {
             $access = $ldap->authLDAP($user, $pass);
             unset($ldap);
             switch ($access) {

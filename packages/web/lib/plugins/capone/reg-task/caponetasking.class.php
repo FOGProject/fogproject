@@ -62,13 +62,13 @@ class CaponeTasking extends FOGBase
             try {
                 $strSetup = "%s|%s|%s|%s|%s|%s|%s";
                 ob_start();
-                $Capones = self::getClass('CaponeManager')
+                foreach ((array)self::getClass('CaponeManager')
                     ->find(
                         array(
                             'key' => trim(base64_decode($_REQUEST['key']))
                         )
-                    );
-                foreach ((array)$Capones as &$Capone) {
+                    ) as &$Capone
+                ) {
                     $Image = $Capone->getImage();
                     if (!$Image->isValid()) {
                         continue;

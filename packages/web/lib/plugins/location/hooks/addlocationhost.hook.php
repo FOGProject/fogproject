@@ -91,22 +91,31 @@ class AddLocationHost extends Hook
         }
         $arguments['templates'][4] = '${location}<br/><small>${deployed}</small>';
         foreach ((array)$arguments['data'] as $index => &$vals) {
-            $Locations = self::getClass('LocationAssociationManager')->find(
-                array(
-                    'hostID' => $vals['id']
-                )
+            $find = array(
+                'hostID' => $vals['id']
             );
-            if (count($Locations) !== 1) {
+            $Locations = self::getSubObjectIDs(
+                'LocationAssociation',
+                $find,
+                'locationID'
+            );
+            $cnt = self::getClass('LocationManager')
+                ->count(
+                    array('id' => $Locations)
+                );
+            if ($cnt !== 1) {
                 $arguments['data'][$index]['location'] = '';
                 continue;
             }
-            foreach ((array)$Locations as &$Location) {
+            foreach ((array)self::getClass('LocationManager')
+                ->find(array('id' => $Locations)) as &$Location
+            ) {
                 $arguments['data'][$index]['location'] = $Location
-                    ->getLocation()
                     ->get('name');
                 unset($Location);
             }
             unset($vals);
+            unset($Locations);
         }
     }
     /**
@@ -126,11 +135,6 @@ class AddLocationHost extends Hook
         if ($node != 'host') {
             return;
         }
-        $Locations = self::getClass('LocationAssociationManager')->find(
-            array(
-                'hostID' => $arguments['Host']->get('id')
-            )
-        );
         $Locations = self::getSubObjectIDs(
             'LocationAssociation',
             array(
@@ -138,13 +142,20 @@ class AddLocationHost extends Hook
             ),
             'locationID'
         );
-        $cnt = count($Locations);
+        $cnt = self::getClass('LocationManager')->count(
+            array(
+                'id' => $Locations
+            )
+        );
         if ($cnt !== 1) {
             $locID = 0;
         } else {
+            $Locations = self::getSubObjectIDs(
+                'Location',
+                array('id' => $Locations)
+            );
             $locID = array_shift($Locations);
         }
-        unset($Locations);
         $this->arrayInsertAfter(
             _('Host Product Key'),
             $arguments['fields'],
@@ -189,6 +200,13 @@ class AddLocationHost extends Hook
                 'hostID' => $arguments['Host']->get('id')
             )
         );
+        $cnt = self::getClass('LocationManager')
+            ->count(
+                array('id' => $_REQUEST['location'])
+            );
+        if ($cnt !== 1) {
+            return;
+        }
         self::getClass('LocationAssociation')
             ->set('hostID', $arguments['Host']->get('id'))
             ->load('hostID')
@@ -225,17 +243,26 @@ class AddLocationHost extends Hook
         if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
             return;
         }
-        $Locations = self::getClass('LocationAssociationManager')->find(
-            array(
-                'hostID' => $arguments['Host']->get('id')
-            )
+        $find = array(
+            'hostID' => $arguments['Host']->get('id')
         );
-        if (count($Locations) < 1) {
+        $Locations = self::getSubObjectIDs(
+            'LocationAssociation',
+            $find,
+            'locationID'
+        );
+        $cnt = self::getClass('LocationManager')->count(
+            array('id' => $Locations)
+        );
+        if ($cnt !== 1) {
             $arguments['report']->addCSVCell('');
+            return;
         }
-        foreach ((array)$Locations as &$Location) {
+        foreach ((array)self::getClass('LocationManager')
+            ->find(array('id' => $Locations)) as &$Location
+        ) {
             $arguments['report']->addCSVCell(
-                $Location->getLocation()->get('id')
+                $Location->get('id')
             );
             unset($Location);
         }
@@ -271,18 +298,25 @@ class AddLocationHost extends Hook
         if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
             return;
         }
-        $Locations = self::getClass('LocationAssociationManager')->find(
+        $Locations = self::getSubObjectIDs(
+            'LocationAssociation',
             array(
                 'hostID' => $arguments['Host']->get('id')
-            )
+            ),
+            'locationID'
         );
-        if (count($Locations) < 1) {
+        $cnt = self::getClass('LocationManager')
+            ->count(array('id' => $Locations));
+        if ($cnt !== 1) {
             $locName = '';
-        }
-        foreach ((array)$Locations as $Location) {
-            $locName = $Location->getLocation()->get('name');
-            unset($Location);
-            break;
+        } else {
+            foreach ((array)self::getClass('LocationManager')
+                ->find(array('id' => $Locations)) as $Location
+            ) {
+                $locName = $Location->get('name');
+                unset($Location);
+                break;
+            }
         }
         $this->arrayInsertAfter(
             "\nSnapin Used: ",
@@ -307,6 +341,11 @@ class AddLocationHost extends Hook
     public function hostRegister($arguments)
     {
         if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+            return;
+        }
+        $cnt = self::getClass('LocationManager')
+            ->count(array('id' => $_REQUEST['location']));
+        if ($cnt !== 1) {
             return;
         }
         self::getClass('LocationAssociation')
@@ -334,17 +373,23 @@ class AddLocationHost extends Hook
         if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
             return;
         }
-        $Locations = self::getClass('LocationAssociationManager')->find(
+        $Locations = self::getSubObjectIDs(
+            'LocationAssociation',
             array(
                 'hostID' => $arguments['Host']->get('id')
-            )
+            ),
+            'locationID'
         );
-        if (count($Locations) < 1) {
+        $cnt = self::getClass('LocationManager')
+            ->count(array('id' => $Locations));
+        if ($cnt !== 1) {
             $arguments['repFields']['location'] = '';
+            return;
         }
-        foreach ((array)$Locations as &$Location) {
+        foreach ((array)self::getClass('LocationManager')
+            ->find(array('id' => $Locations)) as &$Location
+        ) {
             $arguments['repFields']['location'] = $Location
-                ->getLocation()
                 ->get('name');
             unset($Location);
         }
