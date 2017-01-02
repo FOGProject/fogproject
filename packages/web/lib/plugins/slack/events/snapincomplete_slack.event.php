@@ -49,12 +49,9 @@ class SnapinComplete_Slack extends PushbulletExtends
      */
     public function onEvent($event, $data)
     {
-        $Objects = self::getClass('SlackManager')
-            ->find();
-        foreach ((array)$Objects as &$Token) {
-            if (!$Token->isValid()) {
-                continue;
-            }
+        foreach ((array)self::getClass('SlackManager')
+            ->find() as &$Token
+        ) {
             self::$message = sprintf(
                 'Host %s has completed snapin tasking.',
                 $data['Host']->get('name')

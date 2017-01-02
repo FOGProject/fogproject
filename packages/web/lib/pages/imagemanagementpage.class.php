@@ -289,12 +289,6 @@ class ImageManagementPage extends FOGPage
          */
         self::$returnData = function (&$Image) use ($SizeServer, &$servSize) {
             /**
-             * If the image isn't valid return immediately.
-             */
-            if (!$Image->isValid()) {
-                return;
-            }
-            /**
              * Stores the image on client size.
              */
             $imageSize = $this->formatByteSize(
@@ -860,16 +854,13 @@ class ImageManagementPage extends FOGPage
             ),
             array(),
         );
-        $StorageGroups = self::getClass('StorageGroupManager')
+        foreach ((array)self::getClass('StorageGroupManager')
             ->find(
                 array(
                     'id' => $this->obj->get('storagegroupsnotinme')
                 )
-            );
-        foreach ((array)$StorageGroups as &$Group) {
-            if (!$Group->isValid()) {
-                continue;
-            }
+            ) as &$Group
+        ) {
             $this->data[] = array(
                 'storageGroup_id' => $Group->get('id'),
                 'storageGroup_name' => $Group->get('name'),
@@ -946,16 +937,13 @@ class ImageManagementPage extends FOGPage
             ),
             '${storageGroup_name}',
         );
-        $StorageGroups = self::getClass('StorageGroupManager')
+        foreach ((array)self::getClass('StorageGroupManager')
             ->find(
                 array(
                     'id' => $this->obj->get('storagegroups')
                 )
-            );
-        foreach ((array)$StorageGroups as &$Group) {
-            if (!$Group->isValid()) {
-                continue;
-            }
+            ) as &$Group
+        ) {
             $this->data[] = array(
                 'storageGroup_id' => $Group->get('id'),
                 'storageGroup_name' => $Group->get('name'),
@@ -1246,19 +1234,15 @@ class ImageManagementPage extends FOGPage
                 _('Kill')
             ),
         );
-        $MCSessions = self::getClass('MulticastSessionsManager')
-            ->find(
-                array(
-                    'stateID' => self::fastmerge(
-                        (array)self::getQueuedStates(),
-                        (array)self::getProgressState()
-                    )
-                )
-            );
-        foreach ((array)$MCSessions as &$MulticastSession) {
-            if (!$MulticastSession->isValid()) {
-                continue;
-            }
+        $find = array(
+            'stateID' => self::fastmerge(
+                self::getQueuedStates(),
+                (array) self::getProgressState()
+            )
+        );
+        foreach ((array)self::getClass('MulticastSessionsManager')
+            ->find($find) as &$MulticastSession
+        ) {
             $Image = $MulticastSession->getImage();
             if (!$Image->isValid()) {
                 continue;

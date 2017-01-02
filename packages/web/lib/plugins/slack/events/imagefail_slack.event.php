@@ -49,10 +49,9 @@ class ImageFail_Slack extends Event
      */
     public function onEvent($event, $data)
     {
-        foreach ((array)self::getClass('SlackManager')->find() as &$Token) {
-            if (!$Token->isValid()) {
-                continue;
-            }
+        foreach ((array)self::getClass('SlackManager')
+            ->find() as &$Token
+        ) {
             $args = array(
                 'channel' => $Token->get('name'),
                 'text' => "{$data[HostName]} Failed imaging",

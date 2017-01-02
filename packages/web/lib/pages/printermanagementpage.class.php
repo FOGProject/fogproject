@@ -115,9 +115,6 @@ class PrinterManagementPage extends FOGPage
             array(),
         );
         self::$returnData = function (&$Printer) {
-            if (!$Printer->isValid()) {
-                return;
-            }
             $config = _('TCP/IP');
             if (false === stripos($Printer->get('config'), 'local')) {
                 $config = $Printer->get('config');

@@ -67,45 +67,23 @@ class DashboardPage extends FOGPage
         $this->subMenu = array();
         $this->notes = array();
         if (!self::$ajax) {
-            $StorageNodes = self::getClass('StorageNodeManager')
-                ->find(
-                    array(
-                        'isEnabled' => 1,
-                        'isGraphEnabled' => 1
-                    )
-                );
-            foreach ((array)$StorageNodes as $i => &$StorageNode) {
-                if (!$StorageNode->isValid()) {
-                    continue;
-                }
+            $find = array(
+                'isEnabled' => 1,
+                'isGraphEnabled' => 1
+            );
+            foreach ((array)self::getClass('StorageNodeManager')
+                ->find($find) as &$StorageNode
+            ) {
                 $ip = $StorageNode->get('ip');
-                $curroot = trim(
-                    trim(
-                        $StorageNode->get('webroot'),
-                        '/'
-                    )
-                );
-                $webroot = sprintf(
-                    '/%s',
-                    (
-                        strlen($curroot) > 1 ?
-                        sprintf(
-                            '%s/',
-                            $curroot
-                        ) :
-                        '/'
-                    )
-                );
                 $URL = sprintf(
-                    'http://%s%s',
-                    $ip,
-                    $webroot
+                    'http://%s/fog/',
+                    $ip
                 );
                 $testurls[] = sprintf(
                     'http://%s/fog/management/index.php',
                     $ip
                 );
-                unset($ip, $curroot, $webroot);
+                unset($ip);
                 self::$_nodeOpts[] = sprintf(
                     '<option value="%s" urlcall="%s">%s%s ()</option>',
                     $StorageNode->get('id'),
@@ -221,9 +199,9 @@ class DashboardPage extends FOGPage
             _('Storage Group Activity')
         );
         ob_start();
-        $StorageGroups = self::getClass('StorageGroupManager')
-            ->find();
-        foreach ((array)$StorageGroups as &$StorageGroup) {
+        foreach ((array)self::getClass('StorageGroupManager')
+            ->find() as &$StorageGroup
+        ) {
             if (count($StorageGroup->get('enablednodes')) < 1) {
                 continue;
             }
@@ -243,13 +221,12 @@ class DashboardPage extends FOGPage
             . '</div></li><!-- Variables -->',
             ob_get_clean()
         );
+        $find = array(
+            'isEnabled' => 1,
+            'isGraphEnabled' => 1
+        );
         $StorageEnabledCount = self::getClass('StorageNodeManager')
-            ->count(
-                array(
-                    'isEnabled' => 1,
-                    'isGraphEnabled' => 1
-                )
-            );
+            ->count($find);
         if ($StorageEnabledCount > 0) {
             // Disk Usage Pane
             printf(
@@ -258,13 +235,6 @@ class DashboardPage extends FOGPage
                 _('The selected node\'s image storage disk usage'),
                 _('Storage Node Disk Usage')
             );
-            $StorageNodes = self::getClass('StorageNodeManager')
-                ->find(
-                    array(
-                        'isEnabled' => 1,
-                        'isGraphEnabled' => 1
-                    )
-                );
             printf(
                 '<select name="nodesel" style="whitespace: no-wrap; '
                 . 'width: 100px; position: relative; top: 100px;">%s</select>'

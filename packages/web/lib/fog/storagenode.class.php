@@ -141,14 +141,14 @@ class StorageNode extends FOGController
      */
     public function getNodeFailure($Host)
     {
-        $Fails = self::getClass('NodeFailureManager')
+        foreach ((array)self::getClass('NodeFailureManager')
             ->find(
                 array(
                     'storagenodeID' => $this->get('id'),
                     'hostID' => $Host,
                 )
-            );
-        foreach ((array) $Fails as &$Failed) {
+            ) as &$Failed
+        ) {
             $curr = self::niceDate();
             $prev = $Failed->get('failureTime');
             $prev = self::niceDate($prev);

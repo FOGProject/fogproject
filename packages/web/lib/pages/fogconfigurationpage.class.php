@@ -107,33 +107,12 @@ class FOGConfigurationPage extends FOGPage
             '<h1>%s</h1>',
             _('Kernel Versions')
         );
-        $Nodes = self::getClass('StorageNodeManager')
-            ->find(
-                array(
-                    'isEnabled' => 1
-                )
-            );
-        foreach ((array)$Nodes as &$StorageNode) {
-            if (!$StorageNode->isValid()) {
-                continue;
-            }
-            $curroot = trim(
-                trim(
-                    $StorageNode->get('webroot'),
-                    '/'
-                )
-            );
-            $webroot = sprintf(
-                '/%s',
-                (
-                    strlen($curroot) > 1 ?
-                    sprintf(
-                        '%s/',
-                        $curroot
-                    ) :
-                    ''
-                )
-            );
+        $find = array(
+            'isEnabled' => 1
+        );
+        foreach ((array)self::getClass('StorageNodeManager')
+            ->find($find) as &$StorageNode
+        ) {
             $url = filter_var(
                 sprintf(
                     'http://%s/fog/status/kernelvers.php',
@@ -642,16 +621,9 @@ class FOGConfigurationPage extends FOGPage
             '${field}',
             '${input}',
         );
-        $Menus = self::getClass('PXEMenuOptionsManager')
-            ->find(
-                '',
-                '',
-                'id'
-            );
-        foreach ((array)$Menus as &$Menu) {
-            if (!$Menu->isValid()) {
-                continue;
-            }
+        foreach ((array)self::getClass('PXEMenuOptionsManager')
+            ->find('', '', 'id') as &$Menu
+        ) {
             $divTab = preg_replace(
                 '#[^\w\-]#',
                 '_',
@@ -1058,17 +1030,15 @@ class FOGConfigurationPage extends FOGPage
             . _('download the module and use it on the next ')
             . _('time the service is started.')
         );
-        $ClientUpdates = self::getClass('ClientUpdaterManager')->find();
-        foreach ((array)$ClientUpdates as &$ClientUpdate) {
-            if (!$ClientUpdate->isValid()) {
-                continue;
-            }
+        foreach ((array)self::getClass('ClientUpdateManager')
+           ->find() as &$ClientUpdate
+        ) {
             $this->data[] = array(
-                'name'=>$ClientUpdate->get('name'),
-                'module'=>$ClientUpdate->get('md5'),
-                'type'=>$ClientUpdate->get('type'),
-                'client_id'=>$ClientUpdate->get('id'),
-                'id'=>$ClientUpdate->get('id'),
+                'name' => $ClientUpdate->get('name'),
+                'module' => $ClientUpdate->get('md5'),
+                'type' => $ClientUpdate->get('type'),
+                'client_id' => $ClientUpdate->get('id'),
+                'id' => $ClientUpdate->get('id'),
             );
             unset($ClientUpdate);
         }
@@ -1395,8 +1365,9 @@ class FOGConfigurationPage extends FOGPage
             '${span}',
         );
         echo '<a href="#" class="trigger_expand"><h3>Expand All</h3></a>';
-        $ServiceCats = self::getClass('ServiceManager')->getSettingCats();
-        foreach ((array)$ServiceCats as &$ServiceCAT) {
+        foreach ((array)self::getClass('ServiceManager')
+            ->getSettingCats() as &$ServiceCAT
+        ) {
             $divTab = preg_replace(
                 '#[^\w\-]#',
                 '_',
@@ -1411,16 +1382,13 @@ class FOGConfigurationPage extends FOGPage
                 $ServiceCAT,
                 $divTab
             );
-            $Services = self::getClass('ServiceManager')
+            foreach ((array)self::getClass('ServiceManager')
                 ->find(
                     array('category' => $ServiceCAT),
                     'AND',
                     'id'
-                );
-            foreach ((array)$Services as &$Service) {
-                if (!$Service->isValid()) {
-                    continue;
-                }
+                ) as &$Service
+            ) {
                 switch ($Service->get('name')) {
                 case 'FOG_PIGZ_COMP':
                     $type = '<div id="pigz" style="width: 200px; top: 15px;">'
@@ -1871,9 +1839,10 @@ class FOGConfigurationPage extends FOGPage
             'FOG_PROXY_IP' => true,
         );
         unset($findWhere, $setWhere);
-        $Services = self::getClass('ServiceManager')->find();
         $items = array();
-        foreach ((array)$Services as $index => &$Service) {
+        foreach ((array)self::getClass('ServiceManager')
+            ->find() as $index => &$Service
+        ) {
             $key = $Service->get('id');
             $val = trim($Service->get('value'));
             $name = trim($Service->get('name'));
@@ -1989,9 +1958,9 @@ class FOGConfigurationPage extends FOGPage
      */
     public function logviewer()
     {
-        $StorageGroups = self::getClass('StorageGroupManager')
-            ->find();
-        foreach ((array)$StorageGroups as &$StorageGroup) {
+        foreach ((array)self::getClass('StorageGroupManager')
+            ->find() as &$StorageGroup
+        ) {
             if (!count($StorageGroup->get('enablednodes'))) {
                 continue;
             }

@@ -163,17 +163,14 @@ class Snapin extends FOGController
         if ($this->get('protected')) {
             throw new Exception(self::$foglang['ProtectedSnapin']);
         }
-        $StorageNodes = self::getClass('StorageNodeManager')
+        foreach ((array)self::getClass('StorageNodeManager')
             ->find(
                 array(
                     'storagegroupID' => $this->get('storagegroups'),
-                    'isEnabled' => 1,
+                    'isEnabled' => 1
                 )
-            );
-        foreach ((array) $StorageNodes as &$StorageNode) {
-            if (!$StorageNode->isValid()) {
-                continue;
-            }
+            ) as &$StorageNode
+        ) {
             $ftppath = $StorageNode->get('snapinpath');
             $ftppath = trim($ftppath, '/');
             $deleteFile = sprintf(

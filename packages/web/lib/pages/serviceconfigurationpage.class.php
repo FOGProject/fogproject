@@ -150,8 +150,9 @@ class ServiceConfigurationPage extends FOGPage
         echo '</div>';
         $moduleName = $this->getGlobalModuleStatus();
         $modNames = $this->getGlobalModuleStatus(true);
-        $Modules = self::getClass('ModuleManager')->find();
-        foreach ((array)$Modules as &$Module) {
+        foreach ((array)self::getClass('ModuleManager')
+            ->find() as &$Module
+        ) {
             unset(
                 $this->data,
                 $this->headerData,
@@ -343,8 +344,9 @@ class ServiceConfigurationPage extends FOGPage
                     _('Add Directory'),
                     _('Directories Cleaned')
                 );
-                $DirCleaners = self::getClass('DirCleanerManager')->find();
-                foreach ((array)$DirCleaners as &$DirCleaner) {
+                foreach ((array)self::getClass('DirCleanerManager')
+                    ->find() as &$DirCleaner
+                ) {
                     $this->data[] = array(
                         'dir_path'=>$DirCleaner->get('path'),
                         'dir_id'=>$DirCleaner->get('id'),
@@ -490,8 +492,9 @@ class ServiceConfigurationPage extends FOGPage
                     $modNames[$Module->get('shortName')],
                     _('Add Event')
                 );
-                $GreenFogs = self::getClass('GreenFogManager')->find();
-                foreach ((array)$GreenFogs as &$GreenFog) {
+                foreach ((array)self::getClass('GreenFogManager')
+                    ->find() as &$GreenFog
+                ) {
                     $gftime = self::niceDate(
                         sprintf(
                             '%s:%s',
@@ -586,8 +589,9 @@ class ServiceConfigurationPage extends FOGPage
                     '<h2>%s</h2>',
                     _('Current Protected User Accounts')
                 );
-                $UserCleanups = self::getClass('UserCleanupManager')->find();
-                foreach ((array)$UserCleanups as &$UserCleanup) {
+                foreach ((array)self::getClass('UserCleanupManager')
+                    ->find() as &$UserCleanup
+                ) {
                     $this->data[] = array(
                         'user_name' => $UserCleanup->get('name'),
                         'input' => (

@@ -69,9 +69,6 @@ class HostMobile extends FOGPage
             )
         );
         self::$returnData = function (&$Host) {
-            if (!$Host->isValid()) {
-                return;
-            }
             $this->data[] = array(
                 'id'=>$Host->get('id'),
                 'host_name'=>$Host->get('name'),

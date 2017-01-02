@@ -182,8 +182,9 @@ class StorageManagementPage extends FOGPage
     public function index()
     {
         $this->title = self::$foglang['AllSN'];
-        $StorageNodes = self::getClass('StorageNodeManager')->find();
-        foreach ((array)$StorageNodes as &$StorageNode) {
+        foreach ((array)self::getClass('StorageNodeManager')
+            ->find() as &$StorageNode
+        ) {
             $StorageGroup = $StorageNode->getStorageGroup();
             $this->data[] = array(
                 'name' => $StorageNode->get('name'),
@@ -203,7 +204,6 @@ class StorageManagementPage extends FOGPage
             );
             unset($StorageGroup, $StorageNode);
         }
-        unset($StorageNodes);
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class='
             . '"toggle-checkboxAction"/>',
@@ -915,8 +915,9 @@ class StorageManagementPage extends FOGPage
     public function storageGroup()
     {
         $this->title = self::$foglang['AllSG'];
-        $StorageGroups = self::getClass('StorageGroupManager')->find();
-        foreach ((array)$StorageGroups as &$StorageGroup) {
+        foreach ((array)self::getClass('StorageGroupManager')
+            ->find() as &$StorageGroup
+        ) {
             $this->data[] = array(
                 'name' => $StorageGroup->get('name'),
                 'id' => $StorageGroup->get('id'),
@@ -924,7 +925,6 @@ class StorageManagementPage extends FOGPage
             );
             unset($StorageGroup);
         }
-        unset($StorageGroups);
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class='
             . '"toggle-checkboxAction"/>',

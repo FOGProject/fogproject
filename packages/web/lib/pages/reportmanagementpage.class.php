@@ -382,11 +382,11 @@ class ReportManagementPage extends FOGPage
         }
         $this->ReportMaker->endCSVLine();
         ini_set('display_errors', true);
-        $ImagingLogs = self::getClass('ImagingLogManager')
-            ->find();
         $date1 = self::niceDate($date1);
         $date2 = self::niceDate($date2);
-        foreach ((array)$ImagingLogs as &$ImagingLog) {
+        foreach ((array)self::getClass('ImagingLogManager')
+            ->find() as &$ImagingLog
+        ) {
             $Host = $ImagingLog->getHost();
             $start = $ImagingLog->get('start');
             $end = $ImagingLog->get('finish');
@@ -515,8 +515,9 @@ class ReportManagementPage extends FOGPage
             '${host_mac}',
             '${image_name}',
         );
-        $Hosts = self::getClass('HostManager')->find();
-        foreach ((array)$Hosts as &$Host) {
+        foreach ((array)self::getClass('HostManager')
+            ->find() as &$Host
+        ) {
             $Image = $Host->getImage();
             $imgID = $Image->get('id');
             $imgName = $Image->get('name');
@@ -605,8 +606,9 @@ class ReportManagementPage extends FOGPage
             array(),
             array(),
         );
-        $Hosts = self::getClass('HostManager')->find();
-        foreach ((array)$Hosts as &$Host) {
+        foreach ((array)self::getClass('HostManager')
+            ->find() as &$Host
+        ) {
             $Image = $Host->getImage();
             $Inventory = $Host->get('inventory');
             $this->data[] = array(
@@ -719,10 +721,11 @@ class ReportManagementPage extends FOGPage
             array(),
             array(),
         );
-        $Pendings = self::getClass('MACAddressAssociationManager')->find(
-            array('pending' => 1)
-        );
-        foreach ((array)$Pendings as &$Pending) {
+        foreach ((array)self::getClass('MACAddressAssociationmanager')
+            ->find(
+                array('pending' => 1)
+            ) as &$Pending
+        ) {
             $PendingMAC = new MACAddress($Pending->get('mac'));
             $Host = $Pending->getHost();
             if (!$Host->isValid()) {
@@ -872,8 +875,9 @@ class ReportManagementPage extends FOGPage
             unset($classGet);
         }
         $this->ReportMaker->endCSVLine();
-        $Viruses = self::getClass('VirusManager')->find();
-        foreach ((array)$Viruses as &$Virus) {
+        foreach ((array)self::getClass('VirusManager')
+            ->find() as &$Virus
+        ) {
             $Host = self::getClass('HostManager')
                 ->getHostByMacAddresses($Virus->get('mac'));
             if (!$Host->isValid()) {
@@ -1079,12 +1083,11 @@ class ReportManagementPage extends FOGPage
         if (trim($_REQUEST['hostsearch'])
             && !trim($_REQUEST['usersearch'])
         ) {
-            $Hosts = self::getClass('HostManager')->find(
-                array(
-                    'name' => $hostsearch
-                )
-            );
-            foreach ((array)$Hosts as &$Host) {
+            foreach ((array)self::getClass('HostManager')
+                ->find(
+                    array('name' => $hostsearch)
+                ) as &$Host
+            ) {
                 $this->data[] = array(
                     'host_id' => $Host->get('id'),
                     'hostuser_name' => $Host->get('name'),
@@ -1110,13 +1113,14 @@ class ReportManagementPage extends FOGPage
                 'Host',
                 array('id' => $ids['hostID'])
             );
-            $UserTracks = self::getClass('UserTrackingManager')->find(
-                array(
-                    'id' => $ids['id'],
-                    'hostID' => $hostIDs
-                )
-            );
-            foreach ((array)$UserTracks as &$User) {
+            foreach ((array)self::getClass('UserTrackingManager')
+                ->find(
+                    array(
+                        'id' => $ids['id'],
+                        'hostID' => $hostIDs
+                    )
+                ) as &$User
+            ) {
                 $Username = trim($User->get('username'));
                 unset($User);
                 if ($lastUser != $Username) {
@@ -1138,14 +1142,11 @@ class ReportManagementPage extends FOGPage
                 'Host',
                 array('name' => $hostsearch)
             );
-            $UserTracks = self::getClass('UserTrackingManager')->find(
-                array(
-                    'username' => $usersearch,
-                    'hostID' => $hostIDs
-                )
-            );
-            unset($hostIDs);
-            foreach ((array)$UserTracks as &$User) {
+            foreach ((array)self::getClass('UserTrackingManager')
+                ->find(
+                    array('username' => $usersearch, 'hostID' => $hostIDs)
+                ) as &$User
+            ) {
                 $Host = new Host($User->get('hostID'));
                 $userName = $User->get('name');
                 $this->data[] = array(
@@ -1319,12 +1320,9 @@ class ReportManagementPage extends FOGPage
         }
         $date1 = self::niceDate($date1);
         $date2 = self::niceDate('+1 day');
-        $UserLogins = self::getClass('UserTrackingManager')
-            ->find();
-        foreach ((array)$UserLogins as &$User) {
-            if (!$User->isValid()) {
-                continue;
-            }
+        foreach ((array)self::getClass('UserTrackingManager')
+            ->find() as &$User
+        ) {
             if (!$_REQUEST['hostID']) {
                 $Host = new Host($User->get('hostID'));
             } else {
@@ -1544,11 +1542,9 @@ class ReportManagementPage extends FOGPage
         $this->ReportMaker->endCSVLine();
         $date1 = self::niceDate($date1);
         $date2 = self::niceDate($date2);
-        $SnapinTasks = self::getClass('SnapinTaskManager')->find();
-        foreach ((array)$SnapinTasks as &$SnapinTask) {
-            if (!$SnapinTask->isValid()) {
-                continue;
-            }
+        foreach ((array)self::getClass('SnapinTaskManager')
+            ->find() as &$SnapinTask
+        ) {
             $start = self::niceDate($SnapinTask->get('checkin'));
             $end = self::niceDate($SnapinTask->get('complete'));
             if (!self::validDate($start)
@@ -1668,8 +1664,9 @@ class ReportManagementPage extends FOGPage
             array(),
         );
         ob_start();
-        $Inventories = self::getClass('InventoryManager')->find();
-        foreach ((array)$Inventories as &$Inventory) {
+        foreach ((array)self::getClass('InventoryManager')
+            ->find() as &$Inventory
+        ) {
             if (!$Inventory->get('primaryUser')) {
                 continue;
             }

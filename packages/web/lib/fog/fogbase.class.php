@@ -505,14 +505,14 @@ abstract class FOGBase
 
             return $NodeFailure->get('id');
         };
-        $FailedNodes = self::getClass('NodeFailureManager')
-            ->find(
-                array(
-                    'taskID' => $this->Host->get('task')->get('id'),
-                    'hostID' => $this->Host->get('id'),
-                )
-            );
-        $nodeRet = array_map($nodeFail, (array) $FailedNodes);
+        $find = array(
+            'taskID' => $this->Host->get('task')->get('id'),
+            'hostID' => $this->Host->get('id'),
+        );
+        $nodeRet = array_map(
+            $nodeFail,
+            (array)self::getClass('NodeFailureManager')->find($find)
+        );
         $nodeRet = array_filter($nodeRet);
         $nodeRet = array_unique($nodeRet);
         $nodeRet = array_values($nodeRet);
@@ -793,8 +793,11 @@ abstract class FOGBase
      *
      * @return key or false
      */
-    protected function arrayFind($needle, array $haystack, $ignorecase = false)
-    {
+    protected function arrayFind(
+        $needle,
+        array $haystack,
+        $ignorecase = false
+    ) {
         $cmd = $ignorecase !== false ? 'stripos' : 'strpos';
         foreach ($haystack as $key => &$value) {
             if (false !== $cmd($value, $needle)) {
@@ -2178,13 +2181,11 @@ abstract class FOGBase
         if ($macCount < 1) {
             return;
         }
-        $Nodes = self::getClass('StorageNodeManager')
+        foreach ((array)self::getClass('StorageNodeManager')
             ->find(
-                array(
-                    'isEnabled' => 1,
-                )
-            );
-        foreach ((array) $Nodes as &$Node) {
+                array('isEnabled' => 1)
+            ) as &$Node
+        ) {
             $ip = $Node->get('ip');
             $nodeURLs[] = sprintf(
                 $url,

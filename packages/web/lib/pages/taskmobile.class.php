@@ -146,15 +146,15 @@ class TaskMobile extends FOGPage
      */
     public function active()
     {
-        $Tasks = self::getClass('TaskManager')->find(
-            array(
-                'stateID' => self::fastmerge(
-                    (array) self::getQueuedStates(),
-                    (array) self::getProgressState()
-                )
+        $find = array(
+            'stateID' => self::fastmerge(
+                (array) self::getQueuedStates(),
+                (array) self::getProgressState()
             )
         );
-        foreach ((array)$Tasks as &$Task) {
+        foreach ((array)self::getClass('TaskManager')
+            ->find($find) as &$Task
+        ) {
             $Host = $Task->getHost();
             $name = sprintf(
                 '%s %s',

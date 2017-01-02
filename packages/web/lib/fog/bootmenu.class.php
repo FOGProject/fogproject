@@ -427,7 +427,8 @@ class BootMenu extends FOGBase
                 ''
             ),
         );
-        self::getClass('iPXE', @max(self::getSubObjectIDs('iPXE', $findWhere)))
+        $id = @max(self::getSubObjectIDs('iPXE', $findWhere));
+        self::getClass('iPXE', $id)
             ->set('product', $findWhere['product'])
             ->set('manufacturer', $findWhere['manufacturer'])
             ->set('mac', $findWhere['mac'])
@@ -701,9 +702,9 @@ class BootMenu extends FOGBase
                 (array)self::getProgressState()
             ),
         );
-        $Sessions = self::getClass('MulticastSessionsManager')
-            ->find($findWhere);
-        foreach ($Sessions as &$MulticastSession) {
+        foreach ((array)self::getClass('MulticastSessionsManager')
+            ->find($findWhere) as &$MulticastSession
+        ) {
             if (!$MulticastSession->isValid()
                 || $MulticastSession->get('sessclients') < 1
             ) {

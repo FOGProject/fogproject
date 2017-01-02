@@ -852,7 +852,7 @@ abstract class FOGManagerController extends FOGBase
         );
         $destroyVals = array();
         $ids = array_chunk($ids, 500);
-        foreach ((array) $ids as &$id) {
+        foreach ((array)$ids as &$id) {
             foreach ((array) $id as $index => &$id_1) {
                 $keyStr = sprintf('id_%d', $index);
                 $destroyKeys[] = sprintf(':%s', $keyStr);
@@ -907,17 +907,18 @@ abstract class FOGManagerController extends FOGBase
             $elementName = strtolower($this->childClass);
         }
         $this->orderBy($orderBy);
-        $items = $this->find(
-            $filter ? array('id' => $filter) : '',
-            '',
-            $orderBy,
-            '',
-            '',
-            '',
-            ($filter ? true : false)
-        );
         ob_start();
-        foreach ((array) $items as &$Object) {
+        foreach ((array)$this
+            ->find(
+                $filter ? array('id' => $filter) : '',
+                '',
+                $orderBy,
+                '',
+                '',
+                '',
+                ($filter ? true : false)
+            ) as &$Object
+        ) {
             if (!$Object->isValid()) {
                 continue;
             }

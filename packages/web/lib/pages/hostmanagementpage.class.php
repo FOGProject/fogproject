@@ -256,9 +256,6 @@ class HostManagementPage extends FOGPage
          * @return void
          */
         self::$returnData = function (&$Host) {
-            if (!$Host->isValid()) {
-                return;
-            }
             $this->data[] = array(
                 'id' => $Host->get('id'),
                 'deployed' => self::formatTime(

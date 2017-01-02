@@ -481,11 +481,10 @@ class PluginManagementPage extends FOGPage
                         array(),
                         array(),
                     );
-                    foreach (self::getClass('CaponeManager')->find() as &$Capone) {
-                        if (!$Capone->isValid()) {
-                            continue;
-                        }
-                        $Image = self::getClass('Image', $Capone->get('imageID'));
+                    foreach ((array)self::getClass('CaponeManager')
+                        ->find() as &$Capone
+                    ) {
+                        $Image = $Capone->getImage();
                         if (!$Image->isValid()) {
                             continue;
                         }

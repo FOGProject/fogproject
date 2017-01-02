@@ -49,12 +49,9 @@ class ImageComplete_Slack extends Event
      */
     public function onEvent($event, $data)
     {
-        $Objects = self::getClass('SlackManager')
-            ->find();
-        foreach ((array)$Objects as &$Token) {
-            if (!$Token->isValid()) {
-                continue;
-            }
+        foreach ((array)self::getClass('SlackManager')
+            ->find() as &$Token
+        ) {
             $args = array(
                 'channel' => $Token->get('name'),
                 'text' => sprintf(

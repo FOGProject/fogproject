@@ -598,11 +598,9 @@ class GroupManagementPage extends FOGPage
             array(),
             array('width'=>50,'class'=>'r'),
         );
-        $Printers = self::getClass('PrinterManager')->find();
-        foreach ((array)$Printers as &$Printer) {
-            if (!$Printer->isValid()) {
-                continue;
-            }
+        foreach ((array)self::getClass('PrinterManager')
+            ->find() as &$Printer
+        ) {
             $this->data[] = array(
                 'printer_id'=>$Printer->get('id'),
                 'printer_name'=>$Printer->get('name'),
@@ -662,11 +660,9 @@ class GroupManagementPage extends FOGPage
             array(),
             array('width'=>107,'class'=>'r'),
         );
-        $Snapins = self::getClass('SnapinManager')->find();
-        foreach ((array)$Snapins as &$Snapin) {
-            if (!$Snapin->isValid()) {
-                continue;
-            }
+        foreach ((array)self::getClass('SnapinManager')
+            ->find() as &$Snapin
+        ) {
             $this->data[] = array(
                 'snapin_id' => $Snapin->get('id'),
                 'snapin_name' => $Snapin->get('name'),
@@ -774,11 +770,9 @@ class GroupManagementPage extends FOGPage
                 ''
             )
         );
-        $Modules = self::getClass('ModuleManager')->find();
-        foreach ((array)$Modules as &$Module) {
-            if (!$Module->isValid()) {
-                continue;
-            }
+        foreach ((array)self::getClass('ModuleManager')
+            ->find() as &$Module
+        ) {
             $note = '';
             switch ($Module->get('shortName')) {
             case 'dircleanup':
@@ -884,22 +878,20 @@ class GroupManagementPage extends FOGPage
             '${input}',
             '${span}',
         );
-        $Services = self::getClass('ServiceManager')
+        $find = array(
+            'name' => array(
+                'FOG_CLIENT_DISPLAYMANAGER_X',
+                'FOG_CLIENT_DISPLAYMANAGER_Y',
+                'FOG_CLIENT_DISPLAYMANAGER_R',
+            )
+        );
+        foreach ((array)self::getClass('ServiceManager')
             ->find(
-                array(
-                    'name' => array(
-                        'FOG_CLIENT_DISPLAYMANAGER_X',
-                        'FOG_CLIENT_DISPLAYMANAGER_Y',
-                        'FOG_CLIENT_DISPLAYMANAGER_R',
-                    ),
-                ),
+                $find,
                 'OR',
                 'id'
-            );
-        foreach ((array)$Services as $Service) {
-            if (!$Service->isValid()) {
-                continue;
-            }
+            ) as $Service
+        ) {
             switch ($Service->get('name')) {
             case 'FOG_CLIENT_DISPLAYMANAGER_X':
                 $name = 'x';
@@ -1147,16 +1139,11 @@ class GroupManagementPage extends FOGPage
             array(),
             array(),
         );
-        $Hosts = self::getClass('HostManager')
+        foreach ((array)self::getClass('HostManager')
             ->find(
-                array(
-                    'id' => $this->obj->get('hosts')
-                )
-            );
-        foreach ((array)$Hosts as $index => &$Host) {
-            if (!$Host->isValid()) {
-                continue;
-            }
+                array('id' => $this->obj->get('hosts'))
+            ) as &$Host
+        ) {
             if (!$Host->get('inventory')->isValid()) {
                 continue;
             }
@@ -1475,16 +1462,11 @@ class GroupManagementPage extends FOGPage
             '<small>${host_deployed}</small>',
         );
         $hostids = $this->obj->get('hosts');
-        $Hosts = self::getClass('HostManager')
+        foreach ((array)self::getClass('HostManager')
             ->find(
-                array(
-                    'id' => $this->obj->get('hosts')
-                )
-            );
-        foreach ((array)$Hosts as &$Host) {
-            if (!$Host->isValid()) {
-                continue;
-            }
+                array('id' => $hostids)
+            ) as &$Host
+        ) {
             $this->data[] = array(
                 'host_name' => $Host->get('name'),
                 'host_mac' => $Host->get('mac'),

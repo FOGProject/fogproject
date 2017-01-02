@@ -480,7 +480,7 @@ abstract class FOGPage extends FOGBase
             );
             if ($sub != 'list') {
                 if ($_SESSION['DataReturn'] > 0) {
-                    $objCount = $this->getClass($manager)->count();
+                    $objCount = self::getClass($manager)->count();
                     if ($objCount > $_SESSION['DataReturn']) {
                         $this->redirect(
                             sprintf(
@@ -498,9 +498,7 @@ abstract class FOGPage extends FOGBase
                     'pending' => array(0, '')
                 );
             }
-            $Items = self::getClass($manager)->find($find);
-            array_walk($Items, static::$returnData);
-            unset($Items);
+            array_walk(self::getClass($manager)->find($find), static::$returnData);
             $event = sprintf(
                 '%s_DATA',
                 strtoupper($this->node)
@@ -1075,14 +1073,11 @@ abstract class FOGPage extends FOGBase
             );
             if ($this->obj instanceof Host) {
                 ob_start();
-                $Snapins = self::getClass('SnapinManager')
+                foreach ((array)self::getClass('SnapinManager')
                     ->find(
                         array('id' => $this->obj->get('snapins'))
-                    );
-                foreach ((array)$Snapins as &$Snapin) {
-                    if (!$Snapin->isValid()) {
-                        continue;
-                    }
+                    ) as &$Snapin
+                ) {
                     printf(
                         '<option value="%d">%s - (%d)</option>',
                         $Snapin->get('id'),
@@ -1258,14 +1253,11 @@ abstract class FOGPage extends FOGBase
             );
         }
         if ($this->obj instanceof Group) {
-            $hostIDs = $this->obj->get('hosts');
-            $Hosts = self::getClass('HostManager')
-                ->find(array('id' => $hostIDs));
-            unset($hostIDs);
-            foreach ((array)$Hosts as $index => &$Host) {
-                if (!$Host->isValid()) {
-                    continue;
-                }
+            foreach ((array)self::getClass('HostManager')
+                ->find(
+                    array('id' => $this->obj->get('hosts'))
+                ) as &$Host
+            ) {
                 $imageID = $imageName = '';
                 if ($TaskType->isImagingTask()) {
                     $Image = $Host->getImage();
@@ -1721,12 +1713,12 @@ abstract class FOGPage extends FOGBase
         $reqID = explode(',', $_REQUEST[$reqID]);
         $reqID = array_unique($reqID);
         $reqID = array_filter($reqID);
-        $Objects = self::getClass($this->childClass)
+        foreach ((array)self::getClass($this->childClass)
             ->getManager()
             ->find(
                 array('id' => $reqID)
-            );
-        foreach ((array)$Objects as &$Object) {
+            ) as &$Object
+        ) {
             if ($Object->get('protected')) {
                 continue;
             }
@@ -1869,16 +1861,17 @@ abstract class FOGPage extends FOGBase
                 );
             unset($TaskType);
         };
-        $TaskTypes = self::getClass('TaskTypeManager')
+        $find = array(
+            'access' => array('both', $this->node),
+            'isAdvanced' => 0
+        );
+        foreach ((array)self::getClass('TaskTypeManager')
             ->find(
-                array(
-                    'access' => array('both', $this->node),
-                    'isAdvanced' => 0
-                ),
+                $find,
                 'AND',
                 'id'
-            );
-        foreach ((array)$TaskTypes as &$TaskType) {
+            ) as &$TaskType
+        ) {
             $taskTypeIterator($TaskType);
             unset($TaskType);
         }
@@ -1920,16 +1913,17 @@ abstract class FOGPage extends FOGBase
             _('Advanced Actions')
         );
         unset($TaskTypes);
-        $TaskTypes = self::getClass('TaskTypeManager')
+        $find = array(
+            'access' => array('both', $this->node),
+            'isAdvanced' => 1
+        );
+        foreach ((array)self::getClass('TaskTypeManager')
             ->find(
-                array(
-                    'access' => array('both', $this->node),
-                    'isAdvanced' => 1
-                ),
+                $find,
                 'AND',
                 'id'
-            );
-        foreach ((array)$TaskTypes as &$TaskType) {
+            ) as &$TaskType
+        ) {
             $taskTypeIterator($TaskType);
             unset($TaskType);
         }
@@ -3000,8 +2994,7 @@ abstract class FOGPage extends FOGBase
             '%sManager',
             $this->childClass
         );
-        $items = self::getClass($manager)->search('', true);
-        array_walk($items, static::$returnData);
+        array_walk(self::getClass($manager)->search('', true), static::$returnData);
         $event = sprintf(
             '%s_DATA',
             strtoupper($this->node)
@@ -3317,13 +3310,10 @@ abstract class FOGPage extends FOGBase
         );
         $report = self::getClass('ReportMaker');
         $this->arrayRemove('id', $this->databaseFields);
-        $objects = self::getClass($this->childClass)
+        foreach ((array)self::getClass($this->childClass)
             ->getManager()
-            ->find();
-        foreach ((array)$objects as $index => &$Item) {
-            if (!$Item->isValid()) {
-                continue;
-            }
+            ->find() as &$Item
+        ) {
             if ($Item instanceof Host) {
                 $macs = $maccolumn = array();
                 $macs[] = $Item->get('mac');
