@@ -2236,11 +2236,13 @@ abstract class FOGBase
                 if (is_numeric($key)) {
                     $array1[] = $oth;
                     continue;
-                } else {
+                } elseif (isset($array1[$key])) {
                     $array1[$key] = $oth;
+                    continue;
                 }
                 unset($oth);
             }
+            $array1 += $other;
             unset($other);
         }
 
