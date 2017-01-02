@@ -127,8 +127,9 @@ class BootItem extends Hook
          * inside of the item label is an arrayed item of value [0] containing
          * the label so to tweak:
          */
-        $Menus = self::getClass('PXEMenuOptionsManager')->find();
-        foreach ((array)$Menus as $i => &$Menu) {
+        foreach ((array)self::getClass('PXEMenuOptionsManager')
+            ->find() as $i => &$Menu
+        ) {
             if ($arguments['ipxe']['item-'.$Menu->get('name')]
                 && $Menu->get('name') == 'fog.local'
             ) {

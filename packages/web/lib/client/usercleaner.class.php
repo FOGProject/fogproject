@@ -28,9 +28,10 @@ class UserCleaner extends FOGClient implements FOGClientSend
      */
     public function send()
     {
-        $UserCleanups = self::getClass('UserCleanupManager')->find();
         $this->send = "#!start\n";
-        foreach ($UserCleanups as &$User) {
+        foreach ((array)self::getClass('UserCleanupManager')
+            ->find() as &$User
+        ) {
             $this->send .= sprintf(
                 "%s\n",
                 base64_encode($User->get('name'))

@@ -208,13 +208,9 @@ class ImageReplicator extends FOGService
                     ),
                     'imageID'
                 );
-                $Images = self::getClass('ImageManager')
-                    ->find(array('id' => $imageIDs));
-                unset($imageIDs);
-                foreach ((array)$Images as &$Image) {
-                    if (!$Image->isValid()) {
-                        continue;
-                    }
+                foreach ((array)self::getClass('ImageManager')
+                    ->find(array('id' => $imageIDs)) as &$Image
+                ) {
                     if (!$Image->getPrimaryGroup($myStorageGroupID)) {
                         self::outall(
                             sprintf(

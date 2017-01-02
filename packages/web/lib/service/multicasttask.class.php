@@ -49,20 +49,16 @@ class MulticastTask extends FOGService
         );
         unset($StorageNode);
         $Tasks = array();
-        $MulticastSessions = self::getClass('MulticastSessionsManager')
-            ->find(
-                array(
-                    'stateID' =>
-                    self::fastmerge(
-                        self::getQueuedStates(),
-                        (array)self::getProgressState()
-                    )
-                )
-            );
-        foreach ((array)$MulticastSessions as $index => &$MultiSess) {
-            if (!$MultiSess->isValid()) {
-                continue;
-            }
+        $find = array(
+            'stateID' =>
+            self::fastmerge(
+                self::getQueuedStates(),
+                (array)self::getProgressState()
+            )
+        );
+        foreach ((array)self::getClass('MulticastSessionsManager')
+            ->find($find) as $index => &$MultiSess
+        ) {
             $taskIDs = self::getSubObjectIDs(
                 'MulticastSessionsAssociation',
                 array(
@@ -642,17 +638,16 @@ class MulticastTask extends FOGService
      */
     public function updateStats()
     {
-        $Tasks = self::getClass('TaskManager')
-            ->find(
-                array(
-                    'id' => self::getSubObjectIDs(
-                        'MulticastSessionsAssociation',
-                        array('msID' => $this->_intID),
-                        'taskID'
-                    )
-                )
-            );
-        foreach ($Tasks as &$Task) {
+        $find = array(
+            'id' => self::getSubObjectIDs(
+                'MulticastSessionsAssociation',
+                array('msID' => $this->_intID),
+                'taskID'
+            )
+        );
+        foreach ((array)self::getClass('TaskManager')
+            ->find($find) as &$Task
+        ) {
             $TaskPercent[] = $Task->get('percent');
             unset($Task);
         }

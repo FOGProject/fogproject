@@ -164,13 +164,14 @@ class SnapinHash extends FOGService
                         _('to update hash values as needed')
                     )
                 );
-                $Snapins = self::getClass('SnapinManager')->find(
-                    array(
-                        'id' => $snapinIDs,
-                        'isEnabled' => 1
-                    )
-                );
-                foreach ((array)$Snapins as &$Snapin) {
+                foreach ((array)self::getClass('SnapinManager')
+                    ->find(
+                        array(
+                            'id' => $snapinIDs,
+                            'isEnabled' => 1
+                        )
+                    ) as &$Snapin
+                ) {
                     if (strlen($Snapin->get('hash')) > 10) {
                         self::outall(
                             sprintf(

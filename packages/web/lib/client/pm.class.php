@@ -70,9 +70,6 @@ class PM extends FOGClient
             'tasks' => array(),
         );
         foreach ((array)$PMTasks as &$PMTask) {
-            if (!$PMTask->isValid()) {
-                continue;
-            }
             $min = trim($PMTask->get('min'));
             $hour = trim($PMTask->get('hour'));
             $dom = trim($PMTask->get('dom'));

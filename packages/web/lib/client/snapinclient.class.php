@@ -101,16 +101,13 @@ class SnapinClient extends FOGClient implements FOGClientSend
                         'error' => _('No valid tasks found')
                     );
                 }
-                $Snapins = self::getClass('SnapinManager')
-                    ->find(
-                        array('id' => $snapinIDs)
-                    );
                 $info = array();
                 $info['snapins'] = array();
-                foreach ((array)$Snapins as &$Snapin) {
-                    if (!$Snapin->isValid()) {
-                        continue;
-                    }
+                foreach ((array)self::getClass('SnapinManager')
+                    ->find(
+                        array('id' => $snapinIDs)
+                    ) as &$Snapin
+                ) {
                     $snapinTaskID = self::getSubObjectIDs(
                         'SnapinTask',
                         array(

@@ -208,13 +208,9 @@ class SnapinReplicator extends FOGService
                     ),
                     'snapinID'
                 );
-                $Snapins = self::getClass('SnapinManager')
-                    ->find(array('id' => $snapinIDs));
-                unset($snapinIDs);
-                foreach ((array)$Snapins as &$Snapin) {
-                    if (!$Snapin->isValid()) {
-                        continue;
-                    }
+                foreach ((array)self::getClass('SnapinManager')
+                    ->find(array('id' => $snapinIDs)) as &$Snapin
+                ) {
                     if (!$Snapin->getPrimaryGroup($myStorageGroupID)) {
                         self::outall(
                             sprintf(

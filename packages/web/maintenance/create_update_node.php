@@ -56,9 +56,9 @@ if (isset($_POST['newNode'])) {
         ->set('isEnabled', '1')
         ->save();
 } elseif (isset($_POST['nodePass'])) {
-    $Nodes = FOGCore::getClass('StorageNodeManager')
-        ->find(array('ip' => $_POST['ip']));
-    foreach ((array)$Nodes as &$Node) {
+    foreach ((array)FOGCore::getClass('StorageNodeManager')
+        ->find(array('ip' => $_POST['ip'])) as &$Node
+    ) {
         if ($Node->get('pass') === trim($_POST['pass'])) {
             continue;
         }

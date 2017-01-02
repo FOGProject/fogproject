@@ -34,12 +34,9 @@ class GF extends FOGClient implements FOGClientSend
             throw new Exception('#!na');
         }
         $Send = array();
-        $gfs = self::getClass('GreenFogManager')
-            ->find();
-        foreach ((array)$gfs as $index => &$gf) {
-            if (!$gf->isValid()) {
-                continue;
-            }
+        foreach ((array)self::getClass('GreenFogManager')
+            ->find() as $index => &$gf
+        ) {
             $actionTemp = $gf->get('action');
             $actionTemp = strtolower($actionTemp);
             $actionTemp = trim($actionTemp);

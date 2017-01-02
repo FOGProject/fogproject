@@ -65,16 +65,13 @@ class AddHostModel extends Hook
             $hostnames[] = $data['host_name'];
             unset($data);
         }
-        $Hosts = self::getClass('HostManager')
+        foreach ((array)self::getClass('HostManager')
             ->find(
                 array(
                     'name' => $hostnames
                 )
-            );
-        foreach ((array)$Hosts as $i => &$Host) {
-            if (!$Host->isValid()) {
-                continue;
-            }
+            ) as $i => &$Host
+        ) {
             $Inventory = $Host->get('inventory');
             $arguments['data'][$i]['model'] = $Inventory
                 ->get('sysproduct');

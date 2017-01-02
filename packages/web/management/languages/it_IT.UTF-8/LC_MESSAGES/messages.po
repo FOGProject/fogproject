@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-02 14:47-0500\n"
+"POT-Creation-Date: 2017-01-02 15:04-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -203,9 +203,9 @@ msgstr "Record non trovato, errore: %s"
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:62
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:122
 #: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:54
-#: /var/www/fog/lib/service/fogservice.class.php:377
-#: /var/www/fog/lib/service/fogservice.class.php:406
-#: /var/www/fog/lib/service/fogservice.class.php:484
+#: /var/www/fog/lib/service/fogservice.class.php:374
+#: /var/www/fog/lib/service/fogservice.class.php:403
+#: /var/www/fog/lib/service/fogservice.class.php:478
 #: /var/www/fog/commons/text.php:66
 msgid "Name"
 msgstr "Nome"
@@ -1647,10 +1647,10 @@ msgstr "eliminata"
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1098
 #: /var/www/fog/lib/service/snapinreplicator.class.php:138
 #: /var/www/fog/lib/service/snapinreplicator.class.php:139
-#: /var/www/fog/lib/service/snapinreplicator.class.php:250
+#: /var/www/fog/lib/service/snapinreplicator.class.php:246
 #: /var/www/fog/lib/service/imagereplicator.class.php:138
 #: /var/www/fog/lib/service/imagereplicator.class.php:139
-#: /var/www/fog/lib/service/imagereplicator.class.php:250
+#: /var/www/fog/lib/service/imagereplicator.class.php:246
 #: /var/www/fog/commons/text.php:44
 msgid "Group"
 msgstr "Gruppo"
@@ -3641,7 +3641,7 @@ msgid "Printer Type"
 msgstr "Tipo stampante"
 
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:83
-#: /var/www/fog/lib/hooks/addhostmodel.hook.php:97
+#: /var/www/fog/lib/hooks/addhostmodel.hook.php:94
 #: /var/www/fog/commons/text.php:24
 msgid "Model"
 msgstr "Modello"
@@ -6887,7 +6887,7 @@ msgid "No snapins associated with this group as master"
 msgstr "Non ci sono snapins associati con questo host"
 
 #: /var/www/fog/lib/service/snapinhash.class.php:157
-#: /var/www/fog/lib/service/fogservice.class.php:391
+#: /var/www/fog/lib/service/fogservice.class.php:388
 msgid "Found"
 msgstr ""
 
@@ -6900,20 +6900,20 @@ msgstr "snapins"
 msgid "to update hash values as needed"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:178
+#: /var/www/fog/lib/service/snapinhash.class.php:179
 #, fuzzy
 msgid "Snapin hash already set"
 msgstr "Snap-in con quel nome esiste già"
 
-#: /var/www/fog/lib/service/snapinhash.class.php:196
+#: /var/www/fog/lib/service/snapinhash.class.php:197
 msgid "Getting snapin hash and size for"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:206
+#: /var/www/fog/lib/service/snapinhash.class.php:207
 msgid "Hash"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:222
+#: /var/www/fog/lib/service/snapinhash.class.php:223
 msgid "Completed"
 msgstr "Completato"
 
@@ -6929,15 +6929,15 @@ msgid "Starting Snapin Replication"
 msgstr "Snapin Replicator"
 
 #: /var/www/fog/lib/service/snapinreplicator.class.php:137
-#: /var/www/fog/lib/service/snapinreplicator.class.php:249
+#: /var/www/fog/lib/service/snapinreplicator.class.php:245
 #: /var/www/fog/lib/service/imagereplicator.class.php:137
-#: /var/www/fog/lib/service/imagereplicator.class.php:249
+#: /var/www/fog/lib/service/imagereplicator.class.php:245
 #, fuzzy
 msgid "Attempting to perform"
 msgstr "Il tentativo di ping"
 
 #: /var/www/fog/lib/service/snapinreplicator.class.php:140
-#: /var/www/fog/lib/service/snapinreplicator.class.php:252
+#: /var/www/fog/lib/service/snapinreplicator.class.php:248
 #, fuzzy
 msgid "snapin replication"
 msgstr "Snapin Replicator"
@@ -6957,25 +6957,25 @@ msgstr ""
 msgid "snapins to a storage group"
 msgstr "Storage Group Snapin"
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:222
+#: /var/www/fog/lib/service/snapinreplicator.class.php:218
 #, fuzzy
 msgid "Not syncing Snapin"
 msgstr "Nessun collegamento per ottenere Snapin"
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:229
-#: /var/www/fog/lib/service/imagereplicator.class.php:229
+#: /var/www/fog/lib/service/snapinreplicator.class.php:225
+#: /var/www/fog/lib/service/imagereplicator.class.php:225
 #, fuzzy
 msgid "This is not the primary group"
 msgstr " | Questo non è il gruppo primario"
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:251
-#: /var/www/fog/lib/service/imagereplicator.class.php:251
+#: /var/www/fog/lib/service/snapinreplicator.class.php:247
+#: /var/www/fog/lib/service/imagereplicator.class.php:247
 #, fuzzy
 msgid "Nodes"
 msgstr "Nodo"
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:287
-#: /var/www/fog/lib/service/imagereplicator.class.php:287
+#: /var/www/fog/lib/service/snapinreplicator.class.php:283
+#: /var/www/fog/lib/service/imagereplicator.class.php:283
 msgid "Checking if I am the group manager"
 msgstr ""
 
@@ -6985,7 +6985,7 @@ msgid "Starting Image Replication"
 msgstr "immagine Replicator"
 
 #: /var/www/fog/lib/service/imagereplicator.class.php:140
-#: /var/www/fog/lib/service/imagereplicator.class.php:252
+#: /var/www/fog/lib/service/imagereplicator.class.php:248
 #, fuzzy
 msgid "image replication"
 msgstr "immagine Replicator"
@@ -6995,7 +6995,7 @@ msgstr "immagine Replicator"
 msgid "images to a storage group"
 msgstr "Gruppo di archiviazione primaria"
 
-#: /var/www/fog/lib/service/imagereplicator.class.php:222
+#: /var/www/fog/lib/service/imagereplicator.class.php:218
 msgid "Not syncing Image"
 msgstr ""
 
@@ -7020,89 +7020,89 @@ msgstr "Il tentativo di ping"
 msgid "hosts"
 msgstr "ospite"
 
-#: /var/www/fog/lib/service/fogservice.class.php:139
+#: /var/www/fog/lib/service/fogservice.class.php:136
 msgid " | This is not the master node"
 msgstr " | Questo non è il nodo master"
 
-#: /var/www/fog/lib/service/fogservice.class.php:152
+#: /var/www/fog/lib/service/fogservice.class.php:149
 msgid "Interface not ready, waiting."
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:178
+#: /var/www/fog/lib/service/fogservice.class.php:175
 msgid "Waiting for mysql to be available"
 msgstr "In attesa di mysql sia disponibile"
 
-#: /var/www/fog/lib/service/fogservice.class.php:351
+#: /var/www/fog/lib/service/fogservice.class.php:348
 #, fuzzy
 msgid "I am not the master for this group"
 msgstr " * Io non sono il padrone"
 
-#: /var/www/fog/lib/service/fogservice.class.php:367
-#: /var/www/fog/lib/service/fogservice.class.php:474
+#: /var/www/fog/lib/service/fogservice.class.php:364
+#: /var/www/fog/lib/service/fogservice.class.php:468
 msgid "Not syncing"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:369
-#: /var/www/fog/lib/service/fogservice.class.php:476
+#: /var/www/fog/lib/service/fogservice.class.php:366
+#: /var/www/fog/lib/service/fogservice.class.php:470
 msgid "between"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:384
+#: /var/www/fog/lib/service/fogservice.class.php:381
 msgid "There are no other members to sync to"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:393
+#: /var/www/fog/lib/service/fogservice.class.php:390
 #, fuzzy
 msgid "to transfer to"
 msgstr "Immagine registro trasferimenti"
 
-#: /var/www/fog/lib/service/fogservice.class.php:459
+#: /var/www/fog/lib/service/fogservice.class.php:453
 #, fuzzy
 msgid "Replication already running with PID"
 msgstr "Larghezza di banda replica"
 
-#: /var/www/fog/lib/service/fogservice.class.php:491
+#: /var/www/fog/lib/service/fogservice.class.php:485
 #, fuzzy
 msgid "File or path cannot be reached"
 msgstr " | File o il percorso non può essere raggiunto"
 
-#: /var/www/fog/lib/service/fogservice.class.php:511
+#: /var/www/fog/lib/service/fogservice.class.php:505
 #, fuzzy
 msgid "Cannot connect to"
 msgstr "Impossibile connettersi al nodo."
 
-#: /var/www/fog/lib/service/fogservice.class.php:597
+#: /var/www/fog/lib/service/fogservice.class.php:591
 msgid "Files do not match"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:603
+#: /var/www/fog/lib/service/fogservice.class.php:597
 #, fuzzy
 msgid "Deleting remote file"
 msgstr "Menu Create fallita"
 
-#: /var/www/fog/lib/service/fogservice.class.php:614
+#: /var/www/fog/lib/service/fogservice.class.php:608
 msgid "No need to sync"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:616
+#: /var/www/fog/lib/service/fogservice.class.php:610
 #, fuzzy
 msgid "file to"
 msgstr "Non è riuscito a"
 
-#: /var/www/fog/lib/service/fogservice.class.php:639
+#: /var/www/fog/lib/service/fogservice.class.php:633
 #, fuzzy
 msgid "Starting Sync Actions"
 msgstr " * A partire sincronizzazione delle azioni"
 
-#: /var/www/fog/lib/service/fogservice.class.php:683
+#: /var/www/fog/lib/service/fogservice.class.php:677
 msgid "Started sync for"
 msgstr "sincronizzazione introduttiva per"
 
-#: /var/www/fog/lib/service/multicasttask.class.php:85
+#: /var/www/fog/lib/service/multicasttask.class.php:81
 msgid "Task not created as there are no associated Tasks"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicasttask.class.php:88
+#: /var/www/fog/lib/service/multicasttask.class.php:84
 msgid "Or there was no number defined for joining session"
 msgstr ""
 
@@ -7243,7 +7243,7 @@ msgid "No Active Task found for Host"
 msgstr "Nessun compito attivo trovato per Host"
 
 #: /var/www/fog/lib/reg-task/taskingelement.class.php:189
-#: /var/www/fog/lib/client/snapinclient.class.php:538
+#: /var/www/fog/lib/client/snapinclient.class.php:535
 msgid "Invalid Storage Group"
 msgstr "Gruppo di archiviazione non valido"
 
@@ -7449,64 +7449,64 @@ msgstr "Host primario MAC"
 msgid "Not allowed here"
 msgstr "Non ammessi qui"
 
-#: /var/www/fog/lib/client/directorycleanup.class.php:53
+#: /var/www/fog/lib/client/directorycleanup.class.php:51
 msgid "No directories defined to be cleaned up"
 msgstr ""
 
 #: /var/www/fog/lib/client/snapinclient.class.php:101
-#: /var/www/fog/lib/client/snapinclient.class.php:283
+#: /var/www/fog/lib/client/snapinclient.class.php:280
 #, fuzzy
 msgid "No valid tasks found"
 msgstr "Nessun classe valido inviato"
 
-#: /var/www/fog/lib/client/snapinclient.class.php:300
+#: /var/www/fog/lib/client/snapinclient.class.php:297
 #, fuzzy
 msgid "Snapin is invalid"
 msgstr "Snap-in non è valido"
 
-#: /var/www/fog/lib/client/snapinclient.class.php:322
+#: /var/www/fog/lib/client/snapinclient.class.php:319
 #, fuzzy
 msgid "Snapin Task is invalid"
 msgstr "Snap-in non è valido"
 
-#: /var/www/fog/lib/client/snapinclient.class.php:405
+#: /var/www/fog/lib/client/snapinclient.class.php:402
 #, fuzzy
 msgid "Invalid task id sent"
 msgstr "compito non valido"
 
-#: /var/www/fog/lib/client/snapinclient.class.php:423
+#: /var/www/fog/lib/client/snapinclient.class.php:420
 msgid "Invalid Snapin Tasking"
 msgstr "Non valido Snapin Tasking"
 
-#: /var/www/fog/lib/client/snapinclient.class.php:433
-#: /var/www/fog/lib/client/snapinclient.class.php:510
+#: /var/www/fog/lib/client/snapinclient.class.php:430
+#: /var/www/fog/lib/client/snapinclient.class.php:507
 msgid "Invalid Snapin"
 msgstr "Snapin non valido"
 
-#: /var/www/fog/lib/client/snapinclient.class.php:494
+#: /var/www/fog/lib/client/snapinclient.class.php:491
 #, fuzzy
 msgid "Invalid task id"
 msgstr "compito non valido"
 
-#: /var/www/fog/lib/client/snapinclient.class.php:504
+#: /var/www/fog/lib/client/snapinclient.class.php:501
 #, fuzzy
 msgid "Invalid Snapin Tasking object"
 msgstr "Non valido Snapin Tasking"
 
-#: /var/www/fog/lib/client/snapinclient.class.php:554
+#: /var/www/fog/lib/client/snapinclient.class.php:551
 msgid "Invalid Storage Node"
 msgstr "Non valido Storage Node"
 
-#: /var/www/fog/lib/client/snapinclient.class.php:581
+#: /var/www/fog/lib/client/snapinclient.class.php:578
 #, fuzzy
 msgid "Cannot connect to ftp server"
 msgstr "Non è possibile connettersi al database"
 
-#: /var/www/fog/lib/client/snapinclient.class.php:605
+#: /var/www/fog/lib/client/snapinclient.class.php:602
 msgid "Pending..."
 msgstr "In attesa di..."
 
-#: /var/www/fog/lib/client/snapinclient.class.php:622
+#: /var/www/fog/lib/client/snapinclient.class.php:619
 #, fuzzy
 msgid "Could not read snapin file"
 msgstr "Impossibile leggere il file tmp."
@@ -7566,7 +7566,7 @@ msgstr "Replay da rivista: tempo di inserimento reale"
 msgid "Login time"
 msgstr "Accesso"
 
-#: /var/www/fog/lib/hooks/addhostserial.hook.php:97
+#: /var/www/fog/lib/hooks/addhostserial.hook.php:94
 msgid "Serial"
 msgstr "Seriale"
 
