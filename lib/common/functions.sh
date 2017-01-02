@@ -1556,10 +1556,14 @@ configureHttpd() {
     [[ -n $snmysqlhost ]] && options="$options -h$snmysqlhost"
     [[ -n $snmysqluser ]] && options="$options -u'$snmysqluser'"
     [[ -n $snmysqlpass ]] && options="$options -p'$snmysqlpass'"
-    mysqlver=$(mysql -V | awk 'match($0,/Distrib[ ](.*)[,]/,a) {print a[1]}')
-    mariadb=$(echo $mysqlver | grep -oi mariadb)
+    mysqlver=$(mysql -V |  sed -n 's/.*Distrib[ ]\(\([0-9]\([.]\|\)\)*\).*\([-]\|\)[,].*/\1/p')
+    mariadb=$(mysql -V |  sed -n 's/.*Distrib[ ].*[-]\(.*\)[,].*/\1/p')
+    vertocheck="5.7"
+    if [[ -n $mariadb ]]; then
+        mysqlver=$(mysql -V | sed -n 's/.*Ver[ ]\(.*\)[ ].*Distrib.*/\1/p')
+        vertocheck="10.2"
+    fi
     mysqlver=$(echo $mysqlver | awk -F'([.])' '{print $1"."$2}')
-    [[ -n $mariadb ]] && vertocheck="10.2" || vertocheck="5.7"
     runTest=$(echo "$mysqlver < $vertocheck" | bc)
     if [[ $runTest -eq 0 ]]; then
         [[ -z $snmysqlhost ]] && snmysqlhost='localhost'
