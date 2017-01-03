@@ -290,6 +290,22 @@ class ProcessLogin extends FOGPage
             }
         }
         $this->_getLanguages();
+        $logininfo = self::getSetting('FOG_LOGIN_INFO_DISPLAY');
+        $extra = '';
+        if ($logininfo) {
+            $extra = sprintf(
+                '<div id="login-form-info">'
+                . '<p>%s: <b><i class="icon fa fa-circle-o-notch fa-spin fa-fw">'
+                . '</i></b></p><p>%s: <b><i class="icon fa fa-circle-o-notch fa-'
+                . 'spin fa-fw"></i></b></p><p>%s: <b><i class="icon fa fa-circle-'
+                . 'o-notch fa-spin fa-fw"></i></b></p><p>%s: <b><i class="icon '
+                . 'fa fa-circle-o-notch fa-spin fa-fw"></i></b></p></div>',
+                self::$foglang['FOGSites'],
+                self::$foglang['LatestVer'],
+                self::$foglang['LatestDevVer'],
+                self::$foglang['LatestSvnVer']
+            );
+        }
         printf(
             '<form method="post" action="%s" id="login-form">'
             . '<label for="username">%s</label>'
@@ -300,24 +316,14 @@ class ProcessLogin extends FOGPage
             . '<select name="ulang" id="language">%s</select>'
             . '<label for="login-form-submit"> </label>'
             . '<input type="submit" value="%s" id="login-form-submit" name="login"/>'
-            . '</form>'
-            . '<div id="login-form-info">'
-            . '<p>%s: <b><i class="icon fa fa-circle-o-notch fa-spin fa-fw"></i></b>'
-            . '</p><p>%s: <b><i class="icon fa fa-circle-o-notch fa-spin fa-fw"></i>'
-            . '</b></p><p>%s: <b>'
-            . '<i class="icon fa fa-circle-o-notch fa-spin fa-fw"></i></b></p>'
-            . '<p>%s: <b><i class="icon fa fa-circle-o-notch fa-spin fa-fw"></i>'
-            . '</b></p></div>',
+            . '</form>%s',
             $this->formAction,
             self::$foglang['Username'],
             self::$foglang['Password'],
             self::$foglang['LanguagePhrase'],
             $this->_langMenu,
             self::$foglang['Login'],
-            self::$foglang['FOGSites'],
-            self::$foglang['LatestVer'],
-            self::$foglang['LatestDevVer'],
-            self::$foglang['LatestSvnVer']
+            $extra
         );
     }
     /**

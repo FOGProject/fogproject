@@ -3591,3 +3591,12 @@ $this->schema[] = $tmpSchema->dropDuplicateData(
     ),
     true
 );
+// 245
+$this->schema[] = array(
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_LOGIN_INFO_DISPLAY', 'This setting defines if the login page"
+    . " should or should not display fog version information. (Default is "
+    . "on)','1','General Settings')"
+);

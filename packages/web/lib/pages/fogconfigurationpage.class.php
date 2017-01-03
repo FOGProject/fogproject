@@ -1330,6 +1330,7 @@ class FOGConfigurationPage extends FOGPage
             'FOG_FTP_IMAGE_SIZE',
             'FOG_KERNEL_DEBUG',
             'FOG_ENFORCE_HOST_CHANGES',
+            'FOG_LOGIN_INFO_DISPLAY',
         );
         self::$HookManager
             ->processEvent(
