@@ -22,7 +22,7 @@
 require '../commons/base.inc.php';
 FOGCore::stripAndDecode($_REQUEST);
 try {
-    $Host = self::getHostItem(false, false);
+    $Host = FOGCore::getHostItem(false, false);
     $Inventory = $Host->get('inventory');
     if (!$Inventory instanceof Inventory
         || !$Inventory->isValid()

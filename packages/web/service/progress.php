@@ -21,7 +21,7 @@
  */
 require '../commons/base.inc.php';
 try {
-    $Host = self::getHostItem(false);
+    $Host = FOGCore::getHostItem(false);
     $Task = $Host->get('task');
     $TaskType = new TaskType($Task->get('typeID'));
     if (!$Task->isValid()) {

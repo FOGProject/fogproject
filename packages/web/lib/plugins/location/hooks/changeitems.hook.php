@@ -169,39 +169,29 @@ class ChangeItems extends Hook
             ),
             'locationID'
         );
-        foreach ((array)self::getClass('LocationManager')
-            ->find(array('id' => $Locations)) as $Location
+        foreach ((array)self::getClass('LocationAssociationManager')
+            ->find(array('locationID' => $Locations)) as $Location
         ) {
             if (!$Location->isTFTP()) {
                 continue;
             }
             $StorageNode = $Location
+                ->getLocation()
                 ->getStorageNode();
             if (!$StorageNode->isValid()) {
                 continue;
             }
             $ip = $StorageNode->get('ip');
-            $curroot = trim(
-                trim($StorageNode->get('webroot'), '/')
-            );
-            $webroot = sprintf(
-                '/%s',
-                (
-                    strlen($curroot) > 1 ?
-                    sprintf('%s/', $curroot) :
-                    ''
-                )
-            );
             $memtest = $arguments['memtest'];
             $memdisk = $arguments['memdisk'];
             $bzImage = $arguments['bzImage'];
             $initrd = $arguments['initrd'];
             $arguments['webserver'] = $ip;
             $arguments['webroot'] = $webroot;
-            $arguments['memdisk'] = "http://${ip}${webroot}service/ipxe/$memdisk";
-            $arguments['memtest'] = "http://${ip}${webroot}service/ipxe/$memtest";
-            $arguments['bzImage'] = "http://${ip}${webroot}service/ipxe/$bzImage";
-            $arguments['imagefile'] = "http://${ip}${webroot}service/ipxe/$initrd";
+            $arguments['memdisk'] = "http://${ip}/fog/service/ipxe/$memdisk";
+            $arguments['memtest'] = "http://${ip}/fog/service/ipxe/$memtest";
+            $arguments['bzImage'] = "http://${ip}/fog/service/ipxe/$bzImage";
+            $arguments['imagefile'] = "http://${ip}/fog/service/ipxe/$initrd";
             unset($Location);
         }
     }

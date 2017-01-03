@@ -297,8 +297,8 @@ addToAddress() {
     return 1
 }
 getFirstGoodInterface() {
-    siteToCheckForInternet=www.google.com #Must be domain name.
-    ipToCheckForInternet=8.8.8.8 #Must be IP.
+    siteToCheckForInternet="www.google.com" #Must be domain name.
+    ipToCheckForInternet="8.8.8.8" #Must be IP.
     [[ -e $workingdir/tempInterfaces.txt ]] && rm -f $workingdir/tempInterfaces.txt >/dev/null 2>&1
     foundinterfaces=$(ip -4 addr | awk -F'(global )' '/global / {print $2}')
     for interface in $foundinterfaces; do
