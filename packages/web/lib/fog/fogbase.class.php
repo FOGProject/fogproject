@@ -1918,8 +1918,6 @@ abstract class FOGBase
             '',
             array('value' => trim($value))
         );
-
-        return $this;
     }
     /**
      * Gets queued state ids.
