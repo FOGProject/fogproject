@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-04 09:08-0500\n"
+"POT-Creation-Date: 2017-01-04 16:10-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -566,20 +566,20 @@ msgstr "si è verificato errore di caricamento sconosciuto. Codice di ritorno: "
 msgid "Return code"
 msgstr "Codice di ritorno"
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:620
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:567
 msgid "No fields passed"
 msgstr "Nessun campo passati"
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:623
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:570
 msgid "No values passed"
 msgstr "Non ci sono valori passati"
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:660
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:607
 #, fuzzy
 msgid "No data to insert"
 msgstr "Non ci sono dati restituiti"
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:953
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:900
 #, fuzzy
 msgid "No items found"
 msgstr "Nessuna icona trovato"
@@ -4079,8 +4079,8 @@ msgstr "Opzioni avanzate"
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1308
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1486
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1487
-#: /var/www/fog/management/reports/hosts_and_users.report.php:17
-#: /var/www/fog/management/reports/hosts_and_users.report.php:18
+#: /var/www/fog/management/reports/hosts_and_users.report.php:54
+#: /var/www/fog/management/reports/hosts_and_users.report.php:55
 msgid "Export CSV"
 msgstr "Export CSV"
 
@@ -4102,8 +4102,8 @@ msgstr "Export CSV"
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1491
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1727
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1728
-#: /var/www/fog/management/reports/hosts_and_users.report.php:21
-#: /var/www/fog/management/reports/hosts_and_users.report.php:22
+#: /var/www/fog/management/reports/hosts_and_users.report.php:58
+#: /var/www/fog/management/reports/hosts_and_users.report.php:59
 msgid "Export PDF"
 msgstr "Esporta PDF"
 
@@ -7597,7 +7597,7 @@ msgstr "Creare"
 msgid "FOG Client"
 msgstr "FOG client Wiki"
 
-#: /var/www/fog/management/reports/hosts_and_users.report.php:13
+#: /var/www/fog/management/reports/hosts_and_users.report.php:50
 msgid "FOG Hosts and Users Login"
 msgstr "Host nebbia e Accesso utenti"
 

@@ -70,13 +70,7 @@ abstract class FOGManagerController extends FOGBase
      *
      * @var string
      */
-    protected $loadQueryTemplate = 'SELECT %s FROM `%s` %s %s %s %s';
-    /**
-     * The load groupby template.
-     *
-     * @var string
-     */
-    protected $loadQueryGroupTemplate = 'SELECT %s FROM (%s) `%s` %s %s %s %s';
+    protected $loadQueryTemplate = 'SELECT %s FROM `%s` %s %s %s %s %s';
     /**
      * The count template.
      *
@@ -391,56 +385,9 @@ abstract class FOGManagerController extends FOGBase
                 ) :
                 ''
             ),
+            $groupBy,
             $orderBy
         );
-        if ($groupBy) {
-            $query = sprintf(
-                $this->loadQueryGroupTemplate,
-                (
-                    $idField ? sprintf('`%s`', implode('`,`', $idField)) : '*'
-                ),
-                $query,
-                $this->databaseTable,
-                $join,
-                (
-                    count($whereArray) > 0 ?
-                    sprintf(
-                        ' WHERE %s%s',
-                        implode(" $whereOperator ", (array) $whereArray),
-                        (
-                            $isEnabled ?
-                            sprintf(' AND %s', $isEnabled)
-                            : ''
-                        )
-                    ) :
-                    (
-                        $isEnabled ?
-                        sprintf(
-                            ' WHERE %s',
-                            $isEnabled
-                        ) :
-                        ''
-                    )
-                ),
-                (
-                    count($whereArrayAnd) > 0 ?
-                    (
-                        count($whereArray) > 0 ?
-                        sprintf(
-                            'AND %s',
-                            implode(" $whereOperator ", (array) $whereArrayAnd)
-                        ) :
-                        sprintf(
-                            ' WHERE %s',
-                            implode(" $whereOperator ", (array) $whereArrayAnd)
-                        )
-                    ) :
-                    ''
-                ),
-                $groupBy,
-                $orderBy
-            );
-        }
         $data = array();
         self::$DB->query($query, array(), $findVals);
         if ($idField) {

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-04 09:08-0500\n"
+"POT-Creation-Date: 2017-01-04 16:10-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -568,20 +568,20 @@ msgstr "Se produjo un error de carga desconocida. Código de retorno: "
 msgid "Return code"
 msgstr "Código de retorno"
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:620
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:567
 msgid "No fields passed"
 msgstr "No hay campos pasaron"
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:623
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:570
 msgid "No values passed"
 msgstr "No hay valores pasados"
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:660
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:607
 #, fuzzy
 msgid "No data to insert"
 msgstr "No se obtuvieron datos"
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:953
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:900
 #, fuzzy
 msgid "No items found"
 msgstr "No se encontraron iconos"
@@ -4082,8 +4082,8 @@ msgstr "Opciones avanzadas"
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1308
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1486
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1487
-#: /var/www/fog/management/reports/hosts_and_users.report.php:17
-#: /var/www/fog/management/reports/hosts_and_users.report.php:18
+#: /var/www/fog/management/reports/hosts_and_users.report.php:54
+#: /var/www/fog/management/reports/hosts_and_users.report.php:55
 msgid "Export CSV"
 msgstr "Exportación CSV"
 
@@ -4105,8 +4105,8 @@ msgstr "Exportación CSV"
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1491
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1727
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1728
-#: /var/www/fog/management/reports/hosts_and_users.report.php:21
-#: /var/www/fog/management/reports/hosts_and_users.report.php:22
+#: /var/www/fog/management/reports/hosts_and_users.report.php:58
+#: /var/www/fog/management/reports/hosts_and_users.report.php:59
 msgid "Export PDF"
 msgstr "Exportar PDF"
 
@@ -7606,7 +7606,7 @@ msgstr "Crear"
 msgid "FOG Client"
 msgstr "FOG Wiki Cliente"
 
-#: /var/www/fog/management/reports/hosts_and_users.report.php:13
+#: /var/www/fog/management/reports/hosts_and_users.report.php:50
 msgid "FOG Hosts and Users Login"
 msgstr "Los anfitriones niebla y Acceso a usuarios"
 
