@@ -1858,7 +1858,26 @@ abstract class FOGBase
         if (empty($operator)) {
             $operator = 'AND';
         }
-
+        if (is_array($getField)) {
+            foreach ((array)$getField as &$field) {
+                $data[$field] = self::getClass($object)
+                    ->getManager()
+                    ->find(
+                        $findWhere,
+                        $operator,
+                        $orderBy,
+                        '',
+                        '',
+                        $groupBy,
+                        $not,
+                        $field,
+                        '',
+                        $filter
+                    );
+                unset($field);
+            }
+            return $data;
+        }
         return self::getClass($object)->getManager()->find(
             $findWhere,
             $operator,

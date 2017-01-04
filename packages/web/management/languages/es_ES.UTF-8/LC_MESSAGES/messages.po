@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-04 16:10-0500\n"
+"POT-Creation-Date: 2017-01-04 16:19-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -425,7 +425,7 @@ msgid "Array type"
 msgstr "Matriz de datos"
 
 #: /var/www/fog/lib/fog/fogcontroller.class.php:907
-#: /var/www/fog/lib/fog/fogbase.class.php:2125
+#: /var/www/fog/lib/fog/fogbase.class.php:2144
 #: /var/www/fog/lib/fog/fogftp.class.php:370
 #: /var/www/fog/lib/pages/taskmobile.class.php:45
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:964
@@ -721,12 +721,12 @@ msgstr "Evento debe ser una cadena"
 msgid "String must be a string"
 msgstr "Evento debe ser una cadena"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1887
+#: /var/www/fog/lib/fog/fogbase.class.php:1906
 #, fuzzy
 msgid "Key must be a string"
 msgstr "Evento debe ser una cadena"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2127
+#: /var/www/fog/lib/fog/fogbase.class.php:2146
 #: /var/www/fog/lib/fog/fogftp.class.php:372
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2198
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:85
@@ -737,12 +737,12 @@ msgstr "Evento debe ser una cadena"
 msgid "File"
 msgstr "Archivo"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2129
+#: /var/www/fog/lib/fog/fogbase.class.php:2148
 #: /var/www/fog/lib/fog/fogftp.class.php:374
 msgid "Line"
 msgstr "Línea"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2131
+#: /var/www/fog/lib/fog/fogbase.class.php:2150
 #: /var/www/fog/lib/fog/fogftp.class.php:376
 #: /var/www/fog/lib/db/mysql.class.php:189
 msgid "Message"

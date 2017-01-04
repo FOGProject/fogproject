@@ -978,7 +978,7 @@ class ReportManagementPage extends FOGPage
         $HostNames = array_values(array_filter(array_unique((array)$HostNames)));
         if (count($UserNames) > 0) {
             ob_start();
-            foreach ((array)$UserNames as $i => &$Username) {
+            foreach ((array)$UserNames as &$Username) {
                 if ($Username) {
                     printf(
                         '<option value="%s">%s</option>',
@@ -999,7 +999,7 @@ class ReportManagementPage extends FOGPage
         }
         if (count($HostNames) > 0) {
             ob_start();
-            foreach ((array)$HostNames as $i => &$Hostname) {
+            foreach ((array)$HostNames as &$Hostname) {
                 if ($Hostname) {
                     printf(
                         '<option value="%s">%s</option>',
