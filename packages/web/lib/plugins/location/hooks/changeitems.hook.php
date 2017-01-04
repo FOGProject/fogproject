@@ -169,8 +169,18 @@ class ChangeItems extends Hook
             ),
             'locationID'
         );
+        $Locations = self::getSubObjectIDs(
+            'Location',
+            array(
+                'id' => $Locations
+            )
+        );
+        $find = array(
+            'hostID' => $arguments['Host']->get('id'),
+            'locationID' => $Locations
+        );
         foreach ((array)self::getClass('LocationAssociationManager')
-            ->find(array('locationID' => $Locations)) as $Location
+            ->find($find) as $Location
         ) {
             if (!$Location->isTFTP()) {
                 continue;
