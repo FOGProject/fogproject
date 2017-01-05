@@ -15,7 +15,8 @@ ln -s /proc/self/fd/0 /dev/stdin
 ln -s /proc/self/fd/1 /dev/stdout
 ln -s /proc/self/fd/2 /dev/stderr
 if [[ $mdraid == true ]]; then
-    mdadm --auto-detect --assemble --scan
+    mdadm --auto-detect
+    mdadm --assemble --scan
     mdadm --incremental --run --scan
 fi
 [[ -n $keymap ]] && loadkeys $keymap
