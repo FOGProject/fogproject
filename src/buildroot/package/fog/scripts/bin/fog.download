@@ -95,7 +95,6 @@ preparePartitions() {
                         case $do_fill in
                             1)
                                 fillDiskWithPartitions "$hd" "$imagePath" 1
-                                echo "Done"
                                 ;;
                             *)
                                 startsector="2048s"

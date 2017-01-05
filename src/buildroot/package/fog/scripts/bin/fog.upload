@@ -70,7 +70,9 @@ beginUpload() {
             case $osid in
                 [4-7]|9|50|51)
                     echo " * Setting up any additional fixed parts"
-                    [[ $((ntfscnt + extfscnt)) -gt 0  && $part_number -gt 1 ]] && fixed_size_partitions="$fixed_size_partitions:1"
+                    if [[ $((ntfscnt + extfscnt)) -gt 0  && $part_number -gt 1 ]]; then
+                        [[ -n $fixed_size_partitions ]] && fixed_size_partitions="$fixed_size_partitions:1" || fixed_size_partitions="1"
+                    fi
                     part_number=0
                     for part in $parts; do
                         getPartitionNumber "$part"
