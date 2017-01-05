@@ -91,8 +91,7 @@ class SnapinHash extends FOGService
     private function _commonOutput()
     {
         try {
-            $StorageNodes = $this->checkIfNodeMaster();
-            foreach ((array)$StorageNodes as &$StorageNode) {
+            foreach ((array)$this->checkIfNodeMaster() as &$StorageNode) {
                 $myStorageGroupID = $StorageNode->get('storagegroupID');
                 $myStorageNodeID = $StorageNode->get('id');
                 $StorageGroup = $StorageNode->getStorageGroup();

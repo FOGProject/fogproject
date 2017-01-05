@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-04 19:53-0500\n"
+"POT-Creation-Date: 2017-01-05 14:04-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -721,7 +721,7 @@ msgid "No viable macs to use"
 msgstr ""
 
 #: /var/www/fog/lib/fog/host.class.php:1742
-#: /var/www/fog/lib/service/snapinhash.class.php:162
+#: /var/www/fog/lib/service/snapinhash.class.php:161
 msgid "snapin"
 msgstr ""
 
@@ -1544,11 +1544,11 @@ msgstr ""
 #: /var/www/fog/lib/fog/fogpage.class.php:3053
 #: /var/www/fog/lib/fog/fogpage.class.php:3164
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1098
+#: /var/www/fog/lib/service/snapinreplicator.class.php:137
 #: /var/www/fog/lib/service/snapinreplicator.class.php:138
-#: /var/www/fog/lib/service/snapinreplicator.class.php:139
 #: /var/www/fog/lib/service/snapinreplicator.class.php:246
+#: /var/www/fog/lib/service/imagereplicator.class.php:137
 #: /var/www/fog/lib/service/imagereplicator.class.php:138
-#: /var/www/fog/lib/service/imagereplicator.class.php:139
 #: /var/www/fog/lib/service/imagereplicator.class.php:246
 #: /var/www/fog/commons/text.php:44
 msgid "Group"
@@ -4887,24 +4887,24 @@ msgid "Imaged"
 msgstr ""
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:173
-#: /var/www/fog/lib/service/multicastmanager.class.php:220
-#: /var/www/fog/lib/service/multicastmanager.class.php:261
-#: /var/www/fog/lib/service/multicastmanager.class.php:282
-#: /var/www/fog/lib/service/multicastmanager.class.php:326
-#: /var/www/fog/lib/service/multicastmanager.class.php:336
-#: /var/www/fog/lib/service/multicastmanager.class.php:351
-#: /var/www/fog/lib/service/multicastmanager.class.php:366
-#: /var/www/fog/lib/service/multicastmanager.class.php:379
-#: /var/www/fog/lib/service/multicastmanager.class.php:389
-#: /var/www/fog/lib/service/multicastmanager.class.php:400
-#: /var/www/fog/lib/service/multicastmanager.class.php:409
-#: /var/www/fog/lib/service/multicastmanager.class.php:418
-#: /var/www/fog/lib/service/multicastmanager.class.php:434
-#: /var/www/fog/lib/service/multicastmanager.class.php:451
-#: /var/www/fog/lib/service/multicastmanager.class.php:503
-#: /var/www/fog/lib/service/multicastmanager.class.php:515
-#: /var/www/fog/lib/service/multicastmanager.class.php:532
-#: /var/www/fog/lib/service/multicastmanager.class.php:555
+#: /var/www/fog/lib/service/multicastmanager.class.php:217
+#: /var/www/fog/lib/service/multicastmanager.class.php:258
+#: /var/www/fog/lib/service/multicastmanager.class.php:279
+#: /var/www/fog/lib/service/multicastmanager.class.php:323
+#: /var/www/fog/lib/service/multicastmanager.class.php:333
+#: /var/www/fog/lib/service/multicastmanager.class.php:348
+#: /var/www/fog/lib/service/multicastmanager.class.php:363
+#: /var/www/fog/lib/service/multicastmanager.class.php:376
+#: /var/www/fog/lib/service/multicastmanager.class.php:386
+#: /var/www/fog/lib/service/multicastmanager.class.php:397
+#: /var/www/fog/lib/service/multicastmanager.class.php:406
+#: /var/www/fog/lib/service/multicastmanager.class.php:415
+#: /var/www/fog/lib/service/multicastmanager.class.php:431
+#: /var/www/fog/lib/service/multicastmanager.class.php:448
+#: /var/www/fog/lib/service/multicastmanager.class.php:500
+#: /var/www/fog/lib/service/multicastmanager.class.php:512
+#: /var/www/fog/lib/service/multicastmanager.class.php:529
+#: /var/www/fog/lib/service/multicastmanager.class.php:552
 #: /var/www/fog/commons/text.php:84
 msgid "Task"
 msgstr ""
@@ -6517,111 +6517,111 @@ msgstr ""
 msgid "Task sent to"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:102
+#: /var/www/fog/lib/service/snapinhash.class.php:101
 msgid "Starting Snapin Hashing Service"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:108
-#: /var/www/fog/lib/service/snapinreplicator.class.php:115
-#: /var/www/fog/lib/service/imagereplicator.class.php:115
+#: /var/www/fog/lib/service/snapinhash.class.php:107
+#: /var/www/fog/lib/service/snapinreplicator.class.php:114
+#: /var/www/fog/lib/service/imagereplicator.class.php:114
 msgid "We are group ID"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:110
-#: /var/www/fog/lib/service/snapinreplicator.class.php:117
-#: /var/www/fog/lib/service/imagereplicator.class.php:117
+#: /var/www/fog/lib/service/snapinhash.class.php:109
+#: /var/www/fog/lib/service/snapinreplicator.class.php:116
+#: /var/www/fog/lib/service/imagereplicator.class.php:116
 msgid "We are group name"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:117
-#: /var/www/fog/lib/service/snapinreplicator.class.php:124
-#: /var/www/fog/lib/service/imagereplicator.class.php:124
+#: /var/www/fog/lib/service/snapinhash.class.php:116
+#: /var/www/fog/lib/service/snapinreplicator.class.php:123
+#: /var/www/fog/lib/service/imagereplicator.class.php:123
 msgid "We are node ID"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:119
-#: /var/www/fog/lib/service/snapinreplicator.class.php:126
-#: /var/www/fog/lib/service/imagereplicator.class.php:126
+#: /var/www/fog/lib/service/snapinhash.class.php:118
+#: /var/www/fog/lib/service/snapinreplicator.class.php:125
+#: /var/www/fog/lib/service/imagereplicator.class.php:125
 msgid "We are node name"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:126
+#: /var/www/fog/lib/service/snapinhash.class.php:125
 msgid "Finding any snapins associated"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:127
+#: /var/www/fog/lib/service/snapinhash.class.php:126
 msgid "with this group"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:128
+#: /var/www/fog/lib/service/snapinhash.class.php:127
 msgid "as its primary group"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:149
+#: /var/www/fog/lib/service/snapinhash.class.php:148
 msgid "No snapins associated with this group as master"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:157
+#: /var/www/fog/lib/service/snapinhash.class.php:156
 #: /var/www/fog/lib/service/fogservice.class.php:388
 msgid "Found"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:161
+#: /var/www/fog/lib/service/snapinhash.class.php:160
 msgid "snapins"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:164
+#: /var/www/fog/lib/service/snapinhash.class.php:163
 msgid "to update hash values as needed"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:179
+#: /var/www/fog/lib/service/snapinhash.class.php:178
 msgid "Snapin hash already set"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:197
+#: /var/www/fog/lib/service/snapinhash.class.php:196
 msgid "Getting snapin hash and size for"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:207
+#: /var/www/fog/lib/service/snapinhash.class.php:206
 msgid "Hash"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:223
+#: /var/www/fog/lib/service/snapinhash.class.php:222
 msgid "Completed"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:99
-#: /var/www/fog/lib/service/imagereplicator.class.php:99
+#: /var/www/fog/lib/service/snapinreplicator.class.php:98
+#: /var/www/fog/lib/service/imagereplicator.class.php:98
 msgid "I am the group manager"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:109
+#: /var/www/fog/lib/service/snapinreplicator.class.php:108
 msgid "Starting Snapin Replication"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:137
+#: /var/www/fog/lib/service/snapinreplicator.class.php:136
 #: /var/www/fog/lib/service/snapinreplicator.class.php:245
-#: /var/www/fog/lib/service/imagereplicator.class.php:137
+#: /var/www/fog/lib/service/imagereplicator.class.php:136
 #: /var/www/fog/lib/service/imagereplicator.class.php:245
 msgid "Attempting to perform"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:140
+#: /var/www/fog/lib/service/snapinreplicator.class.php:139
 #: /var/www/fog/lib/service/snapinreplicator.class.php:248
 msgid "snapin replication"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:190
-#: /var/www/fog/lib/service/imagereplicator.class.php:190
+#: /var/www/fog/lib/service/snapinreplicator.class.php:189
+#: /var/www/fog/lib/service/imagereplicator.class.php:189
 msgid "There is nothing to replicate"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:196
-#: /var/www/fog/lib/service/imagereplicator.class.php:196
+#: /var/www/fog/lib/service/snapinreplicator.class.php:195
+#: /var/www/fog/lib/service/imagereplicator.class.php:195
 msgid "Please physically associate"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:197
+#: /var/www/fog/lib/service/snapinreplicator.class.php:196
 msgid "snapins to a storage group"
 msgstr ""
 
@@ -6644,16 +6644,16 @@ msgstr ""
 msgid "Checking if I am the group manager"
 msgstr ""
 
-#: /var/www/fog/lib/service/imagereplicator.class.php:109
+#: /var/www/fog/lib/service/imagereplicator.class.php:108
 msgid "Starting Image Replication"
 msgstr ""
 
-#: /var/www/fog/lib/service/imagereplicator.class.php:140
+#: /var/www/fog/lib/service/imagereplicator.class.php:139
 #: /var/www/fog/lib/service/imagereplicator.class.php:248
 msgid "image replication"
 msgstr ""
 
-#: /var/www/fog/lib/service/imagereplicator.class.php:197
+#: /var/www/fog/lib/service/imagereplicator.class.php:196
 msgid "images to a storage group"
 msgstr ""
 
@@ -6759,112 +6759,112 @@ msgstr ""
 msgid "Or there was no number defined for joining session"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:201
+#: /var/www/fog/lib/service/multicastmanager.class.php:198
 msgid "Cleaning"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:203
+#: /var/www/fog/lib/service/multicastmanager.class.php:200
 msgid "task"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:209
+#: /var/www/fog/lib/service/multicastmanager.class.php:206
 msgid "as they have been removed"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:223
+#: /var/www/fog/lib/service/multicastmanager.class.php:220
 msgid "is being cleaned"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:264
-#: /var/www/fog/lib/service/multicastmanager.class.php:535
+#: /var/www/fog/lib/service/multicastmanager.class.php:261
+#: /var/www/fog/lib/service/multicastmanager.class.php:532
 msgid "has been cancelled"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:285
-#: /var/www/fog/lib/service/multicastmanager.class.php:558
+#: /var/www/fog/lib/service/multicastmanager.class.php:282
+#: /var/www/fog/lib/service/multicastmanager.class.php:555
 msgid "has been completed"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:313
+#: /var/www/fog/lib/service/multicastmanager.class.php:310
 msgid "No tasks found"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:329
+#: /var/www/fog/lib/service/multicastmanager.class.php:326
 msgid "is new"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:339
-#: /var/www/fog/lib/service/multicastmanager.class.php:354
-#: /var/www/fog/lib/service/multicastmanager.class.php:369
+#: /var/www/fog/lib/service/multicastmanager.class.php:336
+#: /var/www/fog/lib/service/multicastmanager.class.php:351
+#: /var/www/fog/lib/service/multicastmanager.class.php:366
 msgid "failed to execute"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:340
+#: /var/www/fog/lib/service/multicastmanager.class.php:337
 msgid "image file"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:342
+#: /var/www/fog/lib/service/multicastmanager.class.php:339
 msgid "not found on this node"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:355
+#: /var/www/fog/lib/service/multicastmanager.class.php:352
 msgid "no clients are included"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:370
+#: /var/www/fog/lib/service/multicastmanager.class.php:367
 msgid "port must be even and numeric"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:382
+#: /var/www/fog/lib/service/multicastmanager.class.php:379
 msgid "failed to start"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:392
-#: /var/www/fog/lib/service/multicastmanager.class.php:403
+#: /var/www/fog/lib/service/multicastmanager.class.php:389
+#: /var/www/fog/lib/service/multicastmanager.class.php:400
 msgid "has been cleaned"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:412
+#: /var/www/fog/lib/service/multicastmanager.class.php:409
 msgid "image file found"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:422
+#: /var/www/fog/lib/service/multicastmanager.class.php:419
 msgid "client"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:428
+#: /var/www/fog/lib/service/multicastmanager.class.php:425
 msgid "found"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:437
+#: /var/www/fog/lib/service/multicastmanager.class.php:434
 msgid "sending on base port"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:444
+#: /var/www/fog/lib/service/multicastmanager.class.php:441
 msgid "Command"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:454
+#: /var/www/fog/lib/service/multicastmanager.class.php:451
 msgid "has started"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:506
+#: /var/www/fog/lib/service/multicastmanager.class.php:503
 msgid "is already running with pid"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:518
+#: /var/www/fog/lib/service/multicastmanager.class.php:515
 msgid "is no longer running"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:578
+#: /var/www/fog/lib/service/multicastmanager.class.php:575
 msgid "Wait time has changed to"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:582
+#: /var/www/fog/lib/service/multicastmanager.class.php:579
 msgid "seconds"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:583
+#: /var/www/fog/lib/service/multicastmanager.class.php:580
 msgid "second"
 msgstr ""
 

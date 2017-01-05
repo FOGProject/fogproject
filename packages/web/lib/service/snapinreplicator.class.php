@@ -91,8 +91,7 @@ class SnapinReplicator extends FOGService
     private function _commonOutput()
     {
         try {
-            $StorageNodes = $this->checkIfNodeMaster();
-            foreach ((array)$StorageNodes as &$StorageNode) {
+            foreach ((array)$this->checkIfNodeMaster() as &$StorageNode) {
                 self::wlog(
                     sprintf(
                         ' * %s',
@@ -208,8 +207,9 @@ class SnapinReplicator extends FOGService
                     ),
                     'snapinID'
                 );
-                foreach ((array)self::getClass('SnapinManager')
-                    ->find(array('id' => $snapinIDs)) as &$Snapin
+                $Snapins = (array)self::getClass('SnapinManager')
+                    ->find(array('id' => $snapinIDs));
+                foreach ($Snapins as &$Snapin
                 ) {
                     if (!$Snapin->getPrimaryGroup($myStorageGroupID)) {
                         self::outall(

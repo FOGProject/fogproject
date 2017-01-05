@@ -169,10 +169,7 @@ class MulticastManager extends FOGService
             );
             try {
                 $StorageNodes = $this->checkIfNodeMaster();
-                foreach ((array)$StorageNodes as &$StorageNode) {
-                    if (!$StorageNode->isValid()) {
-                        continue;
-                    }
+                foreach ((array)$this->checkIfNodeMaster() as &$StorageNode) {
                     $myroot = $StorageNode->get('path');
                     $RMTasks = array();
                     foreach ((array)$KnownTasks as &$mcTask) {

@@ -91,8 +91,7 @@ class ImageReplicator extends FOGService
     private function _commonOutput()
     {
         try {
-            $StorageNodes = $this->checkIfNodeMaster();
-            foreach ((array)$StorageNodes as &$StorageNode) {
+            foreach ((array)$this->checkIfNodeMaster() as &$StorageNode) {
                 self::wlog(
                     sprintf(
                         '* %s',
@@ -208,8 +207,9 @@ class ImageReplicator extends FOGService
                     ),
                     'imageID'
                 );
-                foreach ((array)self::getClass('ImageManager')
-                    ->find(array('id' => $imageIDs)) as &$Image
+                $Images = (array)self::getClass('ImageManager')
+                    ->find(array('id' => $imageIDs));
+                foreach ($Images as &$Image
                 ) {
                     if (!$Image->getPrimaryGroup($myStorageGroupID)) {
                         self::outall(
