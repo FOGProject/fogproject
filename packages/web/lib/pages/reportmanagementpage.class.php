@@ -1148,7 +1148,7 @@ class ReportManagementPage extends FOGPage
                 ) as &$User
             ) {
                 $Host = new Host($User->get('hostID'));
-                $userName = $User->get('name');
+                $userName = $User->get('username');
                 $this->data[] = array(
                     'host_id' => $Host->get('id'),
                     'hostuser_name' => $Host->get('name'),
@@ -1320,13 +1320,42 @@ class ReportManagementPage extends FOGPage
         }
         $date1 = self::niceDate($date1);
         $date2 = self::niceDate('+1 day');
-        foreach ((array)self::getClass('UserTrackingManager')
-            ->find() as &$User
+        $userID = trim(base64_decode($_REQUEST['userID']));
+        $hostID = trim($_REQUEST['hostID']);
+        if (isset($hostID)
+            && is_numeric($hostID)
+            && $hostID > 0
         ) {
-            if (!$_REQUEST['hostID']) {
-                $Host = new Host($User->get('hostID'));
+            $Host = new Host($hostID);
+            if (!$userID) {
+                $Users =& self::getClass('UserTrackingManager')
+                    ->find(
+                        array('id' => $Host->get('users'))
+                    );
             } else {
-                $Host = new Host($_REQUEST['hostID']);
+                $Users =& self::getClass('UserTrackingManager')
+                    ->find(
+                        array(
+                            'id' => $Host->get('users'),
+                            'username' => $userID
+                        )
+                    );
+            }
+        } else {
+            $Host = new Host(0);
+            if (!$userID) {
+                $Users =& self::getClass('UserTrackingManager')
+                    ->find();
+            } else {
+                $Users =& self::getClass('UserTrackingManager')
+                    ->find(
+                        array('username' => $userID)
+                    );
+            }
+        }
+        foreach ((array)$Users as &$User) {
+            if (!$Host->isValid()) {
+                $Host = new Host($User->get('hostID'));
             }
             if (!$Host->isValid()) {
                 continue;
@@ -1370,7 +1399,7 @@ class ReportManagementPage extends FOGPage
             );
             $this->ReportMaker->addCSVCell($User->get('description'));
             $this->ReportMaker->endCSVLine();
-            unset($User, $Host, $date, $logintext);
+            unset($User, $date, $logintext);
         }
         $this->ReportMaker->appendHTML($this->__toString());
         $this->ReportMaker->outputReport(false);

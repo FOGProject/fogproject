@@ -503,7 +503,7 @@ class LDAPManagementPage extends FOGPage
             . '<option value="open">OpenLDAP</option>'
             . '<option value="edir">Generic LDAP</option>'
             . '</select>',
-            _('User Nam Attribute') => '<input class="smaller" type="text" '
+            _('User Name Attribute') => '<input class="smaller" type="text" '
             . sprintf(
                 'id="userNamAttr" name="userNamAttr" value="%s"/>',
                 (
