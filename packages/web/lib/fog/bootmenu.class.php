@@ -322,7 +322,7 @@ class BootMenu extends FOGBase
         $this->_bootexittype = self::$_exitTypes[$exit];
         $this->_loglevel = "loglevel=$loglevel";
         $this->_KS = self::getClass('KeySequence', $keySequence);
-        $this->_booturl = "http://{$webserver}{$webroot}service";
+        $this->_booturl = "http://{$webserver}/fog/service";
         $this->_memdisk = "kernel $memdisk";
         $this->_memtest = "initrd $memtest";
         $this->_kernel = sprintf(
