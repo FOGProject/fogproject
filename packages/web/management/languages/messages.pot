@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-06 20:37-0500\n"
+"POT-Creation-Date: 2017-01-06 20:57-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -6740,12 +6740,16 @@ msgstr ""
 msgid "file to"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:636
+#: /var/www/fog/lib/service/fogservice.class.php:640
 msgid "Starting Sync Actions"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:680
+#: /var/www/fog/lib/service/fogservice.class.php:684
 msgid "Started sync for"
+msgstr ""
+
+#: /var/www/fog/lib/service/fogservice.class.php:716
+msgid "Task started"
 msgstr ""
 
 #: /var/www/fog/lib/service/multicasttask.class.php:81

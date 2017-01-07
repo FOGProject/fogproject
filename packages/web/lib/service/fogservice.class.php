@@ -626,7 +626,11 @@ abstract class FOGService extends FOGBase
                 $logname = sprintf(
                     '%s.%s.transfer.%s.log',
                     $Obj->get('name'),
-                    static::$log,
+                    substr(
+                        static::$log,
+                        0,
+                        -4
+                    ),
                     $nodename
                 );
                 if (!$i) {
@@ -709,6 +713,7 @@ abstract class FOGService extends FOGBase
         } else {
             $log = static::$log;
         }
+        self::wlog(_('Task started'), $logname);
         $descriptor = array(
             0 => array('pipe', 'r'),
             1 => array('file', $logname, 'a'),

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-06 20:37-0500\n"
+"POT-Creation-Date: 2017-01-06 20:57-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -7074,14 +7074,19 @@ msgstr ""
 msgid "file to"
 msgstr "Failed to"
 
-#: /var/www/fog/lib/service/fogservice.class.php:636
+#: /var/www/fog/lib/service/fogservice.class.php:640
 #, fuzzy
 msgid "Starting Sync Actions"
 msgstr " * Starting Sync Actions"
 
-#: /var/www/fog/lib/service/fogservice.class.php:680
+#: /var/www/fog/lib/service/fogservice.class.php:684
 msgid "Started sync for"
 msgstr "Started sync for"
+
+#: /var/www/fog/lib/service/fogservice.class.php:716
+#, fuzzy
+msgid "Task started"
+msgstr "Task Started"
 
 #: /var/www/fog/lib/service/multicasttask.class.php:81
 msgid "Task not created as there are no associated Tasks"
