@@ -341,7 +341,9 @@ abstract class FOGService extends FOGBase
             $findWhere['isMaster'] = 1;
         }
         $StorageNode = self::getClass('StorageNode', $myStorageNodeID);
-        if (!$StorageNode->isValid() || !$StorageNode->get('isMaster')) {
+        if (!$StorageNode->isValid()
+            || !$StorageNode->get('isMaster')
+        ) {
             throw new Exception(
                 sprintf(
                     ' * %s',
@@ -622,7 +624,8 @@ abstract class FOGService extends FOGBase
                     continue;
                 }
                 $logname = sprintf(
-                    '%s.transfer.%s.log',
+                    '%s.%s.transfer.%s.log',
+                    $Obj->get('name'),
                     static::$log,
                     $nodename
                 );
