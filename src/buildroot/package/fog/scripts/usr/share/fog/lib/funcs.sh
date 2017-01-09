@@ -454,7 +454,11 @@ shrinkPartition() {
         ntfs)
             ntfsresize -f -i -v -P $part >/tmp/tmpoutput.txt 2>&1
             if [[ ! $? -eq 0 ]]; then
-                handleError " * (${FUNCNAME[0]})\n    Args Passed: $*\n\nFatal Error, unable to find size data out on $part. Cmd: ntfsresize -f -i -v -P $part"
+                echo " * Not shrinking ($part) trying fixed size"
+                debugPause
+                echo "$(cat "$imagePath/d1.fixed_size_partitions"):${part_number}" > "$imagePath/d1.fixed_size_partitions"
+                return
+                #handleError " * (${FUNCNAME[0]})\n    Args Passed: $*\n\nFatal Error, unable to find size data out on $part. Cmd: ntfsresize -f -i -v -P $part"
             fi
             tmpoutput=$(cat /tmp/tmpoutput.txt)
             size=$(cat /tmp/tmpoutput.txt | grep "You might resize" | cut -d" " -f5)
