@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-09 14:44-0500\n"
+"POT-Creation-Date: 2017-01-09 15:20-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1312,7 +1312,7 @@ msgstr "Modifica immagine"
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:383
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:654
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:68
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:231
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:247
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:598
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1075
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:171
@@ -1541,7 +1541,7 @@ msgstr "Aggiungere"
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:853
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:929
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:978
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:268
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:284
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:166
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:183
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:793
@@ -4331,42 +4331,42 @@ msgid "New User"
 msgstr "Nuovo utente"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:138
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:236
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:252
 msgid "User Name"
 msgstr "Nome utente"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:143
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:241
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:257
 msgid "User Password"
 msgstr "Password utente"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:146
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:244
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:260
 msgid "User Password (confirm)"
 msgstr "User Password (conferma)"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:152
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:250
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:266
 msgid "Mobile/Quick Image Access Only?"
 msgstr "Mobile / Quick Access solo immagine?"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:155
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:253
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:269
 msgid "Warning"
 msgstr ""
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:156
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:254
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:270
 msgid "if you tick this box"
 msgstr ""
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:157
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:255
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:271
 msgid "this user will not be able to log into"
 msgstr ""
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:158
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:256
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:272
 msgid "this FOG Management console in the future"
 msgstr ""
 
@@ -4378,28 +4378,53 @@ msgstr "Crea utente"
 msgid "Add new user account"
 msgstr "Aggiungere un nuovo account utente"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:196
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:315
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:203
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:336
+msgid "Username does not meet rules"
+msgstr ""
+
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:204
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:337
+msgid "Must start with a word character"
+msgstr ""
+
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:205
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:338
+msgid "Must be at least 3 characters"
+msgstr ""
+
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:206
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:339
+msgid "Must be shorter than 41 characters"
+msgstr ""
+
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:207
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:340
+msgid "No contiguous special characters"
+msgstr ""
+
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:212
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:347
 msgid "Username already exists"
 msgstr "Il nome utente esiste già"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:203
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:219
 msgid "Failed to create user"
 msgstr "Impossibile creare utente"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:208
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:224
 msgid "User created"
 msgstr "utente creato"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:209
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:225
 msgid "You may now create another"
 msgstr "È ora possibile creare un altro"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:322
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:354
 msgid "User update failed"
 msgstr "aggiornamento utente non riuscita"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:325
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:357
 msgid "User updated"
 msgstr "utente aggiornato"
 

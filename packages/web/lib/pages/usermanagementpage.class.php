@@ -192,6 +192,22 @@ class UserManagementPage extends FOGPage
             ->processEvent('USER_ADD_POST');
         try {
             $name = strtolower(trim($_REQUEST['name']));
+            $test = preg_match(
+                '/(?=^.{3,40}$)^[\w][\w0-9]*[._-]?[\w0-9]*[.]?[\w0-9]+$/i',
+                $name
+            );
+            if (!$test) {
+                throw new Exception(
+                    sprintf(
+                        '%s.<br/><small>%s.<br/>%s.<br/>%s.</br>%s.</small>',
+                        _('Username does not meet rules'),
+                        _('Must start with a word character'),
+                        _('Must be at least 3 characters'),
+                        _('Must be shorter than 41 characters'),
+                        _('No contiguous special characters')
+                    )
+                );
+            }
             if (self::getClass('UserManager')->exists($name)) {
                 throw new Exception(_('Username already exists'));
             }
@@ -309,6 +325,22 @@ class UserManagementPage extends FOGPage
             );
         try {
             $name = strtolower(trim($_REQUEST['name']));
+            $test = preg_match(
+                '/(?=^.{3,40}$)^[\w][\w0-9]*[._-]?[\w0-9]*[.]?[\w0-9]+$/i',
+                $name
+            );
+            if (!$test) {
+                throw new Exception(
+                    sprintf(
+                        '%s.<br/><small>%s.<br/>%s.<br/>%s.</br>%s.</small>',
+                        _('Username does not meet rules'),
+                        _('Must start with a word character'),
+                        _('Must be at least 3 characters'),
+                        _('Must be shorter than 41 characters'),
+                        _('No contiguous special characters')
+                    )
+                );
+            }
             if ($name != trim($this->obj->get('name'))
                 && $this->obj->getManager()->exists($name, $this->obj->get('id'))
             ) {
