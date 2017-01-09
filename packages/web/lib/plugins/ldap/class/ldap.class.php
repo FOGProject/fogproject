@@ -245,10 +245,10 @@ class LDAP extends FOGController
          * immediately if found.
          */
         $test = preg_match(
-            '/[\-\_\@\.\\\[:space:]]/',
+            '^\w(?:\w*(?:[.-]\w+)?)*(?<=^.{3,40})$',
             $user
         );
-        if ($test) {
+        if (!$test) {
             return false;
         }
         /**

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-06 20:57-0500\n"
+"POT-Creation-Date: 2017-01-09 14:44-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -860,24 +860,24 @@ msgstr "Campo e valori non hanno uguali parametri."
 msgid "Need the table name to drop"
 msgstr ""
 
-#: /var/www/fog/lib/fog/user.class.php:219
-#: /var/www/fog/lib/fog/user.class.php:259
+#: /var/www/fog/lib/fog/user.class.php:230
+#: /var/www/fog/lib/fog/user.class.php:270
 msgid "user successfully logged in"
 msgstr "utente registrato con successo in"
 
-#: /var/www/fog/lib/fog/user.class.php:269
+#: /var/www/fog/lib/fog/user.class.php:280
 msgid "user failed to login"
 msgstr "utente non è riuscito a effettuare il login"
 
-#: /var/www/fog/lib/fog/user.class.php:369
+#: /var/www/fog/lib/fog/user.class.php:380
 msgid "IP Address Changed"
 msgstr "Indirizzo IP cambiato"
 
-#: /var/www/fog/lib/fog/user.class.php:378
+#: /var/www/fog/lib/fog/user.class.php:389
 msgid "User Agent Changed"
 msgstr "User Agent cambiato"
 
-#: /var/www/fog/lib/fog/user.class.php:387
+#: /var/www/fog/lib/fog/user.class.php:398
 msgid "Session altered improperly"
 msgstr "Sessione alterato in modo improprio"
 

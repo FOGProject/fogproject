@@ -128,10 +128,10 @@ class User extends FOGController
          * immediately if found.
          */
         $test = preg_match(
-            '/[\-\_\@\.\\\[:space:]]/',
+            '^\w(?:\w*(?:[.-]\w+)?)*(?<=^.{3,40})$',
             $username
         );
-        if ($test) {
+        if (!$test) {
             return false;
         }
         $tmpUser = self::getClass('User')
@@ -150,7 +150,7 @@ class User extends FOGController
         if (!$typeIsValid) {
             return false;
         }
-        if (preg_match('#^[a-f0-9]{32}$#', $tmpUser->get('password'))
+        if (preg_match('#^[a-f0-9]{32}$#i', $tmpUser->get('password'))
             && md5($password) === $tmpUser->get('password')
         ) {
             $tmpUser
@@ -178,12 +178,23 @@ class User extends FOGController
         $username,
         $password
     ) {
+        /**
+         * Test the username for funky characters and return
+         * immediately if found.
+         */
+        $test = preg_match(
+            '^\w(?:\w*(?:[.-]\w+)?)*(?<=^.{3,40})$',
+            $username
+        );
+        if (!$test) {
+            return new self(0);
+        }
         if ($this->passwordValidate($username, $password)) {
             $tmpUser = self::getClass('User')
                 ->set('name', $username)
                 ->load('name');
             if (preg_match(
-                '#^[a-f0-9]{32}$#',
+                '#^[a-f0-9]{32}$#i',
                 $tmpUser->get('password')
             ) && md5($password) === $tmpUser->get('password')
             ) {
