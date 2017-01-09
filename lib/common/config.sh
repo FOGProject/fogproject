@@ -29,7 +29,9 @@
 [[ -z $sqlserverlist ]] && sqlserverlist="mysql-server mariadb-server mariadb-galera-server MariaDB-server MariaDB-Galera-server"
 command -v systemctl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
 exitcode=$?
-[[ $exitcode -eq 0 ]] && systemctl="yes"
+ps -p 1 -o comm= | grep systemd
+bootcode=$?
+[[ $exitcode -eq 0 && $bootcode -eq 0 && -z $systemctl ]] && systemctl="yes"
 if [[ $systemctl == yes ]]; then
     initdsrc="../packages/systemd"
     initdMCfullname="FOGMulticastManager.service"
