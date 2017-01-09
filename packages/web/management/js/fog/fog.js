@@ -39,7 +39,9 @@ _L['ACTIVE_TASKS_FOUND'] = '%1 active task%2 found';
 _L['ACTIVE_TASKS_LOADING'] = 'Loading...';
 function getChecked() {
     var val = [];
-    $('.toggle-action:checkbox:checked').not(':hidden').each(function(i) {
+    $('.toggle-action:checkbox:checked')
+    .not(':hidden')
+    .each(function(i) {
         val[i] = this.value;
     });
     return val;
@@ -368,27 +370,41 @@ function buildRow(data,templates,attributes,wrapper) {
     var rows = [];
     checkedIDs = getChecked();
     tbody.empty();
-    for (var h in data) {
-        var row = '<tr id="'+node+'-'+data[h].id+'">';
-        for (var i in templates) {
-            var attributes = [];
-            for (var j in attributes) attributes[attributes.length] = j+'="'+attributes[i][j]+'"';
-            row += '<'+wrapper+(attributes.length ? ' '+attributes.join(' ') : '')+'>'+templates[i]+'</'+wrapper+'>';
-        }
-        for (var k in data[h]) row = row.replace(new RegExp('\\$\\{'+k+'\\}','g'),$.trim(data[h][k]));
+    $.each(data, function(index, value) {
+        var row = '<tr id="'+node+'-'+value.id+'">';
+        $.each(templates, function(ind, val) {
+            var attribs = [];
+            $.each(attributes[ind], function(i, v) {
+                attribs[attribs.length] = i+'="'+v+'"';
+            });
+            row += '<'+wrapper+(attribs.length ? ' '+attribs.join(' ') : '')+'>'+val+'</'+wrapper+'>';
+        });
+        $.each(value, function(ind, val) {
+            row = row.replace(new RegExp('\\$\\{'+ind+'\\}','g'), $.trim(val));
+        });
         rows[rows.length] = row+'</tr>';
-    }
+    });
     tbody.append(rows.join());
     rows = [];
     if (node == 'task' && (typeof(sub) == 'undefined' || sub == 'active')) {
-        for (var h in data) {
-            $('#progress-'+data[h].host_id).remove();
+        $.each(data, function(index, value) {
+            $('#progress-'+value.host_id).remove();
             var percentRow = '';
-            if (data[h].percent > 0 && data[h].percent < 100) {
-                percentRow = '<tr id="progress-'+data[h].host_id+'" class="tablesorter-childRow with-progress"><td colspan="'+colspan+'" class="task-progress-td min"><div class="task-progress-fill min" style="width: '+data[h].width+'px"></div><div class="task-progress min"><ul><li>'+data[h].elapsed+'/'+data[h].remains+'</li><li>'+parseInt(data[h].percent)+'%</li><li>'+data[h].copied+' of '+data[h].total+' ('+data[h].bpm+'/min)</li></ul></div></td></tr>';
-                $('#'+node+'-'+data[h].id).addClass('with-progress').after(percentRow);
+            if (value.percent > 0 && value.percent < 100) {
+                percentRow = '<tr id="progress-'+value.host_id;
+                percentRow +='" class="tablesorter-childRow with-progress">';
+                percentRow += '<td colspan="'+colspan;
+                percentRow += '" class="task-progress-td min">';
+                percentRow += '<div class="task-progress-fill min" style="width: ';
+                percentRow += value.width+'px"></div>';
+                percentRow += '<div class="task-progress min"><ul><li>';
+                percentRow += value.elapsed+'/'+value.remains+'</li>';
+                percentRow += '<li>'+parseInt(value.percent)+'%</li>';
+                percentRow += '<li>'+value.copied+' of '+value.total+' (';
+                percentRow += value.bpm+'/min)</li></ul></div></td></tr>';
+                $('#'+node+'-'+value.id).addClass('with-progress').after(percentRow);
             }
-        }
+        });
         showForceButton();
         showProgressBar();
     }
