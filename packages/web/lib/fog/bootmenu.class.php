@@ -1385,6 +1385,25 @@ class BootMenu extends FOGBase
                     if (is_numeric($image_PIGZ) && $image_PIGZ > -1) {
                         $PIGZ_COMP = $image_PIGZ;
                     }
+                } else {
+                    // These setup so postinit scripts can operate.
+                    if ($StorageNode instanceof StorageNode
+                        && $StorageNode->isValid()
+                    ) {
+                        $ip = trim($StorageNode->get('ip'));
+                        $ftp = $ip;
+                    } else {
+                        $ip = $tftp;
+                        $ftp = $tftp;
+                    }
+                    $storage = escapeshellcmd(
+                        sprintf(
+                            '%s:/%s/dev/',
+                            $ip,
+                            trim($StorageNode->get('path'), '/')
+                        )
+                    );
+                    $storageip = $ip;
                 }
             }
             if ($this->_Host && $this->_Host->isValid()) {
@@ -1399,11 +1418,6 @@ class BootMenu extends FOGBase
                     $ip,
                     '/opt/fog/clamav'
                 );
-            }
-            if ($StorageNode instanceof StorageNode && $StorageNode->isValid()) {
-                $ftp = $ip;
-            } else {
-                $ftp = $tftp;
             }
             $chkdsk = $chkdsk == 1 ? 0 : 1;
             $MACs = $this->_Host->getMyMacs();

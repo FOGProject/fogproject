@@ -6,6 +6,26 @@ if [[ $boottype == usb && ! -z $web ]]; then
     wget -q -O /tmp/hinfo.txt "http://${web}service/hostinfo.php?mac=$mac"
     [[ -f /tmp/hinfo.txt ]] && . /tmp/hinfo.txt
 fi
+dots "Running post init scripts"
+[[ ! -d /imagesinit ]] && mkdir /imagesinit >/dev/null 2>&1
+umount /imagesinit >/dev/null 2>&1
+mount -o nolock,proto=tcp,rsize=32768,wsize=32768,intr,noatime "$storage" /imagesinit >/tmp/mount-output 2>&1
+if [[ $? -eq 0 ]]; then
+    if [[ -f /imagesinit/.mntcheck ]]; then
+        if [[ -f /imagesinit/postinitscripts/fog.postinit ]]; then
+            postinitpath="/imagesinit/postinitscripts/"
+        elif [[ -f /imagesinit/dev/postinitscripts/fog.postinit ]]; then
+            postinitpath="/imagesinit/dev/postinitscripts/"
+        fi
+        . ${postinitpath}fog.postinit
+    fi
+    umount /imagesinit >/dev/null 2>&1
+    echo "Done"
+    debugPause
+else
+    echo "Skipped"
+    debugPause
+fi
 if [[ -n $mode && $mode != +(*debug*) && -z $type ]]; then
     case $mode in
         wipe)

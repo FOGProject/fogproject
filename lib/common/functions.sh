@@ -1063,14 +1063,22 @@ configureStorage() {
     [[ ! -f $storageLocation/.mntcheck ]] && touch $storageLocation/.mntcheck >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     [[ ! -d $storageLocation/postdownloadscripts ]] && mkdir $storageLocation/postdownloadscripts >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     if [[ ! -f $storageLocation/postdownloadscripts/fog.postdownload ]]; then
-        echo "#!/bin/sh" >"$storageLocation/postdownloadscripts/fog.postdownload"
+        echo "#!/bin/bash" >"$storageLocation/postdownloadscripts/fog.postdownload"
         echo "## This file serves as a starting point to call your custom postimaging scripts." >>"$storageLocation/postdownloadscripts/fog.postdownload"
         echo "## <SCRIPTNAME> should be changed to the script you're planning to use." >>"$storageLocation/postdownloadscripts/fog.postdownload"
         echo "## Syntax of post download scripts are" >>"$storageLocation/postdownloadscripts/fog.postdownload"
-        echo "#. \${postdownpath}<SCRIPTNAME>" > "$storageLocation/postdownloadscripts/fog.postdownload"
+        echo "#. \${postdownpath}<SCRIPTNAME>" >> "$storageLocation/postdownloadscripts/fog.postdownload"
     fi
     [[ ! -d $storageLocationCapture ]] && mkdir $storageLocationCapture >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     [[ ! -f $storageLocationCapture/.mntcheck ]] && touch $storageLocationCapture/.mntcheck >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    [[ ! -d $storageLocationCapture/postinitscripts ]] && mkdir $storageLocationCapture/postinitscripts >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    if [[ ! -f $storageLocationCapture/postinitscripts/fog.postinit ]]; then
+        echo "#!/bin/bash" >"$storageLocationCapture/postdownloadscripts/fog.postinit"
+        echo "## This file serves as a starting point to call your custom pre-imaging/post init loading scripts." >>"$storageLocationCapture/postinitscripts/fog.postinit"
+        echo "## <SCRIPTNAME> should be changed to the script you're planning to use." >>"$storageLocationCapture/postinitscripts/fog.postinit"
+        echo "## Syntax of post init scripts are" >>"$storageLocationCapture/postinitscripts/fog.postinit"
+        echo "#. \${postinitpath}<SCRIPTNAME>" >>"$storageLocationCapture/postinitscripts/fog.postinit"
+    fi
     chmod 777 $storageLocation $storageLocationCapture >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     errorStat $?
 }
