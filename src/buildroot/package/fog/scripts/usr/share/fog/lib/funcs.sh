@@ -2194,7 +2194,7 @@ performRestore() {
         echo " * Resetting UUIDs for $disk"
         debugPause
         restoreUUIDInformation "$disk" "$mainuuidfilename"
-        echo " * Resettings swap systems"
+        echo " * Resetting swap systems"
         debugPause
         makeAllSwapSystems "$disk" "$disk_number" "$imagePath" "$imgPartitionType"
         let disk_number+=1
