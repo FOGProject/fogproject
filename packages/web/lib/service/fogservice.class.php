@@ -625,12 +625,12 @@ abstract class FOGService extends FOGBase
                 }
                 $logname = sprintf(
                     '%s.%s.transfer.%s.log',
-                    $Obj->get('name'),
                     substr(
                         static::$log,
                         0,
                         -4
                     ),
+                    $Obj->get('name'),
                     $nodename
                 );
                 if (!$i) {
