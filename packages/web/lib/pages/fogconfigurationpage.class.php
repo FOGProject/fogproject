@@ -1030,7 +1030,7 @@ class FOGConfigurationPage extends FOGPage
             . _('download the module and use it on the next ')
             . _('time the service is started.')
         );
-        foreach ((array)self::getClass('ClientUpdateManager')
+        foreach ((array)self::getClass('ClientUpdaterManager')
            ->find() as &$ClientUpdate
         ) {
             $this->data[] = array(

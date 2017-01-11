@@ -716,7 +716,7 @@ class ServiceConfigurationPage extends FOGPage
                 }
                 break;
             case 'clientupdater':
-                self::getClass('FOGConfigurationPage')->client_updaterPost();
+                self::getClass('FOGConfigurationPage')->clientupdaterPost();
                 break;
             }
             if (!$Service->save()) {
