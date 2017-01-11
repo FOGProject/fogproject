@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-11 06:05-0500\n"
+"POT-Creation-Date: 2017-01-11 15:15-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2897,7 +2897,7 @@ msgid "function on client computers"
 msgstr ""
 
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:134
-msgid "The settings tend to be glboal settings which affect all hosts"
+msgid "The settings tend to be global settings which affect all hosts"
 msgstr ""
 
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:135

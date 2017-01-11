@@ -131,7 +131,7 @@ class ServiceConfigurationPage extends FOGPage
                 '%s %s. %s. %s, %s. %s.',
                 _('This will allow you to configure how services'),
                 _('function on client computers'),
-                _('The settings tend to be glboal settings which affect all hosts'),
+                _('The settings tend to be global settings which affect all hosts'),
                 _('If you are looking to configure settings for a specific host'),
                 _('please see the hosts service setttings section'),
                 _('To get started please select an item from the left hand menu')
