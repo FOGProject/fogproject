@@ -1079,7 +1079,7 @@ configureStorage() {
         echo "## Syntax of post init scripts are" >>"$storageLocationCapture/postinitscripts/fog.postinit"
         echo "#. \${postinitpath}<SCRIPTNAME>" >>"$storageLocationCapture/postinitscripts/fog.postinit"
     fi
-    chmod 777 $storageLocation $storageLocationCapture >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    chmod -R 777 $storageLocation $storageLocationCapture >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     errorStat $?
 }
 clearScreen() {
