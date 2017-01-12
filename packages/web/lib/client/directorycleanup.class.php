@@ -22,6 +22,12 @@
 class DirectoryCleanup extends FOGClient implements FOGClientSend
 {
     /**
+     * Module associated shortname
+     *
+     * @var string
+     */
+    public $shortName = 'dircleanup';
+    /**
      * Stores the data to send
      *
      * @var string

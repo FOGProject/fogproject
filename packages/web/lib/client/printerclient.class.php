@@ -22,6 +22,12 @@
 class PrinterClient extends FOGClient implements FOGClientSend
 {
     /**
+     * Module associated shortname
+     *
+     * @var string
+     */
+    public $shortName = 'printermanager';
+    /**
      * The available modes
      * 0 = no management
      * a = FOG Managed only

@@ -22,6 +22,12 @@
 class PM extends FOGClient
 {
     /**
+     * Module associated shortname
+     *
+     * @var string
+     */
+    public $shortName = 'powermanagement';
+    /**
      * Sends the powermanagement stuff in json format
      *
      * @return array

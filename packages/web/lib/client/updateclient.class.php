@@ -24,6 +24,12 @@
 class UpdateClient extends FOGClient implements FOGClientSend
 {
     /**
+     * Module associated shortname
+     *
+     * @var string
+     */
+    public $shortName = 'clientupdater';
+    /**
      * The actions allowable
      *
      * @var array

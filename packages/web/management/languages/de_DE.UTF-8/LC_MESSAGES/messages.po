@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-11 15:15-0500\n"
+"POT-Creation-Date: 2017-01-12 07:46-0500\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -7282,7 +7282,7 @@ msgid "No Active Task found for Host"
 msgstr "Keine aktive Aufgabe gefunden für Host"
 
 #: /var/www/fog/lib/reg-task/taskingelement.class.php:189
-#: /var/www/fog/lib/client/snapinclient.class.php:535
+#: /var/www/fog/lib/client/snapinclient.class.php:541
 msgid "Invalid Storage Group"
 msgstr "Ungültige Speichergruppe"
 
@@ -7473,136 +7473,136 @@ msgstr "Mit Bildgebung gemacht!"
 msgid "Done"
 msgstr "Fertig"
 
-#: /var/www/fog/lib/client/registerclient.class.php:75
+#: /var/www/fog/lib/client/registerclient.class.php:81
 msgid "Pending Registration created by FOG_CLIENT"
 msgstr "Ausstehende Eintragung erstellt von FOG_CLIENT"
 
-#: /var/www/fog/lib/client/registerclient.class.php:94
-#: /var/www/fog/lib/client/registerclient.class.php:157
+#: /var/www/fog/lib/client/registerclient.class.php:100
+#: /var/www/fog/lib/client/registerclient.class.php:163
 #, fuzzy
 msgid "Too many MACs"
 msgstr "Primäre MAC Host"
 
-#: /var/www/fog/lib/client/fogclient.class.php:80
+#: /var/www/fog/lib/client/fogclient.class.php:106
 #: /var/www/fog/commons/text.php:233
 msgid "Not allowed here"
 msgstr "Hier erlaubt nicht"
 
-#: /var/www/fog/lib/client/directorycleanup.class.php:51
+#: /var/www/fog/lib/client/directorycleanup.class.php:57
 msgid "No directories defined to be cleaned up"
 msgstr ""
 
-#: /var/www/fog/lib/client/snapinclient.class.php:101
-#: /var/www/fog/lib/client/snapinclient.class.php:280
+#: /var/www/fog/lib/client/snapinclient.class.php:107
+#: /var/www/fog/lib/client/snapinclient.class.php:286
 #, fuzzy
 msgid "No valid tasks found"
 msgstr "Keine gültige Klasse gesendet"
 
-#: /var/www/fog/lib/client/snapinclient.class.php:297
+#: /var/www/fog/lib/client/snapinclient.class.php:303
 #, fuzzy
 msgid "Snapin is invalid"
 msgstr "Snap-in ist nicht gültig"
 
-#: /var/www/fog/lib/client/snapinclient.class.php:319
+#: /var/www/fog/lib/client/snapinclient.class.php:325
 #, fuzzy
 msgid "Snapin Task is invalid"
 msgstr "Snap-in ist nicht gültig"
 
-#: /var/www/fog/lib/client/snapinclient.class.php:402
+#: /var/www/fog/lib/client/snapinclient.class.php:408
 #, fuzzy
 msgid "Invalid task id sent"
 msgstr "Ungültiger Vorgang"
 
-#: /var/www/fog/lib/client/snapinclient.class.php:420
+#: /var/www/fog/lib/client/snapinclient.class.php:426
 msgid "Invalid Snapin Tasking"
 msgstr "Ungültige Snap-in Tasking"
 
-#: /var/www/fog/lib/client/snapinclient.class.php:430
-#: /var/www/fog/lib/client/snapinclient.class.php:507
+#: /var/www/fog/lib/client/snapinclient.class.php:436
+#: /var/www/fog/lib/client/snapinclient.class.php:513
 msgid "Invalid Snapin"
 msgstr "Ungültige Snap-in"
 
-#: /var/www/fog/lib/client/snapinclient.class.php:491
+#: /var/www/fog/lib/client/snapinclient.class.php:497
 #, fuzzy
 msgid "Invalid task id"
 msgstr "Ungültiger Vorgang"
 
-#: /var/www/fog/lib/client/snapinclient.class.php:501
+#: /var/www/fog/lib/client/snapinclient.class.php:507
 #, fuzzy
 msgid "Invalid Snapin Tasking object"
 msgstr "Ungültige Snap-in Tasking"
 
-#: /var/www/fog/lib/client/snapinclient.class.php:551
+#: /var/www/fog/lib/client/snapinclient.class.php:557
 msgid "Invalid Storage Node"
 msgstr "Ungültige Storage Node"
 
-#: /var/www/fog/lib/client/snapinclient.class.php:578
+#: /var/www/fog/lib/client/snapinclient.class.php:584
 #, fuzzy
 msgid "Cannot connect to ftp server"
 msgstr "Kann keine Verbindung zur Datenbank hergestellt werden."
 
-#: /var/www/fog/lib/client/snapinclient.class.php:602
+#: /var/www/fog/lib/client/snapinclient.class.php:608
 msgid "Pending..."
 msgstr "Ausstehende..."
 
-#: /var/www/fog/lib/client/snapinclient.class.php:619
+#: /var/www/fog/lib/client/snapinclient.class.php:625
 #, fuzzy
 msgid "Could not read snapin file"
 msgstr "Tmp-Datei konnte nicht gelesen werden."
 
-#: /var/www/fog/lib/client/updateclient.class.php:56
+#: /var/www/fog/lib/client/updateclient.class.php:62
 msgid "Needs action string of ask, get, or list"
 msgstr "Braucht Aktion Zeichenfolge des Ask, Get oder Liste"
 
-#: /var/www/fog/lib/client/updateclient.class.php:64
+#: /var/www/fog/lib/client/updateclient.class.php:70
 #, fuzzy
 msgid "If action of ask or get"
 msgstr "Braucht Aktion Zeichenfolge des Ask, Get oder Liste"
 
-#: /var/www/fog/lib/client/updateclient.class.php:65
+#: /var/www/fog/lib/client/updateclient.class.php:71
 #, fuzzy
 msgid "we need a file name in the request"
 msgstr ""
 "Wenn die Aktion von Ask oder bekommen, brauchen wir einen Dateinamen in der "
 "Anfrage"
 
-#: /var/www/fog/lib/client/updateclient.class.php:85
-#: /var/www/fog/lib/client/updateclient.class.php:103
+#: /var/www/fog/lib/client/updateclient.class.php:91
+#: /var/www/fog/lib/client/updateclient.class.php:109
 #, fuzzy
 msgid "Invalid data found"
 msgstr "Ungültige Daten"
 
-#: /var/www/fog/lib/client/usertrack.class.php:61
+#: /var/www/fog/lib/client/usertrack.class.php:67
 #, fuzzy
 msgid "Postfix requires an action of login"
 msgstr ""
 "Postfix erfordert eine Aktion des Login, Logout, oder in Betrieb genommen"
 
-#: /var/www/fog/lib/client/usertrack.class.php:62
+#: /var/www/fog/lib/client/usertrack.class.php:68
 #, fuzzy
 msgid "logout"
 msgstr "Logout"
 
-#: /var/www/fog/lib/client/usertrack.class.php:63
+#: /var/www/fog/lib/client/usertrack.class.php:69
 msgid "or start to operate"
 msgstr ""
 
-#: /var/www/fog/lib/client/usertrack.class.php:114
+#: /var/www/fog/lib/client/usertrack.class.php:120
 msgid "Postfix requires an action of login, logout, or start to operate"
 msgstr ""
 "Postfix erfordert eine Aktion des Login, Logout, oder in Betrieb genommen"
 
-#: /var/www/fog/lib/client/usertrack.class.php:133
+#: /var/www/fog/lib/client/usertrack.class.php:139
 #, fuzzy
 msgid "Replay from journal"
 msgstr "Wiederholung von Journal: echte Zeit einfügen"
 
-#: /var/www/fog/lib/client/usertrack.class.php:134
+#: /var/www/fog/lib/client/usertrack.class.php:140
 #, fuzzy
 msgid "real insert time"
 msgstr "Wiederholung von Journal: echte Zeit einfügen"
 
-#: /var/www/fog/lib/client/usertrack.class.php:136
+#: /var/www/fog/lib/client/usertrack.class.php:142
 #, fuzzy
 msgid "Login time"
 msgstr "Anmeldung"

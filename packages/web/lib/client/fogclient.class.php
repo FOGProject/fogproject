@@ -22,6 +22,12 @@
 abstract class FOGClient extends FOGBase
 {
     /**
+     * Module associated shortname
+     *
+     * @var string
+     */
+    public $shortName;
+    /**
      * Stores the string data to send
      *
      * @var string
@@ -53,6 +59,15 @@ abstract class FOGClient extends FOGBase
     ) {
         try {
             parent::__construct();
+            $globalInfo = array_intersect_key(
+                $this->getGlobalModuleStatus(),
+                array($this->shortName => '')
+            );
+            if (!(isset($globalInfo[$this->shortName])
+                && $globalInfo[$this->shortName])
+            ) {
+                throw new Exception('#!ng');
+            }
             global $sub;
             global $json;
             $method = 'send';
@@ -66,6 +81,17 @@ abstract class FOGClient extends FOGBase
                 $returnmacs,
                 $override
             );
+            $hostModInfo = self::getSubObjectIDs(
+                'Module',
+                array(
+                    'id' => $this->Host->get('modules'),
+                    'shortName' => $this->shortName
+                ),
+                'shortName'
+            );
+            if (!in_array($this->shortName, $hostModInfo)) {
+                throw new Exception('#!nh');
+            }
             $validClientBrowserFiles = array(
                 'jobs.php',
                 'servicemodule-active.php',
@@ -112,7 +138,7 @@ abstract class FOGClient extends FOGBase
                 return print $e->getMessage();
             }
             $message = $e->getMessage();
-            if (json_last_error() !== JSON_ERROR_NONE) {
+            if (json_last_error() === JSON_ERROR_NONE) {
                 $msg = preg_replace('/^[#][!]?/', '', $message);
                 $message = json_encode(
                     array('error' => $msg)

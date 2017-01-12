@@ -22,6 +22,12 @@
 class UserTrack extends FOGClient implements FOGClientSend
 {
     /**
+     * Module associated shortname
+     *
+     * @var string
+     */
+    public $shortName = 'usertracker';
+    /**
      * The actions as their passed
      *
      * @var array

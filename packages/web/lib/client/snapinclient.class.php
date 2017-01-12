@@ -22,6 +22,12 @@
 class SnapinClient extends FOGClient implements FOGClientSend
 {
     /**
+     * Module associated shortname
+     *
+     * @var string
+     */
+    public $shortName = 'snapinclient';
+    /**
      * Function returns data that will be translated to json
      *
      * @return array

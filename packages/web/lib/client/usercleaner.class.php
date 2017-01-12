@@ -22,6 +22,12 @@
 class UserCleaner extends FOGClient implements FOGClientSend
 {
     /**
+     * Module associated shortname
+     *
+     * @var string
+     */
+    public $shortName = 'usercleanup';
+    /**
      * Sends the data to the client
      *
      * @return void

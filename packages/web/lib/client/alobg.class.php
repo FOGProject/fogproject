@@ -24,6 +24,12 @@
 class ALOBG extends FOGClient implements FOGClientSend
 {
     /**
+     * Module associated shortname
+     *
+     * @var string
+     */
+    public $shortName = 'autologout';
+    /**
      * Stores the data to send
      *
      * @var string

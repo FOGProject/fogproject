@@ -22,6 +22,12 @@
 class GF extends FOGClient implements FOGClientSend
 {
     /**
+     * Module associated shortname
+     *
+     * @var string
+     */
+    public $shortName = 'greenfog';
+    /**
      * Creates the send string and stores to send variable
      *
      * @return void

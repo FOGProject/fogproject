@@ -22,6 +22,12 @@
 class Jobs extends FOGClient implements FOGClientSend
 {
     /**
+     * Module associated shortname
+     *
+     * @var string
+     */
+    public $shortName = 'taskreboot';
+    /**
      * Function returns data that will be translated to json
      *
      * @return array
