@@ -605,7 +605,13 @@ class HostManagementPage extends FOGPage
             } else {
                 $this->setMessage(_('Host approval failed.'));
             }
-            $this->redirect($this->formAction);
+            $this->redirect(
+                sprintf(
+                    '?node=%s&sub=edit&id=%s',
+                    $this->node,
+                    $_REQUEST['id']
+                )
+            );
         }
         if ($this->obj->get('pending')) {
             printf(
