@@ -145,7 +145,7 @@ class DashboardPage extends FOGPage
             _('Pending macs'),
             _('Click'),
             'report',
-            'pend-mac',
+            'pendmac',
             _('here'),
             _('to review.')
         );
