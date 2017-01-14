@@ -3447,7 +3447,7 @@ $this->schema[] = array(
     . "PRIMARY KEY(`uId`),"
     . "UNIQUE INDEX `name` (`uName`)"
     . ") ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
-    "INSERT IGNORE INTO `users_new` (SELECT * FROM `users`)",
+    "INSERT IGNORE INTO `users_new` SELECT * FROM `users`",
     "DROP TABLE `users`",
     "RENAME TABLE `users_new` TO `users`",
 );
