@@ -254,23 +254,6 @@ class FOGCore extends FOGBase
             $_SESSION['HostCount']
         );
         self::$DB->query($incQuery);
-        $setEngine = 'SELECT TABLE_NAME from INFORMATION_SCHEMA.TABLES '
-            . "TABLE_SCHEMA = '"
-            . DATABASE_NAME
-            . "' AND ENGINE != 'MyISAM'";
-        $vals = self::$DB
-            ->query($setEngine)
-            ->fetch(MYSQLI_NUM, 'fetch_all')
-            ->get('TABLE_NAME');
-        $alterStr = sprintf(
-            'ALTER TABLE `%s`.`%s` ENGINE=MyISAM',
-            DATABASE_NAME,
-            '%s'
-        );
-        foreach ((array)$vals as &$table) {
-            self::$DB->query(sprintf($alterStr, $table));
-            unset($table);
-        }
         $getSettings = array(
             'FOG_DATA_RETURNED',
             'FOG_FORMAT_FLAG_IN_GUI',

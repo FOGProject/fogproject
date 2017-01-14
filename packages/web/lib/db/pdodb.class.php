@@ -26,6 +26,12 @@
 class PDODB extends DatabaseManager
 {
     /**
+     * Stores last error for query.
+     *
+     * @var bool
+     */
+    public $error;
+    /**
      * Stores the current connection
      *
      * @var resource
@@ -257,6 +263,7 @@ class PDODB extends DatabaseManager
                     _('No database to work off')
                 );
             }
+            $this->error = false;
         } catch (PDOException $e) {
             $msg = sprintf(
                 '%s %s: %s: %s',
@@ -272,6 +279,7 @@ class PDODB extends DatabaseManager
                     self::_debugDumpParams()
                 );
             }
+            $this->error = $msg;
         }
         return $this;
     }

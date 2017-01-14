@@ -159,7 +159,7 @@ class SchemaUpdaterPage extends FOGPage
                         if (is_string($result)) {
                             $errors[] = sprintf(
                                 '<p><b>%s %s:</b>'
-                                . ' %s</p><p><b>%s %s:</b>'
+                                . ' %s<br/><br/><b>%s %s:</b>'
                                 . ' <pre>%s</pre></p>'
                                 . '<p><b>%s:</b>'
                                 . ' <pre>%s</pre></p>',
@@ -173,10 +173,10 @@ class SchemaUpdaterPage extends FOGPage
                                 print_r($update, 1)
                             );
                         }
-                    } elseif (false === self::$DB->query($update)) {
+                    } elseif (false !== self::$DB->query($update)->error) {
                         $errors[] = sprintf(
                             '<p><b>%s %s:</b>'
-                            . ' %s</p><p><b>%s %s:</b>'
+                            . ' %s<br/><br/><b>%s %s:</b>'
                             . ' <pre>%s</pre></p>'
                             . '<p><b>%s:</b>'
                             . ' <pre>%s</pre></p>',
@@ -185,7 +185,7 @@ class SchemaUpdaterPage extends FOGPage
                             $version,
                             _('Database'),
                             _('Error'),
-                            self::$DB->sqlerror(),
+                            self::$DB->error,
                             _('Database SQL'),
                             $update
                         );
@@ -194,7 +194,9 @@ class SchemaUpdaterPage extends FOGPage
             }
             $newSchema = self::getClass('Schema', 1)
                 ->set('version', ++$version);
-            if (!$newSchema->save()) {
+            if (count($errors) > 0
+                || !$newSchema->save()
+            ) {
                 $fatalerrmsg = '';
                 $fatalerrmsg = sprintf(
                     '<p>%s</p>',
@@ -231,7 +233,7 @@ class SchemaUpdaterPage extends FOGPage
             echo $text;
         } catch (Exception $e) {
             printf('<p>%s</p>', $e->getMessage());
-            exit(1);
+            http_response_code(404);
         }
     }
 }

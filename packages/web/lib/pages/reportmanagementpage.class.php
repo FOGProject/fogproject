@@ -223,37 +223,26 @@ class ReportManagementPage extends FOGPage
             '${field}',
             '${input}',
         );
-        $AllDates = self::fastmerge(
-            self::$DB->query(
-                "SELECT DATE_FORMAT(`ilStartTime`,'%Y-%m-%d') start FROM "
-                . "`imagingLog` WHERE DATE_FORMAT(`ilStartTime`,'%Y-%m-%d') "
-                . "!= '0000-00-00' GROUP BY start ORDER BY start DESC"
-            )->fetch(
-                MYSQLI_NUM,
-                'fetch_all'
-            )->get('start'),
-            self::$DB->query(
-                "SELECT DATE_FORMAT(`ilFinishTime`,'%Y-%m-%d') finish FROM "
-                . "`imagingLog` WHERE DATE_FORMAT(`ilFinishTime`,'%Y-%m-%d') "
-                . "!= '0000-00-00' GROUP BY finish ORDER BY finish DESC"
-            )->fetch(
-                MYSQLI_NUM,
-                'fetch_all'
-            )->get('start')
-        );
-        foreach ((array)$AllDates as &$Date) {
-            if (is_string($Date)) {
-                $Date = array($Date);
-            }
-            $tmp = array_shift($Date);
-            if (!self::validDate($tmp)) {
-                continue;
-            }
-            $Dates[] = $tmp;
-            unset($Date, $tmp);
+        $start = self::$DB->query(
+            "SELECT DATE_FORMAT(MIN(`ilStartTime`),'%Y-%m-%d') start FROM "
+            . "`imagingLog`"
+        )->fetch(
+            MYSQLI_NUM,
+            'fetch'
+        )->get('start');
+        $start = self::niceDate($start);
+        $end = self::niceDate();
+        if (!self::validDate($start)) {
+            return $this->render();
         }
-        unset($AllDates);
-        $Dates = array_unique($Dates);
+        $interval = new DateInterval('P1D');
+        $daterange = new DatePeriod($start, $interval, $end);
+        $dates = iterator_to_array($daterange);
+        foreach ((array)$dates as &$date) {
+            $Dates[] = $date->format('Y-m-d');
+            unset($Date);
+        }
+        unset($dates);
         rsort($Dates);
         if (count($Dates) > 0) {
             ob_start();
@@ -1418,40 +1407,26 @@ class ReportManagementPage extends FOGPage
             '${field}',
             '${input}',
         );
-        $AllDates = self::fastmerge(
-            self::$DB->query(
-                "SELECT DATE_FORMAT(`stCheckinDate`,'%Y-%m-%d') "
-                . "start FROM `snapinTasks` WHERE DATE_FORMAT("
-                . "`stCheckinDate`,'%Y-%m-%d') != '0000-00-00' "
-                . "GROUP BY start ORDER BY start DESC"
-            )->fetch(
-                MYSQLI_NUM,
-                'fetch_all'
-            )->get('start'),
-            self::$DB->query(
-                "SELECT DATE_FORMAT(`stCompleteDate`,'%Y-%m-%d') "
-                . "finish FROM `snapinTasks` WHERE DATE_FORMAT("
-                . "`stCompleteDate`,'%Y-%m-%d') != '0000-00-00' "
-                . "GROUP BY finish ORDER BY finish DESC"
-            )->fetch(
-                MYSQLI_NUM,
-                'fetch_all'
-            )->get('start')
-        );
-        foreach ((array)$AllDates as &$Date) {
-            $tmp = (
-                !is_array($Date) ?
-                $Date :
-                array_shift($Date)
-            );
-            if (!self::validDate($tmp)) {
-                continue;
-            }
-            $Dates[] = $tmp;
-            unset($Date, $tmp);
+        $start = self::$DB->query(
+            "SELECT DATE_FORMAT(MIN(`stCheckinDate`),'%Y-%m-%d') start FROM "
+            . "`snapinTasks`"
+        )->fetch(
+            MYSQLI_NUM,
+            'fetch'
+        )->get('start');
+        $start = self::niceDate($start);
+        $end = self::niceDate();
+        if (!self::validDate($start)) {
+            return $this->render();
         }
-        unset($AllDates);
-        $Dates = array_unique($Dates);
+        $interval = new DateInterval('P1D');
+        $daterange = new DatePeriod($start, $interval, $end);
+        $dates = iterator_to_array($daterange);
+        foreach ((array)$dates as &$date) {
+            $Dates[] = $date->format('Y-m-d');
+            unset($Date);
+        }
+        unset($dates);
         rsort($Dates);
         if (count($Dates) > 0) {
             ob_start();
