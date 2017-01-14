@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-13 23:53-0500\n"
+"POT-Creation-Date: 2017-01-14 01:08-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -127,8 +127,8 @@ msgstr "无法创建打印机"
 #: /var/www/fog/lib/fog/fogcontroller.class.php:951
 #: /var/www/fog/lib/fog/foggetset.class.php:92
 #: /var/www/fog/lib/fog/fogpage.class.php:2293
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:170
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:188
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:174
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:195
 #: /var/www/fog/lib/db/pdodb.class.php:177
 #: /var/www/fog/lib/db/pdodb.class.php:216
 #: /var/www/fog/lib/db/pdodb.class.php:272
@@ -339,8 +339,8 @@ msgstr "目的"
 #: /var/www/fog/lib/fog/fogcontroller.class.php:787
 #: /var/www/fog/lib/fog/fogcontroller.class.php:799
 #: /var/www/fog/lib/fog/fogcontroller.class.php:811
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:167
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:185
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:171
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:192
 #: /var/www/fog/commons/text.php:302
 msgid "ID"
 msgstr "ID"
@@ -1533,8 +1533,8 @@ msgstr "加"
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:929
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:978
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:284
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:166
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:184
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:170
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:191
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:799
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1049
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1316
@@ -2197,13 +2197,13 @@ msgstr "待主机"
 
 #: /var/www/fog/lib/pages/dashboardpage.class.php:137
 #: /var/www/fog/lib/pages/dashboardpage.class.php:146
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:223
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:231
 msgid "Click"
 msgstr "点击"
 
 #: /var/www/fog/lib/pages/dashboardpage.class.php:140
 #: /var/www/fog/lib/pages/dashboardpage.class.php:149
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:224
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:232
 #: /var/www/fog/commons/text.php:92
 msgid "here"
 msgstr "这里"
@@ -4550,38 +4550,42 @@ msgstr "没有可用的连接"
 msgid "Update not required!"
 msgstr "更新不需要！"
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:169
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:172
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:173
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:176
 #, fuzzy
 msgid "Function"
 msgstr "行动"
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:187
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:194
 #, fuzzy
 msgid "Database"
 msgstr "日期"
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:190
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:197
+msgid "Variable contains"
+msgstr ""
+
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:199
 msgid "Database SQL"
 msgstr ""
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:208
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:216
 msgid "Install / Update Failed!"
 msgstr "安装/更新失败！"
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:213
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:221
 msgid "The following errors occurred"
 msgstr "出现以下错误"
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:222
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:230
 msgid "Install / Update Successful!"
 msgstr "安装/升级成功！"
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:225
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:233
 msgid "to login"
 msgstr "登陆"
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:230
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:238
 msgid "The following errors occured"
 msgstr "下面的错误发生"
 

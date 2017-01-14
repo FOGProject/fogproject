@@ -152,8 +152,12 @@ class SchemaUpdaterPage extends FOGPage
                 null,
                 true
             );
+            $newSchema = self::getClass('Schema', 1);
             foreach ((array)$items as $version => &$updates) {
                 foreach ((array)$updates as &$update) {
+                    if (!$update) {
+                        continue;
+                    }
                     if (is_callable($update)) {
                         $result = $update();
                         if (is_string($result)) {
@@ -165,14 +169,15 @@ class SchemaUpdaterPage extends FOGPage
                                 . ' <pre>%s</pre></p>',
                                 _('Update'),
                                 _('ID'),
-                                $version,
+                                $version + 1,
                                 _('Function'),
                                 _('Error'),
                                 $result,
                                 _('Function'),
                                 print_r($update, 1)
                             );
-                            break;
+                            unset($update);
+                            break 2;
                         }
                     } elseif (false !== self::$DB->query($update)->error) {
                         $errors[] = sprintf(
@@ -180,23 +185,26 @@ class SchemaUpdaterPage extends FOGPage
                             . ' %s<br/><br/><b>%s %s:</b>'
                             . ' <pre>%s</pre></p>'
                             . '<p><b>%s:</b>'
+                            . ' <pre>%s</pre></p>'
+                            . '<p><b>%s:</b>'
                             . ' <pre>%s</pre></p>',
                             _('Update'),
                             _('ID'),
-                            $version,
+                            $version + 1,
                             _('Database'),
                             _('Error'),
                             self::$DB->error,
+                            _('Variable contains'),
+                            print_r($this->schema[$version], 1),
                             _('Database SQL'),
                             $update
                         );
-                        break;
+                        unset($update);
+                        break 2;
                     } else {
-                        if (!isset($newSchema)) {
-                            $newSchema = self::getClass('Schema', 1);
-                        }
-                        $newSchema->set('version', ++$version);
+                        $newSchema->set('version', $version + 1);
                     }
+                    unset($update);
                 }
             }
             if (!$newSchema->save()

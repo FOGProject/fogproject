@@ -346,7 +346,7 @@ $this->schema[] = array(
 );
 // 8
 $this->schema[] = array(
-    "INSERT IGNORE INTO `supportedOS` (`osName`, `osValue`) VALUES ('"
+    "INSERT IGNORE INTO `supportedOS` (`osName`, `osValue`) VALUES "
     . "('Windows 98','3'),"
     . "('Windows (other)','4'),"
     . "('Linux','50')",
@@ -729,7 +729,7 @@ $this->schema[] = array(
 // 14
 $this->schema[] = array(
     "INSERT IGNORE INTO `globalSettings` "
-    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
     . "('FOG_UTIL_DIR','This setting defines the location of the fog "
     . "utility directory.','/opt/fog/utils','FOG Utils')",
     "ALTER TABLE `users` ADD COLUMN `uType` VARCHAR(2) NOT NULL AFTER `uCreateBy`",
@@ -1026,7 +1026,7 @@ $this->schema[] = array(
     "ALTER TABLE `inventory` ADD INDEX (`iHostID`)",
     "UPDATE `globalSettings` set `settingKey`='FOG_HOST_LOOKUP' "
     . "WHERE `settingKey`='FOG_HOST_LOCKUP'",
-    "UPDATE `schemaVersion` set `vValue`=`'22'",
+    "UPDATE `schemaVersion` set `vValue`='22'",
 );
 // 23
 $this->schema[] = array(
@@ -1247,7 +1247,7 @@ $this->schema[] = array(
     . "\"Active Tasks\" and clicking on the \"Kill Task\" button.', "
     . "'memtest.png', '', 'fog', '1', 'both'),"
     . "(6, 'Disk Surface Test', 'Disk Surface Test checks the hard "
-    . "drive's surface sector by sector for any errors and reports "
+    . "drives surface sector by sector for any errors and reports "
     . "back if errors are present.', 'surfacetest.png', '',"
     . "'fog', '1', 'both'),"
     . "(7, 'Recover', 'Recover loads the photorec utility that can "
@@ -2876,7 +2876,7 @@ $this->schema[] = array(
 $this->schema[] = array(
     "ALTER TABLE `nfsGroupMembers` CHANGE `ngmInterface` "
     . "`ngmInterface` VARCHAR (25) CHARACTER SET utf8 "
-    . "COLLATE utf8_general_ci NOT NULL DEFAULT"
+    . "COLLATE utf8_general_ci NOT NULL DEFAULT '"
     . STORAGE_INTERFACE
     . "'",
 );
@@ -3447,14 +3447,16 @@ $this->schema[] = array(
     . "PRIMARY KEY(`uId`),"
     . "UNIQUE INDEX `name` (`uName`)"
     . ") ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
-    "INSERT IGNORE INTO `users_new` SELECT * FROM `users`",
+    "INSERT IGNORE INTO `users_new` (SELECT * FROM `users`)",
     "DROP TABLE `users`",
     "RENAME TABLE `users_new` TO `users`",
 );
 // 236
 $this->schema[] = array(
+    self::$DB->getColumns('multicastSessions', 'msAnon1') > 0 ?
     'ALTER TABLE `multicastSessions`'
-    . 'CHANGE `msAnon1` `msIsDD` INTEGER NOT NULL',
+    . 'CHANGE `msAnon1` `msIsDD` INTEGER NOT NULL' :
+    '',
     "ALTER TABLE `imageGroupAssoc` CHANGE `igaPrimary` `igaPrimary` "
     . "ENUM('0','1') NOT NULL",
     "ALTER TABLE `snapinGroupAssoc` CHANGE `sgaPrimary` `sgaPrimary` "
@@ -3586,8 +3588,7 @@ $this->schema[] = $tmpSchema->dropDuplicateData(
         'globalSettings',
         array(
             'settingKey'
-        ),
-        'settingKey'
+        )
     ),
     true
 );

@@ -109,7 +109,7 @@ class Schema extends FOGController
                 return;
             } elseif (count($indexes) === 1) {
                 $ending = sprintf(
-                    'INDEX `%s`',
+                    'INDEX (`%s`)',
                     array_shift($indexes)
                 );
             } else {
