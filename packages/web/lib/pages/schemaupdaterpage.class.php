@@ -172,6 +172,7 @@ class SchemaUpdaterPage extends FOGPage
                                 _('Function'),
                                 print_r($update, 1)
                             );
+                            break;
                         }
                     } elseif (false !== self::$DB->query($update)->error) {
                         $errors[] = sprintf(
@@ -189,13 +190,17 @@ class SchemaUpdaterPage extends FOGPage
                             _('Database SQL'),
                             $update
                         );
+                        break;
+                    } else {
+                        if (!isset($newSchema)) {
+                            $newSchema = self::getClass('Schema', 1);
+                        }
+                        $newSchema->set('version', ++$version);
                     }
                 }
             }
-            $newSchema = self::getClass('Schema', 1)
-                ->set('version', ++$version);
-            if (count($errors) > 0
-                || !$newSchema->save()
+            if (!$newSchema->save()
+                || count($errors) > 0
             ) {
                 $fatalerrmsg = '';
                 $fatalerrmsg = sprintf(

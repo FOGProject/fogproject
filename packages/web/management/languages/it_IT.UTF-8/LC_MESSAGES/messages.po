@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-13 23:15-0500\n"
+"POT-Creation-Date: 2017-01-13 23:53-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -131,7 +131,7 @@ msgstr "Impossibile creare la stampante"
 #: /var/www/fog/lib/fog/foggetset.class.php:92
 #: /var/www/fog/lib/fog/fogpage.class.php:2293
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:170
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:187
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:188
 #: /var/www/fog/lib/db/pdodb.class.php:177
 #: /var/www/fog/lib/db/pdodb.class.php:216
 #: /var/www/fog/lib/db/pdodb.class.php:272
@@ -343,7 +343,7 @@ msgstr "Oggetto"
 #: /var/www/fog/lib/fog/fogcontroller.class.php:799
 #: /var/www/fog/lib/fog/fogcontroller.class.php:811
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:167
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:184
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:185
 #: /var/www/fog/commons/text.php:302
 msgid "ID"
 msgstr "ID"
@@ -1543,7 +1543,7 @@ msgstr "Aggiungere"
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:978
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:284
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:166
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:183
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:184
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:799
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1049
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1316
@@ -2206,13 +2206,13 @@ msgstr "host in sospeso"
 
 #: /var/www/fog/lib/pages/dashboardpage.class.php:137
 #: /var/www/fog/lib/pages/dashboardpage.class.php:146
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:218
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:223
 msgid "Click"
 msgstr "Clic"
 
 #: /var/www/fog/lib/pages/dashboardpage.class.php:140
 #: /var/www/fog/lib/pages/dashboardpage.class.php:149
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:219
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:224
 #: /var/www/fog/commons/text.php:92
 msgid "here"
 msgstr "Qui"
@@ -4575,32 +4575,32 @@ msgstr "Aggiornamento non richiesto!"
 msgid "Function"
 msgstr "Azione"
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:186
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:187
 #, fuzzy
 msgid "Database"
 msgstr "Data"
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:189
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:190
 msgid "Database SQL"
 msgstr ""
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:203
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:208
 msgid "Install / Update Failed!"
 msgstr "Installare / Aggiornamento non riuscito!"
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:208
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:213
 msgid "The following errors occurred"
 msgstr "Si sono verificati i seguenti errori"
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:217
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:222
 msgid "Install / Update Successful!"
 msgstr "Installare / Aggiornamento di successo!"
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:220
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:225
 msgid "to login"
 msgstr "il login"
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:225
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:230
 msgid "The following errors occured"
 msgstr "I seguenti errori si è verificato"
 

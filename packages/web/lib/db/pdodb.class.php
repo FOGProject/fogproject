@@ -28,7 +28,7 @@ class PDODB extends DatabaseManager
     /**
      * Stores last error for query.
      *
-     * @var bool
+     * @var bool|string
      */
     public $error;
     /**
