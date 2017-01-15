@@ -14,11 +14,11 @@
 
  - **tar/zip** `wget http://downloads.sourceforge.net/project/freeghost/FOG/fog_1.3.1/fog_1.3.1.tar.gz | tar -xzfC trunk/`
  - **SVN** ` svn checkout https://svn.code.sf.net/p/freeghost/code/tags/1.3.1/ fog_1.3.1/`
- - **git** There currently is no easy method to use GIT to install FOG version 1.3.1
+ - **git** ` git clone https://github.com/fogproject/fogproject.git fog_1.3.1/`
 
 2. Go into the downloaded source/bin folder
 
- - `cd trunk/bin`
+ - `cd fog_1.3.1/bin`
 
 3. Run the Install and follow all prompts accordingly
 
@@ -40,7 +40,7 @@
  - ### Initial setup
 
  - **svn** `svn checkout https://svn.code.sf.net/p/freeghost/code/trunk trunk/; cd trunk/bin/`
- - **git** `git clone https://github.com/fogproject/fogproject.git trunk/; cd trunk/bin/`
+ - **git** `git clone https://github.com/fogproject/fogproject.git trunk/; git checkout dev-branch; cd trunk/bin/`
 
  - **Update setup**
 
