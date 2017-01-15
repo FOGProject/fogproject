@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-15 10:53-0500\n"
+"POT-Creation-Date: 2017-01-15 16:02-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -784,24 +784,24 @@ msgstr ""
 msgid "Need the table name to drop"
 msgstr ""
 
-#: /var/www/fog/lib/fog/user.class.php:226
-#: /var/www/fog/lib/fog/user.class.php:258
+#: /var/www/fog/lib/fog/user.class.php:241
+#: /var/www/fog/lib/fog/user.class.php:273
 msgid "user successfully logged in"
 msgstr ""
 
-#: /var/www/fog/lib/fog/user.class.php:268
+#: /var/www/fog/lib/fog/user.class.php:283
 msgid "user failed to login"
 msgstr ""
 
-#: /var/www/fog/lib/fog/user.class.php:368
+#: /var/www/fog/lib/fog/user.class.php:383
 msgid "IP Address Changed"
 msgstr ""
 
-#: /var/www/fog/lib/fog/user.class.php:377
+#: /var/www/fog/lib/fog/user.class.php:392
 msgid "User Agent Changed"
 msgstr ""
 
-#: /var/www/fog/lib/fog/user.class.php:386
+#: /var/www/fog/lib/fog/user.class.php:401
 msgid "Session altered improperly"
 msgstr ""
 

@@ -76,16 +76,19 @@ class LDAPPluginHook extends Hook
          * our ldap inserted items. If not return as the
          * user is already allowed.
          */
-        if (self::$FOGUser->isValid()) {
-            $ldapType = self::$FOGUser->get('type');
+        $tmpUser = self::getClass('User')
+            ->set('name', $user)
+            ->load('name');
+        if ($tmpUser->isValid()) {
+            $ldapType = $tmpUser->get('type');
             if (!in_array($ldapType, $ldapTypes)) {
+                $aruments['user'] = $tmpUser;
                 return;
             }
         }
         /**
          * Create our new user (initially at least)
          */
-        self::$FOGUser = self::getClass('User');
         foreach ((array)self::getClass('LDAPManager')
             ->find() as &$ldap
         ) {
@@ -94,7 +97,7 @@ class LDAPPluginHook extends Hook
             switch ($access) {
             case 2:
                 // This is an admin account, break the loop
-                self::$FOGUser
+                $tmpUser
                     ->set('name', $user)
                     ->set('password', $pass)
                     ->set('type', 990)
@@ -102,7 +105,7 @@ class LDAPPluginHook extends Hook
                 break 2;
             case 1:
                 // This is an unprivileged user account.
-                self::$FOGUser
+                $tmpUser
                     ->set('name', $user)
                     ->set('password', $pass)
                     ->set('type', 991)
@@ -110,16 +113,12 @@ class LDAPPluginHook extends Hook
                 break;
             default:
                 if (!self::$ajax) {
-                    self::getClass('UserManager')
-                        ->destroy(
-                            array(
-                                'name' => $user,
-                                'type' => $ldapTypes
-                            )
-                        );
+                    $tmpUser->destroy();
                 }
+                $tmpUser = new User();
             }
         }
+        $arguments['user'] = $tmpUser;
         unset($ldaps);
     }
     /**

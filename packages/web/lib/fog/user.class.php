@@ -134,23 +134,32 @@ class User extends FOGController
         if (!$test) {
             return false;
         }
+        $tmpUser = new User();
         self::$HookManager
             ->processEvent(
                 'USER_LOGGING_IN',
                 array(
                     'username' => $username,
-                    'password' => $password
+                    'password' => $password,
+                    'user' => &$tmpUser
                 )
             );
-        $tmpUser = self::getClass('User')
-            ->set('name', $username)
-            ->load('name');
+        if (!$tmpUser->isValid()) {
+            $tmpUser = self::getClass('User')
+                ->set('name', $username)
+                ->load('name');
+        }
+        if (!$tmpUser->isValid()) {
+            return false;
+        }
         $typeIsValid = true;
         $type = $tmpUser->get('type');
         self::$HookManager
             ->processEvent(
                 'USER_TYPE_HOOK',
-                array('type' => &$type)
+                array(
+                    'type' => &$type
+                )
             );
         self::$HookManager
             ->processEvent(
@@ -163,10 +172,6 @@ class User extends FOGController
         if (!$typeIsValid) {
             return false;
         }
-        $this
-            ->set('id', $tmpUser->get('id'))
-            ->set('name', $username)
-            ->set('type', $type);
         if (preg_match('#^[a-f0-9]{32}$#i', $tmpUser->get('password'))
             && md5($password) === $tmpUser->get('password')
         ) {
@@ -178,9 +183,19 @@ class User extends FOGController
             $password,
             $tmpUser->get('password')
         );
+        if (!$passValid) {
+            return false;
+        }
+        $this
+            ->set('id', $tmpUser->get('id'))
+            ->set('name', $username)
+            ->set('password', '', true)
+            ->set('type', $type);
         unset($tmpUser);
         if ($adminTest === true) {
-            $this->get('type') > 0 ? $passValid = false : null;
+            if ($this->get('type') > 0) {
+                $passValid = false;
+            }
         }
         return $passValid;
     }
