@@ -180,7 +180,7 @@ class ChangeItems extends Hook
             'locationID' => $Locations
         );
         foreach ((array)self::getClass('LocationAssociationManager')
-            ->find($find) as $Location
+            ->find($find, 'AND', 'id') as $Location
         ) {
             if (!$Location->isTFTP()) {
                 continue;
@@ -192,10 +192,18 @@ class ChangeItems extends Hook
                 continue;
             }
             $ip = $StorageNode->get('ip');
-            $memtest = $arguments['memtest'];
-            $memdisk = $arguments['memdisk'];
-            $bzImage = $arguments['bzImage'];
-            $initrd = $arguments['initrd'];
+            if (!isset($memtest)) {
+                $memtest = $arguments['memtest'];
+            }
+            if (!isset($memdisk)) {
+                $memdisk = $arguments['memdisk'];
+            }
+            if (!isset($bzImage)) {
+                $bzImage = $arguments['bzImage'];
+            }
+            if (!isset($initrd)) {
+                $initrd = $arguments['initrd'];
+            }
             $arguments['webserver'] = $ip;
             $arguments['memdisk'] = "http://${ip}/fog/service/ipxe/$memdisk";
             $arguments['memtest'] = "http://${ip}/fog/service/ipxe/$memtest";
