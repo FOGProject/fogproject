@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-14 01:08-0500\n"
+"POT-Creation-Date: 2017-01-14 19:46-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -824,7 +824,7 @@ msgid "Host"
 msgstr "Hôte"
 
 #: /var/www/fog/lib/fog/fogftp.class.php:380
-#: /var/www/fog/lib/pages/dashboardpage.class.php:161
+#: /var/www/fog/lib/pages/dashboardpage.class.php:204
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:89
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:553
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:67
@@ -2206,96 +2206,89 @@ msgstr "tâche Annulé"
 msgid "Force"
 msgstr "Obliger"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:136
+#: /var/www/fog/lib/pages/dashboardpage.class.php:172
 msgid "Pending hosts"
 msgstr "hôtes en attente"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:137
-#: /var/www/fog/lib/pages/dashboardpage.class.php:146
+#: /var/www/fog/lib/pages/dashboardpage.class.php:173
+#: /var/www/fog/lib/pages/dashboardpage.class.php:182
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:231
 msgid "Click"
 msgstr "Cliquez"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:140
-#: /var/www/fog/lib/pages/dashboardpage.class.php:149
+#: /var/www/fog/lib/pages/dashboardpage.class.php:176
+#: /var/www/fog/lib/pages/dashboardpage.class.php:185
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:232
 #: /var/www/fog/commons/text.php:92
 msgid "here"
 msgstr "ici"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:141
-#: /var/www/fog/lib/pages/dashboardpage.class.php:150
+#: /var/www/fog/lib/pages/dashboardpage.class.php:177
+#: /var/www/fog/lib/pages/dashboardpage.class.php:186
 msgid "to review."
 msgstr "réviser."
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:145
+#: /var/www/fog/lib/pages/dashboardpage.class.php:181
 msgid "Pending macs"
 msgstr "macs en attente"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:162
+#: /var/www/fog/lib/pages/dashboardpage.class.php:205
 msgid "Web Server"
 msgstr "Serveur Web"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:163
+#: /var/www/fog/lib/pages/dashboardpage.class.php:206
 msgid "TFTP Server"
 msgstr "serveur TFTP"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:164
+#: /var/www/fog/lib/pages/dashboardpage.class.php:207
 msgid "Load Average"
 msgstr "charge moyenne"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:165
+#: /var/www/fog/lib/pages/dashboardpage.class.php:208
 msgid "System Uptime"
 msgstr "système Uptime"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:178
+#: /var/www/fog/lib/pages/dashboardpage.class.php:221
 msgid "System Overview"
 msgstr "Présentation du système"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:198
+#: /var/www/fog/lib/pages/dashboardpage.class.php:248
 msgid "The selected node's storage group slot usage"
 msgstr ""
 "le stockage de l'utilisation de l'emplacement de groupe du noeud sélectionné"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:199
+#: /var/www/fog/lib/pages/dashboardpage.class.php:249
 msgid "Storage Group Activity"
 msgstr "Stockage Activité Groupe"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:235
-msgid "The selected node's image storage disk usage"
+#: /var/www/fog/lib/pages/dashboardpage.class.php:264
+#, fuzzy
+msgid "The selected node's image storage usage"
 msgstr "stockage d'image de l'utilisation du disque du noeud sélectionné"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:236
+#: /var/www/fog/lib/pages/dashboardpage.class.php:265
 msgid "Storage Node Disk Usage"
 msgstr "Utilisation Noeud de stockage de disque"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:250
+#: /var/www/fog/lib/pages/dashboardpage.class.php:279
 msgid "Imaging Over the last 30 days"
 msgstr "Imaging Au cours des 30 derniers jours"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:310
+#: /var/www/fog/lib/pages/dashboardpage.class.php:320
 msgid "1 hour"
 msgstr "1 heure"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:312
+#: /var/www/fog/lib/pages/dashboardpage.class.php:322
 msgid "30 Minutes"
 msgstr "30 minutes"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:314
+#: /var/www/fog/lib/pages/dashboardpage.class.php:324
 msgid "10 Minutes"
 msgstr "10 minutes"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:316
+#: /var/www/fog/lib/pages/dashboardpage.class.php:326
 msgid "2 Minutes"
 msgstr "2 minutes"
-
-#: /var/www/fog/lib/pages/dashboardpage.class.php:359
-msgid "Invalid storage node"
-msgstr "nœud de stockage non valide"
-
-#: /var/www/fog/lib/pages/dashboardpage.class.php:362
-msgid "Graph is disabled for this node"
-msgstr "Graphique est désactivé pour ce noeud"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:56
 msgid "FOG Project on Github"
@@ -8628,6 +8621,12 @@ msgstr "Bonjour FOG client"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "Il n'y a aucun emplacement sur ce serveur."
+
+#~ msgid "Invalid storage node"
+#~ msgstr "nœud de stockage non valide"
+
+#~ msgid "Graph is disabled for this node"
+#~ msgstr "Graphique est désactivé pour ce noeud"
 
 #, fuzzy
 #~ msgid "User Nam Attribute"

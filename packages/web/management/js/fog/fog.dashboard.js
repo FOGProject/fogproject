@@ -65,7 +65,9 @@ var Graph30DayOpts = {
     colors: ['#7386ad'],
     xaxis: {mode: 'time'},
     yaxis: {
-        tickFormatter: function(v) {return '<div style="width: 35px; text-align: right; padding-right: 7px;">'+v+'</div>';},
+        tickFormatter: function(v) {
+            return '<div style="width: 35px; text-align: right; padding-right: 7px;">'+v+'</div>';
+        },
         min: 0,
         minTickSize: 1
     },
@@ -105,6 +107,8 @@ var bandinterval = false;
 var clientinterval = false;
 $(function() {
     var now = new Date().getTime();
+    // 30 Day History Graph
+    Update30Day();
     // Diskusage Graph - Node select - Hook select box to load new data via AJAX
     // Start counters
     GraphDiskUsageUpdate();
@@ -126,9 +130,6 @@ $(function() {
     });
     // Client Count starter.
     // Only start bandwidth once the page is fully loaded.
-    // 30 Day History Graph
-    if (typeof(Graph30dayData) != 'undefined') Graph30DayData = [{label: 'Computers Imaged',data: JSONParseFunction(Graph30dayData)}];
-    $.plot(Graph30Day,Graph30DayData,Graph30DayOpts);
     // Bandwidth Graph - TX/RX Filter
     GraphBandwidthFilters.click(function(e) {
         // Blur -> add active class -> remove active class from old active item
@@ -155,6 +156,26 @@ $(function() {
     // Remove loading spinners
     $('.graph').not(GraphBandwidth,GraphDiskUsage).addClass('loaded');
 });
+// 30 day function
+function Update30Day() {
+    $.ajax({
+        url: '?node=home',
+        type: 'POST',
+        data: {
+            sub: 'get30day'
+        },
+        dataType: 'json',
+        success: function(data) {
+            Graph30DayData = [
+                {
+                    label: 'Computers Imaged',
+                    data: data
+                }
+            ];
+            $.plot(Graph30Day, Graph30DayData, Graph30DayOpts);
+        }
+    });
+}
 // Disk Usage Functions
 function GraphDiskUsageUpdate() {
     if (GraphDiskUsageAJAX) GraphDiskUsageAJAX.abort();

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-14 01:08-0500\n"
+"POT-Creation-Date: 2017-01-14 19:46-0500\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -824,7 +824,7 @@ msgid "Host"
 msgstr "Host"
 
 #: /var/www/fog/lib/fog/fogftp.class.php:380
-#: /var/www/fog/lib/pages/dashboardpage.class.php:161
+#: /var/www/fog/lib/pages/dashboardpage.class.php:204
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:89
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:553
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:67
@@ -2205,95 +2205,88 @@ msgstr "Stornierte Aufgabe"
 msgid "Force"
 msgstr "Kraft"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:136
+#: /var/www/fog/lib/pages/dashboardpage.class.php:172
 msgid "Pending hosts"
 msgstr "Ausstehende Gastgeber"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:137
-#: /var/www/fog/lib/pages/dashboardpage.class.php:146
+#: /var/www/fog/lib/pages/dashboardpage.class.php:173
+#: /var/www/fog/lib/pages/dashboardpage.class.php:182
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:231
 msgid "Click"
 msgstr "Klicken Sie auf"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:140
-#: /var/www/fog/lib/pages/dashboardpage.class.php:149
+#: /var/www/fog/lib/pages/dashboardpage.class.php:176
+#: /var/www/fog/lib/pages/dashboardpage.class.php:185
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:232
 #: /var/www/fog/commons/text.php:92
 msgid "here"
 msgstr "Hier"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:141
-#: /var/www/fog/lib/pages/dashboardpage.class.php:150
+#: /var/www/fog/lib/pages/dashboardpage.class.php:177
+#: /var/www/fog/lib/pages/dashboardpage.class.php:186
 msgid "to review."
 msgstr "um zu überprüfen."
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:145
+#: /var/www/fog/lib/pages/dashboardpage.class.php:181
 msgid "Pending macs"
 msgstr "Ausstehende macs"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:162
+#: /var/www/fog/lib/pages/dashboardpage.class.php:205
 msgid "Web Server"
 msgstr "Web-Server"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:163
+#: /var/www/fog/lib/pages/dashboardpage.class.php:206
 msgid "TFTP Server"
 msgstr "TFTP-Server"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:164
+#: /var/www/fog/lib/pages/dashboardpage.class.php:207
 msgid "Load Average"
 msgstr "Durchschnittliche Belastung"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:165
+#: /var/www/fog/lib/pages/dashboardpage.class.php:208
 msgid "System Uptime"
 msgstr "Betriebsbereitschaft des Systems"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:178
+#: /var/www/fog/lib/pages/dashboardpage.class.php:221
 msgid "System Overview"
 msgstr "Systemübersicht"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:198
+#: /var/www/fog/lib/pages/dashboardpage.class.php:248
 msgid "The selected node's storage group slot usage"
 msgstr "Den ausgewählten Knoten Speichernutzung Gruppe slot"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:199
+#: /var/www/fog/lib/pages/dashboardpage.class.php:249
 msgid "Storage Group Activity"
 msgstr "Speichergruppe Aktivität"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:235
-msgid "The selected node's image storage disk usage"
+#: /var/www/fog/lib/pages/dashboardpage.class.php:264
+#, fuzzy
+msgid "The selected node's image storage usage"
 msgstr "Den ausgewählten Knoten Bild Speicher Datenträgerverwendung"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:236
+#: /var/www/fog/lib/pages/dashboardpage.class.php:265
 msgid "Storage Node Disk Usage"
 msgstr "Storage Node Datenträgerverwendung"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:250
+#: /var/www/fog/lib/pages/dashboardpage.class.php:279
 msgid "Imaging Over the last 30 days"
 msgstr "Imaging in den letzten 30 Tagen"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:310
+#: /var/www/fog/lib/pages/dashboardpage.class.php:320
 msgid "1 hour"
 msgstr "1 Stunde"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:312
+#: /var/www/fog/lib/pages/dashboardpage.class.php:322
 msgid "30 Minutes"
 msgstr "30 Minuten"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:314
+#: /var/www/fog/lib/pages/dashboardpage.class.php:324
 msgid "10 Minutes"
 msgstr "10 Minuten"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:316
+#: /var/www/fog/lib/pages/dashboardpage.class.php:326
 msgid "2 Minutes"
 msgstr "2 Minuten"
-
-#: /var/www/fog/lib/pages/dashboardpage.class.php:359
-msgid "Invalid storage node"
-msgstr "Ungültige Speicherknoten"
-
-#: /var/www/fog/lib/pages/dashboardpage.class.php:362
-msgid "Graph is disabled for this node"
-msgstr "Grafik ist für diesen Knoten deaktiviert."
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:56
 msgid "FOG Project on Github"
@@ -8627,6 +8620,12 @@ msgstr "Hallo Nebel Client"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "Es gibt keine Orte auf diesem Server."
+
+#~ msgid "Invalid storage node"
+#~ msgstr "Ungültige Speicherknoten"
+
+#~ msgid "Graph is disabled for this node"
+#~ msgstr "Grafik ist für diesen Knoten deaktiviert."
 
 #, fuzzy
 #~ msgid "User Nam Attribute"
