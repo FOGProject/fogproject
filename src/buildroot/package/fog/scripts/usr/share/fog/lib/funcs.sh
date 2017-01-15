@@ -1234,7 +1234,7 @@ getPartitions() {
 getHardDisk() {
     [[ -n $fdrive ]] && hd=$(echo $fdrive)
     [[ -n $hd ]] && return
-    local devs=$(lsblk -dpno KNAME -I 3,8,9,179,259 | uniq | sort -V)
+    local devs=$(lsblk -dpno KNAME -I 3,8,9,179,202,253,259 | uniq | sort -V)
     disks=$(echo $devs)
     [[ -z $disks ]] && handleError "Cannot find disk on system (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ $1 == true ]] && return
