@@ -74,3 +74,5 @@ There are many resources for assistance.
 
  - A new issue on https://github.com/FOGProject/fogproject/issues
  - https://forums.fogproject.org/category/17/bug-reports
+
+ If you would like to create a pull request, please make the pull request into the dev-branch branch.
