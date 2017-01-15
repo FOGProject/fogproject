@@ -12,7 +12,7 @@
 
  - All that is needed to start installation is to download the files to perform the install. Choose one of the following methods you prefer;
 
- - **tar/zip** `wget http://downloads.sourceforge.net/project/freeghost/FOG/fog_1.3.1/fog_1.3.1.tar.gz | tar -xzfC trunk/`
+ - **tar/zip** `wget http://downloads.sourceforge.net/project/freeghost/FOG/1.3.1/fog_1.3.1.tar.gz | tar -xzfC fog_1.3.1/`
  - **SVN** ` svn checkout https://svn.code.sf.net/p/freeghost/code/tags/1.3.1/ fog_1.3.1/`
  - **git** ` git clone https://github.com/fogproject/fogproject.git fog_1.3.1/`
 
