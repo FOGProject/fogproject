@@ -1227,14 +1227,14 @@ getPartitions() {
     local disk="$1"
     [[ -z $disk ]] && disk="$hd"
     [[ -z $disk ]] && handleError "No disk found (${FUNCNAME[0]})\n   Args Passed: $*"
-    parts=$(lsblk -I 3,8,9,179,259 -lpno KNAME,TYPE $disk | awk '{if ($2 ~ /part/ || $2 ~ /md/) print $1}' | sort -V | uniq)
+    parts=$(lsblk -I 3,8,9,179,202,253,259 -lpno KNAME,TYPE $disk | awk '{if ($2 ~ /part/ || $2 ~ /md/) print $1}' | sort -V | uniq)
 }
 # Gets the hard drive on the host
 # Note: This function makes a best guess
 getHardDisk() {
     [[ -n $fdrive ]] && hd=$(echo $fdrive)
     [[ -n $hd ]] && return
-    local devs=$(lsblk -dpno KNAME -I 3,8,9,179,259 | uniq | sort -V)
+    local devs=$(lsblk -dpno KNAME -I 3,8,9,179,202,253,259 | uniq | sort -V)
     disks=$(echo $devs)
     [[ -z $disks ]] && handleError "Cannot find disk on system (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ $1 == true ]] && return
