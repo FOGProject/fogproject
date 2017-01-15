@@ -6,7 +6,7 @@
  * PHP version 5
  *
  * @category Timer
- * @package  FOGPrject
+ * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
@@ -16,7 +16,7 @@
  * something is supposed to occur.
  *
  * @category Timer
- * @package  FOGPrject
+ * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
