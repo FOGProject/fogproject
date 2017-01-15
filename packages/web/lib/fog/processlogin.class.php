@@ -229,6 +229,19 @@ class ProcessLogin extends FOGPage
         $this->setLang();
         $this->_username = trim($_REQUEST['uname']);
         $this->_password = trim($_REQUEST['upass']);
+        $type = self::$FOGUser->get('type');
+        self::$HookManager
+            ->processEvent(
+                'USER_TYPE_HOOK',
+                array('type' => &$type)
+            );
+        if (!self::$isMobile) {
+            if ($type) {
+                $this->setMessage(self::$foglang['NotAllowedHere']);
+                unset($_REQUEST['login']);
+                self::$FOGUser->logout();
+            }
+        }
         if (!isset($_REQUEST['login'])) {
             return;
         }
@@ -242,19 +255,6 @@ class ProcessLogin extends FOGPage
         );
         if (!self::$FOGUser->isValid()) {
             $this->_setRedirMode();
-        }
-        if (!self::$isMobile) {
-            $type = self::$FOGUser->get('type');
-            self::$HookManager
-                ->processEvent(
-                    'USER_TYPE_HOOK',
-                    array('type' => &$type)
-                );
-            if ($type) {
-                $this->setMessage(self::$foglang['NotAllowedHere']);
-                unset($_REQUEST['login']);
-                $this->redirect('index.php?node=logout');
-            }
         }
         self::$HookManager
             ->processEvent(

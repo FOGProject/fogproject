@@ -26,8 +26,7 @@ if (isset($_SESSION['delitems'])
 ) {
     unset($_SESSION['delitems']);
 }
-FOGCore::getClass('ProcessLogin')
-    ->processMainLogin();
+FOGCore::getClass('ProcessLogin')->processMainLogin();
 require '../commons/text.php';
 $Page = FOGCore::getClass('Page');
 if (!in_array($node, array('schema', 'client'))
@@ -38,7 +37,8 @@ if (!in_array($node, array('schema', 'client'))
         ->setTitle($foglang['Login'])
         ->setSecTitle($foglang['ManagementLogin'])
         ->startBody();
-    FOGCore::getClass('ProcessLogin')->mobileLoginForm();
+    FOGCore::getClass('ProcessLogin')
+        ->mobileLoginForm();
     $Page
         ->endBody()
         ->render();

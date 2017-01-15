@@ -134,11 +134,24 @@ class User extends FOGController
         if (!$test) {
             return false;
         }
+        self::$HookManager
+            ->processEvent(
+                'USER_LOGGING_IN',
+                array(
+                    'username' => $username,
+                    'password' => $password
+                )
+            );
         $tmpUser = self::getClass('User')
             ->set('name', $username)
             ->load('name');
         $typeIsValid = true;
         $type = $tmpUser->get('type');
+        self::$HookManager
+            ->processEvent(
+                'USER_TYPE_HOOK',
+                array('type' => &$type)
+            );
         self::$HookManager
             ->processEvent(
                 'USER_TYPE_VALID',
@@ -150,6 +163,10 @@ class User extends FOGController
         if (!$typeIsValid) {
             return false;
         }
+        $this
+            ->set('id', $tmpUser->get('id'))
+            ->set('name', $username)
+            ->set('type', $type);
         if (preg_match('#^[a-f0-9]{32}$#i', $tmpUser->get('password'))
             && md5($password) === $tmpUser->get('password')
         ) {
@@ -161,8 +178,9 @@ class User extends FOGController
             $password,
             $tmpUser->get('password')
         );
+        unset($tmpUser);
         if ($adminTest === true) {
-            $tmpUser->get('type') > 0 ? $passValid = false : null;
+            $this->get('type') > 0 ? $passValid = false : null;
         }
         return $passValid;
     }
@@ -190,28 +208,6 @@ class User extends FOGController
             return new self(0);
         }
         if ($this->passwordValidate($username, $password)) {
-            $tmpUser = self::getClass('User')
-                ->set('name', $username)
-                ->load('name');
-            if (preg_match(
-                '#^[a-f0-9]{32}$#i',
-                $tmpUser->get('password')
-            ) && md5($password) === $tmpUser->get('password')
-            ) {
-                $tmpUser->set('password', $password)->save();
-            }
-            $type = $tmpUser->get('type');
-            self::$HookManager
-                ->processEvent(
-                    'USER_TYPE_HOOK',
-                    array('type' => &$type)
-                );
-            $this
-                ->set('id', $tmpUser->get('id'))
-                ->set('name', $tmpUser->get('name'))
-                ->set('password', '', true)
-                ->set('type', $type);
-            unset($tmpUser);
             if (!$this->_sessionID) {
                 $this->_sessionID = session_id();
             }
@@ -232,14 +228,6 @@ class User extends FOGController
             );
             $this->_isLoggedIn();
         } else {
-            self::$HookManager
-                ->processEvent(
-                    'USER_LOGGING_IN',
-                    array(
-                        'username' => $username,
-                        'password' => $password
-                    )
-                );
             if (self::$FOGUser->isValid()) {
                 $type = self::$FOGUser->get('type');
                 self::$HookManager
@@ -444,6 +432,8 @@ class User extends FOGController
      */
     public function logout()
     {
+        self::$HookManager
+            ->processEvent('USER_LOGGING_OUT');
         $this
             ->set('id', 0)
             ->set('name', '')

@@ -33,25 +33,27 @@ if (!in_array($node, array('schema', 'client'))
     && ($node == 'logout' || !$currentUser->isValid())
 ) {
     $currentUser->logout();
-    $Page->setTitle($foglang['Login']);
-    $Page->setSecTitle($foglang['ManagementLogin']);
-    $Page->startBody();
-    FOGCore::getClass('ProcessLogin')->mainLoginForm();
-    $Page->endBody();
-    $Page->render();
+    $Page
+        ->setTitle($foglang['Login'])
+        ->setSecTitle($foglang['ManagementLogin'])
+        ->startBody();
+    FOGCore::getClass('ProcessLogin')
+        ->mainLoginForm();
+    $Page
+        ->endBody()
+        ->render();
 } else {
     $_SESSION['AllowAJAXTasks'] = true;
     if (FOGCore::$ajax) {
         $FOGPageManager->render();
         exit;
     }
-    $Page->startBody();
+    $Page
+        ->setTitle($FOGPageManager->getFOGPageTitle())
+        ->setSecTitle($FOGPageManager->getFOGPageName())
+        ->startBody();
     $FOGPageManager->render();
-    $Page->setTitle($FOGPageManager->getFOGPageTitle());
-    $Page->setSecTitle($FOGPageManager->getFOGPageName());
-    $Page->endBody();
-    $Page->render();
-}
-foreach (array_keys($GLOBALS) as $var) {
-    unset($$var);
+    $Page
+        ->endBody()
+        ->render();
 }

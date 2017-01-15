@@ -50,6 +50,12 @@ class LDAPPluginHook extends Hook
      */
     public $node = 'ldap';
     /**
+     * Allow hook/event to operate on mobile page.
+     *
+     * @var bool
+     */
+    public $mobile = true;
+    /**
      * Checks and creates users if they're valid
      *
      * @param mixed $arguments the item to adjust
@@ -77,22 +83,9 @@ class LDAPPluginHook extends Hook
             }
         }
         /**
-         * Count the user ids and if any are there,
-         * remove all the entries.
+         * Create our new user (initially at least)
          */
-        if (!self::$ajax) {
-            self::getClass('UserManager')
-                ->destroy(
-                    array(
-                        'name' => $user,
-                        'type' => $ldapTypes,
-
-                    )
-                );
-        }
-        /**
-         * Create our new user (initially at least
-         */
+        self::$FOGUser = self::getClass('User');
         foreach ((array)self::getClass('LDAPManager')
             ->find() as &$ldap
         ) {
@@ -116,7 +109,15 @@ class LDAPPluginHook extends Hook
                     ->save();
                 break;
             default:
-                self::$FOGUser = new User();
+                if (!self::$ajax) {
+                    self::getClass('UserManager')
+                        ->destroy(
+                            array(
+                                'name' => $user,
+                                'type' => $ldapTypes
+                            )
+                        );
+                }
             }
         }
         unset($ldaps);
@@ -170,7 +171,22 @@ class LDAPPluginHook extends Hook
         if (in_array($arguments['type'], $types)) {
             $arguments['typeIsValid'] = false;
         }
-        $arguments['types'] = array(990, 991);
+    }
+    /**
+     * Tests if the user is an ldap type and if so logs
+     * them out.
+     *
+     * @return void
+     */
+    public function removeLoggedInUser()
+    {
+        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+            return;
+        }
+        $types = array(990, 991);
+        if (in_array(self::$FOGUser->get('type'), $types)) {
+            self::$FOGUser->destroy();
+        }
     }
 }
 $LDAPPluginHook = new LDAPPluginHook();
@@ -204,5 +220,13 @@ $HookManager
         array(
             $LDAPPluginHook,
             'isLdapType'
+        )
+    );
+$HookManager
+    ->register(
+        'USER_LOGGING_OUT',
+        array(
+            $LDAPPluginHook,
+            'removeLoggedInUser'
         )
     );

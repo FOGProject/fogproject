@@ -1779,7 +1779,8 @@ abstract class FOGPage extends FOGBase
         $validate = self::getClass('User')
             ->passwordValidate(
                 $_POST['fogguiuser'],
-                $_POST['fogguipass']
+                $_POST['fogguipass'],
+                true
             );
         if (!$validate) {
             printf(
@@ -2863,7 +2864,8 @@ abstract class FOGPage extends FOGBase
         $validate = self::getClass('User')
             ->passwordValidate(
                 $_POST['fogguiuser'],
-                $_POST['fogguipass']
+                $_POST['fogguipass'],
+                true
             );
         if (!$validate) {
             printf(
