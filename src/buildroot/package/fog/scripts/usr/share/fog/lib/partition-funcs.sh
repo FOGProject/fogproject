@@ -538,8 +538,13 @@ processSfdisk() {
 getPartitionTableType() {
     local disk="$1"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
-    local mbr=$(yes '' | gdisk -l $disk | awk '/^\ *MBR:/{print $2}')
-    local gpt=$(yes '' | gdisk -l $disk | awk '/^\ *GPT:/{print $2}')
+    #local mbr=$(yes '' | gdisk -l $disk | awk '/^\ *MBR:/{print $2}')
+    #local gpt=$(yes '' | gdisk -l $disk | awk '/^\ *GPT:/{print $5}')
+    sgdisk -v $disk >/dev/null 2>&1
+    status="$?"
+    [[ ! $status -eq 0 ]] && runFixparts "$disk"
+    local mbr=$(gdisk -l $disk | awk '/^\ *MBR:/{print $2}')
+    local gpt=$(gdisk -l $disk | awk '/^\ *GPT:/{print $5}')
     local type=""
     local mbrtype=""
     local gpttype=""
@@ -596,14 +601,22 @@ getDesiredPartitionTableType() {
 hasHybridMBR() {
     local disk="$1"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
-    local mbr=$(yes '' | gdisk -l $disk | awk '/^\ *MBR:/{print $2}')
+    #local mbr=$(yes '' | gdisk -l $disk | awk '/^\ *MBR:/{print $2}')
+    sgdisk -v $disk >/dev/null 2>&1
+    status="$?"
+    [[ ! $status -eq 0 ]] && runFixparts "$disk"
+    local mbr=$(gdisk -l $disk | awk '/^\ *MBR:/{print $2}')
     [[ $mbr == hybrid ]] && echo 1 || echo 0
 }
 # $1 : device name of drive
 hasGPT() {
     local disk="$1"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
-    local gpt=$(yes '' | gdisk -l $disk | awk -F'[(: )]' '/GPT:/ {print $5}')
+    #local gpt=$(yes '' | gdisk -l $disk | awk -F'[(: )]' '/GPT:/ {print $5}')
+    sgdisk -v $disk >/dev/null 2>&1
+    status="$?"
+    [[ ! $status -eq 0 ]] && runFixparts "$disk"
+    local gpt=$(gdisk -l $disk | awk -F'[(: )]' '/GPT:/ {print $5}')
     [[ $gpt == present ]] &&  hasgpt=1
     [[ $gpt == not ]] && hasgpt=0
 }
