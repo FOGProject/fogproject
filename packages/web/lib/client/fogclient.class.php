@@ -89,7 +89,10 @@ abstract class FOGClient extends FOGBase
                 ),
                 'shortName'
             );
-            if (!in_array($this->shortName, $hostModInfo)) {
+            if ($this->Host
+                && $this->Host->isValid()
+                && !in_array($this->shortName, $hostModInfo)
+            ) {
                 throw new Exception('#!nh');
             }
             $validClientBrowserFiles = array(

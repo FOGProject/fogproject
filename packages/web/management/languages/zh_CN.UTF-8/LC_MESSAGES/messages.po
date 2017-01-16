@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-15 15:50-0500\n"
+"POT-Creation-Date: 2017-01-16 16:09-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -7434,7 +7434,7 @@ msgstr "通过创建FOG_CLIENT登记待定"
 msgid "Too many MACs"
 msgstr "主机主MAC"
 
-#: /var/www/fog/lib/client/fogclient.class.php:106
+#: /var/www/fog/lib/client/fogclient.class.php:109
 #: /var/www/fog/commons/text.php:233
 msgid "Not allowed here"
 msgstr "这里不允许"

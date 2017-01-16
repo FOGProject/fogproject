@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-15 15:50-0500\n"
+"POT-Creation-Date: 2017-01-16 16:09-0500\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -7480,7 +7480,7 @@ msgstr "Ausstehende Eintragung erstellt von FOG_CLIENT"
 msgid "Too many MACs"
 msgstr "Primäre MAC Host"
 
-#: /var/www/fog/lib/client/fogclient.class.php:106
+#: /var/www/fog/lib/client/fogclient.class.php:109
 #: /var/www/fog/commons/text.php:233
 msgid "Not allowed here"
 msgstr "Hier erlaubt nicht"
