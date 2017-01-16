@@ -89,8 +89,7 @@ abstract class FOGClient extends FOGBase
                 ),
                 'shortName'
             );
-            if ($this->Host
-                && $this->Host->isValid()
+            if (false === $hostnotrequired
                 && !in_array($this->shortName, $hostModInfo)
             ) {
                 throw new Exception('#!nh');
