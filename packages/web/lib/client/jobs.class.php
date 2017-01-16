@@ -44,6 +44,7 @@ class Jobs extends FOGClient implements FOGClientSend
             $field = 'job';
         }
         if ($Task->isInitNeededTasking()) {
+            $field = 'job';
             if ($script === 'jobs.php') {
                 $answer = 'ok';
             } else {

@@ -1073,11 +1073,13 @@ configureStorage() {
     [[ ! -f $storageLocationCapture/.mntcheck ]] && touch $storageLocationCapture/.mntcheck >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     [[ ! -d $storageLocationCapture/postinitscripts ]] && mkdir $storageLocationCapture/postinitscripts >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     if [[ ! -f $storageLocationCapture/postinitscripts/fog.postinit ]]; then
-        echo "#!/bin/bash" >"$storageLocationCapture/postdownloadscripts/fog.postinit"
+        echo "#!/bin/bash" >"$storageLocationCapture/postinitscripts/fog.postinit"
         echo "## This file serves as a starting point to call your custom pre-imaging/post init loading scripts." >>"$storageLocationCapture/postinitscripts/fog.postinit"
         echo "## <SCRIPTNAME> should be changed to the script you're planning to use." >>"$storageLocationCapture/postinitscripts/fog.postinit"
         echo "## Syntax of post init scripts are" >>"$storageLocationCapture/postinitscripts/fog.postinit"
         echo "#. \${postinitpath}<SCRIPTNAME>" >>"$storageLocationCapture/postinitscripts/fog.postinit"
+    else
+        (head -1 "$storageLocationCapture/postinitscripts/fog.postinit" >/dev/null 2>&1 | grep -q '^#!/bin/bash') || sed -i '1i#!/bin/bash' "$storageLocationCapture/postinitscripts/fog.postinit" >/dev/null 2>&1
     fi
     chmod -R 777 $storageLocation $storageLocationCapture >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     errorStat $?

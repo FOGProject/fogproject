@@ -107,11 +107,21 @@ abstract class FOGClient extends FOGBase
             }
             $jsonSub = (!isset($sub) || $sub !== 'requestClientInfo');
             if ($jsonSub && self::$json) {
-                throw new Exception(
-                    json_encode(
+                $script = strtolower(self::$scriptname);
+                $script = trim($script);
+                $script = basename($script);
+                if ($script !== 'jobs.php') {
+                    throw new Exception(
+                        json_encode(
+                            $this->{$method}()
+                        )
+                    );
+                } else {
+                    echo json_encode(
                         $this->{$method}()
-                    )
-                );
+                    );
+                    exit;
+                }
             }
             if (self::$json) {
                 return json_encode(
@@ -138,12 +148,10 @@ abstract class FOGClient extends FOGBase
                 return print $e->getMessage();
             }
             $message = $e->getMessage();
-            if (json_last_error() === JSON_ERROR_NONE) {
-                $msg = preg_replace('/^[#][!]?/', '', $message);
-                $message = json_encode(
-                    array('error' => $msg)
-                );
-            }
+            $msg = preg_replace('/^[#][!]?/', '', $message);
+            $message = json_encode(
+                array('error' => $msg)
+            );
             $jsonSub = (!isset($sub) || $sub !== 'requestClientInfo');
             if ($jsonSub && self::$json) {
                 return print $message;
