@@ -107,6 +107,9 @@ class StorageNode extends FOGController
             'webroot',
         );
         if (in_array($key, $pathvars)) {
+            if (trim(parent::get($key)) === '/') {
+                return parent::get($key);
+            }
             return rtrim(parent::get($key), '/');
         }
         $loaders = array(
