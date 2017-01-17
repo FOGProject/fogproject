@@ -1343,9 +1343,7 @@ class ReportManagementPage extends FOGPage
             }
         }
         foreach ((array)$Users as &$User) {
-            if (!$Host->isValid()) {
-                $Host = new Host($User->get('hostID'));
-            }
+            $Host = new Host($User->get('hostID'));
             if (!$Host->isValid()) {
                 continue;
             }

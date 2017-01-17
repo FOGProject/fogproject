@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-16 19:36-0500\n"
+"POT-Creation-Date: 2017-01-17 14:39-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -189,7 +189,7 @@ msgstr "未发现记录，错误： %s"
 #: /var/www/fog/lib/fog/fogpage.class.php:3061
 #: /var/www/fog/lib/fog/fogpage.class.php:3182
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:92
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1790
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1788
 #: /var/www/fog/lib/plugins/fileintegrity/pages/fileintegritymanagementpage.class.php:53
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:18
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:25
@@ -949,7 +949,7 @@ msgstr "%s ID %s是无效的"
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:477
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:612
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:679
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1522
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1520
 msgid "Host ID"
 msgstr "主机ID"
 
@@ -972,7 +972,7 @@ msgstr "主机名"
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:499
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:618
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1288
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1524
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1522
 msgid "Host MAC"
 msgstr "主机的MAC"
 
@@ -1333,8 +1333,8 @@ msgstr "预定日期是过去"
 #: /var/www/fog/lib/fog/fogpage.class.php:1397
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:829
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:836
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1858
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1867
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1856
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1865
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1741
 #: /var/www/fog/commons/text.php:89
 msgid "Date"
@@ -2119,7 +2119,7 @@ msgstr "百分"
 #: /var/www/fog/lib/pages/taskmobile.class.php:46
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:671
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:792
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1500
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1498
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1981
 #: /var/www/fog/commons/text.php:106
 msgid "State"
@@ -3190,7 +3190,7 @@ msgstr "添加事件（24小时格式）"
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:498
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:985
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1006
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1690
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1688
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:86
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:299
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:426
@@ -3920,8 +3920,8 @@ msgid "Snapins"
 msgstr "Snapins"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:645
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1499
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1526
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1497
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1524
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1071
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1136
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2098
@@ -4051,8 +4051,8 @@ msgstr "高级选项"
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:808
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1296
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1297
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1490
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1491
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1488
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1489
 #: /var/www/fog/management/reports/hosts_and_users.report.php:54
 #: /var/www/fog/management/reports/hosts_and_users.report.php:55
 msgid "Export CSV"
@@ -4072,10 +4072,10 @@ msgstr "导出CSV"
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:812
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1300
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1301
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1494
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1495
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1731
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1732
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1492
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1493
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1729
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1730
 #: /var/www/fog/management/reports/hosts_and_users.report.php:58
 #: /var/www/fog/management/reports/hosts_and_users.report.php:59
 msgid "Export PDF"
@@ -4110,7 +4110,7 @@ msgstr "删除主机"
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:352
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:478
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:825
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1523
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1521
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:377
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:729
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:273
@@ -4623,19 +4623,19 @@ msgstr "FOG成像测井 - 选择日期范围"
 
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:270
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1226
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1454
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1452
 msgid "Select Start Date"
 msgstr "选择开始日期"
 
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:271
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1230
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1455
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1453
 msgid "Select End Date"
 msgstr "选择结束日期"
 
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:274
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1236
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1458
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1456
 msgid "Search for Entries"
 msgstr "搜索条目"
 
@@ -4870,230 +4870,230 @@ msgstr "FOG用户登录历史摘要"
 msgid "Description"
 msgstr "描述"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1404
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1402
 msgid "FOG Snapin Log - Select Date Range"
 msgstr "FOG管理单元日志 - 选择日期范围"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1486
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1484
 msgid "FOG Snapin Log"
 msgstr "FOG管理单元日志"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1501
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1499
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2102
 msgid "Return Code"
 msgstr "返回代码"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1502
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1500
 msgid "Return Desc"
 msgstr "返回说明"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1503
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1501
 msgid "Create Date"
 msgstr "创建日期"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1504
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1502
 msgid "Create Time"
 msgstr "创建时间"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1525
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1523
 msgid "Snapin ID"
 msgstr "管理单元ID"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1527
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1525
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:438
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:852
 msgid "Snapin Description"
 msgstr "管理单元说明"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1528
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1526
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:496
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:890
 msgid "Snapin File"
 msgstr "文件管理单元"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1529
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1527
 msgid "Snapin Args"
 msgstr "管理单元参数数量"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1530
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1528
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:477
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:871
 msgid "Snapin Run With"
 msgstr "管理单元运行方式"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1531
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1529
 msgid "Snapin Run With Args"
 msgstr "管理单元运行方式参数数量"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1532
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1530
 msgid "Snapin State"
 msgstr "国家管理单元"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1533
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1531
 msgid "Snapin Return Code"
 msgstr "管理单元返回代码"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1534
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1532
 msgid "Snapin Return Detail"
 msgstr "管理单元返回详细"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1535
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1533
 msgid "Snapin Creation Date"
 msgstr "管理单元创建日期"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1536
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1534
 msgid "Snapin Creation Time"
 msgstr "管理单元创建时间"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1537
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1535
 msgid "Job Create Date"
 msgstr "作业创建日期"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1538
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1536
 msgid "Job Create Time"
 msgstr "作业创建时间"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1539
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1537
 msgid "Task Checkin Date"
 msgstr "任务登记入住日期"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1540
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1538
 msgid "Task Checkin Time"
 msgstr "任务登录时间"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1660
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1723
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1658
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1721
 msgid "FOG Equipment Loan Form"
 msgstr "FOG器材信贷形式"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1685
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1683
 msgid "Select User"
 msgstr "选择用户"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1695
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1693
 msgid "Create Report"
 msgstr "创建报告"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1782
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1860
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1780
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1858
 msgid "of"
 msgstr "的"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1783
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1861
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1781
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1859
 msgid "Printed"
 msgstr "印刷的"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1785
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1783
 #: /var/www/fog/commons/text.php:223
 msgid "Equipment Loan"
 msgstr "器材信贷"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1788
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1786
 msgid "PC Check-out Agreement"
 msgstr "PC退房协议"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1789
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1787
 msgid "Personal Information"
 msgstr "个人信息"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1792
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1790
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:66
 #: /var/www/fog/lib/plugins/location/hooks/addlocationtasks.hook.php:66
 #: /var/www/fog/commons/text.php:109 /var/www/fog/commons/text.php:133
 msgid "Location"
 msgstr "位置"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1793
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1791
 msgid "Your Location Here"
 msgstr "您的位置在这里"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1794
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1792
 msgid "Home Address"
 msgstr "家庭地址"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1796
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1794
 msgid "City/State/Zip"
 msgstr "邮政编码"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1798
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1796
 msgid "Extension"
 msgstr "延期"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1800
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1798
 msgid "Home Phone"
 msgstr "家庭电话"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1802
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1800
 msgid "Computer Information"
 msgstr "计算机信息"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1806
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1804
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:275
 msgid "Serial Number"
 msgstr "序列号"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1807
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1805
 msgid "Service Tag"
 msgstr "服务标签"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1821
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1819
 msgid "Barcode Numbers"
 msgstr "条码号"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1834
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1832
 msgid "Date of checkout"
 msgstr "结帐日期"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1838
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1836
 msgid "Notes"
 msgstr "笔记"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1839
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1837
 msgid "Miscellaneous"
 msgstr "杂"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1840
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1838
 msgid "Included Items"
 msgstr "包括项目"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1844
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1842
 msgid "Releasing Staff Initials"
 msgstr "释放员工缩写"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1846
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1844
 msgid "To be released only by"
 msgstr "如果只公布由"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1850
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1848
 #, fuzzy
 msgid "I have read"
 msgstr "创建图像"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1851
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1849
 msgid "understood"
 msgstr ""
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1852
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1850
 msgid "and agree to all the"
 msgstr ""
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1853
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1863
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1851
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1861
 msgid "Terms and Conditions"
 msgstr "条款和条件"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1854
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1852
 #, fuzzy
 msgid "on the following pages of this document"
 msgstr "下面的错误发生"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1856
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1865
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1854
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1863
 msgid "Signed"
 msgstr "签"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1871
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1869
 msgid "Your form is ready."
 msgstr "您的表单已准备就绪。"
 
