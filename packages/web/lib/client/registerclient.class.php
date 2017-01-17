@@ -91,9 +91,9 @@ class RegisterClient extends FOGClient implements FOGClientSend
                     ->addPriMAC($PriMAC)
                     ->addAddMAC($MACs);
                 if (!$this->Host->save()) {
-                    throw new Exception('#!db');
+                    return array('error' => 'db');
                 }
-                throw new Exception('#!ok');
+                return array('complete' => true);
             }
         }
         if (count($MACs) > $maxPending + 1) {
@@ -121,11 +121,11 @@ class RegisterClient extends FOGClient implements FOGClientSend
         if (count($MACs)) {
             $this->Host->addPendMAC($MACs);
             if (!$this->Host->save()) {
-                throw new Exception('#!db');
+                return array('error' => 'db');
             }
-            throw new Exception('#!ok');
+            return array('complete' => true);
         }
-        throw new Exception('#!ig');
+        return array('error' => 'ig');
     }
     /**
      * Creates the send string and stores to send variable

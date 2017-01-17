@@ -41,7 +41,7 @@ class ServiceConfigurationPage extends FOGPage
         $this->name = 'Service Configuration';
         parent::__construct($this->name);
         $servicelink = sprintf(
-            '?node=%s&sub=edit',
+            '?node=%s',
             $this->node
         );
         $this->menu = array(
@@ -115,6 +115,15 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function index()
     {
+        $this->edit();
+    }
+    /**
+     * The home elements.
+     *
+     * @return void
+     */
+    public function home()
+    {
         printf(
             '<h2>%s</h2><p>%s</p><a href="?node=client">%s</a><h2>%s</h2><p>%s</p>',
             _('FOG Client Download'),
@@ -146,7 +155,7 @@ class ServiceConfigurationPage extends FOGPage
     public function edit()
     {
         echo '<div id="tab-container"><div id="home">';
-        $this->index();
+        $this->home();
         echo '</div>';
         $moduleName = $this->getGlobalModuleStatus();
         $modNames = $this->getGlobalModuleStatus(true);

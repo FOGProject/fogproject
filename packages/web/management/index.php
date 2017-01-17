@@ -48,11 +48,11 @@ if (!in_array($node, array('schema', 'client'))
         $FOGPageManager->render();
         exit;
     }
+    $Page->startBody();
+    $FOGPageManager->render();
     $Page
         ->setTitle($FOGPageManager->getFOGPageTitle())
-        ->setSecTitle($FOGPageManager->getFOGPageName())
-        ->startBody();
-    $FOGPageManager->render();
+        ->setSecTitle($FOGPageManager->getFOGPageName());
     $Page
         ->endBody()
         ->render();

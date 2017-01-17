@@ -2696,7 +2696,7 @@ abstract class FOGPage extends FOGBase
                 'dircleanup',
                 'usercleanup',
                 'clientupdater',
-                'hostregister',
+                //'hostregister',
             );
             $globalModules = array_diff(
                 $this->getGlobalModuleStatus(false, true),
@@ -2704,7 +2704,7 @@ abstract class FOGPage extends FOGBase
                     'dircleanup',
                     'usercleanup',
                     'clientupdater',
-                    'hostregister'
+                    //'hostregister'
                 )
             );
             $globalInfo = $this->getGlobalModuleStatus();
@@ -2744,6 +2744,9 @@ abstract class FOGPage extends FOGBase
                 case 'greenfog':
                     $class='GF';
                     continue 2;
+                case 'hostregister':
+                    $class='RegisterClient';
+                    break;
                 case 'powermanagement':
                     $class='PM';
                     break;
