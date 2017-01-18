@@ -341,7 +341,7 @@ class ServiceConfigurationPage extends FOGPage
                 );
                 printf(
                     '<h2>%s</h2>'
-                    . '<form method="post" action="%s&tab=%s">'
+                    . '<form method="post" action="%s&sub=edit&tab=%s">'
                     . '<p>%s: <input type="text" name="adddir"/></p>'
                     . '<p><input type="hidden" name="name" value="%s"/>'
                     . '<input type="submit" value="%s"/></p><h2>%s</h2>',
@@ -392,7 +392,7 @@ class ServiceConfigurationPage extends FOGPage
                     $y
                 ) = self::getSubObjectIDs(
                     'Service',
-                    array('names' => $disps),
+                    array('name' => $disps),
                     'value',
                     false,
                     'AND',
@@ -423,7 +423,7 @@ class ServiceConfigurationPage extends FOGPage
                     ),
                 );
                 printf(
-                    '<h2>%s</h2><form method="post" action="%s&tab=%s">',
+                    '<h2>%s</h2><form method="post" action="%s&sub=edit&tab=%s">',
                     _('Default Setting'),
                     $this->formAction,
                     $Module->get('shortName')
@@ -479,7 +479,7 @@ class ServiceConfigurationPage extends FOGPage
                 );
                 printf(
                     '<h2>%s</h2>'
-                    . '<form method="post" action="%s&tab=%s">'
+                    . '<form method="post" action="%s&sub=edit&tab=%s">'
                     . '<p>%s <input class="short" type="text" name='
                     . '"h" maxlength="2" value="HH" onFocus='
                     . '"$(this).val(\'\');"/>:<input class="short" type='
@@ -569,7 +569,7 @@ class ServiceConfigurationPage extends FOGPage
                     )
                 );
                 printf(
-                    '<h2>%s</h2><form method="post" action="%s&tab=%s">',
+                    '<h2>%s</h2><form method="post" action="%s&sub=edit&tab=%s">',
                     _('Add Protected User'),
                     $this->formAction,
                     $Module->get('shortName')
@@ -745,7 +745,13 @@ class ServiceConfigurationPage extends FOGPage
                 );
             $this->setMessage($e->getMessage());
         }
-        $this->redirect($this->formAction);
+        $this->redirect(
+            sprintf(
+                '?node=%s#%s',
+                $_REQUEST['node'],
+                $_REQUEST['tab']
+            )
+        );
     }
     /**
      * Redirect search call to index.

@@ -133,7 +133,7 @@ class Schema extends FOGController
             $tablename
         );
         $queries[] = sprintf(
-            'ALTER TABLE `%s`.`_%s` ADD UNIQUE %s',
+            'ALTER TABLE `%s`.`_%s` ADD UNIQUE INDEX %s',
             $dbname,
             $tablename,
             $ending

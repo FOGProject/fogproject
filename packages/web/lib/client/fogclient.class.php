@@ -59,21 +59,9 @@ abstract class FOGClient extends FOGBase
     ) {
         try {
             parent::__construct();
-            $globalInfo = array_intersect_key(
-                $this->getGlobalModuleStatus(),
-                array($this->shortName => '')
-            );
-            if (!(isset($globalInfo[$this->shortName])
-                && $globalInfo[$this->shortName])
-            ) {
-                throw new Exception('#!ng');
-            }
             global $sub;
             global $json;
             $method = 'send';
-            if (self::$json && method_exists($this, 'json')) {
-                $method = 'json';
-            }
             $this->Host = self::getHostItem(
                 $service,
                 $encoded,
@@ -81,18 +69,32 @@ abstract class FOGClient extends FOGBase
                 $returnmacs,
                 $override
             );
-            $hostModInfo = self::getSubObjectIDs(
-                'Module',
-                array(
-                    'id' => $this->Host->get('modules'),
-                    'shortName' => $this->shortName
-                ),
-                'shortName'
-            );
-            if (false === $hostnotrequired
-                && !in_array($this->shortName, $hostModInfo)
-            ) {
-                throw new Exception('#!nh');
+            if (self::$json) {
+                $globalInfo = array_intersect_key(
+                    $this->getGlobalModuleStatus(),
+                    array($this->shortName => '')
+                );
+                if (!(isset($globalInfo[$this->shortName])
+                    && $globalInfo[$this->shortName])
+                ) {
+                    throw new Exception('#!ng');
+                }
+                $hostModInfo = self::getSubObjectIDs(
+                    'Module',
+                    array(
+                        'id' => $this->Host->get('modules'),
+                        'shortName' => $this->shortName
+                    ),
+                    'shortName'
+                );
+                if (false === $hostnotrequired
+                    && !in_array($this->shortName, $hostModInfo)
+                ) {
+                    throw new Exception('#!nh');
+                }
+                if (method_exists($this, 'json')) {
+                    $method = 'json';
+                }
             }
             $validClientBrowserFiles = array(
                 'jobs.php',
