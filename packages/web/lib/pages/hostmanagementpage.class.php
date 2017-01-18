@@ -645,7 +645,13 @@ class HostManagementPage extends FOGPage
             } catch (Exception $e) {
                 $this->setMessage($e->getMessage());
             }
-            $this->redirect($this->formAction);
+            $this->redirect(
+                sprintf(
+                    '?node=%s&sub=edit&id=%s',
+                    $this->node,
+                    $_REQUEST['id']
+                )
+            );
         } elseif ($_REQUEST['approveAll']) {
             self::getClass('MACAddressAssociationManager')
                 ->update(
@@ -662,7 +668,13 @@ class HostManagementPage extends FOGPage
                 _('All Pending MACs approved')
             );
             $this->setMessage($msg);
-            $this->redirect($this->formAction);
+            $this->redirect(
+                sprintf(
+                    '?node=%s&sub=edit&id=%s',
+                    $this->node,
+                    $_REQUEST['id']
+                )
+            );
         }
         ob_start();
         foreach ((array)$this->obj->get('additionalMACs') as &$MAC) {

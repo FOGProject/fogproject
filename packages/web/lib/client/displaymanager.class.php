@@ -28,6 +28,9 @@ class DisplayManager extends FOGClient implements FOGClientSend
      */
     public function json()
     {
+        if (!$this->Host instanceof Host) {
+            $this->Host = new Host();
+        }
         return array(
             'x' => $this->Host->getDispVals('width'),
             'y' => $this->Host->getDispVals('height'),
@@ -41,6 +44,9 @@ class DisplayManager extends FOGClient implements FOGClientSend
      */
     public function send()
     {
+        if (!$this->Host instanceof Host) {
+            $this->Host = new Host();
+        }
         $this->send = base64_encode(
             sprintf(
                 '%dx%dx%d',
