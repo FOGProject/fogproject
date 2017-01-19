@@ -70,9 +70,6 @@ beginUpload() {
             case $osid in
                 [4-7]|9|50|51)
                     echo " * Setting up any additional fixed parts"
-                    if [[ $((ntfscnt + extfscnt)) -gt 0  && $part_number -gt 1 ]]; then
-                        [[ -n $fixed_size_partitions ]] && fixed_size_partitions="$fixed_size_partitions:1" || fixed_size_partitions="1"
-                    fi
                     part_number=0
                     for part in $parts; do
                         getPartitionNumber "$part"
@@ -112,7 +109,12 @@ beginUpload() {
                             umount /bcdstore >/dev/null 2>&1
                             echo "Yes"
                             debugPause
-                            [[ $part_number -gt 1 ]] && fixed_size_partitions="$fixed_size_partitions:$part_number"
+                            part_count=${#$parts[@]}
+                            if [[ $part_number -gt 1 && $part_count -gt 2 ]]; then
+                                for ((increment=1; increment < $part_number; increment++)); do
+                                    fixed_size_partitions="$fixed_size_partitions:$increment"
+                                done
+                            fi
                         fi
                     done
                     ;;
