@@ -109,8 +109,7 @@ beginUpload() {
                             umount /bcdstore >/dev/null 2>&1
                             echo "Yes"
                             debugPause
-                            part_count=${#$parts[@]}
-                            if [[ $part_number -gt 1 && $part_count -gt 2 ]]; then
+                            if [[ $part_number -gt 1 ]]; then
                                 for ((increment=1; increment < $part_number; increment++)); do
                                     fixed_size_partitions="$fixed_size_partitions:$increment"
                                 done
