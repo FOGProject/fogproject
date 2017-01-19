@@ -22,6 +22,12 @@
 class SnapinReplicator extends FOGService
 {
     /**
+     * Is the service globally enabled.
+     *
+     * @var int
+     */
+    private static $_repOn = 0;
+    /**
      * Where to get the services sleeptime
      *
      * @var string
@@ -91,6 +97,10 @@ class SnapinReplicator extends FOGService
     private function _commonOutput()
     {
         try {
+            self::$_repOn = self::getSetting('SNAPINREPLICATORGLOBALENABLED');
+            if (self::$_repOn < 1) {
+                throw new Exception(_(' * Snapin replication is globally disabled'));
+            }
             foreach ((array)$this->checkIfNodeMaster() as &$StorageNode) {
                 self::wlog(
                     sprintf(

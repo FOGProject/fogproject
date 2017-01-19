@@ -22,6 +22,12 @@
 class SnapinHash extends FOGService
 {
     /**
+     * Is the service globally enabled.
+     *
+     * @var int
+     */
+    private static $_hashOn = 0;
+    /**
      * Where to get the services sleeptime
      *
      * @var string
@@ -91,6 +97,10 @@ class SnapinHash extends FOGService
     private function _commonOutput()
     {
         try {
+            self::$_hashOn = self::getSetting('SNAPINHASHGLOBALENABLED');
+            if (self::$_hashOn < 1) {
+                throw new Exception(_(' * Snapin hash is globally disabled'));
+            }
             foreach ((array)$this->checkIfNodeMaster() as &$StorageNode) {
                 $myStorageGroupID = $StorageNode->get('storagegroupID');
                 $myStorageNodeID = $StorageNode->get('id');

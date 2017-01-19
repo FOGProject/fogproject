@@ -50,7 +50,6 @@ class PingHosts extends FOGService
     {
         parent::__construct();
         list(
-            self::$_pingOn,
             self::$_fogWeb,
             $dev,
             $log,
@@ -59,7 +58,6 @@ class PingHosts extends FOGService
             'Service',
             array(
                 'name' => array(
-                    'FOG_HOST_LOOKUP',
                     'FOG_WEB_HOST',
                     'PINGHOSTDEVICEOUTPUT',
                     'PINGHOSTLOGFILENAME',
@@ -110,8 +108,9 @@ class PingHosts extends FOGService
     private function _commonOutput()
     {
         try {
+            self::$_pingOn = self::getSetting('PINGHOSTGLOBALENABLED');
             if (self::$_pingOn < 1) {
-                throw new Exception(_(' * Host Ping is not enabled'));
+                throw new Exception(_(' * Ping hosts is globally disabled'));
             }
             $webServerIP = self::$FOGCore->resolveHostName(
                 self::$_fogWeb

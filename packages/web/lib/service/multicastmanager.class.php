@@ -22,6 +22,12 @@
 class MulticastManager extends FOGService
 {
     /**
+     * Is the host lookup/ping enabled
+     *
+     * @var int
+     */
+    private static $_mcOn = 0;
+    /**
      * Where to get the services sleeptime
      *
      * @var string
@@ -168,6 +174,13 @@ class MulticastManager extends FOGService
                 self::getCancelledState()
             );
             try {
+                // Check if status changed.
+                self::$_mcOn = self::getSetting('MULTICASTGLOBALENABLED');
+                if (self::$_mcOn < 1) {
+                    throw new Exception(
+                        _(' * Multicast service is globally disabled')
+                    );
+                }
                 $StorageNodes = $this->checkIfNodeMaster();
                 foreach ((array)$this->checkIfNodeMaster() as &$StorageNode) {
                     $myroot = $StorageNode->get('path');

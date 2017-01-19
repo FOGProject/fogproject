@@ -22,6 +22,12 @@
 class TaskScheduler extends FOGService
 {
     /**
+     * Is the host lookup/ping enabled
+     *
+     * @var int
+     */
+    private static $_schedOn = 0;
+    /**
      * Contains the string holding the service's sleep cycle
      *
      * @var string
@@ -86,6 +92,10 @@ class TaskScheduler extends FOGService
     private function _commonOutput()
     {
         try {
+            self::$_repOn = self::getSetting('SCHEDULERGLOBALENABLED');
+            if (self::$_schedOn < 1) {
+                throw new Exception(_(' * Task Scheduler is globally disabled'));
+            }
             $findWhere = array(
                 'stateID' => self::getQueuedStates(),
                 'wol' => 1

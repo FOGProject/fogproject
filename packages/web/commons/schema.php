@@ -3600,3 +3600,27 @@ $this->schema[] = $tmpSchema->dropDuplicateData(
         array('hmMAC')
     )
 );
+// 247
+$this->schema[] = array(
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('IMAGEREPLICATORGLOBALENABLED','This setting defines if replication "
+    . "of images should occur (Default is enabled)',"
+    . "'1','FOG Linux Service Enabled'),"
+    . "('SNAPINREPLICATORGLOBALENABLED','This setting defines if replication "
+    . "of snapins should occur (Default is enabled)',"
+    . "'1','FOG Linux Service Enabled'),"
+    . "('SNAPINHASHGLOBALENABLED','This setting defines if hashing "
+    . "of snapins should occur (Default is enabled)',"
+    . "'1','FOG Linux Service Enabled'),"
+    . "('PINGHOSTGLOBALENABLED','This setting defines if ping hosts "
+    . "should occur (Default is enabled)',"
+    . "'1','FOG Linux Service Enabled'),"
+    . "('SCHEDULERGLOBALENABLED','This setting defines if scheduler "
+    . "service should occur (Default is enabled)',"
+    . "'1','FOG Linux Service Enabled'),"
+    . "('MULTICASTGLOBALENABLED','This setting defines if multicast "
+    . "service should occur (Default is enabled)',"
+    . "'1','FOG Linux Service Enabled')"
+);

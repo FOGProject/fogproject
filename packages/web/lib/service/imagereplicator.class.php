@@ -22,6 +22,12 @@
 class ImageReplicator extends FOGService
 {
     /**
+     * Is the service globally enabled.
+     *
+     * @var int
+     */
+    private static $_repOn = 0;
+    /**
      * Where to get the services sleeptime
      *
      * @var string
@@ -91,6 +97,11 @@ class ImageReplicator extends FOGService
     private function _commonOutput()
     {
         try {
+            // Check of status changed.
+            self::$_repOn = self::getSetting('IMAGEREPLICATORGLOBALENABLED');
+            if (self::$_repOn < 1) {
+                throw new Exception(_(' * Image replication is globally disabled'));
+            }
             foreach ((array)$this->checkIfNodeMaster() as &$StorageNode) {
                 self::wlog(
                     sprintf(

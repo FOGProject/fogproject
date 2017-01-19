@@ -1331,6 +1331,12 @@ class FOGConfigurationPage extends FOGPage
             'FOG_KERNEL_DEBUG',
             'FOG_ENFORCE_HOST_CHANGES',
             'FOG_LOGIN_INFO_DISPLAY',
+            'MULTICASTGLOBALENABLED',
+            'SCHEDULERGLOBALENABLED',
+            'PINGHOSTGLOBALENABLED',
+            'IMAGEREPLICATORGLOBALENABLED',
+            'SNAPINREPLICATORGLOBALENABLED',
+            'SNAPINHASHGLOBALENABLED'
         );
         self::$HookManager
             ->processEvent(

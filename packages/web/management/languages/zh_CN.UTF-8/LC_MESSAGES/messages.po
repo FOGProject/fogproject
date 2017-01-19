@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-18 22:15-0500\n"
+"POT-Creation-Date: 2017-01-19 18:00-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -721,7 +721,7 @@ msgstr "事件必须是字符串"
 
 #: /var/www/fog/lib/fog/fogbase.class.php:2146
 #: /var/www/fog/lib/fog/fogftp.class.php:372
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2198
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2204
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:85
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:827
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:834
@@ -788,7 +788,7 @@ msgid "No viable macs to use"
 msgstr "不能够更新"
 
 #: /var/www/fog/lib/fog/host.class.php:1742
-#: /var/www/fog/lib/service/snapinhash.class.php:161
+#: /var/www/fog/lib/service/snapinhash.class.php:171
 #, fuzzy
 msgid "snapin"
 msgstr "管理单元"
@@ -1636,12 +1636,12 @@ msgstr "删除"
 #: /var/www/fog/lib/fog/fogpage.class.php:3059
 #: /var/www/fog/lib/fog/fogpage.class.php:3170
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1098
-#: /var/www/fog/lib/service/snapinreplicator.class.php:137
-#: /var/www/fog/lib/service/snapinreplicator.class.php:138
-#: /var/www/fog/lib/service/snapinreplicator.class.php:246
-#: /var/www/fog/lib/service/imagereplicator.class.php:137
-#: /var/www/fog/lib/service/imagereplicator.class.php:138
-#: /var/www/fog/lib/service/imagereplicator.class.php:246
+#: /var/www/fog/lib/service/snapinreplicator.class.php:147
+#: /var/www/fog/lib/service/snapinreplicator.class.php:148
+#: /var/www/fog/lib/service/snapinreplicator.class.php:256
+#: /var/www/fog/lib/service/imagereplicator.class.php:148
+#: /var/www/fog/lib/service/imagereplicator.class.php:149
+#: /var/www/fog/lib/service/imagereplicator.class.php:257
 #: /var/www/fog/commons/text.php:44
 msgid "Group"
 msgstr "组"
@@ -1680,7 +1680,7 @@ msgid "table backup"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3314
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2261
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2267
 #: /var/www/fog/commons/text.php:98
 msgid "Export"
 msgstr "出口"
@@ -1762,7 +1762,7 @@ msgid "Row"
 msgstr "行"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3606
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2279
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2285
 msgid "Import"
 msgstr "进口"
 
@@ -2863,127 +2863,127 @@ msgstr "无法读取临时文件"
 msgid " mac addresses updated!"
 msgstr "MAC地址更新！"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1342
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1348
 msgid "FOG System Settings"
 msgstr "FOG系统设置"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1347
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1353
 msgid "This section allows you to customize or alter "
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1348
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1354
 msgid "the way in which FOG operates. "
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1349
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1355
 msgid "Please be very careful changing any of "
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1350
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1356
 msgid "the following settings, as they can cause "
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1351
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1357
 msgid "issues that are difficult to troubleshoot."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1531
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1537
 msgid "No image specified"
 msgstr "没有指定的图像"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1676
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1682
 #: /var/www/fog/commons/text.php:180
 msgid "Save Changes"
 msgstr "保存更改"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1707
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1713
 msgid "No Image specified"
 msgstr "没有指定的Image"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1909
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1915
 msgid "Width must be 650 pixels."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1915
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1921
 msgid "Height must be 120 pixels."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2031
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2037
 msgid "Service Master"
 msgstr "服务主"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2040
-#: /var/www/fog/lib/service/taskscheduler.class.php:202
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2046
+#: /var/www/fog/lib/service/taskscheduler.class.php:212
 #: /var/www/fog/commons/text.php:102
 msgid "Multicast"
 msgstr "组播"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2049
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2055
 msgid "Scheduler"
 msgstr "调度"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2058
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2064
 msgid "Image Replicator"
 msgstr "图像复制"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2067
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2073
 msgid "Snapin Replicator"
 msgstr "管理单元复制"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2076
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2082
 #, fuzzy
 msgid "Snapin Hash"
 msgstr "管理单元路径"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2085
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2091
 msgid "Ping Hosts"
 msgstr "平主机"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2127
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2133
 msgid "Image Transfer Log"
 msgstr "图像传输日志"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2141
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2147
 msgid "Snapin Transfer Log"
 msgstr "管理单元传输日志"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2193
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2199
 msgid "FOG Log Viewer"
 msgstr "FOG日志查看器"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2200
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2206
 msgid "Number of lines"
 msgstr "线的数目"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2234
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2240
 msgid "Reverse the file: (newest on top)"
 msgstr "反转文件：（最新的在上面）"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2258
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2264
 msgid "Click the button to export the database."
 msgstr "点击按钮，导出数据库。"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2270
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2276
 msgid "Import a previous backup file."
 msgstr "导入以前的备份文件。"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2312
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2318
 msgid "Database Imported and added successfully"
 msgstr "数据库导入并成功添加"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2314
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2320
 msgid "Errors detected on import"
 msgstr "进口检测到的错误"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2320
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2326
 msgid "Database changes reverted"
 msgstr "数据库恢复的变化"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2324
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2330
 msgid "Errors on revert detected"
 msgstr "在复归错误检测"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2330
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2336
 msgid "There were errors during import"
 msgstr "进口过程中有错误"
 
@@ -4280,13 +4280,13 @@ msgid "No"
 msgstr "没有"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1044
-#: /var/www/fog/lib/service/taskscheduler.class.php:183
+#: /var/www/fog/lib/service/taskscheduler.class.php:193
 msgid "group"
 msgstr "组"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1045
-#: /var/www/fog/lib/service/taskscheduler.class.php:186
-#: /var/www/fog/lib/service/pinghosts.class.php:149
+#: /var/www/fog/lib/service/taskscheduler.class.php:196
+#: /var/www/fog/lib/service/pinghosts.class.php:148
 msgid "host"
 msgstr "主办"
 
@@ -5102,24 +5102,24 @@ msgid "Imaged"
 msgstr "成像"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:173
-#: /var/www/fog/lib/service/multicastmanager.class.php:217
-#: /var/www/fog/lib/service/multicastmanager.class.php:258
-#: /var/www/fog/lib/service/multicastmanager.class.php:279
-#: /var/www/fog/lib/service/multicastmanager.class.php:323
-#: /var/www/fog/lib/service/multicastmanager.class.php:333
-#: /var/www/fog/lib/service/multicastmanager.class.php:348
-#: /var/www/fog/lib/service/multicastmanager.class.php:363
+#: /var/www/fog/lib/service/multicastmanager.class.php:230
+#: /var/www/fog/lib/service/multicastmanager.class.php:271
+#: /var/www/fog/lib/service/multicastmanager.class.php:292
+#: /var/www/fog/lib/service/multicastmanager.class.php:336
+#: /var/www/fog/lib/service/multicastmanager.class.php:346
+#: /var/www/fog/lib/service/multicastmanager.class.php:361
 #: /var/www/fog/lib/service/multicastmanager.class.php:376
-#: /var/www/fog/lib/service/multicastmanager.class.php:386
-#: /var/www/fog/lib/service/multicastmanager.class.php:397
-#: /var/www/fog/lib/service/multicastmanager.class.php:406
-#: /var/www/fog/lib/service/multicastmanager.class.php:415
-#: /var/www/fog/lib/service/multicastmanager.class.php:431
-#: /var/www/fog/lib/service/multicastmanager.class.php:448
-#: /var/www/fog/lib/service/multicastmanager.class.php:500
-#: /var/www/fog/lib/service/multicastmanager.class.php:512
-#: /var/www/fog/lib/service/multicastmanager.class.php:529
-#: /var/www/fog/lib/service/multicastmanager.class.php:552
+#: /var/www/fog/lib/service/multicastmanager.class.php:389
+#: /var/www/fog/lib/service/multicastmanager.class.php:399
+#: /var/www/fog/lib/service/multicastmanager.class.php:410
+#: /var/www/fog/lib/service/multicastmanager.class.php:419
+#: /var/www/fog/lib/service/multicastmanager.class.php:428
+#: /var/www/fog/lib/service/multicastmanager.class.php:444
+#: /var/www/fog/lib/service/multicastmanager.class.php:461
+#: /var/www/fog/lib/service/multicastmanager.class.php:513
+#: /var/www/fog/lib/service/multicastmanager.class.php:525
+#: /var/www/fog/lib/service/multicastmanager.class.php:542
+#: /var/www/fog/lib/service/multicastmanager.class.php:565
 #: /var/www/fog/commons/text.php:84
 msgid "Task"
 msgstr "任务"
@@ -6798,211 +6798,228 @@ msgstr "检查数据库运行"
 msgid "A valid database connection could not be made"
 msgstr ""
 
-#: /var/www/fog/lib/service/taskscheduler.class.php:192
+#: /var/www/fog/lib/service/taskscheduler.class.php:97
+msgid " * Task Scheduler is globally disabled"
+msgstr ""
+
+#: /var/www/fog/lib/service/taskscheduler.class.php:202
 msgid "Is a"
 msgstr "是"
 
-#: /var/www/fog/lib/service/taskscheduler.class.php:194
+#: /var/www/fog/lib/service/taskscheduler.class.php:204
 msgid "based task"
 msgstr "基于任务"
 
-#: /var/www/fog/lib/service/taskscheduler.class.php:203
+#: /var/www/fog/lib/service/taskscheduler.class.php:213
 msgid "Unicast"
 msgstr "单播"
 
-#: /var/www/fog/lib/service/taskscheduler.class.php:205
+#: /var/www/fog/lib/service/taskscheduler.class.php:215
 msgid "task found"
 msgstr "发现任务"
 
-#: /var/www/fog/lib/service/taskscheduler.class.php:231
+#: /var/www/fog/lib/service/taskscheduler.class.php:241
 msgid "Tasks started for"
 msgstr "任务开始了"
 
-#: /var/www/fog/lib/service/taskscheduler.class.php:250
+#: /var/www/fog/lib/service/taskscheduler.class.php:260
 #, fuzzy
 msgid "Task sent to"
 msgstr "任务状态"
 
-#: /var/www/fog/lib/service/snapinhash.class.php:101
+#: /var/www/fog/lib/service/snapinhash.class.php:102
+#, fuzzy
+msgid " * Snapin hash is globally disabled"
+msgstr "管理单元与该名称已经存在"
+
+#: /var/www/fog/lib/service/snapinhash.class.php:111
 msgid "Starting Snapin Hashing Service"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:107
-#: /var/www/fog/lib/service/snapinreplicator.class.php:114
-#: /var/www/fog/lib/service/imagereplicator.class.php:114
+#: /var/www/fog/lib/service/snapinhash.class.php:117
+#: /var/www/fog/lib/service/snapinreplicator.class.php:124
+#: /var/www/fog/lib/service/imagereplicator.class.php:125
 msgid "We are group ID"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:109
-#: /var/www/fog/lib/service/snapinreplicator.class.php:116
-#: /var/www/fog/lib/service/imagereplicator.class.php:116
+#: /var/www/fog/lib/service/snapinhash.class.php:119
+#: /var/www/fog/lib/service/snapinreplicator.class.php:126
+#: /var/www/fog/lib/service/imagereplicator.class.php:127
 #, fuzzy
 msgid "We are group name"
 msgstr "存储组名称"
 
-#: /var/www/fog/lib/service/snapinhash.class.php:116
-#: /var/www/fog/lib/service/snapinreplicator.class.php:123
-#: /var/www/fog/lib/service/imagereplicator.class.php:123
+#: /var/www/fog/lib/service/snapinhash.class.php:126
+#: /var/www/fog/lib/service/snapinreplicator.class.php:133
+#: /var/www/fog/lib/service/imagereplicator.class.php:134
 msgid "We are node ID"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:118
-#: /var/www/fog/lib/service/snapinreplicator.class.php:125
-#: /var/www/fog/lib/service/imagereplicator.class.php:125
+#: /var/www/fog/lib/service/snapinhash.class.php:128
+#: /var/www/fog/lib/service/snapinreplicator.class.php:135
+#: /var/www/fog/lib/service/imagereplicator.class.php:136
 #, fuzzy
 msgid "We are node name"
 msgstr "存储节点名称"
 
-#: /var/www/fog/lib/service/snapinhash.class.php:125
+#: /var/www/fog/lib/service/snapinhash.class.php:135
 #, fuzzy
 msgid "Finding any snapins associated"
 msgstr "没有snapins相关"
 
-#: /var/www/fog/lib/service/snapinhash.class.php:126
+#: /var/www/fog/lib/service/snapinhash.class.php:136
 #, fuzzy
 msgid "with this group"
 msgstr "不在此"
 
-#: /var/www/fog/lib/service/snapinhash.class.php:127
+#: /var/www/fog/lib/service/snapinhash.class.php:137
 #, fuzzy
 msgid "as its primary group"
 msgstr "更新主要组"
 
-#: /var/www/fog/lib/service/snapinhash.class.php:148
+#: /var/www/fog/lib/service/snapinhash.class.php:158
 #, fuzzy
 msgid "No snapins associated with this group as master"
 msgstr "没有与此主机关联snapins"
 
-#: /var/www/fog/lib/service/snapinhash.class.php:156
+#: /var/www/fog/lib/service/snapinhash.class.php:166
 #: /var/www/fog/lib/service/fogservice.class.php:390
 msgid "Found"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:160
+#: /var/www/fog/lib/service/snapinhash.class.php:170
 #, fuzzy
 msgid "snapins"
 msgstr "Snapins"
 
-#: /var/www/fog/lib/service/snapinhash.class.php:163
+#: /var/www/fog/lib/service/snapinhash.class.php:173
 msgid "to update hash values as needed"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:178
+#: /var/www/fog/lib/service/snapinhash.class.php:188
 #, fuzzy
 msgid "Snapin hash already set"
 msgstr "管理单元与该名称已经存在"
 
-#: /var/www/fog/lib/service/snapinhash.class.php:196
+#: /var/www/fog/lib/service/snapinhash.class.php:206
 msgid "Getting snapin hash and size for"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:206
+#: /var/www/fog/lib/service/snapinhash.class.php:216
 msgid "Hash"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:222
+#: /var/www/fog/lib/service/snapinhash.class.php:232
 msgid "Completed"
 msgstr "完成"
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:98
-#: /var/www/fog/lib/service/imagereplicator.class.php:98
+#: /var/www/fog/lib/service/snapinreplicator.class.php:102
+msgid " * Snapin replication is globally disabled"
+msgstr ""
+
+#: /var/www/fog/lib/service/snapinreplicator.class.php:108
+#: /var/www/fog/lib/service/imagereplicator.class.php:109
 #, fuzzy
 msgid "I am the group manager"
 msgstr "|我唯一​​的成员"
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:108
+#: /var/www/fog/lib/service/snapinreplicator.class.php:118
 #, fuzzy
 msgid "Starting Snapin Replication"
 msgstr "管理单元复制"
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:136
-#: /var/www/fog/lib/service/snapinreplicator.class.php:245
-#: /var/www/fog/lib/service/imagereplicator.class.php:136
-#: /var/www/fog/lib/service/imagereplicator.class.php:245
+#: /var/www/fog/lib/service/snapinreplicator.class.php:146
+#: /var/www/fog/lib/service/snapinreplicator.class.php:255
+#: /var/www/fog/lib/service/imagereplicator.class.php:147
+#: /var/www/fog/lib/service/imagereplicator.class.php:256
 #, fuzzy
 msgid "Attempting to perform"
 msgstr "尝试ping"
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:139
-#: /var/www/fog/lib/service/snapinreplicator.class.php:248
+#: /var/www/fog/lib/service/snapinreplicator.class.php:149
+#: /var/www/fog/lib/service/snapinreplicator.class.php:258
 #, fuzzy
 msgid "snapin replication"
 msgstr "管理单元复制"
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:189
-#: /var/www/fog/lib/service/imagereplicator.class.php:189
+#: /var/www/fog/lib/service/snapinreplicator.class.php:199
+#: /var/www/fog/lib/service/imagereplicator.class.php:200
 msgid "There is nothing to replicate"
 msgstr "没有什么可以复制"
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:195
-#: /var/www/fog/lib/service/imagereplicator.class.php:195
+#: /var/www/fog/lib/service/snapinreplicator.class.php:205
+#: /var/www/fog/lib/service/imagereplicator.class.php:206
 msgid "Please physically associate"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:196
+#: /var/www/fog/lib/service/snapinreplicator.class.php:206
 #, fuzzy
 msgid "snapins to a storage group"
 msgstr "管理单元存储组"
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:218
+#: /var/www/fog/lib/service/snapinreplicator.class.php:228
 #, fuzzy
 msgid "Not syncing Snapin"
 msgstr "无连接来获取管理单元"
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:225
-#: /var/www/fog/lib/service/imagereplicator.class.php:225
+#: /var/www/fog/lib/service/snapinreplicator.class.php:235
+#: /var/www/fog/lib/service/imagereplicator.class.php:236
 #, fuzzy
 msgid "This is not the primary group"
 msgstr "|这不是主要组"
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:247
-#: /var/www/fog/lib/service/imagereplicator.class.php:247
+#: /var/www/fog/lib/service/snapinreplicator.class.php:257
+#: /var/www/fog/lib/service/imagereplicator.class.php:258
 #, fuzzy
 msgid "Nodes"
 msgstr "节点"
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:283
-#: /var/www/fog/lib/service/imagereplicator.class.php:283
+#: /var/www/fog/lib/service/snapinreplicator.class.php:293
+#: /var/www/fog/lib/service/imagereplicator.class.php:294
 msgid "Checking if I am the group manager"
 msgstr ""
 
-#: /var/www/fog/lib/service/imagereplicator.class.php:108
+#: /var/www/fog/lib/service/imagereplicator.class.php:103
+msgid " * Image replication is globally disabled"
+msgstr ""
+
+#: /var/www/fog/lib/service/imagereplicator.class.php:119
 #, fuzzy
 msgid "Starting Image Replication"
 msgstr "图像复制"
 
-#: /var/www/fog/lib/service/imagereplicator.class.php:139
-#: /var/www/fog/lib/service/imagereplicator.class.php:248
+#: /var/www/fog/lib/service/imagereplicator.class.php:150
+#: /var/www/fog/lib/service/imagereplicator.class.php:259
 #, fuzzy
 msgid "image replication"
 msgstr "图像复制"
 
-#: /var/www/fog/lib/service/imagereplicator.class.php:196
+#: /var/www/fog/lib/service/imagereplicator.class.php:207
 #, fuzzy
 msgid "images to a storage group"
 msgstr "主存储组"
 
-#: /var/www/fog/lib/service/imagereplicator.class.php:218
+#: /var/www/fog/lib/service/imagereplicator.class.php:229
 msgid "Not syncing Image"
 msgstr ""
 
-#: /var/www/fog/lib/service/pinghosts.class.php:114
-msgid " * Host Ping is not enabled"
-msgstr "*未启用主机平"
+#: /var/www/fog/lib/service/pinghosts.class.php:113
+msgid " * Ping hosts is globally disabled"
+msgstr ""
 
-#: /var/www/fog/lib/service/pinghosts.class.php:125
+#: /var/www/fog/lib/service/pinghosts.class.php:124
 msgid "I am not the fog web server"
 msgstr "我不是雾Web服务器"
 
-#: /var/www/fog/lib/service/pinghosts.class.php:133
+#: /var/www/fog/lib/service/pinghosts.class.php:132
 msgid "This servers ip(s)"
 msgstr ""
 
-#: /var/www/fog/lib/service/pinghosts.class.php:144
+#: /var/www/fog/lib/service/pinghosts.class.php:143
 msgid "Attempting to ping"
 msgstr "尝试ping"
 
-#: /var/www/fog/lib/service/pinghosts.class.php:148
+#: /var/www/fog/lib/service/pinghosts.class.php:147
 #, fuzzy
 msgid "hosts"
 msgstr "主办"
@@ -7098,133 +7115,137 @@ msgstr ""
 msgid "Or there was no number defined for joining session"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:198
+#: /var/www/fog/lib/service/multicastmanager.class.php:181
+msgid " * Multicast service is globally disabled"
+msgstr ""
+
+#: /var/www/fog/lib/service/multicastmanager.class.php:211
 #, fuzzy
 msgid "Cleaning"
 msgstr "明确"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:200
+#: /var/www/fog/lib/service/multicastmanager.class.php:213
 #, fuzzy
 msgid "task"
 msgstr "任务"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:206
+#: /var/www/fog/lib/service/multicastmanager.class.php:219
 #, fuzzy
 msgid "as they have been removed"
 msgstr "关键无效被删除"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:220
+#: /var/www/fog/lib/service/multicastmanager.class.php:233
 #, fuzzy
 msgid "is being cleaned"
 msgstr "病毒清除"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:261
-#: /var/www/fog/lib/service/multicastmanager.class.php:532
+#: /var/www/fog/lib/service/multicastmanager.class.php:274
+#: /var/www/fog/lib/service/multicastmanager.class.php:545
 #, fuzzy
 msgid "has been cancelled"
 msgstr "已成功更新"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:282
-#: /var/www/fog/lib/service/multicastmanager.class.php:555
+#: /var/www/fog/lib/service/multicastmanager.class.php:295
+#: /var/www/fog/lib/service/multicastmanager.class.php:568
 #, fuzzy
 msgid "has been completed"
 msgstr "已被破坏"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:310
+#: /var/www/fog/lib/service/multicastmanager.class.php:323
 #, fuzzy
 msgid "No tasks found"
 msgstr "发现任务"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:326
+#: /var/www/fog/lib/service/multicastmanager.class.php:339
 #, fuzzy
 msgid "is new"
 msgstr "线"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:336
-#: /var/www/fog/lib/service/multicastmanager.class.php:351
-#: /var/www/fog/lib/service/multicastmanager.class.php:366
+#: /var/www/fog/lib/service/multicastmanager.class.php:349
+#: /var/www/fog/lib/service/multicastmanager.class.php:364
+#: /var/www/fog/lib/service/multicastmanager.class.php:379
 #, fuzzy
 msgid "failed to execute"
 msgstr "无法创建"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:337
+#: /var/www/fog/lib/service/multicastmanager.class.php:350
 #, fuzzy
 msgid "image file"
 msgstr "没有指定的图像"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:339
+#: /var/www/fog/lib/service/multicastmanager.class.php:352
 #, fuzzy
 msgid "not found on this node"
 msgstr "图片没有节点发现"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:352
+#: /var/www/fog/lib/service/multicastmanager.class.php:365
 msgid "no clients are included"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:367
+#: /var/www/fog/lib/service/multicastmanager.class.php:380
 #, fuzzy
 msgid "port must be even and numeric"
 msgstr "您必须输入一个名称"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:379
+#: /var/www/fog/lib/service/multicastmanager.class.php:392
 #, fuzzy
 msgid "failed to start"
 msgstr "未能摧毁"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:389
-#: /var/www/fog/lib/service/multicastmanager.class.php:400
+#: /var/www/fog/lib/service/multicastmanager.class.php:402
+#: /var/www/fog/lib/service/multicastmanager.class.php:413
 #, fuzzy
 msgid "has been cleaned"
 msgstr "已被破坏"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:409
+#: /var/www/fog/lib/service/multicastmanager.class.php:422
 msgid "image file found"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:419
+#: /var/www/fog/lib/service/multicastmanager.class.php:432
 #, fuzzy
 msgid "client"
 msgstr "客户"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:425
+#: /var/www/fog/lib/service/multicastmanager.class.php:438
 #, fuzzy
 msgid "found"
 msgstr "未找到"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:434
+#: /var/www/fog/lib/service/multicastmanager.class.php:447
 #, fuzzy
 msgid "sending on base port"
 msgstr "待MAC出口"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:441
+#: /var/www/fog/lib/service/multicastmanager.class.php:454
 #, fuzzy
 msgid "Command"
 msgstr "管理单元命令"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:451
+#: /var/www/fog/lib/service/multicastmanager.class.php:464
 #, fuzzy
 msgid "has started"
 msgstr "任务开始"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:503
+#: /var/www/fog/lib/service/multicastmanager.class.php:516
 msgid "is already running with pid"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:515
+#: /var/www/fog/lib/service/multicastmanager.class.php:528
 #, fuzzy
 msgid "is no longer running"
 msgstr "不复存在"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:575
+#: /var/www/fog/lib/service/multicastmanager.class.php:588
 #, fuzzy
 msgid "Wait time has changed to"
 msgstr "打印机类型变更为"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:579
+#: /var/www/fog/lib/service/multicastmanager.class.php:592
 msgid "seconds"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:580
+#: /var/www/fog/lib/service/multicastmanager.class.php:593
 #, fuzzy
 msgid "second"
 msgstr "图标"
@@ -8567,6 +8588,9 @@ msgstr "你好FOG客户端"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "有此服务器上没有的位置。"
+
+#~ msgid " * Host Ping is not enabled"
+#~ msgstr "*未启用主机平"
 
 #~ msgid "Invalid storage node"
 #~ msgstr "无效的存储节点"

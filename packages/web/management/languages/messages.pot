@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-19 15:26-0500\n"
+"POT-Creation-Date: 2017-01-19 18:00-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -660,7 +660,7 @@ msgstr ""
 
 #: /var/www/fog/lib/fog/fogbase.class.php:2146
 #: /var/www/fog/lib/fog/fogftp.class.php:372
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2198
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2204
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:85
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:827
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:834
@@ -721,7 +721,7 @@ msgid "No viable macs to use"
 msgstr ""
 
 #: /var/www/fog/lib/fog/host.class.php:1742
-#: /var/www/fog/lib/service/snapinhash.class.php:161
+#: /var/www/fog/lib/service/snapinhash.class.php:171
 msgid "snapin"
 msgstr ""
 
@@ -1544,12 +1544,12 @@ msgstr ""
 #: /var/www/fog/lib/fog/fogpage.class.php:3059
 #: /var/www/fog/lib/fog/fogpage.class.php:3170
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1098
-#: /var/www/fog/lib/service/snapinreplicator.class.php:137
-#: /var/www/fog/lib/service/snapinreplicator.class.php:138
-#: /var/www/fog/lib/service/snapinreplicator.class.php:246
-#: /var/www/fog/lib/service/imagereplicator.class.php:137
-#: /var/www/fog/lib/service/imagereplicator.class.php:138
-#: /var/www/fog/lib/service/imagereplicator.class.php:246
+#: /var/www/fog/lib/service/snapinreplicator.class.php:147
+#: /var/www/fog/lib/service/snapinreplicator.class.php:148
+#: /var/www/fog/lib/service/snapinreplicator.class.php:256
+#: /var/www/fog/lib/service/imagereplicator.class.php:148
+#: /var/www/fog/lib/service/imagereplicator.class.php:149
+#: /var/www/fog/lib/service/imagereplicator.class.php:257
 #: /var/www/fog/commons/text.php:44
 msgid "Group"
 msgstr ""
@@ -1587,7 +1587,7 @@ msgid "table backup"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3314
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2261
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2267
 #: /var/www/fog/commons/text.php:98
 msgid "Export"
 msgstr ""
@@ -1662,7 +1662,7 @@ msgid "Row"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3606
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2279
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2285
 msgid "Import"
 msgstr ""
 
@@ -2728,126 +2728,126 @@ msgstr ""
 msgid " mac addresses updated!"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1342
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1348
 msgid "FOG System Settings"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1347
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1353
 msgid "This section allows you to customize or alter "
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1348
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1354
 msgid "the way in which FOG operates. "
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1349
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1355
 msgid "Please be very careful changing any of "
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1350
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1356
 msgid "the following settings, as they can cause "
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1351
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1357
 msgid "issues that are difficult to troubleshoot."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1531
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1537
 msgid "No image specified"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1676
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1682
 #: /var/www/fog/commons/text.php:180
 msgid "Save Changes"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1707
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1713
 msgid "No Image specified"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1909
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1915
 msgid "Width must be 650 pixels."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1915
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1921
 msgid "Height must be 120 pixels."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2031
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2037
 msgid "Service Master"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2040
-#: /var/www/fog/lib/service/taskscheduler.class.php:202
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2046
+#: /var/www/fog/lib/service/taskscheduler.class.php:212
 #: /var/www/fog/commons/text.php:102
 msgid "Multicast"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2049
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2055
 msgid "Scheduler"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2058
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2064
 msgid "Image Replicator"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2067
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2073
 msgid "Snapin Replicator"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2076
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2082
 msgid "Snapin Hash"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2085
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2091
 msgid "Ping Hosts"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2127
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2133
 msgid "Image Transfer Log"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2141
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2147
 msgid "Snapin Transfer Log"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2193
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2199
 msgid "FOG Log Viewer"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2200
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2206
 msgid "Number of lines"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2234
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2240
 msgid "Reverse the file: (newest on top)"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2258
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2264
 msgid "Click the button to export the database."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2270
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2276
 msgid "Import a previous backup file."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2312
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2318
 msgid "Database Imported and added successfully"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2314
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2320
 msgid "Errors detected on import"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2320
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2326
 msgid "Database changes reverted"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2324
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2330
 msgid "Errors on revert detected"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2330
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2336
 msgid "There were errors during import"
 msgstr ""
 
@@ -4108,13 +4108,13 @@ msgid "No"
 msgstr ""
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1044
-#: /var/www/fog/lib/service/taskscheduler.class.php:183
+#: /var/www/fog/lib/service/taskscheduler.class.php:193
 msgid "group"
 msgstr ""
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1045
-#: /var/www/fog/lib/service/taskscheduler.class.php:186
-#: /var/www/fog/lib/service/pinghosts.class.php:149
+#: /var/www/fog/lib/service/taskscheduler.class.php:196
+#: /var/www/fog/lib/service/pinghosts.class.php:148
 msgid "host"
 msgstr ""
 
@@ -4908,24 +4908,24 @@ msgid "Imaged"
 msgstr ""
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:173
-#: /var/www/fog/lib/service/multicastmanager.class.php:217
-#: /var/www/fog/lib/service/multicastmanager.class.php:258
-#: /var/www/fog/lib/service/multicastmanager.class.php:279
-#: /var/www/fog/lib/service/multicastmanager.class.php:323
-#: /var/www/fog/lib/service/multicastmanager.class.php:333
-#: /var/www/fog/lib/service/multicastmanager.class.php:348
-#: /var/www/fog/lib/service/multicastmanager.class.php:363
+#: /var/www/fog/lib/service/multicastmanager.class.php:230
+#: /var/www/fog/lib/service/multicastmanager.class.php:271
+#: /var/www/fog/lib/service/multicastmanager.class.php:292
+#: /var/www/fog/lib/service/multicastmanager.class.php:336
+#: /var/www/fog/lib/service/multicastmanager.class.php:346
+#: /var/www/fog/lib/service/multicastmanager.class.php:361
 #: /var/www/fog/lib/service/multicastmanager.class.php:376
-#: /var/www/fog/lib/service/multicastmanager.class.php:386
-#: /var/www/fog/lib/service/multicastmanager.class.php:397
-#: /var/www/fog/lib/service/multicastmanager.class.php:406
-#: /var/www/fog/lib/service/multicastmanager.class.php:415
-#: /var/www/fog/lib/service/multicastmanager.class.php:431
-#: /var/www/fog/lib/service/multicastmanager.class.php:448
-#: /var/www/fog/lib/service/multicastmanager.class.php:500
-#: /var/www/fog/lib/service/multicastmanager.class.php:512
-#: /var/www/fog/lib/service/multicastmanager.class.php:529
-#: /var/www/fog/lib/service/multicastmanager.class.php:552
+#: /var/www/fog/lib/service/multicastmanager.class.php:389
+#: /var/www/fog/lib/service/multicastmanager.class.php:399
+#: /var/www/fog/lib/service/multicastmanager.class.php:410
+#: /var/www/fog/lib/service/multicastmanager.class.php:419
+#: /var/www/fog/lib/service/multicastmanager.class.php:428
+#: /var/www/fog/lib/service/multicastmanager.class.php:444
+#: /var/www/fog/lib/service/multicastmanager.class.php:461
+#: /var/www/fog/lib/service/multicastmanager.class.php:513
+#: /var/www/fog/lib/service/multicastmanager.class.php:525
+#: /var/www/fog/lib/service/multicastmanager.class.php:542
+#: /var/www/fog/lib/service/multicastmanager.class.php:565
 #: /var/www/fog/commons/text.php:84
 msgid "Task"
 msgstr ""
@@ -6511,191 +6511,207 @@ msgstr ""
 msgid "A valid database connection could not be made"
 msgstr ""
 
-#: /var/www/fog/lib/service/taskscheduler.class.php:192
+#: /var/www/fog/lib/service/taskscheduler.class.php:97
+msgid " * Task Scheduler is globally disabled"
+msgstr ""
+
+#: /var/www/fog/lib/service/taskscheduler.class.php:202
 msgid "Is a"
 msgstr ""
 
-#: /var/www/fog/lib/service/taskscheduler.class.php:194
+#: /var/www/fog/lib/service/taskscheduler.class.php:204
 msgid "based task"
 msgstr ""
 
-#: /var/www/fog/lib/service/taskscheduler.class.php:203
+#: /var/www/fog/lib/service/taskscheduler.class.php:213
 msgid "Unicast"
 msgstr ""
 
-#: /var/www/fog/lib/service/taskscheduler.class.php:205
+#: /var/www/fog/lib/service/taskscheduler.class.php:215
 msgid "task found"
 msgstr ""
 
-#: /var/www/fog/lib/service/taskscheduler.class.php:231
+#: /var/www/fog/lib/service/taskscheduler.class.php:241
 msgid "Tasks started for"
 msgstr ""
 
-#: /var/www/fog/lib/service/taskscheduler.class.php:250
+#: /var/www/fog/lib/service/taskscheduler.class.php:260
 msgid "Task sent to"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:101
+#: /var/www/fog/lib/service/snapinhash.class.php:102
+msgid " * Snapin hash is globally disabled"
+msgstr ""
+
+#: /var/www/fog/lib/service/snapinhash.class.php:111
 msgid "Starting Snapin Hashing Service"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:107
-#: /var/www/fog/lib/service/snapinreplicator.class.php:114
-#: /var/www/fog/lib/service/imagereplicator.class.php:114
+#: /var/www/fog/lib/service/snapinhash.class.php:117
+#: /var/www/fog/lib/service/snapinreplicator.class.php:124
+#: /var/www/fog/lib/service/imagereplicator.class.php:125
 msgid "We are group ID"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:109
-#: /var/www/fog/lib/service/snapinreplicator.class.php:116
-#: /var/www/fog/lib/service/imagereplicator.class.php:116
+#: /var/www/fog/lib/service/snapinhash.class.php:119
+#: /var/www/fog/lib/service/snapinreplicator.class.php:126
+#: /var/www/fog/lib/service/imagereplicator.class.php:127
 msgid "We are group name"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:116
-#: /var/www/fog/lib/service/snapinreplicator.class.php:123
-#: /var/www/fog/lib/service/imagereplicator.class.php:123
+#: /var/www/fog/lib/service/snapinhash.class.php:126
+#: /var/www/fog/lib/service/snapinreplicator.class.php:133
+#: /var/www/fog/lib/service/imagereplicator.class.php:134
 msgid "We are node ID"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:118
-#: /var/www/fog/lib/service/snapinreplicator.class.php:125
-#: /var/www/fog/lib/service/imagereplicator.class.php:125
+#: /var/www/fog/lib/service/snapinhash.class.php:128
+#: /var/www/fog/lib/service/snapinreplicator.class.php:135
+#: /var/www/fog/lib/service/imagereplicator.class.php:136
 msgid "We are node name"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:125
+#: /var/www/fog/lib/service/snapinhash.class.php:135
 msgid "Finding any snapins associated"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:126
+#: /var/www/fog/lib/service/snapinhash.class.php:136
 msgid "with this group"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:127
+#: /var/www/fog/lib/service/snapinhash.class.php:137
 msgid "as its primary group"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:148
+#: /var/www/fog/lib/service/snapinhash.class.php:158
 msgid "No snapins associated with this group as master"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:156
+#: /var/www/fog/lib/service/snapinhash.class.php:166
 #: /var/www/fog/lib/service/fogservice.class.php:390
 msgid "Found"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:160
+#: /var/www/fog/lib/service/snapinhash.class.php:170
 msgid "snapins"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:163
+#: /var/www/fog/lib/service/snapinhash.class.php:173
 msgid "to update hash values as needed"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:178
+#: /var/www/fog/lib/service/snapinhash.class.php:188
 msgid "Snapin hash already set"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:196
+#: /var/www/fog/lib/service/snapinhash.class.php:206
 msgid "Getting snapin hash and size for"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:206
+#: /var/www/fog/lib/service/snapinhash.class.php:216
 msgid "Hash"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:222
+#: /var/www/fog/lib/service/snapinhash.class.php:232
 msgid "Completed"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:98
-#: /var/www/fog/lib/service/imagereplicator.class.php:98
-msgid "I am the group manager"
+#: /var/www/fog/lib/service/snapinreplicator.class.php:102
+msgid " * Snapin replication is globally disabled"
 msgstr ""
 
 #: /var/www/fog/lib/service/snapinreplicator.class.php:108
+#: /var/www/fog/lib/service/imagereplicator.class.php:109
+msgid "I am the group manager"
+msgstr ""
+
+#: /var/www/fog/lib/service/snapinreplicator.class.php:118
 msgid "Starting Snapin Replication"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:136
-#: /var/www/fog/lib/service/snapinreplicator.class.php:245
-#: /var/www/fog/lib/service/imagereplicator.class.php:136
-#: /var/www/fog/lib/service/imagereplicator.class.php:245
+#: /var/www/fog/lib/service/snapinreplicator.class.php:146
+#: /var/www/fog/lib/service/snapinreplicator.class.php:255
+#: /var/www/fog/lib/service/imagereplicator.class.php:147
+#: /var/www/fog/lib/service/imagereplicator.class.php:256
 msgid "Attempting to perform"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:139
-#: /var/www/fog/lib/service/snapinreplicator.class.php:248
+#: /var/www/fog/lib/service/snapinreplicator.class.php:149
+#: /var/www/fog/lib/service/snapinreplicator.class.php:258
 msgid "snapin replication"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:189
-#: /var/www/fog/lib/service/imagereplicator.class.php:189
+#: /var/www/fog/lib/service/snapinreplicator.class.php:199
+#: /var/www/fog/lib/service/imagereplicator.class.php:200
 msgid "There is nothing to replicate"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:195
-#: /var/www/fog/lib/service/imagereplicator.class.php:195
+#: /var/www/fog/lib/service/snapinreplicator.class.php:205
+#: /var/www/fog/lib/service/imagereplicator.class.php:206
 msgid "Please physically associate"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:196
+#: /var/www/fog/lib/service/snapinreplicator.class.php:206
 msgid "snapins to a storage group"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:218
+#: /var/www/fog/lib/service/snapinreplicator.class.php:228
 msgid "Not syncing Snapin"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:225
-#: /var/www/fog/lib/service/imagereplicator.class.php:225
+#: /var/www/fog/lib/service/snapinreplicator.class.php:235
+#: /var/www/fog/lib/service/imagereplicator.class.php:236
 msgid "This is not the primary group"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:247
-#: /var/www/fog/lib/service/imagereplicator.class.php:247
+#: /var/www/fog/lib/service/snapinreplicator.class.php:257
+#: /var/www/fog/lib/service/imagereplicator.class.php:258
 msgid "Nodes"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:283
-#: /var/www/fog/lib/service/imagereplicator.class.php:283
+#: /var/www/fog/lib/service/snapinreplicator.class.php:293
+#: /var/www/fog/lib/service/imagereplicator.class.php:294
 msgid "Checking if I am the group manager"
 msgstr ""
 
-#: /var/www/fog/lib/service/imagereplicator.class.php:108
+#: /var/www/fog/lib/service/imagereplicator.class.php:103
+msgid " * Image replication is globally disabled"
+msgstr ""
+
+#: /var/www/fog/lib/service/imagereplicator.class.php:119
 msgid "Starting Image Replication"
 msgstr ""
 
-#: /var/www/fog/lib/service/imagereplicator.class.php:139
-#: /var/www/fog/lib/service/imagereplicator.class.php:248
+#: /var/www/fog/lib/service/imagereplicator.class.php:150
+#: /var/www/fog/lib/service/imagereplicator.class.php:259
 msgid "image replication"
 msgstr ""
 
-#: /var/www/fog/lib/service/imagereplicator.class.php:196
+#: /var/www/fog/lib/service/imagereplicator.class.php:207
 msgid "images to a storage group"
 msgstr ""
 
-#: /var/www/fog/lib/service/imagereplicator.class.php:218
+#: /var/www/fog/lib/service/imagereplicator.class.php:229
 msgid "Not syncing Image"
 msgstr ""
 
-#: /var/www/fog/lib/service/pinghosts.class.php:114
-msgid " * Host Ping is not enabled"
+#: /var/www/fog/lib/service/pinghosts.class.php:113
+msgid " * Ping hosts is globally disabled"
 msgstr ""
 
-#: /var/www/fog/lib/service/pinghosts.class.php:125
+#: /var/www/fog/lib/service/pinghosts.class.php:124
 msgid "I am not the fog web server"
 msgstr ""
 
-#: /var/www/fog/lib/service/pinghosts.class.php:133
+#: /var/www/fog/lib/service/pinghosts.class.php:132
 msgid "This servers ip(s)"
 msgstr ""
 
-#: /var/www/fog/lib/service/pinghosts.class.php:144
+#: /var/www/fog/lib/service/pinghosts.class.php:143
 msgid "Attempting to ping"
 msgstr ""
 
-#: /var/www/fog/lib/service/pinghosts.class.php:148
+#: /var/www/fog/lib/service/pinghosts.class.php:147
 msgid "hosts"
 msgstr ""
 
@@ -6781,112 +6797,116 @@ msgstr ""
 msgid "Or there was no number defined for joining session"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:198
+#: /var/www/fog/lib/service/multicastmanager.class.php:181
+msgid " * Multicast service is globally disabled"
+msgstr ""
+
+#: /var/www/fog/lib/service/multicastmanager.class.php:211
 msgid "Cleaning"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:200
+#: /var/www/fog/lib/service/multicastmanager.class.php:213
 msgid "task"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:206
+#: /var/www/fog/lib/service/multicastmanager.class.php:219
 msgid "as they have been removed"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:220
+#: /var/www/fog/lib/service/multicastmanager.class.php:233
 msgid "is being cleaned"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:261
-#: /var/www/fog/lib/service/multicastmanager.class.php:532
+#: /var/www/fog/lib/service/multicastmanager.class.php:274
+#: /var/www/fog/lib/service/multicastmanager.class.php:545
 msgid "has been cancelled"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:282
-#: /var/www/fog/lib/service/multicastmanager.class.php:555
+#: /var/www/fog/lib/service/multicastmanager.class.php:295
+#: /var/www/fog/lib/service/multicastmanager.class.php:568
 msgid "has been completed"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:310
+#: /var/www/fog/lib/service/multicastmanager.class.php:323
 msgid "No tasks found"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:326
+#: /var/www/fog/lib/service/multicastmanager.class.php:339
 msgid "is new"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:336
-#: /var/www/fog/lib/service/multicastmanager.class.php:351
-#: /var/www/fog/lib/service/multicastmanager.class.php:366
+#: /var/www/fog/lib/service/multicastmanager.class.php:349
+#: /var/www/fog/lib/service/multicastmanager.class.php:364
+#: /var/www/fog/lib/service/multicastmanager.class.php:379
 msgid "failed to execute"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:337
+#: /var/www/fog/lib/service/multicastmanager.class.php:350
 msgid "image file"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:339
+#: /var/www/fog/lib/service/multicastmanager.class.php:352
 msgid "not found on this node"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:352
+#: /var/www/fog/lib/service/multicastmanager.class.php:365
 msgid "no clients are included"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:367
+#: /var/www/fog/lib/service/multicastmanager.class.php:380
 msgid "port must be even and numeric"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:379
+#: /var/www/fog/lib/service/multicastmanager.class.php:392
 msgid "failed to start"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:389
-#: /var/www/fog/lib/service/multicastmanager.class.php:400
+#: /var/www/fog/lib/service/multicastmanager.class.php:402
+#: /var/www/fog/lib/service/multicastmanager.class.php:413
 msgid "has been cleaned"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:409
+#: /var/www/fog/lib/service/multicastmanager.class.php:422
 msgid "image file found"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:419
+#: /var/www/fog/lib/service/multicastmanager.class.php:432
 msgid "client"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:425
+#: /var/www/fog/lib/service/multicastmanager.class.php:438
 msgid "found"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:434
+#: /var/www/fog/lib/service/multicastmanager.class.php:447
 msgid "sending on base port"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:441
+#: /var/www/fog/lib/service/multicastmanager.class.php:454
 msgid "Command"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:451
+#: /var/www/fog/lib/service/multicastmanager.class.php:464
 msgid "has started"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:503
+#: /var/www/fog/lib/service/multicastmanager.class.php:516
 msgid "is already running with pid"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:515
+#: /var/www/fog/lib/service/multicastmanager.class.php:528
 msgid "is no longer running"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:575
+#: /var/www/fog/lib/service/multicastmanager.class.php:588
 msgid "Wait time has changed to"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:579
+#: /var/www/fog/lib/service/multicastmanager.class.php:592
 msgid "seconds"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:580
+#: /var/www/fog/lib/service/multicastmanager.class.php:593
 msgid "second"
 msgstr ""
 
