@@ -22,8 +22,7 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
-FOGCore::getClass(
-    'HostnameChanger',
+new HostnameChanger(
     true,
     false,
     false,

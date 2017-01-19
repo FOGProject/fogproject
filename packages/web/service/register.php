@@ -24,8 +24,7 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
-FOGCore::getClass(
-    'RegisterClient',
+new RegisterClient(
     true,
     false,
     isset($_REQUEST['newService']),

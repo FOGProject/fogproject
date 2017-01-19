@@ -20,7 +20,6 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
-FOGCore::getClass(
-    'Registration',
+new Registration(
     true
 );

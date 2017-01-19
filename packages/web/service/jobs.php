@@ -20,8 +20,7 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
-FOGCore::getClass(
-    'Jobs',
+new Jobs(
     true,
     false,
     false,

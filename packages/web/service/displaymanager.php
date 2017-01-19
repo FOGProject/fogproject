@@ -20,8 +20,7 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
-FOGCore::getClass(
-    'DisplayManager',
+new DisplayManager(
     true,
     false,
     false,

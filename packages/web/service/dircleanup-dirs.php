@@ -22,8 +22,7 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
-FOGCore::getClass(
-    'DirectoryCleanup',
+new DirectoryCleanup(
     true,
     false,
     false,
