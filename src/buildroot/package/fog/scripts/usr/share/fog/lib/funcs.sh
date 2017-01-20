@@ -1442,7 +1442,7 @@ handleError() {
     echo "##############################################################################"
     echo -e "$str\n"
     echo "Kernel variables and settings:"
-    cat /proc/cmdline
+    cat /proc/cmdline | sed 's/ad.*=.* //g'
     #
     # expand the file systems in the restored partitions
     #
