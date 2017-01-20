@@ -374,6 +374,9 @@ class BootMenu extends FOGBase
         if ($_REQUEST['extraargs']) {
             $_SESSION['extraargs'] = $_REQUEST['extraargs'];
         }
+        self::$HookManager->process(
+            'ALTERNATE_BOOT_CHECKS'
+        );
         if (isset($_REQUEST['username'])) {
             $this->verifyCreds();
         } elseif ($_REQUEST['delconf']) {
@@ -1135,6 +1138,8 @@ class BootMenu extends FOGBase
             $_REQUEST['password']
         );
         if ($tmpUser->isValid()) {
+            self::$HookManager
+                ->processEvent('ALTERNATE_LOGIN_BOOT_MENU_PARAMS');
             if ($advLogin && $_REQUEST['advLog']) {
                 $this->advLogin();
             }
@@ -1156,8 +1161,6 @@ class BootMenu extends FOGBase
             } else {
                 $this->printDefault();
             }
-            self::$HookManager
-                ->processEvent('ALTERNATE_LOGIN_BOOT_MENU_PARAMS');
         } else {
             $Send['invalidlogin'] = array(
                 "echo Invalid login!",
