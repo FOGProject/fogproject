@@ -225,6 +225,12 @@ abstract class FOGBase
      */
     public static $mySchema = 0;
     /**
+     * Allows pages to include the main gui or not.
+     *
+     * @var bool
+     */
+    public static $showhtml = true;
+    /**
      * Initializes the FOG System if needed.
      *
      * @return void
