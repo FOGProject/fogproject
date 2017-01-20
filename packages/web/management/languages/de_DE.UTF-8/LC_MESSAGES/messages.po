@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-20 08:25-0500\n"
+"POT-Creation-Date: 2017-01-20 16:12-0500\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -1206,12 +1206,14 @@ msgid "task for"
 msgstr "Aufgabe für"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1066
-msgid "Are you sure you wish to deploy task to these machines"
+#, fuzzy
+msgid "Are you sure you wish task these machines"
 msgstr ""
 "Sind Sie sicher, dass Sie Aufgabe, diese Maschinen bereitstellen möchten"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1076
-msgid "Please select the snapin you want to deploy"
+#, fuzzy
+msgid "Please select the snapin you want to install"
 msgstr "Bitte wählen Sie das Snap-in, die, das Sie bereitstellen möchten"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1102
@@ -1245,15 +1247,17 @@ msgstr "Aufgabe als Debug Task planen"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1164
 #: /var/www/fog/lib/fog/fogpage.class.php:1220
-msgid "Instant Deployment"
-msgstr "Sofortige Bereitstellung"
+msgid "Instant"
+msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1171
-msgid "Delayed Deployment"
-msgstr "Verzögerte Bereitstellung"
+#: /var/www/fog/lib/fog/scheduledtask.class.php:130
+msgid "Delayed"
+msgstr "Verzögert"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1181
-msgid "Cron-style Deployment"
+#, fuzzy
+msgid "Cron-style"
 msgstr "Cron-Stil-Bereitstellung"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1185
@@ -1799,10 +1803,6 @@ msgstr "Fehler"
 #: /var/www/fog/lib/fog/scheduledtask.class.php:130
 msgid "Cron"
 msgstr "Cron"
-
-#: /var/www/fog/lib/fog/scheduledtask.class.php:130
-msgid "Delayed"
-msgstr "Verzögert"
 
 #: /var/www/fog/lib/fog/service.class.php:218
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:412
@@ -3314,8 +3314,8 @@ msgstr ""
 
 #: /var/www/fog/lib/pages/clientmanagementpage.class.php:105
 #, fuzzy
-msgid "Network Deployment"
-msgstr "MSI - Netzwerkeinrichtung"
+msgid "Network Installer"
+msgstr "Netzwerk-Drucker"
 
 #: /var/www/fog/lib/pages/clientmanagementpage.class.php:112
 #, fuzzy
@@ -8660,6 +8660,16 @@ msgstr "Hallo Nebel Client"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "Es gibt keine Orte auf diesem Server."
+
+#~ msgid "Instant Deployment"
+#~ msgstr "Sofortige Bereitstellung"
+
+#~ msgid "Delayed Deployment"
+#~ msgstr "Verzögerte Bereitstellung"
+
+#, fuzzy
+#~ msgid "Network Deployment"
+#~ msgstr "MSI - Netzwerkeinrichtung"
 
 #~ msgid " * Host Ping is not enabled"
 #~ msgstr " * Host Ping ist nicht aktiviert"

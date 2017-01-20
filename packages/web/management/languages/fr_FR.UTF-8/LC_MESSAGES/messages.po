@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-20 08:25-0500\n"
+"POT-Creation-Date: 2017-01-20 16:12-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1208,11 +1208,13 @@ msgid "task for"
 msgstr "tâche"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1066
-msgid "Are you sure you wish to deploy task to these machines"
+#, fuzzy
+msgid "Are you sure you wish task these machines"
 msgstr "Etes-vous sûr que vous souhaitez déployer la tâche à ces machines"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1076
-msgid "Please select the snapin you want to deploy"
+#, fuzzy
+msgid "Please select the snapin you want to install"
 msgstr "S'il vous plaît sélectionner le snapin vous souhaitez déployer"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1102
@@ -1246,15 +1248,17 @@ msgstr "Planifier une tâche comme une tâche de débogage"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1164
 #: /var/www/fog/lib/fog/fogpage.class.php:1220
-msgid "Instant Deployment"
-msgstr "déploiement instantané"
+msgid "Instant"
+msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1171
-msgid "Delayed Deployment"
-msgstr "déploiement différé"
+#: /var/www/fog/lib/fog/scheduledtask.class.php:130
+msgid "Delayed"
+msgstr "Différé"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1181
-msgid "Cron-style Deployment"
+#, fuzzy
+msgid "Cron-style"
 msgstr "Déploiement Cron style"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1185
@@ -1802,10 +1806,6 @@ msgstr "les erreurs"
 #: /var/www/fog/lib/fog/scheduledtask.class.php:130
 msgid "Cron"
 msgstr "Cron"
-
-#: /var/www/fog/lib/fog/scheduledtask.class.php:130
-msgid "Delayed"
-msgstr "Différé"
 
 #: /var/www/fog/lib/fog/service.class.php:218
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:412
@@ -3318,8 +3318,8 @@ msgstr ""
 
 #: /var/www/fog/lib/pages/clientmanagementpage.class.php:105
 #, fuzzy
-msgid "Network Deployment"
-msgstr "MSI - Network Deployment"
+msgid "Network Installer"
+msgstr "Imprimante réseau"
 
 #: /var/www/fog/lib/pages/clientmanagementpage.class.php:112
 #, fuzzy
@@ -8661,6 +8661,16 @@ msgstr "Bonjour FOG client"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "Il n'y a aucun emplacement sur ce serveur."
+
+#~ msgid "Instant Deployment"
+#~ msgstr "déploiement instantané"
+
+#~ msgid "Delayed Deployment"
+#~ msgstr "déploiement différé"
+
+#, fuzzy
+#~ msgid "Network Deployment"
+#~ msgstr "MSI - Network Deployment"
 
 #~ msgid " * Host Ping is not enabled"
 #~ msgstr " * Host Ping est pas activé"

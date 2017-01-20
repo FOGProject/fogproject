@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-20 08:26-0500\n"
+"POT-Creation-Date: 2017-01-20 16:12-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1117,11 +1117,11 @@ msgid "task for"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1066
-msgid "Are you sure you wish to deploy task to these machines"
+msgid "Are you sure you wish task these machines"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1076
-msgid "Please select the snapin you want to deploy"
+msgid "Please select the snapin you want to install"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1102
@@ -1155,15 +1155,16 @@ msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1164
 #: /var/www/fog/lib/fog/fogpage.class.php:1220
-msgid "Instant Deployment"
+msgid "Instant"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1171
-msgid "Delayed Deployment"
+#: /var/www/fog/lib/fog/scheduledtask.class.php:130
+msgid "Delayed"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1181
-msgid "Cron-style Deployment"
+msgid "Cron-style"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1185
@@ -1686,10 +1687,6 @@ msgstr ""
 
 #: /var/www/fog/lib/fog/scheduledtask.class.php:130
 msgid "Cron"
-msgstr ""
-
-#: /var/www/fog/lib/fog/scheduledtask.class.php:130
-msgid "Delayed"
 msgstr ""
 
 #: /var/www/fog/lib/fog/service.class.php:218
@@ -3154,7 +3151,7 @@ msgid "MSI"
 msgstr ""
 
 #: /var/www/fog/lib/pages/clientmanagementpage.class.php:105
-msgid "Network Deployment"
+msgid "Network Installer"
 msgstr ""
 
 #: /var/www/fog/lib/pages/clientmanagementpage.class.php:112

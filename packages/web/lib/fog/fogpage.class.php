@@ -1063,7 +1063,7 @@ abstract class FOGPage extends FOGBase
         );
         printf(
             '<p class="c"><b>%s</b></p>',
-            _('Are you sure you wish to deploy task to these machines')
+            _('Are you sure you wish task these machines')
         );
         printf(
             '<form method="post" action="%s" id="deploy-container">',
@@ -1073,7 +1073,7 @@ abstract class FOGPage extends FOGBase
         if ($TaskType->get('id') == 13) {
             printf(
                 '<p class="c"><p>%s</p>',
-                _('Please select the snapin you want to deploy')
+                _('Please select the snapin you want to install')
             );
             if ($this->obj instanceof Host) {
                 ob_start();
@@ -1161,14 +1161,14 @@ abstract class FOGPage extends FOGBase
                 . 'for="scheduleInstant">%s <u>%s'
                 . '</u></label></p>',
                 _('Schedule'),
-                _('Instant Deployment')
+                _('Instant')
             );
             printf(
                 '<p><input type="radio" name="scheduleType" '
                 . 'id="scheduleSingle" value="single" autocomplete="off"/>'
                 . '<label for="scheduleSingle">%s <u>%s</u></label></p>',
                 _('Schedule'),
-                _('Delayed Deployment')
+                _('Delayed')
             );
             echo '<p class="hidden hideFromDebug" id="singleOptions">'
                 . '<input type="text" name="scheduleSingleTime" '
@@ -1178,7 +1178,7 @@ abstract class FOGPage extends FOGBase
                 . 'id="scheduleCron" value="cron" autocomplete="off">'
                 . '<label for="scheduleCron">%s <u>%s</u></label></p>',
                 _('Schedule'),
-                _('Cron-style Deployment')
+                _('Cron-style')
             );
             echo '<p class="hidden hideFromDebug" id="cronOptions">';
             $specialCrons = array(
@@ -1217,7 +1217,7 @@ abstract class FOGPage extends FOGBase
                 . 'value="instant" autocomplete="off" checked/><label '
                 . 'for="scheduleInstant">%s <u>%s</u></label></p>',
                 _('Schedule'),
-                _('Instant Deployment')
+                _('Instant')
             );
         }
         if ($TaskType->get('id') == 11) {
