@@ -947,11 +947,12 @@ abstract class FOGPage extends FOGBase
                 '#\$\{%s\}#',
                 $name
             );
-            if (!empty($val)) {
-                $this->dataReplace[] = str_replace('\\', '\\\\', $val);
-            } else {
-                $this->dataReplace[] = '';
-            }
+            $val = trim($val);
+            $this->dataReplace[] = str_replace(
+                '\\',
+                '\\\\',
+                $val
+            );
             unset($val);
         }
     }
