@@ -386,56 +386,60 @@ class TaskQueue extends TaskingElement
         if ($this->Task->isSnapinTasking()) {
             die('##');
         }
-        if ($this->Task->isMulticast()) {
-            $MCTask = self::getClass('MulticastSessionsAssociation')
-                ->set(
-                    'taskID',
-                    $this->Task->get('id')
-                )->load('taskID');
-            $MulticastSession = $MCTask->getMulticastSession();
-            if ($MulticastSession->get('clients') < 0) {
-                $clients = 1;
-            } else {
-                $clients = $MulticastSession->get('clients') - 1;
+        try {
+            if ($this->Task->isMulticast()) {
+                $MCTask = self::getClass('MulticastSessionsAssociation')
+                    ->set(
+                        'taskID',
+                        $this->Task->get('id')
+                    )->load('taskID');
+                $MulticastSession = $MCTask->getMulticastSession();
+                if ($MulticastSession->get('clients') < 0) {
+                    $clients = 1;
+                } else {
+                    $clients = $MulticastSession->get('clients') - 1;
+                }
+                $MulticastSession
+                    ->set('clients', $clients)
+                    ->save();
             }
-            $MulticastSession
-                ->set('clients', $clients)
-                ->save();
-        }
-        $this->Host
-            ->set('pub_key', '')
-            ->set('sec_tok', '');
-        if ($this->Task->isDeploy()) {
             $this->Host
-                ->set('deployed', self::niceDate()->format('Y-m-d H:i:s'));
-            $this->_email();
-        } elseif ($this->Task->isCapture()) {
-            $this->_moveUpload();
-        }
-        $this->Task
-            ->set('pct', 100)
-            ->set('percent', 100)
-            ->set('stateID', self::getCompleteState());
-        if (!$this->Host->save()) {
-            throw new Exception(_('Failed to update Host'));
-        }
-        if (!$this->Task->save()) {
-            throw new Exception(_('Failed to update Task'));
-        }
-        if (!$this->taskLog()) {
-            throw new Exception(_('Failed to update task log'));
-        }
-        if ($this->imagingTask) {
-            if (!$this->imageLog(false)) {
-                throw new Exception(_('Failed to update imaging log'));
+                ->set('pub_key', '')
+                ->set('sec_tok', '');
+            if ($this->Task->isDeploy()) {
+                $this->Host
+                    ->set('deployed', self::niceDate()->format('Y-m-d H:i:s'));
+                $this->_email();
+            } elseif ($this->Task->isCapture()) {
+                $this->_moveUpload();
             }
+            $this->Task
+                ->set('pct', 100)
+                ->set('percent', 100)
+                ->set('stateID', self::getCompleteState());
+            if (!$this->Host->save()) {
+                throw new Exception(_('Failed to update Host'));
+            }
+            if (!$this->Task->save()) {
+                throw new Exception(_('Failed to update Task'));
+            }
+            if (!$this->taskLog()) {
+                throw new Exception(_('Failed to update task log'));
+            }
+            if ($this->imagingTask) {
+                if (!$this->imageLog(false)) {
+                    throw new Exception(_('Failed to update imaging log'));
+                }
+            }
+            self::$EventManager->notify(
+                'HOST_IMAGE_COMPLETE',
+                array(
+                    'HostName' => $this->Host->get('name')
+                )
+            );
+            echo '##';
+        } catch (Exception $e) {
+            echo $e->getMessage();
         }
-        self::$EventManager->notify(
-            'HOST_IMAGE_COMPLETE',
-            array(
-                'HostName' => $this->Host->get('name')
-            )
-        );
-        echo '##';
     }
 }
