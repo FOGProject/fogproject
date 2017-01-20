@@ -10,7 +10,7 @@ case $type in
         poststring="mac=$mac&type=$type&osid=$osid"
         ;;
     *)
-        handleError "Wrong type for this completetion script ($0)\n   Args Passed: $*"
+        handleError "Wrong type for this completion script ($0)\n   Args Passed: $*"
         ;;
 esac
 count=0
@@ -22,6 +22,7 @@ while [[ $res != "##" ]]; do
         echo "Failed"
         debugPause
         printf " * Error returned: %s" "$res"
+        echo
         debugPause
         dots "Reattempting to update database"
     fi
@@ -29,6 +30,7 @@ while [[ $res != "##" ]]; do
         echo "Failed"
         debugPause
         printf " * Error returned: %s" "$res"
+        echo
         debugPause
         handleError "Could not complete tasking ($0)\n   Args Passed: $*"
     fi
