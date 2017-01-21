@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * @category AddWindowsKeysImage
+ * @category AddWindowsKeyImage
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @author   Lee Rowlett <nah@nah.com>
@@ -14,21 +14,21 @@
 /**
  * Adds the windows keys choice to image.
  *
- * @category AddWindowsKeysImage
+ * @category AddWindowsKeyImage
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @author   Lee Rowlett <nah@nah.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class AddWindowsKeysImage extends Hook
+class AddWindowsKeyImage extends Hook
 {
     /**
      * The name of this hook.
      *
      * @var string
      */
-    public $name = 'AddWindowsKeysImage';
+    public $name = 'AddWindowsKeyImage';
     /**
      * The description of this hook.
      *
@@ -46,9 +46,9 @@ class AddWindowsKeysImage extends Hook
      *
      * @var string
      */
-    public $node = 'windowskeys';
+    public $node = 'windowskey';
 }
-$AddWindowsKeysImage = new AddWindowsKeysImage();
+$AddWindowsKeyImage = new AddWindowsKeyImage();
 /*
 $HookManager
     ->register(

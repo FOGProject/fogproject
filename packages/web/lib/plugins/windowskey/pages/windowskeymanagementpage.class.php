@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * @category WindowsKeysManagementPage
+ * @category WindowsKeyManagementPage
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @author   Lee Rowlett <nah@nah.com>
@@ -14,21 +14,21 @@
 /**
  * Windows Keys management page.
  *
- * @category WindowsKeysManagementPage
+ * @category WindowsKeyManagementPage
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @author   Lee Rowlett <nah@nah.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class WindowsKeysManagementPage extends FOGPage
+class WindowsKeyManagementPage extends FOGPage
 {
     /**
      * The node this page operates on.
      *
      * @var string
      */
-    public $node = 'windowskeys';
+    public $node = 'windowskey';
     /**
      * Initializes the Location management page.
      *

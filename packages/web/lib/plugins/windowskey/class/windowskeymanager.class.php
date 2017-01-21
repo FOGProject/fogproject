@@ -1,25 +1,25 @@
 <?php
 /**
- * Windows Keys manager mass management class
+ * Windows Key manager mass management class
  *
  * PHP version 5
  *
- * @category WindowsKeysManager
+ * @category WindowsKeyManager
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
 /**
- * Windows Keys manager mass management class
+ * Windows Key manager mass management class
  *
- * @category WindowsKeysManager
+ * @category WindowsKeyManager
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class WindowsKeysManager extends FOGManagerController
+class WindowsKeyManager extends FOGManagerController
 {
     /**
      * The base table name.
@@ -82,7 +82,7 @@ class WindowsKeysManager extends FOGManagerController
         if (!self::$DB->query($sql)) {
             return false;
         }
-        return self::getClass('WindowsKeysAssociationManager')
+        return self::getClass('WindowsKeyAssociationManager')
             ->install();
     }
     /**
@@ -92,7 +92,7 @@ class WindowsKeysManager extends FOGManagerController
      */
     public function uninstall()
     {
-        self::getClass('WindowsKeysAssociationManager')->uninstall();
+        self::getClass('WindowsKeyAssociationManager')->uninstall();
         return parent::uninstall();
     }
     /**
@@ -131,7 +131,7 @@ class WindowsKeysManager extends FOGManagerController
         if (isset($findWhere['id'])) {
             $findWhere = array('keyID' => $findWhere['id']);
         }
-        self::getClass('WindowsKeysAssociationManager')->destroy($findWhere);
+        self::getClass('WindowsKeyAssociationManager')->destroy($findWhere);
         return true;
     }
 }

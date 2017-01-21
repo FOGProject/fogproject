@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * @category WindowsKeys
+ * @category WindowsKey
  * @package  FOGProject
  * @author   Lee Rowlett <nope@nope.nope>
  * @author   Tom Elliott <tommygunsster@gmail.com>
@@ -14,21 +14,21 @@
 /**
  * The Windows Keys class.
  *
- * @category WindowsKeys
+ * @category WindowsKey
  * @package  FOGProject
  * @author   Lee Rowlett <nope@nope.nope>
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class WindowsKeys extends FOGController
+class WindowsKey extends FOGController
 {
     /**
-     * The location table
+     * The windows keys table
      *
      * @var string
      */
-    protected $databaseTable = 'windowskeys';
+    protected $databaseTable = 'windowsKeys';
     /**
      * The location table fields and common names
      *
@@ -69,7 +69,7 @@ class WindowsKeys extends FOGController
      */
     public function destroy($key = 'id')
     {
-        self::getClass('WindowsKeysAssociationManager')
+        self::getClass('WindowsKeyAssociationManager')
             ->destroy(
                 array(
                     'keyID' => $this->get('id')
@@ -86,7 +86,7 @@ class WindowsKeys extends FOGController
     {
         parent::save();
         return $this
-            ->assocSetter('WindowsKeys', 'image');
+            ->assocSetter('WindowsKey', 'image');
     }
     /**
      * Add image to the windows key
@@ -110,7 +110,7 @@ class WindowsKeys extends FOGController
      *
      * @return object
      */
-    public function removeHost($removeArray)
+    public function removeImage($removeArray)
     {
         return $this->addRemItem(
             'images',
@@ -126,7 +126,7 @@ class WindowsKeys extends FOGController
     protected function loadImages()
     {
         $imageIDs = self::getSubObjectIDs(
-            'WindowsKeysAssociation',
+            'WindowsKeyAssociation',
             array('keyID' => $this->get('id')),
             'imageID'
         );

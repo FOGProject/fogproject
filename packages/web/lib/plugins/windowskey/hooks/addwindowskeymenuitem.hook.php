@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * @category AddWindowsKeysMenuItem
+ * @category AddWindowsKeyMenuItem
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @author   Lee Rowlett <nah@nah.com>
@@ -14,21 +14,21 @@
 /**
  * Adds the windows keys menu item.
  *
- * @category AddWindowsKeysMenuItem
+ * @category AddWindowsKeyMenuItem
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @author   Lee Rowlett <nah@nah.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class AddWindowsKeysMenuItem extends Hook
+class AddWindowsKeyMenuItem extends Hook
 {
     /**
      * The name of this hook.
      *
      * @var string
      */
-    public $name = 'AddWindowsKeysMenuItem';
+    public $name = 'AddWindowsKeyMenuItem';
     /**
      * The description of this hook.
      *
@@ -46,7 +46,7 @@ class AddWindowsKeysMenuItem extends Hook
      *
      * @var string
      */
-    public $node = 'windowskeys';
+    public $node = 'windowskey';
     /**
      * The menu data to change.
      *
@@ -98,12 +98,12 @@ class AddWindowsKeysMenuItem extends Hook
         array_push($arguments['PagesWithObjects'], $this->node);
     }
 }
-$AddWindowsKeysMenuItem = new AddWindowsKeysMenuItem();
+$AddWindowsKeyMenuItem = new AddWindowsKeyMenuItem();
 $HookManager
     ->register(
         'MAIN_MENU_DATA',
         array(
-            $AddWindowsKeysMenuItem,
+            $AddWindowsKeyMenuItem,
             'menuData'
         )
     );
@@ -111,7 +111,7 @@ $HookManager
     ->register(
         'SEARCH_PAGES',
         array(
-            $AddWindowsKeysMenuItem,
+            $AddWindowsKeyMenuItem,
             'addSearch'
         )
     );
@@ -119,7 +119,7 @@ $HookManager
     ->register(
         'PAGES_WITH_OBJECTS',
         array(
-            $AddWindowsKeysMenuItem,
+            $AddWindowsKeyMenuItem,
             'addPageWithObject'
         )
     );

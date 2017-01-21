@@ -22,7 +22,7 @@
  * @link     https://fogproject.org
  */
 $fog_plugin = array();
-$fog_plugin['name'] = 'windowskeys';
+$fog_plugin['name'] = 'windowskey';
 $fog_plugin['description'] = sprintf(
     '%s %s. %s %s. %s %s. %s: %s %s.',
     _('Windows keys is a plugin that associates product keys'),
