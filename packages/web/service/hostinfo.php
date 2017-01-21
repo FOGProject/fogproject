@@ -23,6 +23,9 @@ require '../commons/base.inc.php';
 header('Content-Type: text/plain');
 $Host = FOGCore::getHostItem(false);
 $Task = $Host->get('task');
+if (!$Task->isValid()) {
+    exit(1);
+}
 $TaskType = FOGCore::getClass(
     'TaskType',
     $Task->get('typeID')
@@ -195,12 +198,13 @@ $repFields = array(
     'hostusead' => $Host->get('useAD'),
     'hostaddomain' => $Host->get('ADDomain'),
     'hostaduser' => $Host->get('ADUser'),
+    'hostadpass' => trim($this->aesdecrypt($Host->get('ADPass'))),
     'hostadou' => str_replace(
         ';',
         '',
         $Host->get('ADOU')
     ),
-    'hostproductkey' => $Host->get('productKey'),
+    'hostproductkey' => trim($this->aesdecrypt($Host->get('productKey'))),
     'imagename' => $Image->get('name'),
     'imagedesc' => $Image->get('description'),
     'imageosid' => $osid,
