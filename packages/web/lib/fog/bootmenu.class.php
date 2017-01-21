@@ -374,7 +374,7 @@ class BootMenu extends FOGBase
         if ($_REQUEST['extraargs']) {
             $_SESSION['extraargs'] = $_REQUEST['extraargs'];
         }
-        self::$HookManager->process(
+        self::$HookManager->processEvent(
             'ALTERNATE_BOOT_CHECKS'
         );
         if (isset($_REQUEST['username'])) {
