@@ -119,6 +119,13 @@ class Image extends FOGController
             );
         self::getClass('ImageAssociationManager')
             ->destroy($find);
+        self::$HookManager
+            ->processEvent(
+                'DESTROY_IMAGE',
+                array(
+                    'Image' => &$this
+                )
+            );
         return parent::destroy($key);
     }
     /**

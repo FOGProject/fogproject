@@ -843,11 +843,11 @@ abstract class FOGManagerController extends FOGBase
     ) {
         global $node;
         if ($node === 'image') {
-            $matchID = (
-                $matchID === 0 ?
-                1 :
-                $matchID
-            );
+            $waszero = false;
+            if ($matchID === 0) {
+                $waszero = true;
+                $matchID = 1;
+            }
         }
         $elementName = trim($elementName);
         if (empty($elementName)) {
@@ -855,6 +855,19 @@ abstract class FOGManagerController extends FOGBase
         }
         $this->orderBy($orderBy);
         ob_start();
+        self::$HookManager
+            ->processEvent(
+                'SELECT_BUILD',
+                array(
+                    'matchID' => &$matchID,
+                    'elementName' => &$elementName,
+                    'orderBy' => &$orderBy,
+                    'filter' => &$filter,
+                    'template' => &$template,
+                    'waszero' => &$waszero,
+                    'obj' => $this
+                )
+            );
         foreach ((array)$this
             ->find(
                 $filter ? array('id' => $filter) : '',
