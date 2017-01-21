@@ -71,7 +71,7 @@ class WindowsKeysManager extends FOGManagerController
                 false
             ),
             array(
-                'wkID',
+                'wkKey',
                 'wkName'
             ),
             'MyISAM',

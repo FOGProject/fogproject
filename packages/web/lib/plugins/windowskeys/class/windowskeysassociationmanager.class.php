@@ -61,8 +61,10 @@ class WindowsKeysAssociationManager extends FOGManagerController
                 false
             ),
             array(
-                'wkaImageID',
-                'wkaKeyID',
+                array(
+                    'wkaImageID',
+                    'wkaKeyID',
+                )
             ),
             'MyISAM',
             'utf8',
