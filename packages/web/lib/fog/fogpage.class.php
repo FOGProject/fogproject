@@ -3095,45 +3095,39 @@ abstract class FOGPage extends FOGBase
             'Group' :
             'Host'
         );
-        $names = self::getSubObjectIDs(
-            $ClassCall,
-            array(
-                'id' => $this->obj->get(
-                    sprintf(
-                        '%ssnotinme',
-                        strtolower($ClassCall)
+        extract(
+            self::getSubObjectIDs(
+                $ClassCall,
+                array(
+                    'id' => $this->obj->get(
+                        sprintf(
+                            '%ssnotinme',
+                            strtolower($ClassCall)
+                        )
                     )
-                )
-            ),
-            'name'
-        );
-        $ids = self::getSubObjectIDs(
-            $ClassCall,
-            array(
-                'id' => $this->obj->get(
-                    sprintf(
-                        '%ssnotinme',
-                        strtolower($ClassCall)
-                    )
+                ),
+                array(
+                    'name',
+                    'id'
                 )
             )
         );
         $itemParser = function (
-            &$name,
+            &$nam,
             &$index
-        ) use (&$ids) {
+        ) use (&$id) {
             $this->data[] = array(
-                'host_id'=>$ids[$index],
-                'host_name'=>$name,
+                'host_id'=>$id[$index],
+                'host_name'=>$nam,
                 'check_num'=>1,
             );
             unset(
-                $name,
-                $ids[$index],
+                $nam,
+                $id[$index],
                 $index
             );
         };
-        array_walk($names, $itemParser);
+        array_walk($name, $itemParser);
         if (count($this->data) > 0) {
             self::$HookManager->processEvent(
                 sprintf(
@@ -3196,30 +3190,24 @@ abstract class FOGPage extends FOGBase
                 strtolower($ClassCall)
             ),
         );
-        $names = self::getSubObjectIDs(
-            $ClassCall,
-            array(
-                'id' => $this->obj->get(
-                    sprintf(
-                        '%ss',
-                        strtolower($ClassCall)
+        extract(
+            self::getSubObjectIDs(
+                $ClassCall,
+                array(
+                    'id' => $this->obj->get(
+                        sprintf(
+                            '%ss',
+                            strtolower($ClassCall)
+                        )
                     )
-                )
-            ),
-            'name'
-        );
-        $ids = self::getSubObjectIDs(
-            $ClassCall,
-            array(
-                'id' => $this->obj->get(
-                    sprintf(
-                        '%ss',
-                        strtolower($ClassCall)
-                    )
+                ),
+                array(
+                    'name',
+                    'id'
                 )
             )
         );
-        array_walk($names, $itemParser);
+        array_walk($name, $itemParser);
         self::$HookManager->processEvent(
             'OBJ_MEMBERSHIP',
             array(
@@ -3244,7 +3232,6 @@ abstract class FOGPage extends FOGBase
                 $this->node
             );
         }
-        session_start();
     }
     /**
      * Commonized membership actions
