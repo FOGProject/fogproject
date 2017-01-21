@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-20 20:56-0500\n"
+"POT-Creation-Date: 2017-01-20 21:05-0500\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -1332,7 +1332,7 @@ msgstr "Bild bearbeiten"
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:110
 #: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:62
 #: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:197
-#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:223
+#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:204
 #: /var/www/fog/commons/text.php:27
 msgid "Edit"
 msgstr "Bearbeiten"
@@ -1537,7 +1537,7 @@ msgstr ""
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:66
 #: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:103
 #: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:110
-#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:149
+#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:130
 #: /var/www/fog/commons/text.php:31
 msgid "Add"
 msgstr "Hinzufügen"
@@ -1566,7 +1566,7 @@ msgstr "Hinzufügen"
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:590
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:126
 #: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:220
-#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:270
+#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:251
 #: /var/www/fog/commons/text.php:40
 msgid "Update"
 msgstr "Update"
@@ -1849,9 +1849,9 @@ msgstr "Image-Name"
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:74
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:137
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:258
-#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:74
-#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:137
-#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:258
+#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:55
+#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:118
+#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:239
 #: /var/www/fog/commons/text.php:309
 msgid "Storage Group"
 msgstr "Speichergruppe"
@@ -3535,9 +3535,9 @@ msgstr "Allgemeine Informationen"
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:75
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:138
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:259
-#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:75
-#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:138
-#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:259
+#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:56
+#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:119
+#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:240
 #: /var/www/fog/lib/reg-task/taskingelement.class.php:234
 #: /var/www/fog/commons/text.php:308
 msgid "Storage Node"
@@ -4299,7 +4299,7 @@ msgstr "Aktiv"
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:109
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:166
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:460
-#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:109
+#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:90
 msgid "Yes"
 msgstr "Ja"
 
@@ -4312,7 +4312,7 @@ msgstr "Ja"
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:109
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:160
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:447
-#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:109
+#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:90
 msgid "No"
 msgstr "Nein"
 
@@ -5211,7 +5211,6 @@ msgstr "Host-Beschreibung"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:398
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:786
 #: /var/www/fog/lib/plugins/location/hooks/addlocationhost.hook.php:160
-#: /var/www/fog/lib/plugins/windowskeys/hooks/addwindowskeysimage.hook.php:160
 msgid "Host Product Key"
 msgstr "Host-Produkt-Schlüssel"
 
@@ -6126,7 +6125,7 @@ msgstr "Konto bereits verknüpft"
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:98
 #: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:163
 #: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:174
-#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:200
+#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:181
 msgid "Failed to create"
 msgstr "Konnte nicht erstellt werden"
 
@@ -6212,13 +6211,11 @@ msgid "File Integrity Management"
 msgstr "Druckerverwaltung"
 
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:42
-#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:42
 #, fuzzy
 msgid "Export Locations"
 msgstr "Host-Standort"
 
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:43
-#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:43
 #, fuzzy
 msgid "Import Locations"
 msgstr "Host-Standort"
@@ -6226,63 +6223,63 @@ msgstr "Host-Standort"
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:73
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:134
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:254
-#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:73
-#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:134
-#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:254
+#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:54
+#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:115
+#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:235
 msgid "Location Name"
 msgstr "Name des Standorts"
 
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:76
-#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:76
+#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:57
 msgid "Kernels/Inits from location"
 msgstr "Kerne / Inits von Ort"
 
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:107
-#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:107
+#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:88
 msgid "Not Set"
 msgstr "Nicht festgelegt"
 
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:121
-#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:121
+#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:102
 msgid "New Location"
 msgstr "Neuer Standort"
 
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:139
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:260
-#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:139
-#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:260
+#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:120
+#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:241
 msgid "Use inits and kernels from this node"
 msgstr "Verwendung inits und Kerne von diesem Knoten"
 
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:178
-#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:178
+#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:159
 msgid "Location already Exists, please try again."
 msgstr "Lage bereits vorhanden ist, versuchen Sie es bitte erneut."
 
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:181
-#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:181
+#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:162
 msgid "Please enter a name for this location."
 msgstr "Bitte geben Sie einen Namen für diesen Standort."
 
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:185
-#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:185
+#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:166
 msgid "Please select the storage group this location relates to."
 msgstr ""
 "Bitte wählen Sie die Speichergruppe, die, der diesen Standort bezieht sich "
 "auf."
 
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:202
-#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:202
+#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:183
 msgid "Location Added, editing!"
 msgstr "Standort hinzugefügt, bearbeitet!"
 
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:317
-#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:317
+#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:298
 msgid "A location with that name already exists."
 msgstr "Ein Ort mit diesem Namen ist bereits vorhanden."
 
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:322
-#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:322
+#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:303
 #, fuzzy
 msgid "A group is required for a location"
 msgstr "Eine Speichergruppe ist erforderlich!"
@@ -6291,12 +6288,12 @@ msgstr "Eine Speichergruppe ist erforderlich!"
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:207
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:159
 #: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:286
-#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:337
+#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:318
 msgid "Failed to update"
 msgstr "Fehler beim Aktualisieren"
 
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:339
-#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:339
+#: /var/www/fog/lib/plugins/windowskeys/pages/windowskeysmanagementpage.class.php:320
 msgid "Location Updated"
 msgstr "Lage aktualisiert"
 
@@ -6325,12 +6322,10 @@ msgid "between different sites"
 msgstr ""
 
 #: /var/www/fog/lib/plugins/location/hooks/addlocationhost.hook.php:70
-#: /var/www/fog/lib/plugins/windowskeys/hooks/addwindowskeysimage.hook.php:70
 msgid "Location/Deployed"
 msgstr "Lage/bereitgestellt"
 
 #: /var/www/fog/lib/plugins/location/hooks/addlocationhost.hook.php:162
-#: /var/www/fog/lib/plugins/windowskeys/hooks/addwindowskeysimage.hook.php:162
 msgid "Host Location"
 msgstr "Host-Standort"
 

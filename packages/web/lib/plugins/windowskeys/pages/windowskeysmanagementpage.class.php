@@ -38,9 +38,7 @@ class WindowsKeysManagementPage extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Location Management';
-        self::$foglang['ExportLocation'] = _('Export Locations');
-        self::$foglang['ImportLocation'] = _('Import Locations');
+        $this->name = 'Windows Keys Management';
         parent::__construct($this->name);
         global $id;
         if ($id) {
@@ -49,23 +47,6 @@ class WindowsKeysManagementPage extends FOGPage
                 $this->membership => self::$foglang['Membership'],
                 "$this->delformat" => self::$foglang['Delete'],
             );
-            $this->notes = array(
-                self::$foglang['Location'] => $this->obj->get('name'),
-                sprintf(
-                    '%s %s',
-                    self::$foglang['Storage'],
-                    self::$foglang['Group']
-                ) => $this->obj->getStorageGroup()->get('name')
-            );
-            if ($this->obj->getStorageNode()->isValid()) {
-                $this->notes[
-                    sprintf(
-                        '%s %s',
-                        self::$foglang['Storage'],
-                        self::$foglang['Node']
-                    )
-                ] = $this->obj->getStorageNode()->get('name');
-            }
         }
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class='
