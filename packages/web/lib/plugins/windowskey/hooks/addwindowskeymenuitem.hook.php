@@ -70,7 +70,7 @@ class AddWindowsKeyMenuItem extends Hook
         );
     }
     /**
-     * Adds the location page to search elements.
+     * Adds the windows key page to search elements.
      *
      * @param mixed $arguments The arguments to change.
      *
@@ -84,7 +84,7 @@ class AddWindowsKeyMenuItem extends Hook
         array_push($arguments['searchPages'], $this->node);
     }
     /**
-     * Adds the location page to objects elements.
+     * Adds the windows key page to objects elements.
      *
      * @param mixed $arguments The arguments to change.
      *

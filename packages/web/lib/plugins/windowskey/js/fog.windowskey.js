@@ -1,16 +1,18 @@
 $(function() {
     checkboxToggleSearchListPages();
+    checkboxAssociations('.toggle-checkboxAction1:checkbox','.toggle-image1:checkbox');
+    ProductUpdate();
     $('#action-boxdel').submit(function() {
-        var checked = $('input.toggle-action:checked');
-        var windowskeysIDArray = new Array();
+        var checked = $('input.toggle-image:checked');
+        var windowskeyIDArray = new Array();
         for (var i = 0,len = checked.size();i < len;i++) {
-            windowskeysIDArray[windowskeysIDArray.length] = checked.eq(i).attr('value');
+            windowskeyIDArray[windowskeyIDArray.length] = checked.eq(i).attr('value');
         }
-        $('input[name="windowskeysIDArray"]').val(windowskeysIDArray.join(','));
+        $('input[name="windowskeyIDArray"]').val(windowskeyIDArray.join(','));
     });
     // Show hide based on checked state.
-    $('#imagesNotInMe').hide();
-    $('#imagesNoGroup').hide();
+    $('#imageNotInMe').hide();
+    $('#imageNoGroup').hide();
     $('#imageMeShow').click(function() {
         $('#imageNotInMe').toggle();
     });

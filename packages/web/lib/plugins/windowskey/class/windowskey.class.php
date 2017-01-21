@@ -30,7 +30,7 @@ class WindowsKey extends FOGController
      */
     protected $databaseTable = 'windowsKeys';
     /**
-     * The location table fields and common names
+     * The windows keys table fields and common names
      *
      * @var array
      */
@@ -72,7 +72,7 @@ class WindowsKey extends FOGController
         self::getClass('WindowsKeyAssociationManager')
             ->destroy(
                 array(
-                    'keyID' => $this->get('id')
+                    'windowskeyID' => $this->get('id')
                 )
             );
         return parent::destroy($key);
@@ -127,7 +127,7 @@ class WindowsKey extends FOGController
     {
         $imageIDs = self::getSubObjectIDs(
             'WindowsKeyAssociation',
-            array('keyID' => $this->get('id')),
+            array('windowskeyID' => $this->get('id')),
             'imageID'
         );
         $imageIDs = self::getSubObjectIDs(
@@ -157,5 +157,21 @@ class WindowsKey extends FOGController
         );
         $this->set('imagesnotinme', $imageIDs);
         unset($find);
+    }
+    /**
+     * Custom Set method.
+     *
+     * @param string $key   The key to set.
+     * @param mixed  $value The value to set.
+     *
+     * @return object
+     */
+    public function set($key, $value)
+    {
+        if ($this->key($key) == 'key') {
+            $value = $this->encryptpw($value);
+        }
+
+        return parent::set($key, $value);
     }
 }

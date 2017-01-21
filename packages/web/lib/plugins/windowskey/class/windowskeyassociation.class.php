@@ -35,7 +35,7 @@ class WindowsKeyAssociation extends FOGController
     protected $databaseFields = array(
         'id' => 'wkaID',
         'imageID' => 'wkaImageID',
-        'keyID' => 'wkaKeyID',
+        'windowskeyID' => 'wkaKeyID',
     );
     /**
      * The required fields
@@ -44,7 +44,7 @@ class WindowsKeyAssociation extends FOGController
      */
     protected $databaseFieldsRequired = array(
         'imageID',
-        'keyID',
+        'windowskeyID',
     );
     /**
      * Additional fields
@@ -63,10 +63,10 @@ class WindowsKeyAssociation extends FOGController
     protected $databaseFieldClassRelationships = array(
         'WindowsKey' => array(
             'id',
-            'keyID',
+            'windowskeyID',
             'key'
         ),
-        'Location' => array(
+        'Image' => array(
             'id',
             'imageID',
             'image'

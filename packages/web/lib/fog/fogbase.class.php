@@ -1866,20 +1866,16 @@ abstract class FOGBase
         }
         if (is_array($getField)) {
             foreach ((array)$getField as &$field) {
-                $data[$field] = self::getClass($object)
-                    ->getManager()
-                    ->find(
-                        $findWhere,
-                        $operator,
-                        $orderBy,
-                        '',
-                        '',
-                        $groupBy,
-                        $not,
-                        $field,
-                        '',
-                        $filter
-                    );
+                $data[$field] = self::getSubObjectIDs(
+                    $object,
+                    $findWhere,
+                    $field,
+                    $not,
+                    $operator,
+                    $orderBy,
+                    $groupBy,
+                    $filter
+                );
                 unset($field);
             }
             return $data;

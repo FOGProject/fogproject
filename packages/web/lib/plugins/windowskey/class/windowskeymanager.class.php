@@ -129,7 +129,7 @@ class WindowsKeyManager extends FOGManagerController
             $not
         );
         if (isset($findWhere['id'])) {
-            $findWhere = array('keyID' => $findWhere['id']);
+            $findWhere = array('windowskeyID' => $findWhere['id']);
         }
         self::getClass('WindowsKeyAssociationManager')->destroy($findWhere);
         return true;

@@ -30,7 +30,7 @@ class WindowsKeyManagementPage extends FOGPage
      */
     public $node = 'windowskey';
     /**
-     * Initializes the Location management page.
+     * Initializes the Windows key management page.
      *
      * @param string $name Something to lay it out as.
      *
@@ -38,7 +38,7 @@ class WindowsKeyManagementPage extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Windows Keys Management';
+        $this->name = 'Windows Key Management';
         parent::__construct($this->name);
         global $id;
         if ($id) {
@@ -51,55 +51,36 @@ class WindowsKeyManagementPage extends FOGPage
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class='
             . '"toggle-checkboxAction" checked/>',
-            _('Location Name'),
-            _('Storage Group'),
-            _('Storage Node'),
-            _('Kernels/Inits from location'),
+            _('Key Name')
         );
         $this->templates = array(
-            '<input type="checkbox" name="location[]" value='
+            '<input type="checkbox" name="windowskey[]" value='
             . '"${id}" class="toggle-action" checked/>',
-            '<a href="?node=location&sub=edit&id=${id}" title="Edit">${name}</a>',
-            '${storageGroup}',
-            '${storageNode}',
-            '${tftp}',
+            '<a href="?node=windowskey&sub=edit&id=${id}" title="Edit">${name}</a>'
         );
         $this->attributes = array(
             array(
                 'class' => 'l filter-false',
                 'width' => 16
             ),
-            array('class' => 'l'),
-            array('class' => 'l'),
-            array('class' => 'c'),
-            array('class' => 'r'),
+            array('class' => 'l')
         );
-        self::$returnData = function (&$Location) {
-            if (!$Location->isValid()) {
-                return;
-            }
+        self::$returnData = function (&$WindowsKey) {
             $this->data[] = array(
-                'id' => $Location->get('id'),
-                'name' => $Location->get('name'),
-                'storageGroup' => $Location->get('storagegroup')->get('name'),
-                'storageNode' => (
-                    $Location->get('storagenode')->isValid() ?
-                    $Location->get('storagenode')->get('name') :
-                    _('Not Set')
-                ),
-                'tftp' => $Location->get('tftp') ? _('Yes') : _('No'),
+                'id' => $WindowsKey->get('id'),
+                'name' => $WindowsKey->get('name')
             );
-            unset($Location);
+            unset($WindowsKey);
         };
     }
     /**
-     * Show form for creating a new location entry.
+     * Show form for creating a new windows key entry.
      *
      * @return void
      */
     public function add()
     {
-        $this->title = _('New Location');
+        $this->title = _('New Windows Key');
         unset($this->headerData);
         $this->attributes = array(
             array(),
@@ -109,21 +90,19 @@ class WindowsKeyManagementPage extends FOGPage
             '${field}',
             '${input}',
         );
-        $sgbuild = self::getClass('StorageGroupManager')->buildSelectBox();
-        $snbuild = self::getClass('StorageNodeManager')->buildSelectBox();
         $fields = array(
-            _('Location Name') => sprintf(
-                '<input class="smaller" type="text" name="name" />'
+            _('Windows Key Name') => sprintf(
+                '<input class="smaller" type="text" name="name" value="%s"/>',
+                $_REQUEST['name']
             ),
-            _('Storage Group') => $sgbuild,
-            _('Storage Node') => $snbuild,
-            _('Use inits and kernels from this node') => sprintf(
-                '<input type="checkbox" name="tftp" value="on"%s/>',
-                (
-                    isset($_REQUEST['tftp']) ?
-                    ' checked' :
-                    ''
-                )
+            _('Windows Key Description') => sprintf(
+                '<textarea name="description" '
+                . 'rows="8" cols="40">%s</textarea>',
+                $_REQUEST['description']
+            ),
+            _('Windows Key') => sprintf(
+                '<input id="productKey" type="text" name="key" value="%s"/>',
+                $_REQUEST['key']
             ),
             '&nbsp;' => sprintf(
                 '<input name="add" class="smaller" type="submit" value="%s"/>',
@@ -134,7 +113,7 @@ class WindowsKeyManagementPage extends FOGPage
         unset($fields);
         self::$HookManager
             ->processEvent(
-                'LOCATION_ADD',
+                'WINDOWS_KEY_ADD',
                 array(
                     'headerData' => &$this->headerData,
                     'data' => &$this->data,
@@ -147,7 +126,7 @@ class WindowsKeyManagementPage extends FOGPage
         echo '</form>';
     }
     /**
-     * Actually create the location.
+     * Actually create the windows key.
      *
      * @return void
      */
@@ -155,36 +134,33 @@ class WindowsKeyManagementPage extends FOGPage
     {
         try {
             $name = trim($_REQUEST['name']);
-            if (self::getClass('LocationManager')->exists(trim($_REQUEST['name']))) {
-                throw new Exception(_('Location already Exists, please try again.'));
-            }
-            if (!$name) {
-                throw new Exception(_('Please enter a name for this location.'));
-            }
-            if (empty($_REQUEST['storagegroup'])) {
+            $key = trim($_REQUEST['key']);
+            $description = trim($_REQUEST['description']);
+            $exists = self::getClass('WindowsKeyManager')
+                ->exists($name);
+            if ($exists) {
                 throw new Exception(
-                    _('Please select the storage group this location relates to.')
+                    _('Windows key already Exists, please try again.')
                 );
             }
-            $NodeID = $_REQUEST['storagenode'];
-            $sgID = $_REQUEST['storagegroup'];
-            $sn = new StorageNode($NodeID);
-            if ($sn->isValid()) {
-                $sgID = $sn->getStorageGroup()->get('id');
+            if (empty($name)) {
+                throw new Exception(_('Please enter a name for this key.'));
             }
-            $Location = self::getClass('Location')
+            if (empty($key)) {
+                throw new Exception(_('Please enter a product key.'));
+            }
+            $WindowsKey = self::getClass('WindowsKey')
                 ->set('name', $name)
-                ->set('storagegroupID', $sgID)
-                ->set('storagenodeID', $NodeID)
-                ->set('tftp', isset($_REQUEST['tftp']));
-            if (!$Location->save()) {
+                ->set('description', $description)
+                ->set('key', $key);
+            if (!$WindowsKey->save()) {
                 throw new Exception(_('Failed to create'));
             }
-            $this->setMessage(_('Location Added, editing!'));
+            $this->setMessage(_('Key Added, editing!'));
             $this->redirect(
                 sprintf(
-                    '?node=location&sub=edit&id=%s',
-                    $Location->get('id')
+                    '?node=windowskey&sub=edit&id=%s',
+                    $WindowsKey->get('id')
                 )
             );
         } catch (Exception $e) {
@@ -193,7 +169,7 @@ class WindowsKeyManagementPage extends FOGPage
         }
     }
     /**
-     * Present the location to edit the page.
+     * Present the windows key to edit the page.
      *
      * @return void
      */
@@ -213,37 +189,31 @@ class WindowsKeyManagementPage extends FOGPage
             '${field}',
             '${input}',
         );
-        $sgbuild = self::getClass('StorageGroupManager')->buildSelectBox(
-            (
-                isset($_REQUEST['storagegroup'])
-                && is_numeric($_REQUEST['storagegroup'])
-                && $_REQUEST['storagegroup'] > 0 ?
-                $_REQUEST['storagegroup'] :
-                $this->obj->get('storagegroupID')
-            )
-        );
-        $snbuild = self::getClass('StorageNodeManager')->buildSelectBox(
-            (
-                isset($_REQUEST['storagenode'])
-                && is_numeric($_REQUEST['storagenode'])
-                && $_REQUEST['storagenode'] > 0 ?
-                $_REQUEST['storagenode'] :
-                $this->obj->get('storagenodeID')
-            )
-        );
+        $decrypt = $this->aesdecrypt($this->obj->get('key'));
         $fields = array(
-            _('Location Name') => sprintf(
+            _('Windows Key Name') => sprintf(
                 '<input class="smaller" type="text" name="name" value="%s"/>',
-                $this->obj->get('name')
-            ),
-            _('Storage Group') => $sgbuild,
-            _('Storage Node') => $snbuild,
-            _('Use inits and kernels from this node') => sprintf(
-                '<input type="checkbox" name="tftp" value="on"%s/>',
                 (
-                    $this->obj->get('tftp') ?
-                    ' checked' :
-                    ''
+                    $_REQUEST['name'] ?
+                    $_REQUEST['name'] :
+                    $this->obj->get('name')
+                )
+            ),
+            _('Windows Key Description') => sprintf(
+                '<textarea name="description" '
+                . 'rows="8" cols="40">%s</textarea>',
+                (
+                    $_REQUEST['description'] ?
+                    $_REQUEST['description'] :
+                    $this->obj->get('description')
+                )
+            ),
+            _('Windows Key') => sprintf(
+                '<input id="productKey" type="text" name="key" value="%s"/>',
+                (
+                    $_REQUEST['key'] ?
+                    $_REQUEST['key'] :
+                    $decrypt
                 )
             ),
             '&nbsp;' => sprintf(
@@ -251,17 +221,11 @@ class WindowsKeyManagementPage extends FOGPage
                 _('Update')
             ),
         );
-        foreach ((array)$fields as $field => &$input) {
-            $this->data[] = array(
-                'field'=>$field,
-                'input'=>$input,
-            );
-            unset($input);
-        }
+        array_walk($fields, $this->fieldsToData);
         unset($fields);
         self::$HookManager
             ->processEvent(
-                'LOCATION_EDIT',
+                'WINDOWS_KEY_EDIT',
                 array(
                     'headerData' => &$this->headerData,
                     'data' => &$this->data,
@@ -278,7 +242,7 @@ class WindowsKeyManagementPage extends FOGPage
         echo '</form>';
     }
     /**
-     * Actually update the location.
+     * Actually update the windows key.
      *
      * @return void
      */
@@ -286,47 +250,237 @@ class WindowsKeyManagementPage extends FOGPage
     {
         self::$HookManager
             ->processEvent(
-                'LOCATION_EDIT_POST',
+                'WINDOWS_KEY_EDIT_POST',
                 array(
-                    'Location' => &$this->obj
+                    'WindowsKey' => &$this->obj
                 )
             );
         try {
-            if ($_REQUEST['name'] != $this->obj->get('name')
-                && $this->obj->getManager()->exists($_REQUEST['name'])
+            $name = trim($_REQUEST['name']);
+            $key = trim($_REQUEST['key']);
+            $description = trim($_REQUEST['description']);
+            $exists = self::getClass('WindowsKeyManager')
+                ->exists($name);
+            if ($name != $this->obj->get('name')
+                && $exists
             ) {
-                throw new Exception(_('A location with that name already exists.'));
-            }
-            if (isset($_REQUEST['update'])) {
-                if (empty($_REQUEST['storagegroup'])) {
-                    throw new Exception(
-                        _('A group is required for a location')
-                    );
-                }
-                $NodeID = $_REQUEST['storagenode'];
-                $sn = new StorageNode($NodeID);
-                $sgID = $_REQUEST['storagegroup'];
-                if ($sn->isValid()) {
-                    $sgID = $sn->getStorageGroup()->get('id');
-                }
-                $this->obj
-                    ->set('name', $_REQUEST['name'])
-                    ->set('storagegroupID', $sgID)
-                    ->set('storagenodeID', $NodeID)
-                    ->set('tftp', isset($_REQUEST['tftp']));
-                if (!$this->obj->save()) {
-                    throw new Exception(_('Failed to update'));
-                }
-                $this->setMessage(_('Location Updated'));
-                $this->redirect(
-                    sprintf(
-                        '?node=location&sub=edit&id=%d',
-                        $this->obj->get('id')
-                    )
+                throw new Exception(
+                    _('Windows key already Exists, please try again.')
                 );
             }
+            if (empty($name)) {
+                throw new Exception(_('Please enter a name for this key.'));
+            }
+            if (empty($key)) {
+                throw new Exception(_('Please enter a product key.'));
+            }
+            $this->obj
+                ->set('name', $name)
+                ->set('description', $description)
+                ->set('key', $key);
+            if (!$this->obj->save()) {
+                throw new Exception(_('Failed to update'));
+            }
+            $this->setMessage(_('Windows Key Updated'));
+            $this->redirect(
+                sprintf(
+                    '?node=windowskey&sub=edit&id=%d',
+                    $this->obj->get('id')
+                )
+            );
         } catch (Exception $e) {
             $this->setMessage($e->getMessage());
+            $this->redirect($this->formAction);
+        }
+    }
+    /**
+     * Presents the membership information
+     *
+     * @return void
+     */
+    public function membership()
+    {
+        $this->data = array();
+        echo '<!-- Membership -->';
+        echo '<div id="windowskey-membership">';
+        $this->headerData = array(
+            sprintf(
+                '<input type="checkbox" name="toggle-checkbox%s" '
+                . 'class="toggle-checkboxAction1"',
+                $this->node
+            ),
+            _('Image Name')
+        );
+        $this->templates = array(
+            sprintf(
+                '<input type="checkbox" name="image[]" value="${image_id}" '
+                . 'class="toggle-%s1"/>',
+                'image'
+            ),
+            sprintf(
+                '<a href="?node=%s&sub=edit&id=${image_id}" '
+                . 'title="%s: ${image_name}">${image_name}</a>',
+                'image',
+                _('Edit')
+            )
+        );
+        $this->attributes = array(
+            array(
+                'width' => 16,
+                'class' => 'l filter-false'
+            ),
+            array(
+                'width' => 150,
+                'class' => 'l'
+            )
+        );
+        extract(
+            self::getSubObjectIDs(
+                'Image',
+                array(
+                    'id' => $this->obj->get('imagesnotinme')
+                ),
+                array(
+                    'name',
+                    'id'
+                )
+            )
+        );
+        $itemParser = function (
+            &$nam,
+            &$index
+        ) use (&$id) {
+            $this->data[] = array(
+                'image_id' => $id[$index],
+                'image_name' => $nam,
+            );
+            unset(
+                $nam,
+                $id[$index],
+                $index
+            );
+        };
+        array_walk($name, $itemParser);
+        if (count($this->data) > 0) {
+            self::$HookManager
+                ->processEvent(
+                    'IMAGE_NOT_IN_ME',
+                    array(
+                        'headerData' => &$this->headerData,
+                        'data' => &$this->data,
+                        'templates' => &$this->templates,
+                        'attributes' => &$this->attributes
+                    )
+                );
+            printf(
+                '<form method="post" action="%s"><label for="%sMeShow">'
+                . '<p class="c">%s %ss %s %s&nbsp;&nbsp;<input '
+                . 'type="checkbox" name="%sMeShow" id="%sMeShow"/>'
+                . '</p></label><div id="%sNotInMe"><h2>%s %s</h2>',
+                $this->formAction,
+                'image',
+                _('Check here to see'),
+                'image',
+                _('not within this'),
+                $this->node,
+                'image',
+                'image',
+                'image',
+                _('Modify Membership for'),
+                $this->obj->get('name')
+            );
+            $this->render();
+            printf(
+                '</div><br/><p class="c"><input type='
+                . '"submit" value="%s %s(s) to %s" name="addImages"/></p><br/>',
+                _('Add'),
+                _('Image'),
+                $this->node
+            );
+        }
+        unset($this->data);
+        $this->headerData = array(
+            '<input type="checkbox" name="toggle-checkbox" '
+            . 'class="toggle-checkboxAction"/>',
+            sprintf(
+                '%s %s',
+                _('Image'),
+                _('Name')
+            ),
+        );
+        $this->templates = array(
+            '<input type="checkbox" name="imagedel[]" '
+            . 'value="${image_id}" class="toggle-action"/>',
+            sprintf(
+                '<a href="?node=%s&sub=edit&id=${image_id}" '
+                . 'title="%s: ${image_name}">${image_name}</a>',
+                $this->node,
+                _('Image')
+            ),
+        );
+        extract(
+            self::getSubObjectIDs(
+                'Image',
+                array(
+                    'id' => $this->obj->get('images')
+                ),
+                array(
+                    'name',
+                    'id'
+                )
+            )
+        );
+        array_walk($name, $itemParser);
+        self::$HookManager
+            ->processEvent(
+                'IMAGE_MEMBERSHIP',
+                array(
+                    'headerData' => &$this->headerData,
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes
+                )
+            );
+        printf(
+            '<form method="post" action="%s">',
+            $this->formAction
+        );
+        $this->render();
+        if (count($this->data)) {
+            printf(
+                '<p class="c"><input type="submit" '
+                . 'value="%s %ss %s %s" name="remimages"/></p>',
+                _('Delete Selected'),
+                _('Images'),
+                _('From'),
+                $this->node
+            );
+        }
+    }
+    /**
+     * Commonized membership actions
+     *
+     * @return void
+     */
+    public function membershipPost()
+    {
+        if (self::$ajax) {
+            return;
+        }
+        if (isset($_REQUEST['addImages'])) {
+            $this->obj->addImage($_REQUEST['image']);
+        }
+        if (isset($_REQUEST['remimages'])) {
+            $this->obj->removeImage($_REQUEST['imagedel']);
+        }
+        if ($this->obj->save()) {
+            $this->setMessage(
+                sprintf(
+                    '%s %s',
+                    $this->obj->get('name'),
+                    _('saved successfully')
+                )
+            );
             $this->redirect($this->formAction);
         }
     }
