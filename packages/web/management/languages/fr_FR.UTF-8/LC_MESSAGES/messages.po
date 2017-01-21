@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-21 10:27-0500\n"
+"POT-Creation-Date: 2017-01-21 10:44-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -7587,12 +7587,12 @@ msgstr ""
 msgid "Failed to update Host"
 msgstr "Impossible de mettre à jour"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:427
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:435
 #, fuzzy
 msgid "Failed to update task log"
 msgstr "Impossible de mettre à jour la tâche"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:431
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:439
 #, fuzzy
 msgid "Failed to update imaging log"
 msgstr "Impossible de mettre à jour / créer une image journal"

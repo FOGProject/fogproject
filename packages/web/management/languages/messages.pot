@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-21 10:27-0500\n"
+"POT-Creation-Date: 2017-01-21 10:44-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -7167,11 +7167,11 @@ msgstr ""
 msgid "Failed to update Host"
 msgstr ""
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:427
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:435
 msgid "Failed to update task log"
 msgstr ""
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:431
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:439
 msgid "Failed to update imaging log"
 msgstr ""
 
