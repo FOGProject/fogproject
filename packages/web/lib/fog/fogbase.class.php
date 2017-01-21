@@ -24,6 +24,12 @@
 abstract class FOGBase
 {
     /**
+     * User agent string.
+     *
+     * @var string
+     */
+    public static $useragent;
+    /**
      * Language variables brought in from text.php.
      *
      * @var array
@@ -328,6 +334,9 @@ abstract class FOGBase
      */
     public function __construct()
     {
+        if (isset($_SERVER['HTTP_USER_AGENT'])) {
+            self::$useragent = $_SERVER['HTTP_USER_AGENT'];
+        }
         self::_init();
 
         return $this;
