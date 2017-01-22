@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-21 11:27-0500\n"
+"POT-Creation-Date: 2017-01-21 22:21-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -882,24 +882,24 @@ msgstr "User Agent cambiato"
 msgid "Session altered improperly"
 msgstr "Sessione alterato in modo improprio"
 
-#: /var/www/fog/lib/fog/fogpagemanager.class.php:196
+#: /var/www/fog/lib/fog/fogpagemanager.class.php:197
 msgid "No FOGPage Class found for this node"
 msgstr "Nessun FOGPage Classe trovato per questo nodo"
 
-#: /var/www/fog/lib/fog/fogpagemanager.class.php:225
+#: /var/www/fog/lib/fog/fogpagemanager.class.php:226
 #, php-format
 msgid "Failed to Render Page: Node: %s, Error: %s"
 msgstr "Impossibile per il rendering della pagina: nodo: %s , errore: %s"
 
-#: /var/www/fog/lib/fog/fogpagemanager.class.php:269
+#: /var/www/fog/lib/fog/fogpagemanager.class.php:270
 msgid "No class value sent"
 msgstr "Nessun valore di classe inviato"
 
-#: /var/www/fog/lib/fog/fogpagemanager.class.php:276
+#: /var/www/fog/lib/fog/fogpagemanager.class.php:277
 msgid "No node associated"
 msgstr "Nessun nodo associato"
 
-#: /var/www/fog/lib/fog/fogpagemanager.class.php:280
+#: /var/www/fog/lib/fog/fogpagemanager.class.php:281
 #, php-format
 msgid "Adding FOGPage: %s, Node: %s"
 msgstr "FOGPage Aggiunta: %s , nodo: %s"
@@ -5870,22 +5870,22 @@ msgstr "Larghezza di banda deve essere numerico e maggiore di 0"
 msgid "Max"
 msgstr ""
 
-#: /var/www/fog/lib/pages/ipxemenu.class.php:149
-#: /var/www/fog/lib/pages/ipxemenu.class.php:163
+#: /var/www/fog/lib/pages/ipxemenu.class.php:167
+#: /var/www/fog/lib/pages/ipxemenu.class.php:181
 msgid "Escape"
 msgstr ""
 
-#: /var/www/fog/lib/pages/ipxemenu.class.php:170
+#: /var/www/fog/lib/pages/ipxemenu.class.php:188
 #, fuzzy
 msgid "Booting"
 msgstr "Opzioni di avvio:"
 
-#: /var/www/fog/lib/pages/ipxemenu.class.php:171
+#: /var/www/fog/lib/pages/ipxemenu.class.php:189
 #, fuzzy
 msgid "Press"
 msgstr "Indirizzo IP"
 
-#: /var/www/fog/lib/pages/ipxemenu.class.php:172
+#: /var/www/fog/lib/pages/ipxemenu.class.php:190
 msgid "to access the menu"
 msgstr ""
 

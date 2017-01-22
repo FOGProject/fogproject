@@ -21,22 +21,22 @@
  */
 class IPXEMenu extends FOGPage
 {
-    private static $_send = array();
-    private static $_Host = null;
-    private static $_kernel = '';
-    private static $_initrd = '';
-    private static $_booturl = '';
-    private static $_memdisk = '';
-    private static $_memtest = '';
-    private static $_hiddenmenu = false;
-    private static $_web = '';
+    private static $_send          = array();
+    private static $_host          = null;
+    private static $_kernel        = '';
+    private static $_initrd        = '';
+    private static $_booturl       = '';
+    private static $_memdisk       = '';
+    private static $_memtest       = '';
+    private static $_hiddenmenu    = false;
+    private static $_web           = '';
     private static $_defaultChoice = '';
-    private static $_bootexittype = '';
-    private static $_storage = '';
-    private static $_shutdown = '';
-    private static $_path = '';
-    private static $_timeout = 5;
-    private static $_ks = '';
+    private static $_bootexittype  = '';
+    private static $_storage       = '';
+    private static $_shutdown      = '';
+    private static $_path          = '';
+    private static $_timeout       = 5;
+    private static $_ks            = '';
     /**
      * The node this works off of.
      *
@@ -52,11 +52,19 @@ class IPXEMenu extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'ipxe';
-        parent::__construct($this->name);
+        parent::__construct();
         self::$showhtml = false;
-        $this->menu = array();
         header("Content-Type: text/plain");
+        self::$_host = self::getHostItem(
+            false,
+            false,
+            true
+        );
+        self::$_send['booturl'] = array(
+            '#!ipxe',
+            'set fog-ip ${next-server}',
+            'set boot-url http://${fog-ip}/fog/'
+        );
         self::_authenticated();
     }
     /**
@@ -69,10 +77,8 @@ class IPXEMenu extends FOGPage
         $valid = true;
         $username = $_REQUEST['username'];
         $password = $_REQUEST['password'];
-        if ($username) {
-            $valid = (bool)self::getClass('User')
-                ->passwordValidate($username, $password);
-        }
+        $valid = (bool)self::getClass('User')
+            ->passwordValidate($username, $password);
         if (false === $valid) {
             self::$_send['invalidlogin'] = array(
                 '#!ipxe',
@@ -95,29 +101,41 @@ class IPXEMenu extends FOGPage
         self::$HookManager->processEvent(
             'IPXE_EDIT',
             array(
-                'ipxe' => &self::$_send,
-                'Host' => &self::$_Host,
-                'kernel' => &self::$_kernel,
-                'initrd' => &self::$_initrd,
-                'booturl' => &self::$_booturl,
-                'memdisk' => &self::$_memdisk,
-                'memtest' => &self::$_memtest,
-                'hiddenmenu' => &self::$_hiddenmenu,
-                'web' => &self::$_web,
+                'ipxe'          => &self::$_send,
+                'Host'          => &self::$_host,
+                'kernel'        => &self::$_kernel,
+                'initrd'        => &self::$_initrd,
+                'booturl'       => &self::$_booturl,
+                'memdisk'       => &self::$_memdisk,
+                'memtest'       => &self::$_memtest,
+                'hiddenmenu'    => &self::$_hiddenmenu,
+                'web'           => &self::$_web,
                 'defaultChoice' => &self::$_defaultChoice,
-                'bootexittype' => &self::$_bootexittype,
-                'storage' => &self::$_storage,
-                'shutdown' => &self::$_shutdown,
-                'path' => &self::$_path,
-                'timeout' => &self::$_timeout,
-                'KS' => &self::$_ks
+                'bootexittype'  => &self::$_bootexittype,
+                'storage'       => &self::$_storage,
+                'shutdown'      => &self::$_shutdown,
+                'path'          => &self::$_path,
+                'timeout'       => &self::$_timeout,
+                'KS'            => &self::$_ks
             )
         );
         array_walk_recursive(
             self::$_send,
-            function (&$val, &$key) {
-                printf('%s%s', implode("\n", (array)$val), "\n");
-                unset($val, $key);
+            function (
+                &$val,
+                &$key
+            ) {
+                printf(
+                    "%s\n",
+                    implode(
+                        "\n",
+                        (array)$val
+                    )
+                );
+                unset(
+                    $val,
+                    $key
+                );
             }
         );
         self::$_send = array();
