@@ -102,7 +102,7 @@ class ClientManagementPage extends FOGPage
             _('For example, a GPO policy to push'),
             _('This file will only work on Windows'),
             _('MSI'),
-            _('Network Deployment')
+            _('Network Installer')
         );
         printf(
             '<a href="%s?%s" class="%s" title="%s. %s, %s, %s.">%s (%s)</a>',

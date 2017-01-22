@@ -1,0 +1,125 @@
+<?php
+/**
+ * Adds the windows keys menu item.
+ *
+ * PHP version 5
+ *
+ * @category AddWindowsKeyMenuItem
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @author   Lee Rowlett <nah@nah.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Adds the windows keys menu item.
+ *
+ * @category AddWindowsKeyMenuItem
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @author   Lee Rowlett <nah@nah.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+class AddWindowsKeyMenuItem extends Hook
+{
+    /**
+     * The name of this hook.
+     *
+     * @var string
+     */
+    public $name = 'AddWindowsKeyMenuItem';
+    /**
+     * The description of this hook.
+     *
+     * @var string
+     */
+    public $description = 'Add menu item for windows keys';
+    /**
+     * The active flag.
+     *
+     * @var bool
+     */
+    public $active = true;
+    /**
+     * The node this hook enacts with.
+     *
+     * @var string
+     */
+    public $node = 'windowskey';
+    /**
+     * The menu data to change.
+     *
+     * @param mixed $arguments The arguments to change.
+     *
+     * @return void
+     */
+    public function menuData($arguments)
+    {
+        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+            return;
+        }
+        $this->arrayInsertAfter(
+            'storage',
+            $arguments['main'],
+            $this->node,
+            array(
+                _('Windows Keys Management'),
+                'fa fa-windows fa-2x'
+            )
+        );
+    }
+    /**
+     * Adds the windows key page to search elements.
+     *
+     * @param mixed $arguments The arguments to change.
+     *
+     * @return void
+     */
+    public function addSearch($arguments)
+    {
+        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+            return;
+        }
+        array_push($arguments['searchPages'], $this->node);
+    }
+    /**
+     * Adds the windows key page to objects elements.
+     *
+     * @param mixed $arguments The arguments to change.
+     *
+     * @return void
+     */
+    public function addPageWithObject($arguments)
+    {
+        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+            return;
+        }
+        array_push($arguments['PagesWithObjects'], $this->node);
+    }
+}
+$AddWindowsKeyMenuItem = new AddWindowsKeyMenuItem();
+$HookManager
+    ->register(
+        'MAIN_MENU_DATA',
+        array(
+            $AddWindowsKeyMenuItem,
+            'menuData'
+        )
+    );
+$HookManager
+    ->register(
+        'SEARCH_PAGES',
+        array(
+            $AddWindowsKeyMenuItem,
+            'addSearch'
+        )
+    );
+$HookManager
+    ->register(
+        'PAGES_WITH_OBJECTS',
+        array(
+            $AddWindowsKeyMenuItem,
+            'addPageWithObject'
+        )
+    );

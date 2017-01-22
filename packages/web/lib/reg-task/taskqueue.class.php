@@ -423,6 +423,14 @@ class TaskQueue extends TaskingElement
             if (!$this->Task->save()) {
                 throw new Exception(_('Failed to update Task'));
             }
+            self::$HookManager
+                ->processEvent(
+                    'HOST_TASKING_COMPLETE',
+                    array(
+                        'Host' => &$this->Host,
+                        'Task' => &$this->Task
+                    )
+                );
             if (!$this->taskLog()) {
                 throw new Exception(_('Failed to update task log'));
             }

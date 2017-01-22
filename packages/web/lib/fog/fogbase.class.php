@@ -24,6 +24,12 @@
 abstract class FOGBase
 {
     /**
+     * User agent string.
+     *
+     * @var string
+     */
+    public static $useragent;
+    /**
      * Language variables brought in from text.php.
      *
      * @var array
@@ -328,6 +334,9 @@ abstract class FOGBase
      */
     public function __construct()
     {
+        if (isset($_SERVER['HTTP_USER_AGENT'])) {
+            self::$useragent = $_SERVER['HTTP_USER_AGENT'];
+        }
         self::_init();
 
         return $this;
@@ -1866,20 +1875,16 @@ abstract class FOGBase
         }
         if (is_array($getField)) {
             foreach ((array)$getField as &$field) {
-                $data[$field] = self::getClass($object)
-                    ->getManager()
-                    ->find(
-                        $findWhere,
-                        $operator,
-                        $orderBy,
-                        '',
-                        '',
-                        $groupBy,
-                        $not,
-                        $field,
-                        '',
-                        $filter
-                    );
+                $data[$field] = self::getSubObjectIDs(
+                    $object,
+                    $findWhere,
+                    $field,
+                    $not,
+                    $operator,
+                    $orderBy,
+                    $groupBy,
+                    $filter
+                );
                 unset($field);
             }
             return $data;

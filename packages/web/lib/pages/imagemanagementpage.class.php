@@ -551,6 +551,14 @@ class ImageManagementPage extends FOGPage
             ),
         );
         printf('<h2>%s</h2>', _('Add new image definition'));
+        self::$HookManager
+            ->processEvent(
+                'IMAGE_FIELDS',
+                array(
+                    'fields' => &$fields,
+                    'Image' => self::getClass('Image')
+                )
+            );
         array_walk($fields, $this->fieldsToData);
         self::$HookManager
             ->processEvent(
@@ -817,6 +825,14 @@ class ImageManagementPage extends FOGPage
                 _('Update')
             ),
         );
+        self::$HookManager
+            ->processEvent(
+                'IMAGE_FIELDS',
+                array(
+                    'fields' => &$fields,
+                    'Image' => &$this->obj
+                )
+            );
         array_walk($fields, $this->fieldsToData);
         self::$HookManager
             ->processEvent(
@@ -1120,10 +1136,10 @@ class ImageManagementPage extends FOGPage
                     _('Image update failed')
                 );
             }
-            $hook = 'IMAGE_UPDATE_SUCCESS';
+            $hook = 'IMAGE_EDIT_SUCCESS';
             $msg = _('Image updated');
         } catch (Exception $e) {
-            $hook = 'IMAGE_UPDATE_FAIL';
+            $hook = 'IMAGE_EDIT_FAIL';
             $msg = $e->getMessage();
         }
         self::$HookManager

@@ -260,6 +260,13 @@ class Host extends FOGController
             ->destroy($find);
         self::getClass('PowerManagementManager')
             ->destroy($find);
+        self::$HookManager
+            ->processEvent(
+                'DESTROY_HOST',
+                array(
+                    'Host' => &$this
+                )
+            );
         return parent::destroy($key);
     }
     /**
