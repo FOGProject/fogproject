@@ -146,6 +146,7 @@ class Page extends FOGBase
             'dashboard',
             'schema',
             'client',
+            'ipxe',
             'login',
             'logout'
         );

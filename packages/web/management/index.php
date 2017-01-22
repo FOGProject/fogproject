@@ -29,7 +29,12 @@ if (isset($_SESSION['delitems'])
 FOGCore::getClass('ProcessLogin')->processMainLogin();
 require '../commons/text.php';
 $Page = FOGCore::getClass('Page');
-if (!in_array($node, array('schema', 'client'))
+$nodes = array(
+    'schema',
+    'client',
+    'ipxe'
+);
+if (!in_array($node, $nodes)
     && ($node == 'logout' || !$currentUser->isValid())
 ) {
     $currentUser->logout();
