@@ -24,11 +24,11 @@ header('Content-Type: text/plain');
 try {
     $Host = FOGCore::getHostItem(false);
     $Task = $Host->get('task');
-    /*if (FOGCore::$useragent) {
-        exit(1);
-    }*/
+    if (FOGCore::$useragent) {
+        throw new Exception(_('Cannot view from browser'));
+    }
     if (!$Task->isValid()) {
-        exit(2);
+        throw new Exception(_('Invalid tasking!'));
     }
     $TaskType = FOGCore::getClass(
         'TaskType',
@@ -256,4 +256,5 @@ try {
     }
 } catch (Exception $e) {
     echo $e->getMessage();
+    exit(1);
 }

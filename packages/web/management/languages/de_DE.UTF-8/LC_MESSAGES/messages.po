@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-22 17:06-0500\n"
+"POT-Creation-Date: 2017-01-22 17:13-0500\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -8719,6 +8719,15 @@ msgstr "Nicht im Menü aufgeführt"
 #: /var/www/fog/commons/text.php:390
 msgid "Language"
 msgstr "Sprache"
+
+#: /var/www/fog/service/hostinfo.php:28
+msgid "Cannot view from browser"
+msgstr ""
+
+#: /var/www/fog/service/hostinfo.php:31
+#, fuzzy
+msgid "Invalid tasking!"
+msgstr "Ungültiger Vorgang"
 
 #: /var/www/fog/service/imagelisting.php:28
 #, fuzzy

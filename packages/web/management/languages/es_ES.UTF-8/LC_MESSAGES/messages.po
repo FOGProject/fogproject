@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-22 17:06-0500\n"
+"POT-Creation-Date: 2017-01-22 17:13-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -8713,6 +8713,15 @@ msgstr "No incluya en el menú"
 #: /var/www/fog/commons/text.php:390
 msgid "Language"
 msgstr "Idioma"
+
+#: /var/www/fog/service/hostinfo.php:28
+msgid "Cannot view from browser"
+msgstr ""
+
+#: /var/www/fog/service/hostinfo.php:31
+#, fuzzy
+msgid "Invalid tasking!"
+msgstr "tarea no válido"
 
 #: /var/www/fog/service/imagelisting.php:28
 #, fuzzy
