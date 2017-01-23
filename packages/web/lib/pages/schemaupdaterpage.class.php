@@ -180,6 +180,18 @@ class SchemaUpdaterPage extends FOGPage
                             break 2;
                         }
                     } elseif (false !== self::$DB->query($update)->error) {
+                        $dups = array(
+                            1050, // Can't drop not exist
+                            1054, // Column not found.
+                            1060, // Duplicate column name
+                            1061, // Duplicate index/key name
+                            1062, // Duplicate entry
+                            1091  // Table not exist.
+                        );
+                        $err = self::$DB->errorCode;
+                        if (in_array(self::$DB->errorCode, $dups)) {
+                            continue;
+                        }
                         $errors[] = sprintf(
                             '<p><b>%s %s:</b>'
                             . ' %s<br/><br/><b>%s %s:</b>'

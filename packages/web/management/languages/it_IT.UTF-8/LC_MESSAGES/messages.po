@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-22 21:48-0500\n"
+"POT-Creation-Date: 2017-01-23 07:54-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -131,12 +131,12 @@ msgstr "Impossibile creare la stampante"
 #: /var/www/fog/lib/fog/foggetset.class.php:92
 #: /var/www/fog/lib/fog/fogpage.class.php:2298
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:174
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:195
-#: /var/www/fog/lib/db/pdodb.class.php:177
-#: /var/www/fog/lib/db/pdodb.class.php:216
-#: /var/www/fog/lib/db/pdodb.class.php:272
-#: /var/www/fog/lib/db/pdodb.class.php:328
-#: /var/www/fog/lib/db/pdodb.class.php:381
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:207
+#: /var/www/fog/lib/db/pdodb.class.php:183
+#: /var/www/fog/lib/db/pdodb.class.php:224
+#: /var/www/fog/lib/db/pdodb.class.php:282
+#: /var/www/fog/lib/db/pdodb.class.php:340
+#: /var/www/fog/lib/db/pdodb.class.php:395
 #: /var/www/fog/lib/db/mysql.class.php:72 /var/www/fog/commons/text.php:97
 msgid "Error"
 msgstr "Errore"
@@ -344,7 +344,7 @@ msgstr "Oggetto"
 #: /var/www/fog/lib/fog/fogcontroller.class.php:799
 #: /var/www/fog/lib/fog/fogcontroller.class.php:811
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:171
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:192
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:204
 #: /var/www/fog/commons/text.php:302
 msgid "ID"
 msgstr "ID"
@@ -1552,7 +1552,7 @@ msgstr "Aggiungere"
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:978
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:284
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:170
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:191
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:203
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:811
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1061
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1328
@@ -2220,13 +2220,13 @@ msgstr "host in sospeso"
 
 #: /var/www/fog/lib/pages/dashboardpage.class.php:173
 #: /var/www/fog/lib/pages/dashboardpage.class.php:182
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:231
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:243
 msgid "Click"
 msgstr "Clic"
 
 #: /var/www/fog/lib/pages/dashboardpage.class.php:176
 #: /var/www/fog/lib/pages/dashboardpage.class.php:185
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:232
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:244
 #: /var/www/fog/commons/text.php:92
 msgid "here"
 msgstr "Qui"
@@ -4586,36 +4586,36 @@ msgstr "Aggiornamento non richiesto!"
 msgid "Function"
 msgstr "Azione"
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:194
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:206
 #, fuzzy
 msgid "Database"
 msgstr "Data"
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:197
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:209
 msgid "Variable contains"
 msgstr ""
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:199
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:211
 msgid "Database SQL"
 msgstr ""
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:216
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:228
 msgid "Install / Update Failed!"
 msgstr "Installare / Aggiornamento non riuscito!"
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:221
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:233
 msgid "The following errors occurred"
 msgstr "Si sono verificati i seguenti errori"
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:230
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:242
 msgid "Install / Update Successful!"
 msgstr "Installare / Aggiornamento di successo!"
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:233
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:245
 msgid "to login"
 msgstr "il login"
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:238
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:250
 msgid "The following errors occured"
 msgstr "I seguenti errori si è verificato"
 
@@ -6879,17 +6879,17 @@ msgstr "Gestione WOL Broadcast"
 msgid "Capone Deploy"
 msgstr "Capone Deploy"
 
-#: /var/www/fog/lib/db/pdodb.class.php:96
+#: /var/www/fog/lib/db/pdodb.class.php:102
 #: /var/www/fog/lib/db/mysql.class.php:16
 msgid "Failed to connect"
 msgstr "Connessione fallita"
 
-#: /var/www/fog/lib/db/pdodb.class.php:102
-#: /var/www/fog/lib/db/pdodb.class.php:175
-#: /var/www/fog/lib/db/pdodb.class.php:214
-#: /var/www/fog/lib/db/pdodb.class.php:270
-#: /var/www/fog/lib/db/pdodb.class.php:326
-#: /var/www/fog/lib/db/pdodb.class.php:379
+#: /var/www/fog/lib/db/pdodb.class.php:108
+#: /var/www/fog/lib/db/pdodb.class.php:181
+#: /var/www/fog/lib/db/pdodb.class.php:222
+#: /var/www/fog/lib/db/pdodb.class.php:280
+#: /var/www/fog/lib/db/pdodb.class.php:338
+#: /var/www/fog/lib/db/pdodb.class.php:393
 #: /var/www/fog/lib/db/mysql.class.php:19
 #: /var/www/fog/lib/db/mysql.class.php:42
 #: /var/www/fog/lib/db/mysql.class.php:81
@@ -6898,58 +6898,63 @@ msgstr "Connessione fallita"
 msgid "Failed to"
 msgstr "Non è riuscito a"
 
-#: /var/www/fog/lib/db/pdodb.class.php:105
+#: /var/www/fog/lib/db/pdodb.class.php:111
 #, fuzzy
 msgid "SQL Error"
 msgstr "Errore SQL:"
 
-#: /var/www/fog/lib/db/pdodb.class.php:197
+#: /var/www/fog/lib/db/pdodb.class.php:185
+#: /var/www/fog/lib/db/pdodb.class.php:226
+#: /var/www/fog/lib/db/pdodb.class.php:284
+#: /var/www/fog/lib/db/pdodb.class.php:342
+#: /var/www/fog/lib/db/pdodb.class.php:397
+#: /var/www/fog/lib/db/pdodb.class.php:422
+msgid "Error Message"
+msgstr "Messaggio di errore"
+
+#: /var/www/fog/lib/db/pdodb.class.php:205
 #, fuzzy
 msgid "No link established to the database"
 msgstr "Nessuna connessione al database"
 
-#: /var/www/fog/lib/db/pdodb.class.php:251
+#: /var/www/fog/lib/db/pdodb.class.php:261
 #, fuzzy
 msgid "No query passed"
 msgstr "No query inviata"
 
-#: /var/www/fog/lib/db/pdodb.class.php:263
+#: /var/www/fog/lib/db/pdodb.class.php:273
 #: /var/www/fog/lib/db/mysql.class.php:78
 msgid "No database to work off"
 msgstr "Nessun database di lavorare off"
 
-#: /var/www/fog/lib/db/pdodb.class.php:275
+#: /var/www/fog/lib/db/pdodb.class.php:287
 #, fuzzy
 msgid "no database to"
 msgstr "Nessun database di lavorare off"
 
-#: /var/www/fog/lib/db/pdodb.class.php:313
+#: /var/www/fog/lib/db/pdodb.class.php:325
 #: /var/www/fog/lib/db/mysql.class.php:98
 msgid "No query result, use query() first"
 msgstr "Nessun risultato della query, utilizzare query () prima"
 
-#: /var/www/fog/lib/db/pdodb.class.php:348
+#: /var/www/fog/lib/db/pdodb.class.php:362
 msgid "No connection to the database"
 msgstr "Nessuna connessione al database"
 
-#: /var/www/fog/lib/db/pdodb.class.php:353
+#: /var/www/fog/lib/db/pdodb.class.php:367
 #: /var/www/fog/lib/db/mysql.class.php:151
 msgid "No data returned"
 msgstr "Non ci sono dati restituiti"
 
-#: /var/www/fog/lib/db/pdodb.class.php:406
+#: /var/www/fog/lib/db/pdodb.class.php:420
 msgid "Error Code"
 msgstr "Codice di errore"
 
-#: /var/www/fog/lib/db/pdodb.class.php:408
-msgid "Error Message"
-msgstr "Messaggio di errore"
-
-#: /var/www/fog/lib/db/pdodb.class.php:410
+#: /var/www/fog/lib/db/pdodb.class.php:424
 msgid "Debug"
 msgstr "mettere a punto"
 
-#: /var/www/fog/lib/db/pdodb.class.php:415
+#: /var/www/fog/lib/db/pdodb.class.php:429
 msgid "Cannot connect to database"
 msgstr "Non è possibile connettersi al database"
 
