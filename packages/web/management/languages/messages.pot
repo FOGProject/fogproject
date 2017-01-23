@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-22 20:39-0500\n"
+"POT-Creation-Date: 2017-01-23 07:59-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -120,12 +120,12 @@ msgstr ""
 #: /var/www/fog/lib/fog/foggetset.class.php:92
 #: /var/www/fog/lib/fog/fogpage.class.php:2298
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:174
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:195
-#: /var/www/fog/lib/db/pdodb.class.php:177
-#: /var/www/fog/lib/db/pdodb.class.php:216
-#: /var/www/fog/lib/db/pdodb.class.php:272
-#: /var/www/fog/lib/db/pdodb.class.php:328
-#: /var/www/fog/lib/db/pdodb.class.php:381
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:207
+#: /var/www/fog/lib/db/pdodb.class.php:183
+#: /var/www/fog/lib/db/pdodb.class.php:224
+#: /var/www/fog/lib/db/pdodb.class.php:282
+#: /var/www/fog/lib/db/pdodb.class.php:340
+#: /var/www/fog/lib/db/pdodb.class.php:395
 #: /var/www/fog/lib/db/mysql.class.php:72 /var/www/fog/commons/text.php:97
 msgid "Error"
 msgstr ""
@@ -319,7 +319,7 @@ msgstr ""
 #: /var/www/fog/lib/fog/fogcontroller.class.php:799
 #: /var/www/fog/lib/fog/fogcontroller.class.php:811
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:171
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:192
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:204
 #: /var/www/fog/commons/text.php:302
 msgid "ID"
 msgstr ""
@@ -757,31 +757,31 @@ msgstr ""
 msgid "Username"
 msgstr ""
 
-#: /var/www/fog/lib/fog/schema.class.php:197
+#: /var/www/fog/lib/fog/schema.class.php:202
 msgid "Could not read tmp file."
 msgstr ""
 
-#: /var/www/fog/lib/fog/schema.class.php:231
+#: /var/www/fog/lib/fog/schema.class.php:236
 msgid "Error Opening DB File"
 msgstr ""
 
-#: /var/www/fog/lib/fog/schema.class.php:242
+#: /var/www/fog/lib/fog/schema.class.php:247
 msgid "Error performing query"
 msgstr ""
 
-#: /var/www/fog/lib/fog/schema.class.php:270
+#: /var/www/fog/lib/fog/schema.class.php:275
 msgid "Exists item must be boolean"
 msgstr ""
 
-#: /var/www/fog/lib/fog/schema.class.php:315
+#: /var/www/fog/lib/fog/schema.class.php:320
 msgid "Must have a name to create the table"
 msgstr ""
 
-#: /var/www/fog/lib/fog/schema.class.php:320
+#: /var/www/fog/lib/fog/schema.class.php:325
 msgid "Fields and types must have equal count"
 msgstr ""
 
-#: /var/www/fog/lib/fog/schema.class.php:409
+#: /var/www/fog/lib/fog/schema.class.php:414
 msgid "Need the table name to drop"
 msgstr ""
 
@@ -1449,7 +1449,7 @@ msgstr ""
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:978
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:284
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:170
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:191
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:203
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:811
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1061
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1328
@@ -2096,13 +2096,13 @@ msgstr ""
 
 #: /var/www/fog/lib/pages/dashboardpage.class.php:173
 #: /var/www/fog/lib/pages/dashboardpage.class.php:182
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:231
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:243
 msgid "Click"
 msgstr ""
 
 #: /var/www/fog/lib/pages/dashboardpage.class.php:176
 #: /var/www/fog/lib/pages/dashboardpage.class.php:185
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:232
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:244
 #: /var/www/fog/commons/text.php:92
 msgid "here"
 msgstr ""
@@ -4382,35 +4382,35 @@ msgstr ""
 msgid "Function"
 msgstr ""
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:194
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:206
 msgid "Database"
 msgstr ""
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:197
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:209
 msgid "Variable contains"
 msgstr ""
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:199
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:211
 msgid "Database SQL"
 msgstr ""
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:216
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:228
 msgid "Install / Update Failed!"
 msgstr ""
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:221
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:233
 msgid "The following errors occurred"
 msgstr ""
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:230
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:242
 msgid "Install / Update Successful!"
 msgstr ""
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:233
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:245
 msgid "to login"
 msgstr ""
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:238
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:250
 msgid "The following errors occured"
 msgstr ""
 
@@ -6546,17 +6546,17 @@ msgstr ""
 msgid "Capone Deploy"
 msgstr ""
 
-#: /var/www/fog/lib/db/pdodb.class.php:96
+#: /var/www/fog/lib/db/pdodb.class.php:102
 #: /var/www/fog/lib/db/mysql.class.php:16
 msgid "Failed to connect"
 msgstr ""
 
-#: /var/www/fog/lib/db/pdodb.class.php:102
-#: /var/www/fog/lib/db/pdodb.class.php:175
-#: /var/www/fog/lib/db/pdodb.class.php:214
-#: /var/www/fog/lib/db/pdodb.class.php:270
-#: /var/www/fog/lib/db/pdodb.class.php:326
-#: /var/www/fog/lib/db/pdodb.class.php:379
+#: /var/www/fog/lib/db/pdodb.class.php:108
+#: /var/www/fog/lib/db/pdodb.class.php:181
+#: /var/www/fog/lib/db/pdodb.class.php:222
+#: /var/www/fog/lib/db/pdodb.class.php:280
+#: /var/www/fog/lib/db/pdodb.class.php:338
+#: /var/www/fog/lib/db/pdodb.class.php:393
 #: /var/www/fog/lib/db/mysql.class.php:19
 #: /var/www/fog/lib/db/mysql.class.php:42
 #: /var/www/fog/lib/db/mysql.class.php:81
@@ -6565,54 +6565,59 @@ msgstr ""
 msgid "Failed to"
 msgstr ""
 
-#: /var/www/fog/lib/db/pdodb.class.php:105
+#: /var/www/fog/lib/db/pdodb.class.php:111
 msgid "SQL Error"
 msgstr ""
 
-#: /var/www/fog/lib/db/pdodb.class.php:197
+#: /var/www/fog/lib/db/pdodb.class.php:185
+#: /var/www/fog/lib/db/pdodb.class.php:226
+#: /var/www/fog/lib/db/pdodb.class.php:284
+#: /var/www/fog/lib/db/pdodb.class.php:342
+#: /var/www/fog/lib/db/pdodb.class.php:397
+#: /var/www/fog/lib/db/pdodb.class.php:422
+msgid "Error Message"
+msgstr ""
+
+#: /var/www/fog/lib/db/pdodb.class.php:205
 msgid "No link established to the database"
 msgstr ""
 
-#: /var/www/fog/lib/db/pdodb.class.php:251
+#: /var/www/fog/lib/db/pdodb.class.php:261
 msgid "No query passed"
 msgstr ""
 
-#: /var/www/fog/lib/db/pdodb.class.php:263
+#: /var/www/fog/lib/db/pdodb.class.php:273
 #: /var/www/fog/lib/db/mysql.class.php:78
 msgid "No database to work off"
 msgstr ""
 
-#: /var/www/fog/lib/db/pdodb.class.php:275
+#: /var/www/fog/lib/db/pdodb.class.php:287
 msgid "no database to"
 msgstr ""
 
-#: /var/www/fog/lib/db/pdodb.class.php:313
+#: /var/www/fog/lib/db/pdodb.class.php:325
 #: /var/www/fog/lib/db/mysql.class.php:98
 msgid "No query result, use query() first"
 msgstr ""
 
-#: /var/www/fog/lib/db/pdodb.class.php:348
+#: /var/www/fog/lib/db/pdodb.class.php:362
 msgid "No connection to the database"
 msgstr ""
 
-#: /var/www/fog/lib/db/pdodb.class.php:353
+#: /var/www/fog/lib/db/pdodb.class.php:367
 #: /var/www/fog/lib/db/mysql.class.php:151
 msgid "No data returned"
 msgstr ""
 
-#: /var/www/fog/lib/db/pdodb.class.php:406
+#: /var/www/fog/lib/db/pdodb.class.php:420
 msgid "Error Code"
 msgstr ""
 
-#: /var/www/fog/lib/db/pdodb.class.php:408
-msgid "Error Message"
-msgstr ""
-
-#: /var/www/fog/lib/db/pdodb.class.php:410
+#: /var/www/fog/lib/db/pdodb.class.php:424
 msgid "Debug"
 msgstr ""
 
-#: /var/www/fog/lib/db/pdodb.class.php:415
+#: /var/www/fog/lib/db/pdodb.class.php:429
 msgid "Cannot connect to database"
 msgstr ""
 

@@ -26,6 +26,12 @@
 class PDODB extends DatabaseManager
 {
     /**
+     * Stores last errorcode for query.
+     *
+     * @var bool|int
+     */
+    public $errorCode;
+    /**
      * Stores last error for query.
      *
      * @var bool|string
@@ -171,11 +177,13 @@ class PDODB extends DatabaseManager
                 $this->_connect(false);
             } else {
                 $msg = sprintf(
-                    '%s %s: %s: %s',
+                    '%s %s: %s: %s %s: %s',
                     _('Failed to'),
                     __FUNCTION__,
                     _('Error'),
-                    $e->getMessage()
+                    $e->getMessage(),
+                    _('Error Message'),
+                    $this->sqlerror()
                 );
             }
         }
@@ -210,11 +218,13 @@ class PDODB extends DatabaseManager
             }
         } catch (PDOException $e) {
             $msg = sprintf(
-                '%s %s: %s: %s',
+                '%s %s: %s: %s %s: %s',
                 _('Failed to'),
                 __FUNCTION__,
                 _('Error'),
-                $e->getMessage()
+                $e->getMessage(),
+                _('Error Message'),
+                $this->sqlerror()
             );
             self::$_dbName = false;
         }
@@ -266,11 +276,13 @@ class PDODB extends DatabaseManager
             $this->error = false;
         } catch (PDOException $e) {
             $msg = sprintf(
-                '%s %s: %s: %s',
+                '%s %s: %s: %s %s: %s',
                 _('Failed to'),
                 __FUNCTION__,
                 _('Error'),
-                $e->getMessage()
+                $e->getMessage(),
+                _('Error Message'),
+                $this->sqlerror()
             );
             if (stripos($e->getMessage(), _('no database to'))) {
                 $msg = sprintf(
@@ -322,11 +334,13 @@ class PDODB extends DatabaseManager
             }
         } catch (PDOException $e) {
             $msg = sprintf(
-                '%s %s: %s: %s',
+                '%s %s: %s: %s %s: %s',
                 _('Failed to'),
                 __FUNCTION__,
                 _('Error'),
-                $e->getMessage()
+                $e->getMessage(),
+                _('Error Message'),
+                $this->sqlerror()
             );
             self::$_result = false;
         }
@@ -375,11 +389,13 @@ class PDODB extends DatabaseManager
             }
         } catch (Exception $e) {
             $msg = sprintf(
-                '%s %s: %s: %s',
+                '%s %s: %s: %s %s: %s',
                 _('Failed to'),
                 __FUNCTION__,
                 _('Error'),
-                $e->getMessage()
+                $e->getMessage(),
+                _('Error Message'),
+                $this->sqlerror()
             );
         }
         return self::$_result;
@@ -393,12 +409,10 @@ class PDODB extends DatabaseManager
     {
         $msg = '';
         if (self::$_link) {
-            if (self::$_link->errorCode()) {
-                $errCode = self::$_link->errorCode();
-                $errInfo = self::$_link->errorInfo();
-            } else {
+            if (self::$_queryResult->errorCode()) {
                 $errCode = self::$_queryResult->errorCode();
                 $errInfo = self::$_queryResult->errorInfo();
+                $this->errorCode = $errInfo[1];
             }
             if ($errCode !== '00000') {
                 $msg = sprintf(
