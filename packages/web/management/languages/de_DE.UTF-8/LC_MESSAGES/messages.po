@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-22 17:13-0500\n"
+"POT-Creation-Date: 2017-01-22 20:33-0500\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -5881,22 +5881,22 @@ msgstr "Bandbreite sollte numerische und größer als 0 sein."
 msgid "Max"
 msgstr ""
 
-#: /var/www/fog/lib/pages/ipxemenu.class.php:167
-#: /var/www/fog/lib/pages/ipxemenu.class.php:181
+#: /var/www/fog/lib/pages/ipxemenu.class.php:168
+#: /var/www/fog/lib/pages/ipxemenu.class.php:182
 msgid "Escape"
 msgstr ""
 
-#: /var/www/fog/lib/pages/ipxemenu.class.php:188
+#: /var/www/fog/lib/pages/ipxemenu.class.php:189
 #, fuzzy
 msgid "Booting"
 msgstr "Boot-Optionen:"
 
-#: /var/www/fog/lib/pages/ipxemenu.class.php:189
+#: /var/www/fog/lib/pages/ipxemenu.class.php:190
 #, fuzzy
 msgid "Press"
 msgstr "IP-Adresse"
 
-#: /var/www/fog/lib/pages/ipxemenu.class.php:190
+#: /var/www/fog/lib/pages/ipxemenu.class.php:191
 msgid "to access the menu"
 msgstr ""
 
