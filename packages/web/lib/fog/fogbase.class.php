@@ -459,7 +459,11 @@ abstract class FOGBase
             if ($service) {
                 $msg = '#!im';
             } else {
-                $msg = sprintf('%s %s', self::$foglang, $_REQUEST['mac']);
+                $msg = sprintf(
+                    '%s %s',
+                    self::$foglang['InvalidMAC'],
+                    $_REQUEST['mac']
+                );
             }
             throw new Exception($msg);
         }
