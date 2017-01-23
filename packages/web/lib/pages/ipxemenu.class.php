@@ -60,9 +60,10 @@ class IPXEMenu extends FOGPage
             false,
             true
         );
+        $web = self::getSetting('FOG_WEB_HOST');
         self::$_send['booturl'] = array(
             '#!ipxe',
-            'set fog-ip ${next-server}',
+            "set fog-ip $web",
             'set boot-url http://${fog-ip}/fog/'
         );
         self::_authenticated();
@@ -200,6 +201,46 @@ class IPXEMenu extends FOGPage
             );
         }
         self::_parseMe();
+    }
+    /**
+     * Presents the exit types.
+     *
+     * @return void
+     */
+    private static function _exitTypes()
+    {
+        $grubChain = 'chain --replace --autofree ${boot'
+            . '-url}/service/ipxe/grub.exe --config-file="%s"';
+        $sanboot = 'sanboot --no-describe --drive 0x80';
+        $grub = array(
+            'basic' => sprintf(
+                $grubChain,
+                'rootnoverify (hd0);chainloader +1'
+            ),
+            '1cd' => sprintf(
+                $grubChain,
+                'cdrom --init;map --hook; root (cd0);chainloader (cd0)"'
+            ),
+            '1fw' => sprintf(
+                $grubChain,
+                'find --set-root /BOOTMGR;chainloader /BOOTMGR"'
+            )
+        );
+        $refind = sprintf(
+            'imgfetch ${boot-url}/service/ipxe/refind.conf%s'
+            . 'chain --replace --autofree ${boot-url}/service'
+            . '/ipxe/refind.efi',
+            "\n"
+        );
+        self::$_exitTypes = array(
+            'sanboot'                  => $sanboot,
+            'grub'                     => $grub['basic'],
+            'grub_first_hdd'           => $grub['basic'],
+            'grub_first_cdrom'         => $grub['1cd'],
+            'grub_first_found_windows' => $grub['1fw'],
+            'refind_efi'               => $refind,
+            'exit'                     => 'exit'
+        );
     }
     /**
      * Starts our params caller.

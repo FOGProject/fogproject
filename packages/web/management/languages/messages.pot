@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-22 18:13-0500\n"
+"POT-Creation-Date: 2017-01-22 21:33-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5604,20 +5604,20 @@ msgstr ""
 msgid "Max"
 msgstr ""
 
-#: /var/www/fog/lib/pages/ipxemenu.class.php:167
-#: /var/www/fog/lib/pages/ipxemenu.class.php:181
+#: /var/www/fog/lib/pages/ipxemenu.class.php:168
+#: /var/www/fog/lib/pages/ipxemenu.class.php:182
 msgid "Escape"
 msgstr ""
 
-#: /var/www/fog/lib/pages/ipxemenu.class.php:188
+#: /var/www/fog/lib/pages/ipxemenu.class.php:189
 msgid "Booting"
 msgstr ""
 
-#: /var/www/fog/lib/pages/ipxemenu.class.php:189
+#: /var/www/fog/lib/pages/ipxemenu.class.php:190
 msgid "Press"
 msgstr ""
 
-#: /var/www/fog/lib/pages/ipxemenu.class.php:190
+#: /var/www/fog/lib/pages/ipxemenu.class.php:191
 msgid "to access the menu"
 msgstr ""
 

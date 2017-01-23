@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-22 17:13-0500\n"
+"POT-Creation-Date: 2017-01-22 20:33-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -5878,22 +5878,22 @@ msgstr "Ancho de banda debe ser numérico y mayor que 0"
 msgid "Max"
 msgstr ""
 
-#: /var/www/fog/lib/pages/ipxemenu.class.php:167
-#: /var/www/fog/lib/pages/ipxemenu.class.php:181
+#: /var/www/fog/lib/pages/ipxemenu.class.php:168
+#: /var/www/fog/lib/pages/ipxemenu.class.php:182
 msgid "Escape"
 msgstr ""
 
-#: /var/www/fog/lib/pages/ipxemenu.class.php:188
+#: /var/www/fog/lib/pages/ipxemenu.class.php:189
 #, fuzzy
 msgid "Booting"
 msgstr "Opciones de arranque:"
 
-#: /var/www/fog/lib/pages/ipxemenu.class.php:189
+#: /var/www/fog/lib/pages/ipxemenu.class.php:190
 #, fuzzy
 msgid "Press"
 msgstr "Dirección IP"
 
-#: /var/www/fog/lib/pages/ipxemenu.class.php:190
+#: /var/www/fog/lib/pages/ipxemenu.class.php:191
 msgid "to access the menu"
 msgstr ""
 
