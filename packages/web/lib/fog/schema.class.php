@@ -126,6 +126,11 @@ class Schema extends FOGController
             );
         }
         $queries[] = sprintf(
+            'DROP TABLE IF EXISTS `%s`.`_%s`',
+            $dbname,
+            $tablename
+        );
+        $queries[] = sprintf(
             'CREATE TABLE `%s`.`_%s` LIKE `%s`.`%s`',
             $dbname,
             $tablename,

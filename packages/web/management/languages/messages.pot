@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-22 21:33-0500\n"
+"POT-Creation-Date: 2017-01-22 22:05-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -757,31 +757,31 @@ msgstr ""
 msgid "Username"
 msgstr ""
 
-#: /var/www/fog/lib/fog/schema.class.php:197
+#: /var/www/fog/lib/fog/schema.class.php:202
 msgid "Could not read tmp file."
 msgstr ""
 
-#: /var/www/fog/lib/fog/schema.class.php:231
+#: /var/www/fog/lib/fog/schema.class.php:236
 msgid "Error Opening DB File"
 msgstr ""
 
-#: /var/www/fog/lib/fog/schema.class.php:242
+#: /var/www/fog/lib/fog/schema.class.php:247
 msgid "Error performing query"
 msgstr ""
 
-#: /var/www/fog/lib/fog/schema.class.php:270
+#: /var/www/fog/lib/fog/schema.class.php:275
 msgid "Exists item must be boolean"
 msgstr ""
 
-#: /var/www/fog/lib/fog/schema.class.php:315
+#: /var/www/fog/lib/fog/schema.class.php:320
 msgid "Must have a name to create the table"
 msgstr ""
 
-#: /var/www/fog/lib/fog/schema.class.php:320
+#: /var/www/fog/lib/fog/schema.class.php:325
 msgid "Fields and types must have equal count"
 msgstr ""
 
-#: /var/www/fog/lib/fog/schema.class.php:409
+#: /var/www/fog/lib/fog/schema.class.php:414
 msgid "Need the table name to drop"
 msgstr ""
 

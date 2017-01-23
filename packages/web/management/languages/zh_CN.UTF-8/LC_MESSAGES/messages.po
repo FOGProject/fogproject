@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-22 20:33-0500\n"
+"POT-Creation-Date: 2017-01-22 21:48-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -826,32 +826,32 @@ msgstr "主办"
 msgid "Username"
 msgstr "用户名"
 
-#: /var/www/fog/lib/fog/schema.class.php:197
+#: /var/www/fog/lib/fog/schema.class.php:202
 msgid "Could not read tmp file."
 msgstr "无法读取tmp文件。"
 
-#: /var/www/fog/lib/fog/schema.class.php:231
+#: /var/www/fog/lib/fog/schema.class.php:236
 msgid "Error Opening DB File"
 msgstr "错误打开数据库文件"
 
-#: /var/www/fog/lib/fog/schema.class.php:242
+#: /var/www/fog/lib/fog/schema.class.php:247
 msgid "Error performing query"
 msgstr "错误执行查询"
 
-#: /var/www/fog/lib/fog/schema.class.php:270
+#: /var/www/fog/lib/fog/schema.class.php:275
 msgid "Exists item must be boolean"
 msgstr ""
 
-#: /var/www/fog/lib/fog/schema.class.php:315
+#: /var/www/fog/lib/fog/schema.class.php:320
 msgid "Must have a name to create the table"
 msgstr ""
 
-#: /var/www/fog/lib/fog/schema.class.php:320
+#: /var/www/fog/lib/fog/schema.class.php:325
 #, fuzzy
 msgid "Fields and types must have equal count"
 msgstr "场和值不具有相等的参数。"
 
-#: /var/www/fog/lib/fog/schema.class.php:409
+#: /var/www/fog/lib/fog/schema.class.php:414
 msgid "Need the table name to drop"
 msgstr ""
 

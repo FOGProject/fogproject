@@ -201,11 +201,11 @@ class SchemaUpdaterPage extends FOGPage
                         );
                         unset($update);
                         break 2;
-                    } else {
-                        $newSchema->set('version', $version + 1);
                     }
                     unset($update);
                 }
+                $newSchema->set('version', $version + 1);
+                unset($updates);
             }
             if (!$newSchema->save()
                 || count($errors) > 0
