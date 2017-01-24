@@ -37,6 +37,7 @@ class IPXEMenu extends FOGPage
     private static $_path          = '';
     private static $_timeout       = 5;
     private static $_ks            = '';
+    private static $_debug         = false;
     /**
      * The node this works off of.
      *
@@ -60,13 +61,42 @@ class IPXEMenu extends FOGPage
             false,
             true
         );
-        $web = self::getSetting('FOG_WEB_HOST');
+        $web = self::$_web = self::getSetting('FOG_WEB_HOST');
         self::$_send['booturl'] = array(
             '#!ipxe',
             "set fog-ip $web",
             'set boot-url http://${fog-ip}/fog/'
         );
         self::_authenticated();
+    }
+    /**
+     * Setup for hidden menu.
+     *
+     * @return void
+     */
+    private static function _hidden()
+    {
+        self::$_send['chainhide'] = array(
+            self::cpuid(),
+            self::_startparams(
+                'param menuaccess 1'
+            ),
+        );
+    }
+    /**
+     * Setup for not hidden menu.
+     *
+     * @return void
+     */
+    private static function _nothidden()
+    {
+        self::$_send['chainnohide'] = array(
+            self::_cpuid(),
+            self::_startparams(
+                'param menuAccess 1'
+            ),
+            self::_bootme()
+        );
     }
     /**
      * Check authentication.
@@ -144,13 +174,11 @@ class IPXEMenu extends FOGPage
     /**
      * The boot chaining function
      *
-     * @param bool $debug        To show debug or not.
      * @param bool $shortCircuit To force display or not.
      *
      * @return void
      */
     private static function _chainBoot(
-        $debug = false,
         $shortCircuit = false
     ) {
         if (!self::$_hiddenmenu
@@ -158,9 +186,9 @@ class IPXEMenu extends FOGPage
         ) {
             self::$_send['chainnohide'] = array(
                 self::_cpuid(),
-                self::_startparams(),
-                'param menuAccess 1',
-                "param debug $debug",
+                self::_startparams(
+                    'param menuAccess 1'
+                ),
                 self::_bootme()
             );
         } else {
@@ -192,11 +220,9 @@ class IPXEMenu extends FOGPage
                     self::$_bootexittype
                 ),
                 ':menuAccess',
-                self::_startparams(),
-                'param username ${username}',
-                'param password ${password}',
-                'param menuaccess 1',
-                "param debug $debug",
+                self::_startparams(
+                    'param menuaccess 1'
+                ),
                 self::_bootme()
             );
         }
@@ -245,40 +271,47 @@ class IPXEMenu extends FOGPage
     /**
      * Starts our params caller.
      *
-     * @return string
+     * @return void 
      */
     private static function _startparams()
     {
-        return 'params'
-            . "\n"
-            . 'isset ${net0/mac} && param mac0 ${net0/mac} ||'
-            . "\n"
-            . 'isset ${net1/mac} && param mac1 ${net1/mac} ||'
-            . "\n"
-            . 'isset ${net2/mac} && param mac2 ${net2/mac} ||'
-            . "\n"
-            . 'param arch ${arch}'
-            . "\n"
-            . 'param platform ${platform}';
+        self::$_send['params'] = self::fastmerge(
+            array(
+                'params',
+                'isset ${net0/mac} && param mac0 ${net0/mac} ||',
+                'isset ${net1/mac} && param mac1 ${net1/mac} ||',
+                'isset ${net2/mac} && param mac2 ${net2/mac} ||',
+                'param arch ${arch}',
+                'param platform ${platform}',
+                sprintf(
+                    'param debug %s',
+                    (int)self::$_debug
+                )
+            ),
+            func_get_args()
+        );
     }
     /**
      * Generates our cpuid string.
      *
-     * @return string
+     * @return void
      */
     private static function _cpuid()
     {
-        return 'cpuid --ext 29 && set arch x86_64 || set arch i386';
+        self::$_send['cpuid'] = array(
+            'cpuid --ext 29 && set arch x86_64 || set arch i386'
+        );
     }
     /**
      * Generates our bootme ipxe function.
      *
-     * @return string
+     * @return void
      */
     private static function _bootme()
     {
-        return ':bootme'
-            . "\n"
-            . 'chain --replace --autofree ${boot-url}/ipxe/boot.php##params';
+        self::$_send['bootme'] = array(
+            ':bootme',
+            'chain --replace --autofree ${boot-url}/ipxe/boot.php##params'
+        );
     }
 }
