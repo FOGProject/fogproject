@@ -191,11 +191,27 @@ class HostManager extends FOGManagerController
             ),
             'hostID'
         );
-        if (count($MACHost) > 1) {
+        $PriHost = self::getSubObjectIDs(
+            'MACAddressAssociation',
+            array(
+                'pending' => array(0, ''),
+                'primary' => 1,
+                'mac' => $macs,
+            ),
+            'hostID'
+        );
+        if (count($PriHost) > 1 && count($MACHost) > 1) {
+            throw new Exception(self::$foglang['ErrorMultipleHosts']);
+        }
+        $Host = array_intersect(
+            (array)$PriHost,
+            (array)$MACHost
+        );
+        if (count($Host) > 1) {
             throw new Exception(self::$foglang['ErrorMultipleHosts']);
         }
 
-        return new Host(@max($MACHost));
+        return new Host(@max($Host));
     }
     /**
      * Removes fields.

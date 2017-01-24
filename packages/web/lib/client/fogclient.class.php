@@ -69,6 +69,9 @@ abstract class FOGClient extends FOGBase
                 $returnmacs,
                 $override
             );
+            if (!$this->Host instanceof Host) {
+                $this->Host = new Host(0);
+            }
             if (self::$json) {
                 $globalInfo = array_intersect_key(
                     $this->getGlobalModuleStatus(),

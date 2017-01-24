@@ -501,7 +501,8 @@ abstract class FOGPage extends FOGBase
                     'pending' => array(0, '')
                 );
             }
-            array_walk(self::getClass($manager)->find($find), static::$returnData);
+            $items = (array)self::getClass($manager)->find($find);
+            array_walk($items, static::$returnData);
             $event = sprintf(
                 '%s_DATA',
                 strtoupper($this->node)
