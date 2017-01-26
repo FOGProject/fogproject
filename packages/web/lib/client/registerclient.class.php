@@ -97,7 +97,18 @@ class RegisterClient extends FOGClient implements FOGClientSend
             }
         }
         if (count($MACs) > $maxPending + 1) {
-            throw new Exception(_('Too many MACs'));
+            echo json_encode(
+                array(
+                    'error' => sprintf(
+                        '%s. %s %d %s.',
+                        _('Too many MACs'),
+                        _('Only allowed to have'),
+                        $maxPending,
+                        _('additional macs')
+                    )
+                )
+            );
+            exit;
         }
         $MACs = self::parseMacList(
             $MACs,
