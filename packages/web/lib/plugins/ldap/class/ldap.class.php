@@ -101,7 +101,13 @@ class LDAP extends FOGController
         $func = $function;
         $function = 'ldap_'.$func;
         if (!function_exists($function)) {
-            throw new Exception(_('Function does not exist')." $function");
+            throw new Exception(
+                sprintf(
+                    '%s %s',
+                    _('Function does not exist'),
+                    $function
+                )
+            );
         }
         $nonresourcefuncs = array(
             '8859_to_t61',
@@ -275,6 +281,16 @@ class LDAP extends FOGController
          * If we can't connect return immediately
          */
         if (!self::$_ldapconn) {
+            error_log(
+                sprintf(
+                    '%s %s() %s %s:%d',
+                    _('Plugin'),
+                    __METHOD__,
+                    _('We cannot connect to LDAP server'),
+                    $server,
+                    $port
+                )
+            );
             return false;
         }
         /**
@@ -342,6 +358,15 @@ class LDAP extends FOGController
              * If no bind password return immediately
              */
             if (empty($bindPass)) {
+                error_log(
+                    sprintf(
+                        '%s %s() %s %s!',
+                        _('Plugin'),
+                        __METHOD__,
+                        _('Using the group match function'),
+                        _('but bind password is not set')
+                    )
+                );
                 return false;
             }
             /**
@@ -352,6 +377,16 @@ class LDAP extends FOGController
              * If we cannot bind return immediately
              */
             if (!$bind) {
+                error_log(
+                    sprintf(
+                        '%s %s() %s %s:%d',
+                        _('Plugin'),
+                        __METHOD__,
+                        _('Cannot bind to the LDAP server'),
+                        $server,
+                        $port
+                    )
+                );
                 return false;
             }
             /**
@@ -374,6 +409,18 @@ class LDAP extends FOGController
              * Return immediately if the result is false
              */
             if ($result === false) {
+                error_log(
+                    sprintf(
+                        '%s %s() %s. %s: %s; %s: %s',
+                        _('Plugin'),
+                        __METHOD__,
+                        _('Search results returned false'),
+                        _('Search DN'),
+                        $searchDN,
+                        _('Filter'),
+                        $filter
+                    )
+                );
                 return false;
             }
             /**
@@ -392,6 +439,16 @@ class LDAP extends FOGController
              * If user unable to bind return immediately
              */
             if (!$bind) {
+                error_log(
+                    sprintf(
+                        '%s %s() %s. %s: %s',
+                        _('Plugin'),
+                        __METHOD__,
+                        _('User was not authorized by the LDAP server'),
+                        _('User DN'),
+                        $userDN
+                    )
+                );
                 return false;
             }
         } else {
@@ -432,6 +489,14 @@ class LDAP extends FOGController
                 $userDN = $userDN2;
             }
             if (!@$this->bind($userDN, $pass)) {
+                error_log(
+                    sprintf(
+                        '%s %s() %s.',
+                        _('Plugin'),
+                        __METHOD__,
+                        _('All methods of binding have failed')
+                    )
+                );
                 @$this->unbind();
                 return false;
             }
@@ -444,6 +509,18 @@ class LDAP extends FOGController
         );
         $result = $this->_result($searchDN, $filter, $attr);
         if (false === $result) {
+            error_log(
+                sprintf(
+                    '%s %s() %s. %s: %s; %s: %s',
+                    _('Plugin'),
+                    __METHOD__,
+                    _('Search DN did not return any results'),
+                    _('Search DN'),
+                    $searchDN,
+                    _('Filter'),
+                    $filter
+                )
+            );
             @$this->unbind();
             return false;
         }
@@ -475,6 +552,15 @@ class LDAP extends FOGController
          * @return bool
          */
         if ($accessLevel == 0) {
+            error_log(
+                sprintf(
+                    '%s %s() %s. %s!',
+                    _('Plugin'),
+                    __METHOD__,
+                    _('Access level is still 0 or false'),
+                    _('No access is allowed')
+                )
+            );
             return false;
         }
         /**
@@ -578,6 +664,16 @@ class LDAP extends FOGController
          * Return immediately if the result is false
          */
         if (false === $result) {
+            error_log(
+                sprintf(
+                    '%s %s() %s. %s: %s',
+                    _('Plugin'),
+                    __METHOD__,
+                    _('Group Search DN did not return any results'),
+                    _('Group Search DN'),
+                    $grpSearchDN
+                )
+            );
             @$this->unbind();
             return false;
         }
@@ -721,6 +817,19 @@ class LDAP extends FOGController
          * If multiple entries or no entries return immediately
          */
         if ($retcount < 1) {
+            error_log(
+                sprintf(
+                    '%s %s() %s. %s: %s; %s: %s; %s: %s; %s: %s',
+                    _('Plugin'),
+                    __METHOD__,
+                    _('Search Method'),
+                    $method,
+                    _('Filter'),
+                    $filter,
+                    _('Result'),
+                    $retcount
+                )
+            );
             return false;
         }
         /**

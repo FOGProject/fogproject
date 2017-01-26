@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-25 20:51-0500\n"
+"POT-Creation-Date: 2017-01-26 06:49-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5645,6 +5645,16 @@ msgstr ""
 
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:287
 #: /var/www/fog/lib/plugins/example/html/run.php:35
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:287
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:364
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:383
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:415
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:445
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:495
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:515
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:558
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:670
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:823
 #: /var/www/fog/commons/text.php:131
 msgid "Plugin"
 msgstr ""
@@ -6240,12 +6250,85 @@ msgstr ""
 msgid "Unable to determine plugin details"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:104
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:107
 msgid "Function does not exist"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:135
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:141
 msgid "Port is not valid ldap/ldaps port"
+msgstr ""
+
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:289
+msgid "We cannot connect to LDAP server"
+msgstr ""
+
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:366
+msgid "Using the group match function"
+msgstr ""
+
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:367
+msgid "but bind password is not set"
+msgstr ""
+
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:385
+msgid "Cannot bind to the LDAP server"
+msgstr ""
+
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:417
+msgid "Search results returned false"
+msgstr ""
+
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:418
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:518
+msgid "Search DN"
+msgstr ""
+
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:420
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:520
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:827
+msgid "Filter"
+msgstr ""
+
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:447
+msgid "User was not authorized by the LDAP server"
+msgstr ""
+
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:448
+msgid "User DN"
+msgstr ""
+
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:497
+msgid "All methods of binding have failed"
+msgstr ""
+
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:517
+msgid "Search DN did not return any results"
+msgstr ""
+
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:560
+msgid "Access level is still 0 or false"
+msgstr ""
+
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:561
+msgid "No access is allowed"
+msgstr ""
+
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:672
+msgid "Group Search DN did not return any results"
+msgstr ""
+
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:673
+#: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:174
+#: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:472
+msgid "Group Search DN"
+msgstr ""
+
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:825
+msgid "Search Method"
+msgstr ""
+
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:829
+msgid "Result"
 msgstr ""
 
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:46
@@ -6305,11 +6388,6 @@ msgstr ""
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:169
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:463
 msgid "Search Base DN"
-msgstr ""
-
-#: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:174
-#: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:472
-msgid "Group Search DN"
 msgstr ""
 
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:184

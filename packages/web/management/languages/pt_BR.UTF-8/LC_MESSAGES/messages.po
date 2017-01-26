@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-23 20:07-0500\n"
+"POT-Creation-Date: 2017-01-26 06:49-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -5911,6 +5911,16 @@ msgstr "Não foi possível determinar detalhes plugin."
 
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:287
 #: /var/www/fog/lib/plugins/example/html/run.php:35
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:287
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:364
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:383
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:415
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:445
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:495
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:515
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:558
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:670
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:823
 #: /var/www/fog/commons/text.php:131
 msgid "Plugin"
 msgstr "Plugar"
@@ -6544,15 +6554,97 @@ msgstr "Gestão tipo de tarefa"
 msgid "Unable to determine plugin details"
 msgstr "Não foi possível determinar detalhes de plugin"
 
-#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:104
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:107
 #, fuzzy
 msgid "Function does not exist"
 msgstr "O método não existe"
 
-#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:135
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:141
 #, fuzzy
 msgid "Port is not valid ldap/ldaps port"
 msgstr "A porta não é válida ldap / ldaps portos"
+
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:289
+#, fuzzy
+msgid "We cannot connect to LDAP server"
+msgstr "Não é possível conectar ao banco de dados"
+
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:366
+msgid "Using the group match function"
+msgstr ""
+
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:367
+msgid "but bind password is not set"
+msgstr ""
+
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:385
+#, fuzzy
+msgid "Cannot bind to the LDAP server"
+msgstr "Não é possível conectar ao banco de dados"
+
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:417
+msgid "Search results returned false"
+msgstr ""
+
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:418
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:518
+#, fuzzy
+msgid "Search DN"
+msgstr "Pesquisa"
+
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:420
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:520
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:827
+#, fuzzy
+msgid "Filter"
+msgstr "Arquivo"
+
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:447
+#, fuzzy
+msgid "User was not authorized by the LDAP server"
+msgstr "Por favor, indique um nome para este servidor LDAP."
+
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:448
+#, fuzzy
+msgid "User DN"
+msgstr "Nome de usuário"
+
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:497
+msgid "All methods of binding have failed"
+msgstr ""
+
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:517
+msgid "Search DN did not return any results"
+msgstr ""
+
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:560
+msgid "Access level is still 0 or false"
+msgstr ""
+
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:561
+msgid "No access is allowed"
+msgstr ""
+
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:672
+msgid "Group Search DN did not return any results"
+msgstr ""
+
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:673
+#: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:174
+#: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:472
+#, fuzzy
+msgid "Group Search DN"
+msgstr "anfitrião Pesquisa"
+
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:825
+#, fuzzy
+msgid "Search Method"
+msgstr "Pesquisa"
+
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:829
+#, fuzzy
+msgid "Result"
+msgstr "Resultados"
 
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:46
 #, fuzzy
@@ -6619,12 +6711,6 @@ msgstr ""
 #, fuzzy
 msgid "Search Base DN"
 msgstr "Pesquisa"
-
-#: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:174
-#: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:472
-#, fuzzy
-msgid "Group Search DN"
-msgstr "anfitrião Pesquisa"
 
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:184
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:490
