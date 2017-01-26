@@ -219,7 +219,7 @@ class LDAP extends FOGController
         /**
          * Ensure any trailing bindings are removed
          */
-        $this->unbind();
+        @$this->unbind();
         /**
          * Trim the values just incase somebody is trying
          * to break in by using spaces -- prevent dos attack I imagine.
@@ -432,7 +432,7 @@ class LDAP extends FOGController
                 $userDN = $userDN2;
             }
             if (!@$this->bind($userDN, $pass)) {
-                $this->unbind();
+                @$this->unbind();
                 return false;
             }
         }
@@ -444,7 +444,7 @@ class LDAP extends FOGController
         );
         $result = $this->_result($searchDN, $filter, $attr);
         if (false === $result) {
-            $this->unbind();
+            @$this->unbind();
             return false;
         }
         /**
@@ -468,7 +468,7 @@ class LDAP extends FOGController
         /**
          * Close our connection
          */
-        $this->unbind();
+        @$this->unbind();
         /**
          * If access level is not changed
          *
@@ -578,7 +578,7 @@ class LDAP extends FOGController
          * Return immediately if the result is false
          */
         if (false === $result) {
-            $this->unbind();
+            @$this->unbind();
             return false;
         }
         /**
