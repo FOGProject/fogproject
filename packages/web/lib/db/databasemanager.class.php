@@ -78,7 +78,7 @@ class DatabaseManager extends FOGCore
          * If the installed schema is greater than or equal to the
          * installed version, return immediately.
          */
-        if (self::$mySchema === FOG_SCHEMA) {
+        if (self::$mySchema >= FOG_SCHEMA) {
             return $this;
         }
         /**
