@@ -417,7 +417,7 @@ class GroupManagementPage extends FOGPage
             ),
             _('Group Primary Disk') => sprintf(
                 '<input type="text" name="dev" value="%s"/>',
-                $this->obj->get('kernelDev')
+                $this->obj->get('kernelDevice')
             ),
             _('Group Bios Exit Type') => $exitNorm,
             _('Group EFI Exit Type') => $exitEfi,
