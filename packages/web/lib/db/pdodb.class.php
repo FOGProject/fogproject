@@ -409,7 +409,9 @@ class PDODB extends DatabaseManager
     {
         $msg = '';
         if (self::$_link) {
-            if (self::$_queryResult->errorCode()) {
+            if (self::$_queryResult instanceof PDOStatement
+                && self::$_queryResult->errorCode()
+            ) {
                 $errCode = self::$_queryResult->errorCode();
                 $errInfo = self::$_queryResult->errorInfo();
                 $this->errorCode = $errInfo[1];
@@ -447,7 +449,10 @@ class PDODB extends DatabaseManager
      */
     public function fieldCount()
     {
-        return self::$_queryResult->columnCount();
+        if (self::$_queryResult instanceof PDOStatement) {
+            return self::$_queryResult->columnCount();
+        }
+        return 0;
     }
     /**
      * Returns affected rows
@@ -456,7 +461,10 @@ class PDODB extends DatabaseManager
      */
     public function affectedRows()
     {
-        return self::$_queryResult->rowCount();
+        if (self::$_queryResult instanceof PDOStatement) {
+            return self::$_queryResult->rowCount();
+        }
+        return 0;
     }
     /**
      * Escapes data passed
@@ -548,9 +556,11 @@ class PDODB extends DatabaseManager
      */
     private static function _debugDumpParams()
     {
-        ob_start();
-        self::$_queryResult->debugDumpParams();
-        return ob_get_clean();
+        if (self::$_queryResult instanceof PDOStatement) {
+            ob_start();
+            self::$_queryResult->debugDumpParams();
+            return ob_get_clean();
+        }
     }
     /**
      * Executes the query.
