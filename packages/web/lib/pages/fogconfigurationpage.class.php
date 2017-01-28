@@ -1842,6 +1842,7 @@ class FOGConfigurationPage extends FOGPage
         $needstobeip = array(
             // Multicast Settings
             'FOG_MULTICAST_ADDRESS' => true,
+            'FOG_MULTICAST_RENDEZVOUS' => true,
             // Proxy Settings
             'FOG_PROXY_IP' => true,
         );

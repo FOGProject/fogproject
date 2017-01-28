@@ -3624,3 +3624,11 @@ $this->schema[] = array(
     . "service should occur (Default is enabled)',"
     . "'1','FOG Linux Service Enabled')"
 );
+// 248
+$this->schema[] = array(
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_MULTICAST_RENDEZVOUS', 'This setting defines a rendez-vous"
+    . " for multicast tasks. (Default is empty)','','Multicast Settings')"
+);

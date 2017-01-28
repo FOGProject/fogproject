@@ -788,6 +788,7 @@ class BootMenu extends FOGBase
             'FOG_MINING_ENABLE',
             'FOG_MINING_MAX_CORES',
             'FOG_MINING_PACKAGE_PATH',
+            'FOG_MULTICAST_RENDEZVOUS',
             'FOG_NONREG_DEVICE'
         );
         list(
@@ -797,6 +798,7 @@ class BootMenu extends FOGBase
             $miningen,
             $miningcr,
             $miningpp,
+            $mcastrdv,
             $nondev
         ) = self::getSubObjectIDs(
             'Service',
@@ -844,6 +846,10 @@ class BootMenu extends FOGBase
             "imgid=$imgid",
             "imgFormat=$imgFormat",
             "shutdown=0",
+            array(
+                'value' => "mcastrdv=$mcastrdv",
+                'active' => !empty($mcastrdv)
+            ),
             array(
                 'value' => "capone=1",
                 'active' => !$this->_Host || !$this->_Host->isValid(),
@@ -1319,6 +1325,7 @@ class BootMenu extends FOGBase
                     'FOG_KERNEL_ARGS',
                     'FOG_KERNEL_DEBUG',
                     'FOG_MINING_ENABLE',
+                    'FOG_MULTICAST_RENDEZVOUS',
                     'FOG_PIGZ_COMP',
                     'FOG_TFTP_HOST',
                     'FOG_WIPE_TIMEOUT'
@@ -1331,6 +1338,7 @@ class BootMenu extends FOGBase
                     $kargs,
                     $kdebug,
                     $mining,
+                    $mcastrdv,
                     $pigz,
                     $tftp,
                     $timeout
@@ -1468,6 +1476,10 @@ class BootMenu extends FOGBase
                 "storageip=$storageip",
                 "osid=$osid",
                 "irqpoll",
+                array(
+                    'value' => "mcastrdv=$mcastrdv",
+                    'active' => !empty($mcastrdv)
+                ),
                 array(
                     'value' => "hostname={$this->_Host->get(name)}",
                     'active' => count($clientMacs) > 0,
