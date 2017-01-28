@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-26 08:44-0500\n"
+"POT-Creation-Date: 2017-01-28 13:38-0500\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -7007,7 +7007,7 @@ msgstr "SQL-Fehler:"
 #: /var/www/fog/lib/db/pdodb.class.php:284
 #: /var/www/fog/lib/db/pdodb.class.php:342
 #: /var/www/fog/lib/db/pdodb.class.php:397
-#: /var/www/fog/lib/db/pdodb.class.php:422
+#: /var/www/fog/lib/db/pdodb.class.php:424
 msgid "Error Message"
 msgstr "Fehlermeldung"
 
@@ -7045,15 +7045,15 @@ msgstr "Keine Verbindung zur Datenbank"
 msgid "No data returned"
 msgstr "Keine Daten zurückgegeben"
 
-#: /var/www/fog/lib/db/pdodb.class.php:420
+#: /var/www/fog/lib/db/pdodb.class.php:422
 msgid "Error Code"
 msgstr "Fehlercode"
 
-#: /var/www/fog/lib/db/pdodb.class.php:424
+#: /var/www/fog/lib/db/pdodb.class.php:426
 msgid "Debug"
 msgstr "Debug"
 
-#: /var/www/fog/lib/db/pdodb.class.php:429
+#: /var/www/fog/lib/db/pdodb.class.php:431
 msgid "Cannot connect to database"
 msgstr "Kann keine Verbindung zur Datenbank hergestellt werden."
 

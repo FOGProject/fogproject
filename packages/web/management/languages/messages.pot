@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-27 15:10-0500\n"
+"POT-Creation-Date: 2017-01-28 13:38-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -6652,7 +6652,7 @@ msgstr ""
 #: /var/www/fog/lib/db/pdodb.class.php:284
 #: /var/www/fog/lib/db/pdodb.class.php:342
 #: /var/www/fog/lib/db/pdodb.class.php:397
-#: /var/www/fog/lib/db/pdodb.class.php:422
+#: /var/www/fog/lib/db/pdodb.class.php:424
 msgid "Error Message"
 msgstr ""
 
@@ -6687,15 +6687,15 @@ msgstr ""
 msgid "No data returned"
 msgstr ""
 
-#: /var/www/fog/lib/db/pdodb.class.php:420
+#: /var/www/fog/lib/db/pdodb.class.php:422
 msgid "Error Code"
 msgstr ""
 
-#: /var/www/fog/lib/db/pdodb.class.php:424
+#: /var/www/fog/lib/db/pdodb.class.php:426
 msgid "Debug"
 msgstr ""
 
-#: /var/www/fog/lib/db/pdodb.class.php:429
+#: /var/www/fog/lib/db/pdodb.class.php:431
 msgid "Cannot connect to database"
 msgstr ""
 
