@@ -2262,3 +2262,14 @@ getLogicalVolumes() {
         lgvols=(${lgvols} ${lgvol})
     done
 }
+# Get's volume device mapper.
+# $1 The volume to get
+# $2 The group to get
+getLGDevice() {
+    local lgvol="$1"
+    local lggroup="$2"
+    [[ -z $lgvol ]] && handleError "No volume device passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $lggroup ]] && handleError "No volume group passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    lgdev="/dev/mapper/${lggroup}-${lgvol}"
+    read lgvUUID lgvSIZE <<< $(lvs --noheadings -v ${lggroup} --units s 2>/dev/null | awk '/'${lgvol}'/ {printf("%s %s\n", $5, gensub(/[Ss]/,"","g",$10))}')
+}
