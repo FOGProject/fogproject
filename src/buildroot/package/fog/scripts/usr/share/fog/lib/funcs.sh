@@ -486,6 +486,7 @@ shrinkPartition() {
                     ;;
                 biggerthanthedevicesize)
                     echo " * Not resizing filesystem $part (part too small)"
+                    echo "$(cat "$imagePath/d1.fixed_size_partitions"):${part_number}" > "$imagePath/d1.fixed_size_partitions"
                     ntfsstatus=0
                     ;;
                 volumesizeisalreadyOK)
@@ -2209,5 +2210,55 @@ performRestore() {
         debugPause
         makeAllSwapSystems "$disk" "$disk_number" "$imagePath" "$imgPartitionType"
         let disk_number+=1
+    done
+}
+# Gets the file system identifier.
+# $1 is the partition to get.
+getFSID() {
+    local part="$1"
+    [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    local disk
+    getDiskFromPartition "$part"
+    fsid="$(sfdisk -d "$disk" |  grep "$part" | sed -n 's/.*Id=\([0-9]\+\).*\(,\|\).*/\1/p')"
+}
+# Gets any lvm layouts.
+# $1 is the partition to search within.
+getLVM() {
+    local part="$1"
+    [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    vgscan
+    [[ ! $? -eq 0 ]] && return
+    local vggroup
+    getVolumeGroup "${part}"
+    [[ -z $vggroup ]] && return
+    changeVolumeGroup "${vggroup}"
+    read lvmGUID lvmSIZE <<< $(vgs --noheadings -v ${vggroup}
+    --units s 2>/dev/null | awk '{printf("%s %s\n", $9, gensub(/[Ss]/,"","g",$7))}')
+}
+# Gets the volume group name/label.
+# $1 The partition to check on.
+getVolumeGroup() {
+    local part="$1"
+    [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    vggroup=$(pvs --noheadings ${part} | sed -n "s|.*${part}[[:space:]]\+\([A-Za-z0-9_-]\+\)[[:space:]]\+.*|\1|p")
+}
+# Changes to volume group
+# $1 The group name to change to.
+changeVolumeGroup() {
+    local vggroup="$1"
+    [[ -z $vggroup ]] && handleError "No group name passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    vgchange -a y "$vggroup"
+}
+# Get's volume labels from volume group.
+# $1 The group to get logical volumes from.
+getLogicalVolumes() {
+    local vggroup="$1"
+    [[ -z $vggroup ]] && handleError "No group name passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    local lvs
+    local lgvol
+    lgvols=""
+    lvs=$(lvs --noheadings ${vggroup} | sed -n 's|[[:space:]]\+\([A-Za-z0-9_-]\+\)[[:space:]]\+.*|\1|p')
+    for lgvol in ${lvs}; do
+        lgvols=(${lgvols} ${lgvol})
     done
 }
