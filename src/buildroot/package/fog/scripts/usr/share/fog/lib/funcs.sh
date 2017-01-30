@@ -2226,8 +2226,7 @@ getFSID() {
 getLVM() {
     local part="$1"
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})\n   Args Passed: $*"
-    vgscan
-    [[ ! $? -eq 0 ]] && return
+    vgscan >/dev/null 2>&1
     local vggroup
     getVolumeGroup "${part}"
     [[ -z $vggroup ]] && return
@@ -2272,4 +2271,12 @@ getLGDevice() {
     [[ -z $lggroup ]] && handleError "No volume group passed (${FUNCNAME[0]})\n   Args Passed: $*"
     lgdev="/dev/mapper/${lggroup}-${lgvol}"
     read lgvUUID lgvSIZE <<< $(lvs --noheadings -v ${lggroup} --units s 2>/dev/null | awk '/'${lgvol}'/ {printf("%s %s\n", $5, gensub(/[Ss]/,"","g",$10))}')
+}
+# Trims character from string
+# $1 The variable to trim
+trim() {
+    local var="$1"
+    var="${var#${var%%[![:space:]]*}}"
+    var="${var%${var##*[![:space:]]}}"
+    echo -n "$var"
 }
