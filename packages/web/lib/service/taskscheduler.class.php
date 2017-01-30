@@ -92,7 +92,7 @@ class TaskScheduler extends FOGService
     private function _commonOutput()
     {
         try {
-            self::$_repOn = self::getSetting('SCHEDULERGLOBALENABLED');
+            self::$_schedOn = self::getSetting('SCHEDULERGLOBALENABLED');
             if (self::$_schedOn < 1) {
                 throw new Exception(_(' * Task Scheduler is globally disabled'));
             }
