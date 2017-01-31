@@ -316,12 +316,14 @@ class Registration extends FOGBase
             $serviceNames = array(
                 'FOG_QUICKREG_GROUP_ASSOC',
                 'FOG_QUICKREG_IMG_ID',
+                'FOG_QUICKREG_IMG_WHEN_REG',
                 'FOG_QUICKREG_SYS_NAME',
-                'FOG_QUICKREG_SYS_NUMBER',
+                'FOG_QUICKREG_SYS_NUMBER'
             );
             list(
                 $groupsToJoin,
                 $imageid,
+                $performimg,
                 $autoRegSysName,
                 $autoRegSysNumber
             ) = self::getSubObjectIDs(
@@ -408,6 +410,7 @@ class Registration extends FOGBase
                 throw new Exception(_('Failed to create Host'));
             }
             if ($imageid
+                && $performimg
                 && $this->Host->getImageMemberFromHostID()
             ) {
                 $this->Host->load();

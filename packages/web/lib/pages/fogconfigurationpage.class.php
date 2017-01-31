@@ -1336,7 +1336,8 @@ class FOGConfigurationPage extends FOGPage
             'PINGHOSTGLOBALENABLED',
             'IMAGEREPLICATORGLOBALENABLED',
             'SNAPINREPLICATORGLOBALENABLED',
-            'SNAPINHASHGLOBALENABLED'
+            'SNAPINHASHGLOBALENABLED',
+            'FOG_QUICKREG_IMG_WHEN_REG',
         );
         self::$HookManager
             ->processEvent(

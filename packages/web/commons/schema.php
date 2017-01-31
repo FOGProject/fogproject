@@ -3632,3 +3632,13 @@ $this->schema[] = array(
     . "('FOG_MULTICAST_RENDEZVOUS', 'This setting defines a rendez-vous"
     . " for multicast tasks. (Default is empty)','','Multicast Settings')"
 );
+// 249
+$this->schema[] = array(
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_QUICKREG_IMG_WHEN_REG','Image upon completion"
+    . " of registration. Values are 0 or 1, default is 1."
+    . " This will only image clients if the image value is"
+    . " defined as well.','0', 'FOG Quick Registration')"
+);
