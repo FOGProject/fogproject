@@ -1707,16 +1707,17 @@ class BootMenu extends FOGBase
                 )
             );
             break;
-        }
-        if (!$params) {
-            $Send = self::fastmerge(
-                $Send,
-                array(
-                    "$this->_kernel $this->_loglevel $type",
-                    $this->_initrd,
-                    'boot || goto MENU'
-                )
-            );
+        default:
+            if (!$params) {
+                $Send = self::fastmerge(
+                    $Send,
+                    array(
+                        "$this->_kernel $this->_loglevel $type",
+                        $this->_initrd,
+                        'boot || goto MENU'
+                    )
+                );
+            }
         }
         return $Send;
     }
