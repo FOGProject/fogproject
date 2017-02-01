@@ -1,4 +1,5 @@
 #!/bin/bash
+. /usr/share/fog/lib/funcs.sh
 res=""
 while [[ $res == "#!OK" ]]; do
     res=$(wget -qO - http://${web}service/donate.php 2>/dev/null)
