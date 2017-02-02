@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-31 18:20-0500\n"
+"POT-Creation-Date: 2017-02-02 06:33-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2215,13 +2215,13 @@ msgstr "Pending hosts"
 
 #: /var/www/fog/lib/pages/dashboardpage.class.php:173
 #: /var/www/fog/lib/pages/dashboardpage.class.php:182
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:243
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:244
 msgid "Click"
 msgstr "Click"
 
 #: /var/www/fog/lib/pages/dashboardpage.class.php:176
 #: /var/www/fog/lib/pages/dashboardpage.class.php:185
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:244
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:245
 #: /var/www/fog/commons/text.php:92
 msgid "here"
 msgstr "here"
@@ -4600,15 +4600,15 @@ msgstr "Install / Update Failed!"
 msgid "The following errors occurred"
 msgstr "The following errors occurred"
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:242
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:243
 msgid "Install / Update Successful!"
 msgstr "Install / Update Successful!"
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:245
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:246
 msgid "to login"
 msgstr "to login"
 
-#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:250
+#: /var/www/fog/lib/pages/schemaupdaterpage.class.php:251
 msgid "The following errors occured"
 msgstr "The following errors occured"
 

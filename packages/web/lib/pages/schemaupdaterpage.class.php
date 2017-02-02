@@ -236,7 +236,8 @@ class SchemaUpdaterPage extends FOGPage
                 }
                 throw new Exception($fatalerrmsg);
             }
-            self::$DB->currentDb(self::$DB->returnThis());
+            $db = self::$DB->returnThis();
+            self::$DB->currentDb($db);
             $text = sprintf(
                 '<p>%s</p><p>%s <a href="index.php">%s</a> %s</p>',
                 _('Install / Update Successful!'),
