@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-02 06:33-0500\n"
+"POT-Creation-Date: 2017-02-02 19:13-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -505,8 +505,8 @@ msgid "No hosts to task"
 msgstr "在任务主机"
 
 #: /var/www/fog/lib/fog/group.class.php:483
-#: /var/www/fog/lib/fog/host.class.php:1353
-#: /var/www/fog/lib/fog/host.class.php:1534
+#: /var/www/fog/lib/fog/host.class.php:1359
+#: /var/www/fog/lib/fog/host.class.php:1540
 msgid "Image is not enabled"
 msgstr "图片未启用"
 
@@ -755,51 +755,51 @@ msgstr "无法添加主MAC作为附加MAC"
 msgid "Cannot add a pre-existing primary mac"
 msgstr "无法添加预先存在的主MAC为待MAC"
 
-#: /var/www/fog/lib/fog/host.class.php:1185
+#: /var/www/fog/lib/fog/host.class.php:1191
 msgid "Cancelled due to new tasking."
 msgstr "由于新的任务取消。"
 
-#: /var/www/fog/lib/fog/host.class.php:1235
+#: /var/www/fog/lib/fog/host.class.php:1241
 #, fuzzy
 msgid "No snapins associated with this host"
 msgstr "没有与此主机关联snapins"
 
-#: /var/www/fog/lib/fog/host.class.php:1249
+#: /var/www/fog/lib/fog/host.class.php:1255
 msgid "Failed to create Snapin Job"
 msgstr "无法创建管理单元工作"
 
-#: /var/www/fog/lib/fog/host.class.php:1367
+#: /var/www/fog/lib/fog/host.class.php:1373
 #, fuzzy
 msgid "Could not find any"
 msgstr "找不到临时文件名"
 
-#: /var/www/fog/lib/fog/host.class.php:1368
+#: /var/www/fog/lib/fog/host.class.php:1374
 #, fuzzy
 msgid "nodes containing this image"
 msgstr "找不到包含该图像的任何节点"
 
-#: /var/www/fog/lib/fog/host.class.php:1531
+#: /var/www/fog/lib/fog/host.class.php:1537
 #, fuzzy
 msgid "No valid Image defined for this host"
 msgstr "没有找到主机定义图片"
 
-#: /var/www/fog/lib/fog/host.class.php:1682
+#: /var/www/fog/lib/fog/host.class.php:1688
 #, fuzzy
 msgid "No viable macs to use"
 msgstr "不能够更新"
 
-#: /var/www/fog/lib/fog/host.class.php:1749
+#: /var/www/fog/lib/fog/host.class.php:1755
 #: /var/www/fog/lib/service/snapinhash.class.php:171
 #, fuzzy
 msgid "snapin"
 msgstr "管理单元"
 
-#: /var/www/fog/lib/fog/host.class.php:1751
+#: /var/www/fog/lib/fog/host.class.php:1757
 #, fuzzy
 msgid "per host"
 msgstr "每个主机管理单元"
 
-#: /var/www/fog/lib/fog/host.class.php:1756
+#: /var/www/fog/lib/fog/host.class.php:1762
 msgid "You are only allowed to assign"
 msgstr "您只能分配"
 

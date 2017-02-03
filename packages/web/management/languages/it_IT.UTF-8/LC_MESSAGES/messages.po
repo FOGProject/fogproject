@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-02 06:33-0500\n"
+"POT-Creation-Date: 2017-02-02 19:13-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -508,8 +508,8 @@ msgid "No hosts to task"
 msgstr "Strutture a Task"
 
 #: /var/www/fog/lib/fog/group.class.php:483
-#: /var/www/fog/lib/fog/host.class.php:1353
-#: /var/www/fog/lib/fog/host.class.php:1534
+#: /var/www/fog/lib/fog/host.class.php:1359
+#: /var/www/fog/lib/fog/host.class.php:1540
 msgid "Image is not enabled"
 msgstr "L'immagine non è abilitato"
 
@@ -761,51 +761,51 @@ msgid "Cannot add a pre-existing primary mac"
 msgstr ""
 "Non è possibile aggiungere un MAC primaria preesistente come un MAC in attesa"
 
-#: /var/www/fog/lib/fog/host.class.php:1185
+#: /var/www/fog/lib/fog/host.class.php:1191
 msgid "Cancelled due to new tasking."
 msgstr "Annullato a causa della nuova tasking."
 
-#: /var/www/fog/lib/fog/host.class.php:1235
+#: /var/www/fog/lib/fog/host.class.php:1241
 #, fuzzy
 msgid "No snapins associated with this host"
 msgstr "Non ci sono snapins associati con questo host"
 
-#: /var/www/fog/lib/fog/host.class.php:1249
+#: /var/www/fog/lib/fog/host.class.php:1255
 msgid "Failed to create Snapin Job"
 msgstr "Impossibile creare Snapin lavoro"
 
-#: /var/www/fog/lib/fog/host.class.php:1367
+#: /var/www/fog/lib/fog/host.class.php:1373
 #, fuzzy
 msgid "Could not find any"
 msgstr "Impossibile trovare il nome del file temporaneo"
 
-#: /var/www/fog/lib/fog/host.class.php:1368
+#: /var/www/fog/lib/fog/host.class.php:1374
 #, fuzzy
 msgid "nodes containing this image"
 msgstr "Impossibile trovare i nodi che contengono questa immagine"
 
-#: /var/www/fog/lib/fog/host.class.php:1531
+#: /var/www/fog/lib/fog/host.class.php:1537
 #, fuzzy
 msgid "No valid Image defined for this host"
 msgstr "No Image definito per questo host"
 
-#: /var/www/fog/lib/fog/host.class.php:1682
+#: /var/www/fog/lib/fog/host.class.php:1688
 #, fuzzy
 msgid "No viable macs to use"
 msgstr "Non in grado di aggiornare"
 
-#: /var/www/fog/lib/fog/host.class.php:1749
+#: /var/www/fog/lib/fog/host.class.php:1755
 #: /var/www/fog/lib/service/snapinhash.class.php:171
 #, fuzzy
 msgid "snapin"
 msgstr "Snapin"
 
-#: /var/www/fog/lib/fog/host.class.php:1751
+#: /var/www/fog/lib/fog/host.class.php:1757
 #, fuzzy
 msgid "per host"
 msgstr "snap-in per host"
 
-#: /var/www/fog/lib/fog/host.class.php:1756
+#: /var/www/fog/lib/fog/host.class.php:1762
 msgid "You are only allowed to assign"
 msgstr "È consentito soltanto per assegnare"
 
