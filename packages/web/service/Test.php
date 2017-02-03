@@ -19,6 +19,7 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+require '../commons/init.php';
 /**
  * Sends the response
  *
@@ -141,20 +142,16 @@ $units = array(
     'RawResponse'
 );
 if (!in_array(
-    htmlspecialchars(
-        $_REQUEST['unit'],
-        ENT_QUOTES,
-        'utf-8'
+    Initiator::sanitizeItems(
+        $_REQUEST['unit']
     ),
     $units
 )
 ) {
     die(_('Invalid unit passed'));
 }
-$unit = htmlspecialchars(
-    $_REQUEST['unit'],
-    ENT_QUOTES,
-    'utf-8'
+$unit = Initiator::sanitizeItems(
+    $_REQUEST['unit']
 );
 if (strpos($unit, 'AESDecryption') !== false) {
     $iv_size = mcrypt_get_iv_size(

@@ -33,10 +33,8 @@ class ServiceModule extends FOGClient implements FOGClientSend
             true
         );
         $mod = strtolower(
-            htmlspecialchars(
-                $_REQUEST['moduleid'],
-                ENT_QUOTES,
-                'utf-8'
+            Initiator::sanitizeItems(
+                $_REQUEST['moduleid']
             )
         );
         switch ($mod) {

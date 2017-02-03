@@ -430,18 +430,60 @@ abstract class FOGPage extends FOGBase
             }
             unset($input);
         };
-        $this->formAction = preg_replace(
-            '#\&tab=#i',
-            '#',
-            filter_var(
-                sprintf(
-                    '%s?%s',
-                    self::$scriptname,
-                    self::$querystring
-                ),
-                FILTER_SANITIZE_URL
-            )
-        );
+        global $node;
+        global $sub;
+        global $id;
+        global $tab;
+        $nodestr = $substr = $idstr = $tabstr = false;
+        $formstr = '?';
+        if ($node) {
+            $nodestr = "node=$node";
+        }
+        if ($sub) {
+            $substr = "sub=$sub";
+        }
+        if ($id) {
+            $idstr = "id=$id";
+        }
+        if ($tab) {
+            $tabstr = "#$tab";
+        }
+        if ($nodestr) {
+            $formstr .= $nodestr;
+            if ($substr) {
+                $formstr .= "&$substr";
+            }
+            if ($idstr) {
+                $formstr .= "&$idstr";
+            }
+            if ($tabstr) {
+                $formstr .= $tabstr;
+            }
+        } else {
+            if ($substr) {
+                $formstr .= $substr;
+                if ($idstr) {
+                    $formstr .= "&$idstr";
+                }
+                if ($tabstr) {
+                    $formstr .= $tabstr;
+                }
+            } else {
+                if ($idstr) {
+                    $formstr .= $idstr;
+                    if ($tabstr) {
+                        $formstr .= $tabstr;
+                    }
+                } else {
+                    if ($tabstr) {
+                        $formstr = $tabstr;
+                    } else {
+                        $formstr = '';
+                    }
+                }
+            }
+        }
+        $this->formAction = $formstr;
         self::$HookManager->processEvent(
             'SEARCH_PAGES',
             array('searchPages' => &self::$searchPages)
@@ -2794,6 +2836,7 @@ abstract class FOGPage extends FOGBase
                 }
                 unset($key);
             }
+            //echo json_encode($array, JSON_UNESCAPED_UNICODE);
             $this->sendData(
                 json_encode(
                     $array,
@@ -2802,7 +2845,6 @@ abstract class FOGPage extends FOGBase
                 true,
                 $array
             );
-            //echo json_encode($array, JSON_UNESCAPED_UNICODE);
         } catch (Exception $e) {
             echo $e->getMessage();
         }

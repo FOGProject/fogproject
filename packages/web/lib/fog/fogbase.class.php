@@ -265,26 +265,22 @@ abstract class FOGBase
         self::$FOGUser = &$currentUser;
         $scriptPattern = '#/service/#i';
         $queryPattern = '#sub=requestClientInfo#i';
-        self::$querystring = $_SERVER['QUERY_STRING'];
+        self::$querystring = Initiator::sanitizeItems(
+            $_SERVER['QUERY_STRING']
+        );
         if (isset($_SERVER['SCRIPT_NAME'])) {
-            self::$scriptname = htmlentities(
-                $_SERVER['SCRIPT_NAME'],
-                ENT_QUOTES,
-                'utf-8'
+            self::$scriptname = Initiator::sanitizeItems(
+                $_SERVER['SCRIPT_NAME']
             );
         }
         if (isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
-            self::$httpreqwith = htmlentities(
-                $_SERVER['HTTP_X_REQUESTED_WITH'],
-                ENT_QUOTES,
-                'utf-8'
+            self::$httpreqwith = Initiator::sanitizeItems(
+                $_SERVER['HTTP_X_REQUESTED_WITH']
             );
         }
         if (isset($_SERVER['REQUEST_METHOD'])) {
-            self::$reqmethod = htmlentities(
-                $_SERVER['REQUEST_METHOD'],
-                ENT_QUOTES,
-                'utf-8'
+            self::$reqmethod = Initiator::sanitizeItems(
+                $_SERVER['REQUEST_METHOD']
             );
         }
         if (preg_match('#/mobile/#i', self::$scriptname)) {
@@ -1295,16 +1291,16 @@ abstract class FOGBase
         }
         $array[$old_key] = trim($array[$old_key]);
         if (!self::$service && is_string($array[$old_key])) {
-            $array[$new_key] = htmlentities(
+            $array[$new_key] = Initiator::sanitizeItems(
                 mb_convert_encoding(
                     $array[$old_key],
                     'utf-8'
-                ),
-                ENT_QUOTES,
-                'utf-8'
+                )
             );
         } else {
-            $array[$new_key] = $array[$old_key];
+            $array[$new_key] = Initiator::sanitizeItems(
+                $array[$old_key]
+            );
         }
         if ($old_key != $new_key) {
             unset($array[$old_key]);

@@ -145,10 +145,8 @@ class ReportMaker extends FOGBase
         $keys = array_keys($this->types);
         $type = (
             isset($_REQUEST['type']) ?
-            htmlspecialchars(
-                $_REQUEST['type'],
-                ENT_QUOTES,
-                'utf-8'
+            Initiator::sanitizeItems(
+                $_REQUEST['type']
             ) :
             $keys[$intType]
         );
@@ -157,10 +155,8 @@ class ReportMaker extends FOGBase
         }
         $file = basename(
             trim(
-                htmlspecialchars(
-                    $_REQUEST['filename'],
-                    ENT_QUOTES,
-                    'utf-8'
+                Initiator::sanitizeItems(
+                    $_REQUEST['filename']
                 )
             )
         );

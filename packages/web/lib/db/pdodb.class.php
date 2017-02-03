@@ -487,10 +487,8 @@ class PDODB extends DatabaseManager
     private function _clean($data)
     {
         $data = trim($data);
-        $eData = htmlentities(
-            $data,
-            ENT_QUOTES,
-            'utf-8'
+        $eData = Initiator::sanitizeItems(
+            $data
         );
         if (!self::$_link) {
             return $eData;
