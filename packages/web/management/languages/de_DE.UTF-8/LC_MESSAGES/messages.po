@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-02 20:27-0500\n"
+"POT-Creation-Date: 2017-02-03 10:44-0500\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -343,6 +343,7 @@ msgstr "Objekt"
 #: /var/www/fog/lib/fog/fogcontroller.class.php:813
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:171
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:204
+#: /var/www/fog/lib/service/snapinhash.class.php:189
 #: /var/www/fog/commons/text.php:302
 msgid "ID"
 msgstr "ID"
@@ -7175,20 +7176,25 @@ msgstr "SnapIns"
 msgid "to update hash values as needed"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:188
+#: /var/www/fog/lib/service/snapinhash.class.php:187
+#, fuzzy
+msgid "Trying Snapin hash for"
+msgstr "Snap-in-Pfad"
+
+#: /var/www/fog/lib/service/snapinhash.class.php:197
 #, fuzzy
 msgid "Snapin hash already set"
 msgstr "Snap-in mit diesem Namen ist bereits vorhanden."
 
-#: /var/www/fog/lib/service/snapinhash.class.php:206
+#: /var/www/fog/lib/service/snapinhash.class.php:215
 msgid "Getting snapin hash and size for"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:216
+#: /var/www/fog/lib/service/snapinhash.class.php:225
 msgid "Hash"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:232
+#: /var/www/fog/lib/service/snapinhash.class.php:241
 msgid "Completed"
 msgstr "Abgeschlossen"
 

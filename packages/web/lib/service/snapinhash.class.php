@@ -181,6 +181,15 @@ class SnapinHash extends FOGService
                         )
                     ) as &$Snapin
                 ) {
+                    self::outall(
+                        sprintf(
+                            ' * %s: %s, %s: %d',
+                            _('Trying Snapin hash for'),
+                            $Snapin->get('name'),
+                            _('ID'),
+                            $Snapin->get('id')
+                        )
+                    );
                     if (strlen($Snapin->get('hash')) > 10) {
                         self::outall(
                             sprintf(
