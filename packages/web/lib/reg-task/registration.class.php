@@ -413,7 +413,6 @@ class Registration extends FOGBase
                 && $performimg
                 && $this->Host->getImageMemberFromHostID()
             ) {
-                $this->Host->load();
                 $imageTest = $this
                     ->Host
                     ->createImagePackage(

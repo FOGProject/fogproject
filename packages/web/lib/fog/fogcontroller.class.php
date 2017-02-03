@@ -548,6 +548,8 @@ abstract class FOGController extends FOGBase
                 }
                 $this->logHistory($msg);
             }
+            $vals = $this->data;
+            $this->setQuery($vals);
         } catch (Exception $e) {
             if (!$this instanceof History) {
                 if ($this->get('name')) {

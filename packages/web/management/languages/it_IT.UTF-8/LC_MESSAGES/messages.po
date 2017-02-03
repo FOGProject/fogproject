@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-02 19:13-0500\n"
+"POT-Creation-Date: 2017-02-02 20:27-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -120,14 +120,14 @@ msgstr "Impossibile creare la stampante"
 #: /var/www/fog/lib/fog/fogcontroller.class.php:304
 #: /var/www/fog/lib/fog/fogcontroller.class.php:368
 #: /var/www/fog/lib/fog/fogcontroller.class.php:438
-#: /var/www/fog/lib/fog/fogcontroller.class.php:562
-#: /var/www/fog/lib/fog/fogcontroller.class.php:572
-#: /var/www/fog/lib/fog/fogcontroller.class.php:583
-#: /var/www/fog/lib/fog/fogcontroller.class.php:671
-#: /var/www/fog/lib/fog/fogcontroller.class.php:792
-#: /var/www/fog/lib/fog/fogcontroller.class.php:802
-#: /var/www/fog/lib/fog/fogcontroller.class.php:813
-#: /var/www/fog/lib/fog/fogcontroller.class.php:951
+#: /var/www/fog/lib/fog/fogcontroller.class.php:564
+#: /var/www/fog/lib/fog/fogcontroller.class.php:574
+#: /var/www/fog/lib/fog/fogcontroller.class.php:585
+#: /var/www/fog/lib/fog/fogcontroller.class.php:673
+#: /var/www/fog/lib/fog/fogcontroller.class.php:794
+#: /var/www/fog/lib/fog/fogcontroller.class.php:804
+#: /var/www/fog/lib/fog/fogcontroller.class.php:815
+#: /var/www/fog/lib/fog/fogcontroller.class.php:953
 #: /var/www/fog/lib/fog/foggetset.class.php:92
 #: /var/www/fog/lib/fog/fogpage.class.php:2299
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:174
@@ -186,9 +186,9 @@ msgid "Record not found"
 msgstr "Record non trovato, errore: %s"
 
 #: /var/www/fog/lib/fog/fogcontroller.class.php:174
-#: /var/www/fog/lib/fog/fogcontroller.class.php:559
-#: /var/www/fog/lib/fog/fogcontroller.class.php:766
-#: /var/www/fog/lib/fog/fogcontroller.class.php:789
+#: /var/www/fog/lib/fog/fogcontroller.class.php:561
+#: /var/www/fog/lib/fog/fogcontroller.class.php:768
+#: /var/www/fog/lib/fog/fogcontroller.class.php:791
 #: /var/www/fog/lib/fog/fogpage.class.php:3067
 #: /var/www/fog/lib/fog/fogpage.class.php:3182
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:92
@@ -244,10 +244,10 @@ msgstr "Valore"
 #: /var/www/fog/lib/fog/fogcontroller.class.php:260
 #: /var/www/fog/lib/fog/fogcontroller.class.php:327
 #: /var/www/fog/lib/fog/fogcontroller.class.php:391
-#: /var/www/fog/lib/fog/fogcontroller.class.php:609
-#: /var/www/fog/lib/fog/fogcontroller.class.php:724
-#: /var/www/fog/lib/fog/fogcontroller.class.php:852
-#: /var/www/fog/lib/fog/fogcontroller.class.php:887
+#: /var/www/fog/lib/fog/fogcontroller.class.php:611
+#: /var/www/fog/lib/fog/fogcontroller.class.php:726
+#: /var/www/fog/lib/fog/fogcontroller.class.php:854
+#: /var/www/fog/lib/fog/fogcontroller.class.php:889
 #: /var/www/fog/lib/fog/foggetset.class.php:55
 msgid "No key being requested"
 msgstr "Nessuna chiave chiede il"
@@ -285,14 +285,14 @@ msgstr "aggiornamento del servizio non riuscito"
 #: /var/www/fog/lib/fog/fogcontroller.class.php:302
 #: /var/www/fog/lib/fog/fogcontroller.class.php:366
 #: /var/www/fog/lib/fog/fogcontroller.class.php:436
-#: /var/www/fog/lib/fog/fogcontroller.class.php:669
+#: /var/www/fog/lib/fog/fogcontroller.class.php:671
 #: /var/www/fog/lib/fog/foggetset.class.php:90
 #, fuzzy
 msgid "Key"
 msgstr "DMI chiave"
 
 #: /var/www/fog/lib/fog/fogcontroller.class.php:331
-#: /var/www/fog/lib/fog/fogcontroller.class.php:613
+#: /var/www/fog/lib/fog/fogcontroller.class.php:615
 msgid "Invalid key being added"
 msgstr "chiave non valido viene aggiunto"
 
@@ -335,14 +335,14 @@ msgstr "Oggetto"
 
 #: /var/www/fog/lib/fog/fogcontroller.class.php:534
 #: /var/www/fog/lib/fog/fogcontroller.class.php:544
-#: /var/www/fog/lib/fog/fogcontroller.class.php:557
-#: /var/www/fog/lib/fog/fogcontroller.class.php:569
-#: /var/www/fog/lib/fog/fogcontroller.class.php:581
-#: /var/www/fog/lib/fog/fogcontroller.class.php:764
-#: /var/www/fog/lib/fog/fogcontroller.class.php:774
-#: /var/www/fog/lib/fog/fogcontroller.class.php:787
-#: /var/www/fog/lib/fog/fogcontroller.class.php:799
-#: /var/www/fog/lib/fog/fogcontroller.class.php:811
+#: /var/www/fog/lib/fog/fogcontroller.class.php:559
+#: /var/www/fog/lib/fog/fogcontroller.class.php:571
+#: /var/www/fog/lib/fog/fogcontroller.class.php:583
+#: /var/www/fog/lib/fog/fogcontroller.class.php:766
+#: /var/www/fog/lib/fog/fogcontroller.class.php:776
+#: /var/www/fog/lib/fog/fogcontroller.class.php:789
+#: /var/www/fog/lib/fog/fogcontroller.class.php:801
+#: /var/www/fog/lib/fog/fogcontroller.class.php:813
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:171
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:204
 #: /var/www/fog/commons/text.php:302
@@ -358,74 +358,74 @@ msgstr ""
 msgid "has been successfully updated"
 msgstr "è stato aggiornato con successo"
 
-#: /var/www/fog/lib/fog/fogcontroller.class.php:561
-#: /var/www/fog/lib/fog/fogcontroller.class.php:571
+#: /var/www/fog/lib/fog/fogcontroller.class.php:563
+#: /var/www/fog/lib/fog/fogcontroller.class.php:573
 msgid "has failed to save"
 msgstr "non è riuscita a salvare"
 
-#: /var/www/fog/lib/fog/fogcontroller.class.php:580
+#: /var/www/fog/lib/fog/fogcontroller.class.php:582
 #, fuzzy
 msgid "Database save failed"
 msgstr "aggiornamento del database non riuscito"
 
-#: /var/www/fog/lib/fog/fogcontroller.class.php:606
+#: /var/www/fog/lib/fog/fogcontroller.class.php:608
 #, fuzzy
 msgid "Key field must be a string"
 msgstr "Evento deve essere una stringa"
 
-#: /var/www/fog/lib/fog/fogcontroller.class.php:620
-#: /var/www/fog/lib/fog/fogcontroller.class.php:735
+#: /var/www/fog/lib/fog/fogcontroller.class.php:622
+#: /var/www/fog/lib/fog/fogcontroller.class.php:737
 #, fuzzy
 msgid "Operation field not set"
 msgstr "Operazione campo è impostato: %s"
 
-#: /var/www/fog/lib/fog/fogcontroller.class.php:652
+#: /var/www/fog/lib/fog/fogcontroller.class.php:654
 #, fuzzy
 msgid "Loading data to field"
 msgstr "Caricamento dei dati mettere in campo %s"
 
-#: /var/www/fog/lib/fog/fogcontroller.class.php:668
+#: /var/www/fog/lib/fog/fogcontroller.class.php:670
 #, fuzzy
 msgid "Load failed"
 msgstr "Caricamento non riuscito: %s"
 
-#: /var/www/fog/lib/fog/fogcontroller.class.php:728
+#: /var/www/fog/lib/fog/fogcontroller.class.php:730
 #, fuzzy
 msgid "Invalid key being destroyed"
 msgstr "chiave non valido viene rimosso"
 
-#: /var/www/fog/lib/fog/fogcontroller.class.php:768
-#: /var/www/fog/lib/fog/fogcontroller.class.php:776
+#: /var/www/fog/lib/fog/fogcontroller.class.php:770
+#: /var/www/fog/lib/fog/fogcontroller.class.php:778
 #, fuzzy
 msgid "has been successfully destroyed"
 msgstr "è stato aggiornato con successo"
 
-#: /var/www/fog/lib/fog/fogcontroller.class.php:791
-#: /var/www/fog/lib/fog/fogcontroller.class.php:801
+#: /var/www/fog/lib/fog/fogcontroller.class.php:793
+#: /var/www/fog/lib/fog/fogcontroller.class.php:803
 #, fuzzy
 msgid "has failed to destroy"
 msgstr "non è riuscita a essere distrutti"
 
-#: /var/www/fog/lib/fog/fogcontroller.class.php:810
+#: /var/www/fog/lib/fog/fogcontroller.class.php:812
 #, fuzzy
 msgid "Destroy failed"
 msgstr "Destroy fallita: %s"
 
-#: /var/www/fog/lib/fog/fogcontroller.class.php:891
+#: /var/www/fog/lib/fog/fogcontroller.class.php:893
 #, fuzzy
 msgid "Invalid key being requested"
 msgstr "chiave non valido viene rimosso"
 
-#: /var/www/fog/lib/fog/fogcontroller.class.php:895
+#: /var/www/fog/lib/fog/fogcontroller.class.php:897
 msgid "Invalid type, merge to add, diff to remove"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogcontroller.class.php:906
+#: /var/www/fog/lib/fog/fogcontroller.class.php:908
 #, fuzzy
 msgid "Array type"
 msgstr "Array di dati"
 
-#: /var/www/fog/lib/fog/fogcontroller.class.php:907
+#: /var/www/fog/lib/fog/fogcontroller.class.php:909
 #: /var/www/fog/lib/fog/fogbase.class.php:2159
 #: /var/www/fog/lib/fog/fogftp.class.php:370
 #: /var/www/fog/lib/pages/taskmobile.class.php:45
@@ -439,17 +439,17 @@ msgstr "Array di dati"
 msgid "Type"
 msgstr "Digitare"
 
-#: /var/www/fog/lib/fog/fogcontroller.class.php:909
+#: /var/www/fog/lib/fog/fogcontroller.class.php:911
 #, fuzzy
 msgid "is not callable"
 msgstr "Non disponibile"
 
-#: /var/www/fog/lib/fog/fogcontroller.class.php:942
+#: /var/www/fog/lib/fog/fogcontroller.class.php:944
 #, fuzzy
 msgid "Invalid ID passed"
 msgstr "Unità non valido passato"
 
-#: /var/www/fog/lib/fog/fogcontroller.class.php:950
+#: /var/www/fog/lib/fog/fogcontroller.class.php:952
 #: /var/www/fog/lib/fog/fogpage.class.php:2301
 #: /var/www/fog/lib/fog/fogpage.class.php:3620 /var/www/fog/service/av.php:36
 msgid "Failed"
@@ -7685,7 +7685,7 @@ msgstr "Già registrato come"
 
 #: /var/www/fog/lib/reg-task/registration.class.php:256
 #: /var/www/fog/lib/reg-task/registration.class.php:410
-#: /var/www/fog/lib/reg-task/registration.class.php:468
+#: /var/www/fog/lib/reg-task/registration.class.php:467
 msgid "Failed to create Host"
 msgstr "Impossibile creare Host"
 
@@ -7698,17 +7698,17 @@ msgid "Done, No image assigned!"
 msgstr "Fatto, nessuna immagine assegnato!"
 
 #: /var/www/fog/lib/reg-task/registration.class.php:286
-#: /var/www/fog/lib/reg-task/registration.class.php:430
+#: /var/www/fog/lib/reg-task/registration.class.php:429
 msgid "Done, Failed to create tasking"
 msgstr "Fatto, Impossibile creare tasking"
 
 #: /var/www/fog/lib/reg-task/registration.class.php:290
-#: /var/www/fog/lib/reg-task/registration.class.php:434
+#: /var/www/fog/lib/reg-task/registration.class.php:433
 msgid "Done, with imaging!"
 msgstr "Fatto, con l'imaging!"
 
-#: /var/www/fog/lib/reg-task/registration.class.php:438
-#: /var/www/fog/lib/reg-task/registration.class.php:472
+#: /var/www/fog/lib/reg-task/registration.class.php:437
+#: /var/www/fog/lib/reg-task/registration.class.php:471
 #: /var/www/fog/service/inventory.php:86
 msgid "Done"
 msgstr "Fatto"
