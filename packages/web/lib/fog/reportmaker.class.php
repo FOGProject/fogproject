@@ -305,8 +305,8 @@ class ReportMaker extends FOGBase
             header('Content-Type: application/octet-stream');
             header("Content-Disposition: attachment; filename=$filename");
             while (feof($fh) === false) {
-                $line = fread($fh, 4096);
-                echo $line;
+                echo fgets($fh);
+                flush();
             }
             fclose($fh);
             $cmd = sprintf('rm -rf %s', escapeshellarg($filepath));

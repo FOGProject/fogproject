@@ -58,5 +58,9 @@ foreach ((array)$paths as &$decodedPath) {
         (array) glob($glob_str)
     );
 }
-echo json_encode($files);
+echo json_encode(
+    Initiator::sanitizeItems(
+        $files
+    )
+);
 exit;

@@ -336,6 +336,11 @@ class TaskQueue extends TaskingElement
         if (!$this->Task->isCapture()) {
             return;
         }
+        if (!(isset($_REQUEST['mac'])
+            && is_string($_REQUEST['mac']))
+        ) {
+            return;
+        }
         $macftp = strtolower(
             str_replace(
                 array(
@@ -344,7 +349,7 @@ class TaskQueue extends TaskingElement
                     '.'
                 ),
                 '',
-                $_REQUEST['mac']
+                basename($_REQUEST['mac'])
             )
         );
         $src = sprintf(

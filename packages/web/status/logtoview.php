@@ -147,7 +147,12 @@ if (!(isset($_POST['reverse'])
     $_POST['reverse'] = 0;
 }
 $ip = $_POST['ip'];
-$file = $_POST['file'];
+$file = sprintf(
+    '%s%s%s',
+    dirname($_POST['file']),
+    DIRECTORY_SEPARATOR,
+    basename($_POST['file'])
+);
 $lines = $_POST['lines'];
 $reverse = $_POST['reverse'];
 $ip = $FOGCore->aesdecrypt($ip);
@@ -164,7 +169,9 @@ if (preg_match($pat, $_SERVER['HTTP_HOST'])) {
         $lines,
         $file
     );
-    echo json_encode($str);
+    echo Initiator::sanitizeItems(
+        json_encode($str)
+    );
     exit;
 }
 $url = sprintf(

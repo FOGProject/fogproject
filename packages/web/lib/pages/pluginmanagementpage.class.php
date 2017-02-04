@@ -200,7 +200,9 @@ class PluginManagementPage extends FOGPage
             if (!$_REQUEST['run']) {
                 continue;
             }
-            $hash = trim($_REQUEST['run']);
+            $hash = trim(
+                basename($_REQUEST['run'])
+            );
             $name = trim($Plugin->get('name'));
             $tmpHash = md5($name);
             if ($tmpHash !== $hash) {
@@ -254,7 +256,9 @@ class PluginManagementPage extends FOGPage
             if (!$_REQUEST['run']) {
                 continue;
             }
-            $hash = trim($_REQUEST['run']);
+            $hash = trim(
+                basename($_REQUEST['run'])
+            );
             $name = trim($Plugin->get('name'));
             $tmpHash = md5($name);
             if ($tmpHash !== $hash) {

@@ -259,25 +259,29 @@ class FOGConfigurationPage extends FOGPage
                 _('Starting process...')
             );
         } else {
-            $tmpFile = basename($_REQUEST['file']);
-            $tmpArch = $_REQUEST['arch'];
-            printf(
-                '<form method="post" action='
-                . '"?node=%s&sub=kernel&install=1&file=%s">'
-                . '<p>%s: <input class="smaller" type="text" name='
-                . '"dstName" value="%s"/></p><p><input class='
-                . '"smaller" type="submit" value="%s"/></p></form>',
-                $this->node,
-                basename($_REQUEST['file']),
-                _('Kernel Name'),
-                (
-                    $tmpArch == 64
-                    || ! $tmpArch ?
-                    'bzImage' :
-                    'bzImage32'
-                ),
-                _('Next')
+            $tmpFile = Initiator::sanitizeItems(
+                basename($tmpFile)
             );
+            $tmpArch = (
+                $_REQUEST['arch'] == 64 ?
+                'bzImage' :
+                'bzImage32'
+            );
+            $formstr = "?node={$node}&sub={$sub}";
+            echo '<form method="post" action="';
+            echo $formstr;
+            echo '">';
+            echo '<input type="hidden" name="file" value="';
+            echo $tmpFile;
+            echo '"/>';
+            echo '<p>';
+            echo _('Kernel Name');
+            echo '<input class="smaller" type="text" name="dstName" value="';
+            echo $tmpArch;
+            echo '"/></p><p><input class="smaller" type="submit" name="';
+            echo 'install" value="';
+            echo _('Next');
+            echo '"/></p></form>';
         }
     }
     /**
@@ -1709,8 +1713,13 @@ class FOGConfigurationPage extends FOGPage
      */
     public function getOSID()
     {
-        $imageid =  $_REQUEST['image_id'];
-        $osname = self::getClass('Image', $imageid)->getOS()->get('name');
+        $imageid = intval(
+            $_REQUEST['image_id']
+        );
+        $osname = self::getClass(
+            'Image',
+            $imageid
+        )->getOS()->get('name');
         echo json_encode($osname ? $osname : _('No Image specified'));
         exit;
     }
@@ -2308,12 +2317,18 @@ class FOGConfigurationPage extends FOGPage
                 throw new UploadException($_FILES['dbFile']['error']);
             }
             $original = $Schema->exportdb('', false);
-            $tmp_name = $_FILES['dbFile']['tmp_name'];
+            $tmp_name = htmlentities(
+                $_FILES['dbFile']['tmp_name'],
+                ENT_QUOTES,
+                'utf-8'
+            );
+            $dir_name = dirname($tmp_name);
+            $tmp_name = basename($tmp_name);
             $filename = sprintf(
                 '%s%s%s',
-                dirname($tmp_name),
+                $dir_name,
                 DIRECTORY_SEPARATOR,
-                basename($tmp_name)
+                $tmp_name
             );
             $result = self::getClass('Schema')->importdb($filename);
             if ($result === true) {
