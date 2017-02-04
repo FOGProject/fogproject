@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-03 18:30-0500\n"
+"POT-Creation-Date: 2017-02-03 22:53-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -16,20 +16,35 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: /var/www/fog/status/getfiles.php:32
+#: /var/www/fog/status/getfiles.php:27
+#, fuzzy
+msgid "Invalid"
+msgstr "无效的ID"
+
+#: /var/www/fog/status/getfiles.php:43
 #, fuzzy
 msgid "Path is unavailable"
 msgstr "没有可用的散列"
 
-#: /var/www/fog/status/logtoview.php:56
+#: /var/www/fog/status/logtoview.php:31 /var/www/fog/status/logtoview.php:130
+#, fuzzy
+msgid "Invalid IP"
+msgstr "无效的ID"
+
+#: /var/www/fog/status/logtoview.php:37 /var/www/fog/status/logtoview.php:136
+#, fuzzy
+msgid "Invalid File"
+msgstr "无效的文件夹"
+
+#: /var/www/fog/status/logtoview.php:81
 msgid "Invalid Folder"
 msgstr "无效的文件夹"
 
-#: /var/www/fog/status/logtoview.php:61
+#: /var/www/fog/status/logtoview.php:87
 msgid "Unable to open file for reading"
 msgstr "无法打开文件进行读取"
 
-#: /var/www/fog/status/logtoview.php:107
+#: /var/www/fog/status/logtoview.php:157
 msgid "IP Passed is incorrect"
 msgstr "IP传递是不正确"
 
@@ -163,7 +178,7 @@ msgstr ""
 msgid "Could not notify"
 msgstr "无法读取tmp文件。"
 
-#: /var/www/fog/lib/fog/reportmaker.class.php:154
+#: /var/www/fog/lib/fog/reportmaker.class.php:150
 msgid "Invalid type"
 msgstr "无效类型"
 
@@ -7866,7 +7881,7 @@ msgstr "FOG主机和用户登录"
 msgid "Classname must be a string"
 msgstr "事件必须是字符串"
 
-#: /var/www/fog/commons/init.php:463
+#: /var/www/fog/commons/init.php:465
 #, fuzzy
 msgid "Missing one or more extensions."
 msgstr "缺少扩展"
@@ -8917,9 +8932,6 @@ msgstr "有此服务器上没有的位置。"
 
 #~ msgid "Invalid Operation Field set"
 #~ msgstr "无效操作字段集"
-
-#~ msgid "Invalid ID"
-#~ msgstr "无效的ID"
 
 #~ msgid "Unable to connect to the DB"
 #~ msgstr "无法连接到数据库"

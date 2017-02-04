@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-03 18:30-0500\n"
+"POT-Creation-Date: 2017-02-03 22:53-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -17,20 +17,35 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: /var/www/fog/status/getfiles.php:32
+#: /var/www/fog/status/getfiles.php:27
+#, fuzzy
+msgid "Invalid"
+msgstr "identificación invalida"
+
+#: /var/www/fog/status/getfiles.php:43
 #, fuzzy
 msgid "Path is unavailable"
 msgstr "No se dispone de hash"
 
-#: /var/www/fog/status/logtoview.php:56
+#: /var/www/fog/status/logtoview.php:31 /var/www/fog/status/logtoview.php:130
+#, fuzzy
+msgid "Invalid IP"
+msgstr "identificación invalida"
+
+#: /var/www/fog/status/logtoview.php:37 /var/www/fog/status/logtoview.php:136
+#, fuzzy
+msgid "Invalid File"
+msgstr "carpeta no válida"
+
+#: /var/www/fog/status/logtoview.php:81
 msgid "Invalid Folder"
 msgstr "carpeta no válida"
 
-#: /var/www/fog/status/logtoview.php:61
+#: /var/www/fog/status/logtoview.php:87
 msgid "Unable to open file for reading"
 msgstr "No se puede abrir archivo para lectura"
 
-#: /var/www/fog/status/logtoview.php:107
+#: /var/www/fog/status/logtoview.php:157
 msgid "IP Passed is incorrect"
 msgstr "Pasado IP es incorrecta"
 
@@ -166,7 +181,7 @@ msgstr ""
 msgid "Could not notify"
 msgstr "No se pudo leer el archivo tmp."
 
-#: /var/www/fog/lib/fog/reportmaker.class.php:154
+#: /var/www/fog/lib/fog/reportmaker.class.php:150
 msgid "Invalid type"
 msgstr "tipo no válido"
 
@@ -7910,7 +7925,7 @@ msgstr "Los anfitriones niebla y Acceso a usuarios"
 msgid "Classname must be a string"
 msgstr "Evento debe ser una cadena"
 
-#: /var/www/fog/commons/init.php:463
+#: /var/www/fog/commons/init.php:465
 #, fuzzy
 msgid "Missing one or more extensions."
 msgstr "Extensiones que faltan"
@@ -8964,9 +8979,6 @@ msgstr "No hay lugares en este servidor."
 
 #~ msgid "Invalid Operation Field set"
 #~ msgstr "Operación de conjunto no válido"
-
-#~ msgid "Invalid ID"
-#~ msgstr "identificación invalida"
 
 #~ msgid "Unable to connect to the DB"
 #~ msgstr "No se puede conectar a la base de datos"

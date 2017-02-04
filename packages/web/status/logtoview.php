@@ -25,13 +25,38 @@ ignore_user_abort(true);
 set_time_limit(0);
 header('Content-Type: text/event-stream');
 header('Connection: close');
-$vals = function ($reverse, $HookManager) {
+if (!(isset($_POST['ip'])
+    && is_string($_POST['ip']))
+) {
+    echo json_encode(_('Invalid IP'));
+    exit;
+}
+if (!(isset($_POST['file'])
+    && is_string($_POST['file']))
+) {
+    echo json_encode(_('Invalid File'));
+    exit;
+}
+$file = '';
+$lines = '';
+/**
+ * Returns vals.
+ *
+ * @param int         $reverse     Log reverse or forward.
+ * @param HookManager $HookManager Hook manager item.
+ * @param int         $lines       Lines to show.
+ * @param string      $file        File to return.
+ *
+ * @return string
+ */
+function vals($reverse, $HookManager, $lines, $file)
+{
     ini_set("auto_detect_line_endings", true);
     $folder = sprintf(
         '/%s/',
         trim(
             trim(
-                dirname($_REQUEST['file'])
+                dirname($file)
             ),
             '/'
         )
@@ -55,12 +80,12 @@ $vals = function ($reverse, $HookManager) {
     if (!preg_grep($pattern, $folders)) {
         return _('Invalid Folder');
     }
-    $file = trim(basename($_REQUEST['file']));
+    $file = trim(basename($file));
     $path = sprintf('%s%s', $folder, $file);
+    $path = trim($path);
     if (($fh = fopen($path, 'rb')) === false) {
         return _('Unable to open file for reading');
     }
-    $lines = $_REQUEST['lines'];
     $buffer = 4096;
     fseek($fh, -1, SEEK_END);
     if (fread($fh, 1) != "\n") {
@@ -98,33 +123,68 @@ $vals = function ($reverse, $HookManager) {
         );
     }
     return trim($output);
-};
-$url = trim(
-    $FOGCore->aesdecrypt($_REQUEST['ip'])
-);
-$ip = $FOGCore->resolveHostname($url);
+}
+if (!(isset($_POST['ip'])
+    && is_string($_POST['ip']))
+) {
+    echo _('Invalid IP');
+    exit;
+}
+if (!(isset($_POST['file'])
+    && is_string($_POST['file']))
+) {
+    echo _('Invalid File');
+    exit;
+}
+if (!(isset($_POST['lines'])
+    && is_numeric($_POST['lines']))
+) {
+    $_POST['lines'] = 20;
+}
+if (!(isset($_POST['reverse'])
+    && is_numeric($_POST['reverse']))
+) {
+    $_POST['reverse'] = 0;
+}
+$ip = $_POST['ip'];
+$file = $_POST['file'];
+$lines = $_POST['lines'];
+$reverse = $_POST['reverse'];
+$ip = $FOGCore->aesdecrypt($ip);
+$ip = $FOGCore->resolveHostname($ip);
+$ip = trim($ip);
 if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
     return print json_encode(_('IP Passed is incorrect'));
-} elseif ($url != $ip) {
-    $ip = $url;
 }
 $pat = sprintf('#%s#', $ip);
 if (preg_match($pat, $_SERVER['HTTP_HOST'])) {
-    return print json_encode($vals($_REQUEST['reverse'], $HookManager));
+    $str = vals(
+        $reverse,
+        $HookManager,
+        $lines,
+        $file
+    );
+    echo json_encode($str);
+    exit;
 }
-$url = sprintf('http://%s/fog/status/logtoview.php', $ip);
-$testurl = sprintf(
-    'http://%s/fog/management/index.php',
+$url = sprintf(
+    'http://%s/fog/status/logtoview.php',
     $ip
+);
+$process = array(
+    'ip' => $FOGCore->aesencrypt($ip),
+    'file' => $file,
+    'lines' => $lines,
+    'reverse' => $reverse
 );
 $response = $FOGURLRequests->process(
     $url,
     'POST',
-    array(
-        'ip'=>$FOGCore->aesencrypt($ip),
-        'file'=>$_REQUEST['file'],
-        'lines'=>$_REQUEST['lines'],
-        'reverse'=> $_REQUEST['reverse']
-    )
+    $process
 );
-echo array_shift($response);
+echo json_decode(
+    json_encode(
+        array_shift($response)
+    ),
+    true
+);

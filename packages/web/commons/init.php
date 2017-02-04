@@ -386,7 +386,7 @@ class Initiator
      *
      * @param mixed $value the value to sanitize
      *
-     * @return string
+     * @return string|array
      */
     public static function sanitizeItems(&$value = '')
     {
@@ -402,7 +402,9 @@ class Initiator
             array_walk($_POST, self::$_sanitizeItems);
             array_walk($_GET, self::$_sanitizeItems);
         } else {
-            array_walk($value, self::$_sanitizeItems);
+            if (is_array($value)) {
+                array_walk($value, self::$_sanitizeItems);
+            }
         }
         return $value;
     }

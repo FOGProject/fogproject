@@ -22,8 +22,19 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
-$decodedPath = urldecode($_REQUEST['path']);
-$paths = explode(':', $decodedPath);
+if (!is_string($_GET['path'])) {
+    echo json_encode(
+        _('Invalid')
+    );
+    exit;
+}
+$path = $_GET['path'];
+$decodePath = urldecode(
+    Initiator::sanitizeItems(
+        $path
+    )
+);
+$paths = explode(':', $decodePath);
 foreach ((array)$paths as &$decodedPath) {
     if (!(is_dir($decodedPath)
         && file_exists($decodedPath)

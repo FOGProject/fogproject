@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-03 18:32-0500\n"
+"POT-Creation-Date: 2017-02-03 22:53-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,19 +16,31 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: /var/www/fog/status/getfiles.php:32
+#: /var/www/fog/status/getfiles.php:27
+msgid "Invalid"
+msgstr ""
+
+#: /var/www/fog/status/getfiles.php:43
 msgid "Path is unavailable"
 msgstr ""
 
-#: /var/www/fog/status/logtoview.php:56
+#: /var/www/fog/status/logtoview.php:31 /var/www/fog/status/logtoview.php:130
+msgid "Invalid IP"
+msgstr ""
+
+#: /var/www/fog/status/logtoview.php:37 /var/www/fog/status/logtoview.php:136
+msgid "Invalid File"
+msgstr ""
+
+#: /var/www/fog/status/logtoview.php:81
 msgid "Invalid Folder"
 msgstr ""
 
-#: /var/www/fog/status/logtoview.php:61
+#: /var/www/fog/status/logtoview.php:87
 msgid "Unable to open file for reading"
 msgstr ""
 
-#: /var/www/fog/status/logtoview.php:107
+#: /var/www/fog/status/logtoview.php:157
 msgid "IP Passed is incorrect"
 msgstr ""
 
@@ -151,7 +163,7 @@ msgstr ""
 msgid "Could not notify"
 msgstr ""
 
-#: /var/www/fog/lib/fog/reportmaker.class.php:154
+#: /var/www/fog/lib/fog/reportmaker.class.php:150
 msgid "Invalid type"
 msgstr ""
 
@@ -7458,7 +7470,7 @@ msgstr ""
 msgid "Classname must be a string"
 msgstr ""
 
-#: /var/www/fog/commons/init.php:463
+#: /var/www/fog/commons/init.php:465
 msgid "Missing one or more extensions."
 msgstr ""
 
