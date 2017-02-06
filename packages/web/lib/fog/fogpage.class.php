@@ -237,6 +237,7 @@ abstract class FOGPage extends FOGBase
             array('PagesWithObjects' => &$this->PagesWithObjects)
         );
         global $node;
+        global $type;
         global $sub;
         global $tab;
         global $id;
@@ -431,7 +432,7 @@ abstract class FOGPage extends FOGBase
             }
             unset($input);
         };
-        $nodestr = $substr = $idstr = $tabstr = false;
+        $nodestr = $substr = $idstr = $typestr = $tabstr = false;
         $formstr = '?';
         if ($node) {
             $nodestr = "node=$node";
@@ -441,6 +442,9 @@ abstract class FOGPage extends FOGBase
         }
         if ($id) {
             $idstr = "id=$id";
+        }
+        if ($type) {
+            $typestr = "type=$type";
         }
         if ($tab) {
             $tabstr = "#$tab";
@@ -453,6 +457,9 @@ abstract class FOGPage extends FOGBase
             if ($idstr) {
                 $formstr .= "&$idstr";
             }
+            if ($typestr) {
+                $formstr .= "&$typestr";
+            }
             if ($tabstr) {
                 $formstr .= $tabstr;
             }
@@ -462,20 +469,33 @@ abstract class FOGPage extends FOGBase
                 if ($idstr) {
                     $formstr .= "&$idstr";
                 }
+                if ($typestr) {
+                    $formstr .= "&$typestr";
+                }
                 if ($tabstr) {
                     $formstr .= $tabstr;
                 }
             } else {
                 if ($idstr) {
                     $formstr .= $idstr;
+                    if ($typestr) {
+                        $formstr .= "&$typestr";
+                    }
                     if ($tabstr) {
                         $formstr .= $tabstr;
                     }
                 } else {
-                    if ($tabstr) {
-                        $formstr = $tabstr;
+                    if ($typestr) {
+                        $formstr .= $typestr;
+                        if ($tabstr) {
+                            $formstr = $tabstr;
+                        }
                     } else {
-                        $formstr = '';
+                        if ($tabstr) {
+                            $formstr = $tabstr;
+                        } else {
+                            $formstr = '';
+                        }
                     }
                 }
             }
@@ -1372,7 +1392,7 @@ abstract class FOGPage extends FOGBase
             /**
              * Task type setup.
              */
-            if (!is_numeric($type) || $type < 1) {
+            if (!(is_numeric($type) && $type > 0)) {
                 $type = 1;
             }
             $TaskType = new TaskType($type);
@@ -1408,11 +1428,9 @@ abstract class FOGPage extends FOGBase
              * Debug Setup.
              */
             $enableDebug = false;
-            $debug = intval($_REQUEST['debug']);
-            $isdebug = intval($_REQUEST['isDebugTask']);
-            if ($debug > 0
-                || $isdebug > 0
-            ) {
+            $debug = isset($_REQUEST['debug']);
+            $isdebug = isset($_REQUEST['isDebugTask']);
+            if ($debug || $isdebug) {
                 $enableDebug = true;
             }
             /**
