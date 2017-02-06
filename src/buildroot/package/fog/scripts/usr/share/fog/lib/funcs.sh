@@ -193,7 +193,7 @@ expandPartition() {
     case $fstype in
         ntfs)
             dots "Resizing $fstype volume ($part)"
-            ntfsresize $part -f -b -P </usr/share/fog/lib/EOFNTFSRESTORE >/dev/null 2>&1
+            yes | ntfsresize $part -fbP >/tmp/tmpoutput.txt 2>&1
             case $? in
                 0)
                     echo "Done"
@@ -452,7 +452,7 @@ shrinkPartition() {
     local part_block_size=0
     case $fstype in
         ntfs)
-            ntfsresize -f -i -v -P $part >/tmp/tmpoutput.txt 2>&1
+            ntfsresize -fivP $part >/tmp/tmpoutput.txt 2>&1
             if [[ ! $? -eq 0 ]]; then
                 echo " * Not shrinking ($part) trying fixed size"
                 debugPause
@@ -461,16 +461,13 @@ shrinkPartition() {
                 #handleError " * (${FUNCNAME[0]})\n    Args Passed: $*\n\nFatal Error, unable to find size data out on $part. Cmd: ntfsresize -f -i -v -P $part"
             fi
             tmpoutput=$(cat /tmp/tmpoutput.txt)
-            size=$(cat /tmp/tmpoutput.txt | grep "You might resize" | cut -d" " -f5)
+            size=$(cat /tmp/tmpoutput.txt | sed -n 's/.*you might resize at\s\+\([0-9]\+\).*$/\1/pi')
             [[ -z $size ]] && handleError " * (${FUNCNAME[0]})\n   Args Passed: $*\n\nFatal Error, Unable to determine possible ntfs size\n * To better help you debug we will run the ntfs resize\n\t but this time with full output, please wait!\n\t $(cat /tmp/tmpoutput.txt)"
             rm /tmp/tmpoutput.txt >/dev/null 2>&1
-            sizentfsresize=$((size / 1000))
-            let sizentfsresize+=300000
-            sizentfsresize=$((sizentfsresize * 1${percent} / 100))
-            sizefd=$((sizentfsresize * 103 / 100))
+            sizentfsresize=$((size * percent / 1000))
             echo " * Possible resize partition size: $sizentfsresize k"
             dots "Running resize test $part"
-            ntfsresize -f -n -s ${sizentfsresize}k $part </usr/share/fog/lib/EOFNTFSRESTORE >/tmp/tmpoutput.txt 2>&1
+            yes | ntfsresize -fns ${sizentfsresize}k ${part} >/tmp/tmpoutput.txt 2>&1
             local ntfsstatus="$?"
             tmpoutput=$(cat /tmp/tmpoutput.txt)
             test_string=$(cat /tmp/tmpoutput.txt | egrep -io "(ended successfully|bigger than the device size|volume size is already OK)" | tr -d '[[:space:]]')
@@ -486,7 +483,7 @@ shrinkPartition() {
                     ;;
                 biggerthanthedevicesize)
                     echo " * Not resizing filesystem $part (part too small)"
-                    echo "$(cat "$imagePath/d1.fixed_size_partitions"):${part_number}" > "$imagePath/d1.fixed_size_partitions"
+                    echo "$(cat ${imagePath}/d1.fixed_size_partitions):${part_number}" > "$imagePath/d1.fixed_size_partitions"
                     ntfsstatus=0
                     ;;
                 volumesizeisalreadyOK)
@@ -499,7 +496,7 @@ shrinkPartition() {
             if [[ $do_resizefs -eq 1 ]]; then
                 debugPause
                 dots "Resizing filesystem"
-                ntfsresize -f -s ${sizentfsresize}k $part < /usr/share/fog/lib/EOFNTFS >/dev/null 2>&1
+                yes | ntfsresize -fs ${sizentfsresize}k ${part} >/dev/null 2>&1
                 case $? in
                     0)
                         echo "Done"
