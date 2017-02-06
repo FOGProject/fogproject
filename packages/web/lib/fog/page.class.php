@@ -338,14 +338,15 @@ class Page extends FOGBase
                 'js/fog/fog.main.js',
                 'js/jscolor.min.js'
             );
+            $subset = $sub;
             if ($sub == 'membership') {
-                $sub = 'edit';
+                $subset = 'edit';
             }
             $node = preg_replace('#_#', '-', $node);
-            $sub = preg_replace('#_#', '-', $sub);
+            $subset = preg_replace('#_#', '-', $subset);
             $filepaths = array(
                 "js/fog/fog.{$node}.js",
-                "js/fog/fog.{$node}.{$sub}.js",
+                "js/fog/fog.{$node}.{$subset}.js",
             );
             array_map(
                 function (&$jsFilepath) use (&$files) {
@@ -358,7 +359,7 @@ class Page extends FOGBase
             );
             $pluginfilepaths = array(
                 "../lib/plugins/{$node}/js/fog.{$node}.js",
-                "../lib/plugins/{$node}/js/fog.{$node}.{$sub}.js",
+                "../lib/plugins/{$node}/js/fog.{$node}.{$subset}.js",
             );
             array_map(
                 function (&$pluginfilepath) use (&$files) {

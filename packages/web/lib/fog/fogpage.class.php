@@ -238,6 +238,7 @@ abstract class FOGPage extends FOGBase
         );
         global $node;
         global $sub;
+        global $tab;
         global $id;
         if ($node !== 'service'
             && preg_match('#edit#i', $sub)
@@ -430,10 +431,6 @@ abstract class FOGPage extends FOGBase
             }
             unset($input);
         };
-        global $node;
-        global $sub;
-        global $id;
-        global $tab;
         $nodestr = $substr = $idstr = $tabstr = false;
         $formstr = '?';
         if ($node) {
