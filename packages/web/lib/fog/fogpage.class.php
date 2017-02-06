@@ -1420,8 +1420,8 @@ abstract class FOGPage extends FOGBase
              * Shutdown Setup.
              */
             $enableShutdown = false;
-            $shutdown = intval($_REQUEST['shutdown']);
-            if ($shutdown > 0) {
+            $shutdown = isset($_REQUEST['shutdown']);
+            if ($shutdown) {
                 $enableShutdown = true;
             }
             /**
@@ -1437,9 +1437,9 @@ abstract class FOGPage extends FOGBase
              * WOL Setup.
              */
             $wol = false;
-            $wolon = intval($_REQUEST['wol']);
+            $wolon = isset($_REQUEST['wol']);
             if (14 === $type
-                || $wolon > 0
+                || $wolon
             ) {
                 $wol = true;
             }
