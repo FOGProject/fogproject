@@ -1291,11 +1291,12 @@ abstract class FOGBase
         }
         $array[$old_key] = trim($array[$old_key]);
         if (!self::$service && is_string($array[$old_key])) {
+            $item = mb_convert_encoding(
+                $array[$old_key],
+                'utf-8'
+            );
             $array[$new_key] = Initiator::sanitizeItems(
-                mb_convert_encoding(
-                    $array[$old_key],
-                    'utf-8'
-                )
+                $item
             );
         } else {
             $array[$new_key] = Initiator::sanitizeItems(

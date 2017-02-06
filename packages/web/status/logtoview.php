@@ -169,8 +169,9 @@ if (preg_match($pat, $_SERVER['HTTP_HOST'])) {
         $lines,
         $file
     );
+    $string = json_encode($str);
     echo Initiator::sanitizeItems(
-        json_encode($str)
+        $string
     );
     exit;
 }

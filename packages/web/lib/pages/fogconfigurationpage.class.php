@@ -259,8 +259,9 @@ class FOGConfigurationPage extends FOGPage
                 _('Starting process...')
             );
         } else {
+            $tmpFile = basename($tmpFile);
             $tmpFile = Initiator::sanitizeItems(
-                basename($tmpFile)
+                $tmpFile
             );
             $tmpArch = (
                 $_REQUEST['arch'] == 64 ?
