@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-04 13:44-0500\n"
+"POT-Creation-Date: 2017-02-06 09:56-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -163,7 +163,7 @@ msgstr ""
 msgid "Could not notify"
 msgstr ""
 
-#: /var/www/fog/lib/fog/reportmaker.class.php:150
+#: /var/www/fog/lib/fog/reportmaker.class.php:153
 msgid "Invalid type"
 msgstr ""
 

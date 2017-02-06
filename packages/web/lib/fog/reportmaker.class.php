@@ -143,22 +143,24 @@ class ReportMaker extends FOGBase
     public function outputReport($intType = 0)
     {
         $keys = array_keys($this->types);
-        if (!isset($_REQUEST['type'])) {
-            $_REQUEST['type'] = $keys[$intType];
-        }
-        if (!in_array($_REQUEST['type'], $keys)) {
-            die(_('Invalid type'));
-        }
         if (!(isset($_REQUEST['type'])
             && is_string($_REQUEST['type']))
         ) {
-            $type = $keys[$intType];
+            $_REQUEST['type'] = $keys[$intType];
         }
+        $type = Initiator::sanitizeItems($_REQUEST['type']);
+        if (!in_array($type, $keys)) {
+            die(_('Invalid type'));
+        }
+        if (!(isset($_REQUEST['filename'])
+            && is_string($_REQUEST['filename']))
+        ) {
+            $_REQUEST['filename'] = '';
+        }
+        $file = Initiator::sanitizeItems($_REQUEST['filename']);
         $file = basename(
             trim(
-                Initiator::sanitizeItems(
-                    $_REQUEST['filename']
-                )
+                $file
             )
         );
         if (!isset($_REQUEST['export'])) {
