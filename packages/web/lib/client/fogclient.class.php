@@ -90,7 +90,9 @@ abstract class FOGClient extends FOGBase
                 'shortName'
             );
             if (!in_array($this->shortName, $hostModInfo)) {
-                throw new Exception('#!nh');
+                if (false === $hostnotrequired) {
+                    throw new Exception('#!nh');
+                }
             }
             if (method_exists($this, 'json')) {
                 $method = 'json';
