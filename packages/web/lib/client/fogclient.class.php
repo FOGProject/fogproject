@@ -72,32 +72,28 @@ abstract class FOGClient extends FOGBase
             if (!$this->Host instanceof Host) {
                 $this->Host = new Host(0);
             }
-            if (self::$json) {
-                $globalInfo = array_intersect_key(
-                    $this->getGlobalModuleStatus(),
-                    array($this->shortName => '')
-                );
-                if (!(isset($globalInfo[$this->shortName])
-                    && $globalInfo[$this->shortName])
-                ) {
-                    throw new Exception('#!ng');
-                }
-                $hostModInfo = self::getSubObjectIDs(
-                    'Module',
-                    array(
-                        'id' => $this->Host->get('modules'),
-                        'shortName' => $this->shortName
-                    ),
-                    'shortName'
-                );
-                if (false === $hostnotrequired
-                    && !in_array($this->shortName, $hostModInfo)
-                ) {
-                    throw new Exception('#!nh');
-                }
-                if (method_exists($this, 'json')) {
-                    $method = 'json';
-                }
+            $globalInfo = array_intersect_key(
+                $this->getGlobalModuleStatus(),
+                array($this->shortName => '')
+            );
+            if (!(isset($globalInfo[$this->shortName])
+                && $globalInfo[$this->shortName])
+            ) {
+                throw new Exception('#!ng');
+            }
+            $hostModInfo = self::getSubObjectIDs(
+                'Module',
+                array(
+                    'id' => $this->Host->get('modules'),
+                    'shortName' => $this->shortName
+                ),
+                'shortName'
+            );
+            if (!in_array($this->shortName, $hostModInfo)) {
+                throw new Exception('#!nh');
+            }
+            if (method_exists($this, 'json')) {
+                $method = 'json';
             }
             $validClientBrowserFiles = array(
                 'jobs.php',
