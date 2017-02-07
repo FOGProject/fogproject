@@ -440,7 +440,6 @@ shrinkPartition() {
     local tmpoutput=""
     local sizentfsresize=0
     local sizeextresize=0
-    local sizefd=0
     local tmp_success=""
     local test_string=""
     local do_resizefs=0
@@ -524,7 +523,7 @@ shrinkPartition() {
                             debugPause
                             handleError "Unable to determine disk start location (${FUNCNAME[0]})\n   Args Passed: $*"
                         fi
-                        adjustedfdsize=$((sizefd + part_start))
+                        adjustedfdsize=$((sizentfsresize + part_start))
                         resizePartition "$part" "$adjustedfdsize" "$imagePath"
                         ;;
                 esac
