@@ -464,7 +464,7 @@ shrinkPartition() {
             [[ -z $size ]] && handleError " * (${FUNCNAME[0]})\n   Args Passed: $*\n\nFatal Error, Unable to determine possible ntfs size\n * To better help you debug we will run the ntfs resize\n\t but this time with full output, please wait!\n\t $(cat /tmp/tmpoutput.txt)"
             rm /tmp/tmpoutput.txt >/dev/null 2>&1
             percent=$((percent + 100))
-            sizentfsresize=$((size * percent / 100 / 1000 + 300000))
+            sizentfsresize=$((size / 1000 * percent / 100 + 300000))
             echo " * Possible resize partition size: ${sizentfsresize}k"
             dots "Running resize test $part"
             yes | ntfsresize -fns ${sizentfsresize}k ${part} >/tmp/tmpoutput.txt 2>&1
