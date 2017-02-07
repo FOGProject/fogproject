@@ -465,6 +465,7 @@ shrinkPartition() {
             rm /tmp/tmpoutput.txt >/dev/null 2>&1
             percent=$((percent + 100))
             sizentfsresize=$((size * percent / 100 / 1000 + 300000))
+            sizefd=$((size * 103 / 100))
             echo " * Possible resize partition size: ${sizentfsresize}k"
             dots "Running resize test $part"
             yes | ntfsresize -fns ${sizentfsresize}k ${part} >/tmp/tmpoutput.txt 2>&1
