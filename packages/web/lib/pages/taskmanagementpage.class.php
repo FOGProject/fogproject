@@ -277,8 +277,8 @@ class TaskManagementPage extends FOGPage
             '<small>${imagename}</small>',
             sprintf(
                 '%s %s %s',
-                $up,
                 $down,
+                $up,
                 $adv
             ),
         );
