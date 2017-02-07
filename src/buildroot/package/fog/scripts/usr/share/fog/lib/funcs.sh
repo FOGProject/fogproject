@@ -463,8 +463,8 @@ shrinkPartition() {
             size=$(cat /tmp/tmpoutput.txt | sed -n 's/.*you might resize at\s\+\([0-9]\+\).*$/\1/pi')
             [[ -z $size ]] && handleError " * (${FUNCNAME[0]})\n   Args Passed: $*\n\nFatal Error, Unable to determine possible ntfs size\n * To better help you debug we will run the ntfs resize\n\t but this time with full output, please wait!\n\t $(cat /tmp/tmpoutput.txt)"
             rm /tmp/tmpoutput.txt >/dev/null 2>&1
-            sizeadd=$((size / 1000 / percent + 300000))
-            sizentfsresize=$((size / 1000 + sizeadd))
+            local sizeadd=$(calculate "${percent}/100*${size}/1000+300000")
+            sizentfsresize=$(calculate "${size}/1000+${sizeadd}")
             echo " * Possible resize partition size: ${sizentfsresize}k"
             dots "Running resize test $part"
             yes | ntfsresize -fns ${sizentfsresize}k ${part} >/tmp/tmpoutput.txt 2>&1
@@ -524,7 +524,7 @@ shrinkPartition() {
                             debugPause
                             handleError "Unable to determine disk start location (${FUNCNAME[0]})\n   Args Passed: $*"
                         fi
-                        adjustedfdsize=$((sizentfsresize + part_start))
+                        adjustedfdsize=$(calculate "${sizentfsresize}+${part_start}")
                         resizePartition "$part" "$adjustedfdsize" "$imagePath"
                         ;;
                 esac
@@ -548,8 +548,9 @@ shrinkPartition() {
             debugPause
             extminsize=$(resize2fs -P $part 2>/dev/null | awk -F': ' '{print $2}')
             block_size=$(dumpe2fs -h $part 2>/dev/null | awk /^Block\ size:/'{print $3}')
-            size=$((extminsize * block_size))
-            sizeextresize=$((size * 103 / 100 / 1024))
+            size=$(calculate "${extminsize}*${block_size}")
+            local sizeadd=$(calculate "${percent}/100*${extminsize}/1024+300000")
+            sizeextresize=$(calculate "${size}/1024+${sizeadd}")
             [[ -z $sizeextresize || $sizeextresize -lt 1 ]] && handleError "Error calculating the new size of extfs ($part) (${FUNCNAME[0]})\n   Args Passed: $*"
             dots "Shrinking $fstype volume ($part)"
             resize2fs $part -M >/dev/null 2>&1
@@ -2276,4 +2277,8 @@ trim() {
     var="${var#${var%%[![:space:]]*}}"
     var="${var%${var##*[![:space:]]}}"
     echo -n "$var"
+}
+# Calculates information
+calculate() {
+    echo $(awk 'BEGIN{printf "%.0f\n", '$*'}')
 }
