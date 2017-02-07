@@ -463,7 +463,8 @@ shrinkPartition() {
             size=$(cat /tmp/tmpoutput.txt | sed -n 's/.*you might resize at\s\+\([0-9]\+\).*$/\1/pi')
             [[ -z $size ]] && handleError " * (${FUNCNAME[0]})\n   Args Passed: $*\n\nFatal Error, Unable to determine possible ntfs size\n * To better help you debug we will run the ntfs resize\n\t but this time with full output, please wait!\n\t $(cat /tmp/tmpoutput.txt)"
             rm /tmp/tmpoutput.txt >/dev/null 2>&1
-            sizentfsresize=$((size * percent * 3 / 1000 + 300000))
+            sizentfsresize=$((size * percent / 1000 + 300000))
+            sizefd=$((sizentfsresize * 3))
             echo " * Possible resize partition size: $sizentfsresize k"
             dots "Running resize test $part"
             yes | ntfsresize -fns ${sizentfsresize}k ${part} >/tmp/tmpoutput.txt 2>&1
@@ -523,7 +524,7 @@ shrinkPartition() {
                             debugPause
                             handleError "Unable to determine disk start location (${FUNCNAME[0]})\n   Args Passed: $*"
                         fi
-                        adjustedfdsize=$((sizentfsresize + part_start))
+                        adjustedfdsize=$((sizefd + part_start))
                         resizePartition "$part" "$adjustedfdsize" "$imagePath"
                         ;;
                 esac
