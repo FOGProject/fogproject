@@ -2930,7 +2930,7 @@ abstract class FOGPage extends FOGBase
                 }
                 unset($key);
             }
-            echo json_encode($array, JSON_UNESCAPED_UNICODE);
+            //echo json_encode($array, JSON_UNESCAPED_UNICODE);
             $this->sendData(
                 json_encode(
                     $array,
