@@ -166,10 +166,7 @@ class FOGConfigurationPage extends FOGPage
     public function kernelUpdate()
     {
         $this->kernelselForm('pk');
-        $url = sprintf(
-            'https://fogproject.org/kernels/kernelupdate.php?version=%s',
-            FOG_VERSION
-        );
+        $url = 'https://fogproject.org/kernels/kernelupdate.php';
         $test = self::$FOGURLRequests->isAvailable($url);
         $test = array_shift($test);
         if (false === $test) {

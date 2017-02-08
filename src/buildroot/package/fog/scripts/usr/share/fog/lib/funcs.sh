@@ -463,7 +463,7 @@ shrinkPartition() {
             size=$(cat /tmp/tmpoutput.txt | sed -n 's/.*you might resize at\s\+\([0-9]\+\).*$/\1/pi')
             [[ -z $size ]] && handleError " * (${FUNCNAME[0]})\n   Args Passed: $*\n\nFatal Error, Unable to determine possible ntfs size\n * To better help you debug we will run the ntfs resize\n\t but this time with full output, please wait!\n\t $(cat /tmp/tmpoutput.txt)"
             rm /tmp/tmpoutput.txt >/dev/null 2>&1
-            local sizeadd=$(calculate "${percent}/100*${size}/1000+300000")
+            local sizeadd=$(calculate "${percent}/100*${size}/1000")
             sizentfsresize=$(calculate "${size}/1000+${sizeadd}")
             echo " * Possible resize partition size: ${sizentfsresize}k"
             dots "Running resize test $part"
@@ -549,7 +549,7 @@ shrinkPartition() {
             extminsize=$(resize2fs -P $part 2>/dev/null | awk -F': ' '{print $2}')
             block_size=$(dumpe2fs -h $part 2>/dev/null | awk /^Block\ size:/'{print $3}')
             size=$(calculate "${extminsize}*${block_size}")
-            local sizeadd=$(calculate "${percent}/100*${size}/1024+300000")
+            local sizeadd=$(calculate "${percent}/100*${size}/1024")
             sizeextresize=$(calculate "${size}/1024+${sizeadd}")
             [[ -z $sizeextresize || $sizeextresize -lt 1 ]] && handleError "Error calculating the new size of extfs ($part) (${FUNCNAME[0]})\n   Args Passed: $*"
             dots "Shrinking $fstype volume ($part)"
