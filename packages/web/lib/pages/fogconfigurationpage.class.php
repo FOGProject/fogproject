@@ -1878,7 +1878,7 @@ class FOGConfigurationPage extends FOGPage
             if (isset($needstobeip[$name])
                 && !filter_var($set, FILTER_VALIDATE_IP)
             ) {
-                $set = 0;
+                $set = '';
             }
             switch ($name) {
             case 'FOG_MEMORY_LIMIT':
