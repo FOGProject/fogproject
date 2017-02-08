@@ -63,7 +63,7 @@ class Initiator
                 );
             }
             if (is_array($val)) {
-                self::sanitizeItems($value[$key]);
+                self::sanitizeItems($val);
             }
         };
         /**
@@ -404,6 +404,12 @@ class Initiator
         } else {
             if (is_array($value)) {
                 array_walk($value, self::$_sanitizeItems);
+            } else {
+                $value = htmlspecialchars(
+                    $value,
+                    ENT_QUOTES | ENT_HTML401,
+                    'utf-8'
+                );
             }
         }
         return $value;
