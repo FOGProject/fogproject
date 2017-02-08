@@ -94,8 +94,10 @@ abstract class FOGClient extends FOGBase
                     throw new Exception('#!nh');
                 }
             }
-            if (method_exists($this, 'json')) {
-                $method = 'json';
+            if (self::$json) {
+                if (method_exists($this, 'json')) {
+                    $method = 'json';
+                }
             }
             $validClientBrowserFiles = array(
                 'jobs.php',
