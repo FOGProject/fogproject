@@ -72,6 +72,9 @@ abstract class FOGClient extends FOGBase
             if (!$this->Host instanceof Host) {
                 $this->Host = new Host(0);
             }
+            if (isset($_REQUEST['moduleid'])) {
+                $this->shortName = $_REQUEST['moduleid'];
+            }
             $globalInfo = array_intersect_key(
                 $this->getGlobalModuleStatus(),
                 array($this->shortName => '')

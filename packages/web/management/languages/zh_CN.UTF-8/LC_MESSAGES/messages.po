@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-08 18:02-0500\n"
+"POT-Creation-Date: 2017-02-09 18:45-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -7744,7 +7744,7 @@ msgstr "您只能分配"
 msgid "additional macs"
 msgstr "附加的MAC"
 
-#: /var/www/fog/lib/client/fogclient.class.php:113
+#: /var/www/fog/lib/client/fogclient.class.php:116
 #: /var/www/fog/commons/text.php:233
 msgid "Not allowed here"
 msgstr "这里不允许"
