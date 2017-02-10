@@ -73,7 +73,17 @@ abstract class FOGClient extends FOGBase
                 $this->Host = new Host(0);
             }
             if (isset($_REQUEST['moduleid'])) {
-                $this->shortName = $_REQUEST['moduleid'];
+                $this->shortName = Initiator::sanitizeItems(
+                    $_REQUEST['moduleid']
+                );
+                switch ($this->shortName) {
+                case 'dircleaner':
+                    $this->shortName = 'dircleanup';
+                    break;
+                case 'snapin':
+                    $this->shortName = 'snapinclient';
+                    break;
+                }
             }
             $globalInfo = array_intersect_key(
                 $this->getGlobalModuleStatus(),

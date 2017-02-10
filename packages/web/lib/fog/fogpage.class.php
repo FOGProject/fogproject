@@ -1409,12 +1409,13 @@ abstract class FOGPage extends FOGBase
              * Snapin Setup.
              */
             $enableSnapins = intval($_REQUEST['snapin']);
-            if ($enableSnapins !== 0) {
-                if (17 === $type
-                    || $enableSnapins < -1
-                ) {
-                    $enableSnapins = 0;
-                }
+            if (0 === $enableSnapins) {
+                $enableSnapins = -1;
+            }
+            if (17 === $type
+                || $enableSnapins < -1
+            ) {
+                $enableSnapins = 0;
             }
             /**
              * Shutdown Setup.

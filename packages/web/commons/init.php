@@ -63,7 +63,14 @@ class Initiator
                 );
             }
             if (is_array($val)) {
-                self::sanitizeItems($val);
+                foreach ((array)$val as $k => &$v) {
+                    $val[$k] = htmlspecialchars(
+                        $v,
+                        ENT_QUOTES | ENT_HTML401,
+                        'utf-8'
+                    );
+                    unset($v);
+                }
             }
         };
         /**
