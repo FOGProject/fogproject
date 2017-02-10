@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-08 18:02-0500\n"
+"POT-Creation-Date: 2017-02-10 12:13-0500\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -7790,7 +7790,7 @@ msgstr "Sie dürfen nur zuweisen"
 msgid "additional macs"
 msgstr "Weitere MACs"
 
-#: /var/www/fog/lib/client/fogclient.class.php:113
+#: /var/www/fog/lib/client/fogclient.class.php:126
 #: /var/www/fog/commons/text.php:233
 msgid "Not allowed here"
 msgstr "Hier erlaubt nicht"
