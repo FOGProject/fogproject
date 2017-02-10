@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-10 14:34-0500\n"
+"POT-Creation-Date: 2017-02-10 15:36-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -7486,11 +7486,11 @@ msgstr ""
 msgid "FOG Hosts and Users Login"
 msgstr ""
 
-#: /var/www/fog/commons/init.php:158
+#: /var/www/fog/commons/init.php:165
 msgid "Classname must be a string"
 msgstr ""
 
-#: /var/www/fog/commons/init.php:471
+#: /var/www/fog/commons/init.php:478
 msgid "Missing one or more extensions."
 msgstr ""
 
