@@ -2967,8 +2967,8 @@ $this->schema[] = array(
     . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
     . "VALUES "
     . "('FOG_EFI_BOOT_EXIT_TYPE','The method (U)EFI uses to boot the "
-    . "next boot entry/hard drive. Most will require exit.',"
-    . "'exit','FOG Boot Settings')",
+    . "next boot entry/hard drive. Most will require exit. (Default REFIND)',"
+    . "'refind_efi','FOG Boot Settings')",
 );
 // 193
 $this->schema[] = array(
