@@ -220,10 +220,13 @@ class TaskManagementPage extends FOGPage
                 (array) self::getProgressState()
             )
         );
-        array_walk(
-            self::getClass('TaskManager')->find($find),
-            self::$returnData
-        );
+        $tasks = self::getClass('TaskManager')->find($find);
+        if (count($tasks) > 0) {
+            array_walk(
+                $tasks,
+                static::$returnData
+            );
+        }
         self::$HookManager
             ->processEvent(
                 'HOST_DATA',

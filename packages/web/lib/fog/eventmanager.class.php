@@ -310,9 +310,11 @@ class EventManager extends FOGBase
             fclose($fh);
         };
         // Perform the checks.
-        array_walk(
-            $normalfiles,
-            $checkNormalAndStart
-        );
+        if (count($normalfiles) > 0) {
+            array_walk(
+                $normalfiles,
+                $checkNormalAndStart
+            );
+        }
     }
 }

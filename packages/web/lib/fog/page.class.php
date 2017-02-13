@@ -253,16 +253,18 @@ class Page extends FOGBase
                     )
                 );
             $links = array();
-            array_walk(
-                $this->main,
-                function (
-                    &$title,
-                    &$link
-                ) use (&$links) {
-                    $links[] = $link;
-                    unset($title, $link);
-                }
-            );
+            if (count($this->main) > 0) {
+                array_walk(
+                    $this->main,
+                    function (
+                        &$title,
+                        &$link
+                    ) use (&$links) {
+                        $links[] = $link;
+                        unset($title, $link);
+                    }
+                );
+            }
             if (!self::$isMobile) {
                 $links = self::fastmerge(
                     (array)$links,
@@ -281,34 +283,36 @@ class Page extends FOGBase
             }
             ob_start();
             echo '<nav class="menu"><ul class="nav-list">';
-            array_walk(
-                $this->main,
-                function (
-                    &$title,
-                    &$link
-                ) use (&$node) {
-                    if (!$node
-                        && $link == 'home'
-                    ) {
-                        $node = $link;
+            if (count($this->main) > 0) {
+                array_walk(
+                    $this->main,
+                    function (
+                        &$title,
+                        &$link
+                    ) use (&$node) {
+                        if (!$node
+                            && $link == 'home'
+                        ) {
+                            $node = $link;
+                        }
+                        $tivelink = ($node == $link);
+                        printf(
+                            '<li class="nav-item"><a href="?node=%s" '
+                            . 'class="nav-link%s" title="%s"><i class="%s">'
+                            . '</i></a></li>',
+                            $link,
+                            (
+                                $activelink ?
+                                ' activelink' :
+                                ''
+                            ),
+                            array_shift($title),
+                            array_shift($title)
+                        );
+                        unset($title, $link);
                     }
-                    $activelink = ($node == $link);
-                    printf(
-                        '<li class="nav-item"><a href="?node=%s" '
-                        . 'class="nav-link%s" title="%s"><i class="%s">'
-                        . '</i></a></li>',
-                        $link,
-                        (
-                            $activelink ?
-                            ' activelink' :
-                            ''
-                        ),
-                        array_shift($title),
-                        array_shift($title)
-                    );
-                    unset($title, $link);
-                }
-            );
+                );
+            }
             echo '</ul></nav>';
             $this->menu = ob_get_clean();
         }

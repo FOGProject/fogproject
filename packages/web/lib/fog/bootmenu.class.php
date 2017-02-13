@@ -1080,13 +1080,15 @@ class BootMenu extends FOGBase
                 'KS' => $this->ks
             )
         );
-        array_walk_recursive(
-            $Send,
-            function (&$val, &$key) {
-                printf('%s%s', implode("\n", (array)$val), "\n");
-                unset($val, $key);
-            }
-        );
+        if (count($Send) > 0) {
+            array_walk_recursive(
+                $Send,
+                function (&$val, &$key) {
+                    printf('%s%s', implode("\n", (array)$val), "\n");
+                    unset($val, $key);
+                }
+            );
+        }
     }
     /**
      * For advancemenu if we require login

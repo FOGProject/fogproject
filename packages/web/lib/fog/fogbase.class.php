@@ -853,7 +853,9 @@ abstract class FOGBase
             $_REQUEST[$key] = $val;
             unset($val, $key);
         };
-        array_walk($sesVars, $setReq);
+        if (count($sesVars) > 0) {
+            array_walk($sesVars, $setReq);
+        }
         unset($_SESSION['post_request_vals'], $sesVars, $reqVars);
     }
     /**

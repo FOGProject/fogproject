@@ -561,7 +561,9 @@ abstract class FOGPage extends FOGBase
                 );
             }
             $items = (array)self::getClass($manager)->find($find);
-            array_walk($items, static::$returnData);
+            if (count($items) > 0) {
+                array_walk($items, static::$returnData);
+            }
             $event = sprintf(
                 '%s_DATA',
                 strtoupper($this->node)
@@ -600,6 +602,9 @@ abstract class FOGPage extends FOGBase
                     $value
                 );
             };
+            if (count($args) > 0) {
+                array_walk($args, $vals);
+            }
             printf(
                 'Index page of: %s%s',
                 get_class($this),
@@ -609,7 +614,7 @@ abstract class FOGPage extends FOGBase
                         ', Arguments = %s',
                         implode(
                             ', ',
-                            array_walk($args, $vals)
+                            $args
                         )
                     ) :
                     ''
@@ -971,7 +976,9 @@ abstract class FOGPage extends FOGBase
                 ''
             )
         );
-        array_walk($this->headerData, $setHeaderData);
+        if (count($this->headerData)) {
+            array_walk($this->headerData, $setHeaderData);
+        }
         echo '</tr></thead>';
         return ob_get_clean();
     }
@@ -3142,7 +3149,10 @@ abstract class FOGPage extends FOGBase
             '%sManager',
             $this->childClass
         );
-        array_walk(self::getClass($manager)->search('', true), static::$returnData);
+        $search = self::getClass($manager)->search('', true);
+        if (count($search) > 0) {
+            array_walk($search, static::$returnData);
+        }
         $event = sprintf(
             '%s_DATA',
             strtoupper($this->node)
@@ -3265,7 +3275,9 @@ abstract class FOGPage extends FOGBase
                 $index
             );
         };
-        array_walk($name, $itemParser);
+        if (count($name) > 0) {
+            array_walk($name, $itemParser);
+        }
         if (count($this->data) > 0) {
             self::$HookManager->processEvent(
                 sprintf(
@@ -3345,7 +3357,9 @@ abstract class FOGPage extends FOGBase
                 )
             )
         );
-        array_walk($name, $itemParser);
+        if (count($name) > 0) {
+            array_walk($name, $itemParser);
+        }
         self::$HookManager->processEvent(
             'OBJ_MEMBERSHIP',
             array(
