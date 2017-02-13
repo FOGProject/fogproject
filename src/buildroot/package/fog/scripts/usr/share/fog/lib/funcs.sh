@@ -673,13 +673,28 @@ writeImage()  {
             cat $file >/tmp/pigz1 &
             ;;
     esac
-    if [[ $imgFormat -eq 1 || $imgLegacy -eq 1 ]]; then
-        echo " * Imaging using Partimage"
-        pigz -d -c </tmp/pigz1 | partimage restore $target stdin -f3 -b 2>/tmp/status.fog
-    else
-        echo " * Imaging using Partclone"
-        pigz -d -c </tmp/pigz1 | partclone.restore --ignore_crc -O $target -N -f 1
-    fi
+    local format=$imgLegacy
+    [[ -z $format ]] && format=$imgFormat
+    case $format in
+        # Uncompressed partclone
+        2)
+            echo " * Imaging using Partclone"
+            cat /tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1
+            # If this fails, try from compressed form.
+            [[ ! $? -eq 0 ]] && pigz -d -c </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1
+            ;;
+        1)
+            echo " * Imaging using Partimage"
+            pigz -d -c </tmp/pigz1 | partimage restore ${target} stdin -f3 -b 2>/tmp/status.fog
+            ;;
+        # Compressed partclone
+        *)
+            echo " * Imaging using Partclone"
+            pigz -d -c </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1
+            # If this fails, try uncompressed form.
+            [[ ! $? -eq 0 ]] && cat /tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1
+            ;;
+    esac
     exitcode=$?
     [[ ! $exitcode -eq 0 ]] && handleError "Image failed to restore and exited with exit code $exitcode (${FUNCNAME[0]})\n   Args Passed: $*"
     rm -rf /tmp/pigz1 >/dev/null 2>&1
@@ -1540,9 +1555,19 @@ uploadFormat() {
     [[ -z $file ]] && handleError "Missing file name to store (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ ! -e $fifo ]] && mkfifo $fifo >/dev/null 2>&1
     case $imgFormat in
+        # Split files uncompressed.
+        4)
+            cat $fifo | split -a 3 -d -b 200m - ${file}. &
+            ;;
+        # Uncompressed.
+        3)
+            cat $fifo > ${file}.000 &
+            ;;
+        # Split file compressed.
         2)
             pigz $PIGZ_COMP < $fifo | split -a 3 -d -b 200m - ${file}. &
             ;;
+        # Compressed.
         *)
             pigz $PIGZ_COMP < $fifo > ${file}.000 &
             ;;

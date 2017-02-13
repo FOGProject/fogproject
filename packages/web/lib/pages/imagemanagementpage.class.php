@@ -385,10 +385,22 @@ class ImageManagementPage extends FOGPage
              * If the image format not one, we must
              * be using partclone otherwise partimage.
              */
-            if ($Image->get('format') == 1) {
-                $type = _('Partimage');
-            } else {
-                $type = _('Partclone');
+            switch ($Image->get('format')) {
+                case 0:
+                    $type = _('Partclone Compressed');
+                    break;
+                case 1:
+                    $type = _('Partimage');
+                    break;
+                case 2:
+                    $type = _('Partclone Compressed 200MiB split');
+                    break;
+                case 3:
+                    $type = _('Partclone Uncompressed');
+                    break;
+                case 4:
+                    $type = _('Partclone Uncompressed 200MiB split');
+                    break;
             }
             /**
              * Store the data.
@@ -516,6 +528,45 @@ class ImageManagementPage extends FOGPage
         ) {
             $compression = $_REQUEST['compress'];
         }
+        $format = sprintf(
+            '<select name="imagemanage">'
+            . '<option value="0"%s>%s</option>'
+            . '<option value="1"%s>%s</option>'
+            . '<option value="2"%s>%s</option>'
+            . '<option value="3"%s>%s</option>'
+            . '<option value="4"%s>%s</option>'
+            . '</select>',
+            (
+                !$_REQUEST['imagemanage'] || $_REQUEST['imagemanage'] == 0 ?
+                ' selected' :
+                ''
+            ),
+            _('Partclone Compressed'),
+            (
+                $_REQUEST['imagemanage'] == 1 ?
+                ' selected' :
+                ''
+            ),
+            _('Partimage'),
+            (
+                $_REQUEST['imagemanage'] == 2 ?
+                ' selected' :
+                ''
+            ),
+            _('Partclone Compressed 200MiB split'),
+            (
+                $_REQUEST['imagemanage'] == 3 ?
+                ' selected' :
+                ''
+            ),
+            _('Partclone Uncompressed'),
+            (
+                $_REQUEST['imagemanage'] == 4 ?
+                ' selected' :
+                ''
+            ),
+            _('Partclone Uncompressed 200MiB split')
+        );
         $fields = array(
             _('Image Name') => sprintf(
                 '<input type="text" name="name" id="iName" value="%s"/>',
@@ -545,10 +596,11 @@ class ImageManagementPage extends FOGPage
                 . 'top: -5px; left: 225px; position: relative;" value="%s"/>',
                 $compression
             ),
+            _('Image Manager') => $format,
             '&nbsp;' => sprintf(
                 '<input type="submit" name="add" value="%s"/>',
                 _('Add')
-            ),
+            )
         );
         printf('<h2>%s</h2>', _('Add new image definition'));
         self::$HookManager
@@ -633,6 +685,7 @@ class ImageManagementPage extends FOGPage
                 ->set('imagePartitionTypeID', $_REQUEST['imagepartitiontype'])
                 ->set('compress', $_REQUEST['compress'])
                 ->set('isEnabled', (string)intval(isset($_REQUEST['isEnabled'])))
+                ->set('format', $_REQUEST['imagemanage'])
                 ->set('toReplicate', (string)intval(isset($_REQUEST['toReplicate'])))
                 ->addGroup($_REQUEST['storagegroup']);
             if (!$Image->save()) {
@@ -730,24 +783,45 @@ class ImageManagementPage extends FOGPage
         ) {
             $compression = $_REQUEST['compress'];
         }
-        if ($_SESSION['FOG_FORMAT_FLAG_IN_GUI']) {
-            $format = sprintf(
-                '<select name="imagemanage"><option value="1"%s>%s</option>'
-                . '<option value="0"%s>%s</option></select>',
-                (
-                    $this->obj->get('format') ?
-                    ' selected' :
-                    ''
-                ),
-                _('Partimage'),
-                (
-                    !$this->obj->get('format') ?
-                    ' selected' :
-                    ''
-                ),
-                _('Partclone')
-            );
-        }
+        $format = sprintf(
+            '<select name="imagemanage">'
+            . '<option value="0"%s>%s</option>'
+            . '<option value="1"%s>%s</option>'
+            . '<option value="2"%s>%s</option>'
+            . '<option value="3"%s>%s</option>'
+            . '<option value="4"%s>%s</option>'
+            . '</select>',
+            (
+                !$this->obj->get('format') || $this->obj->get('format') == 0 ?
+                ' selected' :
+                ''
+            ),
+            _('Partclone Compressed'),
+            (
+                $this->obj->get('format') == 1 ?
+                ' selected' :
+                ''
+            ),
+            _('Partimage'),
+            (
+                $this->obj->get('format') == 2 ?
+                ' selected' :
+                ''
+            ),
+            _('Partclone Compressed 200MiB split'),
+            (
+                $this->obj->get('format') == 3 ?
+                ' selected' :
+                ''
+            ),
+            _('Partclone Uncompressed'),
+            (
+                $this->obj->get('format') == 4 ?
+                ' selected' :
+                ''
+            ),
+            _('Partclone Uncompressed 200MiB split')
+        );
         $fields = array(
             _('Image Name') => sprintf(
                 '<input type="text" name="name" id="iName" value="%s"/>',
@@ -811,15 +885,7 @@ class ImageManagementPage extends FOGPage
                     ''
                 )
             ),
-            (
-                $_SESSION['FOG_FORMAT_FLAG_IN_GUI'] ?
-                _('Image Manager') :
-                ''
-            ) => (
-                $_SESSION['FOG_FORMAT_FLAG_IN_GUI'] ?
-                $format :
-                ''
-            ),
+            _('Image Manager') => $format,
             '&nbsp;' => sprintf(
                 '<input type="submit" name="update" value="%s"/>',
                 _('Update')
