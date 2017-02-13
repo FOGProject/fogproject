@@ -403,11 +403,21 @@ class Initiator
          * Otherwise it will clean the passed value.
          */
         if (!count($value)) {
-            array_walk($_SESSION, self::$_sanitizeItems);
-            array_walk($_REQUEST, self::$_sanitizeItems);
-            array_walk($_COOKIE, self::$_sanitizeItems);
-            array_walk($_POST, self::$_sanitizeItems);
-            array_walk($_GET, self::$_sanitizeItems);
+            if (count($_SESSION) > 0) {
+                array_walk($_SESSION, self::$_sanitizeItems);
+            }
+            if (count($_REQUEST) > 0) {
+                array_walk($_REQUEST, self::$_sanitizeItems);
+            }
+            if (count($_COOKIE) > 0) {
+                array_walk($_COOKIE, self::$_sanitizeItems);
+            }
+            if (count($_POST) > 0) {
+                array_walk($_POST, self::$_sanitizeItems);
+            }
+            if (count($_GET) > 0) {
+                array_walk($_GET, self::$_sanitizeItems);
+            }
         } else {
             if (is_array($value)) {
                 array_walk($value, self::$_sanitizeItems);
