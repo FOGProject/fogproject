@@ -320,9 +320,6 @@ class ImageManagementPage extends FOGPage
              * If size on server we get our function.
              */
             if ($SizeServer) {
-                $StorageNode = $Image
-                    ->getStorageGroup()
-                    ->getMasterStorageNode();
                 $serverSize = $this->formatByteSize($Image->get('srvsize'));
             }
             /**
