@@ -1707,17 +1707,20 @@ abstract class FOGPage extends FOGBase
                 $groupTask = $this->obj instanceof Group;
                 $success = '';
                 if ($scheduleType == 'instant') {
-                    $success .= $this->obj->createImagePackage(
-                        $TaskType->get('id'),
-                        $taskName,
-                        $enableShutdown,
-                        $enableDebug,
-                        $enableSnapins,
-                        $groupTask,
-                        $_SESSION['FOG_USERNAME'],
-                        $passreset,
-                        false,
-                        $wol
+                    $success .= implode(
+                        '</ul><ul>',
+                        (array)$this->obj->createImagePackage(
+                            $TaskType->get('id'),
+                            $taskName,
+                            $enableShutdown,
+                            $enableDebug,
+                            $enableSnapins,
+                            $groupTask,
+                            $_SESSION['FOG_USERNAME'],
+                            $passreset,
+                            false,
+                            $wol
+                        )
                     );
                 } else {
                     $ScheduledTask = self::getClass('ScheduledTask')
@@ -1812,7 +1815,10 @@ abstract class FOGPage extends FOGBase
                 $time,
                 sprintf(
                     '<ul>%s</ul>',
-                    $success
+                    implode(
+                        '</ul><ul>',
+                        (array)$success
+                    )
                 )
             );
         }
