@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-13 22:03-0500\n"
+"POT-Creation-Date: 2017-02-13 22:15-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3027,7 +3027,7 @@ msgstr "Planificateur"
 msgid "Image Replicator"
 msgstr "image Replicator"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2092
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2088
 #, fuzzy
 msgid "Image Size"
 msgstr "Nom de l'image"
@@ -7751,7 +7751,7 @@ msgid "Failed to update/create image log"
 msgstr "Impossible de mettre à jour / créer une image journal"
 
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:165
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:429
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:431
 msgid "Failed to update Task"
 msgstr "Impossible de mettre à jour la tâche"
 
@@ -7804,17 +7804,17 @@ msgstr "après l'achèvement des tâches"
 msgid "Call"
 msgstr ""
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:426
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:428
 #, fuzzy
 msgid "Failed to update Host"
 msgstr "Impossible de mettre à jour"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:440
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:442
 #, fuzzy
 msgid "Failed to update task log"
 msgstr "Impossible de mettre à jour la tâche"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:444
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:446
 #, fuzzy
 msgid "Failed to update imaging log"
 msgstr "Impossible de mettre à jour / créer une image journal"

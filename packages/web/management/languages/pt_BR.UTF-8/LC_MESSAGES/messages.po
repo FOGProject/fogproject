@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-13 22:03-0500\n"
+"POT-Creation-Date: 2017-02-13 22:15-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3015,7 +3015,7 @@ msgstr "Scheduler"
 msgid "Image Replicator"
 msgstr "Replicator imagem"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2092
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2088
 #, fuzzy
 msgid "Image Size"
 msgstr "Nome da imagem"
@@ -7732,7 +7732,7 @@ msgid "Failed to update/create image log"
 msgstr "Falha ao atualizar / criar o registo de imagem"
 
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:165
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:429
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:431
 msgid "Failed to update Task"
 msgstr "Falha ao atualizar Task"
 
@@ -7785,17 +7785,17 @@ msgstr "após a conclusão da tarefa"
 msgid "Call"
 msgstr ""
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:426
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:428
 #, fuzzy
 msgid "Failed to update Host"
 msgstr "Falha ao atualizar"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:440
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:442
 #, fuzzy
 msgid "Failed to update task log"
 msgstr "Falha ao atualizar tarefa"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:444
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:446
 #, fuzzy
 msgid "Failed to update imaging log"
 msgstr "Falha ao atualizar / criar o registo de imagem"

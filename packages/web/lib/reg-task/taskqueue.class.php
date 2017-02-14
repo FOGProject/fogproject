@@ -372,7 +372,9 @@ class TaskQueue extends TaskingElement
             ->chmod(0777, $dest)
             ->close();
         if ($this->Image->get('format') == 1) {
-            $this->Image->set('format', 0);
+            $this->Image
+                ->set('format', 0)
+                ->set('srvsize', self::getFilesize($dest));
         }
         $this->Image
             ->set(

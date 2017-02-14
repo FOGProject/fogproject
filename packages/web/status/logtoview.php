@@ -169,10 +169,7 @@ if (preg_match($pat, $_SERVER['HTTP_HOST'])) {
         $lines,
         $file
     );
-    $string = json_encode($str);
-    echo Initiator::sanitizeItems(
-        $string
-    );
+    echo json_encode($str);
     exit;
 }
 $url = sprintf(

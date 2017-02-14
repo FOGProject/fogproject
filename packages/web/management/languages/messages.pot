@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-13 22:03-0500\n"
+"POT-Creation-Date: 2017-02-13 22:18-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2860,7 +2860,7 @@ msgstr ""
 msgid "Image Replicator"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2092
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2088
 msgid "Image Size"
 msgstr ""
 
@@ -7315,7 +7315,7 @@ msgid "Failed to update/create image log"
 msgstr ""
 
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:165
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:429
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:431
 msgid "Failed to update Task"
 msgstr ""
 
@@ -7360,15 +7360,15 @@ msgstr ""
 msgid "Call"
 msgstr ""
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:426
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:428
 msgid "Failed to update Host"
 msgstr ""
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:440
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:442
 msgid "Failed to update task log"
 msgstr ""
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:444
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:446
 msgid "Failed to update imaging log"
 msgstr ""
 

@@ -2008,16 +2008,16 @@ class FOGConfigurationPage extends FOGPage
                     $fogfiles
                 );
                 $schedulerlog = array_shift($schedulerlog);
-                $imagesizelog = preg_grep(
+                $imgrepliclog = preg_grep(
                     '#(fogreplicator.log$)#i',
                     $fogfiles
                 );
-                $imagesizelog = array_shift($imagesizelog);
-                $imgrepliclog = preg_grep(
+                $imgrepliclog = array_shift($imgrepliclog);
+                $imagesizelog = preg_grep(
                     '#(fogimagesize.log$)#i',
                     $fogfiles
                 );
-                $imgrepliclog = array_shift($imgrepliclog);
+                $imagesizelog = array_shift($imagesizelog);
                 $snapinreplog = preg_grep(
                     '#(fogsnapinrep.log$)#i',
                     $fogfiles
@@ -2085,11 +2085,11 @@ class FOGConfigurationPage extends FOGPage
                     ),
                     (
                         $imagesizelog ?
-                        $imagesizelog :
+                        _('Image Size') :
                         null
                     ) => (
                         $imagesizelog ?
-                        _('Image Size') :
+                        $imagesizelog :
                         null
                     ),
                     (
