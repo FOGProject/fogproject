@@ -2176,7 +2176,9 @@ abstract class FOGBase
     {
         $file = escapeshellarg($file);
 
-        return shell_exec("du -b $file | awk '{print $1}'");
+        return trim(
+            shell_exec("du -b $file | awk '{print $1}'")
+        );
     }
     /**
      * Perform enmass wake on lan.
