@@ -103,7 +103,9 @@ abstract class FOGClient extends FOGBase
                 'shortName'
             );
             if (!in_array($this->shortName, $hostModInfo)) {
-                if (false === $hostnotrequired) {
+                if (!$this->Host->isValid()
+                    && false === $hostnotrequired
+                ) {
                     throw new Exception('#!nh');
                 }
             }
@@ -164,6 +166,12 @@ abstract class FOGClient extends FOGBase
             }
             $this->sendData($this->send);
         } catch (Exception $e) {
+            global $json;
+            global $newService;
+            if (!$json && $newService) {
+                echo $this->send;
+                exit;
+            }
             if (!self::$json) {
                 return print $e->getMessage();
             }
