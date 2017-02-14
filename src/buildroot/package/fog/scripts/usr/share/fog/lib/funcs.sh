@@ -677,11 +677,11 @@ writeImage()  {
     [[ -z $format ]] && format=$imgFormat
     case $format in
         # Uncompressed partclone
-        2)
+        3|4)
             echo " * Imaging using Partclone"
-            cat /tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1
+            cat </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1 2>/dev/null
             # If this fails, try from compressed form.
-            [[ ! $? -eq 0 ]] && pigz -d -c </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1
+            [[ ! $? -eq 0 ]] && pigz -d -c </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1 2>/dev/null
             ;;
         1)
             echo " * Imaging using Partimage"
@@ -690,9 +690,9 @@ writeImage()  {
         # Compressed partclone
         *)
             echo " * Imaging using Partclone"
-            pigz -d -c </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1
+            pigz -d -c </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1 2>/dev/null
             # If this fails, try uncompressed form.
-            [[ ! $? -eq 0 ]] && cat /tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1
+            [[ ! $? -eq 0 ]] && cat </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1 2>/dev/null
             ;;
     esac
     exitcode=$?
