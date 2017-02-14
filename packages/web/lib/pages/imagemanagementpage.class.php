@@ -242,44 +242,6 @@ class ImageManagementPage extends FOGPage
             )
         );
         /**
-         * Lambda function to manage server size return.
-         *
-         * This particular function only returns false.
-         *
-         * @param string $path the path to test.
-         * @param StorageNode $StorageNode the storage node to check.
-         *
-         * @return bool
-         */
-        $servSize = function (&$path, &$StorageNode) {
-            return false;
-        };
-        /**
-         * If size server adjust our prior lambda to return
-         * bytesize as stored on the master node of the primary
-         * group.
-         */
-        if ($SizeServer) {
-            /**
-             * Lambda function to manage server size return.
-             *
-             * @param string $path the path to test.
-             * @param StorageNode $StorageNode the storage node to check.
-             *
-             * @return double
-             */
-            $servSize = function (&$path, &$StorageNode) {
-                return $this->getFTPByteSize(
-                    $StorageNode,
-                    sprintf(
-                        '%s/%s',
-                        $StorageNode->get('ftppath'),
-                        $path
-                    )
-                );
-            };
-        }
-        /**
          * Lambda functino to manage the output
          * of search/listed items.
          *
@@ -287,7 +249,7 @@ class ImageManagementPage extends FOGPage
          *
          * @return void
          */
-        self::$returnData = function (&$Image) use ($SizeServer, &$servSize) {
+        self::$returnData = function (&$Image) use ($SizeServer) {
             /**
              * Stores the image on client size.
              */
@@ -353,6 +315,7 @@ class ImageManagementPage extends FOGPage
              * The path.
              */
             $path = $Image->get('path');
+            $serverSize = 0;
             /**
              * If size on server we get our function.
              */
@@ -360,10 +323,7 @@ class ImageManagementPage extends FOGPage
                 $StorageNode = $Image
                     ->getStorageGroup()
                     ->getMasterStorageNode();
-                $serverSize = $servSize(
-                    $path,
-                    $StorageNode
-                );
+                $serverSize = $this->formatByteSize($Image->get('srvsize'));
             }
             /**
              * If the image is not protected show
