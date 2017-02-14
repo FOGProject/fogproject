@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-13 18:46-0500\n"
+"POT-Creation-Date: 2017-02-13 20:14-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -358,6 +358,7 @@ msgstr "目的"
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:171
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:204
 #: /var/www/fog/lib/service/snapinhash.class.php:189
+#: /var/www/fog/lib/service/imagesize.class.php:189
 #: /var/www/fog/commons/text.php:302
 msgid "ID"
 msgstr "ID"
@@ -502,7 +503,7 @@ msgid "No icons found"
 msgstr "发现没有图标"
 
 #: /var/www/fog/lib/fog/snapin.class.php:344
-#: /var/www/fog/lib/fog/image.class.php:384
+#: /var/www/fog/lib/fog/image.class.php:385
 msgid "No viable storage groups found"
 msgstr ""
 
@@ -738,7 +739,7 @@ msgstr "事件必须是字符串"
 
 #: /var/www/fog/lib/fog/fogbase.class.php:2160
 #: /var/www/fog/lib/fog/fogftp.class.php:372
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2213
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2228
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:85
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:827
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:834
@@ -1735,7 +1736,7 @@ msgid "table backup"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3457
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2276
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2291
 #: /var/www/fog/commons/text.php:98
 msgid "Export"
 msgstr "出口"
@@ -1817,7 +1818,7 @@ msgid "Row"
 msgstr "行"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3749
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2294
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2309
 msgid "Import"
 msgstr "进口"
 
@@ -2941,127 +2942,132 @@ msgstr "无法读取临时文件"
 msgid " mac addresses updated!"
 msgstr "MAC地址更新！"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1351
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1352
 msgid "FOG System Settings"
 msgstr "FOG系统设置"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1356
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1357
 msgid "This section allows you to customize or alter "
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1357
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1358
 msgid "the way in which FOG operates. "
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1358
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1359
 msgid "Please be very careful changing any of "
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1359
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1360
 msgid "the following settings, as they can cause "
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1360
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1361
 msgid "issues that are difficult to troubleshoot."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1540
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1541
 msgid "No image specified"
 msgstr "没有指定的图像"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1685
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1686
 #: /var/www/fog/commons/text.php:180
 msgid "Save Changes"
 msgstr "保存更改"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1721
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1722
 msgid "No Image specified"
 msgstr "没有指定的Image"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1924
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1925
 msgid "Width must be 650 pixels."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1930
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1931
 msgid "Height must be 120 pixels."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2046
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2052
 msgid "Service Master"
 msgstr "服务主"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2055
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2061
 #: /var/www/fog/lib/service/taskscheduler.class.php:212
 #: /var/www/fog/commons/text.php:102
 msgid "Multicast"
 msgstr "组播"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2064
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2070
 msgid "Scheduler"
 msgstr "调度"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2073
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2079
 msgid "Image Replicator"
 msgstr "图像复制"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2082
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2092
+#, fuzzy
+msgid "Image Size"
+msgstr "图片名称"
+
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2097
 msgid "Snapin Replicator"
 msgstr "管理单元复制"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2091
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2106
 #, fuzzy
 msgid "Snapin Hash"
 msgstr "管理单元路径"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2100
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2115
 msgid "Ping Hosts"
 msgstr "平主机"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2142
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2157
 msgid "Image Transfer Log"
 msgstr "图像传输日志"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2156
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2171
 msgid "Snapin Transfer Log"
 msgstr "管理单元传输日志"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2208
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2223
 msgid "FOG Log Viewer"
 msgstr "FOG日志查看器"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2215
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2230
 msgid "Number of lines"
 msgstr "线的数目"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2249
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2264
 msgid "Reverse the file: (newest on top)"
 msgstr "反转文件：（最新的在上面）"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2273
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2288
 msgid "Click the button to export the database."
 msgstr "点击按钮，导出数据库。"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2285
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2300
 msgid "Import a previous backup file."
 msgstr "导入以前的备份文件。"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2333
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2348
 msgid "Database Imported and added successfully"
 msgstr "数据库导入并成功添加"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2335
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2350
 msgid "Errors detected on import"
 msgstr "进口检测到的错误"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2341
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2356
 msgid "Database changes reverted"
 msgstr "数据库恢复的变化"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2345
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2360
 msgid "Errors on revert detected"
 msgstr "在复归错误检测"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2351
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2366
 msgid "There were errors during import"
 msgstr "进口过程中有错误"
 
@@ -7136,12 +7142,14 @@ msgid "Starting Snapin Hashing Service"
 msgstr ""
 
 #: /var/www/fog/lib/service/snapinhash.class.php:117
+#: /var/www/fog/lib/service/imagesize.class.php:117
 #: /var/www/fog/lib/service/snapinreplicator.class.php:124
 #: /var/www/fog/lib/service/imagereplicator.class.php:125
 msgid "We are group ID"
 msgstr ""
 
 #: /var/www/fog/lib/service/snapinhash.class.php:119
+#: /var/www/fog/lib/service/imagesize.class.php:119
 #: /var/www/fog/lib/service/snapinreplicator.class.php:126
 #: /var/www/fog/lib/service/imagereplicator.class.php:127
 #, fuzzy
@@ -7149,12 +7157,14 @@ msgid "We are group name"
 msgstr "存储组名称"
 
 #: /var/www/fog/lib/service/snapinhash.class.php:126
+#: /var/www/fog/lib/service/imagesize.class.php:126
 #: /var/www/fog/lib/service/snapinreplicator.class.php:133
 #: /var/www/fog/lib/service/imagereplicator.class.php:134
 msgid "We are node ID"
 msgstr ""
 
 #: /var/www/fog/lib/service/snapinhash.class.php:128
+#: /var/www/fog/lib/service/imagesize.class.php:128
 #: /var/www/fog/lib/service/snapinreplicator.class.php:135
 #: /var/www/fog/lib/service/imagereplicator.class.php:136
 #, fuzzy
@@ -7167,11 +7177,13 @@ msgid "Finding any snapins associated"
 msgstr "没有snapins相关"
 
 #: /var/www/fog/lib/service/snapinhash.class.php:136
+#: /var/www/fog/lib/service/imagesize.class.php:136
 #, fuzzy
 msgid "with this group"
 msgstr "不在此"
 
 #: /var/www/fog/lib/service/snapinhash.class.php:137
+#: /var/www/fog/lib/service/imagesize.class.php:137
 #, fuzzy
 msgid "as its primary group"
 msgstr "更新主要组"
@@ -7182,6 +7194,7 @@ msgid "No snapins associated with this group as master"
 msgstr "没有与此主机关联snapins"
 
 #: /var/www/fog/lib/service/snapinhash.class.php:166
+#: /var/www/fog/lib/service/imagesize.class.php:166
 #: /var/www/fog/lib/service/fogservice.class.php:390
 msgid "Found"
 msgstr ""
@@ -7214,8 +7227,57 @@ msgid "Hash"
 msgstr ""
 
 #: /var/www/fog/lib/service/snapinhash.class.php:241
+#: /var/www/fog/lib/service/imagesize.class.php:230
 msgid "Completed"
 msgstr "完成"
+
+#: /var/www/fog/lib/service/imagesize.class.php:102
+#, fuzzy
+msgid " * Image size is globally disabled"
+msgstr "管理单元与该名称已经存在"
+
+#: /var/www/fog/lib/service/imagesize.class.php:111
+#, fuzzy
+msgid "Starting Image Size Service"
+msgstr "图像复制"
+
+#: /var/www/fog/lib/service/imagesize.class.php:135
+#, fuzzy
+msgid "Finding any images associated"
+msgstr "没有snapins相关"
+
+#: /var/www/fog/lib/service/imagesize.class.php:158
+#, fuzzy
+msgid "No images associated with this group as master"
+msgstr "没有与此主机关联snapins"
+
+#: /var/www/fog/lib/service/imagesize.class.php:170
+#, fuzzy
+msgid "images"
+msgstr "图片"
+
+#: /var/www/fog/lib/service/imagesize.class.php:171
+#, fuzzy
+msgid "image"
+msgstr "图片"
+
+#: /var/www/fog/lib/service/imagesize.class.php:173
+msgid "to update size values as needed"
+msgstr ""
+
+#: /var/www/fog/lib/service/imagesize.class.php:187
+#, fuzzy
+msgid "Trying image size for"
+msgstr "管理单元路径"
+
+#: /var/www/fog/lib/service/imagesize.class.php:206
+msgid "Getting image size for"
+msgstr ""
+
+#: /var/www/fog/lib/service/imagesize.class.php:215
+#, fuzzy
+msgid "Size"
+msgstr "最大尺寸"
 
 #: /var/www/fog/lib/service/snapinreplicator.class.php:102
 msgid " * Snapin replication is globally disabled"

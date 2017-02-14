@@ -1,0 +1,38 @@
+#!/usr/bin/php -q
+<?php
+/**
+ * FOGSnapinHash service to get the hash of snapins in FOG
+ *
+ * PHP version 5
+ *
+ * @category FOGSnapinHash
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * FOGSnapinHash service to get the hash of snapins in FOG
+ *
+ * @category FOGSnapinHash
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+@error_reporting(0);
+require dirname(realpath(__FILE__)).'/../etc/config.php';
+require dirname(realpath(__FILE__)).'/../lib/service_lib.php';
+$service_name = 'FOGSnapinHash';
+service_persist($service_name);
+$ServiceClass = $FOGCore::getClass('ImageSize');
+$ServiceClass->getBanner();
+$ServiceClass->waitInterfaceReady();
+$ServiceClass->waitDbReady();
+$ServiceClass->serviceStart();
+while (true) {
+    $ServiceClass->serviceRun();
+    sleep($ServiceClass::$zzz ? $ServiceClass::$zzz : 3600);
+}
+$ServiceClass::outall(sprintf(" * Service has ended."));
+exit(0);

@@ -3642,3 +3642,22 @@ $this->schema[] = array(
     . " This will only image clients if the image value is"
     . " defined as well.','0', 'FOG Quick Registration')"
 );
+// 250
+$this->schema[] = array(
+    "ALTER TABLE `images` ADD `imageServerSize` BIGINT UNSIGNED NOT NULL DEFAULT 0",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('IMAGESIZEGLOBALENABLED','This setting defines if image size should be "
+    . "enabled or not. (Default is enabled)',"
+    . "'1', 'FOG Linux Service Enabled'),"
+    . "('IMAGESIZESLEEPTIME','The amount of time between image "
+    . "size service runs. Value is in seconds. (Default 3600)',"
+    . "'3600','FOG Linux Service Sleep Times'),"
+    . "('IMAGESIZELOGFILENAME','Filename to store the image size log "
+    . "file to (Default fogimagesize.log)','fogimagesize.log',"
+    . "'FOG Linux Service Logs'),"
+    . "('IMAGESIZEDEVICEOUTPUT','The tty to output to for image "
+    . "size service. (Default /dev/tty3)','/dev/tty3',"
+    . "'FOG Linux Service TTY Output')"
+);

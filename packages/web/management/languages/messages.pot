@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-13 18:46-0500\n"
+"POT-Creation-Date: 2017-02-13 20:22-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -333,6 +333,7 @@ msgstr ""
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:171
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:204
 #: /var/www/fog/lib/service/snapinhash.class.php:189
+#: /var/www/fog/lib/service/imagesize.class.php:189
 #: /var/www/fog/commons/text.php:302
 msgid "ID"
 msgstr ""
@@ -463,7 +464,7 @@ msgid "No icons found"
 msgstr ""
 
 #: /var/www/fog/lib/fog/snapin.class.php:344
-#: /var/www/fog/lib/fog/image.class.php:384
+#: /var/www/fog/lib/fog/image.class.php:385
 msgid "No viable storage groups found"
 msgstr ""
 
@@ -674,7 +675,7 @@ msgstr ""
 
 #: /var/www/fog/lib/fog/fogbase.class.php:2160
 #: /var/www/fog/lib/fog/fogftp.class.php:372
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2213
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2228
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:85
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:827
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:834
@@ -1633,7 +1634,7 @@ msgid "table backup"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3457
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2276
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2291
 #: /var/www/fog/commons/text.php:98
 msgid "Export"
 msgstr ""
@@ -1708,7 +1709,7 @@ msgid "Row"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3749
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2294
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2309
 msgid "Import"
 msgstr ""
 
@@ -2796,126 +2797,130 @@ msgstr ""
 msgid " mac addresses updated!"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1351
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1352
 msgid "FOG System Settings"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1356
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1357
 msgid "This section allows you to customize or alter "
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1357
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1358
 msgid "the way in which FOG operates. "
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1358
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1359
 msgid "Please be very careful changing any of "
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1359
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1360
 msgid "the following settings, as they can cause "
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1360
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1361
 msgid "issues that are difficult to troubleshoot."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1540
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1541
 msgid "No image specified"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1685
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1686
 #: /var/www/fog/commons/text.php:180
 msgid "Save Changes"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1721
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1722
 msgid "No Image specified"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1924
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1925
 msgid "Width must be 650 pixels."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1930
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1931
 msgid "Height must be 120 pixels."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2046
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2052
 msgid "Service Master"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2055
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2061
 #: /var/www/fog/lib/service/taskscheduler.class.php:212
 #: /var/www/fog/commons/text.php:102
 msgid "Multicast"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2064
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2070
 msgid "Scheduler"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2073
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2079
 msgid "Image Replicator"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2082
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2092
+msgid "Image Size"
+msgstr ""
+
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2097
 msgid "Snapin Replicator"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2091
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2106
 msgid "Snapin Hash"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2100
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2115
 msgid "Ping Hosts"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2142
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2157
 msgid "Image Transfer Log"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2156
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2171
 msgid "Snapin Transfer Log"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2208
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2223
 msgid "FOG Log Viewer"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2215
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2230
 msgid "Number of lines"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2249
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2264
 msgid "Reverse the file: (newest on top)"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2273
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2288
 msgid "Click the button to export the database."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2285
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2300
 msgid "Import a previous backup file."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2333
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2348
 msgid "Database Imported and added successfully"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2335
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2350
 msgid "Errors detected on import"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2341
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2356
 msgid "Database changes reverted"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2345
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2360
 msgid "Errors on revert detected"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2351
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2366
 msgid "There were errors during import"
 msgstr ""
 
@@ -6813,24 +6818,28 @@ msgid "Starting Snapin Hashing Service"
 msgstr ""
 
 #: /var/www/fog/lib/service/snapinhash.class.php:117
+#: /var/www/fog/lib/service/imagesize.class.php:117
 #: /var/www/fog/lib/service/snapinreplicator.class.php:124
 #: /var/www/fog/lib/service/imagereplicator.class.php:125
 msgid "We are group ID"
 msgstr ""
 
 #: /var/www/fog/lib/service/snapinhash.class.php:119
+#: /var/www/fog/lib/service/imagesize.class.php:119
 #: /var/www/fog/lib/service/snapinreplicator.class.php:126
 #: /var/www/fog/lib/service/imagereplicator.class.php:127
 msgid "We are group name"
 msgstr ""
 
 #: /var/www/fog/lib/service/snapinhash.class.php:126
+#: /var/www/fog/lib/service/imagesize.class.php:126
 #: /var/www/fog/lib/service/snapinreplicator.class.php:133
 #: /var/www/fog/lib/service/imagereplicator.class.php:134
 msgid "We are node ID"
 msgstr ""
 
 #: /var/www/fog/lib/service/snapinhash.class.php:128
+#: /var/www/fog/lib/service/imagesize.class.php:128
 #: /var/www/fog/lib/service/snapinreplicator.class.php:135
 #: /var/www/fog/lib/service/imagereplicator.class.php:136
 msgid "We are node name"
@@ -6841,10 +6850,12 @@ msgid "Finding any snapins associated"
 msgstr ""
 
 #: /var/www/fog/lib/service/snapinhash.class.php:136
+#: /var/www/fog/lib/service/imagesize.class.php:136
 msgid "with this group"
 msgstr ""
 
 #: /var/www/fog/lib/service/snapinhash.class.php:137
+#: /var/www/fog/lib/service/imagesize.class.php:137
 msgid "as its primary group"
 msgstr ""
 
@@ -6853,6 +6864,7 @@ msgid "No snapins associated with this group as master"
 msgstr ""
 
 #: /var/www/fog/lib/service/snapinhash.class.php:166
+#: /var/www/fog/lib/service/imagesize.class.php:166
 #: /var/www/fog/lib/service/fogservice.class.php:390
 msgid "Found"
 msgstr ""
@@ -6882,7 +6894,48 @@ msgid "Hash"
 msgstr ""
 
 #: /var/www/fog/lib/service/snapinhash.class.php:241
+#: /var/www/fog/lib/service/imagesize.class.php:230
 msgid "Completed"
+msgstr ""
+
+#: /var/www/fog/lib/service/imagesize.class.php:102
+msgid " * Image size is globally disabled"
+msgstr ""
+
+#: /var/www/fog/lib/service/imagesize.class.php:111
+msgid "Starting Image Size Service"
+msgstr ""
+
+#: /var/www/fog/lib/service/imagesize.class.php:135
+msgid "Finding any images associated"
+msgstr ""
+
+#: /var/www/fog/lib/service/imagesize.class.php:158
+msgid "No images associated with this group as master"
+msgstr ""
+
+#: /var/www/fog/lib/service/imagesize.class.php:170
+msgid "images"
+msgstr ""
+
+#: /var/www/fog/lib/service/imagesize.class.php:171
+msgid "image"
+msgstr ""
+
+#: /var/www/fog/lib/service/imagesize.class.php:173
+msgid "to update size values as needed"
+msgstr ""
+
+#: /var/www/fog/lib/service/imagesize.class.php:187
+msgid "Trying image size for"
+msgstr ""
+
+#: /var/www/fog/lib/service/imagesize.class.php:206
+msgid "Getting image size for"
+msgstr ""
+
+#: /var/www/fog/lib/service/imagesize.class.php:215
+msgid "Size"
 msgstr ""
 
 #: /var/www/fog/lib/service/snapinreplicator.class.php:102

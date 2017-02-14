@@ -52,6 +52,7 @@ class Image extends FOGController
         'compress' => 'imageCompress',
         'isEnabled' => 'imageEnabled',
         'toReplicate' => 'imageReplicate',
+        'srvsize' => 'imageServerSize',
     );
     /**
      * The required fields

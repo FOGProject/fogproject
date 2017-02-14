@@ -1,0 +1,66 @@
+#!/bin/sh
+#   chkconfig: 2345 97 10
+#   description: Startup/shutdown script for the FOG Image Size \
+#                Management service.
+
+# Source function library.
+. /etc/init.d/functions
+
+DAEMONSTART="/opt/fog/service/FOGImageSize/FOGImageSize &"
+DAEMONKILL=FOGImageSize
+
+prog=FOGImageSize
+
+start () {
+	echo -n $"Starting $prog: "
+
+	# start daemon
+	daemon $DAEMONSTART
+        RETVAL=$?
+	echo
+	[ $RETVAL = 0 ] && touch /var/lock/subsys/fogisman
+	return $RETVAL
+}
+
+stop () {
+	# stop daemon
+	echo -n $"Stopping $prog: "
+	killproc $DAEMONKILL
+	RETVAL=$?
+	echo
+	[ $RETVAL = 0 ] && rm -f /var/lock/subsys/fogisman
+}
+
+restart() {
+	echo -n $"Restarting $prog: "
+	killproc $DAEMONKILL
+	RETVAL=$?
+	[ $RETVAL = 0 ] && rm -f /var/lock/subsys/fogisman
+	daemon $DAEMONSTART
+	RETVAL=$?
+	echo
+	[ $RETVAL = 0 ] && touch /var/lock/subsys/fogisman
+	return $RETVAL
+}
+
+case $1 in
+	start)
+		start
+	;;
+	stop)
+		stop
+	;;
+	restart)
+		restart
+	;;
+	status)
+		status $DAEMONKILL
+		RETVAL=$?
+	;;
+	*)
+
+	echo $"Usage: $prog {start|stop|restart|status}"
+	exit 3
+esac
+
+exit $RETVAL

@@ -1336,6 +1336,7 @@ class FOGConfigurationPage extends FOGPage
             'MULTICASTGLOBALENABLED',
             'SCHEDULERGLOBALENABLED',
             'PINGHOSTGLOBALENABLED',
+            'IMAGESIZEGLOBALENABLED',
             'IMAGEREPLICATORGLOBALENABLED',
             'SNAPINREPLICATORGLOBALENABLED',
             'SNAPINHASHGLOBALENABLED',
@@ -2007,8 +2008,13 @@ class FOGConfigurationPage extends FOGPage
                     $fogfiles
                 );
                 $schedulerlog = array_shift($schedulerlog);
-                $imgrepliclog = preg_grep(
+                $imagesizelog = preg_grep(
                     '#(fogreplicator.log$)#i',
+                    $fogfiles
+                );
+                $imagesizelog = array_shift($imagesizelog);
+                $imgrepliclog = preg_grep(
+                    '#(fogimagesize.log$)#i',
                     $fogfiles
                 );
                 $imgrepliclog = array_shift($imgrepliclog);
@@ -2075,6 +2081,15 @@ class FOGConfigurationPage extends FOGPage
                     ) => (
                         $imgrepliclog ?
                         $imgrepliclog :
+                        null
+                    ),
+                    (
+                        $imagesizelog ?
+                        $imagesizelog :
+                        null
+                    ) => (
+                        $imagesizelog ?
+                        _('Image Size') :
                         null
                     ),
                     (

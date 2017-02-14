@@ -1614,6 +1614,7 @@ saveGRUB() {
     fi
     # Ensure that no more than 1MiB of data is copied (already have this size used elsewhere)
     [[ $count -gt 2048 ]] && count=2048
+    [[ $count -eq 63 ]] && count=1
     local mbrfilename=""
     MBRFileName "$imagePath" "$disk_number" "mbrfilename" "$sgdisk"
     dd if=$disk of=$mbrfilename count=$count bs=512 >/dev/null 2>&1
