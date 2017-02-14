@@ -1956,10 +1956,23 @@ restorePartitionTablesAndBootLoaders() {
         [[ $ebrcount -gt 0 ]] && restoreAllEBRs "$disk" "$disk_number" "$imagePath" "$imgPartitionType"
         local sfdiskoriginalpartitionfilename=""
         local sfdisklegacyoriginalpartitionfilename=""
+        local sfdiskminimumpartitionfilename=""
+        sfdiskMinimumPartitionFileName "$imagePath" "$disk_number"
         sfdiskPartitionFileName "$imagePath" "$disk_number"
         sfdiskLegacyOriginalPartitionFileName "$imagePath" "$disk_number"
-        if [[ -r $sfdiskoriginalpartitionfilename ]]; then
-            dots "Inserting Extended partitions"
+        if [[ -r $sfdiskminimumpartitionfilename ]]; then
+            dots "Inserting Extended partitions (Minimum)"
+            sfdisk $disk < $sfdiskminimumpartitionfilename >/dev/null 2>&1
+            case $? in
+                0)
+                    echo "Done"
+                    ;;
+                *)
+                    echo "Failed"
+                    ;;
+            esac
+        elif [[ -r $sfdiskoriginalpartitionfilename ]]; then
+            dots "Inserting Extended partitions (Original)"
             sfdisk $disk < $sfdiskoriginalpartitionfilename >/dev/null 2>&1
             case $? in
                 0)
@@ -1970,7 +1983,7 @@ restorePartitionTablesAndBootLoaders() {
                     ;;
             esac
         elif [[ -e $sfdisklegacyoriginalpartitionfilename ]]; then
-            dots "Extended partitions (legacy)"
+            dots "Inserting Extended partitions (Legacy)"
             sfdisk $disk < $sfdisklegacyoriginalpartitionfilename >/dev/null 2>&1
             case $? in
                 0)
