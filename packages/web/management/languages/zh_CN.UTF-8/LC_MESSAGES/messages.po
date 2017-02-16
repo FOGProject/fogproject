@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-14 10:23-0500\n"
+"POT-Creation-Date: 2017-02-16 11:54-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -216,9 +216,9 @@ msgstr "未发现记录，错误： %s"
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:62
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:122
 #: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:54
-#: /var/www/fog/lib/service/fogservice.class.php:376
-#: /var/www/fog/lib/service/fogservice.class.php:405
-#: /var/www/fog/lib/service/fogservice.class.php:480
+#: /var/www/fog/lib/service/fogservice.class.php:379
+#: /var/www/fog/lib/service/fogservice.class.php:408
+#: /var/www/fog/lib/service/fogservice.class.php:483
 #: /var/www/fog/commons/text.php:66
 msgid "Name"
 msgstr "名称"
@@ -440,7 +440,7 @@ msgid "Array type"
 msgstr "数据数组"
 
 #: /var/www/fog/lib/fog/fogcontroller.class.php:909
-#: /var/www/fog/lib/fog/fogbase.class.php:2158
+#: /var/www/fog/lib/fog/fogbase.class.php:2156
 #: /var/www/fog/lib/fog/fogftp.class.php:370
 #: /var/www/fog/lib/pages/taskmobile.class.php:45
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:967
@@ -697,47 +697,47 @@ msgstr "事件必须是字符串"
 msgid "New key must be a string"
 msgstr "事件必须是字符串"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1512
+#: /var/www/fog/lib/fog/fogbase.class.php:1510
 msgid "Private key path not found"
 msgstr "私钥未找到路径"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1525
+#: /var/www/fog/lib/fog/fogbase.class.php:1523
 msgid "Private key not found"
 msgstr "私钥未找到"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1528
+#: /var/www/fog/lib/fog/fogbase.class.php:1526
 msgid "Private key not readable"
 msgstr "私钥不可读"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1533
+#: /var/www/fog/lib/fog/fogbase.class.php:1531
 msgid "Private key failed"
 msgstr "私钥失败"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1552
+#: /var/www/fog/lib/fog/fogbase.class.php:1550
 msgid "Failed to decrypt data"
 msgstr "数据解密失败"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1767
+#: /var/www/fog/lib/fog/fogbase.class.php:1765
 #, fuzzy
 msgid "Txt must be a string"
 msgstr "事件必须是字符串"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1770
+#: /var/www/fog/lib/fog/fogbase.class.php:1768
 #, fuzzy
 msgid "Level must be an integer"
 msgstr "事件必须是字符串"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1798
+#: /var/www/fog/lib/fog/fogbase.class.php:1796
 #, fuzzy
 msgid "String must be a string"
 msgstr "事件必须是字符串"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1920
+#: /var/www/fog/lib/fog/fogbase.class.php:1918
 #, fuzzy
 msgid "Key must be a string"
 msgstr "事件必须是字符串"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2160
+#: /var/www/fog/lib/fog/fogbase.class.php:2158
 #: /var/www/fog/lib/fog/fogftp.class.php:372
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2228
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:85
@@ -748,12 +748,12 @@ msgstr "事件必须是字符串"
 msgid "File"
 msgstr "文件"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2162
+#: /var/www/fog/lib/fog/fogbase.class.php:2160
 #: /var/www/fog/lib/fog/fogftp.class.php:374
 msgid "Line"
 msgstr "线"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2164
+#: /var/www/fog/lib/fog/fogbase.class.php:2162
 #: /var/www/fog/lib/fog/fogftp.class.php:376
 #: /var/www/fog/lib/db/mysql.class.php:189
 msgid "Message"
@@ -7195,7 +7195,7 @@ msgstr "没有与此主机关联snapins"
 
 #: /var/www/fog/lib/service/snapinhash.class.php:166
 #: /var/www/fog/lib/service/imagesize.class.php:166
-#: /var/www/fog/lib/service/fogservice.class.php:390
+#: /var/www/fog/lib/service/fogservice.class.php:393
 msgid "Found"
 msgstr ""
 
@@ -7390,85 +7390,85 @@ msgstr "尝试ping"
 msgid "hosts"
 msgstr "主办"
 
-#: /var/www/fog/lib/service/fogservice.class.php:136
+#: /var/www/fog/lib/service/fogservice.class.php:139
 msgid " | This is not the master node"
 msgstr "|这不是主节点"
 
-#: /var/www/fog/lib/service/fogservice.class.php:149
+#: /var/www/fog/lib/service/fogservice.class.php:152
 msgid "Interface not ready, waiting."
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:175
+#: /var/www/fog/lib/service/fogservice.class.php:178
 msgid "Waiting for mysql to be available"
 msgstr "等待的MySQL可用"
 
-#: /var/www/fog/lib/service/fogservice.class.php:350
+#: /var/www/fog/lib/service/fogservice.class.php:353
 #, fuzzy
 msgid "I am not the master for this group"
 msgstr "*我不是高手"
 
-#: /var/www/fog/lib/service/fogservice.class.php:366
-#: /var/www/fog/lib/service/fogservice.class.php:470
+#: /var/www/fog/lib/service/fogservice.class.php:369
+#: /var/www/fog/lib/service/fogservice.class.php:473
 msgid "Not syncing"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:368
-#: /var/www/fog/lib/service/fogservice.class.php:472
+#: /var/www/fog/lib/service/fogservice.class.php:371
+#: /var/www/fog/lib/service/fogservice.class.php:475
 msgid "between"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:383
+#: /var/www/fog/lib/service/fogservice.class.php:386
 msgid "There are no other members to sync to"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:392
+#: /var/www/fog/lib/service/fogservice.class.php:395
 #, fuzzy
 msgid "to transfer to"
 msgstr "图像传输日志"
 
-#: /var/www/fog/lib/service/fogservice.class.php:455
+#: /var/www/fog/lib/service/fogservice.class.php:458
 #, fuzzy
 msgid "Replication already running with PID"
 msgstr "复制带宽"
 
-#: /var/www/fog/lib/service/fogservice.class.php:487
+#: /var/www/fog/lib/service/fogservice.class.php:490
 #, fuzzy
 msgid "File or path cannot be reached"
 msgstr "|文件或无法达成通道"
 
-#: /var/www/fog/lib/service/fogservice.class.php:507
+#: /var/www/fog/lib/service/fogservice.class.php:514
 #, fuzzy
 msgid "Cannot connect to"
 msgstr "无法连接到节点。"
 
-#: /var/www/fog/lib/service/fogservice.class.php:593
+#: /var/www/fog/lib/service/fogservice.class.php:609
 msgid "Files do not match"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:599
+#: /var/www/fog/lib/service/fogservice.class.php:615
 #, fuzzy
 msgid "Deleting remote file"
 msgstr "菜单创建失败"
 
-#: /var/www/fog/lib/service/fogservice.class.php:610
+#: /var/www/fog/lib/service/fogservice.class.php:626
 msgid "No need to sync"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:612
+#: /var/www/fog/lib/service/fogservice.class.php:628
 #, fuzzy
 msgid "file to"
 msgstr "失败"
 
-#: /var/www/fog/lib/service/fogservice.class.php:640
+#: /var/www/fog/lib/service/fogservice.class.php:656
 #, fuzzy
 msgid "Starting Sync Actions"
 msgstr "*启动同步操作"
 
-#: /var/www/fog/lib/service/fogservice.class.php:684
+#: /var/www/fog/lib/service/fogservice.class.php:700
 msgid "Started sync for"
 msgstr "对于同步启动"
 
-#: /var/www/fog/lib/service/fogservice.class.php:716
+#: /var/www/fog/lib/service/fogservice.class.php:732
 #, fuzzy
 msgid "Task started"
 msgstr "任务开始"

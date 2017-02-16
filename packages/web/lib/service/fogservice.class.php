@@ -76,6 +76,9 @@ abstract class FOGService extends FOGBase
         if ($size_a != $size_b) {
             return false;
         }
+        if ($file_a != $file_b) {
+            return false;
+        }
         return true;
     }
     /**
@@ -489,6 +492,10 @@ abstract class FOGService extends FOGBase
                     );
                     continue;
                 }
+                $url = sprintf(
+                    'http://%s/fog/status/gethash.php',
+                    $PotentialStorageNode->get('ip')
+                );
                 self::$FOGFTP
                     ->set(
                         'username',
@@ -580,11 +587,20 @@ abstract class FOGService extends FOGBase
                     $filesize_rem = self::$FOGFTP->size(
                         $remotefilescheck[$index]
                     );
+                    $file = $remotefilescheck[$index];
+                    $res = self::$FOGURLRequests->process(
+                        $url,
+                        'POST',
+                        array(
+                            'file' => $file
+                        )
+                    );
+                    $res = array_shift($res);
                     $filesEqual = self::_filesAreEqual(
                         $filesize_main,
                         $filesize_rem,
-                        $localfile,
-                        $ftpstart.$remotefilescheck[$index]
+                        self::getHash($localfile),
+                        $res
                     );
                     if (!$filesEqual) {
                         self::outall(

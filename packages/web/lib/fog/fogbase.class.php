@@ -1301,9 +1301,7 @@ abstract class FOGBase
                 $item
             );
         } else {
-            $array[$new_key] = Initiator::sanitizeItems(
-                $array[$old_key]
-            );
+            $array[$new_key] = $array[$old_key];
         }
         if ($old_key != $new_key) {
             unset($array[$old_key]);
@@ -2280,5 +2278,18 @@ abstract class FOGBase
         }
 
         return $array1;
+    }
+    /**
+     * Returns hash of passed file.
+     *
+     * @param string $file The file to get hash of.
+     *
+     * @return string
+     */
+    public static function getHash($file)
+    {
+        return trim(
+            shell_exec("md5sum $file | awk '{print $1}'")
+        );
     }
 }
