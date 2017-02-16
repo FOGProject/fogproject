@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-15 21:46-0500\n"
+"POT-Creation-Date: 2017-02-16 11:54-0500\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -441,7 +441,7 @@ msgid "Array type"
 msgstr "Array mit Daten"
 
 #: /var/www/fog/lib/fog/fogcontroller.class.php:909
-#: /var/www/fog/lib/fog/fogbase.class.php:2158
+#: /var/www/fog/lib/fog/fogbase.class.php:2156
 #: /var/www/fog/lib/fog/fogftp.class.php:370
 #: /var/www/fog/lib/pages/taskmobile.class.php:45
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:967
@@ -706,47 +706,47 @@ msgstr "Veranstaltung muss eine Zeichenfolge sein."
 msgid "New key must be a string"
 msgstr "Veranstaltung muss eine Zeichenfolge sein."
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1512
+#: /var/www/fog/lib/fog/fogbase.class.php:1510
 msgid "Private key path not found"
 msgstr "Privater Schlüssel Pfad nicht gefunden"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1525
+#: /var/www/fog/lib/fog/fogbase.class.php:1523
 msgid "Private key not found"
 msgstr "Privater Schlüssel nicht gefunden"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1528
+#: /var/www/fog/lib/fog/fogbase.class.php:1526
 msgid "Private key not readable"
 msgstr "Private Schlüssel nicht lesbar"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1533
+#: /var/www/fog/lib/fog/fogbase.class.php:1531
 msgid "Private key failed"
 msgstr "Privater Schlüssel ist fehlgeschlagen"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1552
+#: /var/www/fog/lib/fog/fogbase.class.php:1550
 msgid "Failed to decrypt data"
 msgstr "Fehler beim Entschlüsseln der Daten"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1767
+#: /var/www/fog/lib/fog/fogbase.class.php:1765
 #, fuzzy
 msgid "Txt must be a string"
 msgstr "Veranstaltung muss eine Zeichenfolge sein."
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1770
+#: /var/www/fog/lib/fog/fogbase.class.php:1768
 #, fuzzy
 msgid "Level must be an integer"
 msgstr "Veranstaltung muss eine Zeichenfolge sein."
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1798
+#: /var/www/fog/lib/fog/fogbase.class.php:1796
 #, fuzzy
 msgid "String must be a string"
 msgstr "Veranstaltung muss eine Zeichenfolge sein."
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1920
+#: /var/www/fog/lib/fog/fogbase.class.php:1918
 #, fuzzy
 msgid "Key must be a string"
 msgstr "Veranstaltung muss eine Zeichenfolge sein."
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2160
+#: /var/www/fog/lib/fog/fogbase.class.php:2158
 #: /var/www/fog/lib/fog/fogftp.class.php:372
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2228
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:85
@@ -757,12 +757,12 @@ msgstr "Veranstaltung muss eine Zeichenfolge sein."
 msgid "File"
 msgstr "Datei"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2162
+#: /var/www/fog/lib/fog/fogbase.class.php:2160
 #: /var/www/fog/lib/fog/fogftp.class.php:374
 msgid "Line"
 msgstr "Linie"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2164
+#: /var/www/fog/lib/fog/fogbase.class.php:2162
 #: /var/www/fog/lib/fog/fogftp.class.php:376
 #: /var/www/fog/lib/db/mysql.class.php:189
 msgid "Message"

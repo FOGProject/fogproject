@@ -1301,9 +1301,7 @@ abstract class FOGBase
                 $item
             );
         } else {
-            $array[$new_key] = Initiator::sanitizeItems(
-                $array[$old_key]
-            );
+            $array[$new_key] = $array[$old_key];
         }
         if ($old_key != $new_key) {
             unset($array[$old_key]);
