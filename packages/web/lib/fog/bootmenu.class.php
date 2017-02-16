@@ -323,7 +323,7 @@ class BootMenu extends FOGBase
         $this->_loglevel = "loglevel=$loglevel";
         $this->_KS = self::getClass('KeySequence', $keySequence);
         $this->_booturl = "http://{$webserver}/fog/service";
-        $this->_memdisk = "kernel $memdisk";
+        $this->_memdisk = "kernel $memdisk initrd=$memtest";
         $this->_memtest = "initrd $memtest";
         $this->_kernel = sprintf(
             'kernel %s %s initrd=%s root=/dev/ram0 rw '
