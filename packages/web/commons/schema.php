@@ -3661,3 +3661,11 @@ $this->schema[] = array(
     . "size service. (Default /dev/tty3)','/dev/tty3',"
     . "'FOG Linux Service TTY Output')"
 );
+// 251
+$this->schema[] = $tmpSchema->dropDuplicateData(
+    DATABASE_NAME,
+    array(
+        'globalSettings',
+        array('settingKey')
+    )
+);
