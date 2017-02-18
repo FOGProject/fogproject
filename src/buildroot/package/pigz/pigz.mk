@@ -3,7 +3,7 @@
 # pigz
 #
 #############################################################
-PIGZ_VERSION = 2.3.3
+PIGZ_VERSION = 2.3.4
 PIGZ_SOURCE = v$(PIGZ_VERSION).tar.gz
 PIGZ_SITE = https://github.com/madler/pigz/archive
 PIGZ_DEPENDENCIES = zlib

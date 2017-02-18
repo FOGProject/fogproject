@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-PARTCLONE_VERSION = 0.2.88
+PARTCLONE_VERSION = 0.2.89
 PARTCLONE_SOURCE = partclone_$(PARTCLONE_VERSION).orig.tar.gz
 PARTCLONE_SITE = http://partclone.nchc.org.tw/download/stable/$(PARTCLONE_VERSION)
 PARTCLONE_INSTALL_STAGING = YES
