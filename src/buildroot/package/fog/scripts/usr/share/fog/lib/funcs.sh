@@ -6,7 +6,7 @@ REG_LOCAL_MACHINE_7="/ntfs/Windows/System32/config/SYSTEM"
 ismajordebug=0
 #If a sub shell gets invoked and we lose kernel vars this will reimport them
 oIFS=$IFS
-for var in $(cat /proc/cmdline); do
+for var in $(cat /proc/cmdline | tr -d \\0); do
     IFS=$oIFS
     read name value <<< $(echo "$var" | grep =.* | awk -F= '{name=$1;$1="";gsub(/[ \t]+$/,"",$0);gsub(/^[ \t]+/,"",$0); gsub(/[+][_][+]/," ",$0); value=$0; print name; print value;}')
     IFS=$'\n'
@@ -93,7 +93,7 @@ doInventory() {
     cpuversion=$(dmidecode -s processor-version)
     cpucurrent=$(dmidecode -t 4 | grep 'Current Speed:' | head -n1)
     cpumax=$(dmidecode -t 4 | grep 'Max Speed:' | head -n1)
-    mem=$(cat /proc/meminfo | grep MemTotal)
+    mem=$(cat /proc/meminfo | grep MemTotal | tr -d \\0)
     hdinfo=$(hdparm -i $hd 2>/dev/null | grep Model=)
     caseman=$(dmidecode -s chassis-manufacturer)
     casever=$(dmidecode -s chassis-version)
@@ -455,13 +455,13 @@ shrinkPartition() {
             if [[ ! $? -eq 0 ]]; then
                 echo " * Not shrinking ($part) trying fixed size"
                 debugPause
-                echo "$(cat "$imagePath/d1.fixed_size_partitions"):${part_number}" > "$imagePath/d1.fixed_size_partitions"
+                echo "$(cat "$imagePath/d1.fixed_size_partitions" | tr -d \\0):${part_number}" > "$imagePath/d1.fixed_size_partitions"
                 return
                 #handleError " * (${FUNCNAME[0]})\n    Args Passed: $*\n\nFatal Error, unable to find size data out on $part. Cmd: ntfsresize -f -i -v -P $part"
             fi
-            tmpoutput=$(cat /tmp/tmpoutput.txt)
-            size=$(cat /tmp/tmpoutput.txt | sed -n 's/.*you might resize at\s\+\([0-9]\+\).*$/\1/pi')
-            [[ -z $size ]] && handleError " * (${FUNCNAME[0]})\n   Args Passed: $*\n\nFatal Error, Unable to determine possible ntfs size\n * To better help you debug we will run the ntfs resize\n\t but this time with full output, please wait!\n\t $(cat /tmp/tmpoutput.txt)"
+            tmpoutput=$(cat /tmp/tmpoutput.txt | tr -d \\0)
+            size=$(cat /tmp/tmpoutput.txt | tr -d \\0 | sed -n 's/.*you might resize at\s\+\([0-9]\+\).*$/\1/pi')
+            [[ -z $size ]] && handleError " * (${FUNCNAME[0]})\n   Args Passed: $*\n\nFatal Error, Unable to determine possible ntfs size\n * To better help you debug we will run the ntfs resize\n\t but this time with full output, please wait!\n\t $(cat /tmp/tmpoutput.txt | tr -d \\0)"
             rm /tmp/tmpoutput.txt >/dev/null 2>&1
             local sizeadd=$(calculate "${percent}/100*${size}/1000")
             sizentfsresize=$(calculate "${size}/1000+${sizeadd}")
@@ -469,8 +469,8 @@ shrinkPartition() {
             dots "Running resize test $part"
             yes | ntfsresize -fns ${sizentfsresize}k ${part} >/tmp/tmpoutput.txt 2>&1
             local ntfsstatus="$?"
-            tmpoutput=$(cat /tmp/tmpoutput.txt)
-            test_string=$(cat /tmp/tmpoutput.txt | egrep -io "(ended successfully|bigger than the device size|volume size is already OK)" | tr -d '[[:space:]]')
+            tmpoutput=$(cat /tmp/tmpoutput.txt | tr -d \\0)
+            test_string=$(cat /tmp/tmpoutput.txt | egrep -io "(ended successfully|bigger than the device size|volume size is already OK)" | tr -d '[[:space:]]' | tr -d \\0)
             echo "Done"
             debugPause
             rm /tmp/tmpoutput.txt >/dev/null 2>&1
@@ -483,7 +483,7 @@ shrinkPartition() {
                     ;;
                 biggerthanthedevicesize)
                     echo " * Not resizing filesystem $part (part too small)"
-                    echo "$(cat ${imagePath}/d1.fixed_size_partitions):${part_number}" > "$imagePath/d1.fixed_size_partitions"
+                    echo "$(cat ${imagePath}/d1.fixed_size_partitions | tr -d \\0):${part_number}" > "$imagePath/d1.fixed_size_partitions"
                     ntfsstatus=0
                     ;;
                 volumesizeisalreadyOK)
@@ -678,26 +678,26 @@ writeImage()  {
     case $format in
         # Uncompressed partclone
         3|4)
-            echo " * Imaging using Partclone"
-            cat </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1
-            # If this fails, try from compressed form.
-            [[ ! $? -eq 0 ]] && pigz -d -c </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1 || true
-            ;;
-        1)
-            echo " * Imaging using Partimage"
-            pigz -d -c </tmp/pigz1 | partimage restore ${target} stdin -f3 -b 2>/tmp/status.fog
-            ;;
+        echo " * Imaging using Partclone"
+        cat </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1
+        # If this fails, try from compressed form.
+        [[ ! $? -eq 0 ]] && pigz -d -c </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1 || true
+        ;;
+    1)
+        echo " * Imaging using Partimage"
+        pigz -d -c </tmp/pigz1 | partimage restore ${target} stdin -f3 -b 2>/tmp/status.fog
+        ;;
         # Compressed partclone
         *)
-            echo " * Imaging using Partclone"
-            pigz -d -c </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1
-            # If this fails, try uncompressed form.
-            [[ ! $? -eq 0 ]] && cat </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1 || true
-            ;;
-    esac
-    exitcode=$?
-    [[ ! $exitcode -eq 0 ]] && handleError "Image failed to restore and exited with exit code $exitcode (${FUNCNAME[0]})\n   Args Passed: $*"
-    rm -rf /tmp/pigz1 >/dev/null 2>&1
+        echo " * Imaging using Partclone"
+        pigz -d -c </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1
+        # If this fails, try uncompressed form.
+        [[ ! $? -eq 0 ]] && cat </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1 || true
+        ;;
+esac
+exitcode=$?
+[[ ! $exitcode -eq 0 ]] && handleError "Image failed to restore and exited with exit code $exitcode (${FUNCNAME[0]})\n   Args Passed: $*"
+rm -rf /tmp/pigz1 >/dev/null 2>&1
 }
 # Gets the valid restore parts. They're only
 #    valid if the partition data exists for
@@ -828,7 +828,7 @@ changeHostname() {
         *)
             echo "Failed"
             debugPause
-            handleError " * Could not mount $part (${FUNCNAME[0]})\n    Args Passed: $*\n    Reason: $(cat /tmp/ntfs-mount-output)"
+            handleError " * Could not mount $part (${FUNCNAME[0]})\n    Args Passed: $*\n    Reason: $(cat /tmp/ntfs-mount-output | tr -d \\0)"
             ;;
     esac
     if [[ ! -f /usr/share/fog/lib/EOFREG ]]; then
@@ -958,7 +958,7 @@ fixWin7boot() {
         *)
             echo "Failed"
             debugPause
-            handleError " * Could not mount $part (${FUNCNAME[0]})\n    Args Passed: $*\n    Reason: $(cat /tmp/ntfs-mount-output)"
+            handleError " * Could not mount $part (${FUNCNAME[0]})\n    Args Passed: $*\n    Reason: $(cat /tmp/ntfs-mount-output | tr -d \\0)"
             ;;
     esac
     if [[ ! -f /bcdstore/Boot/BCD ]]; then
@@ -1034,7 +1034,7 @@ clearMountedDevices() {
                         *)
                             echo "Failed"
                             debugPause
-                            handleError " * Could not mount $part (${FUNCNAME[0]})\n    Args Passed: $*\n    Reason: $(cat /tmp/ntfs-mount-output)"
+                            handleError " * Could not mount $part (${FUNCNAME[0]})\n    Args Passed: $*\n    Reason: $(cat /tmp/ntfs-mount-output | tr -d \\0)"
                             ;;
                     esac
                     if [[ ! -f $REG_LOCAL_MACHINE_7 ]]; then
@@ -1099,7 +1099,7 @@ removePageFile() {
                         *)
                             echo "Failed"
                             debugPause
-                            handleError " * Could not mount $part (${FUNCNAME[0]})\n    Args Passed: $*\n    Reason: $(cat /tmp/ntfs-mount-output)"
+                            handleError " * Could not mount $part (${FUNCNAME[0]})\n    Args Passed: $*\n    Reason: $(cat /tmp/ntfs-mount-output | tr -d \\0)"
                             ;;
                     esac
                     if [[ -f /ntfs/pagefile.sys ]]; then
@@ -1557,21 +1557,21 @@ uploadFormat() {
     case $imgFormat in
         # Split files uncompressed.
         4)
-            cat $fifo | split -a 3 -d -b 200m - ${file}. &
-            ;;
+        cat $fifo | split -a 3 -d -b 200m - ${file}. &
+        ;;
         # Uncompressed.
         3)
-            cat $fifo > ${file}.000 &
-            ;;
+        cat $fifo > ${file}.000 &
+        ;;
         # Split file compressed.
         2)
-            pigz $PIGZ_COMP < $fifo | split -a 3 -d -b 200m - ${file}. &
-            ;;
+        pigz $PIGZ_COMP < $fifo | split -a 3 -d -b 200m - ${file}. &
+        ;;
         # Compressed.
         *)
-            pigz $PIGZ_COMP < $fifo > ${file}.000 &
-            ;;
-    esac
+        pigz $PIGZ_COMP < $fifo > ${file}.000 &
+        ;;
+esac
 }
 # Thank you, fractal13 Code Base
 #

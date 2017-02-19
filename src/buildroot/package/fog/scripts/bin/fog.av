@@ -15,7 +15,7 @@ mount -o nolock,proto=tcp,rsize=32768,wsize=32768,intr,noatime $clamav /opt/fog/
 if [[ ! $? -eq 0 ]]; then
     echo "Failed"
     debugPause
-    handleError "Unable to mount location. ($0)\n    Args Passed: $*\n    Reason: $(cat /tmp/mount-output)"
+    handleError "Unable to mount location. ($0)\n    Args Passed: $*\n    Reason: $(cat /tmp/mount-output | tr -d \\0)"
 fi
 echo "Done"
 debugPause
@@ -98,7 +98,7 @@ for disk in $disks; do
                 continue
                 ;;
         esac
-        [[ ! $? -eq 0 ]] && handleError " * Could not mount partition ($0)\n    Args Passed: $*\n    Reason: $(cat /tmp/clamavscan-mount-output)"
+        [[ ! $? -eq 0 ]] && handleError " * Could not mount partition ($0)\n    Args Passed: $*\n    Reason: $(cat /tmp/clamavscan-mount-output | tr -d \\0)"
         debugPause
         dots "Creating working directories"
         mkdir -p /clamavscan/fog/{tmp,infected,log} >/dev/null 2>&1
@@ -157,7 +157,7 @@ for disk in $disks; do
                 ;;
         esac
         debugPause
-        output=$(cat /clamavscan/fog/log/log.txt | grep 'FOUND')
+        output=$(cat /clamavscan/fog/log/log.txt | grep 'FOUND' | tr -d \\0)
         oIFS=$IFS
         IFS=$'\n'
         cnt=0

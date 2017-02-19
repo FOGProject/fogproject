@@ -594,7 +594,7 @@ getDesiredPartitionTableType() {
     local tmpfile="/tmp/gptsig"
     dd skip=512 bs=1 if=$mbrfilename of=$tmpfile count=8 >/dev/null 2>&1
     touch $tmpfile
-    local gptsig=$(cat $tmpfile)
+    local gptsig=$(cat $tmpfile | tr -d \\0)
     [[ $gptsig == "EFI PART" ]] && table_type="GPT"
 }
 # $1 : device name of drive
@@ -742,7 +742,7 @@ fillDiskWithPartitions() {
     [[ -z $disk_number ]] && handleError "No disk number passed (${FUNCNAME[0]})\n   Args Passed: $*"
     local fixed_size_file=""
     fixedSizePartitionsFileName "$imagePath" "$disk_number"
-    [[ -r $fixed_size_file ]] && fixed_size_partitions=$(cat $fixed_size_file)
+    [[ -r $fixed_size_file ]] && fixed_size_partitions=$(cat $fixed_size_file | tr -d \\0)
     local table_type=""
     getDesiredPartitionTableType "$imagePath" "$disk_number"
     local sfdiskoriginalpartitionfilename=""

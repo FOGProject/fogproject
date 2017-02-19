@@ -4,7 +4,7 @@ RUN_CHKDSK=""
 HOSTNAME_EARLY=0
 OS_ID_WIN7=5
 OS_ID_WIN8=6
-for arg in $(cat /proc/cmdline); do
+for arg in $(cat /proc/cmdline | tr -d \\0); do
     case $arg in
         initsh)
             ash -i
