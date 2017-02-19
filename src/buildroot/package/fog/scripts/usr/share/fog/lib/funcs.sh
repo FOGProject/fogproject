@@ -1562,11 +1562,11 @@ uploadFormat() {
     case $imgFormat in
         6)
             # ZSTD Split files compressed.
-            zstd $PIGZ_COMP < $fifo | split -a 3 -d -b 200m - ${file}. &
+            zstd --ultra $PIGZ_COMP < $fifo | split -a 3 -d -b 200m - ${file}. &
             ;;
         5)
             # ZSTD compressed.
-            zstd $PIGZ_COMP < $fifo > ${file}.000 &
+            zstd --ultra $PIGZ_COMP < $fifo > ${file}.000 &
             ;;
         4)
             # Split files uncompressed.
