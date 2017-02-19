@@ -719,7 +719,7 @@ pre {
     background: #6f9dcf;
 }
 .task-progress-td .min {
-    height: 3px;
+    height: 25px;
 }
 .task-progress-td .no-min {
     height: 25px;
@@ -732,7 +732,7 @@ pre {
     height: 25px;
 }
 .task-progress-fill.min {
-    height: 3px;
+    height: 25px;
 }
 .task-progress {
     height: 100%;
@@ -744,7 +744,7 @@ pre {
     z-index: 3;
     width: 600px;
     height: 17px;
-    display: none;
+    display: block;
     cursor: default;
 }
 .task-progress ul:hover {
