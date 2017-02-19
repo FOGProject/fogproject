@@ -676,28 +676,33 @@ writeImage()  {
     local format=$imgLegacy
     [[ -z $format ]] && format=$imgFormat
     case $format in
-        # Uncompressed partclone
+        5|6)
+            # ZSTD Compressed image.
+            zstd -dc </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1
+            ;;
         3|4)
-        echo " * Imaging using Partclone"
-        cat </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1
-        # If this fails, try from compressed form.
-        [[ ! $? -eq 0 ]] && pigz -d -c </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1 || true
-        ;;
-    1)
-        echo " * Imaging using Partimage"
-        pigz -d -c </tmp/pigz1 | partimage restore ${target} stdin -f3 -b 2>/tmp/status.fog
-        ;;
-        # Compressed partclone
-        *)
-        echo " * Imaging using Partclone"
-        pigz -d -c </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1
-        # If this fails, try uncompressed form.
-        [[ ! $? -eq 0 ]] && cat </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1 || true
-        ;;
-esac
-exitcode=$?
-[[ ! $exitcode -eq 0 ]] && handleError "Image failed to restore and exited with exit code $exitcode (${FUNCNAME[0]})\n   Args Passed: $*"
-rm -rf /tmp/pigz1 >/dev/null 2>&1
+            # Uncompressed partclone
+            echo " * Imaging using Partclone"
+            cat </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1
+            # If this fails, try from compressed form.
+            [[ ! $? -eq 0 ]] && pigz -d -c </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1 || true
+            ;;
+        1)
+            # Partimage
+            echo " * Imaging using Partimage"
+            pigz -d -c </tmp/pigz1 | partimage restore ${target} stdin -f3 -b 2>/tmp/status.fog
+            ;;
+        0|2)
+            # GZIP Compressed partclone
+            echo " * Imaging using Partclone"
+            pigz -d -c </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1
+            # If this fails, try uncompressed form.
+            [[ ! $? -eq 0 ]] && cat </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1 || true
+            ;;
+    esac
+    exitcode=$?
+    [[ ! $exitcode -eq 0 ]] && handleError "Image failed to restore and exited with exit code $exitcode (${FUNCNAME[0]})\n   Args Passed: $*"
+    rm -rf /tmp/pigz1 >/dev/null 2>&1
 }
 # Gets the valid restore parts. They're only
 #    valid if the partition data exists for
@@ -1555,21 +1560,29 @@ uploadFormat() {
     [[ -z $file ]] && handleError "Missing file name to store (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ ! -e $fifo ]] && mkfifo $fifo >/dev/null 2>&1
     case $imgFormat in
-        # Split files uncompressed.
+        6)
+            # ZSTD Split files compressed.
+            zstd $PIGZ_COMP < $fifo | split -a 3 -d -b 200m - ${file}. &
+            ;;
+        5)
+            # ZSTD compressed.
+            zstd $PIGZ_COMP < $fifo > ${file}.000 &
+            ;;
         4)
-        cat $fifo | split -a 3 -d -b 200m - ${file}. &
-        ;;
-        # Uncompressed.
+            # Split files uncompressed.
+            cat $fifo | split -a 3 -d -b 200m - ${file}. &
+            ;;
         3)
-        cat $fifo > ${file}.000 &
-        ;;
-        # Split file compressed.
+            # Uncompressed.
+            cat $fifo > ${file}.000 &
+            ;;
         2)
-        pigz $PIGZ_COMP < $fifo | split -a 3 -d -b 200m - ${file}. &
-        ;;
-        # Compressed.
+            # GZip/piGZ Split file compressed.
+            pigz $PIGZ_COMP < $fifo | split -a 3 -d -b 200m - ${file}. &
+            ;;
         *)
-        pigz $PIGZ_COMP < $fifo > ${file}.000 &
+            # GZip/piGZ Compressed.
+            pigz $PIGZ_COMP < $fifo > ${file}.000 &
         ;;
 esac
 }

@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/i386 4.9.4 Kernel Configuration
+# Linux/i386 4.9.11 Kernel Configuration
 #
 # CONFIG_64BIT is not set
 CONFIG_X86_32=y
@@ -818,7 +818,9 @@ CONFIG_BLK_DEV_RSXX=y
 CONFIG_NVME_CORE=y
 CONFIG_BLK_DEV_NVME=y
 # CONFIG_BLK_DEV_NVME_SCSI is not set
-# CONFIG_NVME_TARGET is not set
+CONFIG_NVME_FABRICS=y
+CONFIG_NVME_TARGET=y
+CONFIG_NVME_TARGET_LOOP=y
 
 #
 # Misc devices
