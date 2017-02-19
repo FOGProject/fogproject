@@ -13,8 +13,8 @@ define ZSTD_BUILD_CMDS
 endef
 
 define ZSTD_INSTALL_TARGET_CMDS
-    $(MAKE) CC="$(TARGET_CC)" -C $(@D) \
-		LD="$(TARGET_LD)" install
+	$(INSTALL) -D -m 0755 $(@D)/zstd $(TARGET_DIR)/usr/bin/zstd
+	$(STRIPCMD) $(STRIP_STRIP_ALL) $(TARGET_DIR)/usr/bin/zstd
 endef
 
 $(eval $(generic-package))
