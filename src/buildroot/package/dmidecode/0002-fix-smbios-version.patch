@@ -1,0 +1,12 @@
+diff -rupN dmidecode-3.0-original/dmidecode.c dmidecode-3.0-new/dmidecode.c
+--- dmidecode-3.0-original/dmidecode.c	2017-02-19 11:51:11.968490663 -0500
++++ dmidecode-3.0-new/dmidecode.c	2017-02-19 11:51:24.112921219 -0500
+@@ -69,7 +69,7 @@
+ #define out_of_spec "<OUT OF SPEC>"
+ static const char *bad_index = "<BAD INDEX>";
+ 
+-#define SUPPORTED_SMBIOS_VER 0x0300
++#define SUPPORTED_SMBIOS_VER 0x0909
+ 
+ #define FLAG_NO_FILE_OFFSET     (1 << 0)
+ #define FLAG_STOP_AT_EOT        (1 << 1)
