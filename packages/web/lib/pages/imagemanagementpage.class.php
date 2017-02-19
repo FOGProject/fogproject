@@ -569,7 +569,7 @@ class ImageManagementPage extends FOGPage
             _('Compression') => sprintf(
                 '<div id="pigz" style="width: 200px; top: 15px;"></div>'
                 . '<input type="text" readonly="true" name="compress" '
-                . 'id="showVal" maxsize="1" style="width: 10px; '
+                . 'id="showVal" maxsize="2" style="width: 20px; '
                 . 'top: -5px; left: 225px; position: relative;" value="%s"/>',
                 $compression
             ),
@@ -848,7 +848,7 @@ class ImageManagementPage extends FOGPage
             _('Compression') => sprintf(
                 '<div id="pigz" style="width: 200px; top: 15px;"></div>'
                 . '<input type="text" readonly="true" name="compress" '
-                . 'id="showVal" maxsize="1" style="width: 10px; top: '
+                . 'id="showVal" maxsize="2" style="width: 20px; top: '
                 . '-5px; left: 225px; position: relative;" value="%s"/>',
                 $compression
             ),

@@ -1405,8 +1405,8 @@ class FOGConfigurationPage extends FOGPage
                     $type = '<div id="pigz" style="width: 200px; top: 15px;">'
                         . '</div><input type="text" readonly='
                         . '"true" name="${service_id}" id='
-                        . '"showVal" maxsize="1" style='
-                        . '"width: 10px; top: -5px; left:'
+                        . '"showVal" maxsize="2" style='
+                        . '"width: 20px; top: -5px; left:'
                         . '225px; position: relative;" value='
                         . '"${service_value}"/>';
                     break;

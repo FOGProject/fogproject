@@ -1398,6 +1398,11 @@ class BootMenu extends FOGBase
                     if (is_numeric($image_PIGZ) && $image_PIGZ > -1) {
                         $PIGZ_COMP = $image_PIGZ;
                     }
+                    if (in_array($imgFormat, array('',null,0,1,2,3,4))) {
+                        if ($PIGZ_COMP > 9) {
+                            $PIGZ_COMP = 9;
+                        }
+                    }
                 } else {
                     // These setup so postinit scripts can operate.
                     if ($StorageNode instanceof StorageNode
