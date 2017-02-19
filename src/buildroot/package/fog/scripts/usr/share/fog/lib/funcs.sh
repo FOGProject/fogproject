@@ -30,7 +30,7 @@ clearScreen() {
 }
 # Displays the nice banner along with the running version
 displayBanner() {
-    version=$(wget -qO - http://${web}service/getversion.php 2>/dev/null)
+    version=$(curl -k http://${web}service/getversion.php 2>/dev/null)
     echo "   +------------------------------------------+"
     echo "   |     ..#######:.    ..,#,..     .::##::.  |"
     echo "   |.:######          .:;####:......;#;..     |"

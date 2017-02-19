@@ -9,7 +9,7 @@ dots "Checking in with server"
 count=0
 res=""
 while [[ $res != "##" ]]; do
-    res=$(wget --post-data="mac=$mac" -qO - http://${web}service/Post_Wipe.php 2>/dev/null)
+    res=$(curl -ks --data "mac=$mac" http://${web}service/Post_Wipe.php 2>/dev/null)
     if [[ $count -ge 10 ]]; then
         echo "Failed"
         debugPause

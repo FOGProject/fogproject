@@ -166,7 +166,7 @@ for disk in $disks; do
             let cnt+=1
             echo " * File id: $cnt"
             dots "Sending file id"
-            wget --post-data="mac=$mac&string=$b64&mode=$avmode" -qO - http://${web}service/av.php 2>/dev/null
+            curl -ks --data "mac=$mac&string=$b64&mode=$avmode" http://${web}service/av.php 2>/dev/null
             case $? in
                 0)
                     echo "Done"

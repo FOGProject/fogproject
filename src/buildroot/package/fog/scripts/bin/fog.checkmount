@@ -3,7 +3,7 @@ dots "Checking Mounted File System"
 if [[ ! -f /images/.mntcheck ]]; then
     count=0
     while [[ $blame != '##' ]]; do
-        blame=$(wget --post-data="mac=$mac&type=$type" -qO - http://${web}service/blame.php 2>/dev/null)
+        blame=$(curl -ks --data="mac=$mac&type=$type" http://${web}service/blame.php 2>/dev/null)
         case $count in
             [0-8])
                 let count+=1

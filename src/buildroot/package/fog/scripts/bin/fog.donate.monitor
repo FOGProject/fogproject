@@ -2,7 +2,7 @@
 . /usr/share/fog/lib/funcs.sh
 res=""
 while [[ $res == "#!OK" ]]; do
-    res=$(wget -qO - http://${web}service/donate.php 2>/dev/null)
+    res=$(curl -ks http://${web}service/donate.php 2>/dev/null)
     usleep 60000000
 done
 reset

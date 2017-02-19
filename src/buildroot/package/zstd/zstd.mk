@@ -8,11 +8,13 @@ ZSTD_SOURCE = v$(ZSTD_VERSION).tar.gz
 ZSTD_SITE = https://github.com/facebook/zstd/archive
 
 define ZSTD_BUILD_CMDS
-	$(MAKE)
+	$(MAKE) CC="$(TARGET_CC)" -C $(@D) \
+		LD="$(TARGET_LD)"
 endef
 
 define ZSTD_INSTALL_TARGET_CMDS
-    $(MAKE) install
+    $(MAKE) CC="$(TARGET_CC)" -C $(@D) \
+		LD="$(TARGET_LD)" install
 endef
 
 $(eval $(generic-package))
