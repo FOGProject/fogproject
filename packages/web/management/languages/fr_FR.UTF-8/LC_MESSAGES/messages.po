@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-19 14:30-0500\n"
+"POT-Creation-Date: 2017-02-20 08:55-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -7882,22 +7882,22 @@ msgstr "Fait, avec l'imagerie!"
 msgid "Done"
 msgstr "Terminé"
 
-#: /var/www/fog/lib/client/registerclient.class.php:81
+#: /var/www/fog/lib/client/registerclient.class.php:84
 msgid "Pending Registration created by FOG_CLIENT"
 msgstr "Inscription en attente créée par FOG_CLIENT"
 
-#: /var/www/fog/lib/client/registerclient.class.php:103
-#: /var/www/fog/lib/client/registerclient.class.php:171
+#: /var/www/fog/lib/client/registerclient.class.php:106
+#: /var/www/fog/lib/client/registerclient.class.php:174
 #, fuzzy
 msgid "Too many MACs"
 msgstr "Hôte MAC primaire"
 
-#: /var/www/fog/lib/client/registerclient.class.php:104
+#: /var/www/fog/lib/client/registerclient.class.php:107
 #, fuzzy
 msgid "Only allowed to have"
 msgstr "Vous êtes seulement autorisé à attribuer"
 
-#: /var/www/fog/lib/client/registerclient.class.php:106
+#: /var/www/fog/lib/client/registerclient.class.php:109
 #, fuzzy
 msgid "additional macs"
 msgstr "MACs supplémentaires"

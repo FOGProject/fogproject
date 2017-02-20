@@ -64,6 +64,9 @@ class RegisterClient extends FOGClient implements FOGClientSend
             ''
         );
         $hostname = trim($_REQUEST['hostname']);
+        if (!$this->Host instanceof Host) {
+            $this->Host = new Host(0);
+        }
         if (!$this->Host->isValid()) {
             $this->Host = self::getClass(
                 'Host',
