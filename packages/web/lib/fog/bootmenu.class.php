@@ -825,7 +825,7 @@ class BootMenu extends FOGBase
         );
         $storageip = $StorageNode->get('ip');
         $img = escapeshellcmd($Image->get('path'));
-        $imgFormat = $Image->get('format');
+        $imgFormat = (int)$Image->get('format');
         $imgType = $Image->getImageType()->get('type');
         $imgPartitionType = $Image->getPartitionType();
         $imgid = $Image->get('id');
@@ -1385,7 +1385,7 @@ class BootMenu extends FOGBase
                     $img = escapeshellcmd(
                         $Image->get('path')
                     );
-                    $imgFormat = $Image
+                    $imgFormat = (int)$Image
                         ->get('format');
                     $imgType = $Image
                         ->getImageType()
