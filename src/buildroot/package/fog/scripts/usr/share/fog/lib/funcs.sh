@@ -6,7 +6,7 @@ REG_LOCAL_MACHINE_7="/ntfs/Windows/System32/config/SYSTEM"
 ismajordebug=0
 #If a sub shell gets invoked and we lose kernel vars this will reimport them
 for var in $(cat /proc/cmdline); do
-    var=$(echo "${var}" | awk -F= '{name=$1; gsub(/[+][_][+]/," ",$2); value=$2; if (length($2) == 0 || $0 !~ /=/) {print "";} else {printf("%s=%s", name, value)}}')
+	var=$(echo "${var}" | awk -F= '{name=$1; gsub(/[+][_][+]/," ",$2); gsub(/"/,"\\\"", $2); value=$2; if (length($2) == 0 || $0 !~ /=/) {print "";} else {printf("%s=%s", name, value)}}')
     [[ -z $var ]] && continue;
     eval "export ${var}"
 done
