@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-20 08:55-0500\n"
+"POT-Creation-Date: 2017-02-20 09:53-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -7432,20 +7432,20 @@ msgstr ""
 msgid "Done"
 msgstr ""
 
-#: /var/www/fog/lib/client/registerclient.class.php:84
+#: /var/www/fog/lib/client/registerclient.class.php:88
 msgid "Pending Registration created by FOG_CLIENT"
 msgstr ""
 
-#: /var/www/fog/lib/client/registerclient.class.php:106
-#: /var/www/fog/lib/client/registerclient.class.php:174
+#: /var/www/fog/lib/client/registerclient.class.php:110
+#: /var/www/fog/lib/client/registerclient.class.php:178
 msgid "Too many MACs"
 msgstr ""
 
-#: /var/www/fog/lib/client/registerclient.class.php:107
+#: /var/www/fog/lib/client/registerclient.class.php:111
 msgid "Only allowed to have"
 msgstr ""
 
-#: /var/www/fog/lib/client/registerclient.class.php:109
+#: /var/www/fog/lib/client/registerclient.class.php:113
 msgid "additional macs"
 msgstr ""
 
