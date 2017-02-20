@@ -5,16 +5,11 @@ REG_LOCAL_MACHINE_7="/ntfs/Windows/System32/config/SYSTEM"
 # 1 to turn on massive debugging of partition table restoration
 ismajordebug=0
 #If a sub shell gets invoked and we lose kernel vars this will reimport them
-oIFS=$IFS
-for var in $(cat /proc/cmdline | tr -d \\0); do
-    IFS=$oIFS
-    read name value <<< $(echo "$var" | grep =.* | awk -F= '{name=$1;$1="";gsub(/[ \t]+$/,"",$0);gsub(/^[ \t]+/,"",$0); gsub(/[+][_][+]/," ",$0); value=$0; print name; print value;}')
-    IFS=$'\n'
-    [[ -z $value ]] && continue
-    value=$(echo $value | sed 's/\"//g')
-    printf -v "$name" -- "$value"
+for var in $(cat /proc/cmdline); do
+    var=$(echo "${var}" | awk -F= '{name=$1; gsub(/[+][_][+]/," ",$2); value=$2; if (length($2) == 0 || $0 !~ /=/) {print "";} else {printf("%s=%s", name, value)}}')
+    [[ -z $var ]] && continue;
+    eval "export ${var}"
 done
-IFS=$oIFS
 ### If USB Boot device we need a way to get the kernel args properly
 [[ $boottype == usb && -f /tmp/hinfo.txt ]] && . /tmp/hinfo.txt
 # Below Are non parameterized functions
