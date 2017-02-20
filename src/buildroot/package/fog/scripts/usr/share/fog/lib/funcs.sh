@@ -680,17 +680,17 @@ writeImage()  {
             echo " * Imaging using Partclone"
             cat </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1
             # If this fails, try from compressed form.
-            [[ ! $? -eq 0 ]] && pigz $PIGZ_COMP -dc </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1 || true
+            [[ ! $? -eq 0 ]] && zstdmt -T$(nproc) --ultra $PIGZ_COMP -dc </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1 || true
             ;;
         1)
             # Partimage
             echo " * Imaging using Partimage"
-            pigz $PIGZ_COMP -dc </tmp/pigz1 | partimage restore ${target} stdin -f3 -b 2>/tmp/status.fog
+            zstdmt -T$(nproc) --ultra $PIGZ_COMP -dc </tmp/pigz1 | partimage restore ${target} stdin -f3 -b 2>/tmp/status.fog
             ;;
         0|2)
             # GZIP Compressed partclone
             echo " * Imaging using Partclone"
-            pigz $PIGZ_COMP -dc </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1
+            zstdmt -T$(nproc) --ultra $PIGZ_COMP -dc </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1
             # If this fails, try uncompressed form.
             [[ ! $? -eq 0 ]] && cat </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1 || true
             ;;
