@@ -909,9 +909,10 @@ class BootMenu extends FOGBase
                     array_push(
                         $Send['ImageListing'],
                         sprintf(
-                            'item %s %s',
+                            'item %s %s (%s)',
                             $Image->get('path'),
-                            $Image->get('name')
+                            $Image->get('name'),
+                            $Image->get('id')
                         )
                     );
                     if (!$this->_Host->isValid()) {

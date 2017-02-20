@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-20 09:53-0500\n"
+"POT-Creation-Date: 2017-02-20 12:42-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -957,7 +957,7 @@ msgstr "Inscrit"
 msgid "Set Failed"
 msgstr "Échoué"
 
-#: /var/www/fog/lib/fog/bootmenu.class.php:1370
+#: /var/www/fog/lib/fog/bootmenu.class.php:1371
 #, fuzzy
 msgid "No valid storage nodes found"
 msgstr "nœud de stockage non valide"
