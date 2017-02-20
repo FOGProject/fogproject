@@ -9,16 +9,12 @@ ZSTD_SITE = https://github.com/facebook/zstd/archive
 
 define ZSTD_BUILD_CMDS
 	$(MAKE) CC="$(TARGET_CC)" -C $(@D) \
-		LD="$(TARGET_LD)"
-	$(MAKE) CC="$(TARGET_CC)" -C $(@D)/contrib/pzstd \
-		LD="$(TARGET_LD)"
+		LD="$(TARGET_LD)" zstdmt
 endef
 
 define ZSTD_INSTALL_TARGET_CMDS
-	$(INSTALL) -D -m 0755 $(@D)/zstd $(TARGET_DIR)/usr/bin/zstd
-	$(STRIPCMD) $(STRIP_STRIP_ALL) $(TARGET_DIR)/usr/bin/zstd
-	$(INSTALL) -D -m 0755 $(@D)/contrib/pzstd/pzstd $(TARGET_DIR)/usr/bin/pzstd
-	$(STRIPCMD) $(STRIP_STRIP_ALL) $(TARGET_DIR)/usr/bin/pzstd
+	$(INSTALL) -D -m 0755 $(@D)/zstdmt $(TARGET_DIR)/usr/bin/zstdmt
+	$(STRIPCMD) $(STRIP_STRIP_ALL) $(TARGET_DIR)/usr/bin/zstdmt
 endef
 
 $(eval $(generic-package))

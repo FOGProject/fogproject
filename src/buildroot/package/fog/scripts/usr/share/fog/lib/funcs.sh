@@ -673,24 +673,24 @@ writeImage()  {
     case $format in
         5|6)
             # ZSTD Compressed image.
-            zstd -dc </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1
+            zstdmt -T$(nproc) --ultra $PIGZ_COMP -dc </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1
             ;;
         3|4)
             # Uncompressed partclone
             echo " * Imaging using Partclone"
             cat </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1
             # If this fails, try from compressed form.
-            [[ ! $? -eq 0 ]] && pigz -d -c </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1 || true
+            [[ ! $? -eq 0 ]] && pigz $PIGZ_COMP -dc </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1 || true
             ;;
         1)
             # Partimage
             echo " * Imaging using Partimage"
-            pigz -d -c </tmp/pigz1 | partimage restore ${target} stdin -f3 -b 2>/tmp/status.fog
+            pigz $PIGZ_COMP -dc </tmp/pigz1 | partimage restore ${target} stdin -f3 -b 2>/tmp/status.fog
             ;;
         0|2)
             # GZIP Compressed partclone
             echo " * Imaging using Partclone"
-            pigz -d -c </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1
+            pigz $PIGZ_COMP -dc </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1
             # If this fails, try uncompressed form.
             [[ ! $? -eq 0 ]] && cat </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1 || true
             ;;
@@ -1557,11 +1557,11 @@ uploadFormat() {
     case $imgFormat in
         6)
             # ZSTD Split files compressed.
-            zstd --ultra $PIGZ_COMP < $fifo | split -a 3 -d -b 200m - ${file}. &
+            zstdmt -T$(nproc) --ultra $PIGZ_COMP < $fifo | split -a 3 -d -b 200m - ${file}. &
             ;;
         5)
             # ZSTD compressed.
-            zstd --ultra $PIGZ_COMP < $fifo > ${file}.000 &
+            zstdmt -T$(nproc) --ultra $PIGZ_COMP < $fifo > ${file}.000 &
             ;;
         4)
             # Split files uncompressed.
