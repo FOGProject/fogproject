@@ -449,15 +449,18 @@ fillSfdiskWithPartitions() {
     local fixed="$3"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ -z $file ]] && handleError "No file to use passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    rm -rf /tmp/sfdisk2.*
     local disk_size=$(blockdev --getsize64 $disk | awk '{printf("%d\n",$1/1024);}')
     local tmp_file2="/tmp/sfdisk2.$$"
     processSfdisk "$file" filldisk "$disk" "$disk_size" "$fixed" > "$tmp_file2"
+    status=$?
     if [[ $ismajordebug -gt 0 ]]; then
+        echo "Debug"
         majorDebugEcho "Trying to fill with the disk with these partititions:"
         cat $tmp_file2
         majorDebugPause
     fi
-    [[ $? -eq 0 ]] && applySfdiskPartitions "$disk" "$tmp_file2"
+    [[ $status -eq 0 ]] && applySfdiskPartitions "$disk" "$tmp_file2"
     runPartprobe "$disk"
     rm -f $tmp_file2
     majorDebugEcho "Applied the preceding table."
@@ -745,16 +748,19 @@ fillDiskWithPartitions() {
     [[ -r $fixed_size_file ]] && fixed_size_partitions=$(cat $fixed_size_file | tr -d \\0)
     local table_type=""
     getDesiredPartitionTableType "$imagePath" "$disk_number"
+    local sfdiskminimumpartitionfilename=""
     local sfdiskoriginalpartitionfilename=""
     local sfdisklegacyoriginalpartitionfilename=""
     local sgdiskoriginalpartitionfilename=""
     case $table_type in
         MBR|GPT)
+            sfdiskMinimumPartitionFileName "$imagePath" "$disk_number"
             sfdiskOriginalPartitionFileName "$imagePath" "$disk_number"
             sfdiskLegacyOriginalPartitionFileName "$imagePath" "$disk_number"
             sgdiskOriginalPartitionFileName "$imagePath" "$disk_number"
-            local filename="$sfdiskoriginalpartitionfilename"
+            local filename="$sfdiskminimumpartitionfilename"
             local cmdtorun='fillSfdiskWithPartitions'
+            [[ ! -r $filename ]] && filename="$sfdiskoriginalpartitionfilename"
             [[ ! -r $filename ]] && filename="$sfdisklegacyoriginalpartitionfilename"
             [[ ! -r $filename ]] && filename="$sgdiskoriginalpartitionfilename"
             [[ $filename == $sgdiskoriginalpartitionfilename ]] && cmdtorun='fillSgdiskWithPartitions'
