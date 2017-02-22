@@ -42,58 +42,53 @@ function check_overlap(partition_names, partitions, new_part_name, new_start, ne
         }
         # Extended partitions must overlap logical partitions.
         # But leave room for the extended partition table.
-        if (label != "gpt") {
+        if (label == "dos") {
             if (p_type == "5" || p_type == "f") {
                 if (new_start < p_start + extended_margin) {
                     return 1;
-                }
-                if (new_start >= p_start + p_size) {
+                } else if (new_start >= p_start + p_size) {
                     return 1;
-                }
-                if (new_start + new_size <= p_start + extended_margin) {
+                } else if (new_start + new_size <= p_start + extended_margin) {
                     return 1;
-                }
-                if (new_start + new_size > p_start + p_size) {
+                } else if (new_start + new_size > p_start + p_size) {
                     return 1;
                 }
             } else if (new_type == "5" || new_type == "f") {
                 # If part number is 1-4 skip.
                 if (new_part_number < 5) {
                     continue;
-                }
-                if (p_start < new_start + extended_margin) {
+                } else if (p_start < new_start + extended_margin) {
                     return 1;
-                }
-                if (p_start >= new_start + new_size) {
+                } else if (p_start >= new_start + new_size) {
                     return 1;
-                }
-                if (p_start + p_size <= new_size + extended_margin) {
+                } else if (p_start + p_size <= new_start + extended_margin) {
                     return 1;
-                }
-                if (p_start + p_size > new_start + new_size) {
+                } else if (p_start + p_size > new_start + new_size) {
                     return 1;
                 }
             }
         } else {
+			#if((new_start >= p_start && new_start < p_start + p_size) || (new_start + new_size > p_start && new_start + new_size <= p_start + p_size)) {
+			#	return 1;
+			#}
+			# p_start is inside of [new_start, new_start + new_size)	OR
+			# p_start + p_size is inside of (new_start, new_start + new_size]
+			#if((p_start >= new_start && p_start < new_start + new_size) || (p_start + p_size > new_start && p_start + p_size <= new_start + new_size)) {
+			#	return 1;
+			#}
+            printf("# new_start = %s\n", new_start);
+            printf("# new_size = %s\n", new_size);
+            printf("# p_start = %s\n", p_start);
+            printf("# p_size = %s\n", p_size);
             if (new_start >= p_start) {
-                if (new_start < p_start + p_size) {
-                    return 1;
+                if (new_size < p_size) {
+                    p_start -= new_size;
+                } else if (new_size > p_size) {
+                    p_start += new_size;
                 }
             }
-            if (new_start + new_size > p_start) {
-                if (new_start + new_size <= p_start + p_size) {
-                    return 1;
-                }
-            }
-            if (p_start >= new_start) {
-                if (p_start < new_start + new_size) {
-                    return 1;
-                }
-            }
-            if (p_start + p_size > new_start) {
-                if (p_start + p_size <= new_start + new_size) {
-                    return 1;
-                }
+            if (new_start >= p_start && new_start + new_size >= p_start) {
+                return 1;
             }
         }
     }
@@ -155,9 +150,8 @@ function resize_partition(partition_names, partitions, args, pName, new_start, n
         }
         new_start = partitions[pName, "start"];
         new_size = sizePos * 2;
-        printf("# Resize new start = %s\n", new_start);
-        printf("# Resize new size = %s\n", new_size);
         overlap = check_overlap(partition_names, partitions, target, new_start, new_size);
+        printf("# Overlap = %s\n", overlap);
         # If there was an issue in checking overlap, skip.
         if (overlap != 0) {
             continue;
