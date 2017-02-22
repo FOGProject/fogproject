@@ -1,20 +1,20 @@
 #!/usr/bin/php -q
 <?php
 /**
- * FOGSnapinHash service to get the hash of snapins in FOG
+ * FOGImageSize service to get the size of images in FOG
  *
  * PHP version 5
  *
- * @category FOGSnapinHash
+ * @category FOGImageSize
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
 /**
- * FOGSnapinHash service to get the hash of snapins in FOG
+ * FOGImageSize service to get the size of images in FOG
  *
- * @category FOGSnapinHash
+ * @category FOGImageSize
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
@@ -23,7 +23,7 @@
 @error_reporting(0);
 require dirname(realpath(__FILE__)).'/../etc/config.php';
 require dirname(realpath(__FILE__)).'/../lib/service_lib.php';
-$service_name = 'FOGSnapinHash';
+$service_name = 'FOGImageSize';
 service_persist($service_name);
 $ServiceClass = $FOGCore::getClass('ImageSize');
 $ServiceClass->getBanner();
