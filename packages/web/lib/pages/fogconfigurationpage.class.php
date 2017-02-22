@@ -256,7 +256,7 @@ class FOGConfigurationPage extends FOGPage
                 _('Starting process...')
             );
         } else {
-            $tmpFile = basename($tmpFile);
+            $tmpFile = basename($_REQUEST['file']);
             $tmpFile = Initiator::sanitizeItems(
                 $tmpFile
             );
