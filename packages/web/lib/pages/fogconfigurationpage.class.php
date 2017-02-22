@@ -221,7 +221,7 @@ class FOGConfigurationPage extends FOGPage
     public function kernelUpdatePost()
     {
         global $sub;
-        if ($sub == 'kernelUpdate') {
+        if (!isset($_REQUEST['install']) && $sub == 'kernelUpdate') {
             $this->kernelselForm('pk');
             $url = sprintf(
                 'https://fogproject.org/kernels/kernelupdate.php?version=%s',
@@ -229,7 +229,7 @@ class FOGConfigurationPage extends FOGPage
             );
             $htmlData = self::$FOGURLRequests->process($url);
             echo $htmlData[0];
-        } elseif ($_REQUEST['install']) {
+        } elseif (isset($_REQUEST['install'])) {
             $_SESSION['allow_ajax_kdl'] = true;
             $_SESSION['dest-kernel-file'] = trim(
                 basename(
@@ -265,9 +265,9 @@ class FOGConfigurationPage extends FOGPage
                 'bzImage' :
                 'bzImage32'
             );
-            $formstr = "?node={$node}&sub={$sub}";
+            $formstr = "?node={$node}&sub=kernelUpdate";
             echo '<form method="post" action="';
-            echo $formstr;
+            $formstr;
             echo '">';
             echo '<input type="hidden" name="file" value="';
             echo $tmpFile;
