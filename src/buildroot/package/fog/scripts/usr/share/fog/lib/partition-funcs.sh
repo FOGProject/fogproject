@@ -758,9 +758,8 @@ fillDiskWithPartitions() {
             sfdiskOriginalPartitionFileName "$imagePath" "$disk_number"
             sfdiskLegacyOriginalPartitionFileName "$imagePath" "$disk_number"
             sgdiskOriginalPartitionFileName "$imagePath" "$disk_number"
-            local filename="$sfdiskminimumpartitionfilename"
+            local filename="$sfdiskoriginalpartitionfilename"
             local cmdtorun='fillSfdiskWithPartitions'
-            [[ ! -r $filename ]] && filename="$sfdiskoriginalpartitionfilename"
             [[ ! -r $filename ]] && filename="$sfdisklegacyoriginalpartitionfilename"
             [[ ! -r $filename ]] && filename="$sgdiskoriginalpartitionfilename"
             [[ $filename == $sgdiskoriginalpartitionfilename ]] && cmdtorun='fillSgdiskWithPartitions'
