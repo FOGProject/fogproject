@@ -2288,7 +2288,7 @@ abstract class FOGBase
      */
     public static function getHash($file)
     {
-        sleep(5);
+        usleep(50000);
         $filesize = self::getFilesize($file);
         $file = escapeshellarg($file);
         if ($filesize <= 10485760) {

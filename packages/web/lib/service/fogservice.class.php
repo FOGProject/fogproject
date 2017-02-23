@@ -64,6 +64,7 @@ abstract class FOGService extends FOGBase
      * @param mixed  $size_b The size of the second file
      * @param string $file_a The name of the first file
      * @param string $file_b The name of the second file
+     * @param bool   $avail  Is url available.
      *
      * @return bool
      */
@@ -71,10 +72,17 @@ abstract class FOGService extends FOGBase
         $size_a,
         $size_b,
         $file_a,
-        $file_b
+        $file_b,
+        $avail
     ) {
         if ($size_a != $size_b) {
             return false;
+        }
+        if (false === $avail) {
+            if ($size_a < 1047685760) {
+                return false;
+            }
+            return true;
         }
         if ($file_a != $file_b) {
             return false;
@@ -437,7 +445,6 @@ abstract class FOGService extends FOGBase
                     )
                 ) as $i => &$PotentialStorageNode
             ) {
-                usleep(50000);
                 $groupID = $PotentialStorageNode->get('storagegroupID');
                 if ($master
                     && $groupID == $myStorageGroupID
@@ -575,7 +582,7 @@ abstract class FOGService extends FOGBase
                 sort($remotefilescheck);
                 $test = -1;
                 foreach ((array)$localfilescheck as $j => &$localfile) {
-                    usleep(50000);
+                    $avail = true;
                     $index = $this->arrayFind(
                         basename($localfile),
                         $remotefilescheck
@@ -588,6 +595,10 @@ abstract class FOGService extends FOGBase
                         $remotefilescheck[$index]
                     );
                     $file = $remotefilescheck[$index];
+                    $test = array_filter(self::$FOGURLRequests->isAvailable($url));
+                    if (count($test) < 1) {
+                        $avail = false;
+                    }
                     $res = self::$FOGURLRequests->process(
                         $url,
                         'POST',
@@ -600,7 +611,8 @@ abstract class FOGService extends FOGBase
                         $filesize_main,
                         $filesize_rem,
                         self::getHash($localfile),
-                        $res
+                        $res,
+                        $avail
                     );
                     if (!$filesEqual) {
                         self::outall(

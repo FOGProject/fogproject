@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-22 19:51-0500\n"
+"POT-Creation-Date: 2017-02-22 20:40-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -198,9 +198,9 @@ msgstr ""
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:62
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:122
 #: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:54
-#: /var/www/fog/lib/service/fogservice.class.php:379
-#: /var/www/fog/lib/service/fogservice.class.php:408
-#: /var/www/fog/lib/service/fogservice.class.php:483
+#: /var/www/fog/lib/service/fogservice.class.php:387
+#: /var/www/fog/lib/service/fogservice.class.php:416
+#: /var/www/fog/lib/service/fogservice.class.php:490
 #: /var/www/fog/commons/text.php:66
 msgid "Name"
 msgstr ""
@@ -6887,7 +6887,7 @@ msgstr ""
 
 #: /var/www/fog/lib/service/snapinhash.class.php:166
 #: /var/www/fog/lib/service/imagesize.class.php:166
-#: /var/www/fog/lib/service/fogservice.class.php:393
+#: /var/www/fog/lib/service/fogservice.class.php:401
 msgid "Found"
 msgstr ""
 
@@ -7059,77 +7059,77 @@ msgstr ""
 msgid "hosts"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:139
+#: /var/www/fog/lib/service/fogservice.class.php:147
 msgid " | This is not the master node"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:152
+#: /var/www/fog/lib/service/fogservice.class.php:160
 msgid "Interface not ready, waiting."
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:178
+#: /var/www/fog/lib/service/fogservice.class.php:186
 msgid "Waiting for mysql to be available"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:353
+#: /var/www/fog/lib/service/fogservice.class.php:361
 msgid "I am not the master for this group"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:369
-#: /var/www/fog/lib/service/fogservice.class.php:473
+#: /var/www/fog/lib/service/fogservice.class.php:377
+#: /var/www/fog/lib/service/fogservice.class.php:480
 msgid "Not syncing"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:371
-#: /var/www/fog/lib/service/fogservice.class.php:475
+#: /var/www/fog/lib/service/fogservice.class.php:379
+#: /var/www/fog/lib/service/fogservice.class.php:482
 msgid "between"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:386
+#: /var/www/fog/lib/service/fogservice.class.php:394
 msgid "There are no other members to sync to"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:395
+#: /var/www/fog/lib/service/fogservice.class.php:403
 msgid "to transfer to"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:458
+#: /var/www/fog/lib/service/fogservice.class.php:465
 msgid "Replication already running with PID"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:490
+#: /var/www/fog/lib/service/fogservice.class.php:497
 msgid "File or path cannot be reached"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:514
+#: /var/www/fog/lib/service/fogservice.class.php:521
 msgid "Cannot connect to"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:609
+#: /var/www/fog/lib/service/fogservice.class.php:621
 msgid "Files do not match"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:615
+#: /var/www/fog/lib/service/fogservice.class.php:627
 msgid "Deleting remote file"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:626
+#: /var/www/fog/lib/service/fogservice.class.php:638
 msgid "No need to sync"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:628
+#: /var/www/fog/lib/service/fogservice.class.php:640
 msgid "file to"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:656
+#: /var/www/fog/lib/service/fogservice.class.php:668
 msgid "Starting Sync Actions"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:700
+#: /var/www/fog/lib/service/fogservice.class.php:712
 msgid "Started sync for"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:732
+#: /var/www/fog/lib/service/fogservice.class.php:744
 msgid "Task started"
 msgstr ""
 
