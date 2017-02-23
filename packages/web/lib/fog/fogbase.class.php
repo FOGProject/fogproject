@@ -2288,8 +2288,16 @@ abstract class FOGBase
      */
     public static function getHash($file)
     {
+        sleep(5);
+        $filesize = self::getFilesize($file);
+        $file = escapeshellarg($file);
+        if ($filesize <= 10485760) {
+            return trim(
+                shell_exec("sha512sum $file | awk '{print $1}'")
+            );
+        }
         return trim(
-            shell_exec("md5sum $file | awk '{print $1}'")
+            shell_exec("tail -c 10485760 $file| sha512sum | awk '{print $1}'")
         );
     }
 }
