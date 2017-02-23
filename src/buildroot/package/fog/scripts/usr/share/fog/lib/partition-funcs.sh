@@ -55,31 +55,48 @@ saveUUIDInformation() {
 }
 # $1 is the name of the disk drive
 # $2 is name of file to restore from
+# $3 is the disk number
+# $4 is the image path
 restoreUUIDInformation() {
     local disk="$1"
     local file="$2"
+    local disk_number="$3"
+    local imagePath="$4"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ -z $file ]] && handleError "No file to load from passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $disk_number ]] && handleError "No disk number passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ -z $imagePath ]] && handleError "No image path passed (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ ! -r $file ]] && return
     local diskuuid=""
     local partuuid=""
     local escape_disk=$(escapeItem $disk)
     local escape_part=""
     local is_swap=0
+    local sfdiskoriginalpartitionfilename=""
+    local part_number=""
+    sfdiskOriginalPartitionFileName "$imagePath" "$disk_number"
     diskuuid=$(awk "/^$escape_disk\ /{print \$2}" $file)
+    dots "Disk UUID being set to"
+    echo $diskuuid
+    debugPause
     [[ -n $diskuuid ]] && sgdisk -U $diskuuid $disk >/dev/null 2>&1
     [[ ! $? -eq 0 ]] && handleError "Failed to set disk guid (sgdisk -U) (${FUNCNAME[0]})\n   Args Passed: $*"
     getPartitions "$disk"
     for part in $parts; do
         partitionIsSwap "$part"
+        getPartitionNumber "$part"
         [[ $is_swap -gt 0 ]] && continue
         escape_part=$(escapeItem $part)
-        local oIFS=$IFS
-        local IFS=$'\n'
-        read parttype partuuid <<< $(awk "/^$escape_part\ /{printf(\"%s\n%s\",\$2,\$3)}" $file)
-        IFS=$oIFS
+        partuuid=$(awk "/^$escape_part\ /{print \$2}" $file)
+        parttype=$(awk -F[,\ ] "match(\$0, /^.*$escape_part.*type=([A-Za-z0-9-]+)[,].*$/, type){printf(\"%s:%s\", $part_number, tolower(type[1]))}" $sfdiskoriginalpartitionfilename)
+        dots "Partition type being set to"
+        echo $parttype
+        debugPause
         [[ -n $parttype ]] && sgdisk -t $parttype $disk >/dev/null 2>&1 || true
         [[ ! $? -eq 0 ]] && handleError " Failed to set partition type (sgdisk -t) (${FUNCNAME[0]})\n   Args Passed: $*"
+        dots "Partition uuid being set to"
+        echo $partuuid
+        debugPause
         [[ -n $partuuid ]] && sgdisk -u $partuuid $disk >/dev/null 2>&1 || true
         [[ ! $? -eq 0 ]] && handleError "Failed to set partition guid (sgdisk -u) (${FUNCNAME[0]})\n   Args Passed: $*"
     done

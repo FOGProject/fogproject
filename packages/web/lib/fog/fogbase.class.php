@@ -2297,7 +2297,17 @@ abstract class FOGBase
             );
         }
         return trim(
-            shell_exec("tail -c 10485760 $file| sha512sum | awk '{print $1}'")
+            shell_exec(
+                sprintf(
+                    "(%s -c %d %s; %s -c %d %s) | sha512sum | awk '{print $1}'",
+                    'head',
+                    10486760,
+                    $file,
+                    'tail',
+                    10486760,
+                    $file
+                )
+            )
         );
     }
 }
