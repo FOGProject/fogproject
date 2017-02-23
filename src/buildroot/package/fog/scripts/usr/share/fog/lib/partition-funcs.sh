@@ -76,7 +76,7 @@ restoreUUIDInformation() {
         escape_part=$(escapeItem $part)
         local oIFS=$IFS
         local IFS=$'\n'
-        read partuuid parttype <<< $(awk "/^$escape_part\ /{printf(\"%s\n%s\",\$2,\$3)}" $file)
+        read parttype partuuid <<< $(awk "/^$escape_part\ /{printf(\"%s\n%s\",\$2,\$3)}" $file)
         IFS=$oIFS
         [[ -n $parttype ]] && sgdisk -t $parttype $disk >/dev/null 2>&1 || true
         [[ ! $? -eq 0 ]] && handleError " Failed to set partition type (sgdisk -t) (${FUNCNAME[0]})\n   Args Passed: $*"
