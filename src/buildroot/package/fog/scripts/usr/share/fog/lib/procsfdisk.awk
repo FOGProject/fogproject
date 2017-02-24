@@ -7,7 +7,7 @@ function check_all_partitions(partition_names, partitions, pName, p_start, p_siz
     for (pName in partition_names) {
         p_start = partitions[pName, "start"];
         p_size = partitions[pName, "size"];
-        overlap = check_overlap(partition_names, partitions, pName, p_start, p_size);
+        overlap = check_overlap(partition_names, partitions, pName, p_start, p_size, 0);
         # If overlap is ok, skip.
         if (overlap == 0) {
             continue;
@@ -23,14 +23,15 @@ function check_all_partitions(partition_names, partitions, pName, p_start, p_siz
     return 1;
 }
 
-function check_overlap(partition_names, partitions, new_part_name, new_start, new_size, extended_margin, new_type, new_part_number, pName, p_type, p_start, p_size, p_part_number) {
+function check_overlap(partition_names, partitions, new_part_name, new_start, new_size, capture, extended_margin, new_type, new_part_number, pName, p_type, p_start, p_size, p_part_number) {
+    # Used for extended volumes (logical disks)
     extended_margin = 2;
     new_type = partitions[new_part_name, "type"];
     new_part_number = partitions[new_part_name, "number"];
     for (pName in partition_names) {
         p_type = partitions[pName, "type"];
-        p_start = partitions[pName, "start"];
         p_size = partitions[pName, "size"];
+        p_start = partitions[pName, "start"];
         p_part_number = partitions[pName, "number"];
         # No overlap with self.
         if (new_part_name == pName) {
@@ -68,27 +69,26 @@ function check_overlap(partition_names, partitions, new_part_name, new_start, ne
                 }
             }
         } else {
-			#if((new_start >= p_start && new_start < p_start + p_size) || (new_start + new_size > p_start && new_start + new_size <= p_start + p_size)) {
-			#	return 1;
-			#}
-			# p_start is inside of [new_start, new_start + new_size)	OR
-			# p_start + p_size is inside of (new_start, new_start + new_size]
-			#if((p_start >= new_start && p_start < new_start + new_size) || (p_start + p_size > new_start && p_start + p_size <= new_start + new_size)) {
-			#	return 1;
-			#}
-            printf("# new_start = %s\n", new_start);
-            printf("# new_size = %s\n", new_size);
-            printf("# p_start = %s\n", p_start);
-            printf("# p_size = %s\n", p_size);
-            if (new_start >= p_start) {
+            # We need to adjust the start positions for smaller/larger
+            # drives to test overlap accurately.
+            # Otherwise, captures would almost always have an overlap.
+            # Equal partitions will remain untouched.
+            if (capture > 0) {
                 if (new_size < p_size) {
-                    p_start -= new_size;
+                    p_start = p_size - new_size - p_start;
                 } else if (new_size > p_size) {
-                    p_start += new_size;
+                    p_start += new_size - p_size;
                 }
             }
-            if (new_start >= p_start && new_start + new_size >= p_start) {
-                return 1;
+            if (new_start >= p_start) {
+                if (new_start < p_start + p_size) {
+                    return 1;
+                }
+            }
+            if (p_start >= new_start) {
+                if (p_start < new_start + new_size) {
+                    return 1;
+                }
             }
         }
     }
@@ -149,9 +149,8 @@ function resize_partition(partition_names, partitions, args, pName, new_start, n
             continue;
         }
         new_start = partitions[pName, "start"];
-        new_size = sizePos * 2;
-        overlap = check_overlap(partition_names, partitions, target, new_start, new_size);
-        printf("# Overlap = %s\n", overlap);
+        new_size = sizePos / CHUNK_SIZE;
+        overlap = check_overlap(partition_names, partitions, target, new_start, new_size, 1);
         # If there was an issue in checking overlap, skip.
         if (overlap != 0) {
             continue;
@@ -171,15 +170,12 @@ function move_partition(partition_names, partitions, args, pName, new_start, new
         if (unit != "sectors") {
             continue;
         }
-        new_start = sizePos * 2;
-        new_start = new_start - new_start % CHUNK_SIZE;
+        new_start = sizePos / CHUNK_SIZE;
         if (new_start < MIN_START) {
             new_start = MIN_START;
         }
         new_size = partitions[pName, "size"];
-        printf("# Move new start = %s\n", new_start);
-        printf("# Move new size = %s\n", new_size);
-        overlap = check_overlap(partition_names, partitions, target, new_start, new_size);
+        overlap = check_overlap(partition_names, partitions, target, new_start, new_size, 0);
         # If overlap is invalid, skip.
         if (overlap != 0) {
             continue;
@@ -191,7 +187,7 @@ function move_partition(partition_names, partitions, args, pName, new_start, new
 
 function fill_disk(partition_names, partitions, args, disk, disk_size, n, fixed_partitions, original_variable, original_fixed, new_variable, new_fixed, new_logical, pName, p_type, p_number, p_size, found, i, partition_starts, ordered_starts, old_sorted_in, curr_start) {
     disk = target;
-    double_size = sizePos * 2;
+    disk_size = sizePos / CHUNK_SIZE;
     for (pName in partition_names) {
         p_type = partitions[pName, "type"];
         p_number = partitions[pName, "number"];
@@ -203,7 +199,7 @@ function fill_disk(partition_names, partitions, args, disk, disk_size, n, fixed_
     #
     # Find the total fixed and variable space.
     #
-    original_variable = 0;
+    original_variable = MIN_START;
     original_fixed = MIN_START;
     for (pName in partition_names) {
         p_type = partitions[pName, "type"];
@@ -212,15 +208,14 @@ function fill_disk(partition_names, partitions, args, disk, disk_size, n, fixed_
         partition_starts[partitions[pName, "start"]] = pName;
         # Skip extended partition.
         # Only count its logicals and the CHUNK for its partition table.
-        if (lable == "gpt" (p_type == "5" || p_type == "f")) {
-            original_fixed += CHUNK_SIZE;
+        if (label != "gpt") {
+            if (p_type == "5" || p_type == "f" || p_number >= 5) {
+                original_fixed += CHUNK_SIZE;
+            }
             continue;
         }
         # CHUNK_SIZE to allow for margin after each logical partition.
         # (Required if 2 or mor logical partitions exist.)
-        if (p_number >= 5) {
-            original_fixed += CHUNK_SIZE;
-        }
         if (p_size == 0) {
             fixed_partitions[pName] = p_number;
         }
@@ -239,32 +234,29 @@ function fill_disk(partition_names, partitions, args, disk, disk_size, n, fixed_
     #
     # Assign the new sizes to partitions.
     #
-    new_variable = double_size - original_fixed;
+    new_variable = disk_size - original_fixed;
     new_logical = 0;
     for (pName in partition_names) {
         p_type = partitions[pName, "type"];
         p_number = partitions[pName, "number"];
         p_size = partitions[pName, "size"];
-        p_size -= p_size % CHUNK_SIZE;
         found = 0;
         for (i in fixed_partitions) {
             if (fixed_partitions[i] == p_number) {
                 found = 1;
             }
         }
-        printf("# Original partition size = %s\n", p_size);
         if (found) {
             partitions[pName, "size"] = p_size;
         } else if (label != "dos" && (p_type == "5" || p_type == "f")) {
-            partitions[pName, "size"] = new_variable % CHUNK_SIZE;
+            partitions[pName, "size"] = new_variable;
         } else {
-            printf("# Old variable = %s\n", original_variable);
-            printf("# New variable = %s\n", new_variable);
-            printf("# P_size = %s\n", p_size);
-            var = (new_variable * p_size) / original_variable;
+            var = new_variable * p_size / original_variable;
+            if (var == 0) {
+                var = int(p_size);
+            }
             partitions[pName, "size"] = var - var % CHUNK_SIZE;
         }
-        printf("# Adjusted size = %s\n", partitions[pName, "size"]);
         # Only deal with logical partitions as needed.
         if (label != "gpt") {
             # Logical partition allowing for a margin after each logical partition.
@@ -286,7 +278,7 @@ function fill_disk(partition_names, partitions, args, disk, disk_size, n, fixed_
             p_number = partitions[pName, "number"];
             p_size = partitions[pName, "size"];
             p_size += new_logical;
-            partitions[pName, "size"] = p_size - p_size % CHUNK_SIZE;
+            partitions[pName, "size"] = p_size;
         }
     }
     #
@@ -309,8 +301,7 @@ function fill_disk(partition_names, partitions, args, disk, disk_size, n, fixed_
         } else {
             curr_start += p_size;
         }
-        partitions[pName, "start"] = p_start - p_start % CHUNK_SIZE;
-        printf("# New start = %s\n", partitions[pName, "start"]);
+        partitions[pName, "start"] = p_start;
     }
     PROCINFO["sorted_in"] = old_sorted_in;
     check_all_partitions(partition_names, partitions);

@@ -467,7 +467,7 @@ fillSfdiskWithPartitions() {
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ -z $file ]] && handleError "No file to use passed (${FUNCNAME[0]})\n   Args Passed: $*"
     rm -rf /tmp/sfdisk2.*
-    local disk_size=$(blockdev --getsize64 $disk | awk '{printf("%d\n",$1/1024);}')
+    local disk_size=$(blockdev --getsize64 $disk)
     local tmp_file2="/tmp/sfdisk2.$$"
     processSfdisk "$file" filldisk "$disk" "$disk_size" "$fixed" > "$tmp_file2"
     status=$?
