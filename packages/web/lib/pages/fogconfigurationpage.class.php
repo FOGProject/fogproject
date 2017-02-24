@@ -1742,7 +1742,7 @@ class FOGConfigurationPage extends FOGPage
             'FOG_PXE_MENU_TIMEOUT' => true,
             'FOG_PXE_MENU_HIDDEN' => $checkbox,
             'FOG_PIGZ_COMP' => range(0, 9),
-            'FOG_KEY_SEQUENCE' => range(1, 31),
+            'FOG_KEY_SEQUENCE' => range(1, 35),
             'FOG_NO_MENU' => $checkbox,
             'FOG_ADVANCED_MENU_LOGIN' => $checkbox,
             'FOG_KERNEL_DEBUG' => $checkbox,
