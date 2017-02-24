@@ -519,7 +519,7 @@ shrinkPartition() {
                             debugPause
                             handleError "Unable to determine disk start location (${FUNCNAME[0]})\n   Args Passed: $*"
                         fi
-                        adjustedfdsize=$(calculate "${sizentfsresize}+${part_start}")
+                        adjustedfdsize=$(calculate "(${sizentfsresize}+${part_start})*1024")
                         resizePartition "$part" "$adjustedfdsize" "$imagePath"
                         ;;
                 esac
