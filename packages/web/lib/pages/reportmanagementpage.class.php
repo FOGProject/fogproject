@@ -233,7 +233,7 @@ class ReportManagementPage extends FOGPage
         $start = self::niceDate($start);
         $end = self::niceDate();
         if (!self::validDate($start)) {
-            return $this->render();
+            $start = self::niceDate()->modify('-2 years');
         }
         $interval = new DateInterval('P1D');
         $daterange = new DatePeriod($start, $interval, $end);
@@ -380,7 +380,7 @@ class ReportManagementPage extends FOGPage
             $start = $ImagingLog->get('start');
             $end = $ImagingLog->get('finish');
             if (!self::validDate($start)
-                || !self::validDate($end)
+                && !self::validDate($end)
             ) {
                 continue;
             }
@@ -1415,7 +1415,7 @@ class ReportManagementPage extends FOGPage
         $start = self::niceDate($start);
         $end = self::niceDate();
         if (!self::validDate($start)) {
-            return $this->render();
+            $start = self::niceDate()->modify('-2 years');
         }
         $interval = new DateInterval('P1D');
         $daterange = new DatePeriod($start, $interval, $end);
@@ -1550,7 +1550,7 @@ class ReportManagementPage extends FOGPage
             $start = self::niceDate($SnapinTask->get('checkin'));
             $end = self::niceDate($SnapinTask->get('complete'));
             if (!self::validDate($start)
-                || !self::validDate($end)
+                && !self::validDate($end)
             ) {
                 continue;
             }
