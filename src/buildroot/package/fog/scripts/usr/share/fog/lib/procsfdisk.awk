@@ -75,18 +75,13 @@ function check_overlap(partition_names, partitions, new_part_name, new_start, ne
             # Equal partitions will remain untouched.
             if (capture > 0) {
                 if (new_size < p_size) {
-                    p_start = p_size - new_size - p_start;
+                    p_start -= new_size;
                 } else if (new_size > p_size) {
-                    p_start += new_size - p_size;
+                    p_start += new_size;
                 }
             }
             if (new_start >= p_start) {
                 if (new_start < p_start + p_size) {
-                    return 1;
-                }
-            }
-            if (p_start >= new_start) {
-                if (p_start < new_start + new_size) {
                     return 1;
                 }
             }
@@ -151,6 +146,7 @@ function resize_partition(partition_names, partitions, args, pName, new_start, n
         new_start = partitions[pName, "start"];
         new_size = sizePos / CHUNK_SIZE;
         overlap = check_overlap(partition_names, partitions, target, new_start, new_size, 1);
+        printf("# Overlap %s\n", overlap);
         # If there was an issue in checking overlap, skip.
         if (overlap != 0) {
             continue;

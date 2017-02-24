@@ -544,8 +544,8 @@ shrinkPartition() {
             extminsize=$(resize2fs -P $part 2>/dev/null | awk -F': ' '{print $2}')
             block_size=$(dumpe2fs -h $part 2>/dev/null | awk /^Block\ size:/'{print $3}')
             size=$(calculate "${extminsize}*${block_size}")
-            local sizeadd=$(calculate "${percent}/100*${size}/1024")
-            sizeextresize=$(calculate "${size}/1024+${sizeadd}")
+            local sizeadd=$(calculate "${percent}/100*${size}")
+            sizeextresize=$(calculate "${size}+${sizeadd}")
             [[ -z $sizeextresize || $sizeextresize -lt 1 ]] && handleError "Error calculating the new size of extfs ($part) (${FUNCNAME[0]})\n   Args Passed: $*"
             dots "Shrinking $fstype volume ($part)"
             resize2fs $part -M >/dev/null 2>&1
