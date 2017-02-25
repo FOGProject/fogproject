@@ -587,16 +587,15 @@ abstract class FOGService extends FOGBase
                         basename($localfile),
                         $remotefilescheck
                     );
-                    if (false === $index) {
-                        continue;
-                    }
                     $filesize_main = self::getFilesize($localfile);
                     $filesize_rem = self::$FOGFTP->size(
                         $remotefilescheck[$index]
                     );
                     $file = $remotefilescheck[$index];
-                    $test = array_filter(self::$FOGURLRequests->isAvailable($url));
-                    if (count($test) < 1) {
+                    $testavail = array_filter(
+                        self::$FOGURLRequests->isAvailable($url)
+                    );
+                    if (count($testavail) < 1) {
                         $avail = false;
                     }
                     $res = self::$FOGURLRequests->process(
