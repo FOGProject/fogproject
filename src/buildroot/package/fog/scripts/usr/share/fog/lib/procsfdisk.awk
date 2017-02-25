@@ -170,7 +170,15 @@ function display_output(partition_names, partitions, pName, p_device, p_start, p
         printf("label: %s\nlabel-id: %s\ndevice: %s\n", label, labelid, device);
     }
     # Add unit to the sfdisk file.
-    printf("unit: %s\n\n", unit);
+    printf("unit: %s\n", unit);
+    # If the first lba field is set store it too.
+    if (firstlba) {
+        printf("first-lba: %s\n", firstlba);
+    }
+    if (lastlba) {
+        printf("last-lba: %s\n", lastlba);
+    }
+    printf("\n");
     # Iterate our partition names.
     for (pName in partition_names) {
         # Set our p_device variable.
@@ -229,10 +237,19 @@ function display_output(partition_names, partitions, pName, p_device, p_start, p
 # pName is locally scoped, but could be set here if wanted. Will be overwritten anyway.
 # new_start is locally scoped, but could be set here if wanted. Will be overwritten anyway.
 # new_size is locally scoped, but could be set here if wanted. Will be overwritten anyway.
+# p_start is locally scoped, but could be set here if wanted. Will be overwritten anyway.
+# new_variable is locally scoped, but could be set here if wanted. Will be overwritten anyway.
 # Global Scoped variables (meaning not needed to pass to the function:
 # target the device to work off of
 # unit the unit type
-function resize_partition(partition_names, partitions, args, pName, new_start, new_size) {
+function resize_partition(partition_names, partitions, args, pName, new_start, new_size, p_start, new_variable) {
+    # new start will start at
+    # first lba or the min start.
+    if (firstlba) {
+        new_start = firstlba;
+    } else {
+        new_start = MIN_START;
+    }
     # Iterate our partitions.
     for (pName in partition_names) {
         # If pName is not the target, skip.
@@ -243,10 +260,14 @@ function resize_partition(partition_names, partitions, args, pName, new_start, n
         if (unit != "sectors") {
             continue;
         }
-        # Set our new start position to the current start.
-        new_start = partitions[pName, "start"];
+        # Set our p_start position to the current start.
+        p_start = partitions[pName, "start"];
         # Ensure start postition is aligned properly.
         new_size = sizePos / CHUNK_SIZE;
+        # Set the new start postition.
+        new_start += (new_size - new_size % CHUNK_SIZE);
+        # Increase the variable size.
+        new_variable = new_start + new_size;
         # Check the overlap.
         overlap = check_overlap(partition_names, partitions, target, new_start, new_size, 1);
         # If there was an issue in checking overlap, skip.
@@ -261,11 +282,15 @@ function resize_partition(partition_names, partitions, args, pName, new_start, n
         # Ultimately to switch the start position, we
         # could do something like below from check_overlap:
         # partitions[target, "start"] = p_start;
-        partitions[target, "start"] = new_start;
+        partitions[target, "start"] = p_start;
         # Sets the new size which is passed into the script
         # directly. As long as no overlap we know the shrunk
         # size is safe.
         partitions[target, "size"] = new_size;
+    }
+    if (lastlba) {
+        lastlba = new_variable - new_variable % CHUNK_SIZE;
+        lastlba -= (MIN_START / CHUNK_SIZE) + firstlba;
     }
     return 0;
 }
@@ -346,6 +371,7 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
     # Variable should be 0, fixed should be at least MIN_START.
     original_variable = 0;
     original_fixed = MIN_START;
+    original_fixed += (MIN_START / CHUNK_SIZE);
     # Iterate partitions. This loop checks for swap
     # partitions. A fail safe to ensure swap is fixed.
     for (pName in partition_names) {
@@ -546,17 +572,20 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
             # Otherwise increase it by the p_size.
            if (p_type == "5" || p_type == "f" || p_number > 4) {
                curr_start += CHUNK_SIZE;
-           } else {
-               curr_start += p_size;
+               continue;
            }
-        } else {
-            curr_start += p_size;
         }
+        curr_start += p_size;
         # Set the partitions start to our adjusted start.
         partitions[pName, "start"] = p_start;
     }
     # Sorted in setter.
     PROCINFO["sorted_in"] = old_sorted_in;
+    # Set our lastlba
+    if (lastlba) {
+        lastlba = new_variable + original_fixed;
+        lastlba -= (MIN_START / CHUNK_SIZE) + firstlba;
+    }
     # Check for any overlaps.
     return check_all_partitions(partition_names, partitions);
 }
@@ -582,6 +611,10 @@ BEGIN {
 /^device:/{device = $2}
 # Set unit global variable
 /^unit:/{unit = $2}
+# Get the first lba sector.
+/^first-lba:/{firstlba = $2}
+# Get the last lba sector.
+/^last-lba:/{lastlba = $2}
 # Get the start positions
 /start=/{
     # Get Partition Name
