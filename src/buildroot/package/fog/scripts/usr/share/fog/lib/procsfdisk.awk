@@ -335,10 +335,11 @@ function move_partition(partition_names, partitions, args, pName, new_start, new
 # p_number is locally scoped, but could be set here if wanted. Will be overwritten anyway.
 # p_size is locally scoped, but could be set here if wanted. Will be overwritten anyway.
 # p_fixed is locally scoped, but could be set here if wanted. Will be overwritten anyway.
-# found is locally scoped, but could be set here if wanted. Will be overwritten anyway.
 # new_start is locally scoped, but could be set here if wanted. Will be overwritten anyway.
 # new_size is locally scoped, but could be set here if wanted. Will be overwritten anyway.
-function fill_disk(partition_names, partitions, args, n, fixed_partitions, original_variable, original_fixed, new_variable, new_logical, extended_margin, pName, p_type, p_number, p_size, p_fixed, found, i, partition_starts, ordered_starts, old_sorted_in, curr_start) {
+function fill_disk(partition_names, partitions, args, n, fixed_partitions, original_variable, original_fixed, new_variable, new_logical, extended_margin, pName, p_type, p_number, p_size, p_fixed, i, partition_starts, ordered_starts, old_sorted_in, curr_start) {
+    # Set p_fixed to 0.
+    p_fixed = 0;
     # Used for extended volumes (logical disks)
     extended_margin = 2;
     # Original fixed and variable start size.
@@ -380,119 +381,187 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         p_size = partitions[pName, "size"];
         # Set partition starts.
         partition_starts[partitions[pName, "start"]] = pName;
+        # Don't check empty partitions.
+        if (p_size == 0) {
+            continue;
+        }
         # Skip extended partition.
         # Only count its logical point with extended.
         # Only count its CHUNK_SIZE for part 5 or higher.
         if (label != "gpt") {
             # If the partition is the extended partition itself,
             # increase the fixed size by the extended margin.
-            # Otherwise, if the part number is > 5 increase the
-            # fixed by the chunk size.
+            # If the type is extended we still have to get the
+            # fixed sizes as it may need to be adjusted.
+            # If the partition is not the extended partition
+            # but is part of the logicals, we simply
+            # increase fixed by the chunk size.
             if (p_type == "5" || p_type == "f") {
                 original_fixed += extended_margin;
             } else if (p_number > 4) {
                 original_fixed += CHUNK_SIZE;
+                continue;
             }
-            continue;
         }
-        # Don't check empty partitions.
-        if (p_size == 0) {
-            continue;
-        }
-        # Split our fixed partitions string
-        found = 0;
+        # Used to test if fixed;
+        p_fixed = 0;
         # Loop fixed_partitions
-        # If the fixed partition is the
-        # same as the current running fixed,
-        # set found to 1 for later processing.
-        for (p_fixed in fixed_partitions) {
+        for (i in fixed_partitions) {
             # If the iteration matches the current p_number
-            # set the found to 1.
+            # increase the fixed size and tell us the partition
+            # is fixed.
             if (fixed_partitions[i] == p_number) {
-                found = 1;
+                original_fixed += p_size;
+                p_fixed = 1;
+                break;
             }
         }
-        # If partition is found, increase the original_fixed.
-        # Otherwise it is not found, increase original_variable.
-        if (found) {
-            original_fixed += partitions[pName, "size"];
-        } else {
-            original_variable += partitions[pName, "size"];
+        # Increse the original variable.
+        if (!p_fixed) {
+            original_variable += p_size;
         }
     }
     # Assign the new sizes.
     new_variable = sizePos - original_fixed;
     new_logical = extended_margin;
+    # We will loop the partitions again to get sizes.
     for (pName in partition_names) {
+        # Reset our p_type variable.
         p_type = partitions[pName, "type"];
+        # Reset our p_number variable.
         p_number = partitions[pName, "number"];
+        # Resent our p_size variable.
         p_size = partitions[pName, "size"];
-        found = 0;
+        # No worrying about 0 sized partitions.
+        if (p_size == 0) {
+            continue;
+        }
+        # Used to test if fixed;
+        p_fixed = 0;
+        # Loop fixed_partitions
         for (i in fixed_partitions) {
+            # If the iteration matches the current p_number
+            # skip working on the adjusted variable.
             if (fixed_partitions[i] == p_number) {
-                found = 1;
+                p_fixed = 1;
+                break;
             }
         }
-        if (found) {
-            partitions[pName, "size"] = p_size;
-        } else if (label != "gpt") {
-            if (p_type == "5" || p_type == "f") {
-                new_logical += new_variable;
-                partitions[pName, "size"] += new_logical;
-            } else if (p_number > 4) {
-                new_logical += partitions[pName, "size"] + CHUNK_SIZE;
-            }
-        } else {
-            var = new_variable * p_size / original_variable;
-            if (var <= 0 || var < p_size) {
-                var = p_size;
-            }
-            partitions[pName, "size"] = var - var % CHUNK_SIZE;
+        # If partition is fixed, skip.
+        if (p_fixed) {
+            continue;
         }
+        # Extended/Logical partition processing.
+        # Skip as performed later.
+        if (label != "gpt") {
+            # Logical partitions are any greater than 4.
+            # The extendended partition is of p_types 5 or f.
+            if (p_number > 4 || p_type == "5" || p_type == "f") {
+                # Increase logical to that of the p_size.
+                new_logical += p_size;
+                # Using new_logical as our p_size to get adjusted logical volume
+                # size.
+                new_adjusted = new_variable * new_logical / original_variable;
+                # If the adjusted variable less the chunk_size is less than or equal to 0
+                # or the adjusted variable less the chunk_size is smaller than the p_size
+                # adjusted variable will be set to the original variable;
+                if (new_adjusted - CHUNK_SIZE <= 0 || new_adjusted - CHUNK_SIZE < p_size) {
+                    new_adjusted = p_size;
+                }
+                # Ensure the size is properly aligned.
+                new_logical = new_adjusted - new_adjusted % CHUNK_SIZE;
+                # On to next partition.
+                continue;
+            }
+        }
+        # Get's the percentage increase/decrease and makes adjustement.
+        new_adjusted = new_variable * p_size / original_variable;
+        # Ensure adjusted size is aligned properly.
+        new_adjusted = new_adjusted - new_adjusted % CHUNK_SIZE;
+        # if the adjusted variable is less than 0, the disk must
+        # be too small to work with. Inform and exit.
+        if (new_adjusted < 0) {
+            printf("# Disk is too small\n");
+            exit(1);
+        }
+        # If the new adjusted size is smaller than the p_size
+        # set adjusted to the p_size.
+        if (new_adjusted < p_size) {
+            new_adjusted = p_size;
+        }
+        # Ensure the size is properly aligned.
+        p_size = new_adjusted - new_adjusted % CHUNK_SIZE;
+        # Ensure the partition size is setup.
+        partitions[pName, "size"] = p_size;
     }
-    #
     # Assign the new size to the extended partition.
-    #
+    # Only needed in non-gpt disks.
     if (label != "gpt") {
+        # Iterate our partitions.
         for (pName in partition_names) {
+            # Get the partition type.
             p_type = partitions[pName, "type"];
+            # Get the original partition size.
+            p_size = partitions[pName, "size"];
             # If the type is not of extended nature, skip.
             if (p_type != "5" && p_type != "f") {
                 continue;
             }
-            p_number = partitions[pName, "number"];
-            p_size = partitions[pName, "size"];
-            p_size += new_logical;
+            # Set the partition size to the logical size calculated earlier..
+            p_size = new_logical;
+            # Ensure the partition size is setup.
             partitions[pName, "size"] = p_size;
         }
     }
-    #
-    # Assigne the new start positions.
-    #
+    # Assign the new start positions.
     asort(partition_starts, ordered_starts, "@ind_num_asc");
+    # sort our stuff.
     old_sorted_in = PROCINFO["sorted_in"];
+    # curr-start must be set to MIN_START initially.
     curr_start = MIN_START;
+    # Iterate the ordered start positions.
     for (i in ordered_starts) {
+        # pName will be the ordered start position.
         pName = ordered_starts[i];
+        # Set p_type.
         p_type = partitions[pName, "type"];
+        # Set p_number.
         p_number = partitions[pName, "number"];
+        # Set p_size.
         p_size = partitions[pName, "size"];
+        # Set p_start.
         p_start = partitions[pName, "start"];
-        if (p_size > 0) {
-            p_start = curr_start;
+        # Skip empty sized partitions.
+        if (p_size == 0) {
+            continue;
         }
-        if (label != "gpt" && (p_type == "5" || p_type == "f" || p_number > 4)) {
-            curr_start += CHUNK_SIZE;
+        # p_start is adjusted to whatever curr_start is.
+        p_start = curr_start;
+        # If we are not GPT test for logical/extended partitions
+        # And ensure our current start is give just the chunk size
+        # for an even balance.
+        if (label != "gpt") {
+            # The start position for the extended/logical partitions
+            # needs to be increased by the chunk size.
+            # Otherwise increase it by the p_size.
+           if (p_type == "5" || p_type == "f" || p_number > 4) {
+               curr_start += CHUNK_SIZE;
+           } else {
+               curr_start += p_size;
+           }
         } else {
             curr_start += p_size;
         }
+        # Set the partitions start to our adjusted start.
         partitions[pName, "start"] = p_start;
     }
+    # Sorted in setter.
     PROCINFO["sorted_in"] = old_sorted_in;
-    check_all_partitions(partition_names, partitions);
+    # Check for any overlaps.
+    return check_all_partitions(partition_names, partitions);
 }
-
-BEGIN{
+# This is where it all begins (See->BEGIN) :)
+BEGIN {
     # Arguments - Use "-v var=val" when calling this script
     # CHUNK_SIZE;
     # MIN_START;
@@ -505,61 +574,88 @@ BEGIN{
     partitions[0] = "";
     partition_names[0] = "";
 }
-
+# Set label global variable
 /^label:/{label = $2}
+# Set labelid global variable
 /^label-id:/{labelid = $2}
+# Set device global variable
 /^device:/{device = $2}
+# Set unit global variable
 /^unit:/{unit = $2}
+# Get the start positions
 /start=/{
     # Get Partition Name
     part_name = $1;
+    # Start setup of partitions.
     partitions[part_name, "device"] = part_name;
+    # Start setup of partition_names.
     partition_names[part_name] = part_name;
-    # Isolate Partition Number
+    # Isolate Partition Number.
     # The regex can handle devices like mmcblk0p3
     part_number = gensub(/^[^0-9]*[0-9]*[^0-9]+/, "", 1, part_name);
+    # Set the partitions number.
     partitions[part_name, "number"] = part_number;
     # Separate attributes
     split($0, fields, ",");
     # Get start value
     gsub(/.*start= */, "", fields[1]);
+    # Set start point.
     partitions[part_name, "start"] = fields[1];
     # Get size value
     gsub(/.*size= */, "", fields[2]);
+    # Set size.
     partitions[part_name, "size"] = fields[2];
     # Get type/id value
     gsub(/.*(type|Id)= */, "", fields[3]);
+    # Set type.
     partitions[part_name, "type"] = fields[3];
+    # Sets up based on dos/gpt label types.
+    # Sets defaults if unit type is neither.
     if (label == "dos") {
         split($0, typeList, "type=");
+        # Sets the partition flags.
         part_flags = gensub(/^[^\,$]*/, "",1,typeList[2]);
+        # Ensure object has the flags defined.
         partitions[part_name, "flags"] = part_flags;
     } else if (label == "gpt") {
         # Get uuid value
         gsub(/.*uuid= */, "", fields[4]);
+        # Set the uuid in the object
         partitions[part_name, "uuid"] = fields[4];
         # Get name value
         gsub(/.*name= */, "", fields[5]);
+        # Set the name in the object
         partitions[part_name, "name"] = fields[5];
         # Get attrs value
         if (fields[6]) {
             gsub(/.*attrs= */, "", fields[6]);
+            # Sets the attrs int the object.
             partitions[part_name, "attrs"] = fields[6];
         }
     } else {
         split($0, typeList, "Id=");
+        # Gets the partition flags.
         part_flags = gensub(/^[^\,$]*/, "",1,typeList[2]);
+        # Sets the flags to the object.
         partitions[part_name, "flags"] = part_flags;
     }
 } END {
+    # Clean up.
     delete partitions[0];
     delete partition_names[0];
+    # If the action value is resize run resize_partition function.
+    # If the action value is move run the move_partition function.
+    # If the action value is filldisk run the fill_disk function.
+    # If the action value is neither of the above fail out.
     if (action == "resize") {
         resize_partition(partition_names, partitions, args);
     } else if(action == "move") {
         move_partition(partition_names, partitions, args);
     } else if(action == "filldisk") {
         fill_disk(partition_names, partitions, args);
+    } else {
+        exit(1);
     }
+    # Display output.
     display_output(partition_names, partitions);
 }
