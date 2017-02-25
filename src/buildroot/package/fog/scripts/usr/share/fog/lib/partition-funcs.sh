@@ -446,6 +446,7 @@ resizeSfdiskPartition() {
     saveSfdiskPartitions "$disk" "$tmp_file"
     processSfdisk "$tmp_file" resize "$part" "$size" > "$tmp_file2"
     if [[ $ismajordebug -gt 0 ]]; then
+        echo "Debug"
         majorDebugEcho "Trying to fill the disk with these partitions:"
         cat $tmp_file2
         majorDebugPause
