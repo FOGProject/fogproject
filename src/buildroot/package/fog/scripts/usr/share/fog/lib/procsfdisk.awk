@@ -64,6 +64,8 @@ function check_all_partitions(partition_names, partitions, pName, p_start, p_siz
 # p_start is locally scoped, but could be set here if wanted. Will be overwritten anyway.
 # p_size is locally scoped, but could be set here if wanted. Will be overwritten anyway.
 # p_part_number is locally scoped, but could be set here if wanted. Will be overwritten anyway.
+# Global Scoped variables (meaning not needed to pass to the function:
+# label the device label.
 function check_overlap(partition_names, partitions, new_part_name, new_start, new_size, capture, extended_margin, new_type, new_part_number, pName, p_type, p_start, p_size, p_part_number) {
     # Used for extended volumes (logical disks)
     extended_margin = 2;
@@ -106,9 +108,13 @@ function check_overlap(partition_names, partitions, new_part_name, new_start, ne
             # If the new type is an extended type:
             # Extended only happens on non-gpt disks.
             # we need to add at least the extended element.
+            # If partition is 5 or more, we need to add the start
+            # plus the chunk size.
             if (label != "gpt") {
                 if (new_type == "5" || new_type == "f") {
                     p_start += extended_margin
+                } else if (p_number > 4) {
+                    p_start += CHUNK_SIZE;
                 }
             }
         }
@@ -142,10 +148,12 @@ function check_overlap(partition_names, partitions, new_part_name, new_start, ne
 # p_name is locally scoped, but could be set here if wanted. Will be overwritten anyway.
 # p_attrs is locally scoped, but could be set here if wanted. Will be overwritten anyway.
 # typelabel is locally scoped, but could be set here if wanted. Will be overwritten anyway.
+# Global Scoped variables (meaning not needed to pass to the function:
+# unit the unit type
+# label the device label
+# labelid the device label id
+# device the device itself
 function display_output(partition_names, partitions, pName, p_device, p_start, p_size, p_type, p_flag, p_uuid, p_name, p_attrs, typelabel) {
-    #
-    # unit, label, labelid, device are all globally scoped variables.
-    #
     # If unit is not set, or has no value, set to sectors.
     if (!unit) {
         unit = "sectors";
@@ -210,10 +218,21 @@ function display_output(partition_names, partitions, pName, p_device, p_start, p
     return 0;
 }
 
+# Resizes the partition, currently really just shrinks.
+# Requires partition_names, partitions, and args.
+# partition_names is an array of all the partition names.
+# partitions is an array containing the data we need.
+#  Partitions are sent in an array of form:
+#   partitions['name']['start'] = value;
+#   partitions['name']['size'] = value;
+# args are the arguments from the caller.
+# pName is locally scoped, but could be set here if wanted. Will be overwritten anyway.
+# new_start is locally scoped, but could be set here if wanted. Will be overwritten anyway.
+# new_size is locally scoped, but could be set here if wanted. Will be overwritten anyway.
+# Global Scoped variables (meaning not needed to pass to the function:
+# target the device to work off of
+# unit the unit type
 function resize_partition(partition_names, partitions, args, pName, new_start, new_size) {
-    #
-    # target is a glboally scoped variable.
-    #
     # Iterate our partitions.
     for (pName in partition_names) {
         # If pName is not the target, skip.
@@ -224,20 +243,50 @@ function resize_partition(partition_names, partitions, args, pName, new_start, n
         if (unit != "sectors") {
             continue;
         }
+        # Set our new start position to the current start.
         new_start = partitions[pName, "start"];
+        # Ensure start postition is aligned properly.
         new_size = sizePos / CHUNK_SIZE;
+        # Check the overlap.
         overlap = check_overlap(partition_names, partitions, target, new_start, new_size, 1);
-        printf("# Overlap %s\n", overlap);
         # If there was an issue in checking overlap, skip.
         if (overlap != 0) {
             continue;
         }
+        # Sets the new start position.
+        # This function currently is only called
+        # for capture, so this shouldn't change.
+        # Left here for the future to allow changing
+        # if we needed to.
+        # Ultimately to switch the start position, we
+        # could do something like below from check_overlap:
+        # partitions[target, "start"] = p_start;
         partitions[target, "start"] = new_start;
+        # Sets the new size which is passed into the script
+        # directly. As long as no overlap we know the shrunk
+        # size is safe.
         partitions[target, "size"] = new_size;
     }
+    return 0;
 }
 
+# Moves the partitions around as needed.
+# Requires partition_names, partitions, and args.
+# partition_names is an array of all the partition names.
+# partitions is an array containing the data we need.
+#  Partitions are sent in an array of form:
+#   partitions['name']['start'] = value;
+#   partitions['name']['size'] = value;
+# args are the arguments from the caller.
+# pName is locally scoped, but could be set here if wanted. Will be overwritten anyway.
+# new_start is locally scoped, but could be set here if wanted. Will be overwritten anyway.
+# new_size is locally scoped, but could be set here if wanted. Will be overwritten anyway.
+# Global Scoped variables (meaning not needed to pass to the function:
+# target the device to work off of
+# unit the unit type
+# MIN_START is the minimum start point of the drive
 function move_partition(partition_names, partitions, args, pName, new_start, new_size) {
+    # Iterate our partitions.
     for (pName in partition_names) {
         # If pName is not the target, skip.
         if (pName != target) {
@@ -247,72 +296,133 @@ function move_partition(partition_names, partitions, args, pName, new_start, new
         if (unit != "sectors") {
             continue;
         }
+        # Ensure start postition is aligned properly.
         new_start = sizePos / CHUNK_SIZE;
+        # If the new_start is less than the MIN_START
+        # ensure the new_start is equal to the min start point.
         if (new_start < MIN_START) {
             new_start = MIN_START;
         }
+        # Set the new size variable.
         new_size = partitions[pName, "size"];
+        # Check any overlap.
         overlap = check_overlap(partition_names, partitions, target, new_start, new_size, 0);
         # If overlap is invalid, skip.
         if (overlap != 0) {
             continue;
         }
+        # Ensure our values are adjusted.
         partitions[target, "start"] = new_start;
-        partitions[target, "size"] = new_size;
     }
 }
 
-function fill_disk(partition_names, partitions, args, disk, disk_size, n, fixed_partitions, original_variable, original_fixed, new_variable, new_fixed, new_logical, pName, p_type, p_number, p_size, found, i, partition_starts, ordered_starts, old_sorted_in, curr_start) {
-    disk = target;
-    disk_size = sizePos / CHUNK_SIZE;
+# Fill the disk space.
+# Requires partition_names, partitions, and args.
+# partition_names is an array of all the partition names.
+# partitions is an array containing the data we need.
+#  Partitions are sent in an array of form:
+#   partitions['name']['start'] = value;
+#   partitions['name']['size'] = value;
+# args are the arguments from the caller.
+# fixed_partitions is locally scoped and will be overwritten. Used to contain our fixed partitions.
+# original_variable is locally scoped and will be overwritten. Used to figure originating resizable space.
+# original_fixed is locally scoped and will be overwritten. Used to contain the fixed partition space.
+# new_variable is locally scoped and will be overwritten. Used to contain the new disks resizable space.
+# new_logical is locally scoped and will be overwritten. Used to contain the logical volume space.
+# extended_margin is locally scoped and will be overwritten. Used to give logic start + extended which is typically 2.
+# pName is locally scoped, but could be set here if wanted. Will be overwritten anyway.
+# p_type is locally scoped, but could be set here if wanted. Will be overwritten anyway.
+# p_number is locally scoped, but could be set here if wanted. Will be overwritten anyway.
+# p_size is locally scoped, but could be set here if wanted. Will be overwritten anyway.
+# p_fixed is locally scoped, but could be set here if wanted. Will be overwritten anyway.
+# found is locally scoped, but could be set here if wanted. Will be overwritten anyway.
+# new_start is locally scoped, but could be set here if wanted. Will be overwritten anyway.
+# new_size is locally scoped, but could be set here if wanted. Will be overwritten anyway.
+function fill_disk(partition_names, partitions, args, n, fixed_partitions, original_variable, original_fixed, new_variable, new_logical, extended_margin, pName, p_type, p_number, p_size, p_fixed, found, i, partition_starts, ordered_starts, old_sorted_in, curr_start) {
+    # Used for extended volumes (logical disks)
+    extended_margin = 2;
+    # Original fixed and variable start size.
+    # Variable should be 0, fixed should be at least MIN_START.
+    original_variable = 0;
+    original_fixed = MIN_START;
+    # Iterate partitions. This loop checks for swap
+    # partitions. A fail safe to ensure swap is fixed.
     for (pName in partition_names) {
+        # Set p_type variable.
         p_type = partitions[pName, "type"];
+        # Set p_number variable.
         p_number = partitions[pName, "number"];
-        if (p_type == "82") {
-            fixedList = fixedList ":" p_number;
+        # Set p_size variable.
+        p_size = partitions[pName, "size"];
+        # If p_type is not 82 (swap), check next partition.
+        if (p_type != "82") {
+            continue;
         }
+        # If p_size > 0, check next partition.
+        if (p_size > 0) {
+            continue;
+        }
+        # Update the fixedList global variable.
+        fixedList = fixedList ":" p_number;
     }
-    n = split(fixedList, fixed_partitions, ":");
+    # split fixed list into fixed_partitions
+    # stored in fixed_partitions variable.
+    split(fixedList, fixed_partitions, ":");
     #
     # Find the total fixed and variable space.
     #
-    original_variable = MIN_START;
-    original_fixed = MIN_START;
     for (pName in partition_names) {
+        # Set p_type variable.
         p_type = partitions[pName, "type"];
+        # Set p_number variable.
         p_number = partitions[pName, "number"];
+        # Set p_size variable.
         p_size = partitions[pName, "size"];
+        # Set partition starts.
         partition_starts[partitions[pName, "start"]] = pName;
         # Skip extended partition.
-        # Only count its logicals and the CHUNK for its partition table.
+        # Only count its logical point with extended.
+        # Only count its CHUNK_SIZE for part 5 or higher.
         if (label != "gpt") {
-            if (p_type == "5" || p_type == "f" || p_number >= 5) {
+            # If the partition is the extended partition itself,
+            # increase the fixed size by the extended margin.
+            # Otherwise, if the part number is > 5 increase the
+            # fixed by the chunk size.
+            if (p_type == "5" || p_type == "f") {
+                original_fixed += extended_margin;
+            } else if (p_number > 4) {
                 original_fixed += CHUNK_SIZE;
             }
             continue;
         }
-        # CHUNK_SIZE to allow for margin after each logical partition.
-        # (Required if 2 or mor logical partitions exist.)
+        # Don't check empty partitions.
         if (p_size == 0) {
-            fixed_partitions[pName] = p_number;
+            continue;
         }
+        # Split our fixed partitions string
         found = 0;
-        for (i in fixed_partitions) {
+        # Loop fixed_partitions
+        # If the fixed partition is the
+        # same as the current running fixed,
+        # set found to 1 for later processing.
+        for (p_fixed in fixed_partitions) {
+            # If the iteration matches the current p_number
+            # set the found to 1.
             if (fixed_partitions[i] == p_number) {
                 found = 1;
             }
         }
+        # If partition is found, increase the original_fixed.
+        # Otherwise it is not found, increase original_variable.
         if (found) {
             original_fixed += partitions[pName, "size"];
         } else {
             original_variable += partitions[pName, "size"];
         }
     }
-    #
-    # Assign the new sizes to partitions.
-    #
-    new_variable = disk_size - original_fixed;
-    new_logical = 0;
+    # Assign the new sizes.
+    new_variable = sizePos - original_fixed;
+    new_logical = extended_margin;
     for (pName in partition_names) {
         p_type = partitions[pName, "type"];
         p_number = partitions[pName, "number"];
@@ -325,21 +435,19 @@ function fill_disk(partition_names, partitions, args, disk, disk_size, n, fixed_
         }
         if (found) {
             partitions[pName, "size"] = p_size;
-        } else if (label != "dos" && (p_type == "5" || p_type == "f")) {
-            partitions[pName, "size"] = new_variable;
+        } else if (label != "gpt") {
+            if (p_type == "5" || p_type == "f") {
+                new_logical += new_variable;
+                partitions[pName, "size"] += new_logical;
+            } else if (p_number > 4) {
+                new_logical += partitions[pName, "size"] + CHUNK_SIZE;
+            }
         } else {
             var = new_variable * p_size / original_variable;
             if (var <= 0 || var < p_size) {
                 var = p_size;
             }
             partitions[pName, "size"] = var - var % CHUNK_SIZE;
-        }
-        # Only deal with logical partitions as needed.
-        if (label != "gpt") {
-            # Logical partition allowing for a margin after each logical partition.
-            if (p_number >= 5) {
-                new_logical += partitions[pName, "size"] + CHUNK_SIZE;
-            }
         }
     }
     #
@@ -373,7 +481,7 @@ function fill_disk(partition_names, partitions, args, disk, disk_size, n, fixed_
         if (p_size > 0) {
             p_start = curr_start;
         }
-        if (label != "gpt" && (p_type == "5" || p_type == "f" || p_number >= 5)) {
+        if (label != "gpt" && (p_type == "5" || p_type == "f" || p_number > 4)) {
             curr_start += CHUNK_SIZE;
         } else {
             curr_start += p_size;
