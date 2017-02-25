@@ -1858,6 +1858,8 @@ savePartitionTablesAndBootLoaders() {
             dots "$strdots"
             saveGRUB "$disk" "$disk_number" "$imagePath"
             sfdisk -d $disk 2>/dev/null > $sfdiskfilename
+            echo "Done"
+            debugPause
             [[ $have_extended_partition -ge 1 ]] && saveAllEBRs "$disk" "$disk_number" "$imagePath"
             echo "Done"
             ;;
@@ -2059,6 +2061,7 @@ savePartition() {
                         0)
                             mv ${imgpart}.000 $imgpart >/dev/null 2>&1
                             echo " * Image Captured"
+                            debugPause
                             ;;
                         *)
                             handleError "Failed to complete capture (${FUNCNAME[0]})\n   Args Passed: $*\n    Exit code: $exitcode\n    Maybe check the fog server\n      to ensure disk space is good to go?"
@@ -2069,7 +2072,6 @@ savePartition() {
             ;;
     esac
     rm -rf $fifoname >/dev/null 2>&1
-    debugPause
 }
 restorePartition() {
     local part="$1"
