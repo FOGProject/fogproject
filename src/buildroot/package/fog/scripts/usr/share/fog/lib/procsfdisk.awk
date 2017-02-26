@@ -476,11 +476,15 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         # If the new adjusted is less than the oringal size
         if (new_adjusted < p_size) {
             # Figure out the percentage of difference.
-            new_adj = (original_variable - (p_size + p_start - 1)) / original_variable;
+            new_adj = (original_variable - (p_start + p_size - 1)) / original_variable;
             # Multiply the original size by the difference.
             new_adj *= p_size;
             # Increment the adjusted by the adjusted.
-            new_adjusted += new_adj;
+            if (new_adj < 0) {
+                new_adjusted += new_adj;
+            } else {
+                new_adjusted = new_adj;
+            }
         }
         # Ensure we're aligned.
         p_size = new_adjusted - new_adjusted % int(CHUNK_SIZE);
