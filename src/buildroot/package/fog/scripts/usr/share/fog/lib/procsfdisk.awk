@@ -321,15 +321,10 @@ function move_partition(partition_names, partitions, args, pName, new_start, new
         }
         # Set the new size variable.
         new_size = int(partitions[pName, "size"]);
-        # Check any overlap.
-        overlap = check_overlap(partition_names, partitions, target, new_start, new_size, 0);
-        # If overlap is invalid, skip.
-        if (overlap != 0) {
-            continue;
-        }
         # Ensure our values are adjusted.
         partitions[target, "start"] = new_start;
     }
+    return 0;
 }
 
 # Fill the disk space.
@@ -443,6 +438,8 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         p_type = partitions[pName, "type"];
         # Reset our p_number variable.
         p_number = int(partitions[pName, "number"]);
+        # Reset our p_start variable.
+        p_start = int(partitions[pName, "start"]);
         # Reset our p_size variable.
         p_size = int(partitions[pName, "size"]);
         # No worrying about 0 sized partitions.
@@ -474,11 +471,18 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         if (p_fixed) {
             continue;
         }
-        # Get's the percentage increase/decrease and makes adjustement.
+        # Get's the percentage increase/decrease and makes adjustment.
         new_adjusted = new_variable * p_size / original_variable;
+        # If the new adjusted is less than the oringal size
+        if (new_adjusted < p_size) {
+            # Figure out the percentage of difference.
+            new_adj = (original_variable - (p_size + p_start - 1)) / original_variable;
+            # Multiply the original size by the difference.
+            new_adj *= p_size;
+            # Increment the adjusted by the adjusted.
+            new_adjusted += new_adj;
+        }
         # Ensure we're aligned.
-        new_adjusted = new_adjusted - new_adjusted % int(CHUNK_SIZE);
-        # Ensure the size is properly aligned.
         p_size = new_adjusted - new_adjusted % int(CHUNK_SIZE);
         # Ensure the partition size is setup.
         partitions[pName, "size"] = p_size;

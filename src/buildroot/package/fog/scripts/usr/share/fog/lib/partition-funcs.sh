@@ -459,18 +459,30 @@ resizeSfdiskPartition() {
 }
 # $1 is the disk device (e.g. /dev/sda)
 # $2 is the name of the original sfdisk -d output file used as a template
-# $3 is the : separated list of fixed size partitions (e.g. 1:2)
+# $3 is the name of the minimum sfdisk -d output file used as a template
+# $4 is the : separated list of fixed size partitions (e.g. 1:2)
 #	 swap partitions are automatically added.  Empty string is
 #	 ok.
 fillSfdiskWithPartitions() {
     local disk="$1"
     local file="$2"
-    local fixed="$3"
+    local minf="$3"
+    local fixed="$4"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ -z $file ]] && handleError "No file to use passed (${FUNCNAME[0]})\n   Args Passed: $*"
-    rm -rf /tmp/sfdisk2.*
+    rm -rf /tmp/sfdisk{1,2}.*
     local disk_size=$(blockdev --getsz $disk)
+    #local tmp_file1="/tmp/sfdisk1.$$"
     local tmp_file2="/tmp/sfdisk2.$$"
+    #processSfdisk "$minf" move "$disk" "$disk_size" "$fixed" > "$tmp_file1"
+    #status=$?
+    #if [[ $ismajordebug -gt 0 ]]; then
+    #    echo "Debug"
+    #    majorDebugEcho "Trying to fill with the disk with these partititions:"
+    #    cat $tmp_file1
+    #    majorDebugPause
+    #fi
+    #[[ $status -eq 0 ]] && applySfdiskPartitions "$disk" "$tmp_file1" "$tmp_file2"
     processSfdisk "$file" filldisk "$disk" "$disk_size" "$fixed" > "$tmp_file2"
     status=$?
     if [[ $ismajordebug -gt 0 ]]; then
@@ -782,14 +794,13 @@ fillDiskWithPartitions() {
             sfdiskMinimumPartitionFileName "$imagePath" "$disk_number"
             sfdiskOriginalPartitionFileName "$imagePath" "$disk_number"
             sfdiskLegacyOriginalPartitionFileName "$imagePath" "$disk_number"
-            sgdiskOriginalPartitionFileName "$imagePath" "$disk_number"
-            local filename="$sfdiskoriginalpartitionfilename"
+            local filename="$sfdiskminimumpartitionfilename"
+            local origname="$sfdiskoriginalpartitionfilename"
             local cmdtorun='fillSfdiskWithPartitions'
-            [[ ! -r $filename ]] && filename="$sfdisklegacyoriginalpartitionfilename"
-            [[ ! -r $filename ]] && filename="$sgdiskoriginalpartitionfilename"
-            [[ $filename == $sgdiskoriginalpartitionfilename ]] && cmdtorun='fillSgdiskWithPartitions'
+            [[ ! -r $origname ]] && filename="$sfdisklegacyoriginalpartitionfilename"
+            [[ ! -r $origname ]] && filename="$sgdiskoriginalpartitionfilename"
             [[ ! -r $filename ]] && handleError "Failed to find a restore file (${FUNCNAME[0]})\n   Args Passed: $*"
-            $cmdtorun "$disk" "$filename" "$fixed_size_partitions"
+            $cmdtorun "$disk" "$origname" "$filename" "$fixed_size_partitions"
             ;;
         *)
             echo "Failed"
