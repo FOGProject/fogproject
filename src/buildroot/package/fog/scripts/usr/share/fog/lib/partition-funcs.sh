@@ -541,8 +541,7 @@ processSfdisk() {
     local blocksize=$(blockdev --getbsz ${target})
     local chunksize=""
     getPartBlockSize "$disk" "chunksize"
-    local divisor=$(calculate "$maxsect/$chunksize")
-    local minstart=$(calculate "$blocksize/$divisor")
+    local minstart=$(calculate "$maxsect-$chunksize")
     case $osid in
         [1-2])
             [[ -z $minstart ]] && {

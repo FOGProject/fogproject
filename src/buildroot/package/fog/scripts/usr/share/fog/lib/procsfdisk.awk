@@ -173,10 +173,10 @@ function display_output(partition_names, partitions, pName, p_device, p_start, p
     printf("unit: %s\n", unit);
     # If the first lba field is set store it too.
     if (firstlba) {
-        printf("first-lba: %s\n", firstlba);
+        printf("first-lba: %d\n", firstlba);
     }
     if (lastlba) {
-        printf("last-lba: %s\n", lastlba);
+        printf("last-lba: %d\n", lastlba);
     }
     printf("\n");
     # Iterate our partition names.
@@ -243,13 +243,8 @@ function display_output(partition_names, partitions, pName, p_device, p_start, p
 # target the device to work off of
 # unit the unit type
 function resize_partition(partition_names, partitions, args, pName, new_start, new_size, p_start, new_variable) {
-    # new start will start at
-    # first lba or the min start.
-    if (firstlba) {
-        new_start = firstlba;
-    } else {
-        new_start = MIN_START;
-    }
+    # new start will start at MIN_START
+    new_start = MIN_START;
     # Iterate our partitions.
     for (pName in partition_names) {
         # If pName is not the target, skip.
@@ -290,7 +285,7 @@ function resize_partition(partition_names, partitions, args, pName, new_start, n
     }
     if (lastlba) {
         lastlba = new_variable - new_variable % CHUNK_SIZE;
-        lastlba -= (MIN_START / CHUNK_SIZE) + firstlba;
+        lastlba -= firstlba;
     }
     return 0;
 }
@@ -370,8 +365,7 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
     # Original fixed and variable start size.
     # Variable should be 0, fixed should be at least MIN_START.
     original_variable = 0;
-    original_fixed = MIN_START;
-    original_fixed += (MIN_START / CHUNK_SIZE);
+    original_fixed = MIN_START + (MIN_START / CHUNK_SIZE);
     # Iterate partitions. This loop checks for swap
     # partitions. A fail safe to ensure swap is fixed.
     for (pName in partition_names) {
@@ -582,9 +576,9 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
     # Sorted in setter.
     PROCINFO["sorted_in"] = old_sorted_in;
     # Set our lastlba
-    if (lastlba) {
+    if (firstlba) {
         lastlba = new_variable + original_fixed;
-        lastlba -= (MIN_START / CHUNK_SIZE) + firstlba;
+        lastlba -= firstlba;
     }
     # Check for any overlaps.
     return check_all_partitions(partition_names, partitions);
