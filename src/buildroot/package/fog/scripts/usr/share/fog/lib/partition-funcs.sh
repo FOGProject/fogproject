@@ -468,7 +468,7 @@ fillSfdiskWithPartitions() {
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ -z $file ]] && handleError "No file to use passed (${FUNCNAME[0]})\n   Args Passed: $*"
     rm -rf /tmp/sfdisk2.*
-    local disk_size=$(blockdev --getsize $disk)
+    local disk_size=$(blockdev --getsz $disk)
     local tmp_file2="/tmp/sfdisk2.$$"
     processSfdisk "$file" filldisk "$disk" "$disk_size" "$fixed" > "$tmp_file2"
     status=$?
@@ -537,13 +537,18 @@ processSfdisk() {
     [[ -z $action ]] && handleError "No action passed (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ -z $target ]] && handleError "Device (disk or partition) not passed (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ -z $size ]] && handleError "No desired size passed (${FUNCNAME[0]})\n   Args Passed: $*"
-    local minstart=$(awk -F'[ ,]+' '/start/{if ($4) print $4}' $data | sort -n | head -1)
+    local maxsect=$(blockdev --getmaxsect ${target})
+    local blocksize=$(blockdev --getbsz ${target})
     local chunksize=""
     getPartBlockSize "$disk" "chunksize"
+    local divisor=$(calculate "$maxsect/$chunksize")
+    local minstart=$(calculate "$blocksize/$divisor")
     case $osid in
         [1-2])
-            [[ -z $minstart ]] && chunksize=512
-            [[ -z $minstart ]] && minstart=63
+            [[ -z $minstart ]] && {
+                minstart=63
+                chunksize=512
+            }
             ;;
     esac
     local awkArgs="-v CHUNK_SIZE=$chunksize -v MIN_START=$minstart"
