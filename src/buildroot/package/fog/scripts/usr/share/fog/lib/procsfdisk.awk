@@ -190,7 +190,11 @@ function display_output(partition_names, partitions, pName, p_device, p_start, p
         # set our p_type variable.
         p_type = partitions[pName, "type"];
         # Write our data into the sfdisk file.
-        printf("%s : start=%10d, size=%10d, %s%2s", p_device, p_start, p_size, typelabel, p_type);
+        if (label == "gpt") {
+            printf("%s : start=%12d, size=%12d, %s%2s", p_device, p_start, p_size, typelabel, p_type);
+        } else {
+            printf("%s : start=%10d, size=%10d, %s%2s", p_device, p_start, p_size, typelabel, p_type);
+        }
         # If label is gpt do these things.
         # else we need the flags.
         if (label == "gpt") {
@@ -235,16 +239,12 @@ function display_output(partition_names, partitions, pName, p_device, p_start, p
 #   partitions['name']['size'] = value;
 # args are the arguments from the caller.
 # pName is locally scoped, but could be set here if wanted. Will be overwritten anyway.
-# new_start is locally scoped, but could be set here if wanted. Will be overwritten anyway.
 # new_size is locally scoped, but could be set here if wanted. Will be overwritten anyway.
 # p_start is locally scoped, but could be set here if wanted. Will be overwritten anyway.
-# new_variable is locally scoped, but could be set here if wanted. Will be overwritten anyway.
 # Global Scoped variables (meaning not needed to pass to the function:
 # target the device to work off of
 # unit the unit type
-function resize_partition(partition_names, partitions, args, pName, new_start, new_size, p_start, new_variable) {
-    # new start will start at MIN_START
-    new_start = MIN_START;
+function resize_partition(partition_names, partitions, args, pName, new_size, p_start) {
     # Iterate our partitions.
     for (pName in partition_names) {
         # If pName is not the target, skip.
@@ -259,10 +259,6 @@ function resize_partition(partition_names, partitions, args, pName, new_start, n
         p_start = partitions[pName, "start"];
         # Ensure start postition is aligned properly.
         new_size = sizePos / CHUNK_SIZE;
-        # Set the new start postition.
-        new_start += (new_size - new_size % CHUNK_SIZE);
-        # Increase the variable size.
-        new_variable = new_start + new_size;
         # Check the overlap.
         overlap = check_overlap(partition_names, partitions, target, new_start, new_size, 1);
         # If there was an issue in checking overlap, skip.
@@ -284,8 +280,7 @@ function resize_partition(partition_names, partitions, args, pName, new_start, n
         partitions[target, "size"] = new_size;
     }
     if (lastlba) {
-        lastlba = new_variable - new_variable % CHUNK_SIZE;
-        lastlba -= firstlba;
+        lastlba = diskSize - firstlba;
     }
     return 0;
 }
@@ -591,6 +586,7 @@ BEGIN {
     # action;
     # target;
     # sizePos;
+    # diskSize;
     # fixedList;
     label = "";
     unit = "";

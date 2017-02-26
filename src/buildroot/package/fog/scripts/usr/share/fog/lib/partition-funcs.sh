@@ -443,6 +443,7 @@ resizeSfdiskPartition() {
     getDiskFromPartition "$part"
     local tmp_file="/tmp/sfdisk.$$"
     local tmp_file2="/tmp/sfdisk2.$$"
+    rm -rf /tmp/sfdisk{,2}.*
     saveSfdiskPartitions "$disk" "$tmp_file"
     processSfdisk "$tmp_file" resize "$part" "$size" > "$tmp_file2"
     if [[ $ismajordebug -gt 0 ]]; then
@@ -537,6 +538,7 @@ processSfdisk() {
     [[ -z $action ]] && handleError "No action passed (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ -z $target ]] && handleError "Device (disk or partition) not passed (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ -z $size ]] && handleError "No desired size passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    local disk_size=$(blockdev --getsz ${disk})
     local maxsect=$(blockdev --getmaxsect ${target})
     local blocksize=$(blockdev --getbsz ${target})
     local chunksize=""
@@ -552,6 +554,7 @@ processSfdisk() {
     esac
     local awkArgs="-v CHUNK_SIZE=$chunksize -v MIN_START=$minstart"
     awkArgs="$awkArgs -v action=$action -v target=$target -v sizePos=$size"
+    awkArgs="$awkArgs -v diskSize=$disk_size"
     [[ -n $fixed ]] && awkArgs="$awkArgs -v fixedList=$fixed"
     # process with external awk script
     /usr/share/fog/lib/procsfdisk.awk $awkArgs $data
