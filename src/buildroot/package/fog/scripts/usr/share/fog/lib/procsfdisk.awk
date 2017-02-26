@@ -480,11 +480,7 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
             # Multiply the original size by the difference.
             new_adj *= p_size;
             # Increment the adjusted by the adjusted.
-            if (new_adj < 0) {
-                new_adjusted += new_adj;
-            } else {
-                new_adjusted = new_adj;
-            }
+            new_adjusted += new_adj;
         }
         # Ensure we're aligned.
         p_size = new_adjusted - new_adjusted % int(CHUNK_SIZE);
