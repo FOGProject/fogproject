@@ -359,6 +359,7 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
     original_fixed = int(MIN_START);
     # Iterate partitions. This loop checks for swap
     # partitions. A fail safe to ensure swap is fixed.
+    # Will also set 0 sized partition to fixed.
     for (pName in partition_names) {
         # Set p_type variable.
         p_type = partitions[pName, "type"];
@@ -387,13 +388,13 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         # Set p_type variable.
         p_type = partitions[pName, "type"];
         # Set p_number variable.
-        p_number = partitions[pName, "number"];
+        p_number = int(partitions[pName, "number"]);
         # Set p_size variable.
-        p_size = partitions[pName, "size"];
+        p_size = int(partitions[pName, "size"]);
         # Set p_start variable.
-        p_start = partitions[pName, "start"];
+        p_start = int(partitions[pName, "start"]);
         # Set partition starts.
-        partition_starts[partitions[pName, "start"]] = pName;
+        partition_starts[p_start] = pName;
         # Don't check empty partitions.
         if (p_size == 0) {
             continue;
@@ -406,8 +407,8 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
                 new_logical = p_size + extended_margin;
                 continue;
             } else if (p_number > 4) {
-                original_fixed += CHUNK_SIZE;
-                new_logical += p_size + CHUNK_SIZE;
+                original_fixed += int(CHUNK_SIZE);
+                new_logical += int(CHUNK_SIZE);
                 continue;
             }
         }
@@ -473,18 +474,30 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         }
         # Get's the percentage increase/decrease and makes adjustment.
         new_adjusted = new_variable * p_size / original_variable;
+        # If the adjusted value is < the original p_size, we need
+        # to down scale a little bit.
         if (new_adjusted < p_size) {
             # Figure out the percentage of difference.
             new_adj = (new_variable - p_size) / original_variable;
+            # If the new adj (secondary adjusted) is negative we need
+            # some psuedo black magic to ensure the partition space will fit
+            # within the realm of the disk, while still expanding/shrinking
+            # appropriately.
             if (new_adj < 0) {
+                # Because the original check is negative, reverse the items
+                # to get the real percentage of difference.
                 new_adj = (p_size - new_variable) / original_variable;
+                # Get our adjusted size (should be just smaller than the diskSize.
                 new_adj *= p_size;
+                # We need to remove the fixed space from this new adjusted size.
                 new_adj -= original_fixed;
+                # Get's the percentage decrease and makes adjustement.
                 new_adjusted = new_adj * p_size / original_variable;
             } else {
                 # Multiply the original size by the difference.
                 new_adj *= p_size;
-                # Increment the adjusted by the adjusted.
+                # Increment the adjusted by the secondary adjusted.
+                # This should be only a minimal increase to the available adjusted usage.
                 new_adjusted += new_adj;
             }
         }
@@ -600,17 +613,17 @@ BEGIN {
     # The regex can handle devices like mmcblk0p3
     part_number = gensub(/^[^0-9]*[0-9]*[^0-9]+/, "", 1, part_name);
     # Set the partitions number.
-    partitions[part_name, "number"] = part_number;
+    partitions[part_name, "number"] = int(part_number);
     # Separate attributes
     split($0, fields, ",");
     # Get start value
     gsub(/.*start= */, "", fields[1]);
     # Set start point.
-    partitions[part_name, "start"] = fields[1];
+    partitions[part_name, "start"] = int(fields[1]);
     # Get size value
     gsub(/.*size= */, "", fields[2]);
     # Set size.
-    partitions[part_name, "size"] = fields[2];
+    partitions[part_name, "size"] = int(fields[2]);
     # Get type/id value
     gsub(/.*(type|Id)= */, "", fields[3]);
     # Set type.
