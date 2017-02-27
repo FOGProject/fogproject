@@ -118,17 +118,28 @@ function check_overlap(partition_names, partitions, new_part_name, new_start, ne
                     p_start += CHUNK_SIZE;
                 }
             }
+            # Set to new start for checking.
+            new_start = p_start;
+        }
+        # If the new_start > the disk size we have an
+        # error as data won't be able to fit.
+        if (new_start > int(diskSize)) {
+            printf("ERROR: The new start is beyond limits of the disk.\n");
+            printf("ERROR: The new_start %d on %s is invalid.\n", new_start, pName);
+            exit(1);
         }
         # If the new_size > the disk size we have an
         # error as the data won't be able to fit.
         if (new_size > int(diskSize)) {
             printf("ERROR: The size being passed is larger than the disk size available.\n");
+            printf("ERROR: the new_size %d on %s is invalid.\n", new_size, pName);
             exit(1);
         }
         # If the new_start + the new_size > the disk size
         # We have an error as the data won't be able to fit.
         if (new_start + new_size > int(diskSize)) {
             printf("ERROR: Extending larger than disk size available.\n");
+            printf("ERROR: Total placement size %d on %s is invalid.\n", new_start + new_size, pName);
             exit(1);
         }
         # If the new start is greater than, or equal to
