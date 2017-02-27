@@ -297,7 +297,7 @@ function resize_partition(partition_names, partitions, args, pName, new_size, p_
         # Ultimately to switch the start position, we
         # could do something like below from check_overlap:
         # partitions[target, "start"] = p_start;
-        # partitions[target, "start"] = p_start;
+        partitions[target, "start"] = p_start;
         # Sets the new size which is passed into the script
         # directly. As long as no overlap we know the shrunk
         # size is safe.
