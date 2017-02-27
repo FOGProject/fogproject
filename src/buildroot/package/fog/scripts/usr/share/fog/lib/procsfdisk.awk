@@ -119,6 +119,12 @@ function check_overlap(partition_names, partitions, new_part_name, new_start, ne
                 }
             }
         }
+        # If the new_start + the new_size > the disk size
+        # We have an overlap as the data won't be able to fit.
+        if (new_start + new_size > int(diskSize)) {
+            printf("ERROR: Extending larger than disk size available.\n");
+            exit(1);
+        }
         # If the new start is greater than, or equal to
         # the p_start value, there is an overlap possible.
         if (new_start >= p_start) {
