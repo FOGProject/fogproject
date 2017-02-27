@@ -354,9 +354,9 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
     # Used for extended volumes (logical disks)
     extended_margin = 2;
     # Variable should be 0.
-    original_variable = 0;
+    original_variable = 0
     # Fixed should be MIN_START.
-    original_fixed = int(MIN_START) + (int(MIN_START) / int(CHUNK_SIZE));
+    original_fixed = int(MIN_START);
     # Iterate partitions. This loop checks for swap
     # partitions. A fail safe to ensure swap is fixed.
     for (pName in partition_names) {
@@ -473,14 +473,20 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         }
         # Get's the percentage increase/decrease and makes adjustment.
         new_adjusted = new_variable * p_size / original_variable;
-        # If the new adjusted is less than the oringal size
         if (new_adjusted < p_size) {
             # Figure out the percentage of difference.
-            new_adj = (original_variable - (p_start + p_size - 1)) / original_variable;
-            # Multiply the original size by the difference.
-            new_adj *= p_size;
-            # Increment the adjusted by the adjusted.
-            new_adjusted += new_adj;
+            new_adj = (new_variable - p_size) / original_variable;
+            if (new_adj < 0) {
+                new_adj = (p_size - new_variable) / original_variable;
+                new_adj *= p_size;
+                new_adj -= original_fixed;
+                new_adjusted = new_adj * p_size / original_variable;
+            } else {
+                # Multiply the original size by the difference.
+                new_adj *= p_size;
+                # Increment the adjusted by the adjusted.
+                new_adjusted += new_adj;
+            }
         }
         # Ensure we're aligned.
         p_size = new_adjusted - new_adjusted % int(CHUNK_SIZE);
@@ -550,7 +556,7 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
     PROCINFO["sorted_in"] = old_sorted_in;
     # Set our lastlba
     if (firstlba) {
-        lastlba = int(diskSize) - int(firstlba);
+        lastlba = int(diskSize) - int(firstlba) - int(MIN_START) / int(CHUNK_SIZE);
     }
     # Check for any overlaps.
     return check_all_partitions(partition_names, partitions);
