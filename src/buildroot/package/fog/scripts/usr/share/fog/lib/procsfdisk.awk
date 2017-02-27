@@ -105,7 +105,7 @@ function check_overlap(partition_names, partitions, new_part_name, new_start, ne
             } else if (new_size > p_size) {
                 p_start += new_size;
             }
-            partitions[pName, "start"] = p_start;
+            #partitions[pName, "start"] = p_start;
             # If the new type is an extended type:
             # Extended only happens on non-gpt disks.
             # we need to add at least the extended element.
