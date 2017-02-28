@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-28 12:15-0500\n"
+"POT-Creation-Date: 2017-02-28 12:49-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -7493,11 +7493,11 @@ msgstr "失败"
 msgid "Starting Sync Actions"
 msgstr "*启动同步操作"
 
-#: /var/www/fog/lib/service/fogservice.class.php:728
+#: /var/www/fog/lib/service/fogservice.class.php:737
 msgid "Started sync for"
 msgstr "对于同步启动"
 
-#: /var/www/fog/lib/service/fogservice.class.php:760
+#: /var/www/fog/lib/service/fogservice.class.php:769
 #, fuzzy
 msgid "Task started"
 msgstr "任务开始"

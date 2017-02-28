@@ -691,8 +691,23 @@ abstract class FOGService extends FOGBase
                 $myAddItem = escapeshellarg($myAddItem);
                 $remItem = escapeshellarg($remItem);
                 $logname = escapeshellarg($logname);
-                $cmd = "lftp -e \"set xfer:log-file $logname;";
-                $cmd = "set ftp:list-options -a;set net:max-retries ";
+                $myAddItem = trim($myAddItem, "'");
+                $myAddItem = sprintf(
+                    '"%s"',
+                    $myAddItem
+                );
+                $remItem = trim($remItem, "'");
+                $remItem = sprintf(
+                    '"%s"',
+                    $remItem
+                );
+                $logname = trim($logname, "'");
+                $logname = sprintf(
+                    '"%s"',
+                    $logname
+                );
+                $cmd = "lftp -e 'set xfer:log 1; set xfer:log-file $logname;";
+                $cmd .= "set ftp:list-options -a;set net:max-retries ";
                 $cmd .= "10;set net:timeout 30; $limit mirror -c -r ";
                 $cmd .= "$opts ";
                 if (!empty($includeFile)) {
@@ -702,17 +717,11 @@ abstract class FOGService extends FOGBase
                 $cmd .= "--ignore-time -vvv --exclude \".srvprivate\" ";
                 $cmd .= "--delete-first $myAddItem ";
                 $cmd .= "$remItem; ";
-                $cmd .= "exit\" -u $username,$password $ip";
-                $cmd2 = "lftp -e \"set xfer:log-file $logname;";
-                $cmd2 .= "set ftp:list-options -a;set net:max-retries ";
-                $cmd2 .= "10;set net:timeout 30; $limit mirror -c -r";
-                $cmd2 .= "$opts ";
-                if (!empty($includeFile)) {
-                    $cmd2 .= "$includeFile ";
-                }
-                $cmd2 .= "--ignore-time -vvv --delete-first $myAddItem ";
-                $cmd2 .= "$remItem; ";
-                $cmd2 .= "exit\" -u $username,[Protected] $ip";
+                $cmd2 = sprintf(
+                    "%s exit' -u $username,[Protected] $ip",
+                    $cmd
+                );
+                $cmd .= "exit' -u $username,$password $ip";
                 self::outall(" | CMD:\n\t\t\t$cmd2");
                 unset($includeFile, $remItem, $myAddItem);
                 $this->startTasking(
