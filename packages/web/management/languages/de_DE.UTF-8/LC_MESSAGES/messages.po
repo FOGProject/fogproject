@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-25 15:37-0500\n"
+"POT-Creation-Date: 2017-02-27 21:34-0500\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -1225,7 +1225,7 @@ msgstr "Aufgabe für"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1133
 #, fuzzy
-msgid "Are you sure you wish task these machines"
+msgid "Are you sure you wish to task these machines"
 msgstr ""
 "Sind Sie sicher, dass Sie Aufgabe, diese Maschinen bereitstellen möchten"
 

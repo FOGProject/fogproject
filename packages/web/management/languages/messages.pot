@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-27 07:34-0500\n"
+"POT-Creation-Date: 2017-02-27 21:34-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1132,7 +1132,7 @@ msgid "task for"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1133
-msgid "Are you sure you wish task these machines"
+msgid "Are you sure you wish to task these machines"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1143

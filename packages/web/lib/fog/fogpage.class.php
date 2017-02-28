@@ -1130,7 +1130,7 @@ abstract class FOGPage extends FOGBase
         );
         printf(
             '<p class="c"><b>%s</b></p>',
-            _('Are you sure you wish task these machines')
+            _('Are you sure you wish to task these machines')
         );
         printf(
             '<form method="post" action="%s" id="deploy-container">',
