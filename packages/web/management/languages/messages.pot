@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-27 22:09-0500\n"
+"POT-Creation-Date: 2017-02-28 00:05-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -198,9 +198,9 @@ msgstr ""
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:62
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:122
 #: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:54
-#: /var/www/fog/lib/service/fogservice.class.php:387
-#: /var/www/fog/lib/service/fogservice.class.php:416
-#: /var/www/fog/lib/service/fogservice.class.php:490
+#: /var/www/fog/lib/service/fogservice.class.php:389
+#: /var/www/fog/lib/service/fogservice.class.php:418
+#: /var/www/fog/lib/service/fogservice.class.php:496
 #: /var/www/fog/commons/text.php:66
 msgid "Name"
 msgstr ""
@@ -1587,10 +1587,10 @@ msgstr ""
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1098
 #: /var/www/fog/lib/service/snapinreplicator.class.php:147
 #: /var/www/fog/lib/service/snapinreplicator.class.php:148
-#: /var/www/fog/lib/service/snapinreplicator.class.php:256
+#: /var/www/fog/lib/service/snapinreplicator.class.php:278
 #: /var/www/fog/lib/service/imagereplicator.class.php:148
 #: /var/www/fog/lib/service/imagereplicator.class.php:149
-#: /var/www/fog/lib/service/imagereplicator.class.php:257
+#: /var/www/fog/lib/service/imagereplicator.class.php:286
 #: /var/www/fog/commons/text.php:44
 msgid "Group"
 msgstr ""
@@ -6887,7 +6887,7 @@ msgstr ""
 
 #: /var/www/fog/lib/service/snapinhash.class.php:166
 #: /var/www/fog/lib/service/imagesize.class.php:166
-#: /var/www/fog/lib/service/fogservice.class.php:401
+#: /var/www/fog/lib/service/fogservice.class.php:403
 msgid "Found"
 msgstr ""
 
@@ -6974,14 +6974,14 @@ msgid "Starting Snapin Replication"
 msgstr ""
 
 #: /var/www/fog/lib/service/snapinreplicator.class.php:146
-#: /var/www/fog/lib/service/snapinreplicator.class.php:255
+#: /var/www/fog/lib/service/snapinreplicator.class.php:277
 #: /var/www/fog/lib/service/imagereplicator.class.php:147
-#: /var/www/fog/lib/service/imagereplicator.class.php:256
+#: /var/www/fog/lib/service/imagereplicator.class.php:285
 msgid "Attempting to perform"
 msgstr ""
 
 #: /var/www/fog/lib/service/snapinreplicator.class.php:149
-#: /var/www/fog/lib/service/snapinreplicator.class.php:258
+#: /var/www/fog/lib/service/snapinreplicator.class.php:280
 msgid "snapin replication"
 msgstr ""
 
@@ -6999,22 +6999,26 @@ msgstr ""
 msgid "snapins to a storage group"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:228
+#: /var/www/fog/lib/service/snapinreplicator.class.php:232
+msgid "Replicating ssl less private key"
+msgstr ""
+
+#: /var/www/fog/lib/service/snapinreplicator.class.php:250
 msgid "Not syncing Snapin"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:235
-#: /var/www/fog/lib/service/imagereplicator.class.php:236
+#: /var/www/fog/lib/service/snapinreplicator.class.php:257
+#: /var/www/fog/lib/service/imagereplicator.class.php:265
 msgid "This is not the primary group"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:257
-#: /var/www/fog/lib/service/imagereplicator.class.php:258
+#: /var/www/fog/lib/service/snapinreplicator.class.php:279
+#: /var/www/fog/lib/service/imagereplicator.class.php:287
 msgid "Nodes"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:293
-#: /var/www/fog/lib/service/imagereplicator.class.php:294
+#: /var/www/fog/lib/service/snapinreplicator.class.php:315
+#: /var/www/fog/lib/service/imagereplicator.class.php:323
 msgid "Checking if I am the group manager"
 msgstr ""
 
@@ -7027,7 +7031,7 @@ msgid "Starting Image Replication"
 msgstr ""
 
 #: /var/www/fog/lib/service/imagereplicator.class.php:150
-#: /var/www/fog/lib/service/imagereplicator.class.php:259
+#: /var/www/fog/lib/service/imagereplicator.class.php:288
 msgid "image replication"
 msgstr ""
 
@@ -7035,7 +7039,11 @@ msgstr ""
 msgid "images to a storage group"
 msgstr ""
 
-#: /var/www/fog/lib/service/imagereplicator.class.php:229
+#: /var/www/fog/lib/service/imagereplicator.class.php:241
+msgid "Replicating"
+msgstr ""
+
+#: /var/www/fog/lib/service/imagereplicator.class.php:258
 msgid "Not syncing Image"
 msgstr ""
 
@@ -7071,65 +7079,65 @@ msgstr ""
 msgid "Waiting for mysql to be available"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:361
+#: /var/www/fog/lib/service/fogservice.class.php:363
 msgid "I am not the master for this group"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:377
-#: /var/www/fog/lib/service/fogservice.class.php:480
+#: /var/www/fog/lib/service/fogservice.class.php:379
+#: /var/www/fog/lib/service/fogservice.class.php:486
 msgid "Not syncing"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:379
-#: /var/www/fog/lib/service/fogservice.class.php:482
+#: /var/www/fog/lib/service/fogservice.class.php:381
+#: /var/www/fog/lib/service/fogservice.class.php:488
 msgid "between"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:394
+#: /var/www/fog/lib/service/fogservice.class.php:396
 msgid "There are no other members to sync to"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:403
+#: /var/www/fog/lib/service/fogservice.class.php:405
 msgid "to transfer to"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:465
+#: /var/www/fog/lib/service/fogservice.class.php:471
 msgid "Replication already running with PID"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:497
+#: /var/www/fog/lib/service/fogservice.class.php:503
 msgid "File or path cannot be reached"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:521
+#: /var/www/fog/lib/service/fogservice.class.php:527
 msgid "Cannot connect to"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:620
+#: /var/www/fog/lib/service/fogservice.class.php:626
 msgid "Files do not match"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:626
+#: /var/www/fog/lib/service/fogservice.class.php:632
 msgid "Deleting remote file"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:637
+#: /var/www/fog/lib/service/fogservice.class.php:643
 msgid "No need to sync"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:639
+#: /var/www/fog/lib/service/fogservice.class.php:645
 msgid "file to"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:667
+#: /var/www/fog/lib/service/fogservice.class.php:673
 msgid "Starting Sync Actions"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:711
+#: /var/www/fog/lib/service/fogservice.class.php:716
 msgid "Started sync for"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:743
+#: /var/www/fog/lib/service/fogservice.class.php:748
 msgid "Task started"
 msgstr ""
 

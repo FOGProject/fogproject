@@ -446,6 +446,19 @@ shrinkPartition() {
     local part_block_size=0
     case $fstype in
         ntfs)
+            local label=$(getPartitionLabel "$part")
+            if [[ $label =~ [Rr][Ee][Cc][Oo][Vv][Ee][Rr][Yy] ]]; then
+                echo "$(cat "$imagePath/d1.fixed_size_partitions" | tr -d \\0):${part_number}" > "$imagePath/d1.fixed_size_partitions"
+                echo " * Not shrinking recovery partitions"
+                debugPause
+                return
+            fi
+            if [[ $label =~ [Rr][Ee][Ss][Ee][Rr][Vv][Ee][Dd] ]]; then
+                echo "$(cat "$imagePath/d1.fixed_size_partitions" | tr -d \\0):${part_number}" > "$imagePath/d1.fixed_size_partitions"
+                echo " * Not shrinking reserved partitions"
+                debugPause
+                return
+            fi
             ntfsresize -fivP $part >/tmp/tmpoutput.txt 2>&1
             if [[ ! $? -eq 0 ]]; then
                 echo " * Not shrinking ($part) trying fixed size"
@@ -519,7 +532,8 @@ shrinkPartition() {
                             debugPause
                             handleError "Unable to determine disk start location (${FUNCNAME[0]})\n   Args Passed: $*"
                         fi
-                        adjustedfdsize=$(calculate "${sizentfsresize}*1024")
+                        adjustedfdsize=300000
+                        let adjustedfdsize+=$(calculate "${sizentfsresize}*1024")
                         resizePartition "$part" "$adjustedfdsize" "$imagePath"
                         ;;
                 esac

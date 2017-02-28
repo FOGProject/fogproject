@@ -319,6 +319,7 @@ abstract class FOGService extends FOGBase
      * @param int    $myStorageNodeID  this servers nodeid
      * @param object $Obj              that is trying to send data
      * @param bool   $master           master->master or master->nodes
+     * @param mixed  $fileOverride     file override.
      *
      * @return void
      */
@@ -326,7 +327,8 @@ abstract class FOGService extends FOGBase
         $myStorageGroupID,
         $myStorageNodeID,
         $Obj,
-        $master = false
+        $master = false,
+        $fileOverride = false
     ) {
         unset(
             $username,
@@ -435,7 +437,11 @@ abstract class FOGService extends FOGBase
                 '/%s/',
                 trim($StorageNode->get($getPathOfItemField), '/')
             );
-            $myFile = basename($Obj->get($getFileOfItemField));
+            if (false === $fileOverride) {
+                $myFile = basename($Obj->get($getFileOfItemField));
+            } else {
+                $myFile = $fileOverride;
+            }
             $myAdd = "$myDir$myFile";
             $myAddItem = false;
             foreach ((array)self::getClass('StorageNodeManager')
@@ -675,27 +681,26 @@ abstract class FOGService extends FOGBase
                 );
                 $myAddItem = escapeshellarg($myAddItem);
                 $remItem = escapeshellarg($remItem);
-                $cmd = "lftp -e 'set ftp:list-options -a;set net:max-retries ";
-                $cmd .= "10;set net:timeout 30; $limit mirror -c ";
+                $cmd = "lftp -e \"set ftp:list-options -a;set net:max-retries ";
+                $cmd .= "10;set net:timeout 30; $limit mirror -c -r ";
                 $cmd .= "$opts ";
                 if (!empty($includeFile)) {
                     $includeFile = escapeshellarg($includeFile);
                     $cmd .= "$includeFile ";
                 }
-                $cmd .= "--ignore-time -vvv --exclude \"dev/\" --exclude \"ssl/\" ";
-                $cmd .= "--exclude \"CA\" --delete-first $myAddItem ";
+                $cmd .= "--ignore-time -vvv --exclude \".srvprivate\" ";
+                $cmd .= "--delete-first $myAddItem ";
                 $cmd .= "$remItem; ";
-                $cmd .= "exit' -u $username,$password $ip";
-                $cmd2 = "lftp -e 'set ftp:list-options -a;set net:max-retries ";
-                $cmd2 .= "10;set net:timeout 30; $limit mirror -c ";
+                $cmd .= "exit\" -u $username,$password $ip";
+                $cmd2 = "lftp -e \"set ftp:list-options -a;set net:max-retries ";
+                $cmd2 .= "10;set net:timeout 30; $limit mirror -c -r";
                 $cmd2 .= "$opts ";
                 if (!empty($includeFile)) {
                     $cmd2 .= "$includeFile ";
                 }
-                $cmd2 .= "--ignore-time -vvv --exclude \"dev/\" --exclude \"ssl/\" ";
-                $cmd2 .= "--exclude \"CA\" --delete-first $myAddItem ";
-                $cmd2 .= "\\'$remItem\\'; ";
-                $cmd2 .= "exit' -u $username,[Protected] $ip";
+                $cmd2 .= "--ignore-time -vvv --delete-first $myAddItem ";
+                $cmd2 .= "$remItem; ";
+                $cmd2 .= "exit\" -u $username,[Protected] $ip";
                 self::outall(" | CMD:\n\t\t\t$cmd2");
                 unset($includeFile, $remItem, $myAddItem);
                 $this->startTasking(
