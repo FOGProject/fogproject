@@ -80,11 +80,13 @@ abstract class FOGService extends FOGBase
         }
         if (false === $avail) {
             if ($size_a < 1047685760) {
-                return false;
+                $remhash = md5_file($file_b);
+                $lochash = md5_file($file_a);
+                return ($remhash == $lochash);
             }
             return true;
         }
-        if ($file_a != $file_b) {
+        if (self::getHash($file_a) != $file_b) {
             return false;
         }
         return true;
@@ -612,10 +614,17 @@ abstract class FOGService extends FOGBase
                         )
                     );
                     $res = array_shift($res);
+                    if (!$avail) {
+                        $res = sprintf(
+                            '%s%s',
+                            $ftpstart,
+                            $file
+                        );
+                    }
                     $filesEqual = self::_filesAreEqual(
                         $filesize_main,
                         $filesize_rem,
-                        self::getHash($localfile),
+                        $localfile,
                         $res,
                         $avail
                     );
@@ -681,7 +690,9 @@ abstract class FOGService extends FOGBase
                 );
                 $myAddItem = escapeshellarg($myAddItem);
                 $remItem = escapeshellarg($remItem);
-                $cmd = "lftp -e \"set ftp:list-options -a;set net:max-retries ";
+                $logname = escapeshellarg($logname);
+                $cmd = "lftp -e \"set xfer:log-file $logname;";
+                $cmd = "set ftp:list-options -a;set net:max-retries ";
                 $cmd .= "10;set net:timeout 30; $limit mirror -c -r ";
                 $cmd .= "$opts ";
                 if (!empty($includeFile)) {
@@ -692,7 +703,8 @@ abstract class FOGService extends FOGBase
                 $cmd .= "--delete-first $myAddItem ";
                 $cmd .= "$remItem; ";
                 $cmd .= "exit\" -u $username,$password $ip";
-                $cmd2 = "lftp -e \"set ftp:list-options -a;set net:max-retries ";
+                $cmd2 = "lftp -e \"set xfer:log-file $logname;";
+                $cmd2 .= "set ftp:list-options -a;set net:max-retries ";
                 $cmd2 .= "10;set net:timeout 30; $limit mirror -c -r";
                 $cmd2 .= "$opts ";
                 if (!empty($includeFile)) {
@@ -748,7 +760,6 @@ abstract class FOGService extends FOGBase
         self::wlog(_('Task started'), $logname);
         $descriptor = array(
             0 => array('pipe', 'r'),
-            1 => array('file', $logname, 'a'),
             2 => array('file', $log, 'a')
         );
         if ($itemType === false) {
