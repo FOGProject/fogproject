@@ -449,13 +449,13 @@ shrinkPartition() {
             local label=$(getPartitionLabel "$part")
             if [[ $label =~ [Rr][Ee][Cc][Oo][Vv][Ee][Rr][Yy] ]]; then
                 echo "$(cat "$imagePath/d1.fixed_size_partitions" | tr -d \\0):${part_number}" > "$imagePath/d1.fixed_size_partitions"
-                echo " * Not shrinking recovery partitions"
+                echo " * Not shrinking ($part) recovery partition"
                 debugPause
                 return
             fi
             if [[ $label =~ [Rr][Ee][Ss][Ee][Rr][Vv][Ee][Dd] ]]; then
                 echo "$(cat "$imagePath/d1.fixed_size_partitions" | tr -d \\0):${part_number}" > "$imagePath/d1.fixed_size_partitions"
-                echo " * Not shrinking reserved partitions"
+                echo " * Not shrinking ($part) reserved partitions"
                 debugPause
                 return
             fi
@@ -532,8 +532,7 @@ shrinkPartition() {
                             debugPause
                             handleError "Unable to determine disk start location (${FUNCNAME[0]})\n   Args Passed: $*"
                         fi
-                        adjustedfdsize=300000
-                        let adjustedfdsize+=$(calculate "${sizentfsresize}*1024")
+                        adjustedfdsize=$(calculate "${sizentfsresize}*1024")
                         resizePartition "$part" "$adjustedfdsize" "$imagePath"
                         ;;
                 esac

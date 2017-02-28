@@ -379,7 +379,7 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
     # Variable should be 0.
     original_variable = 0
     # Fixed should be MIN_START.
-    original_fixed = int(MIN_START);
+    original_fixed = 1 + int(MIN_START) + int(MIN_START) / int(CHUNK_SIZE);
     # Iterate partitions. This loop checks for swap
     # partitions. A fail safe to ensure swap is fixed.
     # Will also set 0 sized partition to fixed.
