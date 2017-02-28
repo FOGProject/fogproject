@@ -100,6 +100,7 @@ beginUpload() {
                                 handleError " * Could not mount $part ($0->${FUNCNAME[0]})\n    Args Passed: $*\n    Reason: $(cat /tmp/ntfs-mount-output | tr -d \\0)"
                                 ;;
                         esac
+						umount /bcdstore
                         case $label in
                             *[Rr][Ee][Cc][Oo][Vv][Ee][Rr][Yy]*|*[Rr][Ee][Ss][Ee][Rr][Vv][Ee][Dd]*)
                                 echo " * New fixed partition for ($part) added."
