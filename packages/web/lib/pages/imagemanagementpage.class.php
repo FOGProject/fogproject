@@ -637,6 +637,15 @@ class ImageManagementPage extends FOGPage
                     )
                 );
             }
+            if (self::getClass('ImageManager')->exists($_REQUEST['file'], 'path')) {
+                throw new Exception(
+                    sprintf(
+                        '%s, %s.',
+                        _('Please choose a different path'),
+                        _('this one is already in use by another image')
+                    )
+                );
+            }
             if (empty($_REQUEST['storagegroup'])) {
                 throw new Exception(_('A Storage Group is required!'));
             }
@@ -1093,6 +1102,16 @@ class ImageManagementPage extends FOGPage
                             '%s, %s.',
                             _('Please choose a different name'),
                             _('this one is reserved for FOG')
+                        )
+                    );
+                }
+                if (self::getClass('ImageManager')->exists($_REQUEST['file'], 'path')
+                ) {
+                    throw new Exception(
+                        sprintf(
+                            '%s, %s.',
+                            _('Please choose a different path'),
+                            _('this one is already in use by another image')
                         )
                     );
                 }

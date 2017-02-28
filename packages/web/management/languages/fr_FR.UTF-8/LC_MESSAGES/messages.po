@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-28 12:49-0500\n"
+"POT-Creation-Date: 2017-02-28 13:37-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1333,7 +1333,7 @@ msgstr "Modifier l'image"
 #: /var/www/fog/lib/fog/fogpage.class.php:1348
 #: /var/www/fog/lib/fog/fogpage.class.php:1356
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:174
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:704
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:713
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:90
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:444
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:383
@@ -1589,7 +1589,7 @@ msgid "Add"
 msgstr "Ajouter"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:2303
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:882
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:891
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:240
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:426
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:624
@@ -1662,7 +1662,7 @@ msgid "Not found"
 msgstr "Pas trouvé"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:2590
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1306
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1325
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:320
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:460
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:587
@@ -1867,7 +1867,7 @@ msgstr "Veuillez sélectionner une option"
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:89
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:350
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:515
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:784
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:793
 msgid "Partimage"
 msgstr "Partimage"
 
@@ -1881,7 +1881,7 @@ msgstr "Groupe de stockage primaire"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:134
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:548
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:817
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:826
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:74
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:355
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:483
@@ -1912,14 +1912,14 @@ msgstr "O / S"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:137
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:563
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:846
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:855
 #: /var/www/fog/commons/text.php:209
 msgid "Image Type"
 msgstr "Type d'image"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:138
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:564
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:847
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:856
 msgid "Partition"
 msgstr "Partition"
 
@@ -1955,33 +1955,33 @@ msgid "Not protected"
 msgstr "Non protégé"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:338
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:855
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:864
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:917
 msgid "Protected"
 msgstr "Protégé"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:347
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:509
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:778
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:787
 #, fuzzy
 msgid "Partclone Compressed"
 msgstr "partclone"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:353
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:521
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:790
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:799
 msgid "Partclone Compressed 200MiB split"
 msgstr ""
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:356
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:527
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:796
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:805
 msgid "Partclone Uncompressed"
 msgstr ""
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:359
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:533
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:802
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:811
 msgid "Partclone Uncompressed 200MiB split"
 msgstr ""
 
@@ -1999,54 +1999,54 @@ msgid "New Image"
 msgstr "Nouvelle image"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:539
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:808
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:817
 #, fuzzy
 msgid "Partclone ZSTD Compressed"
 msgstr "partclone"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:545
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:814
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:823
 #, fuzzy
 msgid "Partclone ZSTD Compressed 200MiB split"
 msgstr "partclone"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:552
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:826
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:835
 msgid "Image Description"
 msgstr "Description de l'image"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:557
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:835
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:844
 #: /var/www/fog/lib/plugins/windowskey/hooks/addwindowskeyimage.hook.php:89
 msgid "Operating System"
 msgstr "Système opérateur"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:558
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:836
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:845
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:356
 #: /var/www/fog/commons/text.php:317
 msgid "Image Path"
 msgstr "Chemin de l'image"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:565
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:863
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:872
 msgid "Image Enabled"
 msgstr "Photo Enabled"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:567
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:871
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:880
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:535
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:953
 msgid "Replicate?"
 msgstr "Reproduire?"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:569
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:848
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:857
 msgid "Compression"
 msgstr "Compression"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:576
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:879
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:888
 msgid "Image Manager"
 msgstr "Image Manager"
 
@@ -2055,168 +2055,179 @@ msgid "Add new image definition"
 msgstr "Ajouter une nouvelle définition de l'image"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:621
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1076
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1085
 msgid "An image name is required!"
 msgstr "Un nom de l'image est nécessaire!"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:624
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1085
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1094
 msgid "An image already exists with this name!"
 msgstr "Une image existe déjà avec ce nom!"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:627
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1100
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1119
 msgid "An image file name is required!"
 msgstr "Un nom de fichier d'image est nécessaire!"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:635
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1094
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1103
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:631
 #, fuzzy
 msgid "Please choose a different name"
 msgstr "S'il vous plaît choisir une image"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:636
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1095
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1104
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:632
 #, fuzzy
 msgid "this one is reserved for FOG"
 msgstr "S'il vous plaît choisir un autre nom, celui-ci est réservé pour FOG."
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:641
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:644
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1113
+#, fuzzy
+msgid "Please choose a different path"
+msgstr "S'il vous plaît choisir une image"
+
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:645
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1114
+msgid "this one is already in use by another image"
+msgstr ""
+
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:650
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:607
 msgid "A Storage Group is required!"
 msgstr "Un groupe de stockage est nécessaire!"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:644
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1103
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:653
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1122
 msgid "An Operating System is required!"
 msgstr "Un système d'exploitation est requise!"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:649
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1106
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:658
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1125
 msgid "An image type is required!"
 msgstr "Un type d'image est nécessaire!"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:654
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1112
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:663
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1131
 msgid "An image partition type is required!"
 msgstr "Un type de partition d'image est nécessaire!"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:669
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:678
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1427
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:699
 msgid "Database update failed"
 msgstr "mise à jour de base de données a échoué"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:677
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:686
 msgid "Image created"
 msgstr "image créée"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:907
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:916
 msgid "Edit image definition"
 msgstr "Modifier la définition de l'image"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:916
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:986
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:925
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:995
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1029
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1087
 #: /var/www/fog/commons/text.php:374
 msgid "Storage Group Name"
 msgstr "Nom du groupe de stockage"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:960
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:969
 msgid "Check here to see groups not assigned this image"
 msgstr "Vérifiez ici pour voir les groupes non affecté cette image"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:967
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:976
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1072
 msgid "Modify group association for"
 msgstr "Modifier association de groupe pour"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:969
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:978
 msgid "Add image to groups"
 msgstr "Ajouter une image à des groupes"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:979
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:988
 msgid "Add Image to Group(s)"
 msgstr "Ajouter une image au groupe (s)"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1009
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1018
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1110
 msgid "Primary Group Selector"
 msgstr "Sélecteur de groupe principal"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1050
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1059
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1150
 msgid "Update Primary Group"
 msgstr "Mise à jour de groupe principal"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1051
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1060
 msgid "Delete Selected Group associations"
 msgstr "Supprimer les associations de groupe sélectionné"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1175
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1194
 #, fuzzy
 msgid "No groups selected to be removed"
 msgstr "Aucun groupe sélectionné et aucun nouveau nom de groupe est entré"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1180
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1199
 #, fuzzy
 msgid "You must have at least one group associated"
 msgstr "Vous devez avoir au moins un groupe de stockage"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1193
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1212
 #, fuzzy
 msgid "Image update failed"
 msgstr "image mise à jour"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1197
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1216
 msgid "Image updated"
 msgstr "image mise à jour"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1229
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1248
 msgid "Session Name"
 msgstr "Nom de session"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1234
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1253
 msgid "Client Count"
 msgstr "Nombre de clients"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1241
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1260
 msgid "Timeout"
 msgstr "Temps libre"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1242
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1261
 msgid "minutes"
 msgstr "minutes"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1248
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1267
 msgid "Select Image"
 msgstr "Sélectionner l'image"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1255
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1274
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:314
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2000
 msgid "Start"
 msgstr "Démarrer"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1260
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1279
 msgid "Start Multicast Session"
 msgstr "Démarrez Multicast session"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1280
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1299
 #: /var/www/fog/lib/pages/taskmobile.class.php:43
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:678
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:970
 msgid "Task Name"
 msgstr "Nom de la tâche"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1281
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1300
 msgid "Clients"
 msgstr "Clients"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1282
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1301
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:75
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:680
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:801
@@ -2226,11 +2237,11 @@ msgstr "Clients"
 msgid "Start Time"
 msgstr "Heure de départ"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1283
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1302
 msgid "Percent"
 msgstr "Pour cent"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1284
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1303
 #: /var/www/fog/lib/pages/taskmobile.class.php:46
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:681
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:802
@@ -2240,64 +2251,64 @@ msgstr "Pour cent"
 msgid "State"
 msgstr "Etat"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1285
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1304
 msgid "Stop Task"
 msgstr "Arrêter la tâche"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1307
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1326
 #: /var/www/fog/lib/pages/taskmobile.class.php:47
 #: /var/www/fog/commons/text.php:107
 msgid "Kill"
 msgstr "Tuer"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1361
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1380
 msgid "Please input a session name"
 msgstr "Veuillez saisir un nom de session"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1364
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1383
 msgid "Please choose an image"
 msgstr "S'il vous plaît choisir une image"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1367
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1386
 msgid "Session with that name already exists"
 msgstr "Session avec ce nom existe déjà"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1371
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1390
 msgid "Session name cannot be the same as an existing hostname"
 msgstr "Nom de la session ne peut pas être le même que un nom d'hôte existant"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1394
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1413
 #, fuzzy
 msgid "Please wait until a slot is open"
 msgstr "S'il vous plaît entrer un jeton d'accès"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1395
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1414
 #, fuzzy
 msgid "There are currently"
 msgstr "Il y a"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1397
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1416
 msgid "tasks in queue"
 msgstr ""
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1398
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1417
 #, fuzzy
 msgid "Your server only allows"
 msgstr "Vous êtes seulement autorisé à attribuer"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1416
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1435
 msgid "Failed to create Session"
 msgstr "Échec de la création Session"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1426
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1445
 msgid "Multicast session created"
 msgstr "Session Multicast créé"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1428
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1447
 msgid "has been started on port"
 msgstr "a été lancé sur le port"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1456
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1475
 msgid "Cancelled task"
 msgstr "tâche Annulé"
 
