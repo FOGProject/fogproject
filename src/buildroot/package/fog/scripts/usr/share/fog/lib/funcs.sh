@@ -1980,21 +1980,9 @@ restorePartitionTablesAndBootLoaders() {
         local sfdiskoriginalpartitionfilename=""
         local sfdisklegacyoriginalpartitionfilename=""
         local sfdiskminimumpartitionfilename=""
-        sfdiskMinimumPartitionFileName "$imagePath" "$disk_number"
         sfdiskPartitionFileName "$imagePath" "$disk_number"
         sfdiskLegacyOriginalPartitionFileName "$imagePath" "$disk_number"
-        if [[ -r $sfdiskminimumpartitionfilename ]]; then
-            dots "Inserting Extended partitions (Minimum)"
-            sfdisk $disk < $sfdiskminimumpartitionfilename >/dev/null 2>&1
-            case $? in
-                0)
-                    echo "Done"
-                    ;;
-                *)
-                    echo "Failed"
-                    ;;
-            esac
-        elif [[ -r $sfdiskoriginalpartitionfilename ]]; then
+        if [[ -r $sfdiskoriginalpartitionfilename ]]; then
             dots "Inserting Extended partitions (Original)"
             sfdisk $disk < $sfdiskoriginalpartitionfilename >/dev/null 2>&1
             case $? in

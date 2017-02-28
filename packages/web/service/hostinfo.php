@@ -209,7 +209,7 @@ try {
         'imagedesc' => $Image->get('description'),
         'imageosid' => $osid,
         'imagepath' => $img,
-        'primaryuser' => $Inventory->get('primaryuser'),
+        'primaryuser' => $Inventory->get('primaryUser'),
         'othertag' => $Inventory->get('other1'),
         'othertag1' => $Inventory->get('other2'),
         'sysman' => $Inventory->get('sysman'),
