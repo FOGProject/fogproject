@@ -126,21 +126,26 @@ function check_overlap(partition_names, partitions, new_part_name, new_start, ne
         if (new_start > int(diskSize)) {
             printf("ERROR: The new start is beyond limits of the disk.\n");
             printf("ERROR: The new_start %d on %s is invalid.\n", new_start, pName);
-            exit(1);
+            printf("ERROR: The disk size is %d\n", int(diskSize));
+            #exit(1);
         }
         # If the new_size > the disk size we have an
         # error as the data won't be able to fit.
         if (new_size > int(diskSize)) {
             printf("ERROR: The size being passed is larger than the disk size available.\n");
-            printf("ERROR: the new_size %d on %s is invalid.\n", new_size, pName);
-            exit(1);
+            printf("ERROR: The new_size %d on %s is invalid.\n", new_size, pName);
+            printf("ERROR: The disk size is %d\n", int(diskSize));
+            #exit(1);
         }
         # If the new_start + the new_size > the disk size
         # We have an error as the data won't be able to fit.
         if (new_start + new_size > int(diskSize)) {
             printf("ERROR: Extending larger than disk size available.\n");
             printf("ERROR: Total placement size %d on %s is invalid.\n", new_start + new_size, pName);
-            exit(1);
+            printf("ERROR: The disk size is %d\n", int(diskSize));
+            printf("ERROR: The new_start is %d\n", new_start);
+            printf("ERROR: The new_size is %d\n", new_size);
+            #exit(1);
         }
         # If the new start is greater than, or equal to
         # the p_start value, there is an overlap possible.
@@ -378,6 +383,8 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
     extended_margin = 2;
     # Variable should be 0.
     original_variable = 0;
+    # Variable should be 0.
+    new_logical = 0;
     # Fixed should be MIN_START.
     original_fixed = 1 + int(MIN_START) + int(MIN_START) / int(CHUNK_SIZE);
     # Iterate partitions. This loop checks for swap
@@ -392,7 +399,7 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         p_size = int(partitions[pName, "size"]);
         # If p_type is not 5 or f (extended), check next partition.
         # If p_type is not 82 (swap), check next partition.
-        if (p_type != "f" && p_type != 5 && p_type != 82) {
+        if (p_type != 82) {
             continue;
         }
         # If p_size > 0, check next partition.
@@ -427,12 +434,13 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         # Only count its logical point with extended.
         if (label != "gpt") {
             if (p_type == "5" || p_type == "f") {
-                original_fixed = extended_margin + p_size + int(CHUNK_SIZE);
-                new_logical = p_size - extended_margin - int(CHUNK_SIZE);
+                original_fixed = extended_margin;
+                new_logical_fixed += extended_margin;
+                new_logical_fixed += int(CHUNK_SIZE);
                 continue;
             } else if (p_number > 4) {
                 original_fixed += int(CHUNK_SIZE);
-                continue;
+                new_logical_fixed += int(CHUNK_SIZE);
             }
         }
         # Used to test if fixed;
@@ -444,14 +452,25 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
             # is fixed.
             if (fixed_partitions[i] == p_number) {
                 p_fixed = 1;
+                original_fixed += p_size;
+                if (label != "gpt") {
+                    if (p_type != 5 && p_type != "f" && p_number < 5) {
+                        new_logical_fixed += p_size;
+                        break;
+                    }
+                    break;
+                }
                 break;
             }
         }
         # Increse the original variable.
         if (!p_fixed) {
             original_variable += p_size;
-        } else {
-            original_fixed += p_size;
+            if (label != "gpt") {
+                if (p_number > 4 && p_type != 5 && p_type != "f") {
+                    new_logical += p_size;
+                }
+            }
         }
     }
     # Assign the new sizes.
@@ -474,8 +493,8 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         # Skip as performed later.
         if (label != "gpt") {
             # Logical partitions are any greater than 4.
-            # The extendended partition is of p_types 5 or f.
-            if (p_number > 4 || p_type == 5 || p_type == "f") {
+            # Logical will be processed later.
+            if (p_number > 5 || p_type == 5 || p_type = "f") {
                 continue;
             }
         }
@@ -529,90 +548,94 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         # Ensure the partition size is setup.
         partitions[pName, "size"] = p_size;
     }
-    # Assign the new size to the extended partition.
-    # Only needed in non-gpt disks.
-    if (label != "gpt") {
-        original_variable = 0;
-        # Iterate our partitions.
-        for (pName in partition_names) {
-            # Get the partition type.
-            p_type = partitions[pName, "type"];
-            # Get the original partition size.
-            p_size = int(partitions[pName, "size"]);
-            # Get the original partition number.
-            p_number = int(partitions[pName, "number"]);
-            # If partition is not the logical continue to next partition.
-            if (p_type == 5 || p_type == "f") {
-                new_logical -= extended_margin;
-                continue;
-            } else if (p_number < 5) {
-                continue;
-            }
-            # Used to test if fixed;
-            p_fixed = 0;
-            # Loop fixed_partitions
-            for (i in fixed_partitions) {
-                # If the iteration matches the current p_number
-                # increase the fixed size and tell us the partition
-                # is fixed.
-                if (fixed_partitions[i] == p_number) {
+    # Processing logical partitions.
+    original_variable = new_logical + new_logical_fixed;
+    new_variable = new_logical;
+    # We will loop the partitions again to get size for extended/logical partitions.
+    for (pName in partition_names) {
+        # Reset our p_type variable.
+        p_type = partitions[pName, "type"];
+        # Reset our p_number variable.
+        p_number = int(partitions[pName, "number"]);
+        # Reset our p_start variable.
+        p_start = int(partitions[pName, "start"]);
+        # Reset our p_size variable.
+        p_size = int(partitions[pName, "size"]);
+        # No worrying about non-logical partitions.
+        printf("# p_number = %d\n", p_number);
+        if (p_number < 5) {
+            continue;
+        }
+        printf("# p_size = %d\n", p_size);
+        # No worrying about 0 sized partitions.
+        if (p_size == 0) {
+            continue;
+        }
+        printf("# p_type = %d\n", p_type);
+        # Logical partitions are any greater than 4.
+        # Logical will be processed later.
+        if (p_type == 5 || p_type == "f") {
+            continue;
+        }
+        # Used to test if fixed;
+        p_fixed = 0;
+        # Loop fixed_partitions
+        for (i in fixed_partitions) {
+            # If the iteration matches the current p_number
+            # increase the fixed size and tell us the partition
+            # is fixed.
+            if (fixed_partitions[i] == p_number) {
+                if (p_type == 5 && p_type == "f") {
+                    break;
+                } else {
                     p_fixed = 1;
-                    new_logical -= p_size;
                     break;
                 }
             }
-            # If a fixed partition, go to next.
-            if (p_fixed) {
-                continue;
-            }
-            original_variable += p_size;
         }
-        for (pName in partition_names) {
-            # Get the partition type.
-            p_type = partitions[pName, "type"];
-            # Get the original partition size.
-            p_size = int(partitions[pName, "size"]);
-            # Get the original partition number.
-            p_number = int(partitions[pName, "number"]);
-            # If partition is not the logical continue to next partition.
-            if (p_type == 5 || p_type == "f" || p_number < 5) {
-                continue;
-            }
-            # Get's the percentage increase/decrease and makes adjustment.
-            new_adjusted = new_logical * p_size / original_variable;
-            # If the adjusted value is < the original p_size, we need
-            # to down scale a little bit.
-            if (new_adjusted < p_size) {
-                # Figure out the percentage of difference.
-                new_adj = (new_logical - p_size) / original_variable;
-                # If the new adj (secondary adjusted) is negative we need
-                # some psuedo black magic to ensure the partition space will fit
-                # within the realm of the disk, while still expanding/shrinking
-                # appropriately.
-                if (new_adj < 0) {
-                    # Because the original check is negative, reverse the items
-                    # to get the real percentage of difference.
-                    new_adj = (p_size - new_logical) / original_variable;
-                    # Get our adjusted size (should be just smaller than the diskSize.
-                    new_adj *= p_size;
-                    # We need to remove the fixed space from this new adjusted size.
-                    new_adj -= original_fixed;
-                    # Get's the percentage decrease and makes adjustement.
-                    new_adjusted = new_adj * p_size / original_variable;
-                } else {
-                    # Multiply the original size by the difference.
-                    new_adj *= p_size;
-                    # Increment the adjusted by the secondary adjusted.
-                    # This should be only a minimal increase to the available adjusted usage.
-                    new_adjusted += new_adj;
-                }
-            }
-            # Ensure we're aligned.
-            p_size = new_adjusted - new_adjusted % int(CHUNK_SIZE);
-            # Ensure the partition size is setup.
-            partitions[pName, "size"] = p_size;
+        # If a fixed partition, go to next.
+        if (p_fixed) {
+            continue;
         }
+        # Get's the percentage increase/decrease and makes adjustment.
+        new_adjusted = new_variable * p_size / original_variable;
+        printf("# new_adjusted = %d\n", new_adjusted);
+        # If the adjusted value is < the original p_size, we need
+        # to down scale a little bit.
+        if (new_adjusted < p_size) {
+            # Figure out the percentage of difference.
+            new_adj = (new_variable - p_size) / original_variable;
+            # If the new adj (secondary adjusted) is negative we need
+            # some psuedo black magic to ensure the partition space will fit
+            # within the realm of the disk, while still expanding/shrinking
+            # appropriately.
+            if (new_adj < 0) {
+                # Because the original check is negative, reverse the items
+                # to get the real percentage of difference.
+                new_adj = (p_size - new_variable) / original_variable;
+                # Get our adjusted size (should be just smaller than the diskSize.
+                new_adj *= p_size;
+                # We need to remove the fixed space from this new adjusted size.
+                new_adj -= original_fixed;
+                # Get's the percentage decrease and makes adjustement.
+                new_adjusted = new_adj * p_size / original_variable;
+            } else {
+                # Multiply the original size by the difference.
+                new_adj *= p_size;
+                # Increment the adjusted by the secondary adjusted.
+                # This should be only a minimal increase to the available adjusted usage.
+                new_adjusted += new_adj;
+            }
+        }
+        # Ensure we're aligned.
+        p_size = new_adjusted - new_adjusted % int(CHUNK_SIZE);
+        # Ensure the partition size is setup.
+        partitions[pName, "size"] = p_size;
     }
+    printf("# new_logical = %d\n", new_logical);
+    printf("# new_fixed = %d\n", new_logical_fixed);
+    new_variable = new_logical - new_logical_fixed;
+    printf("# new_variable = %d\n", new_variable);
     # Assign the new start positions.
     asort(partition_starts, ordered_starts, "@ind_num_asc");
     # sort our stuff.
