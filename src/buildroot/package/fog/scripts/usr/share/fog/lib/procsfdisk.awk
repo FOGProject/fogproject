@@ -11,14 +11,16 @@
 # original_fixed The original fixed size for use in secondary processing.
 # new_adjusted locally scoped, meaning will be overwritten.
 # new_adj      locally scoped, meaning will be overwritten.
-function get_new_size(p_start, p_size, variable_size, original_size, original_fixed, new_adjusted, new_adj) {
+# left_over    Anything left over between the two.
+function get_new_size(p_start, p_size, variable_size, original_size, original_fixed, new_adjusted, new_adj, left_over) {
+    left_over = original_size - variable_size;
     # Get's the percentage increase/decrease and makes adjustment.
     new_adjusted = variable_size * p_size / original_size;
     # If the adjusted value is < the original p_size, we need
     # to down scale a little bit.
     if (new_adjusted < p_size) {
         # Figure out the percentage of difference.
-        new_adj = (variable_size - p_size) / original_size;
+        new_adj = (variable_size + left_over - p_size) / original_size;
         # If the new adj (secondary adjusted) is negative we need
         # some psuedo black magic to ensure the partition space will fit
         # within the realm of the disk, while still expanding/shrinking
@@ -26,7 +28,7 @@ function get_new_size(p_start, p_size, variable_size, original_size, original_fi
         if (new_adj < 0) {
             # Because the original check is negative, reverse the items
             # to get the real percentage of difference.
-            new_adj = (p_size - variable_size) / original_size;
+            new_adj = (p_size - (variable_size + left_over)) / original_size;
             # Get our adjusted size (should be just smaller than the diskSize.
             new_adj *= p_size;
             # We need to remove the fixed space from this new adjusted size.
