@@ -76,6 +76,7 @@ function check_overlap(partition_names, partitions, new_part_name, new_start, ne
     # Iterate our aprtitions.
     for (pName in partition_names) {
         # Partitions will not overlap themselves, so skip.
+        printf("# NOTE: new_part_name = %s\n", new_part_name);
         if (new_part_name == pName) {
             continue;
         }
@@ -105,7 +106,7 @@ function check_overlap(partition_names, partitions, new_part_name, new_start, ne
             } else if (new_size > p_size) {
                 p_start += new_size;
             }
-            #partitions[pName, "start"] = p_start;
+            # partitions[pName, "start"] = p_start;
             # If the new type is an extended type:
             # Extended only happens on non-gpt disks.
             # we need to add at least the extended element.
@@ -121,40 +122,62 @@ function check_overlap(partition_names, partitions, new_part_name, new_start, ne
             # Set to new start for checking.
             new_start = p_start;
         }
-        # If the new_start > the disk size we have an
-        # error as data won't be able to fit.
+        printf("# NOTE: diskSize = %d\n", int(diskSize));
+        printf("# NOTE: new_start = %d\n", new_start);
+        printf("# NOTE: new_size = %d\n", new_size);
+        printf("# NOTE: p_start = %d\n", p_start);
+        printf("# NOTE: P_size = %d\n", p_size);
+        printf("# NOTE: pName = %s\n", pName);
+        if (new_start < 0) {
+            printf("# ERROR: The new start position is less than 0.\n");
+            return 1;
+        }
+        if (new_size < 0) {
+            printf("# ERROR: The new size is less than 0.\n");
+            return 1;
+        }
+        if (new_start + new_size < 0) {
+            printf("# ERROR: The new start plus the new_size is less than 0.\n");
+            printf("# ERROR: new_start + new_size = %d\n", new_start + new_size);
+            return 1;
+        }
+        if (new_start + new_size < new_start) {
+            printf("# ERROR: The new start plus the new size is less than the original new start position.\n");
+            printf("# ERROR: new_start + new_size = %d\n", new_start + new_size);
+            return 1;
+        }
+        if (new_start + new_size < new_size) {
+            printf("# ERROR: The new start plus the new size is less than the new size.\n");
+            printf("# ERROR: new_start + new_size = %d\n", new_start + new_size);
+            return 1;
+        }
+        if (new_size + new_start < 0) {
+            printf("# ERROR: The new size plus the new size is less than 0.\n");
+            printf("# ERROR: new_size + new_start = %d\n", new_size + new_start);
+            return 1;
+        }
+        if (new_size + new_start < new_size) {
+            printf("# ERROR: The new size plus new start is less than the new size.\n");
+            printf("# ERROR: new_size + new_start = %d\n", new_size + new_start);
+            return 1;
+        }
         if (new_start > int(diskSize)) {
-            printf("# ERROR: The new start is beyond limits of the disk.\n");
-            printf("# ERROR: The new_start %d on %s is invalid.\n", new_start, pName);
-            printf("# ERROR: The disk size is %d\n", int(diskSize));
-            exit(1);
+            printf("# ERROR: The new start is larger than the disk size.\n");
+            return 1;
         }
-        # If the new_size > the disk size we have an
-        # error as the data won't be able to fit.
         if (new_size > int(diskSize)) {
-            printf("# ERROR: The size being passed is larger than the disk size available.\n");
-            printf("# ERROR: The new_size %d on %s is invalid.\n", new_size, pName);
-            printf("# ERROR: The disk size is %d\n", int(diskSize));
-            exit(1);
+            printf("# ERROR: The new size is larger than the disk size.\n");
+            return 1;
         }
-        # If the new_start + the new_size > the disk size
-        # We have an error as the data won't be able to fit.
         if (new_start + new_size > int(diskSize)) {
-            printf("# ERROR: Extending larger than disk size available.\n");
-            printf("# ERROR: Total placement size %d on %s is invalid.\n", new_start + new_size, pName);
-            printf("# ERROR: The disk size is %d\n", int(diskSize));
-            printf("# ERROR: The new_start is %d\n", new_start);
-            printf("# ERROR: The new_size is %d\n", new_size);
-            exit(1);
+            printf("# ERROR: The new start plus the new size is larger than the disk size.\n");
+            return 1;
         }
-        # If the new start is greater than, or equal to
-        # the p_start value, there is an overlap possible.
-        if (new_start > p_start) {
-            # If the new star is greater than the
-            if (new_start + new_size < p_start + new_size) {
-                printf("# ERROR: Partition (%s) overlaps.", pName);
-                exit(1);
-            }
+        if (new_start + new_size < p_start + new_size) {
+            printf("# ERROR: Overlap condition met from:\n");
+            printf("# ERROR: new_start + new_size = %d\n", new_start + new_size);
+            printf("# ERROR: p_start + new_size = %d\n", p_start + new_size);
+            printf("# ERROR: new information is smaller than partition at (%s)\n", pName);
         }
     }
     return 0;
@@ -201,11 +224,13 @@ function display_output(partition_names, partitions, pName, p_device, p_start, p
     # Add unit to the sfdisk file.
     printf("unit: %s\n", unit);
     # If the first lba field is set store it too.
-    if (firstlba) {
-        printf("first-lba: %d\n", firstlba);
-    }
-    if (lastlba) {
-        printf("last-lba: %d\n", lastlba);
+    if (label == "gpt") {
+        if (firstlba) {
+            printf("first-lba: %d\n", firstlba);
+        }
+        if (lastlba) {
+            printf("last-lba: %d\n", lastlba);
+        }
     }
     printf("\n");
     # Iterate our partition names.
@@ -269,6 +294,9 @@ function display_output(partition_names, partitions, pName, p_device, p_start, p
 # Global Scoped variables (meaning not needed to pass to the function:
 # target the device to work off of
 # unit the unit type
+# CHUNK_SIZE the chunk_size for the partition
+# sizePos the size of the partition
+# diskSize the size of the disk
 function resize_partition(partition_names, partitions, args, pName, new_size, p_start) {
     # Iterate our partitions.
     for (pName in partition_names) {
@@ -304,8 +332,10 @@ function resize_partition(partition_names, partitions, args, pName, new_size, p_
         # size is safe.
         partitions[target, "size"] = new_size;
     }
-    if (lastlba) {
-        lastlba = int(diskSize) - int(firstlba);
+    if (label == "gpt") {
+        if (lastlba) {
+            lastlba = int(diskSize) - int(firstlba);
+        }
     }
     return 0;
 }
@@ -382,7 +412,7 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
     # Variable should be 0.
     new_logical = 0;
     # Fixed should be MIN_START.
-    original_fixed = 1 + int(MIN_START) + int(MIN_START) / int(CHUNK_SIZE);
+    original_fixed = int(MIN_START) + int(MIN_START) / int(CHUNK_SIZE);
     # Iterate partitions. This loop checks for swap
     # partitions. A fail safe to ensure swap is fixed.
     # Will also set 0 sized partition to fixed.
@@ -484,7 +514,7 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         if (label != "gpt") {
             # Logical partitions are any greater than 4.
             # Logical will be processed later.
-            if (p_number > 5 || p_type == 5 || p_type = "f") {
+            if (p_number > 5 || p_type == 5 || p_type == "f") {
                 continue;
             }
         }
