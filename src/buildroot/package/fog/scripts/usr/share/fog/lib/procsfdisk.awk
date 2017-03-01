@@ -124,40 +124,36 @@ function check_overlap(partition_names, partitions, new_part_name, new_start, ne
         # If the new_start > the disk size we have an
         # error as data won't be able to fit.
         if (new_start > int(diskSize)) {
-            printf("ERROR: The new start is beyond limits of the disk.\n");
-            printf("ERROR: The new_start %d on %s is invalid.\n", new_start, pName);
-            printf("ERROR: The disk size is %d\n", int(diskSize));
-            #exit(1);
+            printf("# ERROR: The new start is beyond limits of the disk.\n");
+            printf("# ERROR: The new_start %d on %s is invalid.\n", new_start, pName);
+            printf("# ERROR: The disk size is %d\n", int(diskSize));
+            exit(1);
         }
         # If the new_size > the disk size we have an
         # error as the data won't be able to fit.
         if (new_size > int(diskSize)) {
-            printf("ERROR: The size being passed is larger than the disk size available.\n");
-            printf("ERROR: The new_size %d on %s is invalid.\n", new_size, pName);
-            printf("ERROR: The disk size is %d\n", int(diskSize));
-            #exit(1);
+            printf("# ERROR: The size being passed is larger than the disk size available.\n");
+            printf("# ERROR: The new_size %d on %s is invalid.\n", new_size, pName);
+            printf("# ERROR: The disk size is %d\n", int(diskSize));
+            exit(1);
         }
         # If the new_start + the new_size > the disk size
         # We have an error as the data won't be able to fit.
         if (new_start + new_size > int(diskSize)) {
-            printf("ERROR: Extending larger than disk size available.\n");
-            printf("ERROR: Total placement size %d on %s is invalid.\n", new_start + new_size, pName);
-            printf("ERROR: The disk size is %d\n", int(diskSize));
-            printf("ERROR: The new_start is %d\n", new_start);
-            printf("ERROR: The new_size is %d\n", new_size);
-            #exit(1);
+            printf("# ERROR: Extending larger than disk size available.\n");
+            printf("# ERROR: Total placement size %d on %s is invalid.\n", new_start + new_size, pName);
+            printf("# ERROR: The disk size is %d\n", int(diskSize));
+            printf("# ERROR: The new_start is %d\n", new_start);
+            printf("# ERROR: The new_size is %d\n", new_size);
+            exit(1);
         }
         # If the new start is greater than, or equal to
         # the p_start value, there is an overlap possible.
         if (new_start > p_start) {
             # If the new star is greater than the
-            if (new_start < p_start + p_size) {
-                printf("ERROR: new_start < p_start + p_size\n");
-                printf("ERROR: new_start = %d\n", new_start);
-                printf("ERROR: p_start = %d\n", p_start);
-                printf("ERROR: p_size = %d\n", p_size);
-                printf("ERROR: p_start + p_size = %d\n", p_start + p_size);
-                return 1;
+            if (new_start + new_size < p_start + new_size) {
+                printf("# ERROR: Partition (%s) overlaps.", pName);
+                exit(1);
             }
         }
     }
@@ -435,12 +431,10 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         if (label != "gpt") {
             if (p_type == "5" || p_type == "f") {
                 original_fixed = extended_margin;
-                new_logical_fixed += extended_margin;
-                new_logical_fixed += int(CHUNK_SIZE);
+                new_extended = p_size;
                 continue;
             } else if (p_number > 4) {
                 original_fixed += int(CHUNK_SIZE);
-                new_logical_fixed += int(CHUNK_SIZE);
             }
         }
         # Used to test if fixed;
@@ -454,10 +448,6 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
                 p_fixed = 1;
                 original_fixed += p_size;
                 if (label != "gpt") {
-                    if (p_type != 5 && p_type != "f" && p_number < 5) {
-                        new_logical_fixed += p_size;
-                        break;
-                    }
                     break;
                 }
                 break;
@@ -549,8 +539,8 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         partitions[pName, "size"] = p_size;
     }
     # Processing logical partitions.
-    original_variable = new_logical + new_logical_fixed;
-    new_variable = new_logical;
+    #original_variable = new_logical + new_logical_fixed;
+    new_variable = new_extended;
     # We will loop the partitions again to get size for extended/logical partitions.
     for (pName in partition_names) {
         # Reset our p_type variable.
@@ -598,7 +588,7 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
             continue;
         }
         # Get's the percentage increase/decrease and makes adjustment.
-        new_adjusted = new_variable * p_size / original_variable;
+        new_adjusted = new_variable * p_size / new_extended;
         printf("# new_adjusted = %d\n", new_adjusted);
         # If the adjusted value is < the original p_size, we need
         # to down scale a little bit.
