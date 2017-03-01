@@ -556,6 +556,7 @@ processSfdisk() {
     local chunksize=""
     getPartBlockSize "$disk" "chunksize"
     local minstart=$(calculate "$maxsect-$chunksize")
+    [[ $minstart < 0 ]] && minstart=2048
     case $osid in
         [1-2])
             [[ -z $minstart ]] && {
