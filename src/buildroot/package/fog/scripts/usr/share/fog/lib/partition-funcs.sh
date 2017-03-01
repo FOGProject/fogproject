@@ -483,7 +483,7 @@ fillSfdiskWithPartitions() {
     #    majorDebugPause
     #fi
     #[[ $status -eq 0 ]] && applySfdiskPartitions "$disk" "$tmp_file1" "$tmp_file2"
-    processSfdisk "$file" filldisk "$disk" "$disk_size" "$fixed" > "$tmp_file2"
+    processSfdisk "$minf" filldisk "$disk" "$disk_size" "$fixed" > "$tmp_file2"
     status=$?
     if [[ $ismajordebug -gt 0 ]]; then
         echo "Debug"
@@ -551,12 +551,9 @@ processSfdisk() {
     [[ -z $target ]] && handleError "Device (disk or partition) not passed (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ -z $size ]] && handleError "No desired size passed (${FUNCNAME[0]})\n   Args Passed: $*"
     local disk_size=$(blockdev --getsz ${disk})
-    local maxsect=$(blockdev --getmaxsect ${target})
-    local blocksize=$(blockdev --getbsz ${target})
+    local minstart=$(awk -F'[ ,]+' '/start/{if ($4) print $4}' $data | sort -n | head -1)
     local chunksize=""
     getPartBlockSize "$disk" "chunksize"
-    local minstart=$(calculate "$maxsect-$chunksize")
-    [[ $minstart < 0 ]] && minstart=2048
     case $osid in
         [1-2])
             [[ -z $minstart ]] && {
