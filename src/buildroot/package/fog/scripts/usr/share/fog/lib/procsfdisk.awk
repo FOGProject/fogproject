@@ -3,33 +3,6 @@
 # $data is the filename of the output of sfdisk -d
 # cat $data | awk -F, '\
 
-# Gets the size and returns the adjusted value.
-# p_start The Current start position.
-# p_size  The Current size.
-# variable_size The size we have to work within.
-# original_size The size we have to work within for the original layout.
-# original_fixed The original fixed size for use in secondary processing.
-# new_adjusted locally scoped, meaning will be overwritten.
-# new_adj      locally scoped, meaning will be overwritten.
-# left_over    Anything left over between the two.
-function get_new_size(p_start, p_size, variable_size, original_size, original_fixed, new_adjusted, new_adj, left_over) {
-    # Set's left over size (original variable + original fixed - new disk size)
-    left_over = original_size + original_fixed - diskSize;
-    # Get's the percentage increase/decrease and makes adjustment.
-    new_adjusted = variable_size * p_size / original_size;
-    # If the adjusted value is < the original p_size, we need
-    # to down scale a little bit.
-    if (new_adjusted < p_size) {
-        # Figure out the percentage of difference.
-        new_adj = left_over / (original_size + original_fixed);
-        # Get new value
-        new_adjusted += (p_size * new_adj);
-    }
-    # Ensure we're aligned.
-    p_size = new_adjusted - new_adjusted % int(CHUNK_SIZE);
-    return p_size;
-}
-
 # Checks all partitions for any overlap possibilities.
 # Requires partition_names and partitions.
 # partition_names is an array of all the partition names.
@@ -103,7 +76,6 @@ function check_overlap(partition_names, partitions, new_part_name, new_start, ne
     # Iterate our aprtitions.
     for (pName in partition_names) {
         # Partitions will not overlap themselves, so skip.
-        printf("# NOTE: new_part_name = %s\n", new_part_name);
         if (new_part_name == pName) {
             continue;
         }
@@ -143,68 +115,18 @@ function check_overlap(partition_names, partitions, new_part_name, new_start, ne
                 if (new_type == "5" || new_type == "f") {
                     p_start += extended_margin
                 } else if (p_number > 4) {
-                    p_start += CHUNK_SIZE;
+                    p_start += int(CHUNK_SIZE);
                 }
             }
-            # Set to new start for checking.
-            new_start = p_start;
         }
-        printf("# NOTE: diskSize = %d\n", int(diskSize));
-        printf("# NOTE: new_start = %d\n", new_start);
-        printf("# NOTE: new_size = %d\n", new_size);
-        printf("# NOTE: p_start = %d\n", p_start);
-        printf("# NOTE: P_size = %d\n", p_size);
-        printf("# NOTE: pName = %s\n", pName);
-        if (new_start < 0) {
-            printf("# ERROR: The new start position is less than 0.\n");
-            return 1;
-        }
-        if (new_size < 0) {
-            printf("# ERROR: The new size is less than 0.\n");
-            return 1;
-        }
-        if (new_start + new_size < 0) {
-            printf("# ERROR: The new start plus the new_size is less than 0.\n");
-            printf("# ERROR: new_start + new_size = %d\n", new_start + new_size);
-            return 1;
-        }
-        if (new_start + new_size < new_start) {
-            printf("# ERROR: The new start plus the new size is less than the original new start position.\n");
-            printf("# ERROR: new_start + new_size = %d\n", new_start + new_size);
-            return 1;
-        }
-        if (new_start + new_size < new_size) {
-            printf("# ERROR: The new start plus the new size is less than the new size.\n");
-            printf("# ERROR: new_start + new_size = %d\n", new_start + new_size);
-            return 1;
-        }
-        if (new_size + new_start < 0) {
-            printf("# ERROR: The new size plus the new size is less than 0.\n");
-            printf("# ERROR: new_size + new_start = %d\n", new_size + new_start);
-            return 1;
-        }
-        if (new_size + new_start < new_size) {
-            printf("# ERROR: The new size plus new start is less than the new size.\n");
-            printf("# ERROR: new_size + new_start = %d\n", new_size + new_start);
-            return 1;
-        }
-        if (new_start > int(diskSize)) {
-            printf("# ERROR: The new start is larger than the disk size.\n");
-            return 1;
-        }
-        if (new_size > int(diskSize)) {
-            printf("# ERROR: The new size is larger than the disk size.\n");
-            return 1;
-        }
-        if (new_start + new_size > int(diskSize)) {
-            printf("# ERROR: The new start plus the new size is larger than the disk size.\n");
-            return 1;
-        }
-        if (new_start + new_size < p_start + new_size) {
-            printf("# ERROR: Overlap condition met from:\n");
-            printf("# ERROR: new_start + new_size = %d\n", new_start + new_size);
-            printf("# ERROR: p_start + new_size = %d\n", p_start + new_size);
-            printf("# ERROR: new information is smaller than partition at (%s)\n", pName);
+        # If the new start is greater than, or equal to
+        # the p_start value, there is an overlap possible.
+        if (new_start >= p_start) {
+            # If the new star tis greater than the
+            # p_start + the p_size value, we are in overlap.
+            if (new_start < p_start + p_size) {
+                return 1;
+            }
         }
     }
     return 0;
@@ -251,13 +173,11 @@ function display_output(partition_names, partitions, pName, p_device, p_start, p
     # Add unit to the sfdisk file.
     printf("unit: %s\n", unit);
     # If the first lba field is set store it too.
-    if (label == "gpt") {
-        if (firstlba) {
-            printf("first-lba: %d\n", firstlba);
-        }
-        if (lastlba) {
-            printf("last-lba: %d\n", lastlba);
-        }
+    if (firstlba) {
+        printf("first-lba: %d\n", firstlba);
+    }
+    if (lastlba) {
+        printf("last-lba: %d\n", lastlba);
     }
     printf("\n");
     # Iterate our partition names.
@@ -321,9 +241,6 @@ function display_output(partition_names, partitions, pName, p_device, p_start, p
 # Global Scoped variables (meaning not needed to pass to the function:
 # target the device to work off of
 # unit the unit type
-# CHUNK_SIZE the chunk_size for the partition
-# sizePos the size of the partition
-# diskSize the size of the disk
 function resize_partition(partition_names, partitions, args, pName, new_size, p_start) {
     # Iterate our partitions.
     for (pName in partition_names) {
@@ -353,16 +270,14 @@ function resize_partition(partition_names, partitions, args, pName, new_size, p_
         # Ultimately to switch the start position, we
         # could do something like below from check_overlap:
         # partitions[target, "start"] = p_start;
-        partitions[target, "start"] = p_start;
+        # partitions[target, "start"] = p_start;
         # Sets the new size which is passed into the script
         # directly. As long as no overlap we know the shrunk
         # size is safe.
         partitions[target, "size"] = new_size;
     }
-    if (label == "gpt") {
-        if (lastlba) {
-            lastlba = int(diskSize) - int(firstlba);
-        }
+    if (lastlba) {
+        lastlba = int(diskSize) - int(firstlba);
     }
     return 0;
 }
@@ -436,98 +351,60 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
     extended_margin = 2;
     # Variable should be 0.
     original_variable = 0;
-    # Variable should be 0.
-    new_logical = 0;
     # Fixed should be MIN_START.
-    original_fixed = int(MIN_START) + int(MIN_START) / int(CHUNK_SIZE);
+    original_fixed = int(MIN_START);
     # Iterate partitions. This loop checks for swap
     # partitions. A fail safe to ensure swap is fixed.
-    # Will also set 0 sized partition to fixed.
     for (pName in partition_names) {
         # Set p_type variable.
         p_type = partitions[pName, "type"];
         # Set p_number variable.
         p_number = int(partitions[pName, "number"]);
-        # Set p_size variable.
-        p_size = int(partitions[pName, "size"]);
-        # If p_type is not 5 or f (extended), check next partition.
-        # If p_type is not 82 (swap), check next partition.
-        if (p_type != 82) {
-            continue;
-        }
-        # If p_size > 0, check next partition.
-        if (p_size > 0) {
-            continue;
-        }
-        # Update the fixedList global variable.
-        fixedList = fixedList ":" p_number;
-    }
-    # split fixed list into fixed_partitions
-    # stored in fixed_partitions variable.
-    split(fixedList, fixed_partitions, ":");
-    #
-    # Find the total fixed and variable space.
-    #
-    for (pName in partition_names) {
-        # Set p_type variable.
-        p_type = partitions[pName, "type"];
-        # Set p_number variable.
-        p_number = int(partitions[pName, "number"]);
-        # Set p_size variable.
-        p_size = int(partitions[pName, "size"]);
         # Set p_start variable.
         p_start = int(partitions[pName, "start"]);
         # Set partition starts.
         partition_starts[p_start] = pName;
-        # Don't check empty partitions.
-        if (p_size == 0) {
-            continue;
-        }
-        # Skip extended partition. Ensure extended margin is fixed size.
-        # Only count its logical point with chunk_size;
+        # Regex setter.
+        regex = "/^"p_number"$|^"p_number":|:"p_number":|:"p_number"$/";
+        # Set p_size variable.
+        p_size = int(partitions[pName, "size"]);
         if (label != "gpt") {
-            if (p_type == "5" || p_type == "f") {
-                original_fixed = extended_margin;
-                new_extended = p_size;
-                new_extended_fixed = extended_margin;
+            if (p_type == 5 || p_type == "f") {
+                original_variable += p_size;
                 continue;
-            } else if (p_number > 4) {
-                original_fixed += int(CHUNK_SIZE);
-                new_extended_fixed += int(CHUNK_SIZE);
             }
-        }
-        # Used to test if fixed;
-        p_fixed = 0;
-        # Loop fixed_partitions
-        for (i in fixed_partitions) {
-            # If the iteration matches the current p_number
-            # increase the fixed size and tell us the partition
-            # is fixed.
-            if (fixed_partitions[i] == p_number) {
-                if (label != "gpt") {
-                    if (p_type == 5 || p_type == "f") {
-                        break;
-                    } else if (p_number > 4) {
-                        new_extended_fixed += p_size;               
+            if (p_number > 4) {
+                if (p_type == 82) {
+                    original_fixed += p_size;
+                    if (fixedList ~ regex) {
+                        continue;
                     }
+                    fixedList = fixedList":"p_number;
+                    continue;
                 }
-                p_fixed = 1;
-                original_fixed += p_size;
-                break;
             }
-        }
-        if (p_fixed) {
+            if (fixedList ~ regex) {
+                original_fixed += p_size;
+            } else {
+                original_variable += p_size;
+            }
             continue;
         }
-        # If the label is not of gpt type.
-        if (label != "gpt") {
-            # If we're looking at a logical partition.
-            if (p_number > 4) {
-                new_logical += p_size;
+        # If p_type is not 82 (swap), check next partition.
+        if (p_type == 82) {
+            original_fixed += p_size;
+            if (fixedList ~ regex) {
+                continue;
             }
+            fixedList = fixedList":"p_number;
+            continue;
         }
-        # Increase the original variable.
-        original_variable += p_size;
+        # If partition is in fixed list set fixed size and continue;
+        if (fixedList ~ regex) {
+            original_fixed += p_size;
+        } else {
+            original_variable += p_size;
+        }
     }
     # Assign the new sizes.
     new_variable = int(diskSize) - original_fixed;
@@ -541,6 +418,8 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         p_start = int(partitions[pName, "start"]);
         # Reset our p_size variable.
         p_size = int(partitions[pName, "size"]);
+        # Regex setter.
+        regex = "/^"p_number"$|^"p_number":|:"p_number":|:"p_number"$/";
         # No worrying about 0 sized partitions.
         if (p_size == 0) {
             continue;
@@ -549,83 +428,49 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         # Skip as performed later.
         if (label != "gpt") {
             # Logical partitions are any greater than 4.
-            # Logical will be processed later.
-            if (p_number > 4) {
+            # The extendended partition is of p_types 5 or f.
+            if (p_number > 4 || p_type == "5" || p_type == "f") {
                 continue;
             }
         }
-        # Used to test if fixed;
-        p_fixed = 0;
-        # Loop fixed_partitions
-        for (i in fixed_partitions) {
-            # If the iteration matches the current p_number
-            # increase the fixed size and tell us the partition
-            # is fixed.
-            if (fixed_partitions[i] == p_number) {
-                if (label != "gpt") {
-                    if (p_type == 5 || p_type == "f") {
-                        break;
-                    }
+        # If a fixed partition, go to next.
+        if (fixedList ~ regex) {
+            continue;
+        }
+        # Get's the percentage increase/decrease and makes adjustment.
+        new_adjusted = new_variable * p_size / original_variable;
+        # Ensure we're aligned.
+        p_size = new_adjusted - new_adjusted % int(CHUNK_SIZE);
+        # Ensure the partition size is setup.
+        partitions[pName, "size"] = p_size;
+    }
+    # Assign the new size to the extended partition.
+    # Only needed in non-gpt disks.
+    if (label != "gpt") {
+        # Iterate our partitions.
+        for (pName in partition_names) {
+            # Get the partition number.
+            p_number = int(partitions[pName, "number"]);
+            # Get the partition type.
+            p_type = partitions[pName, "type"];
+            # Get the original partition size.
+            p_size = int(partitions[pName, "size"]);
+            # Regex setter.
+            regex = "/^"p_number"$|^"p_number":|:"p_number":|:"p_number"$/";
+            if (p_type == "5" || p_type == "f") {
+                new_adjusted = new_variable * p_size / original_variable;
+                p_size = new_adjusted - new_adjusted % int(CHUNK_SIZE);
+                partitions[pName, "size"] = p_size;
+            } else if (p_number > 4) {
+                if (fixedList ~ regex) {
+                    continue;
                 }
-                p_fixed = 1;
-                break;
+                new_adjusted = new_variable * p_size / original_variable;
+                p_size = new_adjusted - new_adjusted % int(CHUNK_SIZE);
+                partitions[pName, "size"] = p_size;
             }
         }
-        # If a fixed partition, go to next.
-        if (p_fixed) {
-            continue;
-        }
-        # Get the new size.
-        p_size = get_new_size(p_start, p_size, new_variable, original_variable, original_fixed);
-        # Ensure the partition size is setup.
-        partitions[pName, "size"] = p_size;
     }
-    # Processing logical partitions.
-    new_variable = new_extended - new_extended_fixed;
-    # We will loop the partitions again to get size for extended/logical partitions.
-    for (pName in partition_names) {
-        # Reset our p_type variable.
-        p_type = partitions[pName, "type"];
-        # Reset our p_number variable.
-        p_number = int(partitions[pName, "number"]);
-        # Reset our p_start variable.
-        p_start = int(partitions[pName, "start"]);
-        # Reset our p_size variable.
-        p_size = int(partitions[pName, "size"]);
-        # No worrying about non-logical partitions.
-        if (p_number < 5) {
-            continue;
-        }
-        # No worrying about 0 sized partitions.
-        if (p_size == 0) {
-            continue;
-        }
-        # Logical partitions are any greater than 4.
-        # Don't worry if this is the extended partition.
-        if (p_type == 5 || p_type == "f") {
-            continue;
-        }
-        # Used to test if fixed;
-        p_fixed = 0;
-        # Loop fixed_partitions
-        for (i in fixed_partitions) {
-            # If the iteration matches the current p_number
-            # increase the fixed size and tell us the partition
-            # is fixed.
-            if (fixed_partitions[i] == p_number) {
-                p_fixed = 1;
-                break;
-            }
-        }
-        # If a fixed partition, go to next.
-        if (p_fixed) {
-            continue;
-        }
-        p_size = get_new_size(p_start, p_size, new_variable, new_logical, new_extended_fixed);
-        # Ensure the partition size is setup.
-        partitions[pName, "size"] = p_size;
-    }
-    new_variable = new_logical - new_logical_fixed;
     # Assign the new start positions.
     asort(partition_starts, ordered_starts, "@ind_num_asc");
     # sort our stuff.
@@ -657,11 +502,16 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
             # The start position for the extended/logical partitions
             # needs to be increased by the chunk size.
             # Otherwise increase it by the p_size.
-            if (p_type == "5" || p_type == "f") {
-                curr_start += extended_margin
-            } else if (p_number > 4) {
-                continue;
-            }
+           if (p_type == "5" || p_type == "f") {
+               curr_start += extended_margin + p_size;
+               partitions[pName, "start"] = p_start;
+               continue;
+           }
+           if (p_number > 4) {
+               partitions[pName, "start"] = p_start;
+               curr_start += p_size;
+               continue;
+           }
         }
         curr_start += p_size;
         # Set the partitions start to our adjusted start.
@@ -671,7 +521,7 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
     PROCINFO["sorted_in"] = old_sorted_in;
     # Set our lastlba
     if (firstlba) {
-        lastlba = int(diskSize) - int(firstlba) - int(MIN_START) / int(CHUNK_SIZE);
+        lastlba = int(diskSize) - int(firstlba);
     }
     # Check for any overlaps.
     return check_all_partitions(partition_names, partitions);
@@ -715,17 +565,17 @@ BEGIN {
     # The regex can handle devices like mmcblk0p3
     part_number = gensub(/^[^0-9]*[0-9]*[^0-9]+/, "", 1, part_name);
     # Set the partitions number.
-    partitions[part_name, "number"] = int(part_number);
+    partitions[part_name, "number"] = part_number;
     # Separate attributes
     split($0, fields, ",");
     # Get start value
     gsub(/.*start= */, "", fields[1]);
     # Set start point.
-    partitions[part_name, "start"] = int(fields[1]);
+    partitions[part_name, "start"] = fields[1];
     # Get size value
     gsub(/.*size= */, "", fields[2]);
     # Set size.
-    partitions[part_name, "size"] = int(fields[2]);
+    partitions[part_name, "size"] = fields[2];
     # Get type/id value
     gsub(/.*(type|Id)= */, "", fields[3]);
     # Set type.
