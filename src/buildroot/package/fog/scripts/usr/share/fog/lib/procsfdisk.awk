@@ -397,19 +397,19 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         p_size = int(partitions[pName, "size"]);
         if (label != "gpt") {
             if (p_type == 5 || p_type == "f") {
-                original_fixed += extended_margin + int(CHUNK_SIZE);
-                new_logical = p_size;
+                new_logical = p_size - int(MIN_START);
                 continue;
             } else if (p_number > 4) {
-                original_fixed += int(CHUNK_SIZE);
+                new_logical -= int(MIN_START);
                 if (p_type == 82) {
-                    original_fixed += p_size;
                     if (fixedList ~ regex) {
+                        new_logical -= p_size;
                         continue;
                     }
                     fixedList = fixedList":"p_number;
                 }
                 if (fixedList ~ regex) {
+                    new_logical -= p_size;
                     continue;
                 }
             }
@@ -461,9 +461,9 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
                 if (fixedList ~ regex) {
                     continue;
                 }
-                new_adjusted = new_logical * p_size / original_variable;
+                new_adjusted = new_logical;
                 p_size = new_adjusted - new_adjusted % int(CHUNK_SIZE);
-                partitions [pName, "size"] = p_size - int(CHUNK_SIZE);
+                partitions[pName, "size"] = p_size;
                 continue;
             }
         }
@@ -510,13 +510,11 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
             # needs to be increased by the chunk size.
             # Otherwise increase it by the p_size.
             if (p_type == "5" || p_type == "f") {
-                p_start += int(CHUNK_SIZE);
                 partitions[pName, "start"] = p_start;
-                curr_start += int(CHUNK_SIZE);
+                curr_start += int(MIN_START);
                 continue;
             } else if (p_number > 4) {
-                p_start += int(CHUNK_SIZE);
-                curr_start += int(CHUNK_SIZE);
+                p_start += int(MIN_START);
             }
         }
         curr_start += p_size;
