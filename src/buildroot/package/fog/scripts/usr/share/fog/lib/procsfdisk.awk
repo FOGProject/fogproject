@@ -1,4 +1,26 @@
 #!/usr/bin/awk -f
+#
+# This script will shrink (resize) partitions based on the new partition size passed in.
+# NOTE: This does not shrink the volume, just the parititon layout information.
+# This script will fill disks (expand) with the relevant data passed on based on the disk size passed in.
+#
+# Usage Passed in Variables:
+#
+# CHUNK_SIZE  The default block size for the disk/partition being used. Typically 512
+# MIN_START   The minimum start position for the first partition. Typically 2048.
+# action      The action to perform with the script.
+#  1. filldisk Fills the disk.
+#  2. move     Moves partitions.
+#  3. resize   Shrinks partitions.
+# target      The target to work with.
+#  1. filldisk The target is the disk in whole.
+#  2. move     The target is the current partition.
+#  3. resize   The target is the current partition.
+# sizePos     The size to change.
+#  This is only used for move/resize. Used to tell
+#   the new size of the disk.
+# diskSize    The disk size.
+# fixedList   The partition sizes that should remain untouched in size.
 
 # $data is the filename of the output of sfdisk -d
 # cat $data | awk -F, '\
