@@ -751,14 +751,11 @@ restoreOriginalPartitions() {
         MBR|GPT)
             local sfdiskoriginalpartitionfilename=""
             local sfdisklegacyoriginalpartitionfilename=""
-            local sgdiskoriginalpartitionfilename=""
             local cmdtorun='restoreSfdiskPartitions'
             sfdiskOriginalPartitionFileName "$imagePath" "$disk_number"
             sfdiskLegacyOriginalPartitionFileName "$imagePath" "$disk_number"
-            sgdiskOriginalPartitionFileName "$imagePath" "$disk_number"
             local filename="$sfdiskoriginalpartitionfilename"
             [[ ! -r $filename ]] && filename="$sfdisklegacyoriginalpartitionfilename"
-            [[ ! -r $filename ]] && filename="$sgdiskoriginalpartitionfilename" && cmdtorun='restoreSgdiskPartitions'
             [[ ! -r $filename ]] && handleError "Failed to find a restore file (${FUNCNAME[0]})\n   Args Passed: $*"
             $cmdtorun "$disk" "$filename"
             ;;
@@ -830,19 +827,32 @@ fillDiskWithPartitionsIsOK() {
     local table_type=""
     getDesiredPartitionTableType "$imagePath" "$disk_number"
     local filename=""
+    local sfdiskminimumpartitionfilename=""
     local sfdiskoriginalpartitionfilename=""
     local sfdisklegacyoriginalpartitionfilename=""
-    local sgdiskoriginalpartitionfilename=""
-    do_fill=1
+    do_fill=0
     case $table_type in
         MBR|GPT)
+            sfdiskMinimumPartitionFileName "$imagePath" "$disk_number"
             sfdiskOriginalPartitionFileName "$imagePath" "$disk_number"
             sfdiskLegacyOriginalPartitionFileName "$imagePath" "$disk_number"
-            sgdiskOriginalPartitionFileName "$imagePath" "$disk_number"
-            filename="$sfdiskoriginalpartitionfilename"
-            [[ ! -r $filename ]] && filename="$sfdisklegacyoriginalpartitionfilename"
-            [[ ! -r $filename ]] && filename="$sgdiskoriginalpartitionfilename"
-            [[ ! -r $filename ]] && do_fill=0
+            filename="$sfdiskminimumpartitionfilename"
+            if [[ ! -r $filename ]]; then
+                filename="$sfdiskoriginalpartitionfilename"
+            else
+                do_fill=1
+                return
+            fi
+            if [[ ! -r $filename ]]; then
+                filename="$sfdisklegacyoriginalpartitionfilename"
+            else
+                do_fill=1
+                return
+            fi
+            ;;
+        *)
+            do_fill=0
+            return
             ;;
     esac
 }
