@@ -400,8 +400,11 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         # Drop the size by the min start position.
         if (label != "gpt") {
             if (p_type == 5 || p_type == "f") {
-                original_fixed += int(MIN_START) + p_size;
+                original_fixed += int(MIN_START);
                 continue;
+            }
+            if (p_number > 4) {
+                original_fixed += int(MIN_START);
             }
         }
         # Add 0 sized parts to fixed size.
