@@ -113,67 +113,22 @@ function check_overlap(partition_names, partitions, new_part_name, new_start, ne
         if (p_size == 0) {
             continue;
         }
-        # We need to adjust the start positions for smaller/larger
-        # drives to test overlap accurately.
-        # Otherwise, captures would almost always have an overlap.
-        # Equal partitions will remain untouched.
-        if (capture > 0) {
-            # If the new_size is < p_size, subtract the new size amount
-            # from the p_start.
-            # If the new_size is > p_size, add the new size amount
-            # from the p_start.
-            if (new_size < p_size) {
-                p_start -= new_size;
-            } else if (new_size > p_size) {
-                p_start += new_size;
-            }
-            # partitions[pName, "start"] = p_start;
-            # If the new type is an extended type:
-            # Extended only happens on non-gpt disks.
-            # we need to add at least the extended element.
-            # If partition is 5 or more, we need to add the start
-            # plus the chunk size.
-            if (label != "gpt") {
-                if (new_type == "5" || new_type == "f") {
-                    p_start += extended_margin + int(CHUNK_SIZE);
-                } else if (p_number > 4) {
-                    p_start += int(CHUNK_SIZE);
-                }
-            }
-        }
         # New size checks.
         if (new_start < 0) {
-            printf("ERROR: Start postition (%d) on (%s) is less than 0.\n", new_start, pName);
-            exit(1);
+            printf("ERROR: New Start postition (%d) on (%s) is less than 0.\n", new_start, pName);
+            return 1;
         }
         if (new_start > int(diskSize)) {
-            printf("ERROR: Start postition (%d) on (%s) is larger than the disk (%d).\n.", new_start, pName, int(diskSize));
-            exit(1);
+            printf("ERROR: New Start postition (%d) on (%s) is larger than the disk (%d).\n.", new_start, pName, int(diskSize));
+            return 1;
         }
         if (new_start + new_size < 0) {
-            printf("ERROR: start and size (%d) on (%s) is less than 0.\n", new_start + new_size, pName);
-            exit(1);
+            printf("ERROR: New start and size (%d) on (%s) is less than 0.\n", new_start + new_size, pName);
+            return 1;
         }
         if (new_start + new_size > int(diskSize)) {
-            printf("ERROR: start and size (%d) on (%s) is larger than the disk (%d).\n", new_start + new_size, pName, int(diskSize));
-            exit(1);
-        }
-        # Set size checks
-        if (p_start < 0) {
-            printf("ERROR: Start postition (%d) on (%s) is less than 0.\n", p_start, pName);
-            exit(1);
-        }
-        if (p_start > int(diskSize)) {
-            printf("ERROR: Start postition (%d) on (%s) is larger than the disk (%d).\n", p_start, pName, int(diskSize));
-            exit(1);
-        }
-        if (p_start + p_size < 0) {
-            printf("ERROR: start and size (%d) on (%s) is less than 0.\n", p_start + p_size, pName);
-            exit(1);
-        }
-        if (p_start + p_size > int(diskSize)) {
-            printf("ERROR: start and size (%d) on (%s) is larger than the disk (%d).\n", p_start + p_size, pName, int(diskSize));
-            exit(1);
+            printf("ERROR: New start and size (%d) on (%s) is larger than the disk (%d).\n", new_start + new_size, pName, int(diskSize));
+            return 1;
         }
         # Overlap checks.
         if (p_type == 5 || p_type == "f") {
@@ -484,7 +439,7 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         # Reset our p_size variable.
         p_size = int(partitions[pName, "size"]);
         # Ensure p_size is aligned.
-        p_size -= (p_size % int(MIN_START));
+        p_size -= (p_size % int(CHUNK_SIZE));
         # Regex setter.
         regex = "/^"p_number"$|^"p_number":|:"p_number":|:"p_number"$/";
         # Extended/Logical partition processing.
@@ -508,7 +463,7 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         # Get's the percentage increase/decrease and makes adjustment.
         p_size = new_variable * p_size / original_variable;
         # Ensure we're aligned.
-        p_size -= (p_size % int(MIN_START));
+        p_size -= (p_size % int(CHUNK_SIZE));
         # Ensure the partition size is setup.
         partitions[pName, "size"] = p_size;
     }
@@ -574,7 +529,7 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
             if (p_type == 5 || p_type == "f") {
                 orig_logical = p_size;
                 p_size = (diskSize - p_start);
-                p_size -= (p_size % int(MIN_START));
+                p_size -= (p_size % int(CHUNK_SIZE));
                 new_logical = p_size;
                 partitions[pName, "size"] = p_size;
                 continue;
@@ -604,7 +559,8 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
                     new_logical -= int(MIN_START);
                     if (fixedList ~ regex_tmp) {
                         new_logical -= p_size_tmp;
-                        adjusted_logical = new_logical;
+                        adjusted_logical = new_logical / logicalcount;
+                        adjusted_logical -= (adjusted_logical % int(CHUNK_SIZE));
                         continue;
                     }
                 }
