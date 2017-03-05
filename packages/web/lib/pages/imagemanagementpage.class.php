@@ -1105,7 +1105,13 @@ class ImageManagementPage extends FOGPage
                         )
                     );
                 }
-                if (self::getClass('ImageManager')->exists($_REQUEST['file'], 'path')
+                $exists = self::getClass('ImageManager')
+                    ->exists(
+                        $_REQUEST['file'],
+                        'path'
+                    );
+                if ($this->obj->get('path') != $_REQUEST['file']
+                    && $exists
                 ) {
                     throw new Exception(
                         sprintf(
