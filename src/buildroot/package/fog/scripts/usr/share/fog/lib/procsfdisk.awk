@@ -72,11 +72,6 @@ function check_all_partitions(partition_names, partitions, pName, p_start, p_siz
 #  but is set for simplicity.
 # new_size the new size of the partition. Could be locally scoped from
 #  new_part_name, but is set for simplicity.
-# capture is a flag telling us the type of tasking we're doing. Filling the disk
-#  sets our new start positions automatically. Resizing (shrinking really) does
-#  not adjust the original start positions for us. We can't set the start position
-#  during shrinking because the data hasn't been captured yet. If we move the
-#  start position, it's possible to lose the data and/or end up with corrupt images.
 # extended_margin locally scoped, but could be set. Default is 2 as is normal. Currently
 #  will be overwritten regardless.
 # new_type is locally scoped, but could be set here if wanted. Will be overwritten anyway.
@@ -88,11 +83,15 @@ function check_all_partitions(partition_names, partitions, pName, p_start, p_siz
 # p_number is locally scoped, but could be set here if wanted. Will be overwritten anyway.
 # Global Scoped variables (meaning not needed to pass to the function:
 # label the device label.
-function check_overlap(partition_names, partitions, new_part_name, new_start, new_size, capture, extended_margin, new_type, new_part_number, pName, p_type, p_start, p_size, p_number) {
+function check_overlap(partition_names, partitions, new_part_name, new_start, new_size, extended_margin, new_type, new_part_number, pName, p_type, p_start, p_size, p_number) {
     # Used for extended volumes (logical disks)
     extended_margin = 2;
     # Set new_type variable. (Partition Type -- extended, ntfs, ext4, etc...)
     new_type = int(partitions[new_part_name, "type"]);
+    # Set new_start
+    new_start = int(new_start);
+    # Set new_size
+    new_size = int(new_size);
     # Set new_part_number variable. Self explanatory.
     new_part_number = int(partitions[new_part_name, "number"]);
     # Iterate our aprtitions.
@@ -268,7 +267,7 @@ function display_output(partition_names, partitions, pName, p_device, p_start, p
 # Global Scoped variables (meaning not needed to pass to the function:
 # target the device to work off of
 # unit the unit type
-function resize_partition(partition_names, partitions, args, pName, new_size, p_start) {
+function resize_partition(partition_names, partitions, args, pName, new_start, new_size) {
     # Iterate our partitions.
     for (pName in partition_names) {
         # If pName is not the target, skip.
@@ -280,11 +279,11 @@ function resize_partition(partition_names, partitions, args, pName, new_size, p_
             continue;
         }
         # Set our p_start position to the current start.
-        p_start = int(partitions[pName, "start"]);
+        new_start = int(partitions[pName, "start"]);
         # Ensure start postition is aligned properly.
         new_size = int(sizePos) / int(CHUNK_SIZE);
         # Check the overlap.
-        overlap = check_overlap(partition_names, partitions, target, new_start, new_size, 1);
+        overlap = check_overlap(partition_names, partitions, target, new_start, new_size);
         # If there was an issue in checking overlap, skip.
         if (overlap != 0) {
             continue;
@@ -301,6 +300,7 @@ function resize_partition(partition_names, partitions, args, pName, new_size, p_
         # Sets the new size which is passed into the script
         # directly. As long as no overlap we know the shrunk
         # size is safe.
+        partitions[target, "start"] = new_start;
         partitions[target, "size"] = new_size;
     }
     if (lastlba) {
@@ -344,8 +344,13 @@ function move_partition(partition_names, partitions, args, pName, new_start, new
         }
         # Set the new size variable.
         new_size = int(partitions[pName, "size"]);
+        overlap = check_overlap(partition_names, partitions, target, new_start, new_size);
+        if (overlap != 0) {
+            continue;
+        }
         # Ensure our values are adjusted.
         partitions[target, "start"] = new_start;
+        partitions[target, "size"] = new_size;
     }
     return 0;
 }
@@ -382,6 +387,8 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
     new_logical = 0;
     # Fixed should be MIN_START.
     original_fixed = int(MIN_START);
+    # Trim any beginning or trailling colons
+    gsub(/^[:]+|[:]+$/, "", fixedList);
     # Iterate partitions and setup any unfound
     # fixed partitions.
     for (pName in partition_names) {
@@ -393,10 +400,10 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         p_start = int(partitions[pName, "start"]);
         # Set partition starts.
         partition_starts[p_start] = pName;
-        # Regex setter.
-        regex = "/^"p_number"$|^"p_number":|:"p_number":|:"p_number"$/";
         # Set p_size variable.
         p_size = int(partitions[pName, "size"]);
+        # Regex setter.
+        regex = "/^([:]+)?"p_number"([:]+)?$|([:]+)?"p_number"([:]+)?|([:]+)?"p_number"$/"
         # Drop the size by the min start position.
         if (label != "gpt") {
             if (p_type == 5 || p_type == "f") {
@@ -409,24 +416,26 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         }
         # Add 0 sized parts to fixed size.
         if (p_size == 0) {
-            if (!(fixedList ~ regex)) {
+            if (!match(fixedList, regex)) {
                 fixedList = fixedList":"p_number;
             }
         }
         # Add swap to fixed size.
         if (p_type == 82) {
-            if (!(fixedList ~ regex)) {
+            if (!match(fixedList, regex)) {
                 fixedList = fixedList":"p_number;
             }
         }
         # If fixed, add the partition size.
-        if (fixedList ~ regex) {
+        if (match(fixedList, regex)) {
             original_fixed += p_size;
             continue;
         }
         # Increment the variable value.
         original_variable += p_size;
     }
+    # Trim any beginning or trailling colons
+    gsub(/^[:]+|[:]+$/, "", fixedList);
     # How much room do we have available.
     new_variable = int(diskSize) - original_fixed;
     # We will loop the partitions again to get sizes.
@@ -443,7 +452,7 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         # Ensure p_size is aligned.
         p_size -= (p_size % int(CHUNK_SIZE));
         # Regex setter.
-        regex = "/^"p_number"$|^"p_number":|:"p_number":|:"p_number"$/";
+        regex = "/^([:]+)?"p_number"([:]+)?$|([:]+)?"p_number"([:]+)?|([:]+)?"p_number"$/"
         found = 0;
         for (p_name in partition_names) {
             if (p_name == pName) {
@@ -468,23 +477,23 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
                 continue;
             }
             if (p_number > 4) {
-                if (fixedList ~ regex) {
+                if (match(fixedList, regex)) {
                     continue;
                 }
                 logicalcount += 1;
             }
         }
         # If a fixed partition, go to next.
-        if (fixedList ~ regex) {
+        if (match(fixedList, regex)) {
             continue;
         }
         # Get's the percentage increase/decrease and makes adjustment.
         p_orig_size = p_next_start - p_start;
-        p_percent = (p_orig_size  - original_variable) / (original_variable + original_fixed);
+        p_percent = (p_orig_size  - (original_variable + original_fixed)) / (original_variable + original_fixed);
         if (p_percent < 0) {
             p_percent *= -1;
         }
-        p_size = new_variable * p_percent * (p_size * p_percent + p_size) / original_variable;
+        p_size = (new_variable * p_percent) * p_size / original_variable;
         # Ensure we're aligned.
         p_size -= (p_size % int(CHUNK_SIZE));
         # Ensure the partition size is setup.
@@ -571,8 +580,8 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
                     p_number_tmp = int(partitions[p_name, "number"]);
                     # Set temp size
                     p_size_tmp = int(partitions[p_name, "size"]);
-                    # Set regex for later.
-                    regex_tmp = "/^"p_number_tmp"$|^"p_number_tmp":|:"p_number_tmp":|:"p_number_tmp"$/";
+                    # Regex setter.
+                    regex_tmp = "/^([:]+)?"p_number_tmp"([:]+)?$|([:]+)?"p_number_tmp"([:]+)?|([:]+)?"p_number_tmp"$/"
                     if (p_type_tmp == 5 || p_type_tmp == "f") {
                         continue;
                     }
@@ -580,7 +589,7 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
                         continue;
                     }
                     new_logical -= int(MIN_START);
-                    if (fixedList ~ regex_tmp) {
+                    if (match(fixedList, regex_tmp)) {
                         new_logical -= p_size_tmp;
                         adjusted_logical = new_logical / logicalcount;
                         adjusted_logical -= (adjusted_logical % int(CHUNK_SIZE));
@@ -598,8 +607,8 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
                 p_size_tmp = int(partitions[p_name, "size"]);
                 # Set temp start
                 p_start_tmp = int(partitions[p_name, "start"]);
-                # Set regex for later.
-                regex_tmp = "/^"p_number_tmp"$|^"p_number_tmp":|:"p_number_tmp":|:"p_number_tmp"$/";
+                # Regex setter.
+                regex_tmp = "/^([:]+)?"p_number_tmp"([:]+)?$|([:]+)?"p_number_tmp"([:]+)?|([:]+)?"p_number_tmp"$/"
                 if (p_type_tmp == 5 || p_type_tmp == "f" || p_number_tmp < 5) {
                     continue;
                 }
@@ -608,7 +617,7 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
                 }
                 partitions[p_name, "start"] = curr_start;
                 p_size_tmp = adjusted_logical;
-                if (!(fixedList ~ regex_tmp)) {
+                if (!match(fixedList,regex_tmp)) {
                     partitions[p_name, "size"] = p_size_tmp;
                 }
                 curr_start += p_size_tmp;
