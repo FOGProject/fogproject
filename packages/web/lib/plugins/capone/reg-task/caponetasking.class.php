@@ -98,11 +98,7 @@ class CaponeTasking extends FOGBase
                                 $osid,
                                 $this->imgTypes[$itid],
                                 $ptid,
-                                (
-                                    $format ?
-                                    '1' :
-                                    '0'
-                                ),
+                                (int)$format,
                                 sprintf(
                                     '%s:%s',
                                     $StorageNode->get('ip'),
