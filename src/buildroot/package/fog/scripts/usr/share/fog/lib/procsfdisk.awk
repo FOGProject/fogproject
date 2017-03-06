@@ -387,8 +387,16 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
     new_logical = 0;
     # Fixed should be MIN_START.
     original_fixed = int(MIN_START);
+    # full size initialize.
+    full_size = 0;
+    # logical fixed initialize.
+    logical_fixed = 0;
+    # tell if we have extended.
     # Trim any beginning or trailling colons
     gsub(/^[:]+|[:]+$/, "", fixedList);
+    if (firstlba && lastlba) {
+        full_size = int(lastlba);
+    }
     # Iterate partitions and setup any unfound
     # fixed partitions.
     for (pName in partition_names) {
@@ -404,14 +412,25 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         p_size = int(partitions[pName, "size"]);
         # Regex setter.
         regex = "/^([:]+)?"p_number"([:]+)?$|([:]+)?"p_number"([:]+)?|([:]+)?"p_number"$/"
-        # Drop the size by the min start position.
+        # If we're dos label do stuff.
         if (label != "gpt") {
+            # If this is an extended partition
+            # The full size is set by the extended start + extended size.
             if (p_type == 5 || p_type == "f") {
+                # Only set full size if needed.
+                if (full_size == 0) {
+                    # Get our full size.
+                    full_size = p_start + p_size;
+                }
                 original_fixed += int(MIN_START);
+                # Store, for now, the partition size as fixed.
                 continue;
             }
             if (p_number > 4) {
                 original_fixed += int(MIN_START);
+                if (match(fixedList, regex)) {
+                    logical_fixed += p_size;
+                }
             }
         }
         # Add 0 sized parts to fixed size.
@@ -429,17 +448,66 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         # If fixed, add the partition size.
         if (match(fixedList, regex)) {
             original_fixed += p_size;
+            partitions[pName, "orig_size"] = p_size;
             continue;
         }
         # Increment the variable value.
         original_variable += p_size;
+    }
+    # This just finds and set's the original sizes.
+    for (pName in partition_names) {
+        # Set p_type variable.
+        p_type = partitions[pName, "type"];
+        # Set p_number variable.
+        p_number = int(partitions[pName, "number"]);
+        # Set p_start variable.
+        p_start = int(partitions[pName, "start"]);
+        # Set partition starts.
+        partition_starts[p_start] = pName;
+        # Set p_size variable.
+        p_size = int(partitions[pName, "size"]);
+        # Set p_next_start variable.
+        p_next_start = 0;
+        # Set the orig size variable.
+        p_orig_size = int(partitions[pName, "orig_size"]);
+        # Reset the found param.
+        found = 0;
+        # If orig size already set, skip.
+        if (p_orig_size > 0) {
+            continue;
+        }
+        if (label != "gpt") {
+            if (p_type == 5 || p_type == "f") {
+                p_next_start = full_size - p_start;
+                partitions[pName, "orig_size"] = p_next_start;
+                continue;
+            }
+        }
+        # Rescan to get the next partition to find the start.
+        # This will figure out the original size.
+        for (p_name in partition_names) {
+            if (p_name == pName) {
+                found = 1;
+                continue;
+            }
+            if (found) {
+                p_next_start = int(partitions[p_name, "start"]);
+                partitions[pName, "orig_size"] = p_next_start - p_start;
+                break;
+            }
+        }
+        if (p_next_start == 0) {
+            if (full_size > 0) {
+                p_next_start = full_size - p_start;
+            }
+            partitions[pName, "orig_size"] = p_next_start;
+        }
     }
     # Trim any beginning or trailling colons
     gsub(/^[:]+|[:]+$/, "", fixedList);
     # How much room do we have available.
     new_variable = int(diskSize) - original_fixed;
     # We will loop the partitions again to get sizes.
-    logicalcount = 0;
     for (pName in partition_names) {
         # Reset our p_type variable.
         p_type = partitions[pName, "type"];
@@ -451,24 +519,10 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         p_size = int(partitions[pName, "size"]);
         # Ensure p_size is aligned.
         p_size -= (p_size % int(CHUNK_SIZE));
+        # Reset our p_orig_size variable.
+        p_orig_size = int(partitions[pName, "orig_size"]);
         # Regex setter.
         regex = "/^([:]+)?"p_number"([:]+)?$|([:]+)?"p_number"([:]+)?|([:]+)?"p_number"$/"
-        found = 0;
-        for (p_name in partition_names) {
-            if (p_name == pName) {
-                found = 1;
-                continue;
-            }
-            if (found) {
-                p_next_start = int(partitions[p_name, "start"]);
-                partitions[pName, "next_start"] = p_next_start;
-                break;
-            }
-        }
-        if (p_next_start == 0) {
-            p_next_start = original_variable + original_fixed - int(partitions[p_name, "start"]);
-            partitions[pName, "next_start"] = p_next_start;
-        }
         # Extended/Logical partition processing.
         if (label != "gpt") {
             # The extended partition is of p_types 5 or f.
@@ -480,7 +534,6 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
                 if (match(fixedList, regex)) {
                     continue;
                 }
-                logicalcount += 1;
             }
         }
         # If a fixed partition, go to next.
@@ -488,12 +541,12 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
             continue;
         }
         # Get's the percentage increase/decrease and makes adjustment.
-        p_orig_size = p_next_start - p_start;
-        p_percent = (p_orig_size  - (original_variable + original_fixed)) / (original_variable + original_fixed);
-        if (p_percent < 0) {
-            p_percent *= -1;
+        if (full_size > 0) {
+            p_percent = p_orig_size / full_size;
+            p_size = new_variable * p_percent;
+        } else {
+            p_size = new_variable * p_size / original_variable;
         }
-        p_size = (new_variable * p_percent) * p_size / original_variable;
         # Ensure we're aligned.
         p_size -= (p_size % int(CHUNK_SIZE));
         # Ensure the partition size is setup.
@@ -557,12 +610,16 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
             p_size = int(partitions[pName, "size"]);
             # Set p_start.
             p_start = int(partitions[pName, "start"]);
+            # Set p_orig_size.
+            p_orig_size = int(partitions[pName, "orig_size"]);
+            # Regex setter.
+            regex = "/^([:]+)?"p_number"([:]+)?$|([:]+)?"p_number"([:]+)?|([:]+)?"p_number"$/"
             # Set our extended partition size.
             if (p_type == 5 || p_type == "f") {
-                orig_logical = p_size;
+                orig_extended = p_size;
                 p_size = (diskSize - p_start);
                 p_size -= (p_size % int(CHUNK_SIZE));
-                new_logical = p_size;
+                new_extended = p_size - logical_fixed;
                 partitions[pName, "size"] = p_size;
                 continue;
             }
@@ -570,33 +627,13 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
             if (p_number < 5) {
                 continue;
             }
-            if (adjusted_logical == 0) {
-                # Set our extended partition size,
-                # First remove the fixed size info.
-                for (p_name in partition_names) {
-                    # Set temp type
-                    p_type_tmp = partitions[p_name, "type"];
-                    # Set temp number
-                    p_number_tmp = int(partitions[p_name, "number"]);
-                    # Set temp size
-                    p_size_tmp = int(partitions[p_name, "size"]);
-                    # Regex setter.
-                    regex_tmp = "/^([:]+)?"p_number_tmp"([:]+)?$|([:]+)?"p_number_tmp"([:]+)?|([:]+)?"p_number_tmp"$/"
-                    if (p_type_tmp == 5 || p_type_tmp == "f") {
-                        continue;
-                    }
-                    if (p_number_tmp < 5) {
-                        continue;
-                    }
-                    new_logical -= int(MIN_START);
-                    if (match(fixedList, regex_tmp)) {
-                        new_logical -= p_size_tmp;
-                        adjusted_logical = new_logical / logicalcount;
-                        adjusted_logical -= (adjusted_logical % int(CHUNK_SIZE));
-                        continue;
-                    }
-                }
+            if (match(fixedList, regex)) {
+                continue;
             }
+            p_percent = p_orig_size / full_size;
+            p_size = new_extended * p_percent;
+            p_size -= (p_size % int(CHUNK_SIZE));
+            partitions[pName, "size"] = p_size;
             curr_start = 0;
             for (p_name in partition_names) {
                 # Set temp type
@@ -616,10 +653,6 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
                     curr_start = p_start_tmp;
                 }
                 partitions[p_name, "start"] = curr_start;
-                p_size_tmp = adjusted_logical;
-                if (!match(fixedList,regex_tmp)) {
-                    partitions[p_name, "size"] = p_size_tmp;
-                }
                 curr_start += p_size_tmp;
             }
         }
