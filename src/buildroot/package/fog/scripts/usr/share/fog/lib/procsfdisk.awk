@@ -444,6 +444,22 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         p_size -= (p_size % int(CHUNK_SIZE));
         # Regex setter.
         regex = "/^"p_number"$|^"p_number":|:"p_number":|:"p_number"$/";
+        found = 0;
+        for (p_name in partition_names) {
+            if (p_name == pName) {
+                found = 1;
+                continue;
+            }
+            if (found) {
+                p_next_start = int(partitions[p_name, "start"]);
+                partitions[pName, "next_start"] = p_next_start;
+                break;
+            }
+        }
+        if (p_next_start == 0) {
+            p_next_start = original_variable + original_fixed - int(partitions[p_name, "start"]);
+            partitions[pName, "next_start"] = p_next_start;
+        }
         # Extended/Logical partition processing.
         if (label != "gpt") {
             # The extended partition is of p_types 5 or f.
@@ -463,7 +479,12 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
             continue;
         }
         # Get's the percentage increase/decrease and makes adjustment.
-        p_size = new_variable * p_size / original_variable;
+        p_orig_size = p_next_start - p_start;
+        p_percent = (p_orig_size  - original_variable) / (original_variable + original_fixed);
+        if (p_percent < 0) {
+            p_percent *= -1;
+        }
+        p_size = new_variable * p_percent * (p_size * p_percent + p_size) / original_variable;
         # Ensure we're aligned.
         p_size -= (p_size % int(CHUNK_SIZE));
         # Ensure the partition size is setup.

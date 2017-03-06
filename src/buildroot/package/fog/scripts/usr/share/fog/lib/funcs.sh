@@ -196,7 +196,7 @@ expandPartition() {
                 *)
                     echo "Failed"
                     debugPause
-                    handleError "Could not resize $part (${FUNCNAME[0]})\n   Args Passed: $*"
+                    handleError "Could not resize $part (${FUNCNAME[0]})\n   Info: $(cat /tmp/tmpoutput.txt)\n   Args Passed: $*"
                     ;;
             esac
             debugPause
@@ -204,27 +204,27 @@ expandPartition() {
             ;;
         extfs)
             dots "Resizing $fstype volume ($part)"
-            e2fsck -fp $part >/dev/null 2>&1
+            e2fsck -fp $part >/tmp/e2fsck.txt 2>&1
             case $? in
                 0)
                     ;;
                 *)
                     echo "Failed"
                     debugPause
-                    handleError "Could not check before resize (${FUNCNAME[0]})\n   Args Passed: $*"
+                    handleError "Could not check before resize (${FUNCNAME[0]})\n   Info: $(cat /tmp/e2fsck.txt)\n   Args Passed: $*"
                     ;;
             esac
-            resize2fs $part >/dev/null 2>&1
+            resize2fs $part >/tmp/resize2fs.txt 2>&1
             case $? in
                 0)
                     ;;
                 *)
                     echo "Failed"
                     debugPause
-                    handleError "Could not resize $part (${FUNCNAME[0]})\n   Args Passed: $*"
+                    handleError "Could not resize $part (${FUNCNAME[0]})\n   Info: $(cat /tmp/resize2fs.txt)\n   Args Passed: $*"
                     ;;
             esac
-            e2fsck -fp $part >/dev/null 2>&1
+            e2fsck -fp $part >/tmp/e2fsck.txt 2>&1
             case $? in
                 0)
                     echo "Done"
@@ -232,7 +232,7 @@ expandPartition() {
                 *)
                     echo "Failed"
                     debugPause
-                    handleError "Could not check after resize (${FUNCNAME[0]})\n   Args Passed: $*"
+                    handleError "Could not check after resize (${FUNCNAME[0]})\n   Info: $(cat /tmp/e2fsck.txt)\n   Args Passed: $*"
                     ;;
             esac
             ;;
@@ -500,11 +500,11 @@ shrinkPartition() {
                     ntfsstatus=0
                     ;;
             esac
-            [[ ! $ntfsstatus -eq 0 ]] && handleError "Resize test failed!\n    $tmpoutput\n    (${FUNCNAME[0]})\n    Args Passed: $*"
+            [[ ! $ntfsstatus -eq 0 ]] && handleError "Resize test failed!\n    Info: $tmpoutput\n    (${FUNCNAME[0]})\n    Args Passed: $*"
             if [[ $do_resizefs -eq 1 ]]; then
                 debugPause
                 dots "Resizing filesystem"
-                yes | ntfsresize -fs ${sizentfsresize}k ${part} >/dev/null 2>&1
+                yes | ntfsresize -fs ${sizentfsresize}k ${part} >/tmp/output.txt 2>&1
                 case $? in
                     0)
                         echo "Done"
@@ -512,7 +512,7 @@ shrinkPartition() {
                     *)
                         echo "Failed"
                         debugPause
-                        handleError "Could not resize disk (${FUNCNAME[0]})\n   Args Passed: $*"
+                        handleError "Could not resize disk (${FUNCNAME[0]})\n   Info: $(cat /tmp/output.txt)\n   Args Passed: $*"
                         ;;
                 esac
             fi
@@ -542,7 +542,7 @@ shrinkPartition() {
             ;;
         extfs)
             dots "Checking $fstype volume ($part)"
-            e2fsck -fp $part >/dev/null 2>&1
+            e2fsck -fp $part >/tmp/e2fsck.txt 2>&1
             case $? in
                 0)
                     echo "Done"
@@ -550,7 +550,7 @@ shrinkPartition() {
                 *)
                     echo "Failed"
                     debugPause
-                    handleError "e2fsck failed to check $part (${FUNCNAME[0]})\n   Args Passed: $*"
+                    handleError "e2fsck failed to check $part (${FUNCNAME[0]})\n   Info: $(cat /tmp/e2fsck.txt)\n   Args Passed: $*"
                     ;;
             esac
             debugPause
@@ -561,7 +561,7 @@ shrinkPartition() {
             sizeextresize=$(calculate "${size}+${sizeadd}")
             [[ -z $sizeextresize || $sizeextresize -lt 1 ]] && handleError "Error calculating the new size of extfs ($part) (${FUNCNAME[0]})\n   Args Passed: $*"
             dots "Shrinking $fstype volume ($part)"
-            resize2fs $part -M >/dev/null 2>&1
+            resize2fs $part -M >/tmp/resize2fs.txt 2>&1
             case $? in
                 0)
                     echo "Done"
@@ -569,7 +569,7 @@ shrinkPartition() {
                 *)
                     echo "Failed"
                     debugPause
-                    handleError "Could not shrink $fstype volume ($part) (${FUNCNAME[0]})\n   Args Passed: $*"
+                    handleError "Could not shrink $fstype volume ($part) (${FUNCNAME[0]})\n   Info: $(cat /tmp/resize2fs.txt)\n   Args Passed: $*"
                     ;;
             esac
             debugPause
@@ -577,18 +577,18 @@ shrinkPartition() {
             resizePartition "$part" "$sizeextresize" "$imagePath"
             echo "Done"
             debugPause
-            dots "Resizing $fstype volume ($part)"
-            resize2fs $part >/dev/null 2>&1
-            case $? in
-                0)
-                    ;;
-                *)
-                    echo "Failed"
-                    debugPause
-                    handleError "Could resize $fstype volume ($part) (${FUNCNAME[0]})\n   Args Passed: $*"
-                    ;;
-            esac
-            e2fsck -fp $part >/dev/null 2>&1
+            #dots "Resizing $fstype volume ($part)"
+            #resize2fs $part >/tmp/resize2fs.txt 2>&1
+            #case $? in
+            #    0)
+            #        ;;
+            #    *)
+            #        echo "Failed"
+            #        debugPause
+            #        handleError "Could not resize $fstype volume ($part) (${FUNCNAME[0]})\n   Info: $(cat /tmp/resize2fs.txt)\n   Args Passed: $*"
+            #        ;;
+            #esac
+            e2fsck -fp $part >/tmp/e2fsck.txt 2>&1
             case $? in
                 0)
                     echo "Done"
@@ -596,7 +596,7 @@ shrinkPartition() {
                 *)
                     echo "Failed"
                     debugPause
-                    handleError "Could not check expanded volume ($part) (${FUNCNAME[0]})\n   Args Passed: $*"
+                    handleError "Could not check expanded volume ($part) (${FUNCNAME[0]})\n   Info: $(cat /tmp/e2fsck.txt)\n   Args Passed: $*"
                     ;;
             esac
             ;;
@@ -693,7 +693,7 @@ writeImage()  {
             echo " * Imaging using Partclone"
             cat </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1
             # If this fails, try from compressed form.
-            [[ ! $? -eq 0 ]] && zstdmt -T$(nproc) --ultra $PIGZ_COMP -dc </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1 || true
+            #[[ ! $? -eq 0 ]] && zstdmt -T$(nproc) --ultra $PIGZ_COMP -dc </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1 || true
             ;;
         1)
             # Partimage
@@ -705,11 +705,11 @@ writeImage()  {
             echo " * Imaging using Partclone"
             zstdmt -T$(nproc) --ultra $PIGZ_COMP -dc </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1
             # If this fails, try uncompressed form.
-            [[ ! $? -eq 0 ]] && cat </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1 || true
+            #[[ ! $? -eq 0 ]] && cat </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1 || true
             ;;
     esac
     exitcode=$?
-    [[ ! $exitcode -eq 0 ]] && handleError "Image failed to restore and exited with exit code $exitcode (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ ! $exitcode -eq 0 ]] && handleError "Image failed to restore and exited with exit code $exitcode (${FUNCNAME[0]})\n   Info: $(cat /tmp/partclone.log)\n   Args Passed: $*"
     rm -rf /tmp/pigz1 >/dev/null 2>&1
 }
 # Gets the valid restore parts. They're only
