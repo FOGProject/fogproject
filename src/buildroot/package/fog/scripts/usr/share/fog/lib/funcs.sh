@@ -2292,8 +2292,7 @@ getLVM() {
     getVolumeGroup "${part}"
     [[ -z $vggroup ]] && return
     changeVolumeGroup "${vggroup}"
-    read lvmGUID lvmSIZE <<< $(vgs --noheadings -v ${vggroup}
-    --units s 2>/dev/null | awk '{printf("%s %s\n", $9, gensub(/[Ss]/,"","g",$7))}')
+    read lvmGUID lvmSIZE <<< $(vgs --noheadings -v ${vggroup} --units s 2>/dev/null | awk '{printf("%s %s", $9, gensub(/[Ss]/,"","g",$7))}')
 }
 # Gets the volume group name/label.
 # $1 The partition to check on.
@@ -2331,7 +2330,7 @@ getLGDevice() {
     [[ -z $lgvol ]] && handleError "No volume device passed (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ -z $lggroup ]] && handleError "No volume group passed (${FUNCNAME[0]})\n   Args Passed: $*"
     lgdev="/dev/mapper/${lggroup}-${lgvol}"
-    read lgvUUID lgvSIZE <<< $(lvs --noheadings -v ${lggroup} --units s 2>/dev/null | awk '/'${lgvol}'/ {printf("%s %s\n", $5, gensub(/[Ss]/,"","g",$10))}')
+    read lgvUUID lgvSIZE <<< $(lvs --noheadings -v ${lggroup} --units s 2>/dev/null | awk '/'${lgvol}'/ {printf("%s %s", $5, gensub(/[Ss]/,"","g",$10))}')
 }
 # Trims character from string
 # $1 The variable to trim
