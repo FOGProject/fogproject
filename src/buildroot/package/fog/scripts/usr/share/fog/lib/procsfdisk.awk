@@ -281,7 +281,8 @@ function resize_partition(partition_names, partitions, args, pName, new_start, n
         # Set our p_start position to the current start.
         new_start = int(partitions[pName, "start"]);
         # Ensure start postition is aligned properly.
-        new_size = int(sizePos) / int(CHUNK_SIZE);
+        new_size = int(sizePos) / 512;
+        new_size -= (new_size % int(CHUNK_SIZE));
         # Check the overlap.
         overlap = check_overlap(partition_names, partitions, target, new_start, new_size);
         # If there was an issue in checking overlap, skip.
@@ -336,7 +337,8 @@ function move_partition(partition_names, partitions, args, pName, new_start, new
             continue;
         }
         # Ensure start postition is aligned properly.
-        new_start = int(sizePos) / int(CHUNK_SIZE);
+        new_start = int(sizePos) / 512
+        new_start -= (new_start % int(CHUNK_SIZE));
         # If the new_start is less than the MIN_START
         # ensure the new_start is equal to the min start point.
         if (new_start < int(MIN_START)) {
@@ -543,7 +545,7 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         # Get's the percentage increase/decrease and makes adjustment.
         if (full_size > 0) {
             p_percent = p_orig_size / full_size;
-            p_size = new_variable * p_percent;
+            p_size = int(diskSize) * p_percent;
         } else {
             p_size = new_variable * p_size / original_variable;
         }
