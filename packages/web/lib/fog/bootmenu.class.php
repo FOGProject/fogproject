@@ -1002,11 +1002,17 @@ class BootMenu extends FOGBase
             return;
         }
         $msImage = $MultiSess->getImage()->get('id');
-        $h_Image = $this->_Host->getImage()->get('id');
-        if ($msImage != $h_Image) {
-            $this->_Host
-                ->set('imagename', $MultiSess->getImage())
-                ->set('imageID', $msImage);
+        if ($this->_Host->isValid()) {
+            $h_Image = 0;
+            $Image = $this->_Host->getImage();
+            if ($Image instanceof Image) {
+                $h_Image = $this->_Host->getImage()->get('id');
+            }
+            if ($msImage != $h_Image) {
+                $this->_Host
+                    ->set('imagename', $MultiSess->getImage())
+                    ->set('imageID', $msImage);
+            }
         }
         $shutdown = stripos('shutdown=1', $_SESSION['extraargs']);
         $isdebug = preg_match(

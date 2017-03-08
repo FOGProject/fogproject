@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-07 22:10-0500\n"
+"POT-Creation-Date: 2017-03-08 08:16-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -42,6 +42,42 @@ msgstr ""
 
 #: /var/www/fog/status/logtoview.php:162
 msgid "IP Passed is incorrect"
+msgstr ""
+
+#: /var/www/fog/status/filldisk.php:29
+msgid "Positional size must be numeric and greater than zero"
+msgstr ""
+
+#: /var/www/fog/status/filldisk.php:38
+msgid "Disk size must be numeric and greater than zero"
+msgstr ""
+
+#: /var/www/fog/status/filldisk.php:47
+msgid "Chunk size must be numeric and greater than zero"
+msgstr ""
+
+#: /var/www/fog/status/filldisk.php:56
+msgid "Min start must be numeric and greater than zero"
+msgstr ""
+
+#: /var/www/fog/status/filldisk.php:63
+msgid "Original filename must be a string"
+msgstr ""
+
+#: /var/www/fog/status/filldisk.php:70
+msgid "Minimum filename must be a string"
+msgstr ""
+
+#: /var/www/fog/status/filldisk.php:78
+msgid "Fixed filename must be a string"
+msgstr ""
+
+#: /var/www/fog/status/filldisk.php:93
+msgid "Original unable to be found"
+msgstr ""
+
+#: /var/www/fog/status/filldisk.php:108
+msgid "Minimum unable to be found"
 msgstr ""
 
 #: /var/www/fog/status/bandwidth.php:44
@@ -870,7 +906,7 @@ msgstr ""
 msgid "Set Failed"
 msgstr ""
 
-#: /var/www/fog/lib/fog/bootmenu.class.php:1371
+#: /var/www/fog/lib/fog/bootmenu.class.php:1377
 msgid "No valid storage nodes found"
 msgstr ""
 

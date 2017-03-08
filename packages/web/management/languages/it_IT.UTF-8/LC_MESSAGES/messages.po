@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-04 21:37-0500\n"
+"POT-Creation-Date: 2017-03-08 08:16-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -48,6 +48,49 @@ msgstr "Impossibile aprire il file per la lettura"
 #: /var/www/fog/status/logtoview.php:162
 msgid "IP Passed is incorrect"
 msgstr "IP Passato è corretto"
+
+#: /var/www/fog/status/filldisk.php:29
+#, fuzzy
+msgid "Positional size must be numeric and greater than zero"
+msgstr "Larghezza di banda deve essere numerico e maggiore di 0"
+
+#: /var/www/fog/status/filldisk.php:38
+#, fuzzy
+msgid "Disk size must be numeric and greater than zero"
+msgstr "Larghezza di banda deve essere numerico e maggiore di 0"
+
+#: /var/www/fog/status/filldisk.php:47
+#, fuzzy
+msgid "Chunk size must be numeric and greater than zero"
+msgstr "Larghezza di banda deve essere numerico e maggiore di 0"
+
+#: /var/www/fog/status/filldisk.php:56
+#, fuzzy
+msgid "Min start must be numeric and greater than zero"
+msgstr "Larghezza di banda deve essere numerico e maggiore di 0"
+
+#: /var/www/fog/status/filldisk.php:63
+#, fuzzy
+msgid "Original filename must be a string"
+msgstr "Evento deve essere una stringa"
+
+#: /var/www/fog/status/filldisk.php:70
+#, fuzzy
+msgid "Minimum filename must be a string"
+msgstr "Evento deve essere una stringa"
+
+#: /var/www/fog/status/filldisk.php:78
+#, fuzzy
+msgid "Fixed filename must be a string"
+msgstr "Evento deve essere una stringa"
+
+#: /var/www/fog/status/filldisk.php:93
+msgid "Original unable to be found"
+msgstr ""
+
+#: /var/www/fog/status/filldisk.php:108
+msgid "Minimum unable to be found"
+msgstr ""
 
 #: /var/www/fog/status/bandwidth.php:44
 #, fuzzy
@@ -952,7 +995,7 @@ msgstr "Registrato"
 msgid "Set Failed"
 msgstr "fallito"
 
-#: /var/www/fog/lib/fog/bootmenu.class.php:1371
+#: /var/www/fog/lib/fog/bootmenu.class.php:1377
 #, fuzzy
 msgid "No valid storage nodes found"
 msgstr "nodo di archiviazione non valido"
