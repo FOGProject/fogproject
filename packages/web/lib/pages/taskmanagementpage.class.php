@@ -485,7 +485,7 @@ class TaskManagementPage extends FOGPage
                 $_SESSION['FOG_USERNAME'],
                 false,
                 false,
-                $TaskType->isInitNeededTasking()
+                $TaskType->isInitNeededTasking() || $TaskType->get('id') == 14
             );
             $this->setMessage(
                 sprintf(

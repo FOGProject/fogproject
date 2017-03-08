@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-08 08:16-0500\n"
+"POT-Creation-Date: 2017-03-08 16:09-0500\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -47,49 +47,6 @@ msgstr "Nicht in der Lage, die Datei zum Lesen öffnen"
 #: /var/www/fog/status/logtoview.php:162
 msgid "IP Passed is incorrect"
 msgstr "Es ist falsch, IP übergeben"
-
-#: /var/www/fog/status/filldisk.php:29
-#, fuzzy
-msgid "Positional size must be numeric and greater than zero"
-msgstr "Bandbreite sollte numerische und größer als 0 sein."
-
-#: /var/www/fog/status/filldisk.php:38
-#, fuzzy
-msgid "Disk size must be numeric and greater than zero"
-msgstr "Bandbreite sollte numerische und größer als 0 sein."
-
-#: /var/www/fog/status/filldisk.php:47
-#, fuzzy
-msgid "Chunk size must be numeric and greater than zero"
-msgstr "Bandbreite sollte numerische und größer als 0 sein."
-
-#: /var/www/fog/status/filldisk.php:56
-#, fuzzy
-msgid "Min start must be numeric and greater than zero"
-msgstr "Bandbreite sollte numerische und größer als 0 sein."
-
-#: /var/www/fog/status/filldisk.php:63
-#, fuzzy
-msgid "Original filename must be a string"
-msgstr "Veranstaltung muss eine Zeichenfolge sein."
-
-#: /var/www/fog/status/filldisk.php:70
-#, fuzzy
-msgid "Minimum filename must be a string"
-msgstr "Veranstaltung muss eine Zeichenfolge sein."
-
-#: /var/www/fog/status/filldisk.php:78
-#, fuzzy
-msgid "Fixed filename must be a string"
-msgstr "Veranstaltung muss eine Zeichenfolge sein."
-
-#: /var/www/fog/status/filldisk.php:93
-msgid "Original unable to be found"
-msgstr ""
-
-#: /var/www/fog/status/filldisk.php:108
-msgid "Minimum unable to be found"
-msgstr ""
 
 #: /var/www/fog/status/bandwidth.php:44
 #, fuzzy
@@ -9110,6 +9067,34 @@ msgstr "Hallo Nebel Client"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "Es gibt keine Orte auf diesem Server."
+
+#, fuzzy
+#~ msgid "Positional size must be numeric and greater than zero"
+#~ msgstr "Bandbreite sollte numerische und größer als 0 sein."
+
+#, fuzzy
+#~ msgid "Disk size must be numeric and greater than zero"
+#~ msgstr "Bandbreite sollte numerische und größer als 0 sein."
+
+#, fuzzy
+#~ msgid "Chunk size must be numeric and greater than zero"
+#~ msgstr "Bandbreite sollte numerische und größer als 0 sein."
+
+#, fuzzy
+#~ msgid "Min start must be numeric and greater than zero"
+#~ msgstr "Bandbreite sollte numerische und größer als 0 sein."
+
+#, fuzzy
+#~ msgid "Original filename must be a string"
+#~ msgstr "Veranstaltung muss eine Zeichenfolge sein."
+
+#, fuzzy
+#~ msgid "Minimum filename must be a string"
+#~ msgstr "Veranstaltung muss eine Zeichenfolge sein."
+
+#, fuzzy
+#~ msgid "Fixed filename must be a string"
+#~ msgstr "Veranstaltung muss eine Zeichenfolge sein."
 
 #, fuzzy
 #~ msgid "Replicating"
