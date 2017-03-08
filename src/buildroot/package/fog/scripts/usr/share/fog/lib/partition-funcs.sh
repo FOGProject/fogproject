@@ -87,7 +87,7 @@ restoreUUIDInformation() {
         getPartitionNumber "$part"
         [[ $is_swap -gt 0 ]] && continue
         escape_part=$(escapeItem $part)
-        partuuid=$(awk "/^$escape_part\ /{print \$2}" $file)
+        partuuid=$(awk -F[,\ ] "match(\$0, /^.*$escape_part.*uuid=([A-Za-z0-9-]+)[,].*$/, type){printf(\"%s:%s\", $part_number, tolower(type[1]))}" $sfdiskoriginalpartitionfilename)
         parttype=$(awk -F[,\ ] "match(\$0, /^.*$escape_part.*type=([A-Za-z0-9-]+)[,].*$/, type){printf(\"%s:%s\", $part_number, tolower(type[1]))}" $sfdiskoriginalpartitionfilename)
         dots "Partition type being set to"
         echo $parttype
