@@ -621,7 +621,7 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
                 orig_extended = p_size;
                 p_size = (diskSize - p_start);
                 p_size -= (p_size % int(CHUNK_SIZE));
-                new_extended = p_size - logical_fixed;
+                new_extended = p_size;
                 partitions[pName, "size"] = p_size;
                 continue;
             }
@@ -632,7 +632,7 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
             if (match(fixedList, regex)) {
                 continue;
             }
-            p_percent = p_orig_size / full_size;
+            p_percent = p_orig_size / orig_extended;
             p_size = new_extended * p_percent;
             p_size -= (p_size % int(CHUNK_SIZE));
             partitions[pName, "size"] = p_size;
