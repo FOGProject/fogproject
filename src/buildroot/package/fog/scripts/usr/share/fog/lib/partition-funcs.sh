@@ -546,6 +546,7 @@ processSfdisk() {
     local target="$3"
     local size="$4"
     local fixed="$5"
+    local sectorsize=512
     [[ -z $data ]] && handleError "No data passed (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ -z $action ]] && handleError "No action passed (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ -z $target ]] && handleError "Device (disk or partition) not passed (${FUNCNAME[0]})\n   Args Passed: $*"
@@ -558,11 +559,11 @@ processSfdisk() {
         [1-2])
             [[ -z $minstart ]] && {
                 minstart=63
-                chunksize=512
+                chunksize=$sectorsize
             }
             ;;
     esac
-    local awkArgs="-v CHUNK_SIZE=$chunksize -v MIN_START=$minstart"
+    local awkArgs="-v SECTOR_SIZE=$sectorsize CHUNK_SIZE=$chunksize -v MIN_START=$minstart"
     awkArgs="$awkArgs -v action=$action -v target=$target -v sizePos=$size"
     awkArgs="$awkArgs -v diskSize=$disk_size"
     [[ -n $fixed ]] && awkArgs="$awkArgs -v fixedList=$fixed"

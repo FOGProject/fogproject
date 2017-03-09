@@ -6,6 +6,7 @@
 #
 # Usage Passed in Variables:
 #
+# SECTOR_SIZE The default sector size. Currently set to 512
 # CHUNK_SIZE  The default block size for the disk/partition being used. Typically 512
 # MIN_START   The minimum start position for the first partition. Typically 2048.
 # action      The action to perform with the script.
@@ -281,7 +282,7 @@ function resize_partition(partition_names, partitions, args, pName, new_start, n
         # Set our p_start position to the current start.
         new_start = int(partitions[pName, "start"]);
         # Ensure start postition is aligned properly.
-        new_size = int(sizePos) / 512;
+        new_size = int(sizePos) / int(SECTOR_SIZE);
         new_size -= (new_size % int(CHUNK_SIZE));
         # Check the overlap.
         overlap = check_overlap(partition_names, partitions, target, new_start, new_size);
@@ -337,7 +338,7 @@ function move_partition(partition_names, partitions, args, pName, new_start, new
             continue;
         }
         # Ensure start postition is aligned properly.
-        new_start = int(sizePos) / 512
+        new_start = int(sizePos) / int(SECTOR_SIZE);
         new_start -= (new_start % int(CHUNK_SIZE));
         # If the new_start is less than the MIN_START
         # ensure the new_start is equal to the min start point.
