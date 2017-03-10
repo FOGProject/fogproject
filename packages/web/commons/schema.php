@@ -3669,3 +3669,12 @@ $this->schema[] = $tmpSchema->dropDuplicateData(
         array('settingKey')
     )
 );
+// 252
+$this->schema[] = array(
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
+    . "VALUES "
+    . "('FOG_IMAGE_COMPRESSION_FORMAT_DEFAULT',"
+    . "'Compression Format Setting (Default to PIGZ non-split)',"
+    . "'1','General Settings')",
+);

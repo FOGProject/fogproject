@@ -1435,6 +1435,36 @@ class FOGConfigurationPage extends FOGPage
                         . '225px; position: relative;" value='
                         . '"${service_value}"/>';
                     break;
+                case 'FOG_IMAGE_COMPRESSION_FORMAT_DEFAULT':
+                    $vals = array(
+                        _('Partclone Gzip') => 0,
+                        _('Partclone Gzip Split 200MiB') => 2,
+                        _('Partclone Uncompressed') => 3,
+                        _('Partclone Uncompressed Split 200MiB') => 4,
+                        _('Partclone Zstd') => 5,
+                        _('Partclone Zstd Split 200MiB') => 6
+                    );
+                    ob_start();
+                    foreach ((array)$vals as $view => &$value) {
+                        printf(
+                            '<option value="%s"%s>%s</option>',
+                            $value,
+                            (
+                                $Service->get('value') == $value ?
+                                ' selected' :
+                                ''
+                            ),
+                            $view
+                        );
+                        unset($value);
+                    }
+                    unset($vals);
+                    $type = sprintf(
+                        '<select name="${service_id}" style='
+                        . '"width: 220px" autocomplete="off">%s</select>',
+                        ob_get_clean()
+                    );
+                    break;
                 case 'FOG_VIEW_DEFAULT_SCREEN':
                     $screens = array('SEARCH','LIST');
                     ob_start();
@@ -1832,6 +1862,10 @@ class FOGConfigurationPage extends FOGPage
             'FOG_URL_BASE_CONNECT_TIMEOUT' => true,
             'FOG_URL_BASE_TIMEOUT' => true,
             'FOG_URL_AVAILABLE_TIMEOUT' => true,
+            'FOG_IMAGE_COMPRESSION_FORMAT_DEFAULT' => self::fastmerge(
+                (array)0,
+                range(2,6)
+            ),
             // Login Settings
             'FOG_ALWAYS_LOGGED_IN' => $checkbox,
             'FOG_INACTIVITY_TIMEOUT' => range(1, 24),

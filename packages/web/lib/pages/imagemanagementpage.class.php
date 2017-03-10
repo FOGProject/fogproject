@@ -491,6 +491,10 @@ class ImageManagementPage extends FOGPage
         ) {
             $compression = $_REQUEST['compress'];
         }
+        if (!isset($_REQUEST['imagemanage'])) {
+            $_REQUEST['imagemanage']
+                = self::getSetting('FOG_IMAGE_COMPRESSION_FORMAT_DEFAULT');
+        }
         $format = sprintf(
             '<select name="imagemanage">'
             . '<option value="0"%s>%s</option>'

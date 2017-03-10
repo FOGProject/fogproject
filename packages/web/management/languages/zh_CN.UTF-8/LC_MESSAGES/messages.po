@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-08 16:09-0500\n"
+"POT-Creation-Date: 2017-03-10 12:42-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -739,7 +739,7 @@ msgstr "事件必须是字符串"
 
 #: /var/www/fog/lib/fog/fogbase.class.php:2158
 #: /var/www/fog/lib/fog/fogftp.class.php:372
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2228
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2262
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:85
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:827
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:834
@@ -1320,7 +1320,7 @@ msgstr "编辑图像"
 #: /var/www/fog/lib/fog/fogpage.class.php:1348
 #: /var/www/fog/lib/fog/fogpage.class.php:1356
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:174
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:713
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:717
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:90
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:444
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:383
@@ -1557,7 +1557,7 @@ msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:2302
 #: /var/www/fog/lib/fog/fogpage.class.php:3321
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:579
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:583
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:194
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:555
 #: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:70
@@ -1574,7 +1574,7 @@ msgid "Add"
 msgstr "加"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:2303
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:891
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:895
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:240
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:426
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:624
@@ -1647,7 +1647,7 @@ msgid "Not found"
 msgstr "未找到"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:2590
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1331
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1335
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:320
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:460
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:587
@@ -1736,7 +1736,7 @@ msgid "table backup"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3463
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2291
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2325
 #: /var/www/fog/commons/text.php:98
 msgid "Export"
 msgstr "出口"
@@ -1818,7 +1818,7 @@ msgid "Row"
 msgstr "行"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3755
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2309
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2343
 msgid "Import"
 msgstr "进口"
 
@@ -1851,8 +1851,8 @@ msgstr "请选择一个选项"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:89
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:350
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:515
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:793
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:519
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:797
 msgid "Partimage"
 msgstr "Partimage"
 
@@ -1865,8 +1865,8 @@ msgid "Primary Storage Group"
 msgstr "主存储组"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:134
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:548
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:826
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:552
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:830
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:74
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:355
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:483
@@ -1878,7 +1878,7 @@ msgid "Image Name"
 msgstr "图片名称"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:135
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:556
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:560
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:349
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2012
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:159
@@ -1896,15 +1896,15 @@ msgid "OS"
 msgstr "O / S"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:137
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:563
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:855
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:567
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:859
 #: /var/www/fog/commons/text.php:209
 msgid "Image Type"
 msgstr "图像类型"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:138
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:564
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:856
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:568
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:860
 msgid "Partition"
 msgstr "划分"
 
@@ -1940,33 +1940,34 @@ msgid "Not protected"
 msgstr "不受保护"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:338
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:864
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:868
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:917
 msgid "Protected"
 msgstr "受保护"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:347
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:509
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:787
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:513
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:791
 #, fuzzy
 msgid "Partclone Compressed"
 msgstr "Partclone"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:353
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:521
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:799
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:525
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:803
 msgid "Partclone Compressed 200MiB split"
 msgstr ""
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:356
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:527
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:805
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:531
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:809
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1442
 msgid "Partclone Uncompressed"
 msgstr ""
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:359
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:533
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:811
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:537
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:815
 msgid "Partclone Uncompressed 200MiB split"
 msgstr ""
 
@@ -1983,236 +1984,236 @@ msgstr ""
 msgid "New Image"
 msgstr "新图片"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:539
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:817
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:543
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:821
 #, fuzzy
 msgid "Partclone ZSTD Compressed"
 msgstr "Partclone"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:545
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:823
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:549
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:827
 #, fuzzy
 msgid "Partclone ZSTD Compressed 200MiB split"
 msgstr "Partclone"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:552
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:835
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:556
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:839
 msgid "Image Description"
 msgstr "图片说明"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:557
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:844
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:561
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:848
 #: /var/www/fog/lib/plugins/windowskey/hooks/addwindowskeyimage.hook.php:89
 msgid "Operating System"
 msgstr "操作系统"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:558
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:845
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:562
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:849
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:356
 #: /var/www/fog/commons/text.php:317
 msgid "Image Path"
 msgstr "图像路径"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:565
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:872
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:569
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:876
 msgid "Image Enabled"
 msgstr "图片启用"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:567
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:880
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:571
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:884
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:535
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:953
 msgid "Replicate?"
 msgstr "复制？"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:569
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:857
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:573
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:861
 msgid "Compression"
 msgstr "压缩"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:576
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:888
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:580
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:892
 msgid "Image Manager"
 msgstr "图像管理器"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:582
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:586
 msgid "Add new image definition"
 msgstr "添加新的图像清晰度"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:621
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1085
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:625
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1089
 msgid "An image name is required!"
 msgstr "图像名是必需的！"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:624
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1094
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:628
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1098
 msgid "An image already exists with this name!"
 msgstr "图像已经存在具有此名称！"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:627
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1125
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:631
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1129
 msgid "An image file name is required!"
 msgstr "图像文件名是必需的！"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:635
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1103
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:639
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1107
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:631
 #, fuzzy
 msgid "Please choose a different name"
 msgstr "请选择一个图像"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:636
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1104
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:640
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1108
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:632
 #, fuzzy
 msgid "this one is reserved for FOG"
 msgstr "请选择一个不同的名字，这个人是留给雾。"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:644
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1119
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:648
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1123
 #, fuzzy
 msgid "Please choose a different path"
 msgstr "请选择一个图像"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:645
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1120
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:649
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1124
 msgid "this one is already in use by another image"
 msgstr ""
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:650
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:654
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:607
 msgid "A Storage Group is required!"
 msgstr "存储组是必需的！"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:653
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1128
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:657
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1132
 msgid "An Operating System is required!"
 msgstr "操作系统是必需的！"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:658
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1131
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:662
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1135
 msgid "An image type is required!"
 msgstr "图像类型是必需的！"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:663
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1137
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:667
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1141
 msgid "An image partition type is required!"
 msgstr "图像分区类型是必需的！"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:678
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:682
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1427
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:699
 msgid "Database update failed"
 msgstr "数据库更新失败"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:686
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:690
 msgid "Image created"
 msgstr "创建图像"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:916
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:920
 msgid "Edit image definition"
 msgstr "编辑图像清晰度"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:925
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:995
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:929
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:999
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1029
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1087
 #: /var/www/fog/commons/text.php:374
 msgid "Storage Group Name"
 msgstr "存储组名称"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:969
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:973
 msgid "Check here to see groups not assigned this image"
 msgstr "请查看这里以组未分配此图片"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:976
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:980
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1072
 msgid "Modify group association for"
 msgstr "修改组关联"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:978
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:982
 msgid "Add image to groups"
 msgstr "添加图片到组"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:988
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:992
 msgid "Add Image to Group(s)"
 msgstr "添加图片到组（S）"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1018
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1022
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1110
 msgid "Primary Group Selector"
 msgstr "小学组选择"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1059
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1063
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1150
 msgid "Update Primary Group"
 msgstr "更新主要组"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1060
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1064
 msgid "Delete Selected Group associations"
 msgstr "删除选定的组关联"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1200
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1204
 #, fuzzy
 msgid "No groups selected to be removed"
 msgstr "没有组选中，没有输入新的组名"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1205
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1209
 #, fuzzy
 msgid "You must have at least one group associated"
 msgstr "您必须至少有一个存储组"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1218
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1222
 #, fuzzy
 msgid "Image update failed"
 msgstr "图片更新"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1222
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1226
 msgid "Image updated"
 msgstr "图片更新"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1254
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1258
 msgid "Session Name"
 msgstr "会话名称"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1259
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1263
 msgid "Client Count"
 msgstr "客户端计数"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1266
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1270
 msgid "Timeout"
 msgstr "时间到"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1267
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1271
 msgid "minutes"
 msgstr "分钟"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1273
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1277
 msgid "Select Image"
 msgstr "选择图片"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1280
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1284
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:314
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2000
 msgid "Start"
 msgstr "开始"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1285
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1289
 msgid "Start Multicast Session"
 msgstr "开始多播会话"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1305
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1309
 #: /var/www/fog/lib/pages/taskmobile.class.php:43
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:678
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:970
 msgid "Task Name"
 msgstr "任务名称"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1306
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1310
 msgid "Clients"
 msgstr "客户端"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1307
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1311
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:75
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:680
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:801
@@ -2222,11 +2223,11 @@ msgstr "客户端"
 msgid "Start Time"
 msgstr "开始时间"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1308
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1312
 msgid "Percent"
 msgstr "百分"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1309
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1313
 #: /var/www/fog/lib/pages/taskmobile.class.php:46
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:681
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:802
@@ -2236,64 +2237,64 @@ msgstr "百分"
 msgid "State"
 msgstr "州"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1310
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1314
 msgid "Stop Task"
 msgstr "停止任务"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1332
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1336
 #: /var/www/fog/lib/pages/taskmobile.class.php:47
 #: /var/www/fog/commons/text.php:107
 msgid "Kill"
 msgstr "杀"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1386
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1390
 msgid "Please input a session name"
 msgstr "请输入会话名称"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1389
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1393
 msgid "Please choose an image"
 msgstr "请选择一个图像"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1392
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1396
 msgid "Session with that name already exists"
 msgstr "会话使用该名称已经存在"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1396
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1400
 msgid "Session name cannot be the same as an existing hostname"
 msgstr "会话名称不能相同的现有的主机名"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1419
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1423
 #, fuzzy
 msgid "Please wait until a slot is open"
 msgstr "请输入访问令牌"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1420
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1424
 #, fuzzy
 msgid "There are currently"
 msgstr "有"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1422
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1426
 msgid "tasks in queue"
 msgstr ""
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1423
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1427
 #, fuzzy
 msgid "Your server only allows"
 msgstr "您只能分配"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1441
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1445
 msgid "Failed to create Session"
 msgstr "无法创建会话"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1451
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1455
 msgid "Multicast session created"
 msgstr "组播会话创建"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1453
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1457
 msgid "has been started on port"
 msgstr "已经开始在端口"
 
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1481
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:1485
 msgid "Cancelled task"
 msgstr "取消任务"
 
@@ -2998,108 +2999,132 @@ msgstr ""
 msgid "issues that are difficult to troubleshoot."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1541
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1440
+#, fuzzy
+msgid "Partclone Gzip"
+msgstr "Partclone"
+
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1441
+msgid "Partclone Gzip Split 200MiB"
+msgstr ""
+
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1443
+#, fuzzy
+msgid "Partclone Uncompressed Split 200MiB"
+msgstr "Partclone"
+
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1444
+#, fuzzy
+msgid "Partclone Zstd"
+msgstr "Partclone"
+
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1445
+#, fuzzy
+msgid "Partclone Zstd Split 200MiB"
+msgstr "Partclone"
+
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1571
 msgid "No image specified"
 msgstr "没有指定的图像"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1686
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1716
 #: /var/www/fog/commons/text.php:180
 msgid "Save Changes"
 msgstr "保存更改"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1722
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1752
 msgid "No Image specified"
 msgstr "没有指定的Image"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1925
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1959
 msgid "Width must be 650 pixels."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1931
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1965
 msgid "Height must be 120 pixels."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2052
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2086
 msgid "Service Master"
 msgstr "服务主"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2061
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2095
 #: /var/www/fog/lib/service/taskscheduler.class.php:212
 #: /var/www/fog/commons/text.php:102
 msgid "Multicast"
 msgstr "组播"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2070
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2104
 msgid "Scheduler"
 msgstr "调度"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2079
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2113
 msgid "Image Replicator"
 msgstr "图像复制"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2088
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2122
 #, fuzzy
 msgid "Image Size"
 msgstr "图片名称"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2097
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2131
 msgid "Snapin Replicator"
 msgstr "管理单元复制"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2106
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2140
 #, fuzzy
 msgid "Snapin Hash"
 msgstr "管理单元路径"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2115
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2149
 msgid "Ping Hosts"
 msgstr "平主机"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2157
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2191
 msgid "Image Transfer Log"
 msgstr "图像传输日志"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2171
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2205
 msgid "Snapin Transfer Log"
 msgstr "管理单元传输日志"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2223
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2257
 msgid "FOG Log Viewer"
 msgstr "FOG日志查看器"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2230
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2264
 msgid "Number of lines"
 msgstr "线的数目"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2264
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2298
 msgid "Reverse the file: (newest on top)"
 msgstr "反转文件：（最新的在上面）"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2288
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2322
 msgid "Click the button to export the database."
 msgstr "点击按钮，导出数据库。"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2300
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2334
 msgid "Import a previous backup file."
 msgstr "导入以前的备份文件。"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2348
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2382
 msgid "Database Imported and added successfully"
 msgstr "数据库导入并成功添加"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2350
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2384
 msgid "Errors detected on import"
 msgstr "进口检测到的错误"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2356
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2390
 msgid "Database changes reverted"
 msgstr "数据库恢复的变化"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2360
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2394
 msgid "Errors on revert detected"
 msgstr "在复归错误检测"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2366
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2400
 msgid "There were errors during import"
 msgstr "进口过程中有错误"
 
