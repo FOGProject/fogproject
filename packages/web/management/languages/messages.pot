@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-10 12:42-0500\n"
+"POT-Creation-Date: 2017-03-10 12:57-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1833,14 +1833,10 @@ msgid "Protected"
 msgstr ""
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:347
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:513
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:791
 msgid "Partclone Compressed"
 msgstr ""
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:353
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:525
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:803
 msgid "Partclone Compressed 200MiB split"
 msgstr ""
 
@@ -1852,8 +1848,6 @@ msgid "Partclone Uncompressed"
 msgstr ""
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:359
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:537
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:815
 msgid "Partclone Uncompressed 200MiB split"
 msgstr ""
 
@@ -1869,14 +1863,34 @@ msgstr ""
 msgid "New Image"
 msgstr ""
 
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:513
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:791
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1440
+msgid "Partclone Gzip"
+msgstr ""
+
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:525
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:803
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1441
+msgid "Partclone Gzip Split 200MiB"
+msgstr ""
+
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:537
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:815
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1443
+msgid "Partclone Uncompressed Split 200MiB"
+msgstr ""
+
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:543
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:821
-msgid "Partclone ZSTD Compressed"
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1444
+msgid "Partclone Zstd"
 msgstr ""
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:549
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:827
-msgid "Partclone ZSTD Compressed 200MiB split"
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1445
+msgid "Partclone Zstd Split 200MiB"
 msgstr ""
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:556
@@ -2848,26 +2862,6 @@ msgstr ""
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1361
 msgid "issues that are difficult to troubleshoot."
-msgstr ""
-
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1440
-msgid "Partclone Gzip"
-msgstr ""
-
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1441
-msgid "Partclone Gzip Split 200MiB"
-msgstr ""
-
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1443
-msgid "Partclone Uncompressed Split 200MiB"
-msgstr ""
-
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1444
-msgid "Partclone Zstd"
-msgstr ""
-
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1445
-msgid "Partclone Zstd Split 200MiB"
 msgstr ""
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1571

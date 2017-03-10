@@ -510,7 +510,7 @@ class ImageManagementPage extends FOGPage
                 ' selected' :
                 ''
             ),
-            _('Partclone Compressed'),
+            _('Partclone Gzip'),
             (
                 $_REQUEST['imagemanage'] == 1 ?
                 ' selected' :
@@ -522,7 +522,7 @@ class ImageManagementPage extends FOGPage
                 ' selected' :
                 ''
             ),
-            _('Partclone Compressed 200MiB split'),
+            _('Partclone Gzip Split 200MiB'),
             (
                 $_REQUEST['imagemanage'] == 3 ?
                 ' selected' :
@@ -534,19 +534,19 @@ class ImageManagementPage extends FOGPage
                 ' selected' :
                 ''
             ),
-            _('Partclone Uncompressed 200MiB split'),
+            _('Partclone Uncompressed Split 200MiB'),
             (
                 $_REQUEST['imagemanage'] == 5 ?
                 ' selected' :
                 ''
             ),
-            _('Partclone ZSTD Compressed'),
+            _('Partclone Zstd'),
             (
                 $_REQUEST['imagemanage'] == 6 ?
                 ' selected' :
                 ''
             ),
-            _('Partclone ZSTD Compressed 200MiB split')
+            _('Partclone Zstd Split 200MiB')
         );
         $fields = array(
             _('Image Name') => sprintf(
@@ -788,7 +788,7 @@ class ImageManagementPage extends FOGPage
                 ' selected' :
                 ''
             ),
-            _('Partclone Compressed'),
+            _('Partclone Gzip'),
             (
                 $this->obj->get('format') == 1 ?
                 ' selected' :
@@ -800,7 +800,7 @@ class ImageManagementPage extends FOGPage
                 ' selected' :
                 ''
             ),
-            _('Partclone Compressed 200MiB split'),
+            _('Partclone Gzip Split 200MiB'),
             (
                 $this->obj->get('format') == 3 ?
                 ' selected' :
@@ -812,19 +812,19 @@ class ImageManagementPage extends FOGPage
                 ' selected' :
                 ''
             ),
-            _('Partclone Uncompressed 200MiB split'),
+            _('Partclone Uncompressed Split 200MiB'),
             (
                 $this->obj->get('format') == 5 ?
                 ' selected' :
                 ''
             ),
-            _('Partclone ZSTD Compressed'),
+            _('Partclone Zstd'),
             (
                 $this->obj->get('format') == 6 ?
                 ' selected' :
                 ''
             ),
-            _('Partclone ZSTD Compressed 200MiB split')
+            _('Partclone Zstd Split 200MiB')
         );
         $fields = array(
             _('Image Name') => sprintf(

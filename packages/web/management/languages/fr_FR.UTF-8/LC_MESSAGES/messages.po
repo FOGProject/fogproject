@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-10 12:42-0500\n"
+"POT-Creation-Date: 2017-03-10 12:57-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1961,15 +1961,11 @@ msgid "Protected"
 msgstr "Protégé"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:347
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:513
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:791
 #, fuzzy
 msgid "Partclone Compressed"
 msgstr "partclone"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:353
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:525
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:803
 msgid "Partclone Compressed 200MiB split"
 msgstr ""
 
@@ -1981,8 +1977,6 @@ msgid "Partclone Uncompressed"
 msgstr ""
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:359
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:537
-#: /var/www/fog/lib/pages/imagemanagementpage.class.php:815
 msgid "Partclone Uncompressed 200MiB split"
 msgstr ""
 
@@ -1999,16 +1993,38 @@ msgstr ""
 msgid "New Image"
 msgstr "Nouvelle image"
 
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:513
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:791
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1440
+#, fuzzy
+msgid "Partclone Gzip"
+msgstr "partclone"
+
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:525
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:803
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1441
+msgid "Partclone Gzip Split 200MiB"
+msgstr ""
+
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:537
+#: /var/www/fog/lib/pages/imagemanagementpage.class.php:815
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1443
+#, fuzzy
+msgid "Partclone Uncompressed Split 200MiB"
+msgstr "partclone"
+
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:543
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:821
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1444
 #, fuzzy
-msgid "Partclone ZSTD Compressed"
+msgid "Partclone Zstd"
 msgstr "partclone"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:549
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:827
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1445
 #, fuzzy
-msgid "Partclone ZSTD Compressed 200MiB split"
+msgid "Partclone Zstd Split 200MiB"
 msgstr "partclone"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:556
@@ -3020,30 +3036,6 @@ msgstr ""
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1361
 msgid "issues that are difficult to troubleshoot."
 msgstr ""
-
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1440
-#, fuzzy
-msgid "Partclone Gzip"
-msgstr "partclone"
-
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1441
-msgid "Partclone Gzip Split 200MiB"
-msgstr ""
-
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1443
-#, fuzzy
-msgid "Partclone Uncompressed Split 200MiB"
-msgstr "partclone"
-
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1444
-#, fuzzy
-msgid "Partclone Zstd"
-msgstr "partclone"
-
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1445
-#, fuzzy
-msgid "Partclone Zstd Split 200MiB"
-msgstr "partclone"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1571
 msgid "No image specified"
@@ -9093,6 +9085,26 @@ msgstr "Bonjour FOG client"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "Il n'y a aucun emplacement sur ce serveur."
+
+#, fuzzy
+#~ msgid "Partclone GZip"
+#~ msgstr "partclone"
+
+#, fuzzy
+#~ msgid "Partclone Gzip 200MiB split"
+#~ msgstr "partclone"
+
+#, fuzzy
+#~ msgid "Partclone ZSTD Compressed"
+#~ msgstr "partclone"
+
+#, fuzzy
+#~ msgid "Partclone ZSTD Compressed 200MiB split"
+#~ msgstr "partclone"
+
+#, fuzzy
+#~ msgid "Partclone GZip 200MiB split"
+#~ msgstr "partclone"
 
 #, fuzzy
 #~ msgid "Positional size must be numeric and greater than zero"
