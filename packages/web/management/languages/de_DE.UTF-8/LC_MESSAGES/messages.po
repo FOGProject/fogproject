@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-10 12:57-0500\n"
+"POT-Creation-Date: 2017-03-10 13:13-0500\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -4211,6 +4211,8 @@ msgstr "Erweiterte Optionen"
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1297
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1488
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1489
+#: /var/www/fog/management/reports/product_keys.report.php:54
+#: /var/www/fog/management/reports/product_keys.report.php:55
 #: /var/www/fog/management/reports/hosts_and_users.report.php:54
 #: /var/www/fog/management/reports/hosts_and_users.report.php:55
 msgid "Export CSV"
@@ -4234,6 +4236,8 @@ msgstr "CSV exportieren"
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1493
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1729
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1730
+#: /var/www/fog/management/reports/product_keys.report.php:58
+#: /var/www/fog/management/reports/product_keys.report.php:59
 #: /var/www/fog/management/reports/hosts_and_users.report.php:58
 #: /var/www/fog/management/reports/hosts_and_users.report.php:59
 msgid "Export PDF"
@@ -8088,6 +8092,11 @@ msgstr "Erstellen"
 #, fuzzy
 msgid "FOG Client"
 msgstr "Nebel-Client-Wiki"
+
+#: /var/www/fog/management/reports/product_keys.report.php:50
+#, fuzzy
+msgid "Host Product Keys"
+msgstr "Host-Produkt-Schlüssel"
 
 #: /var/www/fog/management/reports/hosts_and_users.report.php:50
 msgid "FOG Hosts and Users Login"
