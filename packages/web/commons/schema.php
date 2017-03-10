@@ -3676,5 +3676,14 @@ $this->schema[] = array(
     . "VALUES "
     . "('FOG_IMAGE_COMPRESSION_FORMAT_DEFAULT',"
     . "'Compression Format Setting (Default to PIGZ non-split)',"
-    . "'1','General Settings')",
+    . "'1','General Settings'),"
+    . "('FOG_TASKING_ADV_SHUTDOWN_ENABLED',"
+    . "'Tasking shutdown element checked (Default is off)',"
+    . "'0','General Settings'),"
+    . "('FOG_TASKING_ADV_WOL_ENABLED',"
+    . "'Tasking wake on lan element checked (Default is on)',"
+    . "'1','General Settings'),"
+    . "('FOG_TASKING_ADV_DEBUG_ENABLED',"
+    . "'Tasking debug element checked (Default is off)',"
+    . "'0','General Settings')"
 );

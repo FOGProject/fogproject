@@ -1188,9 +1188,14 @@ abstract class FOGPage extends FOGBase
         ) {
             printf(
                 '<p class="hideFromDebug"><input type="checkbox" '
-                . 'name="shutdown" id="shutdown" value="1" '
-                . 'autocomplete="off"><label for="shutdown">'
+                . 'name="shutdown" id="shutdown" '
+                . 'autocomplete="off"%s><label for="shutdown">'
                 . '%s <u>%s</u> %s</label></p>',
+                (
+                    self::getSetting('FOG_TASKING_ADV_SHUTDOWN_ENABLED') ?
+                    ' checked' :
+                    ''
+                ),
                 _('Schedule'),
                 _('Shutdown'),
                 _('after task completion')
@@ -1203,7 +1208,11 @@ abstract class FOGPage extends FOGBase
                 (
                     $TaskType->isSnapinTasking() ?
                     '' :
-                    ' checked'
+                    (
+                        self::getSetting('FOG_TASKING_ADV_WOL_ENABLED') ?
+                        ' checked' :
+                        ''
+                    )
                 ),
                 _('Wake on lan?')
             );
@@ -1216,8 +1225,13 @@ abstract class FOGPage extends FOGBase
             ) {
                 printf(
                     '<p><input type="checkbox" name="isDebugTask" '
-                    . 'id="checkDebug"/><label for="checkDebug">'
+                    . 'id="checkDebug"%s/><label for="checkDebug">'
                     . '%s</label></p>',
+                    (
+                        self::getSetting('FOG_TASKING_ADV_DEBUG_ENABLED') ?
+                        ' checked' :
+                        ''
+                    ),
                     _('Schedule task as a debug task')
                 );
             }

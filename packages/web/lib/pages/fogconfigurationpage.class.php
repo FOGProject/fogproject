@@ -1341,6 +1341,9 @@ class FOGConfigurationPage extends FOGPage
             'SNAPINREPLICATORGLOBALENABLED',
             'SNAPINHASHGLOBALENABLED',
             'FOG_QUICKREG_IMG_WHEN_REG',
+            'FOG_TASKING_ADV_SHUTDOWN_ENABLED',
+            'FOG_TASKING_ADV_WOL_ENABLED',
+            'FOG_TASKING_ADV_DEBUG_ENABLED'
         );
         self::$HookManager
             ->processEvent(
@@ -1862,9 +1865,12 @@ class FOGConfigurationPage extends FOGPage
             'FOG_URL_BASE_CONNECT_TIMEOUT' => true,
             'FOG_URL_BASE_TIMEOUT' => true,
             'FOG_URL_AVAILABLE_TIMEOUT' => true,
+            'FOG_TASKING_ADV_SHUTDOWN_ENABLED' => $checkbox,
+            'FOG_TASKING_ADV_WOL_ENABLED' => $checkbox,
+            'FOG_TASKING_ADV_DEBUG_ENABLED' => $checkbox,
             'FOG_IMAGE_COMPRESSION_FORMAT_DEFAULT' => self::fastmerge(
                 (array)0,
-                range(2,6)
+                range(2, 6)
             ),
             // Login Settings
             'FOG_ALWAYS_LOGGED_IN' => $checkbox,
