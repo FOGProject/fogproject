@@ -1,8 +1,11 @@
 #!/usr/bin/awk -f
 #
-# This script will shrink (resize) partitions based on the new partition size passed in.
-# NOTE: This does not shrink the volume, just the parititon layout information.
-# This script will fill disks (expand) with the relevant data passed on based on the disk size passed in.
+# This script will shrink (resize) partitions based
+#  on the new partition size passed in.
+# NOTE: This does not shrink the volume,
+#  just the parititon layout information.
+# This script will fill disks (expand) with
+#  the relevant data passed on based on the disk size passed in.
 #
 # Usage Passed in Variables:
 #
@@ -22,7 +25,7 @@
 #   the new size of the disk.
 # diskSize    The disk size.
 # fixedList   The partition sizes that should remain untouched in size.
-
+#
 # $data is the filename of the output of sfdisk -d
 # cat $data | awk -F, '\
 
@@ -33,9 +36,9 @@
 #  Partitions are sent in an array of form:
 #   partitions['name']['start'] = value;
 #   partitions['name']['size'] = value;
-# pName is locally scoped, but could be set here if wanted. Will be overwritten anyway.
-# p_start is locally scoped, but could be set here if wanted. Will be overwritten anyway.
-# p_size is locally scoped, but could be set here if wanted. Will be overwritten anyway.
+# pName is locally scoped
+# p_start is locally scoped
+# p_size is locally scoped
 function check_all_partitions(partition_names, partitions, pName, p_start, p_size) {
     # Iterate through our parittion names.
     for (pName in partition_names) {
@@ -44,7 +47,7 @@ function check_all_partitions(partition_names, partitions, pName, p_start, p_siz
         # The current iteration's size value.
         p_size = int(partitions[pName, "size"]);
         # Store the overlap variable.
-        overlap = check_overlap(partition_names, partitions, pName, p_start, p_size, 0);
+        overlap = check_overlap(partition_names, partitions, pName, p_start, p_size);
         # If overlap is ok, skip.
         if (overlap == 0) {
             continue;
@@ -62,27 +65,29 @@ function check_all_partitions(partition_names, partitions, pName, p_start, p_siz
 }
 
 # Checks the overlap.
-# Requires partition_names, partitions, new_part_name, new_start, new_size, capture.
+# Requires:
+#  partition_names
+#  partitions
+#  new_part_name
+#  new_start
+#  new_size
 # partition_names is an array of all the partition names.
 # partitions is an array containing the data we need.
 #  Partitions are sent in an array of form:
 #   partitions['/dev/sda1']['start'] = value;
 #   partitions['/dev/sda1']['size'] = value;
 # new_part_name is the target we're checking.
-# new_start The new start position. Could be locally scoped from new_part_name,
-#  but is set for simplicity.
-# new_size the new size of the partition. Could be locally scoped from
-#  new_part_name, but is set for simplicity.
-# extended_margin locally scoped, but could be set. Default is 2 as is normal. Currently
-#  will be overwritten regardless.
-# new_type is locally scoped, but could be set here if wanted. Will be overwritten anyway.
-# new_part_number is locally scoped, but could be set here if wanted. Will be overwritten anyway.
-# pName is locally scoped, but could be set here if wanted. Will be overwritten anyway.
-# p_type is locally scoped, but could be set here if wanted. Will be overwritten anyway.
-# p_start is locally scoped, but could be set here if wanted. Will be overwritten anyway.
-# p_size is locally scoped, but could be set here if wanted. Will be overwritten anyway.
-# p_number is locally scoped, but could be set here if wanted. Will be overwritten anyway.
-# Global Scoped variables (meaning not needed to pass to the function:
+# new_start The new start position
+# new_size the new size of the partition
+# extended_margin locally scoped
+# new_type is locally scoped
+# new_part_number is locally scoped
+# pName is locally scoped
+# p_type is locally scoped
+# p_start is locally scoped
+# p_size is locally scoped
+# p_number is locally scoped
+# Global Scoped variables:
 # label the device label.
 function check_overlap(partition_names, partitions, new_part_name, new_start, new_size, extended_margin, new_type, new_part_number, pName, p_type, p_start, p_size, p_number) {
     # Used for extended volumes (logical disks)
@@ -152,6 +157,7 @@ function check_overlap(partition_names, partitions, new_part_name, new_start, ne
             }
         } else if (new_start >= p_start) {
             if (new_start < p_start + p_size) {
+                printf("ERROR: new_start < p_start + p_size at (%s).\n", pName);
                 return 1;
             }
         }
@@ -166,16 +172,16 @@ function check_overlap(partition_names, partitions, new_part_name, new_start, ne
 #  Partitions are sent in an array of form:
 #   partitions['name']['start'] = value;
 #   partitions['name']['size'] = value;
-# pName is locally scoped, but could be set here if wanted. Will be overwritten anyway.
-# p_device is locally scoped, but could be set here if wanted. Will be overwritten anyway.
-# p_start is locally scoped, but could be set here if wanted. Will be overwritten anyway.
-# p_size is locally scoped, but could be set here if wanted. Will be overwritten anyway.
-# p_type is locally scoped, but could be set here if wanted. Will be overwritten anyway.
-# p_flag is locally scoped, but could be set here if wanted. Will be overwritten anyway.
-# p_uuid is locally scoped, but could be set here if wanted. Will be overwritten anyway.
-# p_name is locally scoped, but could be set here if wanted. Will be overwritten anyway.
-# p_attrs is locally scoped, but could be set here if wanted. Will be overwritten anyway.
-# typelabel is locally scoped, but could be set here if wanted. Will be overwritten anyway.
+# pName is locally scoped
+# p_device is locally scoped
+# p_start is locally scoped
+# p_size is locally scoped
+# p_type is locally scoped
+# p_flag is locally scoped
+# p_uuid is locally scoped
+# p_name is locally scoped
+# p_attrs is locally scoped
+# typelabel is locally scoped
 # Global Scoped variables (meaning not needed to pass to the function:
 # unit the unit type
 # label the device label
@@ -262,9 +268,9 @@ function display_output(partition_names, partitions, pName, p_device, p_start, p
 #   partitions['name']['start'] = value;
 #   partitions['name']['size'] = value;
 # args are the arguments from the caller.
-# pName is locally scoped, but could be set here if wanted. Will be overwritten anyway.
-# new_size is locally scoped, but could be set here if wanted. Will be overwritten anyway.
-# p_start is locally scoped, but could be set here if wanted. Will be overwritten anyway.
+# pName is locally scoped
+# new_size is locally scoped
+# p_start is locally scoped
 # Global Scoped variables (meaning not needed to pass to the function:
 # target the device to work off of
 # unit the unit type
@@ -319,9 +325,9 @@ function resize_partition(partition_names, partitions, args, pName, new_start, n
 #   partitions['name']['start'] = value;
 #   partitions['name']['size'] = value;
 # args are the arguments from the caller.
-# pName is locally scoped, but could be set here if wanted. Will be overwritten anyway.
-# new_start is locally scoped, but could be set here if wanted. Will be overwritten anyway.
-# new_size is locally scoped, but could be set here if wanted. Will be overwritten anyway.
+# pName is locally scoped
+# new_start is locally scoped
+# new_size is locally scoped
 # Global Scoped variables (meaning not needed to pass to the function:
 # target the device to work off of
 # unit the unit type
@@ -366,22 +372,22 @@ function move_partition(partition_names, partitions, args, pName, new_start, new
 #   partitions['name']['start'] = value;
 #   partitions['name']['size'] = value;
 # args are the arguments from the caller.
-# fixed_partitions is locally scoped and will be overwritten. Used to contain our fixed partitions.
-# original_variable is locally scoped and will be overwritten. Used to figure originating resizable space.
-# original_fixed is locally scoped and will be overwritten. Used to contain the fixed partition space.
-# new_variable is locally scoped and will be overwritten. Used to contain the new disks resizable space.
-# new_logical is locally scoped and will be overwritten. Used to contain the logical volume space.
-# extended_margin is locally scoped and will be overwritten. Used to give logic start + extended which is typically 2.
-# pName is locally scoped, but could be set here if wanted. Will be overwritten anyway.
-# p_type is locally scoped, but could be set here if wanted. Will be overwritten anyway.
-# p_number is locally scoped, but could be set here if wanted. Will be overwritten anyway.
-# p_size is locally scoped, but could be set here if wanted. Will be overwritten anyway.
-# p_fixed is locally scoped, but could be set here if wanted. Will be overwritten anyway.
-# new_start is locally scoped, but could be set here if wanted. Will be overwritten anyway.
-# new_size is locally scoped, but could be set here if wanted. Will be overwritten anyway.
-function fill_disk(partition_names, partitions, args, n, fixed_partitions, original_variable, original_fixed, new_variable, new_logical, extended_margin, pName, p_type, p_number, p_size, p_fixed, i, partition_starts, ordered_starts, old_sorted_in, curr_start) {
-    # Set p_fixed to 0.
-    p_fixed = 0;
+# fixed_partitions is locally scoped
+# original_variable is locally scoped
+# original_fixed is locally scoped
+# new_variable is locally scoped
+# new_logical is locally scoped
+# extended_margin is locally scoped
+# pName is locally scoped
+# p_type is locally scoped
+# p_number is locally scoped
+# p_size is locally scoped
+# i is locally scoped
+# partition_starts is locally scoped
+# ordered_starts is locally scoped
+# old_sorted_in is locally scoped
+# curr_start is locally scoped
+function fill_disk(partition_names, partitions, args, n, fixed_partitions, original_variable, original_fixed, new_variable, new_logical, extended_margin, pName, p_type, p_number, p_size, i, partition_starts, ordered_starts, old_sorted_in, curr_start) {
     # Used for extended volumes (logical disks)
     extended_margin = 2;
     # Ensure we start at 0 for original sizes.
@@ -394,7 +400,7 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
     full_size = 0;
     # logical fixed initialize.
     logical_fixed = 0;
-    # tell if we have extended.
+    # Tell if we have extended.
     # Trim any beginning or trailling colons
     gsub(/^[:]+|[:]+$/, "", fixedList);
     if (firstlba && lastlba) {
