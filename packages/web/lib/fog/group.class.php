@@ -772,7 +772,6 @@ class Group extends FOGController
         if ($snapin === false) {
             return;
         }
-        $hostCount = $this->getHostCount();
         $hostIDs = array_values(
             self::getSubObjectIDs(
                 'SnapinAssociation',
@@ -787,7 +786,7 @@ class Group extends FOGController
         for ($i = 0; $i < $hostCount; ++$i) {
             $hostID = $hostIDs[$i];
             $snapins[$hostID] = (
-                $snapin === -1 ?
+                $snapin == -1 ?
                 self::getSubObjectIDs(
                     'SnapinAssociation',
                     array(
