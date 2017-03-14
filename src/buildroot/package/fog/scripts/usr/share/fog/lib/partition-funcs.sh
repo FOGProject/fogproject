@@ -563,7 +563,8 @@ processSfdisk() {
             }
             ;;
     esac
-    local awkArgs="-v SECTOR_SIZE=$sectorsize -v CHUNK_SIZE=$chunksize -v MIN_START=$minstart"
+    #local awkArgs="-v SECTOR_SIZE=$sectorsize -v CHUNK_SIZE=$chunksize -v MIN_START=$minstart"
+    local awkArgs="-v SECTOR_SIZE=$chunksize -v CHUNK_SIZE=$chunksize -v MIN_START=$minstart"
     awkArgs="$awkArgs -v action=$action -v target=$target -v sizePos=$size"
     awkArgs="$awkArgs -v diskSize=$disk_size"
     [[ -n $fixed ]] && awkArgs="$awkArgs -v fixedList=$fixed"
