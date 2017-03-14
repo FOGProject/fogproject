@@ -522,18 +522,17 @@ shrinkPartition() {
                 getPartBlockSize "$part" "part_block_size"
                 case $osid in
                     [1-2]|4)
-                        sizentfsresize=$(calculate "${sizentfsresize}*1024*${part_block_size}")
                         resizePartition "$part" "$sizentfsresize" "$imagePath"
                         [[ $osid -eq 2 ]] && correctVistaMBR "$disk"
                         ;;
                     [5-7]|9)
-                        #[[ $part_number -eq $win7partcnt ]] && part_start=$(blkid -po udev $part 2>/dev/null | awk -F= '/PART_ENTRY_OFFSET=/{printf("%.0f\n",$2*'$part_block_size'/1024)}') || part_start=1048576
-                        #if [[ -z $part_start || $part_start -lt 1 ]]; then
-                        #    echo "Failed"
-                        #    debugPause
-                        #    handleError "Unable to determine disk start location (${FUNCNAME[0]})\n   Args Passed: $*"
-                        #fi
-                        adjustedfdsize=$(calculate "${sizentfsresize}*1024*${part_block_size}")
+                        [[ $part_number -eq $win7partcnt ]] && part_start=$(blkid -po udev $part 2>/dev/null | awk -F= '/PART_ENTRY_OFFSET=/{printf("%.0f\n",$2*'$part_block_size'/1000)}') || part_start=1048576
+                        if [[ -z $part_start || $part_start -lt 1 ]]; then
+                            echo "Failed"
+                            debugPause
+                            handleError "Unable to determine disk start location (${FUNCNAME[0]})\n   Args Passed: $*"
+                        fi
+                        adjustedfdsize=$(calculate "${sizentfsresize}*1024")
                         resizePartition "$part" "$adjustedfdsize" "$imagePath"
                         ;;
                 esac
@@ -556,11 +555,10 @@ shrinkPartition() {
             esac
             debugPause
             extminsize=$(resize2fs -P $part 2>/dev/null | awk -F': ' '{print $2}')
-            getPartBlockSize "$part" "part_block_size"
-            size=${extminsize}
+            block_size=$(dumpe2fs -h $part 2>/dev/null | awk /^Block\ size:/'{print $3}')
+            size=$(calculate "${extminsize}*${block_size}")
             local sizeadd=$(calculate "${percent}/100*${size}")
             sizeextresize=$(calculate "${size}+${sizeadd}")
-            sizeextresize=$(calculate "${sizeextresize}*${part_block_size}")
             [[ -z $sizeextresize || $sizeextresize -lt 1 ]] && handleError "Error calculating the new size of extfs ($part) (${FUNCNAME[0]})\n   Args Passed: $*"
             dots "Shrinking $fstype volume ($part)"
             resize2fs $part -M >/tmp/resize2fs.txt 2>&1
