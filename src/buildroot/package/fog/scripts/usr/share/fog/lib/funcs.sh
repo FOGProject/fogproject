@@ -1179,7 +1179,7 @@ determineOS() {
         5)
             osname="Windows 7"
             mbrfile="/usr/share/fog/mbr/win7.mbr"
-            defaultpart2start="105906176B"
+            defaultpart2start="206848s"
             ;;
         6)
             osname="Windows 8"
