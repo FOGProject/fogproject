@@ -1184,12 +1184,12 @@ determineOS() {
         6)
             osname="Windows 8"
             mbrfile="/usr/share/fog/mbr/win8.mbr"
-            defaultpart2start="368050176B"
+            defaultpart2start="718848s"
             ;;
         7)
             osname="Windows 8.1"
             mbrfile="/usr/share/fog/mbr/win8.mbr"
-            defaultpart2start="368050176B"
+            defaultpart2start="718848s"
             ;;
         8)
             osname="Apple Mac OS"
