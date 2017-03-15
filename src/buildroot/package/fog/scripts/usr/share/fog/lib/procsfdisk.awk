@@ -605,6 +605,12 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         curr_start += p_size;
         # Set the partitions start to our adjusted start.
         partitions[pName, "start"] = p_start;
+        # Set the last boundary properly
+        if (p_start + p_size > int(diskSize)) {
+            p_size -= (p_start + p_size - int(diskSize));
+            p_size -= (p_size % int(CHUNK_SIZE));
+            partitions[pName, "size"] = p_size;
+        }
     }
     # Sorted in setter.
     PROCINFO["sorted_in"] = old_sorted_in;
