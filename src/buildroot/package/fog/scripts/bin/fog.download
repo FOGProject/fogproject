@@ -75,8 +75,8 @@ preparePartitions() {
                     ;;
                 [5-7]|9)
                     [[ ! -d $imagePath && ! -f $imagePath/sys.img.000 ]] && handleError "Unable to locate image store ($0)\n   Args Passed: $*"
-                    sfdiskOriginalPartitionFile "$imagePath" "1"
-                    sfdiskOriginalLegacyPartitionFile "$imagePath" "1"
+                    sfdiskOriginalPartitionFileName "$imagePath" "1"
+                    sfdiskOriginalLegacyPartitionFileName "$imagePath" "1"
                     sfdiskfilename="$sfdiskoriginalpartitionfilename"
                     [[ ! -r $sfdiskfilename ]] && sfdiskfilename="$sfdisklegacypartitionfilename"
                     if [[ ! -f $imagePath/sys.img.000 || -f $imagePath/$sfdiskfilename ]]; then
