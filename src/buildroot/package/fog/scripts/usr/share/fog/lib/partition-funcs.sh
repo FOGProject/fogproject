@@ -468,6 +468,7 @@ fillSfdiskWithPartitions() {
     local file="$2"
     local minf="$3"
     local fixed="$4"
+    local orig="$5"
     [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ -z $file ]] && handleError "No file to use passed (${FUNCNAME[0]})\n   Args Passed: $*"
     rm -rf /tmp/sfdisk{1,2}.*
@@ -483,7 +484,7 @@ fillSfdiskWithPartitions() {
     #    majorDebugPause
     #fi
     #[[ $status -eq 0 ]] && applySfdiskPartitions "$disk" "$tmp_file1" "$tmp_file2"
-    processSfdisk "$minf" filldisk "$disk" "$disk_size" "$fixed" > "$tmp_file2"
+    processSfdisk "$minf" filldisk "$disk" "$disk_size" "$fixed" "$orig" > "$tmp_file2"
     status=$?
     if [[ $ismajordebug -gt 0 ]]; then
         echo "Debug"
@@ -546,6 +547,7 @@ processSfdisk() {
     local target="$3"
     local size="$4"
     local fixed="$5"
+    local orig="$6"
     local sectorsize=512
     [[ -z $data ]] && handleError "No data passed (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ -z $action ]] && handleError "No action passed (${FUNCNAME[0]})\n   Args Passed: $*"
@@ -569,7 +571,7 @@ processSfdisk() {
     awkArgs="$awkArgs -v diskSize=$disk_size"
     [[ -n $fixed ]] && awkArgs="$awkArgs -v fixedList=$fixed"
     # process with external awk script
-    /usr/share/fog/lib/procsfdisk.awk $awkArgs $data
+    /usr/share/fog/lib/procsfdisk.awk $awkArgs $data $orig
 }
 getPartitionLabel() {
     local part="$1"
@@ -802,7 +804,7 @@ fillDiskWithPartitions() {
             [[ ! -r $origname ]] && filename="$sfdisklegacyoriginalpartitionfilename"
             [[ ! -r $origname ]] && filename="$sgdiskoriginalpartitionfilename"
             [[ ! -r $filename ]] && handleError "Failed to find a restore file (${FUNCNAME[0]})\n   Args Passed: $*"
-            $cmdtorun "$disk" "$origname" "$filename" "$fixed_size_partitions"
+            $cmdtorun "$disk" "$origname" "$filename" "$fixed_size_partitions" "$origname"
             ;;
         *)
             echo "Failed"
