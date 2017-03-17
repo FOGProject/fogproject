@@ -242,44 +242,6 @@ class ImageManagementPage extends FOGPage
             )
         );
         /**
-         * Lambda function to manage server size return.
-         *
-         * This particular function only returns false.
-         *
-         * @param string $path the path to test.
-         * @param StorageNode $StorageNode the storage node to check.
-         *
-         * @return bool
-         */
-        $servSize = function (&$path, &$StorageNode) {
-            return false;
-        };
-        /**
-         * If size server adjust our prior lambda to return
-         * bytesize as stored on the master node of the primary
-         * group.
-         */
-        if ($SizeServer) {
-            /**
-             * Lambda function to manage server size return.
-             *
-             * @param string $path the path to test.
-             * @param StorageNode $StorageNode the storage node to check.
-             *
-             * @return double
-             */
-            $servSize = function (&$path, &$StorageNode) {
-                return $this->getFTPByteSize(
-                    $StorageNode,
-                    sprintf(
-                        '%s/%s',
-                        $StorageNode->get('ftppath'),
-                        $path
-                    )
-                );
-            };
-        }
-        /**
          * Lambda functino to manage the output
          * of search/listed items.
          *
@@ -287,7 +249,7 @@ class ImageManagementPage extends FOGPage
          *
          * @return void
          */
-        self::$returnData = function (&$Image) use ($SizeServer, &$servSize) {
+        self::$returnData = function (&$Image) use ($SizeServer) {
             /**
              * Stores the image on client size.
              */
@@ -353,17 +315,12 @@ class ImageManagementPage extends FOGPage
              * The path.
              */
             $path = $Image->get('path');
+            $serverSize = 0;
             /**
              * If size on server we get our function.
              */
             if ($SizeServer) {
-                $StorageNode = $Image
-                    ->getStorageGroup()
-                    ->getMasterStorageNode();
-                $serverSize = $servSize(
-                    $path,
-                    $StorageNode
-                );
+                $serverSize = $this->formatByteSize($Image->get('srvsize'));
             }
             /**
              * If the image is not protected show
@@ -385,10 +342,28 @@ class ImageManagementPage extends FOGPage
              * If the image format not one, we must
              * be using partclone otherwise partimage.
              */
-            if ($Image->get('format') == 1) {
-                $type = _('Partimage');
-            } else {
-                $type = _('Partclone');
+            switch ($Image->get('format')) {
+                case 0:
+                    $type = _('Partclone Compressed');
+                    break;
+                case 1:
+                    $type = _('Partimage');
+                    break;
+                case 2:
+                    $type = _('Partclone Compressed 200MiB split');
+                    break;
+                case 3:
+                    $type = _('Partclone Uncompressed');
+                    break;
+                case 4:
+                    $type = _('Partclone Uncompressed 200MiB split');
+                    break;
+                case 5:
+                    $type = _('ZSTD Compressed');
+                    break;
+                case 6:
+                    $type = _('ZSTD Compressed 200MiB split');
+                    break;
             }
             /**
              * Store the data.
@@ -516,6 +491,63 @@ class ImageManagementPage extends FOGPage
         ) {
             $compression = $_REQUEST['compress'];
         }
+        if (!isset($_REQUEST['imagemanage'])) {
+            $_REQUEST['imagemanage']
+                = self::getSetting('FOG_IMAGE_COMPRESSION_FORMAT_DEFAULT');
+        }
+        $format = sprintf(
+            '<select name="imagemanage">'
+            . '<option value="0"%s>%s</option>'
+            . '<option value="1"%s>%s</option>'
+            . '<option value="2"%s>%s</option>'
+            . '<option value="3"%s>%s</option>'
+            . '<option value="4"%s>%s</option>'
+            . '<option value="5"%s>%s</option>'
+            . '<option value="6"%s>%s</option>'
+            . '</select>',
+            (
+                !$_REQUEST['imagemanage'] || $_REQUEST['imagemanage'] == 0 ?
+                ' selected' :
+                ''
+            ),
+            _('Partclone Gzip'),
+            (
+                $_REQUEST['imagemanage'] == 1 ?
+                ' selected' :
+                ''
+            ),
+            _('Partimage'),
+            (
+                $_REQUEST['imagemanage'] == 2 ?
+                ' selected' :
+                ''
+            ),
+            _('Partclone Gzip Split 200MiB'),
+            (
+                $_REQUEST['imagemanage'] == 3 ?
+                ' selected' :
+                ''
+            ),
+            _('Partclone Uncompressed'),
+            (
+                $_REQUEST['imagemanage'] == 4 ?
+                ' selected' :
+                ''
+            ),
+            _('Partclone Uncompressed Split 200MiB'),
+            (
+                $_REQUEST['imagemanage'] == 5 ?
+                ' selected' :
+                ''
+            ),
+            _('Partclone Zstd'),
+            (
+                $_REQUEST['imagemanage'] == 6 ?
+                ' selected' :
+                ''
+            ),
+            _('Partclone Zstd Split 200MiB')
+        );
         $fields = array(
             _('Image Name') => sprintf(
                 '<input type="text" name="name" id="iName" value="%s"/>',
@@ -541,14 +573,15 @@ class ImageManagementPage extends FOGPage
             _('Compression') => sprintf(
                 '<div id="pigz" style="width: 200px; top: 15px;"></div>'
                 . '<input type="text" readonly="true" name="compress" '
-                . 'id="showVal" maxsize="1" style="width: 10px; '
+                . 'id="showVal" maxsize="2" style="width: 20px; '
                 . 'top: -5px; left: 225px; position: relative;" value="%s"/>',
                 $compression
             ),
+            _('Image Manager') => $format,
             '&nbsp;' => sprintf(
                 '<input type="submit" name="add" value="%s"/>',
                 _('Add')
-            ),
+            )
         );
         printf('<h2>%s</h2>', _('Add new image definition'));
         self::$HookManager
@@ -608,6 +641,15 @@ class ImageManagementPage extends FOGPage
                     )
                 );
             }
+            if (self::getClass('ImageManager')->exists($_REQUEST['file'], 'path')) {
+                throw new Exception(
+                    sprintf(
+                        '%s, %s.',
+                        _('Please choose a different path'),
+                        _('this one is already in use by another image')
+                    )
+                );
+            }
             if (empty($_REQUEST['storagegroup'])) {
                 throw new Exception(_('A Storage Group is required!'));
             }
@@ -633,6 +675,7 @@ class ImageManagementPage extends FOGPage
                 ->set('imagePartitionTypeID', $_REQUEST['imagepartitiontype'])
                 ->set('compress', $_REQUEST['compress'])
                 ->set('isEnabled', (string)intval(isset($_REQUEST['isEnabled'])))
+                ->set('format', $_REQUEST['imagemanage'])
                 ->set('toReplicate', (string)intval(isset($_REQUEST['toReplicate'])))
                 ->addGroup($_REQUEST['storagegroup']);
             if (!$Image->save()) {
@@ -730,24 +773,59 @@ class ImageManagementPage extends FOGPage
         ) {
             $compression = $_REQUEST['compress'];
         }
-        if ($_SESSION['FOG_FORMAT_FLAG_IN_GUI']) {
-            $format = sprintf(
-                '<select name="imagemanage"><option value="1"%s>%s</option>'
-                . '<option value="0"%s>%s</option></select>',
-                (
-                    $this->obj->get('format') ?
-                    ' selected' :
-                    ''
-                ),
-                _('Partimage'),
-                (
-                    !$this->obj->get('format') ?
-                    ' selected' :
-                    ''
-                ),
-                _('Partclone')
-            );
-        }
+        $format = sprintf(
+            '<select name="imagemanage">'
+            . '<option value="0"%s>%s</option>'
+            . '<option value="1"%s>%s</option>'
+            . '<option value="2"%s>%s</option>'
+            . '<option value="3"%s>%s</option>'
+            . '<option value="4"%s>%s</option>'
+            . '<option value="5"%s>%s</option>'
+            . '<option value="6"%s>%s</option>'
+            . '</select>',
+            (
+                !$this->obj->get('format') || $this->obj->get('format') == 0 ?
+                ' selected' :
+                ''
+            ),
+            _('Partclone Gzip'),
+            (
+                $this->obj->get('format') == 1 ?
+                ' selected' :
+                ''
+            ),
+            _('Partimage'),
+            (
+                $this->obj->get('format') == 2 ?
+                ' selected' :
+                ''
+            ),
+            _('Partclone Gzip Split 200MiB'),
+            (
+                $this->obj->get('format') == 3 ?
+                ' selected' :
+                ''
+            ),
+            _('Partclone Uncompressed'),
+            (
+                $this->obj->get('format') == 4 ?
+                ' selected' :
+                ''
+            ),
+            _('Partclone Uncompressed Split 200MiB'),
+            (
+                $this->obj->get('format') == 5 ?
+                ' selected' :
+                ''
+            ),
+            _('Partclone Zstd'),
+            (
+                $this->obj->get('format') == 6 ?
+                ' selected' :
+                ''
+            ),
+            _('Partclone Zstd Split 200MiB')
+        );
         $fields = array(
             _('Image Name') => sprintf(
                 '<input type="text" name="name" id="iName" value="%s"/>',
@@ -783,7 +861,7 @@ class ImageManagementPage extends FOGPage
             _('Compression') => sprintf(
                 '<div id="pigz" style="width: 200px; top: 15px;"></div>'
                 . '<input type="text" readonly="true" name="compress" '
-                . 'id="showVal" maxsize="1" style="width: 10px; top: '
+                . 'id="showVal" maxsize="2" style="width: 20px; top: '
                 . '-5px; left: 225px; position: relative;" value="%s"/>',
                 $compression
             ),
@@ -811,15 +889,7 @@ class ImageManagementPage extends FOGPage
                     ''
                 )
             ),
-            (
-                $_SESSION['FOG_FORMAT_FLAG_IN_GUI'] ?
-                _('Image Manager') :
-                ''
-            ) => (
-                $_SESSION['FOG_FORMAT_FLAG_IN_GUI'] ?
-                $format :
-                ''
-            ),
+            _('Image Manager') => $format,
             '&nbsp;' => sprintf(
                 '<input type="submit" name="update" value="%s"/>',
                 _('Update')
@@ -1036,6 +1106,22 @@ class ImageManagementPage extends FOGPage
                             '%s, %s.',
                             _('Please choose a different name'),
                             _('this one is reserved for FOG')
+                        )
+                    );
+                }
+                $exists = self::getClass('ImageManager')
+                    ->exists(
+                        $_REQUEST['file'],
+                        'path'
+                    );
+                if ($this->obj->get('path') != $_REQUEST['file']
+                    && $exists
+                ) {
+                    throw new Exception(
+                        sprintf(
+                            '%s, %s.',
+                            _('Please choose a different path'),
+                            _('this one is already in use by another image')
                         )
                     );
                 }

@@ -86,7 +86,7 @@ count=0
 res=""
 while [[ -z $res ]]; do
     dots "Attempting to send inventory"
-    res=$(wget --post-data="$poststring" -qO - http://${web}service/inventory.php 2>/dev/null)
+    res=$(curl -ks --data "$poststring" http://${web}service/inventory.php 2>/dev/null)
     if [[ $count -ge 10 ]]; then
         echo "Failed"
         debugPause

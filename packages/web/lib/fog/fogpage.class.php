@@ -237,7 +237,9 @@ abstract class FOGPage extends FOGBase
             array('PagesWithObjects' => &$this->PagesWithObjects)
         );
         global $node;
+        global $type;
         global $sub;
+        global $tab;
         global $id;
         if ($node !== 'service'
             && preg_match('#edit#i', $sub)
@@ -430,18 +432,75 @@ abstract class FOGPage extends FOGBase
             }
             unset($input);
         };
-        $this->formAction = preg_replace(
-            '#\&tab=#i',
-            '#',
-            filter_var(
-                sprintf(
-                    '%s?%s',
-                    self::$scriptname,
-                    self::$querystring
-                ),
-                FILTER_SANITIZE_URL
-            )
-        );
+        $nodestr = $substr = $idstr = $typestr = $tabstr = false;
+        $formstr = '?';
+        if ($node) {
+            $nodestr = "node=$node";
+        }
+        if ($sub) {
+            $substr = "sub=$sub";
+        }
+        if ($id) {
+            $idstr = "id=$id";
+        }
+        if ($type) {
+            $typestr = "type=$type";
+        }
+        if ($tab) {
+            $tabstr = "#$tab";
+        }
+        if ($nodestr) {
+            $formstr .= $nodestr;
+            if ($substr) {
+                $formstr .= "&$substr";
+            }
+            if ($idstr) {
+                $formstr .= "&$idstr";
+            }
+            if ($typestr) {
+                $formstr .= "&$typestr";
+            }
+            if ($tabstr) {
+                $formstr .= $tabstr;
+            }
+        } else {
+            if ($substr) {
+                $formstr .= $substr;
+                if ($idstr) {
+                    $formstr .= "&$idstr";
+                }
+                if ($typestr) {
+                    $formstr .= "&$typestr";
+                }
+                if ($tabstr) {
+                    $formstr .= $tabstr;
+                }
+            } else {
+                if ($idstr) {
+                    $formstr .= $idstr;
+                    if ($typestr) {
+                        $formstr .= "&$typestr";
+                    }
+                    if ($tabstr) {
+                        $formstr .= $tabstr;
+                    }
+                } else {
+                    if ($typestr) {
+                        $formstr .= $typestr;
+                        if ($tabstr) {
+                            $formstr = $tabstr;
+                        }
+                    } else {
+                        if ($tabstr) {
+                            $formstr = $tabstr;
+                        } else {
+                            $formstr = '';
+                        }
+                    }
+                }
+            }
+        }
+        $this->formAction = $formstr;
         self::$HookManager->processEvent(
             'SEARCH_PAGES',
             array('searchPages' => &self::$searchPages)
@@ -502,7 +561,9 @@ abstract class FOGPage extends FOGBase
                 );
             }
             $items = (array)self::getClass($manager)->find($find);
-            array_walk($items, static::$returnData);
+            if (count($items) > 0) {
+                array_walk($items, static::$returnData);
+            }
             $event = sprintf(
                 '%s_DATA',
                 strtoupper($this->node)
@@ -541,6 +602,9 @@ abstract class FOGPage extends FOGBase
                     $value
                 );
             };
+            if (count($args) > 0) {
+                array_walk($args, $vals);
+            }
             printf(
                 'Index page of: %s%s',
                 get_class($this),
@@ -550,7 +614,7 @@ abstract class FOGPage extends FOGBase
                         ', Arguments = %s',
                         implode(
                             ', ',
-                            array_walk($args, $vals)
+                            $args
                         )
                     ) :
                     ''
@@ -912,7 +976,9 @@ abstract class FOGPage extends FOGBase
                 ''
             )
         );
-        array_walk($this->headerData, $setHeaderData);
+        if (count($this->headerData)) {
+            array_walk($this->headerData, $setHeaderData);
+        }
         echo '</tr></thead>';
         return ob_get_clean();
     }
@@ -1064,7 +1130,7 @@ abstract class FOGPage extends FOGBase
         );
         printf(
             '<p class="c"><b>%s</b></p>',
-            _('Are you sure you wish task these machines')
+            _('Are you sure you wish to task these machines')
         );
         printf(
             '<form method="post" action="%s" id="deploy-container">',
@@ -1122,9 +1188,14 @@ abstract class FOGPage extends FOGBase
         ) {
             printf(
                 '<p class="hideFromDebug"><input type="checkbox" '
-                . 'name="shutdown" id="shutdown" value="1" '
-                . 'autocomplete="off"><label for="shutdown">'
+                . 'name="shutdown" id="shutdown" '
+                . 'autocomplete="off"%s><label for="shutdown">'
                 . '%s <u>%s</u> %s</label></p>',
+                (
+                    self::getSetting('FOG_TASKING_ADV_SHUTDOWN_ENABLED') ?
+                    ' checked' :
+                    ''
+                ),
                 _('Schedule'),
                 _('Shutdown'),
                 _('after task completion')
@@ -1137,7 +1208,11 @@ abstract class FOGPage extends FOGBase
                 (
                     $TaskType->isSnapinTasking() ?
                     '' :
-                    ' checked'
+                    (
+                        self::getSetting('FOG_TASKING_ADV_WOL_ENABLED') ?
+                        ' checked' :
+                        ''
+                    )
                 ),
                 _('Wake on lan?')
             );
@@ -1150,8 +1225,13 @@ abstract class FOGPage extends FOGBase
             ) {
                 printf(
                     '<p><input type="checkbox" name="isDebugTask" '
-                    . 'id="checkDebug"/><label for="checkDebug">'
+                    . 'id="checkDebug"%s/><label for="checkDebug">'
                     . '%s</label></p>',
+                    (
+                        self::getSetting('FOG_TASKING_ADV_DEBUG_ENABLED') ?
+                        ' checked' :
+                        ''
+                    ),
                     _('Schedule task as a debug task')
                 );
             }
@@ -1330,114 +1410,198 @@ abstract class FOGPage extends FOGBase
         global $type;
         global $id;
         try {
-            if (!is_numeric($type) || $type < 1) {
+            /**
+             * Task type setup.
+             */
+            if (!(is_numeric($type) && $type > 0)) {
                 $type = 1;
             }
-            // Variable Setup
             $TaskType = new TaskType($type);
-            $passreset = trim($_REQUEST['account']);
-            $Snapin = new Snapin($_REQUEST['snapin']);
-            $enableShutdown = (
-                $_REQUEST['shutdown'] ?
-                true :
-                false
-            );
-            $enableSnapins = (
-                $TaskType->get('id') != 17 ?
-                (
-                    $Snapin instanceof Snapin
-                    && $Snapin->isValid() ?
-                    $Snapin->get('id') :
-                    -1
-                ) :
-                false
-            );
-            $enableDebug = (bool)(
-                (
-                    isset($_REQUEST['debug'])
-                    && $_REQUEST['debug'] == 'true'
-                )
-                || isset($_REQUEST['isDebugTask'])
-            );
-            $scheduleDeployTime = self::niceDate($_REQUEST['scheduleSingleTime']);
+            /**
+             * Account Setup.
+             */
+            if (!(isset($_REQUEST['account'])
+                && is_string($_REQUEST['account']))
+            ) {
+                $_REQUEST['account'] = '';
+            }
+            $passreset = $_REQUEST['account'];
+            /**
+             * Snapin Setup.
+             */
+            $enableSnapins = intval($_REQUEST['snapin']);
+            if (0 === $enableSnapins) {
+                $enableSnapins = -1;
+            }
+            if (17 === $type
+                || $enableSnapins < -1
+            ) {
+                $enableSnapins = 0;
+            }
+            /**
+             * Shutdown Setup.
+             */
+            $enableShutdown = false;
+            $shutdown = isset($_REQUEST['shutdown']);
+            if ($shutdown) {
+                $enableShutdown = true;
+            }
+            /**
+             * Debug Setup.
+             */
+            $enableDebug = false;
+            $debug = isset($_REQUEST['debug']);
+            $isdebug = isset($_REQUEST['isDebugTask']);
+            if ($debug || $isdebug) {
+                $enableDebug = true;
+            }
+            /**
+             * WOL Setup.
+             */
+            $wol = false;
+            $wolon = isset($_REQUEST['wol']);
+            if (14 === $type
+                || $wolon
+            ) {
+                $wol = true;
+            }
             $imagingTasks = $TaskType->isImagingTask();
-            $wol = (string)intval(
-                (
-                    isset($_REQUEST['wol'])
-                    || $TaskType->get('id') == 14
-                )
-            );
             $taskName = sprintf(
                 '%s Task',
                 $TaskType->get('name')
             );
-            $scheduleType = strtolower($_REQUEST['scheduleType']);
+            /**
+             * Schedule Type Setup.
+             */
+            $scheduleType = strtolower(
+                $_REQUEST['scheduleType']
+            );
             $scheduleTypes = array(
                 'cron',
                 'instant',
                 'single',
             );
-            self::$HookManager->processEvent(
-                'SCHEDULE_TYPES',
-                array('scheduleTypes' => &$scheduleTypes)
-            );
-            $scheduleTypes = array_map(
-                function (&$val) {
-                    return trim(strtolower($val));
-                },
-                (array)$scheduleTypes
-            );
-            // Pre tasking layout error checking
+            self::$HookManager
+                ->processEvent(
+                    'SCHEDULE_TYPES',
+                    array(
+                        'scheduleTypes' => &$scheduleTypes
+                    )
+                );
+            foreach ((array)$scheduleTypes as $ind => &$type) {
+                $scheduleTypes[$ind] = trim(
+                    strtolower(
+                        $type
+                    )
+                );
+                unset($type);
+            }
             if (!in_array($scheduleType, $scheduleTypes)) {
                 throw new Exception(_('Invalid scheduling type'));
             }
-            // Time is in the past
-            if ($scheduleType == 'single'
-                && $scheduleDeployTime < self::niceDate()
-            ) {
-                throw new Exception(
-                    sprintf(
-                        '%s<br>%s: %s',
-                        _('Scheduled date is in the past'),
-                        _('Date'),
-                        $scheduleDeployTime->format('Y-m-d H:i:s')
-                    )
-                );
-            } elseif ($scheduleType == 'cron') {
-                $valsToTest = array(
-                    'checkMinutesField' => array(
-                        'minute',
-                        $_REQUEST['scheduleCronMin']
-                    ),
-                    'checkHoursField' => array(
-                        'hour',
-                        $_REQUEST['scheduleCronHour']
-                    ),
-                    'checkDOMField' => array(
-                        'dayOfMonth',
-                        $_REQUEST['scheduleCronDOM']
-                    ),
-                    'checkMonthField' => array(
-                        'month',
-                        $_REQUEST['scheduleCronMonth']
-                    ),
-                    'checkDOWField' => array(
-                        'dayOfWeek',
-                        $_REQUEST['scheduleCronDOW']
-                    ),
-                );
-                foreach ($valsToTest as $func => &$val) {
-                    if (!FOGCron::$func($val[1])) {
-                        throw new Exception(
-                            sprintf(
-                                '%s %s invalid',
-                                $func,
-                                $val
-                            )
-                        );
-                    }
-                    unset($val);
+            /**
+             * Schedule delayed/cron checks.
+             */
+            $scheduleDeployTime = self::niceDate(
+                $_REQUEST['scheduleSingleTime']
+            );
+            switch ($scheduleType) {
+            case 'single':
+                if ($scheduleDeployTime < self::niceDate()) {
+                    throw new Exception(
+                        sprintf(
+                            '%s<br>%s: %s',
+                            _('Scheduled date is in the past'),
+                            _('Date'),
+                            $scheduleDeployTime->format('Y-m-d H:i:s')
+                        )
+                    );
                 }
+                break;
+            case 'cron':
+                if (!(isset($_REQUEST['scheduleCronMin'])
+                    && is_string($_REQUEST['scheduleCronMin']))
+                ) {
+                    $_REQUEST['scheduleCronMin'] = '';
+                }
+                if (!(isset($_REQUEST['scheduleCronHour'])
+                    && is_string($_REQUEST['scheduleCronHour']))
+                ) {
+                    $_REQUEST['scheduleCronHour'] = '';
+                }
+                if (!(isset($_REQUEST['scheduleCronDOM'])
+                    && is_string($_REQUEST['scheduleCronDOM']))
+                ) {
+                    $_REQUEST['scheduleCronDOM'] = '';
+                }
+                if (!(isset($_REQUEST['scheduleCronMonth'])
+                    && is_string($_REQUEST['scheduleCronMonth']))
+                ) {
+                    $_REQUEST['scheduleCronMonth'] = '';
+                }
+                if (!(isset($_REQUEST['scheduleCronDOW'])
+                    && is_string($_REQUEST['scheduleCronDOW']))
+                ) {
+                    $_REQUEST['scheduleCronDOW'] = '';
+                }
+                $min = strval($_REQUEST['scheduleCronMin']);
+                $hour = strval($_REQUEST['scheduleCronHour']);
+                $dom = strval($_REQUEST['scheduleCronDOM']);
+                $month = strval($_REQUEST['scheduleCronMonth']);
+                $dow = strval($_REQUEST['scheduleCronDOW']);
+                $valsToSet = array(
+                    'minute' => $min,
+                    'hour' => $hour,
+                    'dayOfMonth' => $dom,
+                    'month' => $month,
+                    'dayOfWeek' => $dow
+                );
+                if (!FOGCron::checkMinutesField($min)) {
+                    throw new Exception(
+                        sprintf(
+                            '%s %s invalid',
+                            'checkMinutesField',
+                            _('minute')
+                        )
+                    );
+                }
+                if (!FOGCron::checkHoursField($hour)) {
+                    throw new Exception(
+                        sprintf(
+                            '%s %s invalid',
+                            'checkHoursField',
+                            _('hour')
+                        )
+                    );
+                }
+                if (!FOGCron::checkDOMField($dom)) {
+                    throw new Exception(
+                        sprintf(
+                            '%s %s invalid',
+                            'checkDOMField',
+                            _('day of month')
+                        )
+                    );
+                }
+                if (!FOGCron::checkMonthField($month)) {
+                    throw new Exception(
+                        sprintf(
+                            '%s %s invalid',
+                            'checkMonthField',
+                            _('month')
+                        )
+                    );
+                }
+                if (!FOGCron::checkDOWField($dow)) {
+                    throw new Exception(
+                        sprintf(
+                            '%s %s invalid',
+                            'checkDOWField',
+                            _('day of week')
+                        )
+                    );
+                }
+                break;
             }
             // The type is invalid
             if (!$TaskType->isValid()) {
@@ -1461,12 +1625,15 @@ abstract class FOGPage extends FOGBase
                     _('Cannot set tasking to pending hosts')
                 );
             } elseif ($this->obj instanceof Group) {
-                $this->obj->set('hosts', $_REQUEST['taskhosts']);
-                if (count($this->obj->get('hosts')) < 1) {
+                if (!(isset($_REQUEST['taskhosts'])
+                    && is_array($_REQUEST['taskhosts'])
+                    && count($_REQUEST['taskhosts']) > 0)
+                ) {
                     throw new Exception(
                         _('There are no hosts to task in this group')
                     );
                 }
+                $this->obj->set('hosts', $_REQUEST['taskhosts']);
             }
             if ($TaskType->isImagingTask()) {
                 if ($this->obj instanceof Host) {
@@ -1552,22 +1719,23 @@ abstract class FOGPage extends FOGBase
         try {
             try {
                 $groupTask = $this->obj instanceof Group;
+                $success = '';
                 if ($scheduleType == 'instant') {
-                    $success = $this->obj->createImagePackage(
-                        $TaskType->get('id'),
-                        $taskName,
-                        $enableShutdown,
-                        $enableDebug,
-                        $enableSnapins,
-                        $groupTask,
-                        $_SESSION['FOG_USERNAME'],
-                        $passreset,
-                        false,
-                        (bool)$wol
+                    $success .= implode(
+                        '</ul><ul>',
+                        (array)$this->obj->createImagePackage(
+                            $TaskType->get('id'),
+                            $taskName,
+                            $enableShutdown,
+                            $enableDebug,
+                            $enableSnapins,
+                            $groupTask,
+                            $_SESSION['FOG_USERNAME'],
+                            $passreset,
+                            false,
+                            $wol
+                        )
                     );
-                    if (!is_array($success)) {
-                        $success = array($success);
-                    }
                 } else {
                     $ScheduledTask = self::getClass('ScheduledTask')
                         ->set('taskType', $TaskType->get('id'))
@@ -1578,7 +1746,7 @@ abstract class FOGPage extends FOGBase
                         ->set(
                             'type',
                             (
-                                $_REQUEST['scheduleType'] == 'single' ?
+                                $scheduleType == 'single' ?
                                 'S' :
                                 'C'
                             )
@@ -1587,17 +1755,16 @@ abstract class FOGPage extends FOGBase
                         ->set('other3', $_SESSION['FOG_USERNAME'])
                         ->set('isActive', 1)
                         ->set('other4', $wol);
-                    if ($_REQUEST['scheduleType'] == 'single') {
+                    if ($scheduleType == 'single') {
                         $ScheduledTask->set(
                             'scheduleTime',
                             $scheduleDeployTime->getTimestamp()
                         );
-                    } elseif ($_REQUEST['scheduleType'] == 'cron') {
-                        foreach ((array)$valsToTest as $func => &$val) {
-                            $ScheduledTask->set($val[0], $val[1]);
+                    } elseif ($scheduleType == 'cron') {
+                        foreach ((array)$valsToSet as $key => &$val) {
+                            $ScheduledTask->set($key, $val);
                             unset($val);
                         }
-                        unset($valsToTest);
                         $ScheduledTask->set('isActive', 1);
                     }
                     if (!$ScheduledTask->save()) {
@@ -1605,7 +1772,7 @@ abstract class FOGPage extends FOGBase
                             _('Failed to create scheduled tasking')
                         );
                     }
-                    $success[] = _('Scheduled tasks successfully created');
+                    $success .= _('Scheduled tasks successfully created');
                 }
             } catch (Exception $e) {
                 $error[] = sprintf(
@@ -1634,41 +1801,38 @@ abstract class FOGPage extends FOGBase
                 $e->getMessage()
             );
         }
-        if (count($success)) {
-            if ($_REQUEST['scheduleType'] == 'cron') {
+        if (false == empty($success)) {
+            switch ($scheduleType) {
+            case 'cron':
                 $time = sprintf(
-                    '%s: %s',
+                    '%s: %s %s %s %s %s',
                     _('Cron Schedule'),
-                    implode(
-                        ' ',
-                        array(
-                            $_REQUEST['scheduleCronMin'],
-                            $_REQUEST['scheduleCronHour'],
-                            $_REQUEST['scheduleCronDOM'],
-                            $_REQUEST['scheduleCronMonth'],
-                            $_REQUEST['scheduleCronDOW']
-                        )
-                    )
+                    $ScheduledTask->get('minute'),
+                    $ScheduledTask->get('hour'),
+                    $ScheduledTask->get('dayOfMonth'),
+                    $ScheduledTask->get('month'),
+                    $ScheduledTask->get('dayOfWeek')
                 );
-            } elseif ($_REQUEST['scheduleType'] == 'single') {
+                break;
+            case 'single':
                 $time = sprintf(
                     '%s: %s',
                     _('Delayed Start'),
                     $scheduleDeployTime->format('Y-m-d H:i:s')
                 );
+                break;
             }
             printf(
                 '<div class="task-start-ok"><p>%s: %s</p><p>%s%s</p></div>',
                 $TaskType->get('name'),
                 _('Successfully created tasks for'),
                 $time,
-                (
-                    count($success) ?
-                    sprintf(
-                        '<ul>%s</ul>',
-                        implode('', $success)
-                    ) :
-                    ''
+                sprintf(
+                    '<ul>%s</ul>',
+                    implode(
+                        '</ul><ul>',
+                        (array)$success
+                    )
                 )
             );
         }
@@ -1783,8 +1947,8 @@ abstract class FOGPage extends FOGBase
     {
         $validate = self::getClass('User')
             ->passwordValidate(
-                $_POST['fogguiuser'],
-                $_POST['fogguipass'],
+                $_REQUEST['fogguiuser'],
+                $_REQUEST['fogguipass'],
                 true
             );
         if (!$validate) {
@@ -2794,6 +2958,7 @@ abstract class FOGPage extends FOGBase
                 }
                 unset($key);
             }
+            //echo json_encode($array, JSON_UNESCAPED_UNICODE);
             $this->sendData(
                 json_encode(
                     $array,
@@ -2802,7 +2967,6 @@ abstract class FOGPage extends FOGBase
                 true,
                 $array
             );
-            //echo json_encode($array, JSON_UNESCAPED_UNICODE);
         } catch (Exception $e) {
             echo $e->getMessage();
         }
@@ -3005,7 +3169,10 @@ abstract class FOGPage extends FOGBase
             '%sManager',
             $this->childClass
         );
-        array_walk(self::getClass($manager)->search('', true), static::$returnData);
+        $search = self::getClass($manager)->search('', true);
+        if (count($search) > 0) {
+            array_walk($search, static::$returnData);
+        }
         $event = sprintf(
             '%s_DATA',
             strtoupper($this->node)
@@ -3128,7 +3295,9 @@ abstract class FOGPage extends FOGBase
                 $index
             );
         };
-        array_walk($name, $itemParser);
+        if (count($name) > 0) {
+            array_walk($name, $itemParser);
+        }
         if (count($this->data) > 0) {
             self::$HookManager->processEvent(
                 sprintf(
@@ -3208,7 +3377,9 @@ abstract class FOGPage extends FOGBase
                 )
             )
         );
-        array_walk($name, $itemParser);
+        if (count($name) > 0) {
+            array_walk($name, $itemParser);
+        }
         self::$HookManager->processEvent(
             'OBJ_MEMBERSHIP',
             array(

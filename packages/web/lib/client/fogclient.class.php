@@ -72,29 +72,44 @@ abstract class FOGClient extends FOGBase
             if (!$this->Host instanceof Host) {
                 $this->Host = new Host(0);
             }
-            if (self::$json) {
-                $globalInfo = array_intersect_key(
-                    $this->getGlobalModuleStatus(),
-                    array($this->shortName => '')
+            if (isset($_REQUEST['moduleid'])) {
+                $this->shortName = Initiator::sanitizeItems(
+                    $_REQUEST['moduleid']
                 );
-                if (!(isset($globalInfo[$this->shortName])
-                    && $globalInfo[$this->shortName])
-                ) {
-                    throw new Exception('#!ng');
+                switch ($this->shortName) {
+                case 'dircleaner':
+                    $this->shortName = 'dircleanup';
+                    break;
+                case 'snapin':
+                    $this->shortName = 'snapinclient';
+                    break;
                 }
-                $hostModInfo = self::getSubObjectIDs(
-                    'Module',
-                    array(
-                        'id' => $this->Host->get('modules'),
-                        'shortName' => $this->shortName
-                    ),
-                    'shortName'
-                );
-                if (false === $hostnotrequired
-                    && !in_array($this->shortName, $hostModInfo)
+            }
+            $globalInfo = array_intersect_key(
+                $this->getGlobalModuleStatus(),
+                array($this->shortName => '')
+            );
+            if (!(isset($globalInfo[$this->shortName])
+                && $globalInfo[$this->shortName])
+            ) {
+                throw new Exception('#!ng');
+            }
+            $hostModInfo = self::getSubObjectIDs(
+                'Module',
+                array(
+                    'id' => $this->Host->get('modules'),
+                    'shortName' => $this->shortName
+                ),
+                'shortName'
+            );
+            if (!in_array($this->shortName, $hostModInfo)) {
+                if (!$this->Host->isValid()
+                    && false === $hostnotrequired
                 ) {
                     throw new Exception('#!nh');
                 }
+            }
+            if (self::$json) {
                 if (method_exists($this, 'json')) {
                     $method = 'json';
                 }
@@ -151,6 +166,12 @@ abstract class FOGClient extends FOGBase
             }
             $this->sendData($this->send);
         } catch (Exception $e) {
+            global $json;
+            global $newService;
+            if (!$json && $newService) {
+                echo $this->send;
+                exit;
+            }
             if (!self::$json) {
                 return print $e->getMessage();
             }

@@ -323,7 +323,7 @@ class BootMenu extends FOGBase
         $this->_loglevel = "loglevel=$loglevel";
         $this->_KS = self::getClass('KeySequence', $keySequence);
         $this->_booturl = "http://{$webserver}/fog/service";
-        $this->_memdisk = "kernel $memdisk";
+        $this->_memdisk = "kernel $memdisk initrd=$memtest";
         $this->_memtest = "initrd $memtest";
         $this->_kernel = sprintf(
             'kernel %s %s initrd=%s root=/dev/ram0 rw '
@@ -788,6 +788,7 @@ class BootMenu extends FOGBase
             'FOG_MINING_ENABLE',
             'FOG_MINING_MAX_CORES',
             'FOG_MINING_PACKAGE_PATH',
+            'FOG_MULTICAST_RENDEZVOUS',
             'FOG_NONREG_DEVICE'
         );
         list(
@@ -797,6 +798,7 @@ class BootMenu extends FOGBase
             $miningen,
             $miningcr,
             $miningpp,
+            $mcastrdv,
             $nondev
         ) = self::getSubObjectIDs(
             'Service',
@@ -823,7 +825,7 @@ class BootMenu extends FOGBase
         );
         $storageip = $StorageNode->get('ip');
         $img = escapeshellcmd($Image->get('path'));
-        $imgFormat = $Image->get('format');
+        $imgFormat = (int)$Image->get('format');
         $imgType = $Image->getImageType()->get('type');
         $imgPartitionType = $Image->getPartitionType();
         $imgid = $Image->get('id');
@@ -844,6 +846,10 @@ class BootMenu extends FOGBase
             "imgid=$imgid",
             "imgFormat=$imgFormat",
             "shutdown=0",
+            array(
+                'value' => "mcastrdv=$mcastrdv",
+                'active' => !empty($mcastrdv)
+            ),
             array(
                 'value' => "capone=1",
                 'active' => !$this->_Host || !$this->_Host->isValid(),
@@ -903,9 +909,10 @@ class BootMenu extends FOGBase
                     array_push(
                         $Send['ImageListing'],
                         sprintf(
-                            'item %s %s',
+                            'item %s %s (%s)',
                             $Image->get('path'),
-                            $Image->get('name')
+                            $Image->get('name'),
+                            $Image->get('id')
                         )
                     );
                     if (!$this->_Host->isValid()) {
@@ -995,11 +1002,17 @@ class BootMenu extends FOGBase
             return;
         }
         $msImage = $MultiSess->getImage()->get('id');
-        $h_Image = $this->_Host->getImage()->get('id');
-        if ($msImage != $h_Image) {
-            $this->_Host
-                ->set('imagename', $MultiSess->getImage())
-                ->set('imageID', $msImage);
+        if ($this->_Host->isValid()) {
+            $h_Image = 0;
+            $Image = $this->_Host->getImage();
+            if ($Image instanceof Image) {
+                $h_Image = $this->_Host->getImage()->get('id');
+            }
+            if ($msImage != $h_Image) {
+                $this->_Host
+                    ->set('imagename', $MultiSess->getImage())
+                    ->set('imageID', $msImage);
+            }
         }
         $shutdown = stripos('shutdown=1', $_SESSION['extraargs']);
         $isdebug = preg_match(
@@ -1074,13 +1087,15 @@ class BootMenu extends FOGBase
                 'KS' => $this->ks
             )
         );
-        array_walk_recursive(
-            $Send,
-            function (&$val, &$key) {
-                printf('%s%s', implode("\n", (array)$val), "\n");
-                unset($val, $key);
-            }
-        );
+        if (count($Send) > 0) {
+            array_walk_recursive(
+                $Send,
+                function (&$val, &$key) {
+                    printf('%s%s', implode("\n", (array)$val), "\n");
+                    unset($val, $key);
+                }
+            );
+        }
     }
     /**
      * For advancemenu if we require login
@@ -1319,6 +1334,7 @@ class BootMenu extends FOGBase
                     'FOG_KERNEL_ARGS',
                     'FOG_KERNEL_DEBUG',
                     'FOG_MINING_ENABLE',
+                    'FOG_MULTICAST_RENDEZVOUS',
                     'FOG_PIGZ_COMP',
                     'FOG_TFTP_HOST',
                     'FOG_WIPE_TIMEOUT'
@@ -1331,6 +1347,7 @@ class BootMenu extends FOGBase
                     $kargs,
                     $kdebug,
                     $mining,
+                    $mcastrdv,
                     $pigz,
                     $tftp,
                     $timeout
@@ -1375,7 +1392,7 @@ class BootMenu extends FOGBase
                     $img = escapeshellcmd(
                         $Image->get('path')
                     );
-                    $imgFormat = $Image
+                    $imgFormat = (int)$Image
                         ->get('format');
                     $imgType = $Image
                         ->getImageType()
@@ -1387,6 +1404,11 @@ class BootMenu extends FOGBase
                     $image_PIGZ = $Image->get('compress');
                     if (is_numeric($image_PIGZ) && $image_PIGZ > -1) {
                         $PIGZ_COMP = $image_PIGZ;
+                    }
+                    if (in_array($imgFormat, array('',null,0,1,2,3,4))) {
+                        if ($PIGZ_COMP > 9) {
+                            $PIGZ_COMP = 9;
+                        }
                     }
                 } else {
                     // These setup so postinit scripts can operate.
@@ -1468,6 +1490,10 @@ class BootMenu extends FOGBase
                 "storageip=$storageip",
                 "osid=$osid",
                 "irqpoll",
+                array(
+                    'value' => "mcastrdv=$mcastrdv",
+                    'active' => !empty($mcastrdv)
+                ),
                 array(
                     'value' => "hostname={$this->_Host->get(name)}",
                     'active' => count($clientMacs) > 0,
@@ -1695,16 +1721,17 @@ class BootMenu extends FOGBase
                 )
             );
             break;
-        }
-        if (!$params) {
-            $Send = self::fastmerge(
-                $Send,
-                array(
-                    "$this->_kernel $this->_loglevel $type",
-                    $this->_initrd,
-                    'boot || goto MENU'
-                )
-            );
+        default:
+            if (!$params) {
+                $Send = self::fastmerge(
+                    $Send,
+                    array(
+                        "$this->_kernel $this->_loglevel $type",
+                        $this->_initrd,
+                        'boot || goto MENU'
+                    )
+                );
+            }
         }
         return $Send;
     }

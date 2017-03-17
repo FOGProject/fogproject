@@ -19,6 +19,7 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+require '../commons/base.inc.php';
 /**
  * Sends the response
  *
@@ -135,28 +136,19 @@ $units = array(
     'ResponseArray',
     'BadResponse',
     'Download',
+    'RawResponse',
+    'AESDecryption',
     'AESDecryptionResponse1',
     'AESDecryptionResponse2',
-    'AESDecryption',
-    'RawResponse'
 );
-if (!in_array(
-    htmlspecialchars(
-        $_REQUEST['unit'],
-        ENT_QUOTES,
-        'utf-8'
-    ),
-    $units
-)
-) {
-    die(_('Invalid unit passed'));
+if (!in_array($_REQUEST['unit'], $units)) {
+    echo _('Invalid unit passed');
+    exit;
 }
-$unit = htmlspecialchars(
-    $_REQUEST['unit'],
-    ENT_QUOTES,
-    'utf-8'
-);
-if (strpos($unit, 'AESDecryption') !== false) {
+switch ($unit) {
+case 'AESDecryption':
+case 'AESDecryptionResponse1':
+case 'AESDecryptionResponse2':
     $iv_size = mcrypt_get_iv_size(
         MCRYPT_RIJNDAEL_128,
         MCRYPT_MODE_CBC
@@ -185,12 +177,42 @@ if (strpos($unit, 'AESDecryption') !== false) {
         }
         $i += 2;
     }
-    $$unit(
-        $key,
-        $iv,
-        'Foobar22!'
-    );
-} else {
-    $$unit();
+    switch ($unit) {
+    case 'AESDecryption':
+        $AESDecryption(
+            $key,
+            $iv,
+            'Foobar22!'
+        );
+        break;
+    case 'AESDecryptionResponse1':
+        $AESDecryptionResponse1(
+            $key,
+            $iv,
+            'Foobar22!'
+        );
+        break;
+    case 'AESDecryptionResponse2':
+        $AESDecryptionResponse2(
+            $key,
+            $iv,
+            'Foobar22!'
+        );
+        break;
+    }
+    break;
+case 'Response':
+    $Response();
+    break;
+case 'ResponseArray':
+    $ResponseArray();
+    break;
+case 'BadResponse':
+    $BadResponse();
+    break;
+case 'Download':
+    $Download();
+    break;
+default:
+    die(_('Invalid Unit'));
 }
-exit;

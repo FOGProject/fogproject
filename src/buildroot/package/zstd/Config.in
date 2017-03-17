@@ -1,0 +1,4 @@
+config BR2_PACKAGE_ZSTD
+	bool "ZStandard Library Compression"
+	help
+	  See https://github.com/facebook/zstd

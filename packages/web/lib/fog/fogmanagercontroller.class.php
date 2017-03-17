@@ -1331,7 +1331,7 @@ abstract class FOGManagerController extends FOGBase
         }
         $whereArray = array();
         $countVals = $countKeys = array();
-        if (count($findWhere)) {
+        if (count($findWhere) > 0) {
             array_walk(
                 $findWhere,
                 function (

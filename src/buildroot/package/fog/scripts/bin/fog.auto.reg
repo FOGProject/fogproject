@@ -61,7 +61,7 @@ dots "Attempting to register host"
 count=0
 res=""
 while [[ -z $res ]]; do
-    res=$(wget --post-data="mac=$mac" -qO - http://${web}service/auto.register.php 2>/dev/null)
+    res=$(curl -ks --data "mac=$mac" http://${web}service/auto.register.php 2>/dev/null)
     case $count in
         [0-8])
             let count+=1

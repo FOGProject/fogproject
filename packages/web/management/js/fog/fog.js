@@ -315,7 +315,7 @@ $.fn.fogStatusUpdate = function(txt, opts) {
     if (Options.Progress) {
         ProgressBar.show().progressBar(Options.Progress);
     } else {
-        ProgressBar.hide().progressBar(0);
+        ProgressBar.hide().progressBar(Options.Progress);
     }
     if (!txt) {
         p.remove().end().hide();
@@ -342,7 +342,7 @@ function showProgressBar() {
     }, function() {
         var id = this.id.replace(/^progress[-_]/,'');
         var progress = $('#progress-'+id);
-        progress.find('.no-min').removeClass('no-min').addClass('min').end().find('ul').hide();
+        progress.find('.no-min').removeClass('no-min').addClass('min').end().find('ul').show();
     });
 }
 function buildHeaderRow(data,attributes,wrapper) {

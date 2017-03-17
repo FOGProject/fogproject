@@ -4,7 +4,7 @@ $(function() {
     $('#iFile').on('change keyup',function(e) {
         var start = this.selectionStart,
             end = this.selectionEnd;
-        this.value = this.value.replace(/[^\w+]/g,'');
+        this.value = this.value.replace(/[^\w+\/]/g,'');
         this.setSelectionRange(start,end);
         iFileVal = this.value;
         e.preventDefault();

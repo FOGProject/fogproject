@@ -143,25 +143,24 @@ class ReportMaker extends FOGBase
     public function outputReport($intType = 0)
     {
         $keys = array_keys($this->types);
-        $type = (
-            isset($_REQUEST['type']) ?
-            htmlspecialchars(
-                $_REQUEST['type'],
-                ENT_QUOTES,
-                'utf-8'
-            ) :
-            $keys[$intType]
-        );
+        if (!(isset($_REQUEST['type'])
+            && is_string($_REQUEST['type']))
+        ) {
+            $_REQUEST['type'] = $keys[$intType];
+        }
+        $type = Initiator::sanitizeItems($_REQUEST['type']);
         if (!in_array($type, $keys)) {
             die(_('Invalid type'));
         }
+        if (!(isset($_REQUEST['filename'])
+            && is_string($_REQUEST['filename']))
+        ) {
+            $_REQUEST['filename'] = '';
+        }
+        $file = Initiator::sanitizeItems($_REQUEST['filename']);
         $file = basename(
             trim(
-                htmlspecialchars(
-                    $_REQUEST['filename'],
-                    ENT_QUOTES,
-                    'utf-8'
-                )
+                $file
             )
         );
         if (!isset($_REQUEST['export'])) {
@@ -308,8 +307,8 @@ class ReportMaker extends FOGBase
             header('Content-Type: application/octet-stream');
             header("Content-Disposition: attachment; filename=$filename");
             while (feof($fh) === false) {
-                $line = fread($fh, 4096);
-                echo $line;
+                echo fgets($fh);
+                flush();
             }
             fclose($fh);
             $cmd = sprintf('rm -rf %s', escapeshellarg($filepath));

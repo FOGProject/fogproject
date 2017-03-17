@@ -697,7 +697,9 @@ abstract class FOGController extends FOGBase
             unset($column, $k);
         };
         $table = $this->databaseTable;
-        array_walk($this->databaseFields, $getFields);
+        if (count($this->databaseFields) > 0) {
+            array_walk($this->databaseFields, $getFields);
+        }
         foreach ((array)$this->databaseFieldClassRelationships as $class => &$arr) {
             self::getClass($class)->getcolumns($fields);
             unset($arr);
@@ -1051,8 +1053,9 @@ abstract class FOGController extends FOGBase
         if (!array_key_exists($className, $join)) {
             $join[$className] = false;
         }
-        array_walk($this->databaseFieldClassRelationships, $joinInfo);
-
+        if (count($this->databaseFieldClassRelationships) > 0) {
+            array_walk($this->databaseFieldClassRelationships, $joinInfo);
+        }
         return array(implode((array) $join), $whereArrayAnd);
     }
     /**

@@ -64,6 +64,9 @@ class RegisterClient extends FOGClient implements FOGClientSend
             ''
         );
         $hostname = trim($_REQUEST['hostname']);
+        if (!$this->Host instanceof Host) {
+            $this->Host = new Host(0);
+        }
         if (!$this->Host->isValid()) {
             $this->Host = self::getClass(
                 'Host',
@@ -71,7 +74,11 @@ class RegisterClient extends FOGClient implements FOGClientSend
             )->load('name');
             if (!($this->Host->isValid() && !$this->Host->get('pending'))) {
                 if (!self::getClass('Host')->isHostnameSafe($hostname)) {
-                    throw new Exception('#!ih');
+                    if (!self::$json) {
+                        echo '#!ih';
+                        exit;
+                    }
+                    return array('error' => 'ih');
                 }
                 $PriMAC = array_shift($MACs);
                 $this->Host = self::getClass('Host')

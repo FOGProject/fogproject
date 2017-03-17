@@ -57,7 +57,7 @@ dots "Using disk device"
 echo $hd
 echo " * Starting host registration"
 mac=$(getMACAddresses | base64)
-exists=$(wget --post-data="mac=$mac" -qO - http://${web}service/man.hostexists.php 2>/dev/null)
+exists=$(curl -ks --data "mac=$mac" http://${web}service/man.hostexists.php 2>/dev/null)
 checkAndSet() {
     local testvar="$1"
     local onlynum="$2"
@@ -88,7 +88,7 @@ setIDs() {
             [?])
                 url="http://${web}service/${str}listing.php"
                 clearScreen
-                res=$(echo -e $(wget -qO - $url 2>/dev/null))
+                res=$(echo -e $(curl -ks $url 2>/dev/null))
                 i=0
                 IFS=$'\n'
                 for line in $res; do
@@ -162,12 +162,12 @@ while [[ $res != "#!ok" ]]; do
         usleep 2000000
     fi
     host=$(echo $host | base64)
-    res=$(wget --post-data="host=$host" -qO - http://${web}service/hostnameloop.php 2>/dev/null)
+    res=$(curl -ks --data "host=$host" http://${web}service/hostnameloop.php 2>/dev/null)
     [[ $res != "#!ok" ]] && echo "$res"
 done
 imageid=""
 setIDs "imageid" "image" "" "" 20
-if [[ $(wget -qO - http://${web}service/locationcheck.php 2>/dev/null) == "##" ]]; then
+if [[ $(curl -ks http://${web}service/locationcheck.php 2>/dev/null) == "##" ]]; then
     while [[ -z $askme ]]; do
         echo -n "    Would you like to assign a location for this host? (y/N) "
         read askme
@@ -289,7 +289,7 @@ while [[ -z $askme ]]; do
                 read -s password
                 user64=$(echo $username | tr -d '\012' | base64)
                 pass64=$(echo $password | tr -d '\012' | base64)
-                ret=$(wget --post-data="mac=$mac&username=$user64&password=$pass64" -qO - http://${web}service/checkcredentials.php 2>/dev/null)
+                ret=$(curl -ks --data "mac=$mac&username=$user64&password=$pass64" http://${web}service/checkcredentials.php 2>/dev/null)
                 case $ret in
                     '#!ok')
                         echo
@@ -316,7 +316,7 @@ done
 dots "Attempting to register host"
 res=""
 while [[ -z $res ]]; do
-    res=$(wget --post-data="mac=$mac&advanced=$(echo -n 1 | base64)&host=$host&imageid=$imageid&primaryuser=$primaryuser&other1=$other1&other2=$other2&doimage=$realdoimage&doad=$blDoAD&location=$location64&username=$user64&groupid=$group64&snapinid=$snapin64&productKey=$productKey" -qO - http://${web}service/auto.register.php 2>/dev/null)
+    res=$(curl -ks --data "mac=$mac&advanced=$(echo -n 1 | base64)&host=$host&imageid=$imageid&primaryuser=$primaryuser&other1=$other1&other2=$other2&doimage=$realdoimage&doad=$blDoAD&location=$location64&username=$user64&groupid=$group64&snapinid=$snapin64&productKey=$productKey" http://${web}service/auto.register.php 2>/dev/null)
     echo "$res"
     usleep 2000000
 done

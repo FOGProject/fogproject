@@ -13,7 +13,6 @@ hd=""
 echo " * Preparing to send image file to server"
 percent="$pct"
 [[ $pct -lt 5 || $pct -ge 100 ]] && percent=5
-[[ $pct -lt 10 ]] && percent="0$pct"
 fog.statusreporter "$mac" "$web" & disown
 statusReporter="$!"
 prepareUploadLocation "$imagePath"
@@ -74,6 +73,7 @@ beginUpload() {
                     for part in $parts; do
                         getPartitionNumber "$part"
                         fsTypeSetting "$part"
+                        getPartitionLabel "$part"
                         [[ $fstype != ntfs ]] && continue
                         dots "Mounting partition ($part)"
                         if [[ ! -d /bcdstore ]]; then
@@ -97,24 +97,16 @@ beginUpload() {
                             *)
                                 echo "Failed"
                                 debugPause
-                                handleError " * Could not mount $part ($0->${FUNCNAME[0]})\n    Args Passed: $*\n    Reason: $(cat /tmp/ntfs-mount-output)"
+                                handleError " * Could not mount $part ($0->${FUNCNAME[0]})\n    Args Passed: $*\n    Reason: $(cat /tmp/ntfs-mount-output | tr -d \\0)"
                                 ;;
                         esac
-                        dots "BCD exists on $part in /bcdstore"
-                        if [[ ! -f /bcdstore/Boot/BCD ]]; then
-                            umount /bcdstore >/dev/null 2>&1
-                            echo "No"
-                            debugPause
-                        else
-                            umount /bcdstore >/dev/null 2>&1
-                            echo "Yes"
-                            debugPause
-                            if [[ $part_number -gt 1 ]]; then
-                                for ((increment=1; increment < $part_number; increment++)); do
-                                    fixed_size_partitions="$fixed_size_partitions:$increment"
-                                done
-                            fi
-                        fi
+                        umount /bcdstore >/dev/null 2>&1
+                        case $label in
+                            *[Rr][Ee][Cc][Oo][Vv][Ee][Rr][Yy]*|*[Rr][Ee][Ss][Ee][Rr][Vv][Ee][Dd]*)
+                                echo " * New fixed partition for ($part) added."
+                                fixed_size_partitions="$fixed_size_partitions:$part_number"
+                                ;;
+                        esac
                     done
                     ;;
             esac

@@ -219,6 +219,28 @@ class SnapinReplicator extends FOGService
                 );
                 $Snapins = (array)self::getClass('SnapinManager')
                     ->find(array('id' => $snapinIDs));
+                /**
+                 * Handles replicating of our ssl folder and contents.
+                 */
+                $ssls = array(
+                    'ssl/fog.csr',
+                    'ssl/CA'
+                );
+                self::outall(
+                    sprintf(
+                        ' | %s',
+                        _('Replicating ssl less private key')
+                    )
+                );
+                /*foreach ($ssls as $ssl) {
+                    $this->replicateItems(
+                        $myStorageGroupID,
+                        $myStorageNodeID,
+                        new Snapin(),
+                        false,
+                        $ssl
+                    );
+                }*/
                 foreach ($Snapins as &$Snapin
                 ) {
                     if (!$Snapin->getPrimaryGroup($myStorageGroupID)) {

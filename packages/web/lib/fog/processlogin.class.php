@@ -279,16 +279,6 @@ class ProcessLogin extends FOGPage
             unset($_REQUEST['login']);
             $this->redirect('index.php');
         }
-        if ($_REQUEST['node'] != 'logout') {
-            foreach ($_REQUEST as $key => &$value) {
-                printf(
-                    '<input type="hidden" name="%s" value="%s"/>',
-                    $key,
-                    $value
-                );
-                unset($value);
-            }
-        }
         $this->_getLanguages();
         $logininfo = self::getSetting('FOG_LOGIN_INFO_DISPLAY');
         $extra = '';

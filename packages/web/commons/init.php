@@ -34,12 +34,45 @@
 class Initiator
 {
     /**
+     * Our sanitization.
+     *
+     * @var callable
+     */
+    private static $_sanitizeItems;
+    /**
      * Constructs the initiator class
      *
      * @return void
      */
     public function __construct()
     {
+        /**
+         * Lambda to sanitize our user input data.
+         *
+         * @param mixed $key the key of the array.
+         * @param mixed $val the value of the array.
+         *
+         * @return void
+         */
+        self::$_sanitizeItems = function (&$val, &$key) use (&$value) {
+            if (is_string($val)) {
+                $value[$key] = htmlspecialchars(
+                    $val,
+                    ENT_QUOTES | ENT_HTML401,
+                    'utf-8'
+                );
+            }
+            if (is_array($val)) {
+                foreach ((array)$val as $k => &$v) {
+                    $val[$k] = htmlspecialchars(
+                        $v,
+                        ENT_QUOTES | ENT_HTML401,
+                        'utf-8'
+                    );
+                    unset($v);
+                }
+            }
+        };
         /**
          * Find out if the link has service in the call.
          */
@@ -360,39 +393,41 @@ class Initiator
      *
      * @param mixed $value the value to sanitize
      *
-     * @return string
+     * @return string|array
      */
     public static function sanitizeItems(&$value = '')
     {
-        /**
-         * Lambda to sanitize our user input data.
-         *
-         * @param mixed $key the key of the array.
-         * @param mixed $val the value of the array.
-         *
-         * @return void
-         */
-        $sanitize_items = function (&$val, &$key) use (&$value) {
-            if (is_string($val)) {
-                $value[$key] = htmlentities($val, ENT_QUOTES, 'utf-8');
-            }
-            if (is_array($val)) {
-                self::sanitizeItems($value[$key]);
-            }
-        };
         /**
          * If the value isn't specified, it will sanitize
          * all REQUEST, COOKIE, POST, and GET data.
          * Otherwise it will clean the passed value.
          */
         if (!count($value)) {
-            array_walk($_REQUEST, $sanitize_items);
-            array_walk($_COOKIE, $sanitize_items);
-            array_walk($_POST, $sanitize_items);
-            array_walk($_GET, $sanitize_items);
+            if (count($_SESSION) > 0) {
+                array_walk($_SESSION, self::$_sanitizeItems);
+            }
+            if (count($_REQUEST) > 0) {
+                array_walk($_REQUEST, self::$_sanitizeItems);
+            }
+            if (count($_COOKIE) > 0) {
+                array_walk($_COOKIE, self::$_sanitizeItems);
+            }
+            if (count($_POST) > 0) {
+                array_walk($_POST, self::$_sanitizeItems);
+            }
+            if (count($_GET) > 0) {
+                array_walk($_GET, self::$_sanitizeItems);
+            }
         } else {
-            $value = array_values(array_filter(array_unique((array)$value)));
-            array_walk($value, $sanitize_items);
+            if (is_array($value)) {
+                array_walk($value, self::$_sanitizeItems);
+            } else {
+                $value = htmlspecialchars(
+                    $value,
+                    ENT_QUOTES | ENT_HTML401,
+                    'utf-8'
+                );
+            }
         }
         return $value;
     }

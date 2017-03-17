@@ -1,7 +1,7 @@
 #!/bin/bash
 . /usr/share/fog/lib/funcs.sh
 . /bin/fog.donate
-for arg in $(cat /proc/cmdline); do
+for arg in $(cat /proc/cmdline | tr -d \\0); do
     case $arg in
         initsh)
             ash -i
@@ -24,7 +24,7 @@ dots "Looking for images"
 count=0
 imgret=""
 while [[ -z $imgret ]]; do
-    imgret=$(wget --post-data="action=imagelookup&key=${dmi64}" -qO - http://${web}service/capone.php 2>/dev/null)
+    imgret=$(curl -ks --data "action=imagelookup&key=${dmi64}" http://${web}service/capone.php 2>/dev/null)
     [[ -n $imgret ]] && continue
     if [[ $count -ge 10 ]]; then
         echo "Failed"
@@ -50,7 +50,7 @@ for line in $imgret; do
     linedecode=$(echo $line | base64 -d)
     [[ -z $linedecode ]] && handleError "No image definition was found for $dmivalue ($0)\n   Args Passed: $*"
     let cnt+=1
-    awk_returned_vars=$(echo $linedecode | awk -F'|' "{printf(\"%s\n%s\n%s\n%s\n%s\n%s\n%s\",\$1,\$2,\$3,\$4,\$5,\$6,\$7)}")
+    awk_returned_vars=$(echo $linedecode | awk -F'|' "{printf(\"%s %s %s %s %s %s %s\",\$1,\$2,\$3,\$4,\$5,\$6,\$7)}")
     read img osid imgType imgPartitionType imgFormat storage storageip <<< $awk_returned_vars
     determineOS "$osid"
     echo -n " ID $cnt) "
@@ -89,7 +89,7 @@ case $cnt in
             linedecode=$(echo $line | base64 -d)
             let cnt+=1
             if [[ $cnt -eq $imgchoice ]]; then
-                awk_returned_vars=$(echo $linedecode | awk -F'|' "{printf(\"%s\n%s\n%s\n%s\n%s\n%s\n%s\",\$1,\$2,\$3,\$4,\$5,\$6,\$7)}")
+                awk_returned_vars=$(echo $linedecode | awk -F'|' "{printf(\"%s %s %s %s %s %s %s\",\$1,\$2,\$3,\$4,\$5,\$6,\$7)}")
                 read img osid imgType imgPartitionType imgFormat storage storageip <<< $awk_returned_vars
                 determineOS "$osid"
                 break

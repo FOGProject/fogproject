@@ -819,7 +819,7 @@ class LDAP extends FOGController
         if ($retcount < 1) {
             error_log(
                 sprintf(
-                    '%s %s() %s. %s: %s; %s: %s; %s: %s; %s: %s',
+                    '%s %s(). %s: %s; %s: %s; %s: %s',
                     _('Plugin'),
                     __METHOD__,
                     _('Search Method'),

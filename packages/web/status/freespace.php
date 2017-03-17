@@ -30,7 +30,9 @@ if (!(file_exists($decodePath)
 ) {
     return;
 }
-$folder = escapeshellcmd($decodePath);
+$folder = escapeshellarg(
+    base64_decode($_REQUEST['path'])
+);
 $output = `df -PB1 $folder | tail -1`;
 $test = preg_match(
     '/\d+\s+(\d+)\s+(\d+)\s+\d+\%.*$/',

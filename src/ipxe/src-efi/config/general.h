@@ -78,6 +78,7 @@ FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
 #define HTTP_AUTH_BASIC		/* Basic authentication */
 #define HTTP_AUTH_DIGEST	/* Digest authentication */
 //#define HTTP_ENC_PEERDIST	/* PeerDist content encoding */
+//#define HTTP_HACK_GCE		/* Google Computer Engine hacks */
 
 /*
  * 802.11 cryptosystems and handshaking protocols

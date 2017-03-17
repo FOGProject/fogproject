@@ -487,10 +487,8 @@ class PDODB extends DatabaseManager
     private function _clean($data)
     {
         $data = trim($data);
-        $eData = htmlentities(
-            $data,
-            ENT_QUOTES,
-            'utf-8'
+        $eData = Initiator::sanitizeItems(
+            $data
         );
         if (!self::$_link) {
             return $eData;
@@ -572,12 +570,13 @@ class PDODB extends DatabaseManager
     private static function _execute($paramvals = array())
     {
         if (count($paramvals) > 0) {
-            foreach ((array)$paramvals as $param => $value) {
+            foreach ((array)$paramvals as $param => &$value) {
                 if (is_array($value)) {
                     self::_bind($param, $value[0], $value[1]);
                 } else {
                     self::_bind($param, $value);
                 }
+                unset($value);
             }
         }
         return self::$_queryResult->execute();

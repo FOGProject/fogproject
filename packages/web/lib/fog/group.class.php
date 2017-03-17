@@ -140,21 +140,23 @@ class Group extends FOGController
             $insert_fields = array('hostID', 'printerID');
             $insert_values = array();
             $hosts = $this->get('hosts');
-            array_walk(
-                $hosts,
-                function (
-                    &$hostID,
-                    $index
-                ) use (
-                    &$insert_values,
-                    $printerAdd
-                ) {
-                    foreach ((array) $printerAdd as &$printerID) {
-                        $insert_values[] = array($hostID, $printerID);
-                        unset($printerID);
+            if (count($hosts) > 0) {
+                array_walk(
+                    $hosts,
+                    function (
+                        &$hostID,
+                        $index
+                    ) use (
+                        &$insert_values,
+                        $printerAdd
+                    ) {
+                        foreach ((array) $printerAdd as &$printerID) {
+                            $insert_values[] = array($hostID, $printerID);
+                            unset($printerID);
+                        }
                     }
-                }
-            );
+                );
+            }
             if (count($insert_values) > 0) {
                 self::getClass('PrinterAssociationManager')
                     ->insertBatch(
@@ -177,20 +179,23 @@ class Group extends FOGController
     {
         $insert_fields = array('hostID', 'snapinID');
         $insert_values = array();
-        array_walk(
-            $this->get('hosts'),
-            function (
-                &$hostID,
-                $index
-            ) use (
-                &$insert_values,
-                $addArray
-            ) {
-                foreach ($addArray as $snapinID) {
-                    $insert_values[] = array($hostID, $snapinID);
+        $hosts = $this->get('hosts');
+        if (count($hosts) > 0) {
+            array_walk(
+                $hosts,
+                function (
+                    &$hostID,
+                    $index
+                ) use (
+                    &$insert_values,
+                    $addArray
+                ) {
+                    foreach ($addArray as $snapinID) {
+                        $insert_values[] = array($hostID, $snapinID);
+                    }
                 }
-            }
-        );
+            );
+        }
         if (count($insert_values) > 0) {
             self::getClass('SnapinAssociationManager')
                 ->insertBatch(
@@ -767,7 +772,6 @@ class Group extends FOGController
         if ($snapin === false) {
             return;
         }
-        $hostCount = $this->getHostCount();
         $hostIDs = array_values(
             self::getSubObjectIDs(
                 'SnapinAssociation',
@@ -782,7 +786,7 @@ class Group extends FOGController
         for ($i = 0; $i < $hostCount; ++$i) {
             $hostID = $hostIDs[$i];
             $snapins[$hostID] = (
-                $snapin === -1 ?
+                $snapin == -1 ?
                 self::getSubObjectIDs(
                     'SnapinAssociation',
                     array(

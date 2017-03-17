@@ -3,7 +3,7 @@
 ### If USB Boot device we need a way to get the kernel args properly
 if [[ $boottype == usb && ! -z $web ]]; then
     mac=$(getMACAddresses)
-    wget -q -O /tmp/hinfo.txt "http://${web}service/hostinfo.php?mac=$mac"
+    curl -ks -o /tmp/hinfo.txt --data "mac=$mac" "http://${web}service/hostinfo.php" -A ''
     [[ -f /tmp/hinfo.txt ]] && . /tmp/hinfo.txt
 fi
 dots "Running post init scripts"

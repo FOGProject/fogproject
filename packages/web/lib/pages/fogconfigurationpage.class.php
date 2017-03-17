@@ -166,10 +166,7 @@ class FOGConfigurationPage extends FOGPage
     public function kernelUpdate()
     {
         $this->kernelselForm('pk');
-        $url = sprintf(
-            'https://fogproject.org/kernels/kernelupdate.php?version=%s',
-            FOG_VERSION
-        );
+        $url = 'https://fogproject.org/kernels/kernelupdate.php';
         $test = self::$FOGURLRequests->isAvailable($url);
         $test = array_shift($test);
         if (false === $test) {
@@ -224,7 +221,7 @@ class FOGConfigurationPage extends FOGPage
     public function kernelUpdatePost()
     {
         global $sub;
-        if ($sub == 'kernelUpdate') {
+        if (!isset($_REQUEST['install']) && $sub == 'kernelUpdate') {
             $this->kernelselForm('pk');
             $url = sprintf(
                 'https://fogproject.org/kernels/kernelupdate.php?version=%s',
@@ -232,7 +229,7 @@ class FOGConfigurationPage extends FOGPage
             );
             $htmlData = self::$FOGURLRequests->process($url);
             echo $htmlData[0];
-        } elseif ($_REQUEST['install']) {
+        } elseif (isset($_REQUEST['install'])) {
             $_SESSION['allow_ajax_kdl'] = true;
             $_SESSION['dest-kernel-file'] = trim(
                 basename(
@@ -260,24 +257,29 @@ class FOGConfigurationPage extends FOGPage
             );
         } else {
             $tmpFile = basename($_REQUEST['file']);
-            $tmpArch = $_REQUEST['arch'];
-            printf(
-                '<form method="post" action='
-                . '"?node=%s&sub=kernel&install=1&file=%s">'
-                . '<p>%s: <input class="smaller" type="text" name='
-                . '"dstName" value="%s"/></p><p><input class='
-                . '"smaller" type="submit" value="%s"/></p></form>',
-                $this->node,
-                basename($_REQUEST['file']),
-                _('Kernel Name'),
-                (
-                    $tmpArch == 64
-                    || ! $tmpArch ?
-                    'bzImage' :
-                    'bzImage32'
-                ),
-                _('Next')
+            $tmpFile = Initiator::sanitizeItems(
+                $tmpFile
             );
+            $tmpArch = (
+                $_REQUEST['arch'] == 64 ?
+                'bzImage' :
+                'bzImage32'
+            );
+            $formstr = "?node={$node}&sub=kernelUpdate";
+            echo '<form method="post" action="';
+            $formstr;
+            echo '">';
+            echo '<input type="hidden" name="file" value="';
+            echo $tmpFile;
+            echo '"/>';
+            echo '<p>';
+            echo _('Kernel Name');
+            echo '<input class="smaller" type="text" name="dstName" value="';
+            echo $tmpArch;
+            echo '"/></p><p><input class="smaller" type="submit" name="';
+            echo 'install" value="';
+            echo _('Next');
+            echo '"/></p></form>';
         }
     }
     /**
@@ -1334,9 +1336,14 @@ class FOGConfigurationPage extends FOGPage
             'MULTICASTGLOBALENABLED',
             'SCHEDULERGLOBALENABLED',
             'PINGHOSTGLOBALENABLED',
+            'IMAGESIZEGLOBALENABLED',
             'IMAGEREPLICATORGLOBALENABLED',
             'SNAPINREPLICATORGLOBALENABLED',
-            'SNAPINHASHGLOBALENABLED'
+            'SNAPINHASHGLOBALENABLED',
+            'FOG_QUICKREG_IMG_WHEN_REG',
+            'FOG_TASKING_ADV_SHUTDOWN_ENABLED',
+            'FOG_TASKING_ADV_WOL_ENABLED',
+            'FOG_TASKING_ADV_DEBUG_ENABLED'
         );
         self::$HookManager
             ->processEvent(
@@ -1401,8 +1408,8 @@ class FOGConfigurationPage extends FOGPage
                     $type = '<div id="pigz" style="width: 200px; top: 15px;">'
                         . '</div><input type="text" readonly='
                         . '"true" name="${service_id}" id='
-                        . '"showVal" maxsize="1" style='
-                        . '"width: 10px; top: -5px; left:'
+                        . '"showVal" maxsize="2" style='
+                        . '"width: 20px; top: -5px; left:'
                         . '225px; position: relative;" value='
                         . '"${service_value}"/>';
                     break;
@@ -1430,6 +1437,36 @@ class FOGConfigurationPage extends FOGPage
                         . '"width: 25px; top: -5px; left:'
                         . '225px; position: relative;" value='
                         . '"${service_value}"/>';
+                    break;
+                case 'FOG_IMAGE_COMPRESSION_FORMAT_DEFAULT':
+                    $vals = array(
+                        _('Partclone Gzip') => 0,
+                        _('Partclone Gzip Split 200MiB') => 2,
+                        _('Partclone Uncompressed') => 3,
+                        _('Partclone Uncompressed Split 200MiB') => 4,
+                        _('Partclone Zstd') => 5,
+                        _('Partclone Zstd Split 200MiB') => 6
+                    );
+                    ob_start();
+                    foreach ((array)$vals as $view => &$value) {
+                        printf(
+                            '<option value="%s"%s>%s</option>',
+                            $value,
+                            (
+                                $Service->get('value') == $value ?
+                                ' selected' :
+                                ''
+                            ),
+                            $view
+                        );
+                        unset($value);
+                    }
+                    unset($vals);
+                    $type = sprintf(
+                        '<select name="${service_id}" style='
+                        . '"width: 220px" autocomplete="off">%s</select>',
+                        ob_get_clean()
+                    );
                     break;
                 case 'FOG_VIEW_DEFAULT_SCREEN':
                     $screens = array('SEARCH','LIST');
@@ -1708,8 +1745,13 @@ class FOGConfigurationPage extends FOGPage
      */
     public function getOSID()
     {
-        $imageid =  $_REQUEST['image_id'];
-        $osname = self::getClass('Image', $imageid)->getOS()->get('name');
+        $imageid = intval(
+            $_REQUEST['image_id']
+        );
+        $osname = self::getClass(
+            'Image',
+            $imageid
+        )->getOS()->get('name');
         echo json_encode($osname ? $osname : _('No Image specified'));
         exit;
     }
@@ -1732,8 +1774,8 @@ class FOGConfigurationPage extends FOGPage
             // FOG Boot Settings
             'FOG_PXE_MENU_TIMEOUT' => true,
             'FOG_PXE_MENU_HIDDEN' => $checkbox,
-            'FOG_PIGZ_COMP' => range(0, 9),
-            'FOG_KEY_SEQUENCE' => range(1, 31),
+            'FOG_PIGZ_COMP' => range(0, 22),
+            'FOG_KEY_SEQUENCE' => range(1, 35),
             'FOG_NO_MENU' => $checkbox,
             'FOG_ADVANCED_MENU_LOGIN' => $checkbox,
             'FOG_KERNEL_DEBUG' => $checkbox,
@@ -1823,6 +1865,13 @@ class FOGConfigurationPage extends FOGPage
             'FOG_URL_BASE_CONNECT_TIMEOUT' => true,
             'FOG_URL_BASE_TIMEOUT' => true,
             'FOG_URL_AVAILABLE_TIMEOUT' => true,
+            'FOG_TASKING_ADV_SHUTDOWN_ENABLED' => $checkbox,
+            'FOG_TASKING_ADV_WOL_ENABLED' => $checkbox,
+            'FOG_TASKING_ADV_DEBUG_ENABLED' => $checkbox,
+            'FOG_IMAGE_COMPRESSION_FORMAT_DEFAULT' => self::fastmerge(
+                (array)0,
+                range(2, 6)
+            ),
             // Login Settings
             'FOG_ALWAYS_LOGGED_IN' => $checkbox,
             'FOG_INACTIVITY_TIMEOUT' => range(1, 24),
@@ -1842,6 +1891,7 @@ class FOGConfigurationPage extends FOGPage
         $needstobeip = array(
             // Multicast Settings
             'FOG_MULTICAST_ADDRESS' => true,
+            'FOG_MULTICAST_RENDEZVOUS' => true,
             // Proxy Settings
             'FOG_PROXY_IP' => true,
         );
@@ -1869,7 +1919,7 @@ class FOGConfigurationPage extends FOGPage
             if (isset($needstobeip[$name])
                 && !filter_var($set, FILTER_VALIDATE_IP)
             ) {
-                $set = 0;
+                $set = '';
             }
             switch ($name) {
             case 'FOG_MEMORY_LIMIT':
@@ -2003,6 +2053,11 @@ class FOGConfigurationPage extends FOGPage
                     $fogfiles
                 );
                 $imgrepliclog = array_shift($imgrepliclog);
+                $imagesizelog = preg_grep(
+                    '#(fogimagesize.log$)#i',
+                    $fogfiles
+                );
+                $imagesizelog = array_shift($imagesizelog);
                 $snapinreplog = preg_grep(
                     '#(fogsnapinrep.log$)#i',
                     $fogfiles
@@ -2066,6 +2121,15 @@ class FOGConfigurationPage extends FOGPage
                     ) => (
                         $imgrepliclog ?
                         $imgrepliclog :
+                        null
+                    ),
+                    (
+                        $imagesizelog ?
+                        _('Image Size') :
+                        null
+                    ) => (
+                        $imagesizelog ?
+                        $imagesizelog :
                         null
                     ),
                     (
@@ -2306,12 +2370,18 @@ class FOGConfigurationPage extends FOGPage
                 throw new UploadException($_FILES['dbFile']['error']);
             }
             $original = $Schema->exportdb('', false);
-            $tmp_name = $_FILES['dbFile']['tmp_name'];
+            $tmp_name = htmlentities(
+                $_FILES['dbFile']['tmp_name'],
+                ENT_QUOTES,
+                'utf-8'
+            );
+            $dir_name = dirname($tmp_name);
+            $tmp_name = basename($tmp_name);
             $filename = sprintf(
                 '%s%s%s',
-                dirname($tmp_name),
+                $dir_name,
                 DIRECTORY_SEPARATOR,
-                basename($tmp_name)
+                $tmp_name
             );
             $result = self::getClass('Schema')->importdb($filename);
             if ($result === true) {

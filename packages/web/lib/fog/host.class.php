@@ -1138,7 +1138,13 @@ class Host extends FOGController
             ->set('typeID', $taskTypeID)
             ->set('storagegroupID', $groupID)
             ->set('storagenodeID', $memID)
-            ->set('wol', (string)intval($wol));
+            ->set('wol', (string)intval($wol))
+            ->set('host', $this)
+            ->set('image', $this->getImage())
+            ->set('tasktype', new TaskType($taskTypeID))
+            ->set('TaskState', new TaskState(self::getQueuedState()))
+            ->set('StorageGroup', $this->getImage()->getStorageGroup())
+            ->set('StorageNode', new StorageNode());
         if ($imagingTask) {
             $Task->set('imageID', $this->getImage()->get('id'));
         }

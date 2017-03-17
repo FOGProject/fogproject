@@ -28,6 +28,6 @@ case $? in
     *)
         echo "Failed"
         debugPause
-        handleError "Could not mount images folder ($0)\n   Args Passed: $*\n    Reason: $(cat /tmp/mount-output)"
+        handleError "Could not mount images folder ($0)\n   Args Passed: $*\n    Reason: $(cat /tmp/mount-output | tr -d \\0)"
         ;;
 esac

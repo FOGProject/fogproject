@@ -35,7 +35,7 @@ for part in $parts; do
         [Nn][Tt][Ff][Ss])
             echo " * Mounting partition $part"
             ntfs-3g -o remove_hiberfile,rw "$part" /chntpw >/tmp/ntfs-mount-output 2>&1
-            [[ ! $? -eq 0 ]] && handleError " * Could not mount $part ($0)\n    Args Passed: $*\n     Reason: $(cat /tmp/ntfs-mount-output)"
+            [[ ! $? -eq 0 ]] && handleError " * Could not mount $part ($0)\n    Args Passed: $*\n     Reason: $(cat /tmp/ntfs-mount-output | tr -d \\0)"
             if [[ ! -f $sam ]]; then
                 echo " * Unable to locate SAM file"
                 debugPause

@@ -460,12 +460,24 @@ class HostManagementPage extends FOGPage
             $_REQUEST['enforcesel'] = self::getSetting('FOG_ENFORCE_HOST_CHANGES');
         }
         echo $this->adFieldsToDisplay(
-            $_REQUEST['domain'],
-            $_REQUEST['domainname'],
-            $_REQUEST['ou'],
-            $_REQUEST['domainuser'],
-            $_REQUEST['domainpassword'],
-            $_REQUEST['domainpasswordlegacy'],
+            Initiator::sanitizeItems(
+                $_REQUEST['domain']
+            ),
+            Initiator::sanitizeItems(
+                $_REQUEST['domainname']
+            ),
+            Initiator::sanitizeItems(
+                $_REQUEST['ou']
+            ),
+            Initiator::sanitizeItems(
+                $_REQUEST['domainuser']
+            ),
+            Initiator::sanitizeItems(
+                $_REQUEST['domainpassword']
+            ),
+            Initiator::sanitizeItems(
+                $_REQUEST['domainpasswordlegacy']
+            ),
             isset($_REQUEST['enforcesel'])
         );
         echo '</form>';
@@ -2346,38 +2358,25 @@ class HostManagementPage extends FOGPage
                 $items = array();
                 if (isset($_REQUEST['pmupdate'])) {
                     $pmid = $_REQUEST['pmid'];
-                    array_walk(
-                        $pmid,
-                        function (
-                            &$pm,
-                            &$index
-                        ) use (
-                            &$min,
-                            &$hour,
-                            &$dom,
-                            &$month,
-                            &$dow,
-                            &$onDemand,
-                            &$action,
-                            &$items
-                        ) {
-                            $onDemandItem = array_search($pm, $onDemand);
-                            $items[] = array(
-                                $pm,
-                                $this->obj->get('id'),
-                                $min[$index],
-                                $hour[$index],
-                                $dom[$index],
-                                $month[$index],
-                                $dow[$index],
-                                $onDemandItem !== -1
-                                && $onDemand[$onDemandItem] === $pm ?
-                                1 :
-                                0,
-                                $action[$index]
-                            );
-                        }
-                    );
+                    $items = array();
+                    foreach ((array)$pmid as $index => &$pm) {
+                        $onDemandItem = array_search($pm, $onDemand);
+                        $items[] = array(
+                            $pm,
+                            $this->obj->get('id'),
+                            $min[$index],
+                            $hour[$index],
+                            $dom[$index],
+                            $month[$index],
+                            $dow[$index],
+                            $onDemandItem !== -1
+                            && $onDemand[$onDemandItem] === $pm ?
+                            1 :
+                            0,
+                            $action[$index]
+                        );
+                        unset($pm);
+                    }
                     self::getClass('PowerManagementManager')
                         ->insertBatch(
                             array(

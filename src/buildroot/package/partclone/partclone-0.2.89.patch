@@ -1,0 +1,67 @@
+diff -rupN partclone-0.2.89-original/src/progress.c partclone-0.2.89-new/src/progress.c
+--- partclone-0.2.89-original/src/progress.c	2016-06-23 00:14:56.000000000 -0400
++++ partclone-0.2.89-new/src/progress.c	2017-02-19 02:31:36.143084542 -0500
+@@ -182,6 +182,47 @@ static void calculate_speed(struct progr
+     strncpy(prog_stat->Rformated, Rformated, sizeof(prog_stat->Rformated));
+ }
+ 
++/// convert the size
++char* filesize_conv(double size, char *buf, size_t len) {
++    int i = 0;
++    const char* units[] = {"iB","KiB","MiB","GiB","TiB","PiB","EiB","ZiB","YiB"};
++    while (size > 1024) {
++        size /= 1024;
++        i++;
++    }
++    snprintf(buf, len, "%.*f %s", i, size, units[i]);
++    return buf;
++}
++
++/// write data to log file for status/progress info
++void fogLogStatusFile(struct progress_bar *prog,struct prog_stat_t *prog_stat,unsigned long long current) {
++    FILE *fog_log;
++    fog_log = fopen("/var/log/status.fog","w");
++    if (fog_log == NULL) {
++        fprintf(stderr,"Error opening file %s","/var/log/status.log");
++        exit(0);
++    }
++    double totalsize=prog->block_size * prog->total;
++    double currentsize=prog->block_size * current;
++    int max_len=15;
++    char total_str[max_len];
++    char current_str[max_len];
++    char buf[max_len];
++    sprintf(total_str,filesize_conv(totalsize,buf,max_len));
++    sprintf(current_str,filesize_conv(currentsize,buf,max_len));
++    fprintf(fog_log,"%6.2f%s@%s@%s@%s@%s@%6.2f@%f\n",
++        prog_stat->speed,
++        prog_stat->speed_unit,
++        prog_stat->Eformated,
++        prog_stat->Rformated,
++        current_str,
++        total_str,
++        prog_stat->percent,
++        totalsize
++    );
++    fclose(fog_log);
++}
++
+ /// update information at progress bar
+ extern void progress_update(struct progress_bar *prog, unsigned long long copied, unsigned long long current, int done)
+ {
+@@ -203,6 +244,7 @@ extern void progress_update(struct progr
+ 	    fprintf(stderr, _(", %6.2f%s/min,"), prog_stat.speed, prog_stat.speed_unit);
+ 	if(prog->flag == IO)
+ 	    fprintf(stderr, "\n\r%80c\rcurrent block: %10lld, total block: %10lld, Complete: %6.2f%%%s\r", clear_buf, current, prog->total, prog_stat.total_percent, "\x1b[A");
++        fogLogStatusFile(prog, &prog_stat, current);
+     } else {
+ 	setlocale(LC_ALL, "");
+ 	bindtextdomain(PACKAGE, LOCALEDIR);
+@@ -278,6 +320,7 @@ extern void Ncurses_progress_update(stru
+ 	wrefresh(p_win);
+         wrefresh(bar_win);
+         wrefresh(tbar_win);
++        fogLogStatusFile(prog, &prog_stat, current);
+     } else {
+         mvwprintw(p_win, 0, 0, _("Total Time: %s Remaining: %s "), prog_stat.Eformated, prog_stat.Rformated);
+ 	if((prog->flag == IO) || (prog->flag == NO_BLOCK_DETAIL))

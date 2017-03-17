@@ -26,8 +26,9 @@ if [[ $linuxReleaseName == +(*[Bb][Uu][Nn][Tt][Uu]*) ]]; then
             echo " *** This will remove the /etc/php* and /etc/apache2* directories"
             echo " ***  and remove/purge the apache and php files from this system."
             echo " *** If you're okay with this please type Y, anything else will"
-            echo " ***  break the installation and you will have to remove the files yourself"
-            echo -n " ***  and make proper changes as necessary. (Y/N): "
+            echo " ***  continue the installation, but may mean you will need to"
+            echo " ***  remove the files later and make proper changes as "
+            echo " ***  necessary. (Y/N): "
             read dummy
         else
             dummy="y"

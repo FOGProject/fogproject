@@ -19,7 +19,7 @@ dots "Attempting to checkin"
 res=""
 count=0
 while [[ $res != "##@GO" ]]; do
-    res=$(wget --post-data="mac=$mac" -qO - http://${web}service/Pre_Stage1.php 2>/dev/null)
+    res=$(curl -ks --data "mac=$mac" http://${web}service/Pre_Stage1.php 2>/dev/null)
     if [[ $count -ge 10 ]]; then
         echo "Failed"
         debugPause

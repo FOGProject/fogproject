@@ -40,6 +40,7 @@ if [[ $systemctl == yes ]]; then
     initdSRfullname="FOGSnapinReplicator.service"
     initdSHfullname="FOGSnapinHash.service"
     initdPHfullname="FOGPingHosts.service"
+    initdISfullname="FOGImageSize.service"
     case $linuxReleaseName in
         *[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Dd][Ee][Bb][Ii][Aa][Nn]*)
             initdpath="/lib/systemd/system"
@@ -65,6 +66,7 @@ else
     initdSRfullname="FOGSnapinReplicator"
     initdSHfullname="FOGSnapinHash"
     initdPHfullname="FOGPingHosts"
+    initdISfullname="FOGImageSize"
     case $linuxReleaseName in
         *[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Dd][Ee][Bb][Ii][Aa][Nn]*)
             initdsrc="../packages/init.d/ubuntu"
@@ -74,4 +76,4 @@ else
             ;;
     esac
 fi
-serviceList="$initdMCfullname $initdIRfullname $initdSRfullname $initdSDfullname $initdPHfullname $initdSHfullname"
+serviceList="$initdMCfullname $initdIRfullname $initdSRfullname $initdSDfullname $initdPHfullname $initdSHfullname $initdISfullname"

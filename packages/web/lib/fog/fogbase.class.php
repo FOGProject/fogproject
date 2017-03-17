@@ -265,26 +265,22 @@ abstract class FOGBase
         self::$FOGUser = &$currentUser;
         $scriptPattern = '#/service/#i';
         $queryPattern = '#sub=requestClientInfo#i';
-        self::$querystring = $_SERVER['QUERY_STRING'];
+        self::$querystring = Initiator::sanitizeItems(
+            $_SERVER['QUERY_STRING']
+        );
         if (isset($_SERVER['SCRIPT_NAME'])) {
-            self::$scriptname = htmlentities(
-                $_SERVER['SCRIPT_NAME'],
-                ENT_QUOTES,
-                'utf-8'
+            self::$scriptname = Initiator::sanitizeItems(
+                $_SERVER['SCRIPT_NAME']
             );
         }
         if (isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
-            self::$httpreqwith = htmlentities(
-                $_SERVER['HTTP_X_REQUESTED_WITH'],
-                ENT_QUOTES,
-                'utf-8'
+            self::$httpreqwith = Initiator::sanitizeItems(
+                $_SERVER['HTTP_X_REQUESTED_WITH']
             );
         }
         if (isset($_SERVER['REQUEST_METHOD'])) {
-            self::$reqmethod = htmlentities(
-                $_SERVER['REQUEST_METHOD'],
-                ENT_QUOTES,
-                'utf-8'
+            self::$reqmethod = Initiator::sanitizeItems(
+                $_SERVER['REQUEST_METHOD']
             );
         }
         if (preg_match('#/mobile/#i', self::$scriptname)) {
@@ -857,7 +853,9 @@ abstract class FOGBase
             $_REQUEST[$key] = $val;
             unset($val, $key);
         };
-        array_walk($sesVars, $setReq);
+        if (count($sesVars) > 0) {
+            array_walk($sesVars, $setReq);
+        }
         unset($_SESSION['post_request_vals'], $sesVars, $reqVars);
     }
     /**
@@ -1295,13 +1293,12 @@ abstract class FOGBase
         }
         $array[$old_key] = trim($array[$old_key]);
         if (!self::$service && is_string($array[$old_key])) {
-            $array[$new_key] = htmlentities(
-                mb_convert_encoding(
-                    $array[$old_key],
-                    'utf-8'
-                ),
-                ENT_QUOTES,
+            $item = mb_convert_encoding(
+                $array[$old_key],
                 'utf-8'
+            );
+            $array[$new_key] = Initiator::sanitizeItems(
+                $item
             );
         } else {
             $array[$new_key] = $array[$old_key];
@@ -2177,7 +2174,9 @@ abstract class FOGBase
     {
         $file = escapeshellarg($file);
 
-        return shell_exec("ls -l $file | awk '{print $5}'");
+        return trim(
+            shell_exec("du -b $file | awk '{print $1}'")
+        );
     }
     /**
      * Perform enmass wake on lan.
@@ -2279,5 +2278,36 @@ abstract class FOGBase
         }
 
         return $array1;
+    }
+    /**
+     * Returns hash of passed file.
+     *
+     * @param string $file The file to get hash of.
+     *
+     * @return string
+     */
+    public static function getHash($file)
+    {
+        usleep(50000);
+        $filesize = self::getFilesize($file);
+        $file = escapeshellarg($file);
+        if ($filesize <= 10485760) {
+            return trim(
+                shell_exec("sha512sum $file | awk '{print $1}'")
+            );
+        }
+        return trim(
+            shell_exec(
+                sprintf(
+                    "(%s -c %d %s; %s -c %d %s) | sha512sum | awk '{print $1}'",
+                    'head',
+                    10486760,
+                    $file,
+                    'tail',
+                    10486760,
+                    $file
+                )
+            )
+        );
     }
 }

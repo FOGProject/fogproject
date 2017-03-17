@@ -2967,8 +2967,8 @@ $this->schema[] = array(
     . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
     . "VALUES "
     . "('FOG_EFI_BOOT_EXIT_TYPE','The method (U)EFI uses to boot the "
-    . "next boot entry/hard drive. Most will require exit.',"
-    . "'exit','FOG Boot Settings')",
+    . "next boot entry/hard drive. Most will require exit. (Default REFIND)',"
+    . "'refind_efi','FOG Boot Settings')",
 );
 // 193
 $this->schema[] = array(
@@ -3623,4 +3623,67 @@ $this->schema[] = array(
     . "('MULTICASTGLOBALENABLED','This setting defines if multicast "
     . "service should occur (Default is enabled)',"
     . "'1','FOG Linux Service Enabled')"
+);
+// 248
+$this->schema[] = array(
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_MULTICAST_RENDEZVOUS', 'This setting defines a rendez-vous"
+    . " for multicast tasks. (Default is empty)','','Multicast Settings')"
+);
+// 249
+$this->schema[] = array(
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_QUICKREG_IMG_WHEN_REG','Image upon completion"
+    . " of registration. Values are 0 or 1, default is 1."
+    . " This will only image clients if the image value is"
+    . " defined as well.','0', 'FOG Quick Registration')"
+);
+// 250
+$this->schema[] = array(
+    "ALTER TABLE `images` ADD `imageServerSize` BIGINT UNSIGNED NOT NULL DEFAULT 0",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('IMAGESIZEGLOBALENABLED','This setting defines if image size should be "
+    . "enabled or not. (Default is enabled)',"
+    . "'1', 'FOG Linux Service Enabled'),"
+    . "('IMAGESIZESLEEPTIME','The amount of time between image "
+    . "size service runs. Value is in seconds. (Default 3600)',"
+    . "'3600','FOG Linux Service Sleep Times'),"
+    . "('IMAGESIZELOGFILENAME','Filename to store the image size log "
+    . "file to (Default fogimagesize.log)','fogimagesize.log',"
+    . "'FOG Linux Service Logs'),"
+    . "('IMAGESIZEDEVICEOUTPUT','The tty to output to for image "
+    . "size service. (Default /dev/tty3)','/dev/tty3',"
+    . "'FOG Linux Service TTY Output')"
+);
+// 251
+$this->schema[] = $tmpSchema->dropDuplicateData(
+    DATABASE_NAME,
+    array(
+        'globalSettings',
+        array('settingKey')
+    )
+);
+// 252
+$this->schema[] = array(
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
+    . "VALUES "
+    . "('FOG_IMAGE_COMPRESSION_FORMAT_DEFAULT',"
+    . "'Compression Format Setting (Default to PIGZ non-split)',"
+    . "'1','General Settings'),"
+    . "('FOG_TASKING_ADV_SHUTDOWN_ENABLED',"
+    . "'Tasking shutdown element checked (Default is off)',"
+    . "'0','General Settings'),"
+    . "('FOG_TASKING_ADV_WOL_ENABLED',"
+    . "'Tasking wake on lan element checked (Default is on)',"
+    . "'1','General Settings'),"
+    . "('FOG_TASKING_ADV_DEBUG_ENABLED',"
+    . "'Tasking debug element checked (Default is off)',"
+    . "'0','General Settings')"
 );

@@ -298,10 +298,8 @@ class EventManager extends FOGBase
                 }
                 // We get the value and pop the line off and make it set as
                 // a part of the code.
-                preg_match('#(\$active\s?=\s?.*;)#', $line, $linefound);
-                eval(array_pop($linefound));
-                // If the active is not set or is false start over.
-                if (!isset($active) || $active === false) {
+                preg_match('#(\$active\s?=\s?true;)#', $line, $linefound);
+                if (count($linefound) < 1) {
                     continue;
                 }
                 // We are set and active start the class and break from the loop.
@@ -312,9 +310,11 @@ class EventManager extends FOGBase
             fclose($fh);
         };
         // Perform the checks.
-        array_walk(
-            $normalfiles,
-            $checkNormalAndStart
-        );
+        if (count($normalfiles) > 0) {
+            array_walk(
+                $normalfiles,
+                $checkNormalAndStart
+            );
+        }
     }
 }

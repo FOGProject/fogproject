@@ -64,6 +64,7 @@ abstract class FOGService extends FOGBase
      * @param mixed  $size_b The size of the second file
      * @param string $file_a The name of the first file
      * @param string $file_b The name of the second file
+     * @param bool   $avail  Is url available.
      *
      * @return bool
      */
@@ -71,9 +72,21 @@ abstract class FOGService extends FOGBase
         $size_a,
         $size_b,
         $file_a,
-        $file_b
+        $file_b,
+        $avail
     ) {
         if ($size_a != $size_b) {
+            return false;
+        }
+        if (false === $avail) {
+            if ($size_a < 1047685760) {
+                $remhash = md5_file($file_b);
+                $lochash = md5_file($file_a);
+                return ($remhash == $lochash);
+            }
+            return true;
+        }
+        if (self::getHash($file_a) != $file_b) {
             return false;
         }
         return true;
@@ -308,6 +321,7 @@ abstract class FOGService extends FOGBase
      * @param int    $myStorageNodeID  this servers nodeid
      * @param object $Obj              that is trying to send data
      * @param bool   $master           master->master or master->nodes
+     * @param mixed  $fileOverride     file override.
      *
      * @return void
      */
@@ -315,7 +329,8 @@ abstract class FOGService extends FOGBase
         $myStorageGroupID,
         $myStorageNodeID,
         $Obj,
-        $master = false
+        $master = false,
+        $fileOverride = false
     ) {
         unset(
             $username,
@@ -424,7 +439,11 @@ abstract class FOGService extends FOGBase
                 '/%s/',
                 trim($StorageNode->get($getPathOfItemField), '/')
             );
-            $myFile = basename($Obj->get($getFileOfItemField));
+            if (false === $fileOverride) {
+                $myFile = basename($Obj->get($getFileOfItemField));
+            } else {
+                $myFile = $fileOverride;
+            }
             $myAdd = "$myDir$myFile";
             $myAddItem = false;
             foreach ((array)self::getClass('StorageNodeManager')
@@ -434,7 +453,6 @@ abstract class FOGService extends FOGBase
                     )
                 ) as $i => &$PotentialStorageNode
             ) {
-                usleep(50000);
                 $groupID = $PotentialStorageNode->get('storagegroupID');
                 if ($master
                     && $groupID == $myStorageGroupID
@@ -489,6 +507,10 @@ abstract class FOGService extends FOGBase
                     );
                     continue;
                 }
+                $url = sprintf(
+                    'http://%s/fog/status/gethash.php',
+                    $PotentialStorageNode->get('ip')
+                );
                 self::$FOGFTP
                     ->set(
                         'username',
@@ -568,23 +590,43 @@ abstract class FOGService extends FOGBase
                 sort($remotefilescheck);
                 $test = -1;
                 foreach ((array)$localfilescheck as $j => &$localfile) {
-                    usleep(50000);
+                    $avail = true;
                     $index = $this->arrayFind(
                         basename($localfile),
                         $remotefilescheck
                     );
-                    if (false === $index) {
-                        continue;
-                    }
                     $filesize_main = self::getFilesize($localfile);
                     $filesize_rem = self::$FOGFTP->size(
                         $remotefilescheck[$index]
                     );
+                    $file = $remotefilescheck[$index];
+                    $testavail = array_filter(
+                        self::$FOGURLRequests->isAvailable($url)
+                    );
+                    if (count($testavail) < 1) {
+                        $avail = false;
+                    }
+                    $res = self::$FOGURLRequests->process(
+                        $url,
+                        'POST',
+                        array(
+                            'file' => $file
+                        )
+                    );
+                    $res = array_shift($res);
+                    if (!$avail) {
+                        $res = sprintf(
+                            '%s%s',
+                            $ftpstart,
+                            $file
+                        );
+                    }
                     $filesEqual = self::_filesAreEqual(
                         $filesize_main,
                         $filesize_rem,
                         $localfile,
-                        $ftpstart.$remotefilescheck[$index]
+                        $res,
+                        $avail
                     );
                     if (!$filesEqual) {
                         self::outall(
@@ -648,27 +690,38 @@ abstract class FOGService extends FOGBase
                 );
                 $myAddItem = escapeshellarg($myAddItem);
                 $remItem = escapeshellarg($remItem);
-                $cmd = "lftp -e 'set ftp:list-options -a;set net:max-retries ";
-                $cmd .= "10;set net:timeout 30; $limit mirror -c ";
+                $logname = escapeshellarg($logname);
+                $myAddItem = trim($myAddItem, "'");
+                $myAddItem = sprintf(
+                    '"%s"',
+                    $myAddItem
+                );
+                $remItem = trim($remItem, "'");
+                $remItem = sprintf(
+                    '"%s"',
+                    $remItem
+                );
+                $logname = trim($logname, "'");
+                $logname = sprintf(
+                    '"%s"',
+                    $logname
+                );
+                $cmd = "lftp -e 'set xfer:log 1; set xfer:log-file $logname;";
+                $cmd .= "set ftp:list-options -a;set net:max-retries ";
+                $cmd .= "10;set net:timeout 30; $limit mirror -c -r ";
                 $cmd .= "$opts ";
                 if (!empty($includeFile)) {
                     $includeFile = escapeshellarg($includeFile);
                     $cmd .= "$includeFile ";
                 }
-                $cmd .= "--ignore-time -vvv --exclude \"dev/\" --exclude \"ssl/\" ";
-                $cmd .= "--exclude \"CA\" --delete-first $myAddItem ";
+                $cmd .= "--ignore-time -vvv --exclude \".srvprivate\" ";
+                $cmd .= "--delete-first $myAddItem ";
                 $cmd .= "$remItem; ";
+                $cmd2 = sprintf(
+                    "%s exit' -u $username,[Protected] $ip",
+                    $cmd
+                );
                 $cmd .= "exit' -u $username,$password $ip";
-                $cmd2 = "lftp -e 'set ftp:list-options -a;set net:max-retries ";
-                $cmd2 .= "10;set net:timeout 30; $limit mirror -c ";
-                $cmd2 .= "$opts ";
-                if (!empty($includeFile)) {
-                    $cmd2 .= "$includeFile ";
-                }
-                $cmd2 .= "--ignore-time -vvv --exclude \"dev/\" --exclude \"ssl/\" ";
-                $cmd2 .= "--exclude \"CA\" --delete-first $myAddItem ";
-                $cmd2 .= "\\'$remItem\\'; ";
-                $cmd2 .= "exit' -u $username,[Protected] $ip";
                 self::outall(" | CMD:\n\t\t\t$cmd2");
                 unset($includeFile, $remItem, $myAddItem);
                 $this->startTasking(
@@ -716,7 +769,6 @@ abstract class FOGService extends FOGBase
         self::wlog(_('Task started'), $logname);
         $descriptor = array(
             0 => array('pipe', 'r'),
-            1 => array('file', $logname, 'a'),
             2 => array('file', $log, 'a')
         );
         if ($itemType === false) {

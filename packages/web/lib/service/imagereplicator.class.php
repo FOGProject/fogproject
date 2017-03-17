@@ -220,8 +220,37 @@ class ImageReplicator extends FOGService
                 );
                 $Images = (array)self::getClass('ImageManager')
                     ->find(array('id' => $imageIDs));
-                foreach ($Images as &$Image
-                ) {
+                /**
+                 * Handles replicating of our dev/postinitscripts
+                 * and postdownload scripts
+                 */
+                $Postdown = 'postdownloadscripts';
+                $Postinit = sprintf(
+                    '%s/%s',
+                    'dev',
+                    'postinitscripts'
+                );
+                $extrascripts = array(
+                    $Postdown,
+                    $Postinit
+                );
+                /*foreach ($extrascripts as $scripts) {
+                    self::outall(
+                        sprintf(
+                            ' | %s %s',
+                            _('Replicating'),
+                            basename($scripts)
+                        )
+                    );
+                    $this->replicateItems(
+                        $myStorageGroupID,
+                        $myStorageNodeID,
+                        new Image(),
+                        false,
+                        $scripts
+                    );
+                }*/
+                foreach ($Images as &$Image) {
                     if (!$Image->getPrimaryGroup($myStorageGroupID)) {
                         self::outall(
                             sprintf(

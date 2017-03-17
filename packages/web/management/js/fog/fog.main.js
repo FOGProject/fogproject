@@ -93,7 +93,7 @@ $(function() {
     if (typeof($("#pigz").slider) == typeof(Function)) {
         $("#pigz").slider({
             min: 0,
-            max: 9,
+            max: 22,
             range: 'min',
             value: $("#showVal").val(),
             slide: function(event, ui) {

@@ -92,6 +92,6 @@ class Inventory extends FOGController
     {
         $memar = explode(' ', $this->get('mem'));
         
-        return $this->formatByteSize(($memar[1] * 1024));
+        return $this->formatByteSize(((int)$memar[1] * 1024));
     }
 }

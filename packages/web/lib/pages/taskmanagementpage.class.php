@@ -73,7 +73,8 @@ class TaskManagementPage extends FOGPage
             ),
             _('Image Name'),
             _('Start Time'),
-            _('Status'),
+            _('Working with node'),
+            _('Status')
         );
         $this->templates = array(
             '<input type="checkbox" class="toggle-action" name='
@@ -90,6 +91,7 @@ class TaskManagementPage extends FOGPage
                 _('Edit Image')
             ),
             '<small>${time}</small>',
+            '<small>${node_name}</small>',
             '${details_taskforce} <i data-state="${state_id}" class='
             . '"state fa fa-${icon_state} fa-1x icon" title="${state}">'
             . '</i> <i class="fa fa-${icon_type} fa-1x icon" title="${type}"></i>',
@@ -116,6 +118,10 @@ class TaskManagementPage extends FOGPage
             array(
                 'width' => 100,
                 'class' => 'r'
+            ),
+            array(
+                'width' => 70,
+                'class' => 'c'
             ),
             array(
                 'width' => 50,
@@ -179,6 +185,7 @@ class TaskManagementPage extends FOGPage
                 'state_id' => $Task->getTaskState()->get('id'),
                 'image_name' => $Task->getImage()->get('name'),
                 'image_id' => $Task->getImage()->get('id'),
+                'node_name' => $Task->getStorageNode()->get('name')
             );
             unset($Task, $Host);
         };
@@ -220,10 +227,13 @@ class TaskManagementPage extends FOGPage
                 (array) self::getProgressState()
             )
         );
-        array_walk(
-            self::getClass('TaskManager')->find($find),
-            self::$returnData
-        );
+        $tasks = self::getClass('TaskManager')->find($find);
+        if (count($tasks) > 0) {
+            array_walk(
+                $tasks,
+                static::$returnData
+            );
+        }
         self::$HookManager
             ->processEvent(
                 'HOST_DATA',
@@ -277,8 +287,8 @@ class TaskManagementPage extends FOGPage
             '<small>${imagename}</small>',
             sprintf(
                 '%s %s %s',
-                $up,
                 $down,
+                $up,
                 $adv
             ),
         );
@@ -475,7 +485,7 @@ class TaskManagementPage extends FOGPage
                 $_SESSION['FOG_USERNAME'],
                 false,
                 false,
-                $TaskType->isInitNeededTasking()
+                $TaskType->isInitNeededTasking() || $TaskType->get('id') == 14
             );
             $this->setMessage(
                 sprintf(

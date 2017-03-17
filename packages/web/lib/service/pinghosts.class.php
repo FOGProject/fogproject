@@ -149,13 +149,13 @@ class PingHosts extends FOGService
                     )
                 )
             );
-            $hostids = self::getsubObjectIDs('Host');
-            $hostnames = self::getSubObjectIDs(
+            $hostids = (array)self::getsubObjectIDs('Host');
+            $hostnames = (array)self::getSubObjectIDs(
                 'Host',
                 array('id' => $hostids),
                 'name'
             );
-            $hostips = self::getSubObjectIDs(
+            $hostips = (array)self::getSubObjectIDs(
                 'Host',
                 array(
                     'id' => $hostids,

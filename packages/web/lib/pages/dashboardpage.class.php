@@ -140,10 +140,10 @@ class DashboardPage extends FOGPage
             unset($StorageGroup);
         }
         $test = array_filter(self::$FOGURLRequests->isAvailable($testurls));
-        self::$_nodeOpts = array_intersect_key(self::$_nodeOpts, $test);
-        self::$_nodeNames = array_intersect_key(self::$_nodeNames, $test);
-        self::$_nodeURLs = array_intersect_key(self::$_nodeURLs, $test);
-        self::$_nodeOpts = implode(self::$_nodeOpts);
+        self::$_nodeOpts = array_intersect_key((array)self::$_nodeOpts, $test);
+        self::$_nodeNames = array_intersect_key((array)self::$_nodeNames, $test);
+        self::$_nodeURLs = array_intersect_key((array)self::$_nodeURLs, $test);
+        self::$_nodeOpts = implode((array)self::$_nodeOpts);
         list(
             self::$_bandwidthtime,
             self::$_tftp

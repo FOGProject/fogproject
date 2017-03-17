@@ -75,7 +75,11 @@ preparePartitions() {
                     ;;
                 [5-7]|9)
                     [[ ! -d $imagePath && ! -f $imagePath/sys.img.000 ]] && handleError "Unable to locate image store ($0)\n   Args Passed: $*"
-                    if [[ ! -f $imagePath/sys.img.000 ]]; then
+                    sfdiskOriginalPartitionFileName "$imagePath" "1"
+                    sfdiskLegacyOriginalPartitionFileName "$imagePath" "1"
+                    sfdiskfilename="$sfdiskoriginalpartitionfilename"
+                    [[ ! -r $sfdiskfilename ]] && sfdiskfilename="$sfdisklegacyoriginalpartitionfilename"
+                    if [[ ! -f $imagePath/sys.img.000 || -f $sfdiskfilename ]]; then
                         prepareResizeDownloadPartitions "$hd" 1 "$imagePath" "$osid" "$imgPartitionType"
                     else
                         echo " * Using legacy style partition setup"
