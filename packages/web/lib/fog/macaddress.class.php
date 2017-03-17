@@ -108,7 +108,7 @@ class MACAddress extends FOGBase
              * MACAddressAssociation, or plain string, normalize
              * our protected MAC as lowercase without ., -, or :.
              *
-             * If the mac is an arraw, take the first mac address and
+             * If the mac is an array, take the first mac address and
              * perform the same as above.
              */
             if ($this->tmpMAC instanceof self) {
@@ -179,6 +179,9 @@ class MACAddress extends FOGBase
             self::$_pattern,
             (array) $mac
         );
+        $mac = array_values(
+            $mac
+        );
         /**
          * If there aren't any found valid mac's set the string to be empty
          * and return immediately.
@@ -187,30 +190,19 @@ class MACAddress extends FOGBase
             return '';
         }
         /**
-         * As this class only works on an individual mac, we pull the first instance
-         * out and store it as a string for processing.
+         * Remove the :, -, and/or . and lowercase the
+         * characters. Return the string.
          */
-        $mac = array_shift($mac);
-        /**
-         * Strips the ., -, or ':' out of the passed mac address.
-         */
-        $mac = str_replace(
-            array(
-                '.',
-                '-',
-                ':',
-            ),
-            '',
-            $mac
+        return strtolower(
+            str_replace(
+                array(
+                    ':',
+                    '-',
+                    '.'
+                ),
+                $mac[0]
+            )
         );
-        /**
-         * Sets the string to lower case.
-         */
-        $mac = strtolower($mac);
-        /**
-         * Return the normalized string.
-         */
-        return $mac;
     }
     /**
      * Gets the first 6 characters of the mac.
