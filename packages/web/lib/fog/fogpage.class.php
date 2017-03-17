@@ -1460,7 +1460,7 @@ abstract class FOGPage extends FOGBase
              */
             $wol = false;
             $wolon = isset($_REQUEST['wol']);
-            if (14 === $type
+            if (14 == $type
                 || $wolon
             ) {
                 $wol = true;
