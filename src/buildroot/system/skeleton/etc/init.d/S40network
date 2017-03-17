@@ -36,7 +36,14 @@ for iface in $ifaces; do
     [[ $linkstate -eq 0 ]] && echo "No link detected on $iface for $timeout seconds, skipping it." && continue
     for retry in $(seq 3); do
         /sbin/udhcpc -i $iface --now
-        [[ $? -eq 0 ]] && exit 0
+        ustat="$?"
+        curl -Ifso /dev/null "${web}" --connect-timeout 5
+        cstat="$?"
+        # If the udhcp is okay AND we can curl our web
+        # we know we have link so no need to continue on.
+        # NOTE: the link to web is kind of important, just
+        # exiting on dhcp request is not sufficient.
+        [[ $ustat -eq 0 && $cstat -eq 0 ]] && exit 0
         sleep 1
     done
     echo "No DHCP response on interface $iface, skipping it."

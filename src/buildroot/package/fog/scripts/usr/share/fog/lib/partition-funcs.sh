@@ -844,6 +844,7 @@ fillDiskWithPartitionsIsOK() {
             [[ ! -r $filename ]] && filename="$sfdiskoriginalpartitionfilename"
             [[ ! -r $filename ]] && filename="$sfdisklegacyoriginalpartitionfilename"
             [[ ! -r $filename ]] && do_fill=0
+            return
             ;;
         *)
             do_fill=0
