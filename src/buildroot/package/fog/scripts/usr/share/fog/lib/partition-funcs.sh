@@ -801,8 +801,8 @@ fillDiskWithPartitions() {
             local filename="$sfdiskminimumpartitionfilename"
             local origname="$sfdiskoriginalpartitionfilename"
             local cmdtorun='fillSfdiskWithPartitions'
-            [[ ! -r $origname ]] && filename="$sfdisklegacyoriginalpartitionfilename"
-            [[ ! -r $origname ]] && filename="$sgdiskoriginalpartitionfilename"
+            [[ ! -r $filename ]] && filename="$origname"
+            [[ ! -r $filename ]] && filename="$sfdisklegacyoriginalpartitionfilename"
             [[ ! -r $filename ]] && handleError "Failed to find a restore file (${FUNCNAME[0]})\n   Args Passed: $*"
             $cmdtorun "$disk" "$origname" "$filename" "$fixed_size_partitions" "$origname"
             ;;
@@ -834,25 +834,16 @@ fillDiskWithPartitionsIsOK() {
     local sfdiskminimumpartitionfilename=""
     local sfdiskoriginalpartitionfilename=""
     local sfdisklegacyoriginalpartitionfilename=""
-    do_fill=0
+    do_fill=1
     case $table_type in
         MBR|GPT)
             sfdiskMinimumPartitionFileName "$imagePath" "$disk_number"
             sfdiskOriginalPartitionFileName "$imagePath" "$disk_number"
             sfdiskLegacyOriginalPartitionFileName "$imagePath" "$disk_number"
             filename="$sfdiskminimumpartitionfilename"
-            if [[ ! -r $filename ]]; then
-                filename="$sfdiskoriginalpartitionfilename"
-            else
-                do_fill=1
-                return
-            fi
-            if [[ ! -r $filename ]]; then
-                filename="$sfdisklegacyoriginalpartitionfilename"
-            else
-                do_fill=1
-                return
-            fi
+            [[ ! -r $filename ]] && filename="$sfdiskoriginalpartitionfilename"
+            [[ ! -r $filename ]] && filename="$sfdisklegacyoriginalpartitionfilename"
+            [[ ! -r $filename ]] && do_fill=0
             ;;
         *)
             do_fill=0
