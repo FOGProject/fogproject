@@ -571,7 +571,7 @@ processSfdisk() {
     awkArgs="$awkArgs -v diskSize=$disk_size"
     [[ -n $fixed ]] && awkArgs="$awkArgs -v fixedList=$fixed"
     # process with external awk script
-    /usr/share/fog/lib/procsfdisk.awk $awkArgs $data $orig
+    [[ -r $data ]] && /usr/share/fog/lib/procsfdisk.awk $awkArgs $data $orig || /usr/share/fog/lib/procsfdisk.awk $awkArgs $orig
 }
 getPartitionLabel() {
     local part="$1"

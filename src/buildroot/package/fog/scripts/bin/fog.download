@@ -79,7 +79,7 @@ preparePartitions() {
                     sfdiskLegacyOriginalPartitionFileName "$imagePath" "1"
                     sfdiskfilename="$sfdiskoriginalpartitionfilename"
                     [[ ! -r $sfdiskfilename ]] && sfdiskfilename="$sfdisklegacyoriginalpartitionfilename"
-                    if [[ ! -f $imagePath/sys.img.000 || -f $imagePath/$sfdiskfilename ]]; then
+                    if [[ ! -f $imagePath/sys.img.000 || -f $sfdiskfilename ]]; then
                         prepareResizeDownloadPartitions "$hd" 1 "$imagePath" "$osid" "$imgPartitionType"
                     else
                         echo " * Using legacy style partition setup"
