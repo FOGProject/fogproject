@@ -68,10 +68,13 @@ class MACAddress extends FOGBase
          * Defines our grep/search patterns for
          * validating a MAC Address.
          */
-        self::$_pattern = '/^(?:[[:xdigit:]]{2}([-:]))';
-        self::$_pattern .= '(?:[[:xdigit:]]{2}\1){4}[[:xdigit:]]{2}$';
-        self::$_pattern .= '|^(?:[[:xdigit:]]{12})$|^(?:[[:xdigit:]]';
-        self::$_pattern .= '{4}([.])){2}[[:xdigit:]]{4}$/';
+        self::$_pattern = sprintf(
+            '%s%s%s%s',
+            '/^(?:[[:xdigit:]]{2}([-:]))',
+            '(?:[[:xdigit:]]{2}\1){4}[[:xdigit:]]{2}$',
+            '|^(?:[[:xdigit:]]{12})$|^(?:[[:xdigit:]]',
+            '{4}([.])){2}[[:xdigit:]]{4}$/'
+        );
         /**
          * Pull in our base initialized items.
          */
@@ -111,15 +114,14 @@ class MACAddress extends FOGBase
              * If the mac is an array, take the first mac address and
              * perform the same as above.
              */
-            if ($this->tmpMAC instanceof self) {
-                $this->MAC = self::normalizeMAC($this->tmpMAC);
-            } elseif ($this->tmpMAC instanceof MACAddressAssociation) {
-                $this->MAC = self::normalizeMAC($this->tmpMAC->get('mac'));
+            if ($this->tmpMAC instanceof MACAddressAssociation) {
+                $this->MAC = $this->tmpMAC->get('mac');
             } elseif (is_array($this->tmpMAC)) {
-                $this->MAC = self::normalizeMAC($this->tmpMAC[0]);
+                $this->MAC = $this->tmpMAC[0];
             } else {
-                $this->MAC = self::normalizeMAC($this->tmpMAC);
+                $this->MAC = $this->tmpMAC;
             }
+            $this->MAC = self::normalizeMAC($this->MAC);
             /**
              * If the mac address is not valid throw Invalid MAC message.
              */
@@ -175,20 +177,12 @@ class MACAddress extends FOGBase
         /**
          * Pull out the valid mac addresses in an array format.
          */
-        $mac = preg_grep(
-            self::$_pattern,
-            (array) $mac
-        );
         $mac = array_values(
-            $mac
+            preg_grep(
+                self::$_pattern,
+                (array) $mac
+            )
         );
-        /**
-         * If there aren't any found valid mac's set the string to be empty
-         * and return immediately.
-         */
-        if (count($mac) !== 1) {
-            return '';
-        }
         /**
          * Remove the :, -, and/or . and lowercase the
          * characters. Return the string.
@@ -200,6 +194,7 @@ class MACAddress extends FOGBase
                     '-',
                     '.'
                 ),
+                '',
                 $mac[0]
             )
         );
@@ -214,28 +209,31 @@ class MACAddress extends FOGBase
         /**
          * Gets the prefix of the mac address.
          */
-        $strMod = substr(
-            $this->MAC,
-            0,
-            6
-        );
         /**
          * Splits into the segments for easier joining.
          * For example, 012345 will become:
          * ['01','23','45']
          */
-        $strMod = str_split($strMod, 2);
         /**
          * OUI text is in format xx-xx-xx,
          * This puts the string together properly so
          * string will become:
          * 01-23-45
          */
-        $strMod = implode('-', $strMod);
         /**
          * Returns our string.
          */
-        return $strMod;
+        return implode(
+            '-',
+            str_split(
+                substr(
+                    $this->MAC,
+                    0,
+                    6
+                ),
+                2
+            )
+        );
     }
     /**
      * How to present the mac as a string.
@@ -249,16 +247,20 @@ class MACAddress extends FOGBase
          * For example, mac 012345abcdef will become:
          * ['01','23','45','ab','cd','ef'].
          */
-        $strMod = str_split($this->MAC, 2);
         /**
          * Joins the array with colons so our mac will be like:
          * 01:23:45:ab:cd:ef
          */
-        $strMod = implode(':', $strMod);
         /**
          * Returns our string
          */
-        return $strMod;
+        return implode(
+            ':',
+            str_split(
+                $this->MAC,
+                2
+            )
+        );
     }
     /**
      * Tests if the mac is valid.
