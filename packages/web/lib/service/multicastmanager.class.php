@@ -164,6 +164,28 @@ class MulticastManager extends FOGService
     private function _serviceLoop()
     {
         while (true) {
+            if (!isset($nextrun)) {
+                $nextrun = self::niceDate()
+                    ->modify(
+                        sprintf(
+                            '+%s second%s',
+                            self::$zzz,
+                            self::$zzz != 1 ? '' : 's'
+                        )
+                    );
+            }
+            if (self::niceDate() < $nextrun) {
+                usleep(100000);
+                continue;
+            }
+            $nextrun = self::niceDate()
+                ->modify(
+                    sprintf(
+                        '+%s second%s',
+                        self::$zzz,
+                        self::$zzz != 1 ? '' : 's'
+                    )
+                );
             $this->waitDbReady();
             $queuedStates = self::fastmerge(
                 self::getQueuedStates(),
@@ -595,7 +617,6 @@ class MulticastManager extends FOGService
                     )
                 );
             }
-            sleep(static::$zzz);
             $oldCount = $taskCount;
         }
     }
