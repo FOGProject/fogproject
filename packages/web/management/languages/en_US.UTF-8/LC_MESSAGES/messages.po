@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-18 21:35-0400\n"
+"POT-Creation-Date: 2017-03-18 21:44-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -54,7 +54,7 @@ msgid "Device must be a string"
 msgstr "Event must be a string"
 
 #: /var/www/fog/status/bandwidth.php:47
-#: /var/www/fog/lib/fog/fogbase.class.php:1237
+#: /var/www/fog/lib/fog/fogbase.class.php:1238
 #, fuzzy
 msgid "File must be a string"
 msgstr "Event must be a string"
@@ -440,7 +440,7 @@ msgid "Array type"
 msgstr "Array of data"
 
 #: /var/www/fog/lib/fog/fogcontroller.class.php:909
-#: /var/www/fog/lib/fog/fogbase.class.php:2156
+#: /var/www/fog/lib/fog/fogbase.class.php:2157
 #: /var/www/fog/lib/fog/fogftp.class.php:370
 #: /var/www/fog/lib/pages/taskmobile.class.php:45
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:974
@@ -642,106 +642,106 @@ msgstr "Event must be a string"
 msgid "Key must be an array of keys or a string."
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogbase.class.php:988
-#: /var/www/fog/lib/fog/fogbase.class.php:1001
+#: /var/www/fog/lib/fog/fogbase.class.php:989
+#: /var/www/fog/lib/fog/fogbase.class.php:1002
 msgid "No Data"
 msgstr "No Data"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:998
+#: /var/www/fog/lib/fog/fogbase.class.php:999
 msgid "Not a number"
 msgstr "Not a number"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1078
+#: /var/www/fog/lib/fog/fogbase.class.php:1079
 msgid "Space variable must be boolean"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1103
+#: /var/www/fog/lib/fog/fogbase.class.php:1104
 msgid "Ago must be boolean"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1196
+#: /var/www/fog/lib/fog/fogbase.class.php:1197
 msgid "Diff parameter must be numeric"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1199
+#: /var/www/fog/lib/fog/fogbase.class.php:1200
 #, fuzzy
 msgid "Unit of time must be a string"
 msgstr "Event must be a string"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1203
+#: /var/www/fog/lib/fog/fogbase.class.php:1204
 #, fuzzy
 msgid "In"
 msgstr "In "
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1206
+#: /var/www/fog/lib/fog/fogbase.class.php:1207
 #, fuzzy
 msgid "ago"
 msgstr " ago"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1234
+#: /var/www/fog/lib/fog/fogbase.class.php:1235
 #, fuzzy
 msgid "StorageNode must be a valid node"
 msgstr "Storage Node Max Clients"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1244
+#: /var/www/fog/lib/fog/fogbase.class.php:1245
 msgid "Cannot connect to node."
 msgstr "Cannot connect to node."
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1264
+#: /var/www/fog/lib/fog/fogbase.class.php:1265
 msgid "Keepkeys must be boolean"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1289
+#: /var/www/fog/lib/fog/fogbase.class.php:1290
 #, fuzzy
 msgid "Old key must be a string"
 msgstr "Event must be a string"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1292
+#: /var/www/fog/lib/fog/fogbase.class.php:1293
 #, fuzzy
 msgid "New key must be a string"
 msgstr "Event must be a string"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1510
+#: /var/www/fog/lib/fog/fogbase.class.php:1511
 msgid "Private key path not found"
 msgstr "Private key path not found"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1523
+#: /var/www/fog/lib/fog/fogbase.class.php:1524
 msgid "Private key not found"
 msgstr "Private key not found"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1526
+#: /var/www/fog/lib/fog/fogbase.class.php:1527
 msgid "Private key not readable"
 msgstr "Private key not readable"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1531
+#: /var/www/fog/lib/fog/fogbase.class.php:1532
 msgid "Private key failed"
 msgstr "Private key failed"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1550
+#: /var/www/fog/lib/fog/fogbase.class.php:1551
 msgid "Failed to decrypt data"
 msgstr "Failed to decrypt data"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1765
+#: /var/www/fog/lib/fog/fogbase.class.php:1766
 #, fuzzy
 msgid "Txt must be a string"
 msgstr "Event must be a string"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1768
+#: /var/www/fog/lib/fog/fogbase.class.php:1769
 #, fuzzy
 msgid "Level must be an integer"
 msgstr "Event must be a string"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1796
+#: /var/www/fog/lib/fog/fogbase.class.php:1797
 #, fuzzy
 msgid "String must be a string"
 msgstr "Event must be a string"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1918
+#: /var/www/fog/lib/fog/fogbase.class.php:1919
 #, fuzzy
 msgid "Key must be a string"
 msgstr "Event must be a string"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2158
+#: /var/www/fog/lib/fog/fogbase.class.php:2159
 #: /var/www/fog/lib/fog/fogftp.class.php:372
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2268
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:85
@@ -752,12 +752,12 @@ msgstr "Event must be a string"
 msgid "File"
 msgstr "File"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2160
+#: /var/www/fog/lib/fog/fogbase.class.php:2161
 #: /var/www/fog/lib/fog/fogftp.class.php:374
 msgid "Line"
 msgstr "Line"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2162
+#: /var/www/fog/lib/fog/fogbase.class.php:2163
 #: /var/www/fog/lib/fog/fogftp.class.php:376
 #: /var/www/fog/lib/db/mysql.class.php:189
 msgid "Message"

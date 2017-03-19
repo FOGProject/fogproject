@@ -834,6 +834,7 @@ abstract class FOGBase
     {
         $key = $this->key($key);
         $result = isset($this->isLoaded[$key]) ? $this->isLoaded[$key] : 0;
+        $this->isLoaded[$key] = true;
         ++$this->isLoaded[$key];
 
         return $result ? $result : false;
