@@ -165,6 +165,7 @@ class MulticastManager extends FOGService
     {
         while (true) {
             if (!isset($nextrun)) {
+                $first = true;
                 $nextrun = self::niceDate()
                     ->modify(
                         sprintf(
@@ -174,7 +175,7 @@ class MulticastManager extends FOGService
                         )
                     );
             }
-            if (self::niceDate() < $nextrun) {
+            if (self::niceDate() < $nextrun && $first === false) {
                 usleep(100000);
                 continue;
             }
@@ -600,6 +601,9 @@ class MulticastManager extends FOGService
                 unset($StorageNodes);
             } catch (Exception $e) {
                 self::outall($e->getMessage());
+            }
+            if ($first) {
+                $first = false;
             }
             $tmpTime = self::getSetting(self::$sleeptime);
             if (static::$zzz != $tmpTime) {

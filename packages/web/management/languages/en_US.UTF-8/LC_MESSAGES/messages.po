@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-18 21:21-0400\n"
+"POT-Creation-Date: 2017-03-18 21:35-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -5260,24 +5260,24 @@ msgid "Imaged"
 msgstr "Imaged"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:173
-#: /var/www/fog/lib/service/multicastmanager.class.php:252
-#: /var/www/fog/lib/service/multicastmanager.class.php:293
-#: /var/www/fog/lib/service/multicastmanager.class.php:314
-#: /var/www/fog/lib/service/multicastmanager.class.php:358
-#: /var/www/fog/lib/service/multicastmanager.class.php:368
-#: /var/www/fog/lib/service/multicastmanager.class.php:383
-#: /var/www/fog/lib/service/multicastmanager.class.php:398
-#: /var/www/fog/lib/service/multicastmanager.class.php:411
-#: /var/www/fog/lib/service/multicastmanager.class.php:421
-#: /var/www/fog/lib/service/multicastmanager.class.php:432
-#: /var/www/fog/lib/service/multicastmanager.class.php:441
-#: /var/www/fog/lib/service/multicastmanager.class.php:450
-#: /var/www/fog/lib/service/multicastmanager.class.php:466
-#: /var/www/fog/lib/service/multicastmanager.class.php:483
-#: /var/www/fog/lib/service/multicastmanager.class.php:535
-#: /var/www/fog/lib/service/multicastmanager.class.php:547
-#: /var/www/fog/lib/service/multicastmanager.class.php:564
-#: /var/www/fog/lib/service/multicastmanager.class.php:587
+#: /var/www/fog/lib/service/multicastmanager.class.php:253
+#: /var/www/fog/lib/service/multicastmanager.class.php:294
+#: /var/www/fog/lib/service/multicastmanager.class.php:315
+#: /var/www/fog/lib/service/multicastmanager.class.php:359
+#: /var/www/fog/lib/service/multicastmanager.class.php:369
+#: /var/www/fog/lib/service/multicastmanager.class.php:384
+#: /var/www/fog/lib/service/multicastmanager.class.php:399
+#: /var/www/fog/lib/service/multicastmanager.class.php:412
+#: /var/www/fog/lib/service/multicastmanager.class.php:422
+#: /var/www/fog/lib/service/multicastmanager.class.php:433
+#: /var/www/fog/lib/service/multicastmanager.class.php:442
+#: /var/www/fog/lib/service/multicastmanager.class.php:451
+#: /var/www/fog/lib/service/multicastmanager.class.php:467
+#: /var/www/fog/lib/service/multicastmanager.class.php:484
+#: /var/www/fog/lib/service/multicastmanager.class.php:536
+#: /var/www/fog/lib/service/multicastmanager.class.php:548
+#: /var/www/fog/lib/service/multicastmanager.class.php:565
+#: /var/www/fog/lib/service/multicastmanager.class.php:588
 #: /var/www/fog/commons/text.php:84
 msgid "Task"
 msgstr "Task"
@@ -7562,137 +7562,137 @@ msgstr ""
 msgid "Or there was no number defined for joining session"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:203
+#: /var/www/fog/lib/service/multicastmanager.class.php:204
 msgid " * Multicast service is globally disabled"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:233
+#: /var/www/fog/lib/service/multicastmanager.class.php:234
 #, fuzzy
 msgid "Cleaning"
 msgstr "Clear"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:235
+#: /var/www/fog/lib/service/multicastmanager.class.php:236
 #, fuzzy
 msgid "task"
 msgstr "Task"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:241
+#: /var/www/fog/lib/service/multicastmanager.class.php:242
 #, fuzzy
 msgid "as they have been removed"
 msgstr "Invalid key being removed"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:255
+#: /var/www/fog/lib/service/multicastmanager.class.php:256
 #, fuzzy
 msgid "is being cleaned"
 msgstr "Virus cleared"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:296
-#: /var/www/fog/lib/service/multicastmanager.class.php:567
+#: /var/www/fog/lib/service/multicastmanager.class.php:297
+#: /var/www/fog/lib/service/multicastmanager.class.php:568
 #, fuzzy
 msgid "has been cancelled"
 msgstr "has been successfully updated"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:317
-#: /var/www/fog/lib/service/multicastmanager.class.php:590
+#: /var/www/fog/lib/service/multicastmanager.class.php:318
+#: /var/www/fog/lib/service/multicastmanager.class.php:591
 #, fuzzy
 msgid "has been completed"
 msgstr "has been destroyed"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:345
+#: /var/www/fog/lib/service/multicastmanager.class.php:346
 #, fuzzy
 msgid "No tasks found"
 msgstr "task found"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:361
+#: /var/www/fog/lib/service/multicastmanager.class.php:362
 #, fuzzy
 msgid "is new"
 msgstr "Line"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:371
-#: /var/www/fog/lib/service/multicastmanager.class.php:386
-#: /var/www/fog/lib/service/multicastmanager.class.php:401
+#: /var/www/fog/lib/service/multicastmanager.class.php:372
+#: /var/www/fog/lib/service/multicastmanager.class.php:387
+#: /var/www/fog/lib/service/multicastmanager.class.php:402
 #, fuzzy
 msgid "failed to execute"
 msgstr "Failed to create"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:372
+#: /var/www/fog/lib/service/multicastmanager.class.php:373
 #, fuzzy
 msgid "image file"
 msgstr "No image specified"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:374
+#: /var/www/fog/lib/service/multicastmanager.class.php:375
 #, fuzzy
 msgid "not found on this node"
 msgstr "Image not found on node"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:387
+#: /var/www/fog/lib/service/multicastmanager.class.php:388
 msgid "no clients are included"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:402
+#: /var/www/fog/lib/service/multicastmanager.class.php:403
 #, fuzzy
 msgid "port must be even and numeric"
 msgstr "You must enter a name"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:414
+#: /var/www/fog/lib/service/multicastmanager.class.php:415
 #, fuzzy
 msgid "failed to start"
 msgstr "Failed to destroy"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:424
-#: /var/www/fog/lib/service/multicastmanager.class.php:435
+#: /var/www/fog/lib/service/multicastmanager.class.php:425
+#: /var/www/fog/lib/service/multicastmanager.class.php:436
 #, fuzzy
 msgid "has been cleaned"
 msgstr "has been destroyed"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:444
+#: /var/www/fog/lib/service/multicastmanager.class.php:445
 msgid "image file found"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:454
+#: /var/www/fog/lib/service/multicastmanager.class.php:455
 #, fuzzy
 msgid "client"
 msgstr "Client"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:460
+#: /var/www/fog/lib/service/multicastmanager.class.php:461
 #, fuzzy
 msgid "found"
 msgstr "Not found"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:469
+#: /var/www/fog/lib/service/multicastmanager.class.php:470
 #, fuzzy
 msgid "sending on base port"
 msgstr "Pending MAC Export"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:476
+#: /var/www/fog/lib/service/multicastmanager.class.php:477
 #, fuzzy
 msgid "Command"
 msgstr "Snapin Command"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:486
+#: /var/www/fog/lib/service/multicastmanager.class.php:487
 #, fuzzy
 msgid "has started"
 msgstr "Task Started"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:538
+#: /var/www/fog/lib/service/multicastmanager.class.php:539
 msgid "is already running with pid"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:550
+#: /var/www/fog/lib/service/multicastmanager.class.php:551
 #, fuzzy
 msgid "is no longer running"
 msgstr " no longer exists"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:610
+#: /var/www/fog/lib/service/multicastmanager.class.php:614
 #, fuzzy
 msgid "Wait time has changed to"
 msgstr "Printer type changed to"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:614
+#: /var/www/fog/lib/service/multicastmanager.class.php:618
 msgid "seconds"
 msgstr ""
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:615
+#: /var/www/fog/lib/service/multicastmanager.class.php:619
 #, fuzzy
 msgid "second"
 msgstr "Icon"

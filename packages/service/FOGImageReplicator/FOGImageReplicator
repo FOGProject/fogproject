@@ -35,6 +35,7 @@ while (true) {
         $ServiceClass::$zzz = 600;
     }
     if (!isset($nextrun)) {
+        $ServiceClass->serviceRun();
         $nextrun = FOGCore::niceDate()
             ->modify(
                 sprintf(
@@ -48,7 +49,7 @@ while (true) {
         usleep(100000);
         continue;
     }
-    $nextrun = self::niceDate()
+    $nextrun = FOGCore::niceDate()
         ->modify(
             sprintf(
                 '+%s second%s',
