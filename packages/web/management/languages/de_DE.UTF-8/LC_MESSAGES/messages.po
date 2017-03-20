@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-18 21:44-0400\n"
+"POT-Creation-Date: 2017-03-19 20:56-0400\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -8107,7 +8107,11 @@ msgstr "Nebel-Hosts und Benutzer-Login"
 msgid "Classname must be a string"
 msgstr "Veranstaltung muss eine Zeichenfolge sein."
 
-#: /var/www/fog/commons/init.php:488
+#: /var/www/fog/commons/init.php:215
+msgid "Could not initiate safe session (ini_set)"
+msgstr ""
+
+#: /var/www/fog/commons/init.php:517
 #, fuzzy
 msgid "Missing one or more extensions."
 msgstr "Fehlende Erweiterungen"

@@ -424,10 +424,9 @@ class User extends FOGController
         $authTime = time() - $this->get('authTime');
         $regenTime = $this->_regenerateSessionTimeout * 60 * 60;
         if ($authTime > $regenTime) {
-            session_regenerate_id(false);
             $this->_sessionID = session_id();
             session_write_close();
-            session_start();
+            Initiator::secSessionStart(false);
             session_id($this->_sessionID);
             $this
                 ->set('authID', $this->_sessionID)
@@ -468,7 +467,7 @@ class User extends FOGController
         session_unset();
         session_destroy();
         session_write_close();
-        session_start();
+        Initiator::secSessionStart();
         $_SESSION=array();
         $_SESSION['locale'] = $locale;
         if (isset($messages)) {
