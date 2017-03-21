@@ -2068,7 +2068,7 @@ savePartition() {
                     debugPause
                     imgpart="$imagePath/d${disk_number}p${part_number}.img"
                     uploadFormat "$fifoname" "$imgpart"
-                    partclone.$fstype -fsck-src-part -c -s $part -O $fifoname -N -f 1
+                    partclone.$fstype -cs $part -O $fifoname -Nf 1
                     exitcode=$?
                     case $exitcode in
                         0)

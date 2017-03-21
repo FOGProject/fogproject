@@ -66,9 +66,7 @@ class WakeOnLan extends FOGBase
             )
         );
         foreach ((array) self::$_arrMAC as &$mac) {
-            usleep(500000);
             foreach ((array) $BroadCast as &$SendTo) {
-                usleep(200000);
                 $mac->wake($SendTo, self::$_port);
                 unset($SendTo);
             }
