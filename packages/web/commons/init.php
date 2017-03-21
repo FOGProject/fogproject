@@ -194,37 +194,8 @@ class Initiator
          * Start the session.
          */
         if ($self && $useragent && !isset($_SESSION)) {
-            self::secSessionStart(false);
+            session_start();
         }
-    }
-    /**
-     * Initiates a secure session.
-     *
-     * @param bool $regen Regen the id?
-     *
-     * @return void
-     */
-    public static function secSessionStart($regen = true)
-    {
-        $session_name = 'FOG_Session_login';
-        session_name($session_name);
-        $secure = true;
-        $httponly = true;
-        if (ini_set('session.use_only_cookies', 1) === false) {
-            die(
-                _('Could not initiate safe session (ini_set)')
-            );
-        }
-        $cookieParams = session_get_cookie_params();
-        session_set_cookie_params(
-            $cookieParams['lifetime'],
-            $cookieParams['path'],
-            $cookieParams['domain'],
-            $secure,
-            $httponly
-        );
-        session_start();
-        session_regenerate_id($regen);
     }
     /**
      * Stores session csrf token.
