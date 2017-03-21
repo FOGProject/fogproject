@@ -1019,7 +1019,7 @@ class Host extends FOGController
                 'hostID' => $this->get('id')
             )
         );
-        $SnapinJob = new SnapinJob(@max($sjID));
+        $SnapinJob = new SnapinJob(@min($sjID));
         $this->set('snapinjob', $SnapinJob);
     }
     /**

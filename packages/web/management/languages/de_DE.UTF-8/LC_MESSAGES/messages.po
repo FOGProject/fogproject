@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-19 20:56-0400\n"
+"POT-Creation-Date: 2017-03-20 23:42-0400\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -513,7 +513,7 @@ msgid "Select a valid image"
 msgstr "Wählen Sie ein gültiges Bild"
 
 #: /var/www/fog/lib/fog/group.class.php:408
-#: /var/www/fog/lib/fog/group.class.php:465
+#: /var/www/fog/lib/fog/group.class.php:470
 msgid "There is a host in a tasking"
 msgstr "Es gibt eine Vielzahl in einem tasking"
 
@@ -522,13 +522,13 @@ msgstr "Es gibt eine Vielzahl in einem tasking"
 msgid "No hosts to task"
 msgstr "Gastgeber in Aufgabe"
 
-#: /var/www/fog/lib/fog/group.class.php:488
+#: /var/www/fog/lib/fog/group.class.php:489
 #: /var/www/fog/lib/fog/host.class.php:1359
 #: /var/www/fog/lib/fog/host.class.php:1540
 msgid "Image is not enabled"
 msgstr "Bild ist nicht aktiviert"
 
-#: /var/www/fog/lib/fog/group.class.php:496
+#: /var/www/fog/lib/fog/group.class.php:497
 #, fuzzy
 msgid "Unable to find master Storage Node"
 msgstr "Fehler beim Storage Node zu zerstören"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-19 20:56-0400\n"
+"POT-Creation-Date: 2017-03-20 23:42-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -512,7 +512,7 @@ msgid "Select a valid image"
 msgstr "Select a valid image"
 
 #: /var/www/fog/lib/fog/group.class.php:408
-#: /var/www/fog/lib/fog/group.class.php:465
+#: /var/www/fog/lib/fog/group.class.php:470
 msgid "There is a host in a tasking"
 msgstr "There is a host in a tasking"
 
@@ -521,13 +521,13 @@ msgstr "There is a host in a tasking"
 msgid "No hosts to task"
 msgstr "Hosts in Task"
 
-#: /var/www/fog/lib/fog/group.class.php:488
+#: /var/www/fog/lib/fog/group.class.php:489
 #: /var/www/fog/lib/fog/host.class.php:1359
 #: /var/www/fog/lib/fog/host.class.php:1540
 msgid "Image is not enabled"
 msgstr "Image is not enabled"
 
-#: /var/www/fog/lib/fog/group.class.php:496
+#: /var/www/fog/lib/fog/group.class.php:497
 #, fuzzy
 msgid "Unable to find master Storage Node"
 msgstr "Failed to destroy Storage Node"

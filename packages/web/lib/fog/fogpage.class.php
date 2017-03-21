@@ -1391,13 +1391,13 @@ abstract class FOGPage extends FOGBase
                 'attributes' => &$this->attributes
             )
         );
-        $this->render();
         if (count($this->data)) {
             printf(
                 '<p class="c"><input type="submit" value="%s"/></p>',
                 $this->title
             );
         }
+        $this->render();
         echo '</form>';
     }
     /**

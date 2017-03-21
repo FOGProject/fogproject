@@ -451,6 +451,10 @@ class Group extends FOGController
             throw new Exception(_('No hosts to task'));
         }
         $hostids = $this->get('hosts');
+        $TaskType = new TaskType($taskTypeID);
+        if (!$TaskType->isValid()) {
+            throw new Exception(self::$foglang['TaskTypeNotValid']);
+        }
         $TaskCount = self::getClass('TaskManager')
             ->count(
                 array(
@@ -459,14 +463,11 @@ class Group extends FOGController
                         self::getQueuedStates(),
                         (array) self::getProgressState()
                     ),
+                    'typeID' => $TaskType->isInitNeededTasking(true)
                 )
             );
         if ($TaskCount > 0) {
             throw new Exception(_('There is a host in a tasking'));
-        }
-        $TaskType = new TaskType($taskTypeID);
-        if (!$TaskType->isValid()) {
-            throw new Exception(self::$foglang['TaskTypeNotValid']);
         }
         $imagingTypes = $TaskType->isImagingTask();
         $now = $this->niceDate();
