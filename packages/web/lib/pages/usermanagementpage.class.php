@@ -40,11 +40,24 @@ class UserManagementPage extends FOGPage
         parent::__construct($this->name);
         global $id;
         if ($id) {
+            $linkstr = "$this->linkformat#user-%s";
             $this->subMenu = array(
-                $this->linkformat => self::$foglang['General'],
+                sprintf(
+                    $linkstr,
+                    'general'
+                ) => self::$foglang['General'],
+                sprintf(
+                    $linkstr,
+                    'changepw'
+                ) => _('Change password'),
                 $this->delformat => self::$foglang['Delete'],
             );
             $this->notes = array(
+                _('Friendly Name') => (
+                    $this->obj->get('display') ?
+                    $this->obj->get('display') :
+                    _('No friendly name defined')
+                ),
                 self::$foglang['User'] => $this->obj->get('name'),
             );
         }
@@ -65,6 +78,7 @@ class UserManagementPage extends FOGPage
             '<input type="checkbox" name="toggle-checkbox" class='
             . '"toggle-checkboxAction" />',
             _('Username'),
+            _('Friendly Name'),
             _('Edit')
         );
         $this->templates = array(
@@ -76,6 +90,7 @@ class UserManagementPage extends FOGPage
                 $this->id,
                 _('Edit User')
             ),
+            '${friendly}',
             sprintf(
                 '<a href="?node=%s&sub=edit&%s=${id}" title="%s">'
                 . '<i class="icon fa fa-pencil"></i></a>',
@@ -89,6 +104,7 @@ class UserManagementPage extends FOGPage
                 'class' => 'l filter-false',
                 'width' => 16
             ),
+            array(),
             array(),
             array(
                 'class' => 'c filter-false',
@@ -109,6 +125,11 @@ class UserManagementPage extends FOGPage
             $this->data[] = array(
                 'id' => $User->get('id'),
                 'name' => $User->get('name'),
+                'friendly' => (
+                    $User->get('display') ?
+                    $User->get('display') :
+                    _('No friendly name defined')
+                )
             );
             unset($User);
         };
@@ -252,6 +273,7 @@ class UserManagementPage extends FOGPage
     public function edit()
     {
         $this->title = sprintf('%s: %s', _('Edit'), $this->obj->get('name'));
+        echo '<div id="tab-container"><div id="user-general">';
         $fields = array(
             '<input style="display:none" type='
             . '"text" name="fakeusernameremembered"/>' => '<input style='
@@ -266,12 +288,6 @@ class UserManagementPage extends FOGPage
                 . '"display" value="%s" autocomplete="off"/>',
                 $this->obj->get('display')
             ),
-            _('User Password') => '<input type="password" class='
-            . '"password-input1" name="password" value="" autocomplete='
-            . '"off" id="password"/>',
-            _('User Password (confirm)') => '<input type="password" class='
-            . '"password-input2" name="password_confirm" value='
-            . '"" autocomplete="off"/>',
             sprintf(
                 '%s&nbsp;'
                 . '<i class="icon icon-help hand fa fa-question" title="%s"></i>',
@@ -317,11 +333,50 @@ class UserManagementPage extends FOGPage
                 )
             );
         printf(
-            '<form method="post" action="%s">',
+            '<form method="post" action="%s&tab=user-general">',
             $this->formAction
         );
         $this->render();
-        echo '</form>';
+        echo '</form></div>';
+        echo '<div id="user-changepw">';
+        $fields = array(
+            _('User Password') => '<input type="password" class='
+            . '"password-input1" name="password" value="" autocomplete='
+            . '"off" id="password"/>',
+            _('User Password (confirm)') => '<input type="password" class='
+            . '"password-input2" name="password_confirm" value='
+            . '"" autocomplete="off"/>',
+            '&nbsp;' => sprintf(
+                '<input name="update" type="submit" value="%s"/>',
+                _('Update')
+            )
+        );
+        unset($this->headerData);
+        $this->templates = array(
+            '${field}',
+            '${input}',
+        );
+        $this->attributes = array(
+            array(),
+            array(),
+        );
+        $this->data = array();
+        array_walk($fields, $this->fieldsToData);
+        self::$HookManager
+            ->processEvent(
+                'USER_PW_EDIT',
+                array(
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes
+                )
+            );
+        printf(
+            '<form method="post" action="%s&tab=user-changepw">',
+            $this->formAction
+        );
+        $this->render();
+        echo '</form></div></div>';
     }
     /**
      * Actually save the edits.
@@ -338,32 +393,45 @@ class UserManagementPage extends FOGPage
         try {
             $name = strtolower(trim($_REQUEST['name']));
             $friendly = trim($_REQUEST['display']);
-            $test = preg_match(
-                '/(?=^.{3,40}$)^[\w][\w0-9]*[._-]?[\w0-9]*[.]?[\w0-9]+$/i',
-                $name
-            );
-            if (!$test) {
-                throw new Exception(
-                    sprintf(
-                        '%s.<br/><small>%s.<br/>%s.<br/>%s.</br>%s.</small>',
-                        _('Username does not meet rules'),
-                        _('Must start with a word character'),
-                        _('Must be at least 3 characters'),
-                        _('Must be shorter than 41 characters'),
-                        _('No contiguous special characters')
-                    )
-                );
+            switch ($_REQUEST['tab']) {
+                case 'user-general':
+                    $test = preg_match(
+                        '/(?=^.{3,40}$)^[\w][\w0-9]*[._-]?[\w0-9]*[.]?[\w0-9]+$/i',
+                        $name
+                    );
+                    if (!$test) {
+                        throw new Exception(
+                            sprintf(
+                                '%s.<br/><small>%s.<br/>%s.<br/>%s.</br>%s.</small>',
+                                _('Username does not meet rules'),
+                                _('Must start with a word character'),
+                                _('Must be at least 3 characters'),
+                                _('Must be shorter than 41 characters'),
+                                _('No contiguous special characters')
+                            )
+                        );
+                    }
+                    $exists = $this->obj
+                        ->getManager()
+                        ->exists(
+                            $name,
+                            $this->obj->get('id')
+                        );
+                    if ($name != trim($this->obj->get('name'))
+                        && $exists
+                    ) {
+                        throw new Exception(_('Username already exists'));
+                    }
+                    $this->obj
+                        ->set('name', $name)
+                        ->set('display', $friendly)
+                        ->set('type', isset($_REQUEST['isGuest']));
+                    break;
+                case 'user-changepw':
+                    $this->obj
+                        ->set('password', $_REQUEST['password']);
+                    break;
             }
-            if ($name != trim($this->obj->get('name'))
-                && $this->obj->getManager()->exists($name, $this->obj->get('id'))
-            ) {
-                throw new Exception(_('Username already exists'));
-            }
-            $this->obj
-                ->set('name', $name)
-                ->set('display', $friendly)
-                ->set('type', isset($_REQUEST['isGuest']))
-                ->set('password', $_REQUEST['password']);
             if (!$this->obj->save()) {
                 throw new Exception(_('User update failed'));
             }

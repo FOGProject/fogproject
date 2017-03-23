@@ -2,12 +2,15 @@ $(function() {
     checkboxToggleSearchListPages();
     form = $('.username-input').parents('form');
     validator = form.validate({
+        name: {
+            required: true,
+            minlength: 1,
+            maxlength: 255
+        }
+    });
+    pwform = $('.password-input1').parents('form');
+    pwvalidator = pwform.validate({
         rules: {
-            name: {
-                required: true,
-                minlength: 1,
-                maxlength: 255
-            },
             password: {
                 required: true,
                 minlength: 4
@@ -24,8 +27,11 @@ $(function() {
             }
         }
     });
-    $('.username-input').rules('add', {regex: /^[a-zA-Z0-9_-]{3,40}$/});
-    $('.username-input,.password-input1,.password-input2').on('keyup change blur',function() {
+    $('.username-input').rules('add', {regex: /^[a-zA-Z0-9_-.]{3,40}$/});
+    $('.username-input').on('keyup change blur',function() {
         return validator.element(this);
+    });
+    $('.password-input1,.password-input2').on('keyup change blur',function() {
+        return pwvalidator.element(this);
     });
 });
