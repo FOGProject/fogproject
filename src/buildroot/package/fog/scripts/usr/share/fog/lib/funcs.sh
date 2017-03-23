@@ -686,12 +686,12 @@ writeImage()  {
     case $format in
         5|6)
             # ZSTD Compressed image.
-            zstdmt -T$(nproc) --ultra $PIGZ_COMP -dc </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1
+            zstdmt -T$(nproc) --ultra $PIGZ_COMP -dc </tmp/pigz1 | partclone.restore -n "Storage Location $storage, Image name $img" --ignore_crc -O ${target} -Nf 1
             ;;
         3|4)
             # Uncompressed partclone
             echo " * Imaging using Partclone"
-            cat </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1
+            cat </tmp/pigz1 | partclone.restore -n "Storage Location $storage, Image name $img" --ignore_crc -O ${target} -Nf 1
             # If this fails, try from compressed form.
             #[[ ! $? -eq 0 ]] && zstdmt -T$(nproc) --ultra $PIGZ_COMP -dc </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1 || true
             ;;
@@ -703,7 +703,7 @@ writeImage()  {
         0|2)
             # GZIP Compressed partclone
             echo " * Imaging using Partclone"
-            zstdmt -T$(nproc) --ultra $PIGZ_COMP -dc </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1
+            zstdmt -T$(nproc) --ultra $PIGZ_COMP -dc </tmp/pigz1 | partclone.restore -n "Storage Location $storage, Image name $img" --ignore_crc -O ${target} -N -f 1
             # If this fails, try uncompressed form.
             #[[ ! $? -eq 0 ]] && cat </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1 || true
             ;;
@@ -2068,7 +2068,7 @@ savePartition() {
                     debugPause
                     imgpart="$imagePath/d${disk_number}p${part_number}.img"
                     uploadFormat "$fifoname" "$imgpart"
-                    partclone.$fstype -cs $part -O $fifoname -Nf 1
+                    partclone.$fstype -n "Storage Location $storage, Image name $img" -cs $part -O $fifoname -Nf 1
                     exitcode=$?
                     case $exitcode in
                         0)
@@ -2122,6 +2122,9 @@ restorePartition() {
                 [5-7]|9)
                     [[ ! -f $imagePath/sys.img.000 ]] && imgpart="$imagePath/d${disk_number}p${part_number}.img*"
                     if [[ -z $imgpart ]] ;then
+                        [[ -r $imagePath/sys.img.000 ]] && win7partcnt=1
+                        [[ -r $imagePath/rec.img.000 ]] && win7partcnt=2
+                        [[ -r $imagePath/rec.img.001 ]] && win7partcnt=3
                         case $win7partcnt in
                             1)
                                 imgpart="$imagePath/sys.img.*"
