@@ -68,7 +68,8 @@ class User extends FOGController
         'password' => 'uPass',
         'createdTime' => 'uCreateDate',
         'createdBy' => 'uCreateBy',
-        'type' => 'uType'
+        'type' => 'uType',
+        'display' => 'uDisplay'
     );
     /**
      * The required fields

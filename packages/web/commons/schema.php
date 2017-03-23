@@ -3687,3 +3687,8 @@ $this->schema[] = array(
     . "'Tasking debug element checked (Default is off)',"
     . "'0','General Settings')"
 );
+// 253
+$this->schema[] = array(
+    "ALTER TABLE `users` ADD `uDisplay` VARCHAR(255) "
+    . "NOT NULL AFTER `uType`"
+);

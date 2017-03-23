@@ -140,6 +140,11 @@ class UserManagementPage extends FOGPage
                 . '"name" value="%s" autocomplete="off"/>',
                 $_REQUEST['name']
             ),
+            _('Friendly Name') => sprintf(
+                '<input type="text" class="friendlyname-input" name='
+                . '"display" value="%s" autocomplete="off"/>',
+                $_REQUEST['name']
+            ),
             _('User Password') => '<input type="password" class='
             . '"password-input1" name="password" value="" autocomplete='
             . '"off" id="password"/>',
@@ -192,6 +197,7 @@ class UserManagementPage extends FOGPage
             ->processEvent('USER_ADD_POST');
         try {
             $name = strtolower(trim($_REQUEST['name']));
+            $friendly = trim($_REQUEST['display']);
             $test = preg_match(
                 '/(?=^.{3,40}$)^[\w][\w0-9]*[._-]?[\w0-9]*[.]?[\w0-9]+$/i',
                 $name
@@ -213,6 +219,7 @@ class UserManagementPage extends FOGPage
             }
             $User = self::getClass('User')
                 ->set('name', $name)
+                ->set('display', $friendly)
                 ->set('type', isset($_REQUEST['isGuest']))
                 ->set('password', $_REQUEST['password']);
             if (!$User->save()) {
@@ -253,6 +260,11 @@ class UserManagementPage extends FOGPage
                 '<input type="text" class="username-input" name='
                 . '"name" value="%s" autocomplete="off"/>',
                 $this->obj->get('name')
+            ),
+            _('Friendly Name') => sprintf(
+                '<input type="text" class="friendlyname-input" name='
+                . '"display" value="%s" autocomplete="off"/>',
+                $this->obj->get('display')
             ),
             _('User Password') => '<input type="password" class='
             . '"password-input1" name="password" value="" autocomplete='
@@ -325,6 +337,7 @@ class UserManagementPage extends FOGPage
             );
         try {
             $name = strtolower(trim($_REQUEST['name']));
+            $friendly = trim($_REQUEST['display']);
             $test = preg_match(
                 '/(?=^.{3,40}$)^[\w][\w0-9]*[._-]?[\w0-9]*[.]?[\w0-9]+$/i',
                 $name
@@ -348,6 +361,7 @@ class UserManagementPage extends FOGPage
             }
             $this->obj
                 ->set('name', $name)
+                ->set('display', $friendly)
                 ->set('type', isset($_REQUEST['isGuest']))
                 ->set('password', $_REQUEST['password']);
             if (!$this->obj->save()) {
