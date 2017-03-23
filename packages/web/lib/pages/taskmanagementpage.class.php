@@ -136,6 +136,25 @@ class TaskManagementPage extends FOGPage
             if (!$Host->isValid()) {
                 return;
             }
+            if ($Task->isSnapinTasking()) {
+                $SnapinJob = $Host->get('snapinjob');
+                if ($SnapinJob->isValid()) {
+                    $STCount = self::getClass('SnapinTaskManager')
+                        ->count(
+                            array(
+                                'jobID' => $SnapinJob->get('id'),
+                                'stateID' => self::fastmerge(
+                                    (array)$this->getQueuedStates(),
+                                    (array)$this->getProgressState()
+                                )
+                            )
+                        );
+                    if ($STCount < 1) {
+                        $Task->cancel();
+                    }
+                }
+                return;
+            }
             if ($Task->get('typeID') < 3) {
                 if ($Task->get('isForced')) {
                     $forcetask = sprintf(
@@ -938,6 +957,18 @@ class TaskManagementPage extends FOGPage
             );
         }
         if (count($HostIDs) > 0) {
+            $SnapTaskIDs = self::getSubObjectIDs(
+                'SnapinTask',
+                array(
+                    'jobID' => $SnapinJobIDs,
+                )
+            );
+            $TaskIDs = array_diff(
+                $SnapTaskIDs,
+                $SnapinTaskIDs
+            );
+        }
+        if (count($TaskIDs) < 1) {
             $TaskIDs = self::getSubObjectIDs(
                 'Task',
                 array(
@@ -948,8 +979,6 @@ class TaskManagementPage extends FOGPage
                     )
                 )
             );
-        }
-        if (count($TaskIDs)) {
             self::getClass('TaskManager')->cancel($TaskIDs);
         }
         exit;
