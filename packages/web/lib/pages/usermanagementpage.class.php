@@ -189,6 +189,14 @@ class UserManagementPage extends FOGPage
                 _('Create User')
             )
         );
+        self::$HookManager
+            ->processEvent(
+                'USER_FIELDS',
+                array(
+                    'fields' => &$fields,
+                    'User' => &$this->obj
+                )
+            );
         array_walk($fields, $this->fieldsToData);
         self::$HookManager
             ->processEvent(
@@ -312,6 +320,14 @@ class UserManagementPage extends FOGPage
                 _('Update')
             )
         );
+        self::$HookManager
+            ->processEvent(
+                'USER_FIELDS',
+                array(
+                    'fields' => &$fields,
+                    'User' => &$this->obj
+                )
+            );
         unset($this->headerData);
         $this->templates = array(
             '${field}',
