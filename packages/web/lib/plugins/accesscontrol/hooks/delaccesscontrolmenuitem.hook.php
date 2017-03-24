@@ -143,8 +143,7 @@ $HookManager
             $DelAccessControlMenuItem,
             'DeleteMenuData'
         )
-    );
-$HookManager
+    )
     ->register(
         'SUB_MENULINK_DATA',
         array(

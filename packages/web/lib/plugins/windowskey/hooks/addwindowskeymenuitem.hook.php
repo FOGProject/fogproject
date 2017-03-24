@@ -106,16 +106,14 @@ $HookManager
             $AddWindowsKeyMenuItem,
             'menuData'
         )
-    );
-$HookManager
+    )
     ->register(
         'SEARCH_PAGES',
         array(
             $AddWindowsKeyMenuItem,
             'addSearch'
         )
-    );
-$HookManager
+    )
     ->register(
         'PAGES_WITH_OBJECTS',
         array(

@@ -103,8 +103,7 @@ $HookManager
             $LogViewerHook,
             'logViewerAdd'
         )
-    );
-$HookManager
+    )
     ->register(
         'LOG_FOLDERS',
         array(

@@ -104,16 +104,14 @@ $HookManager
             $AddWOLMenuItem,
             'menuData'
         )
-    );
-$HookManager
+    )
     ->register(
         'SEARCH_PAGES',
         array(
             $AddWOLMenuItem,
             'addSearch'
         )
-    );
-$HookManager
+    )
     ->register(
         'PAGES_WITH_OBJECTS',
         array(

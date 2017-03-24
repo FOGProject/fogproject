@@ -111,24 +111,25 @@ class AddPushbulletMenuItem extends Hook
     }
 }
 $AddPushbulletMenuItem = new AddPushbulletMenuItem();
-$HookManager->register(
-    'MAIN_MENU_DATA',
-    array(
-        $AddPushbulletMenuItem,
-        'menuData'
+$HookManager
+    ->register(
+        'MAIN_MENU_DATA',
+        array(
+            $AddPushbulletMenuItem,
+            'menuData'
+        )
     )
-);
-$HookManager->register(
-    'SEARCH_PAGES',
-    array(
-        $AddPushbulletMenuItem,
-        'addSearch'
+    ->register(
+        'SEARCH_PAGES',
+        array(
+            $AddPushbulletMenuItem,
+            'addSearch'
+        )
     )
-);
-$HookManager->register(
-    'PAGES_WITH_OBJECTS',
-    array(
-        $AddPushbulletMenuItem,
-        'addPageWithObject'
-    )
-);
+    ->register(
+        'PAGES_WITH_OBJECTS',
+        array(
+            $AddPushbulletMenuItem,
+            'addPageWithObject'
+        )
+    );

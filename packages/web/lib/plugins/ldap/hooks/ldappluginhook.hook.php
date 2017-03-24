@@ -196,32 +196,28 @@ $HookManager
             $LDAPPluginHook,
             'checkAddUser'
         )
-    );
-$HookManager
+    )
     ->register(
         'USER_TYPE_HOOK',
         array(
             $LDAPPluginHook,
             'setLdapType'
         )
-    );
-$HookManager
+    )
     ->register(
         'USER_TYPES_FILTER',
         array(
             $LDAPPluginHook,
             'setTypeFilter'
         )
-    );
-$HookManager
+    )
     ->register(
         'USER_TYPE_VALID',
         array(
             $LDAPPluginHook,
             'isLdapType'
         )
-    );
-$HookManager
+    )
     ->register(
         'USER_LOGGING_OUT',
         array(

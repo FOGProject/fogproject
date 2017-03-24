@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-24 09:48-0400\n"
+"POT-Creation-Date: 2017-03-24 12:55-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -89,7 +89,7 @@ msgid "Link must be a string"
 msgstr "Evento deve essere una stringa"
 
 #: /var/www/fog/lib/fog/eventmanager.class.php:58
-#: /var/www/fog/lib/fog/eventmanager.class.php:134
+#: /var/www/fog/lib/fog/eventmanager.class.php:131
 msgid "Event must be a string"
 msgstr "Evento deve essere una stringa"
 
@@ -130,7 +130,7 @@ msgid "Could not register"
 msgstr "Impossibile creare la stampante"
 
 #: /var/www/fog/lib/fog/eventmanager.class.php:106
-#: /var/www/fog/lib/fog/eventmanager.class.php:156
+#: /var/www/fog/lib/fog/eventmanager.class.php:153
 #: /var/www/fog/lib/fog/fogcontroller.class.php:144
 #: /var/www/fog/lib/fog/fogcontroller.class.php:304
 #: /var/www/fog/lib/fog/fogcontroller.class.php:368
@@ -157,7 +157,7 @@ msgid "Error"
 msgstr "Errore"
 
 #: /var/www/fog/lib/fog/eventmanager.class.php:108
-#: /var/www/fog/lib/fog/eventmanager.class.php:158
+#: /var/www/fog/lib/fog/eventmanager.class.php:155
 #, fuzzy
 msgid "Event"
 msgstr "Aggiungi evento"
@@ -167,16 +167,16 @@ msgstr "Aggiungi evento"
 msgid "Class"
 msgstr "Compiti"
 
-#: /var/www/fog/lib/fog/eventmanager.class.php:137
+#: /var/www/fog/lib/fog/eventmanager.class.php:134
 #, fuzzy
 msgid "Event Data must be an array"
 msgstr "Evento deve essere una stringa"
 
-#: /var/www/fog/lib/fog/eventmanager.class.php:140
+#: /var/www/fog/lib/fog/eventmanager.class.php:137
 msgid "Event and data are not set"
 msgstr ""
 
-#: /var/www/fog/lib/fog/eventmanager.class.php:155
+#: /var/www/fog/lib/fog/eventmanager.class.php:152
 #, fuzzy
 msgid "Could not notify"
 msgstr "Impossibile leggere il file tmp."
@@ -4517,7 +4517,7 @@ msgstr "Nuovo utente"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:159
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:289
-#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:142
+#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:160
 msgid "User Name"
 msgstr "Nome utente"
 
@@ -6326,7 +6326,7 @@ msgstr "Conto Aggiunto!"
 msgid "Account removed from FOG GUI at"
 msgstr "Account rimosso da FOG GUI a"
 
-#: /var/www/fog/lib/plugins/slack/hooks/addslackmenuitem.hook.php:14
+#: /var/www/fog/lib/plugins/slack/hooks/addslackmenuitem.hook.php:65
 msgid "Slack Management"
 msgstr "Gestione Slack"
 
@@ -6761,12 +6761,13 @@ msgstr "Processo cambia Gruppo"
 msgid "Access Control Manager"
 msgstr "Gestione Access Control"
 
-#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:49
+#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:51
+#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:268
 #, fuzzy
 msgid "Role"
 msgstr "Rimuovere"
 
-#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:144
+#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:162
 #, fuzzy
 msgid "User Access Control"
 msgstr "Controllo di accesso"
@@ -6938,7 +6939,7 @@ msgstr "Tipo di attività già esistente, si prega di riprovare."
 msgid "Task Type added, editing"
 msgstr "Task Type aggiunto, editing"
 
-#: /var/www/fog/lib/plugins/tasktypeedit/hooks/addtasktypeeditmenuitem.hook.php:14
+#: /var/www/fog/lib/plugins/tasktypeedit/hooks/addtasktypeeditmenuitem.hook.php:65
 msgid "Task Type Management"
 msgstr "Gestione Task Type"
 
@@ -7264,7 +7265,7 @@ msgstr "stato delle attività già esiste, si prega di riprovare."
 msgid "Task State added, editing"
 msgstr "Compito di Stato aggiunto, editing"
 
-#: /var/www/fog/lib/plugins/taskstateedit/hooks/addtaskstateeditmenuitem.hook.php:14
+#: /var/www/fog/lib/plugins/taskstateedit/hooks/addtaskstateeditmenuitem.hook.php:65
 msgid "Task State Management"
 msgstr "Task gestione dello stato"
 

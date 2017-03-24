@@ -116,8 +116,7 @@ $HookManager
             $AddLocationTasks,
             'tasksActiveTableHeader'
         )
-    );
-$HookManager
+    )
     ->register(
         'HOST_DATA',
         array(

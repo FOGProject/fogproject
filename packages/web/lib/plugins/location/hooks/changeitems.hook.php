@@ -280,64 +280,56 @@ $HookManager
             $ChangeItems,
             'storageNodeSetting'
         )
-    );
-$HookManager
+    )
     ->register(
         'SNAPIN_GROUP',
         array(
             $ChangeItems,
             'storageGroupSetting'
         )
-    );
-$HookManager
+    )
     ->register(
         'BOOT_ITEM_NEW_SETTINGS',
         array(
             $ChangeItems,
             'bootItemSettings'
         )
-    );
-$HookManager
+    )
     ->register(
         'BOOT_TASK_NEW_SETTINGS',
         array(
             $ChangeItems,
             'storageGroupSetting'
         )
-    );
-$HookManager
+    )
     ->register(
         'HOST_NEW_SETTINGS',
         array(
             $ChangeItems,
             'storageNodeSetting'
         )
-    );
-$HookManager
+    )
     ->register(
         'HOST_NEW_SETTINGS',
         array(
             $ChangeItems,
             'storageGroupSetting'
         )
-    );
-$HookManager
+    )
     ->register(
         'BOOT_TASK_NEW_SETTINGS',
         array(
             $ChangeItems,
             'storageNodeSetting'
         )
-    );
-$HookManager
+    )
     ->register(
         'CHECK_NODE_MASTERS',
         array(
             $ChangeItems,
             'alterMasters'
         )
-    );
-$HookManager
+    )
     ->register(
         'CHECK_NODE_MASTER',
         array(

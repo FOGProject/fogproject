@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-24 09:48-0400\n"
+"POT-Creation-Date: 2017-03-24 12:55-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -89,7 +89,7 @@ msgid "Link must be a string"
 msgstr "Événement doit être une chaîne"
 
 #: /var/www/fog/lib/fog/eventmanager.class.php:58
-#: /var/www/fog/lib/fog/eventmanager.class.php:134
+#: /var/www/fog/lib/fog/eventmanager.class.php:131
 msgid "Event must be a string"
 msgstr "Événement doit être une chaîne"
 
@@ -130,7 +130,7 @@ msgid "Could not register"
 msgstr "Impossible de créer l'imprimante"
 
 #: /var/www/fog/lib/fog/eventmanager.class.php:106
-#: /var/www/fog/lib/fog/eventmanager.class.php:156
+#: /var/www/fog/lib/fog/eventmanager.class.php:153
 #: /var/www/fog/lib/fog/fogcontroller.class.php:144
 #: /var/www/fog/lib/fog/fogcontroller.class.php:304
 #: /var/www/fog/lib/fog/fogcontroller.class.php:368
@@ -157,7 +157,7 @@ msgid "Error"
 msgstr "Erreur"
 
 #: /var/www/fog/lib/fog/eventmanager.class.php:108
-#: /var/www/fog/lib/fog/eventmanager.class.php:158
+#: /var/www/fog/lib/fog/eventmanager.class.php:155
 #, fuzzy
 msgid "Event"
 msgstr "Ajouter un évènement"
@@ -167,16 +167,16 @@ msgstr "Ajouter un évènement"
 msgid "Class"
 msgstr "les tâches"
 
-#: /var/www/fog/lib/fog/eventmanager.class.php:137
+#: /var/www/fog/lib/fog/eventmanager.class.php:134
 #, fuzzy
 msgid "Event Data must be an array"
 msgstr "Événement doit être une chaîne"
 
-#: /var/www/fog/lib/fog/eventmanager.class.php:140
+#: /var/www/fog/lib/fog/eventmanager.class.php:137
 msgid "Event and data are not set"
 msgstr ""
 
-#: /var/www/fog/lib/fog/eventmanager.class.php:155
+#: /var/www/fog/lib/fog/eventmanager.class.php:152
 #, fuzzy
 msgid "Could not notify"
 msgstr "Impossible de lire le fichier tmp."
@@ -4526,7 +4526,7 @@ msgstr "Nouvel utilisateur"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:159
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:289
-#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:142
+#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:160
 msgid "User Name"
 msgstr "Nom d'utilisateur"
 
@@ -6341,7 +6341,7 @@ msgstr "Compte Ajouté!"
 msgid "Account removed from FOG GUI at"
 msgstr "Compte retiré de FOG GUI au"
 
-#: /var/www/fog/lib/plugins/slack/hooks/addslackmenuitem.hook.php:14
+#: /var/www/fog/lib/plugins/slack/hooks/addslackmenuitem.hook.php:65
 msgid "Slack Management"
 msgstr "gestion Slack"
 
@@ -6775,12 +6775,13 @@ msgstr "Processus Changements Groupe"
 msgid "Access Control Manager"
 msgstr "Gestion de contrôle d'accès"
 
-#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:49
+#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:51
+#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:268
 #, fuzzy
 msgid "Role"
 msgstr "Retirer"
 
-#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:144
+#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:162
 #, fuzzy
 msgid "User Access Control"
 msgstr "Contrôle d'accès"
@@ -6952,7 +6953,7 @@ msgstr "Type de tâche existe déjà, s'il vous plaît essayer à nouveau."
 msgid "Task Type added, editing"
 msgstr "Type de tâche ajouté, l'édition"
 
-#: /var/www/fog/lib/plugins/tasktypeedit/hooks/addtasktypeeditmenuitem.hook.php:14
+#: /var/www/fog/lib/plugins/tasktypeedit/hooks/addtasktypeeditmenuitem.hook.php:65
 msgid "Task Type Management"
 msgstr "Gestion Type de tâche"
 
@@ -7278,7 +7279,7 @@ msgstr "état Tâche déjà existe, s'il vous plaît essayer à nouveau."
 msgid "Task State added, editing"
 msgstr "État Tâche ajouté, édition"
 
-#: /var/www/fog/lib/plugins/taskstateedit/hooks/addtaskstateeditmenuitem.hook.php:14
+#: /var/www/fog/lib/plugins/taskstateedit/hooks/addtaskstateeditmenuitem.hook.php:65
 msgid "Task State Management"
 msgstr "Gestion des tâches État"
 

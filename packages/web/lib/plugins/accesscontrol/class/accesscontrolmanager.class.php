@@ -84,12 +84,13 @@ class AccessControlManager extends FOGManagerController
         if (!self::$DB->query($sql)) {
             return false;
         } else {
-            $sql = "Insert into " . $this->tablename ." Values 
-                (1,'Administrator', 'FOG Administrator', 'fog', NOW()),
-                    (2,'Technician', 'FOG Technician', 'fog', NOW())
-";
+            $sql = sprintf(
+                "INSERT INTO `%s` VALUES"
+                . "(1, 'Administrator', 'FOG Administrator', 'fog', NOW()),"
+                . "(2, 'Technician', 'FOG Technician', 'fog', NOW())",
+                $this->tablename
+            );
             self::$DB->query($sql);
-
         }
         return self::getClass('AccessControlAssociationManager')->install();
 
@@ -101,11 +102,8 @@ class AccessControlManager extends FOGManagerController
      */
     public function uninstall()
     {
-        $sql = 'DROP TABLE '. $this->tablename;
-        if (!self::$DB->query($sql)) {
-            return false;
-        }
-        return self::getClass('AccessControlAssociationManager')->uninstall();
+        self::getClass('AccessControlAssociationManager')->uninstall();
+        return parent::uninstall();
 
     }
 }

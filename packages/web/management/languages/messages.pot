@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-24 10:50-0400\n"
+"POT-Creation-Date: 2017-03-24 12:55-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -79,7 +79,7 @@ msgid "Link must be a string"
 msgstr ""
 
 #: /var/www/fog/lib/fog/eventmanager.class.php:58
-#: /var/www/fog/lib/fog/eventmanager.class.php:134
+#: /var/www/fog/lib/fog/eventmanager.class.php:131
 msgid "Event must be a string"
 msgstr ""
 
@@ -116,7 +116,7 @@ msgid "Could not register"
 msgstr ""
 
 #: /var/www/fog/lib/fog/eventmanager.class.php:106
-#: /var/www/fog/lib/fog/eventmanager.class.php:156
+#: /var/www/fog/lib/fog/eventmanager.class.php:153
 #: /var/www/fog/lib/fog/fogcontroller.class.php:144
 #: /var/www/fog/lib/fog/fogcontroller.class.php:304
 #: /var/www/fog/lib/fog/fogcontroller.class.php:368
@@ -143,7 +143,7 @@ msgid "Error"
 msgstr ""
 
 #: /var/www/fog/lib/fog/eventmanager.class.php:108
-#: /var/www/fog/lib/fog/eventmanager.class.php:158
+#: /var/www/fog/lib/fog/eventmanager.class.php:155
 msgid "Event"
 msgstr ""
 
@@ -151,15 +151,15 @@ msgstr ""
 msgid "Class"
 msgstr ""
 
-#: /var/www/fog/lib/fog/eventmanager.class.php:137
+#: /var/www/fog/lib/fog/eventmanager.class.php:134
 msgid "Event Data must be an array"
 msgstr ""
 
-#: /var/www/fog/lib/fog/eventmanager.class.php:140
+#: /var/www/fog/lib/fog/eventmanager.class.php:137
 msgid "Event and data are not set"
 msgstr ""
 
-#: /var/www/fog/lib/fog/eventmanager.class.php:155
+#: /var/www/fog/lib/fog/eventmanager.class.php:152
 msgid "Could not notify"
 msgstr ""
 
@@ -4307,7 +4307,7 @@ msgstr ""
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:159
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:289
-#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:142
+#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:160
 msgid "User Name"
 msgstr ""
 
@@ -6032,7 +6032,7 @@ msgstr ""
 msgid "Account removed from FOG GUI at"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/slack/hooks/addslackmenuitem.hook.php:14
+#: /var/www/fog/lib/plugins/slack/hooks/addslackmenuitem.hook.php:65
 msgid "Slack Management"
 msgstr ""
 
@@ -6423,11 +6423,12 @@ msgstr ""
 msgid "Access Control Manager"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:49
+#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:51
+#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:268
 msgid "Role"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:144
+#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:162
 msgid "User Access Control"
 msgstr ""
 
@@ -6581,7 +6582,7 @@ msgstr ""
 msgid "Task Type added, editing"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/tasktypeedit/hooks/addtasktypeeditmenuitem.hook.php:14
+#: /var/www/fog/lib/plugins/tasktypeedit/hooks/addtasktypeeditmenuitem.hook.php:65
 msgid "Task Type Management"
 msgstr ""
 
@@ -6876,7 +6877,7 @@ msgstr ""
 msgid "Task State added, editing"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/taskstateedit/hooks/addtaskstateeditmenuitem.hook.php:14
+#: /var/www/fog/lib/plugins/taskstateedit/hooks/addtaskstateeditmenuitem.hook.php:65
 msgid "Task State Management"
 msgstr ""
 

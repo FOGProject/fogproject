@@ -34,7 +34,7 @@ class AccessControlRuleAssociationManager extends FOGManagerController
      */
     public function install()
     {
-        //$this->uninstall();
+        $this->uninstall();
         $sql = Schema::createTable(
             $this->tablename,
             true,
@@ -75,15 +75,4 @@ class AccessControlRuleAssociationManager extends FOGManagerController
         }
         return false;
     }
-    /**
-     * Uninstalls the plugin
-     *
-     * @return bool
-     */
-    public function uninstall()
-    {
-        $sql = 'Drop table '. $this->tablename;
-        return self::$DB->query($sql);
-    }
-
 }

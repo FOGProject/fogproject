@@ -187,32 +187,28 @@ $HookManager
             $AddWindowsKeyImage,
             'imageFields'
         )
-    );
-$HookManager
+    )
     ->register(
         'IMAGE_ADD_SUCCESS',
         array(
             $AddWindowsKeyImage,
             'imageAddKey'
         )
-    );
-$HookManager
+    )
     ->register(
         'IMAGE_EDIT_SUCCESS',
         array(
             $AddWindowsKeyImage,
             'imageAddKey'
         )
-    );
-$HookManager
+    )
     ->register(
         'DESTROY_IMAGE',
         array(
             $AddWindowsKeyImage,
             'imageRemove'
         )
-    );
-$HookManager
+    )
     ->register(
         'SELECT_BUILD',
         array(

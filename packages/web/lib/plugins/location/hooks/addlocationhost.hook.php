@@ -403,80 +403,70 @@ $HookManager
             $AddLocationHost,
             'hostTableHeader'
         )
-    );
-$HookManager
+    )
     ->register(
         'HOST_DATA',
         array(
             $AddLocationHost,
             'hostData'
         )
-    );
-$HookManager
+    )
     ->register(
         'HOST_FIELDS',
         array(
             $AddLocationHost,
             'hostFields'
         )
-    );
-$HookManager
+    )
     ->register(
         'HOST_ADD_SUCCESS',
         array(
             $AddLocationHost,
             'hostAddLocation'
         )
-    );
-$HookManager
+    )
     ->register(
         'HOST_EDIT_SUCCESS',
         array(
             $AddLocationHost,
             'hostAddLocation'
         )
-    );
-$HookManager
+    )
     ->register(
         'HOST_REGISTER',
         array(
             $AddLocationHost,
             'hostRegister'
         )
-    );
-$HookManager
+    )
     ->register(
         'HOST_IMPORT',
         array(
             $AddLocationHost,
             'hostImport'
         )
-    );
-$HookManager
+    )
     ->register(
         'HOST_EXPORT_REPORT',
         array(
             $AddLocationHost,
             'hostExport'
         )
-    );
-$HookManager
+    )
     ->register(
         'DESTROY_HOST',
         array(
             $AddLocationHost,
             'hostDestroy'
         )
-    );
-$HookManager
+    )
     ->register(
         'EMAIL_ITEMS',
         array(
             $AddLocationHost,
             'hostEmailHook'
         )
-    );
-$HookManager
+    )
     ->register(
         'HOST_INFO_EXPOSE',
         array(

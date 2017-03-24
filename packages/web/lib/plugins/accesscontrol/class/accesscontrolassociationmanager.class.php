@@ -34,7 +34,7 @@ class AccessControlAssociationManager extends FOGManagerController
      */
     public function install()
     {
-        //$this->uninstall();
+        $this->uninstall();
         $sql = Schema::createTable(
             $this->tablename,
             true,
@@ -76,11 +76,14 @@ class AccessControlAssociationManager extends FOGManagerController
         } else {
             $fogUserID = self::getSubObjectIDs(
                 'User',
-                array('name'=> 'fog')
+                array('name' => 'fog')
             );
-            $sql = "Insert into " . $this->tablename ." Values 
-                (1, 'Administrator-fog', 1," .intval($fogUserID[0]). ")
-";
+            $sql = sprintf(
+                "INSERT INTO `%s` VALUES (1, '%s', 1, %d)",
+                $this->tablename,
+                'Administrator-fog',
+                intval($fogUserID[0])
+            );
             self::$DB->query($sql);
         }
         return self::getClass('AccessControlRuleManager')->install();
@@ -92,11 +95,8 @@ class AccessControlAssociationManager extends FOGManagerController
      */
     public function uninstall()
     {
-        $sql = 'Drop table '. $this->tablename;
-        if (!self::$DB->query($sql)) {
-            return false;
-        }
-        return self::getClass('AccessControlRuleManager')->uninstall();
+        self::getClass('AccessControlRuleManager')->uninstall();
+        return parent::uninstall();
     }
 
 }

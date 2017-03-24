@@ -111,11 +111,8 @@ class EventManager extends FOGBase
                 $listener[0]
             );
             $this->log($string);
-
-            return false;
         }
-
-        return true;
+        return $this;
     }
     /**
      * Notifies the system of events.

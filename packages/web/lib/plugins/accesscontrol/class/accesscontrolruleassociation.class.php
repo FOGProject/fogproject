@@ -21,13 +21,28 @@
  */
 class AccessControlRuleAssociation extends FOGController
 {
+    /**
+     * The table name.
+     *
+     * @var string
+     */
     protected $databaseTable = 'roleRuleAssoc';
+    /**
+     * The table fields.
+     *
+     * @var array
+     */
     protected $databaseFields = array(
         'id' => 'rraID',
         'name' => 'rraName',
         'roleID' => 'rraRoleID',
         'ruleID' => 'rraRuleID',
     );
+    /**
+     * The required fields.
+     *
+     * @var array
+     */
     protected $databaseFieldsRequired = array(
         'roleID',
         'ruleID',

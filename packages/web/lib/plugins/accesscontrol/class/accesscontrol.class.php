@@ -70,4 +70,19 @@ class AccessControl extends FOGController
             'merge'
         );
     }
+    /**
+     * Remove user from access control.
+     *
+     * @param array $removeArray The users to remove.
+     *
+     * @return object
+     */
+    public function removeUser($removeArray)
+    {
+        return $this->addRemItem(
+            'users',
+            (array)$removeArray,
+            'diff'
+        );
+    }
 }

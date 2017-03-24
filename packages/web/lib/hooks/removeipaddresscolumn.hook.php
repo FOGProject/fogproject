@@ -78,8 +78,7 @@ $HookManager
             $RemoveIPAddressColumn,
             'hostTableHeader'
         )
-    );
-$HookManager
+    )
     ->register(
         'HOST_DATA',
         array(

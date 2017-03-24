@@ -21,6 +21,11 @@
  */
 class AccessControlRuleManager extends FOGManagerController
 {
+    /**
+     * Table name
+     *
+     * @var string
+     */
     public $tablename = 'rules';
     /**
      * Installs the database for the plugin.
@@ -182,11 +187,8 @@ class AccessControlRuleManager extends FOGManagerController
      */
     public function uninstall()
     {
-        $sql = 'Drop table '. $this->tablename;
-        if (!self::$DB->query($sql)) {
-            return false;
-        }
-        return self::getClass('AccessControlRuleAssociationManager')->uninstall();
+        self::getClass('AccessControlRuleAssociationManager')->uninstall();
+        return parent::uninstall();
 
     }
 }

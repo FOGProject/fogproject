@@ -46,8 +46,13 @@ class AddAccessControlUser extends Hook
         if ($sub == 'pending') {
             return;
         }
-        $arguments['headerData'][3] = _('Role');
-
+        foreach ((array)$arguments['headerData'] as $index => &$str) {
+            if ($index == 3) {
+                $arguments['headerData'][$index] = _('Role');
+                $arguments['headerData'][] = $str;
+            }
+            unset($str);
+        }
     }
     /**
      * This function modifies the data of the user page.
@@ -70,32 +75,45 @@ class AddAccessControlUser extends Hook
         if ($sub == 'pending') {
             return;
         }
-        $arguments['templates'][3] = '${role}';
-
+        foreach ((array)$arguments['attributes'] as $index => &$str) {
+            if ($index == 3) {
+                $arguments['attributes'][$index] = array();
+                $arguments['attributes'][] = $str;
+            }
+            unset($str);
+        }
+        foreach ((array)$arguments['templates'] as $index => &$str) {
+            if ($index == 3) {
+                $arguments['templates'][$index] = '${role}';
+                $arguments['templates'][] = $str;
+            }
+            unset($str);
+        }
         foreach ((array)$arguments['data'] as $index => &$vals) {
             $find = array(
                 'userID' => $vals['id']
             );
             $Roles = self::getSubObjectIDs(
                 'AccessControlAssociation',
-                $find,
-                'roleID'
+                $find
             );
-            $cnt = self::getClass('AccessControlManager')
-                ->count(
-                    array('id' => $Roles)
-                );
+            $cnt = count($Roles);
             if ($cnt !== 1) {
                 $arguments['data'][$index]['role'] = '';
                 continue;
             }
-            foreach ((array)self::getClass('AccessControlManager')
-                ->find(array('id' => $Roles)) as &$Role
-            ) {
-                $arguments['data'][$index]['role'] = $Role
-                    ->get('name');
-                unset($Role);
-            }
+            $RoleNames = array_values(
+                array_unique(
+                    array_filter(
+                        self::getSubObjectIDs(
+                            'AccessControl',
+                            array('id' => $Roles),
+                            'name'
+                        )
+                    )
+                )
+            );
+            $arguments['data'][$index]['role'] = $RoleNames[0];
             unset($vals);
             unset($Roles);
         }
@@ -136,7 +154,7 @@ class AddAccessControlUser extends Hook
                 'AccessControl',
                 array('id' => $AccessControls)
             );
-            $acID = array_shift($AccessControls);
+            $acID = $AccessControls[0];
         }
         $this->arrayInsertAfter(
             _('User Name'),
@@ -148,7 +166,6 @@ class AddAccessControlUser extends Hook
         );
 
     }
-
     /**
      * This function adds one entry in the roleUserAssoc table in the DB
      *
@@ -176,12 +193,9 @@ class AddAccessControlUser extends Hook
         if (!in_array($sub, $subs)) {
             return;
         }
-        //if (str_replace('_', '-', $tab) != 'host-general') {
-        //    return;
-        //}
         self::getClass('AccessControlAssociationManager')->destroy(
             array(
-                'uID' => $arguments['User']->get('id')
+                'userID' => $arguments['User']->get('id')
             )
         );
         $cnt = self::getClass('AccessControlManager')
@@ -196,10 +210,63 @@ class AddAccessControlUser extends Hook
             ->set('ruaUserID', $arguments['User']->get('id'))
             ->load('ruaUserID')
             ->set('ruaRoleID', $_REQUEST['accesscontrol'])
-            ->set('name', $Role->get('name'). "-" . $arguments['User']->get('name'))
+            ->set(
+                'name',
+                sprintf(
+                    '%s-%s',
+                    $Role->get('name'),
+                    $arguments['User']->get('name')
+                )
+            )
             ->save();
     }
-
+    /**
+     * This function adds role to notes
+     *
+     * @param mixed $arguments The arguments to modify.
+     *
+     * @return void
+     */
+    public function addNotes($arguments)
+    {
+        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+            return;
+        }
+        global $node;
+        global $sub;
+        global $tab;
+        if ($node != 'user') {
+            return;
+        }
+        if (count($arguments['notes']) < 1) {
+            return;
+        }
+        $AccessControls = self::getSubObjectIDs(
+            'AccessControlAssociation',
+            array(
+                'userID' => $arguments['object']->get('id')
+            ),
+            'roleID'
+        );
+        $cnt = count($AccessControls);
+        if ($cnt !== 1) {
+            $acID = 0;
+        } else {
+            $AccessControls = array_values(
+                array_unique(
+                    array_filter(
+                        self::getSubObjectIDs(
+                            'AccessControl',
+                            array('id' => $AccessControls),
+                            'name'
+                        )
+                    )
+                )
+            );
+            $acID = $AccessControls[0];
+        }
+        $arguments['notes'][_('Role')] = $acID;
+    }
 }
 $AddAccessControlUser = new AddAccessControlUser();
 $HookManager
@@ -209,39 +276,39 @@ $HookManager
             $AddAccessControlUser,
             'userTableHeader'
         )
-    );
-
-$HookManager
+    )
     ->register(
         'USER_DATA',
         array(
             $AddAccessControlUser,
             'userData'
         )
-    );
-
-$HookManager
+    )
     ->register(
         'USER_FIELDS',
         array(
             $AddAccessControlUser,
             'userFields'
         )
-    );
-
-$HookManager
+    )
     ->register(
         'USER_ADD_SUCCESS',
         array(
             $AddAccessControlUser,
             'userAddAccessControl'
         )
-    );
-$HookManager
+    )
     ->register(
         'USER_UPDATE_SUCCESS',
         array(
             $AddAccessControlUser,
             'userAddAccessControl'
+        )
+    )
+    ->register(
+        'SUB_MENULINK_DATA',
+        array(
+            $AddAccessControlUser,
+            'addNotes'
         )
     );

@@ -183,16 +183,14 @@ $HookManager
             $AddLocationGroup,
             'groupFields'
         )
-    );
-$HookManager
+    )
     ->register(
         'SUB_MENULINK_DATA',
         array(
             $AddLocationGroup,
             'groupSideMenu'
         )
-    );
-$HookManager
+    )
     ->register(
         'GROUP_EDIT_SUCCESS',
         array(

@@ -127,16 +127,14 @@ $HookManager
             $AddLocationMenuItem,
             'menuData'
         )
-    );
-$HookManager
+    )
     ->register(
         'SEARCH_PAGES',
         array(
             $AddLocationMenuItem,
             'addSearch'
         )
-    );
-$HookManager
+    )
     ->register(
         'PAGES_WITH_OBJECTS',
         array(

@@ -119,24 +119,21 @@ $HookManager
             $AddFileIntegrityMenuItem,
             'menuData'
         )
-    );
-$HookManager
+    )
     ->register(
         'SEARCH_PAGES',
         array(
             $AddFileIntegrityMenuItem,
             'addSearch'
         )
-    );
-$HookManager
+    )
     ->register(
         'ACTIONBOX',
         array(
             $AddFileIntegrityItem,
             'removeActionBox'
         )
-    );
-$HookManager
+    )
     ->register(
         'PAGES_WITH_OBJECTS',
         array(

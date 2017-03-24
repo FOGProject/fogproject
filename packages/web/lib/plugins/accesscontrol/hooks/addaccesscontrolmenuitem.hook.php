@@ -104,16 +104,14 @@ $HookManager
             $AddAccessControlMenuItem,
             'menuData'
         )
-    );
-$HookManager
+    )
     ->register(
         'SEARCH_PAGES',
         array(
             $AddAccessControlMenuItem,
             'addSearch'
         )
-    );
-$HookManager
+    )
     ->register(
         'PAGES_WITH_OBJECTS',
         array(

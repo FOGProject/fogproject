@@ -174,16 +174,14 @@ $HookManager
             $AddServiceConfiguration,
             'addServiceCheckbox'
         )
-    );
-$HookManager
+    )
     ->register(
         'SNAPIN_CLIENT_SERVICE_POST',
         array(
             $AddServiceConfiguration,
             'updateGlobalSetting'
         )
-    );
-$HookManager
+    )
     ->register(
         'SERVICE_NAMES',
         array(

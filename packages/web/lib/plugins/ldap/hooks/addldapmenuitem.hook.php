@@ -108,16 +108,14 @@ $HookManager
             $AddLDAPMenuItem,
             'menuData'
         )
-    );
-$HookManager
+    )
     ->register(
         'SEARCH_PAGES',
         array(
             $AddLDAPMenuItem,
             'addSearch'
         )
-    );
-$HookManager
+    )
     ->register(
         'PAGES_WITH_OBJECTS',
         array(
