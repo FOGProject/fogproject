@@ -85,7 +85,6 @@ class StorageManagementPage extends FOGPage
             }
             break;
         case 'editStorageGroup':
-        case 'editStorageGroup':
         case 'deleteStorageGroup':
             if ($id) {
                 if (!$this->obj->isValid() && false === strpos($sub, 'add')) {

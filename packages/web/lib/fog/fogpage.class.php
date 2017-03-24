@@ -272,8 +272,8 @@ abstract class FOGPage extends FOGBase
         }
         if (!isset($ref) || !$ref) {
             $ref = preg_match(
-                '#node=storage&sub=.*storageGroup#i',
-                self::$querystring
+                '#storageGroup#i',
+                $sub
             );
         }
         if ($ref) {

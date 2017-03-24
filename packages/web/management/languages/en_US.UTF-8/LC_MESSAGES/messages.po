@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-23 16:57-0400\n"
+"POT-Creation-Date: 2017-03-23 20:04-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4417,8 +4417,8 @@ msgstr "Active"
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1077
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:535
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:225
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:194
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:199
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:193
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:198
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:109
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:166
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:460
@@ -4429,8 +4429,8 @@ msgstr "Yes"
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1078
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:536
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:223
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:195
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:200
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:194
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:199
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:109
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:160
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:447
@@ -5974,36 +5974,36 @@ msgid "Snapin updated"
 msgstr "Snapin updated"
 
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:55
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:95
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:94
 #, php-format
 msgid "%s ID %s is not valid"
 msgstr "%s ID %s is not valid"
 
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:214
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:213
 #: /var/www/fog/commons/text.php:316
 msgid "Max Clients"
 msgstr "Max Clients"
 
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:296
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:581
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:295
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:580
 msgid "Web root"
 msgstr "Web root"
 
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:383
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:638
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:382
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:637
 msgid "Bitrate"
 msgstr "Bitrate"
 
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:477
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:476
 msgid "Bandwidth should be numeric and greater than 0"
 msgstr "Bandwidth should be numeric and greater than 0"
 
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:753
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:752
 #, fuzzy
 msgid "Bandwidth should be greater than 0"
 msgstr "Bandwidth should be numeric and greater than 0"
 
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:932
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:931
 msgid "Max"
 msgstr ""
 
