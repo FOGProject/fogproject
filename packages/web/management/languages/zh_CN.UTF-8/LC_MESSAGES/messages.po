@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-24 12:55-0400\n"
+"POT-Creation-Date: 2017-03-24 23:32-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -54,7 +54,6 @@ msgid "Device must be a string"
 msgstr "事件必须是字符串"
 
 #: /var/www/fog/status/bandwidth.php:47
-#: /var/www/fog/lib/fog/fogbase.class.php:1238
 #, fuzzy
 msgid "File must be a string"
 msgstr "事件必须是字符串"
@@ -207,14 +206,14 @@ msgstr "未发现记录，错误： %s"
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1788
 #: /var/www/fog/lib/plugins/fileintegrity/pages/fileintegritymanagementpage.class.php:53
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:408
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:18
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:25
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:76
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:155
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:18
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:25
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:62
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:122
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:50
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:61
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:134
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:280
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:50
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:61
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:116
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:218
 #: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:54
 #: /var/www/fog/lib/service/fogservice.class.php:391
 #: /var/www/fog/lib/service/fogservice.class.php:420
@@ -442,7 +441,7 @@ msgid "Array type"
 msgstr "数据数组"
 
 #: /var/www/fog/lib/fog/fogcontroller.class.php:909
-#: /var/www/fog/lib/fog/fogbase.class.php:2157
+#: /var/www/fog/lib/fog/fogbase.class.php:2112
 #: /var/www/fog/lib/fog/fogftp.class.php:370
 #: /var/www/fog/lib/pages/taskmobile.class.php:45
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1003
@@ -450,9 +449,9 @@ msgstr "数据数组"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2004
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:629
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1011
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:20
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:81
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:161
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:55
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:151
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:302
 #: /var/www/fog/commons/text.php:119
 msgid "Type"
 msgstr "类型"
@@ -632,116 +631,103 @@ msgstr "事件必须是字符串"
 msgid "Invalid Host"
 msgstr "无效的主机"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:734
-#: /var/www/fog/lib/fog/fogbase.class.php:760
+#: /var/www/fog/lib/fog/fogbase.class.php:740
+#: /var/www/fog/lib/fog/fogbase.class.php:770
 #, fuzzy
 msgid "Key must be a string or index"
 msgstr "事件必须是字符串"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:784
+#: /var/www/fog/lib/fog/fogbase.class.php:794
 msgid "Key must be an array of keys or a string."
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogbase.class.php:989
-#: /var/www/fog/lib/fog/fogbase.class.php:1002
+#: /var/www/fog/lib/fog/fogbase.class.php:999
+#: /var/www/fog/lib/fog/fogbase.class.php:1012
 msgid "No Data"
 msgstr "没有数据"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:999
+#: /var/www/fog/lib/fog/fogbase.class.php:1009
 msgid "Not a number"
 msgstr "不是一个数字"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1079
+#: /var/www/fog/lib/fog/fogbase.class.php:1089
 msgid "Space variable must be boolean"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1104
+#: /var/www/fog/lib/fog/fogbase.class.php:1114
 msgid "Ago must be boolean"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1197
+#: /var/www/fog/lib/fog/fogbase.class.php:1207
 msgid "Diff parameter must be numeric"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1200
+#: /var/www/fog/lib/fog/fogbase.class.php:1210
 #, fuzzy
 msgid "Unit of time must be a string"
 msgstr "事件必须是字符串"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1204
+#: /var/www/fog/lib/fog/fogbase.class.php:1214
 #, fuzzy
 msgid "In"
 msgstr "在"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1207
+#: /var/www/fog/lib/fog/fogbase.class.php:1217
 #, fuzzy
 msgid "ago"
 msgstr "前"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1235
-#, fuzzy
-msgid "StorageNode must be a valid node"
-msgstr "存储节点最大客户"
-
 #: /var/www/fog/lib/fog/fogbase.class.php:1245
-msgid "Cannot connect to node."
-msgstr "无法连接到节点。"
-
-#: /var/www/fog/lib/fog/fogbase.class.php:1265
-msgid "Keepkeys must be boolean"
-msgstr ""
-
-#: /var/www/fog/lib/fog/fogbase.class.php:1290
 #, fuzzy
 msgid "Old key must be a string"
 msgstr "事件必须是字符串"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1293
+#: /var/www/fog/lib/fog/fogbase.class.php:1248
 #, fuzzy
 msgid "New key must be a string"
 msgstr "事件必须是字符串"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1511
+#: /var/www/fog/lib/fog/fogbase.class.php:1466
 msgid "Private key path not found"
 msgstr "私钥未找到路径"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1524
+#: /var/www/fog/lib/fog/fogbase.class.php:1479
 msgid "Private key not found"
 msgstr "私钥未找到"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1527
+#: /var/www/fog/lib/fog/fogbase.class.php:1482
 msgid "Private key not readable"
 msgstr "私钥不可读"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1532
+#: /var/www/fog/lib/fog/fogbase.class.php:1487
 msgid "Private key failed"
 msgstr "私钥失败"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1551
+#: /var/www/fog/lib/fog/fogbase.class.php:1506
 msgid "Failed to decrypt data"
 msgstr "数据解密失败"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1766
+#: /var/www/fog/lib/fog/fogbase.class.php:1721
 #, fuzzy
 msgid "Txt must be a string"
 msgstr "事件必须是字符串"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1769
+#: /var/www/fog/lib/fog/fogbase.class.php:1724
 #, fuzzy
 msgid "Level must be an integer"
 msgstr "事件必须是字符串"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1797
+#: /var/www/fog/lib/fog/fogbase.class.php:1752
 #, fuzzy
 msgid "String must be a string"
 msgstr "事件必须是字符串"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1919
+#: /var/www/fog/lib/fog/fogbase.class.php:1874
 #, fuzzy
 msgid "Key must be a string"
 msgstr "事件必须是字符串"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2159
+#: /var/www/fog/lib/fog/fogbase.class.php:2114
 #: /var/www/fog/lib/fog/fogftp.class.php:372
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2268
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:85
@@ -752,12 +738,12 @@ msgstr "事件必须是字符串"
 msgid "File"
 msgstr "文件"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2161
+#: /var/www/fog/lib/fog/fogbase.class.php:2116
 #: /var/www/fog/lib/fog/fogftp.class.php:374
 msgid "Line"
 msgstr "线"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2163
+#: /var/www/fog/lib/fog/fogbase.class.php:2118
 #: /var/www/fog/lib/fog/fogftp.class.php:376
 #: /var/www/fog/lib/db/mysql.class.php:189
 msgid "Message"
@@ -1355,10 +1341,10 @@ msgstr "编辑图像"
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1442
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:180
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:324
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:137
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:253
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:368
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:30
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:110
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:71
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:206
 #: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:62
 #: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:197
 #: /var/www/fog/commons/text.php:27
@@ -1585,14 +1571,14 @@ msgstr ""
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:583
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:194
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:555
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:70
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:128
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:149
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:438
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:109
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:396
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:84
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:169
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:240
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:66
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:131
 #: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:103
 #: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:110
 #: /var/www/fog/commons/text.php:31
@@ -1623,9 +1609,9 @@ msgstr "加"
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:534
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:814
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:221
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:164
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:320
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:590
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:126
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:233
 #: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:220
 #: /var/www/fog/commons/text.php:40
 msgid "Update"
@@ -2882,8 +2868,8 @@ msgstr "模块类型"
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:618
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:851
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1788
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:21
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:28
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:54
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:66
 #: /var/www/fog/commons/text.php:28
 msgid "Delete"
 msgstr "删除"
@@ -3680,8 +3666,8 @@ msgstr "IP"
 
 #: /var/www/fog/lib/pages/serverinfo.class.php:151
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:488
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:79
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:159
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:143
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:294
 #: /var/www/fog/commons/text.php:108
 msgid "Kernel"
 msgstr "核心"
@@ -5057,10 +5043,10 @@ msgstr "FOG用户登录历史摘要"
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:65
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:278
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:300
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:77
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:156
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:63
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:123
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:138
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:284
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:120
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:222
 #: /var/www/fog/commons/text.php:91
 msgid "Description"
 msgstr "描述"
@@ -6212,82 +6198,90 @@ msgstr "登录失败"
 msgid "Completed imaging"
 msgstr "完成"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:10
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:42
 msgid "Slack Accounts"
 msgstr "斯莱克账户"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:11
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:43
 msgid "Link Slack Account"
 msgstr "链接松弛账户"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:18
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:51
 msgid "Team"
 msgstr "球队"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:19
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:52
 msgid "Created By"
 msgstr "由...制作"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:20
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:53
 msgid "User/Channel Name"
 msgstr "用户/通道名称"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:57
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:106
 #: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:88
 msgid "Link New Account"
 msgstr "链接新帐号"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:68
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:117
 #: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:99
 msgid "Access Token"
 msgstr "访问令牌"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:69
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:122
 msgid "User/Channel to post to"
 msgstr "用户/通道张贴到"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:92
-msgid ""
-"Must use an @ or # to signify if this is a user or channel to send message "
-"to!"
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:172
+msgid "Must use an"
+msgstr ""
+
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:173
+#: /var/www/fog/commons/text.php:94
+msgid "or"
+msgstr "要么"
+
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:174
+#, fuzzy
+msgid "to signify if this is a user or channel to send to"
 msgstr "必须使用@或＃来表示，如果这是一个用户或通道发送消息到！"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:96
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:180
 #: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:151
 msgid "Please enter an access token"
 msgstr "请输入访问令牌"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:102
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:186
 msgid "Invalid token passed"
 msgstr "无效的令牌传递"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:105
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:196
 msgid "Invalid user and/or channel passed"
 msgstr "无效的用户和/或通道通过"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:108
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:207
 #: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:146
 msgid "Account already linked"
 msgstr "帐户已链接"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:111
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:210
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:200
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:481
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:742
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1076
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:157
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:126
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:98
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:231
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:183
 #: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:163
 #: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:174
 msgid "Failed to create"
 msgstr "无法创建"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:115
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:217
 msgid "Account linked to FOG GUI at"
 msgstr "帐户相关联的雾GUI"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:118
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:222
 #: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:173
 msgid "Account Added!"
 msgstr "帐户添加！"
@@ -6315,14 +6309,14 @@ msgid "Checksums"
 msgstr ""
 
 #: /var/www/fog/lib/plugins/fileintegrity/pages/fileintegritymanagementpage.class.php:54
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:19
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:78
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:157
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:158
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:19
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:24
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:64
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:51
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:142
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:288
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:292
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:51
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:60
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:124
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:226
 msgid "Icon"
 msgstr "图标"
 
@@ -6426,8 +6420,8 @@ msgstr "存储组是必需的！"
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:591
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:872
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:282
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:207
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:159
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:389
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:292
 #: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:286
 msgid "Failed to update"
 msgstr "无法更新"
@@ -6846,65 +6840,65 @@ msgstr "用户管理"
 msgid "Windows Key for Image"
 msgstr "用户管理"
 
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:8
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:40
 #, fuzzy
 msgid "Export Task Types"
 msgstr "任务类型"
 
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:9
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:41
 #, fuzzy
 msgid "Import Task Types"
 msgstr "任务类型"
 
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:11
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:43
 msgid "Task Types"
 msgstr "任务类型"
 
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:12
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:44
 #, fuzzy
 msgid "Task Typee"
 msgstr "任务类型"
 
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:26
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:62
 msgid "Access"
 msgstr "访问"
 
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:27
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:63
 msgid "Kernel Args"
 msgstr "内核参数数量"
 
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:57
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:106
 msgid "New Task Type"
 msgstr "键入新任务"
 
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:80
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:160
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:147
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:298
 msgid "Kernel Arguments"
 msgstr "内核参数"
 
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:82
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:162
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:155
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:306
 msgid "Is Advanced"
 msgstr "是Advanced"
 
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:83
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:163
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:314
 msgid "Accessed By"
 msgstr "通过访问"
 
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:111
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:192
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:88
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:149
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:214
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:370
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:171
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:278
 msgid "You must enter a name"
 msgstr "您必须输入一个名称"
 
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:114
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:195
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:218
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:376
 msgid "Task type already exists, please try again."
 msgstr "任务类型已经存在，请重试。"
 
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:128
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:233
 msgid "Task Type added, editing"
 msgstr "任务类型添加，编辑"
 
@@ -7198,39 +7192,39 @@ msgstr "LDAP信息更新！"
 msgid "LDAP Management"
 msgstr "LDAP管理"
 
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:8
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:40
 #, fuzzy
 msgid "Export Task States"
 msgstr "任务的国家"
 
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:9
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:41
 #, fuzzy
 msgid "Import Task States"
 msgstr "任务的国家"
 
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:11
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:43
 msgid "Task States"
 msgstr "任务的国家"
 
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:12
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:44
 msgid "Task State"
 msgstr "任务状态"
 
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:51
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:105
 msgid "New Task State"
 msgstr "新的任务状态"
 
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:65
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:125
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:227
 msgid "Additional Icon elements"
 msgstr "其他图标元素"
 
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:91
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:152
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:175
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:284
 msgid "Task state already exists, please try again."
 msgstr "任务状态已经存在，请重试。"
 
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:101
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:186
 msgid "Task State added, editing"
 msgstr "任务状态添加，编辑"
 
@@ -8439,10 +8433,6 @@ msgstr "服务"
 msgid "NOT"
 msgstr "不"
 
-#: /var/www/fog/commons/text.php:94
-msgid "or"
-msgstr "要么"
-
 #: /var/www/fog/commons/text.php:104
 msgid "Actions"
 msgstr "操作"
@@ -9296,6 +9286,13 @@ msgstr "你好FOG客户端"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "有此服务器上没有的位置。"
+
+#, fuzzy
+#~ msgid "StorageNode must be a valid node"
+#~ msgstr "存储节点最大客户"
+
+#~ msgid "Cannot connect to node."
+#~ msgstr "无法连接到节点。"
 
 #, fuzzy
 #~ msgid "Partclone GZip"

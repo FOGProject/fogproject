@@ -61,7 +61,7 @@ class AddLDAPMenuItem extends Hook
         if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
             return;
         }
-        $this->arrayInsertAfter(
+        self::arrayInsertAfter(
             'storage',
             $arguments['main'],
             $this->node,

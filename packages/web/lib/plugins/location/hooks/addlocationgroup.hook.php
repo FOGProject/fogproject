@@ -64,7 +64,7 @@ class AddLocationGroup extends Hook
             return;
         }
         $link = $arguments['linkformat'];
-        $this->arrayInsertAfter(
+        self::arrayInsertAfter(
             "$link#group-image",
             $arguments['submenu'],
             "$link#group-location",

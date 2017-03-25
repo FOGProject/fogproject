@@ -57,7 +57,7 @@ class AddTaskstateeditMenuItem extends Hook
         if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
             return;
         }
-        $this->arrayInsertAfter(
+        self::arrayInsertAfter(
             'task',
             $arguments['main'],
             $this->node,

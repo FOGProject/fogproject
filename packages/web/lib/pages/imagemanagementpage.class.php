@@ -253,7 +253,7 @@ class ImageManagementPage extends FOGPage
             /**
              * Stores the image on client size.
              */
-            $imageSize = $this->formatByteSize(
+            $imageSize = self::formatByteSize(
                 array_sum(
                     explode(
                         ':',
@@ -320,7 +320,7 @@ class ImageManagementPage extends FOGPage
              * If size on server we get our function.
              */
             if ($SizeServer) {
-                $serverSize = $this->formatByteSize($Image->get('srvsize'));
+                $serverSize = self::formatByteSize($Image->get('srvsize'));
             }
             /**
              * If the image is not protected show
@@ -704,8 +704,8 @@ class ImageManagementPage extends FOGPage
                 array('Image' => &$Image)
             );
         unset($Image);
-        $this->setMessage($msg);
-        $this->redirect($url);
+        self::setMessage($msg);
+        self::redirect($url);
     }
     /**
      * Edit this image
@@ -1233,8 +1233,8 @@ class ImageManagementPage extends FOGPage
                 $hook,
                 array('Image' => &$this->obj)
             );
-        $this->setMessage($msg);
-        $this->redirect($this->formAction);
+        self::setMessage($msg);
+        self::redirect($this->formAction);
     }
     /**
      * Presents the form to created named multicast
@@ -1442,14 +1442,14 @@ class ImageManagementPage extends FOGPage
                 ->set('storagegroupID', $StorageNode->get('id'))
                 ->set('clients', -2);
             if (!$MulticastSession->save()) {
-                $this->setMessage(_('Failed to create Session'));
+                self::setMessage(_('Failed to create Session'));
             }
             $randomnumber = mt_rand(24576, 32766)*2;
             while ($randomnumber == $MulticastSession->get('port')) {
                 $randomnumber = mt_rand(24576, 32766)*2;
             }
             self::setSetting('FOG_UDPCAST_STARTINGPORT', $randomnumber);
-            $this->setMessage(
+            self::setMessage(
                 sprintf(
                     '%s<br/>%s %s %s',
                     _('Multicast session created'),
@@ -1459,9 +1459,9 @@ class ImageManagementPage extends FOGPage
                 )
             );
         } catch (Exception $e) {
-            $this->setMessage($e->getMessage());
+            self::setMessage($e->getMessage());
         }
-        $this->redirect(
+        self::redirect(
             sprintf(
                 '?node=%s&sub=multicast',
                 $this->node
@@ -1476,10 +1476,10 @@ class ImageManagementPage extends FOGPage
     public function stop()
     {
         if ($_REQUEST['mcid'] < 1) {
-            $this->redirect(sprintf('?node=%s&sub=multicast', $this->node));
+            self::redirect(sprintf('?node=%s&sub=multicast', $this->node));
         }
         self::getClass('MulticastSessionsManager')->cancel($_REQUEST['mcid']);
-        $this->setMessage(
+        self::setMessage(
             sprintf(
                 '%s%s',
                 _('Cancelled task'),
@@ -1490,6 +1490,6 @@ class ImageManagementPage extends FOGPage
                 )
             )
         );
-        $this->redirect(sprintf('?node=%s&sub=multicast', $this->node));
+        self::redirect(sprintf('?node=%s&sub=multicast', $this->node));
     }
 }

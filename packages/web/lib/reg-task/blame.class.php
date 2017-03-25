@@ -37,7 +37,7 @@ class Blame extends TaskingElement
             ->format('Y-m-d H:i:s');
         foreach ((array)$this->StorageNodes as &$StorageNode) {
             if ($taskStorageID < 1
-                || in_array($taskStorageID, self::getAllBlamedNodes())
+                || in_array($taskStorageID, self::getAllBlamedNodes($this->Host))
             ) {
                 $this
                     ->Task

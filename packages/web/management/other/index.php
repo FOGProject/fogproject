@@ -56,7 +56,7 @@ if (!self::$isMobile) {
         '<div class="fog-variable" id="screenview" value="%s"></div>',
         $_SESSION['FOG_VIEW_DEFAULT_SCREEN']
     );
-    $this->getMessages();
+    self::getMessages();
     echo '<div id="loader-wrapper">';
     echo '<div id="loader"></div>';
     echo '<div id="progress"></div>';
@@ -169,8 +169,8 @@ if (!self::$isMobile) {
     printf(
         '<!-- <div id="footer">Memory Usage: %s</div> -->'
         . '<!-- <div id="footer">Memory Peak: %s</div> -->',
-        $this->formatByteSize(memory_get_usage(true)),
-        $this->formatByteSize(memory_get_peak_usage())
+        self::formatByteSize(memory_get_usage(true)),
+        self::formatByteSize(memory_get_peak_usage())
     );
 } else {
     echo '<div id="header"></div>';

@@ -209,14 +209,14 @@ class ProcessLogin extends FOGPage
         }
         if (count($http_query) < 1) {
             unset($_REQUEST['login']);
-            $this->redirect('index.php');
+            self::redirect('index.php');
         }
         $query = trim(http_build_query($http_query));
         $redir = 'index.php';
         if ($query) {
             $redir .= "?$query";
         }
-        $this->redirect($redir);
+        self::redirect($redir);
     }
     /**
      * Processes the login.
@@ -237,7 +237,7 @@ class ProcessLogin extends FOGPage
             );
         if (!self::$isMobile) {
             if ($type) {
-                $this->setMessage(self::$foglang['NotAllowedHere']);
+                self::setMessage(self::$foglang['NotAllowedHere']);
                 unset($_REQUEST['login']);
                 self::$FOGUser->logout();
             }
@@ -246,8 +246,8 @@ class ProcessLogin extends FOGPage
             return;
         }
         if (!$this->_username) {
-            $this->setMessage(self::$foglang['InvalidLogin']);
-            $this->redirect('index.php?node=logout');
+            self::setMessage(self::$foglang['InvalidLogin']);
+            self::redirect('index.php?node=logout');
         }
         self::$FOGUser = self::$FOGCore->attemptLogin(
             $this->_username,
@@ -275,9 +275,9 @@ class ProcessLogin extends FOGPage
     {
         $this->setLang();
         if (in_array($_REQUEST['node'], array('login', 'logout'))) {
-            $this->setMessage($_SESSION['FOG_MESSAGES']);
+            self::setMessage($_SESSION['FOG_MESSAGES']);
             unset($_REQUEST['login']);
-            $this->redirect('index.php');
+            self::redirect('index.php');
         }
         $this->_getLanguages();
         $logininfo = self::getSetting('FOG_LOGIN_INFO_DISPLAY');
@@ -326,7 +326,7 @@ class ProcessLogin extends FOGPage
         $this->setLang();
         if (in_array($_REQUEST['node'], array('login', 'logout'))) {
             unset($_REQUEST['login']);
-            $this->redirect('index.php');
+            self::redirect('index.php');
         }
         $this->_getLanguages();
         printf(

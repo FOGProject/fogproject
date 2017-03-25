@@ -50,14 +50,14 @@ class StorageManagementPage extends FOGPage
             if ($id) {
                 if (!$this->obj->isValid() && false === strpos($sub, 'add')) {
                     unset($this->obj);
-                    $this->setMessage(
+                    self::setMessage(
                         sprintf(
                             _('%s ID %s is not valid'),
                             _('Storage Node'),
                             $id
                         )
                     );
-                    $this->redirect(sprintf('?node=%s', $this->node));
+                    self::redirect(sprintf('?node=%s', $this->node));
                 }
                 $this->subMenu = array(
                     sprintf(
@@ -89,14 +89,14 @@ class StorageManagementPage extends FOGPage
             if ($id) {
                 if (!$this->obj->isValid() && false === strpos($sub, 'add')) {
                     unset($this->obj);
-                    $this->setMessage(
+                    self::setMessage(
                         sprintf(
                             _('%s ID %s is not valid'),
                             $this->childClass,
                             $id
                         )
                     );
-                    $this->redirect(
+                    self::redirect(
                         sprintf(
                             '?node=%s',
                             $this->node
@@ -536,8 +536,8 @@ class StorageManagementPage extends FOGPage
                 $hook,
                 array('StorageNode' => &$StorageNode)
             );
-        $this->setMessage($msg);
-        $this->redirect($url);
+        self::setMessage($msg);
+        self::redirect($url);
     }
     /**
      * Edit existing nodes.
@@ -804,8 +804,8 @@ class StorageManagementPage extends FOGPage
                 $hook,
                 array('StorageNode' => &$this->obj)
             );
-        $this->setMessage($msg);
-        $this->redirect($this->formAction);
+        self::setMessage($msg);
+        self::redirect($this->formAction);
     }
     /**
      * Displays form for deleting node.
@@ -903,8 +903,8 @@ class StorageManagementPage extends FOGPage
                     'StorageNode' => &$this->obj
                 )
             );
-        $this->setMessage($msg);
-        $this->redirect($url);
+        self::setMessage($msg);
+        self::redirect($url);
     }
     /**
      * Storage group display page.
@@ -1060,8 +1060,8 @@ class StorageManagementPage extends FOGPage
                 $hook,
                 array('StorageGroup' => &$StorageGroup)
             );
-        $this->setMessage($msg);
-        $this->redirect($url);
+        self::setMessage($msg);
+        self::redirect($url);
     }
     /**
      * Edit a storage group.
@@ -1167,8 +1167,8 @@ class StorageManagementPage extends FOGPage
                 $hook,
                 array('StorageGroup' => &$this->obj)
             );
-        $this->setMessage($msg);
-        $this->redirect($this->formAction);
+        self::setMessage($msg);
+        self::redirect($this->formAction);
     }
     /**
      * Delete storage group.
@@ -1265,7 +1265,7 @@ class StorageManagementPage extends FOGPage
                 $hook,
                 array('StorageGroup'=>&$this->obj)
             );
-        $this->setMessage($msg);
-        $this->redirect($url);
+        self::setMessage($msg);
+        self::redirect($url);
     }
 }

@@ -345,8 +345,8 @@ class LDAPManagementPage extends FOGPage
                 ->set('useGroupMatch', $useGroupMatch)
                 ->set('grpSearchDN', $grpSearchDN);
             if ($LDAP->save()) {
-                $this->setMessage(_('LDAP Server Added, editing!'));
-                $this->redirect(
+                self::setMessage(_('LDAP Server Added, editing!'));
+                self::redirect(
                     sprintf(
                         '?node=ldap&sub=edit&id=%s',
                         $LDAP->get('id')
@@ -354,8 +354,8 @@ class LDAPManagementPage extends FOGPage
                 );
             }
         } catch (Exception $e) {
-            $this->setMessage($e->getMessage());
-            $this->redirect($this->formAction);
+            self::setMessage($e->getMessage());
+            self::redirect($this->formAction);
         }
     }
     /**
@@ -702,14 +702,14 @@ class LDAPManagementPage extends FOGPage
                 'LDAP_EDIT_SUCCESS',
                 array('LDAP' => &$this->obj)
             );
-            $this->setMessage(_('LDAP information updated!'));
+            self::setMessage(_('LDAP information updated!'));
         } catch (Exception $e) {
             self::$HookManager->processEvent(
                 'LDAP_EDIT_FAIL',
                 array('LDAP' => &$this->obj)
             );
-            $this->setMessage($e->getMessage());
+            self::setMessage($e->getMessage());
         }
-        $this->redirect($this->formAction);
+        self::redirect($this->formAction);
     }
 }

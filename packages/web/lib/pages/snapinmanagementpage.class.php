@@ -126,7 +126,7 @@ class SnapinManagementPage extends FOGPage
             $this->notes = array(
                 self::$foglang['Snapin'] => $this->obj->get('name'),
                 self::$foglang['File'] => $this->obj->get('file'),
-                _('Filesize') => $this->formatByteSize($this->obj->get('size')),
+                _('Filesize') => self::formatByteSize($this->obj->get('size')),
             );
         }
         /**
@@ -731,8 +731,8 @@ class SnapinManagementPage extends FOGPage
                         'Snapin' => &$Snapin
                     )
                 );
-            $this->setMessage(_('Snapin created'));
-            $this->redirect(
+            self::setMessage(_('Snapin created'));
+            self::redirect(
                 sprintf(
                     '?node=%s&sub=edit&id=%s',
                     $this->node,
@@ -747,8 +747,8 @@ class SnapinManagementPage extends FOGPage
                     'Snapin' => &$Snapin
                 )
             );
-            $this->setMessage($e->getMessage());
-            $this->redirect($this->formAction);
+            self::setMessage($e->getMessage());
+            self::redirect($this->formAction);
         }
     }
     /**
@@ -1302,8 +1302,8 @@ class SnapinManagementPage extends FOGPage
                         'Snapin' => &$this->obj
                     )
                 );
-            $this->setMessage(_('Snapin updated'));
-            $this->redirect($this->formAction);
+            self::setMessage(_('Snapin updated'));
+            self::redirect($this->formAction);
         } catch (Exception $e) {
             self::$FOGFTP->close();
             self::$HookManager
@@ -1313,8 +1313,8 @@ class SnapinManagementPage extends FOGPage
                         'Snapin' => &$this->obj
                     )
                 );
-            $this->setMessage($e->getMessage());
-            $this->redirect($this->formAction);
+            self::setMessage($e->getMessage());
+            self::redirect($this->formAction);
         }
     }
 }

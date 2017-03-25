@@ -85,7 +85,7 @@ class AddWindowsKeyImage extends Hook
             );
             $wkID = array_shift($WindowsKeys);
         }
-        $this->arrayInsertAfter(
+        self::arrayInsertAfter(
             _('Operating System'),
             $arguments['fields'],
             _('Windows Key for Image'),

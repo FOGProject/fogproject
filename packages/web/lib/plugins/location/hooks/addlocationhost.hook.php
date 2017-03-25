@@ -156,7 +156,7 @@ class AddLocationHost extends Hook
             );
             $locID = array_shift($Locations);
         }
-        $this->arrayInsertAfter(
+        self::arrayInsertAfter(
             _('Host Product Key'),
             $arguments['fields'],
             _('Host Location'),
@@ -318,13 +318,13 @@ class AddLocationHost extends Hook
                 break;
             }
         }
-        $this->arrayInsertAfter(
+        self::arrayInsertAfter(
             "\nSnapin Used: ",
             $arguments['email'],
             "\nImaged From (Location): ",
             $locName
         );
-        $this->arrayInsertAfter(
+        self::arrayInsertAfter(
             "\nImaged From (Location): ",
             $arguments['email'],
             "\nImagingLocation=",

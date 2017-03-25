@@ -129,8 +129,8 @@ class ServerInfo extends FOGPage
         foreach ((array)$arNIC as &$nic) {
             $nicparts = explode("$$", $nic);
             if (count($nicparts) == 5) {
-                $NICTransSized[] = $this->formatByteSize($nicparts[2]);
-                $NICRecSized[] = $this->formatByteSize($nicparts[1]);
+                $NICTransSized[] = self::formatByteSize($nicparts[2]);
+                $NICRecSized[] = self::formatByteSize($nicparts[1]);
                 $NICErrInfo[] = $nicparts[3];
                 $NICDropInfo[] = $nicparts[4];
                 $NICTrans[] = sprintf('%s %s', $nicparts[0], _('TX'));

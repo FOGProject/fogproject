@@ -202,9 +202,9 @@ class FOGPageManager extends FOGBase
                 $this->_arguments = array('id' => $_REQUEST[$class->id]);
             }
             if (self::$post) {
-                $this->setRequest();
+                self::setRequest();
             } else {
-                $this->resetRequest();
+                self::resetRequest();
             }
             if ($this->classValue != 'schema'
                 && $method == 'index'
@@ -255,7 +255,7 @@ class FOGPageManager extends FOGBase
             );
         }
         $class->{$method}();
-        $this->resetRequest();
+        self::resetRequest();
     }
     /**
      * Registers the class for display

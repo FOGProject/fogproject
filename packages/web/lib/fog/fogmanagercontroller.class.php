@@ -1010,7 +1010,7 @@ abstract class FOGManagerController extends FOGBase
         );
         $_SESSION['caller'] = __FUNCTION__;
         if (count($this->aliasedFields) > 0) {
-            $this->arrayRemove($this->aliasedFields, $this->databaseFields);
+            self::arrayRemove($this->aliasedFields, $this->databaseFields);
         }
         $findWhere = array_fill_keys(array_keys($this->databaseFields), $keyword);
         $find = array(

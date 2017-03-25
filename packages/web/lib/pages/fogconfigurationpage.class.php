@@ -592,8 +592,8 @@ class FOGConfigurationPage extends FOGPage
             }
             throw new Exception(_('PXE Menu has been updated'));
         } catch (Exception $e) {
-            $this->setMessage($e->getMessage());
-            $this->redirect($this->formAction);
+            self::setMessage($e->getMessage());
+            self::redirect($this->formAction);
         }
     }
     /**
@@ -787,7 +787,7 @@ class FOGConfigurationPage extends FOGPage
                     ->save();
             }
             unset($DefMenuIDs);
-            $this->setMessage(
+            self::setMessage(
                 sprintf(
                     '%s %s!',
                     $_REQUEST['menu_item'],
@@ -803,7 +803,7 @@ class FOGConfigurationPage extends FOGPage
                 $_REQUEST['rmid']
             );
             if ($menuname->destroy()) {
-                $this->setMessage(
+                self::setMessage(
                     sprintf(
                         '%s %s!',
                         $menuname->get('name'),
@@ -825,7 +825,7 @@ class FOGConfigurationPage extends FOGPage
                 ->set('default', 1)
                 ->save();
         }
-        $this->redirect($this->formAction);
+        self::redirect($this->formAction);
     }
     /**
      * Form presented to create a new menu.
@@ -955,8 +955,8 @@ class FOGConfigurationPage extends FOGPage
                         'Menu' => &$Menu
                     )
                 );
-            $this->setMessage(_('Menu Added'));
-            $this->redirect(
+            self::setMessage(_('Menu Added'));
+            self::redirect(
                 sprintf(
                     '?node=%s&sub=edit&%s=%s',
                     $this->node,
@@ -972,8 +972,8 @@ class FOGConfigurationPage extends FOGPage
                         'Menu' => &$Menu
                     )
                 );
-            $this->setMessage($e->getMessage());
-            $this->redirect($this->formAction);
+            self::setMessage($e->getMessage());
+            self::redirect($this->formAction);
         }
     }
     /**
@@ -1170,11 +1170,11 @@ class FOGConfigurationPage extends FOGPage
                     ->set('file', $content)
                     ->save();
             }
-            $this->setMessage(_('Modules added/updated'));
+            self::setMessage(_('Modules added/updated'));
         } catch (Exception $e) {
-            $this->setMessage($e->getMessage());
+            self::setMessage($e->getMessage());
         }
-        $this->redirect($this->formAction);
+        self::redirect($this->formAction);
     }
     /**
      * Presents mac listing information.
@@ -1273,7 +1273,7 @@ class FOGConfigurationPage extends FOGPage
                 unset($items);
             }
             unset($first_id);
-            $this->setMessage(
+            self::setMessage(
                 sprintf(
                     '%s %s',
                     $imported,
@@ -1284,8 +1284,8 @@ class FOGConfigurationPage extends FOGPage
         if ($_REQUEST['clear']) {
             self::$FOGCore->clearMACLookupTable();
         }
-        $this->resetRequest();
-        $this->redirect('?node=about&sub=maclist');
+        self::resetRequest();
+        self::redirect('?node=about&sub=maclist');
     }
     /**
      * The fog settings
@@ -1961,16 +1961,16 @@ class FOGConfigurationPage extends FOGPage
                     $attr
                 ) = getimagesize($src);
                 if ($width != 650) {
-                    $this->setMessage(
+                    self::setMessage(
                         _('Width must be 650 pixels.')
                     );
-                    $this->redirect($this->formAction);
+                    self::redirect($this->formAction);
                 }
                 if ($height != 120) {
-                    $this->setMessage(
+                    self::setMessage(
                         _('Height must be 120 pixels.')
                     );
-                    $this->redirect($this->formAction);
+                    self::redirect($this->formAction);
                 }
                 $dest = sprintf(
                     '%s/management/other/%s',
@@ -2005,8 +2005,8 @@ class FOGConfigurationPage extends FOGPage
                     $items
                 );
         }
-        $this->setMessage('Settings Successfully stored!');
-        $this->redirect($this->formAction);
+        self::setMessage('Settings Successfully stored!');
+        self::redirect($this->formAction);
     }
     /**
      * Gets and displays log files.
@@ -2408,8 +2408,8 @@ class FOGConfigurationPage extends FOGPage
                 );
             }
         } catch (Exception $e) {
-            $this->setMessage($e->getMessage());
-            $this->redirect($this->formAction);
+            self::setMessage($e->getMessage());
+            self::redirect($this->formAction);
         }
     }
 }

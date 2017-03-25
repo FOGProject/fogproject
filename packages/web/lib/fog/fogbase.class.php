@@ -494,9 +494,11 @@ abstract class FOGBase
     /**
      * Get's blamed nodes for failures.
      *
+     * @param Host $Host The host to work with.
+     *
      * @return array
      */
-    public function getAllBlamedNodes()
+    public static function getAllBlamedNodes($Host)
     {
         $DateInterval = self::niceDate()->modify('-5 minutes');
         /**
@@ -521,8 +523,8 @@ abstract class FOGBase
             return $NodeFailure->get('id');
         };
         $find = array(
-            'taskID' => $this->Host->get('task')->get('id'),
-            'hostID' => $this->Host->get('id'),
+            'taskID' => $Host->get('task')->get('id'),
+            'hostID' => $Host->get('id'),
         );
         $nodeRet = array_map(
             $nodeFail,
@@ -578,7 +580,7 @@ abstract class FOGBase
      *
      * @return void
      */
-    protected function fatalError($txt, $data = array())
+    protected static function fatalError($txt, $data = array())
     {
         if (self::$service || self::$ajax) {
             return;
@@ -599,7 +601,7 @@ abstract class FOGBase
      *
      * @return void
      */
-    protected function error($txt, $data = array())
+    protected static function error($txt, $data = array())
     {
         if ((self::$service || self::$ajax) || !self::$debug) {
             return;
@@ -620,7 +622,7 @@ abstract class FOGBase
      *
      * @return void
      */
-    protected function debug($txt, $data = array())
+    protected static function debug($txt, $data = array())
     {
         if ((self::$service || self::$ajax) || !self::$debug) {
             return;
@@ -641,7 +643,7 @@ abstract class FOGBase
      *
      * @return void
      */
-    protected function info($txt, $data = array())
+    protected static function info($txt, $data = array())
     {
         if (!self::$info || self::$service || self::$ajax) {
             return;
@@ -662,7 +664,7 @@ abstract class FOGBase
      *
      * @return void
      */
-    protected function setMessage($txt, $data = array())
+    protected static function setMessage($txt, $data = array())
     {
         $_SESSION['FOG_MESSAGES'] = self::_setString($txt, $data);
     }
@@ -671,7 +673,7 @@ abstract class FOGBase
      *
      * @return string
      */
-    protected function getMessages()
+    protected static function getMessages()
     {
         if (!isset($_SESSION['FOG_MESSAGES'])) {
             $_SESSION['FOG_MESSAGES'] = array();
@@ -704,7 +706,7 @@ abstract class FOGBase
      *
      * @return void
      */
-    protected function redirect($url = '')
+    protected static function redirect($url = '')
     {
         if (self::$service) {
             return;
@@ -728,8 +730,12 @@ abstract class FOGBase
      * @throws Exception
      * @return void
      */
-    protected function arrayInsertBefore($key, array &$array, $new_key, $new_value)
-    {
+    protected static function arrayInsertBefore(
+        $key,
+        array &$array,
+        $new_key,
+        $new_value
+    ) {
         if (!is_string($key)) {
             throw new Exception(_('Key must be a string or index'));
         }
@@ -754,8 +760,12 @@ abstract class FOGBase
      * @throws Exception
      * @return void
      */
-    protected function arrayInsertAfter($key, array &$array, $new_key, $new_value)
-    {
+    protected static function arrayInsertAfter(
+        $key,
+        array &$array,
+        $new_key,
+        $new_value
+    ) {
         if (!is_string($key) && !is_numeric($key)) {
             throw new Exception(_('Key must be a string or index'));
         }
@@ -778,20 +788,20 @@ abstract class FOGBase
      * @throws Exception
      * @return void
      */
-    protected function arrayRemove($key, array &$array)
+    protected static function arrayRemove($key, array &$array)
     {
         if (!(is_string($key) || is_array($key))) {
             throw new Exception(_('Key must be an array of keys or a string.'));
         }
         if (is_array($key)) {
             foreach ($key as &$k) {
-                $this->arrayRemove($k, $array);
+                self::arrayRemove($k, $array);
                 unset($k);
             }
         } else {
             foreach ($array as &$value) {
                 if (is_array($value)) {
-                    $this->arrayRemove($key, $value);
+                    self::arrayRemove($key, $value);
                 } else {
                     unset($array[$key]);
                 }
@@ -808,7 +818,7 @@ abstract class FOGBase
      *
      * @return key or false
      */
-    protected function arrayFind(
+    protected static function arrayFind(
         $needle,
         array $haystack,
         $ignorecase = false
@@ -844,7 +854,7 @@ abstract class FOGBase
      *
      * @return void
      */
-    protected function resetRequest()
+    protected static function resetRequest()
     {
         if (!isset($_SESSION['post_request_vals'])) {
             $_SESSION['post_request_vals'] = array();
@@ -880,7 +890,7 @@ abstract class FOGBase
      *
      * @return float
      */
-    protected function formatByteSize($size)
+    protected static function formatByteSize($size)
     {
         $units = array('iB', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB');
         $factor = floor((strlen($size) - 1) / 3);
@@ -897,7 +907,7 @@ abstract class FOGBase
      *
      * @return array
      */
-    protected function getGlobalModuleStatus($names = false, $keys = false)
+    protected static function getGlobalModuleStatus($names = false, $keys = false)
     {
         // The shortnames are on the left, the long names are on the right
         // If the right is true it means the short is accurate.
@@ -1073,7 +1083,7 @@ abstract class FOGBase
      *
      * @return string
      */
-    protected function pluralize($count, $text, $space = false)
+    protected static function pluralize($count, $text, $space = false)
     {
         if (!is_bool($space)) {
             throw new Exception(_('Space variable must be boolean'));
@@ -1098,7 +1108,7 @@ abstract class FOGBase
      *
      * @return DateTime
      */
-    protected function diff($start, $end, $ago = false)
+    protected static function diff($start, $end, $ago = false)
     {
         if (!is_bool($ago)) {
             throw new Exception(_('Ago must be boolean'));
@@ -1120,63 +1130,63 @@ abstract class FOGBase
             if (($v = $Duration->y) > 0) {
                 return sprintf(
                     $str,
-                    $this->pluralize($v, 'year'),
+                    self::pluralize($v, 'year'),
                     $suffix
                 );
             }
             if (($v = $Duration->m) > 0) {
                 return sprintf(
                     $str,
-                    $this->pluralize($v, 'month'),
+                    self::pluralize($v, 'month'),
                     $suffix
                 );
             }
             if (($v = $Duration->d) > 0) {
                 return sprintf(
                     $str,
-                    $this->pluralize($v, 'day'),
+                    self::pluralize($v, 'day'),
                     $suffix
                 );
             }
             if (($v = $Duration->h) > 0) {
                 return sprintf(
                     $str,
-                    $this->pluralize($v, 'hour'),
+                    self::pluralize($v, 'hour'),
                     $suffix
                 );
             }
             if (($v = $Duration->i) > 0) {
                 return sprintf(
                     $str,
-                    $this->pluralize($v, 'minute'),
+                    self::pluralize($v, 'minute'),
                     $suffix
                 );
             }
             if (($v = $Duration->s) > 0) {
                 return sprintf(
                     $str,
-                    $this->pluralize($v, 'second'),
+                    self::pluralize($v, 'second'),
                     $suffix
                 );
             }
         }
         if (($v = $Duration->y) > 0) {
-            $str .= $this->pluralize($v, 'year', true);
+            $str .= self::pluralize($v, 'year', true);
         }
         if (($v = $Duration->m) > 0) {
-            $str .= $this->pluralize($v, 'month', true);
+            $str .= self::pluralize($v, 'month', true);
         }
         if (($v = $Duration->d) > 0) {
-            $str .= $this->pluralize($v, 'day', true);
+            $str .= self::pluralize($v, 'day', true);
         }
         if (($v = $Duration->h) > 0) {
-            $str .= $this->pluralize($v, 'hour', true);
+            $str .= self::pluralize($v, 'hour', true);
         }
         if (($v = $Duration->i) > 0) {
-            $str .= $this->pluralize($v, 'minute', true);
+            $str .= self::pluralize($v, 'minute', true);
         }
         if (($v = $Duration->s) > 0) {
-            $str .= $this->pluralize($v, 'second');
+            $str .= self::pluralize($v, 'second');
         }
 
         return $str;
@@ -1220,61 +1230,6 @@ abstract class FOGBase
         );
     }
     /**
-     * Returns size of item after checking via FTP.
-     *
-     * @param StorageNode $StorageNode the node to test
-     * @param string      $file        the file to look for
-     *
-     * @throws Exception
-     *
-     * @return float
-     */
-    protected function getFTPByteSize(StorageNode $StorageNode, $file)
-    {
-        if (!$StorageNode->isValid()) {
-            throw new Exception(_('StorageNode must be a valid node'));
-        }
-        if (!is_string($file)) {
-            throw new Exception(_('File must be a string'));
-        }
-        self::$FOGFTP
-            ->set('username', $StorageNode->get('user'))
-            ->set('password', $StorageNode->get('pass'))
-            ->set('host', $StorageNode->get('ip'));
-        if (!self::$FOGFTP->connect()) {
-            throw new Exception(_('Cannot connect to node.'));
-        }
-        $size = $this->formatByteSize((float) self::$FOGFTP->size($file));
-        self::$FOGFTP->close();
-
-        return $size;
-    }
-    /**
-     * Filters an array recursively.
-     *
-     * @param array $input    the array to filter
-     * @param bool  $keepkeys keep the keys
-     *
-     * @throws Exception
-     *
-     * @return array
-     */
-    protected function arrayFilterRecursive(array &$input, $keepkeys = false)
-    {
-        if (!is_bool($keepkeys)) {
-            throw new Exception(_('Keepkeys must be boolean'));
-        }
-        foreach ($input as $key => &$value) {
-            if (is_array($value)) {
-                $value = $this->arrayFilterRecursive($value, $keepkeys);
-            }
-            unset($value);
-        }
-        $input = array_filter($input);
-
-        return $keepkeys ? $input : array_values($input);
-    }
-    /**
      * Changes the keys around as needed.
      *
      * @param array  $array   the array to change key for
@@ -1284,7 +1239,7 @@ abstract class FOGBase
      * @throws Exception
      * @return void
      */
-    protected function arrayChangeKey(array &$array, $old_key, $new_key)
+    protected static function arrayChangeKey(array &$array, $old_key, $new_key)
     {
         if (!is_string($old_key)) {
             throw new Exception(_('Old key must be a string'));
@@ -1315,7 +1270,7 @@ abstract class FOGBase
      *
      * @return float
      */
-    protected function byteconvert($kilobytes)
+    protected static function byteconvert($kilobytes)
     {
         return ($kilobytes / 8) * 1024;
     }
@@ -1326,7 +1281,7 @@ abstract class FOGBase
      *
      * @return string
      */
-    protected function hex2bin($hex)
+    protected static function hex2bin($hex)
     {
         if (function_exists('hex2bin')) {
             return hex2bin($hex);
@@ -1411,7 +1366,7 @@ abstract class FOGBase
             $addKey = true;
             $key = openssl_random_pseudo_bytes($iv_size, $cstrong);
         } else {
-            $key = $this->hex2bin($key);
+            $key = self::hex2bin($key);
         }
         $iv = mcrypt_create_iv($iv_size, MCRYPT_DEV_URANDOM);
         $cipher = mcrypt_encrypt($enctype, $key, $data, $mode, $iv);
@@ -1537,7 +1492,7 @@ abstract class FOGBase
         foreach ((array) $dataArr as &$data) {
             $dataun = '';
             while ($data) {
-                $data = $this->hex2bin($data);
+                $data = self::hex2bin($data);
                 $chunk = substr($data, 0, $chunkSize);
                 $data = substr($data, $chunkSize);
                 $decrypt = '';

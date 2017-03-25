@@ -127,6 +127,6 @@ class HostMobile extends FOGPage
             $this->data[] = array($e->getMessage());
         }
         $this->render();
-        $this->redirect('?node=task');
+        self::redirect('?node=task');
     }
 }

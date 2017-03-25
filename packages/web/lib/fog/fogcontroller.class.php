@@ -144,7 +144,7 @@ abstract class FOGController extends FOGBase
                 _('Error'),
                 $e->getMessage()
             );
-            $this->error($str);
+            self::error($str);
         }
 
         return $this;
@@ -238,7 +238,7 @@ abstract class FOGController extends FOGBase
                 $this->data[$key]
             );
         }
-        $this->info($msg);
+        self::info($msg);
 
         return $this->data[$key];
     }
@@ -293,7 +293,7 @@ abstract class FOGController extends FOGBase
                     $value
                 );
             }
-            $this->info($msg);
+            self::info($msg);
             $this->data[$key] = $value;
         } catch (Exception $e) {
             $str = sprintf(
@@ -304,7 +304,7 @@ abstract class FOGController extends FOGBase
                 _('Error'),
                 $e->getMessage()
             );
-            $this->debug($str);
+            self::debug($str);
         }
 
         return $this;
@@ -357,7 +357,7 @@ abstract class FOGController extends FOGBase
                     $value
                 );
             }
-            $this->info($msg);
+            self::info($msg);
             $this->data[$key][] = $value;
         } catch (Exception $e) {
             $str = sprintf(
@@ -368,7 +368,7 @@ abstract class FOGController extends FOGBase
                 _('Error'),
                 $e->getMessage()
             );
-            $this->debug($str);
+            self::debug($str);
         }
 
         return $this;
@@ -426,7 +426,7 @@ abstract class FOGController extends FOGBase
                     $this->data[$key][$index]
                 );
             }
-            $this->info($msg);
+            self::info($msg);
             unset($this->data[$key][$index]);
             $this->data[$key] = array_values(array_filter($this->data[$key]));
         } catch (Exception $e) {
@@ -438,7 +438,7 @@ abstract class FOGController extends FOGBase
                 _('Error'),
                 $e->getMessage()
             );
-            $this->debug($str);
+            self::debug($str);
         }
 
         return $this;
@@ -456,7 +456,7 @@ abstract class FOGController extends FOGBase
             $insertValues = $updateValues = array();
             $updateData = $fieldData = array();
             if (count($this->aliasedFields) > 0) {
-                $this->arrayRemove($this->aliasedFields, $this->databaseFields);
+                self::arrayRemove($this->aliasedFields, $this->databaseFields);
             }
             foreach ($this->databaseFields as $key => &$column) {
                 $key = $this->key($key);
@@ -521,7 +521,7 @@ abstract class FOGController extends FOGBase
                 get_class($this),
                 _('object')
             );
-            $this->info($msg);
+            self::info($msg);
             self::$DB->query($query, array(), $queryArray);
             if (!$this->get('id') || $this->get('id') < 1) {
                 $this->set('id', self::$DB->insertId());
@@ -583,7 +583,7 @@ abstract class FOGController extends FOGBase
                 _('Error'),
                 $e->getMessage()
             );
-            $this->debug($msg);
+            self::debug($msg);
 
             return false;
         }
@@ -652,7 +652,7 @@ abstract class FOGController extends FOGBase
                 _('Loading data to field'),
                 $key
             );
-            $this->info($msg);
+            self::info($msg);
             $queryArray = array_combine(
                 (array) $paramKey,
                 (array) $val
@@ -671,7 +671,7 @@ abstract class FOGController extends FOGBase
                 _('Error'),
                 $e->getMessage()
             );
-            $this->debug($str);
+            self::debug($str);
         }
 
         return $this;
@@ -815,7 +815,7 @@ abstract class FOGController extends FOGBase
                 _('Error'),
                 $e->getMessage()
             );
-            $this->debug($msg);
+            self::debug($msg);
 
             return false;
         }
@@ -953,7 +953,7 @@ abstract class FOGController extends FOGBase
                 _('Error'),
                 $e->getMessage()
             );
-            $this->debug($str);
+            self::debug($str);
 
             return false;
         }
@@ -1078,7 +1078,7 @@ abstract class FOGController extends FOGBase
             );
         } else {
             foreach ($this->databaseFieldsFlipped as $db_key => &$obj_key) {
-                $this->arrayChangeKey($classData, $db_key, $obj_key);
+                self::arrayChangeKey($classData, $db_key, $obj_key);
                 unset($db_key, $obj_key);
             }
         }

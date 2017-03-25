@@ -247,10 +247,10 @@ abstract class FOGPage extends FOGBase
             || !is_numeric($id)
             || $id < 1)
         ) {
-            $this->setMessage(
+            self::setMessage(
                 _('ID Must be set to edit')
             );
-            $this->redirect(
+            self::redirect(
                 "?node=$node"
             );
             exit;
@@ -331,14 +331,14 @@ abstract class FOGPage extends FOGBase
                 );
                 if ($id === 0 || !is_numeric($id) || !$this->obj->isValid()) {
                     unset($this->obj);
-                    $this->setMessage(
+                    self::setMessage(
                         sprintf(
                             _('%s ID %d is not valid'),
                             $this->childClass,
                             $id
                         )
                     );
-                    $this->redirect(
+                    self::redirect(
                         sprintf(
                             '?node=%s',
                             $this->node
@@ -544,7 +544,7 @@ abstract class FOGPage extends FOGBase
                 if ($_SESSION['DataReturn'] > 0) {
                     $objCount = self::getClass($manager)->count();
                     if ($objCount > $_SESSION['DataReturn']) {
-                        $this->redirect(
+                        self::redirect(
                             sprintf(
                                 '?node=%s&sub=search',
                                 $this->node
@@ -836,7 +836,7 @@ abstract class FOGPage extends FOGBase
             if (in_array($this->node, array('task'))
                 && (!$sub || $sub == 'list')
             ) {
-                $this->redirect(
+                self::redirect(
                     sprintf(
                         '?node=%s&sub=active',
                         $this->node
@@ -880,7 +880,7 @@ abstract class FOGPage extends FOGBase
                     && in_array($node, self::$searchPages))
                 ) {
                     if (!in_array($this->node, array('home', 'hwinfo'))) {
-                        $this->setMessage(
+                        self::setMessage(
                             sprintf(
                                 '%s %s%s found',
                                 count($this->data),
@@ -1102,10 +1102,10 @@ abstract class FOGPage extends FOGBase
                 throw new Exception(_('Cannot set tasking as image is not enabled'));
             }
         } catch (Exception $e) {
-            $this->setMessage(
+            self::setMessage(
                 $e->getMessage()
             );
-            $this->redirect(
+            self::redirect(
                 sprintf(
                     '?node=%s&sub=edit%s',
                     $this->node,
@@ -1698,8 +1698,8 @@ abstract class FOGPage extends FOGBase
                 }
             }
         } catch (Exception $e) {
-            $this->setMessage($e->getMessage());
-            $this->redirect(
+            self::setMessage($e->getMessage());
+            self::redirect(
                 sprintf(
                     '?node=%s&sub=edit%s',
                     $this->node,
@@ -1923,14 +1923,14 @@ abstract class FOGPage extends FOGBase
                 _('Are you sure you wish to remove these items')
             );
         } else {
-            $this->setMessage(
+            self::setMessage(
                 sprintf(
                     '%s<br/>%s',
                     _('No items to delete'),
                     _('None selected or item is protected')
                 )
             );
-            $this->redirect(
+            self::redirect(
                 sprintf(
                     '?node=%s',
                     $this->node
@@ -1970,10 +1970,10 @@ abstract class FOGPage extends FOGBase
             ->destroy(
                 array('id' => $_REQUEST['remitems'])
             );
-        $this->setMessage(
+        self::setMessage(
             _('All selected items have been deleted')
         );
-        $this->redirect(
+        self::redirect(
             sprintf(
                 '?node=%s',
                 $this->node
@@ -2872,7 +2872,7 @@ abstract class FOGPage extends FOGBase
                 'hostregister',
             );
             $globalModules = array_diff(
-                $this->getGlobalModuleStatus(false, true),
+                self::getGlobalModuleStatus(false, true),
                 array(
                     'dircleanup',
                     'usercleanup',
@@ -2880,7 +2880,7 @@ abstract class FOGPage extends FOGBase
                     'hostregister'
                 )
             );
-            $globalInfo = $this->getGlobalModuleStatus();
+            $globalInfo = self::getGlobalModuleStatus();
             $globalDisabled = array();
             foreach ((array)$globalInfo as $key => &$en) {
                 if (in_array($key, $igMods)) {
@@ -3072,7 +3072,7 @@ abstract class FOGPage extends FOGBase
                         );
                 }
                 if (isset($_REQUEST['massDelHosts'])) {
-                    $this->redirect(
+                    self::redirect(
                         "?node=group&sub=deletehosts&id={$this->obj->get(id)}"
                     );
                 }
@@ -3092,7 +3092,7 @@ abstract class FOGPage extends FOGBase
                 ),
                 array($this->childClass => &$this->obj)
             );
-            $this->setMessage(
+            self::setMessage(
                 sprintf(
                     '%s %s: %s',
                     $this->childClass,
@@ -3100,8 +3100,8 @@ abstract class FOGPage extends FOGBase
                     $this->obj->get('name')
                 )
             );
-            $this->resetRequest();
-            $this->redirect(
+            self::resetRequest();
+            self::redirect(
                 sprintf(
                     '?node=%s',
                     $this->node
@@ -3115,8 +3115,8 @@ abstract class FOGPage extends FOGBase
                 ),
                 array($this->childClass => &$this->obj)
             );
-            $this->setMessage($e->getMessage());
-            $this->redirect($this->formAction);
+            self::setMessage($e->getMessage());
+            self::redirect($this->formAction);
         }
     }
     /**
@@ -3422,14 +3422,14 @@ abstract class FOGPage extends FOGBase
             $this->obj->removeHost($_REQUEST['hostdel']);
         }
         if ($this->obj->save()) {
-            $this->setMessage(
+            self::setMessage(
                 sprintf(
                     '%s %s',
                     $this->obj->get('name'),
                     _('saved successfully')
                 )
             );
-            $this->redirect($this->formAction);
+            self::redirect($this->formAction);
         }
     }
     /**
@@ -3478,7 +3478,7 @@ abstract class FOGPage extends FOGBase
             ),
         );
         $report = self::getClass('ReportMaker');
-        $this->arrayRemove('id', $this->databaseFields);
+        self::arrayRemove('id', $this->databaseFields);
         foreach ((array)self::getClass($this->childClass)
             ->getManager()
             ->find() as &$Item
@@ -3639,8 +3639,8 @@ abstract class FOGPage extends FOGBase
             $mime = $_FILES['file']['type'];
             if (!in_array($mime, $mimes)) {
                 if ($ext !== 'csv') {
-                    $this->setMessage(_('File must be a csv'));
-                    $this->redirect($this->formAction);
+                    self::setMessage(_('File must be a csv'));
+                    self::redirect($this->formAction);
                 }
             }
             if ($_FILES['file']['error'] > 0) {
@@ -3658,7 +3658,7 @@ abstract class FOGPage extends FOGBase
             }
             $numSuccess = $numFailed = $numAlreadExist = 0;
             $fh = fopen($file, 'rb');
-            $this->arrayRemove(
+            self::arrayRemove(
                 'id',
                 $this->databaseFields
             );

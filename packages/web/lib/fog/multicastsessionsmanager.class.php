@@ -117,7 +117,7 @@ class MulticastSessionsManager extends FOGManagerController
         /*
          * Perform change for alternative data
          */
-        $this->arrayChangeKey(
+        self::arrayChangeKey(
             $findWhere,
             'id',
             'msID'

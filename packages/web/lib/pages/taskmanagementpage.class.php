@@ -506,7 +506,7 @@ class TaskManagementPage extends FOGPage
                 false,
                 $TaskType->isInitNeededTasking() || $TaskType->get('id') == 14
             );
-            $this->setMessage(
+            self::setMessage(
                 sprintf(
                     '%s %s %s',
                     _('Successfully created'),
@@ -514,7 +514,7 @@ class TaskManagementPage extends FOGPage
                     _('tasking')
                 )
             );
-            $this->redirect("?node=$this->node");
+            self::redirect("?node=$this->node");
         } catch (Exception $e) {
             printf(
                 '<div class="task-start-failed"><p>%s</p><p>%s</p></div>',
@@ -673,9 +673,9 @@ class TaskManagementPage extends FOGPage
             exit;
         }
         if ($result['error']) {
-            $this->fatalError($result['error']);
+            self::fatalError($result['error']);
         } else {
-            $this->redirect(
+            self::redirect(
                 sprintf(
                     '?node=%s',
                     $this->node
@@ -921,10 +921,10 @@ class TaskManagementPage extends FOGPage
      */
     private function _nonajax()
     {
-        $this->setMessage(
+        self::setMessage(
             _('Cannot cancel tasks this way')
         );
-        $this->redirect($this->formAction);
+        self::redirect($this->formAction);
     }
     /**
      * Cancels and snapin taskings.

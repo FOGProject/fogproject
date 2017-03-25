@@ -185,9 +185,9 @@ class FOGCore extends FOGBase
         $totmem = shell_exec(sprintf($memcmd, 2));
         $usedmem = shell_exec(sprintf($memcmd, 3));
         $freemem = shell_exec(sprintf($memcmd, 4));
-        $data['totmem'] = $this->formatByteSize($totmem);
-        $data['usedmem'] = $this->formatByteSize($usedmem);
-        $data['freemem'] = $this->formatByteSize($freemem);
+        $data['totmem'] = self::formatByteSize($totmem);
+        $data['usedmem'] = self::formatByteSize($usedmem);
+        $data['freemem'] = self::formatByteSize($freemem);
         $data['filesys'] = '@@fs';
         $hdtotal = 0;
         $hdused = 0;
@@ -206,9 +206,9 @@ class FOGCore extends FOGBase
             unset($free);
         }
         $hdfree = (float)$hdtotal - $hdused;
-        $data['totalspace'] = $this->formatByteSize($hdtotal);
-        $data['usedspace'] = $this->formatByteSize($hdused);
-        $data['freespace'] = $this->formatByteSize($hdfree);
+        $data['totalspace'] = self::formatByteSize($hdtotal);
+        $data['usedspace'] = self::formatByteSize($hdused);
+        $data['freespace'] = self::formatByteSize($hdfree);
         $data['nic'] = '@@nic';
         $netfaces = explode(
             "\n",

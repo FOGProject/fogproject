@@ -197,7 +197,7 @@ class DashboardPage extends FOGPage
             }
         }
         if (!empty($setMesg)) {
-            $this->setMessage($setMesg);
+            self::setMessage($setMesg);
         }
         $SystemUptime = self::$FOGCore->systemUptime();
         $fields = array(

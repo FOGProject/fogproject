@@ -211,7 +211,7 @@ class Page extends FOGBase
                     ),
                 );
                 if (self::getSetting('FOG_PLUGINSYS_ENABLED')) {
-                    $this->arrayInsertAfter(
+                    self::arrayInsertAfter(
                         'about',
                         $this->main,
                         'plugin',
@@ -279,7 +279,7 @@ class Page extends FOGBase
             if ($node
                 && !in_array($node, $links)
             ) {
-                $this->redirect('index.php');
+                self::redirect('index.php');
             }
             ob_start();
             echo '<nav class="menu"><ul class="nav-list">';

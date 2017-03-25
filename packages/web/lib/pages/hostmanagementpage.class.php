@@ -353,7 +353,7 @@ class HostManagementPage extends FOGPage
             $appdel,
             _('successfully')
         );
-        $this->redirect("?node=$this->node");
+        self::redirect("?node=$this->node");
     }
     /**
      * Creates a new host entry manually.
@@ -595,8 +595,8 @@ class HostManagementPage extends FOGPage
             $MAC,
             $hostName
         );
-        $this->setMessage($msg);
-        $this->redirect($this->formAction);
+        self::setMessage($msg);
+        self::redirect($this->formAction);
     }
     /**
      * Edits an existing item.
@@ -613,11 +613,11 @@ class HostManagementPage extends FOGPage
         if ($_REQUEST['approveHost']) {
             $this->obj->set('pending', null);
             if ($this->obj->save()) {
-                $this->setMessage(_('Host approved'));
+                self::setMessage(_('Host approved'));
             } else {
-                $this->setMessage(_('Host approval failed.'));
+                self::setMessage(_('Host approval failed.'));
             }
-            $this->redirect(
+            self::redirect(
                 sprintf(
                     '?node=%s&sub=edit&id=%s',
                     $this->node,
@@ -651,13 +651,13 @@ class HostManagementPage extends FOGPage
                         $_REQUEST['confirmMAC'],
                         _('Approved')
                     );
-                    $this->setMessage($msg);
+                    self::setMessage($msg);
                     unset($msg);
                 }
             } catch (Exception $e) {
-                $this->setMessage($e->getMessage());
+                self::setMessage($e->getMessage());
             }
-            $this->redirect(
+            self::redirect(
                 sprintf(
                     '?node=%s&sub=edit&id=%s',
                     $this->node,
@@ -679,8 +679,8 @@ class HostManagementPage extends FOGPage
                 '%s.',
                 _('All Pending MACs approved')
             );
-            $this->setMessage($msg);
-            $this->redirect(
+            self::setMessage($msg);
+            self::redirect(
                 sprintf(
                     '?node=%s&sub=edit&id=%s',
                     $this->node,
@@ -1257,7 +1257,7 @@ class HostManagementPage extends FOGPage
             _('with modules and config'),
             _('on the old client')
         );
-        $moduleName = $this->getGlobalModuleStatus();
+        $moduleName = self::getGlobalModuleStatus();
         $ModuleOn = $this->obj->get('modules');
         $Modules = self::getClass('ModuleManager')->find();
         foreach ((array)$Modules as &$Module) {
@@ -2048,7 +2048,7 @@ class HostManagementPage extends FOGPage
             if (!self::validDate($start) || !self::validDate($end)) {
                 continue;
             }
-            $diff = $this->diff($start, $end);
+            $diff = self::diff($start, $end);
             $start = self::niceDate($start);
             $end = self::niceDate($end);
             $TaskIDs = self::getSubObjectIDs(
@@ -2166,7 +2166,7 @@ class HostManagementPage extends FOGPage
             } elseif (!self::validDate($end)) {
                 $diff = _('No complete time recorded');
             } else {
-                $diff = $this->diff($start, $end);
+                $diff = self::diff($start, $end);
             }
             $this->data[] = array(
                 'snapin_name' => $Snapin->get('name'),
@@ -2484,8 +2484,8 @@ class HostManagementPage extends FOGPage
                 }
                 break;
             case 'host-login-history':
-                $this->setMessage(_('Date Changed'));
-                $this->redirect(
+                self::setMessage(_('Date Changed'));
+                self::redirect(
                     sprintf(
                         '?node=host&sub=edit&id=%s&dte=%s#%s',
                         $this->obj->get('id'),
@@ -2499,7 +2499,7 @@ class HostManagementPage extends FOGPage
                     && $_REQUEST['delvid'] == 'all'
                 ) {
                     $this->obj->clearAVRecordsForHost();
-                    $this->setMessage(
+                    self::setMessage(
                         _('All virus history cleared for this host')
                     );
                 } elseif (isset($_REQUEST['delvid'])) {
@@ -2509,9 +2509,9 @@ class HostManagementPage extends FOGPage
                                 'id' => $_REQUEST['delvid']
                             )
                         );
-                    $this->setMessage(_('Selected virus history item cleaned'));
+                    self::setMessage(_('Selected virus history item cleaned'));
                 }
-                $this->redirect(
+                self::redirect(
                     sprintf(
                         '?node=host&sub=edit&id=%s#%s',
                         $this->obj->get('id'),
@@ -2537,8 +2537,8 @@ class HostManagementPage extends FOGPage
                 $hook,
                 array('Host' => &$this->obj)
             );
-        $this->setMessage($msg);
-        $this->redirect($this->formAction);
+        self::setMessage($msg);
+        self::redirect($this->formAction);
     }
     /**
      * Saves host to a selected or new group depending on action.

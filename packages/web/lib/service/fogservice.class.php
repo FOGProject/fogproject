@@ -545,10 +545,10 @@ abstract class FOGService extends FOGBase
                     )
                 );
                 $removeFile = $myFile;
-                $limitmain = $this->byteconvert(
+                $limitmain = self::byteconvert(
                     $StorageNode->get('bandwidth')
                 );
-                $limitsend = $this->byteconvert(
+                $limitsend = self::byteconvert(
                     $PotentialStorageNode->get('bandwidth')
                 );
                 if ($limitmain > 0) {
@@ -591,7 +591,7 @@ abstract class FOGService extends FOGBase
                 $test = -1;
                 foreach ((array)$localfilescheck as $j => &$localfile) {
                     $avail = true;
-                    $index = $this->arrayFind(
+                    $index = self::arrayFind(
                         basename($localfile),
                         $remotefilescheck
                     );

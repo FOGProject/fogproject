@@ -296,7 +296,7 @@ class User extends FOGController
                     'password' => &$password
                 )
             );
-            $this->setMessage(self::$foglang['InvalidLogin']);
+            self::setMessage(self::$foglang['InvalidLogin']);
             if (!isset($_SESSION['OBSOLETE'])) {
                 $_SESSION['OBSOLETE'] = true;
             }
@@ -381,7 +381,7 @@ class User extends FOGController
             && $this->get('authIP') != $_SERVER['REMOTE_ADDR']
         ) {
             if (!$_SESSION['FOG_MESSAGES']) {
-                $this->setMessage(_('IP Address Changed'));
+                self::setMessage(_('IP Address Changed'));
             }
             if (isset($_SESSION['OBSOLETE'])) {
                 $_SESSION['OBSOLETE'] = true;
@@ -390,7 +390,7 @@ class User extends FOGController
             && $this->get('authUserAgent') != $_SERVER['HTTP_USER_AGENT']
         ) {
             if (!$_SESSION['FOG_MESSAGES']) {
-                $this->setMessage(_('User Agent Changed'));
+                self::setMessage(_('User Agent Changed'));
             }
             if (isset($_SESSION['OBSOLETE'])) {
                 $_SESSION['OBSOLETE'] = true;
@@ -399,7 +399,7 @@ class User extends FOGController
             && $this->_sessionID != $this->get('authID')
         ) {
             if (!$_SESSION['FOG_MESSAGES']) {
-                $this->setMessage(_('Session altered improperly'));
+                self::setMessage(_('Session altered improperly'));
             }
             if (isset($_SESSION['OBSOLETE'])) {
                 $_SESSION['OBSOLETE'] = true;
@@ -410,7 +410,7 @@ class User extends FOGController
             $active = time() - $this->get('authLastActivity');
             $timeout = $this->_inactivitySessionTimeout * 60 * 60;
             if ($active >= $timeout) {
-                $this->setMessage(self::$foglang['SessionTimeout']);
+                self::setMessage(self::$foglang['SessionTimeout']);
                 if (isset($_SESSION['OBSOLETE'])) {
                     $_SESSION['OBSOLETE'] = true;
                 }
@@ -420,7 +420,7 @@ class User extends FOGController
             && $_SESSION['OBSOLETE']
         ) {
             $_SESSION['OBSOLETE'] = false;
-            $this->redirect('index.php?node=logout');
+            self::redirect('index.php?node=logout');
         }
         $authTime = time() - $this->get('authTime');
         $regenTime = $this->_regenerateSessionTimeout * 60 * 60;
@@ -472,7 +472,7 @@ class User extends FOGController
         $_SESSION=array();
         $_SESSION['locale'] = $locale;
         if (isset($messages)) {
-            $this->setMessage($messages);
+            self::setMessage($messages);
         }
     }
 }

@@ -51,10 +51,10 @@ class AccessControlManagementPage extends FOGPage
             || !is_numeric($id)
             || $id < 1)
         ) {
-            $this->setMessage(
+            self::setMessage(
                 _('ID Must be set to edit')
             );
-            $this->redirect(
+            self::redirect(
                 "?node=$node"
             );
             exit;
@@ -159,14 +159,14 @@ class AccessControlManagementPage extends FOGPage
                 );
                 if ($id === 0 || !is_numeric($id)) {
                     unset($this->obj);
-                    $this->setMessage(
+                    self::setMessage(
                         sprintf(
                             _('%s ID %d is not valid'),
                             $this->childClass,
                             $id
                         )
                     );
-                    $this->redirect(
+                    self::redirect(
                         sprintf(
                             '?node=%s',
                             $this->node
@@ -480,16 +480,16 @@ class AccessControlManagementPage extends FOGPage
             if (!$AccessControl->save()) {
                 throw new Exception(_('Failed to create'));
             }
-            $this->setMessage(_('Role Added, editing!'));
-            $this->redirect(
+            self::setMessage(_('Role Added, editing!'));
+            self::redirect(
                 sprintf(
                     '?node=accesscontrol&sub=edit&id=%s',
                     $AccessControl->get('id')
                 )
             );
         } catch (Exception $e) {
-            $this->setMessage($e->getMessage());
-            $this->redirect($this->formAction);
+            self::setMessage($e->getMessage());
+            self::redirect($this->formAction);
         }
     }
     /**
@@ -590,8 +590,8 @@ class AccessControlManagementPage extends FOGPage
                 if (!$this->obj->save()) {
                     throw new Exception(_('Failed to update'));
                 }
-                $this->setMessage(_('Role Updated'));
-                $this->redirect(
+                self::setMessage(_('Role Updated'));
+                self::redirect(
                     sprintf(
                         '?node=accesscontrol&sub=edit&id=%d',
                         $this->obj->get('id')
@@ -599,8 +599,8 @@ class AccessControlManagementPage extends FOGPage
                 );
             }
         } catch (Exception $e) {
-            $this->setMessage($e->getMessage());
-            $this->redirect($this->formAction);
+            self::setMessage($e->getMessage());
+            self::redirect($this->formAction);
         }
     }
     /**
@@ -741,16 +741,16 @@ class AccessControlManagementPage extends FOGPage
             if (!$AccessControlRule->save()) {
                 throw new Exception(_('Failed to create'));
             }
-            $this->setMessage(_('Rule Added, editing!'));
-            $this->redirect(
+            self::setMessage(_('Rule Added, editing!'));
+            self::redirect(
                 sprintf(
                     '?node=accesscontrol&sub=editRule&id=%s',
                     $AccessControlRule->get('id')
                 )
             );
         } catch (Exception $e) {
-            $this->setMessage($e->getMessage());
-            $this->redirect($this->formAction);
+            self::setMessage($e->getMessage());
+            self::redirect($this->formAction);
         }
     }
     /**
@@ -871,8 +871,8 @@ class AccessControlManagementPage extends FOGPage
                 if (!$this->obj->save()) {
                     throw new Exception(_('Failed to update'));
                 }
-                $this->setMessage(_('Rule Updated'));
-                $this->redirect(
+                self::setMessage(_('Rule Updated'));
+                self::redirect(
                     sprintf(
                         '?node=accesscontrol&sub=editRule&id=%d',
                         $this->obj->get('id')
@@ -880,8 +880,8 @@ class AccessControlManagementPage extends FOGPage
                 );
             }
         } catch (Exception $e) {
-            $this->setMessage($e->getMessage());
-            $this->redirect($this->formAction);
+            self::setMessage($e->getMessage());
+            self::redirect($this->formAction);
         }
     }
     /**
@@ -977,8 +977,8 @@ class AccessControlManagementPage extends FOGPage
                 $hook,
                 array('AccessControlRule'=>&$this->obj)
             );
-        $this->setMessage($msg);
-        $this->redirect($url);
+        self::setMessage($msg);
+        self::redirect($url);
     }
     /**
      * Assoc rule.
@@ -1081,12 +1081,12 @@ class AccessControlManagementPage extends FOGPage
             }
             unset($ruleID);
 
-            $this->setMessage(_('Rule Added, editing!'));
-            $this->redirect('?node=accesscontrol&sub=ruleList');
+            self::setMessage(_('Rule Added, editing!'));
+            self::redirect('?node=accesscontrol&sub=ruleList');
 
         } catch (Exception $e) {
-            $this->setMessage($e->getMessage());
-            $this->redirect($this->formAction);
+            self::setMessage($e->getMessage());
+            self::redirect($this->formAction);
         }
     }
     /**
@@ -1319,7 +1319,7 @@ class AccessControlManagementPage extends FOGPage
             if (in_array($this->node, array('task'))
                 && (!$sub || $sub == 'list')
             ) {
-                $this->redirect(
+                self::redirect(
                     sprintf(
                         '?node=%s&sub=active',
                         $this->node
@@ -1363,7 +1363,7 @@ class AccessControlManagementPage extends FOGPage
                     && in_array($node, self::$searchPages))
                 ) {
                     if (!in_array($this->node, array('home', 'hwinfo'))) {
-                        $this->setMessage(
+                        self::setMessage(
                             sprintf(
                                 '%s %s%s found',
                                 count($this->data),
@@ -1562,14 +1562,14 @@ class AccessControlManagementPage extends FOGPage
                 _('Are you sure you wish to remove these items')
             );
         } else {
-            $this->setMessage(
+            self::setMessage(
                 sprintf(
                     '%s<br/>%s',
                     _('No items to delete'),
                     _('None selected or item is protected')
                 )
             );
-            $this->redirect(
+            self::redirect(
                 sprintf(
                     '?node=%s',
                     $this->node
@@ -1593,10 +1593,10 @@ class AccessControlManagementPage extends FOGPage
         ->destroy(
             array('id' => $_REQUEST['remitems'])
         );
-        $this->setMessage(
+        self::setMessage(
             _('All selected items have been deleted')
         );
-        $this->redirect(
+        self::redirect(
             sprintf(
                 '?node=%s',
                 $this->node

@@ -156,16 +156,16 @@ class WindowsKeyManagementPage extends FOGPage
             if (!$WindowsKey->save()) {
                 throw new Exception(_('Failed to create'));
             }
-            $this->setMessage(_('Key Added, editing!'));
-            $this->redirect(
+            self::setMessage(_('Key Added, editing!'));
+            self::redirect(
                 sprintf(
                     '?node=windowskey&sub=edit&id=%s',
                     $WindowsKey->get('id')
                 )
             );
         } catch (Exception $e) {
-            $this->setMessage($e->getMessage());
-            $this->redirect($this->formAction);
+            self::setMessage($e->getMessage());
+            self::redirect($this->formAction);
         }
     }
     /**
@@ -281,16 +281,16 @@ class WindowsKeyManagementPage extends FOGPage
             if (!$this->obj->save()) {
                 throw new Exception(_('Failed to update'));
             }
-            $this->setMessage(_('Windows Key Updated'));
-            $this->redirect(
+            self::setMessage(_('Windows Key Updated'));
+            self::redirect(
                 sprintf(
                     '?node=windowskey&sub=edit&id=%d',
                     $this->obj->get('id')
                 )
             );
         } catch (Exception $e) {
-            $this->setMessage($e->getMessage());
-            $this->redirect($this->formAction);
+            self::setMessage($e->getMessage());
+            self::redirect($this->formAction);
         }
     }
     /**
@@ -474,14 +474,14 @@ class WindowsKeyManagementPage extends FOGPage
             $this->obj->removeImage($_REQUEST['imagedel']);
         }
         if ($this->obj->save()) {
-            $this->setMessage(
+            self::setMessage(
                 sprintf(
                     '%s %s',
                     $this->obj->get('name'),
                     _('saved successfully')
                 )
             );
-            $this->redirect($this->formAction);
+            self::redirect($this->formAction);
         }
     }
 }

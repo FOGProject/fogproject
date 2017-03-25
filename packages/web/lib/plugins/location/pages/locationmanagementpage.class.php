@@ -199,16 +199,16 @@ class LocationManagementPage extends FOGPage
             if (!$Location->save()) {
                 throw new Exception(_('Failed to create'));
             }
-            $this->setMessage(_('Location Added, editing!'));
-            $this->redirect(
+            self::setMessage(_('Location Added, editing!'));
+            self::redirect(
                 sprintf(
                     '?node=location&sub=edit&id=%s',
                     $Location->get('id')
                 )
             );
         } catch (Exception $e) {
-            $this->setMessage($e->getMessage());
-            $this->redirect($this->formAction);
+            self::setMessage($e->getMessage());
+            self::redirect($this->formAction);
         }
     }
     /**
@@ -336,8 +336,8 @@ class LocationManagementPage extends FOGPage
                 if (!$this->obj->save()) {
                     throw new Exception(_('Failed to update'));
                 }
-                $this->setMessage(_('Location Updated'));
-                $this->redirect(
+                self::setMessage(_('Location Updated'));
+                self::redirect(
                     sprintf(
                         '?node=location&sub=edit&id=%d',
                         $this->obj->get('id')
@@ -345,8 +345,8 @@ class LocationManagementPage extends FOGPage
                 );
             }
         } catch (Exception $e) {
-            $this->setMessage($e->getMessage());
-            $this->redirect($this->formAction);
+            self::setMessage($e->getMessage());
+            self::redirect($this->formAction);
         }
     }
 }

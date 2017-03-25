@@ -1554,7 +1554,7 @@ class Host extends FOGController
                 )
                 ->set('imageID', $Image->get('id'));
         } catch (Exception $e) {
-            self::$FOGCore->error(
+            self::error(
                 sprintf(
                     '%s():xError: %s',
                     __FUNCTION__,

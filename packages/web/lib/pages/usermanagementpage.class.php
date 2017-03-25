@@ -270,8 +270,8 @@ class UserManagementPage extends FOGPage
                 array('User' => &$User)
             );
         unset($User);
-        $this->setMessage($msg);
-        $this->redirect($this->formAction);
+        self::setMessage($msg);
+        self::redirect($this->formAction);
     }
     /**
      * Enable user to edit a user.
@@ -462,7 +462,7 @@ class UserManagementPage extends FOGPage
                 $hook,
                 array('User' => &$this->obj)
             );
-        $this->setMessage($msg);
-        $this->redirect($this->formAction);
+        self::setMessage($msg);
+        self::redirect($this->formAction);
     }
 }

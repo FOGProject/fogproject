@@ -384,7 +384,7 @@ class ReportManagementPage extends FOGPage
             ) {
                 continue;
             }
-            $diff = $this->diff($start, $end);
+            $diff = self::diff($start, $end);
             $start = self::niceDate($start);
             $end = self::niceDate($end);
             if ($start < $date1
@@ -653,8 +653,8 @@ class ReportManagementPage extends FOGPage
                         'pending' => 0
                     )
                 );
-            $this->setMessage(_('All Pending MACs approved.'));
-            $this->redirect('?node=report&sub=pendmac');
+            self::setMessage(_('All Pending MACs approved.'));
+            self::redirect('?node=report&sub=pendmac');
         }
         $this->title = _('Pending MAC Export');
         printf(
@@ -783,7 +783,7 @@ class ReportManagementPage extends FOGPage
             isset($_REQUEST['approvependmac']) ?
             _('approved') : _('deleted')
         );
-        $this->setMessage(
+        self::setMessage(
             sprintf(
                 '%s %s %s',
                 _('All pending macs'),
@@ -791,7 +791,7 @@ class ReportManagementPage extends FOGPage
                 _('successfully')
             )
         );
-        $this->redirect("?node=$this->node");
+        self::redirect("?node=$this->node");
     }
     /**
      * Display virus history.
@@ -929,12 +929,12 @@ class ReportManagementPage extends FOGPage
     {
         if ($_REQUEST['delvall'] == 'all') {
             self::getClass('VirusManager')->destroy();
-            $this->setMessage(_("All Virus' cleared"));
-            $this->redirect($this->formAction);
+            self::setMessage(_("All Virus' cleared"));
+            self::redirect($this->formAction);
         } elseif (is_numeric($_REQUEST['delvid'])) {
             self::getClass('Virus', $_REQUEST['delvid'])->destroy();
-            $this->setMessage(_('Virus cleared'));
-            $this->redirect($this->formAction);
+            self::setMessage(_('Virus cleared'));
+            self::redirect($this->formAction);
         }
     }
     /**
@@ -1148,7 +1148,7 @@ class ReportManagementPage extends FOGPage
             }
             unset($HostIDs);
         } elseif (!$hostsearch && !$usersearch) {
-            $this->redirect(
+            self::redirect(
                 sprintf(
                     '?node=%s&sub=usertrack',
                     $this->node

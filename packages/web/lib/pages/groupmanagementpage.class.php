@@ -250,8 +250,8 @@ class GroupManagementPage extends FOGPage
             array('Group' => &$Group)
         );
         unset($Group);
-        $this->setMessage($msg);
-        $this->redirect($this->formAction);
+        self::setMessage($msg);
+        self::redirect($this->formAction);
     }
     /**
      * The group edit display method
@@ -755,7 +755,7 @@ class GroupManagementPage extends FOGPage
             _('with modules and config'),
             _('on the old client')
         );
-        $moduleName = $this->getGlobalModuleStatus();
+        $moduleName = self::getGlobalModuleStatus();
         $ModuleOn = array_values(
             self::getSubObjectIDs(
                 'ModuleAssociation',
@@ -1437,8 +1437,8 @@ class GroupManagementPage extends FOGPage
                 $hook,
                 array('Group' => &$this->obj)
             );
-        $this->setMessage($msg);
-        $this->redirect($this->formAction);
+        self::setMessage($msg);
+        self::redirect($this->formAction);
     }
     /**
      * Delete the hosts with the delete group.

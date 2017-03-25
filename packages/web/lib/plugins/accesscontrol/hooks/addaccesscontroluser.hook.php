@@ -156,7 +156,7 @@ class AddAccessControlUser extends Hook
             );
             $acID = $AccessControls[0];
         }
-        $this->arrayInsertAfter(
+        self::arrayInsertAfter(
             _('User Name'),
             $arguments['fields'],
             _('User Access Control'),

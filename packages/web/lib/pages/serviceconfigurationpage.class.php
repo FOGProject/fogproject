@@ -157,8 +157,8 @@ class ServiceConfigurationPage extends FOGPage
         echo '<div id="tab-container"><div id="home">';
         $this->home();
         echo '</div>';
-        $moduleName = $this->getGlobalModuleStatus();
-        $modNames = $this->getGlobalModuleStatus(true);
+        $moduleName = self::getGlobalModuleStatus();
+        $modNames = self::getGlobalModuleStatus(true);
         foreach ((array)self::getClass('ModuleManager')
             ->find() as &$Module
         ) {
@@ -736,16 +736,16 @@ class ServiceConfigurationPage extends FOGPage
                     'SERVICE_EDIT_SUCCESS',
                     array('Service' => &$Service)
                 );
-            $this->setMessage(_('Service Updated!'));
+            self::setMessage(_('Service Updated!'));
         } catch (Exception $e) {
             self::$HookManager
                 ->processEvent(
                     'SERVICE_EDIT_FAIL',
                     array('Service' => &$Service)
                 );
-            $this->setMessage($e->getMessage());
+            self::setMessage($e->getMessage());
         }
-        $this->redirect(
+        self::redirect(
             sprintf(
                 '?node=%s#%s',
                 $_REQUEST['node'],

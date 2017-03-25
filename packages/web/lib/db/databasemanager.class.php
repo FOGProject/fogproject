@@ -105,7 +105,7 @@ class DatabaseManager extends FOGCore
              * perform our redirect.
              */
             if (!preg_match('#schema#i', self::$querystring)) {
-                $this->redirect('?node=schema');
+                self::redirect('?node=schema');
             }
         }
         /**

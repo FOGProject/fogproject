@@ -1684,7 +1684,7 @@ class BootMenu extends FOGBase
             if ($type) {
                 $index = array_search('params', $params);
                 if ($index !== false && is_numeric($index)) {
-                    $this->arrayInsertAfter(
+                    self::arrayInsertAfter(
                         $index,
                         $params,
                         'extra',
