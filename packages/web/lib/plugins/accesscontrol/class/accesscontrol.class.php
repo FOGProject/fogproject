@@ -56,8 +56,8 @@ class AccessControl extends FOGController
         'description',
         'users',
         'usersnotinme',
-        'rules',
-        'rulesnotinme',
+        'accesscontrolrules',
+        'accesscontrolrulesnotinme',
     );
     /**
      * Add user to access control.
@@ -99,7 +99,7 @@ class AccessControl extends FOGController
     public function addRule($addArray)
     {
         return $this->addRemItem(
-            'rules',
+            'accesscontrolrules',
             (array)$addArray,
             'merge'
         );
@@ -114,7 +114,7 @@ class AccessControl extends FOGController
     public function removeRule($removeArray)
     {
         return $this->addRemItem(
-            'rules',
+            'accesscontrolrules',
             (array)$removeArray,
             'diff'
         );
@@ -129,7 +129,7 @@ class AccessControl extends FOGController
         parent::save();
         return $this
             ->assocSetter('AccessControl', 'user')
-            ->assocSetter('AccessControlRule', 'rule')
+            ->assocSetter('AccessControlRule', 'accesscontrolrule')
             ->load();
     }
     /**
@@ -201,7 +201,7 @@ class AccessControl extends FOGController
      *
      * @return void
      */
-    protected function loadRules()
+    protected function loadAccesscontrolrules()
     {
         $associds = self::getSubObjectIDs(
             'AccessControlRuleAssociation',
@@ -212,22 +212,22 @@ class AccessControl extends FOGController
             'AccessControlRule',
             array('id' => $associds)
         );
-        $this->set('rules', $ruleids);
+        $this->set('accesscontrolrules', $ruleids);
     }
     /**
      * Load items not with this object
      *
      * @return void
      */
-    protected function loadRulesnotinme()
+    protected function loadAccesscontrolrulesnotinme()
     {
-        $find = array('id' => $this->get('rules'));
+        $find = array('id' => $this->get('accesscontrolrules'));
         $ruleids = self::getSubObjectIDs(
             'AccessControlRule',
             $find,
             'id',
             true
         );
-        $this->set('rulesnotinme', $ruleids);
+        $this->set('accesscontrolrulesnotinme', $ruleids);
     }
 }

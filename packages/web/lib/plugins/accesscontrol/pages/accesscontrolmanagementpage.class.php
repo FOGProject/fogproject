@@ -36,10 +36,6 @@ class AccessControlManagementPage extends FOGPage
          */
         $this->name = 'Access Control Management';
         /**
-         * Initialize our page.
-         */
-        parent::__construct($this->name);
-        /**
          * Add this page to the PAGES_WITH_OBJECTS hook event.
          */
         self::$HookManager->processEvent(
@@ -59,17 +55,18 @@ class AccessControlManagementPage extends FOGPage
         switch($sub){
         case 'edit':
         case 'delete':
+            parent::__construct($this->name);
             if ($id) {
                 $this->subMenu = array(
                     "$this->linkformat" => self::$foglang['General'],
                     $this->membership => self::$foglang['Members'],
-                    "$this->delformat" => self::$foglang['Delete'],
                     sprintf(
                         '?node=%s&sub=%s&id=%s',
                         $this->node,
                         'assocRule',
                         $id
                     ) => _('Rule Association'),
+                        "$this->delformat" => self::$foglang['Delete'],
                     );
                 $this->notes = array(
                     _('Role Name') => $this->obj->get('name'),
@@ -127,17 +124,18 @@ class AccessControlManagementPage extends FOGPage
             break;
         case 'membership':
         case 'assocRule':
+            parent::__construct($this->name);
             if ($id) {
                 $this->subMenu = array(
                     "$this->linkformat" => self::$foglang['General'],
                     $this->membership => self::$foglang['Members'],
-                    "$this->delformat" => self::$foglang['Delete'],
                     sprintf(
                         '?node=%s&sub=%s&id=%s',
                         $this->node,
                         'assocRule',
                         $id
                     ) => _('Rule Association'),
+                        "$this->delformat" => self::$foglang['Delete'],
                     );
                 $this->notes = array(
                     _('Role Name') => $this->obj->get('name'),
@@ -147,7 +145,20 @@ class AccessControlManagementPage extends FOGPage
             break;
         case 'editRule':
         case 'deleteRule':
+            $this->childClass = 'AccessControlRule';
             if ($id) {
+                $this->obj = new $this->childClass($id);
+                $link = sprintf(
+                    '?node=%s&sub=%s&%s=%d',
+                    $this->node,
+                    '%s',
+                    $this->id,
+                    $id
+                );
+                $this->linkformat = sprintf(
+                    $link,
+                    'editRule'
+                );
                 $this->subMenu = array(
                     "$this->linkformat" => self::$foglang['General'],
                     sprintf(
@@ -169,7 +180,7 @@ class AccessControlManagementPage extends FOGPage
             $this->childClass = 'AccessControlRule';
             break;
         default:
-            $this->childClass = 'AccessControl';
+            parent::__construct($this->name);
         }
         /**
          * Set title to our initiator name.
@@ -882,52 +893,124 @@ class AccessControlManagementPage extends FOGPage
      */
     public function assocRule()
     {
-        $this->title = _('Rule Association');
-        $ruleID = self::getSubObjectIDs(
-            'AccessControlRuleAssociation',
-            array('accesscontrolID' => $this->obj->get('id')),
-            'accesscontrolruleID'
+        $this->data = array();
+        echo '<!-- Rule Membership -->';
+        printf(
+            '<div id="%s-membership">',
+            $this->node
         );
-        foreach ((array)self::getClass('AccessControlRuleManager')
-            ->find(array('id' => $ruleID)) as &$AccessControlRule
-        ) {
-            $this->data[] = array(
-                'type' => $AccessControlRule->get('type'),
-                'id' => $AccessControlRule->get('id'),
-                'value' => $AccessControlRule->get('value'),
-                'parent' => $AccessControlRule->get('parent'),
-            );
-            unset($AccessControlRule);
-        }
         $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" class='
-            . '"toggle-checkboxAction"/>',
-            _('Type'),
+            sprintf(
+                '<input type="checkbox" name="toggle-checkboxrule"'
+                . 'class="toggle-checkboxrule"/>',
+                $this->node
+            ),
+            _('Rule name'),
             _('Value'),
             _('Parent Node'),
         );
         $this->templates = array(
-            '<input type="checkbox" name="rule[]" value='
-            . '"${id}" class="toggle-action"/>',
+            '<input type="checkbox" name="rule[]" value="${rule_id}" '
+            . 'class="toggle-rule"/>',
             sprintf(
-                '<a href="?node=%s&sub=editRule&%s=${id}" title='
-                . '"%s">${type}</a>',
-                $this->node,
-                $this->id,
-                _('Edit')
+                '<a href="?node=%s&sub=editRule&id=${rule_id}" '
+                . 'title="%s: ${rule_name}">${rule_name}</a>',
+                _('Edit'),
+                'rule'
             ),
             '${value}',
             '${parent}',
         );
         $this->attributes = array(
             array(
+                'width' => 16,
                 'class' => 'l filter-false',
-                'width' => 16
             ),
             array('class' => 'l'),
             array('class' => 'l'),
             array('class' => 'l'),
         );
+        foreach ((array)self::getClass('AccessControlRuleManager')
+            ->find(
+                array(
+                    'id' => $this->obj->get('accesscontrolrulesnotinme'),
+                )
+            ) as &$Rule
+        ) {
+            $this->data[] = array(
+                'rule_id' => $Rule->get('id'),
+                'rule_name' => $Rule->get('name'),
+                'value' => $Rule->get('value'),
+                'parent' => $Rule->get('parent'),
+            );
+            unset($Rule);
+        }
+        if (count($this->data) > 0) {
+            self::$HookManager->processEvent(
+                'OBJ_RULES_NOT_IN_ME',
+                array(
+                    'headerData' => &$this->headerData,
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes
+                )
+            );
+            printf(
+                '<form method="post" action="%s"><label for="ruleMeShow">'
+                . '<p class="c">%s %s&nbsp;&nbsp;<input '
+                . 'type="checkbox" name="ruleMeShow" id="ruleMeShow"/>'
+                . '</p></label><div id="ruleNotInMe"><h2>%s %s</h2>',
+                $this->formAction,
+                _('Check here to see rules not within this'),
+                $this->node,
+                _('Modify Rule Membership for'),
+                $this->obj->get('name')
+            );
+            $this->render();
+            printf(
+                '</div><br/><p class="c"><input type ="submit" '
+                . 'value="%s %s(s) %s %s" name="addRules"/></p><br/>',
+                _('Add'),
+                _('rule'),
+                _('to'),
+                $this->node
+            );
+        }
+        $this->data = array();
+        $this->headerData = array(
+            '<input type="checkbox" name="toggle-checkbox" '
+            . 'class="toggle-checkboxAction"/>',
+            _('Rule Name'),
+            _('Value'),
+            _('Parent Node'),
+        );
+        $this->templates = array(
+            '<input type="checkbox" name="ruledel[]" '
+            . 'value="${rule_id}" class="toggle-action"/>',
+            sprintf(
+                '<a href="?node=%s&sub=editRule&id=${rule_id}" '
+                . 'title="%s: ${rule_name}">${rule_name}</a>',
+                _('Edit'),
+                'rule'
+            ),
+            '${value}',
+            '${parent}',
+        );
+        foreach ((array)self::getClass('AccessControlRuleManager')
+            ->find(
+                array(
+                    'id' => $this->obj->get('accesscontrolrules'),
+                )
+            ) as &$Rule
+        ) {
+            $this->data[] = array(
+                'rule_id' => $Rule->get('id'),
+                'rule_name' => $Rule->get('name'),
+                'value' => $Rule->get('value'),
+                'parent' => $Rule->get('parent'),
+            );
+            unset($Rule);
+        }
         self::$HookManager
             ->processEvent(
                 'ACCESSCONTROL_ASSOCRULE_DATA',
@@ -938,8 +1021,31 @@ class AccessControlManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
+        printf(
+            '<form method="post" action="%s">',
+            $this->formAction
+        );
         $this->render();
+        if (count($this->data)) {
+            printf(
+                '<p class="c"><input type="submit" '
+                . 'value="%s %ss %s %s" name="remrules"/></p>',
+                _('Delete Selected'),
+                _('rule'),
+                _('from'),
+                $this->node
+            );
+        }
         $this->data = array();
+    }
+    /**
+     * Post assoc rule adjustments.
+     *
+     * @return void
+     */
+    public function assocRulePost()
+    {
+        $this->membershipPost();
     }
     /**
      * Add rule group.
@@ -997,18 +1103,15 @@ class AccessControlManagementPage extends FOGPage
             $this->node
         );
         $this->headerData = array(
-            sprintf(
-                '<input type="checkbox" name="toggle-checkbox%s1" '
-                . 'class="toggle-checkbox1"i/>',
-                $this->node
-            ),
+            '<input type="checkbox" name="toggle-checkboxuser" '
+            . 'class="toggle-checkboxuser"/>',
             _('Username'),
             _('Friendly Name')
         );
         $this->templates = array(
             sprintf(
                 '<input type="checkbox" name="user[]" value="${user_id}" '
-                . 'class="toggle-%s${check_num}"/>',
+                . 'class="toggle-%s"/>',
                 'user'
             ),
             sprintf(
@@ -1145,6 +1248,12 @@ class AccessControlManagementPage extends FOGPage
         if (isset($_REQUEST['remusers'])) {
             $this->obj->removeUser($_REQUEST['userdel']);
         }
+        if (isset($_REQUEST['addRules'])) {
+            $this->obj->addRule($_REQUEST['rule']);
+        }
+        if (isset($_REQUEST['remrules'])) {
+            $this->obj->removeRule($_REQUEST['ruledel']);
+        }
         if ($this->obj->save()) {
             self::setMessage(
                 sprintf(
@@ -1155,31 +1264,5 @@ class AccessControlManagementPage extends FOGPage
             );
         }
         self::redirect($this->formAction);
-    }
-    /**
-     * Delete multi ajax customized.
-     *
-     * @return void
-     */
-    public function deletemultiAjax()
-    {
-        self::$HookManager->processEvent(
-            'MULTI_REMOVE',
-            array('removing' => &$_REQUEST['remitems'])
-        );
-        self::getClass($this->childClass)
-        ->getManager()
-        ->destroy(
-            array('id' => $_REQUEST['remitems'])
-        );
-        self::setMessage(
-            _('All selected items have been deleted')
-        );
-        self::redirect(
-            sprintf(
-                '?node=%s',
-                $this->node
-            )
-        );
     }
 }
