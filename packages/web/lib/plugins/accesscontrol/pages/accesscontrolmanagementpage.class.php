@@ -31,81 +31,138 @@ class AccessControlManagementPage extends FOGPage
      */
     public function __construct($name = '')
     {
+        /**
+         * The name to give.
+         */
         $this->name = 'Access Control Management';
-
-        if (self::$ajax) {
-            session_write_close();
-            ignore_user_abort(true);
-            set_time_limit(0);
-        }
+        /**
+         * Initialize our page.
+         */
+        parent::__construct($this->name);
+        /**
+         * Add this page to the PAGES_WITH_OBJECTS hook event.
+         */
         self::$HookManager->processEvent(
             'PAGES_WITH_OBJECTS',
             array('PagesWithObjects' => &$this->PagesWithObjects)
         );
+        /**
+         * Get our $_GET['node'], $_GET['sub'], and $_GET['id']
+         * in a nicer to use format.
+         */
         global $node;
         global $sub;
         global $id;
-        if ($node !== 'service'
-            && preg_match('#edit#i', $sub)
-            && (!isset($id)
-            || !is_numeric($id)
-            || $id < 1)
-        ) {
-            self::setMessage(
-                _('ID Must be set to edit')
-            );
-            self::redirect(
-                "?node=$node"
-            );
-            exit;
-        }
-        $subs = array(
-            'configure',
-            'authorize',
-            'requestClientInfo',
-        );
-        if (in_array($sub, $subs)) {
-            return $this->{$sub}();
-        }
-        switch($_REQUEST['sub']){
+        /**
+         * Customize our settings as needed.
+         */
+        switch($sub){
+        case 'edit':
+        case 'delete':
+            if ($id) {
+                $this->subMenu = array(
+                    "$this->linkformat" => self::$foglang['General'],
+                    $this->membership => self::$foglang['Members'],
+                    "$this->delformat" => self::$foglang['Delete'],
+                    sprintf(
+                        '?node=%s&sub=%s&id=%s',
+                        $this->node,
+                        'assocRule',
+                        $id
+                    ) => _('Rule Association'),
+                    );
+                $this->notes = array(
+                    _('Role Name') => $this->obj->get('name'),
+                    _('Description') => $this->obj->get('description'),
+                );
+            }
+            break;
         case 'deletemulti':
+            /**
+             * Setup our matching elements.
+             */
+            /**
+             * Association Rules
+             */
             $assocrule = preg_match(
-                '#items=assocRule*#i',
+                '#items=assocRule#i',
                 self::$querystring
             );
+            /**
+             * User associations
+             */
+            $user = preg_match(
+                '#items=user#i',
+                self::$querystring
+            );
+            /**
+             * Roles
+             */
+            $role = preg_match(
+                '#items=role#i',
+                self::$querystring
+            );
+            /**
+             * Rules
+             */
+            $rule = preg_match(
+                '#items=rule#i',
+                self::$querystring
+            );
+            /**
+             * Set our child class based on
+             * what is found above.
+             */
             if ($assocrule) {
                 $this->childClass = 'AccessControlRuleAssociation';
-            }
-            $user = preg_match(
-                '#items=user*#i',
-                self::$querystring
-            );
-            if ($user) {
+            } elseif ($user) {
                 $this->childClass = 'AccessControlAssociation';
-            }
-            $role = preg_match(
-                '#items=role*#i',
-                self::$querystring
-            );
-            if ($role) {
+            } elseif ($role) {
                 $this->childClass = 'AccessControl';
-            }
-            $rule = preg_match(
-                '#items=rule*#i',
-                self::$querystring
-            );
-            if ($rule) {
+            } elseif ($rule) {
                 $this->childClass = 'AccessControlRule';
+            } else {
+                $this->childClass = 'AccessControl';
             }
             break;
         case 'membership':
-            $this->childClass = 'AccessControlAssociation';
-            break;
         case 'assocRule':
-            $this->childClass = 'AccessControlRuleAssociation';
+            if ($id) {
+                $this->subMenu = array(
+                    "$this->linkformat" => self::$foglang['General'],
+                    $this->membership => self::$foglang['Members'],
+                    "$this->delformat" => self::$foglang['Delete'],
+                    sprintf(
+                        '?node=%s&sub=%s&id=%s',
+                        $this->node,
+                        'assocRule',
+                        $id
+                    ) => _('Rule Association'),
+                    );
+                $this->notes = array(
+                    _('Role Name') => $this->obj->get('name'),
+                    _('Description') => $this->obj->get('description'),
+                );
+            }
             break;
         case 'editRule':
         case 'deleteRule':
+            if ($id) {
+                $this->subMenu = array(
+                    "$this->linkformat" => self::$foglang['General'],
+                    sprintf(
+                        '?node=%s&sub=%s&id=%s',
+                        $this->node,
+                        'deleteRule',
+                        $id
+                    ) => self::$foglang['Delete'],
+                );
+                $this->notes = array(
+                    _('Rule type') => $this->obj->get('type'),
+                    _('Rule value') => $this->obj->get('value'),
+                    _('Parent Node') => $this->obj->get('parent'),
+                );
+            }
         case 'addRule':
         case 'ruleList':
         case 'addRuleGroup':
@@ -113,8 +170,10 @@ class AccessControlManagementPage extends FOGPage
             break;
         default:
             $this->childClass = 'AccessControl';
-            break;
         }
+        /**
+         * Set title to our initiator name.
+         */
         $this->title = $this->name;
         if (in_array($this->node, $this->PagesWithObjects)) {
             $classVars = self::getClass(
@@ -138,25 +197,6 @@ class AccessControlManagementPage extends FOGPage
                 $id
             );
             if (isset($id)) {
-                $link = sprintf(
-                    '?node=%s&sub=%s&%s=%d',
-                    $this->node,
-                    '%s',
-                    $this->id,
-                    $id
-                );
-                $this->delformat = sprintf(
-                    $link,
-                    'delete'
-                );
-                $this->linkformat = sprintf(
-                    $link,
-                    'edit'
-                );
-                $this->membership = sprintf(
-                    $link,
-                    'membership'
-                );
                 if ($id === 0 || !is_numeric($id)) {
                     unset($this->obj);
                     self::setMessage(
@@ -175,155 +215,12 @@ class AccessControlManagementPage extends FOGPage
                 }
             }
         }
-        $this->reportString = '<h2><div id="exportDiv"></div><a id="csvsub" '
-            . 'href="../management/export.php?filename=%s&type=csv" alt="%s" '
-            . 'title="%s" target="_blank">%s</a> <a id="pdfsub" '
-            . 'href="../management/export.php?filename=%s&type=pdf" alt="%s" '
-            . 'title="%s" target="_blank">%s</a></h2>';
-        self::$pdffile = '<i class="fa fa-file-pdf-o fa-2x"></i>';
-        self::$csvfile = '<i class="fa fa-file-excel-o fa-2x"></i>';
-        $this->menu = array(
-            'search' => self::$foglang['NewSearch'],
-            'list' => sprintf(
-                self::$foglang['ListAll'],
-                _(
-                    sprintf(
-                        '%ss',
-                        $this->childClass
-                    )
-                )
-            ),
-            'add' => sprintf(
-                self::$foglang['CreateNew'],
-                _($this->childClass)
-            ),
-            'export' => sprintf(
-                self::$foglang[
-                    sprintf(
-                        'Export%s',
-                        $this->childClass
-                    )
-                ]
-            ),
-            'import' => sprintf(
-                self::$foglang[
-                    sprintf(
-                        'Import%s',
-                        $this->childClass
-                    )
-                ]
-            ),
-        );
-        $this->fieldsToData = function (&$input, &$field) {
-            $this->data[] = array(
-                'field' => $field,
-                'input' => $input,
-            );
-            if (is_array($this->span) && count($this->span) === 2) {
-                $this->data[count($this->data)-1][$this->span[0]] = $this->span[1];
-            }
-            unset($input);
-        };
-        $this->formAction = preg_replace(
-            '#\&tab=#i',
-            '#',
-            filter_var(
-                sprintf(
-                    '%s?%s',
-                    self::$scriptname,
-                    self::$querystring
-                ),
-                FILTER_SANITIZE_URL
-            )
-        );
-        self::$HookManager->processEvent(
-            'SEARCH_PAGES',
-            array('searchPages' => &self::$searchPages)
-        );
-        self::$HookManager->processEvent(
-            'SUB_MENULINK_DATA',
-            array(
-                'menu' => &$this->menu,
-                'submenu' => &$this->subMenu,
-                'id' => &$this->id,
-                'notes' => &$this->notes
-            )
-        );
-
         $this->menu = array(
             'list' => sprintf(_('List all roles')),
             'addRole' => sprintf(_('Add new role')),
             'ruleList' => sprintf(_('List all rules')),
             'addRule' => sprintf(_('Add new rule')),
         );
-
-        switch ($_REQUEST['sub'])
-        {
-        case 'edit':
-        case 'delete':
-            if ($id) {
-                $this->subMenu = array(
-                    "$this->linkformat" => self::$foglang['General'],
-                    $this->membership => self::$foglang['Members'],
-                    "$this->delformat" => self::$foglang['Delete'],
-                    sprintf(
-                        '?node=%s&sub=%s&id=%s',
-                        $this->node,
-                        'assocRule',
-                        $id
-                    ) => _('Rule Association'),
-                    );
-                $this->notes = array(
-                    _('Role Name') => $this->obj->get('name'),
-                    _('Description') => $this->obj->get('description'),
-                );
-
-            }
-            break;
-        case 'assocRule':
-        case 'membership':
-            if ($id) {
-                $AccessControl = new AccessControl($id);
-                $this->subMenu = array(
-                    "$this->linkformat" => self::$foglang['General'],
-                    $this->membership => self::$foglang['Members'],
-                    "$this->delformat" => self::$foglang['Delete'],
-                    sprintf(
-                        '?node=%s&sub=%s&id=%s',
-                        $this->node,
-                        'assocRule',
-                        $id
-                    ) => _('Rule Association'),
-                );
-                $this->notes = array(
-                    _('Role Name') => $AccessControl->get('name'),
-                    _('Description') => $AccessControl->get('description'),
-                );
-
-            }
-            break;
-        case 'editRule':
-        case 'deleteRule':
-            if ($id) {
-                $this->subMenu = array(
-                    "$this->linkformat" => self::$foglang['General'],
-                    //$this->membership => self::$foglang['Members'],
-                    sprintf(
-                        '?node=%s&sub=%s&id=%s',
-                        $this->node,
-                        'deleteRule',
-                        $id
-                    ) => self::$foglang['Delete'],
-                );
-                $this->notes = array(
-                    _('Rule type') => $this->obj->get('type'),
-                    _('Rule value') => $this->obj->get('value'),
-                    _('Parent Node') => $this->obj->get('parent'),
-                );
-
-            }
-            break;
-        }
     }
     /**
      * Search
@@ -542,7 +439,6 @@ class AccessControlManagementPage extends FOGPage
             unset($input);
         }
         unset($fields);
-
         self::$HookManager
             ->processEvent(
                 'ACCESSCONTROL_EDIT',
@@ -553,7 +449,6 @@ class AccessControlManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-
         printf(
             '<form method="post" action="%s&id=%d">',
             $this->formAction,
@@ -988,10 +883,9 @@ class AccessControlManagementPage extends FOGPage
     public function assocRule()
     {
         $this->title = _('Rule Association');
-
         $ruleID = self::getSubObjectIDs(
             'AccessControlRuleAssociation',
-            array('roleID' => $_REQUEST['id']),
+            array('roleID' => $this->obj->get('id')),
             'ruleID'
         );
         foreach ((array)self::getClass('AccessControlRuleManager')
@@ -1090,365 +984,127 @@ class AccessControlManagementPage extends FOGPage
         }
     }
     /**
-     * Custom render
-     *
-     * @return void
-     */
-    public function render()
-    {
-        echo $this->process();
-    }
-    /**
-     * Custom process
-     *
-     * @return void
-     */
-    public function process()
-    {
-        try {
-            unset($actionbox);
-            //global $sub;
-            global $node;
-            $defaultScreen = strtolower($_SESSION['FOG_VIEW_DEFAULT_SCREEN']);
-            $defaultScreens = array(
-                'search',
-                'list',
-                'membership',
-                'ruleList',
-                'assocRule'
-            );
-            $sub = $_REQUEST['sub'];
-            if (!$sub
-                || in_array($sub, $defaultScreens)
-            ) {
-                switch ($sub){
-                case '':
-                    $sub = 'list';
-                case 'list':
-                    $item = 'role';
-                    $actionbox .= sprintf(
-                        '<form method="post" class="c" id="action-boxdel" '
-                        . 'action="%s"><p>%s</p><input type="hidden" '
-                        . 'name="IDArray" value="" autocomplete="off"/>'
-                        . '<input type="submit" value="%s?"/></form>',
-                        sprintf(
-                            '?node=%s&sub=deletemulti&items=%s',
-                            $node,
-                            $item
-                        ),
-                        _('Delete all selected items'),
-                        sprintf(
-                            _('Delete all selected %ss'),
-                            $item
-                        )
-                    );
-                    break;
-                case 'assocRule':
-                    $item = 'assocRule';
-                    $actionbox .= sprintf(
-                        '<form method="post" class="c" id="action-boxdel" '
-                        . 'action="%s"><p>%s</p><input type="hidden" '
-                        . 'name="IDArray" value="" autocomplete="off"/>'
-                        . '<input type="submit" value="%s?"/></form>',
-                        sprintf(
-                            '?node=%s&sub=deletemulti&items=%s&roleID=%s',
-                            $node,
-                            $item,
-                            $_REQUEST['id']
-                        ),
-                        _('Delete all selected items'),
-                        sprintf(
-                            _('Delete all selected %ss'),
-                            $item
-                        )
-                    );
-                    break;
-                case 'membership':
-                    $item = 'user';
-                    $actionbox .= sprintf(
-                        '<form method="post" class="c" id="action-boxdel" '
-                        . 'action="%s"><p>%s</p><input type="hidden" '
-                        . 'name="IDArray" value="" autocomplete="off"/>'
-                        . '<input type="submit" value="%s?"/></form>',
-                        sprintf(
-                            '?node=%s&sub=deletemulti&items=%s&roleID=%s',
-                            $node,
-                            $item,
-                            $_REQUEST['id']
-                        ),
-                        _('Delete all selected items'),
-                        sprintf(
-                            _('Delete all selected %ss'),
-                            $item
-                        )
-                    );
-                    break;
-                case 'ruleList':
-                    $item = 'rule';
-                    $actionbox = sprintf(
-                        '<form method="post" action="%s" id="action-box">'
-                        . '<input type="hidden" name="ruleIDArray" value="" '
-                        . 'autocomplete="off"/><p><label for="rule">%s</label>%s</p>'
-                        . '<p class="c"><input type="submit" id="processrule" '
-                        . 'value="%s"/></p></form>',
-                        sprintf(
-                            '?node=%s&sub=addRuleGroup',
-                            $node
-                        ),
-                        _('Add to role'),
-                        self::getClass('AccessControlManager')->buildSelectBox(),
-                        _('Process Rule Changes')
-                    );
-                    $actionbox .= sprintf(
-                        '<form method="post" class="c" id="action-boxdel" '
-                        . 'action="%s"><p>%s</p><input type="hidden" '
-                        . 'name="IDArray" value="" autocomplete="off"/>'
-                        . '<input type="submit" value="%s?"/></form>',
-                        sprintf(
-                            '?node=%s&sub=deletemulti&items=%s',
-                            $node,
-                            $item
-                        ),
-                        _('Delete all selected items'),
-                        sprintf(
-                            _('Delete all selected %ss'),
-                            $item
-                        )
-                    );
-                    break;
-                }
-            }
-            self::$HookManager->processEvent(
-                'ACTIONBOX',
-                array('actionbox' => &$actionbox)
-            );
-            if (self::$ajax) {
-                echo json_encode(
-                    array(
-                        'data' => $this->data,
-                        'templates' => $this->templates,
-                        'headerData' => $this->headerData,
-                        'title' => $this->title,
-                        'attributes' => $this->attributes,
-                        'form' => $this->form,
-                        'searchFormURL' => $this->searchFormURL,
-                        'actionbox' => (
-                            count($this->data) > 0 ?
-                            $actionbox :
-                            ''
-                        ),
-                    )
-                );
-            }
-            if (!count($this->templates)) {
-                throw new Exception(
-                    _('Requires templates to process')
-                );
-            }
-            ob_start();
-            $contentField = 'active-tasks';
-            if ($this->searchFormURL) {
-                printf(
-                    '<form method="post" action="%s" id="search-wrapper">'
-                    . '<input id="%s-search" class="search-input placeholder" '
-                    . 'type="text" value="" placeholder="%s" autocomplete="off" %s/>'
-                    . '<%s id="%s-search-submit" class="search-submit" type="%s" '
-                    . 'value="%s"></form>%s',
-                    $this->searchFormURL,
-                    (
-                        substr($this->node, -1) == 's' ?
-                        substr($this->node, 0, -1) :
-                        $this->node
-                    ),
-                    sprintf(
-                        '%s %s',
-                        ucwords(
-                            (
-                                substr($this->node, -1) == 's' ?
-                                substr($this->node, 0, -1) :
-                                $this->node
-                            )
-                        ),
-                        self::$foglang['Search']
-                    ),
-                    (
-                        self::$isMobile ?
-                        'name="host-search"' :
-                        ''
-                    ),
-                    (
-                        self::$isMobile ?
-                        'input' :
-                        'button'
-                    ),
-                    (
-                        substr($this->node, -1) == 's' ?
-                        substr($this->node, 0, -1) :
-                        $this->node
-                    ),
-                    (
-                        self::$isMobile ?
-                        'submit' :
-                        'button'
-                    ),
-                    (
-                        self::$isMobile ?
-                        self::$foglang['Search'] :
-                        ''
-                    ),
-                    (
-                        self::$isMobile ?
-                        '</input>' :
-                        '</button>'
-                    )
-                );
-                $contentField = 'search-content';
-            }
-            if (isset($this->form)) {
-                printf($this->form);
-            }
-            printf(
-                '<table width="%s" cellpadding="0" cellspacing="0" '
-                . 'border="0" id="%s">%s<tbody>',
-                '100%',
-                $contentField,
-                $this->buildHeaderRow()
-            );
-            $node = $_REQUEST['node'];
-            $sub = $_REQUEST['sub'];
-            if (in_array($this->node, array('task'))
-                && (!$sub || $sub == 'list')
-            ) {
-                self::redirect(
-                    sprintf(
-                        '?node=%s&sub=active',
-                        $this->node
-                    )
-                );
-            }
-            if (!count($this->data)) {
-                $contentField = 'no-active-tasks';
-                printf(
-                    '<tr><td colspan="%s" class="%s">%s</td></tr></tbody></table>',
-                    count($this->templates),
-                    $contentField,
-                    (
-                        $this->data['error'] ?
-                        (
-                            is_array($this->data['error']) ?
-                            sprintf(
-                                '<p>%s</p>',
-                                implode(
-                                    '</p><p>',
-                                    $this->data['error']
-                                )
-                            ) :
-                            $this->data['error']
-                        ) :
-                        (
-                            $this->node != 'task' ?
-                            (
-                                !self::$isMobile ?
-                                self::$foglang['NoResults'] :
-                                ''
-                            ) :
-                            self::$foglang['NoResults']
-                        )
-                    )
-                );
-            } else {
-                if ((!$sub
-                    && $defaultScreen == 'list')
-                    || (in_array($sub, $defaultScreens)
-                    && in_array($node, self::$searchPages))
-                ) {
-                    if (!in_array($this->node, array('home', 'hwinfo'))) {
-                        self::setMessage(
-                            sprintf(
-                                '%s %s%s found',
-                                count($this->data),
-                                $this->childClass,
-                                (
-                                    count($this->data) != 1 ?
-                                    's' :
-                                    ''
-                                )
-                            )
-                        );
-                    }
-                }
-                $id_field = "{$node}_id";
-                foreach ((array)$this->data as &$rowData) {
-                    printf(
-                        '<tr id="%s-%s">%s</tr>',
-                        strtolower($this->childClass),
-                        (
-                            isset($rowData['id']) ?
-                            $rowData['id'] :
-                            (
-                                isset($rowData[$id_field]) ?
-                                $rowData[$id_field] :
-                                ''
-                            )
-                        ),
-                        $this->buildRow($rowData)
-                    );
-                    unset($rowData);
-                }
-            }
-            echo '</tbody></table>';
-            $text = ob_get_clean();
-            $text .= $actionbox;
-            return $text;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-        return $result;
-    }
-    /**
      * Custom membership method.
      *
      * @return void
      */
     public function membership()
     {
-
-        $userIDs = self::getSubObjectIDs(
-            'AccessControlAssociation',
-            array('roleID' => $_REQUEST['id']),
-            'userID'
+        $this->data = array();
+        echo '<!-- Membership -->';
+        printf(
+            '<div id="%s-membership">',
+            $this->node
         );
-        foreach ($userIDs as &$identificator) {
-            $Users = new User($identificator);
-            $this->data[] = array(
-                'id' => $Users->get('id'),
-                'name' => $Users->get('name'),
-            );
-            unset($Users);
-        }
-        unset($identificator);
         $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" class='
-            . '"toggle-checkboxAction"/>',
+            sprintf(
+                '<input type="checkbox" name="toggle-checkbox%s1" '
+                . 'class="toggle-checkbox1"i/>',
+                $this->node
+            ),
             _('Username'),
+            _('Friendly Name')
         );
         $this->templates = array(
-            '<input type="checkbox" name="user[]" value='
-            . '"${id}" class="toggle-action"/>',
             sprintf(
-                '<a href="?node=user&sub=edit&%s=${id}" title='
-                . '"%s">${name}</a>',
-                $this->id,
-                _('Edit')
+                '<input type="checkbox" name="user[]" value="${user_id}" '
+                . 'class="toggle-%s${check_num}"/>',
+                'user'
             ),
+            sprintf(
+                '<a href="?node=%s&sub=edit&id=${user_id}" '
+                . 'title="Edit: ${user_name}">${user_name}</a>',
+                'user'
+            ),
+            '${friendly}'
         );
         $this->attributes = array(
             array(
-                'class' => 'l filter-false',
-                'width' => 16
+                'width' => 16,
+                'class' => 'l filter-false'
             ),
-            array('class' => 'l'),
+            array(
+                'class' => 'l'
+            ),
+            array()
         );
+        foreach ((array)self::getClass('UserManager')
+            ->find(
+                array(
+                    'id' => $this->obj->get('usersnotinme'),
+                )
+            ) as &$User
+        ) {
+            $this->data[] = array(
+                'user_id' => $User->get('id'),
+                'user_name' => $User->get('name'),
+                'friendly' => $User->get('display')
+            );
+            unset($User);
+        }
+        if (count($this->data) > 0) {
+            self::$HookManager->processEvent(
+                'OBJ_USERS_NOT_IN_ME',
+                array(
+                    'headerData' => &$this->headerData,
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes
+                )
+            );
+            printf(
+                '<form method="post" action="%s"><label for="userMeShow">'
+                . '<p class="c">%s %s&nbsp;&nbsp;<input '
+                . 'type="checkbox" name="userMeShow" id="userMeShow"/>'
+                . '</p></label><div id="userNotInMe"><h2>%s %s</h2>',
+                $this->formAction,
+                _('Check here to see users not within this'),
+                $this->node,
+                _('Modify Membership for'),
+                $this->obj->get('name')
+            );
+            $this->render();
+            printf(
+                '</div><br/><p class="c"><input type="submit" '
+                . 'value="%s %s(s) %s %s" name="addUsers"/></p><br/>',
+                _('Add'),
+                _('user'),
+                _('to'),
+                $this->node
+            );
+        }
+        $this->data = array();
+        $this->headerData = array(
+            '<input type="checkbox" name="toggle-checkbox" '
+            . 'class="toggle-checkboxAction"/>',
+            _('Username'),
+            _('Friendly Name')
+        );
+        $this->templates = array(
+            '<input type="checkbox" name="userdel[]" '
+            . 'value="${user_id}" class="toggle-action"/>',
+            sprintf(
+                '<a href="?node=%s&sub=edit&id=${user_id}" '
+                . 'title="%s: ${user_name}">${user_name}</a>',
+                $this->node,
+                _('Edit')
+            ),
+            '${friendly}'
+        );
+        foreach ((array)self::getClass('UserManager')
+            ->find(
+                array(
+                    'id' => $this->obj->get('users'),
+                )
+            ) as &$User
+        ) {
+            $this->data[] = array(
+                'user_id' => $User->get('id'),
+                'user_name' => $User->get('name'),
+                'friendly' => $User->get('display')
+            );
+            unset($User);
+        }
         self::$HookManager
             ->processEvent(
                 'ACCESSCONTROL_USER_DATA',
@@ -1459,9 +1115,22 @@ class AccessControlManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
+        printf(
+            '<form method="post" action="%s">',
+            $this->formAction
+        );
         $this->render();
+        if (count($this->data)) {
+            printf(
+                '<p class="c"><input type="submit" '
+                . 'value="%s %ss %s %s" name="remusers"/></p>',
+                _('Delete Selected'),
+                _('user'),
+                _('from'),
+                $this->node
+            );
+        }
         $this->data = array();
-
     }
     /**
      * Custom delete multi.

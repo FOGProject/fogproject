@@ -54,6 +54,10 @@ class AccessControl extends FOGController
      */
     protected $additionalFields = array(
         'description',
+        'users',
+        'usersnotinme',
+        'rules',
+        'rulesnotinme',
     );
     /**
      * Add user to access control.
@@ -84,5 +88,133 @@ class AccessControl extends FOGController
             (array)$removeArray,
             'diff'
         );
+    }
+    /**
+     * Add rule to access control.
+     *
+     * @param array $addArray The rules to add.
+     *
+     * @return object
+     */
+    public function addRule($addArray)
+    {
+        return $this->addRemItem(
+            'rules',
+            (array)$addArray,
+            'merge'
+        );
+    }
+    /**
+     * Remove rule from access control.
+     *
+     * @param array $removeArray The rules to remove.
+     *
+     * @return object
+     */
+    public function removeRule($removeArray)
+    {
+        return $this->addRemItem(
+            'rules',
+            (array)$removeArray,
+            'diff'
+        );
+    }
+    /**
+     * Load users
+     *
+     * @return void
+     */
+    protected function loadUsers()
+    {
+        $associds = self::getSubObjectIDs(
+            'AccessControlAssociation',
+            array('roleID' => $this->get('id')),
+            'userID'
+        );
+        $types = array();
+        self::$HookManager->processEvent(
+            'USER_TYPES_FILTER',
+            array('types' => &$types)
+        );
+        $userid = self::getSubObjectIDs(
+            'User',
+            array('type' => $types)
+        );
+        $associds = array_diff(
+            $associds,
+            $userid
+        );
+        unset($userid);
+        $userids = self::getSubObjectIDs(
+            'User',
+            array('id' => $associds)
+        );
+        $this->set('users', $userids);
+    }
+    /**
+     * Load items not with this object
+     *
+     * @return void
+     */
+    protected function loadUsersnotinme()
+    {
+        $find = array('id' => $this->get('users'));
+        $userids = self::getSubObjectIDs(
+            'User',
+            $find,
+            'id',
+            true
+        );
+        $types = array();
+        self::$HookManager->processEvent(
+            'USER_TYPES_FILTER',
+            array('types' => &$types)
+        );
+        $users = array();
+        foreach ((array)self::getClass('UserManager')
+            ->find(array('id' => $userids)) as &$User
+        ) {
+            if (in_array($User->get('type'), $types)) {
+                continue;
+            }
+            $users[] = $User->get('id');
+            unset($User);
+        }
+        unset($userids, $types);
+        $this->set('usersnotinme', $users);
+    }
+    /**
+     * Load rules
+     *
+     * @return void
+     */
+    protected function loadRules()
+    {
+        $associds = self::getSubObjectIDs(
+            'AccessControlRuleAssociation',
+            array('roleID' => $this->get('id')),
+            'ruleID'
+        );
+        $ruleids = self::getSubObjectIDs(
+            'AccessControlRule',
+            array('id' => $associds)
+        );
+        $this->set('rules', $ruleids);
+    }
+    /**
+     * Load items not with this object
+     *
+     * @return void
+     */
+    protected function loadRulesnotinme()
+    {
+        $find = array('id' => $this->get('rules'));
+        $ruleids = self::getSubObjectIDs(
+            'AccessControlRule',
+            $find,
+            'id',
+            true
+        );
+        $this->set('rulesnotinme', $ruleids);
     }
 }

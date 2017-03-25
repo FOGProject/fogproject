@@ -3221,7 +3221,7 @@ abstract class FOGPage extends FOGBase
         $this->headerData = array(
             sprintf(
                 '<input type="checkbox" name="toggle-checkbox%s1" '
-                . 'class="toggle-checkbox1"',
+                . 'class="toggle-checkbox1"/>',
                 $this->node
             ),
             sprintf(
