@@ -75,6 +75,7 @@ class AccessControlManagementPage extends FOGPage
             }
             break;
         case 'deletemulti':
+            parent::__construct($this->name);
             /**
              * Setup our matching elements.
              */
@@ -174,9 +175,11 @@ class AccessControlManagementPage extends FOGPage
                     _('Parent Node') => $this->obj->get('parent'),
                 );
             }
+            break;
         case 'addRule':
         case 'ruleList':
         case 'addRuleGroup':
+            parent::__construct($this->name);
             $this->childClass = 'AccessControlRule';
             break;
         default:
@@ -915,8 +918,8 @@ class AccessControlManagementPage extends FOGPage
             sprintf(
                 '<a href="?node=%s&sub=editRule&id=${rule_id}" '
                 . 'title="%s: ${rule_name}">${rule_name}</a>',
-                _('Edit'),
-                'rule'
+                $this->node,
+                _('Edit')
             ),
             '${value}',
             '${parent}',
@@ -990,8 +993,8 @@ class AccessControlManagementPage extends FOGPage
             sprintf(
                 '<a href="?node=%s&sub=editRule&id=${rule_id}" '
                 . 'title="%s: ${rule_name}">${rule_name}</a>',
-                _('Edit'),
-                'rule'
+                $this->node,
+                _('Edit')
             ),
             '${value}',
             '${parent}',

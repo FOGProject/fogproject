@@ -168,6 +168,7 @@ class HookManager extends EventManager
      */
     public function processEvent($event, $arguments = array())
     {
+        $this->events[] = $event;
         if (!isset($this->data[$event])) {
             return;
         }

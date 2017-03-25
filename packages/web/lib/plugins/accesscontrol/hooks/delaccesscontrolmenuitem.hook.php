@@ -71,24 +71,26 @@ class DelAccessControlMenuItem extends Hook
             ),
             'accesscontrolID'
         );
-        foreach ((array)self::getClass('AccessControlRuleAssociationManager')
-            ->find(array('accesscontrolID' => $acID)) as
-            &$AccessControlRuleAssociation
+        $rules = array();
+        foreach ((array)self::getClass('AccessControlManager')
+            ->find(array('id' => $acID)) as &$AccessControl
         ) {
-            $AccessControlRule = new AccessControlRule(
-                $AccessControlRuleAssociation->get('accesscontrolruleID')
+            $rules = self::fastmerge(
+                $rules,
+                (array)$AccessControl->get('accesscontrolrules')
             );
+            unset($AccessControl);
+        }
+        foreach ((array)self::getClass('AccessControlRuleManager')
+            ->find(
+                array('id' => $rules)
+            ) as $Rule
+        ) {
             unset(
-                $arguments[
-                    $AccessControlRule->get('parent')
-                ]
-                [
-                    $AccessControlRule->get('value')
-                ],
-                $AccessControlRule
+                $arguments[$Rule->get('parent')][$Rule->get('value')],
+                $Rule
             );
         }
-        unset($AccessControlRuleAssociation);
     }
     /**
      * The menu data to change.
@@ -141,13 +143,13 @@ $HookManager
         'MAIN_MENU_DATA',
         array(
             $DelAccessControlMenuItem,
-            'DeleteMenuData'
+            'deleteMenuData'
         )
     )
     ->register(
         'SUB_MENULINK_DATA',
         array(
             $DelAccessControlMenuItem,
-            'DeleteSubMenuData'
+            'deleteSubMenuData'
         )
     );
