@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-25 13:12-0400\n"
+"POT-Creation-Date: 2017-03-25 14:12-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1376,22 +1376,19 @@ msgid "Successfully created tasks for"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1923
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1231
 msgid "Are you sure you wish to remove these items"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1929
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1237
 msgid "No items to delete"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1930
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1238
 msgid "None selected or item is protected"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1974
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1266
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1176
 msgid "All selected items have been deleted"
 msgstr ""
 
@@ -1631,6 +1628,7 @@ msgid "From"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3429
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1153
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:481
 msgid "saved successfully"
 msgstr ""
@@ -4290,7 +4288,7 @@ msgstr ""
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:159
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:289
-#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:160
+#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:161
 msgid "User Name"
 msgstr ""
 
@@ -6423,11 +6421,11 @@ msgid "Access Control Manager"
 msgstr ""
 
 #: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:51
-#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:268
+#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:269
 msgid "Role"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:162
+#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:163
 msgid "User Access Control"
 msgstr ""
 

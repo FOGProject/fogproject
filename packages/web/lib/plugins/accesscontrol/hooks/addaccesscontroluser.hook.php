@@ -95,7 +95,8 @@ class AddAccessControlUser extends Hook
             );
             $Roles = self::getSubObjectIDs(
                 'AccessControlAssociation',
-                $find
+                $find,
+                'accesscontrolID'
             );
             $cnt = count($Roles);
             if ($cnt !== 1) {
@@ -115,7 +116,7 @@ class AddAccessControlUser extends Hook
             );
             $arguments['data'][$index]['role'] = $RoleNames[0];
             unset($vals);
-            unset($Roles);
+            unset($Roles, $RoleNames);
         }
     }
     /**
@@ -140,7 +141,7 @@ class AddAccessControlUser extends Hook
             array(
                 'userID' => $arguments['User']->get('id')
             ),
-            'roleID'
+            'accesscontrolID'
         );
         $cnt = self::getClass('AccessControlManager')->count(
             array(
@@ -207,9 +208,9 @@ class AddAccessControlUser extends Hook
         }
         $Role = new AccessControl($_REQUEST['accesscontrol']);
         self::getClass('AccessControlAssociation')
-            ->set('ruaUserID', $arguments['User']->get('id'))
-            ->load('ruaUserID')
-            ->set('ruaRoleID', $_REQUEST['accesscontrol'])
+            ->set('userID', $arguments['User']->get('id'))
+            ->load('userID')
+            ->set('accesscontrolID', $_REQUEST['accesscontrol'])
             ->set(
                 'name',
                 sprintf(
@@ -246,7 +247,7 @@ class AddAccessControlUser extends Hook
             array(
                 'userID' => $arguments['object']->get('id')
             ),
-            'roleID'
+            'accesscontrolID'
         );
         $cnt = count($AccessControls);
         if ($cnt !== 1) {

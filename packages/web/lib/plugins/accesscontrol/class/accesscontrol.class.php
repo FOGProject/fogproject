@@ -120,6 +120,19 @@ class AccessControl extends FOGController
         );
     }
     /**
+     * Stores/updates the accesscontrol
+     *
+     * @return object
+     */
+    public function save()
+    {
+        parent::save();
+        return $this
+            ->assocSetter('AccessControl', 'user')
+            ->assocSetter('AccessControlRule', 'rule')
+            ->load();
+    }
+    /**
      * Load users
      *
      * @return void
@@ -128,7 +141,7 @@ class AccessControl extends FOGController
     {
         $associds = self::getSubObjectIDs(
             'AccessControlAssociation',
-            array('roleID' => $this->get('id')),
+            array('accesscontrolID' => $this->get('id')),
             'userID'
         );
         $types = array();
@@ -192,8 +205,8 @@ class AccessControl extends FOGController
     {
         $associds = self::getSubObjectIDs(
             'AccessControlRuleAssociation',
-            array('roleID' => $this->get('id')),
-            'ruleID'
+            array('accesscontrolID' => $this->get('id')),
+            'accesscontrolruleID'
         );
         $ruleids = self::getSubObjectIDs(
             'AccessControlRule',

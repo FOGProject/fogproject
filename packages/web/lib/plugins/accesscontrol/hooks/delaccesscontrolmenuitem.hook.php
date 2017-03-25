@@ -64,19 +64,19 @@ class DelAccessControlMenuItem extends Hook
             ),
             'id'
         );
-        $roleID = self::getSubObjectIDs(
+        $acID = self::getSubObjectIDs(
             'AccessControlAssociation',
             array(
                 'userID' => $userID
             ),
-            'roleID'
+            'accesscontrolID'
         );
         foreach ((array)self::getClass('AccessControlRuleAssociationManager')
-            ->find(array('roleID' => $roleID)) as
+            ->find(array('accesscontrolID' => $acID)) as
             &$AccessControlRuleAssociation
         ) {
             $AccessControlRule = new AccessControlRule(
-                $AccessControlRuleAssociation->get('ruleID')
+                $AccessControlRuleAssociation->get('accesscontrolruleID')
             );
             unset(
                 $arguments[
@@ -109,17 +109,17 @@ class DelAccessControlMenuItem extends Hook
             ),
             'id'
         );
-        $roleID = self::getSubObjectIDs(
+        $acID = self::getSubObjectIDs(
             'AccessControlAssociation',
             array('userID' => $userID),
-            'roleID'
+            'accesscontrolID'
         );
         foreach ((array)self::getClass('AccessControlRuleAssociationManager')
-            ->find(array('roleID' => $roleID)) as
+            ->find(array('accesscontrolID' => $acID)) as
             &$AccessControlRuleAssociation
         ) {
             $AccessControlRule = new AccessControlRule(
-                $AccessControlRuleAssociation->get('ruleID')
+                $AccessControlRuleAssociation->get('accesscontrolruleID')
             );
             unset(
                 $arguments[

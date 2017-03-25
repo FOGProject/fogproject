@@ -885,8 +885,8 @@ class AccessControlManagementPage extends FOGPage
         $this->title = _('Rule Association');
         $ruleID = self::getSubObjectIDs(
             'AccessControlRuleAssociation',
-            array('roleID' => $this->obj->get('id')),
-            'ruleID'
+            array('accesscontrolID' => $this->obj->get('id')),
+            'accesscontrolruleID'
         );
         foreach ((array)self::getClass('AccessControlRuleManager')
             ->find(array('id' => $ruleID)) as &$AccessControlRule
@@ -952,10 +952,10 @@ class AccessControlManagementPage extends FOGPage
             if (!$_REQUEST['accesscontrol']) {
                 throw new Exception(_('Not role selected'));
             }
-            if (!$_REQUEST['ruleIDArray']) {
+            if (!$_REQUEST['accesscontrolruleIDArray']) {
                 throw new Exception(_('Not rule selected'));
             }
-            $reqID = explode(',', $_REQUEST['ruleIDArray']);
+            $reqID = explode(',', $_REQUEST['accesscontrolruleIDArray']);
             $reqID = array_unique($reqID);
             $reqID = array_filter($reqID);
             $Role = new AccessControl($_REQUEST['accesscontrol']);
@@ -963,9 +963,9 @@ class AccessControlManagementPage extends FOGPage
                 $Rule = new AccessControlRule($ruleID);
                 $AccessControlRuleAssociation
                     = self::getClass('AccessControlRuleAssociation')
-                    ->set('roleID', $_REQUEST['accesscontrol'])
+                    ->set('accesscontrolID', $_REQUEST['accesscontrol'])
                     ->set('name', $Role->get('name'). "-" . $Rule->get('name'))
-                    ->set('ruleID', $ruleID);
+                    ->set('accesscontrolruleID', $ruleID);
                 if (!$AccessControlRuleAssociation->save()) {
                     throw new Exception(_('Failed to create'));
                 }
@@ -1133,118 +1133,28 @@ class AccessControlManagementPage extends FOGPage
         $this->data = array();
     }
     /**
-     * Custom delete multi.
+     * Customize membership actions
      *
      * @return void
      */
-    public function deletemulti()
+    public function membershipPost()
     {
-        $sub = $_REQUEST['sub'];
-        $item = $_REQUEST['items'];
-        $roleID = $_REQUEST['roleID'];
-        $userID = $_REQUEST['userID'];
-        global $node;
-        $this->additional = array();
-        $subs = array(
-            'assocRule',
-            'user'
-        );
-
-
-        $this->title = sprintf(
-            "%s's to remove",
-            $item
-        );
-        unset($this->headerData);
-        $this->attributes = array(
-            array(),
-        );
-        $this->templates = array(
-            sprintf(
-                '<a href="?node=%s&sub=edit&id=${id}">${name}</a>',
-                $this->node
-            ),
-            '<input type="hidden" value="${id}" name="remitems[]"/>',
-        );
-
-        $reqID = 'IDArray';
-        $reqID = explode(',', $_REQUEST[$reqID]);
-        $reqID = array_unique($reqID);
-        $reqID = array_filter($reqID);
-
-        if (in_array($item, $subs)) {
-            switch ($item){
-            case 'assocRule':
-                $findWhere = array(
-                    'ruleID' => $reqID,
-                    'roleID' => $roleID
-
-                );
-                break;
-            case 'user':
-                $findWhere = array(
-                    'userID' => $reqID,
-                    'roleID' => $roleID
-
-                );
-                break;
-            }
-        } else {
-            $findWhere = array(
-                'id' => $reqID,
-            );
+        if (isset($_REQUEST['addUsers'])) {
+            $this->obj->addUser($_REQUEST['user']);
         }
-
-        foreach ((array)self::getClass($this->childClass)
-            ->getManager()
-            ->find(
-                $findWhere
-            ) as &$Object
-        ) {
-
-            if ($Object->get('protected')) {
-                continue;
-            }
-            $this->data[] = array(
-                'id' => $Object->get('id'),
-                'name' => $Object->get('name'),
-            );
-            array_push(
-                $this->additional,
-                sprintf(
-                    '<p>%s</p>',
-                    $Object->get('name')
-                )
-            );
-            unset($Object);
+        if (isset($_REQUEST['remusers'])) {
+            $this->obj->removeUser($_REQUEST['userdel']);
         }
-        if (count($this->data)) {
-            printf(
-                '<div class="confirm-message"><p>%s:</p>'
-                . '<div id="deleteDiv"></div>',
-                $this->title
-            );
-            $this->render();
-            printf(
-                '<p class="c"><input type="submit" name="delete" '
-                . 'value="%s?"/></p>',
-                _('Are you sure you wish to remove these items')
-            );
-        } else {
+        if ($this->obj->save()) {
             self::setMessage(
                 sprintf(
-                    '%s<br/>%s',
-                    _('No items to delete'),
-                    _('None selected or item is protected')
-                )
-            );
-            self::redirect(
-                sprintf(
-                    '?node=%s',
-                    $this->node
+                    '%s %s',
+                    $this->obj->get('name'),
+                    _('saved successfully')
                 )
             );
         }
+        self::redirect($this->formAction);
     }
     /**
      * Delete multi ajax customized.

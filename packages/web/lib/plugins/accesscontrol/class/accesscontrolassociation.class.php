@@ -35,7 +35,7 @@ class AccessControlAssociation extends FOGController
     protected $databaseFields = array(
         'id' => 'ruaID',
         'name' => 'ruaName',
-        'roleID' => 'ruaRoleID',
+        'accesscontrolID' => 'ruaRoleID',
         'userID' => 'ruaUserID',
     );
     /**
@@ -44,7 +44,7 @@ class AccessControlAssociation extends FOGController
      * @var array
      */
     protected $databaseFieldsRequired = array(
-        'roleID',
+        'accesscontrolID',
         'userID',
     );
 }

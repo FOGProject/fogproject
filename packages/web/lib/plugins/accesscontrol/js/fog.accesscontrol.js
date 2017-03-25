@@ -2,20 +2,20 @@ $(function() {
     checkboxToggleSearchListPages();
     $('#action-boxdel').submit(function() {
         var checked = $('input.toggle-action:checked');
-        var IDArray = new Array();
+        var accesscontrolIDArray = new Array();
         for (var i = 0,len = checked.size();i < len;i++) {
-            IDArray[IDArray.length] = checked.eq(i).attr('value');
+            accesscontrolIDArray[accesscontrolIDArray.length] = checked.eq(i).attr('value');
         }
-        $('input[name="IDArray"]').val(IDArray.join(','));
+        $('input[name="accesscontrolIDArray"]').val(accesscontrolIDArray.join(','));
     });
     $('#action-box').show();
     $('#action-boxdel').show();
     $('#action-box').submit(function() {
         var checked = $('input.toggle-action:checked');
-        var ruleIDArray = new Array();
+        var accesscontrolruleIDArray = new Array();
         for (var i = 0,len = checked.size();i < len;i++) {
-            ruleIDArray[ruleIDArray.length] = checked.eq(i).attr('value');
+            accesscontrolruleIDArray[accesscontrolruleIDArray.length] = checked.eq(i).attr('value');
         }
-        $('input[name="ruleIDArray"]').val(ruleIDArray.join(','));
+        $('input[name="accesscontrolruleIDArray"]').val(accesscontrolruleIDArray.join(','));
     });
 });

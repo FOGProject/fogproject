@@ -35,8 +35,8 @@ class AccessControlRuleAssociation extends FOGController
     protected $databaseFields = array(
         'id' => 'rraID',
         'name' => 'rraName',
-        'roleID' => 'rraRoleID',
-        'ruleID' => 'rraRuleID',
+        'accesscontrolID' => 'rraRoleID',
+        'accesscontrolruleID' => 'rraRuleID',
     );
     /**
      * The required fields.
@@ -44,7 +44,7 @@ class AccessControlRuleAssociation extends FOGController
      * @var array
      */
     protected $databaseFieldsRequired = array(
-        'roleID',
-        'ruleID',
+        'accesscontrolID',
+        'accesscontrolruleID',
     );
 }
