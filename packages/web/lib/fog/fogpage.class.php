@@ -2734,7 +2734,7 @@ abstract class FOGPage extends FOGBase
             $data = array_values(
                 array_map(
                     'bin2hex',
-                    $this->certDecrypt(
+                    self::certDecrypt(
                         array(
                             $_REQUEST['sym_key'],
                             $_REQUEST['token']
@@ -2761,13 +2761,13 @@ abstract class FOGPage extends FOGBase
                     self::niceDate('+30 minutes')->format('Y-m-d H:i:s')
                 )
                 ->set('pub_key', $key)
-                ->set('sec_tok', $this->createSecToken())
+                ->set('sec_tok', self::createSecToken())
                 ->save();
             if (self::$json === true) {
                 $vals['token'] = $Host->get('sec_tok');
                 printf(
                     '#!en=%s',
-                    $this->certEncrypt(
+                    self::certEncrypt(
                         json_encode($vals),
                         $Host
                     )
@@ -2776,7 +2776,7 @@ abstract class FOGPage extends FOGBase
             }
             printf(
                 '#!en=%s',
-                $this->certEncrypt(
+                self::certEncrypt(
                     "#!ok\n#token={$Host->get(sec_tok)}",
                     $Host
                 )
@@ -3704,16 +3704,16 @@ abstract class FOGPage extends FOGBase
                         }
                         $primac = array_shift($macs);
                         $index = array_search('productKey', $dbkeys) + 1;
-                        $test_encryption = $this->aesdecrypt($data[$index]);
+                        $test_encryption = self::aesdecrypt($data[$index]);
                         if ($test_base64 = base64_decode($data[$index])) {
-                            $data[$index] = $this->aesencrypt($test_base64);
+                            $data[$index] = self::aesencrypt($test_base64);
                         } elseif (mb_detect_encoding(
                             $test_encryption,
                             'utf-8',
                             true
                         )
                         ) {
-                            $data[$index] = $this->aesencrypt($data[$index]);
+                            $data[$index] = self::aesencrypt($data[$index]);
                         }
                     }
                     if ($ItemMan->exists($data[$iterator])) {

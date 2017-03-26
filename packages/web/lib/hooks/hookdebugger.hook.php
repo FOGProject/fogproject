@@ -66,11 +66,15 @@ class HookDebugger extends Hook
      */
     public function run($arguments)
     {
-        $this->log(
+        self::log(
             print_r(
                 $arguments,
                 1
             ),
+            $this->logLevel,
+            $this->logToFile,
+            $this->logToBrowser,
+            $this,
             $this->logLevel
         );
     }

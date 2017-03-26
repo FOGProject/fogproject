@@ -87,7 +87,7 @@ class ChangeHostKey extends Hook
             'key'
         );
         $productKey = trim(
-            $this->encryptpw(
+            self::encryptpw(
                 array_shift($WindowsKey)
             )
         );

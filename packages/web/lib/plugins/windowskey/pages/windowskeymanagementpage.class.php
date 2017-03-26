@@ -189,7 +189,7 @@ class WindowsKeyManagementPage extends FOGPage
             '${field}',
             '${input}',
         );
-        $decrypt = $this->aesdecrypt($this->obj->get('key'));
+        $decrypt = self::aesdecrypt($this->obj->get('key'));
         $fields = array(
             _('Windows Key Name') => sprintf(
                 '<input class="smaller" type="text" name="name" value="%s"/>',

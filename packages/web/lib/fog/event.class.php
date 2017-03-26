@@ -78,13 +78,23 @@ abstract class Event extends FOGBase
     /**
      * How to log this file.
      *
-     * @param string $txt   The text to log.
-     * @param int    $level The basic log level.
+     * @param string $txt     The text to log.
+     * @param int    $curlog  The logLevel setting.
+     * @param int    $logfile The logToFile setting.
+     * @param int    $logbrow The logToBrowser setting.
+     * @param object $obj     The object.
+     * @param int    $level   The basic log level.
      *
      * @return void
      */
-    public function log($txt, $level = 1)
-    {
+    public static function log(
+        $txt,
+        $curlog,
+        $logfile,
+        $logbrow,
+        $obj,
+        $level = 1
+    ) {
         if (self::$ajax) {
             return;
         }
@@ -111,8 +121,8 @@ abstract class Event extends FOGBase
             $txt
         );
         $msg = '%s<div class="debug-hook">%s</div>%s';
-        if (!self::$post && $this->logToBrowser) {
-            if ($this->logLevel >= $level) {
+        if (!self::$post && $logbrow) {
+            if ($curlog >= $level) {
                 printf(
                     $msg,
                     "\n",
@@ -121,17 +131,16 @@ abstract class Event extends FOGBase
                 );
             }
         }
-        if ($this instanceof Hook) {
+        $typePath = 'events';
+        if ($obj instanceof Hook) {
             $typePath = 'hooks';
-        } elseif ($this instanceof Event) {
-            $typePath = 'events';
         }
-        if ($this->logToFile) {
+        if ($logfile) {
             $log = sprintf(
                 '%s/lib/%s/%s.log',
                 BASEPATH,
                 $typePath,
-                get_class($this)
+                get_class($obj)
             );
             $logtxt = sprintf(
                 "[%s] %s\r\n",

@@ -757,7 +757,7 @@ class Group extends FOGController
                 '|',
                 $hostMACs
             );
-            $this->wakeUp($hostMACs);
+            self::wakeUp($hostMACs);
         }
     }
     /**
@@ -869,7 +869,7 @@ class Group extends FOGController
         $legacy,
         $enforce
     ) {
-        $pass = trim($this->encryptpw($pass));
+        $pass = trim(self::encryptpw($pass));
         self::getClass('HostManager')
             ->update(
                 array(

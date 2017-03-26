@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-25 22:22-0400\n"
+"POT-Creation-Date: 2017-03-25 23:34-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -691,23 +691,23 @@ msgstr "Event must be a string"
 msgid "New key must be a string"
 msgstr "Event must be a string"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1466
+#: /var/www/fog/lib/fog/fogbase.class.php:1465
 msgid "Private key path not found"
 msgstr "Private key path not found"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1479
+#: /var/www/fog/lib/fog/fogbase.class.php:1478
 msgid "Private key not found"
 msgstr "Private key not found"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1482
+#: /var/www/fog/lib/fog/fogbase.class.php:1481
 msgid "Private key not readable"
 msgstr "Private key not readable"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1487
+#: /var/www/fog/lib/fog/fogbase.class.php:1486
 msgid "Private key failed"
 msgstr "Private key failed"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1506
+#: /var/www/fog/lib/fog/fogbase.class.php:1505
 msgid "Failed to decrypt data"
 msgstr "Failed to decrypt data"
 
@@ -869,23 +869,23 @@ msgid "Need the table name to drop"
 msgstr ""
 
 #: /var/www/fog/lib/fog/user.class.php:242
-#: /var/www/fog/lib/fog/user.class.php:274
+#: /var/www/fog/lib/fog/user.class.php:275
 msgid "user successfully logged in"
 msgstr "user successfully logged in"
 
-#: /var/www/fog/lib/fog/user.class.php:284
+#: /var/www/fog/lib/fog/user.class.php:286
 msgid "user failed to login"
 msgstr "user failed to login"
 
-#: /var/www/fog/lib/fog/user.class.php:384
+#: /var/www/fog/lib/fog/user.class.php:387
 msgid "IP Address Changed"
 msgstr "IP Address Changed"
 
-#: /var/www/fog/lib/fog/user.class.php:393
+#: /var/www/fog/lib/fog/user.class.php:396
 msgid "User Agent Changed"
 msgstr "User Agent Changed"
 
-#: /var/www/fog/lib/fog/user.class.php:402
+#: /var/www/fog/lib/fog/user.class.php:405
 msgid "Session altered improperly"
 msgstr "Session altered improperly"
 
@@ -933,7 +933,7 @@ msgstr "here"
 msgid "min"
 msgstr "minutes"
 
-#: /var/www/fog/lib/fog/event.class.php:171
+#: /var/www/fog/lib/fog/event.class.php:180
 msgid "Registered"
 msgstr "Registered"
 

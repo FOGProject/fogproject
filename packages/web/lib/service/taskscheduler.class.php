@@ -132,7 +132,7 @@ class TaskScheduler extends FOGService
                             $macCount === 1 ? '' : 's'
                         )
                     );
-                    $this->wakeUp($hostMACs);
+                    self::wakeUp($hostMACs);
                 }
             }
             $findWhere = array(

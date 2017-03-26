@@ -1581,7 +1581,7 @@ class Host extends FOGController
      */
     public function wakeOnLAN()
     {
-        $this->wakeUp($this->getMyMacs());
+        self::wakeUp($this->getMyMacs());
         return $this;
     }
     /**
@@ -2079,13 +2079,13 @@ class Host extends FOGController
                     $user = trim($this->get('ADUser'));
                 }
                 if (empty($pass)) {
-                    $pass = trim($this->encryptpw($this->get('ADPass')));
+                    $pass = trim(self::encryptpw($this->get('ADPass')));
                 }
                 if (empty($legacy)) {
                     $legacy = trim($this->get('ADPassLegacy'));
                 }
                 if (empty($productKey)) {
-                    $productKey = trim($this->encryptpw($this->get('productKey')));
+                    $productKey = trim(self::encryptpw($this->get('productKey')));
                 }
                 if (empty($enforce)) {
                     $enforce = (int)$this->get('enforce');
@@ -2093,7 +2093,7 @@ class Host extends FOGController
             }
         }
         if ($pass) {
-            $pass = trim($this->encryptpw($pass));
+            $pass = trim(self::encryptpw($pass));
         }
         $this->set('useAD', $useAD)
             ->set('ADDomain', trim($domain))
@@ -2101,7 +2101,7 @@ class Host extends FOGController
             ->set('ADUser', trim($user))
             ->set('ADPass', $pass)
             ->set('ADPassLegacy', $legacy)
-            ->set('productKey', trim($this->encryptpw($productKey)))
+            ->set('productKey', trim(self::encryptpw($productKey)))
             ->set('enforce', (string)$enforce);
         return $this;
     }

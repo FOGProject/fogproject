@@ -353,7 +353,7 @@ class LDAP extends FOGController
             /**
              * We need to decrypt the stored pass.
              */
-            $bindPass = $this->aesdecrypt($bindPass);
+            $bindPass = self::aesdecrypt($bindPass);
             /**
              * If no bind password return immediately
              */

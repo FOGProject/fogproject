@@ -155,7 +155,7 @@ $file = sprintf(
 );
 $lines = $_POST['lines'];
 $reverse = $_POST['reverse'];
-$ip = $FOGCore->aesdecrypt($ip);
+$ip = FOGCore::aesdecrypt($ip);
 $ip = $FOGCore->resolveHostname($ip);
 $ip = trim($ip);
 if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
@@ -177,7 +177,7 @@ $url = sprintf(
     $ip
 );
 $process = array(
-    'ip' => $FOGCore->aesencrypt($ip),
+    'ip' => FOGCore::aesencrypt($ip),
     'file' => $file,
     'lines' => $lines,
     'reverse' => $reverse

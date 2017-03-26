@@ -1928,7 +1928,7 @@ class FOGConfigurationPage extends FOGPage
                 }
                 break;
             case 'FOG_AD_DEFAULT_PASSWORD':
-                $set = $this->encryptpw($set);
+                $set = self::encryptpw($set);
                 break;
             case 'FOG_CLIENT_BANNER_SHA':
                 continue 2;
@@ -2246,7 +2246,7 @@ class FOGConfigurationPage extends FOGPage
                 }
                 printf(
                     '<option value="%s||%s"%s>%s</option>',
-                    $this->aesencrypt($ip[$nodename]),
+                    self::aesencrypt($ip[$nodename]),
                     $file,
                     (
                         $value == $_REQUEST['logtype'] ?

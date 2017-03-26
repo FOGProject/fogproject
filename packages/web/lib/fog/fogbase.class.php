@@ -1302,7 +1302,7 @@ abstract class FOGBase
      *
      * @return string
      */
-    protected function createSecToken()
+    protected static function createSecToken()
     {
         /**
          * Lambda to create random data.
@@ -1331,19 +1331,19 @@ abstract class FOGBase
      *
      * @return string
      */
-    protected function encryptpw($pass)
+    protected static function encryptpw($pass)
     {
         $pass = trim($pass);
         if (empty($pass)) {
             return '';
         }
-        $decrypt = $this->aesdecrypt($pass);
+        $decrypt = self::aesdecrypt($pass);
         $newpass = $pass;
         if ($decrypt && mb_detect_encoding($decrypt, 'utf-8', true)) {
             $newpass = $decrypt;
         }
 
-        return $newpass ? $this->aesencrypt($newpass) : '';
+        return $newpass ? self::aesencrypt($newpass) : '';
     }
     /**
      * AES Encrypt function.
@@ -1355,7 +1355,7 @@ abstract class FOGBase
      *
      * @return string
      */
-    public function aesencrypt(
+    public static function aesencrypt(
         $data,
         $key = false,
         $enctype = MCRYPT_RIJNDAEL_128,
@@ -1373,7 +1373,6 @@ abstract class FOGBase
         $iv = bin2hex($iv);
         $cipher = bin2hex($cipher);
         $key = bin2hex($key);
-
         return sprintf(
             '%s|%s%s',
             $iv,
@@ -1391,7 +1390,7 @@ abstract class FOGBase
      *
      * @return string
      */
-    public function aesdecrypt(
+    public static function aesdecrypt(
         $encdata,
         $key = false,
         $enctype = MCRYPT_RIJNDAEL_128,
@@ -1425,7 +1424,7 @@ abstract class FOGBase
      *
      * @return string
      */
-    protected function certEncrypt($data, $Host)
+    protected static function certEncrypt($data, $Host)
     {
         if (!$Host || !$Host->isValid()) {
             throw new Exception('#!ih');
@@ -1434,7 +1433,7 @@ abstract class FOGBase
             throw new Exception('#!ihc');
         }
 
-        return $this->aesencrypt($data, $Host->get('pub_key'));
+        return self::aesencrypt($data, $Host->get('pub_key'));
     }
     /**
      * Decrypts the information passed.
@@ -1446,7 +1445,7 @@ abstract class FOGBase
      *
      * @return mixed
      */
-    protected function certDecrypt($dataArr, $padding = true)
+    protected static function certDecrypt($dataArr, $padding = true)
     {
         if ($padding) {
             $padding = OPENSSL_PKCS1_PADDING;
@@ -1659,7 +1658,7 @@ abstract class FOGBase
             if (self::$newService) {
                 printf(
                     '#!enkey=%s',
-                    $this->certEncrypt($datatosend, $this->Host)
+                    self::certEncrypt($datatosend, $this->Host)
                 );
                 exit;
             } else {
@@ -1709,13 +1708,14 @@ abstract class FOGBase
     /**
      * Log the data.
      *
-     * @param string $txt   the text to log
-     * @param int    $level the level of the logging
+     * @param string $txt    the text to log
+     * @param int    $curlog the loglevel
+     * @param int    $level  the level of the logging
      *
      * @throws Exception
      * @return void
      */
-    protected function log($txt, $level = 1)
+    protected static function log($txt, $curlog, $level = 1)
     {
         if (!is_string($txt)) {
             throw new Exception(_('Txt must be a string'));
@@ -1734,10 +1734,10 @@ abstract class FOGBase
             return;
         }
         $txt = sprintf('[%s] %s', self::niceDate()->format('Y-m-d H:i:s'), $txt);
-        if ($this->logLevel >= $level) {
+        if ($curlog >= $level) {
             echo $txt;
         }
-        $this->logHistory($txt);
+        self::logHistory($txt);
     }
     /**
      * Log to history table.
@@ -1746,7 +1746,7 @@ abstract class FOGBase
      *
      * @return void
      */
-    protected function logHistory($string)
+    protected static function logHistory($string)
     {
         if (!is_string($string)) {
             throw new Exception(_('String must be a string'));
@@ -2141,7 +2141,7 @@ abstract class FOGBase
      *
      * @return void
      */
-    public function wakeUp($macs)
+    public static function wakeUp($macs)
     {
         if (!is_array($macs)) {
             $macs = array($macs);

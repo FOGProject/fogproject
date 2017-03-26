@@ -522,7 +522,7 @@ class HostManagementPage extends FOGPage
             $ModuleIDs = self::getSubObjectIDs('Module', array('isDefault' => 1));
             $password = $_REQUEST['domainpassword'];
             if ($_REQUEST['domainpassword']) {
-                $password = $this->encryptpw($_REQUEST['domainpassword']);
+                $password = self::encryptpw($_REQUEST['domainpassword']);
             }
             $useAD = isset($_REQUEST['domain']);
             $domain = trim($_REQUEST['domainname']);
@@ -553,7 +553,7 @@ class HostManagementPage extends FOGPage
                 ->set('init', $_REQUEST['init'])
                 ->set('biosexit', $_REQUEST['bootTypeExit'])
                 ->set('efiexit', $_REQUEST['efiBootTypeExit'])
-                ->set('productKey', $this->encryptpw($productKey))
+                ->set('productKey', self::encryptpw($productKey))
                 ->addModule($ModuleIDs)
                 ->addPriMAC($MAC)
                 ->setAD(
@@ -797,7 +797,7 @@ class HostManagementPage extends FOGPage
             ),
             _('Host Product Key') => sprintf(
                 '<input id="productKey" type="text" name="key" value="%s"/>',
-                $this->aesdecrypt($this->obj->get('productKey'))
+                self::aesdecrypt($this->obj->get('productKey'))
             ),
             _('Host Image') => $imageSelect,
             _('Host Kernel') => sprintf(
@@ -2289,7 +2289,7 @@ class HostManagementPage extends FOGPage
                     ->set('init', $_REQUEST['init'])
                     ->set('biosexit', $_REQUEST['bootTypeExit'])
                     ->set('efiexit', $_REQUEST['efiBootTypeExit'])
-                    ->set('productKey', $this->encryptpw($productKey));
+                    ->set('productKey', self::encryptpw($productKey));
                 $primac = $this->obj->get('mac')->__toString();
                 $setmac = $mac->__toString();
                 if ($primac != $setmac) {

@@ -235,12 +235,13 @@ class User extends FOGController
                 ->set('authID', $this->_sessionID);
             $_SESSION['FOG_USER'] = $this->get('id');
             $_SESSION['FOG_USERNAME'] = $this->get('name');
-            $this->log(
+            self::log(
                 sprintf(
                     '%s %s.',
                     $this->get('name'),
                     _('user successfully logged in')
-                )
+                ),
+                0
             );
             $this->_isLoggedIn();
         } else {
@@ -267,23 +268,25 @@ class User extends FOGController
                     ->set('authID', $this->_sessionID);
                 $_SESSION['FOG_USER'] = $this->get('id');
                 $_SESSION['FOG_USERNAME'] = $this->get('name');
-                $this->log(
+                self::log(
                     sprintf(
                         '%s %s.',
                         $this->get('name'),
                         _('user successfully logged in')
-                    )
+                    ),
+                    0
                 );
                 $this->_isLoggedIn();
                 return $this;
             }
-            $this->log(
+            self::log(
                 sprintf(
                     '%s %s.',
                     $this->get('name'),
                     _('user failed to login'),
                     $this->get('name')
-                )
+                ),
+                0
             );
             self::$EventManager->notify(
                 'LoginFail',

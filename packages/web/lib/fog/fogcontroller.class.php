@@ -546,7 +546,7 @@ abstract class FOGController extends FOGBase
                         _('has been successfully updated')
                     );
                 }
-                $this->logHistory($msg);
+                self::logHistory($msg);
             }
         } catch (Exception $e) {
             if (!$this instanceof History) {
@@ -573,7 +573,7 @@ abstract class FOGController extends FOGBase
                         $e->getMessage()
                     );
                 }
-                $this->logHistory($msg);
+                self::logHistory($msg);
             }
             $msg = sprintf(
                 '%s: %s: %s, %s: %s',
@@ -778,7 +778,7 @@ abstract class FOGController extends FOGBase
                         _('has been successfully destroyed')
                     );
                 }
-                $this->logHistory($msg);
+                self::logHistory($msg);
             }
         } catch (Exception $e) {
             if (!$this instanceof History) {
@@ -805,7 +805,7 @@ abstract class FOGController extends FOGBase
                         $e->getMessage()
                     );
                 }
-                $this->logHistory($msg);
+                self::logHistory($msg);
             }
             $msg = sprintf(
                 '%s: %s: %s, %s: %s',

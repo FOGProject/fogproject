@@ -347,7 +347,7 @@ class GroupManagementPage extends FOGPage
             $Host->get('ADPass') :
             ''
         );
-        $ADPass = $this->encryptpw($Host->get('ADPass'));
+        $ADPass = self::encryptpw($Host->get('ADPass'));
         $ADPassLegacy = (
             $adPassLegacy ?
             $Host->get('ADPassLegacy') :
@@ -358,7 +358,7 @@ class GroupManagementPage extends FOGPage
             $Host->get('productKey') :
             ''
         );
-        $groupKeyMatch = $this->encryptpw($productKey);
+        $groupKeyMatch = self::encryptpw($productKey);
         unset($productKey, $groupKey);
         $exitNorm = Service::buildExitSelector(
             'bootTypeExit',
@@ -405,7 +405,7 @@ class GroupManagementPage extends FOGPage
             ),
             _('Group Product Key') => sprintf(
                 '<input id="productKey" type="text" name="key" value="%s"/>',
-                $this->aesdecrypt($groupKeyMatch)
+                self::aesdecrypt($groupKeyMatch)
             ),
             _('Group Kernel') => sprintf(
                 '<input type="text" name="kern" value="%s"/>',
@@ -1250,7 +1250,7 @@ class GroupManagementPage extends FOGPage
                             'kernelDevice' => $_REQUEST['dev'],
                             'efiexit' => $_REQUEST['efiBootTypeExit'],
                             'biosexit' => $_REQUEST['bootTypeExit'],
-                            'productKey' => $this->encryptpw(
+                            'productKey' => self::encryptpw(
                                 trim(
                                     $_REQUEST['key']
                                 )
