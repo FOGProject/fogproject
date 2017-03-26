@@ -3692,3 +3692,18 @@ $this->schema[] = array(
     "ALTER TABLE `users` ADD `uDisplay` VARCHAR(255) "
     . "NOT NULL AFTER `uType`"
 );
+// 254
+$this->schema[] = array(
+    "CREATE TABLE `hookEvents` ("
+    . "`heID` INT NOT NULL AUTO_INCREMENT,"
+    . "`heName` VARCHAR(255) NOT NULL,"
+    . "PRIMARY KEY(`heID`),"
+    . "UNIQUE INDEX `name` (`heName`)"
+    . ") ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    "CREATE TABLE `notifyEvents` ("
+    . "`neID` INT NOT NULL AUTO_INCREMENT,"
+    . "`neName` VARCHAR(255) NOT NULL,"
+    . "PRIMARY KEY(`neID`),"
+    . "UNIQUE INDEX `name` (`neName`)"
+    . ") ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+);

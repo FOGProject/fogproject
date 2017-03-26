@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-25 21:27-0400\n"
+"POT-Creation-Date: 2017-03-25 22:22-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -87,7 +87,7 @@ msgid "Link must be a string"
 msgstr "Event must be a string"
 
 #: /var/www/fog/lib/fog/eventmanager.class.php:58
-#: /var/www/fog/lib/fog/eventmanager.class.php:131
+#: /var/www/fog/lib/fog/eventmanager.class.php:137
 msgid "Event must be a string"
 msgstr "Event must be a string"
 
@@ -126,7 +126,7 @@ msgid "Could not register"
 msgstr "Could not create printer"
 
 #: /var/www/fog/lib/fog/eventmanager.class.php:106
-#: /var/www/fog/lib/fog/eventmanager.class.php:153
+#: /var/www/fog/lib/fog/eventmanager.class.php:159
 #: /var/www/fog/lib/fog/fogcontroller.class.php:144
 #: /var/www/fog/lib/fog/fogcontroller.class.php:304
 #: /var/www/fog/lib/fog/fogcontroller.class.php:368
@@ -153,7 +153,7 @@ msgid "Error"
 msgstr "Error"
 
 #: /var/www/fog/lib/fog/eventmanager.class.php:108
-#: /var/www/fog/lib/fog/eventmanager.class.php:155
+#: /var/www/fog/lib/fog/eventmanager.class.php:161
 #, fuzzy
 msgid "Event"
 msgstr "Add Event"
@@ -163,16 +163,16 @@ msgstr "Add Event"
 msgid "Class"
 msgstr "Tasks"
 
-#: /var/www/fog/lib/fog/eventmanager.class.php:134
+#: /var/www/fog/lib/fog/eventmanager.class.php:140
 #, fuzzy
 msgid "Event Data must be an array"
 msgstr "Event must be a string"
 
-#: /var/www/fog/lib/fog/eventmanager.class.php:137
+#: /var/www/fog/lib/fog/eventmanager.class.php:143
 msgid "Event and data are not set"
 msgstr ""
 
-#: /var/www/fog/lib/fog/eventmanager.class.php:152
+#: /var/www/fog/lib/fog/eventmanager.class.php:158
 #, fuzzy
 msgid "Could not notify"
 msgstr "Could not read tmp file."
@@ -525,8 +525,8 @@ msgid "No hosts to task"
 msgstr "Hosts in Task"
 
 #: /var/www/fog/lib/fog/group.class.php:489
-#: /var/www/fog/lib/fog/host.class.php:1359
-#: /var/www/fog/lib/fog/host.class.php:1540
+#: /var/www/fog/lib/fog/host.class.php:1355
+#: /var/www/fog/lib/fog/host.class.php:1536
 msgid "Image is not enabled"
 msgstr "Image is not enabled"
 
@@ -766,51 +766,51 @@ msgstr "Cannot add Primary mac as additional mac"
 msgid "Cannot add a pre-existing primary mac"
 msgstr "Cannot add a pre-existing Primary MAC as a pending MAC"
 
-#: /var/www/fog/lib/fog/host.class.php:1191
+#: /var/www/fog/lib/fog/host.class.php:1187
 msgid "Cancelled due to new tasking."
 msgstr "Cancelled due to new tasking."
 
-#: /var/www/fog/lib/fog/host.class.php:1241
+#: /var/www/fog/lib/fog/host.class.php:1237
 #, fuzzy
 msgid "No snapins associated with this host"
 msgstr "There are no snapins associated with this host"
 
-#: /var/www/fog/lib/fog/host.class.php:1255
+#: /var/www/fog/lib/fog/host.class.php:1251
 msgid "Failed to create Snapin Job"
 msgstr "Failed to create Snapin Job"
 
-#: /var/www/fog/lib/fog/host.class.php:1373
+#: /var/www/fog/lib/fog/host.class.php:1369
 #, fuzzy
 msgid "Could not find any"
 msgstr "Could not find temp filename"
 
-#: /var/www/fog/lib/fog/host.class.php:1374
+#: /var/www/fog/lib/fog/host.class.php:1370
 #, fuzzy
 msgid "nodes containing this image"
 msgstr "Could not find any nodes containing this image"
 
-#: /var/www/fog/lib/fog/host.class.php:1537
+#: /var/www/fog/lib/fog/host.class.php:1533
 #, fuzzy
 msgid "No valid Image defined for this host"
 msgstr "No Image defined for this host"
 
-#: /var/www/fog/lib/fog/host.class.php:1688
+#: /var/www/fog/lib/fog/host.class.php:1684
 #, fuzzy
 msgid "No viable macs to use"
 msgstr "Not able to update"
 
-#: /var/www/fog/lib/fog/host.class.php:1755
+#: /var/www/fog/lib/fog/host.class.php:1751
 #: /var/www/fog/lib/service/snapinhash.class.php:171
 #, fuzzy
 msgid "snapin"
 msgstr "Snapin"
 
-#: /var/www/fog/lib/fog/host.class.php:1757
+#: /var/www/fog/lib/fog/host.class.php:1753
 #, fuzzy
 msgid "per host"
 msgstr "snapin per host"
 
-#: /var/www/fog/lib/fog/host.class.php:1762
+#: /var/www/fog/lib/fog/host.class.php:1758
 msgid "You are only allowed to assign"
 msgstr "You are only allowed to assign"
 
@@ -5731,37 +5731,37 @@ msgstr ""
 msgid "Host is in a tasking"
 msgstr "Hosts in Task"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2487
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2481
 #, fuzzy
 msgid "Date Changed"
 msgstr "Save Changes"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2503
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2497
 msgid "All virus history cleared for this host"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2512
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2506
 msgid "Selected virus history item cleaned"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2523
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2517
 msgid "Host Update Failed"
 msgstr "Host Update Failed"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2530
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2524
 #, fuzzy
 msgid "Host updated"
 msgstr "User updated"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2559
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2553
 msgid "Failed to create new Group"
 msgstr "Failed to create new Group"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2561
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2555
 msgid "Successfully associated Hosts with the Group "
 msgstr "Successfully associated Hosts with the Group "
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2565
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2559
 msgid "Failed to Associate Hosts with Group"
 msgstr "Failed to Associate Hosts with Group"
 

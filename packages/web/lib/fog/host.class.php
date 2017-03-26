@@ -800,14 +800,10 @@ class Host extends FOGController
      */
     public function setAlo($time)
     {
-        if (!$this->get('hostalo')->isValid()) {
-            $this->get('hostalo')
-                ->set('hostID', $this->get('id'));
-        }
-        $this->get('hostalo')
+        return $this->get('hostalo')
+            ->set('hostID', $this->get('id'))
             ->set('time', $time)
             ->save();
-        return $this;
     }
     /**
      * Loads the mac additional field

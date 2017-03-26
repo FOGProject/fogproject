@@ -2450,25 +2450,19 @@ class HostManagementPage extends FOGPage
                 $y = $_REQUEST['y'];
                 $r = $_REQUEST['r'];
                 $tme = $_REQUEST['tme'];
-                if (isset($_REQUEST['updatestatus'])) {
-                    $modOn = (array)$_REQUEST['modules'];
-                    $modOff = self::getSubObjectIDs(
-                        'Module',
-                        array(
-                            'id' => $modOn
-                        ),
-                        'id',
-                        true
-                    );
-                    $this->obj->addModule($modOn);
-                    $this->obj->removeModule($modOff);
-                }
-                if (isset($_REQUEST['updatedisplay'])) {
-                    $this->obj->setDisp($x, $y, $r);
-                }
-                if (isset($_REQUEST['updatealo'])) {
-                    $this->obj->setAlo($tme);
-                }
+                $modOn = (array)$_REQUEST['modules'];
+                $modOff = self::getSubObjectIDs(
+                    'Module',
+                    array(
+                        'id' => $modOn
+                    ),
+                    'id',
+                    true
+                );
+                $this->obj->addModule($modOn);
+                $this->obj->removeModule($modOff);
+                $this->obj->setDisp($x, $y, $r);
+                $this->obj->setAlo($tme);
                 break;
             case 'host-hardware-inventory':
                 $pu = trim($_REQUEST['pu']);

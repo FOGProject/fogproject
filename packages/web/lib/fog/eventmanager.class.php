@@ -126,6 +126,12 @@ class EventManager extends FOGBase
      */
     public function notify($event, $eventData = array())
     {
+        $exists = self::getClass('NotifyEventManager')->exists($event);
+        if (!$exists) {
+            self::getClass('NotifyEvent')
+                ->set('name', $event)
+                ->save();
+        }
         try {
             if (!is_string($event)) {
                 throw new Exception(_('Event must be a string'));

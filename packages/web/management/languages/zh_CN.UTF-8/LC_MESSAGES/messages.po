@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-25 21:27-0400\n"
+"POT-Creation-Date: 2017-03-25 22:22-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -87,7 +87,7 @@ msgid "Link must be a string"
 msgstr "事件必须是字符串"
 
 #: /var/www/fog/lib/fog/eventmanager.class.php:58
-#: /var/www/fog/lib/fog/eventmanager.class.php:131
+#: /var/www/fog/lib/fog/eventmanager.class.php:137
 msgid "Event must be a string"
 msgstr "事件必须是字符串"
 
@@ -126,7 +126,7 @@ msgid "Could not register"
 msgstr "无法创建打印机"
 
 #: /var/www/fog/lib/fog/eventmanager.class.php:106
-#: /var/www/fog/lib/fog/eventmanager.class.php:153
+#: /var/www/fog/lib/fog/eventmanager.class.php:159
 #: /var/www/fog/lib/fog/fogcontroller.class.php:144
 #: /var/www/fog/lib/fog/fogcontroller.class.php:304
 #: /var/www/fog/lib/fog/fogcontroller.class.php:368
@@ -153,7 +153,7 @@ msgid "Error"
 msgstr "错误"
 
 #: /var/www/fog/lib/fog/eventmanager.class.php:108
-#: /var/www/fog/lib/fog/eventmanager.class.php:155
+#: /var/www/fog/lib/fog/eventmanager.class.php:161
 #, fuzzy
 msgid "Event"
 msgstr "添加事件"
@@ -163,16 +163,16 @@ msgstr "添加事件"
 msgid "Class"
 msgstr "任务"
 
-#: /var/www/fog/lib/fog/eventmanager.class.php:134
+#: /var/www/fog/lib/fog/eventmanager.class.php:140
 #, fuzzy
 msgid "Event Data must be an array"
 msgstr "事件必须是字符串"
 
-#: /var/www/fog/lib/fog/eventmanager.class.php:137
+#: /var/www/fog/lib/fog/eventmanager.class.php:143
 msgid "Event and data are not set"
 msgstr ""
 
-#: /var/www/fog/lib/fog/eventmanager.class.php:152
+#: /var/www/fog/lib/fog/eventmanager.class.php:158
 #, fuzzy
 msgid "Could not notify"
 msgstr "无法读取tmp文件。"
@@ -525,8 +525,8 @@ msgid "No hosts to task"
 msgstr "在任务主机"
 
 #: /var/www/fog/lib/fog/group.class.php:489
-#: /var/www/fog/lib/fog/host.class.php:1359
-#: /var/www/fog/lib/fog/host.class.php:1540
+#: /var/www/fog/lib/fog/host.class.php:1355
+#: /var/www/fog/lib/fog/host.class.php:1536
 msgid "Image is not enabled"
 msgstr "图片未启用"
 
@@ -762,51 +762,51 @@ msgstr "无法添加主MAC作为附加MAC"
 msgid "Cannot add a pre-existing primary mac"
 msgstr "无法添加预先存在的主MAC为待MAC"
 
-#: /var/www/fog/lib/fog/host.class.php:1191
+#: /var/www/fog/lib/fog/host.class.php:1187
 msgid "Cancelled due to new tasking."
 msgstr "由于新的任务取消。"
 
-#: /var/www/fog/lib/fog/host.class.php:1241
+#: /var/www/fog/lib/fog/host.class.php:1237
 #, fuzzy
 msgid "No snapins associated with this host"
 msgstr "没有与此主机关联snapins"
 
-#: /var/www/fog/lib/fog/host.class.php:1255
+#: /var/www/fog/lib/fog/host.class.php:1251
 msgid "Failed to create Snapin Job"
 msgstr "无法创建管理单元工作"
 
-#: /var/www/fog/lib/fog/host.class.php:1373
+#: /var/www/fog/lib/fog/host.class.php:1369
 #, fuzzy
 msgid "Could not find any"
 msgstr "找不到临时文件名"
 
-#: /var/www/fog/lib/fog/host.class.php:1374
+#: /var/www/fog/lib/fog/host.class.php:1370
 #, fuzzy
 msgid "nodes containing this image"
 msgstr "找不到包含该图像的任何节点"
 
-#: /var/www/fog/lib/fog/host.class.php:1537
+#: /var/www/fog/lib/fog/host.class.php:1533
 #, fuzzy
 msgid "No valid Image defined for this host"
 msgstr "没有找到主机定义图片"
 
-#: /var/www/fog/lib/fog/host.class.php:1688
+#: /var/www/fog/lib/fog/host.class.php:1684
 #, fuzzy
 msgid "No viable macs to use"
 msgstr "不能够更新"
 
-#: /var/www/fog/lib/fog/host.class.php:1755
+#: /var/www/fog/lib/fog/host.class.php:1751
 #: /var/www/fog/lib/service/snapinhash.class.php:171
 #, fuzzy
 msgid "snapin"
 msgstr "管理单元"
 
-#: /var/www/fog/lib/fog/host.class.php:1757
+#: /var/www/fog/lib/fog/host.class.php:1753
 #, fuzzy
 msgid "per host"
 msgstr "每个主机管理单元"
 
-#: /var/www/fog/lib/fog/host.class.php:1762
+#: /var/www/fog/lib/fog/host.class.php:1758
 msgid "You are only allowed to assign"
 msgstr "您只能分配"
 
@@ -5715,37 +5715,37 @@ msgstr ""
 msgid "Host is in a tasking"
 msgstr "在任务主机"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2487
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2481
 #, fuzzy
 msgid "Date Changed"
 msgstr "保存更改"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2503
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2497
 msgid "All virus history cleared for this host"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2512
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2506
 msgid "Selected virus history item cleaned"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2523
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2517
 msgid "Host Update Failed"
 msgstr "主机更新失败"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2530
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2524
 #, fuzzy
 msgid "Host updated"
 msgstr "用户更新"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2559
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2553
 msgid "Failed to create new Group"
 msgstr "无法创建新的组"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2561
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2555
 msgid "Successfully associated Hosts with the Group "
 msgstr "成功关联主机与本集团"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2565
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2559
 msgid "Failed to Associate Hosts with Group"
 msgstr "未能与关联主机组"
 
