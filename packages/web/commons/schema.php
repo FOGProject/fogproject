@@ -1978,7 +1978,7 @@ $this->schema[] = array(
     . "'jPlUQRw5vLsrz8I1TuZdWDSiMFqXHtcm','FOG Client')",
 );
 // 119
-$column = array_filter((array)self::$DB->getColumns('default', 'modules'));
+$column = array_filter((array)DatabaseManager::getColumns('default', 'modules'));
 $this->schema[] = count($column) > 0 ? array() : array(
     "ALTER TABLE `modules` ADD COLUMN `default` INT "
     . "DEFAULT 1 NOT NULL AFTER `description`"
@@ -2197,7 +2197,7 @@ $this->schema[] = array(
 );
 // 132
 $column = array_filter(
-    (array)self::$DB->getColumns(
+    (array)DatabaseManager::getColumns(
         'ipxeVersion',
         'ipxeTable'
     )
@@ -3444,7 +3444,7 @@ $this->schema[] = array(
 );
 // 236
 $this->schema[] = array(
-    self::$DB->getColumns('multicastSessions', 'msAnon1') > 0 ?
+    DatabaseManager::getColumns('multicastSessions', 'msAnon1') > 0 ?
     'ALTER TABLE `multicastSessions`'
     . 'CHANGE `msAnon1` `msIsDD` INTEGER NOT NULL' :
     '',

@@ -219,7 +219,7 @@ class FOGCore extends FOGBase
         ini_set('max_input_vars', 10000);
         $_SESSION['Pending-Hosts'] = self::getClass('HostManager')
             ->count(array('pending' => 1));
-        if (self::$DB->getColumns('hostMAC', 'hmMAC') > 0) {
+        if (DatabaseManager::getColumns('hostMAC', 'hmMAC') > 0) {
             $_SESSION['Pending-MACs'] = self::getClass(
                 'MACAddressAssociationManager'
             )->count(array('pending' => 1));

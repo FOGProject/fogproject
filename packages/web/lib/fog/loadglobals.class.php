@@ -38,9 +38,8 @@ class LoadGlobals extends FOGBase
             return;
         }
         $GLOBALS['FOGFTP'] = new FOGFTP();
-        $GLOBALS['DB'] = FOGCore::getClass('DatabaseManager')
-            ->establish()
-            ->getDB();
+        DatabaseManager::establish();
+        $GLOBALS['DB'] = DatabaseManager::getDB();
         $GLOBALS['FOGCore'] = new FOGCore();
         FOGCore::setSessionEnv();
         $GLOBALS['TimeZone'] = $_SESSION['TimeZone'];

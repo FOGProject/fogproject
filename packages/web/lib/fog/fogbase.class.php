@@ -1706,17 +1706,25 @@ abstract class FOGBase
         return count($mapinfo) > 0;
     }
     /**
-     * Log the data.
+     * How to log this file.
      *
-     * @param string $txt    the text to log
-     * @param int    $curlog the loglevel
-     * @param int    $level  the level of the logging
+     * @param string $txt     The text to log.
+     * @param int    $curlog  The logLevel setting.
+     * @param int    $logfile The logToFile setting.
+     * @param int    $logbrow The logToBrowser setting.
+     * @param object $obj     The object.
+     * @param int    $level   The basic log level.
      *
-     * @throws Exception
      * @return void
      */
-    protected static function log($txt, $curlog, $level = 1)
-    {
+    protected static function log(
+        $txt,
+        $curlog,
+        $logfile,
+        $logbrow,
+        $obj,
+        $level = 1
+    ) {
         if (!is_string($txt)) {
             throw new Exception(_('Txt must be a string'));
         }

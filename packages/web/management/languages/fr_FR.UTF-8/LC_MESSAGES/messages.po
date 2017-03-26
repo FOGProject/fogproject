@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-26 10:54-0400\n"
+"POT-Creation-Date: 2017-03-26 19:45-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -445,7 +445,7 @@ msgid "Array type"
 msgstr "Tableau de données"
 
 #: /var/www/fog/lib/fog/fogcontroller.class.php:909
-#: /var/www/fog/lib/fog/fogbase.class.php:2112
+#: /var/www/fog/lib/fog/fogbase.class.php:2120
 #: /var/www/fog/lib/fog/fogftp.class.php:370
 #: /var/www/fog/lib/pages/taskmobile.class.php:45
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1003
@@ -716,27 +716,27 @@ msgstr "La clé privée a échoué"
 msgid "Failed to decrypt data"
 msgstr "Impossible de déchiffrer les données"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1721
+#: /var/www/fog/lib/fog/fogbase.class.php:1729
 #, fuzzy
 msgid "Txt must be a string"
 msgstr "Événement doit être une chaîne"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1724
+#: /var/www/fog/lib/fog/fogbase.class.php:1732
 #, fuzzy
 msgid "Level must be an integer"
 msgstr "Événement doit être une chaîne"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1752
+#: /var/www/fog/lib/fog/fogbase.class.php:1760
 #, fuzzy
 msgid "String must be a string"
 msgstr "Événement doit être une chaîne"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1874
+#: /var/www/fog/lib/fog/fogbase.class.php:1882
 #, fuzzy
 msgid "Key must be a string"
 msgstr "Événement doit être une chaîne"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2114
+#: /var/www/fog/lib/fog/fogbase.class.php:2122
 #: /var/www/fog/lib/fog/fogftp.class.php:372
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2268
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:85
@@ -747,12 +747,12 @@ msgstr "Événement doit être une chaîne"
 msgid "File"
 msgstr "Fichier"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2116
+#: /var/www/fog/lib/fog/fogbase.class.php:2124
 #: /var/www/fog/lib/fog/fogftp.class.php:374
 msgid "Line"
 msgstr "Ligne"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2118
+#: /var/www/fog/lib/fog/fogbase.class.php:2126
 #: /var/www/fog/lib/fog/fogftp.class.php:376
 #: /var/www/fog/lib/db/mysql.class.php:189
 msgid "Message"

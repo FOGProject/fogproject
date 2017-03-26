@@ -178,7 +178,7 @@ abstract class FOGService extends FOGBase
      */
     public function waitDbReady()
     {
-        if (self::$DB->getLink()) {
+        if (DatabaseManager::getLink()) {
             return;
         }
         self::outall(

@@ -28,14 +28,14 @@ class DatabaseManager extends FOGCore
      *
      * @return object
      */
-    public function establish()
+    public static function establish()
     {
         /**
          * If the db is already connected,
          * return immediately.
          */
         if (self::$DB) {
-            return $this;
+            return new self;
         }
         /**
          * Establish connection.
@@ -50,7 +50,7 @@ class DatabaseManager extends FOGCore
             self::$scriptname
         );
         if (strtolower(self::$reqmethod) === 'post'
-            && !$this->getLink()
+            && !self::getLink()
         ) {
             http_response_code(406);
         }
@@ -60,7 +60,7 @@ class DatabaseManager extends FOGCore
          * calling script that the db is unavailable.
          */
         if (($testscript
-            && !$this->getLink()
+            && !self::getLink()
             && false === strpos(self::$scriptname, 'dbrunning'))
         ) {
             echo json_encode(_('A valid database connection could not be made'));
@@ -79,7 +79,7 @@ class DatabaseManager extends FOGCore
          * installed version, return immediately.
          */
         if (self::$mySchema >= FOG_SCHEMA) {
-            return $this;
+            return new self;
         }
         /**
          * The sub get caller.
@@ -147,14 +147,14 @@ class DatabaseManager extends FOGCore
                 die('#!db');
             }
         }
-        return $this;
+        return new self;
     }
     /**
      * Returns the DB Link object
      *
      * @return object
      */
-    public function getLink()
+    public static function getLink()
     {
         return self::$DB->link();
     }
@@ -163,7 +163,7 @@ class DatabaseManager extends FOGCore
      *
      * @return object
      */
-    public function getDB()
+    public static function getDB()
     {
         return self::$DB;
     }
@@ -192,7 +192,7 @@ class DatabaseManager extends FOGCore
      *
      * @return int
      */
-    public function getColumns(
+    public static function getColumns(
         $table_name,
         $column_name
     ) {
