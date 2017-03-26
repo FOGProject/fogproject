@@ -580,7 +580,7 @@ class HostManagementPage extends FOGPage
         self::$HookManager
             ->processEvent(
                 $hook,
-                array('HOst' => &$Host)
+                array('Host' => &$Host)
             );
         unset(
             $Host,

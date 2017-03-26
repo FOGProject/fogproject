@@ -793,7 +793,7 @@ class StorageManagementPage extends FOGPage
                         array('isMaster' => 0)
                     );
             }
-            $hook = 'STORAGENODE_EDIT_SUCCESS';
+            $hook = 'STORAGE_NODE_EDIT_SUCCESS';
             $msg = self::$foglang['SNUpdated'];
         } catch (Exception $e) {
             $hook = 'STORAGE_NODE_EDIT_FAIL';

@@ -1407,6 +1407,12 @@ abstract class FOGPage extends FOGBase
      */
     public function deployPost()
     {
+        self::$HookManager->processEvent(
+            sprintf(
+                '%s_DEPLOY_POST',
+                strtoupper($this->childClass)
+            )
+        );
         global $type;
         global $id;
         try {
