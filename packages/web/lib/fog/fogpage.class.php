@@ -2573,7 +2573,7 @@ abstract class FOGPage extends FOGBase
             if (!$_SESSION['AllowAJAXTasks']) {
                 throw new Exception(_('FOG Session Invalid'));
             }
-            if (!self::$FOGCore->getMACLookupCount()) {
+            if (!self::getMACLookupCount()) {
                 throw new Exception(
                     sprintf(
                         '<a href="?node=about&sub=mac-list">%s</a>',

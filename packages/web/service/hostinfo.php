@@ -84,11 +84,10 @@ try {
                 ''
             )
         );
-        $storageip = $FOGCore
-            ->resolveHostname(
-                $StorageNode
-                ->get('ip')
-            );
+        $storageip = FOGCore::resolveHostname(
+            $StorageNode
+            ->get('ip')
+        );
         $img = $Image
             ->get('path');
         $imgFormat = $Image

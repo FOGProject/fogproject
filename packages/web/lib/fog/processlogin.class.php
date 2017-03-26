@@ -249,7 +249,7 @@ class ProcessLogin extends FOGPage
             self::setMessage(self::$foglang['InvalidLogin']);
             self::redirect('index.php?node=logout');
         }
-        self::$FOGUser = self::$FOGCore->attemptLogin(
+        self::$FOGUser = self::attemptLogin(
             $this->_username,
             $this->_password
         );

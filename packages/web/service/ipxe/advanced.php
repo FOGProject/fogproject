@@ -52,7 +52,7 @@ if ($login) {
     unset($_REQUEST['login']);
 }
 if (!empty($user)) {
-    $tmp = $FOGCore->attemptLogin($user, $pass);
+    $tmp = FOGCore::attemptLogin($user, $pass);
     if ($tmp) {
         $Send['loginsuccess'] = array(
             '#!ipxe',

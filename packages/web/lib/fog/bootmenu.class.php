@@ -1148,7 +1148,7 @@ class BootMenu extends FOGBase
         if ($noMenu) {
             $this->noMenu();
         }
-        $tmpUser = self::$FOGCore->attemptLogin(
+        $tmpUser = self::attemptLogin(
             $_REQUEST['username'],
             $_REQUEST['password']
         );

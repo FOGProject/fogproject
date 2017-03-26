@@ -22,7 +22,7 @@
 require '../commons/base.inc.php';
 $user = $_POST['fogguiuser'];
 $pass = $_POST['fogguipass'];
-$tmpUser = $FOGCore->attemptLogin($user, $pass);
+$tmpUser = FOGCore::attemptLogin($user, $pass);
 if (!$tmpUser->isValid()) {
     die('###'.$foglang['InvalidLogin']);
 }

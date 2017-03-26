@@ -1202,7 +1202,7 @@ class FOGConfigurationPage extends FOGPage
                 _('into the FOG database for easier identication')
             ),
             _('Current Records'),
-            self::$FOGCore->getMACLookupCount(),
+            self::getMACLookupCount(),
             _('Delete MACs'),
             _('Delete Current Records'),
             _('Update MACs'),
@@ -1218,7 +1218,7 @@ class FOGConfigurationPage extends FOGPage
     public function maclistPost()
     {
         if ($_REQUEST['update']) {
-            self::$FOGCore->clearMACLookupTable();
+            self::clearMACLookupTable();
             $url = 'http://linuxnet.ca/ieee/oui.txt';
             if (($fh = fopen($url, 'rb')) === false) {
                 throw new Exception(_('Could not read temp file'));
@@ -1282,7 +1282,7 @@ class FOGConfigurationPage extends FOGPage
             );
         }
         if ($_REQUEST['clear']) {
-            self::$FOGCore->clearMACLookupTable();
+            self::clearMACLookupTable();
         }
         self::resetRequest();
         self::redirect('?node=about&sub=maclist');

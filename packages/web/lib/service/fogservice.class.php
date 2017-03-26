@@ -125,7 +125,7 @@ abstract class FOGService extends FOGBase
                 )
             ) as &$StorageNode
         ) {
-            $ip = self::$FOGCore->resolveHostname(
+            $ip = self::resolveHostname(
                 $StorageNode->get('ip')
             );
             if (!in_array($ip, self::$ips)) {

@@ -57,7 +57,7 @@ class WakeOnLan extends FOGBase
         }
         $BroadCast = self::fastmerge(
             (array) '255.255.255.255',
-            self::$FOGCore->getBroadcast()
+            self::getBroadcast()
         );
         self::$HookManager->processEvent(
             'BROADCAST_ADDR',

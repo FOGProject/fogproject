@@ -2266,4 +2266,84 @@ abstract class FOGBase
             )
         );
     }
+    /**
+     * Attempts to login
+     *
+     * @param string $username the username to attempt
+     * @param string $password the password to attempt
+     *
+     * @return object
+     */
+    public static function attemptLogin($username, $password)
+    {
+        return self::getClass('User')
+            ->validatePw($username, $password);
+    }
+    /**
+     * Clears the mac lookup table
+     *
+     * @return bool
+     */
+    public static function clearMACLookupTable()
+    {
+        $OUITable = self::getClass('OUI', '', true);
+        $OUITable = $OUITable['databaseTable'];
+        return self::$DB->query("TRUNCATE TABLE `$OUITable`");
+    }
+    /**
+     * Returns the count of mac lookups
+     *
+     * @return int
+     */
+    public static function getMACLookupCount()
+    {
+        return self::getClass('OUIManager')->count();
+    }
+    /**
+     * Resolves a hostname to its IP address
+     *
+     * @param string $host the item to test
+     *
+     * @return string
+     */
+    public static function resolveHostname($host)
+    {
+        $host = trim($host);
+        if (filter_var($host, FILTER_VALIDATE_IP)) {
+            return $host;
+        }
+        $host = gethostbyname($host);
+        $host = trim($host);
+        return $host;
+    }
+    /**
+     * Gets the broadcast address of the server
+     *
+     * @return array
+     */
+    public static function getBroadcast()
+    {
+        $output = array();
+        $cmd = sprintf(
+            '%s | %s | %s',
+            '/sbin/ip -4 addr',
+            "awk -F'[ /]+' '/global/ {print $6}'",
+            "grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'"
+        );
+        exec($cmd, $IPs, $retVal);
+        if (!count($IPs)) {
+            $cmd = sprintf(
+                '%s | %s | %s | %s',
+                '/sbin/ifconfig -a',
+                "awk '/(cast)/ {print $3}'",
+                "cut -d':' -f2",
+                "grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'"
+            );
+            exec($cmd, $IPs, $retVal);
+        }
+        $IPs = array_map('trim', (array)$IPs);
+        $IPs = array_filter($IPs);
+        $IPs = array_values($IPs);
+        return $IPs;
+    }
 }

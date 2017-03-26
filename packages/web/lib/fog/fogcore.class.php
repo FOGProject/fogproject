@@ -22,61 +22,11 @@
 class FOGCore extends FOGBase
 {
     /**
-     * Attempts to login
-     *
-     * @param string $username the username to attempt
-     * @param string $password the password to attempt
-     *
-     * @return object
-     */
-    public function attemptLogin($username, $password)
-    {
-        return self::getClass('User')
-            ->validatePw($username, $password);
-    }
-    /**
-     * Clears the mac lookup table
-     *
-     * @return bool
-     */
-    public function clearMACLookupTable()
-    {
-        $OUITable = self::getClass('OUI', '', true);
-        $OUITable = $OUITable['databaseTable'];
-        return self::$DB->query("TRUNCATE TABLE `$OUITable`");
-    }
-    /**
-     * Returns the count of mac lookups
-     *
-     * @return int
-     */
-    public function getMACLookupCount()
-    {
-        return self::getClass('OUIManager')->count();
-    }
-    /**
-     * Resolves a hostname to its IP address
-     *
-     * @param string $host the item to test
-     *
-     * @return string
-     */
-    public function resolveHostname($host)
-    {
-        $host = trim($host);
-        if (filter_var($host, FILTER_VALIDATE_IP)) {
-            return $host;
-        }
-        $host = gethostbyname($host);
-        $host = trim($host);
-        return $host;
-    }
-    /**
      * Returns the systems uptime
      *
      * @return array
      */
-    public function systemUptime()
+    public static function systemUptime()
     {
         exec('cat /proc/uptime', $data);
         $uptime = explode(' ', $data[0]);
@@ -122,46 +72,16 @@ class FOGCore extends FOGBase
         );
     }
     /**
-     * Gets the broadcast address of the server
-     *
-     * @return array
-     */
-    public function getBroadcast()
-    {
-        $output = array();
-        $cmd = sprintf(
-            '%s | %s | %s',
-            '/sbin/ip -4 addr',
-            "awk -F'[ /]+' '/global/ {print $6}'",
-            "grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'"
-        );
-        exec($cmd, $IPs, $retVal);
-        if (!count($IPs)) {
-            $cmd = sprintf(
-                '%s | %s | %s | %s',
-                '/sbin/ifconfig -a',
-                "awk '/(cast)/ {print $3}'",
-                "cut -d':' -f2",
-                "grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'"
-            );
-            exec($cmd, $IPs, $retVal);
-        }
-        $IPs = array_map('trim', (array)$IPs);
-        $IPs = array_filter($IPs);
-        $IPs = array_values($IPs);
-        return $IPs;
-    }
-    /**
      * Gets the hardware information of the selected item
      *
      * @return array
      */
-    public function getHWInfo()
+    public static function getHWInfo()
     {
         $data['general'] = '@@general';
         $data['kernel'] = php_uname('r');
         $data['hostname'] = php_uname('n');
-        $data['uptimeload'] = implode(' Load: ', $this->systemUptime());
+        $data['uptimeload'] = implode(' Load: ', self::systemUptime());
         $cpucmd = sprintf(
             '%s | %s | %s | %s | %s',
             'cat /proc/cpuinfo',

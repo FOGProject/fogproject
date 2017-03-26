@@ -43,7 +43,7 @@ class MulticastTask extends FOGService
             return;
         }
         $Interface = self::getMasterInterface(
-            self::$FOGCore->resolveHostname(
+            self::resolveHostname(
                 $StorageNode->get('ip')
             )
         );

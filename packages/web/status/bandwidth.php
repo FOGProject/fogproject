@@ -94,7 +94,7 @@ if (count($interface) < 1) {
     // Find our server address
     $srvAddr = $_SERVER['SERVER_ADDR'];
     // If accessed by hostname resolve to ip
-    $resName = $FOGCore->resolveHostname($srvAddr);
+    $resName = FOGCore::resolveHostname($srvAddr);
     // Use the resolved name to find our interface
     $dev = FOGCore::getMasterInterface($resname);
 }
