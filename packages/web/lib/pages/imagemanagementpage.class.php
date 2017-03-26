@@ -126,17 +126,10 @@ class ImageManagementPage extends FOGPage
             '',
             '<input type="checkbox" name="toggle-checkbox" '
             . 'class="toggle-checkboxAction"/>',
-            sprintf(
-                '%s<br/>'
-                . '<small>%s: %s</small><br/>'
-                . '<small>%s</small><br/>'
-                . '<small>%s</small>',
-                _('Image Name'),
-                _('Storage Group'),
-                _('OS'),
-                _('Image Type'),
-                _('Partition')
-            ),
+            _('Image Name'),
+            _('Storage Group'),
+            _('OS'),
+            _('Partition'),
             _('Image Size: ON CLIENT'),
         );
         /**
@@ -154,7 +147,6 @@ class ImageManagementPage extends FOGPage
          */
         array_push(
             $this->headerData,
-            _('Format'),
             _('Captured')
         );
         /**
@@ -167,12 +159,14 @@ class ImageManagementPage extends FOGPage
             sprintf(
                 '<a href="?node=%s&sub=edit&id=${id}" title="%s: '
                 . '${name} Last captured: ${deployed}">${name} - '
-                . '${id}</a><br/><small>${storageGroup}: ${os}'
-                . '</small><br/><small>${image_type}</small>'
-                . '<br/><small>${image_partition_type}</small>',
+                . '${id}</a><br/><small>${image_type}</small><br/>'
+                . '<small>${type}</small>',
                 $this->node,
                 _('Edit')
             ),
+            '${storageGroup}',
+            '${os}',
+            '${image_partition_type}',
             '${size}',
         );
         /**
@@ -190,7 +184,6 @@ class ImageManagementPage extends FOGPage
          */
         array_push(
             $this->templates,
-            '${type}',
             '${deployed}'
         );
         /**
@@ -205,10 +198,10 @@ class ImageManagementPage extends FOGPage
                 'width' => 16,
                 'class' => 'l filter-false'
             ),
-            array(
-                'width' => 50,
-                'class' => 'l'
-            ),
+            array(),
+            array(),
+            array(),
+            array(),
             array(
                 'width' => 50,
                 'class' => 'c'
@@ -232,14 +225,7 @@ class ImageManagementPage extends FOGPage
          */
         array_push(
             $this->attributes,
-            array(
-                'width' => 50,
-                'class' => 'c'
-            ),
-            array(
-                'width' => 50,
-                'class' => 'c'
-            )
+            array()
         );
         /**
          * Lambda functino to manage the output
@@ -343,27 +329,27 @@ class ImageManagementPage extends FOGPage
              * be using partclone otherwise partimage.
              */
             switch ($Image->get('format')) {
-                case 0:
-                    $type = _('Partclone Compressed');
-                    break;
-                case 1:
-                    $type = _('Partimage');
-                    break;
-                case 2:
-                    $type = _('Partclone Compressed 200MiB split');
-                    break;
-                case 3:
-                    $type = _('Partclone Uncompressed');
-                    break;
-                case 4:
-                    $type = _('Partclone Uncompressed 200MiB split');
-                    break;
-                case 5:
-                    $type = _('ZSTD Compressed');
-                    break;
-                case 6:
-                    $type = _('ZSTD Compressed 200MiB split');
-                    break;
+            case 0:
+                $type = _('Partclone Compressed');
+                break;
+            case 1:
+                $type = _('Partimage');
+                break;
+            case 2:
+                $type = _('Partclone Compressed 200MiB split');
+                break;
+            case 3:
+                $type = _('Partclone Uncompressed');
+                break;
+            case 4:
+                $type = _('Partclone Uncompressed 200MiB split');
+                break;
+            case 5:
+                $type = _('ZSTD Compressed');
+                break;
+            case 6:
+                $type = _('ZSTD Compressed 200MiB split');
+                break;
             }
             /**
              * Store the data.
