@@ -2,7 +2,7 @@
 /**
  * Access Control plugin
  *
- * PHP version 5
+ * PHP version 7
  *
  * @category AccessControlManagementPage
  * @package  FOGProject
@@ -598,7 +598,7 @@ class AccessControlManagementPage extends FOGPage
         $fields = array(
             _('Rule Type') => '<input class="smaller" type="text" name="type"/>',
             _('Parent') => '<input class="smaller" type="text" name="parent"/>',
-            _('Node') => '<input class="smaller" type="text" name="node"/>',
+            _('Node') => '<input class="smaller" type="text" name="nodeParent"/>',
             _('Rule Value') => '<input class="smaller" type="text" name="value"/>',
             '&nbsp;' => sprintf(
                 '<input name="add" class="smaller" type="submit" value="%s"/>',
@@ -646,7 +646,7 @@ class AccessControlManagementPage extends FOGPage
                 ->set('value', $value)
                 ->set('name', $type. '-' . $value)
                 ->set('parent', trim($_REQUEST['parent']))
-                ->set('node', trim($_REQUEST['node']));
+                ->set('node', trim($_REQUEST['nodeParent']));
             if (!$AccessControlRule->save()) {
                 throw new Exception(_('Failed to create'));
             }
@@ -703,10 +703,10 @@ class AccessControlManagementPage extends FOGPage
                 )
             ),
             _('Node') => sprintf(
-                '<input class="smaller" type="text" name="parent" value="%s"/>',
+                '<input class="smaller" type="text" name="nodeParent" value="%s"/>',
                 (
-                    $_REQUEST['node'] ?
-                    $_REQUEST['node'] :
+                    $_REQUEST['nodeParent'] ?
+                    $_REQUEST['nodeParent'] :
                     $this->obj->get('node')
                 )
             ),
@@ -765,17 +765,12 @@ class AccessControlManagementPage extends FOGPage
                 )
             );
         try {
-            if ($_REQUEST['value'] != $this->obj->get('value')
-                && $this->obj->getManager()->exists($_REQUEST['value'])
-            ) {
-                throw new Exception(_('A rule with that value already exists.'));
-            }
             if (isset($_REQUEST['update'])) {
                 $value = $_REQUEST['value'];
                 $this->obj
                     ->set('type', $_REQUEST['type'])
                     ->set('parent', $_REQUEST['parent'])
-                    ->set('node', $_REQUEST['node'])
+                    ->set('node', $_REQUEST['nodeParent'])
                     ->set('value', $_REQUEST['value']);
                 if (!$this->obj->save()) {
                     throw new Exception(_('Failed to update'));
