@@ -241,6 +241,9 @@ class User extends FOGController
                     $this->get('name'),
                     _('user successfully logged in')
                 ),
+                0,
+                0,
+                $this,
                 0
             );
             $this->_isLoggedIn();
@@ -274,6 +277,9 @@ class User extends FOGController
                         $this->get('name'),
                         _('user successfully logged in')
                     ),
+                    0,
+                    0,
+                    $this,
                     0
                 );
                 $this->_isLoggedIn();
@@ -286,6 +292,9 @@ class User extends FOGController
                     _('user failed to login'),
                     $this->get('name')
                 ),
+                0,
+                0,
+                $this,
                 0
             );
             self::$EventManager->notify(
