@@ -83,10 +83,7 @@ class AccessControlRuleManager extends FOGManagerController
                 'CURRENT_TIMESTAMP',
                 false
             ),
-            array(
-                'ruleID',
-                'ruleValue'
-            ),
+            array(),
             'MyISAM',
             'utf8',
             'ruleID',
@@ -175,6 +172,9 @@ class AccessControlRuleManager extends FOGManagerController
             . '(39, "SUB_MENULINK-config", "SUB_MENULINK", '
             . '"config", "menu", "fog", NOW(), "about")';
         if (self::$DB->query($sql)) {
+        	$sql = "CREATE UNIQUE INDEX `indexmul` "
+        			. "`rules` (`ruleValue`, `ruleNode`)";
+        	self::$DB->query($sql);
             return self::getClass('AccessControlRuleAssociationManager')->install();
         } else {
             return true;
