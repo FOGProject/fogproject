@@ -160,6 +160,7 @@ class Host extends FOGController
         case 'mac':
             if (!($value instanceof MACAddress)) {
                 $value = new MACAddress($value);
+                $value = $value->__toString();
             }
             break;
         case 'additionalMACs':

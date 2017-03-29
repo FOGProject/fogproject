@@ -206,6 +206,12 @@ abstract class FOGController extends FOGBase
     {
         $key = $this->key($key);
         if (!$key) {
+            if (count($this->additionalFields)) {
+                foreach ($this->additionalFields as &$additional) {
+                    $this->get($additional);
+                    unset($additional);
+                }
+            }
             return $this->data;
         }
         $test = $this->_testFields($key);
