@@ -308,7 +308,29 @@ class Router
             } elseif (false === ($position = strpos($route, '['))) {
                 $match = (0 === strcmp($requestUrl, $route));
             } else {
-                if (0 !== strncmp($requestUrl, $route, $position)) {
+                $optional = (
+                    '?' === substr(
+                        $route,
+                        strpos(
+                            $route,
+                            ']',
+                            $position
+                        ) + 1,
+                        1
+                    )
+                );
+                if ($optional) {
+                    $signBefore = substr($route, $position - 1, 1);
+                    $optional = in_array($signBefore, array('/','.'));
+                }
+                if ($optional) {
+                    $strncmp = strncmp($requestUrl, $route, $position);
+                    if (-1 !== $strncmp
+                        && 0 !== $strncmp
+                    ) {
+                        continue;
+                    }
+                } elseif (0 !== strncmp($requestUrl, $route, $position)) {
                     continue;
                 }
                 $regex = $this->_compileRoute($route);
@@ -316,12 +338,12 @@ class Router
             }
             if ($match) {
                 if ($params) {
-                    foreach ($params as $key => &$value) {
+                    foreach ($params as $key => $value) {
                         if (is_numeric($key)) {
                             unset($params[$key]);
                         }
-                        unset($value);
                     }
+                    $params['method'] = $requestMethod;
                 }
                 return array(
                     'target' => $target,
