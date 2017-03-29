@@ -70,9 +70,15 @@ class AccessControlRuleAssociationManager extends FOGManagerController
         );
         if (self::$DB->query($sql)) {
             $sql = "CREATE UNIQUE INDEX `indexmul` "
-                . "`roleRuleAssoc` (`rraRoleID`, `rraRuleID`)";
-            return self::$DB->query($sql);
+                . "ON `roleRuleAssoc` (`rraRoleID`, `rraRuleID`)";
+           return self::$DB->query($sql);
         }
         return false;
+    }
+    
+    public function uninstall()
+    {
+    	self::getClass('AccessControlLocationAssociationManager')->uninstall();
+    	return parent::uninstall();
     }
 }
