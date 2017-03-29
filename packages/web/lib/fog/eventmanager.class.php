@@ -110,7 +110,13 @@ class EventManager extends FOGBase
                 _('Class'),
                 $listener[0]
             );
-            self::log($string, $this->logLevel);
+            self::log(
+                $string,
+                $this->logLevel,
+                0,
+                $this,
+                0
+            );
         }
         return $this;
     }
@@ -161,7 +167,13 @@ class EventManager extends FOGBase
                 _('Event'),
                 $event
             );
-            self::log($string, $this->logLevel);
+            self::log(
+                $string,
+                $this->logLevel,
+                0,
+                $this,
+                0
+            );
 
             return false;
         }
