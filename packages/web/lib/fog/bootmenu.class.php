@@ -325,9 +325,25 @@ class BootMenu extends FOGBase
         $this->_booturl = "http://{$webserver}/fog/service";
         $this->_memdisk = "kernel $memdisk initrd=$memtest";
         $this->_memtest = "initrd $memtest";
+        if (!$StorageNode instanceof StorageNode
+            || !$StorageNode->isValid()
+        ) {
+            $StorageNode = current(
+                self::getClass('StorageNodeManager')->find(
+                    array('ip' => $webserver)
+                )
+            );
+        }
+        $this->_storage = sprintf(
+            'storage=%s:/%s/ storageip=%s',
+            trim($StorageNode->get('ip')),
+            trim($StorageNode->get('path'), '/'),
+            trim($StorageNode->get('ip'))
+        );
         $this->_kernel = sprintf(
             'kernel %s %s initrd=%s root=/dev/ram0 rw '
-            . 'ramdisk_size=%s%sweb=%s consoleblank=0%s rootfstype=ext4%s%s',
+            . 'ramdisk_size=%s%sweb=%s consoleblank=0%s rootfstype=ext4%s%s '
+            . '%s',
             $bzImage,
             $this->_loglevel,
             basename($initrd),
@@ -340,7 +356,8 @@ class BootMenu extends FOGBase
                 $this->_Host->isValid() && $this->_Host->get('kernelArgs') ?
                 sprintf(' %s', $this->_Host->get('kernelArgs')) :
                 ''
-            )
+            ),
+            $this->_storage
         );
         $this->_initrd = "imgfetch $imagefile";
         self::$HookManager
