@@ -74,6 +74,31 @@ class Router
         $this->addMatchTypes($matchTypes);
     }
     /**
+     * Magic method to route get, put, patch, delete, and post
+     * to the map method.
+     *
+     * @param string $name      What are we calling.
+     * @param array  $arguments The item we're calling.
+     *
+     * @return mixed
+     */
+    public function __call($name, $arguments)
+    {
+        $name = strtolower($name);
+        $validTypes = array(
+            'get' => 'GET',
+            'patch' => 'PATCH',
+            'post' => 'POST',
+            'put' => 'PUT',
+            'delete' => 'DELETE'
+        );
+        if (!isset($validTypes[$name])) {
+            die(http_response_code(405));
+        }
+        array_unshift($arguments, $validTypes[$name]);
+        call_user_func_array(array($this, 'map'), $arguments);
+    }
+    /**
      * Retrieves all routes.
      *
      * @return array
@@ -311,22 +336,7 @@ class Router
             } elseif (false === ($position = strpos($route, '['))) {
                 $match = (0 === strcmp($requestUrl, $route));
                 if (!$match) {
-                    $newroutes = explode('|', $route);
-                    $regexs = array();
-                    foreach ($newroutes as $newroute) {
-                        $regexs[] = trim(
-                            trim(
-                                $this->_compileRoute($newroute),
-                                'u'
-                            ),
-                            '`'
-                        );
-                    }
-                    $regex = sprintf(
-                        '`%s`u',
-                        implode('|', $regexs)
-                    );
-                    unset($regexs, $newroutes, $newroute);
+                    $regex = $this->_compileRoute($route);
                     $match = (1 === preg_match($regex, $requestUrl));
                 }
             } else {
@@ -355,22 +365,7 @@ class Router
                 } elseif (0 !== strncmp($requestUrl, $route, $position)) {
                     continue;
                 }
-                $newroutes = explode('|', $route);
-                $regexs = array();
-                foreach ($newroutes as $newroute) {
-                    $regexs[] = trim(
-                        trim(
-                            $this->_compileRoute($newroute),
-                            'u'
-                        ),
-                        '`'
-                    );
-                }
-                $regex = sprintf(
-                    '`%s`u',
-                    implode('|', $regexs)
-                );
-                unset($regexs, $newroutes, $newroute);
+                $regex = $this->_compileRoute($route);
                 $match = (1 === preg_match($regex, $requestUrl, $params));
             }
             if ($match) {
@@ -426,34 +421,42 @@ class Router
     private function _compileRoute($route)
     {
         $pattern = '`(/|\.|)\[([^:\]]*+)(?::([^:\]]*+))?\](\?|)`';
-        if (preg_match_all($pattern, $route, $matches, PREG_SET_ORDER)) {
-            $matchTypes = $this->matchTypes;
-            foreach ($matches as $match) {
-                list(
-                    $block,
-                    $pre,
-                    $type,
-                    $param,
-                    $optional
-                ) = $match;
-                if (isset($matchTypes[$type])) {
-                    $type = $matchTypes[$type];
+        $newroutes = array();
+        $routes = explode('|', $route);
+        foreach ($routes as $newroute) {
+            if (preg_match_all($pattern, $newroute, $matches, PREG_SET_ORDER)) {
+                $matchTypes = $this->matchTypes;
+                foreach ($matches as $match) {
+                    list(
+                        $block,
+                        $pre,
+                        $type,
+                        $param,
+                        $optional
+                    ) = $match;
+                    if (isset($matchTypes[$type])) {
+                        $type = $matchTypes[$type];
+                    }
+                    if ('.' === $pre) {
+                        $pre = '\.';
+                    }
+                    // Older versions of PCRE require the 'P' in (?P<named>)
+                    $pattern = '(?:'
+                        . ('' !== $pre ? $pre : null)
+                        . '('
+                        . ('' !== $param ? "?P<$param>" : null)
+                        . $type
+                        . '))'
+                        . ('' !== $optional ? '?' : null);
+                    $newroute = str_replace($block, $pattern, $newroute);
                 }
-                if ('.' === $pre) {
-                    $pre = '\.';
-                }
-                // Older versions of PCRE require the 'P' in (?P<named>)
-                $pattern = '(?:'
-                    . ('' !== $pre ? $pre : null)
-                    . '('
-                    . ('' !== $param ? "?P<$param>" : null)
-                    . $type
-                    . '))'
-                    . ('' !== $optional ? '?' : null);
-                $route = str_replace($block, $pattern, $route);
+                $newroutes[] = $newroute;
             }
         }
-        return "`^$route$`u";
+        return sprintf(
+            '`^%s$`u',
+            implode('|', $newroutes)
+        );
     }
     /**
      * Get request URI from $_SERVER

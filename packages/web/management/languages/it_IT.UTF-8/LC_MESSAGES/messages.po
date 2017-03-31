@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-30 20:15-0400\n"
+"POT-Creation-Date: 2017-03-31 08:17-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -63,7 +63,7 @@ msgstr "Evento deve essere una stringa"
 msgid "Only tx and rx bytes files can be read"
 msgstr ""
 
-#: /var/www/fog/api/index.php:186
+#: /var/www/fog/api/index.php:181
 #, fuzzy
 msgid "Invalid item passed"
 msgstr "Unità non valido passato"
@@ -6199,16 +6199,16 @@ msgstr "assegnazione distrutto"
 msgid "Destroyed assignment"
 msgstr "assegnazione distrutto"
 
-#: /var/www/fog/lib/router/router.class.php:104
+#: /var/www/fog/lib/router/router.class.php:129
 msgid "Routes should be an array or an instance of Traversable"
 msgstr ""
 
-#: /var/www/fog/lib/router/router.class.php:211
+#: /var/www/fog/lib/router/router.class.php:236
 #, fuzzy
 msgid "Route"
 msgstr "Rimuovere"
 
-#: /var/www/fog/lib/router/router.class.php:213
+#: /var/www/fog/lib/router/router.class.php:238
 #, fuzzy
 msgid "does not exist"
 msgstr "Metodo non esiste"

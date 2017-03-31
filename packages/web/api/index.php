@@ -84,16 +84,12 @@ $status = function ($info) {
         die(http_response_code(501));
     }
 };
-$router = new Router(
-    array(
-        array(
-            'GET',
-            '/system/[a:info]?/?',
-            $status,
-            'status'
-        ),
-    ),
-    trim(WEB_ROOT, '/')
+$router = new Router;
+$router->setBasePath(trim(WEB_ROOT, '/'));
+$router->get(
+    '/system/[a:info]/?',
+    $status,
+    'status'
 );
 $router->map(
     'GET|POST|PUT',
@@ -101,7 +97,7 @@ $router->map(
     function ($class, $id, $method) use ($validClasses) {
         $classname = strtolower($class);
         if (!in_array($classname, $validClasses)) {
-            http_response_code(501);
+            die(http_response_code(501));
         }
         $class = new $class($id);
         if (!$class->isValid()) {
@@ -177,8 +173,7 @@ $router->map(
     },
     'objEdit'
 );
-$router->map(
-    'GET',
+$router->get(
     '/[a:class]/?',
     function ($class) use ($validClasses) {
         $classname = strtolower($class);
