@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-30 12:14-0400\n"
+"POT-Creation-Date: 2017-03-30 20:15-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -62,15 +62,10 @@ msgstr "Evento deve ser uma string"
 msgid "Only tx and rx bytes files can be read"
 msgstr ""
 
-#: /var/www/fog/api/index.php:100 /var/www/fog/api/index.php:179
+#: /var/www/fog/api/index.php:186
 #, fuzzy
 msgid "Invalid item passed"
 msgstr "unidade inválido passado"
-
-#: /var/www/fog/api/index.php:116
-#, fuzzy
-msgid "Invalid object identifier"
-msgstr "tipo de objeto inválido passado"
 
 #: /var/www/fog/lib/fog/fogsubmenu.class.php:126
 #: /var/www/fog/lib/fog/fogsubmenu.class.php:180
@@ -6204,16 +6199,12 @@ msgstr "atribuição destruída"
 msgid "Routes should be an array or an instance of Traversable"
 msgstr ""
 
-#: /var/www/fog/lib/router/router.class.php:171
-msgid "Can not redeclare route"
-msgstr ""
-
-#: /var/www/fog/lib/router/router.class.php:200
+#: /var/www/fog/lib/router/router.class.php:211
 #, fuzzy
 msgid "Route"
 msgstr "Remover"
 
-#: /var/www/fog/lib/router/router.class.php:202
+#: /var/www/fog/lib/router/router.class.php:213
 #, fuzzy
 msgid "does not exist"
 msgstr "O método não existe"
@@ -9374,6 +9365,10 @@ msgstr "Olá Cliente FOG"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "Não há locais neste servidor."
+
+#, fuzzy
+#~ msgid "Invalid object identifier"
+#~ msgstr "tipo de objeto inválido passado"
 
 #~ msgid "Format"
 #~ msgstr "Formato"

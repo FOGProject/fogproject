@@ -168,8 +168,19 @@ class Router
         );
         if ($name) {
             if (isset($this->namedRoutes[$name])) {
-                throw new Exception(_('Can not redeclare route'));
-            }
+                // Add to the named route in a regex patern.
+                // If the route already exists, skip.
+                // If it doesn't exist append to the route list.
+                if (false !== strpos($route, $this->namedRoutes[$name])) {
+                    return;
+                }
+                $this->namedRoutes[$name] = sprintf(
+                    '%s|%s',
+                    $this->namedRoutes[$name],
+                    $route
+                );
+                return;
+            } 
             $this->namedRoutes[$name] = $route;
         }
         return;
@@ -265,11 +276,7 @@ class Router
         $match = false;
         // Set request url if it isn't passed as parameter
         if (null === $requestUrl) {
-            $requestUrl = (
-                isset($_SERVER['REQUEST_URI']) ?
-                $_SERVER['REQUEST_URI'] :
-                '/'
-            );
+            $requestUrl = $this->getRequestURI() ?: '/';
         }
         // Strip base path from the request url.
         $requestUrl = substr($requestUrl, strlen($this->basePath));
@@ -280,11 +287,7 @@ class Router
         }
         // Set request method if it isn't already passed.
         if (null === $requestMethod) {
-            $requestMethod = (
-                isset($_SERVER['REQUEST_METHOD']) ?
-                $_SERVER['REQUEST_METHOD'] :
-                'GET'
-            );
+            $requestMethod = $this->getRequestMethod() ?: '/';
         }
         foreach ($this->routes as $handler) {
             list(
@@ -307,6 +310,25 @@ class Router
                 $match = (1 === preg_match($pattern, $requestUrl, $params));
             } elseif (false === ($position = strpos($route, '['))) {
                 $match = (0 === strcmp($requestUrl, $route));
+                if (!$match) {
+                    $newroutes = explode('|', $route);
+                    $regexs = array();
+                    foreach ($newroutes as $newroute) {
+                        $regexs[] = trim(
+                            trim(
+                                $this->_compileRoute($newroute),
+                                'u'
+                            ),
+                            '`'
+                        );
+                    }
+                    $regex = sprintf(
+                        '`%s`u',
+                        implode('|', $regexs)
+                    );
+                    unset($regexs, $newroutes, $newroute);
+                    $match = (1 === preg_match($regex, $requestUrl));
+                }
             } else {
                 $optional = (
                     '?' === substr(
@@ -333,7 +355,22 @@ class Router
                 } elseif (0 !== strncmp($requestUrl, $route, $position)) {
                     continue;
                 }
-                $regex = $this->_compileRoute($route);
+                $newroutes = explode('|', $route);
+                $regexs = array();
+                foreach ($newroutes as $newroute) {
+                    $regexs[] = trim(
+                        trim(
+                            $this->_compileRoute($newroute),
+                            'u'
+                        ),
+                        '`'
+                    );
+                }
+                $regex = sprintf(
+                    '`%s`u',
+                    implode('|', $regexs)
+                );
+                unset($regexs, $newroutes, $newroute);
                 $match = (1 === preg_match($regex, $requestUrl, $params));
             }
             if ($match) {
@@ -345,15 +382,39 @@ class Router
                     }
                     $params['method'] = $requestMethod;
                 }
-                return array(
-                    'target' => $target,
-                    'params' => $params,
-                    'name' => $name
+                $result = $this->getMatchedResult(
+                    $target,
+                    $params,
+                    $name
                 );
+                if ($result) {
+                    return $result;
+                }
             }
             unset($handler);
         }
         return false;
+    }
+    /**
+     * Get the matched result to return.
+     * Allows user to override if need be.
+     *
+     * @param string $target The target.
+     * @param mixed  $params The params (how we call).
+     * @param string $name   The name of this match.
+     *
+     * @return array
+     */
+    protected function getMatchedResult(
+        $target,
+        $params,
+        $name
+    ) {
+        return array(
+            'target' => $target,
+            'params' => $params,
+            'name' => $name
+        );
     }
     /**
      * Compile the regex for the given route (EXPENSIVE)
@@ -393,5 +454,23 @@ class Router
             }
         }
         return "`^$route$`u";
+    }
+    /**
+     * Get request URI from $_SERVER
+     *
+     * @return string
+     */
+    protected function getRequestURI()
+    {
+        return filter_input(INPUT_SERVER, 'REQUEST_URI');
+    }
+    /**
+     * Get request method from $_SERVER
+     *
+     * @return string
+     */
+    protected function getRequestMethod()
+    {
+        return filter_input(INPUT_SERVER, 'REQUEST_METHOD');
     }
 }

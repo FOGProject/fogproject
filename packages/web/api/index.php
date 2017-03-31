@@ -77,19 +77,23 @@ $HookManager
         'API_VALID_CLASSES',
         array('validClasses' => &$validClasses)
     );
-$router = new Router;
-$router->map(
-    'GET',
-    '/system/[a:info]/?',
-    function ($info) {
-        if (in_array($info, array('status', 'info'))) {
-            http_response_code(200);
-            exit;
-        } else {
-            http_response_code(500);
-            exit;
-        }
+$status = function ($info) {
+    if (in_array($info, array('status', 'info'))) {
+        die(http_response_code(200));
+    } else {
+        die(http_response_code(501));
     }
+};
+$router = new Router(
+    array(
+        array(
+            'GET',
+            '/system/[a:info]?/?',
+            $status,
+            'status'
+        ),
+    ),
+    trim(WEB_ROOT, '/')
 );
 $router->map(
     'GET|POST|PUT',
@@ -97,24 +101,27 @@ $router->map(
     function ($class, $id, $method) use ($validClasses) {
         $classname = strtolower($class);
         if (!in_array($classname, $validClasses)) {
-            echo json_encode(_('Invalid item passed'));
-            http_response_code(404);
+            http_response_code(501);
         }
         $class = new $class($id);
+        if (!$class->isValid()) {
+            die(http_response_code(404));
+        }
         if (in_array($method, array('PUT', 'POST'))) {
             $vars = json_decode(
                 file_get_contents('php://input'),
                 true
             );
             foreach ($vars as $key => $val) {
+                if ($key == 'id') {
+                    continue;
+                }
                 $class->set($key, $val);
             }
-            $class->save();
-            http_response_code(200);
-        }
-        if (!$class->isValid()) {
-            echo json_encode(_('Invalid object identifier'));
-            http_response_code(500);
+            if ($class->save()) {
+                die(http_response_code(200));
+            }
+            die(http_response_code(500));
         }
         $data = array();
         switch ($classname) {
