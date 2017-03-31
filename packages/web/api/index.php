@@ -79,13 +79,18 @@ $HookManager
     );
 $status = function ($info) {
     if (in_array($info, array('status', 'info'))) {
-        die(http_response_code(200));
+        $code = HTTPResponseCodes::HTTP_SUCCESS;
     } else {
-        die(http_response_code(501));
+        $code = HTTPResponseCodes::HTTP_NOT_IMPLEMENTED;
     }
+    HTTPResponseCodes::breakHead(
+        $code
+    );
 };
 $router = new Router;
+// Set base path to what is found here.
 $router->setBasePath(trim(WEB_ROOT, '/'));
+// Create "checker" just to see if all is up and well.
 $router->get(
     '/system/[a:info]/?',
     $status,
@@ -97,11 +102,15 @@ $router->map(
     function ($class, $id, $method) use ($validClasses) {
         $classname = strtolower($class);
         if (!in_array($classname, $validClasses)) {
-            die(http_response_code(501));
+            HTTPResponseCodes::breakHead(
+                HTTPResponseCodes::HTTP_NOT_IMPLEMENTED
+            );
         }
         $class = new $class($id);
         if (!$class->isValid()) {
-            die(http_response_code(404));
+            HTTPResponseCodes::breakHead(
+                HTTPResponseCodes::HTTP_NOT_FOUND
+            );
         }
         if (in_array($method, array('PUT', 'POST'))) {
             $vars = json_decode(
@@ -115,9 +124,13 @@ $router->map(
                 $class->set($key, $val);
             }
             if ($class->save()) {
-                die(http_response_code(200));
+                $code = HTTPResponseCodes::HTTP_SUCCESS;
+            } else {
+                $code = HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR;
             }
-            die(http_response_code(500));
+            HTTPResponseCodes::breakHead(
+                $code
+            );
         }
         $data = array();
         switch ($classname) {
@@ -168,7 +181,7 @@ $router->map(
         default:
             $data = $class->get();
         }
-        echo json_encode($data, JSON_PRETTY_PRINT);
+        echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         exit;
     },
     'objEdit'
@@ -178,8 +191,9 @@ $router->get(
     function ($class) use ($validClasses) {
         $classname = strtolower($class);
         if (!in_array($classname, $validClasses)) {
-            echo json_encode(_('Invalid item passed'));
-            http_response_code(404);
+            HTTPResponseCodes::breakHead(
+                HTTPResponseCodes::HTTP_NOT_IMPLEMENTED
+            );
         }
         $classman = new $class;
         $classman = $classman->getManager();
@@ -226,11 +240,11 @@ $router->get(
                 );
                 break;
             default:
-                $data[$class.'s'][] = $class->get();
+                $data[$classname.'s'][] = $class->get();
             }
             unset($class);
         }
-        echo json_encode($data, JSON_PRETTY_PRINT);
+        echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPE_UNICODE);
         exit;
     },
     'objList'
@@ -239,5 +253,7 @@ $match = $router->match();
 if ($match && is_callable($match['target'])) {
     call_user_func_array($match['target'], $match['params']);
 } else {
-    http_response_code(404);
+    HTTPResponseCodes::breakHead(
+        HTTPResponseCodes::HTTP_NOT_FOUND
+    );
 }

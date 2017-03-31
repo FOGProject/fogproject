@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-31 08:17-0400\n"
+"POT-Creation-Date: 2017-03-31 08:50-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -61,11 +61,6 @@ msgstr "Event must be a string"
 #: /var/www/fog/status/bandwidth.php:50
 msgid "Only tx and rx bytes files can be read"
 msgstr ""
-
-#: /var/www/fog/api/index.php:181
-#, fuzzy
-msgid "Invalid item passed"
-msgstr "Invalid unit passed"
 
 #: /var/www/fog/lib/fog/fogsubmenu.class.php:126
 #: /var/www/fog/lib/fog/fogsubmenu.class.php:180
@@ -9356,6 +9351,10 @@ msgstr "Hello FOG Client"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "There are no locations on this server."
+
+#, fuzzy
+#~ msgid "Invalid item passed"
+#~ msgstr "Invalid unit passed"
 
 #, fuzzy
 #~ msgid "Invalid object identifier"

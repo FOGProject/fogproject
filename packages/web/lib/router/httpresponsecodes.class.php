@@ -229,4 +229,20 @@ class HTTPResponseCodes
     {
         return (is_numeric($code) && $code >= self::$_errorCodesBeginAt);
     }
+    /**
+     * Run the header based on code and exit.
+     *
+     * @param int $code The code to pass.
+     *
+     * @return void
+     */
+    public static function breakHead($code)
+    {
+        header(
+            self::getMessageForCode($code),
+            true,
+            $code
+        );
+        exit;
+    }
 }
