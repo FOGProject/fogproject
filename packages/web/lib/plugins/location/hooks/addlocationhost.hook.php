@@ -58,7 +58,7 @@ class AddLocationHost extends Hook
     {
         global $node;
         global $sub;
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         if ($node != 'host') {
@@ -80,7 +80,7 @@ class AddLocationHost extends Hook
     {
         global $node;
         global $sub;
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         if ($node != 'host') {
@@ -129,7 +129,7 @@ class AddLocationHost extends Hook
     {
         global $node;
         global $sub;
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         if ($node != 'host') {
@@ -174,7 +174,7 @@ class AddLocationHost extends Hook
      */
     public function hostAddLocation($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         global $node;
@@ -222,7 +222,7 @@ class AddLocationHost extends Hook
      */
     public function hostImport($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         self::getClass('LocationAssociation')
@@ -240,7 +240,7 @@ class AddLocationHost extends Hook
      */
     public function hostExport($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         $find = array(
@@ -277,7 +277,7 @@ class AddLocationHost extends Hook
      */
     public function hostDestroy($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         self::getClass('LocationAssociationManager')->destroy(
@@ -295,7 +295,7 @@ class AddLocationHost extends Hook
      */
     public function hostEmailHook($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         $Locations = self::getSubObjectIDs(
@@ -340,7 +340,7 @@ class AddLocationHost extends Hook
      */
     public function hostRegister($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         $cnt = self::getClass('LocationManager')
@@ -370,7 +370,7 @@ class AddLocationHost extends Hook
      */
     public function hostInfoExpose($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         $Locations = self::getSubObjectIDs(

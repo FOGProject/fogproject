@@ -138,7 +138,7 @@ class FOGConfigurationPage extends FOGPage
     public function license()
     {
         $this->title = _('FOG License Information');
-        $file = "./languages/{$_SESSION['locale']}.UTF-8/gpl-3.0.txt";
+        $file = "./languages/'.self::$locale.'.UTF-8/gpl-3.0.txt";
         if (($fh = fopen($file, 'rb')) === false) {
             return;
         }

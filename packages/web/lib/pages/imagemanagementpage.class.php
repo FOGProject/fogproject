@@ -55,7 +55,7 @@ class ImageManagementPage extends FOGPage
         /**
          * If we want the Server size taken by the image.
          */
-        $SizeServer = $_SESSION['FOG_FTP_IMAGE_SIZE'];
+        $SizeServer = self::getSetting('FOG_FTP_IMAGE_SIZE');
         /**
          * Get our nicer names.
          */

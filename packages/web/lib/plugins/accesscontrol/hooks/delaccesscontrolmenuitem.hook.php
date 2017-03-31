@@ -54,13 +54,13 @@ class DelAccessControlMenuItem extends Hook
      */
     public function deleteMenuData($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         $userID = self::getSubObjectIDs(
             'User',
             array(
-                'name' => $_SESSION['FOG_USERNAME']
+                'name' => self::$FOGUser->get('name')
             ),
             'id'
         );
@@ -101,13 +101,13 @@ class DelAccessControlMenuItem extends Hook
      */
     public function deleteSubMenuData($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         $userID = self::getSubObjectIDs(
             'User',
             array(
-                'name' => $_SESSION['FOG_USERNAME']
+                'name' => self::$FOGUser->get('name')
             ),
             'id'
         );

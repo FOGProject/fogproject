@@ -42,7 +42,7 @@ class HostManagementPage extends FOGPage
     {
         $this->name = 'Host Management';
         parent::__construct($this->name);
-        if ($_SESSION['Pending-Hosts']) {
+        if (self::$pendingHosts > 0) {
             $this->menu['pending'] = self::$foglang['PendingHosts'];
         }
         global $id;
@@ -165,7 +165,7 @@ class HostManagementPage extends FOGPage
             '<input type="checkbox" name="toggle-checkbox" '
             . 'class="toggle-checkboxAction"/>',
         );
-        $_SESSION['FOGPingActive'] ? array_push($this->headerData, '') : null;
+        self::$fogpingactive ? array_push($this->headerData, '') : null;
         array_push(
             $this->headerData,
             _('Host'),
@@ -179,7 +179,7 @@ class HostManagementPage extends FOGPage
             '<input type="checkbox" name="host[]" '
             . 'value="${id}" class="toggle-action"/>',
         );
-        if ($_SESSION['FOGPingActive']) {
+        if (self::$fogpingactive) {
             array_push(
                 $this->templates,
                 '${pingstatus}'
@@ -226,7 +226,7 @@ class HostManagementPage extends FOGPage
                 'width' => 16
             ),
         );
-        if ($_SESSION['FOGPingActive']) {
+        if (self::$fogpingactive) {
             array_push(
                 $this->attributes,
                 array(
@@ -2078,7 +2078,7 @@ class HostManagementPage extends FOGPage
             $createdBy = (
                 $log->get('createdBy') ?
                 $log->get('createdBy') :
-                $_SESSION['FOG_USERNAME']
+                self::$FOGUser->get('name')
             );
             $Image = self::getClass('Image')
                 ->set('name', $log->get('image'))

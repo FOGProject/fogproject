@@ -48,7 +48,6 @@ if (!in_array($node, $nodes)
         ->endBody()
         ->render();
 } else {
-    $_SESSION['AllowAJAXTasks'] = true;
     if (FOGCore::$ajax) {
         $FOGPageManager->render();
         exit;

@@ -190,7 +190,7 @@ class FOGPageManager extends FOGBase
             if (empty($method) || !method_exists($class, $method)) {
                 $method = 'index';
             }
-            $displayScreen = $_SESSION['FOG_VIEW_DEFAULT_SCREEN'];
+            $displayScreen = self::$defaultscreen;
             $displayScreen = strtolower($displayScreen);
             $displayScreen = trim($displayScreen);
             if (!array_key_exists($this->classValue, $this->_nodes)) {
@@ -349,7 +349,7 @@ class FOGPageManager extends FOGBase
                 preg_grep(
                     sprintf(
                         '#/(%s)/#',
-                        implode('|', $_SESSION['PluginsInstalled'])
+                        implode('|', self::$pluginsinstalled)
                     ),
                     array_map(
                         $fileitems,

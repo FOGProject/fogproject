@@ -501,7 +501,7 @@ class TaskManagementPage extends FOGPage
                 $enableDebug,
                 $enableSnapins,
                 $type === 'group',
-                $_SESSION['FOG_USERNAME'],
+                self::$FOGUser->get('name'),
                 false,
                 false,
                 $TaskType->isInitNeededTasking() || $TaskType->get('id') == 14

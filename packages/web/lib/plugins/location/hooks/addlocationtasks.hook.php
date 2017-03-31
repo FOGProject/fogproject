@@ -57,7 +57,7 @@ class AddLocationTasks extends Hook
     public function tasksActiveTableHeader($arguments)
     {
         global $node;
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         if ($node != 'task') {
@@ -75,7 +75,7 @@ class AddLocationTasks extends Hook
     public function tasksActiveData($arguments)
     {
         global $node;
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         if ($node != 'task') {

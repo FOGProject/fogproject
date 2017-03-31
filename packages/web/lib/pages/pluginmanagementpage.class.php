@@ -208,7 +208,10 @@ class PluginManagementPage extends FOGPage
             if ($tmpHash !== $hash) {
                 continue;
             }
-            $runner = $Plugin->getRunInclude($hash);
+            list(
+                $name,
+                $runner
+            ) = $Plugin->getRunInclude($hash);
             if (!file_exists($runner)) {
                 return $this->run($Plugin);
             }
@@ -264,7 +267,10 @@ class PluginManagementPage extends FOGPage
             if ($tmpHash !== $hash) {
                 continue;
             }
-            $runner = $Plugin->getRunInclude($hash);
+            list(
+                $name,
+                $runner
+            ) = $Plugin->getRunInclude($hash);
             if (!file_exists($runner)) {
                 return $this->run($Plugin);
             }
@@ -549,9 +555,12 @@ class PluginManagementPage extends FOGPage
      */
     public function installedPost()
     {
-        self::getClass('Plugin')->getRunInclude($_REQUEST['run']);
+        list(
+            $pluginname,
+            $entrypoint
+        ) = self::getClass('Plugin')->getRunInclude($_REQUEST['run']);
         $Plugin = self::getClass('Plugin')
-            ->set('name', $_SESSION['fogactiveplugin'])
+            ->set('name', $pluginname)
             ->load('name');
         try {
             if (!$Plugin->isValid()) {
