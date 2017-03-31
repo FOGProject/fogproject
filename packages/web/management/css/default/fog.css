@@ -600,20 +600,26 @@ pre {
     background-color: #bcbcbc;
 }
 /* Login Form */
+#loginform {
+    display: table;
+    width: 100%;
+}
 #login-form {
     margin: 20px auto;
-    width: 300px;
+    width: 600px;
+    text-align: center;
+    vertical-align: middle;
 }
 #login-form label {
-    float: left;
-    margin: 3px 0;
-    width: 80px;
+    clear: right;
+    display: inline-block;
+    text-align: right;
+    margin: 3px 5px;
+    width: 200px;
     font-size: 16px;
 }
 #login-form .input {
-    clear: right;
-    display: block;
-    margin: 5px 0 5px 0;
+    clear: left;
     padding: 4px;
     border: 1px solid #666;
     width: 210px;

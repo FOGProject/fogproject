@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-31 08:50-0400\n"
+"POT-Creation-Date: 2017-03-31 09:29-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -9353,12 +9353,11 @@ msgid "There are no locations on this server"
 msgstr "There are no locations on this server."
 
 #, fuzzy
-#~ msgid "Invalid item passed"
-#~ msgstr "Invalid unit passed"
+#~ msgid "StorageNode must be a valid node"
+#~ msgstr "Storage Node Max Clients"
 
-#, fuzzy
-#~ msgid "Invalid object identifier"
-#~ msgstr "Invalid object type passed"
+#~ msgid "Cannot connect to node."
+#~ msgstr "Cannot connect to node."
 
 #~ msgid "Format"
 #~ msgstr "Format"
@@ -9370,13 +9369,6 @@ msgstr "There are no locations on this server."
 #, fuzzy
 #~ msgid "Process Rule Changes"
 #~ msgstr "Process Group Changes"
-
-#, fuzzy
-#~ msgid "StorageNode must be a valid node"
-#~ msgstr "Storage Node Max Clients"
-
-#~ msgid "Cannot connect to node."
-#~ msgstr "Cannot connect to node."
 
 #, fuzzy
 #~ msgid "Partclone GZip"
