@@ -62,7 +62,9 @@ class AccessControlRuleAssociationManager extends FOGManagerController
                 false,
                 false
             ),
-            array(),
+            array(
+		array('rraRoleID','rraRuleID')
+		),
             'MyISAM',
             'utf8',
             'rraID',
