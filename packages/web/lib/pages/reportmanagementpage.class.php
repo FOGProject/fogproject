@@ -35,7 +35,7 @@ class ReportManagementPage extends FOGPage
     private static function _loadCustomReports()
     {
         $regext = '#^.+/reports/.*\.report\.php$#';
-        $dirpath = self::getSettings('FOG_REPORT_DIR');
+        $dirpath = self::getSetting('FOG_REPORT_DIR');
         $strlen = -strlen('.report.php');
         $RecursiveDirectoryIterator = new RecursiveDirectoryIterator(
             $dirpath,
