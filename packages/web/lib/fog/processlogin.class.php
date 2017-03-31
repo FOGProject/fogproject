@@ -297,7 +297,8 @@ class ProcessLogin extends FOGPage
             );
         }
         printf(
-            '<form method="post" action="%s" id="login-form">'
+            '<div id="loginform">'
+            . '<form method="post" action="%s" id="login-form">'
             . '<label for="username">%s</label>'
             . '<input type="text" class="input" name="uname" id="username"/>'
             . '<label for="password">%s</label>'
@@ -306,7 +307,7 @@ class ProcessLogin extends FOGPage
             . '<select name="ulang" id="language">%s</select>'
             . '<label for="login-form-submit"> </label>'
             . '<input type="submit" value="%s" id="login-form-submit" name="login"/>'
-            . '</form>%s',
+            . '</form></div>%s',
             $this->formAction,
             self::$foglang['Username'],
             self::$foglang['Password'],
