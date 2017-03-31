@@ -186,11 +186,11 @@ class DashboardPage extends FOGPage
             _('to review.')
         );
         $setMesg = '';
-        if ($_SESSION['Pending-Hosts']) {
+        if (self::$pendingHosts > 0) {
             $setMesg = $hostPend;
         }
-        if ($_SESSION['Pending-MACs']) {
-            if (empty($setMesage)) {
+        if (self::$pendingMACs > 0) {
+            if (empty($setMesg)) {
                 $setMesg = $macPend;
             } else {
                 $setMesg .= "<br/>$macPend";
@@ -201,8 +201,11 @@ class DashboardPage extends FOGPage
         }
         $SystemUptime = self::$FOGCore->systemUptime();
         $fields = array(
-            _('Username') => $_SESSION['FOG_USERNAME'],
-            _('Web Server') => $_SERVER['SERVER_ADDR'],
+            _('Username') => self::$FOGUser->get('name'),
+            _('Web Server') => filter_input(
+                INPUT_SERVER,
+                'SERVER_ADDR'
+            ),
             _('TFTP Server') => self::$_tftp,
             _('Load Average') => $SystemUptime['load'],
             _('System Uptime') => $SystemUptime['uptime']

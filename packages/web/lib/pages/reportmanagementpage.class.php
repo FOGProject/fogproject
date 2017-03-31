@@ -35,7 +35,7 @@ class ReportManagementPage extends FOGPage
     private static function _loadCustomReports()
     {
         $regext = '#^.+/reports/.*\.report\.php$#';
-        $dirpath = $_SESSION['FOG_REPORT_DIR'];
+        $dirpath = self::getSettings('FOG_REPORT_DIR');
         $strlen = -strlen('.report.php');
         $RecursiveDirectoryIterator = new RecursiveDirectoryIterator(
             $dirpath,
@@ -404,7 +404,7 @@ class ReportManagementPage extends FOGPage
             $createdBy = (
                 $ImagingLog->get('createdBy') ?
                 $ImagingLog->get('createdBy') :
-                $_SESSION['FOG_USERNAME']
+                self::$FOGUser->get('name')
             );
             $Image = self::getClass('Image')
                 ->set('name', $ImagingLog->get('image'))
@@ -668,7 +668,7 @@ class ReportManagementPage extends FOGPage
             _('Export PDF'),
             self::$pdffile
         );
-        if ($_SESSION['Pending-MACs']) {
+        if (self::$pendingMACs > 0) {
             printf(
                 '<a href="?node=report&sub=pendmac&aprvall=1">%s</a>',
                 _('Approve All Pending MACs for all hosts')

@@ -54,7 +54,7 @@ class AddBroadcastAddresses extends Hook
      */
     public function addBCaddr($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         $arguments['broadcast'] = self::fastmerge(

@@ -1391,7 +1391,7 @@ class Host extends FOGController
                 $this->set('imageID', $imageTaskImgID);
             }
             $isCapture = $TaskType->isCapture();
-            $username = ($username ? $username : $_SESSION['FOG_USERNAME']);
+            $username = ($username ? $username : self::$FOGUser->get('name'));
             if (!$Task->isValid()) {
                 $Task = $this->_createTasking(
                     $taskName,

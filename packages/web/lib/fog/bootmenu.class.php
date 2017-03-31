@@ -387,10 +387,6 @@ class BootMenu extends FOGBase
             $this->getTasking();
             exit;
         }
-        $_REQUEST['extraargs'] = trim($_REQUEST['extraargs']);
-        if ($_REQUEST['extraargs']) {
-            $_SESSION['extraargs'] = $_REQUEST['extraargs'];
-        }
         self::$HookManager->processEvent(
             'ALTERNATE_BOOT_CHECKS'
         );
@@ -566,11 +562,6 @@ class BootMenu extends FOGBase
             $Send['approvesuccess'] = array(
                 'echo Host approved successfully',
                 'sleep 3'
-            );
-            $shutdown = stripos('shutdown=1', $_SESSION['extraargs']);
-            $isdebug = preg_match(
-                '#isdebug=yes|mode=debug|mode=onlydebug#i',
-                $_SESSION['extraargs']
             );
             $this->_Host->createImagePackage(
                 10,
@@ -1031,11 +1022,6 @@ class BootMenu extends FOGBase
                     ->set('imageID', $msImage);
             }
         }
-        $shutdown = stripos('shutdown=1', $_SESSION['extraargs']);
-        $isdebug = preg_match(
-            '#isdebug=yes|mode=debug|mode=onlydebug#i',
-            $_SESSION['extraargs']
-        );
         if ($this->_Host->isValid()) {
             $this->_Host->createImagePackage(
                 8,
@@ -1213,11 +1199,6 @@ class BootMenu extends FOGBase
      */
     public function setTasking($imgID = '')
     {
-        $shutdown = stripos('shutdown=1', $_SESSION['extraargs']);
-        $isdebug = preg_match(
-            '#isdebug=yes|mode=debug|mode=onlydebug#i',
-            $_SESSION['extraargs']
-        );
         if (!$imgID) {
             $this->printImageList();
             return;

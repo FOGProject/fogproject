@@ -234,7 +234,6 @@ class User extends FOGController
                 ->set('authLastActivity', time())
                 ->set('authID', $this->_sessionID);
             $_SESSION['FOG_USER'] = $this->get('id');
-            $_SESSION['FOG_USERNAME'] = $this->get('name');
             self::log(
                 sprintf(
                     '%s %s.',
@@ -270,7 +269,6 @@ class User extends FOGController
                     ->set('authLastActivity', time())
                     ->set('authID', $this->_sessionID);
                 $_SESSION['FOG_USER'] = $this->get('id');
-                $_SESSION['FOG_USERNAME'] = $this->get('name');
                 self::log(
                     sprintf(
                         '%s %s.',
@@ -448,7 +446,6 @@ class User extends FOGController
         $this->set('authLastActivity', time());
         if (!isset($_SESSION['FOG_USER'])) {
             $_SESSION['FOG_USER'] = $this->get('id');
-            $_SESSION['FOG_USERNAME'] = $this->get('name');
         }
         return true;
     }
@@ -468,7 +465,6 @@ class User extends FOGController
         if (session_status() == PHP_SESSION_NONE) {
             return;
         }
-        $locale = $_SESSION['locale'];
         $messages = $_SESSION['FOG_MESSAGES'];
         // Destroy session
         unset($this->_sessionID);
@@ -482,7 +478,6 @@ class User extends FOGController
         session_write_close();
         session_start();
         $_SESSION=array();
-        $_SESSION['locale'] = $locale;
         if (isset($messages)) {
             self::setMessage($messages);
         }

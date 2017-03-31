@@ -24,6 +24,42 @@
 abstract class FOGBase
 {
     /**
+     * Locale
+     *
+     * @var string
+     */
+    public static $locale = '';
+    /**
+     * Ping is active?
+     *
+     * @var bool
+     */
+    public static $fogpingactive = false;
+    /**
+     * The pending macs count.
+     *
+     * @var int
+     */
+    public static $pendingMACs = 0;
+    /**
+     * The pending hosts count.
+     *
+     * @var int
+     */
+    public static $pendingHosts = 0;
+    /**
+     * Default screen.
+     *
+     * @var string
+     */
+    public static $defaultscreen = '';
+    /**
+     * Plugins installed.
+     *
+     * @var array
+     */
+    public static $pluginsinstalled = array();
+    /**
      * User agent string.
      *
      * @var string
@@ -330,12 +366,19 @@ abstract class FOGBase
      */
     public function __construct()
     {
-        if (isset($_SERVER['HTTP_USER_AGENT'])) {
-            self::$useragent = $_SERVER['HTTP_USER_AGENT'];
-        }
+        self::$useragent = self::_getUserAgent();
         self::_init();
 
         return $this;
+    }
+    /**
+     * Return the user agent.
+     *
+     * @return string
+     */
+    private static function _getUserAgent()
+    {
+        return filter_input(INPUT_SERVER, 'HTTP_USER_AGENT');
     }
     /**
      * Defines string as class name.
@@ -1768,8 +1811,12 @@ abstract class FOGBase
         if (!$string) {
             return;
         }
-        $name = $_SESSION['FOG_USERNAME'] ? $_SESSION['FOG_USERNAME'] : 'fog';
-        if ($_SESSION['FOG_USER'] < 1) {
+        $name = (
+            self::$FOGUser->isValid() ?
+            self::$FOGUser->get('name') :
+            'fog'
+        );
+        if (!self::$FOGUser->isValid()) {
             return;
         }
         if (self::$DB) {

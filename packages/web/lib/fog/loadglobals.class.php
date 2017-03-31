@@ -41,8 +41,7 @@ class LoadGlobals extends FOGBase
         DatabaseManager::establish();
         $GLOBALS['DB'] = DatabaseManager::getDB();
         $GLOBALS['FOGCore'] = new FOGCore();
-        FOGCore::setSessionEnv();
-        $GLOBALS['TimeZone'] = $_SESSION['TimeZone'];
+        FOGCore::setEnv();
         if (isset($_SESSION['FOG_USER'])) {
             $GLOBALS['currentUser'] = new User($_SESSION['FOG_USER']);
         } else {
