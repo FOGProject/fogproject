@@ -20,11 +20,17 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
-session_write_close();
-session_destroy();
-unset($_SESSION);
+// If a session was active, kill it.
+if (count($_SESSION) > 0) {
+    session_write_close();
+    session_destroy();
+    unset($_SESSION);
+}
+// Allow to process in background as needed.
 ignore_user_abort(true);
+// Allow infinite time to process as this is an api.
 set_time_limit(0);
+// Set up our current valid classes.
 $validClasses = array(
     'clientupdate',
     'dircleaner',
@@ -77,11 +83,28 @@ $validClasses = array(
     'usertracking',
     'virus'
 );
+/**
+ * Create a hook event so people can add to the
+ * valid class elements.
+ */
 $HookManager
     ->processEvent(
         'API_VALID_CLASSES',
         array('validClasses' => &$validClasses)
     );
+/**
+ * ##################################################
+ * # Functions below simply perform common actions. #
+ * ##################################################
+ */
+/**
+ * Function prints the appropriate error codes
+ * if status or info is requested from the system.
+ *
+ * @param string $info The string to test.
+ *
+ * @return void
+ */
 $status = function ($info) {
     if (in_array($info, array('status', 'info'))) {
         $code = HTTPResponseCodes::HTTP_SUCCESS;
@@ -92,82 +115,195 @@ $status = function ($info) {
         $code
     );
 };
+/**
+ * Checks if the class callers are valid. If not
+ * it will die with not implemented.
+ *
+ * @param string $class The class to test.
+ *
+ * @return void
+ */
+$checkvalid = function ($class) use ($validClasses) {
+    $classname = strtolower($class);
+    if (!in_array($classname, $validClasses)) {
+        HTTPResponseCodes::breakHead(
+            HTTPResponseCodes::HTTP_NOT_IMPLEMENTED
+        );
+    }
+};
+/**
+ * This is a commonizing element so list/search/getinfo
+ * will operate in the same fasion.
+ *
+ * @param string $classname The name of the class.
+ * @param object $class     The class to work with.
+ *
+ * @return object|array
+ */
+$getter = function ($classname, $class) {
+    global $HookManager;
+    switch ($classname) {
+    case 'user':
+        $data = array(
+            'id' => $class->get('id'),
+            'name' => $class->get('name'),
+            'createdTime' => $class->get('createdTime'),
+            'createdBy' => $class->get('createdBy'),
+            'type' => $class->get('type'),
+            'display' => $class->get('display')
+        );
+        break;
+    case 'host':
+        $data = FOGCore::fastmerge(
+            $class->get(),
+            array(
+                'ADPass' => (string)FOGCore::aesdecrypt(
+                    $class->get('ADPass')
+                ),
+                'productKey' => (string)FOGCore::aesdecrypt(
+                    $class->get('productKey')
+                ),
+                'primac' => $class->get('mac')->__toString(),
+                'imagename' => $class->getImageName(),
+                'hostscreen' => $class->get('hostscreen')->get(),
+                'hostalo' => $class->get('hostalo')->get(),
+                'inventory' => $class->get('inventory')->get()
+            )
+        );
+        break;
+    case 'image':
+        $data = FOGCore::fastmerge(
+            $class->get(),
+            array(
+                'os' => $class->get('os')->get(),
+                'imagepartitiontype' => $class->get('os')->get(),
+                'imagetype' => $class->get('imagetype')->get(),
+                'imagetypename' => $class->getImageType()->get('name'),
+                'imageparttypename' => $class->getImagePartitionType()->get('name'),
+                'osname' => $class->getOS()->get('name'),
+                'storagegroupname' => $class->getStorageGroup()->get('name')
+            )
+        );
+        break;
+    case 'storagenode':
+        $data = FOGCore::fastmerge(
+            $class->get(),
+            array(
+                'storagegroup' => $class->get('storagegroup')->get()
+            )
+        );
+        break;
+    default:
+        $data = $class->get();
+    }
+    $HookManager
+        ->processEvent(
+            'API_GETTER',
+            array(
+                'data' => &$data,
+                'classname' => &$classname,
+                'class' => &$class
+            )
+        );
+    return $data;
+};
+/**
+ * Common printer of our data.
+ *
+ * @param mixed $data The data to encode.
+ *
+ * @return void
+ */
+$printer = function ($data) {
+    echo json_encode(
+        $data,
+        JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
+    );
+    exit;
+};
+/**
+ * ##################################################
+ * #           The meat and potatoes now.           #
+ * ##################################################
+ */
+// Instantiate the router object
 $router = new Router;
 // Set base path to what is found here.
-$router->setBasePath(trim(WEB_ROOT, '/'));
+$router->setBasePath(
+    trim(
+        WEB_ROOT,
+        '/'
+    )
+);
 // Create "checker" just to see if all is up and well.
 $router->get(
     '/system/[a:info]/?',
     $status,
     'status'
 );
+// Individual object getter, updater.
 $router->map(
     'GET|POST|PUT',
     '/[a:class]/[i:id]/?',
-    function ($class, $id, $method) use ($validClasses) {
+    /**
+     * Function enables individual object manipulation.
+     * 
+     * @param string $class  The class to work with.
+     * @param int    $id     The class id.
+     * @param string $method The method used for the request.
+     *
+     * @return void
+     */
+    function (
+        $class,
+        $id,
+        $method
+    ) use (
+        $checkvalid,
+        $getter,
+        $printer
+    ) {
+        // Allows our hooks.
         global $HookManager;
+        // Check valid object to test.
+        $checkvalid($class);
+        // Lowercase the class name.
         $classname = strtolower($class);
-        if (!in_array($classname, $validClasses)) {
-            HTTPResponseCodes::breakHead(
-                HTTPResponseCodes::HTTP_NOT_IMPLEMENTED
-            );
-        }
+        // Get the current object.
         $class = new $class($id);
+        // If not valid report not found and exit.
         if (!$class->isValid()) {
             HTTPResponseCodes::breakHead(
                 HTTPResponseCodes::HTTP_NOT_FOUND
             );
         }
+        // If this is a put or post request, perform actions.
         if (in_array($method, array('PUT', 'POST'))) {
+            // Decode the input.
             $vars = json_decode(
                 file_get_contents('php://input'),
                 true
             );
+            // Loop our input.
             foreach ($vars as $key => $val) {
+                // We don't allow editing the id.
                 if ($key == 'id') {
                     continue;
                 }
+                // Update the respective key.
                 $class->set($key, $val);
             }
+            // Store the data, if failed break.
             if ($class->save()) {
-                $code = HTTPResponseCodes::HTTP_SUCCESS;
+                $class = new $class($id);
             } else {
-                $code = HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR;
+                HTTPResponseCodes::breakHead(
+                    HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
+                );
             }
-            HTTPResponseCodes::breakHead(
-                $code
-            );
         }
         $data = array();
-        switch ($classname) {
-        case 'user':
-            $data = array(
-                'id' => (int)$class->get('id'),
-                'name' => (string)$class->get('name'),
-                'display' => (string)$class->get('display'),
-            );
-            break;
-        case 'host':
-            $data = FOGCore::fastmerge(
-                $class->get(),
-                array(
-                    'ADPass' => (string)FOGCore::aesdecrypt(
-                        $class->get('ADPass')
-                    ),
-                    'productKey' => (string)FOGCore::aesdecrypt(
-                        $class->get('productKey')
-                    ),
-                    'primac' => $class->get('mac')->__toString(),
-                    'imagename' => $class->getImageName(),
-                    'hostscreen' => '',
-                    'hostalo' => '',
-                    'inventory' => ''
-                )
-            );
-            break;
-        default:
-            $data = $class->get();
-        }
+        $data = $getter($classname, $class);
         $HookManager
             ->processEvent(
                 'API_INDIVDATA_MAPPING',
@@ -178,70 +314,54 @@ $router->map(
                     'method' => &$method
                 )
             );
-        echo json_encode(
-            $data,
-            JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
-        );
-        exit;
+        $printer($data);
     },
     'objEdit'
 );
 $router->get(
-    '/[a:class]/?',
-    function ($class) use ($validClasses) {
+    '/[a:class]/search/[*:item]/?',
+    /**
+     * Function handles search.
+     *
+     * @param string $class The class to work with.
+     * @param mixed  $item  The item we want to search for.
+     *
+     * @return void
+     */
+    function (
+        $class,
+        $item
+    ) use (
+        $checkvalid,
+        $getter,
+        $printer
+    ) {
         global $HookManager;
+        $checkvalid($class);
         $classname = strtolower($class);
-        if (!in_array($classname, $validClasses)) {
-            HTTPResponseCodes::breakHead(
-                HTTPResponseCodes::HTTP_NOT_IMPLEMENTED
-            );
+        $_REQUEST['crit'] = $item;
+        $classman = FOGCore::getClass($class)->getManager();
+        $data = array();
+        $data[$classname.'s'] = array();
+        foreach ($classman->search('', true) as &$class) {
+            $data[$classname.'s'][] = $getter($classname, $class);
+            unset($class);
         }
-        $classman = new $class;
-        $classman = $classman->getManager();
+        $printer($data);
+    },
+    'objSearch'
+);
+$router->get(
+    '/[a:class]/?',
+    function ($class) use ($checkvalid, $getter, $printer) {
+        global $HookManager;
+        $checkvalid($class);
+        $classname = strtolower($class);
+        $classman = FOGCore::getClass($class)->getManager();
         $data = array();
         $data[$classname.'s'] = array();
         foreach ($classman->find() as &$class) {
-            switch ($classname) {
-            case 'image':
-                $data[$classname.'s'][] = FOGCore::fastmerge(
-                    $class->get(),
-                    array(
-                        'imagetypename' => $class
-                            ->getImageType()
-                            ->get('name'),
-                        'imageparttypename' => $class
-                            ->getImagePartitionType()
-                            ->get('name'),
-                        'osname' => $class
-                            ->getOS()
-                            ->get('name'),
-                        'storagegroupname' => $class
-                            ->getStorageGroup()
-                            ->get('name')
-                    )
-                );
-                break;
-            case 'host':
-                $data[$classname.'s'][] = FOGCore::fastmerge(
-                    $class->get(),
-                    array(
-                        'ADPass' => (string)FOGCore::aesdecrypt(
-                            $class->get('ADPass')
-                        ),
-                        'productKey' => (string)FOGCore::aesdecrypt(
-                            $class->get('productKey')
-                        ),
-                        'primac' => $class->get('mac')->__toString(),
-                        'imagename' => $class->getImageName(),
-                        'hostscreen' => '',
-                        'hostalo' => '',
-                        'inventory' => ''
-                    )
-                );
-                break;
-            default:
-                $data[$classname.'s'][] = $class->get();
-            }
+            $data[$classname.'s'][] = $getter($classname, $class);
             unset($class);
         }
         $HookManager
@@ -254,11 +374,7 @@ $router->get(
                     'method' => &$method
                 )
             );
-        echo json_encode(
-            $data,
-            JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
-        );
-        exit;
+        $printer($data);
     },
     'objList'
 );
