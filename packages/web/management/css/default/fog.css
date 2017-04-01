@@ -628,12 +628,13 @@ pre {
     width: 210px;
 }
 #login-form select {
+    clear: left;
     border: 1px solid #666;
-    width: 210px;
+    width: 220px;
 }
 #login-form-submit {
-    min-width: 210px;
-    margin: 10px 10px 0 0;
+    min-width: 220px;
+    margin: 10px 5px;
 }
 #login-form-submit:hover {
     border: 1px solid #fff;
@@ -648,7 +649,7 @@ pre {
     color: #333;
     font-size: 12px;
     box-shadow: 0 0 10px #bbb;
-    margin-top: 50px;
+    margin-top: 10px;
     border-radius: 3px;
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
