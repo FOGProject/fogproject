@@ -20,6 +20,11 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
+session_write_close();
+session_destroy();
+unset($_SESSION);
+ignore_user_abort(true);
+set_time_limit(0);
 $validClasses = array(
     'clientupdate',
     'dircleaner',
@@ -143,40 +148,21 @@ $router->map(
             );
             break;
         case 'host':
-            $data = array(
-                'id' => (int)$class->get('id'),
-                'name' => (string)$class->get('name'),
-                'macs' => (array)$class->getMyMacs(),
-                'description' => (string)$class->get('description'),
-                'ip' => (string)$class->get('ip'),
-                'imageID' => (int)$class->get('imageID'),
-                'building' => (string)$class->get('building'),
-                'useAD' => (bool)$class->get('useAD'),
-                'ADDomain' => (string)$class->get('ADDomain'),
-                'ADOU' => (string)$class->get('ADOU'),
-                'ADUser' => (string)$class->get('ADUser'),
-                'ADPass' => (string)FOGCore::aesdecrypt(
-                    $class->get('ADPass')
-                ),
-                'ADPassLegacy' => (string)$class->get('ADPassLegacy'),
-                'productKey' => (string)FOGCore::aesdecrypt(
-                    $class->get('productKey')
-                ),
-                'printerLevel' => (string)$class->get('printerLevel'),
-                'kernelArgs' => (string)$class->get('kernelArgs'),
-                'kernel' => (string)$class->get('kernel'),
-                'kernelDevice' => (string)$class->get('kernelDevice'),
-                'init' => (string)$class->get('init'),
-                'pending' => (bool)$class->get('pending'),
-                'biosexit' => (string)$class->get('biosexit'),
-                'efiexit' => (string)$class->get('efiexit'),
-                'enforce' => (bool)$class->get('enforce'),
-                'inventory' => $class->get('inventory')->get(),
-                'groups' => (array)$class->get('groups'),
-                'printers' => (array)$class->get('printers'),
-                'snapins' => (array)$class->get('snapins'),
-                'modules' => (array)$class->get('modules'),
-                'powermanagementtasks' => (array)$class->get('powermanagementtasks'),
+            $data = FOGCore::fastmerge(
+                $class->get(),
+                array(
+                    'ADPass' => (string)FOGCore::aesdecrypt(
+                        $class->get('ADPass')
+                    ),
+                    'productKey' => (string)FOGCore::aesdecrypt(
+                        $class->get('productKey')
+                    ),
+                    'primac' => $class->get('mac')->__toString(),
+                    'imagename' => $class->getImageName(),
+                    'hostscreen' => '',
+                    'hostalo' => '',
+                    'inventory' => ''
+                )
             );
             break;
         default:
@@ -236,44 +222,21 @@ $router->get(
                 );
                 break;
             case 'host':
-                $data[$classname.'s'][] = array(
-                    'id' => (int)$class->get('id'),
-                    'name' => (string)$class->get('name'),
-                    'macs' => (array)$class->getMyMacs(),
-                    'deployed' => $class->get('deployed'),
-                    'imagename' => $class->getImageName(),
-                    'pingstatus' => $class->getPingCodeStr(),
-                    'description' => (string)$class->get('description'),
-                    'ip' => (string)$class->get('ip'),
-                    'imageID' => (int)$class->get('imageID'),
-                    'building' => (string)$class->get('building'),
-                    'useAD' => (bool)$class->get('useAD'),
-                    'ADDomain' => (string)$class->get('ADDomain'),
-                    'ADOU' => (string)$class->get('ADOU'),
-                    'ADUser' => (string)$class->get('ADUser'),
-                    'ADPass' => (string)FOGCore::aesdecrypt(
-                        $class->get('ADPass')
-                    ),
-                    'ADPassLegacy' => (string)$class->get('ADPassLegacy'),
-                    'productKey' => (string)FOGCore::aesdecrypt(
-                        $class->get('productKey')
-                    ),
-                    'printerLevel' => (string)$class->get('printerLevel'),
-                    'kernelArgs' => (string)$class->get('kernelArgs'),
-                    'kernel' => (string)$class->get('kernel'),
-                    'kernelDevice' => (string)$class->get('kernelDevice'),
-                    'init' => (string)$class->get('init'),
-                    'pending' => (bool)$class->get('pending'),
-                    'biosexit' => (string)$class->get('biosexit'),
-                    'efiexit' => (string)$class->get('efiexit'),
-                    'enforce' => (bool)$class->get('enforce'),
-                    'inventory' => $class->get('inventory')->get(),
-                    'groups' => (array)$class->get('groups'),
-                    'printers' => (array)$class->get('printers'),
-                    'snapins' => (array)$class->get('snapins'),
-                    'modules' => (array)$class->get('modules'),
-                    'powermanagementtasks' => (array)
-                        $class->get('powermanagementtasks'),
+                $data[$classname.'s'][] = FOGCore::fastmerge(
+                    $class->get(),
+                    array(
+                        'ADPass' => (string)FOGCore::aesdecrypt(
+                            $class->get('ADPass')
+                        ),
+                        'productKey' => (string)FOGCore::aesdecrypt(
+                            $class->get('productKey')
+                        ),
+                        'primac' => $class->get('mac')->__toString(),
+                        'imagename' => $class->getImageName(),
+                        'hostscreen' => '',
+                        'hostalo' => '',
+                        'inventory' => ''
+                    )
                 );
                 break;
             default:
