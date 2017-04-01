@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-31 19:47-0400\n"
+"POT-Creation-Date: 2017-03-31 22:51-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -6162,6 +6162,20 @@ msgstr "销毁作业"
 msgid "Destroyed assignment"
 msgstr "销毁作业"
 
+#: /var/www/fog/lib/router/router.class.php:129
+msgid "Routes should be an array or an instance of Traversable"
+msgstr ""
+
+#: /var/www/fog/lib/router/router.class.php:236
+#, fuzzy
+msgid "Route"
+msgstr "去掉"
+
+#: /var/www/fog/lib/router/router.class.php:238
+#, fuzzy
+msgid "does not exist"
+msgstr "方法不存在"
+
 #: /var/www/fog/lib/plugins/slack/class/slack.class.php:19
 msgid "Channel call is invalid"
 msgstr "通道调用无效"
@@ -9313,12 +9327,8 @@ msgid "There are no locations on this server"
 msgstr "有此服务器上没有的位置。"
 
 #, fuzzy
-#~ msgid "Route"
-#~ msgstr "去掉"
-
-#, fuzzy
-#~ msgid "does not exist"
-#~ msgstr "方法不存在"
+#~ msgid "All done"
+#~ msgstr "所有主机"
 
 #~ msgid "FOG Session Invalid"
 #~ msgstr "FOG会话无效"

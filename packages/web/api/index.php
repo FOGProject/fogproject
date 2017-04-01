@@ -100,6 +100,7 @@ $router->map(
     'GET|POST|PUT',
     '/[a:class]/[i:id]/?',
     function ($class, $id, $method) use ($validClasses) {
+        global $HookManager;
         $classname = strtolower($class);
         if (!in_array($classname, $validClasses)) {
             HTTPResponseCodes::breakHead(
@@ -181,7 +182,20 @@ $router->map(
         default:
             $data = $class->get();
         }
-        echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        $HookManager
+            ->processEvent(
+                'API_INDIVDATA_MAPPING',
+                array(
+                    'data' => &$data,
+                    'classname' => &$classname,
+                    'class' => &$class,
+                    'method' => &$method
+                )
+            );
+        echo json_encode(
+            $data,
+            JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
+        );
         exit;
     },
     'objEdit'
@@ -189,6 +203,7 @@ $router->map(
 $router->get(
     '/[a:class]/?',
     function ($class) use ($validClasses) {
+        global $HookManager;
         $classname = strtolower($class);
         if (!in_array($classname, $validClasses)) {
             HTTPResponseCodes::breakHead(
@@ -201,11 +216,33 @@ $router->get(
         $data[$classname.'s'] = array();
         foreach ($classman->find() as &$class) {
             switch ($classname) {
+            case 'image':
+                $data[$classname.'s'][] = FOGCore::fastmerge(
+                    $class->get(),
+                    array(
+                        'imagetypename' => $class
+                            ->getImageType()
+                            ->get('name'),
+                        'imageparttypename' => $class
+                            ->getImagePartitionType()
+                            ->get('name'),
+                        'osname' => $class
+                            ->getOS()
+                            ->get('name'),
+                        'storagegroupname' => $class
+                            ->getStorageGroup()
+                            ->get('name')
+                    )
+                );
+                break;
             case 'host':
                 $data[$classname.'s'][] = array(
                     'id' => (int)$class->get('id'),
                     'name' => (string)$class->get('name'),
                     'macs' => (array)$class->getMyMacs(),
+                    'deployed' => $class->get('deployed'),
+                    'imagename' => $class->getImageName(),
+                    'pingstatus' => $class->getPingCodeStr(),
                     'description' => (string)$class->get('description'),
                     'ip' => (string)$class->get('ip'),
                     'imageID' => (int)$class->get('imageID'),
@@ -244,7 +281,20 @@ $router->get(
             }
             unset($class);
         }
-        echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPE_UNICODE);
+        $HookManager
+            ->processEvent(
+                'API_MASSDATA_MAPPING',
+                array(
+                    'data' => &$data,
+                    'classname' => &$classname,
+                    'classman' => &$classman,
+                    'method' => &$method
+                )
+            );
+        echo json_encode(
+            $data,
+            JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
+        );
         exit;
     },
     'objList'
