@@ -394,6 +394,6 @@ if ($match && is_callable($match['target'])) {
     call_user_func_array($match['target'], $match['params']);
 } else {
     HTTPResponseCodes::breakHead(
-        HTTPResponseCodes::HTTP_NOT_FOUND
+        HTTPResponseCodes::HTTP_NOT_IMPLEMENTED
     );
 }
