@@ -45,6 +45,12 @@ class AltoRouter
      */
     protected $basePath = '';
     /**
+     * Can be used to set case sensitivity.
+     *
+     * @var bool
+     */
+    protected $ignoreCase = false;
+    /**
      * Array of default match types (regex helpers)
      *
      * @var array
@@ -70,6 +76,7 @@ class AltoRouter
      * @param string $basePath      The basePath at instantiation time.
      * @param array  $matchTypes    Any additions matching types you'd like.
      * @param array  $defaultParams Any default parameters.
+     * @param bool   $ignoreCase    Ignore the case in matching?
      *
      * @return void
      */
@@ -77,12 +84,14 @@ class AltoRouter
         $routes = array(),
         $basePath = '',
         $matchTypes = array(),
-        $defaultParams = array()
+        $defaultParams = array(),
+        $ignoreCase = false
     ) {
         $this->addRoutes($routes);
         $this->setBasePath($basePath);
         $this->addMatchTypes($matchTypes);
         $this->addDefaultParams($defaultParams);
+        $this->setIgnoreCase($ignoreCase);
     }
     /**
      * Magic method to route get, put, post, patch, and delete
@@ -166,6 +175,15 @@ class AltoRouter
         return $this->getDefaultParams();
     }
     /**
+     * Returns ignore case value.
+     *
+     * @return bool
+     */
+    public function getIgnoreCase()
+    {
+        return $this->ignoreCase;
+    }
+    /**
      * Add multiple routes at once from array in the following format:
      *
      *   $routes = array(
@@ -204,6 +222,18 @@ class AltoRouter
     public function setBasePath($basePath)
     {
         $this->basePath = $basePath;
+    }
+    /**
+     * Set the ignore case value.
+     * Useful to enable/disable case sensitivity.
+     *
+     * @param bool $ignoreCase Set or not?
+     *
+     * @return void
+     */
+    public function setIgnoreCase($ignoreCase)
+    {
+        $this->ignoreCase = (bool)$ignoreCase;
     }
     /**
      * Add named match types. It uses array_merge so keys can be overwritten.
@@ -391,7 +421,10 @@ class AltoRouter
                 && $route[0] === '@'
             ) {
                 // @ regex delimiter
-                $pattern = '`' . substr($route, 1) . '`u';
+                $pattern = '`'
+                    . substr($route, 1)
+                    . '`u'
+                    . ($this->ignoreCase ? 'i' : null);
                 $match = (1 === preg_match($pattern, $requestUrl, $params));
             } elseif (false === ($position = strpos($route, '['))) {
                 // No params in url, do string comparison
@@ -486,8 +519,9 @@ class AltoRouter
             }
         }
         return sprintf(
-            '`^%s$`u',
-            $route
+            '`^%s$`u%s',
+            $route,
+            ($this->ignoreCase ? 'i' : null)
         );
     }
     /**

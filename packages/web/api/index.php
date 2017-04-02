@@ -227,7 +227,7 @@ $printer = function ($data) {
 $router = new AltoRouter;
 // Set base path to what is found here.
 $router->setBasePath(
-    trim(
+    rtrim(
         WEB_ROOT,
         '/'
     )
