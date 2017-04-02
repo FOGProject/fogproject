@@ -255,6 +255,32 @@ class HostManagementPage extends FOGPage
          *
          * @return void
          */
+        /**
+         * Use when api is established.
+        self::$returnData = function (&$Host) {
+            $this->data[] = array(
+                'id' => $Host->id,
+                'deployed' => self::formatTime(
+                    $Host->deployed,
+                    'Y-m-d H:i:s'
+                ),
+                'host_name' => $Host->name,
+                'host_mac' => $Host->primac,
+                'host_desc' => $Host->description,
+                'image_id' => $Host->imageID,
+                'image_name' => $Host->imagename,
+                'pingstatus' => $Host->pingstatus,
+            );
+            unset($Host);
+        };
+         */
+        /**
+         * Lambda function to return data either by list or search.
+         *
+         * @param object $Host the object to use.
+         *
+         * @return void
+         */
         self::$returnData = function (&$Host) {
             $this->data[] = array(
                 'id' => $Host->get('id'),

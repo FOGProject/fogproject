@@ -55,7 +55,7 @@ $validClasses = array(
     'moduleassociation',
     'module',
     'multicastsessionsassociation',
-    'multicastsessionsmanager',
+    'multicastsessions',
     'nodefailure',
     'notifyevent',
     'os',
@@ -64,7 +64,7 @@ $validClasses = array(
     'powermanagement',
     'printerassociation',
     'printer',
-    'pxemenuoptionsmanager',
+    'pxemenuoptions',
     'scheduledtask',
     'service',
     'snapinassociation',
@@ -162,7 +162,9 @@ $getter = function ($classname, $class) {
                 'imagename' => $class->getImageName(),
                 'hostscreen' => $class->get('hostscreen')->get(),
                 'hostalo' => $class->get('hostalo')->get(),
-                'inventory' => $class->get('inventory')->get()
+                'inventory' => $class->get('inventory')->get(),
+                'imagename' => $class->getImageName(),
+                'pingstatus' => $class->getPingCodeStr()
             )
         );
         break;
