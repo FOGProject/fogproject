@@ -74,7 +74,7 @@ class AltoRouter
         $this->addMatchTypes($matchTypes);
     }
     /**
-     * Magic method to route get, put, patch, delete, and post
+     * Magic method to route get, put, post, patch, and delete
      * to the map method. So you can call router->get(...) or
      * router->post(...) without constant rewriting.
      *
@@ -96,18 +96,21 @@ class AltoRouter
         $name = strtolower($name);
         $validTypes = array(
             'get' => 'GET',
-            'patch' => 'PATCH',
-            'post' => 'POST',
             'put' => 'PUT',
+            'post' => 'POST',
+            'patch' => 'PATCH',
             'delete' => 'DELETE'
         );
+        // If method type is invalid don't do anything.
         if (!isset($validTypes[$name])) {
             return;
         }
+        // Prepend the type to our arguments to pass to the map.
         array_unshift(
             $arguments,
             $validTypes[$name]
         );
+        // Pass to the map method.
         call_user_func_array(
             array($this, 'map'),
             $arguments
@@ -244,7 +247,7 @@ class AltoRouter
         $url = $this->basePath . $route;
         $pattern = '`(/|\.|)\[([^:\]]*+)(?::([^:\]]*+))?\](\?|)`';
         if (preg_match_all($pattern, $route, $matches, PREG_SET_ORDER)) {
-            foreach ($matches as $match) {
+            foreach ($matches as $index => $match) {
                 list(
                     $block,
                     $pre,
@@ -256,14 +259,21 @@ class AltoRouter
                     $block = substr($block, 1);
                 }
                 if (isset($params[$param])) {
+                    // Part is found, replace for param value.
                     $url = str_replace(
                         $block,
                         $params[$param],
                         $url
                     );
-                } elseif ($optional) {
+                } elseif ($optional && $index !== 0) {
                     $url = str_replace(
                         $pre . $block,
+                        '',
+                        $url
+                    );
+                } else {
+                    $url = str_replace(
+                        $block,
                         '',
                         $url
                     );
@@ -411,7 +421,9 @@ class AltoRouter
                     . '('
                     . ('' !== $param ? "?P<$param>" : null)
                     . $type
-                    . '))'
+                    . ')'
+                    . ('' !== $optional ? '?' : null)
+                    . ')'
                     . ('' !== $optional ? '?' : null);
                 $route = str_replace($block, $pattern, $route);
             }
@@ -460,5 +472,23 @@ class AltoRouter
             'params' => $params,
             'name' => $name
         );
+    }
+    /**
+     * Returns the named routes.
+     *
+     * @return array
+     */
+    protected function getNamedRoutes()
+    {
+        return $this->namedRoutes;
+    }
+    /**
+     * Returns the base path.
+     *
+     * @return array
+     */
+    protected function getBasePath()
+    {
+        return $this->basePath;
     }
 }

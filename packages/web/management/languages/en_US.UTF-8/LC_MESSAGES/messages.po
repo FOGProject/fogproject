@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-02 00:10-0400\n"
+"POT-Creation-Date: 2017-04-02 11:53-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -47,11 +47,6 @@ msgstr "Unable to open file for reading"
 #: /var/www/fog/status/logtoview.php:162
 msgid "IP Passed is incorrect"
 msgstr "IP Passed is incorrect"
-
-#: /var/www/fog/status/injectHosts.php:75
-#, fuzzy
-msgid "All done"
-msgstr "All Hosts"
 
 #: /var/www/fog/status/bandwidth.php:44
 #, fuzzy
@@ -6195,11 +6190,11 @@ msgstr "Destroyed assignment"
 msgid "Destroyed assignment"
 msgstr "Destroyed assignment"
 
-#: /var/www/fog/lib/router/altorouter.class.php:148
+#: /var/www/fog/lib/router/altorouter.class.php:151
 msgid "Routes should be an array or an instance of Traversable"
 msgstr ""
 
-#: /var/www/fog/lib/router/altorouter.class.php:211
+#: /var/www/fog/lib/router/altorouter.class.php:214
 msgid "Can not redeclare route"
 msgstr ""
 
@@ -9355,6 +9350,10 @@ msgstr "Hello FOG Client"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "There are no locations on this server."
+
+#, fuzzy
+#~ msgid "All done"
+#~ msgstr "All Hosts"
 
 #, fuzzy
 #~ msgid "Route"
