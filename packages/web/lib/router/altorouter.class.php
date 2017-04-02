@@ -23,7 +23,7 @@
  * @license  http://opensource.org/licenses/MIT MIT
  * @link     https://github.com/dannyvankooten/AltoRouter
  */
-class Router
+class AltoRouter
 {
     /**
      * Array of all routes (incl. named routes).

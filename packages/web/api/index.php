@@ -222,7 +222,7 @@ $printer = function ($data) {
  * ##################################################
  */
 // Instantiate the router object
-$router = new Router;
+$router = new AltoRouter;
 // Set base path to what is found here.
 $router->setBasePath(
     trim(
