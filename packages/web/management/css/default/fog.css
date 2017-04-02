@@ -118,7 +118,9 @@ input, textarea, select {
     padding: 4px 4px;
 }
 select:not([name=ulang]):not([name=nodesel]):not([name=groupsel]) {
-    min-width: 220px;
+    min-width: 210px;
+    max-width: 220px;
+    width: 210px;
 }
 input[type=text], input[type=search], input[type=password] {
     width: 210px;

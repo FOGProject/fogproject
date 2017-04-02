@@ -547,6 +547,29 @@ abstract class FOGPage extends FOGBase
                     'pending' => array(0, '')
                 );
             }
+            /**
+             * Use for when api is established.
+            $url = sprintf(
+                'http%s://%s%s%s',
+                filter_input(INPUT_SERVER, 'HTTPS') ? 's' : '',
+                filter_input(INPUT_SERVER, 'HTTP_HOST'),
+                (
+                    trim(WEB_ROOT, '/') ?
+                    '/'.trim(WEB_ROOT, '/').'/' :
+                    '/'
+                ),
+                strtolower($this->childClass)
+            );
+            $items = self::$FOGURLRequests
+                ->process(
+                    $url
+                );
+            $items = json_decode(
+                $items[0]
+            );
+            $type = $_REQUEST['node'].'s';
+            $items = $items->$type;
+             */
             $items = (array)self::getClass($manager)->find($find);
             if (count($items) > 0) {
                 array_walk($items, static::$returnData);
