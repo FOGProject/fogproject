@@ -428,13 +428,7 @@ class AltoRouter
      */
     protected function getRequestURI()
     {
-        // ** Preferred method when tests are fixed.
-        //return filter_input(INPUT_SERVER, 'REQUEST_URI');
-        return (
-            isset($_SERVER['REQUEST_URI']) ?
-            $_SERVER['REQUEST_URI'] :
-            ''
-        );
+        return filter_input(INPUT_SERVER, 'REQUEST_URI');
     }
     /**
      * Get request method from $_SERVER
@@ -443,13 +437,7 @@ class AltoRouter
      */
     protected function getRequestMethod()
     {
-        // ** Preferred method when tests are fixed.
-        //return filter_input(INPUT_SERVER, 'REQUEST_METHOD');
-        return (
-            isset($_SERVER['REQUEST_METHOD']) ?
-            $_SERVER['REQUEST_METHOD'] :
-            ''
-        );
+        return filter_input(INPUT_SERVER, 'REQUEST_METHOD');
     }
     /**
      * Get the matched result to return.
