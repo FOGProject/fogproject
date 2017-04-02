@@ -106,13 +106,8 @@ $HookManager
  * @return void
  */
 $status = function ($info) {
-    if (in_array($info, array('status', 'info'))) {
-        $code = HTTPResponseCodes::HTTP_SUCCESS;
-    } else {
-        $code = HTTPResponseCodes::HTTP_NOT_IMPLEMENTED;
-    }
     HTTPResponseCodes::breakHead(
-        $code
+        HTTPResponseCodes::HTTP_SUCCESS
     );
 };
 /**
@@ -237,11 +232,13 @@ $router->setBasePath(
 );
 // Create "checker" just to see if all is up and well.
 $router->get(
-    '/system/[a:info]/?',
+    '/system/[status|info:info]/?',
     $status,
     'status'
 );
-// Individual object getter, updater.
+/**
+ * Get/update item. /<class>/:<id>/
+ */
 $router->map(
     'GET|POST|PUT',
     '/[a:class]/[i:id]/?',
@@ -293,7 +290,8 @@ $router->map(
                 // Update the respective key.
                 $class->set($key, $val);
             }
-            // Store the data, if failed break.
+            // Store the data and recreate.
+            // If failed present so.
             if ($class->save()) {
                 $class = new $class($id);
             } else {
@@ -302,8 +300,11 @@ $router->map(
                 );
             }
         }
+        // Set our store up.
         $data = array();
+        // Get our data.
         $data = $getter($classname, $class);
+        // Enable hooks to get in and adjust as needed.
         $HookManager
             ->processEvent(
                 'API_INDIVDATA_MAPPING',
@@ -314,10 +315,14 @@ $router->map(
                     'method' => &$method
                 )
             );
+        // Print the data.
         $printer($data);
     },
     'objEdit'
 );
+/**
+ * Search element. /<class>/search/<whattosearch>/
+ */
 $router->get(
     '/[a:class]/search/[*:item]/?',
     /**
