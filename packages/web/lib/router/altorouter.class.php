@@ -203,9 +203,12 @@ class AltoRouter
         if (!is_array($routes)
             && !$routes instanceof \Traversable
         ) {
-            throw new \Exception(
-                _('Routes should be an array or an instance of Traversable')
-            );
+            $msg = _('Routes should be an array or an instance of Traversable');
+            if (defined('HHVM_VERSION')) {
+                $msg 
+                    = 'Routes should be an array or an instance of Traversable';
+            }
+            throw new \Exception($msg);
         }
         foreach ($routes as $route) {
             call_user_func_array(array($this, 'map'), $route);
@@ -290,13 +293,19 @@ class AltoRouter
         $this->routes[] = array($method, $route, $target, $name);
         if ($name) {
             if (isset($this->namedRoutes[$name])) {
-                throw new \Exception(
-                    sprintf(
-                        "%s '%s'",
-                        _('Can not redeclare route'),
-                        $name
-                    )
+                $msg = sprintf(
+                    "%s '%s'",
+                    _('Can not redeclare route'),
+                    $name
                 );
+                if (defined('HHVM_VERSION')) {
+                    $msg = sprintf(
+                        "%s '%s'",
+                        'Can not redeclare route',
+                        $name
+                    );
+                }
+                throw new \Exception($msg);
             }
             $this->namedRoutes[$name] = $route;
         }
@@ -499,6 +508,7 @@ class AltoRouter
                     $param,
                     $optional
                 ) = $match;
+                $optional = ('' !== $optional ? '?' : null);
                 if (isset($matchTypes[$type])) {
                     $type = $matchTypes[$type];
                 }
@@ -512,9 +522,9 @@ class AltoRouter
                     . ('' !== $param ? "?P<$param>" : null)
                     . $type
                     . ')'
-                    . ('' !== $optional ? '?' : null)
+                    . $optional
                     . ')'
-                    . ('' !== $optional ? '?' : null);
+                    . $optional;
                 $route = str_replace($block, $pattern, $route);
             }
         }
