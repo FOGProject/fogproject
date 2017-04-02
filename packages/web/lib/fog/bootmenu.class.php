@@ -1653,7 +1653,16 @@ class BootMenu extends FOGBase
     private function _menuItem($option, $desc)
     {
         $name = preg_replace('#[\s]+#', '_', $option->get('name'));
-        return array("item $name $desc");
+        $hotkey = ' ';
+        if ($option->get('hotkey')) {
+            if ($option->get('keysequence')) {
+                $hotkey = sprintf(
+                    ' --key %s ',
+                    $option->get('keysequence')
+                );
+            }
+        }
+        return array("item${hotkey}${name} ${desc}");
     }
     /**
      * The options of the menu

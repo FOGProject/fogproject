@@ -650,6 +650,12 @@ class FOGConfigurationPage extends FOGPage
                 ' checked' :
                 ''
             );
+            $hotKey = (
+                $Menu->get('hotkey') ?
+                ' checked' :
+                ''
+            );
+            $keySeq = $Menu->get('keysequence');
             $fields = array(
                 _('Menu Item:') => sprintf(
                     '<input type="text" name="menu_item" value='
@@ -674,6 +680,14 @@ class FOGConfigurationPage extends FOGPage
                 _('Default Item:') => sprintf(
                     '<input type="checkbox" name="menu_default" value="1"%s/>',
                     $menuDefault
+                ),
+                _('Hot Key Enabled') => sprintf(
+                    '<input type="checkbox" name="hotkey"%s/>',
+                    $hotKey
+                ),
+                _('Hot Key to use') => sprintf(
+                    '<input type="text" name="keysequence" value="%s"/>',
+                    $keySeq
                 ),
                 _('Menu Show with:') => self::getClass(
                     'PXEMenuOptionsManager'
@@ -752,7 +766,9 @@ class FOGConfigurationPage extends FOGPage
                         'params' => $_REQUEST['menu_params'],
                         'regMenu' => $_REQUEST['menu_regmenu'],
                         'args' => $_REQUEST['menu_options'],
-                        'default' => $_REQUEST['menu_default']
+                        'default' => $_REQUEST['menu_default'],
+                        'hotkey' => isset($_REQUEST['hotkey']),
+                        'keysequence' => $_REQUEST['keysequence']
                     )
                 );
             if ($_REQUEST['menu_default']) {

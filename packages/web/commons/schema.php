@@ -3707,3 +3707,8 @@ $this->schema[] = array(
     . "UNIQUE INDEX `name` (`neName`)"
     . ") ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
 );
+// 255
+$this->schema[] = array(
+    "ALTER TABLE `pxeMenu` ADD `pxeHotKeyEnable` ENUM('0','1') NOT NULL",
+    "ALTER TABLE `pxeMenu` ADD `pxeKeySequence` VARCHAR(255) NOT NULL"
+);
