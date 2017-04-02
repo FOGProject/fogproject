@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-31 23:29-0400\n"
+"POT-Creation-Date: 2017-04-01 20:40-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -6302,18 +6302,13 @@ msgstr "Destruir fallado: %s"
 msgid "Destroyed assignment"
 msgstr "Destruir fallado: %s"
 
-#: /var/www/fog/lib/router/router.class.php:129
+#: /var/www/fog/lib/router/altorouter.class.php:148
 msgid "Routes should be an array or an instance of Traversable"
 msgstr ""
 
-#: /var/www/fog/lib/router/router.class.php:236
-msgid "Route"
+#: /var/www/fog/lib/router/altorouter.class.php:211
+msgid "Can not redeclare route"
 msgstr ""
-
-#: /var/www/fog/lib/router/router.class.php:238
-#, fuzzy
-msgid "does not exist"
-msgstr "Método no existe"
 
 #: /var/www/fog/lib/plugins/slack/class/slack.class.php:19
 msgid "Channel call is invalid"
@@ -9642,3 +9637,7 @@ msgstr "Legado FOG Cliente"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "No hay grupos en este servidor."
+
+#, fuzzy
+#~ msgid "does not exist"
+#~ msgstr "Método no existe"

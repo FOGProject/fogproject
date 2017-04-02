@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-31 23:29-0400\n"
+"POT-Creation-Date: 2017-04-01 20:40-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -6180,19 +6180,13 @@ msgstr "Destroyed assignment"
 msgid "Destroyed assignment"
 msgstr "Destroyed assignment"
 
-#: /var/www/fog/lib/router/router.class.php:129
+#: /var/www/fog/lib/router/altorouter.class.php:148
 msgid "Routes should be an array or an instance of Traversable"
 msgstr ""
 
-#: /var/www/fog/lib/router/router.class.php:236
-#, fuzzy
-msgid "Route"
-msgstr "Remove"
-
-#: /var/www/fog/lib/router/router.class.php:238
-#, fuzzy
-msgid "does not exist"
-msgstr "Method does not exist"
+#: /var/www/fog/lib/router/altorouter.class.php:211
+msgid "Can not redeclare route"
+msgstr ""
 
 #: /var/www/fog/lib/plugins/slack/class/slack.class.php:19
 msgid "Channel call is invalid"
@@ -9346,6 +9340,14 @@ msgstr "Hello FOG Client"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "There are no locations on this server."
+
+#, fuzzy
+#~ msgid "Route"
+#~ msgstr "Remove"
+
+#, fuzzy
+#~ msgid "does not exist"
+#~ msgstr "Method does not exist"
 
 #, fuzzy
 #~ msgid "All done"
