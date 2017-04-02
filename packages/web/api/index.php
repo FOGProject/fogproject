@@ -238,12 +238,16 @@ $router->get(
     $status,
     'status'
 );
+$expandedClasses = sprintf(
+    '[%s:class]',
+    implode('|', $validClasses)
+);
 /**
  * Get/update item. /<class>/:<id>/
  */
 $router->map(
     'GET|POST|PUT',
-    '/[a:class]/[i:id]/?',
+    "/${expandedClasses}/[i:id]/?",
     /**
      * Function enables individual object manipulation.
      * 
@@ -326,7 +330,7 @@ $router->map(
  * Search element. /<class>/search/<whattosearch>/
  */
 $router->get(
-    '/[a:class]/search/[*:item]/?',
+    "/${expandedClasses}/search/[*:item]/?",
     /**
      * Function handles search.
      *
@@ -359,7 +363,7 @@ $router->get(
     'objSearch'
 );
 $router->get(
-    '/[a:class]/?',
+    "/${expandedClasses}/?",
     function ($class) use ($checkvalid, $getter, $printer) {
         global $HookManager;
         $checkvalid($class);

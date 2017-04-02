@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-02 11:53-0400\n"
+"POT-Creation-Date: 2017-04-02 12:48-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -6312,11 +6312,11 @@ msgstr "Destruir fallado: %s"
 msgid "Destroyed assignment"
 msgstr "Destruir fallado: %s"
 
-#: /var/www/fog/lib/router/altorouter.class.php:151
+#: /var/www/fog/lib/router/altorouter.class.php:189
 msgid "Routes should be an array or an instance of Traversable"
 msgstr ""
 
-#: /var/www/fog/lib/router/altorouter.class.php:214
+#: /var/www/fog/lib/router/altorouter.class.php:266
 msgid "Can not redeclare route"
 msgstr ""
 
