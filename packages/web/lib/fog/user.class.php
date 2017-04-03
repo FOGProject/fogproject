@@ -233,7 +233,9 @@ class User extends FOGController
                 ->set('authTime', time())
                 ->set('authLastActivity', time())
                 ->set('authID', $this->_sessionID);
-            $_SESSION['FOG_USER'] = $this->get('id');
+            if (session_status() != PHP_SESSION_NONE) {
+                $_SESSION['FOG_USER'] = $this->get('id');
+            }
             self::log(
                 sprintf(
                     '%s %s.',
@@ -268,7 +270,9 @@ class User extends FOGController
                     ->set('authTime', time())
                     ->set('authLastActivity', time())
                     ->set('authID', $this->_sessionID);
-                $_SESSION['FOG_USER'] = $this->get('id');
+                if (session_status() != PHP_SESSION_NONE) {
+                    $_SESSION['FOG_USER'] = $this->get('id');
+                }
                 self::log(
                     sprintf(
                         '%s %s.',
@@ -307,7 +311,7 @@ class User extends FOGController
                 )
             );
             self::setMessage(self::$foglang['InvalidLogin']);
-            if (!isset($_SESSION['OBSOLETE'])) {
+            if (session_status() != PHP_SESSION_NONE) {
                 $_SESSION['OBSOLETE'] = true;
             }
         }
@@ -382,55 +386,57 @@ class User extends FOGController
             );
             $this->_checkedalready = true;
         }
-        $_SESSION['OBSOLETE'] = false;
-        if (!$this->get('authIP')
-            || !$this->get('authUserAgent')
-        ) {
-            return false;
-        } elseif ($this->get('authIP')
-            && $this->get('authIP') != $_SERVER['REMOTE_ADDR']
-        ) {
-            if (!$_SESSION['FOG_MESSAGES']) {
-                self::setMessage(_('IP Address Changed'));
-            }
-            if (isset($_SESSION['OBSOLETE'])) {
-                $_SESSION['OBSOLETE'] = true;
-            }
-        } elseif ($this->get('authUserAgent')
-            && $this->get('authUserAgent') != $_SERVER['HTTP_USER_AGENT']
-        ) {
-            if (!$_SESSION['FOG_MESSAGES']) {
-                self::setMessage(_('User Agent Changed'));
-            }
-            if (isset($_SESSION['OBSOLETE'])) {
-                $_SESSION['OBSOLETE'] = true;
-            }
-        } elseif ($this->get('authID')
-            && $this->_sessionID != $this->get('authID')
-        ) {
-            if (!$_SESSION['FOG_MESSAGES']) {
-                self::setMessage(_('Session altered improperly'));
-            }
-            if (isset($_SESSION['OBSOLETE'])) {
-                $_SESSION['OBSOLETE'] = true;
-            }
-        } elseif ($this->get('authLastActivity')
-            && !$this->_alwaysloggedin
-        ) {
-            $active = time() - $this->get('authLastActivity');
-            $timeout = $this->_inactivitySessionTimeout * 60 * 60;
-            if ($active >= $timeout) {
-                self::setMessage(self::$foglang['SessionTimeout']);
+        if (session_status() != PHP_SESSION_NONE) {
+            $_SESSION['OBSOLETE'] = false;
+            if (!$this->get('authIP')
+                || !$this->get('authUserAgent')
+            ) {
+                return false;
+            } elseif ($this->get('authIP')
+                && $this->get('authIP') != $_SERVER['REMOTE_ADDR']
+            ) {
+                if (!$_SESSION['FOG_MESSAGES']) {
+                    self::setMessage(_('IP Address Changed'));
+                }
                 if (isset($_SESSION['OBSOLETE'])) {
                     $_SESSION['OBSOLETE'] = true;
                 }
+            } elseif ($this->get('authUserAgent')
+                && $this->get('authUserAgent') != $_SERVER['HTTP_USER_AGENT']
+            ) {
+                if (!$_SESSION['FOG_MESSAGES']) {
+                    self::setMessage(_('User Agent Changed'));
+                }
+                if (isset($_SESSION['OBSOLETE'])) {
+                    $_SESSION['OBSOLETE'] = true;
+                }
+            } elseif ($this->get('authID')
+                && $this->_sessionID != $this->get('authID')
+            ) {
+                if (!$_SESSION['FOG_MESSAGES']) {
+                    self::setMessage(_('Session altered improperly'));
+                }
+                if (isset($_SESSION['OBSOLETE'])) {
+                    $_SESSION['OBSOLETE'] = true;
+                }
+            } elseif ($this->get('authLastActivity')
+                && !$this->_alwaysloggedin
+            ) {
+                $active = time() - $this->get('authLastActivity');
+                $timeout = $this->_inactivitySessionTimeout * 60 * 60;
+                if ($active >= $timeout) {
+                    self::setMessage(self::$foglang['SessionTimeout']);
+                    if (isset($_SESSION['OBSOLETE'])) {
+                        $_SESSION['OBSOLETE'] = true;
+                    }
+                }
             }
-        }
-        if (isset($_SESSION['OBSOLETE'])
-            && $_SESSION['OBSOLETE']
-        ) {
-            $_SESSION['OBSOLETE'] = false;
-            self::redirect('index.php?node=logout');
+            if (isset($_SESSION['OBSOLETE'])
+                && $_SESSION['OBSOLETE']
+            ) {
+                $_SESSION['OBSOLETE'] = false;
+                self::redirect('index.php?node=logout');
+            }
         }
         $authTime = time() - $this->get('authTime');
         $regenTime = $this->_regenerateSessionTimeout * 60 * 60;
@@ -444,8 +450,10 @@ class User extends FOGController
                 ->set('authTime', time());
         }
         $this->set('authLastActivity', time());
-        if (!isset($_SESSION['FOG_USER'])) {
-            $_SESSION['FOG_USER'] = $this->get('id');
+        if (session_status() != PHP_SESSION_NONE) {
+            if (!isset($_SESSION['FOG_USER'])) {
+                $_SESSION['FOG_USER'] = $this->get('id');
+            }
         }
         return true;
     }

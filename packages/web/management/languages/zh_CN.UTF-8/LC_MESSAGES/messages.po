@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-02 13:02-0400\n"
+"POT-Creation-Date: 2017-04-02 21:09-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -442,7 +442,7 @@ msgid "Array type"
 msgstr "数据数组"
 
 #: /var/www/fog/lib/fog/fogcontroller.class.php:909
-#: /var/www/fog/lib/fog/fogbase.class.php:2167
+#: /var/www/fog/lib/fog/fogbase.class.php:2178
 #: /var/www/fog/lib/fog/fogftp.class.php:370
 #: /var/www/fog/lib/pages/taskmobile.class.php:45
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1003
@@ -631,103 +631,103 @@ msgstr "事件必须是字符串"
 msgid "Invalid Host"
 msgstr "无效的主机"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:783
-#: /var/www/fog/lib/fog/fogbase.class.php:813
+#: /var/www/fog/lib/fog/fogbase.class.php:788
+#: /var/www/fog/lib/fog/fogbase.class.php:818
 #, fuzzy
 msgid "Key must be a string or index"
 msgstr "事件必须是字符串"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:837
+#: /var/www/fog/lib/fog/fogbase.class.php:842
 msgid "Key must be an array of keys or a string."
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1042
-#: /var/www/fog/lib/fog/fogbase.class.php:1055
+#: /var/www/fog/lib/fog/fogbase.class.php:1053
+#: /var/www/fog/lib/fog/fogbase.class.php:1066
 msgid "No Data"
 msgstr "没有数据"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1052
+#: /var/www/fog/lib/fog/fogbase.class.php:1063
 msgid "Not a number"
 msgstr "不是一个数字"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1132
+#: /var/www/fog/lib/fog/fogbase.class.php:1143
 msgid "Space variable must be boolean"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1157
+#: /var/www/fog/lib/fog/fogbase.class.php:1168
 msgid "Ago must be boolean"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1250
+#: /var/www/fog/lib/fog/fogbase.class.php:1261
 msgid "Diff parameter must be numeric"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1253
+#: /var/www/fog/lib/fog/fogbase.class.php:1264
 #, fuzzy
 msgid "Unit of time must be a string"
 msgstr "事件必须是字符串"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1257
+#: /var/www/fog/lib/fog/fogbase.class.php:1268
 #, fuzzy
 msgid "In"
 msgstr "在"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1260
+#: /var/www/fog/lib/fog/fogbase.class.php:1271
 #, fuzzy
 msgid "ago"
 msgstr "前"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1288
+#: /var/www/fog/lib/fog/fogbase.class.php:1299
 #, fuzzy
 msgid "Old key must be a string"
 msgstr "事件必须是字符串"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1291
+#: /var/www/fog/lib/fog/fogbase.class.php:1302
 #, fuzzy
 msgid "New key must be a string"
 msgstr "事件必须是字符串"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1508
+#: /var/www/fog/lib/fog/fogbase.class.php:1519
 msgid "Private key path not found"
 msgstr "私钥未找到路径"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1521
+#: /var/www/fog/lib/fog/fogbase.class.php:1532
 msgid "Private key not found"
 msgstr "私钥未找到"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1524
+#: /var/www/fog/lib/fog/fogbase.class.php:1535
 msgid "Private key not readable"
 msgstr "私钥不可读"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1529
+#: /var/www/fog/lib/fog/fogbase.class.php:1540
 msgid "Private key failed"
 msgstr "私钥失败"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1548
+#: /var/www/fog/lib/fog/fogbase.class.php:1559
 msgid "Failed to decrypt data"
 msgstr "数据解密失败"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1772
+#: /var/www/fog/lib/fog/fogbase.class.php:1783
 #, fuzzy
 msgid "Txt must be a string"
 msgstr "事件必须是字符串"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1775
+#: /var/www/fog/lib/fog/fogbase.class.php:1786
 #, fuzzy
 msgid "Level must be an integer"
 msgstr "事件必须是字符串"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1803
+#: /var/www/fog/lib/fog/fogbase.class.php:1814
 #, fuzzy
 msgid "String must be a string"
 msgstr "事件必须是字符串"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1929
+#: /var/www/fog/lib/fog/fogbase.class.php:1940
 #, fuzzy
 msgid "Key must be a string"
 msgstr "事件必须是字符串"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2169
+#: /var/www/fog/lib/fog/fogbase.class.php:2180
 #: /var/www/fog/lib/fog/fogftp.class.php:372
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2284
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:85
@@ -738,12 +738,12 @@ msgstr "事件必须是字符串"
 msgid "File"
 msgstr "文件"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2171
+#: /var/www/fog/lib/fog/fogbase.class.php:2182
 #: /var/www/fog/lib/fog/fogftp.class.php:374
 msgid "Line"
 msgstr "线"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2173
+#: /var/www/fog/lib/fog/fogbase.class.php:2184
 #: /var/www/fog/lib/fog/fogftp.class.php:376
 #: /var/www/fog/lib/db/mysql.class.php:189
 msgid "Message"
@@ -864,24 +864,24 @@ msgstr "场和值不具有相等的参数。"
 msgid "Need the table name to drop"
 msgstr ""
 
-#: /var/www/fog/lib/fog/user.class.php:241
-#: /var/www/fog/lib/fog/user.class.php:276
+#: /var/www/fog/lib/fog/user.class.php:243
+#: /var/www/fog/lib/fog/user.class.php:280
 msgid "user successfully logged in"
 msgstr "用户成功登录"
 
-#: /var/www/fog/lib/fog/user.class.php:290
+#: /var/www/fog/lib/fog/user.class.php:294
 msgid "user failed to login"
 msgstr "用户登录失败"
 
-#: /var/www/fog/lib/fog/user.class.php:394
+#: /var/www/fog/lib/fog/user.class.php:399
 msgid "IP Address Changed"
 msgstr "更改IP地址"
 
-#: /var/www/fog/lib/fog/user.class.php:403
+#: /var/www/fog/lib/fog/user.class.php:408
 msgid "User Agent Changed"
 msgstr "用户代理更改"
 
-#: /var/www/fog/lib/fog/user.class.php:412
+#: /var/www/fog/lib/fog/user.class.php:417
 msgid "Session altered improperly"
 msgstr "会议修改不当"
 
@@ -6172,6 +6172,14 @@ msgstr "销毁作业"
 msgid "Destroyed assignment"
 msgstr "销毁作业"
 
+#: /var/www/fog/lib/router/altorouter.class.php:206
+msgid "Routes should be an array or an instance of Traversable"
+msgstr ""
+
+#: /var/www/fog/lib/router/altorouter.class.php:298
+msgid "Can not redeclare route"
+msgstr ""
+
 #: /var/www/fog/lib/plugins/slack/class/slack.class.php:19
 msgid "Channel call is invalid"
 msgstr "通道调用无效"
@@ -8346,7 +8354,7 @@ msgstr "FOG主机和用户登录"
 msgid "Classname must be a string"
 msgstr "事件必须是字符串"
 
-#: /var/www/fog/commons/init.php:488
+#: /var/www/fog/commons/init.php:494
 #, fuzzy
 msgid "Missing one or more extensions."
 msgstr "缺少扩展"

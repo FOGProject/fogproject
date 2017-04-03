@@ -1010,7 +1010,7 @@ class BootMenu extends FOGBase
             return;
         }
         $msImage = $MultiSess->getImage()->get('id');
-        if ($this->_Host->isValid()) {
+        if ($this->_Host->isValid() && !$this->_Host->get('pending')) {
             $h_Image = 0;
             $Image = $this->_Host->getImage();
             if ($Image instanceof Image) {
@@ -1022,7 +1022,7 @@ class BootMenu extends FOGBase
                     ->set('imageID', $msImage);
             }
         }
-        if ($this->_Host->isValid()) {
+        if ($this->_Host->isValid() && !$this->_Host->get('pending')) {
             $this->_Host->createImagePackage(
                 8,
                 $MultiSess->get('name'),

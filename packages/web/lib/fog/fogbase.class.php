@@ -709,7 +709,9 @@ abstract class FOGBase
      */
     protected static function setMessage($txt, $data = array())
     {
-        $_SESSION['FOG_MESSAGES'] = self::_setString($txt, $data);
+        if (session_status() != PHP_SESSION_NONE) {
+            $_SESSION['FOG_MESSAGES'] = self::_setString($txt, $data);
+        }
     }
     /**
      * Gets message banner and prepares to display it.
@@ -718,6 +720,9 @@ abstract class FOGBase
      */
     protected static function getMessages()
     {
+        if (session_status() == PHP_SESSION_NONE) {
+            return;
+        }
         if (!isset($_SESSION['FOG_MESSAGES'])) {
             $_SESSION['FOG_MESSAGES'] = array();
         }
@@ -899,6 +904,9 @@ abstract class FOGBase
      */
     protected static function resetRequest()
     {
+        if (session_status() == PHP_SESSION_NONE) {
+            return;
+        }
         if (!isset($_SESSION['post_request_vals'])) {
             $_SESSION['post_request_vals'] = array();
         }
@@ -919,6 +927,9 @@ abstract class FOGBase
      */
     protected function setRequest()
     {
+        if (session_status() == PHP_SESSION_NONE) {
+            return;
+        }
         if (!isset($_SESSION['post_request_vals'])) {
             $_SESSION['post_request_vals'] = array();
         }

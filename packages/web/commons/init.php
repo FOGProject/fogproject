@@ -193,7 +193,13 @@ class Initiator
          * and the Session hasn't been started,
          * Start the session.
          */
-        if ($self && $useragent && !isset($_SESSION)) {
+        $script = filter_input(INPUT_SERVER, 'SCRIPT_NAME');
+        if ($self
+            && $useragent
+            && file_exists(BASEPATH . $script)
+            && session_status() == PHP_SESSION_NONE
+            && false === stripos($script, '/api/')
+        ) {
             session_start();
         }
     }
@@ -210,7 +216,7 @@ class Initiator
         /**
          * If session isn't set return immediately.
          */
-        if (!isset($_SESSION)) {
+        if (session_status() != PHP_SESSION_NONE) {
             return;
         }
         $_SESSION[$key] = $value;
@@ -224,7 +230,7 @@ class Initiator
      */
     public static function unsetSession($key)
     {
-        if (!isset($_SESSION)) {
+        if (session_status() != PHP_SESSION_NONE) {
             return;
         }
         $_SESSION[$key] = ' ';
@@ -239,8 +245,8 @@ class Initiator
      */
     public static function getFromSession($key)
     {
-        if (!isset($_SESSION[$key])) {
-            return false;
+        if (session_status() != PHP_SESSION_NONE) {
+            return;
         }
         return $_SESSION[$key];
     }
@@ -403,7 +409,7 @@ class Initiator
          * Otherwise it will clean the passed value.
          */
         if (!count($value)) {
-            if (count($_SESSION) > 0) {
+            if (session_status() != PHP_SESSION_NONE) {
                 array_walk($_SESSION, self::$_sanitizeItems);
             }
             if (count($_REQUEST) > 0) {
