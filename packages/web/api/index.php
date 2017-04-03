@@ -20,12 +20,6 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
-// If a session was active, kill it.
-if (count($_SESSION) > 0) {
-    session_write_close();
-    session_destroy();
-    unset($_SESSION);
-}
 // Allow to process in background as needed.
 ignore_user_abort(true);
 // Allow infinite time to process as this is an api.

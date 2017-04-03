@@ -275,7 +275,9 @@ class ProcessLogin extends FOGPage
     {
         $this->setLang();
         if (in_array($_REQUEST['node'], array('login', 'logout'))) {
-            self::setMessage($_SESSION['FOG_MESSAGES']);
+            if (session_status() != PHP_SESSION_NONE) {
+                self::setMessage($_SESSION['FOG_MESSAGES']);
+            }
             unset($_REQUEST['login']);
             self::redirect('index.php');
         }
