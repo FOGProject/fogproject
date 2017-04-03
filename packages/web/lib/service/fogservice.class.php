@@ -566,7 +566,7 @@ abstract class FOGService extends FOGBase
                 if (is_file($myAdd)) {
                     $remItem = dirname("$removeDir$removeFile");
                     $opts = '-R -i';
-                    $includeFile = $myFile;
+                    $includeFile = basename($myFile);
                     if (!$myAddItem) {
                         $myAddItem = dirname($myAdd);
                     }
@@ -667,10 +667,13 @@ abstract class FOGService extends FOGBase
                 }
                 $logname = sprintf(
                     '%s.%s.transfer.%s.log',
-                    substr(
-                        static::$log,
-                        0,
-                        -4
+                    rtrim(
+                        substr(
+                            static::$log,
+                            0,
+                            -4
+                        ),
+                        '.'
                     ),
                     $Obj->get('name'),
                     $nodename
@@ -684,7 +687,7 @@ abstract class FOGService extends FOGBase
                     );
                 }
                 $this->killTasking(
-                    $i,
+                    $fileOverride ? "abcdef$i" : $i,
                     $itemType,
                     $Obj->get('name')
                 );
@@ -712,13 +715,17 @@ abstract class FOGService extends FOGBase
                 $cmd .= "$opts ";
                 if (!empty($includeFile)) {
                     $includeFile = escapeshellarg($includeFile);
+                    $includeFile = trim($includeFile, "'");
+                    $includeFile = sprintf(
+                        '"%s"',
+                        $includeFile
+                    );
                     $cmd .= "$includeFile ";
                 }
                 $cmd .= "--ignore-time -vvv --exclude \".srvprivate\" ";
-                //$cmd .= "--delete-first $myAddItem ";
-                //$cmd .= "$remItem; ";
+                $cmd .= "$myAddItem $remItem;";
                 $cmd2 = sprintf(
-                    "%s; exit' -u $username,[Protected] $ip",
+                    "%s exit' -u $username,[Protected] $ip",
                     $cmd
                 );
                 $cmd .= "exit' -u $username,$password $ip";
@@ -727,7 +734,7 @@ abstract class FOGService extends FOGBase
                 $this->startTasking(
                     $cmd,
                     $logname,
-                    $i,
+                    $fileOverride ? "abcdef$i" : $i,
                     $itemType,
                     $Obj->get('name')
                 );
