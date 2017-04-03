@@ -718,7 +718,7 @@ abstract class FOGService extends FOGBase
                 //$cmd .= "--delete-first $myAddItem ";
                 //$cmd .= "$remItem; ";
                 $cmd2 = sprintf(
-                    "%s exit' -u $username,[Protected] $ip",
+                    "%s; exit' -u $username,[Protected] $ip",
                     $cmd
                 );
                 $cmd .= "exit' -u $username,$password $ip";
