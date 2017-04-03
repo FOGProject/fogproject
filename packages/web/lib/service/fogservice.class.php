@@ -715,8 +715,8 @@ abstract class FOGService extends FOGBase
                     $cmd .= "$includeFile ";
                 }
                 $cmd .= "--ignore-time -vvv --exclude \".srvprivate\" ";
-                $cmd .= "--delete-first $myAddItem ";
-                $cmd .= "$remItem; ";
+                //$cmd .= "--delete-first $myAddItem ";
+                //$cmd .= "$remItem; ";
                 $cmd2 = sprintf(
                     "%s exit' -u $username,[Protected] $ip",
                     $cmd
