@@ -20,6 +20,33 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
+// Check if API access is even enabled.
+$enabled = (bool)FOGCore::getSetting('FOG_API_ENABLED');
+if (!$enabled) {
+    header(
+        sprintf(
+            'Location: http%s://%s/fog/management/index.php',
+            filter_input(INPUT_SERVER, 'HTTPS') ? 's' : '',
+            filter_input(INPUT_SERVER, 'HTTP_HOST')
+        )
+    );
+}
+$currtoken = FOGCore::getSetting('FOG_API_TOKEN');
+$passtoken = base64_decode(
+    filter_input(INPUT_SERVER, 'HTTP_FOG_API_TOKEN')
+);
+if ($passtoken !== $currtoken) {
+    HTTPResponseCodes::breakHead(
+        HTTPResponseCodes::HTTP_FORBIDDEN
+    );
+}
+$user = $_SERVER['PHP_AUTH_USER'];
+$pass = $_SERVER['PHP_AUTH_PW'];
+if (!$currentUser->passwordValidate($user, $pass)) {
+    HTTPResponseCodes::breakHead(
+        HTTPResponseCodes::HTTP_UNAUTHORIZED
+    );
+}
 // Allow to process in background as needed.
 ignore_user_abort(true);
 // Allow infinite time to process as this is an api.
@@ -77,6 +104,10 @@ $validClasses = array(
     'usertracking',
     'virus'
 );
+$validTaskingClasses = array(
+    'host',
+    'group'
+);
 /**
  * Create a hook event so people can add to the
  * valid class elements.
@@ -85,6 +116,13 @@ $HookManager
     ->processEvent(
         'API_VALID_CLASSES',
         array('validClasses' => &$validClasses)
+    );
+$HookManager
+    ->processEvent(
+        'API_TASKING_CLASSES',
+        array(
+            'validTaskingClasses' => &$validTaskingClasses
+        )
     );
 /**
  * ##################################################
@@ -129,7 +167,10 @@ $checkvalid = function ($class) use ($validClasses) {
  *
  * @return object|array
  */
-$getter = function ($classname, $class) {
+$getter = function (
+    $classname,
+    $class
+) use (&$getter) {
     global $HookManager;
     switch ($classname) {
     case 'user':
@@ -154,9 +195,12 @@ $getter = function ($classname, $class) {
                 ),
                 'primac' => $class->get('mac')->__toString(),
                 'imagename' => $class->getImageName(),
-                'hostscreen' => $class->get('hostscreen')->get(),
-                'hostalo' => $class->get('hostalo')->get(),
-                'inventory' => $class->get('inventory')->get(),
+                'hostscreen' => $getter(
+                    'hostscreensettings',
+                    $class->get('hostscreen')
+                ),
+                'hostalo' => $getter('hostautologout', $class->get('hostalo')),
+                'inventory' => $getter('inventory', $class->get('inventory')),
                 'imagename' => $class->getImageName(),
                 'pingstatus' => $class->getPingCodeStr()
             )
@@ -166,9 +210,12 @@ $getter = function ($classname, $class) {
         $data = FOGCore::fastmerge(
             $class->get(),
             array(
-                'os' => $class->get('os')->get(),
-                'imagepartitiontype' => $class->get('os')->get(),
-                'imagetype' => $class->get('imagetype')->get(),
+                'os' => $getter('os', $class->get('os')),
+                'imagepartitiontype' => $getter(
+                    'imagepartitiontype',
+                    $class->get('imagepartitiontype')
+                ),
+                'imagetype' => $getter('imagetype', $class->get('imagetype')),
                 'imagetypename' => $class->getImageType()->get('name'),
                 'imageparttypename' => $class->getImagePartitionType()->get('name'),
                 'osname' => $class->getOS()->get('name'),
@@ -180,7 +227,26 @@ $getter = function ($classname, $class) {
         $data = FOGCore::fastmerge(
             $class->get(),
             array(
-                'storagegroup' => $class->get('storagegroup')->get()
+                'storagegroup' => $getter(
+                    'storagegroup',
+                    $class->get('storagegroup')
+                )
+            )
+        );
+        break;
+    case 'task':
+        $data = FOGCore::fastmerge(
+            $class->get(),
+            array(
+                'image' => $getter('image', $class->get('image')),
+                'host' => $getter('host', $class->get('host')),
+                'type' => $getter('tasktype', $class->get('type')),
+                'state' => $getter('taskstate', $class->get('state')),
+                'storagenode' => $getter('storagenode', $class->get('storagenode')),
+                'storagegroup' => $getter(
+                    'storagegroup',
+                    $class->get('storagegroup')
+                ),
             )
         );
         break;
@@ -235,6 +301,10 @@ $router->get(
 $expandedClasses = sprintf(
     '[%s:class]',
     implode('|', $validClasses)
+);
+$expandedTaskingClasses = sprintf(
+    '[%s:class]',
+    implode('|', $validTaskingClasses)
 );
 /**
  * Get/update item. /<class>/:<id>/
@@ -382,6 +452,31 @@ $router->get(
         $printer($data);
     },
     'objList'
+);
+$router->map(
+    'PUT|POST',
+    "/${expandedTaskingClasses}/[i:id]/task/?",
+    function (
+        $class,
+        $id
+    ) use (
+        $checkvalid,
+        $getter,
+        $printer
+    ) {
+        global $HookManager;
+        $checkvalid($class);
+        $tids = FOGCore::getSubObjectIDs('TaskType');
+        var_dump(file_get_contents('php://input'));
+        if (!in_array($tid, $tids)) {
+            HTTPResponseCodes::breakHead(
+                HTTPResponseCodes::HTTP_NOT_IMPLEMENTED
+            );
+        }
+        var_dump($_GET);
+        echo 'This is where we would create a tasking.';
+    },
+    'tasking'
 );
 $match = $router->match();
 if ($match && is_callable($match['target'])) {

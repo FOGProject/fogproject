@@ -1359,7 +1359,8 @@ class FOGConfigurationPage extends FOGPage
             'FOG_QUICKREG_IMG_WHEN_REG',
             'FOG_TASKING_ADV_SHUTDOWN_ENABLED',
             'FOG_TASKING_ADV_WOL_ENABLED',
-            'FOG_TASKING_ADV_DEBUG_ENABLED'
+            'FOG_TASKING_ADV_DEBUG_ENABLED',
+            'FOG_API_ENABLED',
         );
         self::$HookManager
             ->processEvent(
@@ -1641,15 +1642,32 @@ class FOGConfigurationPage extends FOGPage
                     echo '</select>';
                     $type = ob_get_clean();
                     break;
-                case (preg_match('#pass#i', $Service->get('name'))
-                    && !preg_match('#(valid|min)#i', $Service->get('name'))
-                ):
-                    $Service->get('name') == 'FOG_STORAGENODE_MYSQLPASS' ?
-                    $type = '<input type="text" name="${service_id}" value='
-                        . '"${service_value}" autocomplete="off"/>' :
-                    $type = '<input type="password" name='
-                        . '"${service_id}" value="${service_value}" autocomplete='
-                        . '"off"/>';
+                case ('FOG_API_TOKEN' === $Service->get('name') ||
+                    (preg_match('#pass#i', $Service->get('name'))
+                    && !preg_match('#(valid|min)#i', $Service->get('name')))):
+                    $extra = '/>';
+                    $normal = '${service_value}';
+                    if ('FOG_API_TOKEN' === $Service->get('name')) {
+                        $extra = ' readonly class="token"/>'
+                            . '<input type="button" class="resettoken" value="'
+                            . _('Reset Token')
+                            . '"/>';
+                        $normal = '${service_base64val}';
+                    }
+                    $type = (
+                        $Service->get('name') == 'FOG_STORAGENODE_MYSQLPASS' ?
+                        '<input type="text" name="${service_id}" value='
+                        . '"'
+                        . $normal
+                        . '" autocomplete="off"'
+                        . $extra :
+                        '<input type="password" name='
+                        . '"${service_id}" value="'
+                        . $normal
+                        . '" autocomplete='
+                        . '"off"'
+                        . $extra
+                    );
                     break;
                 case (in_array($Service->get('name'), $ServiceNames)):
                     $type = sprintf(
@@ -1722,6 +1740,7 @@ class FOGConfigurationPage extends FOGPage
                     'service_id' => $Service->get('id'),
                     'id' => $Service->get('id'),
                     'service_value' => $Service->get('value'),
+                    'service_base64val' => base64_encode($Service->get('value')),
                     'service_desc' => $Service->get('description'),
                 );
                 unset($Service);
@@ -1782,6 +1801,8 @@ class FOGConfigurationPage extends FOGPage
         $regenrange = range(0, 24, .25);
         array_shift($regenrange);
         $needstobenumeric = array(
+            // API System
+            'FOG_API_ENABLED' => $checkbox,
             // Donations
             'FOG_MINING_ENABLE' => $checkbox,
             'FOG_MINING_MAX_CORES' => true,
@@ -1938,6 +1959,9 @@ class FOGConfigurationPage extends FOGPage
                 $set = '';
             }
             switch ($name) {
+            case 'FOG_API_TOKEN':
+                $set = base64_decode($set);
+                break;
             case 'FOG_MEMORY_LIMIT':
                 if ($set < 128) {
                     $set = 128;
