@@ -521,7 +521,7 @@ shrinkPartition() {
                 getPartBlockSize "$part" "part_block_size"
                 case $osid in
                     [1-2]|4)
-                        resizePartition "$part" "$sizentfsresize" "$imagePath"
+                        resizePartition "$part" "$(calculate "$sizentfsresize*1024")" "$imagePath"
                         [[ $osid -eq 2 ]] && correctVistaMBR "$disk"
                         ;;
                     [5-7]|9)
