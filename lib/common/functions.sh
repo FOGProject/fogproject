@@ -1110,7 +1110,7 @@ writeUpdateFile() {
     escsnmysqluser=$(echo $snmysqluser | sed -e $replace)
     escsnmysqlpass=$(echo $snmysqlpass | sed -e $replace -e "s/[']{1}/'''/g")
     escsnmysqlhost=$(echo $snmysqlhost | sed -e $replace)
-    escinstalllange=$(echo $installlang | sed -e $replace)
+    escinstalllang=$(echo $installlang | sed -e $replace)
     escdonate=$(echo $donate | sed -e $replace)
     escstorageLocation=$(echo $storageLocation | sed -e $replace)
     escfogupdateloaded=$(echo $fogupdateloaded | sed -e $replace)
