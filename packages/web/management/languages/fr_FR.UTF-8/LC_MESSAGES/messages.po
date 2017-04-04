@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-03 13:13-0400\n"
+"POT-Creation-Date: 2017-04-03 21:13-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1703,7 +1703,7 @@ msgstr "supprimé"
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1098
 #: /var/www/fog/lib/service/snapinreplicator.class.php:147
 #: /var/www/fog/lib/service/snapinreplicator.class.php:148
-#: /var/www/fog/lib/service/snapinreplicator.class.php:278
+#: /var/www/fog/lib/service/snapinreplicator.class.php:277
 #: /var/www/fog/lib/service/imagereplicator.class.php:148
 #: /var/www/fog/lib/service/imagereplicator.class.php:149
 #: /var/www/fog/lib/service/imagereplicator.class.php:286
@@ -7691,7 +7691,7 @@ msgid "Starting Snapin Replication"
 msgstr "snapin Replicator"
 
 #: /var/www/fog/lib/service/snapinreplicator.class.php:146
-#: /var/www/fog/lib/service/snapinreplicator.class.php:277
+#: /var/www/fog/lib/service/snapinreplicator.class.php:276
 #: /var/www/fog/lib/service/imagereplicator.class.php:147
 #: /var/www/fog/lib/service/imagereplicator.class.php:285
 #, fuzzy
@@ -7699,7 +7699,7 @@ msgid "Attempting to perform"
 msgstr "Tenter de faire un ping"
 
 #: /var/www/fog/lib/service/snapinreplicator.class.php:149
-#: /var/www/fog/lib/service/snapinreplicator.class.php:280
+#: /var/www/fog/lib/service/snapinreplicator.class.php:279
 #, fuzzy
 msgid "snapin replication"
 msgstr "snapin Replicator"
@@ -7723,24 +7723,24 @@ msgstr "Storage Group Snapin"
 msgid "Replicating ssl less private key"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:250
+#: /var/www/fog/lib/service/snapinreplicator.class.php:249
 #, fuzzy
 msgid "Not syncing Snapin"
 msgstr "Pas de connexion pour obtenir SnapIn"
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:257
+#: /var/www/fog/lib/service/snapinreplicator.class.php:256
 #: /var/www/fog/lib/service/imagereplicator.class.php:265
 #, fuzzy
 msgid "This is not the primary group"
 msgstr " | Cela ne veut pas le groupe principal"
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:279
+#: /var/www/fog/lib/service/snapinreplicator.class.php:278
 #: /var/www/fog/lib/service/imagereplicator.class.php:287
 #, fuzzy
 msgid "Nodes"
 msgstr "Nœud"
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:315
+#: /var/www/fog/lib/service/snapinreplicator.class.php:314
 #: /var/www/fog/lib/service/imagereplicator.class.php:323
 msgid "Checking if I am the group manager"
 msgstr ""
@@ -7764,6 +7764,11 @@ msgstr "image Replicator"
 #, fuzzy
 msgid "images to a storage group"
 msgstr "Groupe de stockage primaire"
+
+#: /var/www/fog/lib/service/imagereplicator.class.php:241
+#, fuzzy
+msgid "Replicating"
+msgstr "Reproduire?"
 
 #: /var/www/fog/lib/service/imagereplicator.class.php:258
 msgid "Not syncing Image"
@@ -7859,16 +7864,16 @@ msgstr ""
 msgid "file to"
 msgstr "Échec de"
 
-#: /var/www/fog/lib/service/fogservice.class.php:682
+#: /var/www/fog/lib/service/fogservice.class.php:685
 #, fuzzy
 msgid "Starting Sync Actions"
 msgstr " * Démarrage Actions Sync"
 
-#: /var/www/fog/lib/service/fogservice.class.php:737
+#: /var/www/fog/lib/service/fogservice.class.php:744
 msgid "Started sync for"
 msgstr "sync Started pour"
 
-#: /var/www/fog/lib/service/fogservice.class.php:769
+#: /var/www/fog/lib/service/fogservice.class.php:776
 #, fuzzy
 msgid "Task started"
 msgstr "Tâche Started"
@@ -9461,10 +9466,6 @@ msgstr "Il n'y a aucun emplacement sur ce serveur."
 #, fuzzy
 #~ msgid "Fixed filename must be a string"
 #~ msgstr "Événement doit être une chaîne"
-
-#, fuzzy
-#~ msgid "Replicating"
-#~ msgstr "Reproduire?"
 
 #~ msgid "Instant Deployment"
 #~ msgstr "déploiement instantané"
