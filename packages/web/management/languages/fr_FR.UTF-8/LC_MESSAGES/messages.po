@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-03 21:13-0400\n"
+"POT-Creation-Date: 2017-04-04 21:33-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -875,24 +875,24 @@ msgstr "Champ et les valeurs ne sont pas des paramètres égaux."
 msgid "Need the table name to drop"
 msgstr ""
 
-#: /var/www/fog/lib/fog/user.class.php:243
-#: /var/www/fog/lib/fog/user.class.php:280
+#: /var/www/fog/lib/fog/user.class.php:249
+#: /var/www/fog/lib/fog/user.class.php:292
 msgid "user successfully logged in"
 msgstr "utilisateur connecté avec succès dans"
 
-#: /var/www/fog/lib/fog/user.class.php:294
+#: /var/www/fog/lib/fog/user.class.php:306
 msgid "user failed to login"
 msgstr "l'utilisateur n'a pas réussi à se connecter"
 
-#: /var/www/fog/lib/fog/user.class.php:399
+#: /var/www/fog/lib/fog/user.class.php:411
 msgid "IP Address Changed"
 msgstr "Adresse IP Changed"
 
-#: /var/www/fog/lib/fog/user.class.php:408
+#: /var/www/fog/lib/fog/user.class.php:420
 msgid "User Agent Changed"
 msgstr "User Agent Changed"
 
-#: /var/www/fog/lib/fog/user.class.php:417
+#: /var/www/fog/lib/fog/user.class.php:429
 msgid "Session altered improperly"
 msgstr "Session modifié incorrectement"
 
@@ -949,7 +949,7 @@ msgstr "Inscrit"
 msgid "Set Failed"
 msgstr "Échoué"
 
-#: /var/www/fog/lib/fog/bootmenu.class.php:1375
+#: /var/www/fog/lib/fog/bootmenu.class.php:1405
 #, fuzzy
 msgid "No valid storage nodes found"
 msgstr "nœud de stockage non valide"
@@ -8403,12 +8403,12 @@ msgstr "Hôte clé de produit"
 msgid "FOG Hosts and Users Login"
 msgstr "Hôtes BROUILLARD et utilisateurs Connexion"
 
-#: /var/www/fog/commons/init.php:165
+#: /var/www/fog/commons/init.php:159
 #, fuzzy
 msgid "Classname must be a string"
 msgstr "Événement doit être une chaîne"
 
-#: /var/www/fog/commons/init.php:494
+#: /var/www/fog/commons/init.php:491
 #, fuzzy
 msgid "Missing one or more extensions."
 msgstr "Extensions manquantes"
