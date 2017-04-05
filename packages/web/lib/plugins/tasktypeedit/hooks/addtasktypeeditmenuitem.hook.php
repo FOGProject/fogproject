@@ -54,7 +54,7 @@ class AddTasktypeeditMenuItem extends Hook
      */
     public function menuData($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         self::arrayInsertAfter(
@@ -76,7 +76,7 @@ class AddTasktypeeditMenuItem extends Hook
      */
     public function addSearch($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         array_push($arguments['searchPages'], $this->node);
@@ -90,7 +90,7 @@ class AddTasktypeeditMenuItem extends Hook
      */
     public function removeActionBox($arguments)
     {
-        if (in_array($this->node, (array)$_SESSION['PluginsInstalled'])
+        if (in_array($this->node, (array)self::$pluginsinstalled)
             && $_REQUEST['node'] == $this->node
         ) {
             $arguments['actionbox'] = '';
@@ -105,7 +105,7 @@ class AddTasktypeeditMenuItem extends Hook
      */
     public function addPageWithObject($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         array_push($arguments['PagesWithObjects'], $this->node);

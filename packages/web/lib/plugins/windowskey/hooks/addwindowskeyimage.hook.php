@@ -58,7 +58,7 @@ class AddWindowsKeyImage extends Hook
     {
         global $node;
         global $sub;
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         if ($node != 'image') {
@@ -103,7 +103,7 @@ class AddWindowsKeyImage extends Hook
      */
     public function imageAddKey($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         global $node;
@@ -151,7 +151,7 @@ class AddWindowsKeyImage extends Hook
      */
     public function imageRemove($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         self::getClass('WindowsKeyAssociationManager')->destroy(
@@ -169,7 +169,7 @@ class AddWindowsKeyImage extends Hook
      */
     public function imageKeySelector($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         if ($arguments['obj'] instanceof WindowsKeyManager) {

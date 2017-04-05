@@ -24,6 +24,42 @@
 abstract class FOGBase
 {
     /**
+     * Locale
+     *
+     * @var string
+     */
+    public static $locale = '';
+    /**
+     * Ping is active?
+     *
+     * @var bool
+     */
+    public static $fogpingactive = false;
+    /**
+     * The pending macs count.
+     *
+     * @var int
+     */
+    public static $pendingMACs = 0;
+    /**
+     * The pending hosts count.
+     *
+     * @var int
+     */
+    public static $pendingHosts = 0;
+    /**
+     * Default screen.
+     *
+     * @var string
+     */
+    public static $defaultscreen = '';
+    /**
+     * Plugins installed.
+     *
+     * @var array
+     */
+    public static $pluginsinstalled = array();
+    /**
      * User agent string.
      *
      * @var string
@@ -166,25 +202,37 @@ abstract class FOGBase
      *
      * @var string
      */
-    protected static $scriptname;
+    public static $scriptname;
     /**
      * Current requests query string.
      *
      * @var string
      */
-    protected static $querystring;
+    public static $querystring;
     /**
      * Current requests http requested with string.
      *
      * @var string
      */
-    protected static $httpreqwith;
+    public static $httpreqwith;
     /**
      * Current request method.
      *
      * @var string
      */
-    protected static $reqmethod;
+    public static $reqmethod;
+    /**
+     * Current remote address.
+     *
+     * @var string
+     */
+    public static $remoteaddr;
+    /**
+     * Current http referer.
+     *
+     * @var string
+     */
+    public static $httpreferer;
     /**
      * Is this a mobile request?
      *
@@ -265,24 +313,12 @@ abstract class FOGBase
         self::$FOGUser = &$currentUser;
         $scriptPattern = '#/service/#i';
         $queryPattern = '#sub=requestClientInfo#i';
-        self::$querystring = Initiator::sanitizeItems(
-            $_SERVER['QUERY_STRING']
-        );
-        if (isset($_SERVER['SCRIPT_NAME'])) {
-            self::$scriptname = Initiator::sanitizeItems(
-                $_SERVER['SCRIPT_NAME']
-            );
-        }
-        if (isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
-            self::$httpreqwith = Initiator::sanitizeItems(
-                $_SERVER['HTTP_X_REQUESTED_WITH']
-            );
-        }
-        if (isset($_SERVER['REQUEST_METHOD'])) {
-            self::$reqmethod = Initiator::sanitizeItems(
-                $_SERVER['REQUEST_METHOD']
-            );
-        }
+        self::$querystring = filter_input(INPUT_SERVER, 'QUERY_STRING');
+        self::$scriptname = filter_input(INPUT_SERVER, 'SCRIPT_NAME');
+        self::$httpreqwith = filter_input(INPUT_SERVER, 'HTTP_X_REQUESTED_WITH');
+        self::$reqmethod = filter_input(INPUT_SERVER, 'REQUEST_METHOD');
+        self::$remoteaddr = filter_input(INPUT_SERVER, 'REMOTE_ADDR');
+        self::$httpreferer = filter_input(INPUT_SERVER, 'HTTP_REFERER');
         if (preg_match('#/mobile/#i', self::$scriptname)) {
             self::$isMobile = true;
         }
@@ -330,12 +366,19 @@ abstract class FOGBase
      */
     public function __construct()
     {
-        if (isset($_SERVER['HTTP_USER_AGENT'])) {
-            self::$useragent = $_SERVER['HTTP_USER_AGENT'];
-        }
+        self::$useragent = self::_getUserAgent();
         self::_init();
 
         return $this;
+    }
+    /**
+     * Return the user agent.
+     *
+     * @return string
+     */
+    private static function _getUserAgent()
+    {
+        return filter_input(INPUT_SERVER, 'HTTP_USER_AGENT');
     }
     /**
      * Defines string as class name.
@@ -666,7 +709,9 @@ abstract class FOGBase
      */
     protected static function setMessage($txt, $data = array())
     {
-        $_SESSION['FOG_MESSAGES'] = self::_setString($txt, $data);
+        if (session_status() != PHP_SESSION_NONE) {
+            $_SESSION['FOG_MESSAGES'] = self::_setString($txt, $data);
+        }
     }
     /**
      * Gets message banner and prepares to display it.
@@ -675,6 +720,9 @@ abstract class FOGBase
      */
     protected static function getMessages()
     {
+        if (session_status() == PHP_SESSION_NONE) {
+            return;
+        }
         if (!isset($_SESSION['FOG_MESSAGES'])) {
             $_SESSION['FOG_MESSAGES'] = array();
         }
@@ -856,6 +904,9 @@ abstract class FOGBase
      */
     protected static function resetRequest()
     {
+        if (session_status() == PHP_SESSION_NONE) {
+            return;
+        }
         if (!isset($_SESSION['post_request_vals'])) {
             $_SESSION['post_request_vals'] = array();
         }
@@ -876,6 +927,9 @@ abstract class FOGBase
      */
     protected function setRequest()
     {
+        if (session_status() == PHP_SESSION_NONE) {
+            return;
+        }
         if (!isset($_SESSION['post_request_vals'])) {
             $_SESSION['post_request_vals'] = array();
         }
@@ -1768,14 +1822,18 @@ abstract class FOGBase
         if (!$string) {
             return;
         }
-        $name = $_SESSION['FOG_USERNAME'] ? $_SESSION['FOG_USERNAME'] : 'fog';
-        if ($_SESSION['FOG_USER'] < 1) {
+        $name = (
+            self::$FOGUser->isValid() ?
+            self::$FOGUser->get('name') :
+            'fog'
+        );
+        if (!self::$FOGUser->isValid()) {
             return;
         }
         if (self::$DB) {
             self::getClass('History')
                 ->set('info', $string)
-                ->set('ip', $_SERVER['REMOTE_ADDR'])
+                ->set('ip', self::$remoteaddr)
                 ->save();
         }
     }

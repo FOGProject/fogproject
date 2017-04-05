@@ -3707,3 +3707,22 @@ $this->schema[] = array(
     . "UNIQUE INDEX `name` (`neName`)"
     . ") ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
 );
+// 255
+$this->schema[] = array(
+    "ALTER TABLE `pxeMenu` ADD `pxeHotKeyEnable` ENUM('0','1') NOT NULL",
+    "ALTER TABLE `pxeMenu` ADD `pxeKeySequence` VARCHAR(255) NOT NULL"
+);
+// 256
+$this->schema[] = array(
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
+    . "VALUES "
+    . "('FOG_API_ENABLED',"
+    . "'Enables API Access (Defaults to off)',"
+    . "'0','API System'),"
+    . "('FOG_API_TOKEN',"
+    . "'The API Token to use (Randomly generated at install)',"
+    . "'"
+    . self::createSecToken()
+    . "','API System')"
+);

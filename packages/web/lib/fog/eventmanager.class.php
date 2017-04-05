@@ -242,7 +242,7 @@ class EventManager extends FOGBase
             '#/(%s)/#',
             implode(
                 '|',
-                $_SESSION['PluginsInstalled']
+                self::$pluginsinstalled
             )
         );
         $tFiles = array_map($fileitems, (array) $files);

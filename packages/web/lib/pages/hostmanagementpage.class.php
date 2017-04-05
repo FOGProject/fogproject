@@ -42,7 +42,7 @@ class HostManagementPage extends FOGPage
     {
         $this->name = 'Host Management';
         parent::__construct($this->name);
-        if ($_SESSION['Pending-Hosts']) {
+        if (self::$pendingHosts > 0) {
             $this->menu['pending'] = self::$foglang['PendingHosts'];
         }
         global $id;
@@ -165,7 +165,7 @@ class HostManagementPage extends FOGPage
             '<input type="checkbox" name="toggle-checkbox" '
             . 'class="toggle-checkboxAction"/>',
         );
-        $_SESSION['FOGPingActive'] ? array_push($this->headerData, '') : null;
+        self::$fogpingactive ? array_push($this->headerData, '') : null;
         array_push(
             $this->headerData,
             _('Host'),
@@ -179,7 +179,7 @@ class HostManagementPage extends FOGPage
             '<input type="checkbox" name="host[]" '
             . 'value="${id}" class="toggle-action"/>',
         );
-        if ($_SESSION['FOGPingActive']) {
+        if (self::$fogpingactive) {
             array_push(
                 $this->templates,
                 '${pingstatus}'
@@ -226,7 +226,7 @@ class HostManagementPage extends FOGPage
                 'width' => 16
             ),
         );
-        if ($_SESSION['FOGPingActive']) {
+        if (self::$fogpingactive) {
             array_push(
                 $this->attributes,
                 array(
@@ -248,6 +248,32 @@ class HostManagementPage extends FOGPage
                 'class' => 'r'
             )
         );
+        /**
+         * Lambda function to return data either by list or search.
+         *
+         * @param object $Host the object to use.
+         *
+         * @return void
+         */
+        /**
+         * Use when api is established.
+        self::$returnData = function (&$Host) {
+            $this->data[] = array(
+                'id' => $Host->id,
+                'deployed' => self::formatTime(
+                    $Host->deployed,
+                    'Y-m-d H:i:s'
+                ),
+                'host_name' => $Host->name,
+                'host_mac' => $Host->primac,
+                'host_desc' => $Host->description,
+                'image_id' => $Host->imageID,
+                'image_name' => $Host->imagename,
+                'pingstatus' => $Host->pingstatus,
+            );
+            unset($Host);
+        };
+         */
         /**
          * Lambda function to return data either by list or search.
          *
@@ -2078,7 +2104,7 @@ class HostManagementPage extends FOGPage
             $createdBy = (
                 $log->get('createdBy') ?
                 $log->get('createdBy') :
-                $_SESSION['FOG_USERNAME']
+                self::$FOGUser->get('name')
             );
             $Image = self::getClass('Image')
                 ->set('name', $log->get('image'))

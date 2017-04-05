@@ -65,7 +65,7 @@ class LDAPPluginHook extends Hook
      */
     public function checkAddUser($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         $user = trim($arguments['username']);
@@ -130,7 +130,7 @@ class LDAPPluginHook extends Hook
      */
     public function setLdapType($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         $type = (int)$arguments['type'];
@@ -149,7 +149,7 @@ class LDAPPluginHook extends Hook
      */
     public function setTypeFilter($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         $arguments['types'] = array(990, 991);
@@ -163,7 +163,7 @@ class LDAPPluginHook extends Hook
      */
     public function isLdapType($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         $types = array(990, 991);
@@ -179,7 +179,7 @@ class LDAPPluginHook extends Hook
      */
     public function removeLoggedInUser()
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         $types = array(990, 991);

@@ -1008,7 +1008,6 @@ abstract class FOGManagerController extends FOGBase
                 $keyword
             )
         );
-        $_SESSION['caller'] = __FUNCTION__;
         if (count($this->aliasedFields) > 0) {
             self::arrayRemove($this->aliasedFields, $this->databaseFields);
         }

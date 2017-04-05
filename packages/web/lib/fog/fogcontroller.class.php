@@ -467,8 +467,8 @@ abstract class FOGController extends FOGBase
                 switch ($key) {
                 case 'createdBy':
                     if (!$val) {
-                        if (isset($_SESSION['FOG_USERNAME'])) {
-                            $val = trim($_SESSION['FOG_USERNAME']);
+                        if (self::$FOGUser->isValid()) {
+                            $val = trim(self::$FOGUser->get('name'));
                         } else {
                             $val = 'fog';
                         }

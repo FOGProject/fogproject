@@ -416,9 +416,9 @@ abstract class FOGService extends FOGBase
             self::outall(
                 sprintf(
                     ' | %s %s: %s',
-                    _($objType),
+                    $fileOverride ? _('File') : _($objType),
                     _('Name'),
-                    $Obj->get('name')
+                    $fileOverride ? $fileOverride : $Obj->get('name')
                 )
             );
             $getPathOfItemField = 'ftppath';
@@ -459,12 +459,19 @@ abstract class FOGService extends FOGBase
                 ) {
                     continue;
                 }
+                if ($fileOverride) {
+                    $name = $fileOverride;
+                    $randind = "abcdef$i";
+                } else {
+                    $name = $Obj->get('name');
+                    $randind = $i;
+                }
                 if (isset($this->procRef[$itemType])
-                    && isset($this->procRef[$itemType][$Obj->get('name')])
-                    && isset($this->procRef[$itemType][$Obj->get('name')][$i])
+                    && isset($this->procRef[$itemType][$name])
+                    && isset($this->procRef[$itemType][$name][$randind])
                 ) {
                     $isRunning = $this->isRunning(
-                        $this->procRef[$itemType][$Obj->get('name')][$i]
+                        $this->procRef[$itemType][$name][$randind]
                     );
                     if ($isRunning) {
                         self::outall(
@@ -472,7 +479,7 @@ abstract class FOGService extends FOGBase
                                 '| %s: %d',
                                 _('Replication already running with PID'),
                                 $this->getPID(
-                                    $this->procRef[$itemType][$Obj->get('name')][$i]
+                                    $this->procRef[$itemType][$name][$randind]
                                 )
                             )
                         );
@@ -494,9 +501,9 @@ abstract class FOGService extends FOGBase
                     self::outall(
                         sprintf(
                             ' | %s %s: %s',
-                            _($objType),
+                            $fileOverride ? _('File') : _($objType),
                             _('Name'),
-                            $Obj->get('name')
+                            $name
                         )
                     );
                     self::outall(
@@ -565,8 +572,9 @@ abstract class FOGService extends FOGBase
                 $ftpstart = "ftp://$username:$encpassword@$ip";
                 if (is_file($myAdd)) {
                     $remItem = dirname("$removeDir$removeFile");
+                    $removeFile = basename($removeFile);
                     $opts = '-R -i';
-                    $includeFile = $myFile;
+                    $includeFile = basename($myFile);
                     if (!$myAddItem) {
                         $myAddItem = dirname($myAdd);
                     }
@@ -578,8 +586,24 @@ abstract class FOGService extends FOGBase
                     );
                 } elseif (is_dir($myAdd)) {
                     $remItem = "$removeDir$removeFile";
-                    $localfilescheck = glob("$myAdd/*");
-                    $remotefilescheck = self::$FOGFTP->nlist($remItem);
+                    $localfilescheck = glob("$myAdd/{,.}*[!.,!..]", GLOB_BRACE);
+                    $remotefilescheck = self::$FOGFTP->rawlist("-a $remItem");
+                    $remotefilescheck = array_filter(
+                        array_map(
+                            function ($item) use ($remItem) {
+                                $item = array_values(
+                                    array_filter(
+                                        preg_split("#[\s]#", $item)
+                                    )
+                                );
+                                if (in_array($item[8], array('.', '..'))) {
+                                    return false;
+                                }
+                                return "${remItem}/${item[8]}";
+                            },
+                            $remotefilescheck
+                        )
+                    );
                     $opts = '-R';
                     $includeFile = '';
                     if (!$myAddItem) {
@@ -588,7 +612,7 @@ abstract class FOGService extends FOGBase
                 }
                 sort($localfilescheck);
                 sort($remotefilescheck);
-                $test = -1;
+                $testavail = -1;
                 foreach ((array)$localfilescheck as $j => &$localfile) {
                     $avail = true;
                     $index = self::arrayFind(
@@ -631,13 +655,22 @@ abstract class FOGService extends FOGBase
                     if (!$filesEqual) {
                         self::outall(
                             sprintf(
+                                ' | %s %s %s %s',
+                                $filesize_main,
+                                $filesize_rem,
+                                $localfile,
+                                $res
+                            )
+                        );
+                        self::outall(
+                            sprintf(
                                 ' | %s.',
                                 _('Files do not match')
                             )
                         );
                         self::outall(
                             sprintf(
-                                '* %s: %s',
+                                ' * %s: %s',
                                 _('Deleting remote file'),
                                 $remotefilescheck[$index]
                             )
@@ -648,7 +681,7 @@ abstract class FOGService extends FOGBase
                         self::outall(
                             sprintf(
                                 ' | %s: %s %s %s %s',
-                                $Obj->get('name'),
+                                $name,
                                 _('No need to sync'),
                                 basename($localfile),
                                 _('file to'),
@@ -667,10 +700,13 @@ abstract class FOGService extends FOGBase
                 }
                 $logname = sprintf(
                     '%s.%s.transfer.%s.log',
-                    substr(
-                        static::$log,
-                        0,
-                        -4
+                    rtrim(
+                        substr(
+                            static::$log,
+                            0,
+                            -4
+                        ),
+                        '.'
                     ),
                     $Obj->get('name'),
                     $nodename
@@ -684,9 +720,9 @@ abstract class FOGService extends FOGBase
                     );
                 }
                 $this->killTasking(
-                    $i,
+                    $randind,
                     $itemType,
-                    $Obj->get('name')
+                    $name
                 );
                 $myAddItem = escapeshellarg($myAddItem);
                 $remItem = escapeshellarg($remItem);
@@ -712,11 +748,15 @@ abstract class FOGService extends FOGBase
                 $cmd .= "$opts ";
                 if (!empty($includeFile)) {
                     $includeFile = escapeshellarg($includeFile);
+                    $includeFile = trim($includeFile, "'");
+                    $includeFile = sprintf(
+                        '"%s"',
+                        $includeFile
+                    );
                     $cmd .= "$includeFile ";
                 }
                 $cmd .= "--ignore-time -vvv --exclude \".srvprivate\" ";
-                $cmd .= "--delete-first $myAddItem ";
-                $cmd .= "$remItem; ";
+                $cmd .= "$myAddItem $remItem;";
                 $cmd2 = sprintf(
                     "%s exit' -u $username,[Protected] $ip",
                     $cmd
@@ -727,16 +767,16 @@ abstract class FOGService extends FOGBase
                 $this->startTasking(
                     $cmd,
                     $logname,
-                    $i,
+                    $randind,
                     $itemType,
-                    $Obj->get('name')
+                    $name
                 );
                 self::outall(
                     sprintf(
                         ' * %s %s %s',
                         _('Started sync for'),
                         $objType,
-                        $Obj->get('name')
+                        $name
                     )
                 );
                 unset($PotentialStorageNode);

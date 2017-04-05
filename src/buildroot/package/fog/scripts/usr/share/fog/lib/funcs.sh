@@ -521,7 +521,7 @@ shrinkPartition() {
                 getPartBlockSize "$part" "part_block_size"
                 case $osid in
                     [1-2]|4)
-                        resizePartition "$part" "$sizentfsresize" "$imagePath"
+                        resizePartition "$part" "$(calculate "$sizentfsresize*1024")" "$imagePath"
                         [[ $osid -eq 2 ]] && correctVistaMBR "$disk"
                         ;;
                     [5-7]|9)
@@ -708,7 +708,7 @@ writeImage()  {
             ;;
     esac
     exitcode=$?
-    [[ ! $exitcode -eq 0 ]] && handleError "Image failed to restore and exited with exit code $exitcode (${FUNCNAME[0]})\n   Info: $(cat /tmp/partclone.log)\n   Args Passed: $*"
+    [[ ! $exitcode -eq 0 ]] && handleWarning "Image failed to restore and exited with exit code $exitcode (${FUNCNAME[0]})\n   Info: $(cat /tmp/partclone.log)\n   Args Passed: $*"
     rm -rf /tmp/pigz1 >/dev/null 2>&1
 }
 # Gets the valid restore parts. They're only

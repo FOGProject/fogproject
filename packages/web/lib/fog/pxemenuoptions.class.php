@@ -40,6 +40,8 @@ class PXEMenuOptions extends FOGController
         'default' => 'pxeDefault',
         'regMenu' => 'pxeRegOnly',
         'args' => 'pxeArgs',
+        'hotkey' => 'pxeHotKeyEnable',
+        'keysequence' => 'pxeKeySequence',
     );
     /**
      * The required fields.

@@ -118,7 +118,9 @@ input, textarea, select {
     padding: 4px 4px;
 }
 select:not([name=ulang]):not([name=nodesel]):not([name=groupsel]) {
-    min-width: 220px;
+    min-width: 210px;
+    max-width: 220px;
+    width: 210px;
 }
 input[type=text], input[type=search], input[type=password] {
     width: 210px;
@@ -600,20 +602,25 @@ pre {
     background-color: #bcbcbc;
 }
 /* Login Form */
+#loginform {
+    display: table
+}
 #login-form {
     margin: 20px auto;
-    width: 300px;
+    width: 600px;
+    text-align: center;
+    vertical-align: middle;
 }
 #login-form label {
-    float: left;
-    margin: 3px 0;
-    width: 80px;
+    clear: right;
+    display: inline-block;
+    text-align: right;
+    margin: 3px 5px;
+    width: 200px;
     font-size: 16px;
 }
 #login-form .input {
-    clear: right;
-    display: block;
-    margin: 5px 0 5px 0;
+    clear: left;
     padding: 4px;
     border: 1px solid #666;
     width: 210px;
@@ -623,12 +630,13 @@ pre {
     width: 210px;
 }
 #login-form select {
+    clear: left;
     border: 1px solid #666;
-    width: 210px;
+    width: 220px;
 }
 #login-form-submit {
-    min-width: 210px;
-    margin: 10px 10px 0 0;
+    min-width: 220px;
+    margin: 10px 5px;
 }
 #login-form-submit:hover {
     border: 1px solid #fff;
@@ -643,7 +651,7 @@ pre {
     color: #333;
     font-size: 12px;
     box-shadow: 0 0 10px #bbb;
-    margin-top: 50px;
+    margin-top: 10px;
     border-radius: 3px;
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;

@@ -56,7 +56,7 @@ class ChangeItems extends Hook
      */
     public function storageNodeSetting($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         if (!$arguments['Host']->isValid()) {
@@ -122,7 +122,7 @@ class ChangeItems extends Hook
      */
     public function storageGroupSetting($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         if (!$arguments['Host']->isValid()) {
@@ -156,7 +156,7 @@ class ChangeItems extends Hook
      */
     public function bootItemSettings($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         if (!$arguments['Host']->isValid()) {
@@ -221,7 +221,7 @@ class ChangeItems extends Hook
      */
     public function alterMasters($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         if (!$arguments['FOGServiceClass'] instanceof MulticastManager) {
@@ -263,7 +263,7 @@ class ChangeItems extends Hook
      */
     public function makeMaster($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         if (!$arguments['FOGServiceClass'] instanceof MulticastTask) {

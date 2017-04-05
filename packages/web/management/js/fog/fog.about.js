@@ -55,4 +55,14 @@ $(function() {
         filename = filename.replace(/\\/g, '/').replace(/.*\//, "");
         $('input[name="banner"]').val(filename);
     });
+    $('.resettoken').click(function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: '../status/newtoken.php',
+            dataType: 'json',
+            success: function(data) {
+                $('.token').val(data);
+            }
+        });
+    });
 });

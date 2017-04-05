@@ -291,7 +291,6 @@ function resize_partition(partition_names, partitions, args, pName, new_start, n
         new_start = int(partitions[pName, "start"]);
         # Ensure start postition is aligned properly.
         new_size = int(sizePos) / int(SECTOR_SIZE);
-        new_size -= (new_size % int(SECTOR_SIZE));
         # Check the overlap.
         overlap = check_overlap(partition_names, partitions, target, new_start, new_size);
         # If there was an issue in checking overlap, skip.

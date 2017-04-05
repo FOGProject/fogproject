@@ -50,11 +50,11 @@ echo '<body>';
 if (!self::$isMobile) {
     printf(
         '<div class="fog-variable" id="FOGPingActive">%s</div>',
-        $_SESSION['FOGPingActive']
+        (int)self::$fogpingactive
     );
     printf(
         '<div class="fog-variable" id="screenview" value="%s"></div>',
-        $_SESSION['FOG_VIEW_DEFAULT_SCREEN']
+        self::$defaultscreen
     );
     self::getMessages();
     echo '<div id="loader-wrapper">';

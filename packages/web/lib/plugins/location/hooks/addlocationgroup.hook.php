@@ -57,7 +57,7 @@ class AddLocationGroup extends Hook
     public function groupSideMenu($arguments)
     {
         global $node;
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         if ($node != 'group') {
@@ -80,7 +80,7 @@ class AddLocationGroup extends Hook
      */
     public function groupFields($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         global $node;
@@ -141,7 +141,7 @@ class AddLocationGroup extends Hook
     {
         global $node;
         global $tab;
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         if ($node != 'group') {

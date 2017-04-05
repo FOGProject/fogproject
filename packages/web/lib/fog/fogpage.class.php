@@ -267,7 +267,7 @@ abstract class FOGPage extends FOGBase
         if ($node == 'storage') {
             $ref = preg_match(
                 '#node=storage&sub=storageGroup#i',
-                $_SERVER['HTTP_REFERER']
+                self::$httpreferer
             );
         }
         if (!isset($ref) || !$ref) {
@@ -540,19 +540,6 @@ abstract class FOGPage extends FOGBase
                 '%sManager',
                 $this->childClass
             );
-            if ($sub != 'list') {
-                if ($_SESSION['DataReturn'] > 0) {
-                    $objCount = self::getClass($manager)->count();
-                    if ($objCount > $_SESSION['DataReturn']) {
-                        self::redirect(
-                            sprintf(
-                                '?node=%s&sub=search',
-                                $this->node
-                            )
-                        );
-                    }
-                }
-            }
             $this->data = array();
             $find = '';
             if ('Host' === $this->childClass) {
@@ -560,6 +547,29 @@ abstract class FOGPage extends FOGBase
                     'pending' => array(0, '')
                 );
             }
+            /**
+             * Use for when api is established.
+            $url = sprintf(
+                'http%s://%s%s%s',
+                filter_input(INPUT_SERVER, 'HTTPS') ? 's' : '',
+                filter_input(INPUT_SERVER, 'HTTP_HOST'),
+                (
+                    trim(WEB_ROOT, '/') ?
+                    '/'.trim(WEB_ROOT, '/').'/' :
+                    '/'
+                ),
+                strtolower($this->childClass)
+            );
+            $items = self::$FOGURLRequests
+                ->process(
+                    $url
+                );
+            $items = json_decode(
+                $items[0]
+            );
+            $type = $_REQUEST['node'].'s';
+            $items = $items->$type;
+             */
             $items = (array)self::getClass($manager)->find($find);
             if (count($items) > 0) {
                 array_walk($items, static::$returnData);
@@ -675,7 +685,7 @@ abstract class FOGPage extends FOGBase
             unset($actionbox);
             global $sub;
             global $node;
-            $defaultScreen = strtolower($_SESSION['FOG_VIEW_DEFAULT_SCREEN']);
+            $defaultScreen = strtolower(self::$defaultscreen);
             $defaultScreens = array(
                 'search',
                 'list'
@@ -1736,7 +1746,7 @@ abstract class FOGPage extends FOGBase
                             $enableDebug,
                             $enableSnapins,
                             $groupTask,
-                            $_SESSION['FOG_USERNAME'],
+                            self::$FOGUser->get('name'),
                             $passreset,
                             false,
                             $wol
@@ -1758,7 +1768,7 @@ abstract class FOGPage extends FOGBase
                             )
                         )
                         ->set('isGroupTask', $groupTask)
-                        ->set('other3', $_SESSION['FOG_USERNAME'])
+                        ->set('other3', self::$FOGUser->get('name'))
                         ->set('isActive', 1)
                         ->set('other4', $wol);
                     if ($scheduleType == 'single') {
@@ -2419,9 +2429,6 @@ abstract class FOGPage extends FOGBase
     public function kernelfetch()
     {
         try {
-            if (!$_SESSION['AllowAJAXTasks']) {
-                throw new Exception(_('FOG Session Invalid'));
-            }
             if ($_SESSION['allow_ajax_kdl']
                 && $_SESSION['dest-kernel-file']
                 && $_SESSION['tmp-kernel-file']
@@ -2570,9 +2577,6 @@ abstract class FOGPage extends FOGBase
     public function getmacman()
     {
         try {
-            if (!$_SESSION['AllowAJAXTasks']) {
-                throw new Exception(_('FOG Session Invalid'));
-            }
             if (!self::getMACLookupCount()) {
                 throw new Exception(
                     sprintf(
