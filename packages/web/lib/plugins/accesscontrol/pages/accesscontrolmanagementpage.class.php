@@ -905,7 +905,8 @@ class AccessControlManagementPage extends FOGPage
             ),
             _('Rule name'),
             _('Value'),
-            _('Parent Node'),
+            _('Parent'),
+            _('Node'),
         );
         $this->templates = array(
             '<input type="checkbox" name="rule[]" value="${rule_id}" '
@@ -918,12 +919,14 @@ class AccessControlManagementPage extends FOGPage
             ),
             '${value}',
             '${parent}',
+            '${node}',
         );
         $this->attributes = array(
             array(
                 'width' => 16,
                 'class' => 'l filter-false',
             ),
+            array('class' => 'l'),
             array('class' => 'l'),
             array('class' => 'l'),
             array('class' => 'l'),
@@ -940,6 +943,7 @@ class AccessControlManagementPage extends FOGPage
                 'rule_name' => $Rule->get('name'),
                 'value' => $Rule->get('value'),
                 'parent' => $Rule->get('parent'),
+                'node' => $Rule->get('node'),
             );
             unset($Rule);
         }
@@ -980,7 +984,8 @@ class AccessControlManagementPage extends FOGPage
             . 'class="toggle-checkboxAction"/>',
             _('Rule Name'),
             _('Value'),
-            _('Parent Node'),
+            _('Parent'),
+            _('Node'),
         );
         $this->templates = array(
             '<input type="checkbox" name="ruledel[]" '
@@ -993,6 +998,7 @@ class AccessControlManagementPage extends FOGPage
             ),
             '${value}',
             '${parent}',
+            '${node}',
         );
         foreach ((array)self::getClass('AccessControlRuleManager')
             ->find(
@@ -1006,6 +1012,7 @@ class AccessControlManagementPage extends FOGPage
                 'rule_name' => $Rule->get('name'),
                 'value' => $Rule->get('value'),
                 'parent' => $Rule->get('parent'),
+                'node' => $Rule->get('node'),
             );
             unset($Rule);
         }
