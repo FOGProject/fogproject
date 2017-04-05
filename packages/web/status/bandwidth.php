@@ -92,7 +92,7 @@ $interface = preg_grep("#^$dev$#", $interfaces);
 // If our interface isn't found, try getting it directly off the system
 if (count($interface) < 1) {
     // Find our server address
-    $srvAddr = $_SERVER['SERVER_ADDR'];
+    $srvAddr = filter_input(INPUT_SERVER, 'SERVER_ADDR');
     // If accessed by hostname resolve to ip
     $resName = FOGCore::resolveHostname($srvAddr);
     // Use the resolved name to find our interface
