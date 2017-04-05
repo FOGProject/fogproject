@@ -162,7 +162,7 @@ if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
     return print json_encode(_('IP Passed is incorrect'));
 }
 $pat = sprintf('#%s#', $ip);
-if (preg_match($pat, filter_input(INPUT_SERVER, 'HTTP_HOST'))) {
+if (preg_match($pat, $_SERVER['HTTP_HOST'])) {
     $str = vals(
         $reverse,
         $HookManager,

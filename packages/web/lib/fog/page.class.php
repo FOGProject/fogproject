@@ -381,7 +381,7 @@ class Page extends FOGBase
                 array_push($files, 'js/fog/fog.dashboard.js');
                 $test = preg_match(
                     '#MSIE [6|7|8|9|10|11]#',
-                    self::$useragent
+                    $_SERVER['HTTP_USER_AGENT']
                 );
                 if ($test) {
                     array_push(

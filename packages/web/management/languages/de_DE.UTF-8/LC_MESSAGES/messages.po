@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-04 22:46-0400\n"
+"POT-Creation-Date: 2017-04-03 13:13-0400\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -218,7 +218,7 @@ msgstr "Datensatz wurde nicht gefunden, Fehler: %s"
 #: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:54
 #: /var/www/fog/lib/service/fogservice.class.php:391
 #: /var/www/fog/lib/service/fogservice.class.php:420
-#: /var/www/fog/lib/service/fogservice.class.php:505
+#: /var/www/fog/lib/service/fogservice.class.php:498
 #: /var/www/fog/commons/text.php:66
 msgid "Name"
 msgstr "Name"
@@ -743,8 +743,6 @@ msgstr "Veranstaltung muss eine Zeichenfolge sein."
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:827
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:834
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1789
-#: /var/www/fog/lib/service/fogservice.class.php:419
-#: /var/www/fog/lib/service/fogservice.class.php:504
 #: /var/www/fog/commons/text.php:75
 msgid "File"
 msgstr "Datei"
@@ -877,24 +875,24 @@ msgstr "Feld und Werte müssen nicht gleich Parameter."
 msgid "Need the table name to drop"
 msgstr ""
 
-#: /var/www/fog/lib/fog/user.class.php:249
-#: /var/www/fog/lib/fog/user.class.php:292
+#: /var/www/fog/lib/fog/user.class.php:243
+#: /var/www/fog/lib/fog/user.class.php:280
 msgid "user successfully logged in"
 msgstr "Benutzer erfolgreich angemeldet"
 
-#: /var/www/fog/lib/fog/user.class.php:306
+#: /var/www/fog/lib/fog/user.class.php:294
 msgid "user failed to login"
 msgstr "Benutzer nicht anmelden"
 
-#: /var/www/fog/lib/fog/user.class.php:411
+#: /var/www/fog/lib/fog/user.class.php:399
 msgid "IP Address Changed"
 msgstr "IP-Adresse geändert"
 
-#: /var/www/fog/lib/fog/user.class.php:420
+#: /var/www/fog/lib/fog/user.class.php:408
 msgid "User Agent Changed"
 msgstr "User-Agent geändert"
 
-#: /var/www/fog/lib/fog/user.class.php:429
+#: /var/www/fog/lib/fog/user.class.php:417
 msgid "Session altered improperly"
 msgstr "Sitzung nicht ordnungsgemäß geändert"
 
@@ -951,7 +949,7 @@ msgstr "Registriert"
 msgid "Set Failed"
 msgstr "Fehler beim"
 
-#: /var/www/fog/lib/fog/bootmenu.class.php:1405
+#: /var/www/fog/lib/fog/bootmenu.class.php:1375
 #, fuzzy
 msgid "No valid storage nodes found"
 msgstr "Ungültige Speicherknoten"
@@ -1702,7 +1700,7 @@ msgstr "gelöscht"
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1098
 #: /var/www/fog/lib/service/snapinreplicator.class.php:147
 #: /var/www/fog/lib/service/snapinreplicator.class.php:148
-#: /var/www/fog/lib/service/snapinreplicator.class.php:277
+#: /var/www/fog/lib/service/snapinreplicator.class.php:278
 #: /var/www/fog/lib/service/imagereplicator.class.php:148
 #: /var/www/fog/lib/service/imagereplicator.class.php:149
 #: /var/www/fog/lib/service/imagereplicator.class.php:286
@@ -7694,7 +7692,7 @@ msgid "Starting Snapin Replication"
 msgstr "Snap-in-Replikator"
 
 #: /var/www/fog/lib/service/snapinreplicator.class.php:146
-#: /var/www/fog/lib/service/snapinreplicator.class.php:276
+#: /var/www/fog/lib/service/snapinreplicator.class.php:277
 #: /var/www/fog/lib/service/imagereplicator.class.php:147
 #: /var/www/fog/lib/service/imagereplicator.class.php:285
 #, fuzzy
@@ -7702,7 +7700,7 @@ msgid "Attempting to perform"
 msgstr "Versuch, ping"
 
 #: /var/www/fog/lib/service/snapinreplicator.class.php:149
-#: /var/www/fog/lib/service/snapinreplicator.class.php:279
+#: /var/www/fog/lib/service/snapinreplicator.class.php:280
 #, fuzzy
 msgid "snapin replication"
 msgstr "Snap-in-Replikator"
@@ -7726,24 +7724,24 @@ msgstr "Snap-in-Speichergruppe"
 msgid "Replicating ssl less private key"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:249
+#: /var/www/fog/lib/service/snapinreplicator.class.php:250
 #, fuzzy
 msgid "Not syncing Snapin"
 msgstr "Keine Verbindung zum Snap-in zu bekommen"
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:256
+#: /var/www/fog/lib/service/snapinreplicator.class.php:257
 #: /var/www/fog/lib/service/imagereplicator.class.php:265
 #, fuzzy
 msgid "This is not the primary group"
 msgstr " | Dies ist nicht die primäre Gruppe"
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:278
+#: /var/www/fog/lib/service/snapinreplicator.class.php:279
 #: /var/www/fog/lib/service/imagereplicator.class.php:287
 #, fuzzy
 msgid "Nodes"
 msgstr "Knoten"
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:314
+#: /var/www/fog/lib/service/snapinreplicator.class.php:315
 #: /var/www/fog/lib/service/imagereplicator.class.php:323
 msgid "Checking if I am the group manager"
 msgstr ""
@@ -7767,11 +7765,6 @@ msgstr "Bild-Replikator"
 #, fuzzy
 msgid "images to a storage group"
 msgstr "Primary Storage Group"
-
-#: /var/www/fog/lib/service/imagereplicator.class.php:241
-#, fuzzy
-msgid "Replicating"
-msgstr "Replizieren?"
 
 #: /var/www/fog/lib/service/imagereplicator.class.php:258
 msgid "Not syncing Image"
@@ -7816,12 +7809,12 @@ msgid "I am not the master for this group"
 msgstr " * Ich bin nicht der Meister"
 
 #: /var/www/fog/lib/service/fogservice.class.php:381
-#: /var/www/fog/lib/service/fogservice.class.php:495
+#: /var/www/fog/lib/service/fogservice.class.php:488
 msgid "Not syncing"
 msgstr ""
 
 #: /var/www/fog/lib/service/fogservice.class.php:383
-#: /var/www/fog/lib/service/fogservice.class.php:497
+#: /var/www/fog/lib/service/fogservice.class.php:490
 msgid "between"
 msgstr ""
 
@@ -7834,49 +7827,49 @@ msgstr ""
 msgid "to transfer to"
 msgstr "Bild-Übertragungsprotokoll"
 
-#: /var/www/fog/lib/service/fogservice.class.php:480
+#: /var/www/fog/lib/service/fogservice.class.php:473
 #, fuzzy
 msgid "Replication already running with PID"
 msgstr "Replikation Bandbreite"
 
-#: /var/www/fog/lib/service/fogservice.class.php:512
+#: /var/www/fog/lib/service/fogservice.class.php:505
 #, fuzzy
 msgid "File or path cannot be reached"
 msgstr " | Datei oder Pfad ist nicht erreichbar"
 
-#: /var/www/fog/lib/service/fogservice.class.php:536
+#: /var/www/fog/lib/service/fogservice.class.php:529
 #, fuzzy
 msgid "Cannot connect to"
 msgstr "Keine Verbindung zu Knoten."
 
-#: /var/www/fog/lib/service/fogservice.class.php:668
+#: /var/www/fog/lib/service/fogservice.class.php:635
 msgid "Files do not match"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:674
+#: /var/www/fog/lib/service/fogservice.class.php:641
 #, fuzzy
 msgid "Deleting remote file"
 msgstr "Menü Erstellen fehlgeschlagen"
 
-#: /var/www/fog/lib/service/fogservice.class.php:685
+#: /var/www/fog/lib/service/fogservice.class.php:652
 msgid "No need to sync"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:687
+#: /var/www/fog/lib/service/fogservice.class.php:654
 #, fuzzy
 msgid "file to"
 msgstr "Fehler beim"
 
-#: /var/www/fog/lib/service/fogservice.class.php:718
+#: /var/www/fog/lib/service/fogservice.class.php:682
 #, fuzzy
 msgid "Starting Sync Actions"
 msgstr " * Start Sync-Aktionen"
 
-#: /var/www/fog/lib/service/fogservice.class.php:777
+#: /var/www/fog/lib/service/fogservice.class.php:737
 msgid "Started sync for"
 msgstr "Gestartet Sync für"
 
-#: /var/www/fog/lib/service/fogservice.class.php:809
+#: /var/www/fog/lib/service/fogservice.class.php:769
 #, fuzzy
 msgid "Task started"
 msgstr "Vorgang gestartet"
@@ -8405,12 +8398,12 @@ msgstr "Host-Produkt-Schlüssel"
 msgid "FOG Hosts and Users Login"
 msgstr "Nebel-Hosts und Benutzer-Login"
 
-#: /var/www/fog/commons/init.php:159
+#: /var/www/fog/commons/init.php:165
 #, fuzzy
 msgid "Classname must be a string"
 msgstr "Veranstaltung muss eine Zeichenfolge sein."
 
-#: /var/www/fog/commons/init.php:491
+#: /var/www/fog/commons/init.php:494
 #, fuzzy
 msgid "Missing one or more extensions."
 msgstr "Fehlende Erweiterungen"
@@ -9469,6 +9462,10 @@ msgstr "Es gibt keine Orte auf diesem Server."
 #, fuzzy
 #~ msgid "Fixed filename must be a string"
 #~ msgstr "Veranstaltung muss eine Zeichenfolge sein."
+
+#, fuzzy
+#~ msgid "Replicating"
+#~ msgstr "Replizieren?"
 
 #~ msgid "Instant Deployment"
 #~ msgstr "Sofortige Bereitstellung"

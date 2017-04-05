@@ -267,7 +267,7 @@ abstract class FOGPage extends FOGBase
         if ($node == 'storage') {
             $ref = preg_match(
                 '#node=storage&sub=storageGroup#i',
-                self::$httpreferer
+                $_SERVER['HTTP_REFERER']
             );
         }
         if (!isset($ref) || !$ref) {

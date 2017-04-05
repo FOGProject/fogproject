@@ -232,7 +232,7 @@ class SnapinReplicator extends FOGService
                         _('Replicating ssl less private key')
                     )
                 );
-                foreach ($ssls as $ssl) {
+                /*foreach ($ssls as $ssl) {
                     $this->replicateItems(
                         $myStorageGroupID,
                         $myStorageNodeID,
@@ -240,8 +240,9 @@ class SnapinReplicator extends FOGService
                         false,
                         $ssl
                     );
-                }
-                foreach ($Snapins as &$Snapin) {
+                }*/
+                foreach ($Snapins as &$Snapin
+                ) {
                     if (!$Snapin->getPrimaryGroup($myStorageGroupID)) {
                         self::outall(
                             sprintf(
