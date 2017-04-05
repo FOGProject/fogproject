@@ -462,19 +462,68 @@ $router->map(
     ) use (
         $checkvalid,
         $getter,
-        $printer
+        $printer,
+        $user
     ) {
         global $HookManager;
         $checkvalid($class);
+        // Get the current object.
+        $class = new $class($id);
+        // If not valid report not found and exit.
+        if (!$class->isValid()) {
+            HTTPResponseCodes::breakHead(
+                HTTPResponseCodes::HTTP_NOT_FOUND
+            );
+        }
         $tids = FOGCore::getSubObjectIDs('TaskType');
-        var_dump(file_get_contents('php://input'));
-        if (!in_array($tid, $tids)) {
+        $task = json_decode(
+            file_get_contents('php://input')
+        );
+        $TaskType = new TaskType($task->taskTypeID);
+        if (!$TaskType->isValid()) {
+            echo json_encode(
+                array(
+                    'error' => _('Invalid tasking type passed')
+                )
+            );
             HTTPResponseCodes::breakHead(
                 HTTPResponseCodes::HTTP_NOT_IMPLEMENTED
             );
         }
-        var_dump($_GET);
-        echo 'This is where we would create a tasking.';
+        try {
+            $class->createImagePackage(
+                $task->taskTypeID,
+                $task->taskName,
+                $task->shutdown,
+                $task->debug,
+                (
+                    $task->deploySnapins === true ?
+                    -1 :
+                    (
+                        (is_numeric($task->deploySnapins)
+                        && $task->deploySnapins > 0)
+                        || $task->deploySnapins == -1 ?
+                        $task->deploySnapins :
+                        false
+                    )
+                ),
+                $class instanceof Group,
+                $user,
+                $task->passreset,
+                $task->sessionjoin,
+                $task->wol
+            );
+        } catch (Exception $e) {
+            echo json_encode(
+                array('error' => $e->getMessage())
+            );
+            HTTPResponseCodes::breakHead(
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+        HTTPResponseCodes::breakHead(
+            HTTPResponseCodes::HTTP_SUCCESS
+        );
     },
     'tasking'
 );

@@ -70,6 +70,12 @@ class AltoRouter
      */
     protected $defaultParams = array();
     /**
+     * Array of transformers.
+     *
+     * @var array
+     */
+    protected $transformers = array();
+    /**
      * Create router in one call from config.
      *
      * @param array  $routes        The default routes to add.
@@ -257,7 +263,7 @@ class AltoRouter
      *
      * @param array $defaultParams The items to add.
      *
-     * @return array
+     * @return void
      */
     public function addDefaultParams($defaultParams)
     {
@@ -265,6 +271,19 @@ class AltoRouter
             $this->defaultParams,
             $defaultParams
         );
+    }
+    /**
+     * Add transformer.
+     *
+     * @param string           $matchType   The name/key for an added match type
+     * (see: addMatchTypes())
+     * @param \AltoTransformer $transformer A transformer instance.
+     *
+     * @return void
+     */
+    public function addTransformer($matchType, \AltoTransformer $transformer)
+    {
+        $this->transformers[$matchType] = $transformer;
     }
     /**
      * Map a route to a target.
@@ -360,6 +379,10 @@ class AltoRouter
                 if ($pre) {
                     $block = substr($block, 1);
                 }
+                if (isset($this->transformers[$type])) {
+                    $params[$param] = $this->transformers[$type]
+                        ->toUrl($params[$param]);
+                }
                 if (isset($params[$param])) {
                     // Part is found, replace for param value.
                     $url = str_replace(
@@ -450,7 +473,7 @@ class AltoRouter
                  */
                 if (!$match) {
                     $regex = $this->_compileRoute($route);
-                    $match = (1 === preg_match($regex, $requestUrl));
+                    $match = (1 === preg_match($regex['regex'], $requestUrl));
                 }
             } else {
                 // Compare longest non-param string with url
@@ -458,13 +481,22 @@ class AltoRouter
                     continue;
                 }
                 $regex = $this->_compileRoute($route);
-                $match = (1 === preg_match($regex, $requestUrl, $params));
+                $match = (1 === preg_match($regex['regex'], $requestUrl, $params));
             }
             if ($match) {
                 if ($params) {
                     foreach ($params as $key => $value) {
                         if (is_numeric($key)) {
                             unset($params[$key]);
+                        }
+                    }
+                    if (is_array($route)) {
+                        foreach ($params as $key => $value) {
+                            $type = $route['types'][$key];
+                            if (isset($this->transformers[$type])) {
+                                $params[$key]
+                                    = $this->transformers[$type]->fromUrl($value);
+                            }
                         }
                     }
                     /**
@@ -501,7 +533,15 @@ class AltoRouter
     private function _compileRoute($route)
     {
         $pattern = '`(/|\.|)\[([^:\]]*+)(?::([^:\]]*+))?\](\?|)`';
-        if (preg_match_all($pattern, $route, $matches, PREG_SET_ORDER)) {
+        $route = array(
+            'regex' => sprintf(
+                '`^%s$`u%s',
+                $route,
+                ($this->ignoreCase ? 'i' : '')
+            ),
+            'types' => array()
+        );
+        if (preg_match_all($pattern, $route['regex'], $matches, PREG_SET_ORDER)) {
             $matchTypes = $this->matchTypes;
             foreach ($matches as $match) {
                 list(
@@ -512,6 +552,7 @@ class AltoRouter
                     $optional
                 ) = $match;
                 $optional = ('' !== $optional ? '?' : null);
+                $route['types'][$param] = $type;
                 if (isset($matchTypes[$type])) {
                     $type = $matchTypes[$type];
                 }
@@ -528,14 +569,10 @@ class AltoRouter
                     . $optional
                     . ')'
                     . $optional;
-                $route = str_replace($block, $pattern, $route);
+                $route['regex'] = str_replace($block, $pattern, $route['regex']);
             }
         }
-        return sprintf(
-            '`^%s$`u%s',
-            $route,
-            ($this->ignoreCase ? 'i' : null)
-        );
+        return $route;
     }
     /**
      * Get request URI from $_SERVER.
