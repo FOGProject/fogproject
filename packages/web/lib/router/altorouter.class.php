@@ -290,7 +290,13 @@ class AltoRouter
         $target,
         $name = null
     ) {
-        $this->routes[] = array($method, $route, $target, $name);
+        $methods = explode('|', $method);
+        foreach ($methods as $method) {
+            if (!isset($this->routes[$method])) {
+                $this->routes[$method] = array();
+            }
+            $this->routes[$method][] = array($route, $target, $name);
+        }
         if ($name) {
             if (isset($this->namedRoutes[$name])) {
                 $msg = sprintf(
@@ -411,18 +417,15 @@ class AltoRouter
         if (null === $requestMethod) {
             $requestMethod = $this->getRequestMethod() ?: 'GET';
         }
-        foreach ($this->routes as $handler) {
+        if (empty($this->routes[$requestMethod])) {
+            return false;
+        }
+        foreach ($this->routes[$requestMethod] as $handler) {
             list(
-                $methods,
                 $route,
                 $target,
                 $name
             ) = $handler;
-            $method_match = (false !== stripos($methods, $requestMethod));
-            // Method did not match, continue to next route.
-            if (!$method_match) {
-                continue;
-            }
             if ('*' === $route) {
                 // * wildcard (matches all)
                 $match = true;
