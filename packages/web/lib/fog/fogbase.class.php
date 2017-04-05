@@ -222,13 +222,13 @@ abstract class FOGBase
      */
     public static $reqmethod;
     /**
-     * Current remote addr method.
+     * Current remote address.
      *
      * @var string
      */
     public static $remoteaddr;
     /**
-     * Current referer method.
+     * Current http referer.
      *
      * @var string
      */
@@ -315,7 +315,7 @@ abstract class FOGBase
         $queryPattern = '#sub=requestClientInfo#i';
         self::$querystring = filter_input(INPUT_SERVER, 'QUERY_STRING');
         self::$scriptname = filter_input(INPUT_SERVER, 'SCRIPT_NAME');
-        self::$httpreqwith = filter_input(INPUT_SERVER, 'HTTP_X_REQUEST_WITH');
+        self::$httpreqwith = filter_input(INPUT_SERVER, 'HTTP_X_REQUESTED_WITH');
         self::$reqmethod = filter_input(INPUT_SERVER, 'REQUEST_METHOD');
         self::$remoteaddr = filter_input(INPUT_SERVER, 'REMOTE_ADDR');
         self::$httpreferer = filter_input(INPUT_SERVER, 'HTTP_REFERER');
@@ -1833,7 +1833,7 @@ abstract class FOGBase
         if (self::$DB) {
             self::getClass('History')
                 ->set('info', $string)
-                ->set('ip', filter_input(INPUT_SERVER, 'REMOTE_ADDR'))
+                ->set('ip', self::$remoteaddr)
                 ->save();
         }
     }
