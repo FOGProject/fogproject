@@ -78,12 +78,18 @@ class Initiator
          */
         $self = !preg_match(
             '#service#i',
-            filter_input(INPUT_SERVER, 'PHP_SELF')
+            $_SERVER['PHP_SELF']
         );
         /**
          * Set useragent to false.
          */
-        $useragent = filter_input(INPUT_SERVER, 'HTTP_USER_AGENT');
+        $useragent = false;
+        /**
+         * If user agent is passed, define the useragent
+         */
+        if (isset($_SERVER['HTTP_USER_AGENT'])) {
+            $useragent = $_SERVER['HTTP_USER_AGENT'];
+        }
         /**
          * Define our base path (/var/www/, /var/www/html/, etc...)
          */
@@ -285,7 +291,7 @@ class Initiator
         /**
          * Gets our script name and path.
          */
-        $script_name = filter_input(INPUT_SERVER, 'SCRIPT_NAME');
+        $script_name = $_SERVER['SCRIPT_NAME'];
         /**
          * Stores our matching if fog is in the name variable
          */
@@ -316,10 +322,7 @@ class Initiator
         } elseif (file_exists('/var/www/fog')) {
             $path = '/var/www/fog';
         } else {
-            $docroot = trim(
-                filter_input(INPUT_SERVER, 'DOCUMENT_ROOT'),
-                '/'
-            );
+            $docroot = trim($_SERVER['DOCUMENT_ROOT'], '/');
             $path = sprintf(
                 '/%s',
                 sprintf(

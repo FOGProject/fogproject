@@ -50,7 +50,7 @@ class TaskLog extends FOGController
     public function __construct($data = '')
     {
         parent::__construct($data);
-        $this->set('ip', filter_input(INPUT_SERVER, 'REMOTE_ADDR'));
+        $this->set('ip', $_SERVER['REMOTE_ADDR']);
     }
     /**
      * Gets the task object.

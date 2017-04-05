@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-04 22:46-0400\n"
+"POT-Creation-Date: 2017-04-03 21:13-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -220,7 +220,7 @@ msgstr "Registro no encontrado, error: %s"
 #: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:54
 #: /var/www/fog/lib/service/fogservice.class.php:391
 #: /var/www/fog/lib/service/fogservice.class.php:420
-#: /var/www/fog/lib/service/fogservice.class.php:505
+#: /var/www/fog/lib/service/fogservice.class.php:498
 #: /var/www/fog/commons/text.php:66
 msgid "Name"
 msgstr "Nombre"
@@ -741,8 +741,6 @@ msgstr "Evento debe ser una cadena"
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:827
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:834
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1789
-#: /var/www/fog/lib/service/fogservice.class.php:419
-#: /var/www/fog/lib/service/fogservice.class.php:504
 #: /var/www/fog/commons/text.php:75
 msgid "File"
 msgstr "Archivo"
@@ -873,24 +871,24 @@ msgstr "El campo y los valores no tienen parámetros iguales."
 msgid "Need the table name to drop"
 msgstr ""
 
-#: /var/www/fog/lib/fog/user.class.php:249
-#: /var/www/fog/lib/fog/user.class.php:292
+#: /var/www/fog/lib/fog/user.class.php:243
+#: /var/www/fog/lib/fog/user.class.php:280
 msgid "user successfully logged in"
 msgstr "el usuario ha iniciado sesión con éxito en"
 
-#: /var/www/fog/lib/fog/user.class.php:306
+#: /var/www/fog/lib/fog/user.class.php:294
 msgid "user failed to login"
 msgstr "el usuario no pudo iniciar sesión"
 
-#: /var/www/fog/lib/fog/user.class.php:411
+#: /var/www/fog/lib/fog/user.class.php:399
 msgid "IP Address Changed"
 msgstr "Dirección IP ha cambiado"
 
-#: /var/www/fog/lib/fog/user.class.php:420
+#: /var/www/fog/lib/fog/user.class.php:408
 msgid "User Agent Changed"
 msgstr "Agente de usuario ha cambiado"
 
-#: /var/www/fog/lib/fog/user.class.php:429
+#: /var/www/fog/lib/fog/user.class.php:417
 msgid "Session altered improperly"
 msgstr "Sesión alterado indebidamente"
 
@@ -947,7 +945,7 @@ msgstr "Registrado"
 msgid "Set Failed"
 msgstr "Ha fallado"
 
-#: /var/www/fog/lib/fog/bootmenu.class.php:1405
+#: /var/www/fog/lib/fog/bootmenu.class.php:1375
 #, fuzzy
 msgid "No valid storage nodes found"
 msgstr "nodo de almacenamiento no válido"
@@ -7931,12 +7929,12 @@ msgid "I am not the master for this group"
 msgstr "No hay grupos en este servidor."
 
 #: /var/www/fog/lib/service/fogservice.class.php:381
-#: /var/www/fog/lib/service/fogservice.class.php:495
+#: /var/www/fog/lib/service/fogservice.class.php:488
 msgid "Not syncing"
 msgstr ""
 
 #: /var/www/fog/lib/service/fogservice.class.php:383
-#: /var/www/fog/lib/service/fogservice.class.php:497
+#: /var/www/fog/lib/service/fogservice.class.php:490
 msgid "between"
 msgstr ""
 
@@ -7950,46 +7948,46 @@ msgstr "No hay grupos en este servidor."
 msgid "to transfer to"
 msgstr "Transferencia de imágenes Entrar"
 
-#: /var/www/fog/lib/service/fogservice.class.php:480
+#: /var/www/fog/lib/service/fogservice.class.php:473
 msgid "Replication already running with PID"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:512
+#: /var/www/fog/lib/service/fogservice.class.php:505
 msgid "File or path cannot be reached"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:536
+#: /var/www/fog/lib/service/fogservice.class.php:529
 msgid "Cannot connect to"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:668
+#: /var/www/fog/lib/service/fogservice.class.php:635
 msgid "Files do not match"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:674
+#: /var/www/fog/lib/service/fogservice.class.php:641
 #, fuzzy
 msgid "Deleting remote file"
 msgstr "Menú Error de creación"
 
-#: /var/www/fog/lib/service/fogservice.class.php:685
+#: /var/www/fog/lib/service/fogservice.class.php:652
 msgid "No need to sync"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:687
+#: /var/www/fog/lib/service/fogservice.class.php:654
 #, fuzzy
 msgid "file to"
 msgstr "Archivo"
 
-#: /var/www/fog/lib/service/fogservice.class.php:718
+#: /var/www/fog/lib/service/fogservice.class.php:685
 msgid "Starting Sync Actions"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:777
+#: /var/www/fog/lib/service/fogservice.class.php:744
 #, fuzzy
 msgid "Started sync for"
 msgstr "Iniciado por:"
 
-#: /var/www/fog/lib/service/fogservice.class.php:809
+#: /var/www/fog/lib/service/fogservice.class.php:776
 #, fuzzy
 msgid "Task started"
 msgstr "Nombre de la tarea"
@@ -8513,12 +8511,12 @@ msgstr "Clave del producto Grupo"
 msgid "FOG Hosts and Users Login"
 msgstr ""
 
-#: /var/www/fog/commons/init.php:159
+#: /var/www/fog/commons/init.php:165
 #, fuzzy
 msgid "Classname must be a string"
 msgstr "Evento debe ser una cadena"
 
-#: /var/www/fog/commons/init.php:491
+#: /var/www/fog/commons/init.php:494
 msgid "Missing one or more extensions."
 msgstr ""
 

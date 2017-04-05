@@ -202,37 +202,25 @@ abstract class FOGBase
      *
      * @var string
      */
-    public static $scriptname;
+    protected static $scriptname;
     /**
      * Current requests query string.
      *
      * @var string
      */
-    public static $querystring;
+    protected static $querystring;
     /**
      * Current requests http requested with string.
      *
      * @var string
      */
-    public static $httpreqwith;
+    protected static $httpreqwith;
     /**
      * Current request method.
      *
      * @var string
      */
-    public static $reqmethod;
-    /**
-     * Current remote address.
-     *
-     * @var string
-     */
-    public static $remoteaddr;
-    /**
-     * Current http referer.
-     *
-     * @var string
-     */
-    public static $httpreferer;
+    protected static $reqmethod;
     /**
      * Is this a mobile request?
      *
@@ -313,12 +301,24 @@ abstract class FOGBase
         self::$FOGUser = &$currentUser;
         $scriptPattern = '#/service/#i';
         $queryPattern = '#sub=requestClientInfo#i';
-        self::$querystring = filter_input(INPUT_SERVER, 'QUERY_STRING');
-        self::$scriptname = filter_input(INPUT_SERVER, 'SCRIPT_NAME');
-        self::$httpreqwith = filter_input(INPUT_SERVER, 'HTTP_X_REQUESTED_WITH');
-        self::$reqmethod = filter_input(INPUT_SERVER, 'REQUEST_METHOD');
-        self::$remoteaddr = filter_input(INPUT_SERVER, 'REMOTE_ADDR');
-        self::$httpreferer = filter_input(INPUT_SERVER, 'HTTP_REFERER');
+        self::$querystring = Initiator::sanitizeItems(
+            $_SERVER['QUERY_STRING']
+        );
+        if (isset($_SERVER['SCRIPT_NAME'])) {
+            self::$scriptname = Initiator::sanitizeItems(
+                $_SERVER['SCRIPT_NAME']
+            );
+        }
+        if (isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
+            self::$httpreqwith = Initiator::sanitizeItems(
+                $_SERVER['HTTP_X_REQUESTED_WITH']
+            );
+        }
+        if (isset($_SERVER['REQUEST_METHOD'])) {
+            self::$reqmethod = Initiator::sanitizeItems(
+                $_SERVER['REQUEST_METHOD']
+            );
+        }
         if (preg_match('#/mobile/#i', self::$scriptname)) {
             self::$isMobile = true;
         }
@@ -1833,7 +1833,7 @@ abstract class FOGBase
         if (self::$DB) {
             self::getClass('History')
                 ->set('info', $string)
-                ->set('ip', self::$remoteaddr)
+                ->set('ip', $_SERVER['REMOTE_ADDR'])
                 ->save();
         }
     }

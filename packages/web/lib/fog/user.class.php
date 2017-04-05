@@ -228,14 +228,8 @@ class User extends FOGController
                 $this->_sessionID = session_id();
             }
             $this
-                ->set(
-                    'authUserAgent',
-                    self::$useragent
-                )
-                ->set(
-                    'authIP',
-                    self::$remoteaddr
-                )
+                ->set('authUserAgent', $_SERVER['HTTP_USER_AGENT'])
+                ->set('authIP', $_SERVER['REMOTE_ADDR'])
                 ->set('authTime', time())
                 ->set('authLastActivity', time())
                 ->set('authID', $this->_sessionID);
@@ -271,14 +265,8 @@ class User extends FOGController
                     $this->_sessionID = session_id();
                 }
                 $this
-                    ->set(
-                        'authUserAgent',
-                        self::$useragent
-                    )
-                    ->set(
-                        'authIP',
-                        self::$remoteaddr
-                    )
+                    ->set('authUserAgent', $_SERVER['HTTP_USER_AGENT'])
+                    ->set('authIP', $_SERVER['REMOTE_ADDR'])
                     ->set('authTime', time())
                     ->set('authLastActivity', time())
                     ->set('authID', $this->_sessionID);
@@ -405,7 +393,7 @@ class User extends FOGController
             ) {
                 return false;
             } elseif ($this->get('authIP')
-                && $this->get('authIP') != self::$remoteaddr
+                && $this->get('authIP') != $_SERVER['REMOTE_ADDR']
             ) {
                 if (!$_SESSION['FOG_MESSAGES']) {
                     self::setMessage(_('IP Address Changed'));
@@ -414,7 +402,7 @@ class User extends FOGController
                     $_SESSION['OBSOLETE'] = true;
                 }
             } elseif ($this->get('authUserAgent')
-                && $this->get('authUserAgent') != self::$useragent
+                && $this->get('authUserAgent') != $_SERVER['HTTP_USER_AGENT']
             ) {
                 if (!$_SESSION['FOG_MESSAGES']) {
                     self::setMessage(_('User Agent Changed'));
