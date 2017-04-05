@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-03 13:13-0400\n"
+"POT-Creation-Date: 2017-04-03 21:13-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1688,7 +1688,7 @@ msgstr "删除"
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1098
 #: /var/www/fog/lib/service/snapinreplicator.class.php:147
 #: /var/www/fog/lib/service/snapinreplicator.class.php:148
-#: /var/www/fog/lib/service/snapinreplicator.class.php:278
+#: /var/www/fog/lib/service/snapinreplicator.class.php:277
 #: /var/www/fog/lib/service/imagereplicator.class.php:148
 #: /var/www/fog/lib/service/imagereplicator.class.php:149
 #: /var/www/fog/lib/service/imagereplicator.class.php:286
@@ -7646,7 +7646,7 @@ msgid "Starting Snapin Replication"
 msgstr "管理单元复制"
 
 #: /var/www/fog/lib/service/snapinreplicator.class.php:146
-#: /var/www/fog/lib/service/snapinreplicator.class.php:277
+#: /var/www/fog/lib/service/snapinreplicator.class.php:276
 #: /var/www/fog/lib/service/imagereplicator.class.php:147
 #: /var/www/fog/lib/service/imagereplicator.class.php:285
 #, fuzzy
@@ -7654,7 +7654,7 @@ msgid "Attempting to perform"
 msgstr "尝试ping"
 
 #: /var/www/fog/lib/service/snapinreplicator.class.php:149
-#: /var/www/fog/lib/service/snapinreplicator.class.php:280
+#: /var/www/fog/lib/service/snapinreplicator.class.php:279
 #, fuzzy
 msgid "snapin replication"
 msgstr "管理单元复制"
@@ -7678,24 +7678,24 @@ msgstr "管理单元存储组"
 msgid "Replicating ssl less private key"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:250
+#: /var/www/fog/lib/service/snapinreplicator.class.php:249
 #, fuzzy
 msgid "Not syncing Snapin"
 msgstr "无连接来获取管理单元"
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:257
+#: /var/www/fog/lib/service/snapinreplicator.class.php:256
 #: /var/www/fog/lib/service/imagereplicator.class.php:265
 #, fuzzy
 msgid "This is not the primary group"
 msgstr "|这不是主要组"
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:279
+#: /var/www/fog/lib/service/snapinreplicator.class.php:278
 #: /var/www/fog/lib/service/imagereplicator.class.php:287
 #, fuzzy
 msgid "Nodes"
 msgstr "节点"
 
-#: /var/www/fog/lib/service/snapinreplicator.class.php:315
+#: /var/www/fog/lib/service/snapinreplicator.class.php:314
 #: /var/www/fog/lib/service/imagereplicator.class.php:323
 msgid "Checking if I am the group manager"
 msgstr ""
@@ -7719,6 +7719,11 @@ msgstr "图像复制"
 #, fuzzy
 msgid "images to a storage group"
 msgstr "主存储组"
+
+#: /var/www/fog/lib/service/imagereplicator.class.php:241
+#, fuzzy
+msgid "Replicating"
+msgstr "复制？"
 
 #: /var/www/fog/lib/service/imagereplicator.class.php:258
 msgid "Not syncing Image"
@@ -7814,16 +7819,16 @@ msgstr ""
 msgid "file to"
 msgstr "失败"
 
-#: /var/www/fog/lib/service/fogservice.class.php:682
+#: /var/www/fog/lib/service/fogservice.class.php:685
 #, fuzzy
 msgid "Starting Sync Actions"
 msgstr "*启动同步操作"
 
-#: /var/www/fog/lib/service/fogservice.class.php:737
+#: /var/www/fog/lib/service/fogservice.class.php:744
 msgid "Started sync for"
 msgstr "对于同步启动"
 
-#: /var/www/fog/lib/service/fogservice.class.php:769
+#: /var/www/fog/lib/service/fogservice.class.php:776
 #, fuzzy
 msgid "Task started"
 msgstr "任务开始"
@@ -9407,10 +9412,6 @@ msgstr "有此服务器上没有的位置。"
 #, fuzzy
 #~ msgid "Fixed filename must be a string"
 #~ msgstr "事件必须是字符串"
-
-#, fuzzy
-#~ msgid "Replicating"
-#~ msgstr "复制？"
 
 #~ msgid "Instant Deployment"
 #~ msgstr "即时部署"
