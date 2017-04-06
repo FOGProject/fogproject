@@ -12,6 +12,7 @@
  * @license  http://opensource.org/licenses/MIT MIT
  * @link     https://github.com/dannyvankooten/AltoRouter
  */
+//namespace AltoRouter;
 /**
  * An api map/routing mechanism. Simplified and small.
  * Based on klein.php and uses elements of Sinatra for regex
@@ -209,10 +210,10 @@ class AltoRouter
         if (!is_array($routes)
             && !$routes instanceof \Traversable
         ) {
-            $msg = _('Routes should be an array or an instance of Traversable');
-            if (defined('HHVM_VERSION')) {
-                $msg 
-                    = 'Routes should be an array or an instance of Traversable';
+            $msg 
+                = 'Routes should be an array or an instance of Traversable';
+            if (!defined('HHVM_VERSION')) {
+                $msg = _('Routes should be an array or an instance of Traversable');
             }
             throw new \Exception($msg);
         }
@@ -309,24 +310,24 @@ class AltoRouter
         $target,
         $name = null
     ) {
-        $methods = explode('|', $method);
-        foreach ($methods as $method) {
+        foreach (explode('|', $method) as $method) {
             if (!isset($this->routes[$method])) {
                 $this->routes[$method] = array();
             }
             $this->routes[$method][] = array($route, $target, $name);
+            unset($method);
         }
         if ($name) {
             if (isset($this->namedRoutes[$name])) {
                 $msg = sprintf(
                     "%s '%s'",
-                    _('Can not redeclare route'),
+                    'Can not redeclare route',
                     $name
                 );
-                if (defined('HHVM_VERSION')) {
+                if (!defined('HHVM_VERSION')) {
                     $msg = sprintf(
                         "%s '%s'",
-                        'Can not redeclare route',
+                        _('Can not redeclare route'),
                         $name
                     );
                 }
@@ -449,6 +450,7 @@ class AltoRouter
                 $target,
                 $name
             ) = $handler;
+            unset($handler);
             if ('*' === $route) {
                 // * wildcard (matches all)
                 $match = true;
@@ -464,17 +466,6 @@ class AltoRouter
             } elseif (false === ($position = strpos($route, '['))) {
                 // No params in url, do string comparison
                 $match = 0 === strcmp($requestUrl, $route);
-                /**
-                 * We should still check if the mapping matches, otherwise
-                 * only routes that contain [matchType:param] will work.
-                 * This means we can ONLY do mapped routes using this method.
-                 *
-                 * Yes, the pattern needs some work first.
-                 */
-                if (!$match) {
-                    $regex = $this->_compileRoute($route);
-                    $match = (1 === preg_match($regex['regex'], $requestUrl));
-                }
             } else {
                 // Compare longest non-param string with url
                 if (0 !== strncmp($requestUrl, $route, $position)) {
@@ -485,19 +476,21 @@ class AltoRouter
             }
             if ($match) {
                 if ($params) {
+                    $routeisarr = is_array($route);
                     foreach ($params as $key => $value) {
                         if (is_numeric($key)) {
                             unset($params[$key]);
+                            continue;
                         }
-                    }
-                    if (is_array($route)) {
-                        foreach ($params as $key => $value) {
-                            $type = $route['types'][$key];
-                            if (isset($this->transformers[$type])) {
-                                $params[$key]
-                                    = $this->transformers[$type]->fromUrl($value);
-                            }
+                        if (!$routeisarr) {
+                            continue;
                         }
+                        $type = $route['types'][$key];
+                        if (isset($this->transformers[$type])) {
+                            $params[$key]
+                                = $this->transformers[$type]->fromUrl($value);
+                        }
+                        unset($values);
                     }
                     /**
                      * Send the request method so we can test.
@@ -551,6 +544,7 @@ class AltoRouter
                     $param,
                     $optional
                 ) = $match;
+                unset($match);
                 $optional = ('' !== $optional ? '?' : null);
                 $route['types'][$param] = $type;
                 if (isset($matchTypes[$type])) {
