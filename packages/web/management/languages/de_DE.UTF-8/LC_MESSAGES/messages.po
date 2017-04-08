@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-08 12:08-0400\n"
+"POT-Creation-Date: 2017-04-08 16:23-0400\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -61,11 +61,6 @@ msgstr "Veranstaltung muss eine Zeichenfolge sein."
 #: /var/www/fog/status/bandwidth.php:50
 msgid "Only tx and rx bytes files can be read"
 msgstr ""
-
-#: /var/www/fog/api/index.php:447
-#, fuzzy
-msgid "Invalid tasking type passed"
-msgstr "Ungültiges Objekttyp übergeben"
 
 #: /var/www/fog/lib/fog/fogsubmenu.class.php:126
 #: /var/www/fog/lib/fog/fogsubmenu.class.php:180
@@ -6224,11 +6219,16 @@ msgstr "Zerstörte Zuordnung"
 msgid "Destroyed assignment"
 msgstr "Zerstörte Zuordnung"
 
-#: /var/www/fog/lib/router/altorouter.class.php:216
+#: /var/www/fog/lib/router/route.class.php:515
+#, fuzzy
+msgid "Invalid tasking type passed"
+msgstr "Ungültiges Objekttyp übergeben"
+
+#: /var/www/fog/lib/router/altorouter.class.php:217
 msgid "Routes should be an array or an instance of Traversable"
 msgstr ""
 
-#: /var/www/fog/lib/router/altorouter.class.php:330
+#: /var/www/fog/lib/router/altorouter.class.php:337
 msgid "Can not redeclare route"
 msgstr ""
 

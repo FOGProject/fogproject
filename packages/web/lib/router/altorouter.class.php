@@ -142,6 +142,7 @@ class AltoRouter
             array($this, 'map'),
             $arguments
         );
+        return $this;
     }
     /**
      * Retrieves all routes.
@@ -203,7 +204,7 @@ class AltoRouter
      *
      * @throws Exception
      *
-     * @return void
+     * @return AltoRouter
      */
     public function addRoutes($routes)
     {
@@ -220,6 +221,7 @@ class AltoRouter
         foreach ($routes as $route) {
             call_user_func_array(array($this, 'map'), $route);
         }
+        return $this;
     }
     /**
      * Set the base path.
@@ -227,11 +229,12 @@ class AltoRouter
      *
      * @param string $basePath The basepath to set as needed.
      *
-     * @return void
+     * @return AltoRouter
      */
     public function setBasePath($basePath)
     {
         $this->basePath = $basePath;
+        return $this;
     }
     /**
      * Set the ignore case value.
@@ -239,18 +242,19 @@ class AltoRouter
      *
      * @param bool $ignoreCase Set or not?
      *
-     * @return void
+     * @return AltoRouter
      */
     public function setIgnoreCase($ignoreCase)
     {
         $this->ignoreCase = (bool)$ignoreCase;
+        return $this;
     }
     /**
      * Add named match types. It uses array_merge so keys can be overwritten.
      *
      * @param array $matchTypes The key is the name and the value is the regex.
      *
-     * @return void
+     * @return AltoRouter
      */
     public function addMatchTypes($matchTypes)
     {
@@ -258,13 +262,14 @@ class AltoRouter
             $this->matchTypes,
             $matchTypes
         );
+        return $this;
     }
     /**
      * Adds default parameters.
      *
      * @param array $defaultParams The items to add.
      *
-     * @return void
+     * @return AltoRouter
      */
     public function addDefaultParams($defaultParams)
     {
@@ -272,6 +277,7 @@ class AltoRouter
             $this->defaultParams,
             $defaultParams
         );
+        return $this;
     }
     /**
      * Add transformer.
@@ -280,11 +286,12 @@ class AltoRouter
      * (see: addMatchTypes())
      * @param \AltoTransformer $transformer A transformer instance.
      *
-     * @return void
+     * @return AltoRouter
      */
     public function addTransformer($matchType, \AltoTransformer $transformer)
     {
         $this->transformers[$matchType] = $transformer;
+        return $this;
     }
     /**
      * Map a route to a target.
@@ -302,7 +309,7 @@ class AltoRouter
      *
      * @throws Exception
      *
-     * @return void
+     * @return AltoRouter
      */
     public function map(
         $method,
@@ -335,6 +342,7 @@ class AltoRouter
             }
             $this->namedRoutes[$name] = $route;
         }
+        return $this;
     }
     /**
      * Reversed routing.
@@ -542,7 +550,7 @@ class AltoRouter
                     $pre,
                     $type,
                     $param,
-                    $optional
+                    $optional,
                 ) = $match;
                 unset($match);
                 $optional = ('' !== $optional ? '?' : null);
@@ -555,13 +563,13 @@ class AltoRouter
                 }
                 // Older versions of PCRE require the 'P' in (?P<named>)
                 $pattern = '(?:'
-                    . ('' !== $pre ? $pre : null)
+                    . ('' !== $pre ? $pre.'+' : null)
                     . '('
                     . ('' !== $param ? "?P<$param>" : null)
                     . $type
                     . ')'
                     . $optional
-                    . ')'
+                    . '(/+|))'
                     . $optional;
                 $route['regex'] = str_replace($block, $pattern, $route['regex']);
             }
