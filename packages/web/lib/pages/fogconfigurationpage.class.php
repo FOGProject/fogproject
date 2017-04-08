@@ -1361,6 +1361,7 @@ class FOGConfigurationPage extends FOGPage
             'FOG_TASKING_ADV_WOL_ENABLED',
             'FOG_TASKING_ADV_DEBUG_ENABLED',
             'FOG_API_ENABLED',
+            'FOG_IMAGE_LIST_MENU',
         );
         self::$HookManager
             ->processEvent(
@@ -1820,6 +1821,7 @@ class FOGConfigurationPage extends FOGPage
             'FOG_REGISTRATION_ENABLED' => $checkbox,
             'FOG_KERNEL_LOGLEVEL' => range(0, 7),
             'FOG_WIPE_TIMEOUT' => true,
+            'FOG_IMAGE_LIST_MENU' => $checkbox,
             // FOG Email Settings
             'FOG_EMAIL_ACTION' => $checkbox,
             // FOG Linux Service Logs

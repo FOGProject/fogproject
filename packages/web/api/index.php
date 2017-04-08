@@ -20,33 +20,7 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
-// Check if API access is even enabled.
-$enabled = (bool)FOGCore::getSetting('FOG_API_ENABLED');
-if (!$enabled) {
-    header(
-        sprintf(
-            'Location: http%s://%s/fog/management/index.php',
-            filter_input(INPUT_SERVER, 'HTTPS') ? 's' : '',
-            filter_input(INPUT_SERVER, 'HTTP_HOST')
-        )
-    );
-}
-$currtoken = FOGCore::getSetting('FOG_API_TOKEN');
-$passtoken = base64_decode(
-    filter_input(INPUT_SERVER, 'HTTP_FOG_API_TOKEN')
-);
-if ($passtoken !== $currtoken) {
-    HTTPResponseCodes::breakHead(
-        HTTPResponseCodes::HTTP_FORBIDDEN
-    );
-}
-$user = $_SERVER['PHP_AUTH_USER'];
-$pass = $_SERVER['PHP_AUTH_PW'];
-if (!$currentUser->passwordValidate($user, $pass)) {
-    HTTPResponseCodes::breakHead(
-        HTTPResponseCodes::HTTP_UNAUTHORIZED
-    );
-}
+new Route;
 // Allow to process in background as needed.
 ignore_user_abort(true);
 // Allow infinite time to process as this is an api.
@@ -264,26 +238,12 @@ $getter = function (
     return $data;
 };
 /**
- * Common printer of our data.
- *
- * @param mixed $data The data to encode.
- *
- * @return void
- */
-$printer = function ($data) {
-    echo json_encode(
-        $data,
-        JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
-    );
-    exit;
-};
-/**
  * ##################################################
  * #           The meat and potatoes now.           #
  * ##################################################
  */
 // Instantiate the router object
-$router = new AltoRouter;
+$router = Route::$router;
 // Set base path to what is found here.
 $router->setBasePath(
     rtrim(
@@ -326,8 +286,7 @@ $router->map(
         $method
     ) use (
         $checkvalid,
-        $getter,
-        $printer
+        $getter
     ) {
         // Allows our hooks.
         global $HookManager;
@@ -385,7 +344,7 @@ $router->map(
                 )
             );
         // Print the data.
-        $printer($data);
+        Route::printer($data);
     },
     'objEdit'
 );
@@ -407,8 +366,7 @@ $router->get(
         $item
     ) use (
         $checkvalid,
-        $getter,
-        $printer
+        $getter
     ) {
         global $HookManager;
         $checkvalid($class);
@@ -421,13 +379,18 @@ $router->get(
             $data[$classname.'s'][] = $getter($classname, $class);
             unset($class);
         }
-        $printer($data);
+        Route::printer($data);
     },
     'objSearch'
 );
 $router->get(
     "/${expandedClasses}/?",
-    function ($class) use ($checkvalid, $getter, $printer) {
+    function (
+        $class
+    ) use (
+        $checkvalid,
+        $getter
+    ) {
         global $HookManager;
         $checkvalid($class);
         $classname = strtolower($class);
@@ -448,7 +411,7 @@ $router->get(
                     'method' => &$method
                 )
             );
-        $printer($data);
+        Route::printer($data);
     },
     'objList'
 );
@@ -461,7 +424,6 @@ $router->map(
     ) use (
         $checkvalid,
         $getter,
-        $printer,
         $user
     ) {
         global $HookManager;

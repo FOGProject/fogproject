@@ -930,10 +930,28 @@ class BootMenu extends FOGBase
             'menu',
         );
         $defItem = 'choose target && goto ${target}';
-        $Images = self::getClass('ImageManager')->find(array('isEnabled'=>1));
+        /**
+         * Sort a list.
+         */
+        $imgFind = array('isEnabled' => 1);
+        if (!self::getSetting('FOG_IMAGE_LIST_MENU')) {
+            if (!$this->_Host->isValid()
+                || !$this->_Host->getImage()->isValid()
+            ) {
+                $imgFind = false;
+            } else {
+                $imgFind['id'] = $this->_Host->getImage()->get('id');
+            }
+        }
+        if ($imgFind === false) {
+            $Images = false;
+        } else {
+            $Images = self::getClass('ImageManager')->find($imgFind);
+        }
         if (!$Images) {
             $Send['NoImages'] = array(
-                'echo No Images on server found',
+                'echo Host is not valid, host has no image assigned, or'
+                . ' there are no images defined on the server.',
                 'sleep 3',
             );
             $this->_parseMe($Send);
