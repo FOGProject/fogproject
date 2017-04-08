@@ -116,7 +116,7 @@ class Host extends FOGController
             'imageID',
             'imagename'
         ),
-        'HostScreenSettings' => array(
+        'HostScreenSetting' => array(
             'hostID',
             'id',
             'hostscreen'
@@ -241,7 +241,7 @@ class Host extends FOGController
             ->destroy($find);
         self::getClass('HostAutoLogoutManager')
             ->destroy($find);
-        self::getClass('HostScreenSettingsManager')
+        self::getClass('HostScreenSettingManager')
             ->destroy($find);
         self::getClass('GroupAssociationManager')
             ->destroy($find);
@@ -1425,11 +1425,11 @@ class Host extends FOGController
                 }
             }
             if ($TaskType->isMulticast()) {
-                $multicastTaskReturn = function (&$MulticastSessions) {
-                    if (!$MulticastSessions->isValid()) {
+                $multicastTaskReturn = function (&$MulticastSession) {
+                    if (!$MulticastSession->isValid()) {
                         return;
                     }
-                    return $MulticastSessions;
+                    return $MulticastSession;
                 };
                 $assoc = false;
                 $showStates = self::fastmerge(
@@ -1437,7 +1437,7 @@ class Host extends FOGController
                     (array)self::getProgressState()
                 );
                 if ($sessionjoin) {
-                    $MCSessions = self::getClass('MulticastSessionsManager')
+                    $MCSessions = self::getClass('MulticastSessionManager')
                         ->find(
                             array(
                                 'name' => $taskName,
@@ -1446,7 +1446,7 @@ class Host extends FOGController
                         );
                     $assoc = true;
                 } else {
-                    $MCSessions = self::getClass('MulticastSessionsManager')
+                    $MCSessions = self::getClass('MulticastSessionManager')
                         ->find(
                             array(
                                 'image' => $Image->get('id'),
@@ -1464,14 +1464,14 @@ class Host extends FOGController
                     $MulticastSession = array_shift($MultiSessJoin);
                 }
                 unset($MultiSessJoin);
-                if ($MulticastSession instanceof MulticastSessions
+                if ($MulticastSession instanceof MulticastSession
                     && $MulticastSession->isValid()
                 ) {
                     $assoc = true;
                 } else {
                     $port = self::getSetting('FOG_UDPCAST_STARTINGPORT');
                     $portOverride = self::getSetting('FOG_MULTICAST_PORT_OVERRIDE');
-                    $MulticastSession = self::getClass('MulticastSessions')
+                    $MulticastSession = self::getClass('MulticastSession')
                         ->set('name', $taskName)
                         ->set('port', ($portOverride ? $portOverride : $port))
                         ->set('logpath', $this->getImage()->get('path'))
@@ -1500,7 +1500,7 @@ class Host extends FOGController
                     }
                 }
                 if ($assoc) {
-                    self::getClass('MulticastSessionsAssociation')
+                    self::getClass('MulticastSessionAssociation')
                         ->set('msID', $MulticastSession->get('id'))
                         ->set('taskID', $Task->get('id'))
                         ->save();

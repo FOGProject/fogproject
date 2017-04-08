@@ -743,7 +743,7 @@ class BootMenu extends FOGBase
                 (array)self::getProgressState()
             ),
         );
-        foreach ((array)self::getClass('MulticastSessionsManager')
+        foreach ((array)self::getClass('MulticastSessionManager')
             ->find($findWhere) as &$MulticastSession
         ) {
             if (!$MulticastSession->isValid()
@@ -757,7 +757,7 @@ class BootMenu extends FOGBase
             unset($MulticastSession);
             break;
         }
-        $MulticastSession = new MulticastSessions($MulticastSessionID);
+        $MulticastSession = new MulticastSession($MulticastSessionID);
         if (!$MulticastSession->isValid()) {
             $Send['checksession'] = array(
                 'echo No session found with that name.',
@@ -1035,7 +1035,7 @@ class BootMenu extends FOGBase
      */
     public function multijoin($msid)
     {
-        $MultiSess = new MulticastSessions($msid);
+        $MultiSess = new MulticastSession($msid);
         if (!$MultiSess->isValid()) {
             return;
         }
@@ -1297,13 +1297,13 @@ class BootMenu extends FOGBase
             if ($TaskType->isMulticast()) {
                 $msaID = @max(
                     self::getSubObjectIDs(
-                        'MulticastSessionsAssociation',
+                        'MulticastSessionAssociation',
                         array(
                             'taskID' => $Task->get('id')
                         )
                     )
                 );
-                $MulticastSessionAssoc = new MulticastSessionsAssociation($msaID);
+                $MulticastSessionAssoc = new MulticastSessionAssociation($msaID);
                 $MulticastSession = $MulticastSessionAssoc->getMulticastSession();
                 if ($MulticastSession && $MulticastSession->isValid()) {
                     $this->_Host->set('imageID', $MulticastSession->get('image'));

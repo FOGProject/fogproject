@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * @category MulticastSessions
+ * @category MulticastSession
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
@@ -13,13 +13,13 @@
 /**
  * Handles the session in db.
  *
- * @category MulticastSessions
+ * @category MulticastSession
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class MulticastSessions extends FOGController
+class MulticastSession extends FOGController
 {
     /**
      * The multicast sessions table.
@@ -77,7 +77,7 @@ class MulticastSessions extends FOGController
     public function cancel()
     {
         $taskIDs = self::getSubObjectIDs(
-            'MulticastSessionsAssociation',
+            'MulticastSessionAssociation',
             array('msID' => $this->get('id')),
             'taskID'
         );
@@ -89,7 +89,7 @@ class MulticastSessions extends FOGController
                     'stateID' => self::getCancelledState()
                 )
             );
-        self::getClass('MulticastSessionsAssociationManager')
+        self::getClass('MulticastSessionAssociationManager')
             ->destroy(array('msID' => $this->get('id')));
         return $this->set(
             'stateID',

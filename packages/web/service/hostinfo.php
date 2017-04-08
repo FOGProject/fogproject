@@ -38,10 +38,10 @@ try {
     if ($TaskType->isInitNeededTasking()) {
         if ($TaskType->isMulticast()) {
             $MulticastSession = FOGCore::getClass(
-                'MulticastSessions',
+                'MulticastSession',
                 @max(
                     FOGCore::getSubObjectIDs(
-                        'MulticastSessionsAssociation',
+                        'MulticastSessionAssociation',
                         array('taskID' => $Task->get('id'))
                     )
                 )

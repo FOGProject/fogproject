@@ -53,17 +53,16 @@ ignore_user_abort(true);
 set_time_limit(0);
 // Set up our current valid classes.
 $validClasses = array(
-    'clientupdate',
+    'clientupdater',
     'dircleaner',
     'greenfog',
-    'greenfogassociation',
     'groupassociation',
     'group',
     'history',
     'hookevent',
     'hostautologout',
     'host',
-    'hostscreensettings',
+    'hostscreensetting',
     'imageassociation',
     'image',
     'imagepartitiontype',
@@ -75,8 +74,8 @@ $validClasses = array(
     'macaddressassociation',
     'moduleassociation',
     'module',
-    'multicastsessionsassociation',
-    'multicastsessions',
+    'multicastsessionassociation',
+    'multicastsession',
     'nodefailure',
     'notifyevent',
     'os',
@@ -196,7 +195,7 @@ $getter = function (
                 'primac' => $class->get('mac')->__toString(),
                 'imagename' => $class->getImageName(),
                 'hostscreen' => $getter(
-                    'hostscreensettings',
+                    'hostscreensetting',
                     $class->get('hostscreen')
                 ),
                 'hostalo' => $getter('hostautologout', $class->get('hostalo')),

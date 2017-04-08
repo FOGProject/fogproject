@@ -1328,7 +1328,7 @@ class ImageManagementPage extends FOGPage
                 (array) self::getProgressState()
             )
         );
-        foreach ((array)self::getClass('MulticastSessionsManager')
+        foreach ((array)self::getClass('MulticastSessionManager')
             ->find($find) as &$MulticastSession
         ) {
             $Image = $MulticastSession->getImage();
@@ -1378,7 +1378,7 @@ class ImageManagementPage extends FOGPage
             if (!$_REQUEST['image']) {
                 throw new Exception(_('Please choose an image'));
             }
-            if (self::getClass('MulticastSessionsManager')->exists($name)) {
+            if (self::getClass('MulticastSessionManager')->exists($name)) {
                 throw new Exception(_('Session with that name already exists'));
             }
             if (self::getClass('HostManager')->exists($name)) {
@@ -1389,7 +1389,7 @@ class ImageManagementPage extends FOGPage
             if (is_numeric($_REQUEST['timeout']) && $_REQUEST['timeout'] > 0) {
                 self::setSetting('FOG_UDPCAST_MAXWAIT', $_REQUEST['timeout']);
             }
-            $countmc = self::getClass('MulticastSessionsManager')
+            $countmc = self::getClass('MulticastSessionManager')
                 ->count(
                     array(
                         'stateID' => self::fastmerge(
@@ -1415,7 +1415,7 @@ class ImageManagementPage extends FOGPage
                     )
                 );
             }
-            $MulticastSession = self::getClass('MulticastSessions')
+            $MulticastSession = self::getClass('MulticastSession')
                 ->set('name', $name)
                 ->set('port', self::getSetting('FOG_UDPCAST_STARTINGPORT'))
                 ->set('image', $Image->get('id'))
@@ -1464,7 +1464,7 @@ class ImageManagementPage extends FOGPage
         if ($_REQUEST['mcid'] < 1) {
             self::redirect(sprintf('?node=%s&sub=multicast', $this->node));
         }
-        self::getClass('MulticastSessionsManager')->cancel($_REQUEST['mcid']);
+        self::getClass('MulticastSessionManager')->cancel($_REQUEST['mcid']);
         self::setMessage(
             sprintf(
                 '%s%s',
