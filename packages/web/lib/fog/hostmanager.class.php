@@ -295,7 +295,7 @@ class HostManager extends FOGManagerController
         /*
          * Remove any host screen entries
          */
-        self::getClass('HostScreenSettingsManager')->destroy($findWhere);
+        self::getClass('HostScreenSettingManager')->destroy($findWhere);
         /*
          * Remove any group entries
          */

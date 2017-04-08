@@ -288,7 +288,7 @@ class Group extends FOGController
         $y,
         $r
     ) {
-        self::getClass('HostScreenSettingsManager')
+        self::getClass('HostScreenSettingManager')
             ->destroy(
                 array(
                     'hostID' => $this->get('hosts'),
@@ -305,7 +305,7 @@ class Group extends FOGController
             $insert_items[] = array($hostID, $x, $y, $r);
             unset($hostID);
         }
-        self::getClass('HostScreenSettingsManager')
+        self::getClass('HostScreenSettingManager')
             ->insertBatch(
                 $insert_fields,
                 $insert_items
@@ -520,7 +520,7 @@ class Group extends FOGController
                 } else {
                     $port = $defaultPort;
                 }
-                $MulticastSession = self::getClass('MulticastSessions')
+                $MulticastSession = self::getClass('MulticastSession')
                     ->set('name', $taskName)
                     ->set('port', $port)
                     ->set('logpath', $Image->get('path'))
@@ -532,7 +532,7 @@ class Group extends FOGController
                     ->set('isDD', $Image->get('imageTypeID'))
                     ->set('storagegroupID', $StorageGroup->get('id'));
                 if ($MulticastSession->save()) {
-                    self::getClass('MulticastSessionsAssociationManager')
+                    self::getClass('MulticastSessionAssociationManager')
                         ->destroy(
                             array(
                                 'hostID' => $this->get('hosts'),
@@ -593,7 +593,7 @@ class Group extends FOGController
                         unset($val);
                     }
                     if (count($multicastsessionassocs) > 0) {
-                        self::getClass('MulticastSessionsAssociationManager')
+                        self::getClass('MulticastSessionAssociationManager')
                             ->insertBatch(
                                 array(
                                     'msID',

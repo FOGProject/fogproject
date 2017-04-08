@@ -324,7 +324,7 @@ class MulticastManager extends FOGService
                                 $KnownTasks,
                                 $RTask->getID()
                             );
-                            self::getClass('MulticastSessionsAssociationManager')
+                            self::getClass('MulticastSessionAssociationManager')
                                 ->destroy(
                                     array('msID' => $RTask->getID())
                                 );

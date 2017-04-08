@@ -3726,3 +3726,12 @@ $this->schema[] = array(
     . self::createSecToken()
     . "','API System')"
 );
+// 257
+$this->schema[] = array(
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
+    . "VALUES "
+    . "('FOG_IMAGE_LIST_MENU',"
+    . "'Enables Image list on boot menu deploy image (Defaults to on)',"
+    . "'1','FOG Boot Settings')"
+);

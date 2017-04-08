@@ -196,13 +196,13 @@ class Task extends TaskType
         }
         if ($this->isMulticast()) {
             $msIDs = self::getSubObjectIDs(
-                'MulticastSessionsAssociation',
+                'MulticastSessionAssociation',
                 array(
                     'taskID' => $this->get('id')
                 ),
                 'jobID'
             );
-            self::getClass('MulticastSessionsManager')
+            self::getClass('MulticastSessionManager')
                 ->update(
                     array('id' => $msIDs),
                     '',

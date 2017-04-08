@@ -738,7 +738,7 @@ class TaskManagementPage extends FOGPage
                 (array) self::getProgressState()
             )
         );
-        foreach ((array)self::getClass('MulticastSessionsManager')
+        foreach ((array)self::getClass('MulticastSessionManager')
             ->find($find) as &$MulticastSession
         ) {
             $TaskState = $MulticastSession->getTaskState();
@@ -753,7 +753,7 @@ class TaskManagementPage extends FOGPage
                     _('MulticastTask')
                 ),
                 'count' => (
-                    self::getClass('MulticastSessionsAssociationManager')
+                    self::getClass('MulticastSessionAssociationManager')
                     ->count(array('msID' => $MulticastSession->get('id')))
                 ),
                 'start_date' => self::formatTime(
@@ -793,14 +793,14 @@ class TaskManagementPage extends FOGPage
         }
         $MulticastSessionIDs = (array)$_REQUEST['task'];
         $TaskIDs = self::getSubObjectIDs(
-            'MulticastSessionsAssociation',
+            'MulticastSessionAssociation',
             array(
                 'msID' => $MulticastSessionIDs
             ),
             'taskID'
         );
         self::getClass('TaskManager')->cancel($TaskIDs);
-        self::getClass('MulticastSessionsManager')->cancel($_REQUEST['task']);
+        self::getClass('MulticastSessionManager')->cancel($_REQUEST['task']);
         unset($MulticastSessionIDs);
         exit;
     }
