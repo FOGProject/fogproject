@@ -557,8 +557,7 @@ class Route extends FOGBase
      */
     public static function create($class)
     {
-        echo $class;
-        exit;
+        self::setErrorMessage(_('Function exists, but not implemented yet'));
     }
     /**
      * Cancels a task element.
@@ -570,8 +569,27 @@ class Route extends FOGBase
      */
     public static function cancel($class, $id)
     {
-        echo $class.' '.$id;
-        exit;
+        $class = new $class($id);
+        if (!$class->isValid()) {
+            self::sendResponse(
+                HTTPResponseCodes::HTTP_NOT_FOUND
+            );
+        }
+        if ($class instanceof Group) {
+            foreach (self::getClass('HostManager')
+                ->find(array('id' => $class->get('hosts'))) as &$Host
+            ) {
+                if ($Host->get('task') instanceof Task) {
+                    $Host->get('task')->cancel();
+                }
+                unset($Host);
+            }
+        } else {
+            if ($class->get('task') instanceof Task) {
+                $class->get('task')->cancel();
+            }
+        }
+        self::$data = '';
     }
     /**
      * Deletes an element.
@@ -583,8 +601,14 @@ class Route extends FOGBase
      */
     public static function delete($class, $id)
     {
-        echo $class.' '.$id;
-        exit;
+        $class = new $class($id);
+        if (!$class->isValid()) {
+            self::sendResponse(
+                HTTPResponseCodes::HTTP_NOT_FOUND
+            );
+        }
+        $class->destroy();
+        self::$data = '';
     }
     /**
      * Sets an error message.
