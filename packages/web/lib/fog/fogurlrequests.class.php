@@ -173,6 +173,12 @@ class FOGURLRequests extends FOGBase
      */
     public function __get($name)
     {
+        if (in_array($name, array('headers'))) {
+            $name = sprintf(
+                '_%s',
+                $name
+            );
+        }
         return (isset($this->{$name})) ? $this->{$name} : null;
     }
     /**
@@ -190,6 +196,12 @@ class FOGURLRequests extends FOGBase
             'options',
             'headers',
         );
+        if (in_array($name, array('headers'))) {
+            $name = sprintf(
+                '_%s',
+                $name
+            );
+        }
         if (in_array($name, $addMethods)) {
             $this->{$name} = $value + $this->{$name};
         } else {
@@ -458,7 +470,7 @@ class FOGURLRequests extends FOGBase
         }
         if ($headers) {
             $options[CURLOPT_HEADER] = 0;
-            $options[CURLOPT_HTTPHEADER] = $headers;
+            $options[CURLOPT_HTTPHEADER] = (array)$headers;
         }
         if ($available) {
             unset($options[CURLOPT_TIMEOUT]);
