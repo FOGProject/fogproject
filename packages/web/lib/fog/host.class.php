@@ -1326,10 +1326,10 @@ class Host extends FOGController
                         $currSnapins = self::getSubObjectIDs(
                             'SnapinTask',
                             array(
-                                'hostID' => $this->get('id'),
+                                'jobID' => $this->get('snapinjob')->get('id'),
                                 'stateID' => self::fastmerge(
                                     (array)$this->getQueuedStates(),
-                                    (array)$this->getProgressSate()
+                                    (array)$this->getProgressState()
                                 ),
                             ),
                             'snapinID'
