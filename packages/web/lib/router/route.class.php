@@ -684,7 +684,8 @@ class Route extends FOGBase
                         $class->get('inventory')
                     ),
                     'imagename' => $class->getImageName(),
-                    'pingstatus' => $class->getPingCodeStr()
+                    'pingstatus' => $class->getPingCodeStr(),
+                    'macs' => $class->getMyMacs()
                 )
             );
             break;
