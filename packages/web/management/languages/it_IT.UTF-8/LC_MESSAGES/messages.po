@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-08 18:00-0400\n"
+"POT-Creation-Date: 2017-04-08 23:06-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -528,8 +528,8 @@ msgid "No hosts to task"
 msgstr "Strutture a Task"
 
 #: /var/www/fog/lib/fog/group.class.php:489
-#: /var/www/fog/lib/fog/host.class.php:1356
-#: /var/www/fog/lib/fog/host.class.php:1537
+#: /var/www/fog/lib/fog/host.class.php:1369
+#: /var/www/fog/lib/fog/host.class.php:1550
 msgid "Image is not enabled"
 msgstr "L'immagine non è abilitato"
 
@@ -783,38 +783,38 @@ msgstr "Non ci sono snapins associati con questo host"
 msgid "Failed to create Snapin Job"
 msgstr "Impossibile creare Snapin lavoro"
 
-#: /var/www/fog/lib/fog/host.class.php:1370
+#: /var/www/fog/lib/fog/host.class.php:1383
 #, fuzzy
 msgid "Could not find any"
 msgstr "Impossibile trovare il nome del file temporaneo"
 
-#: /var/www/fog/lib/fog/host.class.php:1371
+#: /var/www/fog/lib/fog/host.class.php:1384
 #, fuzzy
 msgid "nodes containing this image"
 msgstr "Impossibile trovare i nodi che contengono questa immagine"
 
-#: /var/www/fog/lib/fog/host.class.php:1534
+#: /var/www/fog/lib/fog/host.class.php:1547
 #, fuzzy
 msgid "No valid Image defined for this host"
 msgstr "No Image definito per questo host"
 
-#: /var/www/fog/lib/fog/host.class.php:1685
+#: /var/www/fog/lib/fog/host.class.php:1698
 #, fuzzy
 msgid "No viable macs to use"
 msgstr "Non in grado di aggiornare"
 
-#: /var/www/fog/lib/fog/host.class.php:1752
+#: /var/www/fog/lib/fog/host.class.php:1765
 #: /var/www/fog/lib/service/snapinhash.class.php:171
 #, fuzzy
 msgid "snapin"
 msgstr "Snapin"
 
-#: /var/www/fog/lib/fog/host.class.php:1754
+#: /var/www/fog/lib/fog/host.class.php:1767
 #, fuzzy
 msgid "per host"
 msgstr "snap-in per host"
 
-#: /var/www/fog/lib/fog/host.class.php:1759
+#: /var/www/fog/lib/fog/host.class.php:1772
 msgid "You are only allowed to assign"
 msgstr "È consentito soltanto per assegnare"
 
@@ -4436,7 +4436,22 @@ msgid "Active"
 msgstr "Attivo"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1072
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1077
+#, fuzzy
+msgid "All snapins"
+msgstr "Tutti gli snap-in"
+
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1076
+#, fuzzy
+msgid "Invalid snapin"
+msgstr "Snapin non valido"
+
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1078
+#, fuzzy
+msgid "Snapin to be installed"
+msgstr "snap-Enabled"
+
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1089
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1094
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:535
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:225
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:193
@@ -4447,8 +4462,8 @@ msgstr "Attivo"
 msgid "Yes"
 msgstr "sì"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1073
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1078
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1090
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1095
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:536
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:223
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:194
@@ -4459,12 +4474,12 @@ msgstr "sì"
 msgid "No"
 msgstr "No"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1083
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1100
 #: /var/www/fog/lib/service/taskscheduler.class.php:193
 msgid "group"
 msgstr "gruppo"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1084
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1101
 #: /var/www/fog/lib/service/taskscheduler.class.php:196
 #: /var/www/fog/lib/service/pinghosts.class.php:148
 msgid "host"
@@ -10023,9 +10038,6 @@ msgstr "Non ci sono posizioni su questo server."
 
 #~ msgid "Group is Invalid"
 #~ msgstr "Gruppo è valido"
-
-#~ msgid "All Snap-ins"
-#~ msgstr "Tutti gli snap-in"
 
 #~ msgid "Please select a storage group for this snapin to reside in"
 #~ msgstr ""

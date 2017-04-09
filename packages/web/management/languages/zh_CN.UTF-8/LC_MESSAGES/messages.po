@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-08 18:00-0400\n"
+"POT-Creation-Date: 2017-04-08 23:06-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -525,8 +525,8 @@ msgid "No hosts to task"
 msgstr "在任务主机"
 
 #: /var/www/fog/lib/fog/group.class.php:489
-#: /var/www/fog/lib/fog/host.class.php:1356
-#: /var/www/fog/lib/fog/host.class.php:1537
+#: /var/www/fog/lib/fog/host.class.php:1369
+#: /var/www/fog/lib/fog/host.class.php:1550
 msgid "Image is not enabled"
 msgstr "图片未启用"
 
@@ -777,38 +777,38 @@ msgstr "没有与此主机关联snapins"
 msgid "Failed to create Snapin Job"
 msgstr "无法创建管理单元工作"
 
-#: /var/www/fog/lib/fog/host.class.php:1370
+#: /var/www/fog/lib/fog/host.class.php:1383
 #, fuzzy
 msgid "Could not find any"
 msgstr "找不到临时文件名"
 
-#: /var/www/fog/lib/fog/host.class.php:1371
+#: /var/www/fog/lib/fog/host.class.php:1384
 #, fuzzy
 msgid "nodes containing this image"
 msgstr "找不到包含该图像的任何节点"
 
-#: /var/www/fog/lib/fog/host.class.php:1534
+#: /var/www/fog/lib/fog/host.class.php:1547
 #, fuzzy
 msgid "No valid Image defined for this host"
 msgstr "没有找到主机定义图片"
 
-#: /var/www/fog/lib/fog/host.class.php:1685
+#: /var/www/fog/lib/fog/host.class.php:1698
 #, fuzzy
 msgid "No viable macs to use"
 msgstr "不能够更新"
 
-#: /var/www/fog/lib/fog/host.class.php:1752
+#: /var/www/fog/lib/fog/host.class.php:1765
 #: /var/www/fog/lib/service/snapinhash.class.php:171
 #, fuzzy
 msgid "snapin"
 msgstr "管理单元"
 
-#: /var/www/fog/lib/fog/host.class.php:1754
+#: /var/www/fog/lib/fog/host.class.php:1767
 #, fuzzy
 msgid "per host"
 msgstr "每个主机管理单元"
 
-#: /var/www/fog/lib/fog/host.class.php:1759
+#: /var/www/fog/lib/fog/host.class.php:1772
 msgid "You are only allowed to assign"
 msgstr "您只能分配"
 
@@ -4417,7 +4417,22 @@ msgid "Active"
 msgstr "活性"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1072
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1077
+#, fuzzy
+msgid "All snapins"
+msgstr "所有管理单元"
+
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1076
+#, fuzzy
+msgid "Invalid snapin"
+msgstr "无效的管理单元"
+
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1078
+#, fuzzy
+msgid "Snapin to be installed"
+msgstr "启用管理单元"
+
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1089
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1094
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:535
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:225
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:193
@@ -4428,8 +4443,8 @@ msgstr "活性"
 msgid "Yes"
 msgstr "是"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1073
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1078
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1090
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1095
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:536
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:223
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:194
@@ -4440,12 +4455,12 @@ msgstr "是"
 msgid "No"
 msgstr "没有"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1083
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1100
 #: /var/www/fog/lib/service/taskscheduler.class.php:193
 msgid "group"
 msgstr "组"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1084
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1101
 #: /var/www/fog/lib/service/taskscheduler.class.php:196
 #: /var/www/fog/lib/service/pinghosts.class.php:148
 msgid "host"
@@ -9929,9 +9944,6 @@ msgstr "有此服务器上没有的位置。"
 
 #~ msgid "Group is Invalid"
 #~ msgstr "集团是无效的"
-
-#~ msgid "All Snap-ins"
-#~ msgstr "所有管理单元"
 
 #~ msgid "Please select a storage group for this snapin to reside in"
 #~ msgstr "请选择一个存储组此管理单元居住在"

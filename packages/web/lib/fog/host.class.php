@@ -1323,15 +1323,28 @@ class Host extends FOGController
                     throw new Exception(self::$foglang['InTask']);
                 } elseif ($Task->isSnapinTasking()) {
                     if ($TaskType->get('id') == '13') {
-                        $Task
-                            ->set(
-                                'name',
-                                'Multiple Snapin task -- Altered after single'
-                            )
-                            ->set(
-                                'typeID',
-                                12
-                            )->save();
+                        $currSnapins = self::getSubObjectIDs(
+                            'SnapinTask',
+                            array(
+                                'hostID' => $this->get('id'),
+                                'stateID' => self::fastmerge(
+                                    (array)$this->getQueuedStates(),
+                                    (array)$this->getProgressSate()
+                                ),
+                            ),
+                            'snapinID'
+                        );
+                        if (!in_array($deploySnapins, $currSnapins)) {
+                            $Task
+                                ->set(
+                                    'name',
+                                    'Multiple Snapin task -- Altered after single'
+                                )
+                                ->set(
+                                    'typeID',
+                                    12
+                                )->save();
+                        }
                     } elseif ($TaskType->get('id') == '12') {
                         $this->_cancelJobsSnapinsForHost();
                     } else {
