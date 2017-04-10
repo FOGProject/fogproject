@@ -1312,7 +1312,7 @@ class ReportManagementPage extends FOGPage
             _('Create Time'),
         );
         $this->templates = array(
-            '${host_name}',
+            '${host_name}<br/>${checkin}',
             '${snap_name}',
             '${snap_state}',
             '${snap_return}',
@@ -1394,6 +1394,7 @@ class ReportManagementPage extends FOGPage
             $State = new TaskState($SnapinTask->get('stateID'));
             $this->data[] = array(
                 'host_name' => $Host->get('name'),
+                'checkin' => $SnapinTask->get('checkin'),
                 'snap_name' => $Snapin->get('name'),
                 'snap_state' => $State->get('name'),
                 'snap_return' => $SnapinTask->get('return'),
