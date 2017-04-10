@@ -38,14 +38,13 @@ class Host_List extends ReportManagementPage
     {
         $this->name = 'Host List';
         parent::__construct($this->name);
-        $this->index();
     }
     /**
      * Display page.
      *
      * @return void
      */
-    public function index()
+    public function file()
     {
         $this->title = _('Host Listing Export');
         printf(

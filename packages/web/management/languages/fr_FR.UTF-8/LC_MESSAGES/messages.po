@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-09 18:44-0400\n"
+"POT-Creation-Date: 2017-04-09 18:55-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -973,7 +973,7 @@ msgstr "%s ID %s est pas valide"
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:509
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:576
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1417
-#: /var/www/fog/management/reports/host_list.report.php:63
+#: /var/www/fog/management/reports/host_list.report.php:62
 msgid "Host ID"
 msgstr "ID d'hôte"
 
@@ -995,8 +995,8 @@ msgstr "Nom d'hôte"
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:515
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1185
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1419
-#: /var/www/fog/management/reports/host_list.report.php:66
-#: /var/www/fog/management/reports/host_list.report.php:85
+#: /var/www/fog/management/reports/host_list.report.php:65
+#: /var/www/fog/management/reports/host_list.report.php:84
 msgid "Host MAC"
 msgstr "hôte MAC"
 
@@ -1006,7 +1006,7 @@ msgstr "hôte MAC"
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:518
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:579
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1186
-#: /var/www/fog/management/reports/host_list.report.php:65
+#: /var/www/fog/management/reports/host_list.report.php:64
 msgid "Host Desc"
 msgstr "hôte Desc"
 
@@ -1892,9 +1892,9 @@ msgstr "Groupe de stockage primaire"
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:348
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:479
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:312
-#: /var/www/fog/management/reports/host_list.report.php:69
-#: /var/www/fog/management/reports/host_list.report.php:86
-#: /var/www/fog/management/reports/host_list.report.php:111
+#: /var/www/fog/management/reports/host_list.report.php:68
+#: /var/www/fog/management/reports/host_list.report.php:85
+#: /var/www/fog/management/reports/host_list.report.php:110
 msgid "Image Name"
 msgstr "Nom de l'image"
 
@@ -3696,7 +3696,7 @@ msgstr "IP"
 #: /var/www/fog/lib/pages/serverinfo.class.php:151
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:143
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:294
-#: /var/www/fog/management/reports/host_list.report.php:74
+#: /var/www/fog/management/reports/host_list.report.php:73
 #: /var/www/fog/commons/text.php:108
 msgid "Kernel"
 msgstr "Noyau"
@@ -3705,7 +3705,7 @@ msgstr "Noyau"
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:71
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1164
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1184
-#: /var/www/fog/management/reports/host_list.report.php:84
+#: /var/www/fog/management/reports/host_list.report.php:83
 #: /var/www/fog/commons/text.php:69
 msgid "Hostname"
 msgstr "Hostname"
@@ -4231,10 +4231,10 @@ msgstr "Options avancées"
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1386
 #: /var/www/fog/management/reports/product_keys.report.php:54
 #: /var/www/fog/management/reports/product_keys.report.php:55
+#: /var/www/fog/management/reports/host_list.report.php:53
 #: /var/www/fog/management/reports/host_list.report.php:54
-#: /var/www/fog/management/reports/host_list.report.php:55
+#: /var/www/fog/management/reports/hosts_and_users.report.php:53
 #: /var/www/fog/management/reports/hosts_and_users.report.php:54
-#: /var/www/fog/management/reports/hosts_and_users.report.php:55
 msgid "Export CSV"
 msgstr "Export CSV"
 
@@ -4254,12 +4254,12 @@ msgstr "Export CSV"
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1390
 #: /var/www/fog/management/reports/product_keys.report.php:58
 #: /var/www/fog/management/reports/product_keys.report.php:59
+#: /var/www/fog/management/reports/host_list.report.php:57
 #: /var/www/fog/management/reports/host_list.report.php:58
-#: /var/www/fog/management/reports/host_list.report.php:59
 #: /var/www/fog/management/reports/equipment_loan.report.php:123
 #: /var/www/fog/management/reports/equipment_loan.report.php:124
+#: /var/www/fog/management/reports/hosts_and_users.report.php:57
 #: /var/www/fog/management/reports/hosts_and_users.report.php:58
-#: /var/www/fog/management/reports/hosts_and_users.report.php:59
 msgid "Export PDF"
 msgstr "Export PDF"
 
@@ -4295,7 +4295,7 @@ msgstr "Supprimer hôtes"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:403
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:779
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:273
-#: /var/www/fog/management/reports/host_list.report.php:64
+#: /var/www/fog/management/reports/host_list.report.php:63
 msgid "Host Name"
 msgstr "Nom d'hôte"
 
@@ -4467,7 +4467,7 @@ msgstr "snapin Enabled"
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:109
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:166
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:460
-#: /var/www/fog/management/reports/host_list.report.php:121
+#: /var/www/fog/management/reports/host_list.report.php:120
 msgid "Yes"
 msgstr "Oui"
 
@@ -4479,7 +4479,7 @@ msgstr "Oui"
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:109
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:160
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:447
-#: /var/www/fog/management/reports/host_list.report.php:122
+#: /var/www/fog/management/reports/host_list.report.php:121
 msgid "No"
 msgstr "Non"
 
@@ -6017,7 +6017,7 @@ msgid "Current Image to DMI Associations"
 msgstr "Image actuelle aux associations DMI"
 
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:480
-#: /var/www/fog/management/reports/host_list.report.php:76
+#: /var/www/fog/management/reports/host_list.report.php:75
 msgid "OS Name"
 msgstr "Nom OS"
 
@@ -8274,38 +8274,38 @@ msgstr "FOG client Wiki"
 msgid "Host Product Keys"
 msgstr "Hôte clé de produit"
 
-#: /var/www/fog/management/reports/host_list.report.php:50
+#: /var/www/fog/management/reports/host_list.report.php:49
 msgid "Host Listing Export"
 msgstr "Hôte Liste Export"
 
-#: /var/www/fog/management/reports/host_list.report.php:67
+#: /var/www/fog/management/reports/host_list.report.php:66
 msgid "Host Created"
 msgstr "hôte Créé"
 
-#: /var/www/fog/management/reports/host_list.report.php:68
-#: /var/www/fog/management/reports/host_list.report.php:108
+#: /var/www/fog/management/reports/host_list.report.php:67
+#: /var/www/fog/management/reports/host_list.report.php:107
 msgid "Image ID"
 msgstr "Image ID"
 
-#: /var/www/fog/management/reports/host_list.report.php:70
-#: /var/www/fog/management/reports/host_list.report.php:114
+#: /var/www/fog/management/reports/host_list.report.php:69
+#: /var/www/fog/management/reports/host_list.report.php:113
 msgid "Image Desc"
 msgstr "image Desc"
 
-#: /var/www/fog/management/reports/host_list.report.php:71
-#: /var/www/fog/management/reports/host_list.report.php:117
+#: /var/www/fog/management/reports/host_list.report.php:70
+#: /var/www/fog/management/reports/host_list.report.php:116
 msgid "AD Join"
 msgstr "AD Rejoignez"
 
-#: /var/www/fog/management/reports/host_list.report.php:72
+#: /var/www/fog/management/reports/host_list.report.php:71
 msgid "AD OU"
 msgstr "AD OU"
 
-#: /var/www/fog/management/reports/host_list.report.php:73
+#: /var/www/fog/management/reports/host_list.report.php:72
 msgid "AD Domain"
 msgstr "AD Domain"
 
-#: /var/www/fog/management/reports/host_list.report.php:75
+#: /var/www/fog/management/reports/host_list.report.php:74
 msgid "HD Device"
 msgstr "HD Dispositif"
 
@@ -8433,7 +8433,7 @@ msgstr "Signé"
 msgid "Your form is ready."
 msgstr "Votre formulaire est prêt."
 
-#: /var/www/fog/management/reports/hosts_and_users.report.php:50
+#: /var/www/fog/management/reports/hosts_and_users.report.php:49
 msgid "FOG Hosts and Users Login"
 msgstr "Hôtes BROUILLARD et utilisateurs Connexion"
 
