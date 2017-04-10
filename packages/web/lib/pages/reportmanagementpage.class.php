@@ -1303,6 +1303,7 @@ class ReportManagementPage extends FOGPage
             self::$pdffile
         );
         $this->headerData = array(
+            _('Host Name'),
             _('Snapin Name'),
             _('State'),
             _('Return Code'),
@@ -1311,12 +1312,22 @@ class ReportManagementPage extends FOGPage
             _('Create Time'),
         );
         $this->templates = array(
+            '${host_name}',
             '${snap_name}',
             '${snap_state}',
             '${snap_return}',
             '${snap_detail}',
             '${snap_create}',
             '${snap_time}',
+        );
+        $this->attributes = array(
+            array(),
+            array(),
+            array(),
+            array(),
+            array(),
+            array(),
+            array()
         );
         $date1 = $_REQUEST['date1'];
         $date2 = $_REQUEST['date2'];
@@ -1382,6 +1393,7 @@ class ReportManagementPage extends FOGPage
             }
             $State = new TaskState($SnapinTask->get('stateID'));
             $this->data[] = array(
+                'host_name' => $Host->get('name'),
                 'snap_name' => $Snapin->get('name'),
                 'snap_state' => $State->get('name'),
                 'snap_return' => $SnapinTask->get('return'),
