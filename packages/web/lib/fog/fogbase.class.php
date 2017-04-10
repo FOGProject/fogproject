@@ -522,7 +522,7 @@ abstract class FOGBase
             if ($Host->get('pending')) {
                 $Host = new Host(0);
             }
-            if (!($Host->isValid())) {
+            if (!$Host->isValid()) {
                 if ($service) {
                     $msg = '#!ih';
                 } else {
