@@ -2756,7 +2756,11 @@ abstract class FOGPage extends FOGBase
             if ($Host->get('sec_tok')
                 && $token !== $Host->get('sec_tok')
             ) {
-                $Host->set('pub_key', null)->save();
+                $Host
+                    ->set(
+                        'pub_key',
+                        null
+                    )->save()->load();
                 throw new Exception('#!ist');
             }
             if ($Host->get('sec_tok')
@@ -2766,8 +2770,7 @@ abstract class FOGPage extends FOGBase
             }
             $expire = self::niceDate($Host->get('sec_time'));
             if (self::niceDate() > $expire
-                || (!trim($Host->get('pub_key'))
-                && !trim($Host->get('sec_tok')))
+                || !trim($Host->get('pub_key'))
             ) {
                 $Host
                     ->set(
@@ -3782,6 +3785,7 @@ abstract class FOGPage extends FOGBase
                             ->addAddMAC($macs);
                     }
                     if ($Item->save()) {
+                        $Item->load();
                         $totalRows++;
                         $itemCap = strtoupper($this->childClass);
                         $event = sprintf(

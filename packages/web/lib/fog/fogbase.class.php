@@ -1707,7 +1707,12 @@ abstract class FOGBase
             $curdate = self::niceDate();
             $secdate = self::niceDate($this->Host->get('sec_time'));
             if ($curdate >= $secdate) {
-                $this->Host->set('pub_key', '')->save();
+                $this
+                    ->Host
+                    ->set('pub_key', '')
+                    ->save()
+                    ->load();
+                throw new Exception('#!ihc');
             }
             if (self::$newService) {
                 printf(
