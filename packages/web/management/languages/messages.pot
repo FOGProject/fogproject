@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-10 19:51-0400\n"
+"POT-Creation-Date: 2017-04-10 20:40-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -883,7 +883,7 @@ msgstr ""
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1160
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:343
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:488
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1340
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1344
 #: /var/www/fog/management/reports/host_list.report.php:62
 #: /var/www/fog/management/reports/inventory_report.report.php:101
 msgid "Host ID"
@@ -905,7 +905,7 @@ msgstr ""
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1170
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:345
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1097
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1342
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1346
 #: /var/www/fog/management/reports/host_list.report.php:65
 #: /var/www/fog/management/reports/host_list.report.php:84
 #: /var/www/fog/management/reports/inventory_report.report.php:107
@@ -3888,7 +3888,7 @@ msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:645
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1307
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1344
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1348
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1121
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1186
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2148
@@ -4077,7 +4077,7 @@ msgstr ""
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:344
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:634
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:1306
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1341
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1345
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:403
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:779
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:273
@@ -4835,70 +4835,88 @@ msgstr ""
 msgid "Create Time"
 msgstr ""
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1343
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1316
+msgid "Started/Checked in"
+msgstr ""
+
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1318
+#: /var/www/fog/lib/service/snapinhash.class.php:241
+#: /var/www/fog/lib/service/imagesize.class.php:230
+msgid "Completed"
+msgstr ""
+
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1347
 msgid "Snapin ID"
 msgstr ""
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1345
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1349
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:438
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:852
 msgid "Snapin Description"
 msgstr ""
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1346
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1350
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:496
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:890
 msgid "Snapin File"
 msgstr ""
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1347
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1351
 msgid "Snapin Args"
 msgstr ""
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1348
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1352
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:477
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:871
 msgid "Snapin Run With"
 msgstr ""
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1349
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1353
 msgid "Snapin Run With Args"
 msgstr ""
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1350
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1354
 msgid "Snapin State"
 msgstr ""
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1351
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1355
 msgid "Snapin Return Code"
 msgstr ""
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1352
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1356
 msgid "Snapin Return Detail"
 msgstr ""
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1353
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1357
 msgid "Snapin Creation Date"
 msgstr ""
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1354
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1358
 msgid "Snapin Creation Time"
 msgstr ""
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1355
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1359
 msgid "Job Create Date"
 msgstr ""
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1356
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1360
 msgid "Job Create Time"
 msgstr ""
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1357
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1361
 msgid "Task Checkin Date"
 msgstr ""
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1358
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1362
 msgid "Task Checkin Time"
+msgstr ""
+
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1363
+msgid "Task Complete Date"
+msgstr ""
+
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:1364
+msgid "Task Complete Time"
 msgstr ""
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:172
@@ -7058,11 +7076,6 @@ msgstr ""
 
 #: /var/www/fog/lib/service/snapinhash.class.php:225
 msgid "Hash"
-msgstr ""
-
-#: /var/www/fog/lib/service/snapinhash.class.php:241
-#: /var/www/fog/lib/service/imagesize.class.php:230
-msgid "Completed"
 msgstr ""
 
 #: /var/www/fog/lib/service/imagesize.class.php:102

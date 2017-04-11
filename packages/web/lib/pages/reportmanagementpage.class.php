@@ -1312,7 +1312,11 @@ class ReportManagementPage extends FOGPage
             _('Create Time'),
         );
         $this->templates = array(
-            '${host_name}<br/>${checkin}',
+            '${host_name}<br/>'
+            . _('Started/Checked in')
+            . ': ${checkin}<br/>'
+            . _('Completed')
+            . ': ${complete}',
             '${snap_name}',
             '${snap_state}',
             '${snap_return}',
@@ -1356,6 +1360,8 @@ class ReportManagementPage extends FOGPage
             _('Job Create Time'),
             _('Task Checkin Date'),
             _('Task Checkin Time'),
+            _('Task Complete Date'),
+            _('Task Complete Time')
         );
         foreach ((array)$csvHead as $i => &$csvHeader) {
             $this->ReportMaker->addCSVCell($csvHeader);
@@ -1395,6 +1401,7 @@ class ReportManagementPage extends FOGPage
             $this->data[] = array(
                 'host_name' => $Host->get('name'),
                 'checkin' => $SnapinTask->get('checkin'),
+                'complete' => $SnapinTask->get('complete'),
                 'snap_name' => $Snapin->get('name'),
                 'snap_state' => $State->get('name'),
                 'snap_return' => $SnapinTask->get('return'),
@@ -1454,6 +1461,18 @@ class ReportManagementPage extends FOGPage
             $this->ReportMaker->addCSVCell(
                 self::formatTime(
                     $SnapinTask->get('checkin'),
+                    'H:i:s'
+                )
+            );
+            $this->ReportMaker->addCSVCell(
+                self::formatTime(
+                    $SnapinTask->get('complete'),
+                    'Y-m-d'
+                )
+            );
+            $this->ReportMaker->addCSVCell(
+                self::formatTime(
+                    $SnapinTask->get('complete'),
                     'H:i:s'
                 )
             );
