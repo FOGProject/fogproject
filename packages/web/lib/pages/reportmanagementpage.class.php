@@ -1312,11 +1312,11 @@ class ReportManagementPage extends FOGPage
             _('Create Time'),
         );
         $this->templates = array(
-            '${host_name}<br/>'
+            '${host_name}<br/><small>'
             . _('Started/Checked in')
             . ': ${checkin}<br/>'
             . _('Completed')
-            . ': ${complete}',
+            . ': ${complete}</small>',
             '${snap_name}',
             '${snap_state}',
             '${snap_return}',
