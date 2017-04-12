@@ -250,7 +250,7 @@ class Route extends FOGBase
             )
             ->get(
                 "${expanded}",
-                array(self, 'list'),
+                array(self, 'listem'),
                 'list'
             )
             ->get(
@@ -392,7 +392,7 @@ class Route extends FOGBase
      *
      * @return void
      */
-    public static function list($class)
+    public static function listem($class)
     {
         self::search($class, ' ');
     }
