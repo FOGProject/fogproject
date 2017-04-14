@@ -80,10 +80,13 @@ class HookDebugger extends Hook
     }
 }
 $HookDebugger = new HookDebugger();
-if (!$HookManager->events) {
-    $HookManager->getEvents();
-}
-foreach ($HookManager->events as &$event) {
+foreach (
+    FOGCore::getSubObjectIDs(
+        'HookEvent',
+        '',
+        'name'
+    ) as &$event
+) {
     $HookManager
         ->register(
             $event,
