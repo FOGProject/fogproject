@@ -242,7 +242,7 @@ abstract class FOGPage extends FOGBase
         global $tab;
         global $id;
         if ($node !== 'service'
-            && preg_match('#edit#i', $sub)
+            && false !== stripos($sub, 'edit')
             && (!isset($id)
             || !is_numeric($id)
             || $id < 1)
@@ -265,15 +265,15 @@ abstract class FOGPage extends FOGBase
         }
         $this->childClass = ucfirst($this->node);
         if ($node == 'storage') {
-            $ref = preg_match(
-                '#node=storage&sub=storageGroup#i',
-                self::$httpreferer
+            $ref = stripos(
+                self::$httpreferer,
+                'node=storage&sub=storageGroup'
             );
         }
-        if (!isset($ref) || !$ref) {
-            $ref = preg_match(
-                '#storageGroup#i',
-                $sub
+        if (!isset($ref) || false === $ref) {
+            $ref = stripos(
+                $sub,
+                'storageGroup'
             );
         }
         if ($ref) {
@@ -951,7 +951,7 @@ abstract class FOGPage extends FOGBase
                     $name,
                     (
                         $this->dataFind ?
-                        preg_replace($this->dataFind, $this->dataReplace, $val) :
+                        str_replace($this->dataFind, $this->dataReplace, $val) :
                         $val
                     )
                 );
@@ -1018,18 +1018,13 @@ abstract class FOGPage extends FOGBase
             'sub' => $sub,
             'tab' => $tab
         );
-        preg_match_all(
-            '#\$\{(?:.+?)\}#',
-            implode((array)$this->templates),
-            $foundchanges
-        );
         $arrayReplace = self::fastmerge(
             $urlvars,
             (array)$data
         );
         foreach ((array)$arrayReplace as $name => &$val) {
             $this->dataFind[] = sprintf(
-                '#\$\{%s\}#',
+                '${%s}',
                 $name
             );
             $val = trim($val);
@@ -1063,7 +1058,7 @@ abstract class FOGPage extends FOGBase
                     $this->atts[$index] :
                     ''
                 ),
-                preg_replace(
+                str_replace(
                     $this->dataFind,
                     $this->dataReplace,
                     $template
@@ -2171,7 +2166,7 @@ abstract class FOGPage extends FOGBase
             $ADDomain = $_REQUEST['domainname'];
         }
         if (empty($ADOU)) {
-            $ADOU = trim(preg_replace('#;#', '', $_REQUEST['ou']));
+            $ADOU = trim(str_replace(';', '', $_REQUEST['ou']));
         }
         if (empty($ADUser)) {
             $ADUser = $_REQUEST['domainuser'];
@@ -2191,7 +2186,7 @@ abstract class FOGPage extends FOGBase
             }
             if (empty($ADOU)) {
                 $ADOU = trim($this->obj->get('ADOU'));
-                $ADOU = preg_replace('#;#', '', $ADOU);
+                $ADOU = str_replace(';', '', $ADOU);
             }
             if (empty($ADUser)) {
                 $ADUser = $this->obj->get('ADUser');
@@ -2213,7 +2208,7 @@ abstract class FOGPage extends FOGBase
         );
         if ($this->obj->isValid()) {
             $ADOU = trim($this->obj->get('ADOU'));
-            $ADOU = preg_replace('#;#', '', $ADOU);
+            $ADOU = str_replace(';', '', $ADOU);
             $optFound = $ADOU;
         }
         if (count($OUs) > 1) {
@@ -2224,11 +2219,11 @@ abstract class FOGPage extends FOGBase
             );
             foreach ((array)$OUs as &$OU) {
                 $OU = trim($OU);
-                $ou = preg_replace('#;#', '', $OU);
+                $ou = str_replace(';', '', $OU);
                 if (!$optFound && $ou === $ADOU) {
                     $optFound = $ou;
                 }
-                if (!$optFound && preg_match('#;#', $OU)) {
+                if (!$optFound && false !== strpos($OU, ';')) {
                     $optFound = $ou;
                 }
                 printf(
@@ -2805,7 +2800,7 @@ abstract class FOGPage extends FOGBase
                 if ($e->getMessage() == '#!ihc') {
                     die($e->getMessage());
                 }
-                $err = preg_replace('/^[#][!]?/', '', $e->getMessage());
+                $err = str_replace('#!', '', $e->getMessage());
                 echo json_encode(
                     array('error' => $err)
                 );

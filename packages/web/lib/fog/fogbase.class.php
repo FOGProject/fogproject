@@ -311,24 +311,24 @@ abstract class FOGBase
         self::$EventManager = &$EventManager;
         self::$HookManager = &$HookManager;
         self::$FOGUser = &$currentUser;
-        $scriptPattern = '#/service/#i';
-        $queryPattern = '#sub=requestClientInfo#i';
+        $scriptPattern = 'service';
+        $queryPattern = 'sub=requestClientInfo';
         self::$querystring = filter_input(INPUT_SERVER, 'QUERY_STRING');
         self::$scriptname = filter_input(INPUT_SERVER, 'SCRIPT_NAME');
         self::$httpreqwith = filter_input(INPUT_SERVER, 'HTTP_X_REQUESTED_WITH');
         self::$reqmethod = filter_input(INPUT_SERVER, 'REQUEST_METHOD');
         self::$remoteaddr = filter_input(INPUT_SERVER, 'REMOTE_ADDR');
         self::$httpreferer = filter_input(INPUT_SERVER, 'HTTP_REFERER');
-        if (preg_match('#/mobile/#i', self::$scriptname)) {
+        if (false !== stripos(self::$scriptname, 'mobile')) {
             self::$isMobile = true;
         }
-        if (preg_match($scriptPattern, self::$scriptname)) {
+        if (false !== stripos(self::$scriptname, $scriptPattern)) {
             self::$service = true;
-        } elseif (preg_match($queryPattern, self::$querystring)) {
+        } elseif (false !== stripos(self::$querystring, $queryPattern)) {
             self::$service = true;
         }
-        self::$ajax = preg_match('#^xmlhttprequest$#i', self::$httpreqwith);
-        self::$post = preg_match('#^post$#i', self::$reqmethod);
+        self::$ajax = false !== stripos(self::$httpreqwith, 'xmlhttprequest');
+        self::$post = false !== stripos(self::$reqmethod, 'post');
         self::$newService = isset($_REQUEST['newService'])
             || $_REQUEST['sub'] == 'requestClientInfo';
         self::$json = isset($_REQUEST['json'])
@@ -1520,9 +1520,12 @@ abstract class FOGBase
         }
         $sslfile = sprintf(
             '%s%s.srvprivate.key',
-            preg_replace(
-                '#[\\/]#',
-                DIRECTORY_SEPARATOR,
+            str_replace(
+                array('\\', '/'),
+                array(
+                    DIRECTORY_SEPARATOR,
+                    DIRECTORY_SEPARATOR
+                ),
                 $tmpssl[0]
             ),
             DIRECTORY_SEPARATOR
@@ -1730,7 +1733,7 @@ abstract class FOGBase
                     echo $e->getMessage();
                     exit;
                 }
-                $repData = preg_replace('/^[#][!]?/', '', $e->getMessage());
+                $repData = str_replace('#!', '', $e->getMessage());
                 $array['error'] = $repData;
                 $data = array('error' => $repData);
                 if ($sub === 'requestClientInfo') {
@@ -1793,9 +1796,9 @@ abstract class FOGBase
         if (self::$ajax) {
             return;
         }
-        $findStr = array("#\r#", "#\n#", '#\s+#', '# ,#');
+        $findStr = array("\r", "\n", "\t", ' ,');
         $repStr = array('', ' ', ' ', ',');
-        $txt = preg_replace($findStr, $repStr, $txt);
+        $txt = str_replace($findStr, $repStr, $txt);
         $txt = trim($txt);
         if (empty($txt)) {
             return;
@@ -2062,7 +2065,7 @@ abstract class FOGBase
     public static function stripAndDecode(&$item)
     {
         foreach ((array) $item as $key => &$val) {
-            $tmp = preg_replace('# #', '+', $val);
+            $tmp = str_replace(' ', '+', $val);
             $tmp = base64_decode($tmp);
             $tmp = trim($tmp);
             if (mb_detect_encoding($tmp, 'utf-8', true)) {

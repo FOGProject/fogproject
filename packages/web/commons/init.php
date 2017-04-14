@@ -76,9 +76,9 @@ class Initiator
         /**
          * Find out if the link has service in the call.
          */
-        $self = !preg_match(
-            '#service#i',
-            filter_input(INPUT_SERVER, 'PHP_SELF')
+        $self = false === stripos(
+            filter_input(INPUT_SERVER, 'PHP_SELF'),
+            'service'
         );
         /**
          * Set useragent to false.
@@ -289,7 +289,7 @@ class Initiator
         /**
          * Stores our matching if fog is in the name variable
          */
-        $match = preg_match('#/fog/#', $script_name);
+        $match = false !== stripos($script_name, '/fog/');
         if ($match) {
             $match = 'fog/';
         } else {

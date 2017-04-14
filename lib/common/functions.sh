@@ -1005,7 +1005,7 @@ configureSnapins() {
     mkdir -p $snapindir >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     if [[ -d $snapindir ]]; then
         chmod -R 777 $snapindir
-        chown -R fog:$apacheuser $snapindir
+        chown -R $username:$apacheuser $snapindir
     fi
     errorStat $?
 }

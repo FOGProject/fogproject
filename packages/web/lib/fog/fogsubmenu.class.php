@@ -227,39 +227,39 @@ class FOGSubMenu extends FOGBase
                         $label
                     );
                     if ($this->isExternalLink($link)) {
-                        echo preg_replace(
-                            '#\$\{link\}#',
+                        echo str_replace(
+                            '${link}',
                             $link,
                             $string
                         );
                     } elseif (!$link) {
-                        echo preg_replace(
-                            '#\$\{link\}#',
+                        echo str_replace(
+                            '${link}',
                             "?node=$node",
                             $string
                         );
                     } else {
                         global $sub;
-                        $string = preg_replace(
-                            '#\$\{link\}#',
+                        $string = str_replace(
+                            '${link}',
                             "?node=$node&sub=\${link}",
                             $string
                         );
                         if (!$sub || $title == self::$foglang['MainMenu']) {
-                            echo preg_replace(
-                                '#\$\{link\}#',
+                            echo str_replace(
+                                '${link}',
                                 $link,
                                 $string
                             );
                         } elseif ($this->defaultSubs[$node]) {
-                            echo preg_replace(
-                                '#\$\{link\}#',
+                            echo str_replace(
+                                '${link}',
                                 "{$this->defaultSubs[$node]}&tab=$link",
                                 $string
                             );
                         } else {
-                            echo preg_replace(
-                                '#\$\{link\}#',
+                            echo str_replace(
+                                '${link}',
                                 "$sub&tab=$link",
                                 $string
                             );
