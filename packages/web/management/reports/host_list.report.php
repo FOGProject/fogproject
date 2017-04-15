@@ -22,24 +22,6 @@
 class Host_List extends ReportManagementPage
 {
     /**
-     * The node this page displays from.
-     *
-     * @var string
-     */
-    public $node = 'report';
-    /**
-     * Initializes the report page.
-     *
-     * @param string $name The name if other than this.
-     *
-     * @return void
-     */
-    public function __construct($name = '')
-    {
-        $this->name = 'Host List';
-        parent::__construct($this->name);
-    }
-    /**
      * Display page.
      *
      * @return void

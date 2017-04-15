@@ -241,6 +241,9 @@ abstract class FOGPage extends FOGBase
         global $sub;
         global $tab;
         global $id;
+        if ($node == 'report') {
+            $f = filter_input(INPUT_GET, 'f');
+        }
         if ($node !== 'service'
             && false !== stripos($sub, 'edit')
             && (!isset($id)
@@ -435,70 +438,26 @@ abstract class FOGPage extends FOGBase
         $nodestr = $substr = $idstr = $typestr = $tabstr = false;
         $formstr = '?';
         if ($node) {
-            $nodestr = "node=$node";
+            $data['node'] = $node;
         }
         if ($sub) {
-            $substr = "sub=$sub";
+            $data['sub'] = $sub;
         }
         if ($id) {
-            $idstr = "id=$id";
+            $data['id'] = $id;
         }
         if ($type) {
-            $typestr = "type=$type";
+            $data['type'] = $type;
+        }
+        if ($f) {
+            $data['f'] = $f;
         }
         if ($tab) {
             $tabstr = "#$tab";
         }
-        if ($nodestr) {
-            $formstr .= $nodestr;
-            if ($substr) {
-                $formstr .= "&$substr";
-            }
-            if ($idstr) {
-                $formstr .= "&$idstr";
-            }
-            if ($typestr) {
-                $formstr .= "&$typestr";
-            }
-            if ($tabstr) {
-                $formstr .= $tabstr;
-            }
-        } else {
-            if ($substr) {
-                $formstr .= $substr;
-                if ($idstr) {
-                    $formstr .= "&$idstr";
-                }
-                if ($typestr) {
-                    $formstr .= "&$typestr";
-                }
-                if ($tabstr) {
-                    $formstr .= $tabstr;
-                }
-            } else {
-                if ($idstr) {
-                    $formstr .= $idstr;
-                    if ($typestr) {
-                        $formstr .= "&$typestr";
-                    }
-                    if ($tabstr) {
-                        $formstr .= $tabstr;
-                    }
-                } else {
-                    if ($typestr) {
-                        $formstr .= $typestr;
-                        if ($tabstr) {
-                            $formstr = $tabstr;
-                        }
-                    } else {
-                        if ($tabstr) {
-                            $formstr = $tabstr;
-                        } else {
-                            $formstr = '';
-                        }
-                    }
-                }
-            }
+        $formstr .= http_build_query($data);
+        if ($tabstr) {
+            $formstr .= $tabstr;
         }
         $this->formAction = $formstr;
         self::$HookManager->processEvent(
@@ -3866,5 +3825,32 @@ abstract class FOGPage extends FOGBase
             $arr
         );
         $this->render();
+    }
+    /**
+     * Build select form in generic form.
+     *
+     * @param string $name  The name of the select item.
+     * @param array  $items The items to generate.
+     *
+     * @return string
+     */
+    public static function selectForm($name, $items = array())
+    {
+        ob_start();
+        printf(
+            '<select name="%s"><option value="">- %s -</option>',
+            $name,
+            _('Please select an option')
+        );
+        foreach ($items as &$item) {
+            printf(
+                '<option value="%s">%s</option>',
+                $item,
+                $item
+            );
+            unset($item);
+        }
+        echo '</select>';
+        return ob_get_clean();
     }
 }

@@ -22,24 +22,6 @@
 class Equipment_Loan extends ReportManagementPage
 {
     /**
-     * The node this page displays from.
-     *
-     * @var string
-     */
-    public $node = 'report';
-    /**
-     * Initializes the report page.
-     *
-     * @param string $name The name if other than this.
-     *
-     * @return void
-     */
-    public function __construct($name = '')
-    {
-        $this->name = 'Equipment Loan';
-        parent::__construct($this->name);
-    }
-    /**
      * Display page.
      *
      * @return void
@@ -92,9 +74,8 @@ class Equipment_Loan extends ReportManagementPage
         }
         unset($input);
         printf(
-            '<form method="post" action="%s&f=%s">',
-            $this->formAction,
-            filter_input(INPUT_GET, 'f')
+            '<form method="post" action="%s">',
+            $this->formAction
         );
         $this->render();
         echo '</form>';
