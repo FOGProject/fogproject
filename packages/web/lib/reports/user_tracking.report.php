@@ -130,14 +130,13 @@ class User_Tracking extends ReportManagementPage
                 $usersearch ? '&userID=${user_id}' : ''
             ),
             sprintf(
-                '<a href="%s%s%s">${user_name}</a>',
+                '<a href="%s%s${user_id}">${user_name}</a>',
                 str_replace(
                     'sub=file',
                     'sub=filedisp',
                     $this->formAction
                 ),
-                $hostsearch ? '&hostID=${host_id}' : '',
-                $usersearch ? '&userID=${user_id}' : ''
+                $hostsearch ? '&hostID=${host_id}' : ''
             )
         );
         $this->attributes = array(
@@ -179,7 +178,10 @@ class User_Tracking extends ReportManagementPage
                 $this->data[] = array(
                     'host_id' => $User->get('hostID'),
                     'host_name' => $User->get('host')->get('name'),
-                    'user_id' => base64_encode($User->get('username')),
+                    'user_id' => sprintf(
+                        '&userID=%s',
+                        base64_encode($User->get('username'))
+                    ),
                     'user_name' => $User->get('username')
                 );
                 unset($User);
@@ -236,13 +238,21 @@ class User_Tracking extends ReportManagementPage
             ->addCSVCell(_('Time'))
             ->addCSVCell(_('Description'))
             ->endCSVLine();
-        $userID = filter_input(INPUT_GET, 'userID');
+        $userID = base64_decode(
+            filter_input(INPUT_GET, 'userID')
+        );
         $hostID = filter_input(INPUT_GET, 'hostID');
+        if (!$userID) {
+            $userID = '%';
+        }
+        if (!$hostID) {
+            $hostID = '%';
+        }
         foreach (self::getClass('UserTrackingManager')
             ->find(
                 array(
                     'hostID' => $hostID,
-                    'username' => base64_decode($userID)
+                    'username' => $userID
                 )
             ) as &$User
         ) {
