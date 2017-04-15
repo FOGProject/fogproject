@@ -60,6 +60,7 @@ class ImagingLog extends FOGController
      */
     protected $additionalFields = array(
         'host',
+        'images',
     );
     /**
      * Database -> Class field relationships
@@ -71,6 +72,11 @@ class ImagingLog extends FOGController
             'id',
             'hostID',
             'host'
+        ),
+        'Image' => array(
+            'name',
+            'image',
+            'images'
         )
     );
     /**
@@ -81,5 +87,14 @@ class ImagingLog extends FOGController
     public function getHost()
     {
         return $this->get('host');
+    }
+    /**
+     * Return the image object.
+     *
+     * @return object
+     */
+    public function getImage()
+    {
+        return $this->get('images');
     }
 }

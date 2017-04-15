@@ -255,8 +255,8 @@ class EventManager extends FOGBase
         // hooks or events.
         // Plugins don't need to know if the active flag is set either
         $startClass = function (&$element) use ($strlen) {
-            $className = preg_replace(
-                '#[[:space:]]#',
+            $className = str_replace(
+                array("\t", "\n", ' '),
                 '_',
                 substr(
                     basename($element),
@@ -277,12 +277,10 @@ class EventManager extends FOGBase
                 return;
             }
             self::getClass(
-                preg_replace(
-                    '#[[:space:]]#',
+                str_replace(
+                    array("\t", "\n", ' '),
                     '_',
-                    $className,
-                    0,
-                    $strlen
+                    $className
                 )
             );
             unset($element, $key);

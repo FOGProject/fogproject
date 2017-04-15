@@ -370,10 +370,23 @@ class FOGPageManager extends FOGBase
         );
         unset($normalfiles, $pluginfiles);
         $startClass = function ($element) use ($strlen, $node) {
-            if (substr($element, $strlen) !== '.class.php') {
+            if (substr($element, $strlen) !== '.class.php'
+                && substr($element, $strlen) !== '.report.php'
+            ) {
                 return;
             }
             $className = substr(basename($element), 0, $strlen);
+            if ($node == 'report'
+                && filter_input(INPUT_GET, 'f')
+            ) {
+                $className = str_replace(
+                    ' ',
+                    '_',
+                    base64_decode(
+                        filter_input(INPUT_GET, 'f')
+                    )
+                );
+            }
             if (!$className || !isset($className)) {
                 return;
             }

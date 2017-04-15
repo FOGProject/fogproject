@@ -43,9 +43,12 @@ foreach ((array)$paths as &$decodedPath) {
         $files[] = json_encode(_('Path is unavailable'));
         continue;
     }
-    $replaced_dir_sep = preg_replace(
-        '#[\\/]#',
-        DIRECTORY_SEPARATOR,
+    $replaced_dir_sep = str_replace(
+        array('\\', '/'),
+        array(
+            DIRECTORY_SEPARATOR,
+            DIRECTORY_SEPARATOR
+        ),
         $decodedPath
     );
     $glob_str = sprintf(

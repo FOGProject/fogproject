@@ -1001,7 +1001,7 @@ abstract class FOGController extends FOGBase
                     implode("','", $value)
                 );
             } else {
-                if (preg_match('#%#', $value)) {
+                if (strpos($value, '%')) {
                     $compare = 'LIKE';
                 }
                 $whereArrayAnd[] = sprintf(

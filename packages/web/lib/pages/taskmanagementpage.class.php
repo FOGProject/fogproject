@@ -151,9 +151,9 @@ class TaskManagementPage extends FOGPage
                         );
                     if ($STCount < 1) {
                         $Task->cancel();
+                        return;
                     }
                 }
-                return;
             }
             if ($Task->get('typeID') < 3) {
                 if ($Task->get('isForced')) {
@@ -1008,7 +1008,7 @@ class TaskManagementPage extends FOGPage
             '<a href="?node=${hostgroup}&sub=edit&id=${hostgroupid}" title='
             . '"Edit ${nametype}: ${hostgroupname}">${hostgroupname}</a>${extra}',
             '${groupbased}',
-            '${details_taskname}',
+            '<span class="icon" title="${hover}">${details_taskname}</span>',
             '${task_type}',
             '<small>${start_time}</small>',
             '${active}',
@@ -1064,6 +1064,23 @@ class TaskManagementPage extends FOGPage
             if (!$TaskType->isValid()) {
                 continue;
             }
+            $sID = $ScheduledTask->get('other2');
+            if ($TaskType->isSnapinTasking()) {
+                if ($TaskType->get('id') == 12
+                    || $ScheduledTask->get('other2') == -1
+                ) {
+                    $hover = _('All snapins');
+                } elseif ($TaskType->get('id') == 13) {
+                    $snapin = new Snapin($sID);
+                    if (!$snapin->isValid()) {
+                        $hover = _('Invalid snapin');
+                    } else {
+                        $hover = _('Snapin to be installed')
+                            . ': '
+                            . $snapin->get('name');
+                    }
+                }
+            }
             $this->data[] = array(
                 'id' => $ScheduledTask->get('id'),
                 'start_time' => $ScheduledTask->getTime(),
@@ -1096,6 +1113,7 @@ class TaskManagementPage extends FOGPage
                     )
                 ),
                 'nametype' => get_class($ObjTest),
+                'hover' => $hover
             );
             unset($ScheduledTask, $ObjTest, $TaskType);
         }

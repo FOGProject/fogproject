@@ -213,7 +213,7 @@ class Route extends FOGBase
         self::$router = new AltoRouter(
             array(),
             rtrim(
-                WEB_ROOT,
+                self::getSetting('FOG_WEB_ROOT'),
                 '/'
             )
         );
@@ -250,7 +250,7 @@ class Route extends FOGBase
             )
             ->get(
                 "${expanded}",
-                array(self, 'list'),
+                array(self, 'listem'),
                 'list'
             )
             ->get(
@@ -350,6 +350,12 @@ class Route extends FOGBase
             $_SERVER['PHP_AUTH_PW']
         );
         if (!$auth) {
+            $pwhash = self::getClass('User')
+                ->set('password', $_SERVER['PHP_AUTH_PW'], true)
+                ->load('password');
+            if ($pwhash->get('name') == $_SERVER['PHP_AUTH_USER']) {
+                return;
+            }
             self::sendResponse(
                 HTTPResponseCodes::HTTP_UNAUTHORIZED
             );
@@ -386,7 +392,7 @@ class Route extends FOGBase
      *
      * @return void
      */
-    public static function list($class)
+    public static function listem($class)
     {
         self::search($class, ' ');
     }
@@ -684,7 +690,8 @@ class Route extends FOGBase
                         $class->get('inventory')
                     ),
                     'imagename' => $class->getImageName(),
-                    'pingstatus' => $class->getPingCodeStr()
+                    'pingstatus' => $class->getPingCodeStr(),
+                    'macs' => $class->getMyMacs()
                 )
             );
             break;
