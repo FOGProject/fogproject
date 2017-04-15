@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-15 15:00-0400\n"
+"POT-Creation-Date: 2017-04-15 15:27-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -965,7 +965,7 @@ msgstr "%s ID %s no es válido"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:361
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1160
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:352
+#: /var/www/fog/lib/reports/snapin_log.report.php:75
 #: /var/www/fog/lib/reports/host_list.report.php:44
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:63
 #: /var/www/fog/lib/reports/imaging_log.report.php:63
@@ -987,7 +987,7 @@ msgstr "nombre de host"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:363
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1170
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:354
+#: /var/www/fog/lib/reports/snapin_log.report.php:77
 #: /var/www/fog/lib/reports/host_list.report.php:47
 #: /var/www/fog/lib/reports/host_list.report.php:66
 #: /var/www/fog/lib/reports/user_tracking.report.php:236
@@ -2268,8 +2268,8 @@ msgstr "Por ciento"
 #: /var/www/fog/lib/pages/taskmobile.class.php:46
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:700
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:821
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:316
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2031
+#: /var/www/fog/lib/reports/snapin_log.report.php:46
 #: /var/www/fog/commons/text.php:106
 msgid "State"
 msgstr "Estado"
@@ -4089,14 +4089,14 @@ msgid "Snapins"
 msgstr "snapins"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:645
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:315
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:356
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1121
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1186
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2148
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:157
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:433
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:828
+#: /var/www/fog/lib/reports/snapin_log.report.php:45
+#: /var/www/fog/lib/reports/snapin_log.report.php:79
 msgid "Snapin Name"
 msgstr "Nombre snapin"
 
@@ -4208,8 +4208,8 @@ msgstr "Opciones avanzadas"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1107
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1108
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:305
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:306
+#: /var/www/fog/lib/reports/snapin_log.report.php:35
+#: /var/www/fog/lib/reports/snapin_log.report.php:36
 #: /var/www/fog/lib/reports/product_keys.report.php:35
 #: /var/www/fog/lib/reports/product_keys.report.php:36
 #: /var/www/fog/lib/reports/host_list.report.php:35
@@ -4231,8 +4231,8 @@ msgstr "Exportación CSV"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1114
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1115
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:309
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:310
+#: /var/www/fog/lib/reports/snapin_log.report.php:39
+#: /var/www/fog/lib/reports/snapin_log.report.php:40
 #: /var/www/fog/lib/reports/product_keys.report.php:39
 #: /var/www/fog/lib/reports/product_keys.report.php:40
 #: /var/www/fog/lib/reports/host_list.report.php:39
@@ -4280,10 +4280,10 @@ msgstr "eliminar los ejércitos"
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1453
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:299
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:818
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:314
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:353
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:403
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:779
+#: /var/www/fog/lib/reports/snapin_log.report.php:44
+#: /var/www/fog/lib/reports/snapin_log.report.php:76
 #: /var/www/fog/lib/reports/host_list.report.php:45
 #: /var/www/fog/lib/reports/virus_history.report.php:53
 #: /var/www/fog/lib/reports/imaging_log.report.php:64
@@ -4835,147 +4835,6 @@ msgid ""
 "FOG System. To view a report, select an item from the menu on the left-hand "
 "side of this page."
 msgstr ""
-
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:219
-msgid "FOG Snapin Log - Select Date Range"
-msgstr ""
-
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:269
-#, fuzzy
-msgid "Select Start Date"
-msgstr "Seleccione un tipo de cron"
-
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:270
-#, fuzzy
-msgid "Select End Date"
-msgstr "Seleccione un tipo de cron"
-
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:273
-msgid "Search for Entries"
-msgstr ""
-
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:301
-#, fuzzy
-msgid "FOG Snapin Log"
-msgstr "Snapin del registro de transacciones"
-
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:317
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2152
-#, fuzzy
-msgid "Return Code"
-msgstr "Código de retorno"
-
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:318
-#, fuzzy
-msgid "Return Desc"
-msgstr "Código de retorno"
-
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:319
-#, fuzzy
-msgid "Create Date"
-msgstr "Crear usuario"
-
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:320
-#, fuzzy
-msgid "Create Time"
-msgstr "Crear usuario"
-
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:324
-msgid "Started/Checked in"
-msgstr ""
-
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:326
-#: /var/www/fog/lib/service/snapinhash.class.php:241
-#: /var/www/fog/lib/service/imagesize.class.php:230
-#, fuzzy
-msgid "Completed"
-msgstr "suprimido"
-
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:355
-#, fuzzy
-msgid "Snapin ID"
-msgstr "snapin"
-
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:357
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:438
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:852
-#, fuzzy
-msgid "Snapin Description"
-msgstr "Descripción de la impresora"
-
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:358
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:496
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:890
-#, fuzzy
-msgid "Snapin File"
-msgstr "Nombre snapin"
-
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:359
-#, fuzzy
-msgid "Snapin Args"
-msgstr "snapins"
-
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:360
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:477
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:871
-#, fuzzy
-msgid "Snapin Run With"
-msgstr "snapin replicador"
-
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:361
-msgid "Snapin Run With Args"
-msgstr ""
-
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:362
-#, fuzzy
-msgid "Snapin State"
-msgstr "Nombre snapin"
-
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:363
-#, fuzzy
-msgid "Snapin Return Code"
-msgstr "Código de retorno"
-
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:364
-msgid "Snapin Return Detail"
-msgstr ""
-
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:365
-msgid "Snapin Creation Date"
-msgstr ""
-
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:366
-#, fuzzy
-msgid "Snapin Creation Time"
-msgstr "Nombre snapin"
-
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:367
-#, fuzzy
-msgid "Job Create Date"
-msgstr "Crear usuario"
-
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:368
-#, fuzzy
-msgid "Job Create Time"
-msgstr "Crear usuario"
-
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:369
-msgid "Task Checkin Date"
-msgstr ""
-
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:370
-msgid "Task Checkin Time"
-msgstr ""
-
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:371
-#, fuzzy
-msgid "Task Complete Date"
-msgstr "después de la realización de tareas"
-
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:372
-#, fuzzy
-msgid "Task Complete Time"
-msgstr "después de la realización de tareas"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:172
 #, fuzzy
@@ -5529,6 +5388,12 @@ msgstr "última Desplegado"
 msgid "Complete"
 msgstr ""
 
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2152
+#: /var/www/fog/lib/reports/snapin_log.report.php:47
+#, fuzzy
+msgid "Return Code"
+msgstr "Código de retorno"
+
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2191
 #, fuzzy
 msgid "Snapin task not completed"
@@ -5609,6 +5474,13 @@ msgstr ""
 msgid "New Snapin"
 msgstr "snapin"
 
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:438
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:852
+#: /var/www/fog/lib/reports/snapin_log.report.php:80
+#, fuzzy
+msgid "Snapin Description"
+msgstr "Descripción de la impresora"
+
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:444
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:833
 #, fuzzy
@@ -5639,6 +5511,13 @@ msgstr "snapin replicador"
 msgid "Snapin Pack Template"
 msgstr "snapin replicador"
 
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:477
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:871
+#: /var/www/fog/lib/reports/snapin_log.report.php:83
+#, fuzzy
+msgid "Snapin Run With"
+msgstr "snapin replicador"
+
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:478
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:872
 #, fuzzy
@@ -5654,6 +5533,13 @@ msgstr ""
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:882
 #, fuzzy
 msgid "Snapin Pack Arguments"
+msgstr "Nombre snapin"
+
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:496
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:890
+#: /var/www/fog/lib/reports/snapin_log.report.php:81
+#, fuzzy
+msgid "Snapin File"
 msgstr "Nombre snapin"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:506
@@ -7383,6 +7269,102 @@ msgstr "Compruebe que la base de datos se está ejecutando"
 msgid "A valid database connection could not be made"
 msgstr ""
 
+#: /var/www/fog/lib/reports/snapin_log.report.php:31
+#: /var/www/fog/lib/reports/imaging_log.report.php:31
+msgid "FOG Imaging Log"
+msgstr ""
+
+#: /var/www/fog/lib/reports/snapin_log.report.php:48
+#, fuzzy
+msgid "Return Desc"
+msgstr "Código de retorno"
+
+#: /var/www/fog/lib/reports/snapin_log.report.php:49
+#, fuzzy
+msgid "Create Date"
+msgstr "Crear usuario"
+
+#: /var/www/fog/lib/reports/snapin_log.report.php:50
+#, fuzzy
+msgid "Create Time"
+msgstr "Crear usuario"
+
+#: /var/www/fog/lib/reports/snapin_log.report.php:54
+msgid "Started/Checked in"
+msgstr ""
+
+#: /var/www/fog/lib/reports/snapin_log.report.php:56
+#: /var/www/fog/lib/service/snapinhash.class.php:241
+#: /var/www/fog/lib/service/imagesize.class.php:230
+#, fuzzy
+msgid "Completed"
+msgstr "suprimido"
+
+#: /var/www/fog/lib/reports/snapin_log.report.php:78
+#, fuzzy
+msgid "Snapin ID"
+msgstr "snapin"
+
+#: /var/www/fog/lib/reports/snapin_log.report.php:82
+#, fuzzy
+msgid "Snapin Args"
+msgstr "snapins"
+
+#: /var/www/fog/lib/reports/snapin_log.report.php:84
+msgid "Snapin Run With Args"
+msgstr ""
+
+#: /var/www/fog/lib/reports/snapin_log.report.php:85
+#, fuzzy
+msgid "Snapin State"
+msgstr "Nombre snapin"
+
+#: /var/www/fog/lib/reports/snapin_log.report.php:86
+#, fuzzy
+msgid "Snapin Return Code"
+msgstr "Código de retorno"
+
+#: /var/www/fog/lib/reports/snapin_log.report.php:87
+msgid "Snapin Return Detail"
+msgstr ""
+
+#: /var/www/fog/lib/reports/snapin_log.report.php:88
+msgid "Snapin Creation Date"
+msgstr ""
+
+#: /var/www/fog/lib/reports/snapin_log.report.php:89
+#, fuzzy
+msgid "Snapin Creation Time"
+msgstr "Nombre snapin"
+
+#: /var/www/fog/lib/reports/snapin_log.report.php:90
+#, fuzzy
+msgid "Job Create Date"
+msgstr "Crear usuario"
+
+#: /var/www/fog/lib/reports/snapin_log.report.php:91
+#, fuzzy
+msgid "Job Create Time"
+msgstr "Crear usuario"
+
+#: /var/www/fog/lib/reports/snapin_log.report.php:92
+msgid "Task Checkin Date"
+msgstr ""
+
+#: /var/www/fog/lib/reports/snapin_log.report.php:93
+msgid "Task Checkin Time"
+msgstr ""
+
+#: /var/www/fog/lib/reports/snapin_log.report.php:94
+#, fuzzy
+msgid "Task Complete Date"
+msgstr "después de la realización de tareas"
+
+#: /var/www/fog/lib/reports/snapin_log.report.php:95
+#, fuzzy
+msgid "Task Complete Time"
+msgstr "después de la realización de tareas"
+
 #: /var/www/fog/lib/reports/product_keys.report.php:31
 #, fuzzy
 msgid "Host Product Keys"
@@ -7649,10 +7631,6 @@ msgstr "Eliminar todos los elementos seleccionados"
 #, fuzzy
 msgid "All pending macs"
 msgstr "macs pendientes"
-
-#: /var/www/fog/lib/reports/imaging_log.report.php:31
-msgid "FOG Imaging Log"
-msgstr ""
 
 #: /var/www/fog/lib/reports/imaging_log.report.php:69
 #, fuzzy
@@ -9696,6 +9674,18 @@ msgstr "Legado FOG Cliente"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "No hay grupos en este servidor."
+
+#, fuzzy
+#~ msgid "Select Start Date"
+#~ msgstr "Seleccione un tipo de cron"
+
+#, fuzzy
+#~ msgid "Select End Date"
+#~ msgstr "Seleccione un tipo de cron"
+
+#, fuzzy
+#~ msgid "FOG Snapin Log"
+#~ msgstr "Snapin del registro de transacciones"
 
 #, fuzzy
 #~ msgid "Host/User name"
