@@ -221,6 +221,8 @@ function display_output(partition_names, partitions, pName, p_device, p_start, p
         p_start = int(partitions[pName, "start"]);
         # set our p_size variable.
         p_size = int(partitions[pName, "size"]);
+        # Set our p_minsize variable;
+        p_minsize = int(partitions[pName, "minsize"]);
         # set our p_type variable.
         p_type = partitions[pName, "type"];
         # Write our data into the sfdisk file.
@@ -289,7 +291,6 @@ function resize_partition(partition_names, partitions, args, pName, new_start, n
         new_start = int(partitions[pName, "start"]);
         # Ensure start postition is aligned properly.
         new_size = int(sizePos) / int(SECTOR_SIZE);
-        new_size -= (new_size % int(CHUNK_SIZE));
         # Check the overlap.
         overlap = check_overlap(partition_names, partitions, target, new_start, new_size);
         # If there was an issue in checking overlap, skip.
@@ -345,7 +346,7 @@ function move_partition(partition_names, partitions, args, pName, new_start, new
         }
         # Ensure start postition is aligned properly.
         new_start = int(sizePos) / int(SECTOR_SIZE);
-        new_start -= (new_start % int(CHUNK_SIZE));
+        new_start -= (new_start % int(SECTOR_SIZE));
         # If the new_start is less than the MIN_START
         # ensure the new_start is equal to the min start point.
         if (new_start < int(MIN_START)) {
@@ -382,12 +383,13 @@ function move_partition(partition_names, partitions, args, pName, new_start, new
 # p_type is locally scoped
 # p_number is locally scoped
 # p_size is locally scoped
+# p_minsize is locally scoped
 # i is locally scoped
 # partition_starts is locally scoped
 # ordered_starts is locally scoped
 # old_sorted_in is locally scoped
 # curr_start is locally scoped
-function fill_disk(partition_names, partitions, args, n, fixed_partitions, original_variable, original_fixed, new_variable, new_logical, extended_margin, pName, p_type, p_number, p_size, i, partition_starts, ordered_starts, old_sorted_in, curr_start) {
+function fill_disk(partition_names, partitions, args, n, fixed_partitions, original_variable, original_fixed, new_variable, new_logical, extended_margin, pName, p_type, p_number, p_size, p_minsize, i, partition_starts, ordered_starts, old_sorted_in, curr_start) {
     # Used for extended volumes (logical disks)
     extended_margin = 2;
     # Ensure we start at 0 for original sizes.
@@ -526,8 +528,10 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         p_start = int(partitions[pName, "start"]);
         # Reset our p_size variable.
         p_size = int(partitions[pName, "size"]);
+        # Reset our p_minsize variable.
+        p_minsize = int(partitions[pName, "minsize"]);
         # Ensure p_size is aligned.
-        p_size -= (p_size % int(CHUNK_SIZE));
+        p_size -= (p_size % int(SECTOR_SIZE));
         # Reset our p_orig_size variable.
         p_orig_size = int(partitions[pName, "orig_size"]);
         # Regex setter.
@@ -556,8 +560,12 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         } else {
             p_size = new_variable * p_size / original_variable;
         }
+        # If the new size is smaller than the minsize reset the size to at least equal the min size.
+        if (p_size < p_minsize) {
+            p_size = p_minsize;
+        }
         # Ensure we're aligned.
-        p_size -= (p_size % int(CHUNK_SIZE));
+        p_size -= (p_size % int(SECTOR_SIZE));
         # Ensure the partition size is setup.
         partitions[pName, "size"] = p_size;
     }
@@ -608,7 +616,7 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         # Set the last boundary properly
         if (p_start + p_size > int(diskSize)) {
             p_size -= (p_start + p_size - int(diskSize));
-            p_size -= (p_size % int(CHUNK_SIZE));
+            p_size -= (p_size % int(SECTOR_SIZE));
             partitions[pName, "size"] = p_size;
         }
     }
@@ -633,7 +641,7 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
             if (p_type == 5 || p_type == "f") {
                 orig_extended = p_size;
                 p_size = (diskSize - p_start);
-                p_size -= (p_size % int(CHUNK_SIZE));
+                p_size -= (p_size % int(SECTOR_SIZE));
                 new_extended = p_size;
                 partitions[pName, "size"] = p_size;
                 continue;
@@ -647,7 +655,7 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
             }
             p_percent = p_orig_size / orig_extended;
             p_size = new_extended * p_percent;
-            p_size -= (p_size % int(CHUNK_SIZE));
+            p_size -= (p_size % int(SECTOR_SIZE));
             partitions[pName, "size"] = p_size;
             curr_start = 0;
             for (p_name in partition_names) {
@@ -679,6 +687,7 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
     # Check for any overlaps.
     return check_all_partitions(partition_names, partitions);
 }
+beginning = 0;
 # This is where it all begins (See->BEGIN) :)
 BEGIN {
     # Arguments - Use "-v var=val" when calling this script
@@ -728,6 +737,10 @@ BEGIN {
     # Get size value
     gsub(/.*size= */, "", fields[2]);
     # Set size.
+    # If minsize is not set, set it.
+    if (!partitions[part_name, "minsize"]) {
+        partitions[part_name, "minsize"] = fields[2];
+    }
     partitions[part_name, "size"] = fields[2];
     # Get type/id value
     gsub(/.*(type|Id)= */, "", fields[3]);

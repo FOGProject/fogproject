@@ -56,7 +56,7 @@ class ChangeItems extends Hook
      */
     public function storageNodeSetting($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         if (!$arguments['Host']->isValid()) {
@@ -122,7 +122,7 @@ class ChangeItems extends Hook
      */
     public function storageGroupSetting($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         if (!$arguments['Host']->isValid()) {
@@ -156,7 +156,7 @@ class ChangeItems extends Hook
      */
     public function bootItemSettings($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         if (!$arguments['Host']->isValid()) {
@@ -221,7 +221,7 @@ class ChangeItems extends Hook
      */
     public function alterMasters($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         if (!$arguments['FOGServiceClass'] instanceof MulticastManager) {
@@ -263,7 +263,7 @@ class ChangeItems extends Hook
      */
     public function makeMaster($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         if (!$arguments['FOGServiceClass'] instanceof MulticastTask) {
@@ -280,64 +280,56 @@ $HookManager
             $ChangeItems,
             'storageNodeSetting'
         )
-    );
-$HookManager
+    )
     ->register(
         'SNAPIN_GROUP',
         array(
             $ChangeItems,
             'storageGroupSetting'
         )
-    );
-$HookManager
+    )
     ->register(
         'BOOT_ITEM_NEW_SETTINGS',
         array(
             $ChangeItems,
             'bootItemSettings'
         )
-    );
-$HookManager
+    )
     ->register(
         'BOOT_TASK_NEW_SETTINGS',
         array(
             $ChangeItems,
             'storageGroupSetting'
         )
-    );
-$HookManager
+    )
     ->register(
         'HOST_NEW_SETTINGS',
         array(
             $ChangeItems,
             'storageNodeSetting'
         )
-    );
-$HookManager
+    )
     ->register(
         'HOST_NEW_SETTINGS',
         array(
             $ChangeItems,
             'storageGroupSetting'
         )
-    );
-$HookManager
+    )
     ->register(
         'BOOT_TASK_NEW_SETTINGS',
         array(
             $ChangeItems,
             'storageNodeSetting'
         )
-    );
-$HookManager
+    )
     ->register(
         'CHECK_NODE_MASTERS',
         array(
             $ChangeItems,
             'alterMasters'
         )
-    );
-$HookManager
+    )
     ->register(
         'CHECK_NODE_MASTER',
         array(

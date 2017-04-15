@@ -21,10 +21,12 @@
  */
 require '../commons/base.inc.php';
 $FOGPageManager = FOGCore::getClass('FOGPageManager');
-if (isset($_SESSION['delitems'])
-    && !in_array($sub, array('deletemulti', 'deleteconf'))
-) {
-    unset($_SESSION['delitems']);
+if (session_status() != PHP_SESSION_NONE) {
+    if (isset($_SESSION['delitems'])
+        && !in_array($sub, array('deletemulti', 'deleteconf'))
+    ) {
+        unset($_SESSION['delitems']);
+    }
 }
 FOGCore::getClass('ProcessLogin')->processMainLogin();
 require '../commons/text.php';
@@ -48,7 +50,6 @@ if (!in_array($node, $nodes)
         ->endBody()
         ->render();
 } else {
-    $_SESSION['AllowAJAXTasks'] = true;
     if (FOGCore::$ajax) {
         $FOGPageManager->render();
         exit;

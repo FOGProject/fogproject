@@ -124,11 +124,10 @@ class Plugin extends FOGController
             if ($tmpHash !== $hash) {
                 continue;
             }
-            $_SESSION['fogactiveplugin'] = $name;
             break;
         }
 
-        return $Plugin->_getEntryPoint();
+        return array($name, $Plugin->_getEntryPoint());
     }
     /**
      * Sets/gets the active plugins.

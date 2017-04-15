@@ -116,7 +116,7 @@ class Host extends FOGController
             'imageID',
             'imagename'
         ),
-        'HostScreenSettings' => array(
+        'HostScreenSetting' => array(
             'hostID',
             'id',
             'hostscreen'
@@ -160,6 +160,7 @@ class Host extends FOGController
         case 'mac':
             if (!($value instanceof MACAddress)) {
                 $value = new MACAddress($value);
+                $value = $value->__toString();
             }
             break;
         case 'additionalMACs':
@@ -240,7 +241,7 @@ class Host extends FOGController
             ->destroy($find);
         self::getClass('HostAutoLogoutManager')
             ->destroy($find);
-        self::getClass('HostScreenSettingsManager')
+        self::getClass('HostScreenSettingManager')
             ->destroy($find);
         self::getClass('GroupAssociationManager')
             ->destroy($find);
@@ -800,14 +801,10 @@ class Host extends FOGController
      */
     public function setAlo($time)
     {
-        if (!$this->get('hostalo')->isValid()) {
-            $this->get('hostalo')
-                ->set('hostID', $this->get('id'));
-        }
-        $this->get('hostalo')
+        return $this->get('hostalo')
+            ->set('hostID', $this->get('id'))
             ->set('time', $time)
             ->save();
-        return $this;
     }
     /**
      * Loads the mac additional field
@@ -1019,7 +1016,7 @@ class Host extends FOGController
                 'hostID' => $this->get('id')
             )
         );
-        $SnapinJob = new SnapinJob(@max($sjID));
+        $SnapinJob = new SnapinJob(@min($sjID));
         $this->set('snapinjob', $SnapinJob);
     }
     /**
@@ -1326,15 +1323,28 @@ class Host extends FOGController
                     throw new Exception(self::$foglang['InTask']);
                 } elseif ($Task->isSnapinTasking()) {
                     if ($TaskType->get('id') == '13') {
-                        $Task
-                            ->set(
-                                'name',
-                                'Multiple Snapin task -- Altered after single'
-                            )
-                            ->set(
-                                'typeID',
-                                12
-                            )->save();
+                        $currSnapins = self::getSubObjectIDs(
+                            'SnapinTask',
+                            array(
+                                'jobID' => $this->get('snapinjob')->get('id'),
+                                'stateID' => self::fastmerge(
+                                    (array)$this->getQueuedStates(),
+                                    (array)$this->getProgressState()
+                                ),
+                            ),
+                            'snapinID'
+                        );
+                        if (!in_array($deploySnapins, $currSnapins)) {
+                            $Task
+                                ->set(
+                                    'name',
+                                    'Multiple Snapin task -- Altered after single'
+                                )
+                                ->set(
+                                    'typeID',
+                                    12
+                                )->save();
+                        }
                     } elseif ($TaskType->get('id') == '12') {
                         $this->_cancelJobsSnapinsForHost();
                     } else {
@@ -1394,7 +1404,7 @@ class Host extends FOGController
                 $this->set('imageID', $imageTaskImgID);
             }
             $isCapture = $TaskType->isCapture();
-            $username = ($username ? $username : $_SESSION['FOG_USERNAME']);
+            $username = ($username ? $username : self::$FOGUser->get('name'));
             if (!$Task->isValid()) {
                 $Task = $this->_createTasking(
                     $taskName,
@@ -1428,11 +1438,11 @@ class Host extends FOGController
                 }
             }
             if ($TaskType->isMulticast()) {
-                $multicastTaskReturn = function (&$MulticastSessions) {
-                    if (!$MulticastSessions->isValid()) {
+                $multicastTaskReturn = function (&$MulticastSession) {
+                    if (!$MulticastSession->isValid()) {
                         return;
                     }
-                    return $MulticastSessions;
+                    return $MulticastSession;
                 };
                 $assoc = false;
                 $showStates = self::fastmerge(
@@ -1440,7 +1450,7 @@ class Host extends FOGController
                     (array)self::getProgressState()
                 );
                 if ($sessionjoin) {
-                    $MCSessions = self::getClass('MulticastSessionsManager')
+                    $MCSessions = self::getClass('MulticastSessionManager')
                         ->find(
                             array(
                                 'name' => $taskName,
@@ -1449,7 +1459,7 @@ class Host extends FOGController
                         );
                     $assoc = true;
                 } else {
-                    $MCSessions = self::getClass('MulticastSessionsManager')
+                    $MCSessions = self::getClass('MulticastSessionManager')
                         ->find(
                             array(
                                 'image' => $Image->get('id'),
@@ -1467,14 +1477,14 @@ class Host extends FOGController
                     $MulticastSession = array_shift($MultiSessJoin);
                 }
                 unset($MultiSessJoin);
-                if ($MulticastSession instanceof MulticastSessions
+                if ($MulticastSession instanceof MulticastSession
                     && $MulticastSession->isValid()
                 ) {
                     $assoc = true;
                 } else {
                     $port = self::getSetting('FOG_UDPCAST_STARTINGPORT');
                     $portOverride = self::getSetting('FOG_MULTICAST_PORT_OVERRIDE');
-                    $MulticastSession = self::getClass('MulticastSessions')
+                    $MulticastSession = self::getClass('MulticastSession')
                         ->set('name', $taskName)
                         ->set('port', ($portOverride ? $portOverride : $port))
                         ->set('logpath', $this->getImage()->get('path'))
@@ -1503,7 +1513,7 @@ class Host extends FOGController
                     }
                 }
                 if ($assoc) {
-                    self::getClass('MulticastSessionsAssociation')
+                    self::getClass('MulticastSessionAssociation')
                         ->set('msID', $MulticastSession->get('id'))
                         ->set('taskID', $Task->get('id'))
                         ->save();
@@ -1554,7 +1564,7 @@ class Host extends FOGController
                 )
                 ->set('imageID', $Image->get('id'));
         } catch (Exception $e) {
-            self::$FOGCore->error(
+            self::error(
                 sprintf(
                     '%s():xError: %s',
                     __FUNCTION__,
@@ -1585,7 +1595,7 @@ class Host extends FOGController
      */
     public function wakeOnLAN()
     {
-        $this->wakeUp($this->getMyMacs());
+        self::wakeUp($this->getMyMacs());
         return $this;
     }
     /**
@@ -2083,13 +2093,13 @@ class Host extends FOGController
                     $user = trim($this->get('ADUser'));
                 }
                 if (empty($pass)) {
-                    $pass = trim($this->encryptpw($this->get('ADPass')));
+                    $pass = trim(self::encryptpw($this->get('ADPass')));
                 }
                 if (empty($legacy)) {
                     $legacy = trim($this->get('ADPassLegacy'));
                 }
                 if (empty($productKey)) {
-                    $productKey = trim($this->encryptpw($this->get('productKey')));
+                    $productKey = trim(self::encryptpw($this->get('productKey')));
                 }
                 if (empty($enforce)) {
                     $enforce = (int)$this->get('enforce');
@@ -2097,7 +2107,7 @@ class Host extends FOGController
             }
         }
         if ($pass) {
-            $pass = trim($this->encryptpw($pass));
+            $pass = trim(self::encryptpw($pass));
         }
         $this->set('useAD', $useAD)
             ->set('ADDomain', trim($domain))
@@ -2105,7 +2115,7 @@ class Host extends FOGController
             ->set('ADUser', trim($user))
             ->set('ADPass', $pass)
             ->set('ADPassLegacy', $legacy)
-            ->set('productKey', trim($this->encryptpw($productKey)))
+            ->set('productKey', trim(self::encryptpw($productKey)))
             ->set('enforce', (string)$enforce);
         return $this;
     }

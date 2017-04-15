@@ -206,11 +206,11 @@ class ReportMaker extends FOGBase
                         sprintf(
                             'http%s://%s/fog/management/other/%s',
                             (
-                                isset($_SERVER['HTTPS']) ?
+                                filter_input(INPUT_SERVER, 'HTTPS') ?
                                 's' :
                                 ''
                             ),
-                            $_SERVER['HTTP_HOST'],
+                            filter_input(INPUT_SERVER, 'HTTP_HOST'),
                             $logoimage
                         )
                     )
@@ -253,8 +253,7 @@ class ReportMaker extends FOGBase
             );
             break;
         case 3:
-            $SchemaSave = FOGCore::getClass('Schema');
-            global $FOGCore;
+            $SchemaSave = self::getClass('Schema');
             $backup_name = sprintf(
                 'fog_backup_%s.sql',
                 self::formatTime('', 'Ymd_His')
@@ -278,7 +277,7 @@ class ReportMaker extends FOGBase
             $filename = 'fog_backup.sql';
             $path = sprintf('%s/management/other/', BASEPATH);
             $filepath = "{$path}{$filename}";
-            $ip = preg_replace('#p:#', '', DATABASE_HOST);
+            $ip = str_replace('p:', '', DATABASE_HOST);
             if (false === filter_var($ip, FILTER_VALIDATE_IP)) {
                 $ip = gethostbyname($ip);
             }

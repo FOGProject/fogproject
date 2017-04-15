@@ -288,7 +288,7 @@ class Group extends FOGController
         $y,
         $r
     ) {
-        self::getClass('HostScreenSettingsManager')
+        self::getClass('HostScreenSettingManager')
             ->destroy(
                 array(
                     'hostID' => $this->get('hosts'),
@@ -305,7 +305,7 @@ class Group extends FOGController
             $insert_items[] = array($hostID, $x, $y, $r);
             unset($hostID);
         }
-        self::getClass('HostScreenSettingsManager')
+        self::getClass('HostScreenSettingManager')
             ->insertBatch(
                 $insert_fields,
                 $insert_items
@@ -451,6 +451,10 @@ class Group extends FOGController
             throw new Exception(_('No hosts to task'));
         }
         $hostids = $this->get('hosts');
+        $TaskType = new TaskType($taskTypeID);
+        if (!$TaskType->isValid()) {
+            throw new Exception(self::$foglang['TaskTypeNotValid']);
+        }
         $TaskCount = self::getClass('TaskManager')
             ->count(
                 array(
@@ -459,14 +463,11 @@ class Group extends FOGController
                         self::getQueuedStates(),
                         (array) self::getProgressState()
                     ),
+                    'typeID' => $TaskType->isInitNeededTasking(true)
                 )
             );
         if ($TaskCount > 0) {
             throw new Exception(_('There is a host in a tasking'));
-        }
-        $TaskType = new TaskType($taskTypeID);
-        if (!$TaskType->isValid()) {
-            throw new Exception(self::$foglang['TaskTypeNotValid']);
         }
         $imagingTypes = $TaskType->isImagingTask();
         $now = $this->niceDate();
@@ -519,7 +520,7 @@ class Group extends FOGController
                 } else {
                     $port = $defaultPort;
                 }
-                $MulticastSession = self::getClass('MulticastSessions')
+                $MulticastSession = self::getClass('MulticastSession')
                     ->set('name', $taskName)
                     ->set('port', $port)
                     ->set('logpath', $Image->get('path'))
@@ -531,7 +532,7 @@ class Group extends FOGController
                     ->set('isDD', $Image->get('imageTypeID'))
                     ->set('storagegroupID', $StorageGroup->get('id'));
                 if ($MulticastSession->save()) {
-                    self::getClass('MulticastSessionsAssociationManager')
+                    self::getClass('MulticastSessionAssociationManager')
                         ->destroy(
                             array(
                                 'hostID' => $this->get('hosts'),
@@ -592,7 +593,7 @@ class Group extends FOGController
                         unset($val);
                     }
                     if (count($multicastsessionassocs) > 0) {
-                        self::getClass('MulticastSessionsAssociationManager')
+                        self::getClass('MulticastSessionAssociationManager')
                             ->insertBatch(
                                 array(
                                     'msID',
@@ -756,7 +757,7 @@ class Group extends FOGController
                 '|',
                 $hostMACs
             );
-            $this->wakeUp($hostMACs);
+            self::wakeUp($hostMACs);
         }
     }
     /**
@@ -868,7 +869,7 @@ class Group extends FOGController
         $legacy,
         $enforce
     ) {
-        $pass = trim($this->encryptpw($pass));
+        $pass = trim(self::encryptpw($pass));
         self::getClass('HostManager')
             ->update(
                 array(

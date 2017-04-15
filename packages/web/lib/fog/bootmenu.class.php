@@ -211,7 +211,7 @@ class BootMenu extends FOGBase
                 )
             )
         );
-        $StorageNode = new StorageNode($StorageNode);
+        $StorageNode = new StorageNode($StorageNodeID);
         $serviceNames = array(
             'FOG_EFI_BOOT_EXIT_TYPE',
             'FOG_KERNEL_ARGS',
@@ -325,9 +325,55 @@ class BootMenu extends FOGBase
         $this->_booturl = "http://{$webserver}/fog/service";
         $this->_memdisk = "kernel $memdisk initrd=$memtest";
         $this->_memtest = "initrd $memtest";
+        if (!$StorageNode instanceof StorageNode
+            || !$StorageNode->isValid()
+        ) {
+            $StorageNodes = (array)self::getClass('StorageNodeManager')
+                ->find(
+                    array(
+                        'ip' => array(
+                            $webserver,
+                            self::resolveHostname($webserver)
+                        )
+                    )
+                );
+            if (count($StorageNodes) < 1) {
+                $StorageNodes = (array)self::getClass('StorageNodeManager')
+                    ->find();
+                foreach ((array)$StorageNodes as $StorageNode) {
+                    $hostname = self::resolvHostname($StorageNode->get('ip'));
+                    if ($hostname == $webserver
+                        || $hostname == self::resolveHostname($webserver)
+                    ) {
+                        break;
+                    }
+                    $StorageNode = new StorageNode(0);
+                }
+                if (!$StorageNode->isValid()) {
+                    $StorageNodeIDs = (array)self::getSubObjectIDs(
+                        'StorageNode',
+                        array('isMaster' => 1)
+                    );
+                    if (count($StorageNodeIDs) < 1) {
+                        $StorageNodeIDs
+                            = (array)self::getSubObjectIDs('StorageNode');
+                    }
+                    $StorageNode = new StorageNode(@min($StorageNodeIDs));
+                }
+            }
+        }
+        if ($StorageNode->isValid()) {
+            $this->_storage = sprintf(
+                'storage=%s:/%s/ storageip=%s',
+                trim($StorageNode->get('ip')),
+                trim($StorageNode->get('path'), '/'),
+                trim($StorageNode->get('ip'))
+            );
+        }
         $this->_kernel = sprintf(
             'kernel %s %s initrd=%s root=/dev/ram0 rw '
-            . 'ramdisk_size=%s%sweb=%s consoleblank=0%s rootfstype=ext4%s%s',
+            . 'ramdisk_size=%s%sweb=%s consoleblank=0%s rootfstype=ext4%s%s '
+            . '%s',
             $bzImage,
             $this->_loglevel,
             basename($initrd),
@@ -340,7 +386,8 @@ class BootMenu extends FOGBase
                 $this->_Host->isValid() && $this->_Host->get('kernelArgs') ?
                 sprintf(' %s', $this->_Host->get('kernelArgs')) :
                 ''
-            )
+            ),
+            $this->_storage
         );
         $this->_initrd = "imgfetch $imagefile";
         self::$HookManager
@@ -369,10 +416,6 @@ class BootMenu extends FOGBase
         if ($this->_Host->isValid() && $this->_Host->get('task')->isValid()) {
             $this->getTasking();
             exit;
-        }
-        $_REQUEST['extraargs'] = trim($_REQUEST['extraargs']);
-        if ($_REQUEST['extraargs']) {
-            $_SESSION['extraargs'] = $_REQUEST['extraargs'];
         }
         self::$HookManager->processEvent(
             'ALTERNATE_BOOT_CHECKS'
@@ -550,11 +593,6 @@ class BootMenu extends FOGBase
                 'echo Host approved successfully',
                 'sleep 3'
             );
-            $shutdown = stripos('shutdown=1', $_SESSION['extraargs']);
-            $isdebug = preg_match(
-                '#isdebug=yes|mode=debug|mode=onlydebug#i',
-                $_SESSION['extraargs']
-            );
             $this->_Host->createImagePackage(
                 10,
                 'Inventory',
@@ -705,7 +743,7 @@ class BootMenu extends FOGBase
                 (array)self::getProgressState()
             ),
         );
-        foreach ((array)self::getClass('MulticastSessionsManager')
+        foreach ((array)self::getClass('MulticastSessionManager')
             ->find($findWhere) as &$MulticastSession
         ) {
             if (!$MulticastSession->isValid()
@@ -719,7 +757,7 @@ class BootMenu extends FOGBase
             unset($MulticastSession);
             break;
         }
-        $MulticastSession = new MulticastSessions($MulticastSessionID);
+        $MulticastSession = new MulticastSession($MulticastSessionID);
         if (!$MulticastSession->isValid()) {
             $Send['checksession'] = array(
                 'echo No session found with that name.',
@@ -892,10 +930,28 @@ class BootMenu extends FOGBase
             'menu',
         );
         $defItem = 'choose target && goto ${target}';
-        $Images = self::getClass('ImageManager')->find(array('isEnabled'=>1));
+        /**
+         * Sort a list.
+         */
+        $imgFind = array('isEnabled' => 1);
+        if (!self::getSetting('FOG_IMAGE_LIST_MENU')) {
+            if (!$this->_Host->isValid()
+                || !$this->_Host->getImage()->isValid()
+            ) {
+                $imgFind = false;
+            } else {
+                $imgFind['id'] = $this->_Host->getImage()->get('id');
+            }
+        }
+        if ($imgFind === false) {
+            $Images = false;
+        } else {
+            $Images = self::getClass('ImageManager')->find($imgFind);
+        }
         if (!$Images) {
             $Send['NoImages'] = array(
-                'echo No Images on server found',
+                'echo Host is not valid, host has no image assigned, or'
+                . ' there are no images defined on the server.',
                 'sleep 3',
             );
             $this->_parseMe($Send);
@@ -997,12 +1053,12 @@ class BootMenu extends FOGBase
      */
     public function multijoin($msid)
     {
-        $MultiSess = new MulticastSessions($msid);
+        $MultiSess = new MulticastSession($msid);
         if (!$MultiSess->isValid()) {
             return;
         }
         $msImage = $MultiSess->getImage()->get('id');
-        if ($this->_Host->isValid()) {
+        if ($this->_Host->isValid() && !$this->_Host->get('pending')) {
             $h_Image = 0;
             $Image = $this->_Host->getImage();
             if ($Image instanceof Image) {
@@ -1014,12 +1070,7 @@ class BootMenu extends FOGBase
                     ->set('imageID', $msImage);
             }
         }
-        $shutdown = stripos('shutdown=1', $_SESSION['extraargs']);
-        $isdebug = preg_match(
-            '#isdebug=yes|mode=debug|mode=onlydebug#i',
-            $_SESSION['extraargs']
-        );
-        if ($this->_Host->isValid()) {
+        if ($this->_Host->isValid() && !$this->_Host->get('pending')) {
             $this->_Host->createImagePackage(
                 8,
                 $MultiSess->get('name'),
@@ -1047,7 +1098,7 @@ class BootMenu extends FOGBase
         if (!$this->_Host->isValid()) {
             return;
         }
-        $this->_Host->set('productKey', $this->encryptpw($_REQUEST['key']));
+        $this->_Host->set('productKey', self::encryptpw($_REQUEST['key']));
         if (!$this->_Host->save()) {
             return;
         }
@@ -1148,7 +1199,7 @@ class BootMenu extends FOGBase
         if ($noMenu) {
             $this->noMenu();
         }
-        $tmpUser = self::$FOGCore->attemptLogin(
+        $tmpUser = self::attemptLogin(
             $_REQUEST['username'],
             $_REQUEST['password']
         );
@@ -1196,11 +1247,6 @@ class BootMenu extends FOGBase
      */
     public function setTasking($imgID = '')
     {
-        $shutdown = stripos('shutdown=1', $_SESSION['extraargs']);
-        $isdebug = preg_match(
-            '#isdebug=yes|mode=debug|mode=onlydebug#i',
-            $_SESSION['extraargs']
-        );
         if (!$imgID) {
             $this->printImageList();
             return;
@@ -1269,13 +1315,13 @@ class BootMenu extends FOGBase
             if ($TaskType->isMulticast()) {
                 $msaID = @max(
                     self::getSubObjectIDs(
-                        'MulticastSessionsAssociation',
+                        'MulticastSessionAssociation',
                         array(
                             'taskID' => $Task->get('id')
                         )
                     )
                 );
-                $MulticastSessionAssoc = new MulticastSessionsAssociation($msaID);
+                $MulticastSessionAssoc = new MulticastSessionAssociation($msaID);
                 $MulticastSession = $MulticastSessionAssoc->getMulticastSession();
                 if ($MulticastSession && $MulticastSession->isValid()) {
                     $this->_Host->set('imageID', $MulticastSession->get('image'));
@@ -1655,7 +1701,16 @@ class BootMenu extends FOGBase
     private function _menuItem($option, $desc)
     {
         $name = preg_replace('#[\s]+#', '_', $option->get('name'));
-        return array("item $name $desc");
+        $hotkey = ' ';
+        if ($option->get('hotkey')) {
+            if ($option->get('keysequence')) {
+                $hotkey = sprintf(
+                    ' --key %s ',
+                    $option->get('keysequence')
+                );
+            }
+        }
+        return array("item${hotkey}${name} ${desc}");
     }
     /**
      * The options of the menu
@@ -1684,7 +1739,7 @@ class BootMenu extends FOGBase
             if ($type) {
                 $index = array_search('params', $params);
                 if ($index !== false && is_numeric($index)) {
-                    $this->arrayInsertAfter(
+                    self::arrayInsertAfter(
                         $index,
                         $params,
                         'extra',

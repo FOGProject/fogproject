@@ -86,7 +86,7 @@ class TaskMobile extends FOGPage
      */
     public function search()
     {
-        $this->redirect(
+        self::redirect(
             sprintf(
                 '?node=%s&sub=active',
                 $this->node
@@ -100,7 +100,7 @@ class TaskMobile extends FOGPage
      */
     public function searchPost()
     {
-        $this->redirect(
+        self::redirect(
             sprintf(
                 '?node=%s&sub=active',
                 $this->node
@@ -117,7 +117,7 @@ class TaskMobile extends FOGPage
         $this->obj
             ->set('isForced', 1)
             ->save();
-        $this->redirect(
+        self::redirect(
             sprintf(
                 '?node=%s',
                 $this->node
@@ -132,7 +132,7 @@ class TaskMobile extends FOGPage
     public function killtask()
     {
         $this->obj->cancel();
-        $this->redirect(
+        self::redirect(
             sprintf(
                 '?node=%s',
                 $this->node

@@ -69,8 +69,7 @@ $ImageCompelte_Slack = new ImageComplete_Slack();
 $EventManager->register(
     'HOST_IMAGE_COMPLETE',
     $ImageComplete_Slack
-);
-$EventManager->register(
+)->register(
     'HOST_IMAGEUP_COMPLETE',
     $ImageComplete_Slack
 );

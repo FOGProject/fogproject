@@ -34,7 +34,9 @@ beginUpload() {
         [Nn])
             validResizeOS
             runPartprobe "$hd"
+            parts=""
             getPartitions "$hd"
+            [[ ${#parts} -lt 1 ]] && handleError "No partitions found ($0)\n   Args Passed: $*"
             [[ $osid == @([1-2]|[4-7]|9) ]] && win7partcnt=$(echo $parts | wc -w)
             dots "Checking for fixed partitions"
             part_number=0
@@ -158,6 +160,9 @@ beginUpload() {
             done
             ;;
         mps)
+            parts=""
+            getPartitions "$hd"
+            [[ ${#parts} -lt 1 ]] && handleError "No partitions found ($0)\n   Args Passed: $*"
             echo " * Processing Hard Disk: $hd"
             echo " * Saving original disk/parts UUIDs"
             debugPause
@@ -173,6 +178,10 @@ beginUpload() {
         mpa)
             disk_number=1
             for disk in $disks; do
+                [[ $disk =~ "mmcblk[0-9]+boot[0-9]+" ]] && continue
+                parts=""
+                getPartitions "$disk"
+                [[ ${#parts} -lt 1 ]] && continue
                 debugPause
                 echo " * Processing Hard Disk: $disk"
                 echo " * Saving original disk/parts UUIDs"

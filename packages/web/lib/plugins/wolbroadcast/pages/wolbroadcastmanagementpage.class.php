@@ -173,16 +173,16 @@ class WOLBroadcastManagementPage extends FOGPage
             if (!$WOLBroadcast->save()) {
                 throw new Exception(_('Failed to create'));
             }
-            $this->setMessage(_('Broadcast Added, editing!'));
-            $this->redirect(
+            self::setMessage(_('Broadcast Added, editing!'));
+            self::redirect(
                 sprintf(
                     '?node=wolbroadcast&sub=edit&id=%s',
                     $WOLBroadcast->get('id')
                 )
             );
         } catch (Exception $e) {
-            $this->setMessage($e->getMessage());
-            $this->redirect($this->formAction);
+            self::setMessage($e->getMessage());
+            self::redirect($this->formAction);
         }
     }
     /**
@@ -285,11 +285,11 @@ class WOLBroadcastManagementPage extends FOGPage
             if (!$this->obj->save()) {
                 throw new Exception(_('Failed to update'));
             }
-            $this->setMessage(_('Broadcast Updated'));
-            $this->redirect($this->formAction);
+            self::setMessage(_('Broadcast Updated'));
+            self::redirect($this->formAction);
         } catch (Exception $e) {
-            $this->setMessage($e->getMessage());
-            $this->redirect($this->formAction);
+            self::setMessage($e->getMessage());
+            self::redirect($this->formAction);
         }
     }
 }

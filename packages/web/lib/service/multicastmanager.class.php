@@ -164,6 +164,29 @@ class MulticastManager extends FOGService
     private function _serviceLoop()
     {
         while (true) {
+            if (!isset($nextrun)) {
+                $first = true;
+                $nextrun = self::niceDate()
+                    ->modify(
+                        sprintf(
+                            '+%s second%s',
+                            self::$zzz,
+                            self::$zzz != 1 ? '' : 's'
+                        )
+                    );
+            }
+            if (self::niceDate() < $nextrun && $first === false) {
+                usleep(100000);
+                continue;
+            }
+            $nextrun = self::niceDate()
+                ->modify(
+                    sprintf(
+                        '+%s second%s',
+                        self::$zzz,
+                        self::$zzz != 1 ? '' : 's'
+                    )
+                );
             $this->waitDbReady();
             $queuedStates = self::fastmerge(
                 self::getQueuedStates(),
@@ -301,7 +324,7 @@ class MulticastManager extends FOGService
                                 $KnownTasks,
                                 $RTask->getID()
                             );
-                            self::getClass('MulticastSessionsAssociationManager')
+                            self::getClass('MulticastSessionAssociationManager')
                                 ->destroy(
                                     array('msID' => $RTask->getID())
                                 );
@@ -579,6 +602,9 @@ class MulticastManager extends FOGService
             } catch (Exception $e) {
                 self::outall($e->getMessage());
             }
+            if ($first) {
+                $first = false;
+            }
             $tmpTime = self::getSetting(self::$sleeptime);
             if (static::$zzz != $tmpTime) {
                 static::$zzz = $tmpTime ? $tmpTime : 10;
@@ -595,7 +621,6 @@ class MulticastManager extends FOGService
                     )
                 );
             }
-            sleep(static::$zzz);
             $oldCount = $taskCount;
         }
     }

@@ -110,12 +110,15 @@ class EventManager extends FOGBase
                 _('Class'),
                 $listener[0]
             );
-            $this->log($string);
-
-            return false;
+            self::log(
+                $string,
+                $this->logLevel,
+                0,
+                $this,
+                0
+            );
         }
-
-        return true;
+        return $this;
     }
     /**
      * Notifies the system of events.
@@ -129,6 +132,12 @@ class EventManager extends FOGBase
      */
     public function notify($event, $eventData = array())
     {
+        $exists = self::getClass('NotifyEventManager')->exists($event);
+        if (!$exists) {
+            self::getClass('NotifyEvent')
+                ->set('name', $event)
+                ->save();
+        }
         try {
             if (!is_string($event)) {
                 throw new Exception(_('Event must be a string'));
@@ -158,7 +167,13 @@ class EventManager extends FOGBase
                 _('Event'),
                 $event
             );
-            $this->log($string);
+            self::log(
+                $string,
+                $this->logLevel,
+                0,
+                $this,
+                0
+            );
 
             return false;
         }
@@ -227,7 +242,7 @@ class EventManager extends FOGBase
             '#/(%s)/#',
             implode(
                 '|',
-                $_SESSION['PluginsInstalled']
+                self::$pluginsinstalled
             )
         );
         $tFiles = array_map($fileitems, (array) $files);
@@ -240,8 +255,8 @@ class EventManager extends FOGBase
         // hooks or events.
         // Plugins don't need to know if the active flag is set either
         $startClass = function (&$element) use ($strlen) {
-            $className = preg_replace(
-                '#[[:space:]]#',
+            $className = str_replace(
+                array("\t", "\n", ' '),
                 '_',
                 substr(
                     basename($element),
@@ -262,12 +277,10 @@ class EventManager extends FOGBase
                 return;
             }
             self::getClass(
-                preg_replace(
-                    '#[[:space:]]#',
+                str_replace(
+                    array("\t", "\n", ' '),
                     '_',
-                    $className,
-                    0,
-                    $strlen
+                    $className
                 )
             );
             unset($element, $key);

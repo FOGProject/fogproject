@@ -138,7 +138,7 @@ class FOGConfigurationPage extends FOGPage
     public function license()
     {
         $this->title = _('FOG License Information');
-        $file = "./languages/{$_SESSION['locale']}.UTF-8/gpl-3.0.txt";
+        $file = "./languages/'.self::$locale.'.UTF-8/gpl-3.0.txt";
         if (($fh = fopen($file, 'rb')) === false) {
             return;
         }
@@ -592,8 +592,8 @@ class FOGConfigurationPage extends FOGPage
             }
             throw new Exception(_('PXE Menu has been updated'));
         } catch (Exception $e) {
-            $this->setMessage($e->getMessage());
-            $this->redirect($this->formAction);
+            self::setMessage($e->getMessage());
+            self::redirect($this->formAction);
         }
     }
     /**
@@ -650,6 +650,12 @@ class FOGConfigurationPage extends FOGPage
                 ' checked' :
                 ''
             );
+            $hotKey = (
+                $Menu->get('hotkey') ?
+                ' checked' :
+                ''
+            );
+            $keySeq = $Menu->get('keysequence');
             $fields = array(
                 _('Menu Item:') => sprintf(
                     '<input type="text" name="menu_item" value='
@@ -674,6 +680,14 @@ class FOGConfigurationPage extends FOGPage
                 _('Default Item:') => sprintf(
                     '<input type="checkbox" name="menu_default" value="1"%s/>',
                     $menuDefault
+                ),
+                _('Hot Key Enabled') => sprintf(
+                    '<input type="checkbox" name="hotkey"%s/>',
+                    $hotKey
+                ),
+                _('Hot Key to use') => sprintf(
+                    '<input type="text" name="keysequence" value="%s"/>',
+                    $keySeq
                 ),
                 _('Menu Show with:') => self::getClass(
                     'PXEMenuOptionsManager'
@@ -752,7 +766,9 @@ class FOGConfigurationPage extends FOGPage
                         'params' => $_REQUEST['menu_params'],
                         'regMenu' => $_REQUEST['menu_regmenu'],
                         'args' => $_REQUEST['menu_options'],
-                        'default' => $_REQUEST['menu_default']
+                        'default' => $_REQUEST['menu_default'],
+                        'hotkey' => isset($_REQUEST['hotkey']),
+                        'keysequence' => $_REQUEST['keysequence']
                     )
                 );
             if ($_REQUEST['menu_default']) {
@@ -787,7 +803,7 @@ class FOGConfigurationPage extends FOGPage
                     ->save();
             }
             unset($DefMenuIDs);
-            $this->setMessage(
+            self::setMessage(
                 sprintf(
                     '%s %s!',
                     $_REQUEST['menu_item'],
@@ -803,7 +819,7 @@ class FOGConfigurationPage extends FOGPage
                 $_REQUEST['rmid']
             );
             if ($menuname->destroy()) {
-                $this->setMessage(
+                self::setMessage(
                     sprintf(
                         '%s %s!',
                         $menuname->get('name'),
@@ -825,7 +841,7 @@ class FOGConfigurationPage extends FOGPage
                 ->set('default', 1)
                 ->save();
         }
-        $this->redirect($this->formAction);
+        self::redirect($this->formAction);
     }
     /**
      * Form presented to create a new menu.
@@ -955,8 +971,8 @@ class FOGConfigurationPage extends FOGPage
                         'Menu' => &$Menu
                     )
                 );
-            $this->setMessage(_('Menu Added'));
-            $this->redirect(
+            self::setMessage(_('Menu Added'));
+            self::redirect(
                 sprintf(
                     '?node=%s&sub=edit&%s=%s',
                     $this->node,
@@ -972,8 +988,8 @@ class FOGConfigurationPage extends FOGPage
                         'Menu' => &$Menu
                     )
                 );
-            $this->setMessage($e->getMessage());
-            $this->redirect($this->formAction);
+            self::setMessage($e->getMessage());
+            self::redirect($this->formAction);
         }
     }
     /**
@@ -1170,11 +1186,11 @@ class FOGConfigurationPage extends FOGPage
                     ->set('file', $content)
                     ->save();
             }
-            $this->setMessage(_('Modules added/updated'));
+            self::setMessage(_('Modules added/updated'));
         } catch (Exception $e) {
-            $this->setMessage($e->getMessage());
+            self::setMessage($e->getMessage());
         }
-        $this->redirect($this->formAction);
+        self::redirect($this->formAction);
     }
     /**
      * Presents mac listing information.
@@ -1202,7 +1218,7 @@ class FOGConfigurationPage extends FOGPage
                 _('into the FOG database for easier identication')
             ),
             _('Current Records'),
-            self::$FOGCore->getMACLookupCount(),
+            self::getMACLookupCount(),
             _('Delete MACs'),
             _('Delete Current Records'),
             _('Update MACs'),
@@ -1218,7 +1234,7 @@ class FOGConfigurationPage extends FOGPage
     public function maclistPost()
     {
         if ($_REQUEST['update']) {
-            self::$FOGCore->clearMACLookupTable();
+            self::clearMACLookupTable();
             $url = 'http://linuxnet.ca/ieee/oui.txt';
             if (($fh = fopen($url, 'rb')) === false) {
                 throw new Exception(_('Could not read temp file'));
@@ -1273,7 +1289,7 @@ class FOGConfigurationPage extends FOGPage
                 unset($items);
             }
             unset($first_id);
-            $this->setMessage(
+            self::setMessage(
                 sprintf(
                     '%s %s',
                     $imported,
@@ -1282,10 +1298,10 @@ class FOGConfigurationPage extends FOGPage
             );
         }
         if ($_REQUEST['clear']) {
-            self::$FOGCore->clearMACLookupTable();
+            self::clearMACLookupTable();
         }
-        $this->resetRequest();
-        $this->redirect('?node=about&sub=maclist');
+        self::resetRequest();
+        self::redirect('?node=about&sub=maclist');
     }
     /**
      * The fog settings
@@ -1343,7 +1359,9 @@ class FOGConfigurationPage extends FOGPage
             'FOG_QUICKREG_IMG_WHEN_REG',
             'FOG_TASKING_ADV_SHUTDOWN_ENABLED',
             'FOG_TASKING_ADV_WOL_ENABLED',
-            'FOG_TASKING_ADV_DEBUG_ENABLED'
+            'FOG_TASKING_ADV_DEBUG_ENABLED',
+            'FOG_API_ENABLED',
+            'FOG_IMAGE_LIST_MENU',
         );
         self::$HookManager
             ->processEvent(
@@ -1625,15 +1643,32 @@ class FOGConfigurationPage extends FOGPage
                     echo '</select>';
                     $type = ob_get_clean();
                     break;
-                case (preg_match('#pass#i', $Service->get('name'))
-                    && !preg_match('#(valid|min)#i', $Service->get('name'))
-                ):
-                    $Service->get('name') == 'FOG_STORAGENODE_MYSQLPASS' ?
-                    $type = '<input type="text" name="${service_id}" value='
-                        . '"${service_value}" autocomplete="off"/>' :
-                    $type = '<input type="password" name='
-                        . '"${service_id}" value="${service_value}" autocomplete='
-                        . '"off"/>';
+                case ('FOG_API_TOKEN' === $Service->get('name') ||
+                    (preg_match('#pass#i', $Service->get('name'))
+                    && !preg_match('#(valid|min)#i', $Service->get('name')))):
+                    $extra = '/>';
+                    $normal = '${service_value}';
+                    if ('FOG_API_TOKEN' === $Service->get('name')) {
+                        $extra = ' readonly class="token"/>'
+                            . '<input type="button" class="resettoken" value="'
+                            . _('Reset Token')
+                            . '"/>';
+                        $normal = '${service_base64val}';
+                    }
+                    $type = (
+                        $Service->get('name') == 'FOG_STORAGENODE_MYSQLPASS' ?
+                        '<input type="text" name="${service_id}" value='
+                        . '"'
+                        . $normal
+                        . '" autocomplete="off"'
+                        . $extra :
+                        '<input type="password" name='
+                        . '"${service_id}" value="'
+                        . $normal
+                        . '" autocomplete='
+                        . '"off"'
+                        . $extra
+                    );
                     break;
                 case (in_array($Service->get('name'), $ServiceNames)):
                     $type = sprintf(
@@ -1706,6 +1741,7 @@ class FOGConfigurationPage extends FOGPage
                     'service_id' => $Service->get('id'),
                     'id' => $Service->get('id'),
                     'service_value' => $Service->get('value'),
+                    'service_base64val' => base64_encode($Service->get('value')),
                     'service_desc' => $Service->get('description'),
                 );
                 unset($Service);
@@ -1766,6 +1802,8 @@ class FOGConfigurationPage extends FOGPage
         $regenrange = range(0, 24, .25);
         array_shift($regenrange);
         $needstobenumeric = array(
+            // API System
+            'FOG_API_ENABLED' => $checkbox,
             // Donations
             'FOG_MINING_ENABLE' => $checkbox,
             'FOG_MINING_MAX_CORES' => true,
@@ -1783,6 +1821,7 @@ class FOGConfigurationPage extends FOGPage
             'FOG_REGISTRATION_ENABLED' => $checkbox,
             'FOG_KERNEL_LOGLEVEL' => range(0, 7),
             'FOG_WIPE_TIMEOUT' => true,
+            'FOG_IMAGE_LIST_MENU' => $checkbox,
             // FOG Email Settings
             'FOG_EMAIL_ACTION' => $checkbox,
             // FOG Linux Service Logs
@@ -1922,13 +1961,16 @@ class FOGConfigurationPage extends FOGPage
                 $set = '';
             }
             switch ($name) {
+            case 'FOG_API_TOKEN':
+                $set = base64_decode($set);
+                break;
             case 'FOG_MEMORY_LIMIT':
                 if ($set < 128) {
                     $set = 128;
                 }
                 break;
             case 'FOG_AD_DEFAULT_PASSWORD':
-                $set = $this->encryptpw($set);
+                $set = self::encryptpw($set);
                 break;
             case 'FOG_CLIENT_BANNER_SHA':
                 continue 2;
@@ -1961,16 +2003,16 @@ class FOGConfigurationPage extends FOGPage
                     $attr
                 ) = getimagesize($src);
                 if ($width != 650) {
-                    $this->setMessage(
+                    self::setMessage(
                         _('Width must be 650 pixels.')
                     );
-                    $this->redirect($this->formAction);
+                    self::redirect($this->formAction);
                 }
                 if ($height != 120) {
-                    $this->setMessage(
+                    self::setMessage(
                         _('Height must be 120 pixels.')
                     );
-                    $this->redirect($this->formAction);
+                    self::redirect($this->formAction);
                 }
                 $dest = sprintf(
                     '%s/management/other/%s',
@@ -2005,8 +2047,8 @@ class FOGConfigurationPage extends FOGPage
                     $items
                 );
         }
-        $this->setMessage('Settings Successfully stored!');
-        $this->redirect($this->formAction);
+        self::setMessage('Settings Successfully stored!');
+        self::redirect($this->formAction);
     }
     /**
      * Gets and displays log files.
@@ -2246,7 +2288,7 @@ class FOGConfigurationPage extends FOGPage
                 }
                 printf(
                     '<option value="%s||%s"%s>%s</option>',
-                    $this->aesencrypt($ip[$nodename]),
+                    self::aesencrypt($ip[$nodename]),
                     $file,
                     (
                         $value == $_REQUEST['logtype'] ?
@@ -2408,8 +2450,8 @@ class FOGConfigurationPage extends FOGPage
                 );
             }
         } catch (Exception $e) {
-            $this->setMessage($e->getMessage());
-            $this->redirect($this->formAction);
+            self::setMessage($e->getMessage());
+            self::redirect($this->formAction);
         }
     }
 }

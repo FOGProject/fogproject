@@ -549,28 +549,30 @@ function setupFogTableInfoFunction() {
                 }
                 break;
             case 'report':
+                console.log(sub);
                 if (typeof(sub) != 'undefined') {
                     switch (sub) {
+                        case 'inventory':
+                            headParser = {
+                                0: {
+                                    sorter: 'checkboxParser'
+                                },
+                                1: {
+                                    sorter: 'sizeParser'
+                                }
+                            }
+                            break;
                         case 'imaging-log':
                             headParser = {
                                 2: {sorter: 'dateParser'},
                                 3: {sorter: 'dateParser'}
                             };
                             break;
-                    }
-                    if (sub == 'inventory') {
-                        headParser = {
-                            1: {sorter: 'sizeParser'}
-                        };
-                        break;
+                        default:
+                            headParser = {0: {sorter: 'checkboxParser'}};
+                            break;
                     }
                 }
-                break;
-            case 'user':
-            case 'group':
-            case 'snapin':
-            default:
-                headParser = {0: {sorter: 'checkboxParser'}};
                 break;
             case 'host':
                 headParser = {0: {sorter: 'questionParser'},1: {sorter: 'checkboxParser'},2: {sorter: 'iParser'}};
@@ -579,12 +581,29 @@ function setupFogTableInfoFunction() {
                 headParser = {0: {sorter: 'questionParser'},1: {sorter: 'checkboxParser'}};
                 break;
             case 'image':
-                headParser = {0: {sorter: 'iParser'},1: {sorter: 'checkboxParser'},3: {sorter: 'sizeParser'}};
-                headExtra = {4: {sorter: 'sizeParser'}};
+                headParser = 
+                {
+                    0: {
+                        sorter: 'iParser'
+                    },
+                    1: {
+                        sorter: 'checkboxParser'
+                    },
+                    6: {
+                        sorter: 'sizeParser'
+                    }
+                };
+                headExtra = {7: {sorter: 'sizeParser'}};
                 if ($('th').length > 7) $.extend(headParser,headExtra);
                 break;
             case 'storage':
                 headParser = {};
+                break;
+            case 'user':
+            case 'group':
+            case 'snapin':
+            default:
+                headParser = {0: {sorter: 'checkboxParser'}};
                 break;
         }
         table = $('table',this);

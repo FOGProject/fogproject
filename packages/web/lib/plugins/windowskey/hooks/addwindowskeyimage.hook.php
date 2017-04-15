@@ -58,7 +58,7 @@ class AddWindowsKeyImage extends Hook
     {
         global $node;
         global $sub;
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         if ($node != 'image') {
@@ -85,7 +85,7 @@ class AddWindowsKeyImage extends Hook
             );
             $wkID = array_shift($WindowsKeys);
         }
-        $this->arrayInsertAfter(
+        self::arrayInsertAfter(
             _('Operating System'),
             $arguments['fields'],
             _('Windows Key for Image'),
@@ -103,7 +103,7 @@ class AddWindowsKeyImage extends Hook
      */
     public function imageAddKey($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         global $node;
@@ -151,7 +151,7 @@ class AddWindowsKeyImage extends Hook
      */
     public function imageRemove($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         self::getClass('WindowsKeyAssociationManager')->destroy(
@@ -169,7 +169,7 @@ class AddWindowsKeyImage extends Hook
      */
     public function imageKeySelector($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         if ($arguments['obj'] instanceof WindowsKeyManager) {
@@ -187,32 +187,28 @@ $HookManager
             $AddWindowsKeyImage,
             'imageFields'
         )
-    );
-$HookManager
+    )
     ->register(
         'IMAGE_ADD_SUCCESS',
         array(
             $AddWindowsKeyImage,
             'imageAddKey'
         )
-    );
-$HookManager
+    )
     ->register(
         'IMAGE_EDIT_SUCCESS',
         array(
             $AddWindowsKeyImage,
             'imageAddKey'
         )
-    );
-$HookManager
+    )
     ->register(
         'DESTROY_IMAGE',
         array(
             $AddWindowsKeyImage,
             'imageRemove'
         )
-    );
-$HookManager
+    )
     ->register(
         'SELECT_BUILD',
         array(

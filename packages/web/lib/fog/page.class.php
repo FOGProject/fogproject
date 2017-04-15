@@ -211,7 +211,7 @@ class Page extends FOGBase
                     ),
                 );
                 if (self::getSetting('FOG_PLUGINSYS_ENABLED')) {
-                    $this->arrayInsertAfter(
+                    self::arrayInsertAfter(
                         'about',
                         $this->main,
                         'plugin',
@@ -279,7 +279,7 @@ class Page extends FOGBase
             if ($node
                 && !in_array($node, $links)
             ) {
-                $this->redirect('index.php');
+                self::redirect('index.php');
             }
             ob_start();
             echo '<nav class="menu"><ul class="nav-list">';
@@ -381,7 +381,7 @@ class Page extends FOGBase
                 array_push($files, 'js/fog/fog.dashboard.js');
                 $test = preg_match(
                     '#MSIE [6|7|8|9|10|11]#',
-                    $_SERVER['HTTP_USER_AGENT']
+                    self::$useragent
                 );
                 if ($test) {
                     array_push(

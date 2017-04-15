@@ -110,9 +110,7 @@ $HookManager
             $RemoveSlackItem,
             'removesingle'
         )
-    );
-$HookManager
-    ->register(
+    )->register(
         'MULTI_REMOVE',
         array(
             $RemoveSlackItem,

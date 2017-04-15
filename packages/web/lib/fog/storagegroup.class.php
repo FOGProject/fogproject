@@ -106,7 +106,6 @@ class StorageGroup extends FOGController
                 'StorageNode',
                 array(
                     'storagegroupID' => $this->get('id'),
-                    'maxClients' => range(1, 9999)
                 ),
                 'id'
             )
@@ -122,7 +121,6 @@ class StorageGroup extends FOGController
         $find = array(
             'storagegroupID' => $this->get('id'),
             'id' => $this->get('allnodes'),
-            'maxClients' => range(1, 9999),
             'isEnabled' => 1
         );
         $nodeids = array();
@@ -130,6 +128,9 @@ class StorageGroup extends FOGController
         foreach ((array)self::getClass('StorageNodeManager')
             ->find($find) as &$node
         ) {
+            if ($node->get('maxClients') < 0) {
+                continue;
+            }
             $testurls[] = sprintf(
                 'http://%s/fog/management/index.php',
                 $node->get('ip')

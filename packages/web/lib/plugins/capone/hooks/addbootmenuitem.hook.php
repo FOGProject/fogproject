@@ -52,7 +52,7 @@ class AddBootMenuItem extends Hook
      */
     public function addBootMenuItem()
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         $dmi = self::getSetting('FOG_PLUGIN_CAPONE_DMI');

@@ -91,8 +91,7 @@ $HookManager
             $HostVNCLink,
             'hostData'
         )
-    );
-$HookManager
+    )
     ->register(
         'HOST_HEADER_DATA',
         array(

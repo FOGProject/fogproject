@@ -143,13 +143,13 @@ class PluginManagementPage extends FOGPage
         $this->render();
         if (isset($_REQUEST['activate'])) {
             self::getClass('Plugin')->activatePlugin($_REQUEST['activate']);
-            $this->setMessage(_('Successfully activated Plugin!'));
+            self::setMessage(_('Successfully activated Plugin!'));
             $this->formAction = preg_replace(
                 '#&activate=.*&?#',
                 '',
                 $this->formAction
             );
-            $this->redirect($this->formAction);
+            self::redirect($this->formAction);
         }
     }
     /**
@@ -171,6 +171,11 @@ class PluginManagementPage extends FOGPage
             }
             $name = trim($Plugin->get('name'));
             $hash = md5($name);
+            $this->formAction .= sprintf(
+                '&run=%s&plug_name=%s',
+                $hash,
+                $name
+            );
             $this->data[] = array(
                 'name' => $name,
                 'type' => 'install',
@@ -208,7 +213,10 @@ class PluginManagementPage extends FOGPage
             if ($tmpHash !== $hash) {
                 continue;
             }
-            $runner = $Plugin->getRunInclude($hash);
+            list(
+                $name,
+                $runner
+            ) = $Plugin->getRunInclude($hash);
             if (!file_exists($runner)) {
                 return $this->run($Plugin);
             }
@@ -264,7 +272,10 @@ class PluginManagementPage extends FOGPage
             if ($tmpHash !== $hash) {
                 continue;
             }
-            $runner = $Plugin->getRunInclude($hash);
+            list(
+                $name,
+                $runner
+            ) = $Plugin->getRunInclude($hash);
             if (!file_exists($runner)) {
                 return $this->run($Plugin);
             }
@@ -523,14 +534,14 @@ class PluginManagementPage extends FOGPage
                 }
             }
         } catch (Exception $e) {
-            echo $this->setMessage($e->getMessage());
+            echo self::setMessage($e->getMessage());
             $url = sprintf(
                 '?node=%s&sub=%s&run=%s',
                 $_REQUEST['node'],
                 $_REQUEST['sub'],
                 $_REQUEST['run']
             );
-            $this->redirect($url);
+            self::redirect($url);
         }
     }
     /**
@@ -549,9 +560,12 @@ class PluginManagementPage extends FOGPage
      */
     public function installedPost()
     {
-        self::getClass('Plugin')->getRunInclude($_REQUEST['run']);
+        list(
+            $pluginname,
+            $entrypoint
+        ) = self::getClass('Plugin')->getRunInclude($_REQUEST['run']);
         $Plugin = self::getClass('Plugin')
-            ->set('name', $_SESSION['fogactiveplugin'])
+            ->set('name', $pluginname)
             ->load('name');
         try {
             if (!$Plugin->isValid()) {
@@ -621,9 +635,9 @@ class PluginManagementPage extends FOGPage
                 }
             }
         } catch (Exception $e) {
-            $this->setMessage($e->getMessage());
+            self::setMessage($e->getMessage());
         }
-        $this->redirect($this->formAction);
+        self::redirect($this->formAction);
     }
     /**
      * Removes a plugin
@@ -637,12 +651,12 @@ class PluginManagementPage extends FOGPage
         }
         $Plugin->getManager()->uninstall();
         if ($Plugin->destroy()) {
-            $this->setMessage('Plugin Removed');
+            self::setMessage('Plugin Removed');
         }
         $url = sprintf(
             '?node=%s&sub=activate',
             $this->node
         );
-        $this->redirect($url);
+        self::redirect($url);
     }
 }

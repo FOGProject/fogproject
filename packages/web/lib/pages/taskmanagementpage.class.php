@@ -136,6 +136,25 @@ class TaskManagementPage extends FOGPage
             if (!$Host->isValid()) {
                 return;
             }
+            if ($Task->isSnapinTasking()) {
+                $SnapinJob = $Host->get('snapinjob');
+                if ($SnapinJob->isValid()) {
+                    $STCount = self::getClass('SnapinTaskManager')
+                        ->count(
+                            array(
+                                'jobID' => $SnapinJob->get('id'),
+                                'stateID' => self::fastmerge(
+                                    (array)$this->getQueuedStates(),
+                                    (array)$this->getProgressState()
+                                )
+                            )
+                        );
+                    if ($STCount < 1) {
+                        $Task->cancel();
+                        return;
+                    }
+                }
+            }
             if ($Task->get('typeID') < 3) {
                 if ($Task->get('isForced')) {
                     $forcetask = sprintf(
@@ -482,12 +501,12 @@ class TaskManagementPage extends FOGPage
                 $enableDebug,
                 $enableSnapins,
                 $type === 'group',
-                $_SESSION['FOG_USERNAME'],
+                self::$FOGUser->get('name'),
                 false,
                 false,
                 $TaskType->isInitNeededTasking() || $TaskType->get('id') == 14
             );
-            $this->setMessage(
+            self::setMessage(
                 sprintf(
                     '%s %s %s',
                     _('Successfully created'),
@@ -495,7 +514,7 @@ class TaskManagementPage extends FOGPage
                     _('tasking')
                 )
             );
-            $this->redirect("?node=$this->node");
+            self::redirect("?node=$this->node");
         } catch (Exception $e) {
             printf(
                 '<div class="task-start-failed"><p>%s</p><p>%s</p></div>',
@@ -654,9 +673,9 @@ class TaskManagementPage extends FOGPage
             exit;
         }
         if ($result['error']) {
-            $this->fatalError($result['error']);
+            self::fatalError($result['error']);
         } else {
-            $this->redirect(
+            self::redirect(
                 sprintf(
                     '?node=%s',
                     $this->node
@@ -719,7 +738,7 @@ class TaskManagementPage extends FOGPage
                 (array) self::getProgressState()
             )
         );
-        foreach ((array)self::getClass('MulticastSessionsManager')
+        foreach ((array)self::getClass('MulticastSessionManager')
             ->find($find) as &$MulticastSession
         ) {
             $TaskState = $MulticastSession->getTaskState();
@@ -734,7 +753,7 @@ class TaskManagementPage extends FOGPage
                     _('MulticastTask')
                 ),
                 'count' => (
-                    self::getClass('MulticastSessionsAssociationManager')
+                    self::getClass('MulticastSessionAssociationManager')
                     ->count(array('msID' => $MulticastSession->get('id')))
                 ),
                 'start_date' => self::formatTime(
@@ -774,14 +793,14 @@ class TaskManagementPage extends FOGPage
         }
         $MulticastSessionIDs = (array)$_REQUEST['task'];
         $TaskIDs = self::getSubObjectIDs(
-            'MulticastSessionsAssociation',
+            'MulticastSessionAssociation',
             array(
                 'msID' => $MulticastSessionIDs
             ),
             'taskID'
         );
         self::getClass('TaskManager')->cancel($TaskIDs);
-        self::getClass('MulticastSessionsManager')->cancel($_REQUEST['task']);
+        self::getClass('MulticastSessionManager')->cancel($_REQUEST['task']);
         unset($MulticastSessionIDs);
         exit;
     }
@@ -902,10 +921,10 @@ class TaskManagementPage extends FOGPage
      */
     private function _nonajax()
     {
-        $this->setMessage(
+        self::setMessage(
             _('Cannot cancel tasks this way')
         );
-        $this->redirect($this->formAction);
+        self::redirect($this->formAction);
     }
     /**
      * Cancels and snapin taskings.
@@ -938,6 +957,18 @@ class TaskManagementPage extends FOGPage
             );
         }
         if (count($HostIDs) > 0) {
+            $SnapTaskIDs = self::getSubObjectIDs(
+                'SnapinTask',
+                array(
+                    'jobID' => $SnapinJobIDs,
+                )
+            );
+            $TaskIDs = array_diff(
+                $SnapTaskIDs,
+                $SnapinTaskIDs
+            );
+        }
+        if (count($TaskIDs) < 1) {
             $TaskIDs = self::getSubObjectIDs(
                 'Task',
                 array(
@@ -948,8 +979,6 @@ class TaskManagementPage extends FOGPage
                     )
                 )
             );
-        }
-        if (count($TaskIDs)) {
             self::getClass('TaskManager')->cancel($TaskIDs);
         }
         exit;
@@ -979,7 +1008,7 @@ class TaskManagementPage extends FOGPage
             '<a href="?node=${hostgroup}&sub=edit&id=${hostgroupid}" title='
             . '"Edit ${nametype}: ${hostgroupname}">${hostgroupname}</a>${extra}',
             '${groupbased}',
-            '${details_taskname}',
+            '<span class="icon" title="${hover}">${details_taskname}</span>',
             '${task_type}',
             '<small>${start_time}</small>',
             '${active}',
@@ -1035,6 +1064,23 @@ class TaskManagementPage extends FOGPage
             if (!$TaskType->isValid()) {
                 continue;
             }
+            $sID = $ScheduledTask->get('other2');
+            if ($TaskType->isSnapinTasking()) {
+                if ($TaskType->get('id') == 12
+                    || $ScheduledTask->get('other2') == -1
+                ) {
+                    $hover = _('All snapins');
+                } elseif ($TaskType->get('id') == 13) {
+                    $snapin = new Snapin($sID);
+                    if (!$snapin->isValid()) {
+                        $hover = _('Invalid snapin');
+                    } else {
+                        $hover = _('Snapin to be installed')
+                            . ': '
+                            . $snapin->get('name');
+                    }
+                }
+            }
             $this->data[] = array(
                 'id' => $ScheduledTask->get('id'),
                 'start_time' => $ScheduledTask->getTime(),
@@ -1067,6 +1113,7 @@ class TaskManagementPage extends FOGPage
                     )
                 ),
                 'nametype' => get_class($ObjTest),
+                'hover' => $hover
             );
             unset($ScheduledTask, $ObjTest, $TaskType);
         }

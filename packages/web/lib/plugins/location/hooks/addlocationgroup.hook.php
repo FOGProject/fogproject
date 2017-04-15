@@ -57,14 +57,14 @@ class AddLocationGroup extends Hook
     public function groupSideMenu($arguments)
     {
         global $node;
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         if ($node != 'group') {
             return;
         }
         $link = $arguments['linkformat'];
-        $this->arrayInsertAfter(
+        self::arrayInsertAfter(
             "$link#group-image",
             $arguments['submenu'],
             "$link#group-location",
@@ -80,7 +80,7 @@ class AddLocationGroup extends Hook
      */
     public function groupFields($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         global $node;
@@ -141,7 +141,7 @@ class AddLocationGroup extends Hook
     {
         global $node;
         global $tab;
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         if ($node != 'group') {
@@ -183,16 +183,14 @@ $HookManager
             $AddLocationGroup,
             'groupFields'
         )
-    );
-$HookManager
+    )
     ->register(
         'SUB_MENULINK_DATA',
         array(
             $AddLocationGroup,
             'groupSideMenu'
         )
-    );
-$HookManager
+    )
     ->register(
         'GROUP_EDIT_SUCCESS',
         array(

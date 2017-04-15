@@ -170,11 +170,11 @@ class PushbulletManagementPage extends FOGPage
                 'FOG',
                 'Account linked'
             );
-            $this->setMessage(_('Account Added!'));
-            $this->redirect('?node=pushbullet&sub=list');
+            self::setMessage(_('Account Added!'));
+            self::redirect('?node=pushbullet&sub=list');
         } catch (Exception $e) {
-            $this->setMessage($e->getMessage());
-            $this->redirect($this->formAction);
+            self::setMessage($e->getMessage());
+            self::redirect($this->formAction);
         }
     }
 }

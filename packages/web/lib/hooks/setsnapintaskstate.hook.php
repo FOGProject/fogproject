@@ -111,24 +111,21 @@ $HookManager
             $SetSnapinTaskState,
             'setCheckedInState'
         )
-    );
-$HookManager
+    )
     ->register(
         'PROGRESS_STATE',
         array(
             $SetSnapinTaskState,
             'setProgressState'
         )
-    );
-$HookManager
+    )
     ->register(
         'QUEUED_STATES',
         array(
             $SetSnapinTaskState,
             'addQueuedState'
         )
-    );
-$HookManager
+    )
     ->register(
         'TaskActiveSnapinsData',
         array(

@@ -57,7 +57,7 @@ class WakeOnLan extends FOGBase
         }
         $BroadCast = self::fastmerge(
             (array) '255.255.255.255',
-            self::$FOGCore->getBroadcast()
+            self::getBroadcast()
         );
         self::$HookManager->processEvent(
             'BROADCAST_ADDR',
@@ -66,9 +66,7 @@ class WakeOnLan extends FOGBase
             )
         );
         foreach ((array) self::$_arrMAC as &$mac) {
-            usleep(500000);
             foreach ((array) $BroadCast as &$SendTo) {
-                usleep(200000);
                 $mac->wake($SendTo, self::$_port);
                 unset($SendTo);
             }

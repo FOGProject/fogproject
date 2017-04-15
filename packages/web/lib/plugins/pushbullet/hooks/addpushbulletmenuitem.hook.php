@@ -56,10 +56,10 @@ class AddPushbulletMenuItem extends Hook
      */
     public function menuData($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
-        $this->arrayInsertAfter(
+        self::arrayInsertAfter(
             'task',
             $arguments['main'],
             $this->node,
@@ -78,7 +78,7 @@ class AddPushbulletMenuItem extends Hook
      */
     public function addPageWithObject($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         if (!isset($arguments['PagesWithObjects'])) {
@@ -98,7 +98,7 @@ class AddPushbulletMenuItem extends Hook
      */
     public function addSearch($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         if (!isset($arguments['searchPages'])) {
@@ -111,24 +111,25 @@ class AddPushbulletMenuItem extends Hook
     }
 }
 $AddPushbulletMenuItem = new AddPushbulletMenuItem();
-$HookManager->register(
-    'MAIN_MENU_DATA',
-    array(
-        $AddPushbulletMenuItem,
-        'menuData'
+$HookManager
+    ->register(
+        'MAIN_MENU_DATA',
+        array(
+            $AddPushbulletMenuItem,
+            'menuData'
+        )
     )
-);
-$HookManager->register(
-    'SEARCH_PAGES',
-    array(
-        $AddPushbulletMenuItem,
-        'addSearch'
+    ->register(
+        'SEARCH_PAGES',
+        array(
+            $AddPushbulletMenuItem,
+            'addSearch'
+        )
     )
-);
-$HookManager->register(
-    'PAGES_WITH_OBJECTS',
-    array(
-        $AddPushbulletMenuItem,
-        'addPageWithObject'
-    )
-);
+    ->register(
+        'PAGES_WITH_OBJECTS',
+        array(
+            $AddPushbulletMenuItem,
+            'addPageWithObject'
+        )
+    );

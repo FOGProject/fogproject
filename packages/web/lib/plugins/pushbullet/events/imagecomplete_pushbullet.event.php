@@ -59,8 +59,7 @@ $EventManager
     ->register(
         'HOST_IMAGE_COMPLETE',
         $ImageComplete
-    );
-$EventManager
+    )
     ->register(
         'HOST_IMAGEUP_COMPLETE',
         $ImageComplete

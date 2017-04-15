@@ -54,10 +54,10 @@ class AddFileIntegrityMenuItem extends Hook
      */
     public function menuData($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
-        $this->arrayInsertAfter(
+        self::arrayInsertAfter(
             'storage',
             $arguments['main'],
             $this->node,
@@ -76,7 +76,7 @@ class AddFileIntegrityMenuItem extends Hook
      */
     public function addSearch($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         array_push($arguments['searchPages'], $this->node);
@@ -90,7 +90,7 @@ class AddFileIntegrityMenuItem extends Hook
      */
     public function removeActionBox($arguments)
     {
-        if (in_array($this->node, (array)$_SESSION['PluginsInstalled'])
+        if (in_array($this->node, (array)self::$pluginsinstalled)
             && $_REQUEST['node'] == $this->node
         ) {
             $arguments['actionbox'] = '';
@@ -105,7 +105,7 @@ class AddFileIntegrityMenuItem extends Hook
      */
     public function addPageWithObject($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         array_push($arguments['PagesWithObjects'], $this->node);
@@ -119,24 +119,21 @@ $HookManager
             $AddFileIntegrityMenuItem,
             'menuData'
         )
-    );
-$HookManager
+    )
     ->register(
         'SEARCH_PAGES',
         array(
             $AddFileIntegrityMenuItem,
             'addSearch'
         )
-    );
-$HookManager
+    )
     ->register(
         'ACTIONBOX',
         array(
             $AddFileIntegrityItem,
             'removeActionBox'
         )
-    );
-$HookManager
+    )
     ->register(
         'PAGES_WITH_OBJECTS',
         array(

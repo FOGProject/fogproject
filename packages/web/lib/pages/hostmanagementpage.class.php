@@ -42,7 +42,7 @@ class HostManagementPage extends FOGPage
     {
         $this->name = 'Host Management';
         parent::__construct($this->name);
-        if ($_SESSION['Pending-Hosts']) {
+        if (self::$pendingHosts > 0) {
             $this->menu['pending'] = self::$foglang['PendingHosts'];
         }
         global $id;
@@ -165,7 +165,7 @@ class HostManagementPage extends FOGPage
             '<input type="checkbox" name="toggle-checkbox" '
             . 'class="toggle-checkboxAction"/>',
         );
-        $_SESSION['FOGPingActive'] ? array_push($this->headerData, '') : null;
+        self::$fogpingactive ? array_push($this->headerData, '') : null;
         array_push(
             $this->headerData,
             _('Host'),
@@ -179,7 +179,7 @@ class HostManagementPage extends FOGPage
             '<input type="checkbox" name="host[]" '
             . 'value="${id}" class="toggle-action"/>',
         );
-        if ($_SESSION['FOGPingActive']) {
+        if (self::$fogpingactive) {
             array_push(
                 $this->templates,
                 '${pingstatus}'
@@ -226,7 +226,7 @@ class HostManagementPage extends FOGPage
                 'width' => 16
             ),
         );
-        if ($_SESSION['FOGPingActive']) {
+        if (self::$fogpingactive) {
             array_push(
                 $this->attributes,
                 array(
@@ -248,6 +248,32 @@ class HostManagementPage extends FOGPage
                 'class' => 'r'
             )
         );
+        /**
+         * Lambda function to return data either by list or search.
+         *
+         * @param object $Host the object to use.
+         *
+         * @return void
+         */
+        /**
+         * Use when api is established.
+        self::$returnData = function (&$Host) {
+            $this->data[] = array(
+                'id' => $Host->id,
+                'deployed' => self::formatTime(
+                    $Host->deployed,
+                    'Y-m-d H:i:s'
+                ),
+                'host_name' => $Host->name,
+                'host_mac' => $Host->primac,
+                'host_desc' => $Host->description,
+                'image_id' => $Host->imageID,
+                'image_name' => $Host->imagename,
+                'pingstatus' => $Host->pingstatus,
+            );
+            unset($Host);
+        };
+         */
         /**
          * Lambda function to return data either by list or search.
          *
@@ -353,7 +379,7 @@ class HostManagementPage extends FOGPage
             $appdel,
             _('successfully')
         );
-        $this->redirect("?node=$this->node");
+        self::redirect("?node=$this->node");
     }
     /**
      * Creates a new host entry manually.
@@ -522,7 +548,7 @@ class HostManagementPage extends FOGPage
             $ModuleIDs = self::getSubObjectIDs('Module', array('isDefault' => 1));
             $password = $_REQUEST['domainpassword'];
             if ($_REQUEST['domainpassword']) {
-                $password = $this->encryptpw($_REQUEST['domainpassword']);
+                $password = self::encryptpw($_REQUEST['domainpassword']);
             }
             $useAD = isset($_REQUEST['domain']);
             $domain = trim($_REQUEST['domainname']);
@@ -553,7 +579,7 @@ class HostManagementPage extends FOGPage
                 ->set('init', $_REQUEST['init'])
                 ->set('biosexit', $_REQUEST['bootTypeExit'])
                 ->set('efiexit', $_REQUEST['efiBootTypeExit'])
-                ->set('productKey', $this->encryptpw($productKey))
+                ->set('productKey', self::encryptpw($productKey))
                 ->addModule($ModuleIDs)
                 ->addPriMAC($MAC)
                 ->setAD(
@@ -580,7 +606,7 @@ class HostManagementPage extends FOGPage
         self::$HookManager
             ->processEvent(
                 $hook,
-                array('HOst' => &$Host)
+                array('Host' => &$Host)
             );
         unset(
             $Host,
@@ -595,8 +621,8 @@ class HostManagementPage extends FOGPage
             $MAC,
             $hostName
         );
-        $this->setMessage($msg);
-        $this->redirect($this->formAction);
+        self::setMessage($msg);
+        self::redirect($this->formAction);
     }
     /**
      * Edits an existing item.
@@ -613,11 +639,11 @@ class HostManagementPage extends FOGPage
         if ($_REQUEST['approveHost']) {
             $this->obj->set('pending', null);
             if ($this->obj->save()) {
-                $this->setMessage(_('Host approved'));
+                self::setMessage(_('Host approved'));
             } else {
-                $this->setMessage(_('Host approval failed.'));
+                self::setMessage(_('Host approval failed.'));
             }
-            $this->redirect(
+            self::redirect(
                 sprintf(
                     '?node=%s&sub=edit&id=%s',
                     $this->node,
@@ -651,13 +677,13 @@ class HostManagementPage extends FOGPage
                         $_REQUEST['confirmMAC'],
                         _('Approved')
                     );
-                    $this->setMessage($msg);
+                    self::setMessage($msg);
                     unset($msg);
                 }
             } catch (Exception $e) {
-                $this->setMessage($e->getMessage());
+                self::setMessage($e->getMessage());
             }
-            $this->redirect(
+            self::redirect(
                 sprintf(
                     '?node=%s&sub=edit&id=%s',
                     $this->node,
@@ -679,8 +705,8 @@ class HostManagementPage extends FOGPage
                 '%s.',
                 _('All Pending MACs approved')
             );
-            $this->setMessage($msg);
-            $this->redirect(
+            self::setMessage($msg);
+            self::redirect(
                 sprintf(
                     '?node=%s&sub=edit&id=%s',
                     $this->node,
@@ -797,7 +823,7 @@ class HostManagementPage extends FOGPage
             ),
             _('Host Product Key') => sprintf(
                 '<input id="productKey" type="text" name="key" value="%s"/>',
-                $this->aesdecrypt($this->obj->get('productKey'))
+                self::aesdecrypt($this->obj->get('productKey'))
             ),
             _('Host Image') => $imageSelect,
             _('Host Kernel') => sprintf(
@@ -1257,7 +1283,7 @@ class HostManagementPage extends FOGPage
             _('with modules and config'),
             _('on the old client')
         );
-        $moduleName = $this->getGlobalModuleStatus();
+        $moduleName = self::getGlobalModuleStatus();
         $ModuleOn = $this->obj->get('modules');
         $Modules = self::getClass('ModuleManager')->find();
         foreach ((array)$Modules as &$Module) {
@@ -2048,7 +2074,7 @@ class HostManagementPage extends FOGPage
             if (!self::validDate($start) || !self::validDate($end)) {
                 continue;
             }
-            $diff = $this->diff($start, $end);
+            $diff = self::diff($start, $end);
             $start = self::niceDate($start);
             $end = self::niceDate($end);
             $TaskIDs = self::getSubObjectIDs(
@@ -2078,7 +2104,7 @@ class HostManagementPage extends FOGPage
             $createdBy = (
                 $log->get('createdBy') ?
                 $log->get('createdBy') :
-                $_SESSION['FOG_USERNAME']
+                self::$FOGUser->get('name')
             );
             $Image = self::getClass('Image')
                 ->set('name', $log->get('image'))
@@ -2166,7 +2192,7 @@ class HostManagementPage extends FOGPage
             } elseif (!self::validDate($end)) {
                 $diff = _('No complete time recorded');
             } else {
-                $diff = $this->diff($start, $end);
+                $diff = self::diff($start, $end);
             }
             $this->data[] = array(
                 'snapin_name' => $Snapin->get('name'),
@@ -2289,7 +2315,7 @@ class HostManagementPage extends FOGPage
                     ->set('init', $_REQUEST['init'])
                     ->set('biosexit', $_REQUEST['bootTypeExit'])
                     ->set('efiexit', $_REQUEST['efiBootTypeExit'])
-                    ->set('productKey', $this->encryptpw($productKey));
+                    ->set('productKey', self::encryptpw($productKey));
                 $primac = $this->obj->get('mac')->__toString();
                 $setmac = $mac->__toString();
                 if ($primac != $setmac) {
@@ -2450,25 +2476,19 @@ class HostManagementPage extends FOGPage
                 $y = $_REQUEST['y'];
                 $r = $_REQUEST['r'];
                 $tme = $_REQUEST['tme'];
-                if (isset($_REQUEST['updatestatus'])) {
-                    $modOn = (array)$_REQUEST['modules'];
-                    $modOff = self::getSubObjectIDs(
-                        'Module',
-                        array(
-                            'id' => $modOn
-                        ),
-                        'id',
-                        true
-                    );
-                    $this->obj->addModule($modOn);
-                    $this->obj->removeModule($modOff);
-                }
-                if (isset($_REQUEST['updatedisplay'])) {
-                    $this->obj->setDisp($x, $y, $r);
-                }
-                if (isset($_REQUEST['updatealo'])) {
-                    $this->obj->setAlo($tme);
-                }
+                $modOn = (array)$_REQUEST['modules'];
+                $modOff = self::getSubObjectIDs(
+                    'Module',
+                    array(
+                        'id' => $modOn
+                    ),
+                    'id',
+                    true
+                );
+                $this->obj->addModule($modOn);
+                $this->obj->removeModule($modOff);
+                $this->obj->setDisp($x, $y, $r);
+                $this->obj->setAlo($tme);
                 break;
             case 'host-hardware-inventory':
                 $pu = trim($_REQUEST['pu']);
@@ -2484,8 +2504,8 @@ class HostManagementPage extends FOGPage
                 }
                 break;
             case 'host-login-history':
-                $this->setMessage(_('Date Changed'));
-                $this->redirect(
+                self::setMessage(_('Date Changed'));
+                self::redirect(
                     sprintf(
                         '?node=host&sub=edit&id=%s&dte=%s#%s',
                         $this->obj->get('id'),
@@ -2499,7 +2519,7 @@ class HostManagementPage extends FOGPage
                     && $_REQUEST['delvid'] == 'all'
                 ) {
                     $this->obj->clearAVRecordsForHost();
-                    $this->setMessage(
+                    self::setMessage(
                         _('All virus history cleared for this host')
                     );
                 } elseif (isset($_REQUEST['delvid'])) {
@@ -2509,9 +2529,9 @@ class HostManagementPage extends FOGPage
                                 'id' => $_REQUEST['delvid']
                             )
                         );
-                    $this->setMessage(_('Selected virus history item cleaned'));
+                    self::setMessage(_('Selected virus history item cleaned'));
                 }
-                $this->redirect(
+                self::redirect(
                     sprintf(
                         '?node=host&sub=edit&id=%s#%s',
                         $this->obj->get('id'),
@@ -2537,8 +2557,8 @@ class HostManagementPage extends FOGPage
                 $hook,
                 array('Host' => &$this->obj)
             );
-        $this->setMessage($msg);
-        $this->redirect($this->formAction);
+        self::setMessage($msg);
+        self::redirect($this->formAction);
     }
     /**
      * Saves host to a selected or new group depending on action.

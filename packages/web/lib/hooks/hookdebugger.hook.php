@@ -66,20 +66,27 @@ class HookDebugger extends Hook
      */
     public function run($arguments)
     {
-        $this->log(
+        self::log(
             print_r(
                 $arguments,
                 1
             ),
+            $this->logLevel,
+            $this->logToFile,
+            $this->logToBrowser,
+            $this,
             $this->logLevel
         );
     }
 }
 $HookDebugger = new HookDebugger();
-if (!$HookManager->events) {
-    $HookManager->getEvents();
-}
-foreach ($HookManager->events as &$event) {
+foreach (
+    FOGCore::getSubObjectIDs(
+        'HookEvent',
+        '',
+        'name'
+    ) as &$event
+) {
     $HookManager
         ->register(
             $event,

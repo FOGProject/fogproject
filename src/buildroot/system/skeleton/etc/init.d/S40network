@@ -17,8 +17,8 @@ echo -e "auto lo\niface lo inet loopback\n\n" > /etc/network/interfaces
 sleep 10
 
 # Generated a sorted list with primary interfaces first
-read p_ifaces <<< $(/sbin/ip -0 -o addr show | awk -F'[: ]+' 'tolower($0) ~ /link[/]?ether/ && tolower($0) ~ /'$mac'/ {print $2}')
-read o_ifaces <<< $(/sbin/ip -0 -o addr show | awk -F'[: ]+' 'tolower($0) ~ /link[/]?ether/ && tolower($0) ~ !/'$mac'/ {print $2}')
+read p_ifaces <<< $(/sbin/ip -0 -o addr show | awk -F'[: ]+' 'tolower($0) ~ /link[/]?ether/ && tolower($0) ~ /'$mac'/ {print $2}' | tr '\n' ' ')
+read o_ifaces <<< $(/sbin/ip -0 -o addr show | awk -F'[: ]+' 'tolower($0) ~ /link[/]?ether/ && tolower($0) !~ /'$mac'/ {print $2}' | tr '\n' ' ')
 ifaces="$p_ifaces $o_ifaces"
 for iface in $ifaces; do
     echo "Starting $iface interface and waiting for the link to come up"
@@ -37,7 +37,7 @@ for iface in $ifaces; do
     for retry in $(seq 3); do
         /sbin/udhcpc -i $iface --now
         ustat="$?"
-        curl -Ifso /dev/null "${web}" --connect-timeout 5
+        curl -Ifso /dev/null http://"${web}"/index.php --connect-timeout 5
         cstat="$?"
         # If the udhcp is okay AND we can curl our web
         # we know we have link so no need to continue on.

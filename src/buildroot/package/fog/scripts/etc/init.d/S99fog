@@ -10,10 +10,10 @@
 #               Modified for RHS Linux by Damien Neil
 #               Modified for FOG by Chuck Syperski
 #
-ln -s /proc/self/fd /dev/fd
-ln -s /proc/self/fd/0 /dev/stdin
-ln -s /proc/self/fd/1 /dev/stdout
-ln -s /proc/self/fd/2 /dev/stderr
+[[ ! -h /dev/fd ]] && ln -s /proc/self/fd /dev/fd
+[[ ! -h /dev/stdin ]] && ln -s /proc/self/fd/0 /dev/stdin
+[[ ! -h /dev/stdout ]] && ln -s /proc/self/fd/1 /dev/stdout
+[[ ! -h /dev/stderr ]] && ln -s /proc/self/fd/2 /dev/stderr
 if [[ $mdraid == true ]]; then
     mdadm --auto-detect
     mdadm --assemble --scan

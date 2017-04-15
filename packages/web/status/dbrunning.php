@@ -23,7 +23,7 @@ require '../commons/base.inc.php';
 session_write_close();
 ignore_user_abort(true);
 set_time_limit(0);
-$link = $DB->getLink();
+$link = DatabaseManager::getLink();
 $redirect = false;
 if ($link) {
     $redirect = FOGCore::getClass('Schema', 1)

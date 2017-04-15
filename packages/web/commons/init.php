@@ -76,20 +76,14 @@ class Initiator
         /**
          * Find out if the link has service in the call.
          */
-        $self = !preg_match(
-            '#service#i',
-            $_SERVER['PHP_SELF']
+        $self = false === stripos(
+            filter_input(INPUT_SERVER, 'PHP_SELF'),
+            'service'
         );
         /**
          * Set useragent to false.
          */
-        $useragent = false;
-        /**
-         * If user agent is passed, define the useragent
-         */
-        if (isset($_SERVER['HTTP_USER_AGENT'])) {
-            $useragent = $_SERVER['HTTP_USER_AGENT'];
-        }
+        $useragent = filter_input(INPUT_SERVER, 'HTTP_USER_AGENT');
         /**
          * Define our base path (/var/www/, /var/www/html/, etc...)
          */
@@ -193,7 +187,13 @@ class Initiator
          * and the Session hasn't been started,
          * Start the session.
          */
-        if ($self && $useragent && !isset($_SESSION)) {
+        $script = filter_input(INPUT_SERVER, 'SCRIPT_NAME');
+        if ($self
+            && $useragent
+            && file_exists(BASEPATH . $script)
+            && session_status() == PHP_SESSION_NONE
+            && false === stripos($script, '/api/')
+        ) {
             session_start();
         }
     }
@@ -210,7 +210,7 @@ class Initiator
         /**
          * If session isn't set return immediately.
          */
-        if (!isset($_SESSION)) {
+        if (session_status() != PHP_SESSION_NONE) {
             return;
         }
         $_SESSION[$key] = $value;
@@ -224,7 +224,7 @@ class Initiator
      */
     public static function unsetSession($key)
     {
-        if (!isset($_SESSION)) {
+        if (session_status() != PHP_SESSION_NONE) {
             return;
         }
         $_SESSION[$key] = ' ';
@@ -239,8 +239,8 @@ class Initiator
      */
     public static function getFromSession($key)
     {
-        if (!isset($_SESSION[$key])) {
-            return false;
+        if (session_status() != PHP_SESSION_NONE) {
+            return;
         }
         return $_SESSION[$key];
     }
@@ -285,11 +285,11 @@ class Initiator
         /**
          * Gets our script name and path.
          */
-        $script_name = $_SERVER['SCRIPT_NAME'];
+        $script_name = filter_input(INPUT_SERVER, 'SCRIPT_NAME');
         /**
          * Stores our matching if fog is in the name variable
          */
-        $match = preg_match('#/fog/#', $script_name);
+        $match = false !== stripos($script_name, '/fog/');
         if ($match) {
             $match = 'fog/';
         } else {
@@ -316,7 +316,10 @@ class Initiator
         } elseif (file_exists('/var/www/fog')) {
             $path = '/var/www/fog';
         } else {
-            $docroot = trim($_SERVER['DOCUMENT_ROOT'], '/');
+            $docroot = trim(
+                filter_input(INPUT_SERVER, 'DOCUMENT_ROOT'),
+                '/'
+            );
             $path = sprintf(
                 '/%s',
                 sprintf(
@@ -403,7 +406,7 @@ class Initiator
          * Otherwise it will clean the passed value.
          */
         if (!count($value)) {
-            if (count($_SESSION) > 0) {
+            if (session_status() != PHP_SESSION_NONE) {
                 array_walk($_SESSION, self::$_sanitizeItems);
             }
             if (count($_REQUEST) > 0) {

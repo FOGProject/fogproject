@@ -58,7 +58,7 @@ class AddLocationHost extends Hook
     {
         global $node;
         global $sub;
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         if ($node != 'host') {
@@ -80,7 +80,7 @@ class AddLocationHost extends Hook
     {
         global $node;
         global $sub;
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         if ($node != 'host') {
@@ -129,7 +129,7 @@ class AddLocationHost extends Hook
     {
         global $node;
         global $sub;
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         if ($node != 'host') {
@@ -156,7 +156,7 @@ class AddLocationHost extends Hook
             );
             $locID = array_shift($Locations);
         }
-        $this->arrayInsertAfter(
+        self::arrayInsertAfter(
             _('Host Product Key'),
             $arguments['fields'],
             _('Host Location'),
@@ -174,7 +174,7 @@ class AddLocationHost extends Hook
      */
     public function hostAddLocation($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         global $node;
@@ -222,7 +222,7 @@ class AddLocationHost extends Hook
      */
     public function hostImport($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         self::getClass('LocationAssociation')
@@ -240,7 +240,7 @@ class AddLocationHost extends Hook
      */
     public function hostExport($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         $find = array(
@@ -277,7 +277,7 @@ class AddLocationHost extends Hook
      */
     public function hostDestroy($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         self::getClass('LocationAssociationManager')->destroy(
@@ -295,7 +295,7 @@ class AddLocationHost extends Hook
      */
     public function hostEmailHook($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         $Locations = self::getSubObjectIDs(
@@ -318,13 +318,13 @@ class AddLocationHost extends Hook
                 break;
             }
         }
-        $this->arrayInsertAfter(
+        self::arrayInsertAfter(
             "\nSnapin Used: ",
             $arguments['email'],
             "\nImaged From (Location): ",
             $locName
         );
-        $this->arrayInsertAfter(
+        self::arrayInsertAfter(
             "\nImaged From (Location): ",
             $arguments['email'],
             "\nImagingLocation=",
@@ -340,7 +340,7 @@ class AddLocationHost extends Hook
      */
     public function hostRegister($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         $cnt = self::getClass('LocationManager')
@@ -370,7 +370,7 @@ class AddLocationHost extends Hook
      */
     public function hostInfoExpose($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         $Locations = self::getSubObjectIDs(
@@ -403,80 +403,70 @@ $HookManager
             $AddLocationHost,
             'hostTableHeader'
         )
-    );
-$HookManager
+    )
     ->register(
         'HOST_DATA',
         array(
             $AddLocationHost,
             'hostData'
         )
-    );
-$HookManager
+    )
     ->register(
         'HOST_FIELDS',
         array(
             $AddLocationHost,
             'hostFields'
         )
-    );
-$HookManager
+    )
     ->register(
         'HOST_ADD_SUCCESS',
         array(
             $AddLocationHost,
             'hostAddLocation'
         )
-    );
-$HookManager
+    )
     ->register(
         'HOST_EDIT_SUCCESS',
         array(
             $AddLocationHost,
             'hostAddLocation'
         )
-    );
-$HookManager
+    )
     ->register(
         'HOST_REGISTER',
         array(
             $AddLocationHost,
             'hostRegister'
         )
-    );
-$HookManager
+    )
     ->register(
         'HOST_IMPORT',
         array(
             $AddLocationHost,
             'hostImport'
         )
-    );
-$HookManager
+    )
     ->register(
         'HOST_EXPORT_REPORT',
         array(
             $AddLocationHost,
             'hostExport'
         )
-    );
-$HookManager
+    )
     ->register(
         'DESTROY_HOST',
         array(
             $AddLocationHost,
             'hostDestroy'
         )
-    );
-$HookManager
+    )
     ->register(
         'EMAIL_ITEMS',
         array(
             $AddLocationHost,
             'hostEmailHook'
         )
-    );
-$HookManager
+    )
     ->register(
         'HOST_INFO_EXPOSE',
         array(

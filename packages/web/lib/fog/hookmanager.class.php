@@ -168,6 +168,13 @@ class HookManager extends EventManager
      */
     public function processEvent($event, $arguments = array())
     {
+        $this->events[] = $event;
+        $exists = self::getClass('HookEventManager')->exists($event);
+        if (!$exists) {
+            self::getClass('HookEvent')
+                ->set('name', $event)
+                ->save();
+        }
         if (!isset($this->data[$event])) {
             return;
         }

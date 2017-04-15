@@ -58,7 +58,7 @@ class ChangeHostKey extends Hook
      */
     public function changeHostProductKey($arguments)
     {
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         if (!$arguments['Task']->isDeploy()) {
@@ -87,7 +87,7 @@ class ChangeHostKey extends Hook
             'key'
         );
         $productKey = trim(
-            $this->encryptpw(
+            self::encryptpw(
                 array_shift($WindowsKey)
             )
         );

@@ -55,7 +55,7 @@ class ProcessLogin extends FOGPage
     public function __construct($name = '')
     {
         parent::__construct($name);
-        $this->_lang = self::getSetting('FOG_DEFAULT_LOCALE');
+        $this->_lang = self::$locale;
     }
     /**
      * Gets the languages into a string.
@@ -93,7 +93,7 @@ class ProcessLogin extends FOGPage
      */
     private function _transLang()
     {
-        switch ($_SESSION['locale']) {
+        switch (self::$locale) {
         case 'de_DE':
             return self::$foglang['Language']['de'];
         case 'en_US':
@@ -120,34 +120,34 @@ class ProcessLogin extends FOGPage
     private function _specLang()
     {
         if (isset($_REQUEST['ulang'])) {
-            $_SESSION['locale'] = $_REQUEST['ulang'];
+            self::$locale = $_REQUEST['ulang'];
         } else {
-            $_SESSION['locale'] = $this->_transLang();
+            self::$locale = $this->_transLang();
         }
-        switch ($_SESSION['locale']) {
+        switch (self::$locale) {
         case self::$foglang['Language']['de']:
-            $_SESSION['locale'] = 'de_DE';
+            self::$locale = 'de_DE';
             break;
         case self::$foglang['Language']['en']:
-            $_SESSION['locale'] = 'en_US';
+            self::$locale = 'en_US';
             break;
         case self::$foglang['Language']['es']:
-            $_SESSION['locale'] = 'es_ES';
+            self::$locale = 'es_ES';
             break;
         case self::$foglang['Language']['fr']:
-            $_SESSION['locale'] = 'fr_FR';
+            self::$locale = 'fr_FR';
             break;
         case self::$foglang['Language']['it']:
-            $_SESSION['locale'] = 'it_IT';
+            self::$locale = 'it_IT';
             break;
         case self::$foglang['Language']['pt']:
-            $_SESSION['locale'] = 'pt_BR';
+            self::$locale = 'pt_BR';
             break;
         case self::$foglang['Language']['zh']:
-            $_SESSION['locale'] = 'zh_CN';
+            self::$locale = 'zh_CN';
             break;
         default:
-            $_SESSION['locale'] = $this->_transLang();
+            self::$locale = $this->_transLang();
         }
     }
     /**
@@ -171,7 +171,7 @@ class ProcessLogin extends FOGPage
             LC_MESSAGES,
             sprintf(
                 '%s.UTF-8',
-                $_SESSION['locale']
+                self::$locale
             )
         );
         $domain = 'messages';
@@ -209,14 +209,14 @@ class ProcessLogin extends FOGPage
         }
         if (count($http_query) < 1) {
             unset($_REQUEST['login']);
-            $this->redirect('index.php');
+            self::redirect('index.php');
         }
         $query = trim(http_build_query($http_query));
         $redir = 'index.php';
         if ($query) {
             $redir .= "?$query";
         }
-        $this->redirect($redir);
+        self::redirect($redir);
     }
     /**
      * Processes the login.
@@ -237,7 +237,7 @@ class ProcessLogin extends FOGPage
             );
         if (!self::$isMobile) {
             if ($type) {
-                $this->setMessage(self::$foglang['NotAllowedHere']);
+                self::setMessage(self::$foglang['NotAllowedHere']);
                 unset($_REQUEST['login']);
                 self::$FOGUser->logout();
             }
@@ -246,10 +246,10 @@ class ProcessLogin extends FOGPage
             return;
         }
         if (!$this->_username) {
-            $this->setMessage(self::$foglang['InvalidLogin']);
-            $this->redirect('index.php?node=logout');
+            self::setMessage(self::$foglang['InvalidLogin']);
+            self::redirect('index.php?node=logout');
         }
-        self::$FOGUser = self::$FOGCore->attemptLogin(
+        self::$FOGUser = self::attemptLogin(
             $this->_username,
             $this->_password
         );
@@ -275,9 +275,11 @@ class ProcessLogin extends FOGPage
     {
         $this->setLang();
         if (in_array($_REQUEST['node'], array('login', 'logout'))) {
-            $this->setMessage($_SESSION['FOG_MESSAGES']);
+            if (session_status() != PHP_SESSION_NONE) {
+                self::setMessage($_SESSION['FOG_MESSAGES']);
+            }
             unset($_REQUEST['login']);
-            $this->redirect('index.php');
+            self::redirect('index.php');
         }
         $this->_getLanguages();
         $logininfo = self::getSetting('FOG_LOGIN_INFO_DISPLAY');
@@ -297,7 +299,8 @@ class ProcessLogin extends FOGPage
             );
         }
         printf(
-            '<form method="post" action="%s" id="login-form">'
+            '<div id="loginform">'
+            . '<form method="post" action="%s" id="login-form">'
             . '<label for="username">%s</label>'
             . '<input type="text" class="input" name="uname" id="username"/>'
             . '<label for="password">%s</label>'
@@ -306,7 +309,7 @@ class ProcessLogin extends FOGPage
             . '<select name="ulang" id="language">%s</select>'
             . '<label for="login-form-submit"> </label>'
             . '<input type="submit" value="%s" id="login-form-submit" name="login"/>'
-            . '</form>%s',
+            . '</form></div>%s',
             $this->formAction,
             self::$foglang['Username'],
             self::$foglang['Password'],
@@ -326,7 +329,7 @@ class ProcessLogin extends FOGPage
         $this->setLang();
         if (in_array($_REQUEST['node'], array('login', 'logout'))) {
             unset($_REQUEST['login']);
-            $this->redirect('index.php');
+            self::redirect('index.php');
         }
         $this->_getLanguages();
         printf(

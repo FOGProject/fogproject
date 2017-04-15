@@ -1978,7 +1978,7 @@ $this->schema[] = array(
     . "'jPlUQRw5vLsrz8I1TuZdWDSiMFqXHtcm','FOG Client')",
 );
 // 119
-$column = array_filter((array)self::$DB->getColumns('default', 'modules'));
+$column = array_filter((array)DatabaseManager::getColumns('default', 'modules'));
 $this->schema[] = count($column) > 0 ? array() : array(
     "ALTER TABLE `modules` ADD COLUMN `default` INT "
     . "DEFAULT 1 NOT NULL AFTER `description`"
@@ -2197,7 +2197,7 @@ $this->schema[] = array(
 );
 // 132
 $column = array_filter(
-    (array)self::$DB->getColumns(
+    (array)DatabaseManager::getColumns(
         'ipxeVersion',
         'ipxeTable'
     )
@@ -3444,7 +3444,7 @@ $this->schema[] = array(
 );
 // 236
 $this->schema[] = array(
-    self::$DB->getColumns('multicastSessions', 'msAnon1') > 0 ?
+    DatabaseManager::getColumns('multicastSessions', 'msAnon1') > 0 ?
     'ALTER TABLE `multicastSessions`'
     . 'CHANGE `msAnon1` `msIsDD` INTEGER NOT NULL' :
     '',
@@ -3686,4 +3686,52 @@ $this->schema[] = array(
     . "('FOG_TASKING_ADV_DEBUG_ENABLED',"
     . "'Tasking debug element checked (Default is off)',"
     . "'0','General Settings')"
+);
+// 253
+$this->schema[] = array(
+    "ALTER TABLE `users` ADD `uDisplay` VARCHAR(255) "
+    . "NOT NULL AFTER `uType`"
+);
+// 254
+$this->schema[] = array(
+    "CREATE TABLE `hookEvents` ("
+    . "`heID` INT NOT NULL AUTO_INCREMENT,"
+    . "`heName` VARCHAR(255) NOT NULL,"
+    . "PRIMARY KEY(`heID`),"
+    . "UNIQUE INDEX `name` (`heName`)"
+    . ") ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    "CREATE TABLE `notifyEvents` ("
+    . "`neID` INT NOT NULL AUTO_INCREMENT,"
+    . "`neName` VARCHAR(255) NOT NULL,"
+    . "PRIMARY KEY(`neID`),"
+    . "UNIQUE INDEX `name` (`neName`)"
+    . ") ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+);
+// 255
+$this->schema[] = array(
+    "ALTER TABLE `pxeMenu` ADD `pxeHotKeyEnable` ENUM('0','1') NOT NULL",
+    "ALTER TABLE `pxeMenu` ADD `pxeKeySequence` VARCHAR(255) NOT NULL"
+);
+// 256
+$this->schema[] = array(
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
+    . "VALUES "
+    . "('FOG_API_ENABLED',"
+    . "'Enables API Access (Defaults to off)',"
+    . "'0','API System'),"
+    . "('FOG_API_TOKEN',"
+    . "'The API Token to use (Randomly generated at install)',"
+    . "'"
+    . self::createSecToken()
+    . "','API System')"
+);
+// 257
+$this->schema[] = array(
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
+    . "VALUES "
+    . "('FOG_IMAGE_LIST_MENU',"
+    . "'Enables Image list on boot menu deploy image (Defaults to on)',"
+    . "'1','FOG Boot Settings')"
 );

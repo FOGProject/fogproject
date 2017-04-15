@@ -190,7 +190,7 @@ class FOGPageManager extends FOGBase
             if (empty($method) || !method_exists($class, $method)) {
                 $method = 'index';
             }
-            $displayScreen = $_SESSION['FOG_VIEW_DEFAULT_SCREEN'];
+            $displayScreen = self::$defaultscreen;
             $displayScreen = strtolower($displayScreen);
             $displayScreen = trim($displayScreen);
             if (!array_key_exists($this->classValue, $this->_nodes)) {
@@ -202,9 +202,9 @@ class FOGPageManager extends FOGBase
                 $this->_arguments = array('id' => $_REQUEST[$class->id]);
             }
             if (self::$post) {
-                $this->setRequest();
+                self::setRequest();
             } else {
-                $this->resetRequest();
+                self::resetRequest();
             }
             if ($this->classValue != 'schema'
                 && $method == 'index'
@@ -255,7 +255,7 @@ class FOGPageManager extends FOGBase
             );
         }
         $class->{$method}();
-        $this->resetRequest();
+        self::resetRequest();
     }
     /**
      * Registers the class for display
@@ -349,7 +349,7 @@ class FOGPageManager extends FOGBase
                 preg_grep(
                     sprintf(
                         '#/(%s)/#',
-                        implode('|', $_SESSION['PluginsInstalled'])
+                        implode('|', self::$pluginsinstalled)
                     ),
                     array_map(
                         $fileitems,
@@ -370,10 +370,23 @@ class FOGPageManager extends FOGBase
         );
         unset($normalfiles, $pluginfiles);
         $startClass = function ($element) use ($strlen, $node) {
-            if (substr($element, $strlen) !== '.class.php') {
+            if (substr($element, $strlen) !== '.class.php'
+                && substr($element, $strlen) !== '.report.php'
+            ) {
                 return;
             }
             $className = substr(basename($element), 0, $strlen);
+            if ($node == 'report'
+                && filter_input(INPUT_GET, 'f')
+            ) {
+                $className = str_replace(
+                    ' ',
+                    '_',
+                    base64_decode(
+                        filter_input(INPUT_GET, 'f')
+                    )
+                );
+            }
             if (!$className || !isset($className)) {
                 return;
             }

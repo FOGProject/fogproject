@@ -38,10 +38,10 @@ try {
     if ($TaskType->isInitNeededTasking()) {
         if ($TaskType->isMulticast()) {
             $MulticastSession = FOGCore::getClass(
-                'MulticastSessions',
+                'MulticastSession',
                 @max(
                     FOGCore::getSubObjectIDs(
-                        'MulticastSessionsAssociation',
+                        'MulticastSessionAssociation',
                         array('taskID' => $Task->get('id'))
                     )
                 )
@@ -84,11 +84,10 @@ try {
                 ''
             )
         );
-        $storageip = $FOGCore
-            ->resolveHostname(
-                $StorageNode
-                ->get('ip')
-            );
+        $storageip = FOGCore::resolveHostname(
+            $StorageNode
+            ->get('ip')
+        );
         $img = $Image
             ->get('path');
         $imgFormat = $Image
@@ -202,9 +201,9 @@ try {
         'hostusead' => $Host->get('useAD'),
         'hostaddomain' => $Host->get('ADDomain'),
         'hostaduser' => $Host->get('ADUser'),
-        'hostadpass' => trim($FOGCore->aesdecrypt($Host->get('ADPass'))),
+        'hostadpass' => trim(FOGCore::aesdecrypt($Host->get('ADPass'))),
         'hostadou' => str_replace(';', '', $Host->get('ADOU')),
-        'hostproductkey' => trim($FOGCore->aesdecrypt($Host->get('productKey'))),
+        'hostproductkey' => trim(FOGCore::aesdecrypt($Host->get('productKey'))),
         'imagename' => $Image->get('name'),
         'imagedesc' => $Image->get('description'),
         'imageosid' => $osid,

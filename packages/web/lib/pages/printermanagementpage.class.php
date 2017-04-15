@@ -667,14 +667,14 @@ class PrinterManagementPage extends FOGPage
         try {
             switch ($_REQUEST['tab']) {
             case 'printer-type':
-                $this->setMessage(
+                self::setMessage(
                     sprintf(
                         '%s: %s',
                         _('Printer type changed to'),
                         $_REQUEST['printertype']
                     )
                 );
-                $this->redirect($this->formAction);
+                self::redirect($this->formAction);
                 break;
             case 'printer-gen':
                 $_REQUEST['alias'] = trim($_REQUEST['alias']);

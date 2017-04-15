@@ -112,7 +112,7 @@ class PingHosts extends FOGService
             if (self::$_pingOn < 1) {
                 throw new Exception(_(' * Ping hosts is globally disabled'));
             }
-            $webServerIP = self::$FOGCore->resolveHostName(
+            $webServerIP = self::resolveHostName(
                 self::$_fogWeb
             );
             self::outall(
@@ -176,7 +176,7 @@ class PingHosts extends FOGService
                 }
                 $ip = $hostips[$index];
                 if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
-                    $ip = self::$FOGCore->resolveHostname($hostnames[$index]);
+                    $ip = self::resolveHostname($hostnames[$index]);
                 }
                 if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
                     $ip = $hostnames[$index];

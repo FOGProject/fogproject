@@ -86,7 +86,7 @@ abstract class FOGClient extends FOGBase
                 }
             }
             $globalInfo = array_intersect_key(
-                $this->getGlobalModuleStatus(),
+                self::getGlobalModuleStatus(),
                 array($this->shortName => '')
             );
             if (!(isset($globalInfo[$this->shortName])

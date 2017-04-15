@@ -166,8 +166,7 @@ $HookManager
             $BootItem,
             'tweaktask'
         )
-    );
-$HookManager
+    )
     ->register(
         'IPXE_EDIT',
         array(

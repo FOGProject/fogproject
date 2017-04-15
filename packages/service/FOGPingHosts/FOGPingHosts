@@ -31,8 +31,33 @@ $ServiceClass->waitInterfaceReady();
 $ServiceClass->waitDbReady();
 $ServiceClass->serviceStart();
 while (true) {
+    if (!$ServiceClass::$zzz) {
+        $ServiceClass::$zzz = 300;
+    }
+    if (!isset($nextrun)) {
+        $ServiceClass->serviceRun();
+        $nextrun = FOGCore::niceDate()
+            ->modify(
+                sprintf(
+                    '+%s second%s',
+                    $ServiceClass::$zzz,
+                    $ServiceClass::$zzz != 1 ? '' : 's'
+                )
+            );
+    }
+    if (FOGCore::niceDate() < $nextrun) {
+        usleep(100000);
+        continue;
+    }
+    $nextrun = FOGCore::niceDate()
+        ->modify(
+            sprintf(
+                '+%s second%s',
+                $ServiceClass::$zzz,
+                $ServiceClass::$zzz != 1 ? '' : 's'
+            )
+        );
     $ServiceClass->serviceRun();
-    sleep($ServiceClass::$zzz ? $ServiceClass::$zzz : 300);
 }
 $ServiceClass::outall(sprintf(" * Service has ended."));
 exit(0);

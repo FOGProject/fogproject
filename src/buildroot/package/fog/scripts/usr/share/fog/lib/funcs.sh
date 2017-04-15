@@ -26,25 +26,24 @@ clearScreen() {
 # Displays the nice banner along with the running version
 displayBanner() {
     version=$(curl -k http://${web}service/getversion.php 2>/dev/null)
-    echo "   +------------------------------------------+"
-    echo "   |     ..#######:.    ..,#,..     .::##::.  |"
-    echo "   |.:######          .:;####:......;#;..     |"
-    echo "   |...##...        ...##;,;##::::.##...      |"
-    echo "   |   ,#          ...##.....##:::##     ..:: |"
-    echo "   |   ##    .::###,,##.   . ##.::#.:######::.|"
-    echo "   |...##:::###::....#. ..  .#...#. #...#:::. |"
-    echo "   |..:####:..    ..##......##::##  ..  #     |"
-    echo "   |    #  .      ...##:,;##;:::#: ... ##..   |"
-    echo "   |   .#  .       .:;####;::::.##:::;#:..    |"
-    echo "   |    #                     ..:;###..       |"
-    echo "   |                                          |"
-    echo "   +------------------------------------------+"
-    echo "   |      Free Computer Imaging Solution      |"
-    echo "   +------------------------------------------+"
-    echo "   |  Credits: http://fogproject.org/Credits  |"
-    echo "   |       http://fogproject.org/Credits      |"
-    echo "   |       Released under GPL Version 3       |"
-    echo "   +------------------------------------------+"
+    echo "   =================================="
+    echo "   ===        ====    =====      ===="
+    echo "   ===  =========  ==  ===   ==   ==="
+    echo "   ===  ========  ====  ==  ====  ==="
+    echo "   ===  ========  ====  ==  ========="
+    echo "   ===      ====  ====  ==  ========="
+    echo "   ===  ========  ====  ==  ===   ==="
+    echo "   ===  ========  ====  ==  ====  ==="
+    echo "   ===  =========  ==  ===   ==   ==="
+    echo "   ===  ==========    =====      ===="
+    echo "   =================================="
+    echo "   ===== Free Opensource Ghost ======"
+    echo "   =================================="
+    echo "   ============ Credits ============="
+    echo "   = https://fogproject.org/Credits ="
+    echo "   =================================="
+    echo "   == Released under GPL Version 3 =="
+    echo "   =================================="
     echo "   Version: $version"
 }
 # Gets all system mac addresses except for loopback
@@ -522,7 +521,7 @@ shrinkPartition() {
                 getPartBlockSize "$part" "part_block_size"
                 case $osid in
                     [1-2]|4)
-                        resizePartition "$part" "$sizentfsresize" "$imagePath"
+                        resizePartition "$part" "$(calculate "$sizentfsresize*1024")" "$imagePath"
                         [[ $osid -eq 2 ]] && correctVistaMBR "$disk"
                         ;;
                     [5-7]|9)
@@ -686,12 +685,12 @@ writeImage()  {
     case $format in
         5|6)
             # ZSTD Compressed image.
-            zstdmt -T$(nproc) --ultra $PIGZ_COMP -dc </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1
+            zstdmt -T$(nproc) --ultra $PIGZ_COMP -dc </tmp/pigz1 | partclone.restore -n "Storage Location $storage, Image name $img" --ignore_crc -O ${target} -Nf 1
             ;;
         3|4)
             # Uncompressed partclone
             echo " * Imaging using Partclone"
-            cat </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1
+            cat </tmp/pigz1 | partclone.restore -n "Storage Location $storage, Image name $img" --ignore_crc -O ${target} -Nf 1
             # If this fails, try from compressed form.
             #[[ ! $? -eq 0 ]] && zstdmt -T$(nproc) --ultra $PIGZ_COMP -dc </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1 || true
             ;;
@@ -703,13 +702,13 @@ writeImage()  {
         0|2)
             # GZIP Compressed partclone
             echo " * Imaging using Partclone"
-            zstdmt -T$(nproc) --ultra $PIGZ_COMP -dc </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1
+            zstdmt -T$(nproc) --ultra $PIGZ_COMP -dc </tmp/pigz1 | partclone.restore -n "Storage Location $storage, Image name $img" --ignore_crc -O ${target} -N -f 1
             # If this fails, try uncompressed form.
             #[[ ! $? -eq 0 ]] && cat </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1 || true
             ;;
     esac
     exitcode=$?
-    [[ ! $exitcode -eq 0 ]] && handleError "Image failed to restore and exited with exit code $exitcode (${FUNCNAME[0]})\n   Info: $(cat /tmp/partclone.log)\n   Args Passed: $*"
+    [[ ! $exitcode -eq 0 ]] && handleWarning "Image failed to restore and exited with exit code $exitcode (${FUNCNAME[0]})\n   Info: $(cat /tmp/partclone.log)\n   Args Passed: $*"
     rm -rf /tmp/pigz1 >/dev/null 2>&1
 }
 # Gets the valid restore parts. They're only
@@ -1979,22 +1978,9 @@ restorePartitionTablesAndBootLoaders() {
         [[ $ebrcount -gt 0 ]] && restoreAllEBRs "$disk" "$disk_number" "$imagePath" "$imgPartitionType"
         local sfdiskoriginalpartitionfilename=""
         local sfdisklegacyoriginalpartitionfilename=""
-        local sfdiskminimumpartitionfilename=""
-        sfdiskMinimumPartitionFileName "$imagePath" "$disk_number"
         sfdiskPartitionFileName "$imagePath" "$disk_number"
         sfdiskLegacyOriginalPartitionFileName "$imagePath" "$disk_number"
-        if [[ -r $sfdiskminimumpartitionfilename ]]; then
-            dots "Inserting Extended partitions (Minimum)"
-            sfdisk $disk < $sfdiskminimumpartitionfilename >/dev/null 2>&1
-            case $? in
-                0)
-                    echo "Done"
-                    ;;
-                *)
-                    echo "Failed"
-                    ;;
-            esac
-        elif [[ -r $sfdiskoriginalpartitionfilename ]]; then
+        if [[ -r $sfdiskoriginalpartitionfilename ]]; then
             dots "Inserting Extended partitions (Original)"
             sfdisk $disk < $sfdiskoriginalpartitionfilename >/dev/null 2>&1
             case $? in
@@ -2068,7 +2054,7 @@ savePartition() {
                     debugPause
                     imgpart="$imagePath/d${disk_number}p${part_number}.img"
                     uploadFormat "$fifoname" "$imgpart"
-                    partclone.$fstype -fsck-src-part -c -s $part -O $fifoname -N -f 1
+                    partclone.$fstype -n "Storage Location $storage, Image name $img" -cs $part -O $fifoname -Nf 1
                     exitcode=$?
                     case $exitcode in
                         0)
@@ -2122,6 +2108,9 @@ restorePartition() {
                 [5-7]|9)
                     [[ ! -f $imagePath/sys.img.000 ]] && imgpart="$imagePath/d${disk_number}p${part_number}.img*"
                     if [[ -z $imgpart ]] ;then
+                        [[ -r $imagePath/sys.img.000 ]] && win7partcnt=1
+                        [[ -r $imagePath/rec.img.000 ]] && win7partcnt=2
+                        [[ -r $imagePath/rec.img.001 ]] && win7partcnt=3
                         case $win7partcnt in
                             1)
                                 imgpart="$imagePath/sys.img.*"

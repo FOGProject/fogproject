@@ -35,7 +35,7 @@ class ReportManagementPage extends FOGPage
     private static function _loadCustomReports()
     {
         $regext = '#^.+/reports/.*\.report\.php$#';
-        $dirpath = $_SESSION['FOG_REPORT_DIR'];
+        $dirpath = self::getSetting('FOG_REPORT_DIR');
         $strlen = -strlen('.report.php');
         $RecursiveDirectoryIterator = new RecursiveDirectoryIterator(
             $dirpath,
@@ -84,10 +84,7 @@ class ReportManagementPage extends FOGPage
         parent::__construct($this->name);
         $this->menu = array(
             'home' => self::$foglang['Home'],
-            'equiploan' => self::$foglang['EquipLoan'],
-            'hostlist' => self::$foglang['HostList'],
             'imaginglog' => self::$foglang['ImageLog'],
-            'inventory' => self::$foglang['Inventory'],
             'pendmac' => self::$foglang['PendingMACs'],
             'snapinlog' => self::$foglang['SnapinLog'],
             'usertrack' => self::$foglang['LoginHistory'],
@@ -199,16 +196,11 @@ class ReportManagementPage extends FOGPage
      */
     public function file()
     {
-        array_map(
-            function ($className) {
-                self::getClass($className);
-            },
-            (array) preg_replace(
-                '#[[:space:]]#',
-                '_',
-                base64_decode($_REQUEST['f'])
-            )
+        $class = base64_decode(
+            filter_input(INPUT_GET, 'f')
         );
+        $class = str_replace(' ', '_', $class);
+        new $class;
     }
     /**
      * Initial presentation for imaging log.
@@ -384,7 +376,7 @@ class ReportManagementPage extends FOGPage
             ) {
                 continue;
             }
-            $diff = $this->diff($start, $end);
+            $diff = self::diff($start, $end);
             $start = self::niceDate($start);
             $end = self::niceDate($end);
             if ($start < $date1
@@ -404,7 +396,7 @@ class ReportManagementPage extends FOGPage
             $createdBy = (
                 $ImagingLog->get('createdBy') ?
                 $ImagingLog->get('createdBy') :
-                $_SESSION['FOG_USERNAME']
+                self::$FOGUser->get('name')
             );
             $Image = self::getClass('Image')
                 ->set('name', $ImagingLog->get('image'))
@@ -455,189 +447,6 @@ class ReportManagementPage extends FOGPage
         $_SESSION['foglastreport'] = serialize($this->ReportMaker);
     }
     /**
-     * Host listing.
-     *
-     * @return void
-     */
-    public function hostlist()
-    {
-        $this->title = _('Host Listing Export');
-        printf(
-            $this->reportString,
-            'HostList',
-            _('Export CSV'),
-            _('Export CSV'),
-            self::$csvfile,
-            'HostList',
-            _('Export PDF'),
-            _('Export PDF'),
-            self::$pdffile
-        );
-        $csvHead = array(
-            _('Host ID') => 'id',
-            _('Host Name') => 'name',
-            _('Host Desc') => 'description',
-            _('Host MAC') => 'mac',
-            _('Host Created') => 'createdTime',
-            _('Image ID') => 'id',
-            _('Image Name') => 'name',
-            _('Image Desc') => 'description',
-            _('AD Join') => 'useAD',
-            _('AD OU') => 'ADOU',
-            _('AD Domain') => 'ADDomain',
-            _('Kernel') => 'kernel',
-            _('HD Device') => 'kernelDevice',
-            _('OS Name') => 'name',
-        );
-        foreach ((array)$csvHead as $csvHeader => &$classGet) {
-            $this->ReportMaker->addCSVCell($csvHeader);
-            unset($classGet);
-        }
-        $this->ReportMaker->endCSVLine();
-        $this->headerData = array(
-            _('Hostname'),
-            _('Host MAC'),
-            _('Image Name'),
-        );
-        $this->templates = array(
-            '${host_name}',
-            '${host_mac}',
-            '${image_name}',
-        );
-        foreach ((array)self::getClass('HostManager')
-            ->find() as &$Host
-        ) {
-            $Image = $Host->getImage();
-            $imgID = $Image->get('id');
-            $imgName = $Image->get('name');
-            $imgDesc = $Image->get('description');
-            unset($Image);
-            $this->data[] = array(
-                'host_name'=>$Host->get('name'),
-                'host_mac'=>$Host->get('mac'),
-                'image_name'=>$imgName,
-            );
-            foreach ((array)$csvHead as $head => &$classGet) {
-                switch ($head) {
-                case _('Image ID'):
-                    $this->ReportMaker->addCSVCell($imgID);
-                    break;
-                case _('Image Name'):
-                    $this->ReportMaker->addCSVCell($imgName);
-                    break;
-                case _('Image Desc'):
-                    $this->ReportMaker->addCSVCell($imgDesc);
-                    break;
-                case _('AD Join'):
-                    $this->ReportMaker->addCSVCell(
-                        (
-                            $Host->get('useAD') == 1 ?
-                            _('Yes') :
-                            _('No')
-                        )
-                    );
-                    break;
-                default:
-                    $this->ReportMaker->addCSVCell($Host->get($classGet));
-                    break;
-                }
-                unset($classGet);
-            }
-            unset($Host);
-            $this->ReportMaker->endCSVLine();
-        }
-        $this->ReportMaker->appendHTML($this->__toString());
-        $this->ReportMaker->outputReport(0);
-        $_SESSION['foglastreport'] = serialize($this->ReportMaker);
-    }
-    /**
-     * Presents and reports all Inventory data for hosts.
-     *
-     * @return void
-     */
-    public function inventory()
-    {
-        $this->title = _('Full Inventory Export');
-        printf(
-            $this->reportString,
-            'InventoryReport',
-            _('Export CSV'),
-            _('Export CSV'),
-            self::$csvfile,
-            'InventoryReport',
-            _('Export PDF'),
-            _('Export PDF'),
-            self::$pdffile
-        );
-        array_walk(
-            self::$inventoryCsvHead,
-            function (&$classGet, &$csvHeader) {
-                $this->ReportMaker->addCSVCell($csvHeader);
-                unset($classGet, $csvHeader);
-            }
-        );
-        $this->ReportMaker->endCSVLine();
-        $this->headerData = array(
-            _('Host name'),
-            _('Memory'),
-            _('System Product'),
-            _('System Serial'),
-        );
-        $this->templates = array(
-            '${host_name}<br/><small>${host_mac}</small>',
-            '${memory}',
-            '${sysprod}',
-            '${sysser}',
-        );
-        $this->attributes = array(
-            array(),
-            array(),
-            array(),
-            array(),
-        );
-        foreach ((array)self::getClass('HostManager')
-            ->find() as &$Host
-        ) {
-            $Image = $Host->getImage();
-            $Inventory = $Host->get('inventory');
-            $this->data[] = array(
-                'host_name' => $Host->get('name'),
-                'host_mac' => $Host->get('mac'),
-                'memory' => $Inventory->getMem(),
-                'sysprod' => $Inventory->get('sysproduct'),
-                'sysser' => $Inventory->get('sysserial'),
-            );
-            foreach (self::$inventoryCsvHead as $head => &$classGet) {
-                switch ($head) {
-                case _('Host ID'):
-                    $this->ReportMaker->addCSVCell($Host->get('id'));
-                    break;
-                case _('Host name'):
-                    $this->ReportMaker->addCSVCell($Host->get('name'));
-                    break;
-                case _('Host MAC'):
-                    $this->ReportMaker->addCSVCell($Host->get('mac'));
-                    break;
-                case _('Host Desc'):
-                    $this->ReportMaker->addCSVCell($Host->get('description'));
-                    break;
-                case _('Memory'):
-                    $this->ReportMaker->addCSVCell($Inventory->getMem());
-                    break;
-                default:
-                    $this->ReportMaker->addCSVCell($Inventory->get($classGet));
-                    break;
-                }
-                unset($classGet, $head);
-            }
-            $this->ReportMaker->endCSVLine();
-            unset($Inventory, $Host);
-        }
-        $this->ReportMaker->appendHTML($this->__toString());
-        $this->ReportMaker->outputReport(false);
-        $_SESSION['foglastreport'] = serialize($this->ReportMaker);
-    }
-    /**
      * Shows any pending mac addresses.
      *
      * @return void
@@ -653,8 +462,8 @@ class ReportManagementPage extends FOGPage
                         'pending' => 0
                     )
                 );
-            $this->setMessage(_('All Pending MACs approved.'));
-            $this->redirect('?node=report&sub=pendmac');
+            self::setMessage(_('All Pending MACs approved.'));
+            self::redirect('?node=report&sub=pendmac');
         }
         $this->title = _('Pending MAC Export');
         printf(
@@ -668,7 +477,7 @@ class ReportManagementPage extends FOGPage
             _('Export PDF'),
             self::$pdffile
         );
-        if ($_SESSION['Pending-MACs']) {
+        if (self::$pendingMACs > 0) {
             printf(
                 '<a href="?node=report&sub=pendmac&aprvall=1">%s</a>',
                 _('Approve All Pending MACs for all hosts')
@@ -783,7 +592,7 @@ class ReportManagementPage extends FOGPage
             isset($_REQUEST['approvependmac']) ?
             _('approved') : _('deleted')
         );
-        $this->setMessage(
+        self::setMessage(
             sprintf(
                 '%s %s %s',
                 _('All pending macs'),
@@ -791,7 +600,7 @@ class ReportManagementPage extends FOGPage
                 _('successfully')
             )
         );
-        $this->redirect("?node=$this->node");
+        self::redirect("?node=$this->node");
     }
     /**
      * Display virus history.
@@ -929,12 +738,12 @@ class ReportManagementPage extends FOGPage
     {
         if ($_REQUEST['delvall'] == 'all') {
             self::getClass('VirusManager')->destroy();
-            $this->setMessage(_("All Virus' cleared"));
-            $this->redirect($this->formAction);
+            self::setMessage(_("All Virus' cleared"));
+            self::redirect($this->formAction);
         } elseif (is_numeric($_REQUEST['delvid'])) {
             self::getClass('Virus', $_REQUEST['delvid'])->destroy();
-            $this->setMessage(_('Virus cleared'));
-            $this->redirect($this->formAction);
+            self::setMessage(_('Virus cleared'));
+            self::redirect($this->formAction);
         }
     }
     /**
@@ -1148,7 +957,7 @@ class ReportManagementPage extends FOGPage
             }
             unset($HostIDs);
         } elseif (!$hostsearch && !$usersearch) {
-            $this->redirect(
+            self::redirect(
                 sprintf(
                     '?node=%s&sub=usertrack',
                     $this->node
@@ -1494,6 +1303,7 @@ class ReportManagementPage extends FOGPage
             self::$pdffile
         );
         $this->headerData = array(
+            _('Host Name'),
             _('Snapin Name'),
             _('State'),
             _('Return Code'),
@@ -1502,12 +1312,26 @@ class ReportManagementPage extends FOGPage
             _('Create Time'),
         );
         $this->templates = array(
+            '${host_name}<br/><small>'
+            . _('Started/Checked in')
+            . ': ${checkin}<br/>'
+            . _('Completed')
+            . ': ${complete}</small>',
             '${snap_name}',
             '${snap_state}',
             '${snap_return}',
             '${snap_detail}',
             '${snap_create}',
             '${snap_time}',
+        );
+        $this->attributes = array(
+            array(),
+            array(),
+            array(),
+            array(),
+            array(),
+            array(),
+            array()
         );
         $date1 = $_REQUEST['date1'];
         $date2 = $_REQUEST['date2'];
@@ -1536,6 +1360,8 @@ class ReportManagementPage extends FOGPage
             _('Job Create Time'),
             _('Task Checkin Date'),
             _('Task Checkin Time'),
+            _('Task Complete Date'),
+            _('Task Complete Time')
         );
         foreach ((array)$csvHead as $i => &$csvHeader) {
             $this->ReportMaker->addCSVCell($csvHeader);
@@ -1573,6 +1399,9 @@ class ReportManagementPage extends FOGPage
             }
             $State = new TaskState($SnapinTask->get('stateID'));
             $this->data[] = array(
+                'host_name' => $Host->get('name'),
+                'checkin' => $SnapinTask->get('checkin'),
+                'complete' => $SnapinTask->get('complete'),
                 'snap_name' => $Snapin->get('name'),
                 'snap_state' => $State->get('name'),
                 'snap_return' => $SnapinTask->get('return'),
@@ -1635,6 +1464,18 @@ class ReportManagementPage extends FOGPage
                     'H:i:s'
                 )
             );
+            $this->ReportMaker->addCSVCell(
+                self::formatTime(
+                    $SnapinTask->get('complete'),
+                    'Y-m-d'
+                )
+            );
+            $this->ReportMaker->addCSVCell(
+                self::formatTime(
+                    $SnapinTask->get('complete'),
+                    'H:i:s'
+                )
+            );
             $this->ReportMaker->endCSVLine();
             unset(
                 $Host,
@@ -1646,227 +1487,6 @@ class ReportManagementPage extends FOGPage
         }
         $this->ReportMaker->appendHTML($this->__toString());
         $this->ReportMaker->outputReport(false);
-        $_SESSION['foglastreport'] = serialize($this->ReportMaker);
-    }
-    /**
-     * Present selector for equipment load form printing.
-     *
-     * @return void
-     */
-    public function equiploan()
-    {
-        $this->title = _('FOG Equipment Loan Form');
-        unset($this->headerData);
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
-        $this->attributes = array(
-            array(),
-            array(),
-        );
-        ob_start();
-        foreach ((array)self::getClass('InventoryManager')
-            ->find() as &$Inventory
-        ) {
-            if (!$Inventory->get('primaryUser')) {
-                continue;
-            }
-            printf(
-                '<option value="%s">%s</option>',
-                $Inventory->get('id'),
-                $Inventory->get('primaryUser')
-            );
-            unset($Inventory);
-        }
-        $fields = array(
-            _('Select User') => sprintf(
-                '<select name="user" size="1">'
-                . '<option value="">- %s -</option>'
-                . '%s'
-                . '</select>',
-                _('Please select an option'),
-                ob_get_clean()
-            ),
-            '&nbsp;' => sprintf(
-                '<input type="submit" value="%s"/>',
-                _('Create Report')
-            )
-        );
-        foreach ((array)$fields as $field => &$input) {
-            $this->data[] = array(
-                'field'=>$field,
-                'input'=>$input,
-            );
-        }
-        unset($input);
-        printf(
-            '<form method="post" action="%s">',
-            $this->formAction
-        );
-        $this->render();
-        echo '</form>';
-    }
-    /**
-     * Present our form based on the selected data.
-     *
-     * @return void
-     */
-    public function equiploanPost()
-    {
-        $Inventory = new Inventory($_REQUEST['user']);
-        if (!$Inventory->isValid()) {
-            return;
-        }
-        $this->title = _('FOG Equipment Loan Form');
-        printf(
-            '<h2>'
-            . '<div id="exportDiv"></div>'
-            . '<a id="pdfsub" href="export.php?type='
-            . 'pdf&filename=%sEquipmentLoanForm" alt='
-            . '"%s" title="%s" target="_blank">%s</a></h2>',
-            $Inventory->get('primaryUser'),
-            _('Export PDF'),
-            _('Export PDF'),
-            self::$pdffile
-        );
-        list(
-            $coname,
-            $subname,
-            $tos
-        ) = self::getSubObjectIDs(
-            'Service',
-            array(
-                'name' => array(
-                    'FOG_COMPANY_NAME',
-                    'FOG_COMPANY_SUBNAME',
-                    'FOG_COMPANY_TOS'
-                )
-            ),
-            'value',
-            false,
-            'AND',
-            'name',
-            false,
-            ''
-        );
-        $this->ReportMaker->appendHTML(
-            sprintf(
-                '<!-- FOOTER CENTER "$PAGE %s $PAGES - %s: %s" -->'
-                . '<p class="c"><h3>%s</h3></p><hr/><p class="c">'
-                . '<h2>%s</h2></p><p class="c"><h3>%s</h3></p>'
-                . '<p class="c"><h2><u>%s</u></h2></p>'
-                . '<p class="c"><h4><u>%s</u></h4></p>'
-                . '<h4><b>%s: </b><u>%s</u></h4><h4>'
-                . '<b>%s: </b><u>%s</u></h4><h4>'
-                . '<b>%s: </b>%s</h4><h4><b>%s: </b>'
-                . '%s</h4><h4><b>%s: </b>%s</h4><h4>'
-                . '<b>%s: </b>%s</h4><p class="c">'
-                . '<h4><u>%s</u></h4></p><h4><b>%s: </b>'
-                . '<u>%s</u></h4><h4><b>%s: </b><u>%s</u>'
-                . '</h4><h4><b>%s: </b><u>%s</u></h4>'
-                . '<p class="c"><h4><b>%s / %s / %s</b></h4></p>'
-                . '<p class="c"><h4><b>%s</b></h4></p>'
-                . '<p class="c"><h4><b>%s</b></h4></p>'
-                . '<p class="c"><h4><b>%s</b></h4></p>'
-                . '<br/><hr/><h4><b>%s: </b>%s</h4>'
-                . '<p class="c"><h4>(%s %s)</h4></p>'
-                . '<p class="c"><h4>%s</h4></p><h4><b>%s: </b>%s</h4>'
-                . '<h4><b>%s: </b>%s</h4>'
-                . '<!-- NEW PAGE -->'
-                . '<!-- FOOTER CENTER "$PAGE %s $PAGES - %s: %s" -->'
-                . '<p class="c"><h3>%s</h3></p><hr/><h4>%s</h4>'
-                . '<h4><b>%s: </b>%s</h4><h4><b>%s: </b>%s</h4>',
-                _('of'),
-                _('Printed'),
-                self::formatTime('', 'D M j G:i:s T Y'),
-                _('Equipment Loan'),
-                $coname,
-                $subname,
-                _('PC Check-out Agreement'),
-                _('Personal Information'),
-                _('Name'),
-                $Inventory->get('primaryUser'),
-                _('Location'),
-                _('Your Location Here'),
-                str_pad(_('Home Address'), 25),
-                str_repeat('_', 65),
-                str_pad(_('City/State/Zip'), 25),
-                str_repeat('_', 65),
-                str_pad(_('Extension'), 25),
-                str_repeat('_', 65),
-                str_pad(_('Home Phone'), 25),
-                str_repeat('_', 65),
-                _('Computer Information'),
-                str_pad(
-                    sprintf(
-                        '%s / %s',
-                        _('Serial Number'),
-                        _('Service Tag')
-                    ),
-                    25
-                ),
-                str_pad(
-                    sprintf(
-                        '%s / %s',
-                        $Inventory->get('sysserial'),
-                        $Inventory->get('caseasset')
-                    ),
-                    65,
-                    '_'
-                ),
-                str_pad(
-                    _('Barcode Numbers'),
-                    25
-                ),
-                str_pad(
-                    sprintf(
-                        '%s %s',
-                        $Inventory->get('other1'),
-                        $Inventory->get('other2')
-                    ),
-                    65,
-                    '_'
-                ),
-                str_pad(
-                    _('Date of checkout'),
-                    25
-                ),
-                str_repeat('_', 65),
-                _('Notes'),
-                _('Miscellaneous'),
-                _('Included Items'),
-                str_repeat('_', 75),
-                str_repeat('_', 75),
-                str_repeat('_', 75),
-                str_pad(_('Releasing Staff Initials'), 25),
-                str_repeat('_', 65),
-                _('To be released only by'),
-                str_repeat('_', 20),
-                sprintf(
-                    '%s, %s, %s %s %s.',
-                    _('I have read'),
-                    _('understood'),
-                    _('and agree to all the'),
-                    _('Terms and Conditions'),
-                    _('on the following pages of this document')
-                ),
-                str_pad(_('Signed'), 25),
-                str_repeat('_', 65),
-                str_pad(_('Date'), 25),
-                str_repeat('_', 65),
-                _('of'),
-                _('Printed'),
-                self::formatTime('', 'D M j G:i:s T Y'),
-                _('Terms and Conditions'),
-                $tos,
-                str_pad(_('Signed'), 25),
-                str_repeat('_', 65),
-                str_pad(_('Date'), 25),
-                str_repeat('_', 65)
-            )
-        );
-        printf('<p>%s</p>', _('Your form is ready.'));
         $_SESSION['foglastreport'] = serialize($this->ReportMaker);
     }
 }

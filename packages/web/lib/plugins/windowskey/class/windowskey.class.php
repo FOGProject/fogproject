@@ -169,7 +169,7 @@ class WindowsKey extends FOGController
     public function set($key, $value)
     {
         if ($this->key($key) == 'key') {
-            $value = $this->encryptpw($value);
+            $value = self::encryptpw($value);
         }
 
         return parent::set($key, $value);

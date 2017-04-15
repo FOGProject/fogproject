@@ -242,15 +242,15 @@ abstract class FOGPage extends FOGBase
         global $tab;
         global $id;
         if ($node !== 'service'
-            && preg_match('#edit#i', $sub)
+            && false !== stripos($sub, 'edit')
             && (!isset($id)
             || !is_numeric($id)
             || $id < 1)
         ) {
-            $this->setMessage(
+            self::setMessage(
                 _('ID Must be set to edit')
             );
-            $this->redirect(
+            self::redirect(
                 "?node=$node"
             );
             exit;
@@ -265,15 +265,15 @@ abstract class FOGPage extends FOGBase
         }
         $this->childClass = ucfirst($this->node);
         if ($node == 'storage') {
-            $ref = preg_match(
-                '#node=storage&sub=storageGroup#i',
-                $_SERVER['HTTP_REFERER']
+            $ref = stripos(
+                self::$httpreferer,
+                'node=storage&sub=storageGroup'
             );
         }
-        if (!isset($ref) || !$ref) {
-            $ref = preg_match(
-                '#node=storage&sub=.*storageGroup#i',
-                self::$querystring
+        if (!isset($ref) || false === $ref) {
+            $ref = stripos(
+                $sub,
+                'storageGroup'
             );
         }
         if ($ref) {
@@ -331,14 +331,14 @@ abstract class FOGPage extends FOGBase
                 );
                 if ($id === 0 || !is_numeric($id) || !$this->obj->isValid()) {
                     unset($this->obj);
-                    $this->setMessage(
+                    self::setMessage(
                         sprintf(
                             _('%s ID %d is not valid'),
                             $this->childClass,
                             $id
                         )
                     );
-                    $this->redirect(
+                    self::redirect(
                         sprintf(
                             '?node=%s',
                             $this->node
@@ -540,19 +540,6 @@ abstract class FOGPage extends FOGBase
                 '%sManager',
                 $this->childClass
             );
-            if ($sub != 'list') {
-                if ($_SESSION['DataReturn'] > 0) {
-                    $objCount = self::getClass($manager)->count();
-                    if ($objCount > $_SESSION['DataReturn']) {
-                        $this->redirect(
-                            sprintf(
-                                '?node=%s&sub=search',
-                                $this->node
-                            )
-                        );
-                    }
-                }
-            }
             $this->data = array();
             $find = '';
             if ('Host' === $this->childClass) {
@@ -560,6 +547,34 @@ abstract class FOGPage extends FOGBase
                     'pending' => array(0, '')
                 );
             }
+            /**
+             * For use with API system.
+            $url = sprintf(
+                'http%s://%s/fog/%s',
+                filter_input(INPUT_SERVER, 'HTTPS') ? 's' : '',
+                filter_input(INPUT_SERVER, 'HTTP_HOST'),
+                strtolower($this->childClass)
+            );
+            self::$FOGURLRequests->headers = array(
+                'fog-api-token: '
+                . base64_encode(self::getSetting('FOG_API_TOKEN'))
+            );
+            $items = self::$FOGURLRequests
+                ->process(
+                    $url,
+                    'GET',
+                    null,
+                    false,
+                    self::$FOGUser->get('name')
+                    . ':'
+                    . self::$FOGUser->get('password')
+                );
+            $items = json_decode(
+                $items[0]
+            );
+            $type = $_REQUEST['node'].'s';
+            $items = $items->$type;
+             */
             $items = (array)self::getClass($manager)->find($find);
             if (count($items) > 0) {
                 array_walk($items, static::$returnData);
@@ -675,7 +690,7 @@ abstract class FOGPage extends FOGBase
             unset($actionbox);
             global $sub;
             global $node;
-            $defaultScreen = strtolower($_SESSION['FOG_VIEW_DEFAULT_SCREEN']);
+            $defaultScreen = strtolower(self::$defaultscreen);
             $defaultScreens = array(
                 'search',
                 'list'
@@ -836,7 +851,7 @@ abstract class FOGPage extends FOGBase
             if (in_array($this->node, array('task'))
                 && (!$sub || $sub == 'list')
             ) {
-                $this->redirect(
+                self::redirect(
                     sprintf(
                         '?node=%s&sub=active',
                         $this->node
@@ -880,7 +895,7 @@ abstract class FOGPage extends FOGBase
                     && in_array($node, self::$searchPages))
                 ) {
                     if (!in_array($this->node, array('home', 'hwinfo'))) {
-                        $this->setMessage(
+                        self::setMessage(
                             sprintf(
                                 '%s %s%s found',
                                 count($this->data),
@@ -936,7 +951,7 @@ abstract class FOGPage extends FOGBase
                     $name,
                     (
                         $this->dataFind ?
-                        preg_replace($this->dataFind, $this->dataReplace, $val) :
+                        str_replace($this->dataFind, $this->dataReplace, $val) :
                         $val
                     )
                 );
@@ -1003,18 +1018,13 @@ abstract class FOGPage extends FOGBase
             'sub' => $sub,
             'tab' => $tab
         );
-        preg_match_all(
-            '#\$\{(?:.+?)\}#',
-            implode((array)$this->templates),
-            $foundchanges
-        );
         $arrayReplace = self::fastmerge(
             $urlvars,
             (array)$data
         );
         foreach ((array)$arrayReplace as $name => &$val) {
             $this->dataFind[] = sprintf(
-                '#\$\{%s\}#',
+                '${%s}',
                 $name
             );
             $val = trim($val);
@@ -1048,7 +1058,7 @@ abstract class FOGPage extends FOGBase
                     $this->atts[$index] :
                     ''
                 ),
-                preg_replace(
+                str_replace(
                     $this->dataFind,
                     $this->dataReplace,
                     $template
@@ -1102,10 +1112,10 @@ abstract class FOGPage extends FOGBase
                 throw new Exception(_('Cannot set tasking as image is not enabled'));
             }
         } catch (Exception $e) {
-            $this->setMessage(
+            self::setMessage(
                 $e->getMessage()
             );
-            $this->redirect(
+            self::redirect(
                 sprintf(
                     '?node=%s&sub=edit%s',
                     $this->node,
@@ -1391,13 +1401,13 @@ abstract class FOGPage extends FOGBase
                 'attributes' => &$this->attributes
             )
         );
-        $this->render();
         if (count($this->data)) {
             printf(
                 '<p class="c"><input type="submit" value="%s"/></p>',
                 $this->title
             );
         }
+        $this->render();
         echo '</form>';
     }
     /**
@@ -1407,6 +1417,12 @@ abstract class FOGPage extends FOGBase
      */
     public function deployPost()
     {
+        self::$HookManager->processEvent(
+            sprintf(
+                '%s_DEPLOY_POST',
+                strtoupper($this->childClass)
+            )
+        );
         global $type;
         global $id;
         try {
@@ -1698,8 +1714,8 @@ abstract class FOGPage extends FOGBase
                 }
             }
         } catch (Exception $e) {
-            $this->setMessage($e->getMessage());
-            $this->redirect(
+            self::setMessage($e->getMessage());
+            self::redirect(
                 sprintf(
                     '?node=%s&sub=edit%s',
                     $this->node,
@@ -1730,7 +1746,7 @@ abstract class FOGPage extends FOGBase
                             $enableDebug,
                             $enableSnapins,
                             $groupTask,
-                            $_SESSION['FOG_USERNAME'],
+                            self::$FOGUser->get('name'),
                             $passreset,
                             false,
                             $wol
@@ -1752,7 +1768,7 @@ abstract class FOGPage extends FOGBase
                             )
                         )
                         ->set('isGroupTask', $groupTask)
-                        ->set('other3', $_SESSION['FOG_USERNAME'])
+                        ->set('other3', self::$FOGUser->get('name'))
                         ->set('isActive', 1)
                         ->set('other4', $wol);
                     if ($scheduleType == 'single') {
@@ -1923,14 +1939,14 @@ abstract class FOGPage extends FOGBase
                 _('Are you sure you wish to remove these items')
             );
         } else {
-            $this->setMessage(
+            self::setMessage(
                 sprintf(
                     '%s<br/>%s',
                     _('No items to delete'),
                     _('None selected or item is protected')
                 )
             );
-            $this->redirect(
+            self::redirect(
                 sprintf(
                     '?node=%s',
                     $this->node
@@ -1970,10 +1986,10 @@ abstract class FOGPage extends FOGBase
             ->destroy(
                 array('id' => $_REQUEST['remitems'])
             );
-        $this->setMessage(
+        self::setMessage(
             _('All selected items have been deleted')
         );
-        $this->redirect(
+        self::redirect(
             sprintf(
                 '?node=%s',
                 $this->node
@@ -2150,7 +2166,7 @@ abstract class FOGPage extends FOGBase
             $ADDomain = $_REQUEST['domainname'];
         }
         if (empty($ADOU)) {
-            $ADOU = trim(preg_replace('#;#', '', $_REQUEST['ou']));
+            $ADOU = trim(str_replace(';', '', $_REQUEST['ou']));
         }
         if (empty($ADUser)) {
             $ADUser = $_REQUEST['domainuser'];
@@ -2170,7 +2186,7 @@ abstract class FOGPage extends FOGBase
             }
             if (empty($ADOU)) {
                 $ADOU = trim($this->obj->get('ADOU'));
-                $ADOU = preg_replace('#;#', '', $ADOU);
+                $ADOU = str_replace(';', '', $ADOU);
             }
             if (empty($ADUser)) {
                 $ADUser = $this->obj->get('ADUser');
@@ -2192,7 +2208,7 @@ abstract class FOGPage extends FOGBase
         );
         if ($this->obj->isValid()) {
             $ADOU = trim($this->obj->get('ADOU'));
-            $ADOU = preg_replace('#;#', '', $ADOU);
+            $ADOU = str_replace(';', '', $ADOU);
             $optFound = $ADOU;
         }
         if (count($OUs) > 1) {
@@ -2203,11 +2219,11 @@ abstract class FOGPage extends FOGBase
             );
             foreach ((array)$OUs as &$OU) {
                 $OU = trim($OU);
-                $ou = preg_replace('#;#', '', $OU);
+                $ou = str_replace(';', '', $OU);
                 if (!$optFound && $ou === $ADOU) {
                     $optFound = $ou;
                 }
-                if (!$optFound && preg_match('#;#', $OU)) {
+                if (!$optFound && false !== strpos($OU, ';')) {
                     $optFound = $ou;
                 }
                 printf(
@@ -2413,9 +2429,6 @@ abstract class FOGPage extends FOGBase
     public function kernelfetch()
     {
         try {
-            if (!$_SESSION['AllowAJAXTasks']) {
-                throw new Exception(_('FOG Session Invalid'));
-            }
             if ($_SESSION['allow_ajax_kdl']
                 && $_SESSION['dest-kernel-file']
                 && $_SESSION['tmp-kernel-file']
@@ -2564,10 +2577,7 @@ abstract class FOGPage extends FOGBase
     public function getmacman()
     {
         try {
-            if (!$_SESSION['AllowAJAXTasks']) {
-                throw new Exception(_('FOG Session Invalid'));
-            }
-            if (!self::$FOGCore->getMACLookupCount()) {
+            if (!self::getMACLookupCount()) {
                 throw new Exception(
                     sprintf(
                         '<a href="?node=about&sub=mac-list">%s</a>',
@@ -2728,7 +2738,7 @@ abstract class FOGPage extends FOGBase
             $data = array_values(
                 array_map(
                     'bin2hex',
-                    $this->certDecrypt(
+                    self::certDecrypt(
                         array(
                             $_REQUEST['sym_key'],
                             $_REQUEST['token']
@@ -2741,7 +2751,11 @@ abstract class FOGPage extends FOGBase
             if ($Host->get('sec_tok')
                 && $token !== $Host->get('sec_tok')
             ) {
-                $Host->set('pub_key', null)->save();
+                $Host
+                    ->set(
+                        'pub_key',
+                        null
+                    )->save()->load();
                 throw new Exception('#!ist');
             }
             if ($Host->get('sec_tok')
@@ -2749,19 +2763,25 @@ abstract class FOGPage extends FOGBase
             ) {
                 throw new Exception('#!ihc');
             }
-            $Host
-                ->set(
-                    'sec_time',
-                    self::niceDate('+30 minutes')->format('Y-m-d H:i:s')
-                )
-                ->set('pub_key', $key)
-                ->set('sec_tok', $this->createSecToken())
-                ->save();
+            $expire = self::niceDate($Host->get('sec_time'));
+            if (self::niceDate() > $expire
+                || !trim($Host->get('pub_key'))
+            ) {
+                $Host
+                    ->set(
+                        'sec_time',
+                        self::niceDate('+30 minutes')->format('Y-m-d H:i:s')
+                    )
+                    ->set('pub_key', $key)
+                    ->set('sec_tok', self::createSecToken())
+                    ->save()
+                    ->load();
+            }
+            $vals['token'] = $Host->get('sec_tok');
             if (self::$json === true) {
-                $vals['token'] = $Host->get('sec_tok');
                 printf(
                     '#!en=%s',
-                    $this->certEncrypt(
+                    self::certEncrypt(
                         json_encode($vals),
                         $Host
                     )
@@ -2770,7 +2790,7 @@ abstract class FOGPage extends FOGBase
             }
             printf(
                 '#!en=%s',
-                $this->certEncrypt(
+                self::certEncrypt(
                     "#!ok\n#token={$Host->get(sec_tok)}",
                     $Host
                 )
@@ -2780,7 +2800,7 @@ abstract class FOGPage extends FOGBase
                 if ($e->getMessage() == '#!ihc') {
                     die($e->getMessage());
                 }
-                $err = preg_replace('/^[#][!]?/', '', $e->getMessage());
+                $err = str_replace('#!', '', $e->getMessage());
                 echo json_encode(
                     array('error' => $err)
                 );
@@ -2872,7 +2892,7 @@ abstract class FOGPage extends FOGBase
                 'hostregister',
             );
             $globalModules = array_diff(
-                $this->getGlobalModuleStatus(false, true),
+                self::getGlobalModuleStatus(false, true),
                 array(
                     'dircleanup',
                     'usercleanup',
@@ -2880,7 +2900,7 @@ abstract class FOGPage extends FOGBase
                     'hostregister'
                 )
             );
-            $globalInfo = $this->getGlobalModuleStatus();
+            $globalInfo = self::getGlobalModuleStatus();
             $globalDisabled = array();
             foreach ((array)$globalInfo as $key => &$en) {
                 if (in_array($key, $igMods)) {
@@ -3072,7 +3092,7 @@ abstract class FOGPage extends FOGBase
                         );
                 }
                 if (isset($_REQUEST['massDelHosts'])) {
-                    $this->redirect(
+                    self::redirect(
                         "?node=group&sub=deletehosts&id={$this->obj->get(id)}"
                     );
                 }
@@ -3092,7 +3112,7 @@ abstract class FOGPage extends FOGBase
                 ),
                 array($this->childClass => &$this->obj)
             );
-            $this->setMessage(
+            self::setMessage(
                 sprintf(
                     '%s %s: %s',
                     $this->childClass,
@@ -3100,8 +3120,8 @@ abstract class FOGPage extends FOGBase
                     $this->obj->get('name')
                 )
             );
-            $this->resetRequest();
-            $this->redirect(
+            self::resetRequest();
+            self::redirect(
                 sprintf(
                     '?node=%s',
                     $this->node
@@ -3115,8 +3135,8 @@ abstract class FOGPage extends FOGBase
                 ),
                 array($this->childClass => &$this->obj)
             );
-            $this->setMessage($e->getMessage());
-            $this->redirect($this->formAction);
+            self::setMessage($e->getMessage());
+            self::redirect($this->formAction);
         }
     }
     /**
@@ -3169,6 +3189,35 @@ abstract class FOGPage extends FOGBase
             '%sManager',
             $this->childClass
         );
+        /**
+         * For use with api based system.
+        $url = sprintf(
+            'http%s://%s/fog/%s/search/%s',
+            filter_input(INPUT_SERVER, 'HTTPS') ? 's' : '',
+            filter_input(INPUT_SERVER, 'HTTP_HOST'),
+            strtolower($this->childClass),
+            $_REQUEST['crit']
+        );
+        self::$FOGURLRequests->headers = array(
+            'fog-api-token: '
+            . base64_encode(self::getSetting('FOG_API_TOKEN'))
+        );
+        $items = self::$FOGURLRequests
+            ->process(
+                $url,
+                'GET',
+                null,
+                false,
+                self::$FOGUser->get('name')
+                . ':'
+                . self::$FOGUser->get('password')
+            );
+        $items = json_decode(
+            $items[0]
+        );
+        $type = $_REQUEST['node'].'s';
+        $search = $items->$type;
+         */
         $search = self::getClass($manager)->search('', true);
         if (count($search) > 0) {
             array_walk($search, static::$returnData);
@@ -3221,7 +3270,7 @@ abstract class FOGPage extends FOGBase
         $this->headerData = array(
             sprintf(
                 '<input type="checkbox" name="toggle-checkbox%s1" '
-                . 'class="toggle-checkbox1"',
+                . 'class="toggle-checkbox1"/>',
                 $this->node
             ),
             sprintf(
@@ -3422,14 +3471,14 @@ abstract class FOGPage extends FOGBase
             $this->obj->removeHost($_REQUEST['hostdel']);
         }
         if ($this->obj->save()) {
-            $this->setMessage(
+            self::setMessage(
                 sprintf(
                     '%s %s',
                     $this->obj->get('name'),
                     _('saved successfully')
                 )
             );
-            $this->redirect($this->formAction);
+            self::redirect($this->formAction);
         }
     }
     /**
@@ -3478,7 +3527,7 @@ abstract class FOGPage extends FOGBase
             ),
         );
         $report = self::getClass('ReportMaker');
-        $this->arrayRemove('id', $this->databaseFields);
+        self::arrayRemove('id', $this->databaseFields);
         foreach ((array)self::getClass($this->childClass)
             ->getManager()
             ->find() as &$Item
@@ -3639,8 +3688,8 @@ abstract class FOGPage extends FOGBase
             $mime = $_FILES['file']['type'];
             if (!in_array($mime, $mimes)) {
                 if ($ext !== 'csv') {
-                    $this->setMessage(_('File must be a csv'));
-                    $this->redirect($this->formAction);
+                    self::setMessage(_('File must be a csv'));
+                    self::redirect($this->formAction);
                 }
             }
             if ($_FILES['file']['error'] > 0) {
@@ -3658,7 +3707,7 @@ abstract class FOGPage extends FOGBase
             }
             $numSuccess = $numFailed = $numAlreadExist = 0;
             $fh = fopen($file, 'rb');
-            $this->arrayRemove(
+            self::arrayRemove(
                 'id',
                 $this->databaseFields
             );
@@ -3698,16 +3747,16 @@ abstract class FOGPage extends FOGBase
                         }
                         $primac = array_shift($macs);
                         $index = array_search('productKey', $dbkeys) + 1;
-                        $test_encryption = $this->aesdecrypt($data[$index]);
+                        $test_encryption = self::aesdecrypt($data[$index]);
                         if ($test_base64 = base64_decode($data[$index])) {
-                            $data[$index] = $this->aesencrypt($test_base64);
+                            $data[$index] = self::aesencrypt($test_base64);
                         } elseif (mb_detect_encoding(
                             $test_encryption,
                             'utf-8',
                             true
                         )
                         ) {
-                            $data[$index] = $this->aesencrypt($data[$index]);
+                            $data[$index] = self::aesencrypt($data[$index]);
                         }
                     }
                     if ($ItemMan->exists($data[$iterator])) {
@@ -3731,6 +3780,7 @@ abstract class FOGPage extends FOGBase
                             ->addAddMAC($macs);
                     }
                     if ($Item->save()) {
+                        $Item->load();
                         $totalRows++;
                         $itemCap = strtoupper($this->childClass);
                         $event = sprintf(

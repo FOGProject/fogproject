@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * @category MulticastSessionsManager
+ * @category MulticastSessionManager
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
@@ -13,13 +13,13 @@
 /**
  * Multicast session manager mass management class.
  *
- * @category MulticastSessionsManager
+ * @category MulticastSessionManager
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class MulticastSessionsManager extends FOGManagerController
+class MulticastSessionManager extends FOGManagerController
 {
     /**
      * The base table name.
@@ -88,7 +88,7 @@ class MulticastSessionsManager extends FOGManagerController
          * Get sessions's associated task IDs (if any)
          */
         $taskIDs = self::getSubObjectIDs(
-            'MulticastSessionsAssociation',
+            'MulticastSessionAssociation',
             array('msID' => $multicastsessionids),
             'taskID'
         );
@@ -117,7 +117,7 @@ class MulticastSessionsManager extends FOGManagerController
         /*
          * Perform change for alternative data
          */
-        $this->arrayChangeKey(
+        self::arrayChangeKey(
             $findWhere,
             'id',
             'msID'
@@ -125,7 +125,7 @@ class MulticastSessionsManager extends FOGManagerController
         /*
          * Remove the other entries
          */
-        self::getClass('MulticastSessionsAssociationManager')
+        self::getClass('MulticastSessionAssociationManager')
             ->destroy($findWhere);
     }
 }

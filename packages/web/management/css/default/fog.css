@@ -5,10 +5,13 @@
  *	Revision:	$Revision: 2734 $
  *	Last Update:	$LastChangedDate: 2014-12-03 08:04:29 -0500 (Wed, 03 Dec 2014) $
  ***/
-html, body {
+html,
+body
+{
     min-height: 440px;
 }
-body {
+body
+{
     margin: 21px;
     padding: 0;
     background: #fff url('images/body-bkg.gif') repeat-x;
@@ -17,66 +20,89 @@ body {
     color: #555;
 }
 /* Header elements */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6
+{
     margin: 10px 0;
     font-weight: normal;
     color: #4c68a0;
 }
-h1 {
+h1
+{
     font-size: 32px;
 }
-h2 {
+h2
+{
     font-size: 23px;
 }
-h3 {
+h3
+{
     font-size: 16px;
     font-weight: bold;
     line-height: 16px;
 }
 /* Links */
-a {
+a
+{
     text-decoration: none;
 }
-a:link, a:visited {
+a:link,
+a:visited
+{
     color: #7baa0f;
 }
-a:hover, a:active {
+a:hover,
+a:active
+{
     color: #003448;
 }
 /* Images */
-img {
+img
+{
     border: none;
 }
-img.left {
+img.left
+{
     float: left;
     margin-right: 15px;
 }
-img.right {
+img.right
+{
     float: right;
     margin-left: 15px;
 }
 /* Debug/Info elements */
-div[class^=debug-] {
+div[class^=debug-]
+{
     padding: 5px; margin: 2px 0;
     background: #fff;
     border-width: 2px;
     border-style: solid;
 }
-.debug-error {
+.debug-error
+{
     border-color: red;
 }
-.debug-info {
+.debug-info
+{
     border-color: blue;
 }
-.debug-hook {
+.debug-hook
+{
     border-color: magenta;
 }
 /* Form structure */
-form {
+form
+{
     margin: 0;
     padding: 0;
 }
-legend {
+legend
+{
     background: none repeat scroll 0 0 #94c3d3;
     border-bottom: 1px solid #94c3d3;
     border-radius: 3px 3px 0 0;
@@ -88,7 +114,8 @@ legend {
     position: absolute;
     text-shadow: 1px 1px 0 #6a97a6;
 }
-fieldset {
+fieldset
+{
     border: 1px solid #94C3D3;
     border-radius: 5px;
     -moz-border-radius: 5px;
@@ -105,7 +132,10 @@ fieldset {
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#dedede',GradientType=0); /* IE6-9 */
 }
 /* Form elements */
-input, textarea, select {
+input,
+textarea,
+select
+{
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     font-size: 13px;
     color: #333;
@@ -117,30 +147,51 @@ input, textarea, select {
     vertical-align: top;
     padding: 4px 4px;
 }
-select:not([name=ulang]):not([name=nodesel]):not([name=groupsel]) {
-    min-width: 220px;
-}
-input[type=text], input[type=search], input[type=password] {
+select:not([name=ulang]):not([name=nodesel]):not([name=groupsel])
+{
+    min-width: 210px;
+    max-width: 220px;
     width: 210px;
 }
-textarea {
+input[type=text],
+input[type=search],
+input[type=password]
+{
+    width: 210px;
+}
+textarea
+{
     width: 40em;
     height: 8em;
 }
-input[type=text]:focus, input[type=search]:focus, select:focus, textarea:focus {
+input[type=text]:focus,
+input[type=search]:focus,
+select:focus,
+textarea:focus
+{
     padding-right: 8px;
     border-color: #5372af;
 }
-input[type=text]:focus,input[type=search]:focus, select:not([name=nodesel]):not([name=groupsel]):not([name=ulang]):focus, textarea:focus {
+input[type=text]:focus,
+input[type=search]:focus,
+select:not([name=nodesel]):not([name=groupsel]):not([name=ulang]):focus,
+textarea:focus
+{
     background: #fff url('images/icon_pencil.png') no-repeat 98% center;
 }
-textarea:focus {
+textarea:focus
+{
     background-position: 95% 90%;
 }
-input[type=text]:hover, textarea:hover, select:hover {
+input[type=text]:hover,
+textarea:hover,
+select:hover
+{
     border-color: #5372af;
 }
-input[type=submit], input[type=button] {
+input[type=submit],
+input[type=button]
+{
     padding-bottom: 22px;
     border: 1px solid #eee;
     border-radius: 5px 5px 5px 5px;
@@ -166,82 +217,112 @@ input[type=submit], input[type=button] {
     background: linear-gradient(top,#94c3d3 0%,#6aa8dd 41%,#94c3d3 100%); /* W3C */
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#94c3d3',endColorstr='#94c3d3',GradientType=0); /* IE6-9 */
 }
-input[type=submit]:hover, input[type=button]:hover {
+input[type=submit]:hover,
+input[type=button]:hover
+{
     border: 1px solid #fff;
     text-shadow: 0 0 10px #fff,1px 1px 0 #6a97a6;
     box-shadow: 0 0 3px #fff,0 0 5px #666;
 }
-input[type=radio], input[type=checkbox] {
+input[type=radio],
+input[type=checkbox]
+{
     cursor: pointer;
     border: 0;
     background-image: none;
 }
-input.short {
+input.short
+{
     width: 30px;
 }
-#snapintemplate input:not([type="submit"]), #snapintemplate select {
+#snapintemplate input:not([type="submit"]),
+#snapintemplate select
+{
     width: 375px;
 }
-.placeholder {
+.placeholder
+{
     font-style: italic;
     color: #bbb;
     text-align: center;
 }
-select > option {
+select > option
+{
     border-bottom: 1px dashed #ccc;
     padding: 2px 5px;
 }
-label {
+label
+{
     cursor: pointer;
 }
-table tbody td input[type=submit] {
+table tbody td input[type=submit]
+{
     margin: 20px 0;
 }
 /* Form elements - inside of a fieldset */
-fieldset table tbody td {
+fieldset table tbody td
+{
     border-bottom: 1px solid #eee;
 }
-fieldset table tbody tr:last-child td {
+fieldset table tbody tr:last-child td
+{
     border-bottom: 0;
 }
-fieldset table tbody tr:first-child td {
+fieldset table tbody tr:first-child td
+{
     border-top: 0;
 }
-fieldset table tbody td input[type=checkbox] {
+fieldset table tbody td input[type=checkbox]
+{
     margin: 7px;
 }
-fieldset table tbody td input[type=submit] {
+fieldset table tbody td input[type=submit]
+{
     margin: 15px 0 10px 0;
 }
-fieldset table tbody td select {
+fieldset table tbody td select
+{
     min-width: 210px;
 }
 /* Menu */
-.menu {
+.menu
+{
     text-align: center;
     padding:0;
 }
-.menu .nav-list{
+.menu .nav-list
+{
     padding:0;
 }
-.nav-list .nav-item {
+.nav-list .nav-item
+{
     text-align: center;
     display: inline-block;
 }
-.nav-item .nav-link {
+.nav-item .nav-link
+{
     display: block;
     padding: 2px;
 }
-.nav-item .nav-link, a > i {
+.nav-item .nav-link,
+a > i
+{
     color: #00567a;
 }
-.nav-link:hover, .activelink > i, a:hover > i, .notifier, .notifier:hover {
+.nav-link:hover,
+.activelink > i,
+a:hover > i,
+.notifier,
+.notifier:hover
+{
     color: orange;
 }
-.nav-link > i {
+.nav-link > i
+{
     margin: 4px;
 }
-.nav-label {
+.nav-label
+{
     background: #333;
     color: #fff;
     -webkit-border-radius: 10px;
@@ -257,76 +338,90 @@ fieldset table tbody td select {
     height: 25px;
 }
 /* Structure */
-#wrapper {
+#wrapper
+{
     width: 850px;
     margin: 3px auto;
     min-height: 100%;
 }
-#content {
+#content
+{
     float: left;
     width: 620px;
     margin-top: 0;
     padding-bottom: 21px;
     background: url('images/content-bkg.png') no-repeat center top;
 }
-#content-inner {
+#content-inner
+{
     padding: 0 10px;
     padding-bottom: 21px;
 }
-#content h1 {
+#content h1
+{
     text-align: center;
     height: 50px;
     line-height: 50px;
     color: #666;
     margin: 0;
 }
-#content h2 {
+#content h2
+{
     font-size: 18px;
     text-align: center;
     margin: 7px 0;
     padding: 5px 0;
 }
-#content.dashboard {
+#content.dashboard
+{
     width: 795px;
     background-image: url('images/content-bkg-dashboard.png');
     float: none;
     margin: 0 auto;
 }
-#content-title.dashboard {
+#content-title.dashboard
+{
     width: 815px;
 }
 /* Header */
-header {
+header
+{
     width: 850px;
     padding-top: 5px;
     border-bottom: 1px solid #efefef;
 }
 /* Logo */
-#logo {
+#logo
+{
     height:100px
 }
-#logo h1 {
+#logo h1
+{
     font-size: 38px;
     color: #494949;
     width: 210px;
     text-align: left;
     margin-left: 50px;
 }
-#logo h1 a {
+#logo h1 a
+{
     color: #494949;
 }
-#logo h2 {
+#logo h2
+{
     font-size: 12px;
     color: #a0a0a0;
     position: relative;
     margin-top: 0;
     margin-left: 0;
 }
-#logo a {
+#logo a
+{
     text-decoration: none;
     display: block;
 }
-#version {
+#version
+{
     position: relative;
     top: -90px;
     left: 210px;
@@ -334,7 +429,8 @@ header {
     vertical-align: text-top;
 }
 /* Footer */
-#footer {
+#footer
+{
     height: 21px;
     padding: 0;
     margin-top: 5px;
@@ -351,48 +447,58 @@ header {
     line-height: 21px;
 }
 /* Sidebar */
-#sidebar {
+#sidebar
+{
     float: left;
     width: 195px;
     border-right: 1px solid #efefef;
     padding-right: 10px;
     padding-bottom: 21px;
 }
-#sidebar ul {
+#sidebar ul
+{
     margin: 0;
     padding: 0;
     list-style: none;
     margin-bottom: 20px;
 }
-#sidebar li {
+#sidebar li
+{
     font-size: 13px;
     line-height: 18px;
 }
-#sidebar li li {
+#sidebar li li
+{
     margin: 0;
 }
-#sidebar h2 {
+#sidebar h2
+{
     margin: 0 0 10px 0;
     border-bottom: 1px solid #efefef;
     font-size: 16px;
     color: #666;
 }
 /* Search */
-#search h2 {
+#search h2
+{
     margin-bottom: 20px;
 }
-#search-wrapper {
+#search-wrapper
+{
     text-align: center;
 }
-#search-wrapper .search-input {
+#search-wrapper .search-input
+{
     width: 150px;
     height: 21px;
     background: #fff;
 }
-#search-wrapper .search-input:focus {
+#search-wrapper .search-input:focus
+{
     padding-right: 8px;
 }
-#search-wrapper .search-submit {
+#search-wrapper .search-submit
+{
     min-width: 30px;
     width: 30px;
     height: 30px;
@@ -402,18 +508,22 @@ header {
     background: transparent; /* Old browsers */
     border-color: #94c3d3 #5372af #5372af #94c3d3;
 }
-#search-wrapper .search-submit:active {
+#search-wrapper .search-submit:active
+{
     border-color: #5372af #94c3d3 #94c3d3 #5372af;
 }
-#search-wrapper .search-submit > i {
+#search-wrapper .search-submit > i
+{
     color: #00567a;
 }
-#search-content {
+#search-content
+{
     margin-top: 10px;
     display: none;
 }
 /* Notes */
-#sidenotes {
+#sidenotes
+{
     background: #fff;
     border: 1px solid #bbb;
     padding: 10px;
@@ -424,32 +534,41 @@ header {
     margin-bottom: 10px;
     box-shadow: 0 0 10px #bbb;
 }
-#sidenotes h3 {
+#sidenotes h3
+{
     margin: 0;
     clear: both;
     font-size: 13px;
 }
-#sidenotes p {
+#sidenotes p
+{
     max-width: 120px;
 }
 /* Table */
-table {
+table
+{
     padding-bottom: 22px;
 }
-table textarea {
+table textarea
+{
     width: 100%;
 }
-table p {
+table p
+{
     line-height: 15px;
     margin: 2px 0;
 }
-table tr td:first-child, table tr td:last-child {
+table tr td:first-child,
+table tr td:last-child
+{
     padding-right: 0px 0px;
 }
-table td .icon {
+table td .icon
+{
     margin: 0 3px;
 }
-.header {
+.header
+{
     padding: 8px;
     border: 0;
     background: #7386ad;
@@ -460,55 +579,70 @@ table td .icon {
     -moz-border-radius: 3px 3px 0 0;
     -webkit-border-radius: 3px 3px 0 0;
 }
-table tr.header {
+table tr.header
+{
     color: #ededed;
 }
-table tr.header th {
+table tr.header th
+{
     padding: 8px;
     border: 0;
     background: #7386ad;
 }
-table tr.header th:first-child {
+table tr.header th:first-child
+{
     border-radius: 3px 0 0 0;
     -moz-border-radius: 3px 0 0 0;
     -webkit-border-radius: 3px 0 0 0;
 }
-table tr.header th:last-child {
+table tr.header th:last-child
+{
     border-radius: 0 3px 0 0;
     -moz-border-radius: 0 3px 0 0;
     -webkit-border-radius: 0 3px 0 0;
 }
-table tr.header th.toggle {
+table tr.header th.toggle
+{
     width: 25px;
 }
-table tr.header th.edit {
+table tr.header th.edit
+{
     width: 25px;
 }
-table tr.header th.ping {
+table tr.header th.ping
+{
     width: 25px;
 }
-table tr td {
+table tr td
+{
     border-bottom: 1px dashed #ddd;
 }
-table tr:last-child td {
+table tr:last-child td
+{
     border-bottom: 0;
 }
-table tr.header a {
+table tr.header a
+{
     color: #ededed;
 }
-.tablesorter .filtered, input[type=search].disabled {
+.tablesorter .filtered,
+input[type=search].disabled
+{
     display: none;
 }
-pre {
+pre
+{
     white-space: pre-wrap;
 }
-.code {
+.code
+{
     font-family: monospace;
     font-size: 13px;
     line-height: 16px;
 }
 /* Loader */
-#loader-wrapper {
+#loader-wrapper
+{
     z-index: 2;
     position: absolute;
     min-width: 150px;
@@ -518,10 +652,12 @@ pre {
     padding: 5px;
     min-height: 50px;
 }
-#loader-wrapper * {
+#loader-wrapper *
+{
     cursor: default;
 }
-#loader {
+#loader
+{
     display: none;
     border: 1px solid #bbb;
     background: #fff;
@@ -534,43 +670,57 @@ pre {
     vertical-align: middle;
     margin: auto auto;
 }
-#loader > i, #loader p {
+#loader > i,
+#loader p
+{
     margin: auto;
     display: inline-block;
 }
-#loader > .fa-exclamation-circle {
+#loader > .fa-exclamation-circle
+{
     color: #00567a;
 }
-#loader p {
+#loader p
+{
     line-height: 15px;
     margin: 10px;
 }
-#progress {
+#progress
+{
     text-align: center;
     margin-bottom: 5px;
 }
-.padded {
+.padded
+{
     margin: 4px;
 }
-.bolder {
+.bolder
+{
     font-weight: bold;
 }
-.hidden {
+.hidden
+{
     display: none;
 }
 /* Action Boxes */
-#action-box, #action-boxdel {
+#action-box,
+#action-boxdel
+{
     display: none;
     margin: 20px 10px 0 10px;
     padding: 10px;
     border: 1px solid #ccc;
     background-color: #efefef;
 }
-#action-box p, #action-boxdel p {
+#action-box p,
+#action-boxdel p
+{
     margin: 5px 0;
     line-height: 18px;
 }
-#action-box label, #action-boxdel label {
+#action-box label,
+#action-boxdel label
+{
     float: left;
     margin: 3px 0;
     width: 200px;
@@ -578,7 +728,8 @@ pre {
     margin-right: 15px;
 }
 /* Dashboard Page */
-.dashboard {
+.dashboard
+{
     background-color: transparent;
     background-image: url('images/statusbg.jpg');
     margin: 5px 5px 6px 0;
@@ -587,53 +738,71 @@ pre {
     overflow: hidden;
     display: inline-block;
 }
-.dashboard p {
+.dashboard p
+{
     vertical-align: center;
     text-align: center;
     line-height: 15px;
     margin: 2px;
 }
-.dashboard p.infoTitle {
+.dashboard p.infoTitle
+{
     padding: 0px;
     margin: 0 0 4px 0;
     font-weight: bold;
     background-color: #bcbcbc;
 }
 /* Login Form */
-#login-form {
-    margin: 20px auto;
-    width: 300px;
+#loginform
+{
+    display: table
 }
-#login-form label {
-    float: left;
-    margin: 3px 0;
-    width: 80px;
+#login-form
+{
+    margin: 20px auto;
+    width: 600px;
+    text-align: center;
+    vertical-align: middle;
+}
+#login-form label
+{
+    clear: right;
+    display: inline-block;
+    text-align: right;
+    margin: 3px 5px;
+    width: 200px;
     font-size: 16px;
 }
-#login-form .input {
-    clear: right;
-    display: block;
-    margin: 5px 0 5px 0;
+#login-form .input
+{
+    clear: left;
     padding: 4px;
     border: 1px solid #666;
     width: 210px;
 }
-#login-form input[type=text]:focus, #login-form input[type=password]:focus {
+#login-form input[type=text]:focus,
+#login-form input[type=password]:focus
+{
     background-image: none;
     width: 210px;
 }
-#login-form select {
+#login-form select
+{
+    clear: left;
     border: 1px solid #666;
-    width: 210px;
+    width: 220px;
 }
-#login-form-submit {
-    min-width: 210px;
-    margin: 10px 10px 0 0;
+#login-form-submit
+{
+    min-width: 220px;
+    margin: 10px 5px;
 }
-#login-form-submit:hover {
+#login-form-submit:hover
+{
     border: 1px solid #fff;
 }
-#login-form-info {
+#login-form-info
+{
     text-align: center;
     margin: 0 auto;
     padding: 10px;
@@ -643,64 +812,80 @@ pre {
     color: #333;
     font-size: 12px;
     box-shadow: 0 0 10px #bbb;
-    margin-top: 50px;
+    margin-top: 10px;
     border-radius: 3px;
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
 }
-#login-form-info p {
+#login-form-info p
+{
     margin: 0;
 }
-#login-form-info b {
+#login-form-info b
+{
     color: #00567A;
 }
-#login-form-info .icon {
+#login-form-info .icon
+{
     vertical-align: text-bottom;
 }
 /* Message and variable do not display */
-.fog-variable, .fog-message-box {
+.fog-variable,
+.fog-message-box
+{
     display: none;
 }
 /* Aligns */
-.v {
+.v
+{
     writing-mode: tb-rl;
     -webkit-transform: rotate(90deg);
     -moz-transform: rotate(90deg);
     -o-transform: rotate(90deg);
 }
-.c {
+.c
+{
     text-align: center;
 }
-.l {
+.l
+{
     text-align: left;
 }
-.r {
+.r
+{
     text-align: right;
 }
-.margin-bottom {
+.margin-bottom
+{
     margin-bottom: 10px !important;
 }
 /* Icons */
-.icon {
+.icon
+{
     outline: 0;
     border: 0;
     display: inline-block;
 }
-.hand {
+.hand
+{
     cursor: pointer;
 }
 /* Hosts - Edit */
-.pending-mac .mac {
+.pending-mac .mac
+{
     padding-right: 26px;
 }
-.mac-manufactor {
+.mac-manufactor
+{
     padding-left: 8px;
 }
 /* Tasks - Active */
-.with-progress td {
+.with-progress td
+{
     border: 0;
 }
-.task-progress-td {
+.task-progress-td
+{
     color: #fff;
     padding: 0;
     font-size: 10px;
@@ -709,7 +894,8 @@ pre {
     height: 25px;
     background: #6f9dcf;
 }
-.task-progress-td {
+.task-progress-td
+{
     color: #fff;
     padding: 0;
     font-size: 10px;
@@ -718,26 +904,32 @@ pre {
     height: 25px;
     background: #6f9dcf;
 }
-.task-progress-td .min {
+.task-progress-td .min
+{
     height: 25px;
 }
-.task-progress-td .no-min {
+.task-progress-td .no-min
+{
     height: 25px;
 }
-.task-progress-fill {
+.task-progress-fill
+{
     background: #5cdb65;
     position: absolute;
     z-index: 2;
     width: 300px;
     height: 25px;
 }
-.task-progress-fill.min {
+.task-progress-fill.min
+{
     height: 25px;
 }
-.task-progress {
+.task-progress
+{
     height: 100%;
 }
-.task-progress ul {
+.task-progress ul
+{
     margin: 5px;
     padding: 0;
     position: absolute;
@@ -747,35 +939,42 @@ pre {
     display: block;
     cursor: default;
 }
-.task-progress ul:hover {
+.task-progress ul:hover
+{
     display: block;
 }
-.task-progress ul li {
+.task-progress ul li
+{
     float: left;
     width: 33%;
     display: block;
     height: 18px;
 }
 /* Dashboard - Graph */
-.graph {
+.graph
+{
     height: 160px;
 }
-.graph.loaded {
+.graph.loaded
+{
     background-image: none;
 }
-.graph.pie-graph {
+.graph.pie-graph
+{
     height: 120px;
     margin: 5px 0 0 0;
 }
 /* Dashboard - 3 row boxes */
-#dashboard-boxes {
+#dashboard-boxes
+{
     list-style: none;
     padding: 0 2px;
     margin-bottom: 10px;
     height: 180px;
     font-size: 12px;
 }
-#dashboard-boxes li {
+#dashboard-boxes li
+{
     border: 2px solid #c7cede;
     float: left;
     width: 242px;
@@ -787,7 +986,8 @@ pre {
     -webkit-border-radius: 5px;
     overflow: hidden;
 }
-#dashboard-boxes li h4 {
+#dashboard-boxes li h4
+{
     text-align: center;
     background: #c7cede;
     padding: 5px;
@@ -798,15 +998,18 @@ pre {
     -moz-border-radius: 2px;
     -webkit-border-radius: 2px;
 }
-#dashboard-boxes li p {
+#dashboard-boxes li p
+{
     margin: 0;
     line-height: 20px;
 }
-#dashboard-boxes table td {
+#dashboard-boxes table td
+{
     padding: 4px 5px;
 }
 /* Dashboard - Disk usage graph */
-#diskusage-selector {
+#diskusage-selector
+{
     width: 240px;
     position: absolute;
     z-index: 1;
@@ -814,25 +1017,30 @@ pre {
     margin-top: 3px;
 }
 /* margin-top: -22px to move the select box into the header */
-#diskusage-selector select,#graph-activity-selector select {
+#diskusage-selector select,
+#graph-activity-selector select
+{
     font-size: 10px;
     border: 1px solid #666;
     padding: 0;
     /*margin-top: -22px;*/
 }
 /* Dashboard - Bandwidth Graph */
-#graph-bandwidth {
+#graph-bandwidth
+{
     margin-top: 20px;
     z-index: 0;
 }
-#graph-bandwidth-filters {
+#graph-bandwidth-filters
+{
     border: 0px solid red;
     width: 721px;
     z-index: 1;
     margin-top: -6px;
     padding-left: 50px;
 }
-#graph-bandwidth-filters a {
+#graph-bandwidth-filters a
+{
     background: #666;
     color: #fff;
     font-size: 10px;
@@ -840,49 +1048,63 @@ pre {
     padding: 2px 5px;
     text-decoration: none;
 }
-#graph-bandwidth-filters a.active, #graph-bandwidth-filters a:hover {
+#graph-bandwidth-filters a.active,
+#graph-bandwidth-filters a:hover
+{
     background: #888;
 }
-#graph-bandwidth-filters .l {
+#graph-bandwidth-filters .l
+{
     position: relative;
     float: left;
     left: 2px;
 }
-#graph-bandwidth-filters .r {
+#graph-bandwidth-filters .r
+{
     position: relative;
     float: right;
     right: 10px;
 }
-.primary, .default {
+.primary, .default
+{
     display: none;
 }
-.primary + label, .default + label {
+.primary + label,
+.default + label
+{
     background: url('images/no.png') no-repeat;
     height: 100%;
     width: 100%;
     display: inline-block;
     padding: 0 0 0 0px;
 }
-.primary:checked + label, .default:checked + label {
+.primary:checked + label,
+.default:checked + label
+{
     background: url('images/yes.png') no-repeat;
     height: 100%;
     width: 100%;
     display: inline-block;
     padding: 0 0 0 0px;
 }
-.delid, .delvid {
+.delid,
+.delvid
+{
     display: none;
 }
-#additionalMACsRow {
+#additionalMACsRow
+{
     display: none;
 }
 /* Task Confirmations */
-#deploy-container {
+#deploy-container
+{
     margin: 0 auto;
     width: 350px;
     padding: 5px 5px;
 }
-.advanced-settings {
+.advanced-settings
+{
     border: 1px solid #ccc;
     background: #efefef;
     margin: 0 auto;
@@ -892,7 +1114,8 @@ pre {
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
 }
-.advanced-settings h2 {
+.advanced-settings h2
+{
     text-align: center;
     background: #e9e9e9;
     padding: 5px 0;
@@ -905,39 +1128,51 @@ pre {
     -moz-border-radius: 0;
     -webkit-border-radius: 0;
 }
-#deploy-container input[type=text]:focus {
+#deploy-container input[type=text]:focus
+{
     padding: 4px 8px;
     background-image: none;
 }
-#deploy-container input[type=checkbox] {
+#deploy-container input[type=checkbox]
+{
     vertical-align: middle;
 }
-.error {
+.error
+{
     border: 1px solid red;
 }
-#deploy-container #cronOptions {
+#deploy-container #cronOptions
+{
     text-align: center;
 }
-#deploy-container #cronOptions input, #deploy-container #cronOptions input:focus {
+#deploy-container #cronOptions input,
+#deploy-container #cronOptions input:focus
+{
     width: 37px;
     text-align: center;
 }
-#deploy-container #scheduleSingleTime {
+#deploy-container #scheduleSingleTime
+{
     width: 150px;
     margin: 0 auto;
     text-align: center;
     display: block;
     cursor: pointer;
 }
-.deploy-container #cronOptions {
+.deploy-container #cronOptions
+{
     text-align: left;
 }
-.deploy-container #cronOptions input, .deploy-container #cronOptions input:focus {
+.deploy-container #cronOptions input,
+.deploy-container #cronOptions input:focus
+{
     width: 37px;
     text-align: left;
 }
 /* Task Start Info */
-.task-start-ok, .task-start-failed {
+.task-start-ok,
+.task-start-failed
+{
     border: 2px solid;
     font-size: 16px;
     padding: 20px;
@@ -947,17 +1182,20 @@ pre {
     margin: 0 0 5px 0;
     text-align: center;
 }
-.task-start-ok {
+.task-start-ok
+{
     border-color: #008000;
     background-color: #dfffdf;
     color: #008000;
 }
-.task-start-failed {
+.task-start-failed
+{
     border-color: #ff0000;
     background-color: #ffd8d8;
     color: #ff0000;
 }
-.confirm-message {
+.confirm-message
+{
     padding: 10px;
     margin: 5px 10px;
     min-height: 50px;
@@ -970,15 +1208,18 @@ pre {
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
 }
-.confirm-message p {
+.confirm-message p
+{
     margin: 5px 0;
     line-height: 24px;
 }
-.no-active-tasks {
+.no-active-tasks
+{
     padding: 15px 0;
     text-align: center;
 }
-.task-name {
+.task-name
+{
     float: right;
     background: #efefef url('images/icon-task.png') no-repeat 3px center;
     border: 1px solid #ccc;
@@ -991,54 +1232,68 @@ pre {
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
 }
-.task-action {
+.task-action
+{
     text-align: center;
     width: 100px;
 }
-.task-action a {
+.task-action a
+{
     display: block;
 }
-tbody td.small {
+tbody td.small
+{
     font-size: 10px;
 }
-.ui-dialog-titlebar-close {
+.ui-dialog-titlebar-close
+{
     visibility: hidden;
 }
 /* Timepicker */
-.ui-timepicker-div .ui-widget-header {
+.ui-timepicker-div .ui-widget-header
+{
     margin-bottom: 8px;
 }
-.ui-timepicker-div dl {
+.ui-timepicker-div dl
+{
     text-align: left;
 }
-.ui-timepicker-div dl dt {
+.ui-timepicker-div dl dt
+{
     float: left;
     clear: left;
     padding: 0 0 0 5px;
 }
-.ui-timepicker-div dl dd {
+.ui-timepicker-div dl dd
+{
     margin: 0 10px 10px 45%;
 }
-.ui-timepicker-div td {
+.ui-timepicker-div td
+{
     font-size: 90%;
 }
-.ui-tpicker-grid-label {
+.ui-tpicker-grid-label
+{
     background: none;
     border: none;
     margin: 0;
     padding: 0;
 }
-.ui-timepicker-rtl{
+.ui-timepicker-rtl
+{
     direction: rtl;
 }
-.ui-timepicker-rtl dl {
+.ui-timepicker-rtl dl
+{
     text-align: right;
     padding: 0 5px 0 0;
 }
-.ui-timepicker-rtl dl dt {
+.ui-timepicker-rtl dl dt
+{
     float: right;
     clear: right;
 }
-.ui-timepicker-rtl dl dd {
+.ui-timepicker-rtl dl dd
+{
     margin: 0 45% 10px 10px;
 }

@@ -155,14 +155,13 @@ $file = sprintf(
 );
 $lines = $_POST['lines'];
 $reverse = $_POST['reverse'];
-$ip = $FOGCore->aesdecrypt($ip);
-$ip = $FOGCore->resolveHostname($ip);
+$ip = FOGCore::aesdecrypt($ip);
+$ip = FOGCore::resolveHostname($ip);
 $ip = trim($ip);
 if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
     return print json_encode(_('IP Passed is incorrect'));
 }
-$pat = sprintf('#%s#', $ip);
-if (preg_match($pat, $_SERVER['HTTP_HOST'])) {
+if (false !== strpos(filter_input(INPUT_SERVER, 'HTTP_HOST'), $ip)) {
     $str = vals(
         $reverse,
         $HookManager,
@@ -177,7 +176,7 @@ $url = sprintf(
     $ip
 );
 $process = array(
-    'ip' => $FOGCore->aesencrypt($ip),
+    'ip' => FOGCore::aesencrypt($ip),
     'file' => $file,
     'lines' => $lines,
     'reverse' => $reverse

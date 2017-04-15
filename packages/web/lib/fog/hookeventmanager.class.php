@@ -1,23 +1,24 @@
 <?php
 /**
- * Redirects calls to service/index.php to main page.
+ * Hook Event handler class (informative).
  *
  * PHP version 5
  *
- * @category Redirect
+ * @category HookEventManager
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
 /**
- * Redirects calls to service/index.php to main page.
+ * Hook event manager handler class (informative).
  *
- * @category Redirect
+ * @category HookEventManager
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-header('Location: ../management/index.php');
-exit;
+class HookEventManager extends FOGManagerController
+{
+}

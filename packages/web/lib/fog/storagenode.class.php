@@ -329,7 +329,7 @@ class StorageNode extends FOGController
             return $countTasks;
         }
         $MulticastCount = self::getSubObjectIDs(
-            'MulticastSessionsAssociation',
+            'MulticastSessionAssociation',
             array(
                 'taskID' => self::getSubObjectIDs(
                     'Task',
@@ -365,7 +365,7 @@ class StorageNode extends FOGController
             return $countTasks;
         }
         $MulticastCount = self::getSubObjectIDs(
-            'MulticastSessionsAssociation',
+            'MulticastSessionAssociation',
             array(
                 'taskID' => self::getSubObjectIDs(
                     'Task',

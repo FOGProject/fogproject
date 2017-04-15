@@ -38,14 +38,12 @@ class LoadGlobals extends FOGBase
             return;
         }
         $GLOBALS['FOGFTP'] = new FOGFTP();
-        $GLOBALS['DB'] = FOGCore::getClass('DatabaseManager')
-            ->establish()
-            ->getDB();
+        DatabaseManager::establish();
+        $GLOBALS['DB'] = DatabaseManager::getDB();
         $GLOBALS['FOGCore'] = new FOGCore();
-        FOGCore::setSessionEnv();
-        $GLOBALS['TimeZone'] = $_SESSION['TimeZone'];
-        if (isset($_SESSION['FOG_USER'])) {
-            $GLOBALS['currentUser'] = new User($_SESSION['FOG_USER']);
+        FOGCore::setEnv();
+        if (session_status() != PHP_SESSION_NONE) {
+            $GLOBALS['currentUser'] = new User((int)$_SESSION['FOG_USER']);
         } else {
             $GLOBALS['currentUser'] = new User(0);
         }

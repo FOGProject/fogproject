@@ -234,7 +234,7 @@ class ImageReplicator extends FOGService
                     $Postdown,
                     $Postinit
                 );
-                /*foreach ($extrascripts as $scripts) {
+                foreach ($extrascripts as $scripts) {
                     self::outall(
                         sprintf(
                             ' | %s %s',
@@ -249,7 +249,7 @@ class ImageReplicator extends FOGService
                         false,
                         $scripts
                     );
-                }*/
+                }
                 foreach ($Images as &$Image) {
                     if (!$Image->getPrimaryGroup($myStorageGroupID)) {
                         self::outall(

@@ -55,7 +55,7 @@ class ImageManagementPage extends FOGPage
         /**
          * If we want the Server size taken by the image.
          */
-        $SizeServer = $_SESSION['FOG_FTP_IMAGE_SIZE'];
+        $SizeServer = self::getSetting('FOG_FTP_IMAGE_SIZE');
         /**
          * Get our nicer names.
          */
@@ -126,17 +126,10 @@ class ImageManagementPage extends FOGPage
             '',
             '<input type="checkbox" name="toggle-checkbox" '
             . 'class="toggle-checkboxAction"/>',
-            sprintf(
-                '%s<br/>'
-                . '<small>%s: %s</small><br/>'
-                . '<small>%s</small><br/>'
-                . '<small>%s</small>',
-                _('Image Name'),
-                _('Storage Group'),
-                _('OS'),
-                _('Image Type'),
-                _('Partition')
-            ),
+            _('Image Name'),
+            _('Storage Group'),
+            _('OS'),
+            _('Partition'),
             _('Image Size: ON CLIENT'),
         );
         /**
@@ -154,7 +147,6 @@ class ImageManagementPage extends FOGPage
          */
         array_push(
             $this->headerData,
-            _('Format'),
             _('Captured')
         );
         /**
@@ -167,12 +159,14 @@ class ImageManagementPage extends FOGPage
             sprintf(
                 '<a href="?node=%s&sub=edit&id=${id}" title="%s: '
                 . '${name} Last captured: ${deployed}">${name} - '
-                . '${id}</a><br/><small>${storageGroup}: ${os}'
-                . '</small><br/><small>${image_type}</small>'
-                . '<br/><small>${image_partition_type}</small>',
+                . '${id}</a><br/><small>${image_type}</small><br/>'
+                . '<small>${type}</small>',
                 $this->node,
                 _('Edit')
             ),
+            '${storageGroup}',
+            '${os}',
+            '${image_partition_type}',
             '${size}',
         );
         /**
@@ -190,7 +184,6 @@ class ImageManagementPage extends FOGPage
          */
         array_push(
             $this->templates,
-            '${type}',
             '${deployed}'
         );
         /**
@@ -205,10 +198,10 @@ class ImageManagementPage extends FOGPage
                 'width' => 16,
                 'class' => 'l filter-false'
             ),
-            array(
-                'width' => 50,
-                'class' => 'l'
-            ),
+            array(),
+            array(),
+            array(),
+            array(),
             array(
                 'width' => 50,
                 'class' => 'c'
@@ -232,14 +225,7 @@ class ImageManagementPage extends FOGPage
          */
         array_push(
             $this->attributes,
-            array(
-                'width' => 50,
-                'class' => 'c'
-            ),
-            array(
-                'width' => 50,
-                'class' => 'c'
-            )
+            array()
         );
         /**
          * Lambda functino to manage the output
@@ -253,7 +239,7 @@ class ImageManagementPage extends FOGPage
             /**
              * Stores the image on client size.
              */
-            $imageSize = $this->formatByteSize(
+            $imageSize = self::formatByteSize(
                 array_sum(
                     explode(
                         ':',
@@ -320,7 +306,7 @@ class ImageManagementPage extends FOGPage
              * If size on server we get our function.
              */
             if ($SizeServer) {
-                $serverSize = $this->formatByteSize($Image->get('srvsize'));
+                $serverSize = self::formatByteSize($Image->get('srvsize'));
             }
             /**
              * If the image is not protected show
@@ -343,27 +329,27 @@ class ImageManagementPage extends FOGPage
              * be using partclone otherwise partimage.
              */
             switch ($Image->get('format')) {
-                case 0:
-                    $type = _('Partclone Compressed');
-                    break;
-                case 1:
-                    $type = _('Partimage');
-                    break;
-                case 2:
-                    $type = _('Partclone Compressed 200MiB split');
-                    break;
-                case 3:
-                    $type = _('Partclone Uncompressed');
-                    break;
-                case 4:
-                    $type = _('Partclone Uncompressed 200MiB split');
-                    break;
-                case 5:
-                    $type = _('ZSTD Compressed');
-                    break;
-                case 6:
-                    $type = _('ZSTD Compressed 200MiB split');
-                    break;
+            case 0:
+                $type = _('Partclone Compressed');
+                break;
+            case 1:
+                $type = _('Partimage');
+                break;
+            case 2:
+                $type = _('Partclone Compressed 200MiB split');
+                break;
+            case 3:
+                $type = _('Partclone Uncompressed');
+                break;
+            case 4:
+                $type = _('Partclone Uncompressed 200MiB split');
+                break;
+            case 5:
+                $type = _('ZSTD Compressed');
+                break;
+            case 6:
+                $type = _('ZSTD Compressed 200MiB split');
+                break;
             }
             /**
              * Store the data.
@@ -704,8 +690,8 @@ class ImageManagementPage extends FOGPage
                 array('Image' => &$Image)
             );
         unset($Image);
-        $this->setMessage($msg);
-        $this->redirect($url);
+        self::setMessage($msg);
+        self::redirect($url);
     }
     /**
      * Edit this image
@@ -1233,8 +1219,8 @@ class ImageManagementPage extends FOGPage
                 $hook,
                 array('Image' => &$this->obj)
             );
-        $this->setMessage($msg);
-        $this->redirect($this->formAction);
+        self::setMessage($msg);
+        self::redirect($this->formAction);
     }
     /**
      * Presents the form to created named multicast
@@ -1342,7 +1328,7 @@ class ImageManagementPage extends FOGPage
                 (array) self::getProgressState()
             )
         );
-        foreach ((array)self::getClass('MulticastSessionsManager')
+        foreach ((array)self::getClass('MulticastSessionManager')
             ->find($find) as &$MulticastSession
         ) {
             $Image = $MulticastSession->getImage();
@@ -1392,7 +1378,7 @@ class ImageManagementPage extends FOGPage
             if (!$_REQUEST['image']) {
                 throw new Exception(_('Please choose an image'));
             }
-            if (self::getClass('MulticastSessionsManager')->exists($name)) {
+            if (self::getClass('MulticastSessionManager')->exists($name)) {
                 throw new Exception(_('Session with that name already exists'));
             }
             if (self::getClass('HostManager')->exists($name)) {
@@ -1403,7 +1389,7 @@ class ImageManagementPage extends FOGPage
             if (is_numeric($_REQUEST['timeout']) && $_REQUEST['timeout'] > 0) {
                 self::setSetting('FOG_UDPCAST_MAXWAIT', $_REQUEST['timeout']);
             }
-            $countmc = self::getClass('MulticastSessionsManager')
+            $countmc = self::getClass('MulticastSessionManager')
                 ->count(
                     array(
                         'stateID' => self::fastmerge(
@@ -1429,7 +1415,7 @@ class ImageManagementPage extends FOGPage
                     )
                 );
             }
-            $MulticastSession = self::getClass('MulticastSessions')
+            $MulticastSession = self::getClass('MulticastSession')
                 ->set('name', $name)
                 ->set('port', self::getSetting('FOG_UDPCAST_STARTINGPORT'))
                 ->set('image', $Image->get('id'))
@@ -1442,14 +1428,14 @@ class ImageManagementPage extends FOGPage
                 ->set('storagegroupID', $StorageNode->get('id'))
                 ->set('clients', -2);
             if (!$MulticastSession->save()) {
-                $this->setMessage(_('Failed to create Session'));
+                self::setMessage(_('Failed to create Session'));
             }
             $randomnumber = mt_rand(24576, 32766)*2;
             while ($randomnumber == $MulticastSession->get('port')) {
                 $randomnumber = mt_rand(24576, 32766)*2;
             }
             self::setSetting('FOG_UDPCAST_STARTINGPORT', $randomnumber);
-            $this->setMessage(
+            self::setMessage(
                 sprintf(
                     '%s<br/>%s %s %s',
                     _('Multicast session created'),
@@ -1459,9 +1445,9 @@ class ImageManagementPage extends FOGPage
                 )
             );
         } catch (Exception $e) {
-            $this->setMessage($e->getMessage());
+            self::setMessage($e->getMessage());
         }
-        $this->redirect(
+        self::redirect(
             sprintf(
                 '?node=%s&sub=multicast',
                 $this->node
@@ -1476,10 +1462,10 @@ class ImageManagementPage extends FOGPage
     public function stop()
     {
         if ($_REQUEST['mcid'] < 1) {
-            $this->redirect(sprintf('?node=%s&sub=multicast', $this->node));
+            self::redirect(sprintf('?node=%s&sub=multicast', $this->node));
         }
-        self::getClass('MulticastSessionsManager')->cancel($_REQUEST['mcid']);
-        $this->setMessage(
+        self::getClass('MulticastSessionManager')->cancel($_REQUEST['mcid']);
+        self::setMessage(
             sprintf(
                 '%s%s',
                 _('Cancelled task'),
@@ -1490,6 +1476,6 @@ class ImageManagementPage extends FOGPage
                 )
             )
         );
-        $this->redirect(sprintf('?node=%s&sub=multicast', $this->node));
+        self::redirect(sprintf('?node=%s&sub=multicast', $this->node));
     }
 }

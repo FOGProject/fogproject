@@ -28,7 +28,7 @@ class ServiceModule extends FOGClient implements FOGClientSend
      */
     public function send()
     {
-        $mods = $this->getGlobalModuleStatus(
+        $mods = self::getGlobalModuleStatus(
             false,
             true
         );
@@ -55,19 +55,19 @@ class ServiceModule extends FOGClient implements FOGClientSend
         );
         $globalModules = (
             !self::$newService ?
-            $this->getGlobalModuleStatus(
+            self::getGlobalModuleStatus(
                 false,
                 true
             ) :
             array_diff(
-                $this->getGlobalModuleStatus(
+                self::getGlobalModuleStatus(
                     false,
                     true
                 ),
                 $remArr
             )
         );
-        $globalInfo = $this->getGlobalModuleStatus();
+        $globalInfo = self::getGlobalModuleStatus();
         $globalDisabled = array();
         foreach ((array)$globalInfo as $key => &$en) {
             if (self::$newService && in_array($key, $remArr)) {

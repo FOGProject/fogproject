@@ -36,8 +36,8 @@ class HostnameChanger extends FOGClient implements FOGClientSend
      */
     public function json()
     {
-        $password = $this->aesdecrypt($this->Host->get('ADPass'));
-        $productKey = $this->aesdecrypt($this->Host->get('productKey'));
+        $password = self::aesdecrypt($this->Host->get('ADPass'));
+        $productKey = self::aesdecrypt($this->Host->get('productKey'));
         $username = trim($this->Host->get('ADUser'));
         if (strpos($username, chr(92))
             || strpos($username, chr(64))
