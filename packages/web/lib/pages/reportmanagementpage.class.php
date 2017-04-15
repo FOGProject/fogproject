@@ -35,10 +35,20 @@ class ReportManagementPage extends FOGPage
     private static function _loadCustomReports()
     {
         $regext = '#^.+/reports/.*\.report\.php$#';
-        $dirpath = self::getSetting('FOG_REPORT_DIR');
+        $dirpath = '/reports/';
         $strlen = -strlen('.report.php');
+        $plugins = '';
+        $fileitems = function ($element) use ($dirpath, &$plugins) {
+            preg_match(
+                "#^($plugins.+/plugins/)(?=.*$dirpath).*$#",
+                $element[0],
+                $match
+            );
+
+            return $match[0];
+        };
         $RecursiveDirectoryIterator = new RecursiveDirectoryIterator(
-            $dirpath,
+            BASEPATH,
             FileSystemIterator::SKIP_DOTS
         );
         $RecursiveIteratorIterator = new RecursiveIteratorIterator(
@@ -55,12 +65,33 @@ class ReportManagementPage extends FOGPage
             $RecursiveIteratorIterator,
             $RegexIterator
         );
+        $plugins = '?!';
+        $tFiles = array_map($fileitems, (array) $files);
+        $fFiles = array_filter($tFiles);
+        $normalfiles = array_values($fFiles);
+        unset($tFiles, $fFiles);
+        $plugins = '?=';
+        $grepString = sprintf(
+            '#/(%s)/#',
+            implode(
+                '|',
+                self::$pluginsinstalled
+            )
+        );
+        $tFiles = array_map($fileitems, (array) $files);
+        $fFiles = preg_grep($grepString, $tFiles);
+        $pluginfiles = array_values($fFiles);
+        unset($tFiles, $fFiles, $files);
+        $files = array_merge(
+            $normalfiles,
+            $pluginfiles
+        );
         $getNiceNameReports = function ($element) use ($strlen) {
             return str_replace(
                 '_',
                 ' ',
                 substr(
-                    basename($element[0]),
+                    basename($element),
                     0,
                     $strlen
                 )

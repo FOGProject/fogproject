@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-15 10:54-0400\n"
+"POT-Creation-Date: 2017-04-15 12:21-0400\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -215,10 +215,10 @@ msgstr "Datensatz wurde nicht gefunden, Fehler: %s"
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:116
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:218
 #: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:54
+#: /var/www/fog/lib/reports/equipment_loan.report.php:163
 #: /var/www/fog/lib/service/fogservice.class.php:391
 #: /var/www/fog/lib/service/fogservice.class.php:420
 #: /var/www/fog/lib/service/fogservice.class.php:505
-#: /var/www/fog/management/reports/equipment_loan.report.php:163
 #: /var/www/fog/commons/text.php:66
 msgid "Name"
 msgstr "Name"
@@ -447,7 +447,7 @@ msgstr "Array mit Daten"
 #: /var/www/fog/lib/fog/fogftp.class.php:370
 #: /var/www/fog/lib/pages/taskmobile.class.php:45
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1003
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:287
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:318
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2030
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:538
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:55
@@ -741,10 +741,10 @@ msgstr "Veranstaltung muss eine Zeichenfolge sein."
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2310
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:85
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1789
+#: /var/www/fog/lib/reports/virus_history.report.php:55
+#: /var/www/fog/lib/reports/virus_history.report.php:62
 #: /var/www/fog/lib/service/fogservice.class.php:419
 #: /var/www/fog/lib/service/fogservice.class.php:504
-#: /var/www/fog/management/reports/virus_history.report.php:55
-#: /var/www/fog/management/reports/virus_history.report.php:62
 #: /var/www/fog/commons/text.php:75
 msgid "File"
 msgstr "Datei"
@@ -827,7 +827,7 @@ msgstr "Sie dürfen nur zuweisen"
 #: /var/www/fog/lib/fog/fogpage.class.php:3240
 #: /var/www/fog/lib/fog/fogpage.class.php:3347
 #: /var/www/fog/lib/pages/taskmobile.class.php:44
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:282
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:313
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:171
 #: /var/www/fog/commons/text.php:47
 msgid "Host"
@@ -841,9 +841,9 @@ msgstr "Host"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1882
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1111
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1186
-#: /var/www/fog/management/reports/user_tracking.report.php:111
-#: /var/www/fog/management/reports/user_tracking.report.php:211
-#: /var/www/fog/management/reports/user_tracking.report.php:232
+#: /var/www/fog/lib/reports/user_tracking.report.php:111
+#: /var/www/fog/lib/reports/user_tracking.report.php:211
+#: /var/www/fog/lib/reports/user_tracking.report.php:232
 #: /var/www/fog/commons/text.php:85
 msgid "Username"
 msgstr "Benutzername"
@@ -969,43 +969,43 @@ msgstr "%s ID %s ist nicht gültig"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:361
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1160
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:320
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:566
-#: /var/www/fog/management/reports/host_list.report.php:44
-#: /var/www/fog/management/reports/pending_mac_list.report.php:63
-#: /var/www/fog/management/reports/inventory_report.report.php:83
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:351
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:597
+#: /var/www/fog/lib/reports/host_list.report.php:44
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:63
+#: /var/www/fog/lib/reports/inventory_report.report.php:83
 msgid "Host ID"
 msgstr "Host-ID"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:362
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1125
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1165
-#: /var/www/fog/management/reports/virus_history.report.php:60
-#: /var/www/fog/management/reports/virus_history.report.php:126
-#: /var/www/fog/management/reports/pending_mac_list.report.php:64
-#: /var/www/fog/management/reports/pending_mac_list.report.php:77
-#: /var/www/fog/management/reports/inventory_report.report.php:52
-#: /var/www/fog/management/reports/inventory_report.report.php:86
+#: /var/www/fog/lib/reports/virus_history.report.php:60
+#: /var/www/fog/lib/reports/virus_history.report.php:126
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:64
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:77
+#: /var/www/fog/lib/reports/inventory_report.report.php:52
+#: /var/www/fog/lib/reports/inventory_report.report.php:86
 msgid "Host name"
 msgstr "Host-name"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:363
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1170
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:322
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:568
-#: /var/www/fog/management/reports/host_list.report.php:47
-#: /var/www/fog/management/reports/host_list.report.php:66
-#: /var/www/fog/management/reports/user_tracking.report.php:234
-#: /var/www/fog/management/reports/inventory_report.report.php:89
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:353
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:599
+#: /var/www/fog/lib/reports/host_list.report.php:47
+#: /var/www/fog/lib/reports/host_list.report.php:66
+#: /var/www/fog/lib/reports/user_tracking.report.php:234
+#: /var/www/fog/lib/reports/inventory_report.report.php:89
 msgid "Host MAC"
 msgstr "Host MAC"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:364
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1175
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:323
-#: /var/www/fog/management/reports/host_list.report.php:46
-#: /var/www/fog/management/reports/pending_mac_list.report.php:66
-#: /var/www/fog/management/reports/inventory_report.report.php:92
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:354
+#: /var/www/fog/lib/reports/host_list.report.php:46
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:66
+#: /var/www/fog/lib/reports/inventory_report.report.php:92
 msgid "Host Desc"
 msgstr "Host-Desc"
 
@@ -1038,7 +1038,7 @@ msgstr "Systemhersteller"
 #: /var/www/fog/lib/fog/fogpage.class.php:371
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1127
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1735
-#: /var/www/fog/management/reports/inventory_report.report.php:54
+#: /var/www/fog/lib/reports/inventory_report.report.php:54
 msgid "System Product"
 msgstr "Systemprodukt"
 
@@ -1049,7 +1049,7 @@ msgstr "Systemversion"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:373
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1128
-#: /var/www/fog/management/reports/inventory_report.report.php:55
+#: /var/www/fog/lib/reports/inventory_report.report.php:55
 msgid "System Serial"
 msgstr "System-Serie"
 
@@ -1116,8 +1116,8 @@ msgstr "CPU-Max Geschwindigkeit"
 #: /var/www/fog/lib/fog/fogpage.class.php:387
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1126
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1751
-#: /var/www/fog/management/reports/inventory_report.report.php:53
-#: /var/www/fog/management/reports/inventory_report.report.php:95
+#: /var/www/fog/lib/reports/inventory_report.report.php:53
+#: /var/www/fog/lib/reports/inventory_report.report.php:95
 msgid "Memory"
 msgstr "Speicher"
 
@@ -1155,7 +1155,7 @@ msgstr "Fahrwerk-Asset"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:487
 #: /var/www/fog/lib/fog/fogpage.class.php:3112
-#: /var/www/fog/management/reports/user_tracking.report.php:86
+#: /var/www/fog/lib/reports/user_tracking.report.php:86
 #: /var/www/fog/commons/text.php:32
 msgid "Search"
 msgstr "Suche"
@@ -1368,10 +1368,10 @@ msgstr "Termin ist in der Vergangenheit"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1490
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1791
-#: /var/www/fog/management/reports/equipment_loan.report.php:231
-#: /var/www/fog/management/reports/equipment_loan.report.php:240
-#: /var/www/fog/management/reports/virus_history.report.php:57
-#: /var/www/fog/management/reports/virus_history.report.php:64
+#: /var/www/fog/lib/reports/equipment_loan.report.php:231
+#: /var/www/fog/lib/reports/equipment_loan.report.php:240
+#: /var/www/fog/lib/reports/virus_history.report.php:57
+#: /var/www/fog/lib/reports/virus_history.report.php:64
 #: /var/www/fog/commons/text.php:89
 msgid "Date"
 msgstr "Datum"
@@ -1692,7 +1692,7 @@ msgstr "Fehler beim zerstören"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3078
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:374
-#: /var/www/fog/management/reports/pending_mac_list.report.php:168
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:168
 msgid "deleted"
 msgstr "gelöscht"
 
@@ -1864,7 +1864,7 @@ msgstr "Fehler"
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:426
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:824
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:418
-#: /var/www/fog/management/reports/equipment_loan.report.php:61
+#: /var/www/fog/lib/reports/equipment_loan.report.php:61
 #: /var/www/fog/commons/text.php:293
 msgid "Please select an option"
 msgstr "Bitte wählen Sie eine option"
@@ -1897,18 +1897,18 @@ msgstr "Primary Storage Group"
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:538
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:816
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:74
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:324
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:355
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:479
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:312
-#: /var/www/fog/management/reports/host_list.report.php:50
-#: /var/www/fog/management/reports/host_list.report.php:67
-#: /var/www/fog/management/reports/host_list.report.php:92
+#: /var/www/fog/lib/reports/host_list.report.php:50
+#: /var/www/fog/lib/reports/host_list.report.php:67
+#: /var/www/fog/lib/reports/host_list.report.php:92
 msgid "Image Name"
 msgstr "Image-Name"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:130
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:546
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:318
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:349
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2038
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:159
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:443
@@ -2043,7 +2043,7 @@ msgstr "Betriebssystem"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:548
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:835
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:325
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:356
 #: /var/www/fog/commons/text.php:317
 msgid "Image Path"
 msgstr "Bildpfad"
@@ -2235,7 +2235,7 @@ msgid "Select Image"
 msgstr "Wählen Sie Bild"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:1270
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:283
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:314
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2026
 msgid "Start"
 msgstr "Start"
@@ -2260,7 +2260,7 @@ msgstr "Kunden"
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:699
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:820
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1001
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:327
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:358
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2149
 msgid "Start Time"
 msgstr "Startzeit"
@@ -2273,7 +2273,7 @@ msgstr "Prozent"
 #: /var/www/fog/lib/pages/taskmobile.class.php:46
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:700
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:821
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:530
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:561
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2031
 #: /var/www/fog/commons/text.php:106
 msgid "State"
@@ -2890,7 +2890,7 @@ msgstr "Modul-Typ"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1814
 #: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:54
 #: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:66
-#: /var/www/fog/management/reports/virus_history.report.php:79
+#: /var/www/fog/lib/reports/virus_history.report.php:79
 #: /var/www/fog/commons/text.php:28
 msgid "Delete"
 msgstr "Löschen"
@@ -2966,7 +2966,7 @@ msgid "Max Size:"
 msgstr "Max. Größe:"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1104
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:161
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:192
 msgid "Upload File"
 msgstr "Datei hochladen"
 
@@ -3340,8 +3340,8 @@ msgstr ""
 
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:458
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1880
-#: /var/www/fog/management/reports/user_tracking.report.php:213
-#: /var/www/fog/management/reports/user_tracking.report.php:236
+#: /var/www/fog/lib/reports/user_tracking.report.php:213
+#: /var/www/fog/lib/reports/user_tracking.report.php:236
 #: /var/www/fog/commons/text.php:79
 msgid "Time"
 msgstr "Zeit"
@@ -3351,8 +3351,8 @@ msgstr "Zeit"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1520
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1638
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1881
-#: /var/www/fog/management/reports/user_tracking.report.php:210
-#: /var/www/fog/management/reports/user_tracking.report.php:231
+#: /var/www/fog/lib/reports/user_tracking.report.php:210
+#: /var/www/fog/lib/reports/user_tracking.report.php:231
 #: /var/www/fog/commons/text.php:80
 msgid "Action"
 msgstr "Aktion"
@@ -3371,7 +3371,7 @@ msgstr "Veranstaltung hinzufügen"
 
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:522
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1848
-#: /var/www/fog/management/reports/user_tracking.report.php:257
+#: /var/www/fog/lib/reports/user_tracking.report.php:257
 #: /var/www/fog/commons/text.php:110
 msgid "N/A"
 msgstr "N/A"
@@ -3668,7 +3668,7 @@ msgid "General Information"
 msgstr "Allgemeine Informationen"
 
 #: /var/www/fog/lib/pages/serverinfo.class.php:149
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:319
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:350
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2039
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:665
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1235
@@ -3691,17 +3691,17 @@ msgstr "IP"
 #: /var/www/fog/lib/pages/serverinfo.class.php:151
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:143
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:294
-#: /var/www/fog/management/reports/host_list.report.php:55
+#: /var/www/fog/lib/reports/host_list.report.php:55
 #: /var/www/fog/commons/text.php:108
 msgid "Kernel"
 msgstr "Kernel"
 
 #: /var/www/fog/lib/pages/serverinfo.class.php:152
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:71
-#: /var/www/fog/management/reports/host_list.report.php:65
-#: /var/www/fog/management/reports/user_tracking.report.php:110
-#: /var/www/fog/management/reports/user_tracking.report.php:212
-#: /var/www/fog/management/reports/user_tracking.report.php:233
+#: /var/www/fog/lib/reports/host_list.report.php:65
+#: /var/www/fog/lib/reports/user_tracking.report.php:110
+#: /var/www/fog/lib/reports/user_tracking.report.php:212
+#: /var/www/fog/lib/reports/user_tracking.report.php:233
 #: /var/www/fog/commons/text.php:69
 msgid "Hostname"
 msgstr "Hostname"
@@ -4094,8 +4094,8 @@ msgid "Snapins"
 msgstr "SnapIns"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:645
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:529
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:570
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:560
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:601
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1121
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1186
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2148
@@ -4213,49 +4213,49 @@ msgstr "Erweiterte Optionen"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1107
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1108
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:272
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:273
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:519
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:520
-#: /var/www/fog/management/reports/product_keys.report.php:35
-#: /var/www/fog/management/reports/product_keys.report.php:36
-#: /var/www/fog/management/reports/host_list.report.php:35
-#: /var/www/fog/management/reports/host_list.report.php:36
-#: /var/www/fog/management/reports/virus_history.report.php:35
-#: /var/www/fog/management/reports/virus_history.report.php:36
-#: /var/www/fog/management/reports/hosts_and_users.report.php:35
-#: /var/www/fog/management/reports/hosts_and_users.report.php:36
-#: /var/www/fog/management/reports/user_tracking.report.php:201
-#: /var/www/fog/management/reports/user_tracking.report.php:202
-#: /var/www/fog/management/reports/pending_mac_list.report.php:46
-#: /var/www/fog/management/reports/pending_mac_list.report.php:47
-#: /var/www/fog/management/reports/inventory_report.report.php:35
-#: /var/www/fog/management/reports/inventory_report.report.php:36
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:303
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:304
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:550
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:551
+#: /var/www/fog/lib/reports/product_keys.report.php:35
+#: /var/www/fog/lib/reports/product_keys.report.php:36
+#: /var/www/fog/lib/reports/host_list.report.php:35
+#: /var/www/fog/lib/reports/host_list.report.php:36
+#: /var/www/fog/lib/reports/virus_history.report.php:35
+#: /var/www/fog/lib/reports/virus_history.report.php:36
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:35
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:36
+#: /var/www/fog/lib/reports/user_tracking.report.php:201
+#: /var/www/fog/lib/reports/user_tracking.report.php:202
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:46
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:47
+#: /var/www/fog/lib/reports/inventory_report.report.php:35
+#: /var/www/fog/lib/reports/inventory_report.report.php:36
 msgid "Export CSV"
 msgstr "CSV exportieren"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1114
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1115
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:276
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:277
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:523
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:524
-#: /var/www/fog/management/reports/product_keys.report.php:39
-#: /var/www/fog/management/reports/product_keys.report.php:40
-#: /var/www/fog/management/reports/host_list.report.php:39
-#: /var/www/fog/management/reports/host_list.report.php:40
-#: /var/www/fog/management/reports/equipment_loan.report.php:104
-#: /var/www/fog/management/reports/equipment_loan.report.php:105
-#: /var/www/fog/management/reports/virus_history.report.php:39
-#: /var/www/fog/management/reports/virus_history.report.php:40
-#: /var/www/fog/management/reports/hosts_and_users.report.php:39
-#: /var/www/fog/management/reports/hosts_and_users.report.php:40
-#: /var/www/fog/management/reports/user_tracking.report.php:205
-#: /var/www/fog/management/reports/user_tracking.report.php:206
-#: /var/www/fog/management/reports/pending_mac_list.report.php:50
-#: /var/www/fog/management/reports/pending_mac_list.report.php:51
-#: /var/www/fog/management/reports/inventory_report.report.php:39
-#: /var/www/fog/management/reports/inventory_report.report.php:40
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:307
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:308
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:554
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:555
+#: /var/www/fog/lib/reports/product_keys.report.php:39
+#: /var/www/fog/lib/reports/product_keys.report.php:40
+#: /var/www/fog/lib/reports/host_list.report.php:39
+#: /var/www/fog/lib/reports/host_list.report.php:40
+#: /var/www/fog/lib/reports/equipment_loan.report.php:104
+#: /var/www/fog/lib/reports/equipment_loan.report.php:105
+#: /var/www/fog/lib/reports/virus_history.report.php:39
+#: /var/www/fog/lib/reports/virus_history.report.php:40
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:39
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:40
+#: /var/www/fog/lib/reports/user_tracking.report.php:205
+#: /var/www/fog/lib/reports/user_tracking.report.php:206
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:50
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:51
+#: /var/www/fog/lib/reports/inventory_report.report.php:39
+#: /var/www/fog/lib/reports/inventory_report.report.php:40
 msgid "Export PDF"
 msgstr "PDF-Datei exportieren"
 
@@ -4285,14 +4285,14 @@ msgstr "Löschen von Hosts"
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1453
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:299
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:818
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:321
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:528
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:567
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:352
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:559
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:598
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:403
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:779
+#: /var/www/fog/lib/reports/host_list.report.php:45
+#: /var/www/fog/lib/reports/virus_history.report.php:53
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:273
-#: /var/www/fog/management/reports/host_list.report.php:45
-#: /var/www/fog/management/reports/virus_history.report.php:53
 msgid "Host Name"
 msgstr "Host-Name"
 
@@ -4357,7 +4357,7 @@ msgid "Invalid image assigned to host"
 msgstr "Ungültiges Bild Host zugewiesen"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:467
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:286
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:317
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2029
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:397
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:407
@@ -4465,7 +4465,7 @@ msgstr "Snap-in aktiviert"
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:109
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:166
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:460
-#: /var/www/fog/management/reports/host_list.report.php:102
+#: /var/www/fog/lib/reports/host_list.report.php:102
 msgid "Yes"
 msgstr "Ja"
 
@@ -4477,7 +4477,7 @@ msgstr "Ja"
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:109
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:160
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:447
-#: /var/www/fog/management/reports/host_list.report.php:103
+#: /var/www/fog/lib/reports/host_list.report.php:103
 msgid "No"
 msgstr "Nein"
 
@@ -4807,11 +4807,11 @@ msgstr "anmelden"
 msgid "The following errors occured"
 msgstr "Der folgende Fehler aufgetreten"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:143
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:174
 msgid "Upload FOG Reports"
 msgstr "Hochladen von Nebel berichten"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:152
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:183
 msgid ""
 "This section allows you to upload user defined reports that may not be part "
 "of the base FOG package. The report files should end in .php"
@@ -4820,21 +4820,21 @@ msgstr ""
 "möglicherweise nicht Teil der Nebel-Basispaket. Die Berichtsdateien sollte "
 "in .php enden."
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:157
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:188
 msgid "Upload a FOG Report"
 msgstr "Laden Sie einen Nebel-Bericht"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:159
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:190
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:497
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:891
 msgid "Max Size"
 msgstr "Max. Größe"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:171
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:202
 msgid "About FOG Reports"
 msgstr "Nebel-Berichte"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:175
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:206
 msgid ""
 "FOG Reports exist to give you information about what is going on with your "
 "FOG System. To view a report, select an item from the menu on the left-hand "
@@ -4844,184 +4844,184 @@ msgstr ""
 "Ihrem Nebel-System. Um einen Bericht anzuzeigen, wählen Sie ein Element aus "
 "dem Menü auf der linken Seite dieser Seite."
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:189
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:220
 msgid "FOG Imaging Log - Select Date Range"
 msgstr "Nebel Imaging Log - Datumsbereich auswählen"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:239
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:483
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:270
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:514
 msgid "Select Start Date"
 msgstr "Wählen Sie Startdatum"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:240
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:484
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:271
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:515
 msgid "Select End Date"
 msgstr "Wählen Sie Enddatum"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:243
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:487
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:274
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:518
 msgid "Search for Entries"
 msgstr "Nach Einträgen suchen"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:268
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:299
 msgid "FOG Imaging Log"
 msgstr "Nebel-Imaging-Log"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:281
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:317
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:312
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:348
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2024
 msgid "Engineer"
 msgstr "Ingenieur"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:284
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:315
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2027
 msgid "End"
 msgstr "Ende"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:285
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:330
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:316
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:361
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2028
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2151
 msgid "Duration"
 msgstr "Dauer"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:326
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:357
 msgid "Start Date"
 msgstr "Startdatum"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:328
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:359
 msgid "End Date"
 msgstr "Enddatum"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:329
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:360
 msgid "End Time"
 msgstr "Endzeit"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:331
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:362
 #, fuzzy
 msgid "Deploy/Capture"
 msgstr "Bereitstellen"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:334
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:365
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2065
 #: /var/www/fog/commons/text.php:101
 #, fuzzy
 msgid "Capture"
 msgstr "Erstellen"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:335
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:366
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2066
 #: /var/www/fog/commons/text.php:100
 msgid "Deploy"
 msgstr "Bereitstellen"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:433
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:464
 msgid "FOG Snapin Log - Select Date Range"
 msgstr "Nebel Snap-in Log - Datumsbereich auswählen"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:515
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:546
 msgid "FOG Snapin Log"
 msgstr "Nebel-Snap-in-Log"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:531
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:562
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2152
 msgid "Return Code"
 msgstr "Return-Code"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:532
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:563
 msgid "Return Desc"
 msgstr "Zurück Desc"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:533
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:564
 msgid "Create Date"
 msgstr "Erstellt am"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:534
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:565
 msgid "Create Time"
 msgstr "Erstellungszeit"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:538
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:569
 msgid "Started/Checked in"
 msgstr ""
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:540
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:571
 #: /var/www/fog/lib/service/snapinhash.class.php:241
 #: /var/www/fog/lib/service/imagesize.class.php:230
 msgid "Completed"
 msgstr "Abgeschlossen"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:569
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:600
 msgid "Snapin ID"
 msgstr "Snap-in-ID"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:571
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:602
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:438
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:852
 msgid "Snapin Description"
 msgstr "Snap-in-Beschreibung"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:572
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:603
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:496
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:890
 msgid "Snapin File"
 msgstr "Snap-in-Datei"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:573
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:604
 msgid "Snapin Args"
 msgstr "Snap-in Args"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:574
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:605
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:477
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:871
 msgid "Snapin Run With"
 msgstr "Snap-in-Ausführung mit"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:575
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:606
 msgid "Snapin Run With Args"
 msgstr "Snap-in-Ausführung mit Args"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:576
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:607
 msgid "Snapin State"
 msgstr "Snap-in-Zustand"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:577
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:608
 msgid "Snapin Return Code"
 msgstr "Snap-in-Return-Code"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:578
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:609
 msgid "Snapin Return Detail"
 msgstr "Snap-in-Rückkehr-Detail"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:579
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:610
 msgid "Snapin Creation Date"
 msgstr "Snap-in-Erstellungsdatum"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:580
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:611
 msgid "Snapin Creation Time"
 msgstr "Zeitpunkt der Erstellung der Snap-in"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:581
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:612
 msgid "Job Create Date"
 msgstr "Job erstellen Datum"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:582
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:613
 msgid "Job Create Time"
 msgstr "Job erstellen"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:583
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:614
 msgid "Task Checkin Date"
 msgstr "Aufgabe beim Einchecken Datum"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:584
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:615
 msgid "Task Checkin Time"
 msgstr "Aufgabe beim Einchecken Zeit"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:585
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:616
 #, fuzzy
 msgid "Task Complete Date"
 msgstr "Aufgabe beim Einchecken Datum"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:586
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:617
 #, fuzzy
 msgid "Task Complete Time"
 msgstr "Aufgabe beim Einchecken Zeit"
@@ -5072,7 +5072,7 @@ msgid "Delete selected hosts"
 msgstr "Löschen der ausgewählten Hosts"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:372
-#: /var/www/fog/management/reports/pending_mac_list.report.php:168
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:168
 #, fuzzy
 msgid "approved"
 msgstr "Host genehmigt"
@@ -5083,7 +5083,7 @@ msgid "All hosts"
 msgstr "Alle Hosts"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:380
-#: /var/www/fog/management/reports/pending_mac_list.report.php:175
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:175
 #, fuzzy
 msgid "successfully"
 msgstr "Erfolgreiche"
@@ -5104,7 +5104,7 @@ msgstr "Fügen MAC hinzu"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:419
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:820
-#: /var/www/fog/management/reports/user_tracking.report.php:235
+#: /var/www/fog/lib/reports/user_tracking.report.php:235
 msgid "Host Description"
 msgstr "Host-Beschreibung"
 
@@ -5406,21 +5406,21 @@ msgid "Host Hardware Inventory"
 msgstr "Host-Hardwareinventur"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1788
-#: /var/www/fog/management/reports/virus_history.report.php:54
-#: /var/www/fog/management/reports/virus_history.report.php:61
+#: /var/www/fog/lib/reports/virus_history.report.php:54
+#: /var/www/fog/lib/reports/virus_history.report.php:61
 msgid "Virus Name"
 msgstr "Name des Virus"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1790
-#: /var/www/fog/management/reports/virus_history.report.php:56
-#: /var/www/fog/management/reports/virus_history.report.php:63
-#: /var/www/fog/management/reports/virus_history.report.php:129
+#: /var/www/fog/lib/reports/virus_history.report.php:56
+#: /var/www/fog/lib/reports/virus_history.report.php:63
+#: /var/www/fog/lib/reports/virus_history.report.php:129
 #: /var/www/fog/commons/text.php:88
 msgid "Mode"
 msgstr "Modus"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1792
-#: /var/www/fog/management/reports/virus_history.report.php:65
+#: /var/www/fog/lib/reports/virus_history.report.php:65
 #: /var/www/fog/commons/text.php:90
 msgid "Clear"
 msgstr "Klar"
@@ -5431,17 +5431,17 @@ msgid "Virus History"
 msgstr "Virus-Geschichte"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1827
-#: /var/www/fog/management/reports/virus_history.report.php:50
+#: /var/www/fog/lib/reports/virus_history.report.php:50
 msgid "clear all history"
 msgstr "alle Verlauf löschen"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1842
-#: /var/www/fog/management/reports/virus_history.report.php:109
+#: /var/www/fog/lib/reports/virus_history.report.php:109
 msgid "Quarantine"
 msgstr "Quarantäne"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1845
-#: /var/www/fog/management/reports/virus_history.report.php:110
+#: /var/www/fog/lib/reports/virus_history.report.php:110
 #: /var/www/fog/commons/text.php:112
 msgid "Report"
 msgstr "Bericht"
@@ -5458,8 +5458,8 @@ msgstr "Host-Login-Geschichte"
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:284
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:120
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:222
-#: /var/www/fog/management/reports/user_tracking.report.php:214
-#: /var/www/fog/management/reports/user_tracking.report.php:237
+#: /var/www/fog/lib/reports/user_tracking.report.php:214
+#: /var/www/fog/lib/reports/user_tracking.report.php:237
 #: /var/www/fog/commons/text.php:91
 msgid "Description"
 msgstr "Beschreibung"
@@ -5470,7 +5470,7 @@ msgstr "Verlauf anzeigen für"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1959
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1989
-#: /var/www/fog/management/reports/user_tracking.report.php:251
+#: /var/www/fog/lib/reports/user_tracking.report.php:251
 #: /var/www/fog/commons/text.php:46
 msgid "Logout"
 msgstr "Logout"
@@ -5485,7 +5485,7 @@ msgid "Setting logout to one second prior to next login"
 msgstr ""
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1978
-#: /var/www/fog/management/reports/user_tracking.report.php:252
+#: /var/www/fog/lib/reports/user_tracking.report.php:252
 #: /var/www/fog/commons/text.php:114
 msgid "Login"
 msgstr "Anmeldung"
@@ -5852,7 +5852,7 @@ msgstr "Plugin-Namen"
 
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:66
 #: /var/www/fog/lib/plugins/location/hooks/addlocationtasks.hook.php:66
-#: /var/www/fog/management/reports/equipment_loan.report.php:165
+#: /var/www/fog/lib/reports/equipment_loan.report.php:165
 #: /var/www/fog/commons/text.php:109 /var/www/fog/commons/text.php:133
 msgid "Location"
 msgstr "Lage"
@@ -5956,7 +5956,7 @@ msgid "Current Image to DMI Associations"
 msgstr "Aktuelle Bild an DMI-Verbände"
 
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:480
-#: /var/www/fog/management/reports/host_list.report.php:57
+#: /var/www/fog/lib/reports/host_list.report.php:57
 msgid "OS Name"
 msgstr "Betriebssystemname"
 
@@ -7311,6 +7311,263 @@ msgstr "Überprüfen Sie, ob die Datenbank ausgeführt wird"
 msgid "A valid database connection could not be made"
 msgstr ""
 
+#: /var/www/fog/lib/reports/product_keys.report.php:31
+#, fuzzy
+msgid "Host Product Keys"
+msgstr "Host-Produkt-Schlüssel"
+
+#: /var/www/fog/lib/reports/host_list.report.php:31
+msgid "Host Listing Export"
+msgstr "Host Eintrag Export"
+
+#: /var/www/fog/lib/reports/host_list.report.php:48
+msgid "Host Created"
+msgstr "Host erstellt"
+
+#: /var/www/fog/lib/reports/host_list.report.php:49
+#: /var/www/fog/lib/reports/host_list.report.php:89
+msgid "Image ID"
+msgstr "Bild-ID"
+
+#: /var/www/fog/lib/reports/host_list.report.php:51
+#: /var/www/fog/lib/reports/host_list.report.php:95
+msgid "Image Desc"
+msgstr "Bild Desc"
+
+#: /var/www/fog/lib/reports/host_list.report.php:52
+#: /var/www/fog/lib/reports/host_list.report.php:98
+msgid "AD Join"
+msgstr "AD-Join"
+
+#: /var/www/fog/lib/reports/host_list.report.php:53
+msgid "AD OU"
+msgstr "AD-OU"
+
+#: /var/www/fog/lib/reports/host_list.report.php:54
+msgid "AD Domain"
+msgstr "Active Directory-Domäne"
+
+#: /var/www/fog/lib/reports/host_list.report.php:56
+msgid "HD Device"
+msgstr "HD-Gerät"
+
+#: /var/www/fog/lib/reports/equipment_loan.report.php:31
+#: /var/www/fog/lib/reports/equipment_loan.report.php:96
+msgid "FOG Equipment Loan Form"
+msgstr "Nebel-Ausrüstung-Leihformular"
+
+#: /var/www/fog/lib/reports/equipment_loan.report.php:56
+msgid "Select User"
+msgstr "Wählen Sie Benutzer"
+
+#: /var/www/fog/lib/reports/equipment_loan.report.php:66
+msgid "Create Report"
+msgstr "Bericht erstellen"
+
+#: /var/www/fog/lib/reports/equipment_loan.report.php:155
+#: /var/www/fog/lib/reports/equipment_loan.report.php:233
+msgid "of"
+msgstr "der"
+
+#: /var/www/fog/lib/reports/equipment_loan.report.php:156
+#: /var/www/fog/lib/reports/equipment_loan.report.php:234
+msgid "Printed"
+msgstr "Gedruckt"
+
+#: /var/www/fog/lib/reports/equipment_loan.report.php:158
+#: /var/www/fog/commons/text.php:223
+msgid "Equipment Loan"
+msgstr "Ausrüstungsausleihe"
+
+#: /var/www/fog/lib/reports/equipment_loan.report.php:161
+msgid "PC Check-out Agreement"
+msgstr "PC-Check-Out-Vereinbarung"
+
+#: /var/www/fog/lib/reports/equipment_loan.report.php:162
+msgid "Personal Information"
+msgstr "Persönliche Informationen"
+
+#: /var/www/fog/lib/reports/equipment_loan.report.php:166
+msgid "Your Location Here"
+msgstr "Ihren Standort hier"
+
+#: /var/www/fog/lib/reports/equipment_loan.report.php:167
+msgid "Home Address"
+msgstr "Home-Adresse"
+
+#: /var/www/fog/lib/reports/equipment_loan.report.php:169
+msgid "City/State/Zip"
+msgstr "Stadt/Staat/Zip"
+
+#: /var/www/fog/lib/reports/equipment_loan.report.php:171
+msgid "Extension"
+msgstr "Erweiterung"
+
+#: /var/www/fog/lib/reports/equipment_loan.report.php:173
+msgid "Home Phone"
+msgstr "Telefon zu Hause"
+
+#: /var/www/fog/lib/reports/equipment_loan.report.php:175
+msgid "Computer Information"
+msgstr "Computer-Informationen"
+
+#: /var/www/fog/lib/reports/equipment_loan.report.php:179
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:275
+msgid "Serial Number"
+msgstr "Seriennummer"
+
+#: /var/www/fog/lib/reports/equipment_loan.report.php:180
+msgid "Service Tag"
+msgstr "Service-Tag"
+
+#: /var/www/fog/lib/reports/equipment_loan.report.php:194
+msgid "Barcode Numbers"
+msgstr "Barcode-Nummern"
+
+#: /var/www/fog/lib/reports/equipment_loan.report.php:207
+msgid "Date of checkout"
+msgstr "Datum der Abreise"
+
+#: /var/www/fog/lib/reports/equipment_loan.report.php:211
+msgid "Notes"
+msgstr "Notizen"
+
+#: /var/www/fog/lib/reports/equipment_loan.report.php:212
+msgid "Miscellaneous"
+msgstr "Diverses"
+
+#: /var/www/fog/lib/reports/equipment_loan.report.php:213
+msgid "Included Items"
+msgstr "Eingeschlossene Elemente"
+
+#: /var/www/fog/lib/reports/equipment_loan.report.php:217
+msgid "Releasing Staff Initials"
+msgstr "Freigabe von Personal Initialen"
+
+#: /var/www/fog/lib/reports/equipment_loan.report.php:219
+msgid "To be released only by"
+msgstr "Nur durch freigegeben werden"
+
+#: /var/www/fog/lib/reports/equipment_loan.report.php:223
+#, fuzzy
+msgid "I have read"
+msgstr "Bild erstellt"
+
+#: /var/www/fog/lib/reports/equipment_loan.report.php:224
+msgid "understood"
+msgstr ""
+
+#: /var/www/fog/lib/reports/equipment_loan.report.php:225
+msgid "and agree to all the"
+msgstr ""
+
+#: /var/www/fog/lib/reports/equipment_loan.report.php:226
+#: /var/www/fog/lib/reports/equipment_loan.report.php:236
+msgid "Terms and Conditions"
+msgstr "Allgemeinen Geschäftsbedingungen"
+
+#: /var/www/fog/lib/reports/equipment_loan.report.php:227
+#, fuzzy
+msgid "on the following pages of this document"
+msgstr "Der folgende Fehler aufgetreten"
+
+#: /var/www/fog/lib/reports/equipment_loan.report.php:229
+#: /var/www/fog/lib/reports/equipment_loan.report.php:238
+msgid "Signed"
+msgstr "Unterzeichnet"
+
+#: /var/www/fog/lib/reports/equipment_loan.report.php:244
+msgid "Your form is ready."
+msgstr "Ihre Form ist fertig."
+
+#: /var/www/fog/lib/reports/virus_history.report.php:31
+msgid "FOG Virus Summary"
+msgstr "Nebel-Virus-Zusammenfassung"
+
+#: /var/www/fog/lib/reports/virus_history.report.php:160
+msgid "All Virus' cleared"
+msgstr "Alle Virus gelöscht"
+
+#: /var/www/fog/lib/reports/virus_history.report.php:164
+msgid "Virus cleared"
+msgstr "Virus gelöscht"
+
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:31
+msgid "FOG Hosts and Users Login"
+msgstr "Nebel-Hosts und Benutzer-Login"
+
+#: /var/www/fog/lib/reports/user_tracking.report.php:31
+#, fuzzy
+msgid "FOG User tracking - Search"
+msgstr "Nebel Benutzer Login Geschichte Zusammenfassung - Suche"
+
+#: /var/www/fog/lib/reports/user_tracking.report.php:82
+msgid "Enter a username to search for"
+msgstr "Geben Sie einen Benutzernamen suchen"
+
+#: /var/www/fog/lib/reports/user_tracking.report.php:83
+msgid "Enter a hostname to search for"
+msgstr "Geben Sie einen Hostnamen zu suchen"
+
+#: /var/www/fog/lib/reports/user_tracking.report.php:108
+#, fuzzy
+msgid "Found login information"
+msgstr "Nebel-Versionsinformationen"
+
+#: /var/www/fog/lib/reports/user_tracking.report.php:165
+#, fuzzy
+msgid "No Data Found"
+msgstr "Aufgabe gefunden"
+
+#: /var/www/fog/lib/reports/user_tracking.report.php:197
+#, fuzzy
+msgid "FOG User tracking history"
+msgstr "Nebel-Benutzer-Login-Geschichte-Zusammenfassung"
+
+#: /var/www/fog/lib/reports/user_tracking.report.php:253
+#, fuzzy
+msgid "Service Start"
+msgstr "Service-Status"
+
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:40
+msgid "All Pending MACs approved."
+msgstr "Alle ausstehenden MACs genehmigt."
+
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:42
+msgid "Pending MAC Export"
+msgstr "Ausstehende MAC Export"
+
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:58
+msgid "Approve All Pending MACs for all hosts"
+msgstr "Alle ausstehenden MACs für alle Hosts zu genehmigen"
+
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:65
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:78
+msgid "Host Primary MAC"
+msgstr "Primäre MAC Host"
+
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:67
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:79
+msgid "Host Pending MAC"
+msgstr "Host bis zu MAC"
+
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:141
+msgid "Approve selected pending macs"
+msgstr "Genehmigung ausstehend Macs ausgewählt"
+
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:142
+msgid "Delete selected pending macs"
+msgstr "Löschen bis Macs ausgewählt"
+
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:173
+#, fuzzy
+msgid "All pending macs"
+msgstr "Ausstehende macs"
+
+#: /var/www/fog/lib/reports/inventory_report.report.php:31
+msgid "Full Inventory Export"
+msgstr "Vollständige Inventur Export"
+
 #: /var/www/fog/lib/service/taskscheduler.class.php:97
 msgid " * Task Scheduler is globally disabled"
 msgstr ""
@@ -7937,11 +8194,6 @@ msgstr "Snap-in-Rückkehr-Detail"
 msgid "Computer Model"
 msgstr "Druckermodell"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:275
-#: /var/www/fog/management/reports/equipment_loan.report.php:179
-msgid "Serial Number"
-msgstr "Seriennummer"
-
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:276
 #, fuzzy
 msgid "MAC Address"
@@ -8204,258 +8456,6 @@ msgstr "Erstellen"
 #, fuzzy
 msgid "FOG Client"
 msgstr "Nebel-Client-Wiki"
-
-#: /var/www/fog/management/reports/product_keys.report.php:31
-#, fuzzy
-msgid "Host Product Keys"
-msgstr "Host-Produkt-Schlüssel"
-
-#: /var/www/fog/management/reports/host_list.report.php:31
-msgid "Host Listing Export"
-msgstr "Host Eintrag Export"
-
-#: /var/www/fog/management/reports/host_list.report.php:48
-msgid "Host Created"
-msgstr "Host erstellt"
-
-#: /var/www/fog/management/reports/host_list.report.php:49
-#: /var/www/fog/management/reports/host_list.report.php:89
-msgid "Image ID"
-msgstr "Bild-ID"
-
-#: /var/www/fog/management/reports/host_list.report.php:51
-#: /var/www/fog/management/reports/host_list.report.php:95
-msgid "Image Desc"
-msgstr "Bild Desc"
-
-#: /var/www/fog/management/reports/host_list.report.php:52
-#: /var/www/fog/management/reports/host_list.report.php:98
-msgid "AD Join"
-msgstr "AD-Join"
-
-#: /var/www/fog/management/reports/host_list.report.php:53
-msgid "AD OU"
-msgstr "AD-OU"
-
-#: /var/www/fog/management/reports/host_list.report.php:54
-msgid "AD Domain"
-msgstr "Active Directory-Domäne"
-
-#: /var/www/fog/management/reports/host_list.report.php:56
-msgid "HD Device"
-msgstr "HD-Gerät"
-
-#: /var/www/fog/management/reports/equipment_loan.report.php:31
-#: /var/www/fog/management/reports/equipment_loan.report.php:96
-msgid "FOG Equipment Loan Form"
-msgstr "Nebel-Ausrüstung-Leihformular"
-
-#: /var/www/fog/management/reports/equipment_loan.report.php:56
-msgid "Select User"
-msgstr "Wählen Sie Benutzer"
-
-#: /var/www/fog/management/reports/equipment_loan.report.php:66
-msgid "Create Report"
-msgstr "Bericht erstellen"
-
-#: /var/www/fog/management/reports/equipment_loan.report.php:155
-#: /var/www/fog/management/reports/equipment_loan.report.php:233
-msgid "of"
-msgstr "der"
-
-#: /var/www/fog/management/reports/equipment_loan.report.php:156
-#: /var/www/fog/management/reports/equipment_loan.report.php:234
-msgid "Printed"
-msgstr "Gedruckt"
-
-#: /var/www/fog/management/reports/equipment_loan.report.php:158
-#: /var/www/fog/commons/text.php:223
-msgid "Equipment Loan"
-msgstr "Ausrüstungsausleihe"
-
-#: /var/www/fog/management/reports/equipment_loan.report.php:161
-msgid "PC Check-out Agreement"
-msgstr "PC-Check-Out-Vereinbarung"
-
-#: /var/www/fog/management/reports/equipment_loan.report.php:162
-msgid "Personal Information"
-msgstr "Persönliche Informationen"
-
-#: /var/www/fog/management/reports/equipment_loan.report.php:166
-msgid "Your Location Here"
-msgstr "Ihren Standort hier"
-
-#: /var/www/fog/management/reports/equipment_loan.report.php:167
-msgid "Home Address"
-msgstr "Home-Adresse"
-
-#: /var/www/fog/management/reports/equipment_loan.report.php:169
-msgid "City/State/Zip"
-msgstr "Stadt/Staat/Zip"
-
-#: /var/www/fog/management/reports/equipment_loan.report.php:171
-msgid "Extension"
-msgstr "Erweiterung"
-
-#: /var/www/fog/management/reports/equipment_loan.report.php:173
-msgid "Home Phone"
-msgstr "Telefon zu Hause"
-
-#: /var/www/fog/management/reports/equipment_loan.report.php:175
-msgid "Computer Information"
-msgstr "Computer-Informationen"
-
-#: /var/www/fog/management/reports/equipment_loan.report.php:180
-msgid "Service Tag"
-msgstr "Service-Tag"
-
-#: /var/www/fog/management/reports/equipment_loan.report.php:194
-msgid "Barcode Numbers"
-msgstr "Barcode-Nummern"
-
-#: /var/www/fog/management/reports/equipment_loan.report.php:207
-msgid "Date of checkout"
-msgstr "Datum der Abreise"
-
-#: /var/www/fog/management/reports/equipment_loan.report.php:211
-msgid "Notes"
-msgstr "Notizen"
-
-#: /var/www/fog/management/reports/equipment_loan.report.php:212
-msgid "Miscellaneous"
-msgstr "Diverses"
-
-#: /var/www/fog/management/reports/equipment_loan.report.php:213
-msgid "Included Items"
-msgstr "Eingeschlossene Elemente"
-
-#: /var/www/fog/management/reports/equipment_loan.report.php:217
-msgid "Releasing Staff Initials"
-msgstr "Freigabe von Personal Initialen"
-
-#: /var/www/fog/management/reports/equipment_loan.report.php:219
-msgid "To be released only by"
-msgstr "Nur durch freigegeben werden"
-
-#: /var/www/fog/management/reports/equipment_loan.report.php:223
-#, fuzzy
-msgid "I have read"
-msgstr "Bild erstellt"
-
-#: /var/www/fog/management/reports/equipment_loan.report.php:224
-msgid "understood"
-msgstr ""
-
-#: /var/www/fog/management/reports/equipment_loan.report.php:225
-msgid "and agree to all the"
-msgstr ""
-
-#: /var/www/fog/management/reports/equipment_loan.report.php:226
-#: /var/www/fog/management/reports/equipment_loan.report.php:236
-msgid "Terms and Conditions"
-msgstr "Allgemeinen Geschäftsbedingungen"
-
-#: /var/www/fog/management/reports/equipment_loan.report.php:227
-#, fuzzy
-msgid "on the following pages of this document"
-msgstr "Der folgende Fehler aufgetreten"
-
-#: /var/www/fog/management/reports/equipment_loan.report.php:229
-#: /var/www/fog/management/reports/equipment_loan.report.php:238
-msgid "Signed"
-msgstr "Unterzeichnet"
-
-#: /var/www/fog/management/reports/equipment_loan.report.php:244
-msgid "Your form is ready."
-msgstr "Ihre Form ist fertig."
-
-#: /var/www/fog/management/reports/virus_history.report.php:31
-msgid "FOG Virus Summary"
-msgstr "Nebel-Virus-Zusammenfassung"
-
-#: /var/www/fog/management/reports/virus_history.report.php:160
-msgid "All Virus' cleared"
-msgstr "Alle Virus gelöscht"
-
-#: /var/www/fog/management/reports/virus_history.report.php:164
-msgid "Virus cleared"
-msgstr "Virus gelöscht"
-
-#: /var/www/fog/management/reports/hosts_and_users.report.php:31
-msgid "FOG Hosts and Users Login"
-msgstr "Nebel-Hosts und Benutzer-Login"
-
-#: /var/www/fog/management/reports/user_tracking.report.php:31
-#, fuzzy
-msgid "FOG User tracking - Search"
-msgstr "Nebel Benutzer Login Geschichte Zusammenfassung - Suche"
-
-#: /var/www/fog/management/reports/user_tracking.report.php:82
-msgid "Enter a username to search for"
-msgstr "Geben Sie einen Benutzernamen suchen"
-
-#: /var/www/fog/management/reports/user_tracking.report.php:83
-msgid "Enter a hostname to search for"
-msgstr "Geben Sie einen Hostnamen zu suchen"
-
-#: /var/www/fog/management/reports/user_tracking.report.php:108
-#, fuzzy
-msgid "Found login information"
-msgstr "Nebel-Versionsinformationen"
-
-#: /var/www/fog/management/reports/user_tracking.report.php:165
-#, fuzzy
-msgid "No Data Found"
-msgstr "Aufgabe gefunden"
-
-#: /var/www/fog/management/reports/user_tracking.report.php:197
-#, fuzzy
-msgid "FOG User tracking history"
-msgstr "Nebel-Benutzer-Login-Geschichte-Zusammenfassung"
-
-#: /var/www/fog/management/reports/user_tracking.report.php:253
-#, fuzzy
-msgid "Service Start"
-msgstr "Service-Status"
-
-#: /var/www/fog/management/reports/pending_mac_list.report.php:40
-msgid "All Pending MACs approved."
-msgstr "Alle ausstehenden MACs genehmigt."
-
-#: /var/www/fog/management/reports/pending_mac_list.report.php:42
-msgid "Pending MAC Export"
-msgstr "Ausstehende MAC Export"
-
-#: /var/www/fog/management/reports/pending_mac_list.report.php:58
-msgid "Approve All Pending MACs for all hosts"
-msgstr "Alle ausstehenden MACs für alle Hosts zu genehmigen"
-
-#: /var/www/fog/management/reports/pending_mac_list.report.php:65
-#: /var/www/fog/management/reports/pending_mac_list.report.php:78
-msgid "Host Primary MAC"
-msgstr "Primäre MAC Host"
-
-#: /var/www/fog/management/reports/pending_mac_list.report.php:67
-#: /var/www/fog/management/reports/pending_mac_list.report.php:79
-msgid "Host Pending MAC"
-msgstr "Host bis zu MAC"
-
-#: /var/www/fog/management/reports/pending_mac_list.report.php:141
-msgid "Approve selected pending macs"
-msgstr "Genehmigung ausstehend Macs ausgewählt"
-
-#: /var/www/fog/management/reports/pending_mac_list.report.php:142
-msgid "Delete selected pending macs"
-msgstr "Löschen bis Macs ausgewählt"
-
-#: /var/www/fog/management/reports/pending_mac_list.report.php:173
-#, fuzzy
-msgid "All pending macs"
-msgstr "Ausstehende macs"
-
-#: /var/www/fog/management/reports/inventory_report.report.php:31
-msgid "Full Inventory Export"
-msgstr "Vollständige Inventur Export"
 
 #: /var/www/fog/commons/init.php:159
 #, fuzzy
