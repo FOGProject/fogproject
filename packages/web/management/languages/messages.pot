@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-15 15:32-0400\n"
+"POT-Creation-Date: 2017-04-15 19:36-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -6766,8 +6766,7 @@ msgid "A valid database connection could not be made"
 msgstr ""
 
 #: /var/www/fog/lib/reports/snapin_log.report.php:31
-#: /var/www/fog/lib/reports/imaging_log.report.php:31
-msgid "FOG Imaging Log"
+msgid "FOG Snapin Log"
 msgstr ""
 
 #: /var/www/fog/lib/reports/snapin_log.report.php:48
@@ -7090,6 +7089,10 @@ msgstr ""
 
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:173
 msgid "All pending macs"
+msgstr ""
+
+#: /var/www/fog/lib/reports/imaging_log.report.php:31
+msgid "FOG Imaging Log"
 msgstr ""
 
 #: /var/www/fog/lib/reports/imaging_log.report.php:69

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-15 15:27-0400\n"
+"POT-Creation-Date: 2017-04-15 19:36-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -7180,9 +7180,8 @@ msgid "A valid database connection could not be made"
 msgstr ""
 
 #: /var/www/fog/lib/reports/snapin_log.report.php:31
-#: /var/www/fog/lib/reports/imaging_log.report.php:31
-msgid "FOG Imaging Log"
-msgstr "FOG Imaging Log"
+msgid "FOG Snapin Log"
+msgstr "FOG Snapin Connexion"
 
 #: /var/www/fog/lib/reports/snapin_log.report.php:48
 msgid "Return Desc"
@@ -7516,6 +7515,10 @@ msgstr "Supprimer macs en attente sélectionnés"
 #, fuzzy
 msgid "All pending macs"
 msgstr "macs en attente"
+
+#: /var/www/fog/lib/reports/imaging_log.report.php:31
+msgid "FOG Imaging Log"
+msgstr "FOG Imaging Log"
 
 #: /var/www/fog/lib/reports/imaging_log.report.php:69
 msgid "Start Date"
@@ -9427,9 +9430,6 @@ msgstr "Il n'y a aucun emplacement sur ce serveur."
 
 #~ msgid "Search for Entries"
 #~ msgstr "Recherche de candidatures"
-
-#~ msgid "FOG Snapin Log"
-#~ msgstr "FOG Snapin Connexion"
 
 #~ msgid "FOG Imaging Log - Select Date Range"
 #~ msgstr "FOG Imaging Connexion - Sélectionner la plage de date"

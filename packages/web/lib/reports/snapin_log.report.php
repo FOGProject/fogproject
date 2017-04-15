@@ -28,7 +28,7 @@ class Snapin_Log extends ReportManagementPage
      */
     public function file()
     {
-        $this->title = _('FOG Imaging Log');
+        $this->title = _('FOG Snapin Log');
         printf(
             $this->reportString,
             'SnapinLog',

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-15 15:27-0400\n"
+"POT-Creation-Date: 2017-04-15 19:36-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -7270,9 +7270,9 @@ msgid "A valid database connection could not be made"
 msgstr ""
 
 #: /var/www/fog/lib/reports/snapin_log.report.php:31
-#: /var/www/fog/lib/reports/imaging_log.report.php:31
-msgid "FOG Imaging Log"
-msgstr ""
+#, fuzzy
+msgid "FOG Snapin Log"
+msgstr "Snapin del registro de transacciones"
 
 #: /var/www/fog/lib/reports/snapin_log.report.php:48
 #, fuzzy
@@ -7631,6 +7631,10 @@ msgstr "Eliminar todos los elementos seleccionados"
 #, fuzzy
 msgid "All pending macs"
 msgstr "macs pendientes"
+
+#: /var/www/fog/lib/reports/imaging_log.report.php:31
+msgid "FOG Imaging Log"
+msgstr ""
 
 #: /var/www/fog/lib/reports/imaging_log.report.php:69
 #, fuzzy
@@ -9682,10 +9686,6 @@ msgstr "No hay grupos en este servidor."
 #, fuzzy
 #~ msgid "Select End Date"
 #~ msgstr "Seleccione un tipo de cron"
-
-#, fuzzy
-#~ msgid "FOG Snapin Log"
-#~ msgstr "Snapin del registro de transacciones"
 
 #, fuzzy
 #~ msgid "Host/User name"
