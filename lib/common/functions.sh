@@ -1055,7 +1055,12 @@ linkOptFogDir() {
     local element='httpd'
     [[ $osid -eq 2 ]] && element='apache2'
     chmod -R 755 /var/log/$element >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    chmod -R 755 /var/log/php*fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    for i in $(find /var/log/ -type d -name 'php*fpm*'); do
+        chmod -R 755 $i >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    done
+    for i in $(find /var/log/ -type f -name 'php*fpm*'); do
+        chmod -R 755 $i >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    done
 }
 configureStorage() {
     dots "Setting up storage"
