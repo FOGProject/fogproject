@@ -394,7 +394,25 @@ class Route extends FOGBase
      */
     public static function listem($class)
     {
-        self::search($class, ' ');
+        $classname = strtolower($class);
+        $classman = self::getClass($class)->getManager();
+        self::$data = array();
+        self::$data['count'] = 0;
+        self::$data[$classname.'s'] = array();
+        foreach ($classman->find() as &$class) {
+            self::$data[$classname.'s'][] = self::getter($classname, $class);
+            self::$data['count']++;
+            unset($class);
+        }
+        self::$HookManager
+            ->processEvent(
+                'API_MASSDATA_MAPPING',
+                array(
+                    'data' => &self::$data,
+                    'classname' => &$classname,
+                    'classman' => &$classman
+                )
+            );
     }
     /**
      * Presents the equivalent of a page's search.
@@ -519,8 +537,8 @@ class Route extends FOGBase
         $TaskType = new TaskType($task->taskTypeID);
         if (!$TaskType->isValid()) {
             $message = _('Invalid tasking type passed');
-            self::setErrorMessage($message);
-            self::sendResponse(
+            self::setErrorMessage(
+                $message,
                 HTTPResponseCodes::HTTP_NOT_IMPLEMENTED
             );
         }
@@ -548,8 +566,8 @@ class Route extends FOGBase
                 $task->wol
             );
         } catch (\Exception $e) {
-            self::setErrorMessage($e->getMessage());
-            self::sendResponse(
+            self::setErrorMessage(
+                $e->getMessage(),
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
             );
         }
@@ -563,7 +581,86 @@ class Route extends FOGBase
      */
     public static function create($class)
     {
-        self::setErrorMessage(_('Function exists, but not implemented yet'));
+        $classname = strtolower($class);
+        $classVars = self::getClass(
+            $class,
+            '',
+            true
+        );
+        $class = new $class;
+        $vars = json_decode(
+            file_get_contents(
+                'php://input'
+            )
+        );
+        $exists = self::getClass($classname)
+            ->getManager()
+            ->exists($vars->name);
+        if ($exists) {
+            self::setErrorMessage(
+                _('Already created'),
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+        foreach ($classVars['databaseFields'] as &$key) {
+            $key = $class->key($key);
+            $val = $vars->$key;
+            if ($key == 'id'
+                || !$val
+            ) {
+                continue;
+            }
+            $class->set($key, $val);
+            unset($key);
+        }
+        switch ($classname) {
+        case 'host':
+            $class
+                ->addPriMAC(array_shift($vars->macs))
+                ->addAddMAC($vars->macs)
+                ->addSnapin($vars->snapins)
+                ->addPrinter($vars->printers)
+                ->addModule($vars->modules)
+                ->addGroup($vars->groups);
+            break;
+        case 'group':
+            $class
+                ->addSnapin($vars->snapins)
+                ->addPrinter($vars->printers)
+                ->addModule($vars->modules)
+                ->addHost($vars->hosts)
+                ->addImage($vars->imageID);
+            break;
+        case 'image':
+        case 'snapin':
+            $class
+                ->addHost($vars->hosts)
+                ->addGroup($vars->storagegroups);
+        case 'printer':
+            $class
+                ->addHost($vars->hosts);
+        }
+        foreach ($classVars['databaseFieldsRequired'] as &$key) {
+            $key = $class->key($key);
+            $val = $class->get($key);
+            if (!is_numeric($val) && !$val) {
+                self::setErrorMessage(
+                    self::$foglang['RequiredDB'],
+                    HTTPResponseCodes::HTTP_EXPECTATION_FAILED
+                );
+            }
+        }
+        // Store the data and recreate.
+        // If failed present so.
+        if ($class->save()) {
+            $id = $class->get('id');
+            $class = new $class($id);
+        } else {
+            self::sendResponse(
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+        self::indiv($classname, $id);
     }
     /**
      * Cancels a task element.
@@ -619,28 +716,35 @@ class Route extends FOGBase
     /**
      * Sets an error message.
      *
-     * @param string $message The error message to pass.
+     * @param string   $message The error message to pass.
+     * @param bool|int $code    Send custom error code.
      *
      * @return void
      */
-    public static function setErrorMessage($message)
+    public static function setErrorMessage($message, $code = false)
     {
         self::$data['error'] = $message;
-        self::printer(self::$data);
+        self::printer(self::$data, $code);
     }
     /**
      * Generates a default means to print data to screen.
      *
-     * @param mixed $data The data to print.
+     * @param mixed    $data The data to print.
+     * @param bool|int $code Send custom error code.
      *
      * @return void
      */
-    public static function printer($data)
+    public static function printer($data, $code = false)
     {
         echo json_encode(
             $data,
             JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
         );
+        if (false !== $code) {
+            self::sendResponse(
+                $code
+            );
+        }
         exit;
     }
     /**

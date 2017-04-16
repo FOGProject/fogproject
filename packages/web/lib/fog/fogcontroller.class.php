@@ -829,7 +829,7 @@ abstract class FOGController extends FOGBase
      *
      * @return mixed
      */
-    protected function key(&$key)
+    public function key(&$key)
     {
         $key = trim($key);
         if (array_key_exists($key, $this->databaseFieldsFlipped)) {
