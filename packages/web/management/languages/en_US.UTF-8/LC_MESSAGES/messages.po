@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-15 23:46-0400\n"
+"POT-Creation-Date: 2017-04-17 03:57-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2954,7 +2954,7 @@ msgid "Max Size:"
 msgstr "Max Size:"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1104
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:191
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:192
 msgid "Upload File"
 msgstr "Upload File"
 
@@ -4790,11 +4790,11 @@ msgstr "to login"
 msgid "The following errors occured"
 msgstr "The following errors occured"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:173
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:174
 msgid "Upload FOG Reports"
 msgstr "Upload FOG Reports"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:182
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:183
 msgid ""
 "This section allows you to upload user defined reports that may not be part "
 "of the base FOG package. The report files should end in .php"
@@ -4802,21 +4802,21 @@ msgstr ""
 "This section allows you to upload user defined reports that may not be part "
 "of the base FOG package. The report files should end in .php"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:187
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:188
 msgid "Upload a FOG Report"
 msgstr "Upload a FOG Report"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:189
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:190
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:497
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:891
 msgid "Max Size"
 msgstr "Max Size"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:201
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:202
 msgid "About FOG Reports"
 msgstr "About FOG Reports"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:205
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:206
 msgid ""
 "FOG Reports exist to give you information about what is going on with your "
 "FOG System. To view a report, select an item from the menu on the left-hand "

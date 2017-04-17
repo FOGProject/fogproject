@@ -97,10 +97,12 @@ class ReportManagementPage extends FOGPage
                 )
             );
         };
-        return array_map(
+        $data = array_map(
             $getNiceNameReports,
             (array)$files
         );
+        natcasesort($data);
+        return $data;
     }
     /**
      * Initializes the report page.
@@ -114,8 +116,7 @@ class ReportManagementPage extends FOGPage
         $this->name = 'Report Management';
         parent::__construct($this->name);
         $this->menu = array(
-            'home' => self::$foglang['Home'],
-            'snapinlog' => self::$foglang['SnapinLog'],
+            'home' => self::$foglang['Home']
         );
         $reportlink = "?node={$this->node}&sub=file&f=";
         foreach (self::_loadCustomReports() as &$report) {

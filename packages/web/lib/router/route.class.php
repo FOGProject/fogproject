@@ -264,22 +264,22 @@ class Route extends FOGBase
                 'update'
             )
             ->post(
-                "${expandedt}/[i:id]/task",
+                "${expandedt}/[i:id]/[task]",
                 array(self, 'task'),
                 'task'
             )
             ->post(
-                "${expanded}/create",
+                "${expanded}/[create|new]",
                 array(self, 'create'),
                 'create'
             )
             ->delete(
-                "${expandedt}/i:id/cancel",
+                "${expandedt}/[i:id]/[cancel]",
                 array(self, 'cancel'),
                 'cancel'
             )
             ->delete(
-                "${expanded}/[i:id]/delete",
+                "${expanded}/[i:id]/[delete|remove]",
                 array(self, 'delete'),
                 'delete'
             );
