@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-17 03:57-0400\n"
+"POT-Creation-Date: 2017-04-17 04:26-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -5840,15 +5840,16 @@ msgstr "销毁作业"
 msgid "Destroyed assignment"
 msgstr "销毁作业"
 
-#: /var/www/fog/lib/router/route.class.php:539
-#, fuzzy
-msgid "Invalid tasking type passed"
-msgstr "无效的对象类型传递"
-
-#: /var/www/fog/lib/router/route.class.php:601
+#: /var/www/fog/lib/router/route.class.php:509
+#: /var/www/fog/lib/router/route.class.php:704
 #, fuzzy
 msgid "Already created"
 msgstr "已注册为"
+
+#: /var/www/fog/lib/router/route.class.php:642
+#, fuzzy
+msgid "Invalid tasking type passed"
+msgstr "无效的对象类型传递"
 
 #: /var/www/fog/lib/router/altorouter.class.php:217
 msgid "Routes should be an array or an instance of Traversable"

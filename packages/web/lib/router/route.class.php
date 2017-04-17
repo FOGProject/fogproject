@@ -485,6 +485,11 @@ class Route extends FOGBase
     public static function edit($class, $id)
     {
         $classname = strtolower($class);
+        $classVars = self::getClass(
+            $class,
+            '',
+            true
+        );
         $class = new $class($id);
         if (!$class->isValid()) {
             self::sendResponse(
@@ -492,15 +497,113 @@ class Route extends FOGBase
             );
         }
         $vars = json_decode(
-            file_get_contents('php://input'),
-            true
+            file_get_contents('php://input')
         );
-        foreach ($vars as $key => $val) {
+        $exists = self::getClass($classname)
+            ->getManager()
+            ->exists($vars->name);
+        if (strtolower($class->get('name')) != $vars->name
+            && $exists
+        ) {
+            self::setErrorMessage(
+                _('Already created'),
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+        foreach ($classVars['databaseFields'] as &$key) {
+            $key = $class->key($key);
+            $val = $vars->$key;
             if ($key == 'id') {
                 continue;
             }
-            // Update the respective key.
             $class->set($key, $val);
+            unset($key);
+        }
+        switch ($classname) {
+        case 'host':
+            if (count($vars->macs)) {
+                $class
+                    ->addAddMAC($vars->macs);
+            }
+            if (count($vars->snapins)) {
+                $class
+                    ->removeSnapin($class->get('snapins'))
+                    ->addSnapin($vars->snapins);
+            }
+            if (count($vars->printers)) {
+                $class
+                    ->removePrinter($class->get('printers'))
+                    ->addPrinter($vars->printers);
+            }
+            if (count($vars->modules)) {
+                $class
+                    ->removeModule($class->get('modules'))
+                    ->addModule($vars->modules);
+            }
+            if (count($vars->groups)) {
+                $class
+                    ->removeGroup($class->get('groups'))
+                    ->addGroup($vars->groups);
+            }
+            break;
+        case 'group':
+            if (count($vars->snapins)) {
+                $class
+                    ->removeSnapin(
+                        self::getSubObjectIDs('Snapin')
+                    )
+                    ->addSnapin($vars->snapins);
+            }
+            if (count($vars->printers)) {
+                $class
+                    ->removePrinter(
+                        self::getSubObjectIDs('Printer')
+                    )
+                    ->addPrinter($vars->printers);
+            }
+            if (count($vars->modules)) {
+                $class
+                    ->removeModule(
+                        self::getSubObjectIDs('Module')
+                    )
+                    ->addModule($vars->modules);
+            }
+            if (count($vars->hosts)) {
+                $class
+                    ->removeHost(
+                        $class->get('hosts')
+                    )
+                    ->addHost($vars->hosts);
+            }
+            if ($vars->imageID) {
+                $class
+                    ->addImage($vars->imageID);
+            }
+            break;
+        case 'image':
+        case 'snapin':
+            if (count($vars->hosts)) {
+                $class
+                    ->removeHost(
+                        $class->get('hosts')
+                    )
+                    ->addHost($vars->hosts);
+            }
+            if (count($vars->storagegroups)) {
+                $class
+                    ->removeGroup(
+                        $class->get('storagegroups')
+                    )
+                    ->addGroup($vars->storagegroups);
+            }
+        case 'printer':
+            if (count($vars->hosts)) {
+                $class
+                    ->removeHost(
+                        $class->get('hosts')
+                    )
+                    ->addHost($vars->hosts);
+            }
         }
         // Store the data and recreate.
         // If failed present so.
