@@ -1055,7 +1055,12 @@ linkOptFogDir() {
     local element='httpd'
     [[ $osid -eq 2 ]] && element='apache2'
     chmod -R 755 /var/log/$element >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    chmod -R 755 /var/log/php*fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    for i in $(find /var/log/ -type d -name 'php*fpm*'); do
+        chmod -R 755 $i >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    done
+    for i in $(find /var/log/ -type f -name 'php*fpm*'); do
+        chmod -R 755 $i >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    done
 }
 configureStorage() {
     dots "Setting up storage"
@@ -1422,10 +1427,43 @@ EOF
     dots "Setting up SSL FOG Server"
     if [[ $recreateCA == yes || $recreateKeys == yes || ! -f $etcconf ]]; then
         [[ $forcehttps == yes ]] && forcehttps='' || forcehttps='#'
-        echo -e "<VirtualHost *:80>\n\tKeepAlive Off\n\tServerName $ipaddress\n\tDocumentRoot $docroot\n\t${forcehttps}RewriteEngine On\n\t${forcehttps}RewriteRule /management/other/ca.cert.der$ - [L]\n\t${forcehttps}RewriteRule /management/ https://%{HTTP_HOST}%{REQUEST_URI}%{QUERY_STRING} [R,L]\n\tDirectoryIndex index.php index.html index.htm\t\nRewriteEngine On\n\tRewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f\n\tRewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d\n\tRewriteRule ^/(.*)$ /fog/api/index.php [QSA,L]\n</VirtualHost>" > "$etcconf"
-        [[ $forcehttps != '#' ]] && echo -e "<VirtualHost *:443>\n\tKeepAlive Off\n\tServername $ipaddress\n\tDocumentRoot $docroot\n\tSSLEngine On\n\tSSLProtocol all -SSLv3 -SSLv2\n\tSSLCipherSuite
-        ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA\n\tSSLHonorCipherOrder
-        on\n\tSSLCertificateFile $webdirdest/management/other/ssl/srvpublic.crt\n\tSSLCertificateKeyFile $sslprivkey\n\tSSLCertificateChainFile $webdirdest/management/other/ca.cert.der\n\tDirectoryIndex index.php index.html index.htm\n\tRewriteEngine On\n\tRewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f\n\tRewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d\n\tRewriteRule ^/(.*)$ /fog/api/index.php [QSA,L]\n</VirtualHost>" >> "$etcconf" || true
+        echo "<VirtualHost *:80>" > "$etcconf"
+        echo "    KeepAlive Off" >> "$etcconf"
+        echo "    ServerName $ipaddress" >> "$etcconf"
+        echo "    DocumentRoot $docroot" >> "$etcconf"
+        echo "    ${forcehttps}RewriteEngine On" >> "$etcconf"
+        echo "    ${forcehttps}RewriteRule /management/other/ca.cert.der$ - [L]" >> "$etcconf"
+        echo "    ${forcehttps}RewriteRule /management/ https://%{HTTP_HOST}%{REQUEST_URI}%{QUERY_STRING} [R,L]" >> "$etcconf"
+        echo "    <Directory />" >> "$etcconf"
+        echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
+        echo "        RewriteEngine On" >> "$etcconf"
+        echo "        RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f" >> "$etcconf"
+        echo "        RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d" >> "$etcconf"
+        echo "        RewriteRule ^/(.*)$ /fog/api/index.php [QSA,L]" >> "$etcconf"
+        echo "    </Directory>" >> "$etcconf"
+        echo "</VirtualHost>" >> "$etcconf"
+        if [[ $forcehttps != '#' ]]; then
+            echo "<VirtualHost *:443>" >> "$etcconf"
+            echo "    KeepAlive Off" >> "$etcconf"
+            echo "    Servername $ipaddress" >> "$etcconf"
+            echo "    DocumentRoot $docroot" >> "$etcconf"
+            echo "    SSLEngine On" >> "$etcconf"
+            echo "    SSLProtocol all -SSLv3 -SSLv2" >> "$etcconf"
+            echo "    SSLCipherSuite ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA"
+            >> "$etcconf"
+            echo "    SSLHonorCipherOrder On" >> "$etcconf"
+            echo "    SSLCertificateFile $webdirdest/management/other/ssl/srvpublic.crt" >> "$etcconf"
+            echo "    SSLCertificateKeyFile $sslprivkey" >> "$etcconf"
+            echo "    SSLCertificateChainFile $webdirdest/management/other/ca.cert.der" >> "$etcconf"
+            echo "    <Directory />" >> "$etcconf"
+            echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
+            echo "        RewriteEngine On" >> "$etcconf"
+            echo "        RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f" >> "$etcconf"
+            echo "        RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d" >> "$etcconf"
+            echo "        RewriteRule ^/(.*)$ /fog/api/index.php [QSA,L]" >> "$etcconf"
+            echo "    </Directory>" >> "$etcconf"
+            echo "</VirtualHost>" >> "$etcconf"
+        fi
         errorStat $?
         dots "Restarting Apache2 for fog vhost"
         ln -s $webdirdest $webdirdest/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
