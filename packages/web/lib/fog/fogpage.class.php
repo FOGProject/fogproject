@@ -2722,15 +2722,24 @@ abstract class FOGPage extends FOGBase
             ) {
                 throw new Exception('#!ihc');
             }
+            $expire = self::niceDate($Host->get('sec_time'));
+            if (self::niceDate() > $expire
+                || !trim($Host->get('pub_key'))
+            ) {
+                $Host
+                    ->set(
+                        'sec_time',
+                        self::niceDate()
+                            ->modify('+30 minutes')
+                            ->format('Y-m-d H:i:s')
+                    )
+                    ->set(
+                        'sec_tok',
+                        self::createSecToken()
+                    );
+            }
             $Host
-                ->set(
-                    'sec_time',
-                    self::niceDate()
-                    ->modify('+30 minutes')
-                    ->format('Y-m-d H:i:s')
-                )
                 ->set('pub_key', $key)
-                ->set('sec_tok', self::createSecToken())
                 ->save();
             $vals['token'] = $Host->get('sec_tok');
             if (self::$json === true) {
