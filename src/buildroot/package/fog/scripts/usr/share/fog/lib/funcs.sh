@@ -1813,8 +1813,7 @@ EBRFileName() {
     local part_number="$3"    # e.g. 5
     [[ -z $path ]] && handleError "No path passed (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ -z $disk_number ]] && handleError "No disk number passed (${FUNCNAME[0]})\n   Args Passed: $*"
-    [[ -z $part_number ]] && handleError "No partition number passed (${FUNCNAME[0]})\n   Args Passed: $*"
-    ebrfilename="$path/d${disk_number}p${part_number}.ebr"
+    [[ -z $part_number ]] && ebrfilename="" || ebrfilename="$path/d${disk_number}p${part_number}.ebr"
 }
 tmpEBRFileName() {
     local disk_number="$1"
