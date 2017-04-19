@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-18 06:08-0400\n"
+"POT-Creation-Date: 2017-04-19 10:14-0400\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -877,24 +877,24 @@ msgstr "Feld und Werte müssen nicht gleich Parameter."
 msgid "Need the table name to drop"
 msgstr ""
 
-#: /var/www/fog/lib/fog/user.class.php:249
-#: /var/www/fog/lib/fog/user.class.php:292
+#: /var/www/fog/lib/fog/user.class.php:245
+#: /var/www/fog/lib/fog/user.class.php:288
 msgid "user successfully logged in"
 msgstr "Benutzer erfolgreich angemeldet"
 
-#: /var/www/fog/lib/fog/user.class.php:306
+#: /var/www/fog/lib/fog/user.class.php:302
 msgid "user failed to login"
 msgstr "Benutzer nicht anmelden"
 
-#: /var/www/fog/lib/fog/user.class.php:411
+#: /var/www/fog/lib/fog/user.class.php:407
 msgid "IP Address Changed"
 msgstr "IP-Adresse geändert"
 
-#: /var/www/fog/lib/fog/user.class.php:420
+#: /var/www/fog/lib/fog/user.class.php:416
 msgid "User Agent Changed"
 msgstr "User-Agent geändert"
 
-#: /var/www/fog/lib/fog/user.class.php:429
+#: /var/www/fog/lib/fog/user.class.php:425
 msgid "Session altered improperly"
 msgstr "Sitzung nicht ordnungsgemäß geändert"
 

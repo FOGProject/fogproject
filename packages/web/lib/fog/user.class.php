@@ -132,9 +132,6 @@ class User extends FOGController
             '/(?=^.{3,40}$)^[\w][\w0-9]*[._-]?[\w0-9]*[.]?[\w0-9]+$/i',
             $username
         );
-        if (!$test) {
-            return false;
-        }
         $tmpUser = new User();
         self::$HookManager
             ->processEvent(
@@ -149,9 +146,6 @@ class User extends FOGController
             $tmpUser = self::getClass('User')
                 ->set('name', $username)
                 ->load('name');
-        }
-        if (!$tmpUser->isValid()) {
-            return false;
         }
         $typeIsValid = true;
         $type = $tmpUser->get('type');
@@ -170,10 +164,8 @@ class User extends FOGController
                     'typeIsValid' => &$typeIsValid
                 )
             );
-        if (!$typeIsValid) {
-            return false;
-        }
-        if (preg_match('#^[a-f0-9]{32}$#i', $tmpUser->get('password'))
+        if ($tmpUser->isValid()
+            && preg_match('#^[a-f0-9]{32}$#i', $tmpUser->get('password'))
             && md5($password) === $tmpUser->get('password')
         ) {
             $tmpUser
@@ -184,7 +176,11 @@ class User extends FOGController
             $password,
             $tmpUser->get('password')
         );
-        if (!$passValid) {
+        if (!$test
+            || !$tmpUser->isValid()
+            || !$typeIsValid
+            || !$passValid
+        ) {
             return false;
         }
         $this
