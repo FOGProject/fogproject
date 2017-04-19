@@ -50,7 +50,13 @@ class LoginFailure_PushBullet extends PushbulletExtends
     public function onEvent($event, $data)
     {
         self::$message = 'If you see repeatedly, please check your security';
-        self::$shortdesc = sprintf('%s %s', $data['Failure'], _('failed to login'));
+        self::$shortdesc = sprintf(
+            '%s %s. %s: %s',
+            $data['Failure'],
+            _('failed to login'),
+            _('Remote address attempting to login'),
+            filter_input(INPUT_SERVER, 'REMOTE_ADDR')
+        );
         parent::onEvent($event, $data);
     }
 }

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-19 10:14-0400\n"
+"POT-Creation-Date: 2017-04-19 10:26-0400\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -5911,9 +5911,14 @@ msgid "Invalid method called"
 msgstr "Ungültige Methode namens"
 
 #: /var/www/fog/lib/plugins/slack/events/loginfailure_slack.event.php:62
-#: /var/www/fog/lib/plugins/pushbullet/events/loginfailure_pushbullet.event.php:53
+#: /var/www/fog/lib/plugins/pushbullet/events/loginfailure_pushbullet.event.php:56
 msgid "failed to login"
 msgstr "Fehler beim anmelden"
+
+#: /var/www/fog/lib/plugins/slack/events/loginfailure_slack.event.php:63
+#: /var/www/fog/lib/plugins/pushbullet/events/loginfailure_pushbullet.event.php:57
+msgid "Remote address attempting to login"
+msgstr ""
 
 #: /var/www/fog/lib/plugins/slack/events/imagecomplete_slack.event.php:60
 #, fuzzy

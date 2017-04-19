@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-19 10:14-0400\n"
+"POT-Creation-Date: 2017-04-19 10:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5605,8 +5605,13 @@ msgid "Invalid method called"
 msgstr ""
 
 #: /var/www/fog/lib/plugins/slack/events/loginfailure_slack.event.php:62
-#: /var/www/fog/lib/plugins/pushbullet/events/loginfailure_pushbullet.event.php:53
+#: /var/www/fog/lib/plugins/pushbullet/events/loginfailure_pushbullet.event.php:56
 msgid "failed to login"
+msgstr ""
+
+#: /var/www/fog/lib/plugins/slack/events/loginfailure_slack.event.php:63
+#: /var/www/fog/lib/plugins/pushbullet/events/loginfailure_pushbullet.event.php:57
+msgid "Remote address attempting to login"
 msgstr ""
 
 #: /var/www/fog/lib/plugins/slack/events/imagecomplete_slack.event.php:60
