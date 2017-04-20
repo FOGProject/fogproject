@@ -216,10 +216,10 @@ class User extends FOGController
             '/(?=^.{3,40}$)^[\w][\w0-9]*[._-]?[\w0-9]*[.]?[\w0-9]+$/i',
             $username
         );
-        if (!$test) {
-            return new self(0);
-        }
         if ($this->passwordValidate($username, $password)) {
+            if (!$test) {
+                return new self(0);
+            }
             if (!$this->_sessionID) {
                 $this->_sessionID = session_id();
             }
@@ -251,6 +251,9 @@ class User extends FOGController
             );
             $this->_isLoggedIn();
         } else {
+            if (!$test) {
+                return new self(0);
+            }
             if (self::$FOGUser->isValid()) {
                 $type = self::$FOGUser->get('type');
                 self::$HookManager
