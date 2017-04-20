@@ -69,13 +69,11 @@ restoreUUIDInformation() {
     [[ ! -r $file ]] && return
     local diskuuid=""
     local partuuid=""
-    local escape_disk=$(escapeItem $disk)
-    local escape_part=""
     local is_swap=0
     local sfdiskoriginalpartitionfilename=""
     local part_number=""
     sfdiskOriginalPartitionFileName "$imagePath" "$disk_number"
-    diskuuid=$(awk "/^$escape_disk\ /{print \$2}" $file)
+    diskuuid=$(awk "/^\/dev\/[A-Za-z0-9]+[^0-9+]\ /{print \$2}" $file)
     dots "Disk UUID being set to"
     echo $diskuuid
     debugPause
@@ -86,9 +84,9 @@ restoreUUIDInformation() {
         partitionIsSwap "$part"
         getPartitionNumber "$part"
         [[ $is_swap -gt 0 ]] && continue
-        escape_part=$(escapeItem $part)
-        partuuid=$(awk -F[,\ ] "match(\$0, /^.*$escape_part.*uuid=([A-Za-z0-9-]+)[,]?.*$/, type){printf(\"%s:%s\", $part_number, tolower(type[1]))}" $sfdiskoriginalpartitionfilename)
-        parttype=$(awk -F[,\ ] "match(\$0, /^.*$escape_part.*type=([A-Za-z0-9-]+)[,]?.*$/, type){printf(\"%s:%s\", $part_number, tolower(type[1]))}" $sfdiskoriginalpartitionfilename)
+        pat="/^.*\/dev\/[A-Za-z0-9]+([Pp]|)[$part_number].*"
+        partuuid=$(awk -F[,\ ] "match(\$0, ${pat}uuid=([A-Za-z0-9-]+)[,]?.*$/, type){printf(\"%s:%s\", $part_number, tolower(type[2]))}" $sfdiskoriginalpartitionfilename)
+        parttype=$(awk -F[,\ ] "match(\$0, ${pat}type=([A-Za-z0-9-]+)[,]?.*$/, type){printf(\"%s:%s\", $part_number, tolower(type[2]))}" $sfdiskoriginalpartitionfilename)
         dots "Partition type being set to"
         echo $parttype
         debugPause
@@ -112,46 +110,6 @@ applySfdiskPartitions() {
     [[ ! $? -eq 0 ]] && majorDebugEcho "sfdisk failed in (${FUNCNAME[0]})"
 }
 # $1 is the name of the disk drive
-# $2 is the name of file to load from.
-applySgdiskPartitions() {
-    local disk="$1"
-    local file="$2"
-    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
-    [[ -z $file ]] && handleError "No file to receive from passed (${FUNCNAME[0]})\n   Args Passed: $*"
-    local escape_disk=$(escapeItem $disk)
-    local diskguid=$(awk -F: "/^$escape_disk:/{print \$3}" $file)
-    sgdisk -Z $disk >/dev/null 2>&1
-    [[ ! $? -eq 0 ]] && handleError "Failed to restore partitions (sgdisk -Z) (${FUNCNAME[0]})\n   Args Passed: $*"
-    sgdisk -U $diskguid $disk >/dev/null 2>&1
-    [[ ! $? -eq 0 ]] && handleError "Failed to restore partitions (sgdisk -U) (${FUNCNAME[0]})\n   Args Passed: $*"
-    local parts=""
-    local part=""
-    local part_number=""
-    local escape_part=""
-    local partstart=""
-    local partend=""
-    local parttype=""
-    local partcode=""
-    local partname=""
-    local awk_part_vars=""
-    getPartitions "$disk"
-    for part in $parts; do
-        escape_part=$(escapeItem $part)
-        getParititionNumber "$part"
-        awk_part_vars=$(awk -F: "/^$escape_part:/{printf(\"%d %d %d %d\",\$3,\$4,\$5,\$6)}" $file)
-        read partcode partstart partend partname <<< $awk_part_vars
-        parttype=$(awk -F: "/^part:$part_number:/{print \$5}" $file)
-        sgdisk -n $part_number:$partstart:$partend $disk >/dev/null 2>&1
-        [[ ! $? -eq 0 ]] && handleError "Failed to restore partition (sgdisk -n) (${FUNCNAME[0]})\n   Args Passed: $*"
-        sgdisk -c $part_number:$partname $disk >/dev/null 2>&1
-        [[ ! $? -eq 0 ]] && handleError "Failed to restore partition (sgdisk -c) (${FUNCNAME[0]})\n   Args Passed: $*"
-        sgdisk -t $part_number:$parttype $disk >/dev/null 2>&1
-        [[ ! $? -eq 0 ]] && handleError "Failed to restore partition (sgdisk -t) (${FUNCNAME[0]})\n   Args Passed: $*"
-        sgdisk -u $part_number:$partcode $disk >/dev/null 2>&1
-        [[ ! $? -eq 0 ]] && handleError "Failed to restore partition (sgdisk -u) (${FUNCNAME[0]})\n   Args Passed: $*"
-    done
-}
-# $1 is the name of the disk drive
 # $2 is name of file to load from.
 restoreSfdiskPartitions() {
     local disk="$1"
@@ -161,15 +119,6 @@ restoreSfdiskPartitions() {
     applySfdiskPartitions "$disk" "$file"
     fdisk $disk < /usr/share/fog/lib/EOFRESTOREPART >/dev/null 2>&1
     [[ ! $? -eq 0 ]] && majorDebugEcho "fdisk failed in (${FUNCNAME[0]})"
-}
-# $1 is the name of the disk drive
-# $2 is name of file to restore from.
-restoreSgdiskPartitions() {
-    local disk="$1"
-    local file="$2"
-    [[ -z $disk ]] && handleError "No disk passed (${FUNCNAME[0]})\n   Args Passed: $*"
-    [[ -z $file ]] && handleError "No file to restore from (${FUNCNAME[0]})\n   Args Passed: $*"
-    applySgdiskPartitions "$disk" "$file"
 }
 # $1 is the name of the disk drive
 hasExtendedPartition() {
@@ -402,11 +351,14 @@ makeSwapSystem() {
     getDiskFromPartition "$part"
     local parttype=0
     local hasgpt=""
+    local part_number=""
     local escape_part=$(escapeItem $part)
+    getPartitionNumber "$part"
     hasGPT "$disk"
+    local pat="/^\/dev\/[A-Za-z0-9]+([Pp]|)[$part_number]\ /"
     case $hasgpt in
         1)
-            uuid=$(awk "/^$escape_part/{print \$2}" $file)
+            uuid=$(awk "$pat{print \$2}" $file)
             [[ -n $uuid ]] && parttype=82
             ;;
         0)
