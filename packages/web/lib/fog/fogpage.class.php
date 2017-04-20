@@ -455,7 +455,9 @@ abstract class FOGPage extends FOGBase
         if ($tab) {
             $tabstr = "#$tab";
         }
-        $formstr .= http_build_query($data);
+        if (count($data) > 0) {
+            $formstr .= http_build_query($data);
+        }
         if ($tabstr) {
             $formstr .= $tabstr;
         }
