@@ -64,9 +64,6 @@ if [[ -n $mode && $mode != +(*debug*) && -z $type ]]; then
         sysinfo)
             fog.sysinfo
             ;;
-        "donate.full")
-            fog.donatefull
-            ;;
         *)
             handleError "Fatal Error: Unknown mode :: $mode ($0)\n   Args Passed: $*"
             ;;

@@ -1116,7 +1116,6 @@ writeUpdateFile() {
     escsnmysqlpass=$(echo $snmysqlpass | sed -e $replace -e "s/[']{1}/'''/g")
     escsnmysqlhost=$(echo $snmysqlhost | sed -e $replace)
     escinstalllang=$(echo $installlang | sed -e $replace)
-    escdonate=$(echo $donate | sed -e $replace)
     escstorageLocation=$(echo $storageLocation | sed -e $replace)
     escfogupdateloaded=$(echo $fogupdateloaded | sed -e $replace)
     escusername=$(echo $username | sed -e $replace)
@@ -1198,9 +1197,6 @@ writeUpdateFile() {
             grep -q "installlang=" $fogprogramdir/.fogsettings && \
                 sed -i "s/installlang=.*/installlang='$escinstalllang'/g" $fogprogramdir/.fogsettings || \
                 echo "installlang='$installlang'" >> $fogprogramdir/.fogsettings
-            grep -q "donate=" $fogprogramdir/.fogsettings && \
-                sed -i "s/donate=.*/donate='$escdonate'/g" $fogprogramdir/.fogsettings || \
-                echo "donate='$donate'" >> $fogprogramdir/.fogsettings
             grep -q "storageLocation=" $fogprogramdir/.fogsettings && \
                 sed -i "s/storageLocation=.*/storageLocation='$escstorageLocation'/g" $fogprogramdir/.fogsettings || \
                 echo "storageLocation='$storageLocation'" >> $fogprogramdir/.fogsettings
@@ -1283,7 +1279,6 @@ writeUpdateFile() {
             echo "snmysqlpass='$escsnmysqlpass'" >> "$fogprogramdir/.fogsettings"
             echo "snmysqlhost='$snmysqlhost'" >> "$fogprogramdir/.fogsettings"
             echo "installlang='$installlang'" >> "$fogprogramdir/.fogsettings"
-            echo "donate='$donate'" >> "$fogprogramdir/.fogsettings"
             echo "storageLocation='$storageLocation'" >> "$fogprogramdir/.fogsettings"
             echo "fogupdateloaded=1" >> "$fogprogramdir/.fogsettings"
             echo "docroot='$docroot'" >> "$fogprogramdir/.fogsettings"
@@ -1329,7 +1324,6 @@ writeUpdateFile() {
         echo "snmysqlpass='$escsnmysqlpass'" >> "$fogprogramdir/.fogsettings"
         echo "snmysqlhost='$snmysqlhost'" >> "$fogprogramdir/.fogsettings"
         echo "installlang='$installlang'" >> "$fogprogramdir/.fogsettings"
-        echo "donate='$donate'" >> "$fogprogramdir/.fogsettings"
         echo "storageLocation='$storageLocation'" >> "$fogprogramdir/.fogsettings"
         echo "fogupdateloaded=1" >> "$fogprogramdir/.fogsettings"
         echo "docroot='$docroot'" >> "$fogprogramdir/.fogsettings"
@@ -1856,7 +1850,6 @@ class Config
         define('FOG_JPGRAPH_VERSION', '2.3');
         define('FOG_REPORT_DIR', './reports/');
         define('FOG_CAPTUREIGNOREPAGEHIBER', true);
-        define('FOG_DONATE_MINING', \"${donate}\");
     }
 }" > "${webdirdest}/lib/fog/config.class.php"
     errorStat $?

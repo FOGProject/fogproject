@@ -793,9 +793,6 @@ class BootMenu extends FOGBase
             'FOG_DISABLE_CHKDSK',
             'FOG_KERNEL_ARGS',
             'FOG_KERNEL_DEBUG',
-            'FOG_MINING_ENABLE',
-            'FOG_MINING_MAX_CORES',
-            'FOG_MINING_PACKAGE_PATH',
             'FOG_MULTICAST_RENDEZVOUS',
             'FOG_NONREG_DEVICE'
         );
@@ -803,9 +800,6 @@ class BootMenu extends FOGBase
             $chkdsk,
             $kargs,
             $kdebug,
-            $miningen,
-            $miningcr,
-            $miningpp,
             $mcastrdv,
             $nondev
         ) = self::getSubObjectIDs(
@@ -865,14 +859,6 @@ class BootMenu extends FOGBase
             array(
                 'value' => "port=$port mc=yes",
                 'active' => $mc,
-            ),
-            array(
-                'value' => sprintf(
-                    'mining=1 miningcores=%s miningpath=%s',
-                    $miningcr,
-                    $miningpp
-                ),
-                'active' => $miningen,
             ),
             array(
                 'value' => 'debug',
@@ -1349,7 +1335,6 @@ class BootMenu extends FOGBase
                     'FOG_DISABLE_CHKDSK',
                     'FOG_KERNEL_ARGS',
                     'FOG_KERNEL_DEBUG',
-                    'FOG_MINING_ENABLE',
                     'FOG_MULTICAST_RENDEZVOUS',
                     'FOG_PIGZ_COMP',
                     'FOG_TFTP_HOST',
@@ -1362,7 +1347,6 @@ class BootMenu extends FOGBase
                     $chkdsk,
                     $kargs,
                     $kdebug,
-                    $mining,
                     $mcastrdv,
                     $pigz,
                     $tftp,
@@ -1603,27 +1587,6 @@ class BootMenu extends FOGBase
                         )
                     ),
                     'active' => $TaskType->isMulticast(),
-                ),
-                array(
-                    'value' => vsprintf(
-                        'mining=1 miningcores=%s miningpath=%s',
-                        self::getSubObjectIDs(
-                            'Service',
-                            array(
-                                'name' => array(
-                                    'FOG_MINING_MAX_CORES',
-                                    'FOG_MINING_PACKAGE_PATH'
-                                )
-                            ),
-                            'value',
-                            false,
-                            'AND',
-                            'name',
-                            false,
-                            ''
-                        )
-                    ),
-                    'active' => $mining,
                 ),
                 array(
                     'value' => sprintf(

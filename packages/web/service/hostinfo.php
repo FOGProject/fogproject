@@ -110,9 +110,6 @@ try {
             $ignorepg,
             $pct,
             $hostearly,
-            $mining,
-            $miningcores,
-            $miningpath,
             $ftp
         ) = FOGCore::getSubObjectIDs(
             'Service',
@@ -121,9 +118,6 @@ try {
                     'FOG_CAPTUREIGNOREPAGEHIBER',
                     'FOG_CAPTURERESIZEPCT',
                     'FOG_CHANGE_HOSTNAME_EARLY',
-                    'FOG_MINING_ENABLE',
-                    'FOG_MINING_MAX_CORES',
-                    'FOG_MINING_PACKAGE_PATH',
                     'FOG_TFTP_HOST'
                 )
             ),
@@ -188,10 +182,6 @@ try {
         'port' => $port,
         // Implicit device to use
         'fdrive' => $fdrive,
-        // Mining coins donation method,
-        'mining' => $mining,
-        'miningcores' => $miningcores,
-        'miningpath' => $miningpath,
         // Exposed other elements
         'hostname' => $Host->get('name'),
         'hostdesc' => $Host->get('description'),

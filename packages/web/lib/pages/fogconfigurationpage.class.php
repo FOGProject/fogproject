@@ -1339,8 +1339,6 @@ class FOGConfigurationPage extends FOGPage
             'FOG_PLUGINSYS_ENABLED',
             'FOG_FORMAT_FLAG_IN_GUI',
             'FOG_NO_MENU',
-            'FOG_MINING_ENABLE',
-            'FOG_MINING_FULL_RUN_ON_WEEKEND',
             'FOG_ALWAYS_LOGGED_IN',
             'FOG_ADVANCED_MENU_LOGIN',
             'FOG_TASK_FORCE_REBOOT',
@@ -1804,11 +1802,6 @@ class FOGConfigurationPage extends FOGPage
         $needstobenumeric = array(
             // API System
             'FOG_API_ENABLED' => $checkbox,
-            // Donations
-            'FOG_MINING_ENABLE' => $checkbox,
-            'FOG_MINING_MAX_CORES' => true,
-            'FOG_MINING_FULL_RESTART_HOUR' => range(0, 23),
-            'FOG_MINING_FULL_RUN_ON_WEEKEND' => $checkbox,
             // FOG Boot Settings
             'FOG_PXE_MENU_TIMEOUT' => true,
             'FOG_PXE_MENU_HIDDEN' => $checkbox,

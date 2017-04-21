@@ -152,7 +152,6 @@ case $installtype in
         blDNS=""
         dodhcp=""
         installlang=""
-        donate=""
         while [[ -z $routeraddress ]]; do
             if [[ -z $autoaccept ]]; then
                 echo
@@ -257,34 +256,6 @@ case $installtype in
                     installlang=1
                     ;;
                 *)
-                    echo "  Invalid input, please try again."
-                    ;;
-            esac
-        done
-        while [[ -z $donate ]]; do
-            if [[ -z $autoaccept ]]; then
-                echo
-                echo "  Would you like to donate computer resources to the FOG Project"
-                echo "  to mine cryptocurrency?  This will only take place during active"
-                echo "  tasks and should NOT have any impact on performance of your "
-                echo "  imaging or other tasks.  The currency will be used to pay for"
-                echo "  FOG Project expenses and to support the core developers working"
-                echo "  on the project.  For more information see: "
-                echo
-                echo "  http://fogproject.org/?q=cryptocurrency"
-                echo
-                echo -n "  Would you like to donate computer resources to the FOG Project? [y/N] "
-                read donate
-            fi
-            case $donate in
-                [Nn]|[Nn][Oo]|"")
-                    donate=0
-                    ;;
-                [Yy]|[Yy][Ee][Ss])
-                    donate=1
-                    ;;
-                *)
-                    donate=""
                     echo "  Invalid input, please try again."
                     ;;
             esac

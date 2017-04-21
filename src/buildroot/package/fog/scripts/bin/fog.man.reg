@@ -1,6 +1,5 @@
 #!/bin/bash
 . /usr/share/fog/lib/funcs.sh
-. /bin/fog.donate
 clearScreen
 displayBanner
 disks=""
