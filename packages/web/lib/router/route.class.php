@@ -353,7 +353,9 @@ class Route extends FOGBase
             $pwhash = self::getClass('User')
                 ->set('password', $_SERVER['PHP_AUTH_PW'], true)
                 ->load('password');
-            if ($pwhash->get('name') == $_SERVER['PHP_AUTH_USER']) {
+            if ($pwhash->isValid()
+                && $pwhash->get('name') == $_SERVER['PHP_AUTH_USER']
+            ) {
                 return;
             }
             self::sendResponse(
