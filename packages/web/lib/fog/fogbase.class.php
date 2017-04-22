@@ -2165,7 +2165,11 @@ abstract class FOGBase
         };
         $IPs = array_map($retIPs, (array) $IPs);
         $Names = array_map($retNames, (array) $IPs);
-        $output = self::fastmerge($IPs, $Names);
+        $output = self::fastmerge(
+            $IPs,
+            $Names,
+            array('127.0.0.1', '127.0.1.1')
+        );
         unset($IPs, $Names);
         natcasesort($output);
         self::$ips = array_values(array_filter(array_unique((array) $output)));

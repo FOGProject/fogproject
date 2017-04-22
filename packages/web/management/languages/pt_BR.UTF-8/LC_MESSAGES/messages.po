@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-21 19:41-0400\n"
+"POT-Creation-Date: 2017-04-21 20:20-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -444,7 +444,7 @@ msgid "Array type"
 msgstr "Matriz de dados"
 
 #: /var/www/fog/lib/fog/fogcontroller.class.php:909
-#: /var/www/fog/lib/fog/fogbase.class.php:2186
+#: /var/www/fog/lib/fog/fogbase.class.php:2190
 #: /var/www/fog/lib/fog/fogftp.class.php:370
 #: /var/www/fog/lib/pages/taskmobile.class.php:45
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1003
@@ -733,7 +733,7 @@ msgstr "Evento deve ser uma string"
 msgid "Key must be a string"
 msgstr "Evento deve ser uma string"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2188
+#: /var/www/fog/lib/fog/fogbase.class.php:2192
 #: /var/www/fog/lib/fog/fogftp.class.php:372
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2303
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:85
@@ -744,12 +744,12 @@ msgstr "Evento deve ser uma string"
 msgid "File"
 msgstr "Arquivo"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2190
+#: /var/www/fog/lib/fog/fogbase.class.php:2194
 #: /var/www/fog/lib/fog/fogftp.class.php:374
 msgid "Line"
 msgstr "Linha"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2192
+#: /var/www/fog/lib/fog/fogbase.class.php:2196
 #: /var/www/fog/lib/fog/fogftp.class.php:376
 #: /var/www/fog/lib/db/mysql.class.php:189
 msgid "Message"
