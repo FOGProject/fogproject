@@ -182,7 +182,7 @@ abstract class FOGClient extends FOGBase
             );
             $jsonSub = (!isset($sub) || $sub !== 'requestClientInfo');
             if ($jsonSub && self::$json) {
-                return print $message;
+                return $this->sendData($message);
             }
             return $message;
         }
