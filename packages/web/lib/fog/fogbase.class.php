@@ -1356,27 +1356,27 @@ abstract class FOGBase
      *
      * @return string
      */
-    protected static function createSecToken()
+    public static function createSecToken()
     {
-        /**
-         * Lambda to create random data.
-         *
-         * @return string
-         */
-        $randGen = function () {
-            $rand = mt_rand();
-            $uniq = uniqid($rand, true);
-
-            return md5($uniq);
-        };
-        $token = sprintf(
-            '%s%s',
-            $randGen(),
-            $randGen()
-        );
-        $token = bin2hex($token);
-
-        return trim($token);
+        if (function_exists('random_bytes')) {
+            $token = bin2hex(
+                random_bytes(64)
+            );
+        } elseif (function_exists('mcrypt_create_iv')) {
+            $token = bin2hex(
+                mcrypt_create_iv(
+                    64,
+                    MCRYPT_DEV_URANDOM
+                )
+            );
+        } elseif (function_exists('openssl_random_pseudo_bytes')) {
+            $token = bin2hex(
+                openssl_random_pseudo_bytes(
+                    64
+                )
+            );
+        }
+        return $token;
     }
     /**
      * Encrypt the data passed.

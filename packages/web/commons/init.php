@@ -259,26 +259,7 @@ class Initiator
      */
     public static function csrfGenToken($formname)
     {
-        if (function_exists('random_bytes')) {
-            $token = bin2hex(
-                random_bytes(64)
-            );
-        }
-        if (function_exists('mcrypt_create_iv')) {
-            $token = bin2hex(
-                mcrypt_create_iv(
-                    64,
-                    MCRYPT_DEV_URANDOM
-                )
-            );
-        }
-        if (function_exists('openssl_random_pseudo_bytes')) {
-            $token = bin2hex(
-                openssl_random_pseudo_bytes(
-                    64
-                )
-            );
-        }
+        $token = FOGCore::createSecToken();
         self::storeInSession($formname, $token);
     }
     /**

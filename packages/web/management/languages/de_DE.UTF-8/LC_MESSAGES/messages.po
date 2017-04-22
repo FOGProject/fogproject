@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-21 22:51-0400\n"
+"POT-Creation-Date: 2017-04-22 19:35-0400\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -8447,7 +8447,7 @@ msgstr "Nebel-Client-Wiki"
 msgid "Classname must be a string"
 msgstr "Veranstaltung muss eine Zeichenfolge sein."
 
-#: /var/www/fog/commons/init.php:494
+#: /var/www/fog/commons/init.php:475
 #, fuzzy
 msgid "Missing one or more extensions."
 msgstr "Fehlende Erweiterungen"

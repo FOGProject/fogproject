@@ -252,6 +252,7 @@ class HTTPResponseCodes
         if (in_array($method, array('HEAD', 'OPTIONS'))) {
             header('Content-Length: 0');
         }
+        header('Content-Type: application/json');
         echo $msg;
         exit;
     }
