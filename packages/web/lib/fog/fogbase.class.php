@@ -1715,7 +1715,9 @@ abstract class FOGBase
                     ->set('pub_key', '')
                     ->save()
                     ->load();
-                throw new Exception('#!ihc');
+                if (self::$newService || self::$json) {
+                    throw new Exception('#!ihc');
+                }
             }
             if (self::$newService) {
                 printf(
