@@ -232,17 +232,27 @@ class HTTPResponseCodes
     /**
      * Run the header based on code and exit.
      *
-     * @param int $code The code to pass.
+     * @param int    $code The code to pass.
+     * @param string $msg  The message to send.
      *
      * @return void
      */
-    public static function breakHead($code)
+    public static function breakHead($code, $msg = '')
     {
         header(
-            self::getMessageForCode($code),
+            sprintf(
+                '%s %s',
+                self::getServerProtocol(),
+                self::getMessageForCode($code)
+            ),
             true,
             $code
         );
+        $method = filter_input(INPUT_SERVER, 'REQUEST_METHOD');
+        if (in_array($method, array('HEAD', 'OPTIONS'))) {
+            header('Content-Length: 0');
+        }
+        echo $msg;
         exit;
     }
 }

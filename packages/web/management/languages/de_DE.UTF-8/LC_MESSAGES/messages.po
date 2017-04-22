@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-21 20:36-0400\n"
+"POT-Creation-Date: 2017-04-21 22:51-0400\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -5877,22 +5877,22 @@ msgstr "Zerstörte Zuordnung"
 msgid "Destroyed assignment"
 msgstr "Zerstörte Zuordnung"
 
-#: /var/www/fog/lib/router/route.class.php:511
-#: /var/www/fog/lib/router/route.class.php:706
+#: /var/www/fog/lib/router/route.class.php:514
+#: /var/www/fog/lib/router/route.class.php:709
 #, fuzzy
 msgid "Already created"
 msgstr "Bereits registriert als"
 
-#: /var/www/fog/lib/router/route.class.php:644
+#: /var/www/fog/lib/router/route.class.php:647
 #, fuzzy
 msgid "Invalid tasking type passed"
 msgstr "Ungültiges Objekttyp übergeben"
 
-#: /var/www/fog/lib/router/altorouter.class.php:217
+#: /var/www/fog/lib/router/altorouter.class.php:219
 msgid "Routes should be an array or an instance of Traversable"
 msgstr ""
 
-#: /var/www/fog/lib/router/altorouter.class.php:337
+#: /var/www/fog/lib/router/altorouter.class.php:339
 msgid "Can not redeclare route"
 msgstr ""
 

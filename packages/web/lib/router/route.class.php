@@ -238,7 +238,8 @@ class Route extends FOGBase
             implode('|', self::$validTaskingClasses)
         );
         self::$router
-            ->get(
+            ->map(
+                'HEAD|GET',
                 '/system/[status|info]',
                 array(self, 'status'),
                 'status'
@@ -367,13 +368,15 @@ class Route extends FOGBase
      * Sends the response code through break head as needed.
      *
      * @param int $code The code to break head on.
+     * @param int $msg  The message to send.
      *
      * @return void
      */
-    public static function sendResponse($code)
+    public static function sendResponse($code, $msg = false)
     {
         HTTPResponseCodes::breakHead(
-            $code
+            $code,
+            $msg
         );
     }
     /**
@@ -841,16 +844,20 @@ class Route extends FOGBase
      */
     public static function printer($data, $code = false)
     {
-        echo json_encode(
+        $message = json_encode(
             $data,
             JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
         );
         if (false !== $code) {
             self::sendResponse(
-                $code
+                $code,
+                $message
             );
         }
-        exit;
+        self::sendResponse(
+            HTTPResponseCodes::HTTP_SUCCESS,
+            $message
+        );
     }
     /**
      * This is a commonizing element so list/search/getinfo

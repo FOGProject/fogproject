@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-21 20:36-0400\n"
+"POT-Creation-Date: 2017-04-21 22:51-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -5878,22 +5878,22 @@ msgstr "cession Destroyed"
 msgid "Destroyed assignment"
 msgstr "cession Destroyed"
 
-#: /var/www/fog/lib/router/route.class.php:511
-#: /var/www/fog/lib/router/route.class.php:706
+#: /var/www/fog/lib/router/route.class.php:514
+#: /var/www/fog/lib/router/route.class.php:709
 #, fuzzy
 msgid "Already created"
 msgstr "Déjà inscrit comme"
 
-#: /var/www/fog/lib/router/route.class.php:644
+#: /var/www/fog/lib/router/route.class.php:647
 #, fuzzy
 msgid "Invalid tasking type passed"
 msgstr "type d'objet non valide passé"
 
-#: /var/www/fog/lib/router/altorouter.class.php:217
+#: /var/www/fog/lib/router/altorouter.class.php:219
 msgid "Routes should be an array or an instance of Traversable"
 msgstr ""
 
-#: /var/www/fog/lib/router/altorouter.class.php:337
+#: /var/www/fog/lib/router/altorouter.class.php:339
 msgid "Can not redeclare route"
 msgstr ""
 

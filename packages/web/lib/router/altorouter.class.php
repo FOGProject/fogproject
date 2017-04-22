@@ -124,9 +124,11 @@ class AltoRouter
         $validTypes = array(
             'get' => 'GET',
             'put' => 'PUT',
+            'head' => 'HEAD',
             'post' => 'POST',
             'patch' => 'PATCH',
-            'delete' => 'DELETE'
+            'delete' => 'DELETE',
+            'options' => 'OPTIONS'
         );
         // If method type is invalid don't do anything.
         if (!isset($validTypes[$name])) {
