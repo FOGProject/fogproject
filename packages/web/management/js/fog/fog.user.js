@@ -1,5 +1,15 @@
 $(function() {
     checkboxToggleSearchListPages();
+    $('.resettoken').click(function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: '../status/newtoken.php',
+            dataType: 'json',
+            success: function(data) {
+                $('.token').val(data);
+            }
+        });
+    });
     form = $('.username-input').parents('form');
     validator = form.validate({
         name: {

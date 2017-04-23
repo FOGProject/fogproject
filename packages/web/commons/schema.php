@@ -3742,3 +3742,8 @@ $this->schema[] = array(
     "ALTER TABLE `taskTypes` auto_increment=1",
     "ALTER TABLE `globalSettings` auto_increment=1"
 );
+// 259
+$this->schema[] = array(
+    "ALTER TABLE `users` ADD `uAllowAPI` ENUM('0','1') NOT NULL DEFAULT '1'",
+    "ALTER TABLE `users` ADD `uAPIToken` VARCHAR(255) NOT NULL"
+);

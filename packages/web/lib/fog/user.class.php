@@ -69,7 +69,9 @@ class User extends FOGController
         'createdTime' => 'uCreateDate',
         'createdBy' => 'uCreateBy',
         'type' => 'uType',
-        'display' => 'uDisplay'
+        'display' => 'uDisplay',
+        'api' => 'uAllowAPI',
+        'token' => 'uAPIToken'
     );
     /**
      * The required fields

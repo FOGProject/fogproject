@@ -351,10 +351,20 @@ class Route extends FOGBase
             $_SERVER['PHP_AUTH_PW']
         );
         if (!$auth) {
+            $usertoken = base64_decode(
+                filter_input(INPUT_SERVER, 'HTTP_FOG_USER_TOKEN')
+            );
+            $pwtoken = self::getClass('User')
+                ->set('token', $usertoken)
+                ->load('token');
+            if ($pwtoken->isValid() && $pwtoken->get('api')) {
+                return;
+            }
             $pwhash = self::getClass('User')
                 ->set('password', $_SERVER['PHP_AUTH_PW'], true)
                 ->load('password');
             if ($pwhash->isValid()
+                && $pwhash->get('api')
                 && $pwhash->get('name') == $_SERVER['PHP_AUTH_USER']
             ) {
                 return;
