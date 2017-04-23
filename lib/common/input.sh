@@ -52,6 +52,15 @@ if [[ $guessdefaults == 1 ]]; then
     strSuggestedDNS=""
     [[ -f /etc/resolv.conf ]] && strSuggestedDNS=$(cat /etc/resolv.conf | grep "nameserver" | head -n 1 | tr -d "nameserver" | tr -d [:blank:] | grep "^[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*$")
     [[ -z $strSuggestedDNS && -d /etc/NetworkManager/system-connections ]] && strSuggestedDNS=$(cat /etc/NetworkManager/system-connections/* | grep "dns" | head -n 1 | tr -d "dns=" | tr -d ";" | tr -d [:blank:] | grep "^[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*$")
+    if [[ -z $strSuggestedDNS ]]; then #If the suggested DNS is still empty, take further steps to get the addresses.
+        mkdir -p /tmp > /dev/null 2>&1 #Make sure /tmp exists, this will be the working directory.
+        cat /etc/resolv.conf | grep "nameserver" > /tmp/nameservers.txt #Get all lines from reslov.conf that have "nameserver" in them.
+        sed -i 's:#.*$::g' /tmp/nameservers.txt #Remove all comments from new file.
+        sed -i -- 's/nameserver //g' /tmp/nameservers.txt #Change "nameserver " to "tmpDns="
+        sed -i '/^$/d' /tmp/nameservers.txt #Delete blank lines from temp file.
+        strSuggestedDNS=$(head -n 1 /tmp/nameservers.txt) #Get first DNS Address from the file.
+	rm -f /tmp/nameservers.txt #Cleanup after ourselves.	
+    fi	    
     strSuggestedSNUser="fogstorage"
 fi
 displayOSChoices
