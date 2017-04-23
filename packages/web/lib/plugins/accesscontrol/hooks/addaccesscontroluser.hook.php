@@ -47,7 +47,7 @@ class AddAccessControlUser extends Hook
             return;
         }
         foreach ((array)$arguments['headerData'] as $index => &$str) {
-            if ($index == 3) {
+            if ($index == 5) {
                 $arguments['headerData'][$index] = _('Role');
                 $arguments['headerData'][] = $str;
             }
@@ -76,14 +76,14 @@ class AddAccessControlUser extends Hook
             return;
         }
         foreach ((array)$arguments['attributes'] as $index => &$str) {
-            if ($index == 3) {
+            if ($index == 5) {
                 $arguments['attributes'][$index] = array();
                 $arguments['attributes'][] = $str;
             }
             unset($str);
         }
         foreach ((array)$arguments['templates'] as $index => &$str) {
-            if ($index == 3) {
+            if ($index == 5) {
                 $arguments['templates'][$index] = '${role}';
                 $arguments['templates'][] = $str;
             }
