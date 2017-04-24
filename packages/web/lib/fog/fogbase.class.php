@@ -2277,7 +2277,8 @@ abstract class FOGBase
             ''
         );
         $ip = $gHost;
-        self::$FOGURLRequests->process(
+        $nodeURLs[] = $ip;
+        $ret = self::$FOGURLRequests->process(
             $nodeURLs,
             'POST',
             array('mac' => $macStr),

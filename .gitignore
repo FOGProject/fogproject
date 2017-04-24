@@ -60,3 +60,4 @@ packages/web/management/other/*
 # Config file #
 ###############
 *config.class.php
+*.well-known
