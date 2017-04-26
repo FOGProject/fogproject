@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-04-21 20:36-0400\n"
-"PO-Revision-Date: 2017-04-26 16:10+0200\n"
-"Last-Translator: Automatically generated\n"
+"PO-Revision-Date: 2017-04-26 17:57+0200\n"
+"Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -3927,48 +3927,48 @@ msgstr "Generale"
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:749
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1277
 msgid "This module did not work past Windows XP due"
-msgstr ""
+msgstr "Questo modulo non funzionerà in Windows XP a causa di"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:732
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:750
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1278
 msgid "to UAC introduced in Vista and up"
-msgstr ""
+msgstr "UAC introdotto in Vista e superiori"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:737
 msgid "The old client is what was distributed"
-msgstr ""
+msgstr "Il vecchio cliente è quello che è stato distribuito"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:738
 msgid "with FOG 1.2.0 and earlier"
-msgstr ""
+msgstr "con FOG 1.2.0 e precedenti"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:740
 msgid "and the equivalent module for what Green FOG"
-msgstr ""
+msgstr "E il modulo equivalente a Green FOG"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:741
 msgid "did is now called Power Management"
-msgstr ""
+msgstr "Ora chiamato Power Management"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:754
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1282
 msgid "This module is only used"
-msgstr ""
+msgstr "Questo modulo viene utilizzato solo"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:755
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1283
 msgid "with modules and config"
-msgstr ""
+msgstr "con moduli e configurazioni"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:756
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1284
 msgid "on the old client"
-msgstr ""
+msgstr "sul vecchio client"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:869
 msgid "Group Screen Resolution"
-msgstr "Risoluzione dello schermo Gruppo"
+msgstr "Gruppo risoluzione dello schermo"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:898
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1419
@@ -3997,9 +3997,8 @@ msgstr "Log Out Auto Tempo (in minuti)"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1005
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1607
-#, fuzzy
 msgid "Schedule Power"
-msgstr "Scheduler"
+msgstr "Pianifica spegnimento"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1028
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1629
@@ -4008,9 +4007,8 @@ msgstr "Esegui immediatamente?"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1055
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1658
-#, fuzzy
 msgid "Add Option"
-msgstr "Opzioni avanzate"
+msgstr "Aggiungi opzioni"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1107
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1108
@@ -4033,7 +4031,7 @@ msgstr "Opzioni avanzate"
 #: /var/www/fog/lib/reports/inventory_report.report.php:35
 #: /var/www/fog/lib/reports/inventory_report.report.php:36
 msgid "Export CSV"
-msgstr "Export CSV"
+msgstr "Esporta CSV"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1114
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1115
@@ -4062,22 +4060,20 @@ msgstr "Esporta PDF"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1180
 msgid "Host Memory"
-msgstr "Memory Host"
+msgstr "Memoria Host"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1219
 msgid "Group Name is required"
-msgstr "è richiesto Nome gruppo"
+msgstr "Nome gruppo richiesto"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1386
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2381
-#, fuzzy
 msgid "You must select an action to perform"
-msgstr "È necessario specificare l'alias e porto"
+msgstr "È necessario selezionare un'azione da eseguire"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1430
-#, fuzzy
 msgid "Group information updated"
-msgstr "informazioni LDAP aggiornato!"
+msgstr "Informazioni sul gruppo aggiornate"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1450
 msgid "Delete Hosts"
@@ -4100,11 +4096,11 @@ msgstr "Nome Host"
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1454
 #: /var/www/fog/commons/text.php:206
 msgid "Last Deployed"
-msgstr "Ultima Schierato"
+msgstr "Ultima Distribuita"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1482
 msgid "Confirm you really want to delete the following hosts"
-msgstr "Confermare davvero si vuole eliminare i seguenti ospiti"
+msgstr "Confermi che si vuole davvero eliminare i seguenti host"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1501
 msgid "Delete listed hosts"
@@ -4112,7 +4108,7 @@ msgstr "Elimina host elencati"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:68
 msgid "Started By:"
-msgstr "Iniziato da:"
+msgstr "Ordina per:"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:72
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:676
@@ -4122,7 +4118,7 @@ msgstr "MAC"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:76
 msgid "Working with node"
-msgstr ""
+msgstr "Lavorare con il nodo"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:77
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:701
@@ -4132,16 +4128,16 @@ msgstr "Stato"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:162
 msgid "Task forced to start"
-msgstr "Task costretto a partire"
+msgstr "Task forzato a partire"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:167
 msgid "Force task to start"
-msgstr "Task force per iniziare"
+msgstr "Task da forzare a partire"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:300
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:174
 msgid "Assigned Image"
-msgstr "Immagine assegnato"
+msgstr "Immagine assegnata"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:445
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:565
@@ -4171,9 +4167,8 @@ msgid "is protected"
 msgstr "è protetta"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:475
-#, fuzzy
 msgid "Quick"
-msgstr "Clic"
+msgstr "Veloce"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:483
 msgid "Hosts do not have the same image assigned"
@@ -4184,19 +4179,16 @@ msgid "Multicast Quick Deploy"
 msgstr "Multicast rapida Deploy"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:489
-#, fuzzy
 msgid "Group Quick Deploy"
-msgstr "Distribuzione rapida"
+msgstr "Rapida distribuzione di gruppo"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:512
-#, fuzzy
 msgid "Successfully created"
-msgstr "aggiornato con successo"
+msgstr "Creato con successo"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:514
-#, fuzzy
 msgid "tasking"
-msgstr "tasking"
+msgstr "attività"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:521
 #: /var/www/fog/commons/text.php:263
@@ -4205,7 +4197,7 @@ msgstr "Impossibile creare un'attività"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:657
 msgid "Invalid task"
-msgstr "compito non valido"
+msgstr "Attività non valida"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:698
 #: /var/www/fog/commons/text.php:48 /var/www/fog/commons/text.php:105
@@ -4214,7 +4206,7 @@ msgstr "host"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:753
 msgid "MulticastTask"
-msgstr "MulticastTask"
+msgstr "Attività Multicast"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:819
 #: /var/www/fog/commons/text.php:34
@@ -4231,11 +4223,11 @@ msgstr "Host / Nome gruppo"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:998
 msgid "Is Group"
-msgstr "gruppo è"
+msgstr "Il gruppo è"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1000
 msgid "Task Type"
-msgstr "Task Type"
+msgstr "Tipo attività"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1002
 #: /var/www/fog/commons/text.php:122
@@ -4243,19 +4235,16 @@ msgid "Active"
 msgstr "Attivo"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1072
-#, fuzzy
 msgid "All snapins"
 msgstr "Tutti gli snap-in"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1076
-#, fuzzy
 msgid "Invalid snapin"
 msgstr "Snapin non valido"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1078
-#, fuzzy
 msgid "Snapin to be installed"
-msgstr "snap-Enabled"
+msgstr "Snapin da installare"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1089
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1094
@@ -4267,7 +4256,7 @@ msgstr "snap-Enabled"
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:460
 #: /var/www/fog/lib/reports/host_list.report.php:102
 msgid "Yes"
-msgstr "sì"
+msgstr "Sì"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1090
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1095
@@ -4290,7 +4279,7 @@ msgstr "gruppo"
 #: /var/www/fog/lib/service/taskscheduler.class.php:196
 #: /var/www/fog/lib/service/pinghosts.class.php:148
 msgid "host"
-msgstr "ospite"
+msgstr "host"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:39
 #: /var/www/fog/commons/text.php:196
@@ -4298,9 +4287,8 @@ msgid "User Management"
 msgstr "Gestione utenti"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:52
-#, fuzzy
 msgid "Change password"
-msgstr "Gestione delle password"
+msgstr "Cambia password"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:56
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:81
@@ -4308,14 +4296,13 @@ msgstr "Gestione delle password"
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:294
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1112
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1187
-#, fuzzy
 msgid "Friendly Name"
-msgstr "Nome kernel"
+msgstr "Nome amichevole"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:59
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:131
 msgid "No friendly name defined"
-msgstr ""
+msgstr "Nessun nome amichevole definito"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:91
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:99
@@ -4350,22 +4337,22 @@ msgstr "Mobile / Quick Access solo immagine?"
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:181
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:305
 msgid "Warning"
-msgstr ""
+msgstr "Attenzione"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:182
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:306
 msgid "if you tick this box"
-msgstr ""
+msgstr "Se selezioni questa casella"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:183
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:307
 msgid "this user will not be able to log into"
-msgstr ""
+msgstr "Questo utente non sarà in grado di accedere a"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:184
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:308
 msgid "this FOG Management console in the future"
-msgstr ""
+msgstr "questa console di gestione FOG in futuro"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:189
 msgid "Create User"
@@ -4378,27 +4365,27 @@ msgstr "Aggiungere un nuovo account utente"
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:238
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:422
 msgid "Username does not meet rules"
-msgstr ""
+msgstr "Il nome utente non soddisfa le regole"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:239
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:423
 msgid "Must start with a word character"
-msgstr ""
+msgstr "Deve iniziare con un carattere parola"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:240
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:424
 msgid "Must be at least 3 characters"
-msgstr ""
+msgstr "Deve avere almeno 3 caratteri"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:241
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:425
 msgid "Must be shorter than 41 characters"
-msgstr ""
+msgstr "Deve essere inferiore a 41 caratteri"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:242
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:426
 msgid "No contiguous special characters"
-msgstr ""
+msgstr "Nessun carattere speciale contigui"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:247
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:439
@@ -4411,7 +4398,7 @@ msgstr "Impossibile creare utente"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:260
 msgid "User created"
-msgstr "utente creato"
+msgstr "Utente creato"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:261
 msgid "You may now create another"
@@ -4431,132 +4418,123 @@ msgstr "Database Schema di installazione / aggiornamento"
 
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:59
 msgid "Your FOG database schema is not up to date"
-msgstr ""
+msgstr "Il tuo schema di database FOG non è aggiornato"
 
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:60
 msgid "either because you have updated"
-msgstr ""
+msgstr "Sia perché hai aggiornato"
 
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:61
 msgid "or this is a new FOG installation"
-msgstr ""
+msgstr "o questa è una nuova installazione di FOG"
 
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:62
 msgid "If this is an upgrade"
-msgstr ""
+msgstr "Se questo è un aggiornamento"
 
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:63
 msgid "there will be a database backup stored on your"
-msgstr ""
+msgstr "Ci sarà un backup del database memorizzato sul tuo"
 
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:64
 msgid "FOG server defaulting under the folder"
-msgstr ""
+msgstr "server FOG per default nella cartella"
 
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:66
 msgid "Should anything go wrong"
-msgstr ""
+msgstr "Qualsiasi cosa andasse storto"
 
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:67
 msgid "this backup will enable you to return to the"
-msgstr ""
+msgstr "Questo backup vi permetterà di ritornare alla"
 
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:68
 msgid "previous install if needed"
-msgstr ""
+msgstr "installazione precedente se necessario"
 
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:72
-#, fuzzy
 msgid "Are you sure you wish to"
-msgstr "Sei sicuro di voler rimuovere questi elementi"
+msgstr "Sei sicuro di voler"
 
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:73
-#, fuzzy
 msgid "install or update the FOG database"
-msgstr "Sei sicuro di voler installare o aggiornare il database FOG?"
+msgstr "Installare o aggiornare il database FOG"
 
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:76
 msgid "Install/Upgrade Now"
-msgstr "Installa / Aggiorna adesso"
+msgstr "Installa/Aggiorna adesso"
 
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:79
 msgid "If you would like to backup your"
-msgstr ""
+msgstr "Se vuoi eseguire il backup del tuo"
 
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:80
 msgid "FOG database you can do so using"
-msgstr ""
+msgstr "FOG database è possibile farlo utilizzando"
 
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:81
 msgid "MySQL Administrator or by running"
-msgstr ""
+msgstr "MySQL Administrator o eseguendo"
 
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:82
 msgid "the following command in a terminal"
-msgstr ""
+msgstr "il seguente comando in un terminale"
 
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:83
-#, fuzzy
 msgid "window"
-msgstr "Windows 7"
+msgstr "finestra"
 
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:84
-#, fuzzy
 msgid "Applications"
-msgstr "azioni"
+msgstr "Applicazioni"
 
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:85
-#, fuzzy
 msgid "System Tools"
-msgstr "Tipo di sistema"
+msgstr "Utilità di sistema"
 
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:86
-#, fuzzy
 msgid "Terminal"
-msgstr "Seriale"
+msgstr "Terminale"
 
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:87
 msgid "this will save the backup in your home"
-msgstr ""
+msgstr "Questo salverà il backup nella tua"
 
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:88
-#, fuzzy
 msgid "directory"
-msgstr "elenco"
+msgstr "directory"
 
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:108
 msgid "Your database connection appears to be invalid"
-msgstr ""
+msgstr "La connessione al database sembra non valida"
 
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:109
 msgid "FOG is unable to communicate with the database"
-msgstr ""
+msgstr "FOG non è in grado di comunicare con il database"
 
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:110
 msgid "There are many reasons why this could be the case"
-msgstr ""
+msgstr "Ci sono molte ragioni per cui questo potrebbe essere il caso"
 
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:111
 msgid "Please check your credentials in"
-msgstr ""
+msgstr "Controlla le tue credenziali"
 
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:115
-#, fuzzy
 msgid "Also confirm that the database is indeed running"
-msgstr "Controllare che database è in esecuzione"
+msgstr "Confermare anche che il database sia in esecuzione"
 
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:116
 msgid "If credentials are correct"
 msgstr "Se le credenziali sono corrette"
 
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:117
-#, fuzzy
 msgid "and if the Database service is running"
-msgstr "Controllare che database è in esecuzione"
+msgstr "e se il servizio Database è in esecuzione"
 
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:118
 msgid "check to ensure your filesystem has enough space"
-msgstr ""
+msgstr "cerificare che il filesystem abbia spazio sufficiente"
 
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:144
 msgid "No connection available"
@@ -4577,11 +4555,11 @@ msgstr "Database"
 
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:209
 msgid "Variable contains"
-msgstr ""
+msgstr "La variabile contiene"
 
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:211
 msgid "Database SQL"
-msgstr ""
+msgstr "Database SQL"
 
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:228
 msgid "Install / Update Failed!"
@@ -4669,38 +4647,33 @@ msgstr "Compito"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:212
 msgid "Goto task list"
-msgstr ""
+msgstr "Andare all'elenco delle attività"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:308
 msgid "Pending Host List"
 msgstr "In attesa Lista Host"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:343
-#, fuzzy
 msgid "Approve selected hosts"
-msgstr "Approva Host selezionati"
+msgstr "Approvare host selezionati"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:344
-#, fuzzy
 msgid "Delete selected hosts"
-msgstr "Elimina Host selezionati"
+msgstr "Elimina host selezionati"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:372
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:168
-#, fuzzy
 msgid "approved"
-msgstr "Host approvato"
+msgstr "approvato"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:378
-#, fuzzy
 msgid "All hosts"
 msgstr "tutti gli host"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:380
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:175
-#, fuzzy
 msgid "successfully"
-msgstr "Riuscito"
+msgstr "riuscito"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:391
 msgid "New Host"
@@ -4745,14 +4718,13 @@ msgstr "Host argomenti del kernel"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:443
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:837
-#, fuzzy
 msgid "Host Init"
-msgstr "Lista Host"
+msgstr "Host Init"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:447
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:841
 msgid "Host Primary Disk"
-msgstr "Host rigido principale"
+msgstr "Host disco principale"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:451
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:845
@@ -4793,9 +4765,8 @@ msgid "MAC Format is invalid"
 msgstr "MAC Format non è valido"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:543
-#, fuzzy
 msgid "A host with this mac already exists with name"
-msgstr "Un host con questo Mac esiste già con il nome host: %s"
+msgstr "Un host con questo MAC esiste già con il nome"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:598
 msgid "Host create failed"
@@ -4818,14 +4789,12 @@ msgid "Approve this host?"
 msgstr "Approvare questo host?"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:678
-#, fuzzy
 msgid "Approved"
-msgstr "Host approvato"
+msgstr "Approvato"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:706
-#, fuzzy
 msgid "All Pending MACs approved"
-msgstr "Tutti i Mac in sospeso approvati."
+msgstr "Tutti i MAC in sospeso approvati"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:736
 msgid "Remove MAC"
@@ -4875,28 +4844,27 @@ msgstr "Predefinito"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:998
 msgid "Default Printer Select"
-msgstr "Stampante predefinita Selezionare"
+msgstr "Selezionare la stampante predefinita"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1050
 msgid "Host Printer Configuration"
-msgstr "Host Configuration della stampante"
+msgstr "Configurazione stampante host"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1051
 msgid "Select Management Level for this Host"
-msgstr "Seleziona livello di gestione per questo Host"
+msgstr "Seleziona Livello di gestione per questo host"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1066
-#, fuzzy
 msgid ""
 "This setting only adds and removes printers that are managed by FOG. If the "
 "printer exists in printer management but is not assigned to a host, it will "
 "remove the printer if it exists on the unsigned host. It will add printers "
 "to the host that are assigned."
 msgstr ""
-"Questa impostazione aggiunge solo e rimuove le stampanti che sono gestiti "
-"dalla nebbia. Se la stampante esiste nella gestione delle stampanti, ma non "
-"è assegnato a un host, sarà rimuovere la stampante se esiste sull'host non "
-"assegnato. Si aggiungerà stampanti per l'host che vengono assegnati."
+"Questa impostazione aggiunge e rimuove solo le stampanti gestite da FOG. Se "
+"la stampante esiste nella gestione della stampante, ma non viene assegnata "
+"ad un host, rimuoverà la stampante se esiste nell'host non firmato. "
+"Aggiungerà le stampanti all'host assegnato."
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1082
 msgid ""
@@ -4904,21 +4872,21 @@ msgid ""
 "Any printer that is not assigned will be removed including non-FOG managed "
 "printers."
 msgstr ""
-"Questa impostazione consente solo le stampanti FOG Assegnato da aggiungere "
-"per l'host. Qualsiasi stampante che non è stato assegnato verrà rimossa tra "
-"cui stampanti gestite non nebbia."
+"Questa impostazione consentirà solo che le stampanti FOG assegnate siano "
+"aggiunte all'host. Qualsiasi stampante non assegnata verrà rimossa, incluse "
+"le stampanti non gestite da FOG."
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1092
 msgid "Only Assigned Printers"
-msgstr "Stampanti Solo assegnati"
+msgstr "Solo stampanti assegnate"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1106
 msgid "Remove selected printers"
-msgstr "Rimuovere stampanti selezionate"
+msgstr "Rimuovere le stampanti selezionate"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1161
 msgid "Check here to see what snapins can be added"
-msgstr "Controllare qui per vedere cosa è possibile aggiungere snapins"
+msgstr "Controlla qui per vedere quali snapins possono essere aggiunti"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1178
 msgid "Add Snapin(s)"
@@ -4935,36 +4903,36 @@ msgstr "Selezionare / deselezionare tutti"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1258
 msgid "The old client is what was distributed with FOG 1.2.0 and earlier"
 msgstr ""
+"Il vecchio cliente è quello che è stato distribuito con FOG 1.2.0 e "
+"precedenti"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1259
 msgid "This module did not work past Windows XP due to"
-msgstr ""
+msgstr "Questo modulo non ha funzionato oltre Windows XP a causa di"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1260
 msgid "UAC introduced in Vista and up"
-msgstr ""
+msgstr "UAC introdotto in Vista o superiore"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1268
 msgid "and the equivalent module for what Green"
-msgstr ""
+msgstr "E il modulo equivalente per quello Green"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1269
 msgid "FOG did is now called Power Management"
-msgstr ""
+msgstr "FOG did è ora chiamato Power Management"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1383
 msgid "Host Screen Resolution"
 msgstr "Risoluzione dello schermo Host"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1587
-#, fuzzy
 msgid "Update Values"
-msgstr "aggiornare le immagini"
+msgstr "Aggiorna i valori"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1588
-#, fuzzy
 msgid "Remove selected"
-msgstr "Rimuovere snapins selezionati"
+msgstr "Rimuovi i selezionati"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1726
 msgid "Other Tag #1"
@@ -5089,13 +5057,12 @@ msgid "Logout"
 msgstr "Disconnettersi"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1968
-#, fuzzy
 msgid "Logout not found"
-msgstr "Record non trovato, errore: %s"
+msgstr "Logout non trovato"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1969
 msgid "Setting logout to one second prior to next login"
-msgstr ""
+msgstr "Impostare l'accesso a un secondo prima del login successivo"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1978
 #: /var/www/fog/lib/reports/user_tracking.report.php:262
@@ -5116,9 +5083,8 @@ msgid "Engineer"
 msgstr "Ingegnere"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2025
-#, fuzzy
 msgid "Imaged From"
-msgstr "imaged"
+msgstr "Immagini da"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2027
 #: /var/www/fog/lib/reports/imaging_log.report.php:47
@@ -5135,15 +5101,14 @@ msgstr "Durata"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2065
 #: /var/www/fog/lib/reports/imaging_log.report.php:77
 #: /var/www/fog/commons/text.php:101
-#, fuzzy
 msgid "Capture"
-msgstr "Creare"
+msgstr "Catturare"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2066
 #: /var/www/fog/lib/reports/imaging_log.report.php:78
 #: /var/www/fog/commons/text.php:100
 msgid "Deploy"
-msgstr "schierare"
+msgstr "Distribuisci"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2150
 #: /var/www/fog/commons/text.php:116
@@ -5156,54 +5121,48 @@ msgid "Return Code"
 msgstr "Codice di ritorno"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2191
-#, fuzzy
 msgid "Snapin task not completed"
-msgstr "Snap-in non è valido"
+msgstr "Il compito Snapin non è stato completato"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2193
 msgid "No complete time recorded"
-msgstr ""
+msgstr "Nessun tempo completo registrato"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2273
-#, fuzzy
 msgid "No valid macs returned"
-msgstr "Non ci sono dati restituiti"
+msgstr "Nessun mac valido restituito"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2279
-#, fuzzy
 msgid "The returned MAC is invalid"
-msgstr "Stampante non è valido"
+msgstr "Il MAC restituito non è valido"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2289
 msgid "Cannot change image"
-msgstr ""
+msgstr "Impossibile modificare l'immagine"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2290
-#, fuzzy
 msgid "Host is in a tasking"
-msgstr "Strutture a Task"
+msgstr "L'host è in un compito"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2507
-#, fuzzy
 msgid "Date Changed"
-msgstr "Salva I Cambiamenti"
+msgstr "Data modificata"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2523
 msgid "All virus history cleared for this host"
-msgstr ""
+msgstr "Tutta la cronologia virus è stata eliminata per questo host"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2532
 msgid "Selected virus history item cleaned"
-msgstr ""
+msgstr "La voce di cronologia virus selezionata viene svuotata"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2543
 msgid "Host Update Failed"
 msgstr "Aggiornamento Host riuscito"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2550
-#, fuzzy
 msgid "Host updated"
-msgstr "utente aggiornato"
+msgstr "Host aggiornato"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2579
 msgid "Failed to create new Group"
@@ -5218,19 +5177,16 @@ msgid "Failed to Associate Hosts with Group"
 msgstr "Impossibile associare Ragazza con Gruppo"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:129
-#, fuzzy
 msgid "Filesize"
-msgstr "dimensione del file"
+msgstr "Dimensione del file"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:158
-#, fuzzy
 msgid "Is Pack"
-msgstr "È un"
+msgstr "È Pack"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:328
-#, fuzzy
 msgid "New Snapin"
-msgstr "Aggiungi nuovo Snapin"
+msgstr "Nuovo Snapin"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:438
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:852
@@ -5240,44 +5196,39 @@ msgstr "Snapin Descrizione"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:444
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:833
-#, fuzzy
 msgid "Snapin Type"
-msgstr "Snapin Template"
+msgstr "Snapin Tipo"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:454
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:844
-#, fuzzy
 msgid "Normal Snapin"
-msgstr "Snapin non valido"
+msgstr "Snapin normale"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:461
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:850
-#, fuzzy
 msgid "Snapin Pack"
-msgstr "snap-Path"
+msgstr "Snapin Pack"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:466
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:860
 msgid "Snapin Template"
-msgstr "Snapin Template"
+msgstr "Snapin Modello"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:467
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:861
-#, fuzzy
 msgid "Snapin Pack Template"
-msgstr "Snapin Template"
+msgstr "Snapin Pack Modello"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:477
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:871
 #: /var/www/fog/lib/reports/snapin_log.report.php:83
 msgid "Snapin Run With"
-msgstr "Snapin Run Con"
+msgstr "Snapin Avvia con"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:478
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:872
-#, fuzzy
 msgid "Snapin Pack File"
-msgstr "File Snapin"
+msgstr "Snapin Pack File"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:487
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:881
@@ -5286,9 +5237,8 @@ msgstr "Snap-Run con l'argomento"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:488
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:882
-#, fuzzy
 msgid "Snapin Pack Arguments"
-msgstr "Argomenti Snapin"
+msgstr "Argomenti Snapin Pack"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:496
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:890
@@ -5313,15 +5263,13 @@ msgstr "snap-Enabled"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:527
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:962
-#, fuzzy
 msgid "Snapin Arguments Hidden"
-msgstr "Argomenti Snapin"
+msgstr "Snapin Argomenti nascosti"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:531
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:971
-#, fuzzy
 msgid "Snapin Timeout (seconds)"
-msgstr "Timeout Menu (in secondi)"
+msgstr "Timeout Snapin (in secondi)"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:540
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:926
@@ -5342,31 +5290,27 @@ msgstr "Snapin comando"
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:979
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:985
 msgid "read-only"
-msgstr ""
+msgstr "sola lettura"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:601
-#, fuzzy
 msgid "A snapin name is required!"
-msgstr "È necessario un nome di immagine!"
+msgstr "È richiesto un nome di snapin!"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:604
-#, fuzzy
 msgid "A snapin already exists with this name!"
-msgstr "Un'immagine esiste già con questo nome!"
+msgstr "Esiste già un snapin con questo nome!"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:621
-#, fuzzy
 msgid "A file"
-msgstr "File"
+msgstr "Un file"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:622
 msgid "either already selected or uploaded"
-msgstr ""
+msgstr "già selezionati o caricati"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:623
-#, fuzzy
 msgid "must be specified"
-msgstr "Nessun immagine specificata"
+msgstr "deve essere specificato"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:667
 msgid "FTP Connection has failed"
@@ -5374,34 +5318,29 @@ msgstr "Connessione FTP non è riuscita"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:676
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1244
-#, fuzzy
 msgid "Failed to add snapin"
-msgstr "Impossibile aggiungere file di snap-in / aggiornamento"
+msgstr "Impossibile aggiungere lo snapin"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:677
-#, fuzzy
 msgid "unable to locate snapin directory"
-msgstr ""
-"Impossibile aggiungere snap-in, in grado di individuare directory snapin."
+msgstr "impossibile trovare la snapin directory"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:684
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1250
 msgid "Failed to add/update snapin file"
-msgstr "Impossibile aggiungere file di snap-in / aggiornamento"
+msgstr "Impossibile aggiungere / aggiornare il file snapin"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:720
 msgid "Add snapin failed!"
-msgstr "Aggiungere Snapin fallito!"
+msgstr "Aggiungi snapin non riuscito!"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:734
-#, fuzzy
 msgid "Snapin created"
-msgstr "snap-in aggiornato"
+msgstr "Snapin creato"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:983
-#, fuzzy
 msgid "File Hash"
-msgstr "File"
+msgstr "File Hash"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1070
 msgid "Check here to see groups not assigned with this snapin"
@@ -5428,22 +5367,20 @@ msgid "Snapin with that name already exists"
 msgstr "Snap-in con quel nome esiste già"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1192
-#, fuzzy
 msgid "A file to use for the snapin"
-msgstr "Impossibile trovare il file snapin"
+msgstr "Un file da utilizzare per lo snap"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1193
 msgid "must be either uploaded or chosen"
-msgstr ""
+msgstr "deve essere caricato o scelto"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1194
-#, fuzzy
 msgid "from the already present list"
-msgstr "Stampante esiste già"
+msgstr "dall'elenco già presente"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1237
 msgid "FTP connection has failed"
-msgstr "connessione FTP non è riuscita"
+msgstr "connessione FTP non riuscita"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1288
 msgid "Snapin must be assigned to one Storage Group"
@@ -5483,32 +5420,29 @@ msgid "Bandwidth should be numeric and greater than 0"
 msgstr "Larghezza di banda deve essere numerico e maggiore di 0"
 
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:752
-#, fuzzy
 msgid "Bandwidth should be greater than 0"
-msgstr "Larghezza di banda deve essere numerico e maggiore di 0"
+msgstr "La larghezza di banda deve essere maggiore di 0"
 
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:931
 msgid "Max"
-msgstr ""
+msgstr "Massimo"
 
 #: /var/www/fog/lib/pages/ipxemenu.class.php:196
 #: /var/www/fog/lib/pages/ipxemenu.class.php:210
 msgid "Escape"
-msgstr ""
+msgstr "Escape"
 
 #: /var/www/fog/lib/pages/ipxemenu.class.php:217
-#, fuzzy
 msgid "Booting"
-msgstr "Opzioni di avvio:"
+msgstr "Avvio"
 
 #: /var/www/fog/lib/pages/ipxemenu.class.php:218
-#, fuzzy
 msgid "Press"
-msgstr "Indirizzo IP"
+msgstr "Premi"
 
 #: /var/www/fog/lib/pages/ipxemenu.class.php:219
 msgid "to access the menu"
-msgstr ""
+msgstr "Per accedere al menu"
 
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:64
 msgid "Plugin Name"
@@ -5519,7 +5453,7 @@ msgstr "Nome Plugin"
 #: /var/www/fog/lib/reports/equipment_loan.report.php:165
 #: /var/www/fog/commons/text.php:109 /var/www/fog/commons/text.php:133
 msgid "Location"
-msgstr "luogo"
+msgstr "Luogo"
 
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:117
 #: /var/www/fog/commons/text.php:172
@@ -5565,16 +5499,12 @@ msgid "Plugin Installation"
 msgstr "Installazione Plugin"
 
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:316
-#, fuzzy
 msgid "This plugin is currently not installed"
-msgstr ""
-"Questo plugin non è attualmente installato, ti piacerebbe installarlo ora?"
+msgstr "Questo plugin non è attualmente installato"
 
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:317
-#, fuzzy
 msgid "would you like to install it now"
-msgstr ""
-"Questo plugin non è attualmente installato, ti piacerebbe installarlo ora?"
+msgstr "ti piacerebbe installarlo ora"
 
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:351
 #: /var/www/fog/commons/text.php:120
@@ -5627,9 +5557,8 @@ msgid "DMI Key"
 msgstr "DMI chiave"
 
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:528
-#, fuzzy
 msgid "Remove selected associations"
-msgstr "Rimuovere snapins selezionati"
+msgstr "Rimuovere le associazioni selezionate"
 
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:572
 msgid "Invalid Plugin Passed"
@@ -5652,9 +5581,8 @@ msgid "Settings Updated"
 msgstr "Impostazioni aggiornate"
 
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:616
-#, fuzzy
 msgid "Must have an image associated"
-msgstr "Deve aver snap-in associato ad un gruppo"
+msgstr "Deve avere un'immagine associata"
 
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:624
 msgid "Failed to save assignment"
@@ -5665,32 +5593,29 @@ msgid "Assignment saved successfully"
 msgstr "Assegnazione salvata"
 
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:632
-#, fuzzy
 msgid "Destroyed assignments"
-msgstr "assegnazione distrutto"
+msgstr "Assegnamenti distrutti"
 
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:634
 msgid "Destroyed assignment"
-msgstr "assegnazione distrutto"
+msgstr "Assegnazione distrutta"
 
 #: /var/www/fog/lib/router/route.class.php:511
 #: /var/www/fog/lib/router/route.class.php:706
-#, fuzzy
 msgid "Already created"
-msgstr "Già registrato come"
+msgstr "Già creato"
 
 #: /var/www/fog/lib/router/route.class.php:644
-#, fuzzy
 msgid "Invalid tasking type passed"
-msgstr "tipo di oggetto non valido passato"
+msgstr "È passato il tipo di attività non valido"
 
 #: /var/www/fog/lib/router/altorouter.class.php:217
 msgid "Routes should be an array or an instance of Traversable"
-msgstr ""
+msgstr "I percorsi devono essere un array o un'istanza di Traversable"
 
 #: /var/www/fog/lib/router/altorouter.class.php:337
 msgid "Can not redeclare route"
-msgstr ""
+msgstr "Impossibile ridichiarare il percorso"
 
 #: /var/www/fog/lib/plugins/slack/class/slack.class.php:19
 msgid "Channel call is invalid"
@@ -5712,20 +5637,19 @@ msgstr "non è riuscito a effettuare il login"
 #: /var/www/fog/lib/plugins/slack/events/loginfailure_slack.event.php:63
 #: /var/www/fog/lib/plugins/pushbullet/events/loginfailure_pushbullet.event.php:57
 msgid "Remote address attempting to login"
-msgstr ""
+msgstr "Indirizzo remoto che cerca di accedere"
 
 #: /var/www/fog/lib/plugins/slack/events/imagecomplete_slack.event.php:60
-#, fuzzy
 msgid "Completed imaging"
-msgstr "Completato"
+msgstr "Imaging completato"
 
 #: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:42
 msgid "Slack Accounts"
-msgstr "Conti Slack"
+msgstr "Slack Accounts"
 
 #: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:43
 msgid "Link Slack Account"
-msgstr "Collegamento account Slack"
+msgstr "Connettività Slack"
 
 #: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:51
 msgid "Team"
@@ -5757,7 +5681,7 @@ msgstr "Utente / canale per pubblicare a"
 
 #: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:172
 msgid "Must use an"
-msgstr ""
+msgstr "Deve usare un"
 
 #: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:173
 #: /var/www/fog/commons/text.php:94
@@ -5765,11 +5689,8 @@ msgid "or"
 msgstr "o"
 
 #: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:174
-#, fuzzy
 msgid "to signify if this is a user or channel to send to"
-msgstr ""
-"Deve utilizzare un @ # o per indicare se si tratta di un utente o un canale "
-"per trasmettere il messaggio al!"
+msgstr "Per indicare se si tratta di un utente o un canale da inviare"
 
 #: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:180
 #: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:151
@@ -5822,16 +5743,15 @@ msgstr "Gestione Slack"
 
 #: /var/www/fog/lib/plugins/fileintegrity/class/fileintegrity.class.php:93
 msgid "No node associated with any addresses of this system"
-msgstr ""
+msgstr "Nessun nodo associato a nessun indirizzo di questo sistema"
 
 #: /var/www/fog/lib/plugins/fileintegrity/pages/fileintegritymanagementpage.class.php:40
-#, fuzzy
 msgid "Export Checksums"
-msgstr "Host Export"
+msgstr "Esporta Checksum"
 
 #: /var/www/fog/lib/plugins/fileintegrity/pages/fileintegritymanagementpage.class.php:44
 msgid "Checksums"
-msgstr ""
+msgstr "Checksums"
 
 #: /var/www/fog/lib/plugins/fileintegrity/pages/fileintegritymanagementpage.class.php:54
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:51
@@ -5847,51 +5767,47 @@ msgstr "Icona"
 
 #: /var/www/fog/lib/plugins/fileintegrity/pages/fileintegritymanagementpage.class.php:61
 msgid "Checksum"
-msgstr ""
+msgstr "Checksum"
 
 #: /var/www/fog/lib/plugins/fileintegrity/pages/fileintegritymanagementpage.class.php:62
-#, fuzzy
 msgid "Last Updated Time"
-msgstr "Aggiornamento Host riuscito"
+msgstr "Ultimo aggiornamento"
 
 #: /var/www/fog/lib/plugins/fileintegrity/pages/fileintegritymanagementpage.class.php:64
 msgid "Conflicting path/file"
-msgstr ""
+msgstr "Percorso / file in conflitto"
 
 #: /var/www/fog/lib/plugins/fileintegrity/config/plugin.config.php:28
 msgid "Associates the files on nodes"
-msgstr ""
+msgstr "Associare i file sui nodi"
 
 #: /var/www/fog/lib/plugins/fileintegrity/config/plugin.config.php:29
 msgid "and stores their respective checksums"
-msgstr ""
+msgstr "e memorizza i loro rispettivi controlli"
 
 #: /var/www/fog/lib/plugins/fileintegrity/config/plugin.config.php:30
 msgid "mod dates"
-msgstr ""
+msgstr "date di mod"
 
 #: /var/www/fog/lib/plugins/fileintegrity/config/plugin.config.php:31
 msgid "and the location of the file on that"
-msgstr ""
+msgstr "e la posizione del file su quel"
 
 #: /var/www/fog/lib/plugins/fileintegrity/config/plugin.config.php:32
 msgid "particular node"
-msgstr ""
+msgstr "particolare nodo"
 
 #: /var/www/fog/lib/plugins/fileintegrity/hooks/addfileintegritymenuitem.hook.php:65
-#, fuzzy
 msgid "File Integrity Management"
-msgstr "Printer Management"
+msgstr "Gestione integrità dei file"
 
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:42
-#, fuzzy
 msgid "Export Locations"
-msgstr "Host Località"
+msgstr "Esporta luoghi"
 
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:43
-#, fuzzy
 msgid "Import Locations"
-msgstr "Host Località"
+msgstr "Importa luoghi"
 
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:73
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:134
@@ -5939,9 +5855,8 @@ msgid "A location with that name already exists."
 msgstr "Una posizione con questo nome esiste già."
 
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:322
-#, fuzzy
 msgid "A group is required for a location"
-msgstr "Un gruppo di archiviazione è richiesto!"
+msgstr "Un gruppo è necessario per un luogo"
 
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:337
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:500
@@ -5955,212 +5870,191 @@ msgstr "Impossibile aggiornare"
 
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:339
 msgid "Location Updated"
-msgstr "Location Aggiornati"
+msgstr "Luogo aggiornato"
 
 #: /var/www/fog/lib/plugins/location/config/plugin.config.php:28
 msgid "Location is a plugin that allows your FOG Server"
-msgstr ""
+msgstr "Luoghi è un plugin che consente al server FOG"
 
 #: /var/www/fog/lib/plugins/location/config/plugin.config.php:29
 msgid "to operate in an environment where there may be"
-msgstr ""
+msgstr "per operare in un ambiente in cui ci possa essere"
 
 #: /var/www/fog/lib/plugins/location/config/plugin.config.php:30
 msgid "multiple places to get your image"
-msgstr ""
+msgstr "più posti per ottenere l'immagine"
 
 #: /var/www/fog/lib/plugins/location/config/plugin.config.php:31
 msgid "This is especially useful if you have multiple"
-msgstr ""
+msgstr "Ciò è particolarmente utile se si dispone di più"
 
 #: /var/www/fog/lib/plugins/location/config/plugin.config.php:32
 msgid "sites with clients moving back and forth"
-msgstr ""
+msgstr "siti con client che si muovono avanti e indietro"
 
 #: /var/www/fog/lib/plugins/location/config/plugin.config.php:33
 msgid "between different sites"
-msgstr ""
+msgstr "tra diversi siti"
 
 #: /var/www/fog/lib/plugins/location/hooks/addlocationhost.hook.php:70
 msgid "Location/Deployed"
-msgstr "Posizione / Schierato"
+msgstr "Posizione / Distribuzione"
 
 #: /var/www/fog/lib/plugins/location/hooks/addlocationhost.hook.php:162
 msgid "Host Location"
-msgstr "Host Località"
+msgstr "Host Luoghi"
 
 #: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:66
-#, fuzzy
 msgid "Snapin Locations"
-msgstr "sedi"
+msgstr "Snapin Luoghi"
 
 #: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:69
 msgid "This area will allow the host checking in to tell"
-msgstr ""
+msgstr "Questa area consentirà all'host di controllare di indicare"
 
 #: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:70
-#, fuzzy
 msgid "where to download the snapin"
-msgstr "Impossibile trovare il file snapin"
+msgstr "dove scaricare lo snapin"
 
 #: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:71
 msgid "This is useful in the case of slow links between"
-msgstr ""
+msgstr "Questo è utile nel caso di legami lenti tra"
 
 #: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:72
 msgid "the main and the host"
-msgstr ""
+msgstr "Il principale e l'host"
 
 #: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:76
 msgid "Enable location Sending"
-msgstr ""
+msgstr "Abilita invio posizione "
 
 #: /var/www/fog/lib/plugins/location/hooks/addlocationgroup.hook.php:71
-#, fuzzy
 msgid "Location Association"
-msgstr "Associazione immagine"
+msgstr "Associazione Posizione"
 
 #: /var/www/fog/lib/plugins/location/hooks/addlocationgroup.hook.php:107
-#, fuzzy
 msgid "Location Association for"
-msgstr "Associazione Immagine per"
+msgstr "Associazione per la località"
 
 #: /var/www/fog/lib/plugins/location/hooks/addlocationgroup.hook.php:127
-#, fuzzy
 msgid "Update Locations"
-msgstr "sedi"
+msgstr "Aggiorna le posizioni"
 
 #: /var/www/fog/lib/plugins/location/hooks/addlocationmenuitem.hook.php:67
 #: /var/www/fog/commons/text.php:200
 msgid "Location Management"
-msgstr "il Management"
+msgstr "Gestione della posizione"
 
 #: /var/www/fog/lib/plugins/location/hooks/addlocationmenuitem.hook.php:82
-#, fuzzy
 msgid "This setting defines sending the"
-msgstr "Questa impostazione definisce "
+msgstr "Questa impostazione definisce l'invio"
 
 #: /var/www/fog/lib/plugins/location/hooks/addlocationmenuitem.hook.php:83
 msgid "location url based on the host that checks in"
-msgstr ""
+msgstr "Url di posizione basata sull'host che controlla e"
 
 #: /var/www/fog/lib/plugins/location/hooks/addlocationmenuitem.hook.php:84
 msgid "It tells the client to download snapins from"
-msgstr ""
+msgstr "indica al client di scaricare gli snapins da"
 
 #: /var/www/fog/lib/plugins/location/hooks/addlocationmenuitem.hook.php:85
 msgid "the host defined location where available"
-msgstr ""
+msgstr "la posizione definita dall'host, se disponibile"
 
 #: /var/www/fog/lib/plugins/location/hooks/addlocationmenuitem.hook.php:86
-#, fuzzy
 msgid "Default is disabled"
-msgstr "Le donazioni sono disabilitati"
+msgstr "Il valore predefinito è disabilitato"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:68
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:138
-#, fuzzy
 msgid "Rule Association"
-msgstr "Associazione immagine"
+msgstr "Regole di associazione"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:72
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:142
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:291
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:342
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:428
-#, fuzzy
 msgid "Role Name"
-msgstr "Nome Modulo"
+msgstr "Nome regola"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:173
-#, fuzzy
 msgid "Rule type"
-msgstr "Tipo di modulo"
+msgstr "Tipo di regola"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:174
 msgid "Rule value"
-msgstr ""
+msgstr "Valore regola"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:175
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:913
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:988
-#, fuzzy
 msgid "Parent Node"
-msgstr "Modello stampante"
+msgstr "Nodo superiore"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:233
-#, fuzzy, php-format
+#, php-format
 msgid "List all roles"
-msgstr "Elencare tutti %s"
+msgstr "Elenca tutti i ruoli"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:234
-#, fuzzy, php-format
+#, php-format
 msgid "Add new role"
-msgstr "Aggiungere un nuovo account utente"
+msgstr "Aggiungi nuovo ruolo"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:235
-#, fuzzy, php-format
+#, php-format
 msgid "List all rules"
-msgstr "Elencare tutti %s"
+msgstr "Elencare tutte le regole"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:236
-#, fuzzy, php-format
+#, php-format
 msgid "Add new rule"
-msgstr "Aggiungere un nuovo account utente"
+msgstr "Aggiungi nuova regola"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:274
-#, fuzzy
 msgid "All Roles"
-msgstr "tutti gli host"
+msgstr "tutti i ruoli"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:292
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:343
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:436
-#, fuzzy
 msgid "Role Description"
-msgstr "Descrizione"
+msgstr "Descrizione del ruolo"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:330
-#, fuzzy
 msgid "New Role"
-msgstr "Nuovo menu"
+msgstr "Nuovo ruolo"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:381
-#, fuzzy
 msgid "Role already Exists, please try again."
-msgstr "Località esiste già, si prega di riprovare."
+msgstr "Ruolo già esiste, riprova."
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:384
-#, fuzzy
 msgid "Please enter a name for this role."
-msgstr "Si prega di inserire un nome per questo indirizzo."
+msgstr "Inserisci un nome per questo ruolo."
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:394
-#, fuzzy
 msgid "Role Added, editing!"
-msgstr "Località Aggiunto, l'editing!"
+msgstr "Ruolo Aggiunto, modifica!"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:492
-#, fuzzy
 msgid "A role with that name already exists."
-msgstr "Un nome host con questo nome esiste già."
+msgstr "Esiste già un ruolo con quel nome."
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:502
-#, fuzzy
 msgid "Role Updated"
-msgstr "Updater client"
+msgstr "Ruolo aggiornato"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:522
-#, fuzzy
 msgid "Rules"
-msgstr "risultati"
+msgstr "Regole"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:540
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:600
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:697
-#, fuzzy
 msgid "Parent"
-msgstr "Per cento"
+msgstr "Superiore"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:541
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:601
@@ -6170,192 +6064,158 @@ msgid "Node"
 msgstr "Nodo"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:587
-#, fuzzy
 msgid "New Rule"
-msgstr "Nuovo menu"
+msgstr "Nuova regola"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:599
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:689
-#, fuzzy
 msgid "Rule Type"
-msgstr "Tipo di modulo"
+msgstr "Tipo regola"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:602
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:713
-#, fuzzy
 msgid "Rule Value"
-msgstr "Valore"
+msgstr "Valore regola"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:605
-#, fuzzy
 msgid "Add Rule"
-msgstr "Aggiungere Snapin fallito!"
+msgstr "Aggiungi regola"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:637
-#, fuzzy
 msgid "Rule already Exists, please try again."
-msgstr "Località esiste già, si prega di riprovare."
+msgstr "La regola esiste già, riprova."
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:640
-#, fuzzy
 msgid "Please enter a value for this rule."
-msgstr "Si prega di inserire un nome per questo indirizzo."
+msgstr "Inserisci un valore per questa regola."
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:653
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1087
-#, fuzzy
 msgid "Rule Added, editing!"
-msgstr "Località Aggiunto, l'editing!"
+msgstr "Regola Aggiunta, modifica!"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:771
-#, fuzzy
 msgid "A rule with that value already exists."
-msgstr "Un nome host con questo nome esiste già."
+msgstr "Esiste già una regola con tale valore."
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:783
-#, fuzzy
 msgid "Rule Updated"
-msgstr "Updater client"
+msgstr "Regola aggiornata"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:868
-#, fuzzy
 msgid "Fail to delete rule"
-msgstr "Impossibile eliminare il file"
+msgstr "Impossibile eliminare la regola"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:873
 msgid "Rule Delete Success"
-msgstr ""
+msgstr "Regola eliminazione del successo"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:911
-#, fuzzy
 msgid "Rule name"
-msgstr "Nome Modulo"
+msgstr "Nome regola"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:967
-#, fuzzy
 msgid "Check here to see rules not within this"
-msgstr "Controllare qui per vedere i gruppi non assegnato questa immagine"
+msgstr "Controlla qui per vedere le regole non all'interno di questo"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:969
-#, fuzzy
 msgid "Modify Rule Membership for"
-msgstr "Modificare l'appartenenza per"
+msgstr "Modificare l'appartenenza alle regole per"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:977
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1037
-#, fuzzy
 msgid "rule"
-msgstr "risultati"
+msgstr "regola"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:978
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1178
-#, fuzzy
 msgid "to"
-msgstr "Auto"
+msgstr "a"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:986
-#, fuzzy
 msgid "Rule Name"
-msgstr "Nome Modulo"
+msgstr "Nome regola"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1038
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1235
-#, fuzzy
 msgid "from"
-msgstr "Da parte di"
+msgstr "da"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1062
-#, fuzzy
 msgid "Not role selected"
-msgstr "Non sono stati selezionati Host"
+msgstr "Nessun ruolo selezionato"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1065
-#, fuzzy
 msgid "Not rule selected"
-msgstr "Non sono stati selezionati Host"
+msgstr "Nessuna regola selezionata"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1167
-#, fuzzy
 msgid "Check here to see users not within this"
-msgstr "Controllare qui per vedere i gruppi non assegnato questa immagine"
+msgstr "Controlla qui per vedere gli utenti non all'interno di questo"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1177
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1234
-#, fuzzy
 msgid "user"
-msgstr "Utente"
+msgstr "utente"
 
 #: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontrolmenuitem.hook.php:65
-#, fuzzy
 msgid "Access Control Manager"
-msgstr "Gestione Access Control"
+msgstr "Gestione Controllo Accessi"
 
 #: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:51
 #: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:269
-#, fuzzy
 msgid "Role"
-msgstr "Rimuovere"
+msgstr "Regola"
 
 #: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:163
-#, fuzzy
 msgid "User Access Control"
-msgstr "Controllo di accesso"
+msgstr "User Access Control"
 
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:54
-#, fuzzy
 msgid "Key Name"
-msgstr "Nome kernel"
+msgstr "Nome chiave"
 
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:83
-#, fuzzy
 msgid "New Windows Key"
-msgstr "Windows 8"
+msgstr "Nuova chiave di Windows"
 
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:94
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:194
-#, fuzzy
 msgid "Windows Key Name"
-msgstr "Gestione utenti"
+msgstr "Nome chiave di Windows"
 
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:98
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:202
-#, fuzzy
 msgid "Windows Key Description"
-msgstr "Host Descrizione"
+msgstr "Descrizione chiave di Windows"
 
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:103
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:211
-#, fuzzy
 msgid "Windows Key"
-msgstr "Windows 8"
+msgstr "Chiave di Windows"
 
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:143
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:268
-#, fuzzy
 msgid "Windows key already Exists, please try again."
-msgstr "Località esiste già, si prega di riprovare."
+msgstr "La chiave di Windows esiste già, riprova."
 
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:147
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:272
-#, fuzzy
 msgid "Please enter a name for this key."
-msgstr "Si prega di inserire un nome per questo indirizzo."
+msgstr "Inserisci un nome per questa chiave."
 
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:150
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:275
-#, fuzzy
 msgid "Please enter a product key."
-msgstr "Inserisci un hostname"
+msgstr "IInserisci un codice prodotto."
 
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:159
-#, fuzzy
 msgid "Key Added, editing!"
-msgstr "Località Aggiunto, l'editing!"
+msgstr "Chiave aggiunta, modifico!"
 
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:284
-#, fuzzy
 msgid "Windows Key Updated"
-msgstr "Gestione utenti"
+msgstr "Chiave di Windows Aggiornata"
 
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:454
 #: /var/www/fog/commons/text.php:42
@@ -6364,66 +6224,59 @@ msgstr "immagini"
 
 #: /var/www/fog/lib/plugins/windowskey/config/plugin.config.php:28
 msgid "Windows keys is a plugin that associates product keys"
-msgstr ""
+msgstr "Tasti di Windows è un plugin che associa le chiavi di prodotto"
 
 #: /var/www/fog/lib/plugins/windowskey/config/plugin.config.php:29
 msgid "for Microsoft Windows to images"
-msgstr ""
+msgstr "per Microsoft Windows per immagini"
 
 #: /var/www/fog/lib/plugins/windowskey/config/plugin.config.php:30
 msgid "Those images should be activated with the associated"
-msgstr ""
+msgstr "Queste immagini devono essere attivate con le relative"
 
 #: /var/www/fog/lib/plugins/windowskey/config/plugin.config.php:31
-#, fuzzy
 msgid "key"
-msgstr "DMI chiave"
+msgstr "chiave"
 
 #: /var/www/fog/lib/plugins/windowskey/config/plugin.config.php:32
 msgid "The key will be assigned to registered hosts when a"
-msgstr ""
+msgstr "La chiave verrà assegnata agli host registrati quando una"
 
 #: /var/www/fog/lib/plugins/windowskey/config/plugin.config.php:33
 msgid "deploy task occurs for it"
-msgstr ""
+msgstr "attività di distribuzione avviene per esso"
 
 #: /var/www/fog/lib/plugins/windowskey/config/plugin.config.php:35
 msgid "When the plugin is removed, the assigned key will remain"
-msgstr ""
+msgstr "Quando il plugin viene rimosso, il tasto assegnato rimarrà"
 
 #: /var/www/fog/lib/plugins/windowskey/config/plugin.config.php:36
-#, fuzzy
 msgid "with the host"
-msgstr "Non all'interno di questo"
+msgstr "con l'host"
 
 #: /var/www/fog/lib/plugins/windowskey/hooks/addwindowskeymenuitem.hook.php:67
-#, fuzzy
 msgid "Windows Keys Management"
-msgstr "Gestione utenti"
+msgstr "Gestione di Chiavi di Windows"
 
 #: /var/www/fog/lib/plugins/windowskey/hooks/addwindowskeyimage.hook.php:91
-#, fuzzy
 msgid "Windows Key for Image"
-msgstr "Gestione utenti"
+msgstr "Chiave di Windows per l'immagine"
 
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:40
-#, fuzzy
 msgid "Export Task Types"
-msgstr "tipi di attività"
+msgstr "Esporta tipi di attività"
 
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:41
-#, fuzzy
 msgid "Import Task Types"
-msgstr "tipi di attività"
+msgstr "Importa tipi di attività"
 
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:43
 msgid "Task Types"
-msgstr "tipi di attività"
+msgstr "Tipi di attività"
 
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:44
-#, fuzzy
 msgid "Task Typee"
-msgstr "Task Type"
+msgstr "Tipi di attività"
 
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:62
 msgid "Access"
@@ -6477,113 +6330,99 @@ msgid "Unable to determine plugin details"
 msgstr "Impossibile determinare i dettagli del plugin"
 
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:107
-#, fuzzy
 msgid "Function does not exist"
-msgstr "Metodo non esiste"
+msgstr "La funzione non esiste"
 
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:141
-#, fuzzy
 msgid "Port is not valid ldap/ldaps port"
-msgstr "La porta non è LDAP valida / LDAPS porte"
+msgstr "La porta non è la porta ldap / ldaps valida"
 
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:289
-#, fuzzy
 msgid "We cannot connect to LDAP server"
-msgstr "Non è possibile connettersi al database"
+msgstr "Non è possibile connettersi al server LDAP"
 
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:366
 msgid "Using the group match function"
-msgstr ""
+msgstr "Utilizzo della funzione di corrispondenza gruppo"
 
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:367
 msgid "but bind password is not set"
-msgstr ""
+msgstr "Ma la bind password non è impostata"
 
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:385
-#, fuzzy
 msgid "Cannot bind to the LDAP server"
-msgstr "Non è possibile connettersi al database"
+msgstr "Impossibile legare al server LDAP"
 
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:417
 msgid "Search results returned false"
-msgstr ""
+msgstr "Risultati di ricerca che restituiscono false"
 
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:418
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:518
-#, fuzzy
 msgid "Search DN"
-msgstr "Ricerca"
+msgstr "Search DN"
 
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:420
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:520
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:827
-#, fuzzy
 msgid "Filter"
-msgstr "File"
+msgstr "Filtro"
 
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:447
-#, fuzzy
 msgid "User was not authorized by the LDAP server"
-msgstr "Si prega di inserire un nome per questo server LDAP."
+msgstr "L'utente non è stato autorizzato dal server LDAP"
 
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:448
-#, fuzzy
 msgid "User DN"
-msgstr "Nome utente"
+msgstr "User DN"
 
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:497
 msgid "All methods of binding have failed"
-msgstr ""
+msgstr "Tutti i metodi di associazione sono falliti"
 
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:517
 msgid "Search DN did not return any results"
-msgstr ""
+msgstr "Ricerca DN non ha restituito alcun risultato"
 
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:560
 msgid "Access level is still 0 or false"
-msgstr ""
+msgstr "Il livello di accesso è ancora 0 o falso"
 
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:561
 msgid "No access is allowed"
-msgstr ""
+msgstr "Nessun accesso è consentito"
 
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:672
 msgid "Group Search DN did not return any results"
-msgstr ""
+msgstr "Ricerca nel gruppo DN non ha restituito alcun risultato"
 
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:673
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:174
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:472
-#, fuzzy
 msgid "Group Search DN"
-msgstr "Host Ricerca"
+msgstr "Ricerca gruppo DN"
 
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:825
-#, fuzzy
 msgid "Search Method"
-msgstr "Ricerca"
+msgstr "Metodo di ricerca"
 
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:829
-#, fuzzy
 msgid "Result"
-msgstr "risultati"
+msgstr "Risultati"
 
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:46
-#, fuzzy
 msgid "Export LDAPs"
-msgstr "Esporta PDF"
+msgstr "Esportare LDAP"
 
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:47
-#, fuzzy
 msgid "Import LDAPs"
-msgstr "Importare"
+msgstr "Importare LDAP"
 
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:56
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:128
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:379
-#, fuzzy
 msgid "LDAP Connection Name"
-msgstr "Nome del luogo"
+msgstr "Nome connessione LDAP"
 
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:57
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:135
@@ -6592,9 +6431,8 @@ msgid "LDAP Server Address"
 msgstr "Indirizzo server LDAP"
 
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:63
-#, fuzzy
 msgid "LDAP Connection  Name"
-msgstr "Nome del luogo"
+msgstr "Nome connessione LDAP"
 
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:64
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:133
@@ -6609,9 +6447,8 @@ msgstr "Server LDAP"
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:67
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:179
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:481
-#, fuzzy
 msgid "Admin Group"
-msgstr "modificare Gruppo"
+msgstr "Gruppo amministrativo"
 
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:117
 msgid "New LDAP Server"
@@ -6619,74 +6456,67 @@ msgstr "Nuovo server LDAP"
 
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:140
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:404
-#, fuzzy
 msgid "LDAP Server Port"
-msgstr "Server LDAP"
+msgstr "Porta LDAP Server"
 
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:154
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:434
 msgid "Use Group Matching (recommended)"
-msgstr ""
+msgstr "Utilizza gruppo di corrispondenza (consigliato)"
 
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:169
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:463
-#, fuzzy
 msgid "Search Base DN"
-msgstr "Ricerca"
+msgstr "Cerca Base DN"
 
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:184
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:490
-#, fuzzy
 msgid "Mobile Group"
-msgstr "modificare Gruppo"
+msgstr "Grouppo mobile"
 
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:189
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:499
-#, fuzzy
 msgid "Initial Template"
-msgstr "Snapin Template"
+msgstr "Modello iniziale"
 
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:196
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:506
-#, fuzzy
 msgid "User Name Attribute"
-msgstr "Nome utente"
+msgstr "Attributo nome utente"
 
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:201
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:515
 msgid "Group Member Attribute"
-msgstr ""
+msgstr "Attributo membro del gruppo"
 
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:206
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:524
-#, fuzzy
 msgid "Search Scope"
-msgstr "Ricerca"
+msgstr "Scope di ricerca"
 
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:215
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:541
 msgid "Base only"
-msgstr ""
+msgstr "Solo base"
 
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:220
 msgid "Subtree Only"
-msgstr ""
+msgstr "Solo Sottoalbero"
 
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:225
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:567
 msgid "Subtree and below"
-msgstr ""
+msgstr "Sottoalbero e inferiore"
 
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:228
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:570
 msgid "Bind DN"
-msgstr ""
+msgstr "Bind DN"
 
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:233
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:579
-#, fuzzy
 msgid "Bind Password"
-msgstr "password di dominio"
+msgstr "Bind Password"
 
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:273
 msgid "Not able to add"
@@ -6704,47 +6534,41 @@ msgstr "Si prega di inserire un indirizzo del server LDAP"
 
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:304
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:655
-#, fuzzy
 msgid "Please enter a Search Base DN"
-msgstr "Inserisci un hostname"
+msgstr "Inserisci un DN di base di ricerca"
 
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:309
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:660
-#, fuzzy
 msgid "Please select an LDAP port to use"
-msgstr "per favore selezionate un'opzione"
+msgstr "Seleziona una porta LDAP da utilizzare"
 
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:314
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:665
-#, fuzzy
 msgid "Please select a valid ldap port"
-msgstr "Si prega di inserire un IP valido"
+msgstr "Seleziona una porta ldap valida"
 
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:319
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:670
-#, fuzzy
 msgid "Please Enter an admin or mobile lookup name"
-msgstr "Si prega di inserire un nome per questa posizione."
+msgstr "Inserisci un nome di amministratore o di ricerca per cellulari"
 
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:324
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:675
-#, fuzzy
 msgid "Please enter a User Name Attribute"
-msgstr "Inserisci un hostname"
+msgstr "Inserisci un attributo nome utente"
 
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:329
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:680
-#, fuzzy
 msgid "Please enter a Group Member Attribute"
-msgstr "Si prega di inserire un indirizzo del server LDAP"
+msgstr "Inserisci un attributo membro del gruppo"
 
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:348
 msgid "LDAP Server Added, editing!"
-msgstr "LDAP Server Aggiunto, l'editing!"
+msgstr "LDAP Server aggiunto, modifica!"
 
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:554
 msgid "Base and subtree"
-msgstr ""
+msgstr "Base e sottoalbero"
 
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:624
 msgid "Not able to update"
@@ -6759,26 +6583,24 @@ msgid "LDAP Management"
 msgstr "Gestione LDAP"
 
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:40
-#, fuzzy
 msgid "Export Task States"
-msgstr "Task Uniti"
+msgstr "Esporta Stato delle attività"
 
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:41
-#, fuzzy
 msgid "Import Task States"
-msgstr "Task Uniti"
+msgstr "Importa Stato delle attività"
 
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:43
 msgid "Task States"
-msgstr "Task Uniti"
+msgstr "Stati attività"
 
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:44
 msgid "Task State"
-msgstr "compito di Stato"
+msgstr "Stato attività"
 
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:105
 msgid "New Task State"
-msgstr "Nuova operazione Stato"
+msgstr "Stato nuova attività"
 
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:125
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:227
@@ -6901,7 +6723,6 @@ msgid "Failed to"
 msgstr "Non è riuscito a"
 
 #: /var/www/fog/lib/db/pdodb.class.php:111
-#, fuzzy
 msgid "SQL Error"
 msgstr "Errore SQL:"
 
@@ -6915,14 +6736,12 @@ msgid "Error Message"
 msgstr "Messaggio di errore"
 
 #: /var/www/fog/lib/db/pdodb.class.php:205
-#, fuzzy
 msgid "No link established to the database"
-msgstr "Nessuna connessione al database"
+msgstr "Nessun collegamento stabilito al database"
 
 #: /var/www/fog/lib/db/pdodb.class.php:261
-#, fuzzy
 msgid "No query passed"
-msgstr "No query inviata"
+msgstr "Nessuna query inviata"
 
 #: /var/www/fog/lib/db/pdodb.class.php:273
 #: /var/www/fog/lib/db/mysql.class.php:78
@@ -6930,9 +6749,8 @@ msgid "No database to work off"
 msgstr "Nessun database di lavorare off"
 
 #: /var/www/fog/lib/db/pdodb.class.php:287
-#, fuzzy
 msgid "no database to"
-msgstr "Nessun database di lavorare off"
+msgstr "Nessun database a"
 
 #: /var/www/fog/lib/db/pdodb.class.php:325
 #: /var/www/fog/lib/db/mysql.class.php:98
@@ -6978,7 +6796,7 @@ msgstr "Controllare che database è in esecuzione"
 
 #: /var/www/fog/lib/db/databasemanager.class.php:66
 msgid "A valid database connection could not be made"
-msgstr ""
+msgstr "Non è possibile effettuare una connessione di database valida"
 
 #: /var/www/fog/lib/reports/snapin_log.report.php:31
 msgid "FOG Snapin Log"
@@ -6998,7 +6816,7 @@ msgstr "creare Tempo"
 
 #: /var/www/fog/lib/reports/snapin_log.report.php:54
 msgid "Started/Checked in"
-msgstr ""
+msgstr "Avviato/controllato"
 
 #: /var/www/fog/lib/reports/snapin_log.report.php:56
 #: /var/www/fog/lib/service/snapinhash.class.php:241
@@ -7008,15 +6826,15 @@ msgstr "Completato"
 
 #: /var/www/fog/lib/reports/snapin_log.report.php:78
 msgid "Snapin ID"
-msgstr "snap-ID"
+msgstr "Snapin ID"
 
 #: /var/www/fog/lib/reports/snapin_log.report.php:82
 msgid "Snapin Args"
-msgstr "Snap-Args"
+msgstr "Snapin Args"
 
 #: /var/www/fog/lib/reports/snapin_log.report.php:84
 msgid "Snapin Run With Args"
-msgstr "Snap-Run con Args"
+msgstr "Snapin Run con Args"
 
 #: /var/www/fog/lib/reports/snapin_log.report.php:85
 msgid "Snapin State"
@@ -7055,23 +6873,20 @@ msgid "Task Checkin Time"
 msgstr "Task Ora di Arrivo"
 
 #: /var/www/fog/lib/reports/snapin_log.report.php:94
-#, fuzzy
 msgid "Task Complete Date"
-msgstr "Compito di arrivo Data"
+msgstr "Data completamento attività"
 
 #: /var/www/fog/lib/reports/snapin_log.report.php:95
-#, fuzzy
 msgid "Task Complete Time"
-msgstr "Task Ora di Arrivo"
+msgstr "Completamento attività"
 
 #: /var/www/fog/lib/reports/product_keys.report.php:31
-#, fuzzy
 msgid "Host Product Keys"
-msgstr "Host Product Key"
+msgstr "Tasti del prodotto host"
 
 #: /var/www/fog/lib/reports/host_list.report.php:31
 msgid "Host Listing Export"
-msgstr "Host Listing Export"
+msgstr "Esportazione delle liste host"
 
 #: /var/www/fog/lib/reports/host_list.report.php:48
 msgid "Host Created"
@@ -7090,7 +6905,7 @@ msgstr "immagine Desc"
 #: /var/www/fog/lib/reports/host_list.report.php:52
 #: /var/www/fog/lib/reports/host_list.report.php:98
 msgid "AD Join"
-msgstr "AD Entra"
+msgstr "AD Join"
 
 #: /var/www/fog/lib/reports/host_list.report.php:53
 msgid "AD OU"
@@ -7202,17 +7017,16 @@ msgid "To be released only by"
 msgstr "Per essere rilasciato solo da"
 
 #: /var/www/fog/lib/reports/equipment_loan.report.php:223
-#, fuzzy
 msgid "I have read"
-msgstr "immagine creata"
+msgstr "ho letto"
 
 #: /var/www/fog/lib/reports/equipment_loan.report.php:224
 msgid "understood"
-msgstr ""
+msgstr "inteso"
 
 #: /var/www/fog/lib/reports/equipment_loan.report.php:225
 msgid "and agree to all the"
-msgstr ""
+msgstr "e d'accordo a tutti"
 
 #: /var/www/fog/lib/reports/equipment_loan.report.php:226
 #: /var/www/fog/lib/reports/equipment_loan.report.php:236
@@ -7220,9 +7034,8 @@ msgid "Terms and Conditions"
 msgstr "Termini e condizioni"
 
 #: /var/www/fog/lib/reports/equipment_loan.report.php:227
-#, fuzzy
 msgid "on the following pages of this document"
-msgstr "I seguenti errori si è verificato"
+msgstr "nelle pagine seguenti di questo documento"
 
 #: /var/www/fog/lib/reports/equipment_loan.report.php:229
 #: /var/www/fog/lib/reports/equipment_loan.report.php:238
@@ -7250,37 +7063,32 @@ msgid "FOG Hosts and Users Login"
 msgstr "Host nebbia e Accesso utenti"
 
 #: /var/www/fog/lib/reports/user_tracking.report.php:31
-#, fuzzy
 msgid "FOG User tracking - Search"
-msgstr "FOG Login utente Storia Sommario - Ricerca"
+msgstr "FOG Tracciamento degli utenti - Cerca"
 
 #: /var/www/fog/lib/reports/user_tracking.report.php:82
 msgid "Enter a username to search for"
-msgstr "Inserisci un nome utente per la ricerca di"
+msgstr "Inserisci un nome utente da cercare"
 
 #: /var/www/fog/lib/reports/user_tracking.report.php:83
 msgid "Enter a hostname to search for"
-msgstr "Inserisci un hostname per la ricerca di"
+msgstr "Inserisci un hostname da cercare"
 
 #: /var/www/fog/lib/reports/user_tracking.report.php:108
-#, fuzzy
 msgid "Found login information"
-msgstr "FOG Informazioni sulla versione"
+msgstr "Trovato informazioni di accesso"
 
 #: /var/www/fog/lib/reports/user_tracking.report.php:164
-#, fuzzy
 msgid "No Data Found"
-msgstr "compito trovato"
+msgstr "Nessun dato trovato"
 
 #: /var/www/fog/lib/reports/user_tracking.report.php:199
-#, fuzzy
 msgid "FOG User tracking history"
-msgstr "FOG Login utente Storia Sommario"
+msgstr "FOG Cronologia di monitoraggio degli utenti"
 
 #: /var/www/fog/lib/reports/user_tracking.report.php:263
-#, fuzzy
 msgid "Service Start"
-msgstr "Stato servizio"
+msgstr "Servizio avviato"
 
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:40
 msgid "All Pending MACs approved."
@@ -7313,9 +7121,8 @@ msgid "Delete selected pending macs"
 msgstr "Eliminare i Mac in attesa selezionati"
 
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:173
-#, fuzzy
 msgid "All pending macs"
-msgstr "Mac attesa"
+msgstr "Tutti i MAC in attesa"
 
 #: /var/www/fog/lib/reports/imaging_log.report.php:31
 msgid "FOG Imaging Log"
@@ -7334,14 +7141,12 @@ msgid "End Time"
 msgstr "Fine del tempo"
 
 #: /var/www/fog/lib/reports/imaging_log.report.php:74
-#, fuzzy
 msgid "Deploy/Capture"
-msgstr "schierare"
+msgstr "Distribuire/catturare"
 
 #: /var/www/fog/lib/reports/imaging_log.report.php:116
-#, fuzzy
 msgid "Not Valid"
-msgstr "Dati non validi"
+msgstr "Non valido"
 
 #: /var/www/fog/lib/reports/inventory_report.report.php:31
 msgid "Full Inventory Export"
@@ -7349,7 +7154,7 @@ msgstr "Inventario Export completa"
 
 #: /var/www/fog/lib/service/taskscheduler.class.php:97
 msgid " * Task Scheduler is globally disabled"
-msgstr ""
+msgstr "* Il task scheduler è disattivato a livello globale"
 
 #: /var/www/fog/lib/service/taskscheduler.class.php:202
 msgid "Is a"
@@ -7372,180 +7177,157 @@ msgid "Tasks started for"
 msgstr "Attività avviate per"
 
 #: /var/www/fog/lib/service/taskscheduler.class.php:260
-#, fuzzy
 msgid "Task sent to"
-msgstr "compito di Stato"
+msgstr "Attività inviata a"
 
 #: /var/www/fog/lib/service/snapinhash.class.php:102
-#, fuzzy
 msgid " * Snapin hash is globally disabled"
-msgstr "Snap-in con quel nome esiste già"
+msgstr "* L'hash di Snapin è disattivato a livello globale"
 
 #: /var/www/fog/lib/service/snapinhash.class.php:111
 msgid "Starting Snapin Hashing Service"
-msgstr ""
+msgstr "Avvio del servizio di Snapin Hashing"
 
 #: /var/www/fog/lib/service/snapinhash.class.php:117
 #: /var/www/fog/lib/service/imagesize.class.php:117
 #: /var/www/fog/lib/service/snapinreplicator.class.php:124
 #: /var/www/fog/lib/service/imagereplicator.class.php:125
 msgid "We are group ID"
-msgstr ""
+msgstr "Siamo ID gruppo"
 
 #: /var/www/fog/lib/service/snapinhash.class.php:119
 #: /var/www/fog/lib/service/imagesize.class.php:119
 #: /var/www/fog/lib/service/snapinreplicator.class.php:126
 #: /var/www/fog/lib/service/imagereplicator.class.php:127
-#, fuzzy
 msgid "We are group name"
-msgstr "Nome gruppo di archiviazione"
+msgstr "Siamo il nome del gruppo"
 
 #: /var/www/fog/lib/service/snapinhash.class.php:126
 #: /var/www/fog/lib/service/imagesize.class.php:126
 #: /var/www/fog/lib/service/snapinreplicator.class.php:133
 #: /var/www/fog/lib/service/imagereplicator.class.php:134
 msgid "We are node ID"
-msgstr ""
+msgstr "Siamo ID nodo"
 
 #: /var/www/fog/lib/service/snapinhash.class.php:128
 #: /var/www/fog/lib/service/imagesize.class.php:128
 #: /var/www/fog/lib/service/snapinreplicator.class.php:135
 #: /var/www/fog/lib/service/imagereplicator.class.php:136
-#, fuzzy
 msgid "We are node name"
-msgstr "Nome Storage Node"
+msgstr "Siamo il nome del nodo"
 
 #: /var/www/fog/lib/service/snapinhash.class.php:135
-#, fuzzy
 msgid "Finding any snapins associated"
-msgstr "Nessun snapins associati"
+msgstr "Individuazione di eventuali snaps associati"
 
 #: /var/www/fog/lib/service/snapinhash.class.php:136
 #: /var/www/fog/lib/service/imagesize.class.php:136
-#, fuzzy
 msgid "with this group"
-msgstr "Non all'interno di questo"
+msgstr "con questo gruppo"
 
 #: /var/www/fog/lib/service/snapinhash.class.php:137
 #: /var/www/fog/lib/service/imagesize.class.php:137
-#, fuzzy
 msgid "as its primary group"
-msgstr "Aggiornamento gruppo primario"
+msgstr "come il suo gruppo primario"
 
 #: /var/www/fog/lib/service/snapinhash.class.php:158
-#, fuzzy
 msgid "No snapins associated with this group as master"
-msgstr "Non ci sono snapins associati con questo host"
+msgstr "Nessun snapins associato a questo gruppo come master"
 
 #: /var/www/fog/lib/service/snapinhash.class.php:166
 #: /var/www/fog/lib/service/imagesize.class.php:166
 #: /var/www/fog/lib/service/fogservice.class.php:405
 msgid "Found"
-msgstr ""
+msgstr "Trovato"
 
 #: /var/www/fog/lib/service/snapinhash.class.php:170
-#, fuzzy
 msgid "snapins"
 msgstr "snapins"
 
 #: /var/www/fog/lib/service/snapinhash.class.php:173
 msgid "to update hash values as needed"
-msgstr ""
+msgstr "Per aggiornare i valori di hash come necessario"
 
 #: /var/www/fog/lib/service/snapinhash.class.php:187
-#, fuzzy
 msgid "Trying Snapin hash for"
-msgstr "snap-Path"
+msgstr "Cercando hash di Snapin per"
 
 #: /var/www/fog/lib/service/snapinhash.class.php:197
-#, fuzzy
 msgid "Snapin hash already set"
-msgstr "Snap-in con quel nome esiste già"
+msgstr "L'hash del Snapin è già impostato"
 
 #: /var/www/fog/lib/service/snapinhash.class.php:215
 msgid "Getting snapin hash and size for"
-msgstr ""
+msgstr "Ottenere hash di snapin e dimensione per"
 
 #: /var/www/fog/lib/service/snapinhash.class.php:225
 msgid "Hash"
-msgstr ""
+msgstr "Hash"
 
 #: /var/www/fog/lib/service/imagesize.class.php:102
-#, fuzzy
 msgid " * Image size is globally disabled"
-msgstr "Snap-in con quel nome esiste già"
+msgstr "* La dimensione dell'immagine è disattivata globalmente"
 
 #: /var/www/fog/lib/service/imagesize.class.php:111
-#, fuzzy
 msgid "Starting Image Size Service"
-msgstr "immagine Replicator"
+msgstr "Avvio del servizio Dimensione immagine"
 
 #: /var/www/fog/lib/service/imagesize.class.php:135
-#, fuzzy
 msgid "Finding any images associated"
-msgstr "Nessun snapins associati"
+msgstr "Trovare tutte le immagini associate"
 
 #: /var/www/fog/lib/service/imagesize.class.php:158
-#, fuzzy
 msgid "No images associated with this group as master"
-msgstr "Non ci sono snapins associati con questo host"
+msgstr "Nessuna immagine associata a questo gruppo come master"
 
 #: /var/www/fog/lib/service/imagesize.class.php:170
-#, fuzzy
 msgid "images"
 msgstr "immagini"
 
 #: /var/www/fog/lib/service/imagesize.class.php:171
-#, fuzzy
 msgid "image"
 msgstr "Immagine"
 
 #: /var/www/fog/lib/service/imagesize.class.php:173
 msgid "to update size values as needed"
-msgstr ""
+msgstr "Per aggiornare i valori di dimensione secondo necessità"
 
 #: /var/www/fog/lib/service/imagesize.class.php:187
-#, fuzzy
 msgid "Trying image size for"
-msgstr "snap-Path"
+msgstr "Prova della dimensione dell'immagine per"
 
 #: /var/www/fog/lib/service/imagesize.class.php:206
 msgid "Getting image size for"
-msgstr ""
+msgstr "Ottenere la dimensione dell'immagine per"
 
 #: /var/www/fog/lib/service/imagesize.class.php:215
-#, fuzzy
 msgid "Size"
-msgstr "Dimensione massima"
+msgstr "Dimensione"
 
 #: /var/www/fog/lib/service/snapinreplicator.class.php:102
 msgid " * Snapin replication is globally disabled"
-msgstr ""
+msgstr "* La replica Snapin è disattivata globalmente"
 
 #: /var/www/fog/lib/service/snapinreplicator.class.php:108
 #: /var/www/fog/lib/service/imagereplicator.class.php:109
-#, fuzzy
 msgid "I am the group manager"
-msgstr " | Io sono l'unico membro"
+msgstr "Sono il responsabile del gruppo"
 
 #: /var/www/fog/lib/service/snapinreplicator.class.php:118
-#, fuzzy
 msgid "Starting Snapin Replication"
-msgstr "Snapin Replicator"
+msgstr "Avvio della replica Snapin"
 
 #: /var/www/fog/lib/service/snapinreplicator.class.php:146
 #: /var/www/fog/lib/service/snapinreplicator.class.php:276
 #: /var/www/fog/lib/service/imagereplicator.class.php:147
 #: /var/www/fog/lib/service/imagereplicator.class.php:285
-#, fuzzy
 msgid "Attempting to perform"
-msgstr "Il tentativo di ping"
+msgstr "Tentativo di eseguire"
 
 #: /var/www/fog/lib/service/snapinreplicator.class.php:149
 #: /var/www/fog/lib/service/snapinreplicator.class.php:279
-#, fuzzy
 msgid "snapin replication"
-msgstr "Snapin Replicator"
+msgstr "Replica snapin"
 
 #: /var/www/fog/lib/service/snapinreplicator.class.php:199
 #: /var/www/fog/lib/service/imagereplicator.class.php:200
@@ -7555,88 +7337,79 @@ msgstr "Non c'è nulla da replicare"
 #: /var/www/fog/lib/service/snapinreplicator.class.php:205
 #: /var/www/fog/lib/service/imagereplicator.class.php:206
 msgid "Please physically associate"
-msgstr ""
+msgstr "Si prega di associare fisicamente"
 
 #: /var/www/fog/lib/service/snapinreplicator.class.php:206
-#, fuzzy
 msgid "snapins to a storage group"
-msgstr "Storage Group Snapin"
+msgstr "Snap in un gruppo di archiviazione"
 
 #: /var/www/fog/lib/service/snapinreplicator.class.php:232
 msgid "Replicating ssl less private key"
-msgstr ""
+msgstr "Replica ssl senza chiave privata"
 
 #: /var/www/fog/lib/service/snapinreplicator.class.php:249
-#, fuzzy
 msgid "Not syncing Snapin"
-msgstr "Nessun collegamento per ottenere Snapin"
+msgstr "Non sincronizzazione gli Snapin"
 
 #: /var/www/fog/lib/service/snapinreplicator.class.php:256
 #: /var/www/fog/lib/service/imagereplicator.class.php:265
-#, fuzzy
 msgid "This is not the primary group"
-msgstr " | Questo non è il gruppo primario"
+msgstr "Questo non è il gruppo primario"
 
 #: /var/www/fog/lib/service/snapinreplicator.class.php:278
 #: /var/www/fog/lib/service/imagereplicator.class.php:287
-#, fuzzy
 msgid "Nodes"
-msgstr "Nodo"
+msgstr "Nodi"
 
 #: /var/www/fog/lib/service/snapinreplicator.class.php:314
 #: /var/www/fog/lib/service/imagereplicator.class.php:323
 msgid "Checking if I am the group manager"
-msgstr ""
+msgstr "Controllare se sono il responsabile del gruppo"
 
 #: /var/www/fog/lib/service/imagereplicator.class.php:103
 msgid " * Image replication is globally disabled"
-msgstr ""
+msgstr "* La replica di immagini è globalmente disattivata"
 
 #: /var/www/fog/lib/service/imagereplicator.class.php:119
-#, fuzzy
 msgid "Starting Image Replication"
-msgstr "immagine Replicator"
+msgstr "Iniziare la replica dell'immagine"
 
 #: /var/www/fog/lib/service/imagereplicator.class.php:150
 #: /var/www/fog/lib/service/imagereplicator.class.php:288
-#, fuzzy
 msgid "image replication"
-msgstr "immagine Replicator"
+msgstr "replica dell'immagine"
 
 #: /var/www/fog/lib/service/imagereplicator.class.php:207
-#, fuzzy
 msgid "images to a storage group"
-msgstr "Gruppo di archiviazione primaria"
+msgstr "Immagini in un gruppo di archiviazione"
 
 #: /var/www/fog/lib/service/imagereplicator.class.php:241
-#, fuzzy
 msgid "Replicating"
-msgstr "Replicare?"
+msgstr "Replicando"
 
 #: /var/www/fog/lib/service/imagereplicator.class.php:258
 msgid "Not syncing Image"
-msgstr ""
+msgstr "Non sincronizzare l'immagine"
 
 #: /var/www/fog/lib/service/pinghosts.class.php:113
 msgid " * Ping hosts is globally disabled"
-msgstr ""
+msgstr "* Gli host Ping sono disattivati a livello globale"
 
 #: /var/www/fog/lib/service/pinghosts.class.php:124
 msgid "I am not the fog web server"
-msgstr "Io non sono il server web nebbia"
+msgstr "Io non sono il server web fog"
 
 #: /var/www/fog/lib/service/pinghosts.class.php:132
 msgid "This servers ip(s)"
-msgstr ""
+msgstr "IP di questo server"
 
 #: /var/www/fog/lib/service/pinghosts.class.php:143
 msgid "Attempting to ping"
 msgstr "Il tentativo di ping"
 
 #: /var/www/fog/lib/service/pinghosts.class.php:147
-#, fuzzy
 msgid "hosts"
-msgstr "ospite"
+msgstr "hosts"
 
 #: /var/www/fog/lib/service/fogservice.class.php:149
 msgid " | This is not the master node"
@@ -7644,225 +7417,194 @@ msgstr " | Questo non è il nodo master"
 
 #: /var/www/fog/lib/service/fogservice.class.php:162
 msgid "Interface not ready, waiting."
-msgstr ""
+msgstr "Interfaccia non pronta, in attesa."
 
 #: /var/www/fog/lib/service/fogservice.class.php:188
 msgid "Waiting for mysql to be available"
 msgstr "In attesa di mysql sia disponibile"
 
 #: /var/www/fog/lib/service/fogservice.class.php:365
-#, fuzzy
 msgid "I am not the master for this group"
-msgstr " * Io non sono il padrone"
+msgstr "Non sono il master di questo gruppo"
 
 #: /var/www/fog/lib/service/fogservice.class.php:381
 #: /var/www/fog/lib/service/fogservice.class.php:488
 msgid "Not syncing"
-msgstr ""
+msgstr "Non sincronizzo"
 
 #: /var/www/fog/lib/service/fogservice.class.php:383
 #: /var/www/fog/lib/service/fogservice.class.php:490
 msgid "between"
-msgstr ""
+msgstr "fra"
 
 #: /var/www/fog/lib/service/fogservice.class.php:398
 msgid "There are no other members to sync to"
-msgstr ""
+msgstr "Non ci sono altri membri da sincronizzare"
 
 #: /var/www/fog/lib/service/fogservice.class.php:407
-#, fuzzy
 msgid "to transfer to"
-msgstr "Immagine registro trasferimenti"
+msgstr "Per trasferire a"
 
 #: /var/www/fog/lib/service/fogservice.class.php:473
-#, fuzzy
 msgid "Replication already running with PID"
-msgstr "Larghezza di banda replica"
+msgstr "Replica già in esecuzione con PID"
 
 #: /var/www/fog/lib/service/fogservice.class.php:505
-#, fuzzy
 msgid "File or path cannot be reached"
-msgstr " | File o il percorso non può essere raggiunto"
+msgstr "Impossibile raggiungere il file o il percorso"
 
 #: /var/www/fog/lib/service/fogservice.class.php:529
-#, fuzzy
 msgid "Cannot connect to"
-msgstr "Impossibile connettersi al nodo."
+msgstr "Impossibile connettersi"
 
 #: /var/www/fog/lib/service/fogservice.class.php:635
 msgid "Files do not match"
-msgstr ""
+msgstr "I file non corrispondono"
 
 #: /var/www/fog/lib/service/fogservice.class.php:641
-#, fuzzy
 msgid "Deleting remote file"
-msgstr "Menu Create fallita"
+msgstr "Eliminazione di file remoti"
 
 #: /var/www/fog/lib/service/fogservice.class.php:652
 msgid "No need to sync"
-msgstr ""
+msgstr "Non è necessario sincronizzare"
 
 #: /var/www/fog/lib/service/fogservice.class.php:654
-#, fuzzy
 msgid "file to"
-msgstr "Non è riuscito a"
+msgstr "File con"
 
 #: /var/www/fog/lib/service/fogservice.class.php:685
-#, fuzzy
 msgid "Starting Sync Actions"
-msgstr " * A partire sincronizzazione delle azioni"
+msgstr "Avviare le azioni di sincronizzazione"
 
 #: /var/www/fog/lib/service/fogservice.class.php:744
 msgid "Started sync for"
-msgstr "sincronizzazione introduttiva per"
+msgstr "Sincronizzazione iniziata per"
 
 #: /var/www/fog/lib/service/fogservice.class.php:776
-#, fuzzy
 msgid "Task started"
-msgstr "Task introduttiva"
+msgstr "L'attività è iniziata"
 
 #: /var/www/fog/lib/service/multicasttask.class.php:81
 msgid "Task not created as there are no associated Tasks"
-msgstr ""
+msgstr "Attività non creata poiché non ci sono attività associate"
 
 #: /var/www/fog/lib/service/multicasttask.class.php:84
 msgid "Or there was no number defined for joining session"
-msgstr ""
+msgstr "Oppure non è stato definito alcun numero per l'accesso alla sessione"
 
 #: /var/www/fog/lib/service/multicastmanager.class.php:204
 msgid " * Multicast service is globally disabled"
-msgstr ""
+msgstr "* Il servizio Multicast è disabilitato a livello globale"
 
 #: /var/www/fog/lib/service/multicastmanager.class.php:234
-#, fuzzy
 msgid "Cleaning"
-msgstr "Pulire"
+msgstr "Pulizia"
 
 #: /var/www/fog/lib/service/multicastmanager.class.php:236
-#, fuzzy
 msgid "task"
-msgstr "Compito"
+msgstr "Attività"
 
 #: /var/www/fog/lib/service/multicastmanager.class.php:242
-#, fuzzy
 msgid "as they have been removed"
-msgstr "chiave non valido viene rimosso"
+msgstr "poiché sono stati rimossi"
 
 #: /var/www/fog/lib/service/multicastmanager.class.php:256
-#, fuzzy
 msgid "is being cleaned"
-msgstr "Virus eliminato"
+msgstr "viene pulita"
 
 #: /var/www/fog/lib/service/multicastmanager.class.php:297
 #: /var/www/fog/lib/service/multicastmanager.class.php:568
-#, fuzzy
 msgid "has been cancelled"
-msgstr "è stato aggiornato con successo"
+msgstr "è stato cancellato"
 
 #: /var/www/fog/lib/service/multicastmanager.class.php:318
 #: /var/www/fog/lib/service/multicastmanager.class.php:591
-#, fuzzy
 msgid "has been completed"
-msgstr "è stato distrutto"
+msgstr "è stato completato"
 
 #: /var/www/fog/lib/service/multicastmanager.class.php:346
-#, fuzzy
 msgid "No tasks found"
-msgstr "compito trovato"
+msgstr "Nessun compito trovato"
 
 #: /var/www/fog/lib/service/multicastmanager.class.php:362
-#, fuzzy
 msgid "is new"
-msgstr "linea"
+msgstr "è nuovo"
 
 #: /var/www/fog/lib/service/multicastmanager.class.php:372
 #: /var/www/fog/lib/service/multicastmanager.class.php:387
 #: /var/www/fog/lib/service/multicastmanager.class.php:402
-#, fuzzy
 msgid "failed to execute"
-msgstr "Impossibile creare"
+msgstr "Non è stato eseguito"
 
 #: /var/www/fog/lib/service/multicastmanager.class.php:373
-#, fuzzy
 msgid "image file"
-msgstr "Nessun immagine specificata"
+msgstr "file immagine"
 
 #: /var/www/fog/lib/service/multicastmanager.class.php:375
-#, fuzzy
 msgid "not found on this node"
-msgstr "Immagine non trovato sul nodo"
+msgstr "Non trovato su questo nodo"
 
 #: /var/www/fog/lib/service/multicastmanager.class.php:388
 msgid "no clients are included"
-msgstr ""
+msgstr "Nessun client è incluso"
 
 #: /var/www/fog/lib/service/multicastmanager.class.php:403
-#, fuzzy
 msgid "port must be even and numeric"
-msgstr "È necessario inserire un nome"
+msgstr "La porta deve essere pari e numerica"
 
 #: /var/www/fog/lib/service/multicastmanager.class.php:415
-#, fuzzy
 msgid "failed to start"
-msgstr "Impossibile per distruggere"
+msgstr "non è riuscito a iniziare"
 
 #: /var/www/fog/lib/service/multicastmanager.class.php:425
 #: /var/www/fog/lib/service/multicastmanager.class.php:436
-#, fuzzy
 msgid "has been cleaned"
-msgstr "è stato distrutto"
+msgstr "è stato pulito"
 
 #: /var/www/fog/lib/service/multicastmanager.class.php:445
 msgid "image file found"
-msgstr ""
+msgstr "trovato file immagine"
 
 #: /var/www/fog/lib/service/multicastmanager.class.php:455
-#, fuzzy
 msgid "client"
-msgstr "Cliente"
+msgstr "client"
 
 #: /var/www/fog/lib/service/multicastmanager.class.php:461
-#, fuzzy
 msgid "found"
-msgstr "Non trovato"
+msgstr "trovato"
 
 #: /var/www/fog/lib/service/multicastmanager.class.php:470
-#, fuzzy
 msgid "sending on base port"
-msgstr "In attesa MAC Export"
+msgstr "Inviando sulla porta di base"
 
 #: /var/www/fog/lib/service/multicastmanager.class.php:477
-#, fuzzy
 msgid "Command"
-msgstr "Snapin comando"
+msgstr "Comando"
 
 #: /var/www/fog/lib/service/multicastmanager.class.php:487
-#, fuzzy
 msgid "has started"
-msgstr "Task introduttiva"
+msgstr "è iniziato"
 
 #: /var/www/fog/lib/service/multicastmanager.class.php:539
 msgid "is already running with pid"
-msgstr ""
+msgstr "è già in esecuzione con pid"
 
 #: /var/www/fog/lib/service/multicastmanager.class.php:551
-#, fuzzy
 msgid "is no longer running"
-msgstr " non esiste più"
+msgstr "non è più in esecuzione"
 
 #: /var/www/fog/lib/service/multicastmanager.class.php:614
-#, fuzzy
 msgid "Wait time has changed to"
-msgstr "Tipo di stampante cambiato"
+msgstr "Il tempo di attesa è cambiato"
 
 #: /var/www/fog/lib/service/multicastmanager.class.php:618
 msgid "seconds"
-msgstr ""
+msgstr "secondi"
 
 #: /var/www/fog/lib/service/multicastmanager.class.php:619
-#, fuzzy
 msgid "second"
-msgstr "Icona"
+msgstr "secondo"
 
 #: /var/www/fog/lib/reg-task/taskingelement.class.php:169
 #: /var/www/fog/service/progress.php:31
@@ -7875,34 +7617,28 @@ msgid "Invalid Storage Group"
 msgstr "Gruppo di archiviazione non valido"
 
 #: /var/www/fog/lib/reg-task/taskingelement.class.php:212
-#, fuzzy
 msgid "Could not find a Storage Node in this group"
-msgstr ""
-"Impossibile trovare un nodo di archiviazione, c'è una abilitato all'interno "
-"di questo gruppo?"
+msgstr "Impossibile trovare un nodo di archiviazione in questo gruppo"
 
 #: /var/www/fog/lib/reg-task/taskingelement.class.php:213
-#, fuzzy
 msgid "is there one enabled"
-msgstr "L'immagine non è abilitato"
+msgstr "C'è uno abilitato"
 
 #: /var/www/fog/lib/reg-task/taskingelement.class.php:239
 msgid "is open"
-msgstr ""
+msgstr "è aperto"
 
 #: /var/www/fog/lib/reg-task/taskingelement.class.php:240
-#, fuzzy
 msgid "but has recently failed for this host"
-msgstr "è aperto, ma ha recentemente fallito per questo host"
+msgstr "ma è fallito di recente per questo host"
 
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:38
 msgid "Failed to update task"
 msgstr "Impossibile aggiornare compito"
 
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:59
-#, fuzzy
 msgid "Invalid Multicast Session"
-msgstr "Inizia sessione multicast"
+msgstr "Sessione multicast non valida"
 
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:70
 msgid "Failed to update Session"
@@ -7910,20 +7646,19 @@ msgstr "Impossibile aggiornare Session"
 
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:120
 msgid "The node trying to be used is currently"
-msgstr ""
+msgstr "Il nodo che si sta cercando di essere utilizzato è attualmente"
 
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:121
-#, fuzzy
 msgid "unavailable"
-msgstr "Non disponibile"
+msgstr "non disponibile"
 
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:122
 msgid "On reboot we will try to find a new node"
-msgstr ""
+msgstr "Al riavvio cercheremo di trovare un nuovo nodo"
 
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:123
 msgid "automatically"
-msgstr ""
+msgstr "automaticamente"
 
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:134
 msgid "No open slots"
@@ -7938,17 +7673,16 @@ msgid "before me"
 msgstr "prima di me"
 
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:144
-#, fuzzy
 msgid "There are open slots"
-msgstr "Ci sono slot aperti, ma"
+msgstr "Ci sono slot aperti"
 
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:145
 msgid "but"
-msgstr ""
+msgstr "ma"
 
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:147
 msgid "before me on this node"
-msgstr ""
+msgstr "prima di me su questo nodo"
 
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:158
 msgid "Failed to update/create image log"
@@ -7964,64 +7698,53 @@ msgid "Failed to update/create task log"
 msgstr "Impossibile aggiornare / creare registro dell'attività"
 
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:272
-#, fuzzy
 msgid "Machine Details"
-msgstr "Snapin ritorno Dettaglio"
+msgstr "Dettagli della macchina"
 
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:274
-#, fuzzy
 msgid "Computer Model"
-msgstr "Modello stampante"
+msgstr "Modello di computer"
 
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:276
-#, fuzzy
 msgid "MAC Address"
-msgstr "MAC Address List"
+msgstr "Indirizzo MAC"
 
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:278
-#, fuzzy
 msgid "Image Used"
-msgstr "imaged"
+msgstr "Immagine utilizzata"
 
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:279
-#, fuzzy
 msgid "Snapin Used"
-msgstr "snapins"
+msgstr "Usato Snapin"
 
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:281
-#, fuzzy
 msgid "Imaged By"
-msgstr "imaged"
+msgstr "Imaged by"
 
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:282
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:314
-#, fuzzy
 msgid "Imaged For"
-msgstr "imaged"
+msgstr "Immagini per"
 
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:300
-#, fuzzy
 msgid "Image Task Completed"
-msgstr "dopo il completamento delle attività"
+msgstr "Attività di immagine completata"
 
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:315
 msgid "Call"
-msgstr ""
+msgstr "Chiamata"
 
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:428
-#, fuzzy
 msgid "Failed to update Host"
-msgstr "Impossibile aggiornare"
+msgstr "Impossibile aggiornare l'host"
 
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:442
-#, fuzzy
 msgid "Failed to update task log"
-msgstr "Impossibile aggiornare compito"
+msgstr "Impossibile aggiornare il registro attività"
 
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:446
-#, fuzzy
 msgid "Failed to update imaging log"
-msgstr "Impossibile aggiornare / creare log immagine"
+msgstr "Impossibile aggiornare il registro di imaging"
 
 #: /var/www/fog/lib/reg-task/registration.class.php:100
 msgid "Created by FOG Reg on"
@@ -8067,19 +7790,16 @@ msgstr "In attesa di registrazione creato da FOG_CLIENT"
 
 #: /var/www/fog/lib/client/registerclient.class.php:110
 #: /var/www/fog/lib/client/registerclient.class.php:178
-#, fuzzy
 msgid "Too many MACs"
-msgstr "Host primario MAC"
+msgstr "Troppi MAC"
 
 #: /var/www/fog/lib/client/registerclient.class.php:111
-#, fuzzy
 msgid "Only allowed to have"
-msgstr "È consentito soltanto per assegnare"
+msgstr "Permesso solo di avere"
 
 #: /var/www/fog/lib/client/registerclient.class.php:113
-#, fuzzy
 msgid "additional macs"
-msgstr "MAC aggiuntive"
+msgstr "MAC aggiuntivi"
 
 #: /var/www/fog/lib/client/fogclient.class.php:128
 #: /var/www/fog/commons/text.php:233
@@ -8088,28 +7808,24 @@ msgstr "Non ammessi qui"
 
 #: /var/www/fog/lib/client/directorycleanup.class.php:57
 msgid "No directories defined to be cleaned up"
-msgstr ""
+msgstr "Nessuna directory definita per essere pulita"
 
 #: /var/www/fog/lib/client/snapinclient.class.php:107
 #: /var/www/fog/lib/client/snapinclient.class.php:286
-#, fuzzy
 msgid "No valid tasks found"
-msgstr "Nessun classe valido inviato"
+msgstr "Non sono stati trovati compiti validi"
 
 #: /var/www/fog/lib/client/snapinclient.class.php:303
-#, fuzzy
 msgid "Snapin is invalid"
-msgstr "Snap-in non è valido"
+msgstr "Snapin non è valido"
 
 #: /var/www/fog/lib/client/snapinclient.class.php:325
-#, fuzzy
 msgid "Snapin Task is invalid"
-msgstr "Snap-in non è valido"
+msgstr "L'attività Snapin non è valida"
 
 #: /var/www/fog/lib/client/snapinclient.class.php:408
-#, fuzzy
 msgid "Invalid task id sent"
-msgstr "compito non valido"
+msgstr "ID attività non valido inviato"
 
 #: /var/www/fog/lib/client/snapinclient.class.php:426
 msgid "Invalid Snapin Tasking"
@@ -8121,87 +7837,73 @@ msgid "Invalid Snapin"
 msgstr "Snapin non valido"
 
 #: /var/www/fog/lib/client/snapinclient.class.php:497
-#, fuzzy
 msgid "Invalid task id"
-msgstr "compito non valido"
+msgstr "ID attività non valido"
 
 #: /var/www/fog/lib/client/snapinclient.class.php:507
-#, fuzzy
 msgid "Invalid Snapin Tasking object"
-msgstr "Non valido Snapin Tasking"
+msgstr "Oggetto Snapin Tasking non valido"
 
 #: /var/www/fog/lib/client/snapinclient.class.php:557
 msgid "Invalid Storage Node"
 msgstr "Non valido Storage Node"
 
 #: /var/www/fog/lib/client/snapinclient.class.php:584
-#, fuzzy
 msgid "Cannot connect to ftp server"
-msgstr "Non è possibile connettersi al database"
+msgstr "Impossibile connettersi al server ftp"
 
 #: /var/www/fog/lib/client/snapinclient.class.php:608
 msgid "Pending..."
 msgstr "In attesa di..."
 
 #: /var/www/fog/lib/client/snapinclient.class.php:625
-#, fuzzy
 msgid "Could not read snapin file"
-msgstr "Impossibile leggere il file tmp."
+msgstr "Impossibile leggere il file snapin"
 
 #: /var/www/fog/lib/client/updateclient.class.php:62
 msgid "Needs action string of ask, get, or list"
 msgstr "Ha bisogno stringa di azione di chiedere, ottenere, o di un elenco"
 
 #: /var/www/fog/lib/client/updateclient.class.php:70
-#, fuzzy
 msgid "If action of ask or get"
-msgstr "Ha bisogno stringa di azione di chiedere, ottenere, o di un elenco"
+msgstr "Se azione di chiedere o ottenere"
 
 #: /var/www/fog/lib/client/updateclient.class.php:71
-#, fuzzy
 msgid "we need a file name in the request"
-msgstr ""
-"Se l'azione di chiedere o ottenere, abbiamo bisogno di un nome di file nella "
-"richiesta"
+msgstr "Abbiamo bisogno di un nome di file nella richiesta"
 
 #: /var/www/fog/lib/client/updateclient.class.php:91
 #: /var/www/fog/lib/client/updateclient.class.php:109
-#, fuzzy
 msgid "Invalid data found"
-msgstr "Dati non validi"
+msgstr "Sono stati trovati dati non validi"
 
 #: /var/www/fog/lib/client/usertrack.class.php:67
-#, fuzzy
 msgid "Postfix requires an action of login"
-msgstr "Postfix richiede un'azione di login, logout, o iniziare a funzionare"
+msgstr "Postfix richiede un'azione di accesso"
 
 #: /var/www/fog/lib/client/usertrack.class.php:68
-#, fuzzy
 msgid "logout"
-msgstr "Disconnettersi"
+msgstr "disconnettersi"
 
 #: /var/www/fog/lib/client/usertrack.class.php:69
 msgid "or start to operate"
-msgstr ""
+msgstr "o iniziare ad operare"
 
 #: /var/www/fog/lib/client/usertrack.class.php:120
 msgid "Postfix requires an action of login, logout, or start to operate"
 msgstr "Postfix richiede un'azione di login, logout, o iniziare a funzionare"
 
 #: /var/www/fog/lib/client/usertrack.class.php:139
-#, fuzzy
 msgid "Replay from journal"
-msgstr "Replay da rivista: tempo di inserimento reale"
+msgstr "Replay dal journal"
 
 #: /var/www/fog/lib/client/usertrack.class.php:140
-#, fuzzy
 msgid "real insert time"
-msgstr "Replay da rivista: tempo di inserimento reale"
+msgstr "Tempo reale di inserimento"
 
 #: /var/www/fog/lib/client/usertrack.class.php:142
-#, fuzzy
 msgid "Login time"
-msgstr "Accesso"
+msgstr "Tempo di accesso"
 
 #: /var/www/fog/lib/hooks/addhostserial.hook.php:94
 msgid "Serial"
@@ -8213,36 +7915,31 @@ msgstr "connessione VNC aperta a"
 
 #: /var/www/fog/lib/hooks/hostvnclink.hook.php:83
 msgid "VNC"
-msgstr ""
+msgstr "VNC"
 
 #: /var/www/fog/lib/hooks/submenudata.hook.php:67
 msgid "Example Bolded Header"
 msgstr "Esempio grassetto Intestazione"
 
 #: /var/www/fog/management/other/index.php:98
-#, fuzzy
 msgid "SVN Revision"
-msgstr "Versione"
+msgstr "SVN Revision"
 
 #: /var/www/fog/management/other/index.php:145
-#, fuzzy
 msgid "Credits"
-msgstr "Creare"
+msgstr "Credits"
 
 #: /var/www/fog/management/other/index.php:150
-#, fuzzy
 msgid "FOG Client"
-msgstr "FOG client Wiki"
+msgstr "FOG Client"
 
 #: /var/www/fog/commons/init.php:165
-#, fuzzy
 msgid "Classname must be a string"
-msgstr "Evento deve essere una stringa"
+msgstr "Il nome di classe deve essere una stringa"
 
 #: /var/www/fog/commons/init.php:494
-#, fuzzy
 msgid "Missing one or more extensions."
-msgstr "estensioni mancanti"
+msgstr "Manca una o più estensioni."
 
 #: /var/www/fog/commons/text.php:22
 msgid "Display"
@@ -8291,30 +7988,32 @@ msgstr "Larghezza di banda replica"
 #: /var/www/fog/commons/text.php:53
 msgid "This setting limits the bandwidth for replication between nodes"
 msgstr ""
+"Questa impostazione limita la larghezza di banda per la replica tra i nodi"
 
 #: /var/www/fog/commons/text.php:54
 msgid "It operates by getting the max bandwidth setting of the node"
 msgstr ""
+"funziona ottenendo l'impostazione massima della larghezza di banda del nodo"
 
 #: /var/www/fog/commons/text.php:55
 msgid "it's transmitting to"
-msgstr ""
+msgstr "sta trasmettendo a"
 
 #: /var/www/fog/commons/text.php:56
 msgid "So if you are trying to transmit to remote node A"
-msgstr ""
+msgstr "Quindi, se stai cercando di trasmettere al nodo remoto A"
 
 #: /var/www/fog/commons/text.php:57
 msgid "and node A only has a 5Mbps and you want the speed"
-msgstr ""
+msgstr "E il nodo A ha solo 5Mbps e si desidera la velocità"
 
 #: /var/www/fog/commons/text.php:58
 msgid "limited to 1Mbps on that node"
-msgstr ""
+msgstr "limitata a 1Mbps su quel nodo"
 
 #: /var/www/fog/commons/text.php:59
 msgid "you set the bandwidth field on that node to 1000"
-msgstr ""
+msgstr "si imposti il campo di larghezza di banda su quel nodo a 1000"
 
 #: /var/www/fog/commons/text.php:61
 msgid "Transmit"
@@ -8345,9 +8044,8 @@ msgid "Printer"
 msgstr "Stampante"
 
 #: /var/www/fog/commons/text.php:82
-#, fuzzy
 msgid "Power Management"
-msgstr "Gestione utenti"
+msgstr "Gestione energetica"
 
 #: /var/www/fog/commons/text.php:83
 msgid "Client"
@@ -8663,9 +8361,8 @@ msgid "Pending Hosts"
 msgstr "Host in sospeso"
 
 #: /var/www/fog/commons/text.php:207
-#, fuzzy
 msgid "Last Captured"
-msgstr "Host Creato"
+msgstr "Ultima cattura"
 
 #: /var/www/fog/commons/text.php:208
 msgid "Deploy Method"
@@ -8764,14 +8461,12 @@ msgid "Latest Version"
 msgstr "Ultima versione"
 
 #: /var/www/fog/commons/text.php:238
-#, fuzzy
 msgid "Latest Development Version"
-msgstr "Ultima versione"
+msgstr "Ultima versione di sviluppo"
 
 #: /var/www/fog/commons/text.php:239
-#, fuzzy
 msgid "Latest SVN Version"
-msgstr "Ultima versione"
+msgstr "Ultima versione di SVN"
 
 #: /var/www/fog/commons/text.php:240
 msgid "FOG Mobile Login"
@@ -8878,11 +8573,8 @@ msgid "Could not find a Storage Node is"
 msgstr "Impossibile trovare il nodo di archiviazione"
 
 #: /var/www/fog/commons/text.php:274
-#, fuzzy
 msgid "there one enabled within this Storage Group"
-msgstr ""
-"Impossibile trovare un nodo di archiviazione non è uno abilitato all'interno "
-"di questo gruppo di archiviazione"
+msgstr "c'è uno abilitato all'interno di questo gruppo di archiviazione"
 
 #: /var/www/fog/commons/text.php:278
 msgid "The storage groups associated storage node is not valid"
