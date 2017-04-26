@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-22 20:37-0400\n"
+"POT-Creation-Date: 2017-04-26 08:49-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -938,7 +938,7 @@ msgstr "注册"
 msgid "Set Failed"
 msgstr "失败"
 
-#: /var/www/fog/lib/fog/bootmenu.class.php:1377
+#: /var/www/fog/lib/fog/bootmenu.class.php:1406
 #, fuzzy
 msgid "No valid storage nodes found"
 msgstr "无效的存储节点"
@@ -1336,8 +1336,8 @@ msgstr "编辑图像"
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:368
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:71
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:206
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:62
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:197
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:64
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:199
 #: /var/www/fog/commons/text.php:27
 msgid "Edit"
 msgstr "编辑"
@@ -1569,7 +1569,7 @@ msgstr ""
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:240
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:131
 #: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:103
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:110
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:112
 #: /var/www/fog/commons/text.php:31
 msgid "Add"
 msgstr "加"
@@ -1602,7 +1602,7 @@ msgstr "加"
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:320
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:590
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:233
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:220
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:222
 #: /var/www/fog/commons/text.php:40
 msgid "Update"
 msgstr "更新"
@@ -5996,7 +5996,7 @@ msgstr "帐户已链接"
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:231
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:183
 #: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:163
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:174
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:176
 msgid "Failed to create"
 msgstr "无法创建"
 
@@ -6082,11 +6082,13 @@ msgid "File Integrity Management"
 msgstr "打印机管理"
 
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:42
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:40
 #, fuzzy
 msgid "Export Locations"
 msgstr "主机位置"
 
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:43
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:41
 #, fuzzy
 msgid "Import Locations"
 msgstr "主机位置"
@@ -6145,7 +6147,7 @@ msgstr "存储组是必需的！"
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:282
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:389
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:292
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:286
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:288
 msgid "Failed to update"
 msgstr "无法更新"
 
@@ -7010,62 +7012,62 @@ msgstr "电子邮件"
 msgid "Pushbullet Management"
 msgstr "Pushbullet管理"
 
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:48
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:104
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:210
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:50
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:106
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:212
 msgid "Broadcast Name"
 msgstr "广播名称"
 
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:49
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:51
 #: /var/www/fog/commons/text.php:315
 msgid "IP Address"
 msgstr "IP地址"
 
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:93
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:95
 msgid "New Broadcast Address"
 msgstr "新的广播地址"
 
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:106
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:108
 msgid "Broadcast IP"
 msgstr "广播IP"
 
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:150
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:152
 msgid "Broacast name already Exists, please try again."
 msgstr "Broacast名已经存在，请重试。"
 
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:155
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:157
 msgid "Please enter a name for this address."
 msgstr "这个地址输入名称。"
 
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:160
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:162
 msgid "Please enter the broadcast address."
 msgstr "请输入广播地址。"
 
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:167
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:169
 msgid "Please enter a valid ip"
 msgstr "请输入一个有效的IP"
 
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:176
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:178
 msgid "Broadcast Added, editing!"
 msgstr "广播添加，编辑！"
 
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:214
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:216
 msgid "Broadcast Address"
 msgstr "广播地址"
 
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:265
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:267
 msgid "You need to have a name for the broadcast address."
 msgstr "你需要有广播地址的名称。"
 
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:272
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:274
 msgid "Please enter a valid IP address"
 msgstr "请输入一个有效的IP地址"
 
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:279
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:281
 msgid "A broadcast with that name already exists."
 msgstr "具有该名称的广播已经存在。"
 
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:288
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:290
 msgid "Broadcast Updated"
 msgstr "广播更新"
 

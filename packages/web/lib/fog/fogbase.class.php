@@ -202,19 +202,19 @@ abstract class FOGBase
      *
      * @var string
      */
-    protected static $scriptname;
+    public static $scriptname;
     /**
      * Current requests query string.
      *
      * @var string
      */
-    protected static $querystring;
+    public static $querystring;
     /**
      * Current requests http requested with string.
      *
      * @var string
      */
-    protected static $httpreqwith;
+    public static $httpreqwith;
     /**
      * Current request method.
      *

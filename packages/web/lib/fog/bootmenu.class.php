@@ -325,21 +325,50 @@ class BootMenu extends FOGBase
         $this->_booturl = "http://{$webserver}/fog/service";
         $this->_memdisk = "kernel $memdisk initrd=$memtest";
         $this->_memtest = "initrd $memtest";
-        if (!$StorageNode instanceof StorageNode
-            || !$StorageNode->isValid()
-        ) {
-            $StorageNode = current(
-                self::getClass('StorageNodeManager')->find(
-                    array('ip' => $webserver)
+        $StorageNodes = (array)self::getClass('StorageNodeManager')
+            ->find(
+                array(
+                    'ip' => array(
+                        $webserver,
+                        self::resolveHostname($webserver)
+                    )
                 )
             );
+        if (count($StorageNodes) < 1) {
+            $StorageNodes = (array)self::getClass('StorageNodeManager')
+                ->find();
+            foreach ($StorageNodes as $StorageNode) {
+                $hostname = self::resolveHostname($StorageNode->get('ip'));
+                if ($hostname == $webserver
+                    || $hostname == self::resolveHostname($webserver)
+                ) {
+                    break;
+                }
+                $StorageNode = new StorageNode(0);
+            }
+            if (!$StorageNode->isValid()) {
+                $storageNodeIDs = (array)self::getSubObjectIDs(
+                    'StorageNode',
+                    array('isMaster' => 1)
+                );
+                if (count($storageNodeIDs) < 1) {
+                    $storageNodeIDs = (array)self::getSubObjectIDs(
+                        'StorageNode'
+                    );
+                }
+                $StorageNode = new StorageNode(@min($storageNodeIDs));
+            }
+        } else {
+            $StorageNode = current($StorageNodes);
         }
-        $this->_storage = sprintf(
-            'storage=%s:/%s/ storageip=%s',
-            trim($StorageNode->get('ip')),
-            trim($StorageNode->get('path'), '/'),
-            trim($StorageNode->get('ip'))
-        );
+        if ($StorageNode->isValid()) {
+            $this->_storage = sprintf(
+                'storage=%s:/%s/ storageip=%s',
+                trim($StorageNode->get('ip')),
+                trim($StorageNode->get('path'), '/'),
+                trim($StorageNode->get('ip'))
+            );
+        }
         $this->_kernel = sprintf(
             'kernel %s %s initrd=%s root=/dev/ram0 rw '
             . 'ramdisk_size=%s%sweb=%s consoleblank=0%s rootfstype=ext4%s%s '
