@@ -211,7 +211,7 @@ class BootMenu extends FOGBase
                 )
             )
         );
-        $StorageNode = new StorageNode($StorageNode);
+        $StorageNode = new StorageNode($StorageNodeID);
         $serviceNames = array(
             'FOG_EFI_BOOT_EXIT_TYPE',
             'FOG_KERNEL_ARGS',
