@@ -206,11 +206,11 @@ class ReportMaker extends FOGBase
                         sprintf(
                             'http%s://%s/fog/management/other/%s',
                             (
-                                isset($_SERVER['HTTPS']) ?
+                                filter_input(INPUT_SERVER, 'HTTPS') ?
                                 's' :
                                 ''
                             ),
-                            $_SERVER['HTTP_HOST'],
+                            filter_input(INPUT_SERVER, 'HTTP_HOST'),
                             $logoimage
                         )
                     )
