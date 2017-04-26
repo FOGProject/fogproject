@@ -8,13 +8,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-21 20:36-0400\n"
+"POT-Creation-Date: 2017-04-26 13:54-0400\n"
 "PO-Revision-Date: 2017-04-26 17:57+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -871,7 +868,7 @@ msgstr "Registrato"
 msgid "Set Failed"
 msgstr "Set fallito"
 
-#: /var/www/fog/lib/fog/bootmenu.class.php:1377
+#: /var/www/fog/lib/fog/bootmenu.class.php:1406
 msgid "No valid storage nodes found"
 msgstr "Nessun nodo di archiviazione valido trovato"
 
@@ -1152,7 +1149,8 @@ msgstr "Impostazioni avanzate"
 #: /var/www/fog/lib/fog/fogpage.class.php:1215
 #: /var/www/fog/lib/fog/fogpage.class.php:1222
 #: /var/www/fog/lib/fog/fogpage.class.php:1232
-#: /var/www/fog/lib/fog/fogpage.class.php:1271 /var/www/fog/commons/text.php:99
+#: /var/www/fog/lib/fog/fogpage.class.php:1271
+#: /var/www/fog/commons/text.php:99
 msgid "Schedule"
 msgstr "Programmazione"
 
@@ -1717,7 +1715,8 @@ msgstr "Uno o più MAC sono associati a questo host"
 msgid "This host already exists"
 msgstr "Questo host esiste già"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3773 /var/www/fog/commons/text.php:95
+#: /var/www/fog/lib/fog/fogpage.class.php:3773
+#: /var/www/fog/commons/text.php:95
 msgid "Row"
 msgstr "Riga"
 
@@ -2901,6 +2900,7 @@ msgid "No image specified"
 msgstr "Nessun immagine specificata"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1652
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:436
 msgid "Reset Token"
 msgstr "Reset Token"
 
@@ -5639,12 +5639,12 @@ msgstr "Assegnamenti distrutti"
 msgid "Destroyed assignment"
 msgstr "Assegnazione distrutta"
 
-#: /var/www/fog/lib/router/route.class.php:511
-#: /var/www/fog/lib/router/route.class.php:706
+#: /var/www/fog/lib/router/route.class.php:524
+#: /var/www/fog/lib/router/route.class.php:719
 msgid "Already created"
 msgstr "Già creato"
 
-#: /var/www/fog/lib/router/route.class.php:644
+#: /var/www/fog/lib/router/route.class.php:657
 msgid "Invalid tasking type passed"
 msgstr "È passato il tipo di attività non valido"
 
@@ -5841,10 +5841,12 @@ msgid "File Integrity Management"
 msgstr "Gestione integrità dei file"
 
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:42
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:40
 msgid "Export Locations"
 msgstr "Esporta luoghi"
 
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:43
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:41
 msgid "Import Locations"
 msgstr "Importa luoghi"
 
@@ -7484,15 +7486,15 @@ msgstr "Non ci sono altri membri da sincronizzare"
 msgid "to transfer to"
 msgstr "Per trasferire a"
 
-#: /var/www/fog/lib/service/fogservice.class.php:473
+#: /var/www/fog/lib/service/fogservice.class.php:480
 msgid "Replication already running with PID"
 msgstr "Replica già in esecuzione con PID"
 
-#: /var/www/fog/lib/service/fogservice.class.php:505
+#: /var/www/fog/lib/service/fogservice.class.php:512
 msgid "File or path cannot be reached"
 msgstr "Impossibile raggiungere il file o il percorso"
 
-#: /var/www/fog/lib/service/fogservice.class.php:529
+#: /var/www/fog/lib/service/fogservice.class.php:536
 msgid "Cannot connect to"
 msgstr "Impossibile connettersi"
 
@@ -7500,7 +7502,7 @@ msgstr "Impossibile connettersi"
 msgid "Files do not match"
 msgstr "I file non corrispondono"
 
-#: /var/www/fog/lib/service/fogservice.class.php:641
+#: /var/www/fog/lib/service/fogservice.class.php:674
 msgid "Deleting remote file"
 msgstr "Eliminazione di file remoti"
 
@@ -7508,11 +7510,11 @@ msgstr "Eliminazione di file remoti"
 msgid "No need to sync"
 msgstr "Non è necessario sincronizzare"
 
-#: /var/www/fog/lib/service/fogservice.class.php:654
+#: /var/www/fog/lib/service/fogservice.class.php:687
 msgid "file to"
 msgstr "File con"
 
-#: /var/www/fog/lib/service/fogservice.class.php:685
+#: /var/www/fog/lib/service/fogservice.class.php:718
 msgid "Starting Sync Actions"
 msgstr "Avviare le azioni di sincronizzazione"
 
@@ -7520,7 +7522,7 @@ msgstr "Avviare le azioni di sincronizzazione"
 msgid "Started sync for"
 msgstr "Sincronizzazione iniziata per"
 
-#: /var/www/fog/lib/service/fogservice.class.php:776
+#: /var/www/fog/lib/service/fogservice.class.php:809
 msgid "Task started"
 msgstr "L'attività è iniziata"
 
@@ -7972,11 +7974,11 @@ msgstr "Credits"
 msgid "FOG Client"
 msgstr "FOG Client"
 
-#: /var/www/fog/commons/init.php:165
+#: /var/www/fog/commons/init.php:163
 msgid "Classname must be a string"
 msgstr "Il nome di classe deve essere una stringa"
 
-#: /var/www/fog/commons/init.php:494
+#: /var/www/fog/commons/init.php:476
 msgid "Missing one or more extensions."
 msgstr "Manca una o più estensioni."
 
