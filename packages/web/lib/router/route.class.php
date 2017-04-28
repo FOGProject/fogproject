@@ -527,7 +527,11 @@ class Route extends FOGBase
         }
         foreach ($classVars['databaseFields'] as &$key) {
             $key = $class->key($key);
-            $val = $vars->$key;
+            if (isset($vars->$key)) {
+                $val = $class->get($key);
+            } else {
+                $val = $vars->$key;
+            }
             if ($key == 'id') {
                 continue;
             }
