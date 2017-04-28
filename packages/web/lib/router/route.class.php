@@ -115,7 +115,7 @@ class Route extends FOGBase
         'taskstate',
         'tasktype',
         'usercleanup',
-        'user',
+        //'user',
         'usertracking',
         'virus'
     );
@@ -619,6 +619,10 @@ class Route extends FOGBase
                     )
                     ->addHost($vars->hosts);
             }
+        case 'user':
+            self::sendResponse(
+                HTTPResponseCodes::HTTP_NOT_IMPLEMENTED
+            );
         }
         // Store the data and recreate.
         // If failed present so.
@@ -757,6 +761,10 @@ class Route extends FOGBase
         case 'printer':
             $class
                 ->addHost($vars->hosts);
+        case 'user':
+            self::sendResponse(
+                HTTPResponseCodes::HTTP_NOT_IMPLEMENTED
+            );
         }
         foreach ($classVars['databaseFieldsRequired'] as &$key) {
             $key = $class->key($key);
@@ -822,6 +830,13 @@ class Route extends FOGBase
      */
     public static function delete($class, $id)
     {
+        $classname = strtolower($class);
+        switch ($classname) {
+        case 'user':
+            self::sendResponse(
+                HTTPResponseCodes::HTTP_NOT_IMPLEMENTED
+            );
+        }
         $class = new $class($id);
         if (!$class->isValid()) {
             self::sendResponse(
@@ -882,13 +897,8 @@ class Route extends FOGBase
     {
         switch ($classname) {
         case 'user':
-            $data = array(
-                'id' => $class->get('id'),
-                'name' => $class->get('name'),
-                'createdTime' => $class->get('createdTime'),
-                'createdBy' => $class->get('createdBy'),
-                'type' => $class->get('type'),
-                'display' => $class->get('display')
+            self::sendResponse(
+                HTTPResponseCodes::HTTP_NOT_IMPLEMENTED
             );
             break;
         case 'host':
