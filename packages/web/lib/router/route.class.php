@@ -611,6 +611,7 @@ class Route extends FOGBase
                     )
                     ->addGroup($vars->storagegroups);
             }
+            break;
         case 'printer':
             if (count($vars->hosts)) {
                 $class
@@ -619,10 +620,12 @@ class Route extends FOGBase
                     )
                     ->addHost($vars->hosts);
             }
+            break;
         case 'user':
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_IMPLEMENTED
             );
+            break;
         }
         // Store the data and recreate.
         // If failed present so.
@@ -738,33 +741,72 @@ class Route extends FOGBase
         switch ($classname) {
         case 'host':
             $class
-                ->addPriMAC(array_shift($vars->macs))
-                ->addAddMAC($vars->macs)
-                ->addSnapin($vars->snapins)
-                ->addPrinter($vars->printers)
-                ->addModule($vars->modules)
-                ->addGroup($vars->groups);
+                ->addPriMAC(array_shift($vars->macs));
+            if (count($vars->macs)) {
+                $class
+                    ->addAddMAC($vars->macs);
+            }
+            if (count($vars->snapins)) {
+                $class
+                    ->addSnapin($vars->snapins);
+            }
+            if (count($vars->printers)) {
+                $class
+                    ->addPrinter($vars->printers);
+            }
+            if (count($vars->modules)) {
+                $class
+                    ->addModule($vars->modules);
+            }
+            if (count($vars->groups)) {
+                $class
+                    ->addGroup($vars->groups);
+            }
             break;
         case 'group':
-            $class
-                ->addSnapin($vars->snapins)
-                ->addPrinter($vars->printers)
-                ->addModule($vars->modules)
-                ->addHost($vars->hosts)
-                ->addImage($vars->imageID);
+            if (count($vars->snapins)) {
+                $class
+                    ->addSnapin($vars->snapins);
+            }
+            if (count($vars->printers)) {
+                $class
+                    ->addPrinter($vars->printers);
+            }
+            if (count($vars->modules)) {
+                $class
+                    ->addModule($vars->modules);
+            }
+            if (count($vars->hosts)) {
+                $class
+                    ->addHost($vars->hosts);
+                if (isset($vars->imageID)) {
+                    $class
+                        ->addImage($vars->imageID);
+                }
+            }
             break;
         case 'image':
         case 'snapin':
-            $class
-                ->addHost($vars->hosts)
-                ->addGroup($vars->storagegroups);
+            if (count($vars->hosts)) {
+                $class
+                    ->addHost($vars->hosts);
+            }
+            if (count($vars->storagegroups)) {
+                $class
+                    ->addGroup($vars->storagegroups);
+            }
+            break;
         case 'printer':
-            $class
-                ->addHost($vars->hosts);
+            if (count($vars->hosts)) {
+                $class
+                    ->addHost($vars->hosts);
+            }
+            break;
         case 'user':
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_IMPLEMENTED
             );
+            break;
         }
         foreach ($classVars['databaseFieldsRequired'] as &$key) {
             $key = $class->key($key);
@@ -836,6 +878,7 @@ class Route extends FOGBase
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_IMPLEMENTED
             );
+            break;
         }
         $class = new $class($id);
         if (!$class->isValid()) {
@@ -949,7 +992,31 @@ class Route extends FOGBase
                         'name'
                     ),
                     'osname' => $class->getOS()->get('name'),
-                    'storagegroupname' => $class->getStorageGroup()->get('name')
+                    'storagegroupname' => $class->getStorageGroup()->get('name'),
+                    'hosts' => array_map(
+                        'intval',
+                        (array)$class->get('hosts')
+                    ),
+                    'storagegroups' => array_map(
+                        'intval',
+                        (array)$class->get('storagegroups')
+                    )
+                )
+            );
+            break;
+        case 'snapin':
+            $data = FOGCore::fastmerge(
+                $class->get(),
+                array(
+                    'storagegroupname' => $class->getStorageGroup()->get('name'),
+                    'hosts' => array_map(
+                        'intval',
+                        (array)$class->get('hosts')
+                    ),
+                    'storagegroups' => array_map(
+                        'intval',
+                        (array)$class->get('storagegroups')
+                    )
                 )
             );
             break;
@@ -985,6 +1052,7 @@ class Route extends FOGBase
             break;
         default:
             $data = $class->get();
+            break;
         }
         self::$HookManager
             ->processEvent(
