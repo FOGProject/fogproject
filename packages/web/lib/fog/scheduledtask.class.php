@@ -181,4 +181,13 @@ class ScheduledTask extends FOGController
                 )
             )->format('Y-m-d H:i');
     }
+    /**
+     * Cancels/Removes the tasking.
+     *
+     * @return bool
+     */
+    public function cancel()
+    {
+        return $this->destroy();
+    }
 }
