@@ -542,6 +542,8 @@ class Route extends FOGBase
         case 'host':
             if (count($vars->macs)) {
                 $class
+                    ->removeAddMAC($vars->macs)
+                    ->addPriMAC(array_shift($vars->macs))
                     ->addAddMAC($vars->macs);
             }
             if (count($vars->snapins)) {
@@ -744,10 +746,10 @@ class Route extends FOGBase
         }
         switch ($classname) {
         case 'host':
-            $class
-                ->addPriMAC(array_shift($vars->macs));
             if (count($vars->macs)) {
                 $class
+                    ->removeAddMAC($vars->macs)
+                    ->addPriMAC(array_shift($vars->macs))
                     ->addAddMAC($vars->macs);
             }
             if (count($vars->snapins)) {
