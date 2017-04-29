@@ -72,15 +72,15 @@ class Route extends FOGBase
         'clientupdater',
         'dircleaner',
         'greenfog',
-        'groupassociation',
         'group',
+        'groupassociation',
         'history',
         'hookevent',
-        'hostautologout',
         'host',
+        'hostautologout',
         'hostscreensetting',
-        'imageassociation',
         'image',
+        'imageassociation',
         'imagepartitiontype',
         'imagetype',
         'imaginglog',
@@ -88,34 +88,34 @@ class Route extends FOGBase
         'ipxe',
         'keysequence',
         'macaddressassociation',
-        'moduleassociation',
         'module',
-        'multicastsessionassociation',
+        'moduleassociation',
         'multicastsession',
+        'multicastsessionassociation',
         'nodefailure',
         'notifyevent',
         'os',
         'oui',
         'plugin',
         'powermanagement',
-        'printerassociation',
         'printer',
+        'printerassociation',
         'pxemenuoptions',
         'scheduledtask',
         'service',
+        'snapin',
         'snapinassociation',
         'snapingroupassociation',
         'snapinjob',
-        'snapin',
         'snapintask',
         'storagegroup',
         'storagenode',
-        'tasklog',
         'task',
+        'tasklog',
         'taskstate',
         'tasktype',
-        'usercleanup',
         //'user',
+        'usercleanup',
         'usertracking',
         'virus'
     );
@@ -125,8 +125,25 @@ class Route extends FOGBase
      * @var array
      */
     public static $validTaskingClasses = array(
+        'group',
         'host',
-        'group'
+        'multicastsession',
+        'scheduledtask',
+        'snapinjob',
+        'snapintask',
+        'task'
+    );
+    /**
+     * Valid active tasking classes.
+     *
+     * @var array
+     */
+    public static $validActiveTasks = array(
+        'multicastsession',
+        'scheduledtask',
+        'snapinjob',
+        'snapintask',
+        'task'
     );
     /**
      * Initialize element.
@@ -203,6 +220,13 @@ class Route extends FOGBase
                     'validTaskingClasses' => &self::$validTaskingClasses
                 )
             );
+        self::$HookManager
+            ->processEvent(
+                'API_ACTIVE_TASK_CLASSES',
+                array(
+                    'validActiveTasks' => &self::$validActiveTasks
+                )
+            );
         /**
          * If the router is already defined,
          * don't re-instantiate it.
@@ -237,12 +261,21 @@ class Route extends FOGBase
             '/[%s:class]',
             implode('|', self::$validTaskingClasses)
         );
+        $expandeda = sprintf(
+            '/[%s:class]',
+            implode('|', self::$validActiveTasks)
+        );
         self::$router
             ->map(
                 'HEAD|GET',
                 '/system/[status|info]',
                 array(self, 'status'),
                 'status'
+            )
+            ->get(
+                "${expandeda}/[current|active]",
+                array(self, 'active'),
+                'active'
             )
             ->get(
                 "${expanded}/search/[*:item]",
@@ -846,13 +879,15 @@ class Route extends FOGBase
      */
     public static function cancel($class, $id)
     {
+        $classname = strtolower($class);
         $class = new $class($id);
         if (!$class->isValid()) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_FOUND
             );
         }
-        if ($class instanceof Group) {
+        switch ($classname) {
+        case 'group':
             foreach (self::getClass('HostManager')
                 ->find(array('id' => $class->get('hosts'))) as &$Host
             ) {
@@ -861,12 +896,48 @@ class Route extends FOGBase
                 }
                 unset($Host);
             }
-        } else {
+            break;
+        case 'host':
             if ($class->get('task') instanceof Task) {
                 $class->get('task')->cancel();
             }
+            break;
+        default:
+            $class->cancel();
         }
-        self::$data = '';
+    }
+    /**
+     * Get's current/active tasks.
+     *
+     * @param string $class The class to use.
+     *
+     * @return void
+     */
+    public static function active($class)
+    {
+        $classname = strtolower($class);
+        $classman = self::getClass($class)->getManager();
+        $find = array(
+            'stateID' => self::fastmerge(
+                (array)self::getQueuedStates(),
+                (array)self::getProgressState()
+            )
+        );
+        switch ($classname) {
+        case 'scheduledtask':
+            $find = array(
+                'isActive' => 1
+            );
+            break;
+        }
+        self::$data = array();
+        self::$data['count'] = 0;
+        self::$data[$classname.'s'] = array();
+        foreach ($classman->find($find) as &$class) {
+            self::$data[$classname.'s'][] = self::getter($classname, $class);
+            self::$data['count']++;
+            unset($class);
+        }
     }
     /**
      * Deletes an element.

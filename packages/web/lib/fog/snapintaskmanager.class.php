@@ -70,7 +70,7 @@ class SnapinTaskManager extends FOGManagerController
      *
      * @param mixed $snapintaskids the ids to cancel
      *
-     * @return void
+     * @return bool
      */
     public function cancel($snapintaskids)
     {
@@ -137,7 +137,12 @@ class SnapinTaskManager extends FOGManagerController
          */
         if (count($snapinJobIDs) > 0) {
             self::getClass('SnapinJobManager')
-                ->cancel(array('id' => $snapinJobIDs));
+                ->update(
+                    array('id' => (array)$snapinJobIDs),
+                    '',
+                    array('stateID' => $cancelled)
+                );
         }
+        return true;
     }
 }

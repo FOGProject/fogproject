@@ -56,4 +56,13 @@ class SnapinJob extends FOGController
     {
         return new Host($this->get('hostID'));
     }
+    /**
+     * Cancel's the current job.
+     *
+     * @return bool
+     */
+    public function cancel()
+    {
+        return $this->getManager()->cancel($this->get('id'));
+    }
 }
