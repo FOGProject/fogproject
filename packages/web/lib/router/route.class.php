@@ -447,7 +447,8 @@ class Route extends FOGBase
         self::$data = array();
         self::$data['count'] = 0;
         self::$data[$classname.'s'] = array();
-        foreach ($classman->find() as &$class) {
+        $find = self::getsearchbody($classname);
+        foreach ($classman->find($find) as &$class) {
             self::$data[$classname.'s'][] = self::getter($classname, $class);
             self::$data['count']++;
             unset($class);
@@ -907,6 +908,34 @@ class Route extends FOGBase
         }
     }
     /**
+     * Get's the json body and sets our vars.
+     *
+     * @param string $class The class to get vars for/from.
+     * 
+     * @return array
+     */
+    public static function getsearchbody($class)
+    {
+        $classVars = self::getClass(
+            $class,
+            '',
+            true
+        );
+        $vars = json_decode(
+            file_get_contents('php://input')
+        );
+        $find = array();
+        $class = new $class;
+        foreach ($classVars['databaseFields'] as &$key) {
+            $key = $class->key($key);
+            if (isset($vars->$key)) {
+                $find[$key] = $vars->$key;
+            }
+            unset($key);
+        }
+        return $find;
+    }
+    /**
      * Get's current/active tasks.
      *
      * @param string $class The class to use.
@@ -917,18 +946,20 @@ class Route extends FOGBase
     {
         $classname = strtolower($class);
         $classman = self::getClass($class)->getManager();
-        $find = array(
-            'stateID' => self::fastmerge(
-                (array)self::getQueuedStates(),
-                (array)self::getProgressState()
-            )
+        $find = self::getsearchbody($classname);
+        $states = self::fastmerge(
+            (array)self::getQueuedStates(),
+            (array)self::getProgressState()
         );
         switch ($classname) {
         case 'scheduledtask':
-            $find = array(
-                'isActive' => 1
-            );
+            $find['isActive'] = 1;
             break;
+        case 'multicastsession':
+        case 'snapinjob':
+        case 'snapintask':
+        case 'task':
+            $find['stateID'] = $states;
         }
         self::$data = array();
         self::$data['count'] = 0;
