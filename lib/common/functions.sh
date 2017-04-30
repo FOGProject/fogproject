@@ -1421,7 +1421,9 @@ EOF
     dots "Setting up SSL FOG Server"
     if [[ $recreateCA == yes || $recreateKeys == yes || ! -f $etcconf ]]; then
         if [[ $forcehttps == yes ]]; then
-            echo "<VirtualHost *:443>" >> "$etcconf"
+            echo "NameVirtualHost *:80" > "$etcconf"
+            echo "NameVirtualHost *:443" >> "$etcconf"
+            echo "<VirtualHost *:80 *:443>" >> "$etcconf"
             echo "    KeepAlive Off" >> "$etcconf"
             echo "    Servername $ipaddress" >> "$etcconf"
             echo "    DocumentRoot $docroot" >> "$etcconf"
@@ -1445,7 +1447,8 @@ EOF
             echo "    RewriteRule ^/(.*)$ /fog/api/index.php [QSA,L]" >> "$etcconf"
             echo "</VirtualHost>" >> "$etcconf"
         else
-            echo "<VirtualHost *:80>" > "$etcconf"
+            echo "NameVirtualHost *:80" > "$etcconf"
+            echo "<VirtualHost *:80>" >> "$etcconf"
             echo "    KeepAlive Off" >> "$etcconf"
             echo "    ServerName $ipaddress" >> "$etcconf"
             echo "    DocumentRoot $docroot" >> "$etcconf"
