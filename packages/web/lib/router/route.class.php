@@ -308,7 +308,7 @@ class Route extends FOGBase
                 'create'
             )
             ->delete(
-                "${expandedt}/[i:id]/[cancel]",
+                "${expandedt}/[i:id]?/[cancel]",
                 array(self, 'cancel'),
                 'cancel'
             )
@@ -882,13 +882,13 @@ class Route extends FOGBase
     {
         $classname = strtolower($class);
         $class = new $class($id);
-        if (!$class->isValid()) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_FOUND
-            );
-        }
         switch ($classname) {
         case 'group':
+            if (!$class->isValid()) {
+                self::sendResponse(
+                    HTTPResponseCodes::HTTP_NOT_FOUND
+                );
+            }
             foreach (self::getClass('HostManager')
                 ->find(array('id' => $class->get('hosts'))) as &$Host
             ) {
@@ -899,12 +899,34 @@ class Route extends FOGBase
             }
             break;
         case 'host':
+            if (!$class->isValid()) {
+                self::sendResponse(
+                    HTTPResponseCodes::HTTP_NOT_FOUND
+                );
+            }
             if ($class->get('task') instanceof Task) {
                 $class->get('task')->cancel();
             }
             break;
         default:
-            $class->cancel();
+            $states = self::fastmerge(
+                (array)self::getQueuedStates(),
+                (array)self::getProgressState()
+            );
+            if (!$class->isValid()) {
+                $classman = $class->getManager();
+                $find = self::getsearchbody($classname, $class);
+                $find['stateID'] = $states;
+                $ids = self::getSubObjectIDs(
+                    $classname,
+                    $find
+                );
+                $classman->cancel($ids);
+            } else {
+                if (in_array($class->get('stateID'), $states)) {
+                    $class->cancel();
+                }
+            }
         }
     }
     /**
