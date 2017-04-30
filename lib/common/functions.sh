@@ -1428,7 +1428,7 @@ EOF
             echo "    RewriteEngine On" >> "$etcconf"
             echo "    RewriteRule /management/other/ca.cert.der$ - [L]" >> "$etcconf"
             echo "    RewriteCond %{HTTPS} off" >> "$etcconf"
-            echo "    RewriteRule /management/ https://%{HTTP_HOST}%{REQUEST_URI}%{QUERY_STRING} [R,L]" >> "$etcconf"
+            echo "    RewriteRule (.*) https://%{HTTP_HOST}/\$1 [R,L]" >> "$etcconf"
             echo "</VirtualHost>" >> "$etcconf"
             echo "<VirtualHost *:443>" >> "$etcconf"
             echo "    KeepAlive Off" >> "$etcconf"
