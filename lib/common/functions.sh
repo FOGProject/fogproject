@@ -1448,7 +1448,7 @@ EOF
             echo "    RewriteRule ^/(.*)$ /fog/api/index.php [QSA,L]" >> "$etcconf"
             echo "</VirtualHost>" >> "$etcconf"
         else
-            echo "<VirtualHost *>" > "$etcconf"
+            echo "<VirtualHost *:80>" > "$etcconf"
             echo "    KeepAlive Off" >> "$etcconf"
             echo "    ServerName $ipaddress" >> "$etcconf"
             echo "    DocumentRoot $docroot" >> "$etcconf"
