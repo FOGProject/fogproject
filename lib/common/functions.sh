@@ -1485,6 +1485,7 @@ EOF
             fi
             ;;
     esac
+    dots "Starting and checking status of web services"
     case $systemctl in
         yes)
             case $osid in
@@ -1568,7 +1569,6 @@ configureHttpd() {
     if [[ -f $etcconf ]]; then
         case $novhost in
             [Yy]|[Yy][Ee][Ss])
-                echo "Skipped"
                 ;;
             *)
                 dots "Removing vhost file"
