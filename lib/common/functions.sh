@@ -1470,7 +1470,6 @@ EOF
                     echo "</VirtualHost>" >> "$etcconf"
                 fi
                 errorStat $?
-                dots "Restarting Apache2 for fog vhost"
                 ln -s $webdirdest $webdirdest/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 if [[ $osid -eq 2 ]]; then
                     a2enmod $phpcmd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
