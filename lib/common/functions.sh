@@ -1421,7 +1421,8 @@ EOF
     dots "Setting up SSL FOG Server"
     if [[ $recreateCA == yes || $recreateKeys == yes || ! -f $etcconf ]]; then
         case $novhost in
-            [Yy])
+            [Yy]|[Yy][Ee][Ss])
+                echo "Skipped"
                 ;;
             *)
                 if [[ $forcehttps == yes ]]; then
