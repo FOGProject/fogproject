@@ -1420,51 +1420,57 @@ EOF
     errorStat $?
     dots "Setting up SSL FOG Server"
     if [[ $recreateCA == yes || $recreateKeys == yes || ! -f $etcconf ]]; then
-        if [[ $forcehttps == yes ]]; then
-            echo "NameVirtualHost *:80" > "$etcconf"
-            echo "NameVirtualHost *:443" >> "$etcconf"
-            echo "<VirtualHost *:80>" >> "$etcconf"
-            echo "    ServerName $ipaddress" >> "$etcconf"
-            echo "    RewriteEngine On" >> "$etcconf"
-            echo "    RewriteRule /management/other/ca.cert.der$ - [L]" >> "$etcconf"
-            echo "    RewriteCond %{HTTPS} off" >> "$etcconf"
-            echo "    RewriteRule (.*) https://%{HTTP_HOST}/\$1 [R,L]" >> "$etcconf"
-            echo "</VirtualHost>" >> "$etcconf"
-            echo "<VirtualHost *:443>" >> "$etcconf"
-            echo "    KeepAlive Off" >> "$etcconf"
-            echo "    ServerName $ipaddress" >> "$etcconf"
-            echo "    DocumentRoot $docroot" >> "$etcconf"
-            echo "    SSLEngine On" >> "$etcconf"
-            echo "    SSLProtocol all -SSLv3 -SSLv2" >> "$etcconf"
-            echo "    SSLCipherSuite ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA" >> "$etcconf"
-            echo "    SSLHonorCipherOrder On" >> "$etcconf"
-            echo "    SSLCertificateFile $webdirdest/management/other/ssl/srvpublic.crt" >> "$etcconf"
-            echo "    SSLCertificateKeyFile $sslprivkey" >> "$etcconf"
-            echo "    SSLCertificateChainFile $webdirdest/management/other/ca.cert.der" >> "$etcconf"
-            echo "    <Directory $webdirdest>" >> "$etcconf"
-            echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
-            echo "    </Directory>" >> "$etcconf"
-            echo "    RewriteEngine On" >> "$etcconf"
-            echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f" >> "$etcconf"
-            echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d" >> "$etcconf"
-            echo "    RewriteRule ^/(.*)$ /fog/api/index.php [QSA,L]" >> "$etcconf"
-            echo "</VirtualHost>" >> "$etcconf"
-        else
-            echo "NameVirtualHost *:80" > "$etcconf"
-            echo "<VirtualHost *:80>" >> "$etcconf"
-            echo "    KeepAlive Off" >> "$etcconf"
-            echo "    ServerName $ipaddress" >> "$etcconf"
-            echo "    DocumentRoot $docroot" >> "$etcconf"
-            echo "    <Directory $webdirdest>" >> "$etcconf"
-            echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
-            echo "    </Directory>" >> "$etcconf"
-            echo "    RewriteEngine On" >> "$etcconf"
-            echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f" >> "$etcconf"
-            echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d" >> "$etcconf"
-            echo "    RewriteRule ^/(.*)$ /fog/api/index.php [QSA,L]" >> "$etcconf"
-            echo "</VirtualHost>" >> "$etcconf"
-        fi
-        errorStat $?
+        case $novhost in
+            [Yy])
+                ;;
+            *)
+                if [[ $forcehttps == yes ]]; then
+                    echo "NameVirtualHost *:80" > "$etcconf"
+                    echo "NameVirtualHost *:443" >> "$etcconf"
+                    echo "<VirtualHost *:80>" >> "$etcconf"
+                    echo "    ServerName $ipaddress" >> "$etcconf"
+                    echo "    RewriteEngine On" >> "$etcconf"
+                    echo "    RewriteRule /management/other/ca.cert.der$ - [L]" >> "$etcconf"
+                    echo "    RewriteCond %{HTTPS} off" >> "$etcconf"
+                    echo "    RewriteRule (.*) https://%{HTTP_HOST}/\$1 [R,L]" >> "$etcconf"
+                    echo "</VirtualHost>" >> "$etcconf"
+                    echo "<VirtualHost *:443>" >> "$etcconf"
+                    echo "    KeepAlive Off" >> "$etcconf"
+                    echo "    ServerName $ipaddress" >> "$etcconf"
+                    echo "    DocumentRoot $docroot" >> "$etcconf"
+                    echo "    SSLEngine On" >> "$etcconf"
+                    echo "    SSLProtocol all -SSLv3 -SSLv2" >> "$etcconf"
+                    echo "    SSLCipherSuite ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA" >> "$etcconf"
+                    echo "    SSLHonorCipherOrder On" >> "$etcconf"
+                    echo "    SSLCertificateFile $webdirdest/management/other/ssl/srvpublic.crt" >> "$etcconf"
+                    echo "    SSLCertificateKeyFile $sslprivkey" >> "$etcconf"
+                    echo "    SSLCertificateChainFile $webdirdest/management/other/ca.cert.der" >> "$etcconf"
+                    echo "    <Directory $webdirdest>" >> "$etcconf"
+                    echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
+                    echo "    </Directory>" >> "$etcconf"
+                    echo "    RewriteEngine On" >> "$etcconf"
+                    echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f" >> "$etcconf"
+                    echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d" >> "$etcconf"
+                    echo "    RewriteRule ^/(.*)$ /fog/api/index.php [QSA,L]" >> "$etcconf"
+                    echo "</VirtualHost>" >> "$etcconf"
+                else
+                    echo "NameVirtualHost *:80" > "$etcconf"
+                    echo "<VirtualHost *:80>" >> "$etcconf"
+                    echo "    KeepAlive Off" >> "$etcconf"
+                    echo "    ServerName $ipaddress" >> "$etcconf"
+                    echo "    DocumentRoot $docroot" >> "$etcconf"
+                    echo "    <Directory $webdirdest>" >> "$etcconf"
+                    echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
+                    echo "    </Directory>" >> "$etcconf"
+                    echo "    RewriteEngine On" >> "$etcconf"
+                    echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f" >> "$etcconf"
+                    echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d" >> "$etcconf"
+                    echo "    RewriteRule ^/(.*)$ /fog/api/index.php [QSA,L]" >> "$etcconf"
+                    echo "</VirtualHost>" >> "$etcconf"
+                fi
+                errorStat $?
+                ;;
+        esac
         dots "Restarting Apache2 for fog vhost"
         ln -s $webdirdest $webdirdest/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         if [[ $osid -eq 2 ]]; then
@@ -1558,12 +1564,18 @@ configureHttpd() {
             esac
             ;;
     esac
-    if [[ -f $etcconf ]]; then
-        dots "Removing vhost file"
-        [[ $osid -eq 2 ]] && a2dissite 001-fog >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        rm $etcconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        errorStat $?
-    fi
+    case $novhost in
+        [Yy])
+            ;;
+        *)
+            if [[ -f $etcconf ]]; then
+                dots "Removing vhost file"
+                [[ $osid -eq 2 ]] && a2dissite 001-fog >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                rm $etcconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                errorStat $?
+            fi
+            ;;
+    esac
     if [[ $installtype == +([Nn]) && ! $fogupdateloaded -eq 1 && -z $autoaccept ]]; then
         dummy=""
         while [[ -z $dummy ]]; do
