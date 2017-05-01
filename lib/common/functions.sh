@@ -1419,12 +1419,12 @@ EOF
     chown -R $apacheuser:$apacheuser $webdirdest/management/other >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     errorStat $?
     dots "Setting up SSL FOG Server"
-    if [[ $recreateCA == yes || $recreateKeys == yes || ! -f $etcconf ]]; then
-        case $novhost in
-            [Yy]|[Yy][Ee][Ss])
-                echo "Skipped"
-                ;;
-            *)
+    case $novhost in
+        [Yy]|[Yy][Ee][Ss])
+            echo "Skipped"
+            ;;
+        *)
+            if [[ $recreateCA == yes || $recreateKeys == yes || ! -f $etcconf ]]; then
                 if [[ $forcehttps == yes ]]; then
                     echo "NameVirtualHost *:80" > "$etcconf"
                     echo "NameVirtualHost *:443" >> "$etcconf"
@@ -1470,21 +1470,21 @@ EOF
                     echo "</VirtualHost>" >> "$etcconf"
                 fi
                 errorStat $?
-                ;;
-        esac
-        dots "Restarting Apache2 for fog vhost"
-        ln -s $webdirdest $webdirdest/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        if [[ $osid -eq 2 ]]; then
-            a2enmod $phpcmd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            a2enmod proxy_fcgi setenvif >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            a2enmod $phpfpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            a2enmod rewrite >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            a2enmod ssl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            a2ensite "001-fog" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        fi
-    else
-        echo "Done"
-    fi
+                dots "Restarting Apache2 for fog vhost"
+                ln -s $webdirdest $webdirdest/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                if [[ $osid -eq 2 ]]; then
+                    a2enmod $phpcmd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    a2enmod proxy_fcgi setenvif >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    a2enmod $phpfpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    a2enmod rewrite >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    a2enmod ssl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    a2ensite "001-fog" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                fi
+            else
+                echo "Done"
+            fi
+            ;;
+    esac
     case $systemctl in
         yes)
             case $osid in
@@ -1565,18 +1565,19 @@ configureHttpd() {
             esac
             ;;
     esac
-    case $novhost in
-        [Yy])
-            ;;
-        *)
-            if [[ -f $etcconf ]]; then
+    if [[ -f $etcconf ]]; then
+        case $novhost in
+            [Yy]|[Yy][Ee][Ss])
+                echo "Skipped"
+                ;;
+            *)
                 dots "Removing vhost file"
                 [[ $osid -eq 2 ]] && a2dissite 001-fog >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 rm $etcconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 errorStat $?
-            fi
-            ;;
-    esac
+                ;;
+        esac
+    fi
     if [[ $installtype == +([Nn]) && ! $fogupdateloaded -eq 1 && -z $autoaccept ]]; then
         dummy=""
         while [[ -z $dummy ]]; do
