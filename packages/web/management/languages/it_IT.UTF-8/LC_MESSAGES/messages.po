@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-29 12:00-0400\n"
-"PO-Revision-Date: 2017-04-26 17:57+0200\n"
+"POT-Creation-Date: 2017-05-02 10:14-0400\n"
+"PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -2915,11 +2915,11 @@ msgstr "Nessuna immagine specificata"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2000
 msgid "Width must be 650 pixels."
-msgstr "La larghezza deve essere di 650 pixel."
+msgstr "Larghezza deve essere di 650 pixel."
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2006
 msgid "Height must be 120 pixels."
-msgstr "L'altezza deve essere di 120 pixel."
+msgstr "Altezza deve essere di 120 pixel."
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2127
 msgid "Service Master"
@@ -3865,7 +3865,8 @@ msgid "This setting only allows the host to have"
 msgstr "Questa impostazione consente solo l'host di avere"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:565
-msgid "printers associated that are asasigned through FOG"
+#, fuzzy
+msgid "printers associated that are assigned through FOG"
 msgstr "Stampanti associate che vengono assegnate tramite FOG"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:566
@@ -4301,9 +4302,8 @@ msgid "Change password"
 msgstr "Cambia password"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:56
-#, fuzzy
 msgid "API Settings"
-msgstr "impostazioni"
+msgstr "impostazioni API"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:60
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:87
@@ -4320,13 +4320,12 @@ msgid "No friendly name defined"
 msgstr "Nessun nome amichevole definito"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:84
-#, fuzzy
 msgid "Mobile Only?"
-msgstr "File"
+msgstr "Solo Mobile?"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:85
 msgid "API?"
-msgstr ""
+msgstr "API?"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:99
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:107
@@ -4354,9 +4353,8 @@ msgid "User Password (confirm)"
 msgstr "User Password (conferma)"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:193
-#, fuzzy
 msgid "Allow API"
-msgstr "tutti LDAPS"
+msgstr "abilita API"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:198
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:329
@@ -4434,14 +4432,12 @@ msgid "You may now create another"
 msgstr "È ora possibile creare un altro"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:425
-#, fuzzy
 msgid "User API Enabled"
-msgstr "È abilitato"
+msgstr "API Utente abilitate"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:429
-#, fuzzy
 msgid "User API Token"
-msgstr "Token di accesso"
+msgstr "API Utente Token"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:530
 msgid "User update failed"
@@ -7524,7 +7520,7 @@ msgstr "Sincronizzazione iniziata per"
 
 #: /var/www/fog/lib/service/fogservice.class.php:809
 msgid "Task started"
-msgstr "L'attività è iniziata"
+msgstr "Attività iniziata"
 
 #: /var/www/fog/lib/service/multicasttask.class.php:81
 msgid "Task not created as there are no associated Tasks"
@@ -8563,7 +8559,7 @@ msgstr "In attesa di host registrati"
 
 #: /var/www/fog/commons/text.php:256
 msgid "n/a"
-msgstr "n / a"
+msgstr "n/d"
 
 #: /var/www/fog/commons/text.php:258
 msgid "Directory Already Exists"
@@ -8752,7 +8748,7 @@ msgstr "tutti i nodi di archiviazione attivi"
 
 #: /var/www/fog/commons/text.php:334
 msgid "The 'Is Master Node' setting defines which"
-msgstr "L'impostazione \"nodo master\" definisce che "
+msgstr "L'impostazione \"nodo master\" definisce quale"
 
 #: /var/www/fog/commons/text.php:335
 msgid "node is the distributor of the images"

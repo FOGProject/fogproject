@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-01 17:42-0400\n"
+"POT-Creation-Date: 2017-05-02 10:14-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3851,7 +3851,7 @@ msgid "This setting only allows the host to have"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:565
-msgid "printers associated that are asasigned through FOG"
+msgid "printers associated that are assigned through FOG"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:566
