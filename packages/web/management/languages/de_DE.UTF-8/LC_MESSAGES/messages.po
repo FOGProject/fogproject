@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-29 12:00-0400\n"
+"POT-Creation-Date: 2017-05-02 10:14-0400\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -4056,8 +4056,9 @@ msgid "This setting only allows the host to have"
 msgstr "Diese Einstellung definiert die Proxy-Benutzernamen zu verwenden."
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:565
-msgid "printers associated that are asasigned through FOG"
-msgstr ""
+#, fuzzy
+msgid "printers associated that are assigned through FOG"
+msgstr "Fehler, ist ein Bild mit diesem Host verbunden"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:566
 msgid "Any printer on the host that is not associated to the"

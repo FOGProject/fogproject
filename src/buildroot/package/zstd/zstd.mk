@@ -3,7 +3,7 @@
 # zstd
 #
 #############################################################
-ZSTD_VERSION = 1.1.3
+ZSTD_VERSION = 1.1.4
 ZSTD_SOURCE = v$(ZSTD_VERSION).tar.gz
 ZSTD_SITE = https://github.com/facebook/zstd/archive
 

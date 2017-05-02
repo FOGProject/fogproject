@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-29 12:00-0400\n"
+"POT-Creation-Date: 2017-05-02 10:14-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -1149,7 +1149,8 @@ msgstr "Impostazioni avanzate"
 #: /var/www/fog/lib/fog/fogpage.class.php:1215
 #: /var/www/fog/lib/fog/fogpage.class.php:1222
 #: /var/www/fog/lib/fog/fogpage.class.php:1232
-#: /var/www/fog/lib/fog/fogpage.class.php:1271 /var/www/fog/commons/text.php:99
+#: /var/www/fog/lib/fog/fogpage.class.php:1271
+#: /var/www/fog/commons/text.php:99
 msgid "Schedule"
 msgstr "Programmazione"
 
@@ -1714,7 +1715,8 @@ msgstr "Uno o più MAC sono associati a questo host"
 msgid "This host already exists"
 msgstr "Questo host esiste già"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3773 /var/www/fog/commons/text.php:95
+#: /var/www/fog/lib/fog/fogpage.class.php:3773
+#: /var/www/fog/commons/text.php:95
 msgid "Row"
 msgstr "Riga"
 
@@ -3863,7 +3865,8 @@ msgid "This setting only allows the host to have"
 msgstr "Questa impostazione consente solo l'host di avere"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:565
-msgid "printers associated that are asasigned through FOG"
+#, fuzzy
+msgid "printers associated that are assigned through FOG"
 msgstr "Stampanti associate che vengono assegnate tramite FOG"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:566
