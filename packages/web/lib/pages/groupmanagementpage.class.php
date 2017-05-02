@@ -562,7 +562,7 @@ class GroupManagementPage extends FOGPage
             '<span class="icon fa fa-question hand" '
             . 'title="%s %s. %s %s."></span>',
             _('This setting only allows the host to have'),
-            _('printers associated that are asasigned through FOG'),
+            _('printers associated that are assigned through FOG'),
             _('Any printer on the host that is not associated to the'),
             _('host through FOG will be removed')
         );

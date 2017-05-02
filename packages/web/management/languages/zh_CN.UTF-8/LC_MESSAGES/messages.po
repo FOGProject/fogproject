@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-29 12:00-0400\n"
+"POT-Creation-Date: 2017-05-02 10:14-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4032,8 +4032,9 @@ msgid "This setting only allows the host to have"
 msgstr "此设置定义代理用户名使用。"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:565
-msgid "printers associated that are asasigned through FOG"
-msgstr ""
+#, fuzzy
+msgid "printers associated that are assigned through FOG"
+msgstr "错误，与此主机关联的图像"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:566
 msgid "Any printer on the host that is not associated to the"
