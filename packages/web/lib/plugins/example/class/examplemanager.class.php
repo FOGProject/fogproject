@@ -87,4 +87,13 @@ class ExampleManager extends FOGManagerController
          */
         return true;
     }
+    /**
+     * Uninstalls.
+     *
+     * @return bool
+     */
+    public function uninstall()
+    {
+        return true;
+    }
 }
