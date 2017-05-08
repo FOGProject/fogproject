@@ -22,30 +22,11 @@
 class Product_Keys extends ReportManagementPage
 {
     /**
-     * The node this page displays from.
-     *
-     * @var string
-     */
-    public $node = 'report';
-    /**
-     * Initializes the report page.
-     *
-     * @param string $name The name if other than this.
-     *
-     * @return void
-     */
-    public function __construct($name = '')
-    {
-        $this->name = 'Product Keys';
-        parent::__construct($this->name);
-        $this->index();
-    }
-    /**
      * The page to display.
      *
      * @return void
      */
-    public function index()
+    public function file()
     {
         $this->title =_('Host Product Keys');
         printf(

@@ -22,30 +22,11 @@
 class Hosts_And_Users extends ReportManagementPage
 {
     /**
-     * The node this page displays from.
-     *
-     * @var string
-     */
-    public $node = 'report';
-    /**
-     * Initializes the report page.
-     *
-     * @param string $name The name if other than this.
-     *
-     * @return void
-     */
-    public function __construct($name = '')
-    {
-        $this->name = 'Hosts and Users';
-        parent::__construct($this->name);
-        $this->index();
-    }
-    /**
      * The page to display.
      *
      * @return void
      */
-    public function index()
+    public function file()
     {
         $this->title =_('FOG Hosts and Users Login');
         printf(

@@ -45,13 +45,21 @@ class AddTaskTypeType extends Hook
      * @var string
      */
     public $node = 'tasktypeedit';
+    /**
+     * Initialize object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'REPORT_TYPES',
+                array(
+                    $this,
+                    'reportTypes'
+                )
+            );
+    }
 }
-$AddTaskTypeType = new AddTaskTypeType();
-$HookManager
-    ->register(
-        'REPORT_TYPES',
-        array(
-            $AddTaskTypeType,
-            'reportTypes'
-        )
-    );

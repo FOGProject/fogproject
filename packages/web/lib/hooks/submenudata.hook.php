@@ -46,6 +46,23 @@ class SubMenuData extends Hook
      */
     public $node = 'host';
     /**
+     * Initializes object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'SUB_MENULINK_DATA',
+                array(
+                    $this,
+                    'subMenu'
+                )
+            );
+    }
+    /**
      * The changer method.
      *
      * @param mixed $arguments The items to change.
@@ -70,11 +87,3 @@ class SubMenuData extends Hook
             = $arguments['object']->get('description');
     }
 }
-$HookManager
-    ->register(
-        'SUB_MENULINK_DATA',
-        array(
-            new SubMenuData(),
-            'subMenu'
-        )
-    );

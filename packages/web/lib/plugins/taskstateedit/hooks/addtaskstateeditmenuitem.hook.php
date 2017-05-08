@@ -46,6 +46,44 @@ class AddTaskstateeditMenuItem extends Hook
      */
     public $node = 'taskstateedit';
     /**
+     * Initialize object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'MAIN_MENU_DATA',
+                array(
+                    $this,
+                    'menuData'
+                )
+            )
+            ->register(
+                'SEARCH_PAGES',
+                array(
+                    $this,
+                    'addSearch'
+                )
+            )
+            ->register(
+                'ACTIONBOX',
+                array(
+                    $this,
+                    'removeActionBox'
+                )
+            )
+            ->register(
+                'PAGES_WITH_OBJECTS',
+                array(
+                    $this,
+                    'addPageWithObject'
+                )
+            );
+    }
+    /**
      * Adds the menu item.
      *
      * @param mixed $arguments The items to modify.
@@ -111,33 +149,3 @@ class AddTaskstateeditMenuItem extends Hook
         array_push($arguments['PagesWithObjects'], $this->node);
     }
 }
-$AddTaskstateeditMenuItem = new AddTaskstateeditMenuItem();
-$HookManager
-    ->register(
-        'MAIN_MENU_DATA',
-        array(
-            $AddTaskstateeditMenuItem,
-            'menuData'
-        )
-    )
-    ->register(
-        'SEARCH_PAGES',
-        array(
-            $AddTaskstateeditMenuItem,
-            'addSearch'
-        )
-    )
-    ->register(
-        'ACTIONBOX',
-        array(
-            $AddTaskstateeditMenuItem,
-            'removeActionBox'
-        )
-    )
-    ->register(
-        'PAGES_WITH_OBJECTS',
-        array(
-            $AddTaskstateeditMenuItem,
-            'addPageWithObject'
-        )
-    );

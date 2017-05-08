@@ -94,7 +94,7 @@ function vals($reverse, $HookManager, $lines, $file)
     $output = '';
     $chunk = '';
     while (ftell($fh) > 0 && $lines >= 0) {
-        $seek = @min(ftell($fh), $buffer);
+        $seek = min(ftell($fh), $buffer);
         fseek($fh, -$seek, SEEK_CUR);
         $output = ($chunk = fread($fh, $seek)).$output;
         fseek($fh, -mb_strlen($chunk, '8bit'), SEEK_CUR);
@@ -161,8 +161,7 @@ $ip = trim($ip);
 if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
     return print json_encode(_('IP Passed is incorrect'));
 }
-$pat = sprintf('#%s#', $ip);
-if (preg_match($pat, filter_input(INPUT_SERVER, 'HTTP_HOST'))) {
+if (false !== strpos(filter_input(INPUT_SERVER, 'HTTP_HOST'), $ip)) {
     $str = vals(
         $reverse,
         $HookManager,

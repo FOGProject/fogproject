@@ -58,6 +58,31 @@ class HookDebugger extends Hook
      */
     public $logToBrowser = true;
     /**
+     * Initialize our stuff.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        foreach (
+            FOGCore::getSubObjectIDs(
+                'HookEvent',
+                '',
+                'name'
+            ) as &$event
+        ) {
+            self::$HookManager->register(
+                $event,
+                array(
+                    $this,
+                    'run'
+                )
+            );
+            unset($event);
+        }
+    }
+    /**
      * What to do for running.
      *
      * @param mixed $arguments The arguments to alter.
@@ -78,19 +103,4 @@ class HookDebugger extends Hook
             $this->logLevel
         );
     }
-}
-$HookDebugger = new HookDebugger();
-if (!$HookManager->events) {
-    $HookManager->getEvents();
-}
-foreach ($HookManager->events as &$event) {
-    $HookManager
-        ->register(
-            $event,
-            array(
-                $HookDebugger,
-                'run'
-            )
-        );
-    unset($event);
 }

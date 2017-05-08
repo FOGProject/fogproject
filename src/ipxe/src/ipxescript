@@ -4,17 +4,23 @@ isset ${net0/mac} && dhcp net0 || goto dhcpnet1
 echo Received DHCP answer on interface net0 && goto proxycheck
 
 :dhcpnet1
-isset ${net1/mac} && dhcp net1 || goto dhcperror
+isset ${net1/mac} && dhcp net1 || goto dhcpnet2
 echo Received DHCP answer on interface net1 && goto proxycheck
 
+:dhcpnet2
+isset ${net2/mac} && dhcp net2 || goto dhcpall
+echo Received DHCP anser on infterface net2 && goto proxycheck
+
+:dhcpall
+dhcp && goto proxycheck || goto dhcperror
+
 :dhcperror
-dhcp || prompt --key s --timeout 10000 DHCP failed, hit 's' for the iPXE shell; reboot in 10 seconds && shell || reboot
+prompt --key s --timeout 10000 DHCP failed, hit 's' for the iPXE shell; reboot in 10 seconds && shell || reboot
 
 :proxycheck
-isset ${proxydhcp/next-server} && isset ${next-server} && echo Duplicate option 66 (next server) from DHCP proxy and DHCP server && echo Using IP sent by DHCP proxy ${proxydhcp/next-server} && prompt --timeout 5000 || goto nextservercheck
+isset ${proxydhcp/next-server} && set next-server ${proxydhcp/next-server} || goto nextservercheck
 
 :nextservercheck
-isset ${proxydhcp/next-server} && set next-server ${proxydhcp/next-server} ||
 isset ${next-server} && goto netboot || goto setserv
 
 :setserv

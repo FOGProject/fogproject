@@ -40,6 +40,23 @@ class Template extends Hook
      */
     public $active = false;
     /**
+     * Initializes object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'HOST_DATA',
+                array(
+                    $this,
+                    'HostData'
+                )
+            );
+    }
+    /**
      * Host data example method.
      *
      * @param mixed $arguments The data to alter, work with.
@@ -57,11 +74,3 @@ class Template extends Hook
         );
     }
 }
-$HookManager
-    ->register(
-        'HOST_DATA',
-        array(
-            new Template(),
-            'HostData'
-        )
-    );

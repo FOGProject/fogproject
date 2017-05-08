@@ -46,6 +46,23 @@ class AddBroadcastAddresses extends Hook
      */
     public $node = 'wolbroadcast';
     /**
+     * Initializes object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'BROADCAST_ADDR',
+                array(
+                    $this,
+                    'addBCaddr'
+                )
+            );
+    }
+    /**
      * Adds the broadcast address.
      *
      * @param array $arguments The arguments to change.
@@ -63,12 +80,3 @@ class AddBroadcastAddresses extends Hook
         );
     }
 }
-$AddBroadcastAddresses = new AddBroadcastAddresses();
-$HookManager
-    ->register(
-        'BROADCAST_ADDR',
-        array(
-            $AddBroadcastAddresses,
-            'addBCaddr'
-        )
-    );

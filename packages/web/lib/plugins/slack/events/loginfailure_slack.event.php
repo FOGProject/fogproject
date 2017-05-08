@@ -42,6 +42,19 @@ class LoginFailure_Slack extends Event
      */
     public $active = true;
     /**
+     * Initialize our object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$EventManager->register(
+            'LoginFail',
+            $this
+        );
+    }
+    /**
      * Perform action
      *
      * @param string $event the event to enact
@@ -57,9 +70,11 @@ class LoginFailure_Slack extends Event
             $args = array(
                 'channel' => $Token->get('name'),
                 'text' => sprintf(
-                    '%s %s.',
+                    '%s %s. %s: %s',
                     $data['Failure'],
-                    _('failed to login')
+                    _('failed to login'),
+                    _('Remote address attempting to login'),
+                    filter_input(INPUT_SERVER, 'REMOTE_ADDR')
                 ),
             );
             $Token->call('chat.postMessage', $args);
@@ -67,7 +82,3 @@ class LoginFailure_Slack extends Event
         }
     }
 }
-$EventManager->register(
-    'LoginFail',
-    new LoginFailure_Slack()
-);

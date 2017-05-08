@@ -1,6 +1,5 @@
 #!/bin/bash
 . /usr/share/fog/lib/funcs.sh
-. /bin/fog.donate
 for arg in $(cat /proc/cmdline | tr -d \\0); do
     case $arg in
         initsh)

@@ -42,6 +42,30 @@ class AddHostSerial extends Hook
      */
     public $active = false;
     /**
+     * Initializes object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'HOST_DATA',
+                array(
+                    $this,
+                    'hostData'
+                )
+            )
+            ->register(
+                'HOST_HEADER_DATA',
+                array(
+                    $this,
+                    'hostTableHeader'
+                )
+            );
+    }
+    /**
      * The data to alter.
      *
      * @param mixed $arguments The items to alter.
@@ -94,19 +118,3 @@ class AddHostSerial extends Hook
         $arguments['headerData'][7] = _('Serial');
     }
 }
-$AddHostSerial = new AddHostSerial();
-$HookManager
-    ->register(
-        'HOST_DATA',
-        array(
-            $AddHostSerial,
-            'hostData'
-        )
-    )
-    ->register(
-        'HOST_HEADER_DATA',
-        array(
-            $AddHostSerial,
-            'hostTableHeader'
-        )
-    );

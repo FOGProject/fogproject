@@ -44,7 +44,7 @@ class TaskQueue extends TaskingElement
                 if ($this->Task->isMulticast()) {
                     $msID = @min(
                         self::getSubObjectIDs(
-                            'MulticastSessionsAssociation',
+                            'MulticastSessionAssociation',
                             array(
                                 'taskID' => $this->Task->get('id')
                             ),
@@ -52,7 +52,7 @@ class TaskQueue extends TaskingElement
                         )
                     );
                     $MulticastSession = self::getClass(
-                        'MulticastSessions',
+                        'MulticastSession',
                         $msID
                     );
                     if (!$MulticastSession->isValid()) {
@@ -395,7 +395,7 @@ class TaskQueue extends TaskingElement
         }
         try {
             if ($this->Task->isMulticast()) {
-                $MCTask = self::getClass('MulticastSessionsAssociation')
+                $MCTask = self::getClass('MulticastSessionAssociation')
                     ->set(
                         'taskID',
                         $this->Task->get('id')

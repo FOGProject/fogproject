@@ -54,9 +54,10 @@ help() {
     echo -e "\t-X    --exitFail\t\tDo not exit if item fails"
     echo -e "\t-T    --no-tftpbuild\t\tDo not rebuild the tftpd config file"
     echo -e "\t-P    --no-pxedefault\t\tDo not overwrite pxe default file"
+    echo -e "\t-F    --no-vhost\t\tDo not overwrite vhost file"
     exit 0
 }
-optspec="h?odEUHSCKYyXxTPf:c:-:W:D:B:s:e:b:"
+optspec="h?odEUHSCKYyXxTPFf:c:-:W:D:B:s:e:b:"
 while getopts "$optspec" o; do
     case $o in
         -)
@@ -73,6 +74,9 @@ while getopts "$optspec" o; do
                     ssslpath="${sslpath#'/'}"
                     ssslpath="${sslpath%'/'}"
                     sslpath="/${sslpath}/"
+                    ;;
+                no-vhost)
+                    novhost="y"
                     ;;
                 no-defaults)
                     guessdefaults=0
@@ -206,6 +210,9 @@ while getopts "$optspec" o; do
         [yY])
             autoaccept="yes"
             dbupdate="yes"
+            ;;
+        F)
+            novhost="y"
             ;;
         D)
             sdocroot=$OPTARG
@@ -407,7 +414,7 @@ if [[ -z $backupPath ]]; then
 fi
 [[ -z $bootfilename ]] && bootfilename="undionly.kpxe"
 [[ ! $doupdate -eq 1 || ! $fogupdateloaded -eq 1 ]] && . ../lib/common/input.sh
-fullrelease="0"
+fullrelease="1.4.0-RC-11"
 echo
 echo "   ######################################################################"
 echo "   #     FOG now has everything it needs for this setup, but please     #"
@@ -442,7 +449,6 @@ echo " * Interface: $interface"
 case $installtype in
     N)
         echo " * Installation Type: Normal Server"
-        echo " * Donate: $donate"
         echo " * Internationalization: $installlang"
         echo " * Image Storage Location: $storageLocation"
         case $bldhcp in

@@ -325,42 +325,41 @@ class BootMenu extends FOGBase
         $this->_booturl = "http://{$webserver}/fog/service";
         $this->_memdisk = "kernel $memdisk initrd=$memtest";
         $this->_memtest = "initrd $memtest";
-        if (!$StorageNode instanceof StorageNode
-            || !$StorageNode->isValid()
-        ) {
-            $StorageNodes = (array)self::getClass('StorageNodeManager')
-                ->find(
-                    array(
-                        'ip' => array(
-                            $webserver,
-                            self::resolveHostname($webserver)
-                        )
+        $StorageNodes = (array)self::getClass('StorageNodeManager')
+            ->find(
+                array(
+                    'ip' => array(
+                        $webserver,
+                        self::resolveHostname($webserver)
                     )
-                );
-            if (count($StorageNodes) < 1) {
-                $StorageNodes = (array)self::getClass('StorageNodeManager')
-                    ->find();
-                foreach ((array)$StorageNodes as $StorageNode) {
-                    $hostname = self::resolvHostname($StorageNode->get('ip'));
-                    if ($hostname == $webserver
-                        || $hostname == self::resolveHostname($webserver)
-                    ) {
-                        break;
-                    }
-                    $StorageNode = new StorageNode(0);
+                )
+            );
+        if (count($StorageNodes) < 1) {
+            $StorageNodes = (array)self::getClass('StorageNodeManager')
+                ->find();
+            foreach ($StorageNodes as $StorageNode) {
+                $hostname = self::resolveHostname($StorageNode->get('ip'));
+                if ($hostname == $webserver
+                    || $hostname == self::resolveHostname($webserver)
+                ) {
+                    break;
                 }
-                if (!$StorageNode->isValid()) {
-                    $StorageNodeIDs = (array)self::getSubObjectIDs(
-                        'StorageNode',
-                        array('isMaster' => 1)
-                    );
-                    if (count($StorageNodeIDs) < 1) {
-                        $StorageNodeIDs
-                            = (array)self::getSubObjectIDs('StorageNode');
-                    }
-                    $StorageNode = new StorageNode(@min($StorageNodeIDs));
-                }
+                $StorageNode = new StorageNode(0);
             }
+            if (!$StorageNode->isValid()) {
+                $storageNodeIDs = (array)self::getSubObjectIDs(
+                    'StorageNode',
+                    array('isMaster' => 1)
+                );
+                if (count($storageNodeIDs) < 1) {
+                    $storageNodeIDs = (array)self::getSubObjectIDs(
+                        'StorageNode'
+                    );
+                }
+                $StorageNode = new StorageNode(@min($storageNodeIDs));
+            }
+        } else {
+            $StorageNode = current($StorageNodes);
         }
         if ($StorageNode->isValid()) {
             $this->_storage = sprintf(
@@ -743,7 +742,7 @@ class BootMenu extends FOGBase
                 (array)self::getProgressState()
             ),
         );
-        foreach ((array)self::getClass('MulticastSessionsManager')
+        foreach ((array)self::getClass('MulticastSessionManager')
             ->find($findWhere) as &$MulticastSession
         ) {
             if (!$MulticastSession->isValid()
@@ -757,7 +756,7 @@ class BootMenu extends FOGBase
             unset($MulticastSession);
             break;
         }
-        $MulticastSession = new MulticastSessions($MulticastSessionID);
+        $MulticastSession = new MulticastSession($MulticastSessionID);
         if (!$MulticastSession->isValid()) {
             $Send['checksession'] = array(
                 'echo No session found with that name.',
@@ -823,9 +822,6 @@ class BootMenu extends FOGBase
             'FOG_DISABLE_CHKDSK',
             'FOG_KERNEL_ARGS',
             'FOG_KERNEL_DEBUG',
-            'FOG_MINING_ENABLE',
-            'FOG_MINING_MAX_CORES',
-            'FOG_MINING_PACKAGE_PATH',
             'FOG_MULTICAST_RENDEZVOUS',
             'FOG_NONREG_DEVICE'
         );
@@ -833,9 +829,6 @@ class BootMenu extends FOGBase
             $chkdsk,
             $kargs,
             $kdebug,
-            $miningen,
-            $miningcr,
-            $miningpp,
             $mcastrdv,
             $nondev
         ) = self::getSubObjectIDs(
@@ -897,14 +890,6 @@ class BootMenu extends FOGBase
                 'active' => $mc,
             ),
             array(
-                'value' => sprintf(
-                    'mining=1 miningcores=%s miningpath=%s',
-                    $miningcr,
-                    $miningpp
-                ),
-                'active' => $miningen,
-            ),
-            array(
                 'value' => 'debug',
                 'active' => $kdebug,
             ),
@@ -930,10 +915,28 @@ class BootMenu extends FOGBase
             'menu',
         );
         $defItem = 'choose target && goto ${target}';
-        $Images = self::getClass('ImageManager')->find(array('isEnabled'=>1));
+        /**
+         * Sort a list.
+         */
+        $imgFind = array('isEnabled' => 1);
+        if (!self::getSetting('FOG_IMAGE_LIST_MENU')) {
+            if (!$this->_Host->isValid()
+                || !$this->_Host->getImage()->isValid()
+            ) {
+                $imgFind = false;
+            } else {
+                $imgFind['id'] = $this->_Host->getImage()->get('id');
+            }
+        }
+        if ($imgFind === false) {
+            $Images = false;
+        } else {
+            $Images = self::getClass('ImageManager')->find($imgFind);
+        }
         if (!$Images) {
             $Send['NoImages'] = array(
-                'echo No Images on server found',
+                'echo Host is not valid, host has no image assigned, or'
+                . ' there are no images defined on the server.',
                 'sleep 3',
             );
             $this->_parseMe($Send);
@@ -1035,7 +1038,7 @@ class BootMenu extends FOGBase
      */
     public function multijoin($msid)
     {
-        $MultiSess = new MulticastSessions($msid);
+        $MultiSess = new MulticastSession($msid);
         if (!$MultiSess->isValid()) {
             return;
         }
@@ -1297,13 +1300,13 @@ class BootMenu extends FOGBase
             if ($TaskType->isMulticast()) {
                 $msaID = @max(
                     self::getSubObjectIDs(
-                        'MulticastSessionsAssociation',
+                        'MulticastSessionAssociation',
                         array(
                             'taskID' => $Task->get('id')
                         )
                     )
                 );
-                $MulticastSessionAssoc = new MulticastSessionsAssociation($msaID);
+                $MulticastSessionAssoc = new MulticastSessionAssociation($msaID);
                 $MulticastSession = $MulticastSessionAssoc->getMulticastSession();
                 if ($MulticastSession && $MulticastSession->isValid()) {
                     $this->_Host->set('imageID', $MulticastSession->get('image'));
@@ -1361,7 +1364,6 @@ class BootMenu extends FOGBase
                     'FOG_DISABLE_CHKDSK',
                     'FOG_KERNEL_ARGS',
                     'FOG_KERNEL_DEBUG',
-                    'FOG_MINING_ENABLE',
                     'FOG_MULTICAST_RENDEZVOUS',
                     'FOG_PIGZ_COMP',
                     'FOG_TFTP_HOST',
@@ -1374,7 +1376,6 @@ class BootMenu extends FOGBase
                     $chkdsk,
                     $kargs,
                     $kdebug,
-                    $mining,
                     $mcastrdv,
                     $pigz,
                     $tftp,
@@ -1615,27 +1616,6 @@ class BootMenu extends FOGBase
                         )
                     ),
                     'active' => $TaskType->isMulticast(),
-                ),
-                array(
-                    'value' => vsprintf(
-                        'mining=1 miningcores=%s miningpath=%s',
-                        self::getSubObjectIDs(
-                            'Service',
-                            array(
-                                'name' => array(
-                                    'FOG_MINING_MAX_CORES',
-                                    'FOG_MINING_PACKAGE_PATH'
-                                )
-                            ),
-                            'value',
-                            false,
-                            'AND',
-                            'name',
-                            false,
-                            ''
-                        )
-                    ),
-                    'active' => $mining,
                 ),
                 array(
                     'value' => sprintf(

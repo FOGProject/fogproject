@@ -48,6 +48,44 @@ class SetSnapinTaskState extends Hook
      */
     public $node = 'taskstateedit';
     /**
+     * Initializes object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'CHECKEDIN_STATE',
+                array(
+                    $this,
+                    'setCheckedInState'
+                )
+            )
+            ->register(
+                'PROGRESS_STATE',
+                array(
+                    $this,
+                    'setProgressState'
+                )
+            )
+            ->register(
+                'QUEUED_STATES',
+                array(
+                    $this,
+                    'addQueuedState'
+                )
+            )
+            ->register(
+                'TaskActiveSnapinsData',
+                array(
+                    $this,
+                    'setStateWidth'
+                )
+            );
+    }
+    /**
      * Sets the checkin state
      *
      * @param array $arguments the arguments to change
@@ -103,33 +141,3 @@ class SetSnapinTaskState extends Hook
         );
     }
 }
-$SetSnapinTaskState = new SetSnapinTaskState();
-$HookManager
-    ->register(
-        'CHECKEDIN_STATE',
-        array(
-            $SetSnapinTaskState,
-            'setCheckedInState'
-        )
-    )
-    ->register(
-        'PROGRESS_STATE',
-        array(
-            $SetSnapinTaskState,
-            'setProgressState'
-        )
-    )
-    ->register(
-        'QUEUED_STATES',
-        array(
-            $SetSnapinTaskState,
-            'addQueuedState'
-        )
-    )
-    ->register(
-        'TaskActiveSnapinsData',
-        array(
-            $SetSnapinTaskState,
-            'setStateWidth'
-        )
-    );

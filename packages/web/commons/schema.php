@@ -3726,3 +3726,24 @@ $this->schema[] = array(
     . self::createSecToken()
     . "','API System')"
 );
+// 257
+$this->schema[] = array(
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
+    . "VALUES "
+    . "('FOG_IMAGE_LIST_MENU',"
+    . "'Enables Image list on boot menu deploy image (Defaults to on)',"
+    . "'1','FOG Boot Settings')"
+);
+// 258
+$this->schema[] = array(
+    "DELETE FROM `taskTypes` WHERE `ttID` IN (23, 24)",
+    "DELETE FROM `globalSettings` WHERE `settingKey` LIKE 'FOG_MINING%'",
+    "ALTER TABLE `taskTypes` auto_increment=1",
+    "ALTER TABLE `globalSettings` auto_increment=1"
+);
+// 259
+$this->schema[] = array(
+    "ALTER TABLE `users` ADD `uAllowAPI` ENUM('0','1') NOT NULL DEFAULT '1'",
+    "ALTER TABLE `users` ADD `uAPIToken` VARCHAR(255) NOT NULL"
+);

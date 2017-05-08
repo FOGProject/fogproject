@@ -50,6 +50,37 @@ class AddLDAPMenuItem extends Hook
      */
     public $node = 'ldap';
     /**
+     * Initialize object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'MAIN_MENU_DATA',
+                array(
+                    $this,
+                    'menuData'
+                )
+            )
+            ->register(
+                'SEARCH_PAGES',
+                array(
+                    $this,
+                    'addSearch'
+                )
+            )
+            ->register(
+                'PAGES_WITH_OBJECTS',
+                array(
+                    $this,
+                    'addPageWithObject'
+                )
+            );
+    }
+    /**
      * Sets the menu item into the menu
      *
      * @param mixed $arguments the item to adjust
@@ -100,26 +131,3 @@ class AddLDAPMenuItem extends Hook
         array_push($arguments['PagesWithObjects'], $this->node);
     }
 }
-$AddLDAPMenuItem = new AddLDAPMenuItem();
-$HookManager
-    ->register(
-        'MAIN_MENU_DATA',
-        array(
-            $AddLDAPMenuItem,
-            'menuData'
-        )
-    )
-    ->register(
-        'SEARCH_PAGES',
-        array(
-            $AddLDAPMenuItem,
-            'addSearch'
-        )
-    )
-    ->register(
-        'PAGES_WITH_OBJECTS',
-        array(
-            $AddLDAPMenuItem,
-            'addPageWithObject'
-        )
-    );

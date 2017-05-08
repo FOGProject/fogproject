@@ -340,7 +340,7 @@ class MACAddress extends FOGBase
         /**
          * Create our socket resource
          */
-        $sock = @socket_create(
+        $sock = socket_create(
             AF_INET,
             SOCK_DGRAM,
             SOL_UDP
@@ -354,7 +354,7 @@ class MACAddress extends FOGBase
         /**
          * Set our coket options
          */
-        $set_opt = @socket_set_option(
+        $set_opt = socket_set_option(
             $sock,
             SOL_SOCKET,
             SO_BROADCAST,
@@ -364,13 +364,13 @@ class MACAddress extends FOGBase
          * If invalid close socket and return immediately.
          */
         if ($set_opt < 0) {
-            @socket_close($sock);
+            socket_close($sock);
             return false;
         }
         /**
          * Send our wake up packet.
          */
-        $sendto = @socket_sendto(
+        $sendto = socket_sendto(
             $sock,
             $this->_msg,
             strlen($this->_msg),
@@ -387,7 +387,7 @@ class MACAddress extends FOGBase
         /**
          * Close the socket.
          */
-        @socket_close($sock);
+        socket_close($sock);
         /**
          * Return value
          */

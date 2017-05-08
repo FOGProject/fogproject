@@ -50,6 +50,10 @@ class UserManagementPage extends FOGPage
                     $linkstr,
                     'changepw'
                 ) => _('Change password'),
+                sprintf(
+                    $linkstr,
+                    'api'
+                ) => _('API Settings'),
                 $this->delformat => self::$foglang['Delete'],
             );
             $this->notes = array(
@@ -77,6 +81,8 @@ class UserManagementPage extends FOGPage
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class='
             . '"toggle-checkboxAction" />',
+            _('Mobile Only?'),
+            _('API?'),
             _('Username'),
             _('Friendly Name'),
             _('Edit')
@@ -84,6 +90,8 @@ class UserManagementPage extends FOGPage
         $this->templates = array(
             '<input type="checkbox" name="user[]" value='
             . '"${id}" class="toggle-action" />',
+            '${mobileYes}',
+            '${apiYes}',
             sprintf(
                 '<a href="?node=%s&sub=edit&%s=${id}" title="%s">${name}</a>',
                 $this->node,
@@ -103,6 +111,14 @@ class UserManagementPage extends FOGPage
             array(
                 'class' => 'l filter-false',
                 'width' => 16
+            ),
+            array(
+                'class' => 'l',
+                'width' => 22
+            ),
+            array(
+                'class' => 'l',
+                'width' => 22
             ),
             array(),
             array(),
@@ -124,6 +140,8 @@ class UserManagementPage extends FOGPage
             }
             $this->data[] = array(
                 'id' => $User->get('id'),
+                'mobileYes' => $User->get('type') == 1 ? _('Yes') : _('No'),
+                'apiYes' => $User->get('api') ? _('Yes') : _('No'),
                 'name' => $User->get('name'),
                 'friendly' => (
                     $User->get('display') ?
@@ -172,6 +190,8 @@ class UserManagementPage extends FOGPage
             _('User Password (confirm)') => '<input type="password" class='
             . '"password-input2" name="password_confirm" value='
             . '"" autocomplete="off"/>',
+            _('Allow API') => '<input type="checkbox" name="apienabled" '
+            . 'autocomplete="off" checked/>',
             sprintf(
                 '%s&nbsp;'
                 . '<i class="icon icon-help hand fa fa-question" title="%s"></i>',
@@ -250,6 +270,8 @@ class UserManagementPage extends FOGPage
                 ->set('name', $name)
                 ->set('display', $friendly)
                 ->set('type', isset($_REQUEST['isGuest']))
+                ->set('api', isset($_REQUEST['apienabled']))
+                ->set('token', self::createSecToken())
                 ->set('password', $_REQUEST['password']);
             if (!$User->save()) {
                 throw new Exception(_('Failed to create user'));
@@ -280,6 +302,11 @@ class UserManagementPage extends FOGPage
      */
     public function edit()
     {
+        if (!$this->obj->get('token')) {
+            $this->obj
+                ->set('token', self::createSecToken())
+                ->save();
+        }
         $this->title = sprintf('%s: %s', _('Edit'), $this->obj->get('name'));
         echo '<div id="tab-container"><div id="user-general">';
         $fields = array(
@@ -392,6 +419,52 @@ class UserManagementPage extends FOGPage
             $this->formAction
         );
         $this->render();
+        echo '</form></div>';
+        echo '<div id="user-api">';
+        $fields = array(
+            _('User API Enabled') => sprintf(
+                '<input type="checkbox" class="api-enabled" name="apienabled"%s/>',
+                $this->obj->get('api') ? ' checked' : ''
+            ),
+            _('User API Token') => sprintf(
+                '<input type="password" class="token" name="apitoken" readonly '
+                . 'value="%s"/><br/><input type="button" class="resettoken" '
+                . ' value="%s"/>',
+                base64_encode(
+                    $this->obj->get('token')
+                ),
+                _('Reset Token')
+            ),
+            '&nbsp;' => sprintf(
+                '<input name="update" type="submit" value="%s"/>',
+                _('Update')
+            )
+        );
+        unset($this->headerData);
+        $this->templates = array(
+            '${field}',
+            '${input}',
+        );
+        $this->attributes = array(
+            array(),
+            array(),
+        );
+        $this->data = array();
+        array_walk($fields, $this->fieldsToData);
+        self::$HookManager
+            ->processEvent(
+                'USER_API_EDIT',
+                array(
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes
+                )
+            );
+        printf(
+            '<form method="post" action="%s&tab=user-api">',
+            $this->formAction
+        );
+        $this->render();
         echo '</form></div></div>';
     }
     /**
@@ -409,44 +482,49 @@ class UserManagementPage extends FOGPage
         try {
             $name = strtolower(trim($_REQUEST['name']));
             $friendly = trim($_REQUEST['display']);
-            switch ($_REQUEST['tab']) {
-                case 'user-general':
-                    $test = preg_match(
-                        '/(?=^.{3,40}$)^[\w][\w0-9]*[._-]?[\w0-9]*[.]?[\w0-9]+$/i',
-                        $name
+            global $tab;
+            switch ($tab) {
+            case 'user-general':
+                $test = preg_match(
+                    '/(?=^.{3,40}$)^[\w][\w0-9]*[._-]?[\w0-9]*[.]?[\w0-9]+$/i',
+                    $name
+                );
+                if (!$test) {
+                    throw new Exception(
+                        sprintf(
+                            '%s.<br/><small>%s.<br/>%s.<br/>%s.</br>%s.</small>',
+                            _('Username does not meet rules'),
+                            _('Must start with a word character'),
+                            _('Must be at least 3 characters'),
+                            _('Must be shorter than 41 characters'),
+                            _('No contiguous special characters')
+                        )
                     );
-                    if (!$test) {
-                        throw new Exception(
-                            sprintf(
-                                '%s.<br/><small>%s.<br/>%s.<br/>%s.</br>%s.</small>',
-                                _('Username does not meet rules'),
-                                _('Must start with a word character'),
-                                _('Must be at least 3 characters'),
-                                _('Must be shorter than 41 characters'),
-                                _('No contiguous special characters')
-                            )
-                        );
-                    }
-                    $exists = $this->obj
-                        ->getManager()
-                        ->exists(
-                            $name,
-                            $this->obj->get('id')
-                        );
-                    if ($name != trim($this->obj->get('name'))
-                        && $exists
-                    ) {
-                        throw new Exception(_('Username already exists'));
-                    }
-                    $this->obj
-                        ->set('name', $name)
-                        ->set('display', $friendly)
-                        ->set('type', isset($_REQUEST['isGuest']));
-                    break;
-                case 'user-changepw':
-                    $this->obj
-                        ->set('password', $_REQUEST['password']);
-                    break;
+                }
+                $exists = $this->obj
+                    ->getManager()
+                    ->exists(
+                        $name,
+                        $this->obj->get('id')
+                    );
+                if ($name != trim($this->obj->get('name'))
+                    && $exists
+                ) {
+                    throw new Exception(_('Username already exists'));
+                }
+                $this->obj
+                    ->set('name', $name)
+                    ->set('display', $friendly)
+                    ->set('type', isset($_REQUEST['isGuest']));
+                break;
+            case 'user-changepw':
+                $this->obj
+                    ->set('password', $_REQUEST['password']);
+                break;
+            case 'user-api':
+                $this->obj
+                    ->set('api', isset($_REQUEST['apienabled']))
+                    ->set('token', base64_decode($_REQUEST['apitoken']));
             }
             if (!$this->obj->save()) {
                 throw new Exception(_('User update failed'));

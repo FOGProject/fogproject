@@ -37,7 +37,7 @@ for iface in $ifaces; do
     for retry in $(seq 3); do
         /sbin/udhcpc -i $iface --now
         ustat="$?"
-        curl -Ifso /dev/null "${web}" --connect-timeout 5
+        curl -Ifso /dev/null http://"${web}"/index.php --connect-timeout 5
         cstat="$?"
         # If the udhcp is okay AND we can curl our web
         # we know we have link so no need to continue on.

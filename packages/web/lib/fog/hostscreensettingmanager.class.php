@@ -1,32 +1,32 @@
 <?php
 /**
- * The multicast association manager class.
+ * Host screen settings manager class.
  *
  * PHP version 5
  *
- * @category MulticastSessionsAssociationManager
+ * @category HostScreenSettingManager
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
 /**
- * The multicast association manager class.
+ * Host screen settings manager class.
  *
- * @category MulticastSessionsAssociationManager
+ * @category HostScreenSettingManager
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class MulticastSessionsAssociationManager extends FOGManagerController
+class HostScreenSettingManager extends FOGManagerController
 {
     /**
      * The base table name.
      *
      * @var string
      */
-    public $tablename = 'dirCleaner';
+    public $tablename = 'hostScreenSettings';
     /**
      * Install our table.
      *
@@ -39,29 +39,53 @@ class MulticastSessionsAssociationManager extends FOGManagerController
             $this->tablename,
             true,
             array(
-                'dcID',
-                'dcPath'
+                'hssID',
+                'hssHostID',
+                'hssWidth',
+                'hssHeight',
+                'hssRefresh',
+                'hssOrientation',
+                'hssOther1',
+                'hssOther2'
             ),
             array(
                 'INTEGER',
-                'LONGTEXT'
+                'INTEGER',
+                'INTEGER',
+                'INTEGER',
+                'INTEGER',
+                'INTEGER',
+                'INTEGER',
+                'INTEGER'
             ),
             array(
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
                 false,
                 false
             ),
             array(
                 false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
                 false
             ),
             array(
-                'dcID',
-                'dcPath'
+                'hssID',
+                'hssHostID'
             ),
             'MyISAM',
             'utf8',
-            'dcID',
-            'dcID'
+            'hssID',
+            'hssID'
         );
         return self::$DB->query($sql);
     }

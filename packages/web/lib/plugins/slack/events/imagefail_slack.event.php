@@ -40,6 +40,19 @@ class ImageFail_Slack extends Event
      */
     public $active = true;
     /**
+     * Initialize object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$EventManager->register(
+            'HOST_IMAGE_FAIL',
+            $this
+        );
+    }
+    /**
      * Perform action
      *
      * @param string $event the event to enact
@@ -61,7 +74,3 @@ class ImageFail_Slack extends Event
         }
     }
 }
-$EventManager->register(
-    'HOST_IMAGE_FAIL',
-    new ImageFail_Slack()
-);

@@ -48,6 +48,37 @@ class AddLocationGroup extends Hook
      */
     public $node = 'location';
     /**
+     * Initialize object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'GROUP_GENERAL_EXTRA',
+                array(
+                    $this,
+                    'groupFields'
+                )
+            )
+            ->register(
+                'SUB_MENULINK_DATA',
+                array(
+                    $this,
+                    'groupSideMenu'
+                )
+            )
+            ->register(
+                'GROUP_EDIT_SUCCESS',
+                array(
+                    $this,
+                    'groupAddLocation'
+                )
+            );
+    }
+    /**
      * The group side menu
      *
      * @param mixed $arguments The arguments to change.
@@ -175,26 +206,3 @@ class AddLocationGroup extends Hook
         }
     }
 }
-$AddLocationGroup = new AddLocationGroup();
-$HookManager
-    ->register(
-        'GROUP_GENERAL_EXTRA',
-        array(
-            $AddLocationGroup,
-            'groupFields'
-        )
-    )
-    ->register(
-        'SUB_MENULINK_DATA',
-        array(
-            $AddLocationGroup,
-            'groupSideMenu'
-        )
-    )
-    ->register(
-        'GROUP_EDIT_SUCCESS',
-        array(
-            $AddLocationGroup,
-            'groupAddLocation'
-        )
-    );

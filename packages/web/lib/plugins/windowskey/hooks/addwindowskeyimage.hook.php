@@ -48,6 +48,51 @@ class AddWindowsKeyImage extends Hook
      */
     public $node = 'windowskey';
     /**
+     * Initialize object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'IMAGE_FIELDS',
+                array(
+                    $this,
+                    'imageFields'
+                )
+            )
+            ->register(
+                'IMAGE_ADD_SUCCESS',
+                array(
+                    $this,
+                    'imageAddKey'
+                )
+            )
+            ->register(
+                'IMAGE_EDIT_SUCCESS',
+                array(
+                    $this,
+                    'imageAddKey'
+                )
+            )
+            ->register(
+                'DESTROY_IMAGE',
+                array(
+                    $this,
+                    'imageRemove'
+                )
+            )
+            ->register(
+                'SELECT_BUILD',
+                array(
+                    $this,
+                    'imageKeySelector'
+                )
+            );
+    }
+    /**
      * Adjusts the image fields.
      *
      * @param mixed $arguments The arguments to change.
@@ -179,40 +224,3 @@ class AddWindowsKeyImage extends Hook
         }
     }
 }
-$AddWindowsKeyImage = new AddWindowsKeyImage();
-$HookManager
-    ->register(
-        'IMAGE_FIELDS',
-        array(
-            $AddWindowsKeyImage,
-            'imageFields'
-        )
-    )
-    ->register(
-        'IMAGE_ADD_SUCCESS',
-        array(
-            $AddWindowsKeyImage,
-            'imageAddKey'
-        )
-    )
-    ->register(
-        'IMAGE_EDIT_SUCCESS',
-        array(
-            $AddWindowsKeyImage,
-            'imageAddKey'
-        )
-    )
-    ->register(
-        'DESTROY_IMAGE',
-        array(
-            $AddWindowsKeyImage,
-            'imageRemove'
-        )
-    )
-    ->register(
-        'SELECT_BUILD',
-        array(
-            $AddWindowsKeyImage,
-            'imageKeySelector'
-        )
-    );

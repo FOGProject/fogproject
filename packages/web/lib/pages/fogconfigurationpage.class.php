@@ -1339,8 +1339,6 @@ class FOGConfigurationPage extends FOGPage
             'FOG_PLUGINSYS_ENABLED',
             'FOG_FORMAT_FLAG_IN_GUI',
             'FOG_NO_MENU',
-            'FOG_MINING_ENABLE',
-            'FOG_MINING_FULL_RUN_ON_WEEKEND',
             'FOG_ALWAYS_LOGGED_IN',
             'FOG_ADVANCED_MENU_LOGIN',
             'FOG_TASK_FORCE_REBOOT',
@@ -1361,6 +1359,7 @@ class FOGConfigurationPage extends FOGPage
             'FOG_TASKING_ADV_WOL_ENABLED',
             'FOG_TASKING_ADV_DEBUG_ENABLED',
             'FOG_API_ENABLED',
+            'FOG_IMAGE_LIST_MENU',
         );
         self::$HookManager
             ->processEvent(
@@ -1803,11 +1802,6 @@ class FOGConfigurationPage extends FOGPage
         $needstobenumeric = array(
             // API System
             'FOG_API_ENABLED' => $checkbox,
-            // Donations
-            'FOG_MINING_ENABLE' => $checkbox,
-            'FOG_MINING_MAX_CORES' => true,
-            'FOG_MINING_FULL_RESTART_HOUR' => range(0, 23),
-            'FOG_MINING_FULL_RUN_ON_WEEKEND' => $checkbox,
             // FOG Boot Settings
             'FOG_PXE_MENU_TIMEOUT' => true,
             'FOG_PXE_MENU_HIDDEN' => $checkbox,
@@ -1820,6 +1814,7 @@ class FOGConfigurationPage extends FOGPage
             'FOG_REGISTRATION_ENABLED' => $checkbox,
             'FOG_KERNEL_LOGLEVEL' => range(0, 7),
             'FOG_WIPE_TIMEOUT' => true,
+            'FOG_IMAGE_LIST_MENU' => $checkbox,
             // FOG Email Settings
             'FOG_EMAIL_ACTION' => $checkbox,
             // FOG Linux Service Logs

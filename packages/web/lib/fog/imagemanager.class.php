@@ -190,14 +190,14 @@ class ImageManager extends FOGManagerController
          * Get running multicast tasks using these images
          */
         $mcTaskIDs = self::getSubObjectIDs(
-            'MulticastSessions',
+            'MulticastSession',
             $msFindWhere
         );
         /**
          * Cancel any mc tasks using the destroyed images
          */
         if (count($mcTaskIDs)) {
-            self::getClass('MulticastSessionsManager')
+            self::getClass('MulticastSessionManager')
                 ->cancel($mcTaskIDs);
         }
         /**

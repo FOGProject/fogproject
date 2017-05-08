@@ -171,6 +171,11 @@ class PluginManagementPage extends FOGPage
             }
             $name = trim($Plugin->get('name'));
             $hash = md5($name);
+            $this->formAction .= sprintf(
+                '&run=%s&plug_name=%s',
+                $hash,
+                $name
+            );
             $this->data[] = array(
                 'name' => $name,
                 'type' => 'install',

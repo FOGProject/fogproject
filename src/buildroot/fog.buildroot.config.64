@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Buildroot 2017.02-rc1 Configuration
+# Buildroot 2017.02.1 Configuration
 #
 BR2_HAVE_DOT_CONFIG=y
 BR2_HOST_GCC_AT_LEAST_4_5=y
@@ -79,6 +79,7 @@ BR2_HG="hg"
 BR2_ZCAT="gzip -d -c"
 BR2_BZCAT="bzcat"
 BR2_XZCAT="xzcat"
+BR2_LZCAT="lzip -d -c"
 BR2_TAR_OPTIONS=""
 BR2_DEFCONFIG="$(CONFIG_DIR)/defconfig"
 BR2_DL_DIR="$(TOPDIR)/dl"
@@ -156,7 +157,7 @@ BR2_TOOLCHAIN_BUILDROOT_LIBC="glibc"
 # BR2_KERNEL_HEADERS_4_8 is not set
 BR2_KERNEL_HEADERS_4_9=y
 # BR2_KERNEL_HEADERS_VERSION is not set
-BR2_DEFAULT_KERNEL_HEADERS="4.9.9"
+BR2_DEFAULT_KERNEL_HEADERS="4.9.20"
 BR2_PACKAGE_LINUX_HEADERS=y
 BR2_PACKAGE_GLIBC=y
 BR2_GLIBC_VERSION_2_23=y
@@ -1371,6 +1372,8 @@ BR2_PACKAGE_LIBRSYNC=y
 # BR2_PACKAGE_BDWGC is not set
 # BR2_PACKAGE_BOOST is not set
 # BR2_PACKAGE_CLAPACK is not set
+BR2_PACKAGE_CLASSPATH_ARCH_SUPPORTS=y
+# BR2_PACKAGE_CLASSPATH is not set
 # BR2_PACKAGE_CPPCMS is not set
 # BR2_PACKAGE_DAWGDIC is not set
 # BR2_PACKAGE_DING_LIBS is not set
@@ -1480,9 +1483,6 @@ BR2_PACKAGE_PROTOBUF_ARCH_SUPPORTS=y
 # BR2_PACKAGE_LINENOISE is not set
 BR2_PACKAGE_NCURSES=y
 BR2_PACKAGE_NCURSES_WCHAR=y
-# BR2_PACKAGE_NCURSES_TARGET_PANEL is not set
-# BR2_PACKAGE_NCURSES_TARGET_FORM is not set
-# BR2_PACKAGE_NCURSES_TARGET_MENU is not set
 BR2_PACKAGE_NCURSES_TARGET_PROGS=y
 BR2_PACKAGE_NEWT=y
 BR2_PACKAGE_PCRE=y
@@ -2039,7 +2039,7 @@ BR2_TARGET_ROOTFS_EXT2_XZ=y
 #
 
 #
-# iso image needs a Linux kernel and one of grub, grub2 or isolinux to be built
+# iso image needs a Linux kernel and one of grub, grub2 i386-pc or isolinux to be built
 #
 # BR2_TARGET_ROOTFS_JFFS2 is not set
 # BR2_TARGET_ROOTFS_ROMFS is not set

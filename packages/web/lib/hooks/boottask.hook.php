@@ -40,6 +40,23 @@ class BootTask extends Hook
      */
     public $active = false;
     /**
+     * Initializes object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'IPXE_EDIT',
+                array(
+                    $this,
+                    'changeTask'
+                )
+            );
+    }
+    /**
      * Change the task.
      *
      * @param mixed $arguments The items to alter.
@@ -82,11 +99,3 @@ class BootTask extends Hook
             )->save();
     }
 }
-$HookManager
-    ->register(
-        'IPXE_EDIT',
-        array(
-            new BootTask(),
-            'changeTask'
-        )
-    );
