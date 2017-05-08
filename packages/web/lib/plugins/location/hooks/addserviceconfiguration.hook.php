@@ -48,6 +48,37 @@ class AddServiceConfiguration extends Hook
      */
     public $node = 'location';
     /**
+     * Initialize object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'SNAPIN_CLIENT_SERVICE',
+                array(
+                    $this,
+                    'addServiceCheckbox'
+                )
+            )
+            ->register(
+                'SNAPIN_CLIENT_SERVICE_POST',
+                array(
+                    $this,
+                    'updateGlobalSetting'
+                )
+            )
+            ->register(
+                'SERVICE_NAMES',
+                array(
+                    $this,
+                    'addServiceNames'
+                )
+            );
+    }
+    /**
      * Add the service checkbox.
      *
      * @param mixed $arguments The arguments to change.
@@ -166,26 +197,3 @@ class AddServiceConfiguration extends Hook
         $arguments['ServiceNames'][] = 'FOG_SNAPIN_LOCATION_SEND_ENABLED';
     }
 }
-$AddServiceConfiguration = new AddServiceConfiguration();
-$HookManager
-    ->register(
-        'SNAPIN_CLIENT_SERVICE',
-        array(
-            $AddServiceConfiguration,
-            'addServiceCheckbox'
-        )
-    )
-    ->register(
-        'SNAPIN_CLIENT_SERVICE_POST',
-        array(
-            $AddServiceConfiguration,
-            'updateGlobalSetting'
-        )
-    )
-    ->register(
-        'SERVICE_NAMES',
-        array(
-            $AddServiceConfiguration,
-            'addServiceNames'
-        )
-    );

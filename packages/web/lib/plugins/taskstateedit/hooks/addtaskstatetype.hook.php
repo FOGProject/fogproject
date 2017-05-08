@@ -45,13 +45,21 @@ class AddTaskStateType extends Hook
      * @var string
      */
     public $node = 'taskstateedit';
+    /**
+     * Initialize object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'REPORT_TYPES',
+                array(
+                    $this,
+                    'reportTypes'
+                )
+            );
+    }
 }
-$AddTaskStateType = new AddTaskStateType();
-$HookManager
-    ->register(
-        'REPORT_TYPES',
-        array(
-            $AddTaskStateType,
-            'reportTypes'
-        )
-    );

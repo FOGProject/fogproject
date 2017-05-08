@@ -26,6 +26,58 @@ class AddAccessControlUser extends Hook
     public $active = true;
     public $node = 'accesscontrol';
     /**
+     * Initialize object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'USER_HEADER_DATA',
+                array(
+                    $this,
+                    'userTableHeader'
+                )
+            )
+            ->register(
+                'USER_DATA',
+                array(
+                    $this,
+                    'userData'
+                )
+            )
+            ->register(
+                'USER_FIELDS',
+                array(
+                    $this,
+                    'userFields'
+                )
+            )
+            ->register(
+                'USER_ADD_SUCCESS',
+                array(
+                    $this,
+                    'userAddAccessControl'
+                )
+            )
+            ->register(
+                'USER_UPDATE_SUCCESS',
+                array(
+                    $this,
+                    'userAddAccessControl'
+                )
+            )
+            ->register(
+                'SUB_MENULINK_DATA',
+                array(
+                    $this,
+                    'addNotes'
+                )
+            );
+    }
+    /**
      * This function modifies the header of the user page.
      * Add one column calls 'Role'
      *
@@ -269,47 +321,3 @@ class AddAccessControlUser extends Hook
         $arguments['notes'][_('Role')] = $acID;
     }
 }
-$AddAccessControlUser = new AddAccessControlUser();
-$HookManager
-    ->register(
-        'USER_HEADER_DATA',
-        array(
-            $AddAccessControlUser,
-            'userTableHeader'
-        )
-    )
-    ->register(
-        'USER_DATA',
-        array(
-            $AddAccessControlUser,
-            'userData'
-        )
-    )
-    ->register(
-        'USER_FIELDS',
-        array(
-            $AddAccessControlUser,
-            'userFields'
-        )
-    )
-    ->register(
-        'USER_ADD_SUCCESS',
-        array(
-            $AddAccessControlUser,
-            'userAddAccessControl'
-        )
-    )
-    ->register(
-        'USER_UPDATE_SUCCESS',
-        array(
-            $AddAccessControlUser,
-            'userAddAccessControl'
-        )
-    )
-    ->register(
-        'SUB_MENULINK_DATA',
-        array(
-            $AddAccessControlUser,
-            'addNotes'
-        )
-    );

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-02 10:14-0400\n"
+"POT-Creation-Date: 2017-05-08 08:13-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1606,7 +1606,7 @@ msgstr "Añadir"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1761
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:992
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:270
-#: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:90
+#: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:121
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:445
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:723
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:221
@@ -2034,7 +2034,7 @@ msgstr "Descripción de la imagen"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:547
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:834
-#: /var/www/fog/lib/plugins/windowskey/hooks/addwindowskeyimage.hook.php:89
+#: /var/www/fog/lib/plugins/windowskey/hooks/addwindowskeyimage.hook.php:134
 msgid "Operating System"
 msgstr "Sistema operativo"
 
@@ -3786,7 +3786,7 @@ msgid "Printer Type"
 msgstr "Tipo de impresora"
 
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:83
-#: /var/www/fog/lib/hooks/addhostmodel.hook.php:94
+#: /var/www/fog/lib/hooks/addhostmodel.hook.php:118
 #: /var/www/fog/commons/text.php:24
 msgid "Model"
 msgstr "Modelo"
@@ -4543,7 +4543,7 @@ msgstr "Nuevo usuario"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:177
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:316
-#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:161
+#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:213
 msgid "User Name"
 msgstr "Nombre de usuario"
 
@@ -4961,7 +4961,7 @@ msgstr "Descripción del Grupo"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:424
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:824
-#: /var/www/fog/lib/plugins/location/hooks/addlocationhost.hook.php:160
+#: /var/www/fog/lib/plugins/location/hooks/addlocationhost.hook.php:247
 #, fuzzy
 msgid "Host Product Key"
 msgstr "Clave del producto Grupo"
@@ -5806,7 +5806,7 @@ msgid "Plugin Name"
 msgstr "Nombre de la impresora"
 
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:66
-#: /var/www/fog/lib/plugins/location/hooks/addlocationtasks.hook.php:66
+#: /var/www/fog/lib/plugins/location/hooks/addlocationtasks.hook.php:90
 #: /var/www/fog/lib/reports/equipment_loan.report.php:165
 #: /var/www/fog/commons/text.php:109 /var/www/fog/commons/text.php:133
 #, fuzzy
@@ -6012,18 +6012,18 @@ msgstr ""
 msgid "Invalid method called"
 msgstr "Valor no válido Tiempo de espera"
 
-#: /var/www/fog/lib/plugins/slack/events/loginfailure_slack.event.php:62
-#: /var/www/fog/lib/plugins/pushbullet/events/loginfailure_pushbullet.event.php:56
+#: /var/www/fog/lib/plugins/slack/events/loginfailure_slack.event.php:75
+#: /var/www/fog/lib/plugins/pushbullet/events/loginfailure_pushbullet.event.php:70
 #, fuzzy
 msgid "failed to login"
 msgstr "el usuario no pudo iniciar sesión"
 
-#: /var/www/fog/lib/plugins/slack/events/loginfailure_slack.event.php:63
-#: /var/www/fog/lib/plugins/pushbullet/events/loginfailure_pushbullet.event.php:57
+#: /var/www/fog/lib/plugins/slack/events/loginfailure_slack.event.php:76
+#: /var/www/fog/lib/plugins/pushbullet/events/loginfailure_pushbullet.event.php:71
 msgid "Remote address attempting to login"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/slack/events/imagecomplete_slack.event.php:60
+#: /var/www/fog/lib/plugins/slack/events/imagecomplete_slack.event.php:76
 msgid "Completed imaging"
 msgstr ""
 
@@ -6123,12 +6123,12 @@ msgstr ""
 msgid "Account Added!"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/slack/hooks/removeslackitem.hook.php:69
-#: /var/www/fog/lib/plugins/slack/hooks/removeslackitem.hook.php:98
+#: /var/www/fog/lib/plugins/slack/hooks/removeslackitem.hook.php:92
+#: /var/www/fog/lib/plugins/slack/hooks/removeslackitem.hook.php:121
 msgid "Account removed from FOG GUI at"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/slack/hooks/addslackmenuitem.hook.php:65
+#: /var/www/fog/lib/plugins/slack/hooks/addslackmenuitem.hook.php:87
 #, fuzzy
 msgid "Slack Management"
 msgstr "Gestión de usuarios"
@@ -6194,7 +6194,7 @@ msgstr ""
 msgid "particular node"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/fileintegrity/hooks/addfileintegritymenuitem.hook.php:65
+#: /var/www/fog/lib/plugins/fileintegrity/hooks/addfileintegritymenuitem.hook.php:103
 #, fuzzy
 msgid "File Integrity Management"
 msgstr "Sin administración de la impresora"
@@ -6303,82 +6303,82 @@ msgstr ""
 msgid "between different sites"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/location/hooks/addlocationhost.hook.php:70
+#: /var/www/fog/lib/plugins/location/hooks/addlocationhost.hook.php:157
 #, fuzzy
 msgid "Location/Deployed"
 msgstr "última Desplegado"
 
-#: /var/www/fog/lib/plugins/location/hooks/addlocationhost.hook.php:162
+#: /var/www/fog/lib/plugins/location/hooks/addlocationhost.hook.php:249
 #, fuzzy
 msgid "Host Location"
 msgstr "Lista de host"
 
-#: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:66
+#: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:97
 #, fuzzy
 msgid "Snapin Locations"
 msgstr "snapin replicador"
 
-#: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:69
+#: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:100
 #, fuzzy
 msgid "This area will allow the host checking in to tell"
 msgstr "Este ajuste define el nombre de usuario proxy para utilizar."
 
-#: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:70
+#: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:101
 #, fuzzy
 msgid "where to download the snapin"
 msgstr "Haga clic en el botón para exportar la base de datos."
 
-#: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:71
+#: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:102
 msgid "This is useful in the case of slow links between"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:72
+#: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:103
 msgid "the main and the host"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:76
+#: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:107
 msgid "Enable location Sending"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/location/hooks/addlocationgroup.hook.php:71
+#: /var/www/fog/lib/plugins/location/hooks/addlocationgroup.hook.php:102
 #, fuzzy
 msgid "Location Association"
 msgstr "Asociación para la imagen"
 
-#: /var/www/fog/lib/plugins/location/hooks/addlocationgroup.hook.php:107
+#: /var/www/fog/lib/plugins/location/hooks/addlocationgroup.hook.php:138
 #, fuzzy
 msgid "Location Association for"
 msgstr "Asociación para la imagen"
 
-#: /var/www/fog/lib/plugins/location/hooks/addlocationgroup.hook.php:127
+#: /var/www/fog/lib/plugins/location/hooks/addlocationgroup.hook.php:158
 #, fuzzy
 msgid "Update Locations"
 msgstr "Actualizar los valores predeterminados"
 
-#: /var/www/fog/lib/plugins/location/hooks/addlocationmenuitem.hook.php:67
+#: /var/www/fog/lib/plugins/location/hooks/addlocationmenuitem.hook.php:98
 #: /var/www/fog/commons/text.php:200
 #, fuzzy
 msgid "Location Management"
 msgstr "Sin administración de la impresora"
 
-#: /var/www/fog/lib/plugins/location/hooks/addlocationmenuitem.hook.php:82
+#: /var/www/fog/lib/plugins/location/hooks/addlocationmenuitem.hook.php:113
 #, fuzzy
 msgid "This setting defines sending the"
 msgstr "Este ajuste define "
 
-#: /var/www/fog/lib/plugins/location/hooks/addlocationmenuitem.hook.php:83
+#: /var/www/fog/lib/plugins/location/hooks/addlocationmenuitem.hook.php:114
 msgid "location url based on the host that checks in"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/location/hooks/addlocationmenuitem.hook.php:84
+#: /var/www/fog/lib/plugins/location/hooks/addlocationmenuitem.hook.php:115
 msgid "It tells the client to download snapins from"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/location/hooks/addlocationmenuitem.hook.php:85
+#: /var/www/fog/lib/plugins/location/hooks/addlocationmenuitem.hook.php:116
 msgid "the host defined location where available"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/location/hooks/addlocationmenuitem.hook.php:86
+#: /var/www/fog/lib/plugins/location/hooks/addlocationmenuitem.hook.php:117
 #, fuzzy
 msgid "Default is disabled"
 msgstr "Ancho por defecto"
@@ -6603,17 +6603,17 @@ msgstr "Marque aquí para ver los grupos no asignado esta imagen"
 msgid "user"
 msgstr "Usuario"
 
-#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontrolmenuitem.hook.php:65
+#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontrolmenuitem.hook.php:96
 msgid "Access Control Manager"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:51
-#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:269
+#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:103
+#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:321
 #, fuzzy
 msgid "Role"
 msgstr "retirar"
 
-#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:163
+#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:215
 msgid "User Access Control"
 msgstr ""
 
@@ -6705,12 +6705,12 @@ msgstr ""
 msgid "with the host"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/windowskey/hooks/addwindowskeymenuitem.hook.php:67
+#: /var/www/fog/lib/plugins/windowskey/hooks/addwindowskeymenuitem.hook.php:98
 #, fuzzy
 msgid "Windows Keys Management"
 msgstr "Gestión de usuarios"
 
-#: /var/www/fog/lib/plugins/windowskey/hooks/addwindowskeyimage.hook.php:91
+#: /var/www/fog/lib/plugins/windowskey/hooks/addwindowskeyimage.hook.php:136
 msgid "Windows Key for Image"
 msgstr ""
 
@@ -6782,7 +6782,7 @@ msgstr ""
 msgid "Task Type added, editing"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/tasktypeedit/hooks/addtasktypeeditmenuitem.hook.php:65
+#: /var/www/fog/lib/plugins/tasktypeedit/hooks/addtasktypeeditmenuitem.hook.php:103
 #, fuzzy
 msgid "Task Type Management"
 msgstr "Gestión de usuarios"
@@ -7065,7 +7065,7 @@ msgstr "No es capaz de actualizar"
 msgid "LDAP information updated!"
 msgstr "información de LDAP actualizado!"
 
-#: /var/www/fog/lib/plugins/ldap/hooks/addldapmenuitem.hook.php:69
+#: /var/www/fog/lib/plugins/ldap/hooks/addldapmenuitem.hook.php:100
 #, fuzzy
 msgid "LDAP Management"
 msgstr "Gestión de usuarios"
@@ -7107,7 +7107,7 @@ msgstr ""
 msgid "Task State added, editing"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/taskstateedit/hooks/addtaskstateeditmenuitem.hook.php:65
+#: /var/www/fog/lib/plugins/taskstateedit/hooks/addtaskstateeditmenuitem.hook.php:103
 #, fuzzy
 msgid "Task State Management"
 msgstr "Gestión de usuarios"
@@ -7125,7 +7125,7 @@ msgstr ""
 msgid "Email"
 msgstr "Diariamente"
 
-#: /var/www/fog/lib/plugins/pushbullet/hooks/addpushbulletmenuitem.hook.php:67
+#: /var/www/fog/lib/plugins/pushbullet/hooks/addpushbulletmenuitem.hook.php:98
 #, fuzzy
 msgid "Pushbullet Management"
 msgstr "Gestión de usuarios"
@@ -7195,12 +7195,12 @@ msgstr "Sesión con ese nombre ya existe"
 msgid "Broadcast Updated"
 msgstr "Servicio de Actualización!"
 
-#: /var/www/fog/lib/plugins/wolbroadcast/hooks/addwolmenuitem.hook.php:65
+#: /var/www/fog/lib/plugins/wolbroadcast/hooks/addwolmenuitem.hook.php:96
 #, fuzzy
 msgid "WOL Broadcast Management"
 msgstr "Sin administración de la impresora"
 
-#: /var/www/fog/lib/plugins/capone/hooks/addbootmenuitem.hook.php:72
+#: /var/www/fog/lib/plugins/capone/hooks/addbootmenuitem.hook.php:89
 #, fuzzy
 msgid "Capone Deploy"
 msgstr "última Desplegado"
@@ -8553,20 +8553,20 @@ msgstr ""
 msgid "Login time"
 msgstr ""
 
-#: /var/www/fog/lib/hooks/addhostserial.hook.php:94
+#: /var/www/fog/lib/hooks/addhostserial.hook.php:118
 #, fuzzy
 msgid "Serial"
 msgstr "serie MB"
 
-#: /var/www/fog/lib/hooks/hostvnclink.hook.php:66
+#: /var/www/fog/lib/hooks/hostvnclink.hook.php:90
 msgid "Open VNC connection to"
 msgstr ""
 
-#: /var/www/fog/lib/hooks/hostvnclink.hook.php:83
+#: /var/www/fog/lib/hooks/hostvnclink.hook.php:107
 msgid "VNC"
 msgstr ""
 
-#: /var/www/fog/lib/hooks/submenudata.hook.php:67
+#: /var/www/fog/lib/hooks/submenudata.hook.php:84
 msgid "Example Bolded Header"
 msgstr ""
 
@@ -8585,12 +8585,7 @@ msgstr "Crear"
 msgid "FOG Client"
 msgstr "FOG Wiki Cliente"
 
-#: /var/www/fog/commons/init.php:163
-#, fuzzy
-msgid "Classname must be a string"
-msgstr "Evento debe ser una cadena"
-
-#: /var/www/fog/commons/init.php:476
+#: /var/www/fog/commons/init.php:447
 msgid "Missing one or more extensions."
 msgstr ""
 
@@ -9713,6 +9708,10 @@ msgstr "Legado FOG Cliente"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "No hay grupos en este servidor."
+
+#, fuzzy
+#~ msgid "Classname must be a string"
+#~ msgstr "Evento debe ser una cadena"
 
 #, fuzzy
 #~ msgid "Restarting the client..."

@@ -58,6 +58,30 @@ class LogViewerHook extends Hook
      */
     public $active = false;
     /**
+     * Initializes object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'LOG_VIEWER_HOOK',
+                array(
+                    $this,
+                    'logViewerAdd'
+                )
+            )
+            ->register(
+                'LOG_FOLDERS',
+                array(
+                    $this,
+                    'logFolderAdd'
+                )
+            );
+    }
+    /**
      * Function to add logs.
      *
      * @param mixed $arguments The items to modify for adding.
@@ -95,19 +119,3 @@ class LogViewerHook extends Hook
         $arguments['folders'][] = '/var/log/';
     }
 }
-$LogViewerHook = new LogViewerHook();
-$HookManager
-    ->register(
-        'LOG_VIEWER_HOOK',
-        array(
-            $LogViewerHook,
-            'logViewerAdd'
-        )
-    )
-    ->register(
-        'LOG_FOLDERS',
-        array(
-            $LogViewerHook,
-            'logFolderAdd'
-        )
-    );

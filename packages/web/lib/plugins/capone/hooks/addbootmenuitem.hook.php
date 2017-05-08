@@ -46,6 +46,23 @@ class AddBootMenuItem extends Hook
      */
     public $node = 'capone';
     /**
+     * Initializes object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'BOOT_MENU_ITEM',
+                array(
+                    $this,
+                    'addBootMenuItem'
+                )
+            );
+    }
+    /**
      * Creates the storage node.
      *
      * @return void
@@ -97,11 +114,3 @@ class AddBootMenuItem extends Hook
             ->save();
     }
 }
-$HookManager
-    ->register(
-        'BOOT_MENU_ITEM',
-        array(
-            new AddBootMenuItem(),
-            'addBootMenuItem'
-        )
-    );

@@ -48,6 +48,30 @@ class AddLocationTasks extends Hook
      */
     public $node = 'location';
     /**
+     * Initialize object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'HOST_DATA',
+                array(
+                    $this,
+                    'tasksActiveTableHeader'
+                )
+            )
+            ->register(
+                'HOST_DATA',
+                array(
+                    $this,
+                    'tasksActiveData'
+                )
+            );
+    }
+    /**
      * The header to change within tasks.
      *
      * @param mixed $arguments The arguments to change.
@@ -108,19 +132,3 @@ class AddLocationTasks extends Hook
         }
     }
 }
-$AddLocationTasks = new AddLocationTasks();
-$HookManager
-    ->register(
-        'HOST_DATA',
-        array(
-            $AddLocationTasks,
-            'tasksActiveTableHeader'
-        )
-    )
-    ->register(
-        'HOST_DATA',
-        array(
-            $AddLocationTasks,
-            'tasksActiveData'
-        )
-    );

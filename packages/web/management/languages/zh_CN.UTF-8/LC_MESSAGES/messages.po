@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-02 10:14-0400\n"
+"POT-Creation-Date: 2017-05-08 08:13-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1597,7 +1597,7 @@ msgstr "加"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1761
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:992
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:270
-#: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:90
+#: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:121
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:445
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:723
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:221
@@ -2025,7 +2025,7 @@ msgstr "图片说明"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:547
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:834
-#: /var/www/fog/lib/plugins/windowskey/hooks/addwindowskeyimage.hook.php:89
+#: /var/www/fog/lib/plugins/windowskey/hooks/addwindowskeyimage.hook.php:134
 msgid "Operating System"
 msgstr "操作系统"
 
@@ -3765,7 +3765,7 @@ msgid "Printer Type"
 msgstr "打印机类型"
 
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:83
-#: /var/www/fog/lib/hooks/addhostmodel.hook.php:94
+#: /var/www/fog/lib/hooks/addhostmodel.hook.php:118
 #: /var/www/fog/commons/text.php:24
 msgid "Model"
 msgstr "模型"
@@ -4522,7 +4522,7 @@ msgstr "新用户"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:177
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:316
-#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:161
+#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:213
 msgid "User Name"
 msgstr "用户名"
 
@@ -4933,7 +4933,7 @@ msgstr "主机描述"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:424
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:824
-#: /var/www/fog/lib/plugins/location/hooks/addlocationhost.hook.php:160
+#: /var/www/fog/lib/plugins/location/hooks/addlocationhost.hook.php:247
 msgid "Host Product Key"
 msgstr "主机产品密钥"
 
@@ -5720,7 +5720,7 @@ msgid "Plugin Name"
 msgstr "插件名称"
 
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:66
-#: /var/www/fog/lib/plugins/location/hooks/addlocationtasks.hook.php:66
+#: /var/www/fog/lib/plugins/location/hooks/addlocationtasks.hook.php:90
 #: /var/www/fog/lib/reports/equipment_loan.report.php:165
 #: /var/www/fog/commons/text.php:109 /var/www/fog/commons/text.php:133
 msgid "Location"
@@ -5907,17 +5907,17 @@ msgstr "用户调用无效"
 msgid "Invalid method called"
 msgstr "所谓的无效方法"
 
-#: /var/www/fog/lib/plugins/slack/events/loginfailure_slack.event.php:62
-#: /var/www/fog/lib/plugins/pushbullet/events/loginfailure_pushbullet.event.php:56
+#: /var/www/fog/lib/plugins/slack/events/loginfailure_slack.event.php:75
+#: /var/www/fog/lib/plugins/pushbullet/events/loginfailure_pushbullet.event.php:70
 msgid "failed to login"
 msgstr "登录失败"
 
-#: /var/www/fog/lib/plugins/slack/events/loginfailure_slack.event.php:63
-#: /var/www/fog/lib/plugins/pushbullet/events/loginfailure_pushbullet.event.php:57
+#: /var/www/fog/lib/plugins/slack/events/loginfailure_slack.event.php:76
+#: /var/www/fog/lib/plugins/pushbullet/events/loginfailure_pushbullet.event.php:71
 msgid "Remote address attempting to login"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/slack/events/imagecomplete_slack.event.php:60
+#: /var/www/fog/lib/plugins/slack/events/imagecomplete_slack.event.php:76
 #, fuzzy
 msgid "Completed imaging"
 msgstr "完成"
@@ -6012,12 +6012,12 @@ msgstr "帐户相关联的雾GUI"
 msgid "Account Added!"
 msgstr "帐户添加！"
 
-#: /var/www/fog/lib/plugins/slack/hooks/removeslackitem.hook.php:69
-#: /var/www/fog/lib/plugins/slack/hooks/removeslackitem.hook.php:98
+#: /var/www/fog/lib/plugins/slack/hooks/removeslackitem.hook.php:92
+#: /var/www/fog/lib/plugins/slack/hooks/removeslackitem.hook.php:121
 msgid "Account removed from FOG GUI at"
 msgstr "应收FOG GUI中删除在"
 
-#: /var/www/fog/lib/plugins/slack/hooks/addslackmenuitem.hook.php:65
+#: /var/www/fog/lib/plugins/slack/hooks/addslackmenuitem.hook.php:87
 msgid "Slack Management"
 msgstr "松弛管理"
 
@@ -6079,7 +6079,7 @@ msgstr ""
 msgid "particular node"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/fileintegrity/hooks/addfileintegritymenuitem.hook.php:65
+#: /var/www/fog/lib/plugins/fileintegrity/hooks/addfileintegritymenuitem.hook.php:103
 #, fuzzy
 msgid "File Integrity Management"
 msgstr "打印机管理"
@@ -6182,78 +6182,78 @@ msgstr ""
 msgid "between different sites"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/location/hooks/addlocationhost.hook.php:70
+#: /var/www/fog/lib/plugins/location/hooks/addlocationhost.hook.php:157
 msgid "Location/Deployed"
 msgstr "位置/部署"
 
-#: /var/www/fog/lib/plugins/location/hooks/addlocationhost.hook.php:162
+#: /var/www/fog/lib/plugins/location/hooks/addlocationhost.hook.php:249
 msgid "Host Location"
 msgstr "主机位置"
 
-#: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:66
+#: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:97
 #, fuzzy
 msgid "Snapin Locations"
 msgstr "位置"
 
-#: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:69
+#: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:100
 msgid "This area will allow the host checking in to tell"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:70
+#: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:101
 #, fuzzy
 msgid "where to download the snapin"
 msgstr "无法找到该管理单元文件"
 
-#: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:71
+#: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:102
 msgid "This is useful in the case of slow links between"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:72
+#: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:103
 msgid "the main and the host"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:76
+#: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:107
 msgid "Enable location Sending"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/location/hooks/addlocationgroup.hook.php:71
+#: /var/www/fog/lib/plugins/location/hooks/addlocationgroup.hook.php:102
 #, fuzzy
 msgid "Location Association"
 msgstr "图像协会"
 
-#: /var/www/fog/lib/plugins/location/hooks/addlocationgroup.hook.php:107
+#: /var/www/fog/lib/plugins/location/hooks/addlocationgroup.hook.php:138
 #, fuzzy
 msgid "Location Association for"
 msgstr "图像协会"
 
-#: /var/www/fog/lib/plugins/location/hooks/addlocationgroup.hook.php:127
+#: /var/www/fog/lib/plugins/location/hooks/addlocationgroup.hook.php:158
 #, fuzzy
 msgid "Update Locations"
 msgstr "位置"
 
-#: /var/www/fog/lib/plugins/location/hooks/addlocationmenuitem.hook.php:67
+#: /var/www/fog/lib/plugins/location/hooks/addlocationmenuitem.hook.php:98
 #: /var/www/fog/commons/text.php:200
 msgid "Location Management"
 msgstr "位置管理"
 
-#: /var/www/fog/lib/plugins/location/hooks/addlocationmenuitem.hook.php:82
+#: /var/www/fog/lib/plugins/location/hooks/addlocationmenuitem.hook.php:113
 #, fuzzy
 msgid "This setting defines sending the"
 msgstr "此设置定义"
 
-#: /var/www/fog/lib/plugins/location/hooks/addlocationmenuitem.hook.php:83
+#: /var/www/fog/lib/plugins/location/hooks/addlocationmenuitem.hook.php:114
 msgid "location url based on the host that checks in"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/location/hooks/addlocationmenuitem.hook.php:84
+#: /var/www/fog/lib/plugins/location/hooks/addlocationmenuitem.hook.php:115
 msgid "It tells the client to download snapins from"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/location/hooks/addlocationmenuitem.hook.php:85
+#: /var/www/fog/lib/plugins/location/hooks/addlocationmenuitem.hook.php:116
 msgid "the host defined location where available"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/location/hooks/addlocationmenuitem.hook.php:86
+#: /var/www/fog/lib/plugins/location/hooks/addlocationmenuitem.hook.php:117
 #, fuzzy
 msgid "Default is disabled"
 msgstr "捐款将被禁用"
@@ -6486,18 +6486,18 @@ msgstr "请查看这里以组未分配此图片"
 msgid "user"
 msgstr "用户"
 
-#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontrolmenuitem.hook.php:65
+#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontrolmenuitem.hook.php:96
 #, fuzzy
 msgid "Access Control Manager"
 msgstr "门禁管理"
 
-#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:51
-#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:269
+#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:103
+#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:321
 #, fuzzy
 msgid "Role"
 msgstr "去掉"
 
-#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:163
+#: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:215
 #, fuzzy
 msgid "User Access Control"
 msgstr "访问控制"
@@ -6597,12 +6597,12 @@ msgstr ""
 msgid "with the host"
 msgstr "不在此"
 
-#: /var/www/fog/lib/plugins/windowskey/hooks/addwindowskeymenuitem.hook.php:67
+#: /var/www/fog/lib/plugins/windowskey/hooks/addwindowskeymenuitem.hook.php:98
 #, fuzzy
 msgid "Windows Keys Management"
 msgstr "用户管理"
 
-#: /var/www/fog/lib/plugins/windowskey/hooks/addwindowskeyimage.hook.php:91
+#: /var/www/fog/lib/plugins/windowskey/hooks/addwindowskeyimage.hook.php:136
 #, fuzzy
 msgid "Windows Key for Image"
 msgstr "用户管理"
@@ -6669,7 +6669,7 @@ msgstr "任务类型已经存在，请重试。"
 msgid "Task Type added, editing"
 msgstr "任务类型添加，编辑"
 
-#: /var/www/fog/lib/plugins/tasktypeedit/hooks/addtasktypeeditmenuitem.hook.php:65
+#: /var/www/fog/lib/plugins/tasktypeedit/hooks/addtasktypeeditmenuitem.hook.php:103
 msgid "Task Type Management"
 msgstr "任务类型管理"
 
@@ -6955,7 +6955,7 @@ msgstr "不能够更新"
 msgid "LDAP information updated!"
 msgstr "LDAP信息更新！"
 
-#: /var/www/fog/lib/plugins/ldap/hooks/addldapmenuitem.hook.php:69
+#: /var/www/fog/lib/plugins/ldap/hooks/addldapmenuitem.hook.php:100
 msgid "LDAP Management"
 msgstr "LDAP管理"
 
@@ -6995,7 +6995,7 @@ msgstr "任务状态已经存在，请重试。"
 msgid "Task State added, editing"
 msgstr "任务状态添加，编辑"
 
-#: /var/www/fog/lib/plugins/taskstateedit/hooks/addtaskstateeditmenuitem.hook.php:65
+#: /var/www/fog/lib/plugins/taskstateedit/hooks/addtaskstateeditmenuitem.hook.php:103
 msgid "Task State Management"
 msgstr "任务状态管理"
 
@@ -7011,7 +7011,7 @@ msgstr "链接Pushbullet账户"
 msgid "Email"
 msgstr "电子邮件"
 
-#: /var/www/fog/lib/plugins/pushbullet/hooks/addpushbulletmenuitem.hook.php:67
+#: /var/www/fog/lib/plugins/pushbullet/hooks/addpushbulletmenuitem.hook.php:98
 msgid "Pushbullet Management"
 msgstr "Pushbullet管理"
 
@@ -7074,11 +7074,11 @@ msgstr "具有该名称的广播已经存在。"
 msgid "Broadcast Updated"
 msgstr "广播更新"
 
-#: /var/www/fog/lib/plugins/wolbroadcast/hooks/addwolmenuitem.hook.php:65
+#: /var/www/fog/lib/plugins/wolbroadcast/hooks/addwolmenuitem.hook.php:96
 msgid "WOL Broadcast Management"
 msgstr "WOL广播管理"
 
-#: /var/www/fog/lib/plugins/capone/hooks/addbootmenuitem.hook.php:72
+#: /var/www/fog/lib/plugins/capone/hooks/addbootmenuitem.hook.php:89
 msgid "Capone Deploy"
 msgstr "卡波恩部署"
 
@@ -8400,19 +8400,19 @@ msgstr "从日记回放：实时插入时间"
 msgid "Login time"
 msgstr "登录"
 
-#: /var/www/fog/lib/hooks/addhostserial.hook.php:94
+#: /var/www/fog/lib/hooks/addhostserial.hook.php:118
 msgid "Serial"
 msgstr "串行"
 
-#: /var/www/fog/lib/hooks/hostvnclink.hook.php:66
+#: /var/www/fog/lib/hooks/hostvnclink.hook.php:90
 msgid "Open VNC connection to"
 msgstr "打开VNC连接"
 
-#: /var/www/fog/lib/hooks/hostvnclink.hook.php:83
+#: /var/www/fog/lib/hooks/hostvnclink.hook.php:107
 msgid "VNC"
 msgstr ""
 
-#: /var/www/fog/lib/hooks/submenudata.hook.php:67
+#: /var/www/fog/lib/hooks/submenudata.hook.php:84
 msgid "Example Bolded Header"
 msgstr "例如粗体标题"
 
@@ -8431,12 +8431,7 @@ msgstr "创建"
 msgid "FOG Client"
 msgstr "FOG客户维基"
 
-#: /var/www/fog/commons/init.php:163
-#, fuzzy
-msgid "Classname must be a string"
-msgstr "事件必须是字符串"
-
-#: /var/www/fog/commons/init.php:476
+#: /var/www/fog/commons/init.php:447
 #, fuzzy
 msgid "Missing one or more extensions."
 msgstr "缺少扩展"
@@ -9403,6 +9398,10 @@ msgstr "你好FOG客户端"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "有此服务器上没有的位置。"
+
+#, fuzzy
+#~ msgid "Classname must be a string"
+#~ msgstr "事件必须是字符串"
 
 #~ msgid "Donations are disabled"
 #~ msgstr "捐款将被禁用"

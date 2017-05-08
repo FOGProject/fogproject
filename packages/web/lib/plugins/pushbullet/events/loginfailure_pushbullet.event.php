@@ -40,6 +40,20 @@ class LoginFailure_PushBullet extends PushbulletExtends
      */
     public $active = true;
     /**
+     * Initialize object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$EventManager
+            ->register(
+                'LoginFail',
+                $this
+            );
+    }
+    /**
      * Perform action when event met.
      *
      * @param string $event The event to perform from.
@@ -60,8 +74,3 @@ class LoginFailure_PushBullet extends PushbulletExtends
         parent::onEvent($event, $data);
     }
 }
-$EventManager
-    ->register(
-        'LoginFail',
-        new LoginFailure_PushBullet()
-    );

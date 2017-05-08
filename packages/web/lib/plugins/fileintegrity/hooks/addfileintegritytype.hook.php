@@ -45,13 +45,21 @@ class AddFileIntegrityType extends Hook
      * @var string
      */
     public $node = 'fileintegrity';
+    /**
+     * Initialize object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'REPORT_TYPES',
+                array(
+                    $this,
+                    'reportTypes'
+                )
+            );
+    }
 }
-$AddFileIntegrityType = new AddFileIntegrityType();
-$HookManager
-    ->register(
-        'REPORT_TYPES',
-        array(
-            $AddFileIntegrityType,
-            'reportTypes'
-        )
-    );

@@ -46,6 +46,28 @@ class AddSlackMenuItem extends Hook
      */
     public $node = 'slack';
     /**
+     * Initialize object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'MAIN_MENU_DATA',
+                array($this, 'menuData')
+            )
+            ->register(
+                'SEARCH_PAGES',
+                array($this, 'addSearch')
+            )
+            ->register(
+                'PAGES_WITH_OBJECTS',
+                array($this, 'addPageWithObject')
+            );
+    }
+    /**
      * Create menu data.
      *
      * @param mixed $arguments The items to modify.
@@ -96,17 +118,3 @@ class AddSlackMenuItem extends Hook
         array_push($arguments['searchPages'], $this->node);
     }
 }
-$AddSlackMenuItem = new AddSlackMenuItem();
-$HookManager
-    ->register(
-        'MAIN_MENU_DATA',
-        array($AddSlackMenuItem, 'menuData')
-    )
-    ->register(
-        'SEARCH_PAGES',
-        array($AddSlackMenuItem, 'addSearch')
-    )
-    ->register(
-        'PAGES_WITH_OBJECTS',
-        array($AddSlackMenuItem, 'addPageWithObject')
-    );

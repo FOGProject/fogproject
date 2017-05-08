@@ -46,6 +46,37 @@ class AddWOLMenuItem extends Hook
      */
     public $node = 'wolbroadcast';
     /**
+     * Initializes object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'MAIN_MENU_DATA',
+                array(
+                    $this,
+                    'menuData'
+                )
+            )
+            ->register(
+                'SEARCH_PAGES',
+                array(
+                    $this,
+                    'addSearch'
+                )
+            )
+            ->register(
+                'PAGES_WITH_OBJECTS',
+                array(
+                    $this,
+                    'addPageWithObject'
+                )
+            );
+    }
+    /**
      * The menu data to change.
      *
      * @param mixed $arguments The arguments to change.
@@ -96,26 +127,3 @@ class AddWOLMenuItem extends Hook
         array_push($arguments['PagesWithObjects'], $this->node);
     }
 }
-$AddWOLMenuItem = new AddWOLMenuItem();
-$HookManager
-    ->register(
-        'MAIN_MENU_DATA',
-        array(
-            $AddWOLMenuItem,
-            'menuData'
-        )
-    )
-    ->register(
-        'SEARCH_PAGES',
-        array(
-            $AddWOLMenuItem,
-            'addSearch'
-        )
-    )
-    ->register(
-        'PAGES_WITH_OBJECTS',
-        array(
-            $AddWOLMenuItem,
-            'addPageWithObject'
-        )
-    );

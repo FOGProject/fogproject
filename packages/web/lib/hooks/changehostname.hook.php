@@ -40,6 +40,23 @@ class ChangeHostname extends Hook
      */
     public $active = false;
     /**
+     * Initializes object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'HOST_DATA',
+                array(
+                    $this,
+                    'hostData'
+                )
+            );
+    }
+    /**
      * The data to alter.
      *
      * @param mixed $arguments The items to alter.
@@ -58,11 +75,3 @@ class ChangeHostname extends Hook
         }
     }
 }
-$HookManager
-    ->register(
-        'HOST_DATA',
-        array(
-            new ChangeHostname(),
-            'hostData'
-        )
-    );
