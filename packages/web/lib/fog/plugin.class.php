@@ -300,6 +300,9 @@ class Plugin extends FOGController
      */
     public function getManager()
     {
+        if (!$this->get('name')) {
+            return parent::getManager();
+        }
         $classManager = sprintf(
             '%sManager',
             $this->get('name')
