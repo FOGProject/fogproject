@@ -81,4 +81,3 @@ class ImageComplete_Slack extends Event
         }
     }
 }
-$ImageCompelte_Slack = new ImageComplete_Slack();
