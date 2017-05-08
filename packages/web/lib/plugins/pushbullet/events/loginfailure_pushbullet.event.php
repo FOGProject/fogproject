@@ -40,6 +40,20 @@ class LoginFailure_PushBullet extends PushbulletExtends
      */
     public $active = true;
     /**
+     * Initialize object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$EventManager
+            ->register(
+                'LoginFail',
+                $this
+            );
+    }
+    /**
      * Perform action when event met.
      *
      * @param string $event The event to perform from.
@@ -50,12 +64,13 @@ class LoginFailure_PushBullet extends PushbulletExtends
     public function onEvent($event, $data)
     {
         self::$message = 'If you see repeatedly, please check your security';
-        self::$shortdesc = sprintf('%s %s', $data['Failure'], _('failed to login'));
+        self::$shortdesc = sprintf(
+            '%s %s. %s: %s',
+            $data['Failure'],
+            _('failed to login'),
+            _('Remote address attempting to login'),
+            filter_input(INPUT_SERVER, 'REMOTE_ADDR')
+        );
         parent::onEvent($event, $data);
     }
 }
-$EventManager
-    ->register(
-        'LoginFail',
-        new LoginFailure_PushBullet()
-    );

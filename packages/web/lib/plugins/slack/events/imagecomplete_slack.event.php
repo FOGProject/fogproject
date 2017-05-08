@@ -40,6 +40,22 @@ class ImageComplete_Slack extends Event
      */
     public $active = true;
     /**
+     * Initialize object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$EventManager->register(
+            'HOST_IMAGE_COMPLETE',
+            $this
+        )->register(
+            'HOST_IMAGEUP_COMPLETE',
+            $this
+        );
+    }
+    /**
      * Perform action
      *
      * @param string $event the event to enact
@@ -66,10 +82,3 @@ class ImageComplete_Slack extends Event
     }
 }
 $ImageCompelte_Slack = new ImageComplete_Slack();
-$EventManager->register(
-    'HOST_IMAGE_COMPLETE',
-    $ImageComplete_Slack
-)->register(
-    'HOST_IMAGEUP_COMPLETE',
-    $ImageComplete_Slack
-);

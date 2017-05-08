@@ -1,6 +1,5 @@
 #!/bin/bash
 . /usr/share/fog/lib/funcs.sh
-. /bin/fog.donate
 . /bin/fog.checkin
 . /bin/fog.mount
 . /bin/fog.checkmount
@@ -172,7 +171,7 @@ preparePartitions() {
                                     3)
                                         dots "Removing partition data"
                                         sgdisk -Z $hd >/dev/null 2>&1
-                                        sgdisk -gel $imagePath/gpt.bak $hd >/dev/null 2>&1
+                                        sgdisk -gl $imagePath/gpt.bak $hd >/dev/null 2>&1
                                         if [[ ! $? -eq 0 ]]; then
                                             echo "Failed"
                                             debugPause
@@ -239,7 +238,7 @@ putDataBack() {
     [[ $mc == yes ]] && usleep 10000000 || usleep 3000000
     case $imgType in
         dd)
-            restorePartition "$hd" 1 "$imagePath/$img.*" "$mc"
+            restorePartition "$hd" 1 "$imagePath/${img}*" "$mc"
             ;;
         n|mps|mpa)
             [[ $imgType == +(n|mps) ]] && disks="$hd"

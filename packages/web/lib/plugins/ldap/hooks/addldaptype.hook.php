@@ -45,13 +45,21 @@ class AddLDAPType extends Hook
      * @var string
      */
     public $node = 'ldap';
+    /**
+     * Initialize object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'REPORT_TYPES',
+                array(
+                    $this,
+                    'reportTypes'
+                )
+            );
+    }
 }
-$AddLDAPType = new AddLDAPType();
-$HookManager
-    ->register(
-        'REPORT_TYPES',
-        array(
-            $AddLDAPType,
-            'reportTypes'
-        )
-    );

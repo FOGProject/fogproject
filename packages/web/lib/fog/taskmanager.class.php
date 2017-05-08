@@ -115,26 +115,26 @@ class TaskManager extends FOGManagerController
             'taskID' => $taskids
         );
         $MulticastSessionAssocIDs = self::getSubObjectIDs(
-            'MulticastSessionsAssociation',
+            'MulticastSessionAssociation',
             $findWhere
         );
         $MulticastSessionIDs = self::getSubObjectIDs(
-            'MulticastSessionsAssociation',
+            'MulticastSessionAssociation',
             $findWhere,
             'msID'
         );
         $MulticastSessionIDs = self::getSubObjectIDs(
-            'MulticastSessions',
+            'MulticastSession',
             array(
                 'stateID' => $notComplete,
                 'id' => $MulticastSessionIDs
             )
         );
         if (count($MulticastSessionAssocIDs) > 0) {
-            self::getClass('MulticastSessionsAssociationManager')
-                ->destroy(array('id' => $MulticastSessionsAssocIDs));
+            self::getClass('MulticastSessionAssociationManager')
+                ->destroy(array('id' => $MulticastSessionAssocIDs));
         }
-        $StillLeft = self::getClass('MulticastSessionsAssociationManager')
+        $StillLeft = self::getClass('MulticastSessionAssociationManager')
             ->count(array('msID' => $MulticastSessionIDs));
         if (count($SnapinTaskIDs) > 0) {
             self::getClass('SnapinTaskManager')->cancel($SnapinTaskIDs);
@@ -143,7 +143,7 @@ class TaskManager extends FOGManagerController
             self::getClass('SnapinJobManager')->cancel($SnapinJobIDs);
         }
         if ($StillLeft < 1 && count($MulticastSessionIDs) > 0) {
-            self::getClass('MulticastSessionsManager')->cancel($MulticastSessionIDs);
+            self::getClass('MulticastSessionManager')->cancel($MulticastSessionIDs);
         }
     }
 }

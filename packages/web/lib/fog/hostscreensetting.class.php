@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * @category HostScreenSettings
+ * @category HostScreenSetting
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
@@ -13,13 +13,13 @@
 /**
  * Host screen settings class.
  *
- * @category HostScreenSettings
+ * @category HostScreenSetting
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class HostScreenSettings extends FOGController
+class HostScreenSetting extends FOGController
 {
     /**
      * The host screen settings table name.

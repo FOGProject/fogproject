@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * @category MulticastSessionsAssociation
+ * @category MulticastSessionAssociation
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
@@ -13,13 +13,13 @@
 /**
  * The multicast association class.
  *
- * @category MulticastSessionsAssociation
+ * @category MulticastSessionAssociation
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class MulticastSessionsAssociation extends FOGController
+class MulticastSessionAssociation extends FOGController
 {
     /**
      * The association table name.
@@ -53,7 +53,7 @@ class MulticastSessionsAssociation extends FOGController
      */
     public function getMulticastSession()
     {
-        return new MulticastSessions($this->get('msID'));
+        return new MulticastSession($this->get('msID'));
     }
     /**
      * Return the task object.

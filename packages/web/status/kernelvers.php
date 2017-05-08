@@ -40,9 +40,12 @@ $kernelvers = function ($kernel) {
         BASEPATH,
         $kernel
     );
-    $reppath = preg_replace(
-        '#\\|/#',
-        DIRECTORY_SEPARATOR,
+    $reppath = str_replace(
+        array('\\', '/'),
+        array(
+            DIRECTORY_SEPARATOR,
+            DIRECTORY_SEPARATOR
+        ),
         $currpath
     );
     $basepath = escapeshellarg($reppath);

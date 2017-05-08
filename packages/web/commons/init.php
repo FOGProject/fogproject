@@ -76,12 +76,16 @@ class Initiator
         /**
          * Find out if the link has service in the call.
          */
-        $self = !preg_match(
-            '#service#i',
-            filter_input(INPUT_SERVER, 'PHP_SELF')
+        $self = false === stripos(
+            filter_input(INPUT_SERVER, 'PHP_SELF'),
+            'service'
         );
         /**
          * Set useragent to false.
+         */
+        $useragent = false;
+        /**
+         * If user agent is passed, define the useragent
          */
         $useragent = filter_input(INPUT_SERVER, 'HTTP_USER_AGENT');
         /**
@@ -147,40 +151,11 @@ class Initiator
                 get_include_path()
             )
         );
+        spl_autoload_extensions('.class.php,.event.php,.hook.php,.report.php');
         /**
          * Pass our autoloaded items through our custom loader method.
          */
-        spl_autoload_register(
-            function ($className) {
-                /**
-                 * Sanity check, if the classname is not a string fail.
-                 */
-                if (!is_string($className)) {
-                    throw new Exception(_('Classname must be a string'));
-                }
-                /**
-                 * If the class exists, we know it's already been loaded.
-                 * Return as we don't need to do anything.
-                 */
-                if (class_exists($className, false)) {
-                    return;
-                }
-                /**
-                 * Ensure the event and hook managers are available.
-                 * Really only needed for the respective class but
-                 * doesn't hurt to have in either case.
-                 */
-                global $EventManager;
-                global $HookManager;
-                /**
-                 * Load the class.
-                 */
-                spl_autoload(
-                    $className,
-                    '.class.php,.event.php,.hook.php,.report.php'
-                );
-            }
-        );
+        spl_autoload_register();
         /**
          * If we are not a service file
          * and we have a user agent string
@@ -253,26 +228,7 @@ class Initiator
      */
     public static function csrfGenToken($formname)
     {
-        if (function_exists('random_bytes')) {
-            $token = bin2hex(
-                random_bytes(64)
-            );
-        }
-        if (function_exists('mcrypt_create_iv')) {
-            $token = bin2hex(
-                mcrypt_create_iv(
-                    64,
-                    MCRYPT_DEV_URANDOM
-                )
-            );
-        }
-        if (function_exists('openssl_random_pseudo_bytes')) {
-            $token = bin2hex(
-                openssl_random_pseudo_bytes(
-                    64
-                )
-            );
-        }
+        $token = FOGCore::createSecToken();
         self::storeInSession($formname, $token);
     }
     /**
@@ -289,7 +245,7 @@ class Initiator
         /**
          * Stores our matching if fog is in the name variable
          */
-        $match = preg_match('#/fog/#', $script_name);
+        $match = false !== stripos($script_name, '/fog/');
         if ($match) {
             $match = 'fog/';
         } else {

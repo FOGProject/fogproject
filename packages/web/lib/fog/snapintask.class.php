@@ -69,4 +69,13 @@ class SnapinTask extends FOGController
     {
         return new Snapin($this->get('snapinID'));
     }
+    /**
+     * Cancels the snapin task.
+     *
+     * @return bool
+     */
+    public function cancel()
+    {
+        return $this->getManager()->cancel($this->get('id'));
+    }
 }

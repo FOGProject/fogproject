@@ -140,4 +140,15 @@ class ScheduledTaskManager extends FOGManagerController
         );
         return self::$DB->query($sql);
     }
+    /**
+     * Cancels the passed tasks
+     *
+     * @param mixed $scheduledtaskids the ids to cancel
+     *
+     * @return bool
+     */
+    public function cancel($scheduledtaskids)
+    {
+        $this->destroy(array('id' => $scheduledtaskids));
+    }
 }

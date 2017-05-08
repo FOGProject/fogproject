@@ -40,6 +40,30 @@ class BootItem extends Hook
      */
     public $active = false;
     /**
+     * Initialize object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'IPXE_EDIT',
+                array(
+                    $this,
+                    'tweaktask'
+                )
+            )
+            ->register(
+                'IPXE_EDIT',
+                array(
+                    $this,
+                    'tweakmenu'
+                )
+            );
+    }
+    /**
      * Tweaks the taskings.
      *
      * @param mixed $arguments The items to change.
@@ -158,19 +182,3 @@ class BootItem extends Hook
         }
     }
 }
-$BootItem = new BootItem();
-$HookManager
-    ->register(
-        'IPXE_EDIT',
-        array(
-            $BootItem,
-            'tweaktask'
-        )
-    )
-    ->register(
-        'IPXE_EDIT',
-        array(
-            $BootItem,
-            'tweakmenu'
-        )
-    );

@@ -682,27 +682,33 @@ writeImage()  {
     esac
     local format=$imgLegacy
     [[ -z $format ]] && format=$imgFormat
+    local cores=$(nproc)
+    cores=$((cores - 1))
+    [[ $cores -lt 1 ]] && cores=1
     case $format in
         5|6)
             # ZSTD Compressed image.
-            zstdmt -T$(nproc) --ultra $PIGZ_COMP -dc </tmp/pigz1 | partclone.restore -n "Storage Location $storage, Image name $img" --ignore_crc -O ${target} -Nf 1
+            echo " * Imaging using Partclone (zstd)"
+            zstdmt -T$cores --ultra $PIGZ_COMP -dc </tmp/pigz1 | partclone.restore -n "Storage Location $storage, Image name $img" --ignore_crc -O ${target} -Nf 1
             ;;
         3|4)
             # Uncompressed partclone
-            echo " * Imaging using Partclone"
+            echo " * Imaging using Partclone (uncompressed)"
             cat </tmp/pigz1 | partclone.restore -n "Storage Location $storage, Image name $img" --ignore_crc -O ${target} -Nf 1
             # If this fails, try from compressed form.
             #[[ ! $? -eq 0 ]] && zstdmt -T$(nproc) --ultra $PIGZ_COMP -dc </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1 || true
             ;;
         1)
             # Partimage
-            echo " * Imaging using Partimage"
-            zstdmt -T$(nproc) --ultra $PIGZ_COMP -dc </tmp/pigz1 | partimage restore ${target} stdin -f3 -b 2>/tmp/status.fog
+            echo " * Imaging using Partimage (gzip)"
+            #zstdmt -T$cores --ultra $PIGZ_COMP -dc </tmp/pigz1 | partimage restore ${target} stdin -f3 -b 2>/tmp/status.fog
+            pigz -dc </tmp/pigz1 | partimage restore ${target} stdin -f3 -b 2>/tmp/status.fog
             ;;
         0|2)
             # GZIP Compressed partclone
-            echo " * Imaging using Partclone"
-            zstdmt -T$(nproc) --ultra $PIGZ_COMP -dc </tmp/pigz1 | partclone.restore -n "Storage Location $storage, Image name $img" --ignore_crc -O ${target} -N -f 1
+            echo " * Imaging using Partclone (gzip)"
+            #zstdmt -T$cores --ultra $PIGZ_COMP -dc </tmp/pigz1 | partclone.restore -n "Storage Location $storage, Image name $img" --ignore_crc -O ${target} -N -f 1
+            pigz -dc </tmp/pigz1 | partclone.restore -n "Storage Location $storage, Image name $img" --ignore_crc -O ${target} -N -f 1
             # If this fails, try uncompressed form.
             #[[ ! $? -eq 0 ]] && cat </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1 || true
             ;;
@@ -1566,14 +1572,17 @@ uploadFormat() {
     [[ -z $fifo ]] && handleError "Missing file in file out (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ -z $file ]] && handleError "Missing file name to store (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ ! -e $fifo ]] && mkfifo $fifo >/dev/null 2>&1
+    local cores=$(nproc)
+    cores=$((cores - 1))
+    [[ $cores -lt 1 ]] && cores=1
     case $imgFormat in
         6)
             # ZSTD Split files compressed.
-            zstdmt -T$(nproc) --ultra $PIGZ_COMP < $fifo | split -a 3 -d -b 200m - ${file}. &
+            zstdmt -T$cores --ultra $PIGZ_COMP < $fifo | split -a 3 -d -b 200m - ${file}. &
             ;;
         5)
             # ZSTD compressed.
-            zstdmt -T$(nproc) --ultra $PIGZ_COMP < $fifo > ${file}.000 &
+            zstdmt -T$cores --ultra $PIGZ_COMP < $fifo > ${file}.000 &
             ;;
         4)
             # Split files uncompressed.
@@ -1813,8 +1822,7 @@ EBRFileName() {
     local part_number="$3"    # e.g. 5
     [[ -z $path ]] && handleError "No path passed (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ -z $disk_number ]] && handleError "No disk number passed (${FUNCNAME[0]})\n   Args Passed: $*"
-    [[ -z $part_number ]] && handleError "No partition number passed (${FUNCNAME[0]})\n   Args Passed: $*"
-    ebrfilename="$path/d${disk_number}p${part_number}.ebr"
+    [[ -z $part_number ]] && ebrfilename="" || ebrfilename="$path/d${disk_number}p${part_number}.ebr"
 }
 tmpEBRFileName() {
     local disk_number="$1"
@@ -1950,12 +1958,12 @@ restorePartitionTablesAndBootLoaders() {
     if [[ $table_type == GPT ]]; then
         dots "Restoring Partition Tables (GPT)"
         restoreGRUB "$disk" "$disk_number" "$imagePath" "true"
-        sgdisk -gel $tmpMBR $disk >/dev/null 2>&1
+        sgdisk -gl $tmpMBR $disk >/dev/null 2>&1
         sgdiskexit="$?"
         if [[ ! $sgdiskexit -eq 0 ]]; then
             echo "Failed"
             debugPause
-            handleError "Error trying to restore GPT partition tables (${FUNCNAME[0]})\n   Args Passed: $*\n    CMD Tried: sgdisk -gel $tmpMBR $disk\n    Exit returned code: $sgdiskexit"
+            handleError "Error trying to restore GPT partition tables (${FUNCNAME[0]})\n   Args Passed: $*\n    CMD Tried: sgdisk -gl $tmpMBR $disk\n    Exit returned code: $sgdiskexit"
         fi
         global_gptcheck="yes"
         echo "Done"

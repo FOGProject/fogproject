@@ -40,6 +40,24 @@ class ImageComplete_PushBullet extends PushbulletExtends
      */
     public $active = true;
     /**
+     * Initialize object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$EventManager
+            ->register(
+                'HOST_IMAGE_COMPLETE',
+                $this
+            )
+            ->register(
+                'HOST_IMAGEUP_COMPLETE',
+                $this
+            );
+    }
+    /**
      * Perform action when event met.
      *
      * @param string $event The event to perform from.
@@ -54,13 +72,3 @@ class ImageComplete_PushBullet extends PushbulletExtends
         parent::onEvent($event, $data);
     }
 }
-$ImageComplete = new ImageComplete_PushBullet();
-$EventManager
-    ->register(
-        'HOST_IMAGE_COMPLETE',
-        $ImageComplete
-    )
-    ->register(
-        'HOST_IMAGEUP_COMPLETE',
-        $ImageComplete
-    );

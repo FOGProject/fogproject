@@ -40,6 +40,19 @@ class SnapinTaskComplete_Slack extends PushbulletExtends
      */
     public $active = true;
     /**
+     * Initialize item.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$EventManager->register(
+            'HOST_SNAPINTASK_COMPLETE',
+            $this
+        );
+    }
+    /**
      * Perform action
      *
      * @param string $event the event to enact
@@ -61,7 +74,3 @@ class SnapinTaskComplete_Slack extends PushbulletExtends
         parent::onEvent($event, $data);
     }
 }
-$EventManager->register(
-    'HOST_SNAPINTASK_COMPLETE',
-    new SnapinTaskComplete_Slack()
-);

@@ -46,6 +46,37 @@ class AddAccessControlMenuItem extends Hook
      */
     public $node = 'accesscontrol';
     /**
+     * Initialize object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'MAIN_MENU_DATA',
+                array(
+                    $this,
+                    'menuData'
+                )
+            )
+            ->register(
+                'SEARCH_PAGES',
+                array(
+                    $this,
+                    'addSearch'
+                )
+            )
+            ->register(
+                'PAGES_WITH_OBJECTS',
+                array(
+                    $this,
+                    'addPageWithObject'
+                )
+            );
+    }
+    /**
      * The menu data to change.
      *
      * @param mixed $arguments The arguments to change.
@@ -96,26 +127,3 @@ class AddAccessControlMenuItem extends Hook
         array_push($arguments['PagesWithObjects'], $this->node);
     }
 }
-$AddAccessControlMenuItem = new AddAccessControlMenuItem();
-$HookManager
-    ->register(
-        'MAIN_MENU_DATA',
-        array(
-            $AddAccessControlMenuItem,
-            'menuData'
-        )
-    )
-    ->register(
-        'SEARCH_PAGES',
-        array(
-            $AddAccessControlMenuItem,
-            'addSearch'
-        )
-    )
-    ->register(
-        'PAGES_WITH_OBJECTS',
-        array(
-            $AddAccessControlMenuItem,
-            'addPageWithObject'
-        )
-    );

@@ -31,12 +31,12 @@ backupReports() {
 registerStorageNode() {
     [[ -z $webroot ]] && webroot="/"
     dots "Checking if this node is registered"
-    storageNodeExists=$(wget -qO - http://$ipaddress/${webroot}/maintenance/check_node_exists.php --post-data="ip=${ipaddress}")
+    storageNodeExists=$(wget --no-check-certificate -qO - http://$ipaddress/${webroot}/maintenance/check_node_exists.php --post-data="ip=${ipaddress}")
     echo "Done"
     if [[ $storageNodeExists != exists ]]; then
         [[ -z $maxClients ]] && maxClients=10
         dots "Node being registered"
-        wget -qO - http://$ipaddress/${webroot}/maintenance/create_update_node.php --post-data="newNode&name=$(echo -n $ipaddress| base64)&path=$(echo -n $storageLocation|base64)&ftppath=$(echo -n $storageLocation|base64)&snapinpath=$(echo -n $snapindir|base64)&sslpath=$(echo -n $sslpath|base64)&ip=$(echo -n $ipaddress|base64)&maxClients=$(echo -n $maxClients|base64)&user=$(echo -n $username|base64)&pass=$(echo -n $password|base64)&interface=$(echo -n $interface|base64)&bandwidth=$(echo -n $interface|base64)&webroot=$(echo -n $webroot|base64)&fogverified"
+        wget --no-check-certificate -qO - http://$ipaddress/${webroot}/maintenance/create_update_node.php --post-data="newNode&name=$(echo -n $ipaddress| base64)&path=$(echo -n $storageLocation|base64)&ftppath=$(echo -n $storageLocation|base64)&snapinpath=$(echo -n $snapindir|base64)&sslpath=$(echo -n $sslpath|base64)&ip=$(echo -n $ipaddress|base64)&maxClients=$(echo -n $maxClients|base64)&user=$(echo -n $username|base64)&pass=$(echo -n $password|base64)&interface=$(echo -n $interface|base64)&bandwidth=$(echo -n $interface|base64)&webroot=$(echo -n $webroot|base64)&fogverified"
         echo "Done"
     else
         echo " * Node is registered"
@@ -45,7 +45,7 @@ registerStorageNode() {
 updateStorageNodeCredentials() {
     [[ -z $webroot ]] && webroot="/"
     dots "Ensuring node username and passwords match"
-    wget -qO - http://$ipaddress${webroot}maintenance/create_update_node.php --post-data="nodePass&ip=$(echo -n $ipaddress|base64)&user=$(echo -n $username|base64)&pass=$(echo -n $password|base64)&fogverified"
+    wget --no-check-certificate -qO - http://$ipaddress${webroot}maintenance/create_update_node.php --post-data="nodePass&ip=$(echo -n $ipaddress|base64)&user=$(echo -n $username|base64)&pass=$(echo -n $password|base64)&fogverified"
     echo "Done"
 }
 backupDB() {
@@ -60,7 +60,7 @@ updateDB() {
     case $dbupdate in
         [Yy]|[Yy][Ee][Ss])
             dots "Updating Database"
-            wget -qO - --post-data="confirm&fogverified" --no-proxy http://${ipaddress}/${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            wget --no-check-certificate -qO - --post-data="confirm&fogverified" --no-proxy http://${ipaddress}/${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             errorStat $?
             ;;
         *)
@@ -439,9 +439,9 @@ configureTFTPandPXE() {
     cd $workingdir
     chown -R $username $tftpdirdst >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     chown -R $username $webdirdest/service/ipxe >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    find $tftpdirdst -type d -exec chmod 755 {} \;
-    find $webdirdest -type d -exec chmod 755 {} \;
-    find $tftpdirdst ! -type d -exec chmod 655 {} \;
+    find $tftpdirdst -type d -exec chmod 755 {} \; >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    find $webdirdest -type d -exec chmod 755 {} \; >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    find $tftpdirdst ! -type d -exec chmod 655 {} \; >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     configureDefaultiPXEfile
     if [[ -f $tftpconfig ]]; then
         cp -Rf $tftpconfig ${tftpconfig}.fogbackup >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -530,7 +530,7 @@ configureMinHttpd() {
     echo "die(_('This is a storage node, please do not access the web ui here!'));" >> "$webdirdest/management/index.php"
 }
 addUbuntuRepo() {
-    find /etc/apt/sources.list.d/ -name '*ondrej*' -exec rm -rf {} \; >/dev/null 2>&1
+    find /etc/apt/sources.list.d/ -name '*ondrej*' -exec rm -rf {} \; >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     DEBIAN_FRONTEND=noninteractive $packageinstaller python-software-properties software-properties-common >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     ntpdate pool.ntp.org >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     add-apt-repository -y ppa:ondrej/$repo >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -1005,7 +1005,7 @@ configureSnapins() {
     mkdir -p $snapindir >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     if [[ -d $snapindir ]]; then
         chmod -R 777 $snapindir
-        chown -R fog:$apacheuser $snapindir
+        chown -R $username:$apacheuser $snapindir
     fi
     errorStat $?
 }
@@ -1055,7 +1055,12 @@ linkOptFogDir() {
     local element='httpd'
     [[ $osid -eq 2 ]] && element='apache2'
     chmod -R 755 /var/log/$element >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    chmod -R 755 /var/log/php*fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    for i in $(find /var/log/ -type d -name 'php*fpm*' 2>>$workingdir/error_logs/fog_error_${version}.log); do
+        chmod -R 755 $i >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    done
+    for i in $(find /var/log/ -type f -name 'php*fpm*' 2>>$workingdir/error_logs/fog_error_${version}.log); do
+        chmod -R 755 $i >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    done
 }
 configureStorage() {
     dots "Setting up storage"
@@ -1111,7 +1116,6 @@ writeUpdateFile() {
     escsnmysqlpass=$(echo $snmysqlpass | sed -e $replace -e "s/[']{1}/'''/g")
     escsnmysqlhost=$(echo $snmysqlhost | sed -e $replace)
     escinstalllang=$(echo $installlang | sed -e $replace)
-    escdonate=$(echo $donate | sed -e $replace)
     escstorageLocation=$(echo $storageLocation | sed -e $replace)
     escfogupdateloaded=$(echo $fogupdateloaded | sed -e $replace)
     escusername=$(echo $username | sed -e $replace)
@@ -1193,9 +1197,6 @@ writeUpdateFile() {
             grep -q "installlang=" $fogprogramdir/.fogsettings && \
                 sed -i "s/installlang=.*/installlang='$escinstalllang'/g" $fogprogramdir/.fogsettings || \
                 echo "installlang='$installlang'" >> $fogprogramdir/.fogsettings
-            grep -q "donate=" $fogprogramdir/.fogsettings && \
-                sed -i "s/donate=.*/donate='$escdonate'/g" $fogprogramdir/.fogsettings || \
-                echo "donate='$donate'" >> $fogprogramdir/.fogsettings
             grep -q "storageLocation=" $fogprogramdir/.fogsettings && \
                 sed -i "s/storageLocation=.*/storageLocation='$escstorageLocation'/g" $fogprogramdir/.fogsettings || \
                 echo "storageLocation='$storageLocation'" >> $fogprogramdir/.fogsettings
@@ -1278,7 +1279,6 @@ writeUpdateFile() {
             echo "snmysqlpass='$escsnmysqlpass'" >> "$fogprogramdir/.fogsettings"
             echo "snmysqlhost='$snmysqlhost'" >> "$fogprogramdir/.fogsettings"
             echo "installlang='$installlang'" >> "$fogprogramdir/.fogsettings"
-            echo "donate='$donate'" >> "$fogprogramdir/.fogsettings"
             echo "storageLocation='$storageLocation'" >> "$fogprogramdir/.fogsettings"
             echo "fogupdateloaded=1" >> "$fogprogramdir/.fogsettings"
             echo "docroot='$docroot'" >> "$fogprogramdir/.fogsettings"
@@ -1324,7 +1324,6 @@ writeUpdateFile() {
         echo "snmysqlpass='$escsnmysqlpass'" >> "$fogprogramdir/.fogsettings"
         echo "snmysqlhost='$snmysqlhost'" >> "$fogprogramdir/.fogsettings"
         echo "installlang='$installlang'" >> "$fogprogramdir/.fogsettings"
-        echo "donate='$donate'" >> "$fogprogramdir/.fogsettings"
         echo "storageLocation='$storageLocation'" >> "$fogprogramdir/.fogsettings"
         echo "fogupdateloaded=1" >> "$fogprogramdir/.fogsettings"
         echo "docroot='$docroot'" >> "$fogprogramdir/.fogsettings"
@@ -1420,26 +1419,72 @@ EOF
     chown -R $apacheuser:$apacheuser $webdirdest/management/other >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     errorStat $?
     dots "Setting up SSL FOG Server"
-    if [[ $recreateCA == yes || $recreateKeys == yes || ! -f $etcconf ]]; then
-        [[ $forcehttps == yes ]] && forcehttps='' || forcehttps='#'
-        echo -e "<VirtualHost *:80>\n\tKeepAlive Off\n\tServerName $ipaddress\n\tDocumentRoot $docroot\n\t${forcehttps}RewriteEngine On\n\t${forcehttps}RewriteRule /management/other/ca.cert.der$ - [L]\n\t${forcehttps}RewriteRule /management/ https://%{HTTP_HOST}%{REQUEST_URI}%{QUERY_STRING} [R,L]\n\tRewriteEngine On\n\tRewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f\n\tRewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d\n\tRewriteRule ^/(.*)$ /${webroot}/api/index.php [QSA,L]\n</VirtualHost>" > "$etcconf"
-        [[ $forcehttps != '#' ]] && echo -e "<VirtualHost *:443>\n\tKeepAlive Off\n\tServername $ipaddress\n\tDocumentRoot $docroot\n\tSSLEngine On\n\tSSLProtocol all -SSLv3 -SSLv2\n\tSSLCipherSuite
-        ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA\n\tSSLHonorCipherOrder
-        on\n\tSSLCertificateFile $webdirdest/management/other/ssl/srvpublic.crt\n\tSSLCertificateKeyFile $sslprivkey\n\tSSLCertificateChainFile $webdirdest/management/other/ca.cert.der\n\tRewriteEngine On\n\tRewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f\n\tRewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d\n\tRewriteRule ^/(.*)$ /${webroot}/api/index.php [QSA,L]\n</VirtualHost>" >> "$etcconf" || true
-        errorStat $?
-        dots "Restarting Apache2 for fog vhost"
-        ln -s $webdirdest $webdirdest/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        if [[ $osid -eq 2 ]]; then
-            a2enmod $phpcmd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            a2enmod proxy_fcgi setenvif >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            a2enmod $phpfpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            a2enmod rewrite >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            a2enmod ssl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            a2ensite "001-fog" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        fi
-    else
-        echo "Done"
-    fi
+    case $novhost in
+        [Yy]|[Yy][Ee][Ss])
+            echo "Skipped"
+            ;;
+        *)
+            if [[ $recreateCA == yes || $recreateKeys == yes || ! -f $etcconf ]]; then
+                if [[ $forcehttps == yes ]]; then
+                    echo "NameVirtualHost *:80" > "$etcconf"
+                    echo "NameVirtualHost *:443" >> "$etcconf"
+                    echo "<VirtualHost *:80>" >> "$etcconf"
+                    echo "    ServerName $ipaddress" >> "$etcconf"
+                    echo "    RewriteEngine On" >> "$etcconf"
+                    echo "    RewriteRule /management/other/ca.cert.der$ - [L]" >> "$etcconf"
+                    echo "    RewriteCond %{HTTPS} off" >> "$etcconf"
+                    echo "    RewriteRule (.*) https://%{HTTP_HOST}/\$1 [R,L]" >> "$etcconf"
+                    echo "</VirtualHost>" >> "$etcconf"
+                    echo "<VirtualHost *:443>" >> "$etcconf"
+                    echo "    KeepAlive Off" >> "$etcconf"
+                    echo "    ServerName $ipaddress" >> "$etcconf"
+                    echo "    DocumentRoot $docroot" >> "$etcconf"
+                    echo "    SSLEngine On" >> "$etcconf"
+                    echo "    SSLProtocol all -SSLv3 -SSLv2" >> "$etcconf"
+                    echo "    SSLCipherSuite ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA" >> "$etcconf"
+                    echo "    SSLHonorCipherOrder On" >> "$etcconf"
+                    echo "    SSLCertificateFile $webdirdest/management/other/ssl/srvpublic.crt" >> "$etcconf"
+                    echo "    SSLCertificateKeyFile $sslprivkey" >> "$etcconf"
+                    echo "    SSLCertificateChainFile $webdirdest/management/other/ca.cert.der" >> "$etcconf"
+                    echo "    <Directory $webdirdest>" >> "$etcconf"
+                    echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
+                    echo "    </Directory>" >> "$etcconf"
+                    echo "    RewriteEngine On" >> "$etcconf"
+                    echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f" >> "$etcconf"
+                    echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d" >> "$etcconf"
+                    echo "    RewriteRule ^/(.*)$ /fog/api/index.php [QSA,L]" >> "$etcconf"
+                    echo "</VirtualHost>" >> "$etcconf"
+                else
+                    echo "NameVirtualHost *:80" > "$etcconf"
+                    echo "<VirtualHost *:80>" >> "$etcconf"
+                    echo "    KeepAlive Off" >> "$etcconf"
+                    echo "    ServerName $ipaddress" >> "$etcconf"
+                    echo "    DocumentRoot $docroot" >> "$etcconf"
+                    echo "    <Directory $webdirdest>" >> "$etcconf"
+                    echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
+                    echo "    </Directory>" >> "$etcconf"
+                    echo "    RewriteEngine On" >> "$etcconf"
+                    echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f" >> "$etcconf"
+                    echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d" >> "$etcconf"
+                    echo "    RewriteRule ^/(.*)$ /fog/api/index.php [QSA,L]" >> "$etcconf"
+                    echo "</VirtualHost>" >> "$etcconf"
+                fi
+                errorStat $?
+                ln -s $webdirdest $webdirdest/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                if [[ $osid -eq 2 ]]; then
+                    a2enmod $phpcmd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    a2enmod proxy_fcgi setenvif >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    a2enmod $phpfpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    a2enmod rewrite >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    a2enmod ssl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    a2ensite "001-fog" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                fi
+            else
+                echo "Done"
+            fi
+            ;;
+    esac
+    dots "Starting and checking status of web services"
     case $systemctl in
         yes)
             case $osid in
@@ -1521,10 +1566,16 @@ configureHttpd() {
             ;;
     esac
     if [[ -f $etcconf ]]; then
-        dots "Removing vhost file"
-        [[ $osid -eq 2 ]] && a2dissite 001-fog >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        rm $etcconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        errorStat $?
+        case $novhost in
+            [Yy]|[Yy][Ee][Ss])
+                ;;
+            *)
+                dots "Removing vhost file"
+                [[ $osid -eq 2 ]] && a2dissite 001-fog >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                rm $etcconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                errorStat $?
+                ;;
+        esac
     fi
     if [[ $installtype == +([Nn]) && ! $fogupdateloaded -eq 1 && -z $autoaccept ]]; then
         dummy=""
@@ -1681,7 +1732,7 @@ configureHttpd() {
             cp -Rf ${backupPath}/fog_web_${version}.BACKUP/* $webdirdest/
             errorStat $?
             dots "Ensuring all classes are lowercased"
-            for i in $(find $webdirdest -type f -name "*[A-Z]*\.class\.php" -o -name "*[A-Z]*\.event\.php" -o -name "*[A-Z]*\.hook\.php"); do
+            for i in $(find $webdirdest -type f -name "*[A-Z]*\.class\.php" -o -name "*[A-Z]*\.event\.php" -o -name "*[A-Z]*\.hook\.php" 2>>$workingdir/error_logs/fog_error_${version}.log); do
                 mv "$i" "$(echo $i | tr A-Z a-z)" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             done
             errorStat $?
@@ -1690,13 +1741,13 @@ configureHttpd() {
     dots "Copying new files to web folder"
     cp -Rf $webdirsrc/* $webdirdest/
     errorStat $?
-    for i in $(find $backupPath/fog_web_${version}.BACKUP/management/other/ -maxdepth 1 -type f -not -name gpl-3.0.txt -a -not -name index.php -a -not -name 'ca.*'); do
+    for i in $(find $backupPath/fog_web_${version}.BACKUP/management/other/ -maxdepth 1 -type f -not -name gpl-3.0.txt -a -not -name index.php -a -not -name 'ca.*' 2>>$workingdir/error_logs/fog_error_${version}.log); do
         cp -Rf $i ${webdirdest}/management/other/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     done
     if [[ $installlang -eq 1 ]]; then
         dots "Creating the language binaries"
         langpath="${webdirdest}/management/languages"
-        languagesfound=$(find $langpath -maxdepth 1 -type d -exec basename {} \; | awk -F. '/\./ {print $1}')
+        languagesfound=$(find $langpath -maxdepth 1 -type d -exec basename {} \; | awk -F. '/\./ {print $1}' 2>>$workingdir/error_logs/fog_error_${version}.log)
         languagemogen "$languagesfound" "$langpath"
         echo "Done"
     fi
@@ -1818,7 +1869,6 @@ class Config
         define('FOG_JPGRAPH_VERSION', '2.3');
         define('FOG_REPORT_DIR', './reports/');
         define('FOG_CAPTUREIGNOREPAGEHIBER', true);
-        define('FOG_DONATE_MINING', \"${donate}\");
     }
 }" > "${webdirdest}/lib/fog/config.class.php"
     errorStat $?

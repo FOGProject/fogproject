@@ -87,7 +87,7 @@ abstract class Event extends FOGBase
      *
      * @return void
      */
-    public static function log(
+    protected static function log(
         $txt,
         $curlog,
         $logfile,

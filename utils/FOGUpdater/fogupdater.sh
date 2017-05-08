@@ -1,18 +1,25 @@
 #!/bin/bash
 . ../../lib/common/utils.sh
 [[ -z $downloaddir ]] && downloaddir="/opt/"
-echo "   ***************************************************************"
-echo "   *                         ** Notice **                        *"
-echo "   ***************************************************************"
-echo "   *                                                             *"
-echo "   * Your FOG server may go offline during this upgrade process! *"
-echo "   *                                                             *"
-echo "   ***************************************************************"
+echo " ***************************************************************"
+echo " *                         ** Notice **                        *"
+echo " ***************************************************************"
+echo " *                                                             *"
+echo " * Your FOG server may go offline during this upgrade process! *"
+echo " *                                                             *"
+echo " ***************************************************************"
 dots "Checking latest version"
-[[ -z $trunk ]] && latest=$(wget --no-check-certificate -qO - --post-data="stable" https://fogproject.org/version/index.php) || latest=$(wget --no-check-certificate -qO - --post-data="dev" https://fogproject.org/version/index.php)
+if [[ -z $trunk ]]; then
+    latest=$(wget --no-check-certificate -qO - --post-data="stable" https://fogproject.org/version/index.php)
+    latest=$(echo $latest | $(pwd)/jq32 .stable)
+else
+    latest=$(wget --no-check-certificate -qO - --post-data="dev" https://fogproject.org/version/index.php)
+    latest=$(echo $latest | $(pwd)/jq32 .dev)
+fi
 [[ -z $latest ]] && errorStat 1
 echo "Done"
-echo "Latest FOG Version: $latest"
+latest=${latest//\"}
+echo " * Latest FOG Version: $latest"
 if [[ -z $trunk ]]; then
     [[ -z $updatemirrors ]] && updatemirrors="http://internap.dl.sourceforge.net/sourceforge/freeghost/ http://voxel.dl.sourceforge.net/sourceforge/freeghost/ http://kent.dl.sourceforge.net/sourceforge/freeghost/ http://heanet.dl.sourceforge.net/sourceforge/freeghost/"
     [[ $version == $latest ]] && handleError " * You are already up to date!" 0

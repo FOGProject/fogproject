@@ -46,6 +46,44 @@ class AddFileIntegrityMenuItem extends Hook
      */
     public $node = 'fileintegrity';
     /**
+     * Initialize object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'MAIN_MENU_DATA',
+                array(
+                    $this,
+                    'menuData'
+                )
+            )
+            ->register(
+                'SEARCH_PAGES',
+                array(
+                    $this,
+                    'addSearch'
+                )
+            )
+            ->register(
+                'ACTIONBOX',
+                array(
+                    $this,
+                    'removeActionBox'
+                )
+            )
+            ->register(
+                'PAGES_WITH_OBJECTS',
+                array(
+                    $this,
+                    'addPageWithObject'
+                )
+            );
+    }
+    /**
      * The menu data method
      *
      * @param array $arguments the arguments to enact upon.
@@ -111,33 +149,3 @@ class AddFileIntegrityMenuItem extends Hook
         array_push($arguments['PagesWithObjects'], $this->node);
     }
 }
-$AddFileIntegrityMenuItem = new AddFileIntegrityMenuItem();
-$HookManager
-    ->register(
-        'MAIN_MENU_DATA',
-        array(
-            $AddFileIntegrityMenuItem,
-            'menuData'
-        )
-    )
-    ->register(
-        'SEARCH_PAGES',
-        array(
-            $AddFileIntegrityMenuItem,
-            'addSearch'
-        )
-    )
-    ->register(
-        'ACTIONBOX',
-        array(
-            $AddFileIntegrityItem,
-            'removeActionBox'
-        )
-    )
-    ->register(
-        'PAGES_WITH_OBJECTS',
-        array(
-            $AddFileIntegrityMenuItem,
-            'addPageWithObject'
-        )
-    );

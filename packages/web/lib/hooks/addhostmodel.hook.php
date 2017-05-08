@@ -42,6 +42,30 @@ class AddHostModel extends Hook
      */
     public $active = false;
     /**
+     * Initializes object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'HOST_DATA',
+                array(
+                    $this,
+                    'hostData'
+                )
+            )
+            ->register(
+                'HOST_HEADER_DATA',
+                array(
+                    $this,
+                    'hostTableHeader'
+                )
+            );
+    }
+    /**
      * The host data to alter.
      *
      * @param mixed $arguments The items to change.
@@ -94,19 +118,3 @@ class AddHostModel extends Hook
         $arguments['headerData'][5] = _('Model');
     }
 }
-$AddHostModel = new AddHostModel();
-$HookManager
-    ->register(
-        'HOST_DATA',
-        array(
-            $AddHostModel,
-            'hostData'
-        )
-    )
-    ->register(
-        'HOST_HEADER_DATA',
-        array(
-            $AddHostModel,
-            'hostTableHeader'
-        )
-    );

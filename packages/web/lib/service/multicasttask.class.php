@@ -56,17 +56,17 @@ class MulticastTask extends FOGService
                 (array)self::getProgressState()
             )
         );
-        foreach ((array)self::getClass('MulticastSessionsManager')
+        foreach ((array)self::getClass('MulticastSessionManager')
             ->find($find) as $index => &$MultiSess
         ) {
             $taskIDs = self::getSubObjectIDs(
-                'MulticastSessionsAssociation',
+                'MulticastSessionAssociation',
                 array(
                     'msID' => $MultiSess->get('id')
                 ),
                 'taskID'
             );
-            $count = self::getClass('MulticastSessionsAssociationManager')
+            $count = self::getClass('MulticastSessionAssociationManager')
                 ->count(
                     array(
                         'msID' => $MultiSess->get('id')
@@ -228,7 +228,7 @@ class MulticastTask extends FOGService
         $this->_intOSID = $osid;
         $this->_isNameSess = $nameSess;
         $this->_taskIDs = $taskIDs;
-        $this->_MultiSess = new MulticastSessions($this->getID());
+        $this->_MultiSess = new MulticastSession($this->getID());
     }
     /**
      * Get session clients
@@ -647,7 +647,7 @@ class MulticastTask extends FOGService
     {
         $find = array(
             'id' => self::getSubObjectIDs(
-                'MulticastSessionsAssociation',
+                'MulticastSessionAssociation',
                 array('msID' => $this->_intID),
                 'taskID'
             )

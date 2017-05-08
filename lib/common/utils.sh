@@ -46,4 +46,4 @@ dots "Checking running version"
 version=$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' $configpath | tr -d '[[:space:]]')
 [[ -z $version ]] && (echo "Failed" && handleError "Could not find version of FOG" 7)
 echo "Done"
-echo "Running FOG Version: $version"
+echo " * Running FOG Version: $version"

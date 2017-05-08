@@ -46,6 +46,29 @@ class RemoveSlackItem extends Hook
      */
     public $node = 'slack';
     /**
+     * Initialize object
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'SLACK_DEL_POST',
+                array(
+                    $this,
+                    'removesingle'
+                )
+            )->register(
+                'MULTI_REMOVE',
+                array(
+                    $this,
+                    'removemulti'
+                )
+            );
+    }
+    /**
      * Removes multiple slack items.
      *
      * @param mixed $arguments The items to change.
@@ -102,18 +125,3 @@ class RemoveSlackItem extends Hook
         $arguments['Slack']->call('chat.postMessage', $args);
     }
 }
-$RemoveSlackItem = new RemoveSlackItem();
-$HookManager
-    ->register(
-        'SLACK_DEL_POST',
-        array(
-            $RemoveSlackItem,
-            'removesingle'
-        )
-    )->register(
-        'MULTI_REMOVE',
-        array(
-            $RemoveSlackItem,
-            'removemulti'
-        )
-    );

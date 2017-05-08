@@ -40,6 +40,20 @@ class ImageFail_PushBullet extends PushbulletExtends
      */
     public $active = true;
     /**
+     * Initialize object
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$EventManager
+            ->register(
+                'HOST_IMAGE_FAIL',
+                $this
+            );
+    }
+    /**
      * Perform action when event met.
      *
      * @param string $event The event to perform from.
@@ -54,8 +68,3 @@ class ImageFail_PushBullet extends PushbulletExtends
         parent::onEvent($event, $data);
     }
 }
-$EventManager
-    ->register(
-        'HOST_IMAGE_FAIL',
-        new ImageFail_PushBullet()
-    );

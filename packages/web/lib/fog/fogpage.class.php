@@ -241,8 +241,11 @@ abstract class FOGPage extends FOGBase
         global $sub;
         global $tab;
         global $id;
+        if ($node == 'report') {
+            $f = filter_input(INPUT_GET, 'f');
+        }
         if ($node !== 'service'
-            && preg_match('#edit#i', $sub)
+            && false !== stripos($sub, 'edit')
             && (!isset($id)
             || !is_numeric($id)
             || $id < 1)
@@ -265,15 +268,15 @@ abstract class FOGPage extends FOGBase
         }
         $this->childClass = ucfirst($this->node);
         if ($node == 'storage') {
-            $ref = preg_match(
-                '#node=storage&sub=storageGroup#i',
-                self::$httpreferer
+            $ref = stripos(
+                self::$httpreferer,
+                'node=storage&sub=storageGroup'
             );
         }
-        if (!isset($ref) || !$ref) {
-            $ref = preg_match(
-                '#storageGroup#i',
-                $sub
+        if (!isset($ref) || false === $ref) {
+            $ref = stripos(
+                $sub,
+                'storageGroup'
             );
         }
         if ($ref) {
@@ -435,70 +438,28 @@ abstract class FOGPage extends FOGBase
         $nodestr = $substr = $idstr = $typestr = $tabstr = false;
         $formstr = '?';
         if ($node) {
-            $nodestr = "node=$node";
+            $data['node'] = $node;
         }
         if ($sub) {
-            $substr = "sub=$sub";
+            $data['sub'] = $sub;
         }
         if ($id) {
-            $idstr = "id=$id";
+            $data['id'] = $id;
         }
         if ($type) {
-            $typestr = "type=$type";
+            $data['type'] = $type;
+        }
+        if ($f) {
+            $data['f'] = $f;
         }
         if ($tab) {
             $tabstr = "#$tab";
         }
-        if ($nodestr) {
-            $formstr .= $nodestr;
-            if ($substr) {
-                $formstr .= "&$substr";
-            }
-            if ($idstr) {
-                $formstr .= "&$idstr";
-            }
-            if ($typestr) {
-                $formstr .= "&$typestr";
-            }
-            if ($tabstr) {
-                $formstr .= $tabstr;
-            }
-        } else {
-            if ($substr) {
-                $formstr .= $substr;
-                if ($idstr) {
-                    $formstr .= "&$idstr";
-                }
-                if ($typestr) {
-                    $formstr .= "&$typestr";
-                }
-                if ($tabstr) {
-                    $formstr .= $tabstr;
-                }
-            } else {
-                if ($idstr) {
-                    $formstr .= $idstr;
-                    if ($typestr) {
-                        $formstr .= "&$typestr";
-                    }
-                    if ($tabstr) {
-                        $formstr .= $tabstr;
-                    }
-                } else {
-                    if ($typestr) {
-                        $formstr .= $typestr;
-                        if ($tabstr) {
-                            $formstr = $tabstr;
-                        }
-                    } else {
-                        if ($tabstr) {
-                            $formstr = $tabstr;
-                        } else {
-                            $formstr = '';
-                        }
-                    }
-                }
-            }
+        if (count($data) > 0) {
+            $formstr .= http_build_query($data);
+        }
+        if ($tabstr) {
+            $formstr .= $tabstr;
         }
         $this->formAction = $formstr;
         self::$HookManager->processEvent(
@@ -548,21 +509,26 @@ abstract class FOGPage extends FOGBase
                 );
             }
             /**
-             * Use for when api is established.
+             * For use with API system.
             $url = sprintf(
-                'http%s://%s%s%s',
+                'http%s://%s/fog/%s',
                 filter_input(INPUT_SERVER, 'HTTPS') ? 's' : '',
                 filter_input(INPUT_SERVER, 'HTTP_HOST'),
-                (
-                    trim(WEB_ROOT, '/') ?
-                    '/'.trim(WEB_ROOT, '/').'/' :
-                    '/'
-                ),
                 strtolower($this->childClass)
+            );
+            self::$FOGURLRequests->headers = array(
+                'fog-api-token: '
+                . base64_encode(self::getSetting('FOG_API_TOKEN'))
             );
             $items = self::$FOGURLRequests
                 ->process(
-                    $url
+                    $url,
+                    'GET',
+                    null,
+                    false,
+                    self::$FOGUser->get('name')
+                    . ':'
+                    . self::$FOGUser->get('password')
                 );
             $items = json_decode(
                 $items[0]
@@ -946,7 +912,7 @@ abstract class FOGPage extends FOGBase
                     $name,
                     (
                         $this->dataFind ?
-                        preg_replace($this->dataFind, $this->dataReplace, $val) :
+                        str_replace($this->dataFind, $this->dataReplace, $val) :
                         $val
                     )
                 );
@@ -1013,18 +979,13 @@ abstract class FOGPage extends FOGBase
             'sub' => $sub,
             'tab' => $tab
         );
-        preg_match_all(
-            '#\$\{(?:.+?)\}#',
-            implode((array)$this->templates),
-            $foundchanges
-        );
         $arrayReplace = self::fastmerge(
             $urlvars,
             (array)$data
         );
         foreach ((array)$arrayReplace as $name => &$val) {
             $this->dataFind[] = sprintf(
-                '#\$\{%s\}#',
+                '${%s}',
                 $name
             );
             $val = trim($val);
@@ -1058,7 +1019,7 @@ abstract class FOGPage extends FOGBase
                     $this->atts[$index] :
                     ''
                 ),
-                preg_replace(
+                str_replace(
                     $this->dataFind,
                     $this->dataReplace,
                     $template
@@ -2166,7 +2127,7 @@ abstract class FOGPage extends FOGBase
             $ADDomain = $_REQUEST['domainname'];
         }
         if (empty($ADOU)) {
-            $ADOU = trim(preg_replace('#;#', '', $_REQUEST['ou']));
+            $ADOU = trim(str_replace(';', '', $_REQUEST['ou']));
         }
         if (empty($ADUser)) {
             $ADUser = $_REQUEST['domainuser'];
@@ -2186,7 +2147,7 @@ abstract class FOGPage extends FOGBase
             }
             if (empty($ADOU)) {
                 $ADOU = trim($this->obj->get('ADOU'));
-                $ADOU = preg_replace('#;#', '', $ADOU);
+                $ADOU = str_replace(';', '', $ADOU);
             }
             if (empty($ADUser)) {
                 $ADUser = $this->obj->get('ADUser');
@@ -2208,7 +2169,7 @@ abstract class FOGPage extends FOGBase
         );
         if ($this->obj->isValid()) {
             $ADOU = trim($this->obj->get('ADOU'));
-            $ADOU = preg_replace('#;#', '', $ADOU);
+            $ADOU = str_replace(';', '', $ADOU);
             $optFound = $ADOU;
         }
         if (count($OUs) > 1) {
@@ -2219,11 +2180,11 @@ abstract class FOGPage extends FOGBase
             );
             foreach ((array)$OUs as &$OU) {
                 $OU = trim($OU);
-                $ou = preg_replace('#;#', '', $OU);
+                $ou = str_replace(';', '', $OU);
                 if (!$optFound && $ou === $ADOU) {
                     $optFound = $ou;
                 }
-                if (!$optFound && preg_match('#;#', $OU)) {
+                if (!$optFound && false !== strpos($OU, ';')) {
                     $optFound = $ou;
                 }
                 printf(
@@ -2751,7 +2712,11 @@ abstract class FOGPage extends FOGBase
             if ($Host->get('sec_tok')
                 && $token !== $Host->get('sec_tok')
             ) {
-                $Host->set('pub_key', null)->save();
+                $Host
+                    ->set(
+                        'pub_key',
+                        null
+                    )->save()->load();
                 throw new Exception('#!ist');
             }
             if ($Host->get('sec_tok')
@@ -2759,16 +2724,27 @@ abstract class FOGPage extends FOGBase
             ) {
                 throw new Exception('#!ihc');
             }
+            $expire = self::niceDate($Host->get('sec_time'));
+            if (self::niceDate() > $expire
+                || !trim($Host->get('pub_key'))
+            ) {
+                $Host
+                    ->set(
+                        'sec_time',
+                        self::niceDate()
+                            ->modify('+30 minutes')
+                            ->format('Y-m-d H:i:s')
+                    )
+                    ->set(
+                        'sec_tok',
+                        self::createSecToken()
+                    );
+            }
             $Host
-                ->set(
-                    'sec_time',
-                    self::niceDate('+30 minutes')->format('Y-m-d H:i:s')
-                )
                 ->set('pub_key', $key)
-                ->set('sec_tok', self::createSecToken())
                 ->save();
+            $vals['token'] = $Host->get('sec_tok');
             if (self::$json === true) {
-                $vals['token'] = $Host->get('sec_tok');
                 printf(
                     '#!en=%s',
                     self::certEncrypt(
@@ -2790,7 +2766,7 @@ abstract class FOGPage extends FOGBase
                 if ($e->getMessage() == '#!ihc') {
                     die($e->getMessage());
                 }
-                $err = preg_replace('/^[#][!]?/', '', $e->getMessage());
+                $err = str_replace('#!', '', $e->getMessage());
                 echo json_encode(
                     array('error' => $err)
                 );
@@ -3179,6 +3155,35 @@ abstract class FOGPage extends FOGBase
             '%sManager',
             $this->childClass
         );
+        /**
+         * For use with api based system.
+        $url = sprintf(
+            'http%s://%s/fog/%s/search/%s',
+            filter_input(INPUT_SERVER, 'HTTPS') ? 's' : '',
+            filter_input(INPUT_SERVER, 'HTTP_HOST'),
+            strtolower($this->childClass),
+            $_REQUEST['crit']
+        );
+        self::$FOGURLRequests->headers = array(
+            'fog-api-token: '
+            . base64_encode(self::getSetting('FOG_API_TOKEN'))
+        );
+        $items = self::$FOGURLRequests
+            ->process(
+                $url,
+                'GET',
+                null,
+                false,
+                self::$FOGUser->get('name')
+                . ':'
+                . self::$FOGUser->get('password')
+            );
+        $items = json_decode(
+            $items[0]
+        );
+        $type = $_REQUEST['node'].'s';
+        $search = $items->$type;
+         */
         $search = self::getClass($manager)->search('', true);
         if (count($search) > 0) {
             array_walk($search, static::$returnData);
@@ -3741,6 +3746,7 @@ abstract class FOGPage extends FOGBase
                             ->addAddMAC($macs);
                     }
                     if ($Item->save()) {
+                        $Item->load();
                         $totalRows++;
                         $itemCap = strtoupper($this->childClass);
                         $event = sprintf(
@@ -3826,5 +3832,32 @@ abstract class FOGPage extends FOGBase
             $arr
         );
         $this->render();
+    }
+    /**
+     * Build select form in generic form.
+     *
+     * @param string $name  The name of the select item.
+     * @param array  $items The items to generate.
+     *
+     * @return string
+     */
+    public static function selectForm($name, $items = array())
+    {
+        ob_start();
+        printf(
+            '<select name="%s"><option value="">- %s -</option>',
+            $name,
+            _('Please select an option')
+        );
+        foreach ($items as &$item) {
+            printf(
+                '<option value="%s">%s</option>',
+                $item,
+                $item
+            );
+            unset($item);
+        }
+        echo '</select>';
+        return ob_get_clean();
     }
 }
