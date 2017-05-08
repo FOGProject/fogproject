@@ -10,7 +10,15 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-
+/**
+ * Site plugin
+ *
+ * @category SiteHostAssocManager
+ * @package  FOGProject
+ * @author   Fernando Gietz <fernando.gietz@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class SiteHostAssociationManager extends FOGManagerController
 {
     /**
@@ -33,26 +41,26 @@ class SiteHostAssociationManager extends FOGManagerController
             array(
                 'shaID',
                 'shaName',
-            	'shaSiteID',
-            	'shaHostID',
+                'shaSiteID',
+                'shaHostID',
             ),
             array(
                 'INTEGER',
                 'VARCHAR(60)',
-            	'INTEGER',
-            	'INTEGER',
+                'INTEGER',
+                'INTEGER',
             ),
             array(
                 false,
                 false,
-            	false,
-            	false,
+                false,
+                false,
             ),
             array(
                 false,
                 false,
-            	false,
-            	false,
+                false,
+                false,
             ),
             array(),
             'MyISAM',
@@ -66,10 +74,14 @@ class SiteHostAssociationManager extends FOGManagerController
         //return true;
         return self::getClass('SiteUserAssociationManager')->install();
     }
-    
+    /**
+     * Uninstalls plugin.
+     *
+     * @return void
+     */
     public function uninstall()
     {
-    	self::getClass('SiteUserAssociationManager')->uninstall();
-    	return parent::uninstall();
+        self::getClass('SiteUserAssociationManager')->uninstall();
+        return parent::uninstall();
     }
 }

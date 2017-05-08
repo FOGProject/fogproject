@@ -41,22 +41,22 @@ class SiteManager extends FOGManagerController
             array(
                 'sID',
                 'sName',
-            	'sDesc'
+                'sDesc'
             ),
             array(
                 'INTEGER',
                 'VARCHAR(60)',
-            	'VARCHAR(255)',
+                'VARCHAR(255)',
             ),
             array(
                 false,
                 false,
-            	false
+                false
             ),
             array(
                 false,
                 false,
-            	false
+                false
             ),
             array(),
             'MyISAM',
@@ -70,10 +70,14 @@ class SiteManager extends FOGManagerController
         //return true;
         return self::getClass('SiteHostAssociationManager')->install();
     }
-    
+    /**
+     * Uninstalls plugin.
+     *
+     * @return void
+     */
     public function uninstall()
     {
-    	self::getClass('SiteHostAssociationManager')->install();
-    	return parent::uninstall();
+        self::getClass('SiteHostAssociationManager')->install();
+        return parent::uninstall();
     }
 }

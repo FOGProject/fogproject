@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-08 08:13-0400\n"
+"POT-Creation-Date: 2017-05-08 14:28-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -250,8 +250,8 @@ msgstr "返回键在阵列"
 #: /var/www/fog/lib/fog/foggetset.class.php:80
 #: /var/www/fog/lib/fog/foggetset.class.php:133
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:539
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:912
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:987
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:907
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:986
 msgid "Value"
 msgstr "值"
 
@@ -817,6 +817,7 @@ msgstr "您只能分配"
 #: /var/www/fog/lib/fog/fogpage.class.php:3354
 #: /var/www/fog/lib/pages/taskmobile.class.php:44
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:171
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:332
 #: /var/www/fog/lib/reports/imaging_log.report.php:45
 #: /var/www/fog/commons/text.php:47
 msgid "Host"
@@ -828,8 +829,10 @@ msgstr "主办"
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:562
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:86
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1882
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1111
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1186
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1113
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1188
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:413
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:488
 #: /var/www/fog/lib/reports/user_tracking.report.php:111
 #: /var/www/fog/lib/reports/user_tracking.report.php:213
 #: /var/www/fog/lib/reports/user_tracking.report.php:234
@@ -1329,15 +1332,18 @@ msgstr "编辑图像"
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:415
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:551
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:676
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:922
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:918
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:997
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1196
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1198
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:180
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:324
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:253
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:368
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:71
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:206
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:214
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:341
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:498
 #: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:64
 #: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:199
 #: /var/www/fog/commons/text.php:27
@@ -1563,13 +1569,15 @@ msgstr ""
 #: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:128
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:149
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:349
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:976
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1176
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:975
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1178
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:109
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:396
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:169
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:240
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:131
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:148
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:478
 #: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:103
 #: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:112
 #: /var/www/fog/commons/text.php:31
@@ -1604,6 +1612,7 @@ msgstr "加"
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:320
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:590
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:233
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:244
 #: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:222
 #: /var/www/fog/commons/text.php:40
 msgid "Update"
@@ -1709,15 +1718,18 @@ msgid "not within this"
 msgstr "不在此"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3343
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1169
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1171
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:389
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:471
 msgid "Modify Membership for"
 msgstr "修改为会员"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3416
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1036
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1233
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1038
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1235
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:453
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:379
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:535
 msgid "Delete Selected"
 msgstr "删除所选"
 
@@ -1727,8 +1739,9 @@ msgid "From"
 msgstr "从"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3444
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1265
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1267
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:481
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:565
 msgid "saved successfully"
 msgstr "保存成功"
 
@@ -4384,6 +4397,7 @@ msgid "Invalid task"
 msgstr "任务无效"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:698
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:86
 #: /var/www/fog/commons/text.php:48 /var/www/fog/commons/text.php:105
 msgid "Hosts"
 msgstr "主机"
@@ -4443,6 +4457,7 @@ msgstr "启用管理单元"
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:109
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:166
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:460
+#: /var/www/fog/lib/plugins/site/hooks/addsiteuser.hook.php:220
 #: /var/www/fog/lib/reports/host_list.report.php:102
 msgid "Yes"
 msgstr "是"
@@ -4457,6 +4472,7 @@ msgstr "是"
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:109
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:160
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:447
+#: /var/www/fog/lib/plugins/site/hooks/addsiteuser.hook.php:221
 #: /var/www/fog/lib/reports/host_list.report.php:103
 msgid "No"
 msgstr "没有"
@@ -4467,6 +4483,7 @@ msgid "group"
 msgstr "组"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1101
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:380
 #: /var/www/fog/lib/service/taskscheduler.class.php:196
 #: /var/www/fog/lib/service/pinghosts.class.php:148
 msgid "host"
@@ -4491,8 +4508,10 @@ msgstr "设置"
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:87
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:182
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:321
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1112
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1187
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1114
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1189
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:414
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:489
 #, fuzzy
 msgid "Friendly Name"
 msgstr "内核名称"
@@ -4523,6 +4542,7 @@ msgstr "新用户"
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:177
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:316
 #: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:213
+#: /var/www/fog/lib/plugins/site/hooks/addsiteuser.hook.php:257
 msgid "User Name"
 msgstr "用户名"
 
@@ -4934,6 +4954,7 @@ msgstr "主机描述"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:424
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:824
 #: /var/www/fog/lib/plugins/location/hooks/addlocationhost.hook.php:247
+#: /var/www/fog/lib/plugins/site/hooks/addsitehost.hook.php:223
 msgid "Host Product Key"
 msgstr "主机产品密钥"
 
@@ -5277,6 +5298,7 @@ msgstr "主机登录历史"
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:284
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:120
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:222
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:71
 #: /var/www/fog/lib/reports/user_tracking.report.php:216
 #: /var/www/fog/lib/reports/user_tracking.report.php:239
 #: /var/www/fog/commons/text.php:91
@@ -5994,10 +6016,11 @@ msgstr "帐户已链接"
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:200
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:392
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:651
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1079
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1081
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:157
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:231
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:183
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:191
 #: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:163
 #: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:176
 msgid "Failed to create"
@@ -6146,10 +6169,11 @@ msgstr "存储组是必需的！"
 
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:337
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:500
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:781
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:776
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:282
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:389
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:292
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:298
 #: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:288
 msgid "Failed to update"
 msgstr "无法更新"
@@ -6283,8 +6307,6 @@ msgid "Rule value"
 msgstr ""
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:175
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:913
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:988
 #, fuzzy
 msgid "Parent Node"
 msgstr "打印机型号"
@@ -6359,6 +6381,8 @@ msgstr "结果"
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:540
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:600
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:697
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:908
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:987
 #, fuzzy
 msgid "Parent"
 msgstr "百分"
@@ -6366,6 +6390,8 @@ msgstr "百分"
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:541
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:601
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:705
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:909
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:988
 #: /var/www/fog/commons/text.php:43
 msgid "Node"
 msgstr "节点"
@@ -6403,85 +6429,86 @@ msgid "Please enter a value for this rule."
 msgstr "这个地址输入名称。"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:653
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1087
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1089
 #, fuzzy
 msgid "Rule Added, editing!"
 msgstr "位置添加，编辑！"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:771
-#, fuzzy
-msgid "A rule with that value already exists."
-msgstr "使用此名称的主机名已经存在。"
-
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:783
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:778
 #, fuzzy
 msgid "Rule Updated"
 msgstr "客户端更新"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:868
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:863
 #, fuzzy
 msgid "Fail to delete rule"
 msgstr "无法删除文件"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:873
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:868
 msgid "Rule Delete Success"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:911
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:906
 #, fuzzy
 msgid "Rule name"
 msgstr "模块名称"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:967
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:966
 #, fuzzy
 msgid "Check here to see rules not within this"
 msgstr "请查看这里以组未分配此图片"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:969
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:968
 #, fuzzy
 msgid "Modify Rule Membership for"
 msgstr "修改为会员"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:977
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1037
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:976
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1039
 #, fuzzy
 msgid "rule"
 msgstr "结果"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:978
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1178
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:977
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1180
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:480
 #, fuzzy
 msgid "to"
 msgstr "汽车"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:986
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:985
 #, fuzzy
 msgid "Rule Name"
 msgstr "模块名称"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1038
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1235
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1040
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1237
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:381
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:537
 #, fuzzy
 msgid "from"
 msgstr "从"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1062
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1064
 #, fuzzy
 msgid "Not role selected"
 msgstr "没有选定主机"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1065
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1067
 #, fuzzy
 msgid "Not rule selected"
 msgstr "没有选定主机"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1167
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1169
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:469
 #, fuzzy
 msgid "Check here to see users not within this"
 msgstr "请查看这里以组未分配此图片"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1177
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1234
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1179
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1236
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:479
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:536
 #, fuzzy
 msgid "user"
 msgstr "用户"
@@ -6998,6 +7025,132 @@ msgstr "任务状态添加，编辑"
 #: /var/www/fog/lib/plugins/taskstateedit/hooks/addtaskstateeditmenuitem.hook.php:103
 msgid "Task State Management"
 msgstr "任务状态管理"
+
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:53
+#, fuzzy
+msgid "Export Sites"
+msgstr "出口打印机"
+
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:54
+#, fuzzy
+msgid "Import Sites"
+msgstr "进口打印机"
+
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:66
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:323
+#, fuzzy
+msgid "Hosts Associated"
+msgstr "没有snapins相关"
+
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:70
+#: /var/www/fog/lib/plugins/site/hooks/addsitehost.hook.php:331
+#, fuzzy
+msgid "Site"
+msgstr "最大尺寸"
+
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:75
+#, fuzzy
+msgid "Host Associated"
+msgstr "无关联的节点"
+
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:84
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:141
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:227
+#, fuzzy
+msgid "Site Name"
+msgstr "打印机名称"
+
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:85
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:142
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:235
+#, fuzzy
+msgid "Site Description"
+msgstr "打印机说明"
+
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:129
+#, fuzzy
+msgid "New Site"
+msgstr "添加新的管理单元"
+
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:180
+#, fuzzy
+msgid "Site already Exists, please try again."
+msgstr "位置已经存在，请重试。"
+
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:183
+#, fuzzy
+msgid "Please enter a name for this site."
+msgstr "这个地址输入名称。"
+
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:193
+#, fuzzy
+msgid "Site Added, editing!"
+msgstr "位置添加，编辑！"
+
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:290
+#, fuzzy
+msgid "A site with that name already exists."
+msgstr "使用此名称的主机名已经存在。"
+
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:300
+#, fuzzy
+msgid "Site Updated"
+msgstr "服务更新！"
+
+#: /var/www/fog/lib/plugins/site/hooks/addsitegroup.hook.php:81
+#, fuzzy
+msgid "Site Association"
+msgstr "图像协会"
+
+#: /var/www/fog/lib/plugins/site/hooks/addsitegroup.hook.php:113
+#, fuzzy
+msgid "Site Association for"
+msgstr "图像协会"
+
+#: /var/www/fog/lib/plugins/site/hooks/addsitegroup.hook.php:133
+#, fuzzy
+msgid "Update Sites"
+msgstr "更新打印机"
+
+#: /var/www/fog/lib/plugins/site/hooks/addsiteuser.hook.php:109
+#: /var/www/fog/lib/plugins/site/hooks/addsitehost.hook.php:108
+#, fuzzy
+msgid "Associated Sites"
+msgstr "预估FOG网站"
+
+#: /var/www/fog/lib/plugins/site/hooks/addsiteuser.hook.php:116
+#, fuzzy
+msgid "Is restricted"
+msgstr "任务开始"
+
+#: /var/www/fog/lib/plugins/site/hooks/addsiteuser.hook.php:194
+#, fuzzy
+msgid "No site"
+msgstr "没有设置"
+
+#: /var/www/fog/lib/plugins/site/hooks/addsiteuser.hook.php:259
+msgid "Is Restricted User "
+msgstr ""
+
+#: /var/www/fog/lib/plugins/site/hooks/addsiteuser.hook.php:337
+#: /var/www/fog/lib/plugins/site/hooks/addsitehost.hook.php:316
+#, fuzzy
+msgid "No Site"
+msgstr "没有设置"
+
+#: /var/www/fog/lib/plugins/site/hooks/addsiteuser.hook.php:355
+#, fuzzy
+msgid "Sites"
+msgstr "分钟"
+
+#: /var/www/fog/lib/plugins/site/hooks/addsitemenuitem.hook.php:96
+#, fuzzy
+msgid "Site Manager"
+msgstr "移动管理器"
+
+#: /var/www/fog/lib/plugins/site/hooks/addsitehost.hook.php:225
+msgid "Associate Host to a Site "
+msgstr ""
 
 #: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:44
 msgid "Pushbullet Accounts"
@@ -9398,6 +9551,10 @@ msgstr "你好FOG客户端"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "有此服务器上没有的位置。"
+
+#, fuzzy
+#~ msgid "A rule with that value already exists."
+#~ msgstr "使用此名称的主机名已经存在。"
 
 #, fuzzy
 #~ msgid "Classname must be a string"

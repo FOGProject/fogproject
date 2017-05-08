@@ -2,7 +2,7 @@
 /**
  * Adds the Site menu item.
  *
- * PHP version 7
+ * PHP version 5
  *
  * @category AddSiteMenuItem
  * @package  FOGProject
@@ -10,7 +10,15 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-
+/**
+ * Adds the Site menu item.
+ *
+ * @category AddSiteMenuItem
+ * @package  FOGProject
+ * @author   Fernando Gietz <fernando.gietz@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class AddSiteMenuItem extends Hook
 {
     /**
@@ -38,6 +46,37 @@ class AddSiteMenuItem extends Hook
      */
     public $node = 'site';
     /**
+     * Initializes object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'MAIN_MENU_DATA',
+                array(
+                    $this,
+                    'menuData'
+                )
+            )
+            ->register(
+                'SEARCH_PAGES',
+                array(
+                    $this,
+                    'addSearch'
+                )
+            )
+            ->register(
+                'PAGES_WITH_OBJECTS',
+                array(
+                    $this,
+                    'addPageWithObject'
+                )
+            );
+    }
+    /**
      * The menu data to change.
      *
      * @param mixed $arguments The arguments to change.
@@ -46,7 +85,7 @@ class AddSiteMenuItem extends Hook
      */
     public function menuData($arguments)
     {
-    	if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         self::arrayInsertAfter(
@@ -68,7 +107,7 @@ class AddSiteMenuItem extends Hook
      */
     public function addSearch($arguments)
     {
-    	if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         array_push($arguments['searchPages'], $this->node);
@@ -82,33 +121,9 @@ class AddSiteMenuItem extends Hook
      */
     public function addPageWithObject($arguments)
     {
-    	if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         array_push($arguments['PagesWithObjects'], $this->node);
     }
-
 }
-$AddSiteMenuItem= new AddSiteMenuItem();
-$HookManager
-    ->register(
-        'MAIN_MENU_DATA',
-        array(
-            $AddSiteMenuItem,
-            'menuData'
-        )
-    )
-    ->register(
-        'SEARCH_PAGES',
-        array(
-            $AddSiteMenuItem,
-            'addSearch'
-        )
-    )
-    ->register(
-        'PAGES_WITH_OBJECTS',
-        array(
-        	$AddSiteMenuItem,
-            'addPageWithObject'
-        )
-	);

@@ -2,7 +2,16 @@
 /**
  * Associate Hosts to a Site.
  *
- * PHP version 7
+ * PHP version 5
+ *
+ * @category AddSiteHost
+ * @package  FOGProject
+ * @author   Fernando Gietz <fernando.gietz@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Associate Hosts to a Site.
  *
  * @category AddSiteHost
  * @package  FOGProject
@@ -17,6 +26,58 @@ class AddSiteHost extends Hook
     public $active = true;
     public $node = 'site';
     /**
+     * Initializes object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'HOST_HEADER_DATA',
+                array(
+                    $this,
+                    'hostTableHeader'
+                )
+            )
+            ->register(
+                'HOST_DATA',
+                array(
+                    $this,
+                    'hostData'
+                )
+            )
+            ->register(
+                'HOST_FIELDS',
+                array(
+                    $this,
+                    'hostFields'
+                )
+            )
+            ->register(
+                'HOST_ADD_SUCCESS',
+                array(
+                    $this,
+                    'hostAddSite'
+                )
+            )
+            ->register(
+                'HOST_EDIT_SUCCESS',
+                array(
+                    $this,
+                    'hostAddSite'
+                )
+            )
+            ->register(
+                'SUB_MENULINK_DATA',
+                array(
+                    $this,
+                    'addNotes'
+                )
+            );
+    }
+    /**
      * This function modifies the header of the user page.
      * Add one column calls 'Associated Sites'
      *
@@ -26,22 +87,22 @@ class AddSiteHost extends Hook
      */
     public function hostTableHeader($arguments)
     {
-        global $node;
-        global $sub;
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
+        global $node;
+        global $sub;
         if ($node != 'host') {
             return;
         }
         if ($sub == 'pending') {
             return;
         }
-        if (!in_array('accesscontrol', (array)$_SESSION['PluginsInstalled'])) {
-        	$insertIndex = 4;
+        if (!in_array('accesscontrol', (array)self::$pluginsinstalled)) {
+            $insertIndex = 4;
+        } else {
+            $insertIndex = 5;
         }
-        else
-        	$insertIndex = 5;
         foreach ((array)$arguments['headerData'] as $index => &$str) {
             if ($index == $insertIndex) {
                 $arguments['headerData'][$index] = _('Associated Sites');
@@ -62,7 +123,7 @@ class AddSiteHost extends Hook
     {
         global $node;
         global $sub;
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         if ($node != 'host') {
@@ -71,12 +132,11 @@ class AddSiteHost extends Hook
         if ($sub == 'pending') {
             return;
         }
-        if (!in_array('accesscontrol', (array)$_SESSION['PluginsInstalled'])) {
-        	$insertIndex = 4;
+        if (!in_array('accesscontrol', (array)self::$pluginsinstalled)) {
+            $insertIndex = 4;
+        } else {
+            $insertIndex = 5;
         }
-        else 
-        	$insertIndex = 5;
-        
         foreach ((array)$arguments['attributes'] as $index => &$str) {
             if ($index == $insertIndex) {
                 $arguments['attributes'][$index] = array();
@@ -132,7 +192,7 @@ class AddSiteHost extends Hook
     {
         global $node;
         global $sub;
-        if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         if ($node != 'host') {
@@ -160,7 +220,7 @@ class AddSiteHost extends Hook
             $sID = $Sites[0];
         }
         self::arrayInsertAfter(
-        	_('Host Product Key'),
+            _('Host Product Key'),
             $arguments['fields'],
             _('Associate Host to a Site '),
             self::getClass('SiteManager')->buildSelectBox(
@@ -178,7 +238,7 @@ class AddSiteHost extends Hook
      */
     public function hostAddSite($arguments)
     {
-    	if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         global $node;
@@ -232,7 +292,7 @@ class AddSiteHost extends Hook
      */
     public function addNotes($arguments)
     {
-    	if (!in_array($this->node, (array)$_SESSION['PluginsInstalled'])) {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         global $node;
@@ -271,47 +331,3 @@ class AddSiteHost extends Hook
         $arguments['notes'][_('Site')] = $sID;
     }
 }
-$AddSiteHost = new AddSiteHost();
-$HookManager
-    ->register(
-        'HOST_HEADER_DATA',
-        array(
-            $AddSiteHost,
-            'hostTableHeader'
-        )
-    )
-    ->register(
-        'HOST_DATA',
-        array(
-            $AddSiteHost,
-            'hostData'
-        )
-    )
-    ->register(
-        'HOST_FIELDS',
-        array(
-            $AddSiteHost,
-            'hostFields'
-        )
-    )
-    ->register(
-        'HOST_ADD_SUCCESS',
-        array(
-        	$AddSiteHost,
-            'hostAddSite'
-        )
-    )
-    ->register(
-        'HOST_EDIT_SUCCESS',
-        array(
-        	$AddSiteHost,
-            'hostAddSite'
-        )
-    )
-    ->register(
-        'SUB_MENULINK_DATA',
-        array(
-            $AddSiteHost,
-            'addNotes'
-        )
-    );
