@@ -22,6 +22,6 @@
 $fog_plugin = array();
 $fog_plugin['name'] = 'site';
 $fog_plugin['description'] = 'This plugin restricts the access to the item by site';
-$fog_plugin['menuicon'] = 'fa fa-key fa-3x fa-fw';
+$fog_plugin['menuicon'] = 'fa fa-building fa-3x fa-fw';
 $fog_plugin['menuicon_hover'] = null;
 $fog_plugin['entrypoint'] = 'html/run.php';
