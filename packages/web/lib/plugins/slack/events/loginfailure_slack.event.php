@@ -42,6 +42,19 @@ class LoginFailure_Slack extends Event
      */
     public $active = true;
     /**
+     * Initialize our object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$EventManager->register(
+            'LoginFail',
+            $this
+        );
+    }
+    /**
      * Perform action
      *
      * @param string $event the event to enact
@@ -69,7 +82,3 @@ class LoginFailure_Slack extends Event
         }
     }
 }
-$EventManager->register(
-    'LoginFail',
-    new LoginFailure_Slack()
-);

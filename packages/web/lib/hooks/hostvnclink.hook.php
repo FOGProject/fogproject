@@ -46,6 +46,30 @@ class HostVNCLink extends Hook
      */
     public $port = 5800;
     /**
+     * Iniatializes object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'HOST_DATA',
+                array(
+                    $this,
+                    'hostData'
+                )
+            )
+            ->register(
+                'HOST_HEADER_DATA',
+                array(
+                    $this,
+                    'hostTableHeader'
+                )
+            );
+    }
+    /**
      * The data to alter.
      *
      * @param mixed $arguments The items to alter.
@@ -83,19 +107,3 @@ class HostVNCLink extends Hook
         $arguments['headerData'][] = _('VNC');
     }
 }
-$HostVNCLink = new HostVNCLink();
-$HookManager
-    ->register(
-        'HOST_DATA',
-        array(
-            $HostVNCLink,
-            'hostData'
-        )
-    )
-    ->register(
-        'HOST_HEADER_DATA',
-        array(
-            $HostVNCLink,
-            'hostTableHeader'
-        )
-    );

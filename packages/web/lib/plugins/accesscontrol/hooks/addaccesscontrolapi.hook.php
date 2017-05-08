@@ -26,6 +26,37 @@ class AddAccessControlAPI extends Hook
     public $active = true;
     public $node = 'accesscontrol';
     /**
+     * Initialize object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'API_VALID_CLASSES',
+                array(
+                    $this,
+                    'injectAPIElements'
+                )
+            )
+            ->register(
+                'API_INDIVDATA_MAPPING',
+                array(
+                    $this,
+                    'adjustIndivInfoUpdate'
+                )
+            )
+            ->register(
+                'API_MASSDATA_MAPPING',
+                array(
+                    $this,
+                    'adjustMassInfo'
+                )
+            );
+    }
+    /**
      * This function injects access control elements for
      * api access.
      *
@@ -105,26 +136,3 @@ class AddAccessControlAPI extends Hook
         }
     }
 }
-$AddAccessControlAPI = new AddAccessControlAPI();
-$HookManager
-    ->register(
-        'API_VALID_CLASSES',
-        array(
-            $AddAccessControlAPI,
-            'injectAPIElements'
-        )
-    )
-    ->register(
-        'API_INDIVDATA_MAPPING',
-        array(
-            $AddAccessControlAPI,
-            'adjustIndivInfoUpdate'
-        )
-    )
-    ->register(
-        'API_MASSDATA_MAPPING',
-        array(
-            $AddAccessControlAPI,
-            'adjustMassInfo'
-        )
-    );

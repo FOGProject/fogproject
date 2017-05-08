@@ -46,6 +46,44 @@ class AddTasktypeeditMenuItem extends Hook
      */
     public $node = 'tasktypeedit';
     /**
+     * Initialize object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'MAIN_MENU_DATA',
+                array(
+                    $this,
+                    'menuData'
+                )
+            )
+            ->register(
+                'SEARCH_PAGES',
+                array(
+                    $this,
+                    'addSearch'
+                )
+            )
+            ->register(
+                'ACTIONBOX',
+                array(
+                    $this,
+                    'removeActionBox'
+                )
+            )
+            ->register(
+                'PAGES_WITH_OBJECTS',
+                array(
+                    $this,
+                    'addPageWithObject'
+                )
+            );
+    }
+    /**
      * Update the menu data.
      *
      * @param mixed $arguments The items to modify
@@ -111,33 +149,3 @@ class AddTasktypeeditMenuItem extends Hook
         array_push($arguments['PagesWithObjects'], $this->node);
     }
 }
-$AddTasktypeeditMenuItem = new AddTasktypeeditMenuItem();
-$HookManager
-    ->register(
-        'MAIN_MENU_DATA',
-        array(
-            $AddTasktypeeditMenuItem,
-            'menuData'
-        )
-    )
-    ->register(
-        'SEARCH_PAGES',
-        array(
-            $AddTasktypeeditMenuItem,
-            'addSearch'
-        )
-    )
-    ->register(
-        'ACTIONBOX',
-        array(
-            $AddTasktypeeditMenuItem,
-            'removeActionBox'
-        )
-    )
-    ->register(
-        'PAGES_WITH_OBJECTS',
-        array(
-            $AddTasktypeeditMenuItem,
-            'addPageWithObject'
-        )
-    );

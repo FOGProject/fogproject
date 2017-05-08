@@ -40,6 +40,30 @@ class RemoveIPAddressColumn extends Hook
      */
     public $active = false;
     /**
+     * Initializes object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'HOST_HEADER_DATA',
+                array(
+                    $this,
+                    'hostTableHeader'
+                )
+            )
+            ->register(
+                'HOST_DATA',
+                array(
+                    $this,
+                    'hostData'
+                )
+            );
+    }
+    /**
      * Changes the table header.
      *
      * @param mixed $arguments The items to alter.
@@ -70,19 +94,3 @@ class RemoveIPAddressColumn extends Hook
         unset($arguments['templates'][4]);
     }
 }
-$RemoveIPAddressColumn = new RemoveIPAddressColumn();
-$HookManager
-    ->register(
-        'HOST_HEADER_DATA',
-        array(
-            $RemoveIPAddressColumn,
-            'hostTableHeader'
-        )
-    )
-    ->register(
-        'HOST_DATA',
-        array(
-            $RemoveIPAddressColumn,
-            'hostData'
-        )
-    );

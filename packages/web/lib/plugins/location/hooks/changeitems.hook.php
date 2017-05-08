@@ -48,6 +48,79 @@ class ChangeItems extends Hook
      */
     public $node = 'location';
     /**
+     * Initialize object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'SNAPIN_NODE',
+                array(
+                    $this,
+                    'storageNodeSetting'
+                )
+            )
+            ->register(
+                'SNAPIN_GROUP',
+                array(
+                    $this,
+                    'storageGroupSetting'
+                )
+            )
+            ->register(
+                'BOOT_ITEM_NEW_SETTINGS',
+                array(
+                    $this,
+                    'bootItemSettings'
+                )
+            )
+            ->register(
+                'BOOT_TASK_NEW_SETTINGS',
+                array(
+                    $this,
+                    'storageGroupSetting'
+                )
+            )
+            ->register(
+                'HOST_NEW_SETTINGS',
+                array(
+                    $this,
+                    'storageNodeSetting'
+                )
+            )
+            ->register(
+                'HOST_NEW_SETTINGS',
+                array(
+                    $this,
+                    'storageGroupSetting'
+                )
+            )
+            ->register(
+                'BOOT_TASK_NEW_SETTINGS',
+                array(
+                    $this,
+                    'storageNodeSetting'
+                )
+            )
+            ->register(
+                'CHECK_NODE_MASTERS',
+                array(
+                    $this,
+                    'alterMasters'
+                )
+            )
+            ->register(
+                'CHECK_NODE_MASTER',
+                array(
+                    $this,
+                    'makeMaster'
+                )
+            );
+    }
+    /**
      * Sets up storage node.
      *
      * @param mixed $arguments The items to change.
@@ -272,78 +345,3 @@ class ChangeItems extends Hook
         $arguments['StorageNode']->set('isMaster', 1);
     }
 }
-$ChangeItems = new ChangeItems();
-$HookManager
-    ->register(
-        'SNAPIN_NODE',
-        array(
-            $ChangeItems,
-            'storageNodeSetting'
-        )
-    )
-    ->register(
-        'SNAPIN_GROUP',
-        array(
-            $ChangeItems,
-            'storageGroupSetting'
-        )
-    )
-    ->register(
-        'BOOT_ITEM_NEW_SETTINGS',
-        array(
-            $ChangeItems,
-            'bootItemSettings'
-        )
-    )
-    ->register(
-        'BOOT_TASK_NEW_SETTINGS',
-        array(
-            $ChangeItems,
-            'storageGroupSetting'
-        )
-    )
-    ->register(
-        'HOST_NEW_SETTINGS',
-        array(
-            $ChangeItems,
-            'storageNodeSetting'
-        )
-    )
-    ->register(
-        'HOST_NEW_SETTINGS',
-        array(
-            $ChangeItems,
-            'storageGroupSetting'
-        )
-    )
-    ->register(
-        'BOOT_TASK_NEW_SETTINGS',
-        array(
-            $ChangeItems,
-            'storageNodeSetting'
-        )
-    )
-    ->register(
-        'CHECK_NODE_MASTERS',
-        array(
-            $ChangeItems,
-            'alterMasters'
-        )
-    )
-    ->register(
-        'CHECK_NODE_MASTER',
-        array(
-            $ChangeItems,
-            'makeMaster'
-        )
-    );
-/**
- * $HookManager
- *     ->register(
- *         'HOST_EDIT_AFTER_SAVE',
- *         array(
- *             $ChangeItems,
- *             'hostEditAfterSave'
- *         )
- *     );
- */

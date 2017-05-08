@@ -45,13 +45,21 @@ class AddWOLBroadcastType extends Hook
      * @var string
      */
     public $node = 'wolbroadcast';
+    /**
+     * Initialize object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'REPORT_TYPES',
+                array(
+                    $this,
+                    'reportTypes'
+                )
+            );
+    }
 }
-$AddWOLBroadcastType = new AddWOLBroadcastType();
-$HookManager
-    ->register(
-        'REPORT_TYPES',
-        array(
-            $AddWOLBroadcastType,
-            'reportTypes'
-        )
-    );

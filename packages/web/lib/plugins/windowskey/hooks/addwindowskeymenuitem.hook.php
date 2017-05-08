@@ -48,6 +48,37 @@ class AddWindowsKeyMenuItem extends Hook
      */
     public $node = 'windowskey';
     /**
+     * Initialize object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'MAIN_MENU_DATA',
+                array(
+                    $this,
+                    'menuData'
+                )
+            )
+            ->register(
+                'SEARCH_PAGES',
+                array(
+                    $this,
+                    'addSearch'
+                )
+            )
+            ->register(
+                'PAGES_WITH_OBJECTS',
+                array(
+                    $this,
+                    'addPageWithObject'
+                )
+            );
+    }
+    /**
      * The menu data to change.
      *
      * @param mixed $arguments The arguments to change.
@@ -98,26 +129,3 @@ class AddWindowsKeyMenuItem extends Hook
         array_push($arguments['PagesWithObjects'], $this->node);
     }
 }
-$AddWindowsKeyMenuItem = new AddWindowsKeyMenuItem();
-$HookManager
-    ->register(
-        'MAIN_MENU_DATA',
-        array(
-            $AddWindowsKeyMenuItem,
-            'menuData'
-        )
-    )
-    ->register(
-        'SEARCH_PAGES',
-        array(
-            $AddWindowsKeyMenuItem,
-            'addSearch'
-        )
-    )
-    ->register(
-        'PAGES_WITH_OBJECTS',
-        array(
-            $AddWindowsKeyMenuItem,
-            'addPageWithObject'
-        )
-    );

@@ -46,6 +46,30 @@ class DelAccessControlMenuItem extends Hook
      */
     public $node = 'accesscontrol';
     /**
+     * Initialize object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'MAIN_MENU_DATA',
+                array(
+                    $this,
+                    'deleteMenuData'
+                )
+            )
+            ->register(
+                'SUB_MENULINK_DATA',
+                array(
+                    $this,
+                    'deleteSubMenuData'
+                )
+            );
+    }
+    /**
      * The menu data to change.
      *
      * @param mixed $arguments The arguments to change.
@@ -134,22 +158,5 @@ class DelAccessControlMenuItem extends Hook
             );
         }
         unset($AccessControlRuleAssociation);
-        //unset($arguments['menu']['list']);
     }
 }
-$DelAccessControlMenuItem = new DelAccessControlMenuItem();
-$HookManager
-    ->register(
-        'MAIN_MENU_DATA',
-        array(
-            $DelAccessControlMenuItem,
-            'deleteMenuData'
-        )
-    )
-    ->register(
-        'SUB_MENULINK_DATA',
-        array(
-            $DelAccessControlMenuItem,
-            'deleteSubMenuData'
-        )
-    );

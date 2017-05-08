@@ -56,6 +56,51 @@ class LDAPPluginHook extends Hook
      */
     public $mobile = true;
     /**
+     * Initialize object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'USER_LOGGING_IN',
+                array(
+                    $this,
+                    'checkAddUser'
+                )
+            )
+            ->register(
+                'USER_TYPE_HOOK',
+                array(
+                    $this,
+                    'setLdapType'
+                )
+            )
+            ->register(
+                'USER_TYPES_FILTER',
+                array(
+                    $this,
+                    'setTypeFilter'
+                )
+            )
+            ->register(
+                'USER_TYPE_VALID',
+                array(
+                    $this,
+                    'isLdapType'
+                )
+            )
+            ->register(
+                'USER_LOGGING_OUT',
+                array(
+                    $this,
+                    'removeLoggedInUser'
+                )
+            );
+    }
+    /**
      * Checks and creates users if they're valid
      *
      * @param mixed $arguments the item to adjust
@@ -188,40 +233,3 @@ class LDAPPluginHook extends Hook
         }
     }
 }
-$LDAPPluginHook = new LDAPPluginHook();
-$HookManager
-    ->register(
-        'USER_LOGGING_IN',
-        array(
-            $LDAPPluginHook,
-            'checkAddUser'
-        )
-    )
-    ->register(
-        'USER_TYPE_HOOK',
-        array(
-            $LDAPPluginHook,
-            'setLdapType'
-        )
-    )
-    ->register(
-        'USER_TYPES_FILTER',
-        array(
-            $LDAPPluginHook,
-            'setTypeFilter'
-        )
-    )
-    ->register(
-        'USER_TYPE_VALID',
-        array(
-            $LDAPPluginHook,
-            'isLdapType'
-        )
-    )
-    ->register(
-        'USER_LOGGING_OUT',
-        array(
-            $LDAPPluginHook,
-            'removeLoggedInUser'
-        )
-    );

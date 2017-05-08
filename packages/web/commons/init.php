@@ -151,40 +151,11 @@ class Initiator
                 get_include_path()
             )
         );
+        spl_autoload_extensions('.class.php,.event.php,.hook.php,.report.php');
         /**
          * Pass our autoloaded items through our custom loader method.
          */
-        spl_autoload_register(
-            function ($className) {
-                /**
-                 * Sanity check, if the classname is not a string fail.
-                 */
-                if (!is_string($className)) {
-                    throw new Exception(_('Classname must be a string'));
-                }
-                /**
-                 * If the class exists, we know it's already been loaded.
-                 * Return as we don't need to do anything.
-                 */
-                if (class_exists($className, false)) {
-                    return;
-                }
-                /**
-                 * Ensure the event and hook managers are available.
-                 * Really only needed for the respective class but
-                 * doesn't hurt to have in either case.
-                 */
-                global $EventManager;
-                global $HookManager;
-                /**
-                 * Load the class.
-                 */
-                spl_autoload(
-                    $className,
-                    '.class.php,.event.php,.hook.php,.report.php'
-                );
-            }
-        );
+        spl_autoload_register();
         /**
          * If we are not a service file
          * and we have a user agent string

@@ -40,6 +40,23 @@ class ChangeTableHeader extends Hook
      */
     public $active = false;
     /**
+     * Initializes object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'HOST_HEADER_DATA',
+                array(
+                    $this,
+                    'hostTableHeader'
+                )
+            );
+    }
+    /**
      * Changes the table header.
      *
      * @param mixed $arguments The items to alter.
@@ -55,11 +72,3 @@ class ChangeTableHeader extends Hook
         $arguments['headerData'][3] = 'Chicken Sandwiches';
     }
 }
-$HookManager
-    ->register(
-        'HOST_HEADER_DATA',
-        array(
-            new ChangeTableHeader(),
-            'hostTableHeader'
-        )
-    );

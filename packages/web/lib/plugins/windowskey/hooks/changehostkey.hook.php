@@ -50,6 +50,23 @@ class ChangeHostKey extends Hook
      */
     public $node = 'windowskey';
     /**
+     * Initialize object.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        self::$HookManager
+            ->register(
+                'HOST_TASKING_COMPLETE',
+                array(
+                    $this,
+                    'changeHostProductKey'
+                )
+            );
+    }
+    /**
      * Changes the host's product key
      *
      * @param mixed $arguments The arguments to change.
@@ -98,12 +115,3 @@ class ChangeHostKey extends Hook
             )->save();
     }
 }
-$ChangeHostKey = new ChangeHostKey();
-$HookManager
-    ->register(
-        'HOST_TASKING_COMPLETE',
-        array(
-            $ChangeHostKey,
-            'changeHostProductKey'
-        )
-    );
