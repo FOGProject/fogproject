@@ -439,9 +439,9 @@ configureTFTPandPXE() {
     cd $workingdir
     chown -R $username $tftpdirdst >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     chown -R $username $webdirdest/service/ipxe >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    find $tftpdirdst -type d -exec chmod 755 {} \;
-    find $webdirdest -type d -exec chmod 755 {} \;
-    find $tftpdirdst ! -type d -exec chmod 655 {} \;
+    find $tftpdirdst -type d -exec chmod 755 {} \; >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    find $webdirdest -type d -exec chmod 755 {} \; >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    find $tftpdirdst ! -type d -exec chmod 655 {} \; >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     configureDefaultiPXEfile
     if [[ -f $tftpconfig ]]; then
         cp -Rf $tftpconfig ${tftpconfig}.fogbackup >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -530,7 +530,7 @@ configureMinHttpd() {
     echo "die(_('This is a storage node, please do not access the web ui here!'));" >> "$webdirdest/management/index.php"
 }
 addUbuntuRepo() {
-    find /etc/apt/sources.list.d/ -name '*ondrej*' -exec rm -rf {} \; >/dev/null 2>&1
+    find /etc/apt/sources.list.d/ -name '*ondrej*' -exec rm -rf {} \; >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     DEBIAN_FRONTEND=noninteractive $packageinstaller python-software-properties software-properties-common >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     ntpdate pool.ntp.org >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     add-apt-repository -y ppa:ondrej/$repo >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -1055,10 +1055,10 @@ linkOptFogDir() {
     local element='httpd'
     [[ $osid -eq 2 ]] && element='apache2'
     chmod -R 755 /var/log/$element >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    for i in $(find /var/log/ -type d -name 'php*fpm*'); do
+    for i in $(find /var/log/ -type d -name 'php*fpm*' 2>>$workingdir/error_logs/fog_error_${version}.log); do
         chmod -R 755 $i >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     done
-    for i in $(find /var/log/ -type f -name 'php*fpm*'); do
+    for i in $(find /var/log/ -type f -name 'php*fpm*' 2>>$workingdir/error_logs/fog_error_${version}.log); do
         chmod -R 755 $i >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     done
 }
@@ -1732,7 +1732,7 @@ configureHttpd() {
             cp -Rf ${backupPath}/fog_web_${version}.BACKUP/* $webdirdest/
             errorStat $?
             dots "Ensuring all classes are lowercased"
-            for i in $(find $webdirdest -type f -name "*[A-Z]*\.class\.php" -o -name "*[A-Z]*\.event\.php" -o -name "*[A-Z]*\.hook\.php"); do
+            for i in $(find $webdirdest -type f -name "*[A-Z]*\.class\.php" -o -name "*[A-Z]*\.event\.php" -o -name "*[A-Z]*\.hook\.php" 2>>$workingdir/error_logs/fog_error_${version}.log); do
                 mv "$i" "$(echo $i | tr A-Z a-z)" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             done
             errorStat $?
@@ -1741,13 +1741,13 @@ configureHttpd() {
     dots "Copying new files to web folder"
     cp -Rf $webdirsrc/* $webdirdest/
     errorStat $?
-    for i in $(find $backupPath/fog_web_${version}.BACKUP/management/other/ -maxdepth 1 -type f -not -name gpl-3.0.txt -a -not -name index.php -a -not -name 'ca.*'); do
+    for i in $(find $backupPath/fog_web_${version}.BACKUP/management/other/ -maxdepth 1 -type f -not -name gpl-3.0.txt -a -not -name index.php -a -not -name 'ca.*' 2>>$workingdir/error_logs/fog_error_${version}.log); do
         cp -Rf $i ${webdirdest}/management/other/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     done
     if [[ $installlang -eq 1 ]]; then
         dots "Creating the language binaries"
         langpath="${webdirdest}/management/languages"
-        languagesfound=$(find $langpath -maxdepth 1 -type d -exec basename {} \; | awk -F. '/\./ {print $1}')
+        languagesfound=$(find $langpath -maxdepth 1 -type d -exec basename {} \; | awk -F. '/\./ {print $1}' 2>>$workingdir/error_logs/fog_error_${version}.log)
         languagemogen "$languagesfound" "$langpath"
         echo "Done"
     fi
