@@ -10,7 +10,15 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-
+/**
+ * Site plugin
+ *
+ * @category SiteAssocManager
+ * @package  FOGProject
+ * @author   Fernando Gietz <fernando.gietz@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class SiteUserAssociationManager extends FOGManagerController
 {
     /**
@@ -33,26 +41,26 @@ class SiteUserAssociationManager extends FOGManagerController
             array(
                 'suaID',
                 'suaName',
-            	'suaSiteID',
-            	'suaUserID',
+                'suaSiteID',
+                'suaUserID',
             ),
             array(
                 'INTEGER',
                 'VARCHAR(60)',
-            	'INTEGER',
-            	'INTEGER',
+                'INTEGER',
+                'INTEGER',
             ),
             array(
                 false,
                 false,
-            	false,
-            	false,
+                false,
+                false,
             ),
             array(
                 false,
                 false,
-            	false,
-            	false,
+                false,
+                false,
             ),
             array(),
             'MyISAM',
@@ -66,10 +74,14 @@ class SiteUserAssociationManager extends FOGManagerController
         //return true;
         return self::getClass('SiteUserRestrictionManager')->install();
     }
-    
+    /**
+     * Uninstalls plugin.
+     *
+     * @return void
+     */
     public function uninstall()
     {
-    	self::getClass('SiteUserRestrictionManager')->uninstall();
-    	return parent::uninstall();
+        self::getClass('SiteUserRestrictionManager')->uninstall();
+        return parent::uninstall();
     }
 }

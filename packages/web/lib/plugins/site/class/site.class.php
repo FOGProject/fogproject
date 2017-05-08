@@ -2,15 +2,23 @@
 /**
  * Site Control plugin
  *
- * PHP version 7
+ * PHP version 5
  *
- * @category site
+ * @category Site
  * @package  FOGProject
  * @author   Fernando Gietz <fernando.gietz@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-
+/**
+ * Site Control plugin
+ *
+ * @category Site
+ * @package  FOGProject
+ * @author   Fernando Gietz <fernando.gietz@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class Site extends FOGController
 {
     /**
@@ -27,7 +35,7 @@ class Site extends FOGController
     protected $databaseFields = array(
         'id' => 'sID',
         'name' => 'sName',
-    	'description' => 'sDesc'
+        'description' => 'sDesc'
     );
     /**
      * The required fields.
@@ -44,12 +52,12 @@ class Site extends FOGController
      * @var array
      */
     protected $additionalFields = array(
-    		'description',
-    		'users',
-    		'usersnotinme',
-    		'hosts',
+        'description',
+        'users',
+        'usersnotinme',
+        'hosts',
     );
-    
+
     /**
      * Add user to site.
      *
@@ -59,11 +67,11 @@ class Site extends FOGController
      */
     public function addUser($addArray)
     {
-    	return $this->addRemItem(
-    			'users',
-    			(array)$addArray,
-    			'merge'
-    			);
+        return $this->addRemItem(
+            'users',
+            (array)$addArray,
+            'merge'
+        );
     }
     /**
      * Remove user from site.
@@ -74,11 +82,11 @@ class Site extends FOGController
      */
     public function removeUser($removeArray)
     {
-    	return $this->addRemItem(
-    			'users',
-    			(array)$removeArray,
-    			'diff'
-    			);
+        return $this->addRemItem(
+            'users',
+            (array)$removeArray,
+            'diff'
+        );
     }
     /**
      * Remove host from site.
@@ -89,11 +97,11 @@ class Site extends FOGController
      */
     public function removeHost($removeArray)
     {
-    	return $this->addRemItem(
-    			'hosts',
-    			(array)$removeArray,
-    			'diff'
-    			);
+        return $this->addRemItem(
+            'hosts',
+            (array)$removeArray,
+            'diff'
+        );
     }
     /**
      * Stores/updates the site
@@ -102,11 +110,11 @@ class Site extends FOGController
      */
     public function save()
     {
-    	parent::save();
-    	return $this
-    	->assocSetter('SiteUserAssociation', 'user',true)
-    	->assocSetter('SiteHostAssociation', 'host',true)
-    	->load();
+        parent::save();
+        return $this
+            ->assocSetter('SiteUserAssociation', 'user', true)
+            ->assocSetter('SiteHostAssociation', 'host', true)
+            ->load();
     }
     /**
      * Load users
@@ -115,16 +123,16 @@ class Site extends FOGController
      */
     protected function loadUsers()
     {
-    	$associds = self::getSubObjectIDs(
-    			'SiteUserAssociation',
-    			array('siteID' => $this->get('id')),
-    			'userID'
-    			);
-    	$userids = self::getSubObjectIDs(
-    			'User',
-    			array('id' => $associds)
-    			);
-    	$this->set('users', $userids);
+        $associds = self::getSubObjectIDs(
+            'SiteUserAssociation',
+            array('siteID' => $this->get('id')),
+            'userID'
+        );
+        $userids = self::getSubObjectIDs(
+            'User',
+            array('id' => $associds)
+        );
+        $this->set('users', $userids);
     }
     /**
      * Load items not with this object
@@ -133,52 +141,54 @@ class Site extends FOGController
      */
     protected function loadUsersnotinme()
     {
-    	$find = array('id' => $this->get('users'));
-    	$userids = self::getSubObjectIDs(
-    			'User',
-    			$find,
-    			'id',
-    			true
-    			);
-    	$types = array();
-    	self::$HookManager->processEvent(
-    			'USER_TYPES_FILTER',
-    			array('types' => &$types)
-    			);
-    	$users = array();
-    	foreach ((array)self::getClass('UserManager')
-    			->find(array('id' => $userids)) as &$User
-    			) {
-    				if (in_array($User->get('type'), $types)) {
-    					continue;
-    				}
-    				$users[] = $User->get('id');
-    				unset($User);
-    			}
-    			unset($userids, $types);
-    			$this->set('usersnotinme', $users);
+        $find = array('id' => $this->get('users'));
+        $userids = self::getSubObjectIDs(
+            'User',
+            $find,
+            'id',
+            true
+        );
+        $types = array();
+        self::$HookManager->processEvent(
+            'USER_TYPES_FILTER',
+            array('types' => &$types)
+        );
+        $users = array();
+        foreach ((array)self::getClass('UserManager')
+            ->find(array('id' => $userids)) as &$User
+        ) {
+            if (in_array($User->get('type'), $types)) {
+                continue;
+            }
+            $users[] = $User->get('id');
+            unset($User);
+        }
+        unset($userids, $types);
+        $this->set('usersnotinme', $users);
     }
     /**
      * Load hosts
      * 
+     * @param mixed $ids The ids to pass in.
+     *
      * @return void
      */
-    public function loadHosts($ids=NULL)
+    public function loadHosts($ids = null)
     {
-    	if (is_null($ids))
-    		$siteIDs = $this->get('id');
-    	else 
-    		$siteIDs = $ids;
-    	$associds = self::getSubObjectIDs(
-    			'SiteHostAssociation',
-    			array('siteID' => $siteIDs),
-    			'hostID'
-    			);
-    	$hostids = self::getSubObjectIDs(
-    			'Host',
-    			array('id' => $associds)
-    			);
-    	$this->set('hosts', $hostids);
+        if (is_null($ids)) {
+            $siteIDs = $this->get('id');
+        } else {
+            $siteIDs = $ids;
+        }
+        $associds = self::getSubObjectIDs(
+            'SiteHostAssociation',
+            array('siteID' => $siteIDs),
+            'hostID'
+        );
+        $hostids = self::getSubObjectIDs(
+            'Host',
+            array('id' => $associds)
+        );
+        $this->set('hosts', $hostids);
     }
-    
 }
