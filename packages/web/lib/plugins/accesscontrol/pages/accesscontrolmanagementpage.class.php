@@ -49,6 +49,8 @@ class AccessControlManagementPage extends FOGPage
         global $node;
         global $sub;
         global $id;
+        self::$foglang['ExportAccesscontrol'] = _('Export Accesscontrols');
+        self::$foglang['ImportAccesscontrol'] = _('Import Accesscontrols');
         /**
          * Customize our settings as needed.
          */
@@ -234,6 +236,8 @@ class AccessControlManagementPage extends FOGPage
             'addRole' => sprintf(_('Add new role')),
             'ruleList' => sprintf(_('List all rules')),
             'addRule' => sprintf(_('Add new rule')),
+            'export' => $this->menu['export'],
+            'import' => $this->menu['import']
         );
     }
     /**
@@ -970,7 +974,7 @@ class AccessControlManagementPage extends FOGPage
             );
             $this->render();
             printf(
-                '</div><br/><p class="c"><input type ="submit" '
+                '</div><br/><p class="c"><input type="submit" '
                 . 'value="%s %s(s) %s %s" name="addRules"/></p><br/>',
                 _('Add'),
                 _('rule'),

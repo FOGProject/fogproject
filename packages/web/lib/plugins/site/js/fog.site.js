@@ -18,12 +18,12 @@ $(function() {
         }
         $('input[name="accesscontrolruleIDArray"]').val(accesscontrolruleIDArray.join(','));
     });
-    $('#ruleMeShow:checkbox').change(function(e) {
-        if ($(this).is(':checked')) $('#ruleNotInMe').show();
-        else $('#ruleNotInMe').hide();
+    $('#hostMeShow:checkbox').change(function(e) {
+        if ($(this).is(':checked')) $('#hostNotInMe').show();
+        else $('#hostNotInMe').hide();
         e.preventDefault();
     });
-    $('#ruleMeShow:checkbox').trigger('change');
+    $('#hostMeShow:checkbox').trigger('change');
     checkboxAssociations('.toggle-checkboxuser:checkbox','.toggle-user:checkbox');
-    checkboxAssociations('.toggle-checkboxrule:checkbox','.toggle-rule:checkbox');
+    checkboxAssociations('.toggle-checkboxhost:checkbox','.toggle-host:checkbox');
 });

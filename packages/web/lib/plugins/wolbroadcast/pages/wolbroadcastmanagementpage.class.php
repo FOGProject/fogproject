@@ -37,8 +37,8 @@ class WOLBroadcastManagementPage extends FOGPage
     public function __construct($name = '')
     {
         $this->name = 'WOL Broadcast Management';
-        self::$foglang['ExportLocation'] = _('Export Locations');
-        self::$foglang['ImportLocation'] = _('Import Locations');
+        self::$foglang['ExportWolbroadcast'] = _('Export WOLBroadcasts');
+        self::$foglang['ImportWolbroadcast'] = _('Import WOLBroadcasts');
         parent::__construct($this->name);
         global $id;
         if ($id) {
