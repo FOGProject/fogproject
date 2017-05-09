@@ -39,8 +39,23 @@ class WindowsKeyManagementPage extends FOGPage
     public function __construct($name = '')
     {
         $this->name = 'Windows Key Management';
-        parent::__construct($this->name);
+        /**
+         * Add this page to the PAGES_WITH_OBJECTS hook event.
+         */
+        self::$HookManager->processEvent(
+            'PAGES_WITH_OBJECTS',
+            array('PagesWithObjects' => &$this->PagesWithObjects)
+        );
+        /**
+         * Get our $_GET['node'], $_GET['sub'], and $_GET['id']
+         * in a nicer to use format.
+         */
+        global $node;
+        global $sub;
         global $id;
+        self::$foglang['ExportWindowskey'] = _('Export Windows Keys');
+        self::$foglang['ImportWindowskey'] = _('Import Windows Keys');
+        parent::__construct($this->name);
         if ($id) {
             $this->subMenu = array(
                 "$this->linkformat" => self::$foglang['General'],

@@ -56,8 +56,8 @@ class Site extends FOGController
         'users',
         'usersnotinme',
         'hosts',
+        'hostsnotinme'
     );
-
     /**
      * Add user to site.
      *
@@ -86,6 +86,21 @@ class Site extends FOGController
             'users',
             (array)$removeArray,
             'diff'
+        );
+    }
+    /**
+     * Add host to site.
+     *
+     * @param array $addArray The hosts to add.
+     *
+     * @return object
+     */
+    public function addHost($addArray)
+    {
+        return $this->addRemItem(
+            'hosts',
+            (array)$addArray,
+            'merge'
         );
     }
     /**
@@ -190,5 +205,36 @@ class Site extends FOGController
             array('id' => $associds)
         );
         $this->set('hosts', $hostids);
+    }
+    /**
+     * Load hosts not in this object.
+     * 
+     * @param mixed $ids The ids to pass in.
+     *
+     * @return void
+     */
+    public function loadHostsnotinme($ids = null)
+    {
+        if (is_null($ids)) {
+            $siteIDs = $this->get('id');
+        } else {
+            $siteIDs = $ids;
+        }
+        $associds = self::getSubObjectIDs(
+            'SiteHostAssociation',
+            array('siteID' => $siteIDs),
+            'hostID'
+        );
+        $hostids = self::getSubObjectIDs(
+            'Host',
+            array('id' => $associds)
+        );
+        $hostids = self::getSubObjectIDs(
+            'Host',
+            array('id' => $hostids),
+            'id',
+            true
+        );
+        $this->set('hostsnotinme', $hostids);
     }
 }

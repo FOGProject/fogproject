@@ -49,11 +49,9 @@ class SiteManagementPage extends FOGPage
         global $node;
         global $sub;
         global $id;
-
         self::$foglang['ExportSite'] = _('Export Sites');
         self::$foglang['ImportSite'] = _('Import Sites');
         parent::__construct($this->name);
-
         if ($id) {
             $this->subMenu = array(
                 "$this->linkformat" => self::$foglang['General'],
@@ -318,44 +316,102 @@ class SiteManagementPage extends FOGPage
     public function assocHost()
     {
         $this->data = array();
-        $this->title = sprintf(
-            '%s to %s',
-            _('Hosts Associated'),
-            $this->obj->get('name')
+        echo '<!-- Host membership -->';
+        printf(
+            '<div id="%s-membership">',
+            $this->node
         );
         $this->headerData = array(
-            sprintf(
-                '<input type="checkbox" name="toggle-checkboxhost"'
-                . 'class="toggle-checkboxhost"/>',
-                $this->node
-            ),
+            '<input type="checkbox" name="toggle-checkboxhost"'
+            . 'class="toggle-checkboxhost"/>',
             _('Host')
         );
         $this->templates = array(
-            '<input type="checkbox" name="hostdel[]" value="${host_id}" '
+            '<input type="checkbox" name="host[]" value="${host_id}" '
             . 'class="toggle-host"/>',
             sprintf(
-                '<a href="?node=%s&sub=edit&id=${host_id}" '
+                '<a href="?node=%ssub=edit&id=${host_id}" '
                 . 'title="%s: ${host_name}">${host_name}</a>',
                 'host',
                 _('Edit')
-            ),
+            )
         );
         $this->attributes = array(
             array(
                 'width' => 16,
                 'class' => 'l filter-false',
             ),
-            array('class' => 'c')
+            array()
         );
-        foreach ($this->obj->get('hosts') as &$HostID
+        foreach ((array)self::getClass('HostManager')
+            ->find(
+                array('id' => $this->obj->get('hostsnotinme'))
+            ) as &$Host
         ) {
-            $Host = new Host($HostID);
             $this->data[] = array(
                 'host_id' => $Host->get('id'),
                 'host_name' => $Host->get('name'),
             );
-            unset($Host, $HostID);
+            unset($Host);
+        }
+        if (count($this->data) > 0) {
+            self::$HookManager
+                ->processEvent(
+                    'SITE_ASSOCHOST_NOT_IN_ME',
+                    array(
+                        'headerData' => &$this->headerData,
+                        'data' => &$this->data,
+                        'templates' => &$this->templates,
+                        'attributes' => &$this->attributes
+                    )
+                );
+            printf(
+                '<form method="post" action="%s"><label for="hostMeShow">'
+                . '<p class="c"> %s %s&nbsp;&nbsp;<input '
+                . 'type="checkbox" name="hostMeShow" id="hostMeShow"/>'
+                . '</p></label><div id="hostNotInMe"><h2>%s %s</h2>',
+                $this->formAction,
+                _('Check here to see hosts not within this'),
+                $this->node,
+                _('Modify site membership for'),
+                $this->obj->get('name')
+            );
+            $this->render();
+            printf(
+                '</div><br/><p class="c"><input type="submit" '
+                . 'value="%s %s(s) %s %s" name="addHosts"/></p><br/>',
+                _('Add'),
+                _('host'),
+                _('to'),
+                $this->node
+            );
+        }
+        $this->data = array();
+        $this->headerData = array(
+            '<input type="checkbox" name="toggle-checkbox" '
+            . 'class="toggle-checkboxAction"/>',
+            _('Host')
+        );
+        $this->templates = array(
+            '<input type="checkbox" name="hostdel[]" value="${host_id}" '
+            . 'class="toggle-action"/>',
+            sprintf(
+                '<a href="?node=%ssub=edit&id=${host_id}" '
+                . 'title="%s: ${host_name}">${host_name}</a>',
+                'host',
+                _('Edit')
+            )
+        );
+        foreach ((array)self::getClass('HostManager')
+            ->find(
+                array('id' => $this->obj->get('hosts'))
+            ) as &$Host
+        ) {
+            $this->data[] = array(
+                'host_id' => $Host->get('id'),
+                'host_name' => $Host->get('name'),
+            );
+            unset($Host);
         }
         self::$HookManager
             ->processEvent(
@@ -393,7 +449,6 @@ class SiteManagementPage extends FOGPage
     {
         $this->membershipPost();
     }
-
     /**
      * Custom membership method.
      *
@@ -553,7 +608,9 @@ class SiteManagementPage extends FOGPage
         if (isset($_REQUEST['remusers'])) {
             $this->obj->removeUser($_REQUEST['userdel']);
         }
-
+        if (isset($_REQUEST['addHosts'])) {
+            $this->obj->addHost($_REQUEST['host']);
+        }
         if (isset($_REQUEST['remhost'])) {
             $this->obj->removeHost($_REQUEST['hostdel']);
         }
