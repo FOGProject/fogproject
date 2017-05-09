@@ -44,7 +44,34 @@ class SiteHostAssociation extends FOGController
      * @var array
      */
     protected $databaseFieldsRequired = array(
-        'shaID',
-        'shaName',
+        'id',
+        'hostID',
+        'siteID'
+    );
+    /**
+     * The additional fields.
+     *
+     * @var array
+     */
+    protected $additionalFields = array(
+        'host',
+        'site'
+    );
+    /**
+     * Database -> Class field relationships
+     *
+     * @var array
+     */
+    protected $databaseFieldClassRelationships = array(
+        'Host' => array(
+            'id',
+            'hostID',
+            'host'
+        ),
+        'Site' => array(
+            'id',
+            'siteID',
+            'site'
+        )
     );
 }
