@@ -8,8 +8,6 @@ $(function() {
         }
         $('input[name="accesscontrolIDArray"]').val(accesscontrolIDArray.join(','));
     });
-    $('#action-box').show();
-    $('#action-boxdel').show();
     $('#action-box').submit(function() {
         var checked = $('input.toggle-action:checked');
         var accesscontrolruleIDArray = new Array();
