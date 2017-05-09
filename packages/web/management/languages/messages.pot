@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-09 15:15-0400\n"
+"POT-Creation-Date: 2017-05-09 19:08-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5514,8 +5514,8 @@ msgstr ""
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:495
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:515
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:558
-#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:670
-#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:823
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:674
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:827
 #: /var/www/fog/commons/text.php:131
 msgid "Plugin"
 msgstr ""
@@ -6416,7 +6416,7 @@ msgstr ""
 
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:420
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:520
-#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:827
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:831
 msgid "Filter"
 msgstr ""
 
@@ -6444,21 +6444,21 @@ msgstr ""
 msgid "No access is allowed"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:672
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:676
 msgid "Group Search DN did not return any results"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:673
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:677
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:174
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:472
 msgid "Group Search DN"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:825
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:829
 msgid "Search Method"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:829
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:833
 msgid "Result"
 msgstr ""
 

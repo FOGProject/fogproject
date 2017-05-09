@@ -596,6 +596,10 @@ class LDAP extends FOGController
          * Use search base where the groups are located
          */
         $grpSearchDN = $this->get('grpSearchDN');
+        if (!$grpSearchDN) {
+            $parsedDN = $this->_ldapParseDn($userDN);
+            $grpSearchDN = 'dc='.implode(',dc=', $parsedDN['DC']);
+        }
         /**
          * Setup our new filter
          */
