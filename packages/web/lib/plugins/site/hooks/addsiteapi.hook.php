@@ -109,7 +109,6 @@ class AddSiteAPI extends Hook
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
-        var_dump($arguments['classname']);
         switch ($arguments['classname']) {
         case 'site':
             $arguments['data'][$arguments['classname'].'s'] = array();
@@ -119,8 +118,8 @@ class AddSiteAPI extends Hook
                 $arguments['data'][$arguments['classname'].'s'][] = self::fastmerge(
                     $Site->get(),
                     array(
-                        'hosts' => $Site->get('hosts'),
-                        'users' => $Site->get('users')
+                        'hosts' => array_map('intval', $Site->get('hosts')),
+                        'users' => array_map('intval', $Site->get('users'))
                     )
                 );
                 $arguments['data']['count']++;
