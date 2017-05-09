@@ -549,7 +549,7 @@ class SiteManagementPage extends FOGPage
             sprintf(
                 '<a href="?node=%s&sub=edit&id=${user_id}" '
                 . 'title="%s: ${user_name}">${user_name}</a>',
-                $this->node,
+                'user',
                 _('Edit')
             ),
             '${friendly}'
