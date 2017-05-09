@@ -43,6 +43,27 @@ class SiteUserRestriction extends FOGController
      * @var array
      */
     protected $databaseFieldsRequired = array(
-        'surID',
+        'id',
+        'userID'
+    );
+    /**
+     * Additional fields.
+     *
+     * @var array
+     */
+    protected $additionalFields = array(
+        'user'
+    );
+    /**
+     * Database -> Class field relationships
+     *
+     * @var array
+     */
+    protected $databaseFieldClassRelationships = array(
+        'User' => array(
+            'id',
+            'userID',
+            'user'
+        )
     );
 }

@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * @category AddAccessControlAPI
+ * @category AddSiteAPI
  * @package  FOGProject
  * @author   Fernando Gietz <fernando.gietz@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
@@ -13,18 +13,18 @@
 /**
  * Injects access control stuff into the api system.
  *
- * @category AddAccessControlAPI
+ * @category AddSiteAPI
  * @package  FOGProject
  * @author   Fernando Gietz <fernando.gietz@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class AddAccessControlAPI extends Hook
+class AddSiteAPI extends Hook
 {
-    public $name = 'AddAccessControlAPI';
-    public $description = 'Add AccessControl stuff into the api system.';
+    public $name = 'AddSiteAPI';
+    public $description = 'Add Site stuff into the api system.';
     public $active = true;
-    public $node = 'accesscontrol';
+    public $node = 'site';
     /**
      * Initialize object.
      *
@@ -39,6 +39,13 @@ class AddAccessControlAPI extends Hook
                 array(
                     $this,
                     'injectAPIElements'
+                )
+            )
+            ->register(
+                'API_GETTER',
+                array(
+                    $this,
+                    'adjustGetter'
                 )
             )
             ->register(
@@ -57,7 +64,7 @@ class AddAccessControlAPI extends Hook
             );
     }
     /**
-     * This function injects access control elements for
+     * This function injects site elements for
      * api access.
      *
      * @param mixed $arguments The arguments to modify.
@@ -72,10 +79,8 @@ class AddAccessControlAPI extends Hook
         $arguments['validClasses'] = self::fastmerge(
             $arguments['validClasses'],
             array(
-                'accesscontrol',
-                'accesscontrolassociation',
-                'accesscontrolrule',
-                'accesscontrolruleassociation'
+                'site',
+                'sitehostassociation'
             )
         );
     }
@@ -91,14 +96,6 @@ class AddAccessControlAPI extends Hook
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
-        switch ($arguments['classname']) {
-        case 'accesscontrol':
-            $arguments['data'] = $arguments['class']->get();
-            break;
-        case 'accesscontrolassociation':
-            $arguments['data'] = $arguments['class']->get();
-            break;
-        }
     }
     /**
      * This function changes the api data map as needed.
@@ -112,17 +109,54 @@ class AddAccessControlAPI extends Hook
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
-        foreach ($arguments['classman']->find() as &$class) {
-            switch ($arguments['classname']) {
-            case 'accesscontrol':
-                $arguments['data'] = array();
-                $arguments['data'][$arguments['classname'].'s'][] = $class->get();
-                break;
-            case 'accesscontrolassociation':
-                $arguments['data'] = array();
-                $arguments['data'][$arguments['classname'].'s'][] = $class->get();
-                break;
+        var_dump($arguments['classname']);
+        switch ($arguments['classname']) {
+        case 'site':
+            $arguments['data'][$arguments['classname'].'s'] = array();
+            $arguments['data']['count'] = 0;
+            $find = Route::getsearchbody($arguments['classname']);
+            foreach ((array)$arguments['classman']->find($find) as &$Site) {
+                $arguments['data'][$arguments['classname'].'s'][] = self::fastmerge(
+                    $Site->get(),
+                    array(
+                        'hosts' => $Site->get('hosts'),
+                        'users' => $Site->get('users')
+                    )
+                );
+                $arguments['data']['count']++;
+                unset($Site);
             }
+            break;
+        }
+    }
+    /**
+     * This function changes the getter to enact on this particular item.
+     *
+     * @param mixed $arguments The arguments to modify.
+     *
+     * @return void
+     */
+    public function adjustGetter($arguments)
+    {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
+            return;
+        }
+        switch ($arguments['classname']) {
+        case 'sitehostassociation':
+            $arguments['data'] = FOGCore::fastmerge(
+                $arguments['class']->get(),
+                array(
+                    'site' => Route::getter(
+                        'site',
+                        $arguments['class']->get('site')
+                    ),
+                    'host' => Route::getter(
+                        'host',
+                        $arguments['class']->get('host')
+                    )
+                )
+            );
+            break;
         }
     }
 }
