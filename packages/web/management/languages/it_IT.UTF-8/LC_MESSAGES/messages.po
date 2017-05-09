@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-09 08:49-0400\n"
+"POT-Creation-Date: 2017-05-09 19:08-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -5544,8 +5544,8 @@ msgstr "Impossibile determinare i dettagli plugin."
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:495
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:515
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:558
-#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:670
-#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:823
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:674
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:827
 #: /var/www/fog/commons/text.php:131
 msgid "Plugin"
 msgstr "Collegare"
@@ -6452,7 +6452,7 @@ msgstr "Search DN"
 
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:420
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:520
-#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:827
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:831
 msgid "Filter"
 msgstr "Filtro"
 
@@ -6480,21 +6480,21 @@ msgstr "Il livello di accesso è ancora 0 o falso"
 msgid "No access is allowed"
 msgstr "Nessun accesso è consentito"
 
-#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:672
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:676
 msgid "Group Search DN did not return any results"
 msgstr "Ricerca nel gruppo DN non ha restituito alcun risultato"
 
-#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:673
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:677
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:174
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:472
 msgid "Group Search DN"
 msgstr "Ricerca gruppo DN"
 
-#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:825
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:829
 msgid "Search Method"
 msgstr "Metodo di ricerca"
 
-#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:829
+#: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:833
 msgid "Result"
 msgstr "Risultati"
 
