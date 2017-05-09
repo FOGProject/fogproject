@@ -43,8 +43,8 @@ class LDAPManagementPage extends FOGPage
     public function __construct($name = '')
     {
         $this->name = 'LDAP Management';
-        self::$foglang['ExportLDAP'] = _('Export LDAPs');
-        self::$foglang['ImportLDAP'] = _('Import LDAPs');
+        self::$foglang['ExportLdap'] = _('Export LDAPs');
+        self::$foglang['ImportLdap'] = _('Import LDAPs');
         parent::__construct($name);
         global $id;
         if ($id) {
