@@ -80,7 +80,6 @@ class AccessControlRuleAssociationManager extends FOGManagerController
     
     public function uninstall()
     {
-    	self::getClass('AccessControlLocationAssociationManager')->uninstall();
     	return parent::uninstall();
     }
 }
