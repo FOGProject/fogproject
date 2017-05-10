@@ -2405,14 +2405,14 @@ abstract class FOGPage extends FOGBase
                             _('Error: Failed to open temp file')
                         );
                     }
-                    $test = self::$FOGURLRequests
+                    /*$test = self::$FOGURLRequests
                         ->isAvailable($_SESSION['dl-kernel-file']);
                     $test = array_shift($test);
                     if (false === $test) {
                         throw new Exception(
                             _('Error: Failed to connect to server')
                         );
-                    }
+                    }*/
                     self::$FOGURLRequests->process(
                         $_SESSION['dl-kernel-file'],
                         'GET',
@@ -2442,7 +2442,7 @@ abstract class FOGPage extends FOGBase
                             )
                         );
                     }
-                    $SendME = '##OK##';
+                    die('##OK##');
                 } elseif ($_REQUEST['msg'] == 'tftp') {
                     $destfile = $_SESSION['dest-kernel-file'];
                     $tmpfile = $_SESSION['tmp-kernel-file'];
@@ -2503,14 +2503,13 @@ abstract class FOGPage extends FOGBase
                         ->chmod(0755, $orig)
                         ->close();
                     unlink($tmpfile);
-                    $SendME = '##OK##';
+                    die('##OK##');
                 }
             }
         } catch (Exception $e) {
             echo $e->getMessage();
         }
         self::$FOGFTP->close();
-        echo $SendME;
     }
     /**
      * Hands out the login information
