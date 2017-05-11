@@ -42,7 +42,7 @@ if [[ $systemctl == yes ]]; then
     initdPHfullname="FOGPingHosts.service"
     initdISfullname="FOGImageSize.service"
     case $linuxReleaseName in
-        *[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Dd][Ee][Bb][Ii][Aa][Nn]*)
+        *[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Bb][Ii][Aa][Nn]*|*[Mm][Ii][Nn][Tt]*)
             initdpath="/lib/systemd/system"
             ;;
         *)
@@ -68,7 +68,7 @@ else
     initdPHfullname="FOGPingHosts"
     initdISfullname="FOGImageSize"
     case $linuxReleaseName in
-        *[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Dd][Ee][Bb][Ii][Aa][Nn]*)
+        *[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Bb][Ii][Aa][Nn]*|*[Mm][Ii][Nn][Tt]*)
             initdsrc="../packages/init.d/ubuntu"
             ;;
         *)
