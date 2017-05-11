@@ -585,7 +585,7 @@ installPackages() {
             packages="${packages// libapache2-mod-fastcgi/}"
             packages="${packages// libapache2-mod-evasive/}"
             case $linuxReleaseName in
-                *[Dd][Ee][Bb][Ii][Aa][Nn]*)
+                *[Bb][Ii][Aa][Nn]*)
                     packages="$packages php$php_ver-bcmath bc"
                     if [[ $OSVersion -eq 7 ]]; then
                         debcode="wheezy"
