@@ -18,7 +18,7 @@ if [[ $guessdefaults == 1 ]]; then
         *[Ff][Ee][Dd][Oo][Rr][Aa]*|*[Rr][Ee][Dd][Hh][Aa][Tt]*|*[Cc][Ee][Nn][Tt][Oo][Ss]*|*[Mm][Aa][Gg][Ee][Ii][Aa]*)
             strSuggestedOS=1
             ;;
-        *[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Dd][Ee][Bb][Ii][Aa][Nn]*)
+        *[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Bb][Ii][Aa][Nn]*|*[Mm][Ii][Nn][Tt]*)
             strSuggestedOS=2
             ;;
         *[Aa][Rr][Cc][Hh]*)
