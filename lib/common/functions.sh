@@ -596,7 +596,7 @@ installPackages() {
                     fi
                     ;;
                 *)
-                    if [[ $linuxReleaseName == +(*[Bb][Uu][Nn][Tt][Uu]*) ]]; then
+                    if [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*) ]]; then
                         packages="$packages php$php_ver-bcmath bc"
                         addUbuntuRepo
                         if [[ $? != 0 ]]; then
@@ -624,7 +624,7 @@ installPackages() {
     dots "Preparing Package Manager"
     $packmanUpdate >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     if [[ $osid -eq 2 ]]; then
-        if [[ $? != 0 ]] && [[ $linuxReleaseName == +(*[Bb][Uu][Nn][Tt][Uu]*) ]]; then
+        if [[ $? != 0 ]] && [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*) ]]; then
             cp /etc/apt/sources.list /etc/apt/sources.list.original_fog_$(date +%s)
             sed -i -e 's/\/\/*archive.ubuntu.com\|\/\/*security.ubuntu.com/\/\/old-releases.ubuntu.com/g' /etc/apt/sources.list
             $packmanUpdate >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -852,7 +852,7 @@ enableInitScript() {
                         sysv-rc-conf $serviceItem off >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                         sysv-rc-conf $serviceItem on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                         case $linuxReleaseName in
-                            *[Bb][Uu][Nn][Tt][Uu]*)
+                            *[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*)
                                 /usr/lib/insserv/insserv -r $initdpath/$serviceItem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                                 /usr/lib/insserv/insserv -d $initdpath/$serviceItem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                                 ;;

@@ -19,7 +19,7 @@
 [[ -z $repo ]] && repo="php"
 [[ -z $php_ver ]] && php_ver=5
 [[ -z $php_verAdds ]] && php_verAdds="-5.6"
-if [[ $linuxReleaseName == +(*[Bb][Uu][Nn][Tt][Uu]*) ]]; then
+if [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*) ]]; then
     if [[ -z $php_ver || $php_ver != "7.1" ]]; then
         if [[ $autoaccept != yes ]]; then
             echo " *** Detected a potential need to reinstall apache and php files."
