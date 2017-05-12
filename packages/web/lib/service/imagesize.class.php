@@ -200,6 +200,16 @@ class ImageSize extends FOGService
                         $path,
                         $file
                     );
+                    if (!file_exists($filepath) || !is_readable($filepath)) {
+                        self::outall(
+                            sprintf(
+                                '| %s: %s',
+                                $Image->get('name'),
+                                _('Path is unavailable')
+                            )
+                        );
+                        continue;
+                    }
                     self::outall(
                         sprintf(
                             ' * %s: %s.',
