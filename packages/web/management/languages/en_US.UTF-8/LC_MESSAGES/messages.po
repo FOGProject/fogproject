@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-10 18:35-0400\n"
+"POT-Creation-Date: 2017-05-12 08:44-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -22,6 +22,7 @@ msgid "Invalid"
 msgstr "Invalid ID"
 
 #: /var/www/fog/status/getfiles.php:43
+#: /var/www/fog/lib/service/imagesize.class.php:208
 #, fuzzy
 msgid "Path is unavailable"
 msgstr "No hash available"
@@ -7413,7 +7414,7 @@ msgstr ""
 
 #: /var/www/fog/lib/reports/snapin_log.report.php:56
 #: /var/www/fog/lib/service/snapinhash.class.php:241
-#: /var/www/fog/lib/service/imagesize.class.php:230
+#: /var/www/fog/lib/service/imagesize.class.php:240
 msgid "Completed"
 msgstr "Completed"
 
@@ -7920,11 +7921,11 @@ msgstr ""
 msgid "Trying image size for"
 msgstr "Snapin Path"
 
-#: /var/www/fog/lib/service/imagesize.class.php:206
+#: /var/www/fog/lib/service/imagesize.class.php:216
 msgid "Getting image size for"
 msgstr ""
 
-#: /var/www/fog/lib/service/imagesize.class.php:215
+#: /var/www/fog/lib/service/imagesize.class.php:225
 #, fuzzy
 msgid "Size"
 msgstr "Max Size"
