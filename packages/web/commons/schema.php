@@ -3747,3 +3747,15 @@ $this->schema[] = array(
     "ALTER TABLE `users` ADD `uAllowAPI` ENUM('0','1') NOT NULL DEFAULT '1'",
     "ALTER TABLE `users` ADD `uAPIToken` VARCHAR(255) NOT NULL"
 );
+// 260
+$this->schema[] = array(
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
+    . "VALUES "
+    . "('FOG_REAUTH_ON_DELETE',"
+    . "'If deleteing an item, require authentication or not. (Defaults to on)',"
+    . "'1','General Settings'),"
+    . "('FOG_REAUTH_ON_EXPORT',"
+    . "'If exporting, require authentication or not. (Defaults to on)',"
+    . "'1','General Settings')"
+);

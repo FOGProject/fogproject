@@ -1360,6 +1360,8 @@ class FOGConfigurationPage extends FOGPage
             'FOG_TASKING_ADV_DEBUG_ENABLED',
             'FOG_API_ENABLED',
             'FOG_IMAGE_LIST_MENU',
+            'FOG_REAUTH_ON_DELETE',
+            'FOG_REAUTH_ON_EXPORT'
         );
         self::$HookManager
             ->processEvent(
@@ -1904,6 +1906,8 @@ class FOGConfigurationPage extends FOGPage
                 (array)0,
                 range(2, 6)
             ),
+            'FOG_REAUTH_ON_DELETE' => $checkbox,
+            'FOG_REAUTH_ON_EXPORT' => $checkbox,
             // Login Settings
             'FOG_ALWAYS_LOGGED_IN' => $checkbox,
             'FOG_INACTIVITY_TIMEOUT' => range(1, 24),

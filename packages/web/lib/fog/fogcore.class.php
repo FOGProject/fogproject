@@ -173,13 +173,17 @@ class FOGCore extends FOGBase
             'FOG_DEFAULT_LOCALE',
             'FOG_HOST_LOOKUP',
             'FOG_MEMORY_LIMIT',
+            'FOG_REAUTH_ON_DELETE',
+            'FOG_REAUTH_ON_EXPORT',
             'FOG_TZ_INFO',
-            'FOG_VIEW_DEFAULT_SCREEN'
+            'FOG_VIEW_DEFAULT_SCREEN',
         );
         list(
             $locale,
             $hostLookup,
             $memoryLimit,
+            $authdelete,
+            $authexport,
             $tzInfo,
             $view
         ) = self::getSubObjectIDs(
@@ -200,6 +204,8 @@ class FOGCore extends FOGBase
                 ->count(array('pending' => 1));
         }
         self::$fogpingactive = $hostLookup;
+        self::$fogdeleteactive = $authdelete;
+        self::$fogexportactive = $authexport;
         $defTz = ini_get('date.timezone');
         if (empty($defTz)) {
             if (empty($tzInfo)) {

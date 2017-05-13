@@ -443,37 +443,56 @@ function ProductUpdate() {
     });
 }
 function loginDialog(selector,url,submitButton,closeButton,titleText,formid,target) {
-    $(selector).html('<p>Enter GUI Login</p><p>Username: <input type="text" name="fogguiuser"/></p><p>Password: <input type="password" name="fogguipass"/></p>').dialog({
-        open: function() {
-            $(this).find('[name=export]').hide();
-            $(this).find('[name=delete]').hide();
-        },
-        buttons: [{
-            text: submitButton,
-            type: 'submit',
-            click: function(e) {
-                e.preventDefault();
-                username = $('[name=fogguiuser]').val();
-                password = $('[name=fogguipass]').val();
-                ajaxRun(username,password,url,selector,formid,target);
+    exportauth = $('.fog-export').val();
+    deleteauth = $('.fog-delete').val();
+    authneeded = true;
+    switch (selector) {
+        case '#exportDiv':
+            if (exportauth == 0) {
+                authneeded = false;
             }
-        },{
-            text: closeButton,
-            click: function() {
-                $(this).dialog('close');
+            break;
+        case '#deleteDiv':
+            if (deleteauth == 0) {
+                authneeded = false;
             }
-        }],
-        modal: true,
-        resizable: false,
-        draggable: false,
-        autoResize: true,
-        title: titleText
-    });
-    $('[name=fogguiuser],[name=fogguipass]').keypress(function(e) {
-        if (e.keyCode == $.ui.keyCode.ENTER) {
-            $(this).parents('.ui-dialog').find('button[type=submit]').trigger('click');
-        }
-    });
+            break;
+    }
+    if (authneeded) {
+        $(selector).html('<p>Enter GUI Login</p><p>Username: <input type="text" name="fogguiuser"/></p><p>Password: <input type="password" name="fogguipass"/></p>').dialog({
+            open: function() {
+                $(this).find('[name=export]').hide();
+                $(this).find('[name=delete]').hide();
+            },
+            buttons: [{
+                text: submitButton,
+                type: 'submit',
+                click: function(e) {
+                    e.preventDefault();
+                    username = $('[name=fogguiuser]').val();
+                    password = $('[name=fogguipass]').val();
+                    ajaxRun(username,password,url,selector,formid,target,authneeded);
+                }
+            },{
+                text: closeButton,
+                click: function() {
+                    $(this).dialog('close');
+                }
+            }],
+            modal: true,
+            resizable: false,
+            draggable: false,
+            autoResize: true,
+            title: titleText
+        });
+        $('[name=fogguiuser],[name=fogguipass]').keypress(function(e) {
+            if (e.keyCode == $.ui.keyCode.ENTER) {
+                $(this).parents('.ui-dialog').find('button[type=submit]').trigger('click');
+            }
+        });
+    } else {
+        ajaxRun('', '', url, selector, formid, target, authneeded);
+    }
 }
 function exportDialog(url) {
     loginDialog('#exportDiv',url,'Export','Close','Export Item(s)','exportform','exportDialog');
@@ -481,7 +500,7 @@ function exportDialog(url) {
 function deleteDialog(url) {
     loginDialog('#deleteDiv',url,'Delete','Close','Delete Item(s)','deleteform','deleteDialog');
 }
-function ajaxRun(username,password,url,selector,formid,target,fogajax) {
+function ajaxRun(username,password,url,selector,formid,target,authneeded) {
     ids = new Array();
     $('input[name="remitems[]"]').each(function() {
         ids[ids.length] = $(this).val();
@@ -492,14 +511,15 @@ function ajaxRun(username,password,url,selector,formid,target,fogajax) {
         data: {
             fogguiuser: username,
             fogguipass: password,
-            fogajaxonly: fogajax,
             andFile: $('#andFile').is(':checked'),
             remitems: ids,
             storagegroup: $('input[name="storagegroup"]').val()
         },
         dataType: 'json',
         beforeSend: function() {
-            $(selector).html('<p>Attempting to perform actions.</p>');
+            if (authneeded) {
+                $(selector).html('<p>Attempting to perform actions.</p>');
+            }
         },
         complete: function(data) {
             str = new RegExp('^[#][#][#]');
@@ -507,7 +527,11 @@ function ajaxRun(username,password,url,selector,formid,target,fogajax) {
                 if (ids.length > 0) {
                     location.href = '?node='+node;
                 } else {
-                    $(selector).html('<form id="'+formid+'" method="post" action="'+url+'"><input type="hidden" name="fogajaxonly" value="1"/><input type="hidden" name="fogguiuser" value="'+username+'"/><input type="hidden" name="fogguipass" value="'+password+'"/></form>').dialog('close');
+                    if (authneeded) {
+                        $(selector).html('<form id="'+formid+'" method="post" action="'+url+'"><input type="hidden" name="fogguiuser" value="'+username+'"/><input type="hidden" name="fogguipass" value="'+password+'"/></form>').dialog('close');
+                    } else {
+                        $(selector).append('<form id="'+formid+'" method="post" action="'+url+'"><input type="hidden" name="fogguiuser" value="'+username+'"/><input type="hidden" name="fogguipass" value="'+password+'"/></form>');
+                    }
                     $('#'+formid).submit();
                 }
             } else {
