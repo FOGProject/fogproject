@@ -1922,18 +1922,20 @@ abstract class FOGPage extends FOGBase
      */
     public function deletemultiAjax()
     {
-        $validate = self::getClass('User')
-            ->passwordValidate(
-                $_REQUEST['fogguiuser'],
-                $_REQUEST['fogguipass'],
-                true
-            );
-        if (!$validate) {
-            printf(
-                '###%s',
-                self::$foglang['InvalidLogin']
-            );
-            exit;
+        if (self::getSetting('FOG_REAUTH_ON_DELETE')) {
+            $validate = self::getClass('User')
+                ->passwordValidate(
+                    $_REQUEST['fogguiuser'],
+                    $_REQUEST['fogguipass'],
+                    true
+                );
+            if (!$validate) {
+                printf(
+                    '###%s',
+                    self::$foglang['InvalidLogin']
+                );
+                exit;
+            }
         }
         self::$HookManager->processEvent(
             'MULTI_REMOVE',
@@ -3019,18 +3021,20 @@ abstract class FOGPage extends FOGBase
      */
     public function deletePost()
     {
-        $validate = self::getClass('User')
-            ->passwordValidate(
-                $_POST['fogguiuser'],
-                $_POST['fogguipass'],
-                true
-            );
-        if (!$validate) {
-            printf(
-                '###%s',
-                self::$foglang['InvalidLogin']
-            );
-            exit;
+        if (self::getSetting('FOG_REAUTH_ON_DELETE')) {
+            $validate = self::getClass('User')
+                ->passwordValidate(
+                    $_POST['fogguiuser'],
+                    $_POST['fogguipass'],
+                    true
+                );
+            if (!$validate) {
+                printf(
+                    '###%s',
+                    self::$foglang['InvalidLogin']
+                );
+                exit;
+            }
         }
         self::$HookManager->processEvent(
             sprintf(

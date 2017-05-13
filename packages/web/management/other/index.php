@@ -53,6 +53,14 @@ if (!self::$isMobile) {
         (int)self::$fogpingactive
     );
     printf(
+        '<input type="hidden" class="fog-delete" id="FOGDeleteAuth" value="%s"/>',
+        (int)self::$fogdeleteactive
+    );
+    printf(
+        '<input type="hidden" class="fog-export" id="FOGExportAuth" value="%s"/>',
+        (int)self::$fogexportactive
+    );
+    printf(
         '<div class="fog-variable" id="screenview" value="%s"></div>',
         self::$defaultscreen
     );

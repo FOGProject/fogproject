@@ -36,6 +36,18 @@ abstract class FOGBase
      */
     public static $fogpingactive = false;
     /**
+     * Delete auth is active?
+     *
+     * @var bool
+     */
+    public static $fogdeleteactive = false;
+    /**
+     * Export auth is active?
+     *
+     * @var bool
+     */
+    public static $fogexportactive = false;
+    /**
      * The pending macs count.
      *
      * @var int
