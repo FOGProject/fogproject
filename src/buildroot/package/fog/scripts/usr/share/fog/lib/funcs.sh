@@ -670,7 +670,7 @@ writeImage()  {
     case $mc in
         yes)
             if [[ -z $mcastrdv ]]; then
-                udp-receiver --nokbd --portbase $port --ttl 32 2>/dev/null >/tmp/pigz1 &
+                udp-receiver --nokbd --portbase $port --ttl 32 --mcast-rdv-address $storageip 2>/dev/null >/tmp/pigz1 &
             else
                 udp-receiver --nokbd --portbase $port --ttl 32 --mcast-rdv-address $mcastrdv 2>/dev/null >/tmp/pigz1 &
             fi
