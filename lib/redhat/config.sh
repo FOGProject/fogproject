@@ -17,7 +17,9 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 command -v dnf
-[[ $? -eq 0 ]] && repos="remi" || repos="remi,remi-php56,epel"
+[[ $? -eq 0 ]] && repos="remi" || {
+    [[ -z $repos ]] && repos="remi,remi-php56,epel"
+}
 [[ ! -d /run/rpcbind ]] && mkdir /run/rpcbind
 [[ ! -f /run/rpcbind/rpcbind.lock ]] && touch /run/rpcbind/rpcbind.lock
 [[ -z $packageQuery ]] && packageQuery="rpm -q \$x"
