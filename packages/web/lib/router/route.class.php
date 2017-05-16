@@ -283,7 +283,7 @@ class Route extends FOGBase
                 'search'
             )
             ->get(
-                "${expanded}",
+                "${expanded}/[list|all]?",
                 array(self, 'listem'),
                 'list'
             )
@@ -293,7 +293,7 @@ class Route extends FOGBase
                 'indiv'
             )
             ->put(
-                "${expanded}/[i:id]/[update|edit]",
+                "${expanded}/[i:id]/[update|edit]?",
                 array(self, 'edit'),
                 'update'
             )
@@ -303,7 +303,7 @@ class Route extends FOGBase
                 'task'
             )
             ->post(
-                "${expanded}/[create|new]",
+                "${expanded}/[create|new]?",
                 array(self, 'create'),
                 'create'
             )
@@ -313,7 +313,7 @@ class Route extends FOGBase
                 'cancel'
             )
             ->delete(
-                "${expanded}/[i:id]/[delete|remove]",
+                "${expanded}/[i:id]/[delete|remove]?",
                 array(self, 'delete'),
                 'delete'
             );
