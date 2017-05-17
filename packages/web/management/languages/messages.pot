@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-15 19:16-0400\n"
+"POT-Creation-Date: 2017-05-17 12:53-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2271,31 +2271,31 @@ msgstr ""
 msgid "Storage Group Activity"
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:267
+#: /var/www/fog/lib/pages/dashboardpage.class.php:268
 msgid "The selected node's image storage usage"
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:268
+#: /var/www/fog/lib/pages/dashboardpage.class.php:269
 msgid "Storage Node Disk Usage"
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:282
+#: /var/www/fog/lib/pages/dashboardpage.class.php:281
 msgid "Imaging Over the last 30 days"
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:323
+#: /var/www/fog/lib/pages/dashboardpage.class.php:322
 msgid "1 hour"
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:325
+#: /var/www/fog/lib/pages/dashboardpage.class.php:324
 msgid "30 Minutes"
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:327
+#: /var/www/fog/lib/pages/dashboardpage.class.php:326
 msgid "10 Minutes"
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:329
+#: /var/www/fog/lib/pages/dashboardpage.class.php:328
 msgid "2 Minutes"
 msgstr ""
 
@@ -2317,7 +2317,7 @@ msgid "FOG Forums"
 msgstr ""
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:66
-#: /var/www/fog/management/other/index.php:165
+#: /var/www/fog/management/other/index.php:166
 msgid "Donate to FOG"
 msgstr ""
 
@@ -2326,7 +2326,7 @@ msgid "FOG Version Information"
 msgstr ""
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:99
-#: /var/www/fog/management/other/index.php:104
+#: /var/www/fog/management/other/index.php:102
 msgid "Running Version"
 msgstr ""
 
@@ -3609,7 +3609,7 @@ msgid "Printer Type"
 msgstr ""
 
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:83
-#: /var/www/fog/lib/hooks/addhostmodel.hook.php:118
+#: /var/www/fog/lib/hooks/addhostmodel.hook.php:117
 #: /var/www/fog/commons/text.php:24
 msgid "Model"
 msgstr ""
@@ -8073,7 +8073,7 @@ msgstr ""
 msgid "Login time"
 msgstr ""
 
-#: /var/www/fog/lib/hooks/addhostserial.hook.php:118
+#: /var/www/fog/lib/hooks/addhostserial.hook.php:117
 msgid "Serial"
 msgstr ""
 
@@ -8089,15 +8089,15 @@ msgstr ""
 msgid "Example Bolded Header"
 msgstr ""
 
-#: /var/www/fog/management/other/index.php:106
+#: /var/www/fog/management/other/index.php:104
 msgid "SVN Revision"
 msgstr ""
 
-#: /var/www/fog/management/other/index.php:153
+#: /var/www/fog/management/other/index.php:154
 msgid "Credits"
 msgstr ""
 
-#: /var/www/fog/management/other/index.php:158
+#: /var/www/fog/management/other/index.php:159
 msgid "FOG Client"
 msgstr ""
 

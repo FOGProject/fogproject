@@ -156,9 +156,6 @@ function AJAXServerTime() {
             }
         });
     });
-    if ($.inArray(sub,['list','listhosts','listgroups','storageGroup']) > -1) {
-        $('.'+sub).trigger('click');
-    }
     /**
      * On any form submission, attempt to trim the input fields automatically.
      */
@@ -168,7 +165,7 @@ function AJAXServerTime() {
     $('form').children().each(function() {
         this.value=$(this).val().trim();
     });
-    if (screenview == 'list') {
+    if ($.inArray(sub,['list','listhosts','listgroups','storageGroup']) < 0 && screenview == 'list') {
         $('.list').trigger('click');
     }
 })(jQuery);
@@ -202,6 +199,9 @@ $.fn.fogVariable = function(opts) {
 }
 $.fn.fogAjaxSearch = function(opts) {
     if (this.length == 0) return this;
+    if ($.inArray(sub,['list','listhosts','listgroups','storageGroup']) > -1) {
+        return this;
+    }
     var Defaults = {
         URL: $('#search-wrapper').prop('action'),
         Container: '#search-content,#active-tasks',
@@ -549,7 +549,6 @@ function setupFogTableInfoFunction() {
                 }
                 break;
             case 'report':
-                console.log(sub);
                 if (typeof(sub) != 'undefined') {
                     switch (sub) {
                         case 'inventory':

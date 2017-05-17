@@ -133,7 +133,7 @@ class FOGPageManager extends FOGBase
         }
         if (!is_object($class->obj)) {
             return sprintf(
-                '<div id="sidebar">%s</div>',
+                '<div class="sidebar">%s</div>',
                 self::$FOGSubMenu->get($this->classValue)
             );
         }
@@ -158,7 +158,7 @@ class FOGPageManager extends FOGBase
             unset($title, $link);
         }
         return sprintf(
-            '<div id="sidebar">%s</div>',
+            '<div class="sidebar">%s</div>',
             self::$FOGSubMenu->get($this->classValue)
         );
     }

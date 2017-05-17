@@ -72,7 +72,7 @@ class DashboardPage extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Dashboard';
+        $this->name = self::$foglang['Dashboard'];
         parent::__construct($this->name);
         global $sub;
         global $id;
@@ -220,7 +220,7 @@ class DashboardPage extends FOGPage
         );
         // Overview
         printf(
-            '<ul id="dashboard-boxes"><li><h4>%s</h4>',
+            '<ul class="dashboard-boxes"><li class="system-overview"><h5>%s</h5>',
             _('System Overview')
         );
         array_walk($fields, $this->fieldsToData);
@@ -245,15 +245,14 @@ class DashboardPage extends FOGPage
         );
         // Client Count/Activity
         printf(
-            '<li><h4 class="box" title="%s">%s</h4>'
+            '<li><h5 class="box" title="%s">%s</h5>'
             . '<div class="graph pie-graph" id="graph-activity">'
-            . '</div><div id="graph-activity-selector">',
+            . '</div><div class="graph-selectors" id="graph-activity-selector">',
             _('The selected node\'s storage group slot usage'),
             _('Storage Group Activity')
         );
         printf(
-            '<select name="groupsel" style="whitespace: no-wrap; width: 100px; '
-            . 'position: relative; top: -22px; left: 140px;">%s</select>'
+            '<select name="groupsel">%s</select>'
             . '<div class="fog-variable" id="ActivityActive"></div>'
             . '<div class="fog-variable" id="ActivityQueued"></div>'
             . '<div class="fog-variable" id="ActivitySlots"></div>'
@@ -262,16 +261,16 @@ class DashboardPage extends FOGPage
         );
         // Disk Usage
         printf(
-            '<li><h4 class="box" title="%s">%s</h4>'
-            . '<div id="diskusage-selector">',
+            '<li><h5 class="box" title="%s">%s</h5>'
+            . '<a href="?node=hwinfo"><div class="graph pie-graph" '
+            . 'id="graph-diskusage"></div></a><div id="diskusage-selector" class="'
+            . 'graph-selectors">',
             _('The selected node\'s image storage usage'),
             _('Storage Node Disk Usage')
         );
         printf(
-            '<select name="nodesel" style="whitespace: no-wrap; width: 100px; '
-            . 'position: relative; top: 100px;">%s</select>'
-            . '</div><a href="?node=hwinfo"><div class="graph pie-graph" '
-            . 'id="graph-diskusage"></div></a></li>',
+            '<select name="nodesel">%s</select>'
+            . '</div></li>',
             self::$_nodeOpts
         );
         echo '</ul>';
