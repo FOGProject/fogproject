@@ -1,0 +1,219 @@
+/**
+ * Fresh FOG CSS
+ *
+ * Author: Tom Elliott <tommygunsster@gmail.com
+ */
+html, body {
+    min-height: 440px;
+    min-width: 320px;
+}
+body {
+    font-family: Tahoma, Geneva, sans-serif;
+    font-size: 13px;
+    color: #555;
+}
+/**
+ * HTML Headings 1-6
+ */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: normal;
+}
+h1 {
+    font-size: 28px;
+}
+h2 {
+    font-size: 24px;
+}
+h3 {
+    font-size: 20px;
+}
+h4 {
+    font-size: 16px;
+}
+h5 {
+    font-size: 12px;
+}
+h6 {
+    font-size: 8px;
+}
+/**
+ * HTML Links
+ */
+a {
+    text-decoration: none;
+    color: #00567a;
+}
+a:link, a:visited {
+    color: #00567a;
+}
+a:hover, a:active {
+    color: orange;
+}
+/**
+ * HTML Img
+ */
+img {
+    border: none;
+}
+img.left {
+    clear: right;
+    float: left;
+}
+img.right {
+    clear: left;
+    float: right;
+}
+/**
+ * Custom elements for FOG
+ */
+/**
+ * Logo image
+ */
+.logoimg {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+}
+/**
+ * HTML Header start.
+ */
+header {
+    width: 100%;
+    display: inline-block;
+    border-bottom: 1px solid #efefef;
+}
+/**
+ * Main menu
+ */
+.menu {
+    text-align: center;
+}
+.nav-list .nav-item {
+    text-align: center;
+    display: inline-block;
+}
+.nav-item .nav-link {
+    display: block;
+    padding: 2px;
+}
+/**
+ * Wrapper contains sidebar, sidenotes and content
+ */
+#wrapper {
+    display: flex;
+    justify-content: center;
+}
+/**
+ * Sidebar menu
+ */
+.sidebar {
+    display: inline-block;
+    box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
+    min-width: 200px;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-bottom: 24px;
+    line-height: 24px;
+    z-index: 1;
+}
+/**
+ * Main content (generalized)
+ */
+#content {
+    margin-right: 25px;
+    margin-left: 50px;
+    display: inline-block;
+    text-align: center;
+}
+#content h1 {
+    text-align: center;
+}
+#content h2 {
+    text-align: center;
+}
+#content-inner {
+    min-width: 440px;
+    padding-bottom: 24px;
+}
+/**
+ * Main content dashboard
+ */
+#content.dashboard {
+    text-align: center;
+    margin: 0 auto;
+}
+#content.dashboard #content-inner {
+    display: inline-block;
+    min-width: 850px;
+}
+/**
+ * Dashboard specific elements
+ */
+.dashboard {
+    padding: 2px;
+    display: inline-block;
+}
+.dashboard p {
+    vertical-align: center;
+    text-align: center;
+}
+.dashboard p.infoTitle {
+    background-color: #bcbcbc;
+}
+/**
+ * The three top boxes.
+ */
+.dashboard-boxes {
+    list-style: none;
+    height: 180px;
+    font-size: 12px;
+}
+.dashboard-boxes li {
+    float: left;
+    width: 250px;
+    height: 160px;
+    margin-left: 10px;
+    overflow: hidden;
+    box-shadow: 0px 2px 6px 2px rgba(0,0,0,0.2);
+}
+.dashboard-boxes li h5 {
+    text-align: center;
+    background: #c7cede;
+    padding: 5px;
+    margin: 0;
+}
+/**
+ * The selectors
+ */
+.graph-selectors {
+    position: relative;
+    whitespace: no-wrap;
+    width: 100px;
+    top: -120px;
+    left: 140px;
+    z-index: 1;
+    text-align: right;
+    margin-top: 3px;
+}
+.graph-selectors select {
+    font-size: 10px;
+    border: 1px solid #666;
+    padding: 0;
+}
+/**
+ * Graphs
+ */
+.graph {
+    height: 150px;
+}
+.graph.pie-graph {
+    height: 120px;
+    margin-top: 5px;
+}
+#footer {
+    position: fixed;
+    width: 100%;
+    clear: both;
+    text-align: center;
+    bottom: 0;
+}
