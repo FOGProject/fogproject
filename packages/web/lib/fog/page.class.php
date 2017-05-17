@@ -295,7 +295,7 @@ class Page extends FOGBase
                         ) {
                             $node = $link;
                         }
-                        $tivelink = ($node == $link);
+                        $activelink = ($node == $link);
                         printf(
                             '<li class="nav-item"><a href="?node=%s" '
                             . 'class="nav-link%s" title="%s"><i class="%s">'

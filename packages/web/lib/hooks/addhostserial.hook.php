@@ -40,7 +40,7 @@ class AddHostSerial extends Hook
      *
      * @var bool
      */
-    public $active = false;
+    public $active = true;
     /**
      * Initializes object.
      *
@@ -78,9 +78,8 @@ class AddHostSerial extends Hook
         if ($node != 'host') {
             return;
         }
-        $arguments['templates'][7] = '${serial}';
-        $arguments['attributes'][7] = array(
-            'width' => 20,
+        $arguments['templates'][] = '${serial}';
+        $arguments['attributes'][] = array(
             'class' => 'c'
         );
         $items = $arguments['data'];
@@ -115,6 +114,6 @@ class AddHostSerial extends Hook
         if ($node != 'host') {
             return;
         }
-        $arguments['headerData'][7] = _('Serial');
+        $arguments['headerData'][] = _('Serial');
     }
 }

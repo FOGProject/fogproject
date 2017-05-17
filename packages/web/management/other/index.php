@@ -69,7 +69,6 @@ if (!self::$isMobile) {
     echo '<div id="loader"></div>';
     echo '<div id="progress"></div>';
     echo '</div>';
-    echo '<div id="wrapper">';
     echo '<header>';
     printf(
         '<div id="header"%s>',
@@ -86,8 +85,7 @@ if (!self::$isMobile) {
         self::$scriptname
     );
     printf(
-        '<img src="%s/fog-logo.png" alt="%s" title="%s"/>',
-        $this->imagelink,
+        '<img src="../favicon.ico" alt="%s" title="%s" class="logoimg"/>',
         self::$foglang['Home'],
         self::$foglang['Home']
     );
@@ -108,13 +106,16 @@ if (!self::$isMobile) {
     );
     echo '</div>';
     echo '</div>';
-    if (self::$FOGUser) {
+    if (self::$FOGUser->isValid()) {
         echo $this->menu;
+    }
+    echo '</div></header>';
+    echo '<div id="wrapper">';
+    if (self::$FOGUser->isValid()) {
         if (!$this->isHomepage) {
             echo self::$FOGPageManager->getSideMenu();
         }
     }
-    echo '</div></header>';
     printf(
         '<div id="content"%s>',
         (

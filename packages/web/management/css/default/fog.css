@@ -340,9 +340,11 @@ a:hover > i,
 /* Structure */
 #wrapper
 {
-    width: 850px;
+    min-width: 850px;
     margin: 3px auto;
-    min-height: 100%;
+    min-height: 440px;
+    display: flex;
+    justify-content: center;
 }
 #content
 {
@@ -386,7 +388,7 @@ a:hover > i,
 /* Header */
 header
 {
-    width: 850px;
+    width: 100%;
     padding-top: 5px;
     border-bottom: 1px solid #efefef;
 }
@@ -447,31 +449,31 @@ header
     line-height: 21px;
 }
 /* Sidebar */
-#sidebar
+.sidebar
 {
-    float: left;
-    width: 195px;
+    display: inline-block;
+    min-width: 195px;
     border-right: 1px solid #efefef;
     padding-right: 10px;
     padding-bottom: 21px;
 }
-#sidebar ul
+.sidebar ul
 {
     margin: 0;
     padding: 0;
     list-style: none;
     margin-bottom: 20px;
 }
-#sidebar li
+.sidebar li
 {
     font-size: 13px;
     line-height: 18px;
 }
-#sidebar li li
+.sidebar li li
 {
     margin: 0;
 }
-#sidebar h2
+.sidebar h2
 {
     margin: 0 0 10px 0;
     border-bottom: 1px solid #efefef;
@@ -962,18 +964,18 @@ pre
 .graph.pie-graph
 {
     height: 120px;
-    margin: 5px 0 0 0;
+    margin: 2px 0 2px 0;
 }
 /* Dashboard - 3 row boxes */
-#dashboard-boxes
+.dashboard-boxes
 {
     list-style: none;
     padding: 0 2px;
     margin-bottom: 10px;
-    height: 180px;
+    height: 200px;
     font-size: 12px;
 }
-#dashboard-boxes li
+.dashboard-boxes li
 {
     border: 2px solid #c7cede;
     float: left;
@@ -986,7 +988,7 @@ pre
     -webkit-border-radius: 5px;
     overflow: hidden;
 }
-#dashboard-boxes li h4
+.dashboard-boxes li h5
 {
     text-align: center;
     background: #c7cede;
@@ -998,32 +1000,31 @@ pre
     -moz-border-radius: 2px;
     -webkit-border-radius: 2px;
 }
-#dashboard-boxes li p
+.dashboard-boxes li p
 {
     margin: 0;
     line-height: 20px;
 }
-#dashboard-boxes table td
+.dashboard-boxes table td
 {
     padding: 4px 5px;
 }
 /* Dashboard - Disk usage graph */
-#diskusage-selector
-{
-    width: 240px;
-    position: absolute;
+.graph-selectors {
+    position: relative;
+    whitespace: no-wrap;
+    width: 100px;
+    top: -22px;
+    left: 120px;
     z-index: 1;
     text-align: right;
     margin-top: 3px;
 }
 /* margin-top: -22px to move the select box into the header */
-#diskusage-selector select,
-#graph-activity-selector select
-{
+.graph-selectors select {
     font-size: 10px;
     border: 1px solid #666;
     padding: 0;
-    /*margin-top: -22px;*/
 }
 /* Dashboard - Bandwidth Graph */
 #graph-bandwidth
@@ -1296,4 +1297,8 @@ tbody td.small
 .ui-timepicker-rtl dl dd
 {
     margin: 0 45% 10px 10px;
+}
+.logoimg {
+    width: 50px;
+    height: 50px;
 }

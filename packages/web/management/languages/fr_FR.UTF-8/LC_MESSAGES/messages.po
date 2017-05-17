@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-13 15:23-0400\n"
+"POT-Creation-Date: 2017-05-17 12:42-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2413,32 +2413,32 @@ msgstr ""
 msgid "Storage Group Activity"
 msgstr "Stockage Activité Groupe"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:267
+#: /var/www/fog/lib/pages/dashboardpage.class.php:268
 #, fuzzy
 msgid "The selected node's image storage usage"
 msgstr "stockage d'image de l'utilisation du disque du noeud sélectionné"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:268
+#: /var/www/fog/lib/pages/dashboardpage.class.php:269
 msgid "Storage Node Disk Usage"
 msgstr "Utilisation Noeud de stockage de disque"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:282
+#: /var/www/fog/lib/pages/dashboardpage.class.php:281
 msgid "Imaging Over the last 30 days"
 msgstr "Imaging Au cours des 30 derniers jours"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:323
+#: /var/www/fog/lib/pages/dashboardpage.class.php:322
 msgid "1 hour"
 msgstr "1 heure"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:325
+#: /var/www/fog/lib/pages/dashboardpage.class.php:324
 msgid "30 Minutes"
 msgstr "30 minutes"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:327
+#: /var/www/fog/lib/pages/dashboardpage.class.php:326
 msgid "10 Minutes"
 msgstr "10 minutes"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:329
+#: /var/www/fog/lib/pages/dashboardpage.class.php:328
 msgid "2 Minutes"
 msgstr "2 minutes"
 
@@ -2460,7 +2460,7 @@ msgid "FOG Forums"
 msgstr "BROUILLARD Forums"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:66
-#: /var/www/fog/management/other/index.php:165
+#: /var/www/fog/management/other/index.php:166
 msgid "Donate to FOG"
 msgstr "Faire un don à BROUILLARD"
 
@@ -2469,7 +2469,7 @@ msgid "FOG Version Information"
 msgstr "FOG Informations de version"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:99
-#: /var/www/fog/management/other/index.php:104
+#: /var/www/fog/management/other/index.php:102
 msgid "Running Version"
 msgstr "Exécution Version"
 
@@ -3805,7 +3805,7 @@ msgid "Printer Type"
 msgstr "Type d'imprimante"
 
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:83
-#: /var/www/fog/lib/hooks/addhostmodel.hook.php:118
+#: /var/www/fog/lib/hooks/addhostmodel.hook.php:117
 #: /var/www/fog/commons/text.php:24
 msgid "Model"
 msgstr "Modèle"
@@ -8641,7 +8641,7 @@ msgstr "Replay de la revue: insérer l'heure réelle"
 msgid "Login time"
 msgstr "S'identifier"
 
-#: /var/www/fog/lib/hooks/addhostserial.hook.php:118
+#: /var/www/fog/lib/hooks/addhostserial.hook.php:117
 msgid "Serial"
 msgstr "En série"
 
@@ -8657,17 +8657,17 @@ msgstr ""
 msgid "Example Bolded Header"
 msgstr "Exemple bolded Header"
 
-#: /var/www/fog/management/other/index.php:106
+#: /var/www/fog/management/other/index.php:104
 #, fuzzy
 msgid "SVN Revision"
 msgstr "Version"
 
-#: /var/www/fog/management/other/index.php:153
+#: /var/www/fog/management/other/index.php:154
 #, fuzzy
 msgid "Credits"
 msgstr "Créer"
 
-#: /var/www/fog/management/other/index.php:158
+#: /var/www/fog/management/other/index.php:159
 #, fuzzy
 msgid "FOG Client"
 msgstr "FOG client Wiki"
