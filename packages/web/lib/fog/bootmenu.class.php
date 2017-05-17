@@ -592,6 +592,14 @@ class BootMenu extends FOGBase
                 'echo Host approved successfully',
                 'sleep 3'
             );
+            $shutdown = stripos(
+                'shutdown=1',
+                $_REQUEST['extraargs']
+            );
+            $isdebug = preg_match(
+                '#isdebug=yes|mode=debug|mode=onlydebug#i',
+                $_REQUEST['extraargs']
+            );
             $this->_Host->createImagePackage(
                 10,
                 'Inventory',
@@ -843,6 +851,16 @@ class BootMenu extends FOGBase
             false,
             ''
         );
+        $shutdown = false !== stripos(
+            'shutdown=1',
+            $TaskType->get('kernelArgs')
+        );
+        if (!$shutdown && isset($_REQUEST['extraargs'])) {
+            $shutdown = false !== stripos(
+                'shutdown=1',
+                $_REQUEST['extraargs']
+            );
+        }
         $StorageGroup = $Image->getStorageGroup();
         $StorageNode = $StorageGroup->getOptimalStorageNode();
         $osid = $Image->get('osID');
@@ -876,7 +894,10 @@ class BootMenu extends FOGBase
             "imgPartitionType=$imgPartitionType",
             "imgid=$imgid",
             "imgFormat=$imgFormat",
-            "shutdown=0",
+            array(
+                'value' => 'shutdown=1',
+                'active' => $shutdown
+            ),
             array(
                 'value' => "mcastrdv=$mcastrdv",
                 'active' => !empty($mcastrdv)
@@ -1055,6 +1076,14 @@ class BootMenu extends FOGBase
                     ->set('imageID', $msImage);
             }
         }
+        $shutdown = stripos(
+            'shutdown=1',
+            $_REQUEST['extraargs']
+        );
+        $isdebug = preg_match(
+            '#isdebug=yes|mode=debug|mode=onlydebug#i',
+            $_REQUEST['extraargs']
+        );
         if ($this->_Host->isValid() && !$this->_Host->get('pending')) {
             $this->_Host->createImagePackage(
                 8,
@@ -1232,6 +1261,14 @@ class BootMenu extends FOGBase
      */
     public function setTasking($imgID = '')
     {
+        $shutdown = stripos(
+            'shutdown=1',
+            $_REQUEST['extraargs']
+        );
+        $isdebug = preg_match(
+            '#isdebug=yes|mode=debug|mode=onlydebug#i',
+            $_REQUEST['extraargs']
+        );
         if (!$imgID) {
             $this->printImageList();
             return;
@@ -1392,7 +1429,16 @@ class BootMenu extends FOGBase
                     false,
                     ''
                 );
-
+                $shutdown = false !== stripos(
+                    'shutdown=1',
+                    $TaskType->get('kernelArgs')
+                );
+                if (!$shutdown && isset($_REQUEST['extraargs'])) {
+                    $shutdown = false !== stripos(
+                        'shutdown=1',
+                        $_REQUEST['extraargs']
+                    );
+                }
                 $globalPIGZ = $pigz;
                 $PIGZ_COMP = $globalPIGZ;
                 if ($StorageNode instanceof StorageNode && $StorageNode->isValid()) {
@@ -1561,7 +1607,7 @@ class BootMenu extends FOGBase
                 ),
                 array(
                     'value' => 'shutdown=1',
-                    'active' => $Task->get('shutdown'),
+                    'active' => $Task->get('shutdown') || $shutdown,
                 ),
                 array(
                     'value' => "adon=1 addomain=\"$addomain\" "

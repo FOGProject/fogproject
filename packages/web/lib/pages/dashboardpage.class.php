@@ -165,8 +165,8 @@ class DashboardPage extends FOGPage
      */
     public function index()
     {
-        $pendingInfo = '<i class="fa fa-circle fa-1x notifier"></i>'
-            . '&nbsp;%s<br/>%s <a href="?node=%s&sub=%s">%s</a> %s';
+        $pendingInfo = '<i></i>'
+            . '&nbsp;%s&nbsp;%s <a href="?node=%s&sub=%s"><b>%s</b></a> %s';
         $hostPend = sprintf(
             $pendingInfo,
             _('Pending hosts'),
