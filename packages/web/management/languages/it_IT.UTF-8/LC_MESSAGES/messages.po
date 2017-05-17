@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-17 12:42-0400\n"
+"POT-Creation-Date: 2017-05-17 14:43-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -873,7 +873,7 @@ msgstr "Registrato"
 msgid "Set Failed"
 msgstr "Set fallito"
 
-#: /var/www/fog/lib/fog/bootmenu.class.php:1406
+#: /var/www/fog/lib/fog/bootmenu.class.php:1452
 msgid "No valid storage nodes found"
 msgstr "Nessun nodo di archiviazione valido trovato"
 

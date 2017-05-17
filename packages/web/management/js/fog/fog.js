@@ -144,7 +144,7 @@ function AJAXServerTime() {
                             )
                     .find('i')
                     .removeClass()
-                    .addClass('fa fa-exclamation-circle');
+                    .addClass('fa fa-exclamation-circle fa-1x fa-fw');
                 if (dataLength > 0) {
                     buildHeaderRow(response.headerData, response.attributes, 'th');
                     thead = $('thead', Container);
@@ -272,7 +272,7 @@ $.fn.fogAjaxSearch = function(opts) {
                     thead = $('thead',Container);
                     tbody = $('tbody',Container);
                     LastCount = dataLength;
-                    Loader.removeClass('loading').fogStatusUpdate(_L['SEARCH_RESULTS_FOUND'].replace(/%1/,LastCount).replace(/%2/,LastCount != 1 ? 's' : '')).find('i').removeClass().addClass('fa fa-exclamation-circle');
+                    Loader.removeClass('loading').fogStatusUpdate(_L['SEARCH_RESULTS_FOUND'].replace(/%1/,LastCount).replace(/%2/,LastCount != 1 ? 's' : '')).find('i').removeClass().addClass('fa fa-exclamation-circle fa-1x fa-fw');
                     if (dataLength > 0) {
                         buildHeaderRow(response.headerData,response.attributes,'th');
                         thead = $('thead',Container);
@@ -320,7 +320,7 @@ $.fn.fogStatusUpdate = function(txt, opts) {
     if (!txt) {
         p.remove().end().hide();
     } else {
-        i.addClass('fa fa-exclamation-circle fw');
+        i.addClass('fa fa-exclamation-circle fa-1x fa-fw');
         p.remove().end().append((Options.Raw ? txt : '<p>'+txt+'</p>')).show();
     }
     Loader.removeClass();

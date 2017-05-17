@@ -64,9 +64,9 @@ if (!self::$isMobile) {
         '<div class="fog-variable" id="screenview" value="%s"></div>',
         self::$defaultscreen
     );
-    self::getMessages();
     echo '<div id="loader-wrapper">';
     echo '<div id="loader"></div>';
+    self::getMessages();
     echo '<div id="progress"></div>';
     echo '</div>';
     echo '<header>';
@@ -109,7 +109,7 @@ if (!self::$isMobile) {
     if (self::$FOGUser->isValid()) {
         echo $this->menu;
     }
-    echo '</div></header>';
+    echo '</div></header><hr/>';
     echo '<div id="wrapper">';
     if (self::$FOGUser->isValid()) {
         if (!$this->isHomepage) {
