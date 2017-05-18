@@ -70,10 +70,10 @@ class ClientManagementPage extends FOGPage
             $webroot
         );
         $url = filter_var($url, FILTER_SANITIZE_URL);
-        echo '<ul id="dashboard-boxes">';
+        echo '<ul class="dashboard-boxes">';
         echo '<li>';
         printf(
-            '<h4>%s</h4>',
+            '<h5>%s</h5>',
             _('New Client and Utilities')
         );
         printf(
@@ -119,7 +119,7 @@ class ClientManagementPage extends FOGPage
         echo '</div></li>';
         echo '<li>';
         printf(
-            '<h4>%s</h4>',
+            '<h5>%s</h5>',
             _('Help and Guide')
         );
         printf(
@@ -151,7 +151,7 @@ class ClientManagementPage extends FOGPage
         echo '</div></li>';
         echo '<li>';
         printf(
-            '<h4>%s</h4>',
+            '<h5>%s</h5>',
             _('Legacy Client and Utilities')
         );
         printf(
