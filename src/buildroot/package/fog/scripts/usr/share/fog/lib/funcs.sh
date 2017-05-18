@@ -682,32 +682,29 @@ writeImage()  {
     esac
     local format=$imgLegacy
     [[ -z $format ]] && format=$imgFormat
-    local cores=$(nproc)
-    cores=$((cores - 1))
-    [[ $cores -lt 1 ]] && cores=1
     case $format in
         5|6)
             # ZSTD Compressed image.
             echo " * Imaging using Partclone (zstd)"
-            zstdmt -T$cores --ultra $PIGZ_COMP -dc </tmp/pigz1 | partclone.restore -n "Storage Location $storage, Image name $img" --ignore_crc -O ${target} -Nf 1
+            zstdmt -dc </tmp/pigz1 | partclone.restore -n "Storage Location $storage, Image name $img" --ignore_crc -O ${target} -Nf 1
             ;;
         3|4)
             # Uncompressed partclone
             echo " * Imaging using Partclone (uncompressed)"
             cat </tmp/pigz1 | partclone.restore -n "Storage Location $storage, Image name $img" --ignore_crc -O ${target} -Nf 1
             # If this fails, try from compressed form.
-            #[[ ! $? -eq 0 ]] && zstdmt -T$(nproc) --ultra $PIGZ_COMP -dc </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1 || true
+            #[[ ! $? -eq 0 ]] && zstdmt -dc </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1 || true
             ;;
         1)
             # Partimage
             echo " * Imaging using Partimage (gzip)"
-            #zstdmt -T$cores --ultra $PIGZ_COMP -dc </tmp/pigz1 | partimage restore ${target} stdin -f3 -b 2>/tmp/status.fog
+            #zstdmt -dc </tmp/pigz1 | partimage restore ${target} stdin -f3 -b 2>/tmp/status.fog
             pigz -dc </tmp/pigz1 | partimage restore ${target} stdin -f3 -b 2>/tmp/status.fog
             ;;
         0|2)
             # GZIP Compressed partclone
             echo " * Imaging using Partclone (gzip)"
-            #zstdmt -T$cores --ultra $PIGZ_COMP -dc </tmp/pigz1 | partclone.restore -n "Storage Location $storage, Image name $img" --ignore_crc -O ${target} -N -f 1
+            #zstdmt -dc </tmp/pigz1 | partclone.restore -n "Storage Location $storage, Image name $img" --ignore_crc -O ${target} -N -f 1
             pigz -dc </tmp/pigz1 | partclone.restore -n "Storage Location $storage, Image name $img" --ignore_crc -O ${target} -N -f 1
             # If this fails, try uncompressed form.
             #[[ ! $? -eq 0 ]] && cat </tmp/pigz1 | partclone.restore --ignore_crc -O ${target} -N -f 1 || true
@@ -1578,11 +1575,11 @@ uploadFormat() {
     case $imgFormat in
         6)
             # ZSTD Split files compressed.
-            zstdmt -T$cores --ultra $PIGZ_COMP < $fifo | split -a 3 -d -b 200m - ${file}. &
+            zstdmt --ultra $PIGZ_COMP < $fifo | split -a 3 -d -b 200m - ${file}. &
             ;;
         5)
             # ZSTD compressed.
-            zstdmt -T$cores --ultra $PIGZ_COMP < $fifo > ${file}.000 &
+            zstdmt --ultra $PIGZ_COMP < $fifo > ${file}.000 &
             ;;
         4)
             # Split files uncompressed.
