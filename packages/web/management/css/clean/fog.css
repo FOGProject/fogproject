@@ -44,7 +44,7 @@ a {
     color: #00567a;
 }
 a:hover, a:active, .activelink {
-    color: orange;
+    color: #0700de;
 }
 /**
  * HTML Img
@@ -506,7 +506,7 @@ hr {
     font-weight: bold;
 }
 #graph-bandwidth-filters a.active, #graph-bandwidth-filters a:hover {
-    color: orange;
+    color: #0700de;
 }
 #graph-bandwidth-filters .l {
     position: relative;

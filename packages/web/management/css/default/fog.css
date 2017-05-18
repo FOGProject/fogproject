@@ -432,6 +432,7 @@ header
     left: 210px;
     font-size: 10px;
     vertical-align: text-top;
+    max-width: 210px;
 }
 /* Footer */
 #footer
