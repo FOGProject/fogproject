@@ -412,7 +412,7 @@ header
 {
     color: #494949;
 }
-#logo h2
+#logo h5
 {
     font-size: 12px;
     color: #a0a0a0;
@@ -476,7 +476,7 @@ header
 {
     margin: 0;
 }
-.sidebar h2
+.sidebar h5
 {
     margin: 0 0 10px 0;
     border-bottom: 1px solid #efefef;
@@ -527,7 +527,7 @@ header
     display: none;
 }
 /* Notes */
-#sidenotes
+.sidenotes
 {
     background: #fff;
     border: 1px solid #bbb;
@@ -539,13 +539,13 @@ header
     margin-bottom: 10px;
     box-shadow: 0 0 10px #bbb;
 }
-#sidenotes h3
+.sidenotes h5
 {
     margin: 0;
     clear: both;
     font-size: 13px;
 }
-#sidenotes p
+.sidenotes p
 {
     max-width: 120px;
 }

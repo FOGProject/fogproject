@@ -646,7 +646,7 @@ abstract class FOGBase
             get_class($this),
             $data
         );
-        printf('<div class="debug-error">%s</div>', $string);
+        printf('<div class="debug debug-error">%s</div>', $string);
     }
     /**
      * Prints error.
@@ -667,7 +667,7 @@ abstract class FOGBase
             get_class($this),
             $data
         );
-        printf('<div class="debug-error">%s</div>', $string);
+        printf('<div class="debug debug-error">%s</div>', $string);
     }
     /**
      * Prints debug.
@@ -688,7 +688,7 @@ abstract class FOGBase
             get_class($this),
             $data
         );
-        printf('<div class="debug-error">%s</div>', $string);
+        printf('<div class="debug debug-error">%s</div>', $string);
     }
     /**
      * Prints info.
@@ -709,7 +709,7 @@ abstract class FOGBase
             get_class($this),
             $data
         );
-        printf('<div class="debug-info">%s</div>', $string);
+        printf('<div class="debug debug-info">%s</div>', $string);
     }
     /**
      * Sets message banner at top of pages.

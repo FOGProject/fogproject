@@ -10,7 +10,7 @@ html, body {
 body {
     font-family: Tahoma, Geneva, sans-serif;
     font-size: 13px;
-    color: #555;
+    color: #00567a;
 }
 /**
  * HTML Headings 1-6
@@ -61,6 +61,84 @@ img.right {
     float: right;
 }
 /**
+ * HTML Header start.
+ */
+header {
+    min-width: 540px;
+    width: 100%;
+    display: inline-block;
+}
+/**
+ * HTML Table
+ */
+/*table {
+    min-width: 540px;
+    margin-bottom: 24px;
+}
+table textarea {
+    width: 100%;
+}
+table p {
+    line-height: 15px;
+    margin: 2px 0;
+}
+/**
+ * HTML Pre
+ */
+pre {
+    white-space: pre-wrap;
+}
+/**
+ * HTML Form
+ */
+form {
+    margin: 0;
+    padding; 0;
+}
+/**
+ * HTML Inputs, textarea, select, fieldset, legends.
+ */
+input, textarea, select {
+    font-size: 12px;
+    background-color: transparent;
+    vertical-align: top;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    -o-border-radius: 3px;
+    border-radius: 3px;
+}
+select[name=ulang], select[name=nodesel], select[name=groupsel] {
+    width: 100px;
+}
+select:not([name=ulang]):not([name=nodesel]):not([name=groupsel]) {
+    width: 220px;
+}
+input[type=text], input[type=search], input[type=password] {
+    width: 210px;
+}
+textarea {
+    width: 40em;
+    height: 8em;
+}
+legend {
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    -o-border-radius: 3px;
+    border-radius: 3px;
+    padding: 2px 2px;
+    margin: 5px 0;
+    -webkit-text-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
+    -moz-text-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
+    -o-text-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
+    text-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
+}
+fieldset {
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    -o-border-radius: 3px;
+    border-radius: 3px;
+}
+/**
  * Custom elements for FOG
  */
 /**
@@ -71,23 +149,31 @@ img.right {
     width: 50px;
     height: 50px;
 }
+/**
+ * Logo placement
+ */
 #logo {
     position: absolute;
     top: -10px;
 }
-#logo h2 {
-    font-size: 12px;
+/**
+ * The slogan
+ */
+#logo h5 {
     position: absolute;
     width: 210px;
     top: 60px;
 }
 /**
- * HTML Header start.
+ * Version items
  */
-header {
-    min-width: 540px;
-    width: 100%;
-    display: inline-block;
+#version {
+    position: relative;
+    top: -67px;
+    left: 55px;
+    font-size: 10px;
+    vertical-align: text-top;
+    margin-right: 20px;
 }
 /**
  * Under menu
@@ -113,48 +199,62 @@ hr {
     padding: 2px;
 }
 /**
- * Version items
- */
-#version {
-    position: relative;
-    top: -67px;
-    left: 55px;
-    font-size: 10px;
-    vertical-align: text-top;
-    margin-right: 20px;
-}
-/**
  * Wrapper contains sidebar, sidenotes and content
  */
 #wrapper {
     display: flex;
     justify-content: center;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
 }
 /**
  * Sidebar menu
  */
 .sidebar {
     position: absolute;
+    left: 10px;
     display: inline-block;
-    -webkit-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
-    -moz-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
-    box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
-    left: 0;
-    min-width: 200px;
-    height: auto;
-    padding-left: 10px;
-    padding-right: 10px;
+    min-width: 150px;
     margin-right: 20px;
     margin-bottom: 24px;
-    line-height: 24px;
     z-index: 1;
+}
+.sidebar ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    margin-bottom: 20px;
+}
+.sidebar li, .sidenotes {
+    font-size: 12px;
+    line-height: 24px;
+}
+.sidebar li li {
+    margin: 0;
+}
+.sidebar h5, .sidenotes h5 {
+    clear: both;
+    margin: 0 0 10px 0;
+    border-bottom: 1px solid #efefef;
+}
+.sidebar .organic-tabs, .sidenotes {
+    padding: 10px;
+    margin-bottom: 10px;
+    -webkit-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
+    -moz-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
+    -o-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
+    box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
+}
+.sidenotes p {
+    max-width: 120px;
 }
 /**
  * Main content (generalized)
  */
 #content {
-    margin-right: 25px;
-    margin-left: 215px;
     display: inline-block;
     min-width: 440px;
 }
@@ -190,6 +290,25 @@ hr {
     text-align: justify;
 }
 /**
+ * Debug stuff
+ */
+.debug {
+    padding: 5px;
+    margin: 2px 0;
+    background: #fff;
+    border-width: 2px;
+    border-style: solid;
+}
+.debug-error {
+    border-color: red;
+}
+.debug-info {
+    border-color: blue;
+}
+.debug-hook {
+    border-color: magenta;
+}
+/**
  * Hide elements
  */
 .fog-variable, .fog-message-box {
@@ -210,21 +329,89 @@ hr {
 }
 #loader {
     display: none;
-    border: 1px; solid #bbb;
-    background: transparent;
     position: absolute;
-    left: 45%;
+    left: 0;
+    right: 0;
+    top: 10px;
+    margin: auto;
     font-size: 10px;
     min-height: 28px;
+    max-width: 120px;
     -webkit-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
     -moz-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
+    -o-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
     box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
     text-align: center;
     vertical-align: middle;
-    margin-left: 3px;
-    margin-right: 3px;
     padding-left: 3px;
     padding-right: 3px;
+}
+/**
+ * Login form
+ */
+#loginform {
+    display: table;
+}
+#login-form {
+    clear: both;
+    margin: auto auto;
+    max-width: 600px;
+    text-align: center;
+    vertical-align: middle;
+}
+#login-form label {
+    display: inline-block;
+    text-align: right;
+    margin: 3px 5px;
+    min-width: 200px;
+    font-size: 16px;
+}
+#login-form .input {
+    padding: 4px;
+    border: 1px solid #666;
+    min-width: 210px;
+}
+#login-form .input:focus {
+    background-image: none;
+    width: 210px;
+}
+#login-form select {
+    clear: left;
+    border: 1px solid #666;
+    min-width: 220px;
+}
+#login-form-submit {
+    min-width: 220px;
+    margin: 10px 5px;
+}
+#login-form-submit:hover {
+    border: 1px solid #fff;
+}
+#login-form-info {
+    clear: both;
+    text-align: center;
+    display: inline-block;
+    margin: 0 auto;
+    padding: 10px;
+    border: 1px solid #bbb
+    min-width: 540px;
+    background: #fff;
+    font-size: 12px;
+    -webkit-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
+    -moz-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
+    -o-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
+    box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
+    margin-top: 10px;
+}
+#login-form-info p {
+    margin: 0;
+    text-align: justify;
+}
+#login-form-info b {
+    color: #00567a;
+}
+#login-form-info .icon {
+    vertical-align: text-bottom;
 }
 /**
  * Main content dashboard
@@ -267,6 +454,7 @@ hr {
     overflow: hidden;
     -webkit-box-shadow: 0 2px 6px 2px rgba(0,0,0,0.2);
     -moz-box-shadow: 0 2px 6px 2px rgba(0,0,0,0.2);
+    -o-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
     box-shadow: 0 2px 6px 2px rgba(0,0,0,0.2);
 }
 .dashboard-boxes li h5 {
@@ -303,16 +491,50 @@ hr {
     height: 120px;
     margin-top: 5px;
 }
+/**
+ * Graph bandwidth
+ */
+#graph-bandwidth {
+    margin-top: 20px;
+    z-index: 1;
+}
+#graph-bandwidth-filters a {
+    font-size: 10px;
+    margin: 0;
+    padding: 2px 5px;
+    text-decoration: none;
+    font-weight: bold;
+}
+#graph-bandwidth-filters a.active, #graph-bandwidth-filters a:hover {
+    color: orange;
+}
+#graph-bandwidth-filters .l {
+    position: relative;
+    clear: right;
+    float: left;
+    top: -11px;
+    left: 57px;
+}
+#graph-bandwidth-filters .r {
+    position: relative;
+    clear: left;
+    float: right;
+    top: -28px;
+    right: 21px;
+}
+/**
+ * Footer placement
+ */
 #footer {
     position: fixed;
     width: 100%;
     clear: both;
     height: 24px;
+    left: 0;
     line-height: 24px;
     font-size: 11px;
     font-weight: bold;
     background: #c7cede;
-    clear: both;
     text-align: center;
     bottom: 0;
 }

@@ -192,7 +192,7 @@ class FOGSubMenu extends FOGBase
             ob_start();
             foreach ((array) $data as $info => &$title) {
                 printf(
-                    '<h3>%s</h3><p>%s</p>',
+                    '<h5>%s</h5><p>%s</p>',
                     $this->fixTitle($title),
                     $info
                 );
@@ -217,7 +217,7 @@ class FOGSubMenu extends FOGBase
             foreach ((array) $this->items[$node] as $title => &$data) {
                 self::$_title = $this->fixTitle($title);
                 printf(
-                    '<div class="organic-tabs"><h2>%s</h2><ul>',
+                    '<div class="organic-tabs"><h5>%s</h5><ul>',
                     self::$_title
                 );
                 foreach ((array) $data as $label => &$link) {
@@ -273,7 +273,7 @@ class FOGSubMenu extends FOGBase
         }
         if ($this->notes[$node]) {
             printf(
-                '<div id="sidenotes">%s</div>',
+                '<div class="sidenotes">%s</div>',
                 implode($this->notes[$node])
             );
         }

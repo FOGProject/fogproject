@@ -92,7 +92,7 @@ if (!self::$isMobile) {
     echo '</a>';
     echo '</h1>';
     printf(
-        '<h2>%s</h2>',
+        '<h5>%s</h5>',
         self::$foglang['Slogan']
     );
     echo '<div id="version">';
