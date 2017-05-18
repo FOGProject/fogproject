@@ -84,8 +84,7 @@ class UserManagementPage extends FOGPage
             _('Mobile Only?'),
             _('API?'),
             _('Username'),
-            _('Friendly Name'),
-            _('Edit')
+            _('Friendly Name')
         );
         $this->templates = array(
             '<input type="checkbox" name="user[]" value='
@@ -98,14 +97,7 @@ class UserManagementPage extends FOGPage
                 $this->id,
                 _('Edit User')
             ),
-            '${friendly}',
-            sprintf(
-                '<a href="?node=%s&sub=edit&%s=${id}" title="%s">'
-                . '<i class="icon fa fa-pencil"></i></a>',
-                $this->node,
-                $this->id,
-                _('Edit User')
-            )
+            '${friendly}'
         );
         $this->attributes = array(
             array(
@@ -121,11 +113,7 @@ class UserManagementPage extends FOGPage
                 'width' => 22
             ),
             array(),
-            array(),
-            array(
-                'class' => 'c filter-false',
-                'width' => 55
-            )
+            array()
         );
         $types = array();
         self::$HookManager->processEvent(

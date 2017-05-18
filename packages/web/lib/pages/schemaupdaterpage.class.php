@@ -96,7 +96,7 @@ class SchemaUpdaterPage extends FOGPage
             . '<p class="c"><input type="hidden" '
             . 'name="fogverified"/><input type="submit" '
             . 'name="confirm" value="%s"/></p></form>'
-            . '<p>%s</p><div id="sidenotes">'
+            . '<p>%s</p><div class="sidenotes">'
             . '<pre><code>cd%smysqldump --allow-keywords '
             . '-x -v fog > fogbackup.sql</code></pre></div>'
             . '<br/></div>',
