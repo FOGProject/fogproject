@@ -75,12 +75,15 @@ table {
     margin-bottom: 24px;
 }
 table tr {
+    margin: 5px;
 }
-table tr td {
+table tr td:not(.legendColorBox):not(.legendLabel) {
+    margin: 10px;
+    padding: 5px;
     width: auto;
     text-align: left;
-    word-break: break-all;
-    word-wrap: break-word;
+    overflow: hidden;
+    white-space: nowrap;
 }
 table textarea {
     width: 100%;
@@ -130,9 +133,9 @@ input[type=password],
 input[type=submit],
 input[type=button],
 button {
-    text-align: center;
     background: transparent;
-    min-height: 20px;
+    min-height: 24px;
+    min-width: 210px;
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;
     -o-border-radius: 3px;
@@ -229,24 +232,25 @@ hr {
  */
 #wrapper {
     display: flex;
-    justify-content: center;
+    justify-content: left;
+    position: relative;
     top: 0;
     bottom: 0;
     left: 0;
     right: 0;
-    margin: auto;
 }
 /**
  * Sidebar menu
  */
 .sidebar {
     position: absolute;
-    left: 10px;
     display: inline-block;
+    margin-right: 20px;
     min-width: 150px;
     margin-right: 20px;
     margin-bottom: 24px;
     z-index: 1;
+    margin-left: 10px;
 }
 .sidebar ul {
     margin: 0;
@@ -283,12 +287,14 @@ hr {
 #content {
     display: flex;
     justify-content: center;
+    position: relative;
     top: 0;
     bottom: 0;
     left: 0;
     right: 0;
     margin: auto;
     min-width: 440px;
+    padding-bottom: 24px;
 }
 #content h1 {
     text-align: center;
@@ -565,17 +571,17 @@ hr {
     text-align: center;
 }
 .search-input {
+    text-align: center;
     margin-right: 5px;
 }
 .search-submit {
     color: #00567a;
     position: relative;
-    top: -1px;
     min-width: 0;
     padding: 0;
     margin: 0;
-    width: 28px;
-    height: 28px;
+    width: 29px;
+    height: 29px;
     vertical-align: top;
 }
 /**
@@ -590,6 +596,114 @@ hr {
 #pigz {
     width: 200px;
     top: 15px;
+}
+/**
+ * Custom table elements.
+ */
+table td .icon {
+    margin: 0 3px;
+}
+.header {
+    padding: 8px;
+    background: #00567a;
+    color: #fff;
+    font-weight: normal;
+    text-align: center;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    -o-border-radius: 3px;
+    border-radius: 3px;
+}
+table tr.header {
+    color: #ededed;
+}
+table tr.header th {
+    background: #00567a;
+}
+table tr.header th:first-child {
+    -webkit-border-radius: 3px 0 0 0;
+    -moz-border-radius: 3px 0 0 0;
+    -o-border-radius: 3px 0 0 0;
+    border-radius: 3px 0 0 0;
+}
+table tr.header th:last-child {
+    -webkit-border-radius: 0 3px 0 0;
+    -moz-border-radius: 0 3px 0 0;
+    -o-border-radius: 0 3px 0 0;
+    border-radius: 0 3px 0 0;
+}
+table tr.header th.toggle,
+table tr.header th.edit,
+table tr.header th.ping {
+    width: auto;
+}
+table tr.header a {
+    color: #ededed;
+}
+.tablesorter .filtered,
+input[type=search].disabled {
+    display: none;
+}
+/**
+ * Code block
+ */
+.code {
+    font-family: monospace;
+    font-size: 12px;
+    line-height: 20px;
+}
+/**
+ * Progress
+ */
+#progress {
+    text-align: center;
+    margin-bottom: 5px;
+}
+/**
+ * Padding
+ */
+.padded {
+    margin: 4px;
+}
+/**
+ * Bolder
+ */
+.bolder {
+    font-weight: bold;
+}
+/**
+ * Hidden
+ */
+.hidden {
+    display: none;
+}
+/**
+ * Action boxes
+ */
+#action-box, #action-boxdel {
+    display: none;
+    padding: 10px;
+    margin-bottom: 10px;
+    text-align: center;
+    -webkit-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
+    -moz-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
+    -o-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
+    box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
+}
+#action-box p, #action-boxdel p {
+    margin: 5px;
+    line-height: 20px;
+}
+#action-box label, #action-boxdel label {
+    float: left;
+    clear: right;
+    min-width: 300px;
+    text-align: right;
+}
+#action-box input:not([type=submit]),
+#action-boxdel input:not([type=submit]),
+#action-box select {
+    text-align: right;
 }
 /**
  * Footer placement
