@@ -40,7 +40,7 @@ class AddHostModel extends Hook
      *
      * @var bool
      */
-    public $active = true;
+    public $active = false;
     /**
      * Initializes object.
      *
@@ -80,7 +80,8 @@ class AddHostModel extends Hook
         }
         $arguments['templates'][] = '${model}';
         $arguments['attributes'][] = array(
-            'class' => 'c'
+            'class' => 'c',
+            'width' => '20',
         );
         $items = $arguments['data'];
         $hostnames = array();

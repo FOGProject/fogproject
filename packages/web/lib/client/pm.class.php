@@ -80,8 +80,18 @@ class PM extends FOGClient
             $hour = trim($PMTask->get('hour'));
             $dom = trim($PMTask->get('dom'));
             $month = trim($PMTask->get('month'));
-            $dow = trim($PMTask->get('dow'));
-            $cron = sprintf('%s %s %s %s %s', $min, $hour, $dom, $month, $dow);
+            $dow = (int)trim($PMTask->get('dow'));
+            if ($dow < 1) {
+                $dow = 7;
+            }
+            $cron = sprintf(
+                '%s %s %s %s %s',
+                $min,
+                $hour,
+                $dom,
+                $month,
+                $dow
+            );
             $action = $PMTask->get('action');
             $data['tasks'][] = array(
                 'cron' => $cron,

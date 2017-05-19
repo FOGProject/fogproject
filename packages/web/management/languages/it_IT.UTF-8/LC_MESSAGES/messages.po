@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-18 13:00-0400\n"
+"POT-Creation-Date: 2017-05-18 21:05-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -3622,7 +3622,7 @@ msgid "Printer Type"
 msgstr "Tipo stampante"
 
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:83
-#: /var/www/fog/lib/hooks/addhostmodel.hook.php:117
+#: /var/www/fog/lib/hooks/addhostmodel.hook.php:118
 #: /var/www/fog/commons/text.php:24
 msgid "Model"
 msgstr "Modello"
@@ -8133,7 +8133,7 @@ msgstr "Tempo reale di inserimento"
 msgid "Login time"
 msgstr "Tempo di accesso"
 
-#: /var/www/fog/lib/hooks/addhostserial.hook.php:117
+#: /var/www/fog/lib/hooks/addhostserial.hook.php:118
 msgid "Serial"
 msgstr "Seriale"
 

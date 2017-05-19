@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-18 13:00-0400\n"
+"POT-Creation-Date: 2017-05-18 21:05-0400\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -3800,7 +3800,7 @@ msgid "Printer Type"
 msgstr "Druckertyp"
 
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:83
-#: /var/www/fog/lib/hooks/addhostmodel.hook.php:117
+#: /var/www/fog/lib/hooks/addhostmodel.hook.php:118
 #: /var/www/fog/commons/text.php:24
 msgid "Model"
 msgstr "Modell"
@@ -8641,7 +8641,7 @@ msgstr "Wiederholung von Journal: echte Zeit einfügen"
 msgid "Login time"
 msgstr "Anmeldung"
 
-#: /var/www/fog/lib/hooks/addhostserial.hook.php:117
+#: /var/www/fog/lib/hooks/addhostserial.hook.php:118
 msgid "Serial"
 msgstr "Serielle"
 

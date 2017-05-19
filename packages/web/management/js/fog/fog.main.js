@@ -405,7 +405,7 @@ function checkMonthField(month) {
     return checkField(month,1,12);
 }
 function checkDOWField(DOW) {
-    return checkField(DOW,0,6);
+    return checkField(DOW,0,7);
 }
 function checkboxAssociations(selector,checkselectors) {
     $(selector).change(function(e) {
