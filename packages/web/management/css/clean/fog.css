@@ -43,7 +43,7 @@ a {
     text-decoration: none;
     color: #00567a;
 }
-a:hover, a:active, .activelink {
+a:hover, a:active, .activelink, .active {
     color: #0700de;
 }
 /**
@@ -71,9 +71,16 @@ header {
 /**
  * HTML Table
  */
-/*table {
-    min-width: 540px;
+table {
     margin-bottom: 24px;
+}
+table tr {
+}
+table tr td {
+    width: auto;
+    text-align: left;
+    word-break: break-all;
+    word-wrap: break-word;
 }
 table textarea {
     width: 100%;
@@ -99,6 +106,7 @@ form {
  * HTML Inputs, textarea, select, fieldset, legends.
  */
 input, textarea, select {
+    color: #00567a;
     font-size: 12px;
     background-color: transparent;
     vertical-align: top;
@@ -106,6 +114,9 @@ input, textarea, select {
     -moz-border-radius: 3px;
     -o-border-radius: 3px;
     border-radius: 3px;
+    min-width: 16px;
+    max-width: 210px;
+    min-height: 20px;
 }
 select[name=ulang], select[name=nodesel], select[name=groupsel] {
     width: 100px;
@@ -113,8 +124,23 @@ select[name=ulang], select[name=nodesel], select[name=groupsel] {
 select:not([name=ulang]):not([name=nodesel]):not([name=groupsel]) {
     width: 220px;
 }
-input[type=text], input[type=search], input[type=password] {
-    width: 210px;
+input[type=text],
+input[type=search]:not(.tablesorter-filter),
+input[type=password],
+input[type=submit],
+input[type=button],
+button {
+    text-align: center;
+    background: transparent;
+    min-height: 20px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    -o-border-radius: 3px;
+    border-radius: 3px;
+    -webkit-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
+    -moz-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
+    -o-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
+    box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
 }
 textarea {
     width: 40em;
@@ -255,7 +281,13 @@ hr {
  * Main content (generalized)
  */
 #content {
-    display: inline-block;
+    display: flex;
+    justify-content: center;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
     min-width: 440px;
 }
 #content h1 {
@@ -318,6 +350,13 @@ hr {
  * Loader information.
  */
 #loader-wrapper {
+    display: flex;
+    justify-content: center;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
     z-index: 1;
     min-width: 200px;
     max-width: 300px;
@@ -406,9 +445,6 @@ hr {
 #login-form-info p {
     margin: 0;
     text-align: justify;
-}
-#login-form-info b {
-    color: #00567a;
 }
 #login-form-info .icon {
     vertical-align: text-bottom;
@@ -505,9 +541,6 @@ hr {
     text-decoration: none;
     font-weight: bold;
 }
-#graph-bandwidth-filters a.active, #graph-bandwidth-filters a:hover {
-    color: #0700de;
-}
 #graph-bandwidth-filters .l {
     position: relative;
     clear: right;
@@ -521,6 +554,42 @@ hr {
     float: right;
     top: -28px;
     right: 21px;
+}
+/**
+ * Search elements.
+ */
+#search h2 {
+    margin-bottom: 20px;
+}
+#search-wrapper {
+    text-align: center;
+}
+.search-input {
+    margin-right: 5px;
+}
+.search-submit {
+    color: #00567a;
+    position: relative;
+    top: -1px;
+    min-width: 0;
+    padding: 0;
+    margin: 0;
+    width: 28px;
+    height: 28px;
+    vertical-align: top;
+}
+/**
+ * Fakes
+ */
+.fakes {
+    display: none;
+}
+/**
+ * Pigz information
+ */
+#pigz {
+    width: 200px;
+    top: 15px;
 }
 /**
  * Footer placement
