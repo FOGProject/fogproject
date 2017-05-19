@@ -127,7 +127,6 @@ function AJAXServerTime() {
                     .addClass('loading')
             },
             success: function(response) {
-                history.pushState(null, null, url);
                 if (response === null || response.data === null) {
                     dataLength = 0;
                 } else {
@@ -199,9 +198,6 @@ $.fn.fogVariable = function(opts) {
 }
 $.fn.fogAjaxSearch = function(opts) {
     if (this.length == 0) return this;
-    if ($.inArray(sub,['list','listhosts','listgroups','storageGroup']) > -1) {
-        return this;
-    }
     var Defaults = {
         URL: $('#search-wrapper').prop('action'),
         Container: '#search-content,#active-tasks',
@@ -215,7 +211,10 @@ $.fn.fogAjaxSearch = function(opts) {
     Container = $(Options.Container);
     if (!Container.length) return this;
     callme = 'hide';
-    if ($('tbody > tr',Container).filter('.no-active-tasks').length > 0) callme = 'show';
+    if ($('tbody > tr', Container).filter('.no-active-tasks').length > 0
+        || $.inArray(sub,['list','listhosts','listgroups','storageGroup']) > -1) {
+        callme = 'show';
+    }
     Container[callme]().fogTableInfo().trigger('updateAll');
     ActionBox[callme]();
     ActionBoxDel[callme]();
