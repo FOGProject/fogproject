@@ -5,7 +5,6 @@
  */
 html, body {
     min-height: 440px;
-    min-width: 320px;
 }
 body {
     font-family: Tahoma, Geneva, sans-serif;
@@ -74,10 +73,8 @@ header {
 table {
     margin-bottom: 24px;
 }
-table tr {
-    margin: 5px;
-}
-table tr td:not(.legendColorBox):not(.legendLabel) {
+table tr td:not(.legendColorBox):not(.legendLabel), 
+table tr th:not(.legendColorBox):not(.legendLabel) {
     margin: 10px;
     padding: 5px;
     width: auto;
@@ -132,7 +129,9 @@ input[type=search]:not(.tablesorter-filter),
 input[type=password],
 input[type=submit],
 input[type=button],
-button {
+button,
+select:not([name=groupsel]):not([name=nodesel]),
+.select2 {
     background: transparent;
     min-height: 24px;
     min-width: 210px;
@@ -145,11 +144,16 @@ button {
     -o-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
     box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
 }
+.select2, select:not([name=groupsel]):not([name=nodesel]) {
+    min-width: 216px;
+}
 textarea {
     width: 40em;
     height: 8em;
 }
 legend {
+    font-weight: bold;
+    font-size: 16px;
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;
     -o-border-radius: 3px;
@@ -303,6 +307,8 @@ hr {
     text-align: center;
 }
 #content-inner {
+    position: absolute;
+    min-width: 850px;
     display: inline-block;
     padding-bottom: 24px;
 }
@@ -407,23 +413,24 @@ hr {
 #login-form label {
     display: inline-block;
     text-align: right;
-    margin: 3px 5px;
+    vertical-align: middle;
+    margin: 6px; 5px;
     min-width: 200px;
     font-size: 16px;
 }
 #login-form .input {
     padding: 4px;
+    margin: 5px 5px;
     border: 1px solid #666;
     min-width: 210px;
 }
 #login-form .input:focus {
     background-image: none;
-    width: 210px;
 }
 #login-form select {
     clear: left;
-    border: 1px solid #666;
     min-width: 220px;
+    height: 28px;
 }
 #login-form-submit {
     min-width: 220px;
