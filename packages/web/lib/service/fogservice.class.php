@@ -617,7 +617,7 @@ abstract class FOGService extends FOGBase
                     $avail = true;
                     $index = self::arrayFind(
                         basename($localfile),
-                        $remotefilescheck
+                        (array)$remotefilescheck
                     );
                     $filesize_main = self::getFilesize($localfile);
                     $filesize_rem = self::$FOGFTP->size(
