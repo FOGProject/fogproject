@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-18 21:05-0400\n"
+"POT-Creation-Date: 2017-05-19 22:17-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -4683,18 +4683,18 @@ msgstr "imaged"
 #: /var/www/fog/lib/service/multicastmanager.class.php:359
 #: /var/www/fog/lib/service/multicastmanager.class.php:369
 #: /var/www/fog/lib/service/multicastmanager.class.php:384
-#: /var/www/fog/lib/service/multicastmanager.class.php:399
-#: /var/www/fog/lib/service/multicastmanager.class.php:412
-#: /var/www/fog/lib/service/multicastmanager.class.php:422
-#: /var/www/fog/lib/service/multicastmanager.class.php:433
-#: /var/www/fog/lib/service/multicastmanager.class.php:442
-#: /var/www/fog/lib/service/multicastmanager.class.php:451
-#: /var/www/fog/lib/service/multicastmanager.class.php:467
-#: /var/www/fog/lib/service/multicastmanager.class.php:484
-#: /var/www/fog/lib/service/multicastmanager.class.php:536
-#: /var/www/fog/lib/service/multicastmanager.class.php:548
-#: /var/www/fog/lib/service/multicastmanager.class.php:565
-#: /var/www/fog/lib/service/multicastmanager.class.php:588
+#: /var/www/fog/lib/service/multicastmanager.class.php:403
+#: /var/www/fog/lib/service/multicastmanager.class.php:416
+#: /var/www/fog/lib/service/multicastmanager.class.php:426
+#: /var/www/fog/lib/service/multicastmanager.class.php:437
+#: /var/www/fog/lib/service/multicastmanager.class.php:446
+#: /var/www/fog/lib/service/multicastmanager.class.php:455
+#: /var/www/fog/lib/service/multicastmanager.class.php:471
+#: /var/www/fog/lib/service/multicastmanager.class.php:488
+#: /var/www/fog/lib/service/multicastmanager.class.php:540
+#: /var/www/fog/lib/service/multicastmanager.class.php:552
+#: /var/www/fog/lib/service/multicastmanager.class.php:569
+#: /var/www/fog/lib/service/multicastmanager.class.php:592
 #: /var/www/fog/commons/text.php:84
 msgid "Task"
 msgstr "Compito"
@@ -7742,12 +7742,12 @@ msgid "is being cleaned"
 msgstr "viene pulita"
 
 #: /var/www/fog/lib/service/multicastmanager.class.php:297
-#: /var/www/fog/lib/service/multicastmanager.class.php:568
+#: /var/www/fog/lib/service/multicastmanager.class.php:572
 msgid "has been cancelled"
 msgstr "è stato cancellato"
 
 #: /var/www/fog/lib/service/multicastmanager.class.php:318
-#: /var/www/fog/lib/service/multicastmanager.class.php:591
+#: /var/www/fog/lib/service/multicastmanager.class.php:595
 msgid "has been completed"
 msgstr "è stato completato"
 
@@ -7761,7 +7761,7 @@ msgstr "è nuovo"
 
 #: /var/www/fog/lib/service/multicastmanager.class.php:372
 #: /var/www/fog/lib/service/multicastmanager.class.php:387
-#: /var/www/fog/lib/service/multicastmanager.class.php:402
+#: /var/www/fog/lib/service/multicastmanager.class.php:406
 msgid "failed to execute"
 msgstr "Non è stato eseguito"
 
@@ -7777,60 +7777,60 @@ msgstr "Non trovato su questo nodo"
 msgid "no clients are included"
 msgstr "Nessun client è incluso"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:403
+#: /var/www/fog/lib/service/multicastmanager.class.php:407
 msgid "port must be even and numeric"
 msgstr "La porta deve essere pari e numerica"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:415
+#: /var/www/fog/lib/service/multicastmanager.class.php:419
 msgid "failed to start"
 msgstr "non è riuscito a iniziare"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:425
-#: /var/www/fog/lib/service/multicastmanager.class.php:436
+#: /var/www/fog/lib/service/multicastmanager.class.php:429
+#: /var/www/fog/lib/service/multicastmanager.class.php:440
 msgid "has been cleaned"
 msgstr "è stato pulito"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:445
+#: /var/www/fog/lib/service/multicastmanager.class.php:449
 msgid "image file found"
 msgstr "trovato file immagine"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:455
+#: /var/www/fog/lib/service/multicastmanager.class.php:459
 msgid "client"
 msgstr "client"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:461
+#: /var/www/fog/lib/service/multicastmanager.class.php:465
 msgid "found"
 msgstr "trovato"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:470
+#: /var/www/fog/lib/service/multicastmanager.class.php:474
 msgid "sending on base port"
 msgstr "Inviando sulla porta di base"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:477
+#: /var/www/fog/lib/service/multicastmanager.class.php:481
 msgid "Command"
 msgstr "Comando"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:487
+#: /var/www/fog/lib/service/multicastmanager.class.php:491
 msgid "has started"
 msgstr "è iniziato"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:539
+#: /var/www/fog/lib/service/multicastmanager.class.php:543
 msgid "is already running with pid"
 msgstr "è già in esecuzione con pid"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:551
+#: /var/www/fog/lib/service/multicastmanager.class.php:555
 msgid "is no longer running"
 msgstr "non è più in esecuzione"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:614
+#: /var/www/fog/lib/service/multicastmanager.class.php:618
 msgid "Wait time has changed to"
 msgstr "Il tempo di attesa è cambiato"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:618
+#: /var/www/fog/lib/service/multicastmanager.class.php:622
 msgid "seconds"
 msgstr "secondi"
 
-#: /var/www/fog/lib/service/multicastmanager.class.php:619
+#: /var/www/fog/lib/service/multicastmanager.class.php:623
 msgid "second"
 msgstr "secondo"
 

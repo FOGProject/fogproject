@@ -428,8 +428,8 @@ header
 #version
 {
     position: relative;
-    top: -90px;
-    left: 210px;
+    left: 110px;
+    top: -95px;
     font-size: 10px;
     vertical-align: text-top;
     max-width: 210px;
