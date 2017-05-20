@@ -390,6 +390,10 @@ class MulticastManager extends FOGService
                                 );
                                 continue;
                             }
+                            $curTask
+                                ->getSess()
+                                ->set('stateID', self::getProgressState())
+                                ->save();
                             if (!is_numeric($curTask->getPortBase())
                                 || !($curTask->getPortBase() % 2 == 0)
                             ) {
