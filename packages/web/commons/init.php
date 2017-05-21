@@ -238,53 +238,11 @@ class Initiator
      */
     private static function _determineBasePath()
     {
-        /**
-         * Gets our script name and path.
-         */
-        $script_name = filter_input(INPUT_SERVER, 'SCRIPT_NAME');
-        /**
-         * Stores our matching if fog is in the name variable
-         */
-        $match = false !== stripos($script_name, '/fog/');
-        if ($match) {
-            $match = 'fog/';
-        } else {
-            $match = '';
-        }
-        /**
-         * Defines our webroot path.
-         */
-        define(
-            'WEB_ROOT',
-            sprintf(
-                '/%s',
-                $match
-            )
+        return sprintf(
+            '%s%s',
+            dirname(__DIR__),
+            DIRECTORY_SEPARATOR
         );
-        /**
-         * Check for /srv/http/fog, /var/www/html/fog, or /var/www/fog.
-         * Otherwise use the document root as defined by the server.
-         */
-        if (file_exists('/srv/http/fog')) {
-            $path = '/srv/http/fog';
-        } elseif (file_exists('/var/www/html/fog')) {
-            $path = '/var/www/html/fog';
-        } elseif (file_exists('/var/www/fog')) {
-            $path = '/var/www/fog';
-        } else {
-            $docroot = trim(
-                filter_input(INPUT_SERVER, 'DOCUMENT_ROOT'),
-                '/'
-            );
-            $path = sprintf(
-                '/%s',
-                sprintf(
-                    '/%s',
-                    WEB_ROOT
-                )
-            );
-        }
-        return $path;
     }
     /**
      * Initiates the environment
