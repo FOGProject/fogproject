@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-19 22:17-0400\n"
+"POT-Creation-Date: 2017-05-21 13:52-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -8161,7 +8161,7 @@ msgstr "Credits"
 msgid "FOG Client"
 msgstr "FOG Client"
 
-#: /var/www/fog/commons/init.php:447
+#: /var/www/fog/commons/init.php:405
 msgid "Missing one or more extensions."
 msgstr "Manca una o più estensioni."
 
