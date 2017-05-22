@@ -58,5 +58,6 @@ class System
         define('FOG_BCACHE_VER', 118);
         define('FOG_SVN_REVISION', 6070);
         define('FOG_CLIENT_VERSION', '0.11.12');
+        define('DS', addslashes(DIRECTORY_SEPARATOR));
     }
 }
