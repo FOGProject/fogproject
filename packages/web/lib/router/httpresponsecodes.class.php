@@ -209,7 +209,7 @@ class HTTPResponseCodes
     }
     /**
      * Returns header string as appropriate.
-     * 
+     *
      * @param int $code The code to lookup
      *
      * @return string

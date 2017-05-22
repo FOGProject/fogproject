@@ -98,5 +98,4 @@ class AccessControlAssociationManager extends FOGManagerController
         self::getClass('AccessControlRuleManager')->uninstall();
         return parent::uninstall();
     }
-
 }

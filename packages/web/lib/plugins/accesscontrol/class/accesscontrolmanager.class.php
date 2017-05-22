@@ -93,7 +93,6 @@ class AccessControlManager extends FOGManagerController
             self::$DB->query($sql);
         }
         return self::getClass('AccessControlAssociationManager')->install();
-
     }
     /**
      * Uninstalls the plugin
@@ -104,6 +103,5 @@ class AccessControlManager extends FOGManagerController
     {
         self::getClass('AccessControlAssociationManager')->uninstall();
         return parent::uninstall();
-
     }
 }

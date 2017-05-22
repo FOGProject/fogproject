@@ -145,7 +145,7 @@ class TasktypeeditManagementPage extends FOGPage
                 $_REQUEST['kernel']
             ),
             _('Kernel Arguments') => sprintf(
-                '<input type="text" name="kernelargs" class="smaller" value="%s"/>', 
+                '<input type="text" name="kernelargs" class="smaller" value="%s"/>',
                 $_REQUEST['kernelargs']
             ),
             _('Type') => sprintf(

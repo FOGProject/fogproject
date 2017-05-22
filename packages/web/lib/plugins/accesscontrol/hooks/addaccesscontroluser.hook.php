@@ -217,7 +217,6 @@ class AddAccessControlUser extends Hook
                 $acID
             )
         );
-
     }
     /**
      * This function adds one entry in the roleUserAssoc table in the DB

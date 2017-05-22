@@ -25,7 +25,7 @@ interface AltoTransformer
      * Transform a parameter headed from a URL (i.e. during matching)
      *
      * @param mixed $value The value to transform.
-     * 
+     *
      * @return mixed
      */
     public function fromUrl($value);

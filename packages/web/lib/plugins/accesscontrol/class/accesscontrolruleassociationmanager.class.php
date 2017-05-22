@@ -63,8 +63,8 @@ class AccessControlRuleAssociationManager extends FOGManagerController
                 false
             ),
             array(
-		array('rraRoleID','rraRuleID')
-		),
+        array('rraRoleID','rraRuleID')
+        ),
             'MyISAM',
             'utf8',
             'rraID',
@@ -73,13 +73,13 @@ class AccessControlRuleAssociationManager extends FOGManagerController
         if (self::$DB->query($sql)) {
             $sql = "CREATE UNIQUE INDEX `indexmul` "
                 . "ON `roleRuleAssoc` (`rraRoleID`, `rraRuleID`)";
-           return self::$DB->query($sql);
+            return self::$DB->query($sql);
         }
         return false;
     }
     
     public function uninstall()
     {
-    	return parent::uninstall();
+        return parent::uninstall();
     }
 }

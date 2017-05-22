@@ -54,7 +54,7 @@ class AccessControlManagementPage extends FOGPage
         /**
          * Customize our settings as needed.
          */
-        switch($sub){
+        switch ($sub) {
         case 'edit':
         case 'delete':
             parent::__construct($this->name);
@@ -274,7 +274,6 @@ class AccessControlManagementPage extends FOGPage
      */
     public function index()
     {
-
         $this->title = _('All Roles');
         foreach ((array)self::getClass('AccessControlManager')
             ->find() as &$AccessControl
@@ -799,7 +798,6 @@ class AccessControlManagementPage extends FOGPage
      */
     public function deleteRule()
     {
-
         $this->title = sprintf(
             '%s: %s',
             self::$foglang['Remove'],
@@ -862,7 +860,6 @@ class AccessControlManagementPage extends FOGPage
                 array('AccessControlRule' => &$this->obj)
             );
         try {
-
             if (!$this->obj->destroy()) {
                 throw new Exception(_('Fail to delete rule'));
             }
@@ -1086,13 +1083,11 @@ class AccessControlManagementPage extends FOGPage
                 }
                 unset($AccessControlRuleAssociation);
                 unset($Rule);
-
             }
             unset($ruleID);
 
             self::setMessage(_('Rule Added, editing!'));
             self::redirect('?node=accesscontrol&sub=ruleList');
-
         } catch (Exception $e) {
             self::setMessage($e->getMessage());
             self::redirect($this->formAction);

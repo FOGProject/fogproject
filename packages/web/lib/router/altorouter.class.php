@@ -213,7 +213,7 @@ class AltoRouter
         if (!is_array($routes)
             && !$routes instanceof \Traversable
         ) {
-            $msg 
+            $msg
                 = 'Routes should be an array or an instance of Traversable';
             if (!defined('HHVM_VERSION')) {
                 $msg = _('Routes should be an array or an instance of Traversable');
@@ -426,7 +426,7 @@ class AltoRouter
      * @param string $requestUrl    The request url if needed specifically.
      * @param string $requestMethod The request method if needed specifically.
      *
-     * @return array|boolean 
+     * @return array|boolean
      */
     public function match(
         $requestUrl = null,
