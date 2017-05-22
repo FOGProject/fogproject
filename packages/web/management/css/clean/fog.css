@@ -321,6 +321,10 @@ header {
     padding-bottom: 24px;
 }
 @media all and (max-width: 1366px) {
+    #loader-wrapper {
+        position: relative;
+        left: 100px;
+    }
     #content-inner {
         margin-left: 0;
         left: 220px;
