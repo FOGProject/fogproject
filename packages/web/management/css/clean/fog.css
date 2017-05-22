@@ -60,13 +60,6 @@ img.right {
     float: right;
 }
 /**
- * HTML Header start.
- */
-header {
-    width: 100%;
-    display: inline-block;
-}
-/**
  * HTML Table
  */
 table {
@@ -189,13 +182,16 @@ fieldset {
     display: inline-block;
     width: 50px;
     height: 50px;
+    margin-left: 10px;
 }
 /**
  * Logo placement
  */
 #logo {
+    max-height: 75px;
     position: absolute;
     top: -10px;
+    left: 0;
 }
 /**
  * The slogan
@@ -204,14 +200,15 @@ fieldset {
     position: absolute;
     min-width: 230px;
     top: 60px;
+    margin: 10px;
 }
 /**
  * Version items
  */
-#logo #version {
+#version {
     position: relative;
     top: -67px;
-    left: 55px;
+    left: 65px;
     font-size: 10px;
     vertical-align: text-top;
     margin-right: 20px;
@@ -222,16 +219,21 @@ fieldset {
 hr {
     border: 1px solid #efefef;
 }
+header {
+    display: inline-block;
+    width: 100%;
+}
 /**
  * Main menu
  */
 .menu {
     height: 25px;
-    top: 25px;
+}
+.nav-list {
+    list-style: none;
     text-align: center;
 }
-.nav-list .nav-item {
-    text-align: center;
+.nav-item {
     display: inline-block;
 }
 .nav-item .nav-link {
@@ -314,7 +316,6 @@ hr {
     right: 0;
     margin: 0 auto;
     min-width: 320px;
-    max-width: 850px;
     display: inline-block;
     padding-bottom: 24px;
 }
