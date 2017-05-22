@@ -301,15 +301,19 @@ class ProcessLogin extends FOGPage
         printf(
             '<div id="loginform">'
             . '<form method="post" action="%s" id="login-form">'
+            . '<div class="input-field">'
             . '<label for="username">%s</label>'
             . '<input type="text" class="input" name="uname" id="username"/>'
+            . '</div><div class="input-field">'
             . '<label for="password">%s</label>'
             . '<input type="password" class="input" name="upass" id="password"/>'
+            . '</div><div class="input-field">'
             . '<label for="language">%s</label>'
             . '<select name="ulang" id="language">%s</select>'
-            . '<label for="login-form-submit"> </label>'
+            . '</div><div class="input-field">'
+            . '<label for="login-form-submit">&nbsp;</label>'
             . '<input type="submit" value="%s" id="login-form-submit" name="login"/>'
-            . '</form></div>%s',
+            . '</div></form></div>%s',
             $this->formAction,
             self::$foglang['Username'],
             self::$foglang['Password'],

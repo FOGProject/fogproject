@@ -421,45 +421,39 @@ hr {
  */
 #loginform {
     display: table;
+    margin: 0 auto;
 }
 #login-form {
-    clear: both;
-    margin: auto auto;
-    max-width: 600px;
     text-align: center;
     vertical-align: middle;
 }
-#login-form label {
-    display: inline-block;
-    text-align: right;
+#login-form .input-field {
+    display: table-row;
     vertical-align: middle;
-    margin: 6px; 5px;
-    min-width: 200px;
+}
+#login-form .input-field label {
+    display: table-cell;
+    vertical-align: middle;
     font-size: 16px;
 }
 #login-form .input {
-    padding: 4px;
-    margin: 5px 5px;
+    display: table-cell;
+    vertical-align: middle;
+    margin: 10px;
     border: 1px solid #666;
     min-width: 210px;
 }
-#login-form .input:focus {
-    background-image: none;
-}
 #login-form select {
-    clear: left;
-    min-width: 220px;
+    min-width: 210px;
     height: 28px;
 }
 #login-form-submit {
-    min-width: 220px;
-    margin: 10px 5px;
-}
-#login-form-submit:hover {
-    border: 1px solid #fff;
+    min-width: 210px;
+    height: 28px;
+    margin: 10px;
 }
 #login-form-info {
-    clear: both;
+    min-width: 300px;
     text-align: center;
     display: inline-block;
     margin: 0 auto;
@@ -475,7 +469,10 @@ hr {
 }
 #login-form-info p {
     margin: 0;
-    text-align: justify;
+    text-align: left;
+}
+#login-form-info b {
+    float: right;
 }
 #login-form-info .icon {
     vertical-align: text-bottom;
