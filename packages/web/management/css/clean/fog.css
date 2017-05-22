@@ -229,7 +229,7 @@ hr {
 }
 .nav-item .nav-link {
     display: block;
-    padding: 2px;
+    padding: 4px;
 }
 /**
  * Wrapper contains sidebar, sidenotes and content
@@ -311,7 +311,7 @@ hr {
     display: inline-block;
     padding-bottom: 24px;
 }
-@media all and (max-width: 440px) {
+@media all and (max-width: 850px) {
     #content-inner {
         margin-left: 0px;
         left: 220px;
