@@ -189,13 +189,29 @@ class EventManager extends FOGBase
     {
         // Sets up regex and paths to scan for
         if ($this instanceof self) {
-            $regext = '#^.+/events/.*\.event\.php$#';
-            $dirpath = '/events/';
+            $regext = sprintf(
+                '#^.+%sevents%s.*\.event\.php$#',
+                DS,
+                DS
+            );;
+            $dirpath = sprintf(
+                '%sevents%s',
+                DS,
+                DS
+            );
             $strlen = -strlen('.event.php');
         }
         if ($this instanceof HookManager) {
-            $regext = '#^.+/hooks/.*\.hook\.php$#';
-            $dirpath = '/hooks/';
+            $regext = sprintf(
+                '#^.+%shooks%s.*\.hook\.php$#',
+                DS,
+                DS
+            );
+            $dirpath = sprintf(
+                '%shooks%s',
+                DS,
+                DS
+            );
             $strlen = -strlen('.hook.php');
         }
         // Initiates plugins used in fileitems function
@@ -203,7 +219,11 @@ class EventManager extends FOGBase
         // Function simply returns the files based on the regex and data passed.
         $fileitems = function ($element) use ($dirpath, &$plugins) {
             preg_match(
-                "#^($plugins.+/plugins/)(?=.*$dirpath).*$#",
+                sprintf(
+                    "#^($plugins.+%splugins%s)(?=.*$dirpath).*$#",
+                    DS,
+                    DS
+                ),
                 $element[0],
                 $match
             );
@@ -239,11 +259,13 @@ class EventManager extends FOGBase
         // Second pass we only care about plugins.
         $plugins = '?=';
         $grepString = sprintf(
-            '#/(%s)/#',
+            '#%s(%s)%s#',
+            DS,
             implode(
                 '|',
                 self::$pluginsinstalled
-            )
+            ),
+            DS
         );
         $tFiles = array_map($fileitems, (array) $files);
         $fFiles = preg_grep($grepString, $tFiles);

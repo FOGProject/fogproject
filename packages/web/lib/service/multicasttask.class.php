@@ -600,9 +600,9 @@ class MulticastTask extends FOGService
                 ),
                 rtrim(
                     $this->getImagePath(),
-                    DIRECTORY_SEPARATOR
+                    DS
                 ),
-                DIRECTORY_SEPARATOR,
+                DS,
                 $file
             );
             unset($file);

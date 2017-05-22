@@ -1792,7 +1792,12 @@ $this->schema[] = array(
     . "WHERE `settingKey`='FOG_TFTP_PXE_KERNEL'",
     "UPDATE `globalSettings` set `settingValue` = '"
     . BASEPATH
-    . "/service/ipxe/' WHERE settingKey = 'FOG_TFTP_PXE_KERNEL_DIR'",
+    . DS
+    . "service"
+    . DS
+    . "ipxe"
+    . DS
+    . "' WHERE settingKey = 'FOG_TFTP_PXE_KERNEL_DIR'",
     "UPDATE `globalSettings` set `settingValue`='init.xz' "
     . "WHERE `settingKey`='FOG_PXE_BOOT_IMAGE'",
     "UPDATE `globalSettings` set `settingValue`='memtest.bin' "

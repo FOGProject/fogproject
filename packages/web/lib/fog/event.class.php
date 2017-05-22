@@ -137,9 +137,12 @@ abstract class Event extends FOGBase
         }
         if ($logfile) {
             $log = sprintf(
-                '%s/lib/%s/%s.log',
+                '%s%slib%s%s%s%s.log',
                 BASEPATH,
+                DS,
+                DS,
                 $typePath,
+                DS,
                 get_class($obj)
             );
             $logtxt = sprintf(

@@ -119,7 +119,7 @@ class FileIntegrity extends FOGController
                 sprintf(
                     '%s%s%s',
                     $item,
-                    DIRECTORY_SEPARATOR,
+                    DS,
                     $file
                 )
             );
@@ -157,7 +157,7 @@ class FileIntegrity extends FOGController
         $str = sprintf(
             '%s%s%s',
             $this->get('storagenode')->get('path'),
-            DIRECTORY_SEPARATOR,
+            DS,
             '%s'
         );
         foreach ((array)$imagePaths as &$path) {

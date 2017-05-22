@@ -46,15 +46,15 @@ foreach ((array)$paths as &$decodedPath) {
     $replaced_dir_sep = str_replace(
         array('\\', '/'),
         array(
-            DIRECTORY_SEPARATOR,
-            DIRECTORY_SEPARATOR
+            DS,
+            DS
         ),
         $decodedPath
     );
     $glob_str = sprintf(
         '%s%s*',
         $replaced_dir_sep,
-        DIRECTORY_SEPARATOR
+        DS
     );
     $files = FOGCore::fastmerge(
         (array) $files,
