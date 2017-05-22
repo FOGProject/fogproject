@@ -63,7 +63,6 @@ img.right {
  * HTML Header start.
  */
 header {
-    min-width: 540px;
     width: 100%;
     display: inline-block;
 }
@@ -218,7 +217,6 @@ hr {
  * Main menu
  */
 .menu {
-    min-width: 540px;
     height: 25px;
     top: 25px;
     text-align: center;
