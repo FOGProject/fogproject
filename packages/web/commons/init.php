@@ -91,6 +91,7 @@ class Initiator
         /**
          * Define our base path (/var/www/, /var/www/html/, etc...)
          */
+        define('DS', addslashes(DIRECTORY_SEPARATOR));
         define('BASEPATH', self::_determineBasePath());
         /**
          * Regex pattern to search for files of type.
@@ -241,7 +242,7 @@ class Initiator
         return sprintf(
             '%s%s',
             dirname(__DIR__),
-            DIRECTORY_SEPARATOR
+            DS
         );
     }
     /**

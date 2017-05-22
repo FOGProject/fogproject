@@ -3668,7 +3668,7 @@ abstract class FOGPage extends FOGBase
             $file = sprintf(
                 '%s%s%s',
                 $tmpf['dirname'],
-                DIRECTORY_SEPARATOR,
+                DS,
                 $tmpf['basename']
             );
             if (!file_exists($file)) {

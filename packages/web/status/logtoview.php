@@ -150,7 +150,7 @@ $ip = $_POST['ip'];
 $file = sprintf(
     '%s%s%s',
     dirname($_POST['file']),
-    DIRECTORY_SEPARATOR,
+    DS,
     basename($_POST['file'])
 );
 $lines = $_POST['lines'];

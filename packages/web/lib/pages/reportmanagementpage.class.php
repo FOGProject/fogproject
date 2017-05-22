@@ -34,13 +34,25 @@ class ReportManagementPage extends FOGPage
      */
     private static function _loadCustomReports()
     {
-        $regext = '#^.+/reports/.*\.report\.php$#';
-        $dirpath = '/reports/';
+        $regext = sprintf(
+            '#^.+%sreports%s.*\.report\.php$#',
+            DS,
+            DS
+        );
+        $dirpath = sprintf(
+            '%sreports%s',
+            DS,
+            DS
+        );
         $strlen = -strlen('.report.php');
         $plugins = '';
         $fileitems = function ($element) use ($dirpath, &$plugins) {
             preg_match(
-                "#^($plugins.+/plugins/)(?=.*$dirpath).*$#",
+                sprintf(
+                    "#^($plugins.+%splugins%s)(?=.*$dirpath).*$#",
+                    DS,
+                    DS
+                ),
                 $element[0],
                 $match
             );
@@ -72,11 +84,13 @@ class ReportManagementPage extends FOGPage
         unset($tFiles, $fFiles);
         $plugins = '?=';
         $grepString = sprintf(
-            '#/(%s)/#',
+            '#%s(%s)%s#',
+            DS,
             implode(
                 '|',
                 self::$pluginsinstalled
-            )
+            ),
+            DS
         );
         $tFiles = array_map($fileitems, (array) $files);
         $fFiles = preg_grep($grepString, $tFiles);

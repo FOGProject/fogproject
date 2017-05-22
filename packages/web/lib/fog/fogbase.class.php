@@ -1535,12 +1535,12 @@ abstract class FOGBase
             str_replace(
                 array('\\', '/'),
                 array(
-                    DIRECTORY_SEPARATOR,
-                    DIRECTORY_SEPARATOR
+                    DS,
+                    DS
                 ),
                 $tmpssl[0]
             ),
-            DIRECTORY_SEPARATOR
+            DS
         );
         unset($tmpssl);
         if (!file_exists($sslfile)) {

@@ -198,9 +198,10 @@ fieldset {
  */
 #logo h5 {
     position: absolute;
-    min-width: 230px;
+    min-width: 250px;
     top: 60px;
     margin: 10px;
+    font-weight: bold;
 }
 /**
  * Version items

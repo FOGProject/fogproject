@@ -275,7 +275,13 @@ class ReportMaker extends FOGBase
                 ob_end_clean();
             }
             $filename = 'fog_backup.sql';
-            $path = sprintf('%s/management/other/', BASEPATH);
+            $path = sprintf(
+                '%s%smanagement%sother%s',
+                BASEPATH,
+                DS,
+                DS,
+                DS
+            );
             $filepath = "{$path}{$filename}";
             $ip = str_replace('p:', '', DATABASE_HOST);
             if (false === filter_var($ip, FILTER_VALIDATE_IP)) {

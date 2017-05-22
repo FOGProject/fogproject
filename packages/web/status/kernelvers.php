@@ -36,19 +36,14 @@ if (isset($_REQUEST['url'])) {
 }
 $kernelvers = function ($kernel) {
     $currpath = sprintf(
-        '%s/service/ipxe/%s',
+        '%s%sservice%sipxe%s%s',
         BASEPATH,
+        DS,
+        DS,
+        DS,
         $kernel
     );
-    $reppath = str_replace(
-        array('\\', '/'),
-        array(
-            DIRECTORY_SEPARATOR,
-            DIRECTORY_SEPARATOR
-        ),
-        $currpath
-    );
-    $basepath = escapeshellarg($reppath);
+    $basepath = escapeshellarg($currpath);
     $findstr = sprintf(
         'strings %s | grep -A1 "%s:" | tail -1 | awk \'{print $1}\'',
         $basepath,

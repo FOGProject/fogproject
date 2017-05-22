@@ -238,12 +238,12 @@ class FOGConfigurationPage extends FOGPage
             );
             $_SESSION['tmp-kernel-file'] = sprintf(
                 '%s%s%s%s',
-                DIRECTORY_SEPARATOR,
+                DS,
                 trim(
                     sys_get_temp_dir(),
-                    DIRECTORY_SEPARATOR
+                    DS
                 ),
-                DIRECTORY_SEPARATOR,
+                DS,
                 basename($_SESSION['dest-kernel-file'])
             );
             $_SESSION['dl-kernel-file'] = base64_decode($_REQUEST['file']);
@@ -2012,8 +2012,11 @@ class FOGConfigurationPage extends FOGPage
                     self::redirect($this->formAction);
                 }
                 $dest = sprintf(
-                    '%s/management/other/%s',
+                    '%s%smanagement%sother%s%s',
                     BASEPATH,
+                    DS,
+                    DS,
+                    DS,
                     $set
                 );
                 $hash = hash_file(
@@ -2419,7 +2422,7 @@ class FOGConfigurationPage extends FOGPage
             $filename = sprintf(
                 '%s%s%s',
                 $dir_name,
-                DIRECTORY_SEPARATOR,
+                DS,
                 $tmp_name
             );
             $result = self::getClass('Schema')->importdb($filename);
