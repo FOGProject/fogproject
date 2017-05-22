@@ -168,7 +168,7 @@ class ProcessLogin extends FOGPage
         );
         $this->_specLang();
         setlocale(
-            LC_MESSAGES,
+            (int)LC_MESSAGES,
             sprintf(
                 '%s.UTF-8',
                 self::$locale

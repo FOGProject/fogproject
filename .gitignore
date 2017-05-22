@@ -61,3 +61,4 @@ packages/web/management/other/*
 ###############
 *config.class.php
 *.well-known
+packages/web/fog 
