@@ -383,40 +383,34 @@ header {
  * Loader information.
  */
 #loader-wrapper {
-    display: flex;
-    justify-content: center;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    margin: auto;
-    z-index: 1;
-    min-width: 200px;
-    max-width: 300px;
-    padding: 5px;
-    min-height: 50px;
-}
-#loader-wrapper * {
+    height: 50px;
+    display: table;
+    margin: 0 auto;
     cursor: default;
 }
 #loader {
     display: none;
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 10px;
-    margin: auto;
+    min-width: 75px;
+    text-align: center;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 10px;
     font-size: 10px;
     min-height: 28px;
-    max-width: 120px;
+    max-height: 50px;
     -webkit-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
     -moz-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
     -o-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
     box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
-    text-align: center;
+}
+#loader i:before {
+    position: absolute;
+    display: table-row;
     vertical-align: middle;
-    padding-left: 3px;
-    padding-right: 3px;
+    text-align: left;
+}
+#loader p {
+    float: right;
 }
 /**
  * Login form
