@@ -59,13 +59,35 @@ class FOGCore extends FOGBase
             $minutes != 1 ? 's' : ''
         );
         $uptime = $uptimestr;
-        $loadAvg = sys_getloadavg();
-        $load = sprintf(
-            '%.2f, %.2f, %.2f',
-            $loadAvg[0],
-            $loadAvg[1],
-            $loadAvg[2]
-        );
+        if (stristr(PHP_OS, 'win')) {
+            $cmd = 'wmic cpu get loadpercentage /all';
+            exec($cmd, $output);
+            if ($output) {
+                foreach ($output as &$line) {
+                    if ($line && preg_match('/^[0-9]+$/', $line)) {
+                        $loadAvg = $line;
+                        break;
+                    }
+                }
+            }
+            $load = sprintf(
+                '%s%% (%s)',
+                $loadAvg,
+                _('Running Windows')
+            );
+        } else {
+            if (function_exists('sys_getloadavg')) {
+                $loadAvg = sys_getloadavg();
+                $load = sprintf(
+                    '%.2f, %.2f, %.2f',
+                    $loadAvg[0],
+                    $loadAvg[1],
+                    $loadAvg[2]
+                );
+            } else {
+                $load = _('Unavailable');
+            }
+        }
         return array(
             'uptime' => $uptime,
             'load' => $load
