@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-21 15:02-0400\n"
+"POT-Creation-Date: 2017-05-21 22:01-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -8620,7 +8620,7 @@ msgstr "创建"
 msgid "FOG Client"
 msgstr "FOG客户维基"
 
-#: /var/www/fog/commons/init.php:405
+#: /var/www/fog/commons/init.php:451
 #, fuzzy
 msgid "Missing one or more extensions."
 msgstr "缺少扩展"
