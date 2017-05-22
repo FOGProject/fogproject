@@ -183,7 +183,7 @@ class Site extends FOGController
     }
     /**
      * Load hosts
-     * 
+     *
      * @param mixed $ids The ids to pass in.
      *
      * @return void
@@ -208,7 +208,7 @@ class Site extends FOGController
     }
     /**
      * Load hosts not in this object.
-     * 
+     *
      * @param mixed $ids The ids to pass in.
      *
      * @return void

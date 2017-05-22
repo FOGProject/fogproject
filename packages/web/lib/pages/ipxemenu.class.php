@@ -271,7 +271,7 @@ class IPXEMenu extends FOGPage
     /**
      * Starts our params caller.
      *
-     * @return void 
+     * @return void
      */
     private static function _startparams()
     {

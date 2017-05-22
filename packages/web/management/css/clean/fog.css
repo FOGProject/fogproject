@@ -200,7 +200,7 @@ fieldset {
 /**
  * Version items
  */
-#version {
+#logo #version {
     position: relative;
     top: -67px;
     left: 55px;
@@ -242,17 +242,19 @@ hr {
     bottom: 0;
     left: 0;
     right: 0;
+    margin: 0 auto;
+    min-width: 650px;
 }
 /**
  * Sidebar menu
  */
 .sidebar {
-    position: absolute;
+    display: flext;
+    justify-content: left;
     display: inline-block;
-    margin-right: 20px;
     min-width: 150px;
-    margin-right: 20px;
     margin-bottom: 24px;
+    padding: 20px;
     z-index: 1;
     margin-left: 10px;
 }
@@ -289,14 +291,7 @@ hr {
  * Main content (generalized)
  */
 #content {
-    display: flex;
-    justify-content: center;
-    position: relative;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    margin: auto;
+    display: inline-block;
     min-width: 440px;
     padding-bottom: 24px;
 }
@@ -308,9 +303,19 @@ hr {
 }
 #content-inner {
     position: absolute;
-    min-width: 850px;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    min-width: 440px;
+    max-width: 850px;
     display: inline-block;
     padding-bottom: 24px;
+}
+@media all and (max-width: 440px) {
+    #content-inner {
+        margin-left: 0px;
+        left: 220px;
+    }
 }
 /**
  * Simple aligns
@@ -332,6 +337,9 @@ hr {
 }
 .j {
     text-align: justify;
+}
+.small {
+    font-size: 8px;
 }
 /**
  * Debug stuff
@@ -711,6 +719,103 @@ input[type=search].disabled {
 #action-boxdel input:not([type=submit]),
 #action-box select {
     text-align: right;
+}
+/**
+ * Primary/default radio selectors.
+ */
+.primary,
+.default {
+    display: none;
+}
+.default + label:before,
+.primary + label:before {
+    font-family: FontAwesome;
+    display: inline-block;
+    font-size: 16px;
+    color: #00567a;
+    content: "\f096";
+}
+.default:checked + label:before,
+.primary:checked + label:before {
+    content: "\f046";
+}
+/**
+ * Hosts addistional macs
+ */
+#additionalMACsRow {
+    display: none;
+}
+/**
+ * Hosts mac rows, mac vendor info
+ */
+.pending-mac .mac {
+    padding-right: 24px;
+}
+.mac-manufactor {
+    padding-left: 5px;
+}
+/**
+ * Icon information.
+ */
+.icon {
+    outline: 0;
+    border: 0;
+    display: inline-block;
+}
+.hand {
+    cursor: pointer;
+}
+/**
+ * Task progress
+ */
+.with-progress td {
+    border: 0;
+}
+.task-progress-td {
+    color: #fff;
+    padding: 0;
+    font-size: 10px;
+    line-height: 17px;
+    text-align: center;
+    height: 25px;
+    background: #6f9dcf;
+}
+.task-progress-td .min {
+    height: 25px;
+}
+.task-progress-td .no-min {
+    height: 25px;
+}
+.task-progress-fill {
+    background: #5cdb65;
+    position: absolute;
+    z-index: 1;
+    width: 100%;
+    height: 25px;
+}
+.task-progress-fill.min {
+    height: 25px;
+}
+.task-progress ul {
+    margin: 3px;
+    position: absolute;
+    z-index: 2;
+    width: 100%;
+    height: 17px;
+    display: block;
+    cursor: default;
+}
+.task-progress ul:hover {
+    display: block;
+}
+.task-progress ul li {
+    float: left;
+    width: 33%;
+    display: block;
+    height: 18px;
+}
+.ui-dialog-titlebar-close {
+    visibility: hidden;
 }
 /**
  * Footer placement

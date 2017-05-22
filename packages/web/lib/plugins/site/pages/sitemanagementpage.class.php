@@ -115,7 +115,6 @@ class SiteManagementPage extends FOGPage
             );
             unset($Site);
         };
-
     }
     /**
      * Creates new item.

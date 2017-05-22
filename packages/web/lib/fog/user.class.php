@@ -119,7 +119,7 @@ class User extends FOGController
      * @param string $password  the password to test
      * @param string $adminTest the admin test
      *
-     * @return bool 
+     * @return bool
      */
     public function passwordValidate(
         $username,

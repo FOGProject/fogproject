@@ -83,7 +83,7 @@ class AddSiteFilterSearch extends Hook
         $siteHosts = $this->getHostIDbySite($siteIDbyUser);
         switch ($node) {
         case 'host':
-            switch ($sub){
+            switch ($sub) {
             case 'search':
                 $hostsID = self::getClass('HostManager')->search('');
                 $hosts = self::getSubObjectIDs(
@@ -137,8 +137,8 @@ class AddSiteFilterSearch extends Hook
                     'image_name' => $Host->getImageName(),
                     'pingstatus' => $Host->getPingCodeStr(),
                 );
-                unset($Host,$HostID);
-                unset($HostSiteID,$Site);
+                unset($Host, $HostID);
+                unset($HostSiteID, $Site);
             }
             break;
         case 'task':
@@ -201,7 +201,6 @@ class AddSiteFilterSearch extends Hook
             }
             unset($Group);
         }
-
     }
 
     /**

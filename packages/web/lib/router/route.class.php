@@ -933,7 +933,7 @@ class Route extends FOGBase
      * Get's the json body and sets our vars.
      *
      * @param string $class The class to get vars for/from.
-     * 
+     *
      * @return array
      */
     public static function getsearchbody($class)

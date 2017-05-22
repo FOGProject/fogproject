@@ -35,7 +35,7 @@ class AddFileintegrityAPI extends Hook
     public $description = 'Add Fileintegrity stuff into the api system.';
     /**
      * For posterity
-     * 
+     *
      * @var bool
      */
     public $active = true;

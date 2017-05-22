@@ -227,7 +227,6 @@ class AddSiteHost extends Hook
                 $sID
             )
         );
-
     }
     /**
      * This function adds one entry in the siteUserAssoc table in the DB

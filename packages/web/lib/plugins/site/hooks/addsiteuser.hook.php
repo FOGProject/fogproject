@@ -118,7 +118,6 @@ class AddSiteUser extends Hook
             }
             unset($str);
         }
-
     }
     /**
      * This function modifies the data of the user page.

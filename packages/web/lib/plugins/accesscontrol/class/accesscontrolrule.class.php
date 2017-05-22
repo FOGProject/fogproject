@@ -59,5 +59,4 @@ class AccessControlRule extends FOGController
     protected $additionalFields = array(
         'parent',
     );
-
 }
