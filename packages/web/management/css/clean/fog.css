@@ -132,8 +132,6 @@ button,
 select:not([name=groupsel]):not([name=nodesel]),
 .select2 {
     background: transparent;
-    min-height: 24px;
-    min-width: 210px;
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;
     -o-border-radius: 3px;
@@ -142,6 +140,17 @@ select:not([name=groupsel]):not([name=nodesel]),
     -moz-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
     -o-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
     box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
+}
+input[type=text],
+input[type=search]:not(.tablesorter-filter),
+input[type=password],
+input[type=submit],
+input[type=button],
+button:not(.search-submit),
+select:not([name=groupsel]):not([name=nodesel]),
+.select2 {
+    min-height: 24px;
+    min-width: 210px;
 }
 .select2, select:not([name=groupsel]):not([name=nodesel]) {
     min-width: 216px;
@@ -241,7 +250,7 @@ hr {
     left: 0;
     right: 0;
     margin: 0 auto;
-    min-width: 650px;
+    min-width: 320px;
 }
 /**
  * Sidebar menu
@@ -290,7 +299,7 @@ hr {
  */
 #content {
     display: inline-block;
-    min-width: 440px;
+    min-width: 320px;
     padding-bottom: 24px;
 }
 #content h1 {
@@ -304,15 +313,19 @@ hr {
     left: 0;
     right: 0;
     margin: 0 auto;
-    min-width: 440px;
+    min-width: 320px;
     max-width: 850px;
     display: inline-block;
     padding-bottom: 24px;
 }
-@media all and (max-width: 850px) {
+@media all and (max-width: 1366px) {
     #content-inner {
-        margin-left: 0px;
+        margin-left: 0;
         left: 220px;
+    }
+    .dashboard #content-inner {
+        margin-left: 0;
+        left: 0px;
     }
 }
 /**
@@ -452,7 +465,6 @@ hr {
     margin: 0 auto;
     padding: 10px;
     border: 1px solid #bbb
-    min-width: 540px;
     background: #fff;
     font-size: 12px;
     -webkit-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
@@ -477,7 +489,6 @@ hr {
 }
 #content.dashboard #content-inner {
     display: inline-block;
-    min-width: 850px;
 }
 /**
  * Dashboard specific elements
@@ -497,13 +508,15 @@ hr {
  * The three top boxes.
  */
 .dashboard-boxes {
+    margin: 0 auto;
+    width: 800px;
     list-style: none;
     height: 180px;
     font-size: 12px;
 }
 .dashboard-boxes li {
-    float: left;
     width: 250px;
+    float: left;
     height: 160px;
     margin-left: 10px;
     overflow: hidden;
@@ -549,8 +562,9 @@ hr {
 /**
  * Graph bandwidth
  */
-#graph-bandwidth {
-    margin-top: 20px;
+#graph-bandwidth, #graph-30day, #graph-bandwidth-filters {
+    margin: 0 auto;
+    width: 800px;
     z-index: 1;
 }
 #graph-bandwidth-filters a {
@@ -590,7 +604,6 @@ hr {
 .search-submit {
     color: #00567a;
     position: relative;
-    min-width: 0;
     padding: 0;
     margin: 0;
     width: 29px;
