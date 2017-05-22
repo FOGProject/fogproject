@@ -316,6 +316,7 @@ header {
     right: 0;
     margin: 0 auto;
     min-width: 320px;
+    max-width: 1080px;
     display: inline-block;
     padding-bottom: 24px;
 }
