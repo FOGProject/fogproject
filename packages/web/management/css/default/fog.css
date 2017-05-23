@@ -300,8 +300,9 @@ header {
     text-align: center;
 }
 #content-inner {
+    min-width: 320px;
+    max-width: 850px;
     position: absolute;
-    width: 850px;
     left: 0;
     right: 0;
     margin: 0 auto;
@@ -536,7 +537,7 @@ input[name=fakepasswordremembered] {
  */
 .graph-selectors {
     position: relative;
-    whitespace: no-wrap;
+    white-space: no-wrap;
     width: 100px;
     top: -120px;
     left: 140px;
