@@ -2221,9 +2221,9 @@ abstract class FOGPage extends FOGBase
             array(),
         );
         $fields = array(
-            '<input style="display:none" type="text" '
+            '<input type="text" '
             . 'name="fakeusernameremembered"/>' =>
-            '<input style="display:none" type="password" '
+            '<input type="password" '
             . 'name="fakepasswordremembered"/>',
             _('Join Domain after image task') =>
             sprintf(

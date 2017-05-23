@@ -2166,13 +2166,13 @@ class Host extends FOGController
     {
         $val =  (int)$this->get('pingstatus');
         $socketstr = socket_strerror($val);
-        $strtoupdate = "<i class=\"icon-ping-%s fa fa-exclamation-circle "
-            . "fa-1x\" style=\"color: %s\" title=\"$socketstr\"></i>";
+        $strtoupdate = "<i class=\"icon-ping-%s fa fa-exclamation-circle %s "
+            . "fa-1x\" title=\"$socketstr\"></i>";
         ob_start();
         if ($val === 0) {
-            printf($strtoupdate, 'up', '#18f008');
+            printf($strtoupdate, 'up', 'green');
         } else {
-            printf($strtoupdate, 'down', '#ce0f0f');
+            printf($strtoupdate, 'down', 'red');
         }
         return ob_get_clean();
     }

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-22 12:30-0400\n"
+"POT-Creation-Date: 2017-05-22 23:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -755,7 +755,7 @@ msgid "Host"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogftp.class.php:380
-#: /var/www/fog/lib/pages/dashboardpage.class.php:204
+#: /var/www/fog/lib/pages/dashboardpage.class.php:211
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:89
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:562
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:86
@@ -860,6 +860,14 @@ msgstr ""
 
 #: /var/www/fog/lib/fog/fogcore.class.php:58
 msgid "min"
+msgstr ""
+
+#: /var/www/fog/lib/fog/fogcore.class.php:76
+msgid "Running Windows"
+msgstr ""
+
+#: /var/www/fog/lib/fog/fogcore.class.php:88
+msgid "Unavailable"
 msgstr ""
 
 #: /var/www/fog/lib/fog/event.class.php:183
@@ -2216,85 +2224,85 @@ msgstr ""
 msgid "Force"
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:172
+#: /var/www/fog/lib/pages/dashboardpage.class.php:179
 msgid "Pending hosts"
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:173
-#: /var/www/fog/lib/pages/dashboardpage.class.php:182
+#: /var/www/fog/lib/pages/dashboardpage.class.php:180
+#: /var/www/fog/lib/pages/dashboardpage.class.php:189
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:244
 msgid "Click"
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:176
-#: /var/www/fog/lib/pages/dashboardpage.class.php:185
+#: /var/www/fog/lib/pages/dashboardpage.class.php:183
+#: /var/www/fog/lib/pages/dashboardpage.class.php:192
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:245
 #: /var/www/fog/commons/text.php:92
 msgid "here"
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:177
-#: /var/www/fog/lib/pages/dashboardpage.class.php:186
+#: /var/www/fog/lib/pages/dashboardpage.class.php:184
+#: /var/www/fog/lib/pages/dashboardpage.class.php:193
 msgid "to review."
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:181
+#: /var/www/fog/lib/pages/dashboardpage.class.php:188
 msgid "Pending macs"
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:205
+#: /var/www/fog/lib/pages/dashboardpage.class.php:212
 msgid "Web Server"
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:209
+#: /var/www/fog/lib/pages/dashboardpage.class.php:216
 msgid "TFTP Server"
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:210
+#: /var/www/fog/lib/pages/dashboardpage.class.php:217
 msgid "Load Average"
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:211
+#: /var/www/fog/lib/pages/dashboardpage.class.php:218
 msgid "System Uptime"
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:224
+#: /var/www/fog/lib/pages/dashboardpage.class.php:231
 msgid "System Overview"
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:251
+#: /var/www/fog/lib/pages/dashboardpage.class.php:258
 msgid "The selected node's storage group slot usage"
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:252
+#: /var/www/fog/lib/pages/dashboardpage.class.php:259
 msgid "Storage Group Activity"
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:268
+#: /var/www/fog/lib/pages/dashboardpage.class.php:275
 msgid "The selected node's image storage usage"
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:269
+#: /var/www/fog/lib/pages/dashboardpage.class.php:276
 msgid "Storage Node Disk Usage"
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:281
+#: /var/www/fog/lib/pages/dashboardpage.class.php:288
 msgid "Imaging Over the last 30 days"
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:322
+#: /var/www/fog/lib/pages/dashboardpage.class.php:329
 msgid "1 hour"
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:324
+#: /var/www/fog/lib/pages/dashboardpage.class.php:331
 msgid "30 Minutes"
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:326
+#: /var/www/fog/lib/pages/dashboardpage.class.php:333
 msgid "10 Minutes"
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:328
+#: /var/www/fog/lib/pages/dashboardpage.class.php:335
 msgid "2 Minutes"
 msgstr ""
 

@@ -557,10 +557,10 @@ class ImageManagementPage extends FOGPage
             _('Replicate?') => '<input type="checkbox" '
             . 'name="toReplicate" value="1" checked/>',
             _('Compression') => sprintf(
-                '<div id="pigz" style="width: 200px; top: 15px;"></div>'
+                '<div id="pigz"></div>'
                 . '<input type="text" readonly="true" name="compress" '
-                . 'id="showVal" maxsize="2" style="width: 20px; '
-                . 'top: -5px; left: 225px; position: relative;" value="%s"/>',
+                . 'id="showVal" maxsize="2"'
+                . ' value="%s"/>',
                 $compression
             ),
             _('Image Manager') => $format,
@@ -845,10 +845,10 @@ class ImageManagementPage extends FOGPage
             _('Image Type') => $ImageTypes,
             _('Partition') => $ImagePartitionTypes,
             _('Compression') => sprintf(
-                '<div id="pigz" style="width: 200px; top: 15px;"></div>'
+                '<div id="pigz"></div>'
                 . '<input type="text" readonly="true" name="compress" '
-                . 'id="showVal" maxsize="2" style="width: 20px; top: '
-                . '-5px; left: 225px; position: relative;" value="%s"/>',
+                . 'id="showVal" maxsize="2" '
+                . 'value="%s"/>',
                 $compression
             ),
             _('Protected') => sprintf(
