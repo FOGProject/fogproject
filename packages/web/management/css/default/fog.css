@@ -10,6 +10,7 @@ body {
     font-family: Tahoma, Geneva, sans-serif;
     font-size: 13px;
     color: #00567a;
+    margin-bottom: 24px;
 }
 /**
  * HTML Headings 1-6
@@ -62,22 +63,15 @@ img.right {
 /**
  * HTML Table
  */
-table {
-    margin-bottom: 24px;
-}
 table tr td:not(.legendColorBox):not(.legendLabel), 
 table tr th:not(.legendColorBox):not(.legendLabel) {
     margin: 10px;
     padding: 5px;
     text-align: left;
     overflow: hidden;
-    white-space: nowrap;
-}
-table textarea {
 }
 table p {
     line-height: 15px;
-    margin: 2px 0;
 }
 /**
  * HTML Pre
@@ -95,7 +89,7 @@ form {
 /**
  * HTML Inputs, textarea, select, fieldset, legends.
  */
-input, textarea, select {
+input, select {
     color: #00567a;
     font-size: 12px;
     background-color: transparent;
@@ -120,6 +114,7 @@ input[type=password],
 input[type=submit],
 input[type=button],
 button,
+textarea,
 select:not([name=groupsel]):not([name=nodesel]),
 .select2 {
     background: transparent;
@@ -132,18 +127,18 @@ select:not([name=groupsel]):not([name=nodesel]),
     -o-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
     box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
 }
-input[type=text]:not(#showVal),
+input[type=text]:not(.showVal),
 input[type=search]:not(.tablesorter-filter),
 input[type=password],
 input[type=submit],
 input[type=button],
 button:not(.search-submit),
-select:not([name=groupsel]):not([name=nodesel]),
-.select2 {
+select:not([name=groupsel]):not([name=nodesel]) {
     min-height: 24px;
     min-width: 210px;
 }
 .select2, select:not([name=groupsel]):not([name=nodesel]) {
+    min-height: 24px;
     min-width: 216px;
 }
 textarea {
@@ -158,7 +153,7 @@ legend {
     -o-border-radius: 3px;
     border-radius: 3px;
     padding: 2px 2px;
-    margin: 5px 0;
+    margin: 5px;
     -webkit-text-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
     -moz-text-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
     -o-text-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
@@ -210,7 +205,6 @@ fieldset {
     left: 65px;
     font-size: 10px;
     vertical-align: text-top;
-    margin-right: 20px;
 }
 /**
  * Under menu
@@ -243,11 +237,7 @@ header {
  * Wrapper contains sidebar, sidenotes and content
  */
 #wrapper {
-    display: flex;
-    justify-content: left;
     position: relative;
-    top: 0;
-    bottom: 0;
     left: 0;
     right: 0;
     margin: 0 auto;
@@ -256,15 +246,12 @@ header {
  * Sidebar menu
  */
 .sidebar {
-    display: flext;
-    justify-content: left;
-    display: inline-block;
-    min-width: 150px;
-    max-width: 210px;
-    margin-bottom: 24px;
-    padding: 20px;
+    position: absolute;
+    margin-left: 0;
+    width: 160px;
+    padding: 10px;
     z-index: 1;
-    margin-left: 10px;
+    margin-bottom: 24px;
 }
 .sidebar ul {
     margin: 0;
@@ -293,14 +280,18 @@ header {
     box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
 }
 .sidenotes p {
-    min-width: 150px;
-    max-width: 210px;
+    width: 160px;
 }
 /**
  * Main content (generalized)
  */
 #content {
-    padding-bottom: 24px;
+    position: relative;
+    width: 100%;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    margin-bottom: 24px;
 }
 #content h1 {
     text-align: center;
@@ -310,37 +301,34 @@ header {
 }
 #content-inner {
     position: absolute;
+    width: 850px;
     left: 0;
     right: 0;
     margin: 0 auto;
-    max-width: 850px;
-    display: inline-block;
     padding-bottom: 24px;
 }
 #tab-container div {
     display: none;
 }
-#tab-container div:first-child, #tab-container div:target {
+#tab-container div:not(#additionalMACsRow):first-child, #tab-container div:target {
     display: inline-block;
 }
 #tab-container {
+    position: absolute;
+    text-align: center;
     left: 0;
     right: 0;
     margin: 0 auto;
-    text-align: center;
+    margin-bottom: 24px;
 }
-@media all and (max-width: 1080px) {
+@media all and (max-width: 1280px) {
     #loader-wrapper {
         position: relative;
         left: 100px;
     }
     #content-inner {
         margin-left: 0;
-        left: 200px;
-    }
-    .dashboard #content-inner {
-        margin-left: 0;
-        left: 0px;
+        left: 225px;
     }
 }
 input[name=fakeusernameremembered],
@@ -441,6 +429,7 @@ input[name=fakepasswordremembered] {
 #loginform {
     display: table;
     margin: 0 auto;
+    width: 100%:
 }
 #login-form {
     text-align: center;
@@ -472,7 +461,7 @@ input[name=fakepasswordremembered] {
     margin: 10px;
 }
 #login-form-info {
-    min-width: 300px;
+    width: 320px;
     text-align: center;
     display: inline-block;
     margin: 0 auto;
@@ -499,18 +488,13 @@ input[name=fakepasswordremembered] {
 /**
  * Main content dashboard
  */
-#content.dashboard {
-    text-align: center;
-    margin: 0 auto;
-}
-#content.dashboard #content-inner {
-    display: inline-block;
-}
 /**
  * Dashboard specific elements
  */
 .dashboard {
     padding: 2px;
+    text-align: center;
+    margin: 0 auto;
     display: inline-block;
 }
 .dashboard p {
@@ -616,6 +600,7 @@ input[name=fakepasswordremembered] {
 }
 #search-wrapper {
     text-align: center;
+    min-width: 270px;
 }
 .search-input {
     text-align: center;
@@ -639,16 +624,27 @@ input[name=fakepasswordremembered] {
 /**
  * Pigz information
  */
-#pigz {
+.rangegen {
     width: 200px;
     top: 15px;
 }
 /**
  * Show val
  */
-#showVal {
+.imagespage {
+    margin-left: 0px;
+}
+.showVal.pigz,
+.showVal.inact,
+.showVal.loglvl {
+    float: right;
     width: 20px;
-    margin-left: 10px;
+}
+.showVal:not(.imagespage) {
+    margin-left: 220px;
+}
+.showVal.regen {
+    width: 40px;
 }
 /**
  * Custom table elements.
@@ -730,9 +726,13 @@ input[type=search].disabled {
  */
 #action-box, #action-boxdel {
     display: none;
+    position: relative;
+    top: 0;
+    left: 0;
+    right: 0;
+    margin: 20px auto;
     padding: 10px;
-    margin-bottom: 10px;
-    text-align: center;
+    width: 400px;
     -webkit-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
     -moz-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
     -o-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
@@ -740,18 +740,20 @@ input[type=search].disabled {
 }
 #action-box p, #action-boxdel p {
     margin: 5px;
-    line-height: 20px;
 }
 #action-box label, #action-boxdel label {
-    float: left;
-    clear: right;
-    min-width: 300px;
+    min-width: 100px;
+    font-weight: bold;
     text-align: right;
+    padding-right: 10px;
 }
 #action-box input:not([type=submit]),
 #action-boxdel input:not([type=submit]),
-#action-box select {
-    text-align: right;
+#action-box .select2 {
+    float: right;
+}
+#action-box input[type=submit], #action-boxdel input[type=submit] {
+    margin-top: 10px;
 }
 /**
  * Primary/default radio selectors.
@@ -853,6 +855,17 @@ input[type=search].disabled {
 .tick {
     width: 35px;
     padding-right: 7px;
+}
+#login-history {
+    width: 575px;
+    height: 200px;
+}
+.divtabs, .expand_trigger {
+    text-decoration: none;
+}
+#loglvl {
+    width: 200px;
+    top: 15px;
 }
 /**
  * Footer placement

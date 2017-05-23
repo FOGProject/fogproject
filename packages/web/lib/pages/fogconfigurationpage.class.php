@@ -632,9 +632,10 @@ class FOGConfigurationPage extends FOGPage
                 $Menu->get('name')
             );
             printf(
-                '<a id="%s" style="text-decoration:none;" href="#%s">'
+                '<a class="%s" id="%s" href="#%s">'
                 . '<h3>%s</h3></a><div id="%s">'
                 . '<form method="post" action="%s">',
+                'divtabs',
                 $divTab,
                 $divTab,
                 $Menu->get('name'),
@@ -1406,8 +1407,8 @@ class FOGConfigurationPage extends FOGPage
                 $ServiceCAT
             );
             printf(
-                '<a id="%s" class="expand_trigger" style='
-                . '"text-decoration:none;" href="#%s">'
+                '<a id="%s" class="expand_trigger"'
+                . ' href="#%s">'
                 . '<h3>%s</h3></a><div id="%s">',
                 $divTab,
                 $divTab,
@@ -1423,38 +1424,37 @@ class FOGConfigurationPage extends FOGPage
             ) {
                 switch ($Service->get('name')) {
                 case 'FOG_PIGZ_COMP':
-                    $type = '<div id="pigz" style="width: 200px; top: 15px;">'
-                        . '</div><input type="text" readonly='
-                        . '"true" name="${service_id}" id='
-                        . '"showVal" maxsize="2" style='
-                        . '"width: 20px; top: -5px; left:'
-                        . '225px; position: relative;" value='
-                        . '"${service_value}"/>';
-                    break;
                 case 'FOG_KERNEL_LOGLEVEL':
-                    $type = '<div id="loglvl" style="width: 200px; top: 15px;">'
-                        . '</div><input type="text" readonly='
-                        . '"true" name="${service_id}" id="showlogVal" maxsize='
-                        . '"1" style="width: 10px; top: -5px; left:'
-                        . '225px; position: relative;" value='
-                        . '"${service_value}"/>';
-                    break;
                 case 'FOG_INACTIVITY_TIMEOUT':
-                    $type = '<div id="inact" style="width: 200px; top: 15px;">'
-                        . '</div><input type="text" readonly='
-                        . '"true" name="${service_id}" id="showValInAct" maxsize'
-                        . '="2" style="width: 15px; top: -5px; left:'
-                        . '225px; position: relative;" value='
-                        . '"${service_value}"/>';
-                    break;
                 case 'FOG_REGENERATE_TIMEOUT':
-                    $type = '<div id="regen" style="width: 200px; top: 15px;">'
-                        . '</div><input type="text" readonly='
-                        . '"true" name="${service_id}" id='
-                        . '"showValRegen" maxsize="5" style='
-                        . '"width: 25px; top: -5px; left:'
-                        . '225px; position: relative;" value='
-                        . '"${service_value}"/>';
+                    switch ($Service->get('name')) {
+                    case 'FOG_PIGZ_COMP':
+                        $extra = 'pigz';
+                        $minsize = 2;
+                        break;
+                    case 'FOG_KERNEL_LOGLEVEL':
+                        $extra = 'loglvl';
+                        $minsize = 2;
+                        break;
+                    case 'FOG_INACTIVITY_TIMEOUT':
+                        $extra = 'inact';
+                        $minsize = 2;
+                        break;
+                    case 'FOG_REGENERATE_TIMEOUT':
+                        $extra = 'regen';
+                        $minsize = 5;
+                        break;
+                    }
+                    $type = '<div class="rangegen '
+                        . $extra
+                        . '"></div>'
+                        . '<input type="text" readonly='
+                        . '"true" name="${service_id}" class='
+                        . '"showVal '
+                        . $extra
+                        . '" maxsize="'
+                        . $minsize
+                        . '" value="${service_value}"/>';
                     break;
                 case 'FOG_IMAGE_COMPRESSION_FORMAT_DEFAULT':
                     $vals = array(
@@ -1481,8 +1481,8 @@ class FOGConfigurationPage extends FOGPage
                     }
                     unset($vals);
                     $type = sprintf(
-                        '<select name="${service_id}" style='
-                        . '"width: 220px" autocomplete="off">%s</select>',
+                        '<select name="${service_id}" '
+                        . 'autocomplete="off">%s</select>',
                         ob_get_clean()
                     );
                     break;
@@ -1504,8 +1504,8 @@ class FOGConfigurationPage extends FOGPage
                     }
                     unset($screens);
                     $type = sprintf(
-                        '<select name="${service_id}" style='
-                        . '"width: 220px" autocomplete="off">%s</select>',
+                        '<select name="${service_id}" '
+                        . 'autocomplete="off">%s</select>',
                         ob_get_clean()
                     );
                     break;
@@ -1529,9 +1529,8 @@ class FOGConfigurationPage extends FOGPage
                         unset($val);
                     }
                     $type = sprintf(
-                        '<select name="${service_id}" style='
-                        . '"width: 220px" autocomplete='
-                        . '"off">%s</select>',
+                        '<select name="${service_id}" '
+                        . 'autocomplete="off">%s</select>',
                         ob_get_clean()
                     );
                     break;
@@ -1561,8 +1560,8 @@ class FOGConfigurationPage extends FOGPage
                         unset($humanreadable);
                     }
                     $type = sprintf(
-                        '<select name="${service_id}" autocomplete='
-                        . '"off" style="width: 220px">%s</select>',
+                        '<select name="${service_id}" '
+                        . 'autocomplete="off">%s</select>',
                         ob_get_clean()
                     );
                     break;
