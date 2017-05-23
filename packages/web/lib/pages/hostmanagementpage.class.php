@@ -2015,8 +2015,7 @@ class HostManagementPage extends FOGPage
         }
         unset($this->data, $this->headerData);
         printf(
-            '<div id="login-history" '
-            . 'style="width:575px;height:200px;"/></div></form>'
+            '<div id="login-history"/></div></form>'
             . '</div><div id="host-image-history"><h2>%s</h2>',
             _('Host Imaging History')
         );

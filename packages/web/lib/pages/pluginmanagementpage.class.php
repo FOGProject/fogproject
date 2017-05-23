@@ -428,7 +428,7 @@ class PluginManagementPage extends FOGPage
                             $shutOpts
                         ),
                         '&nbsp;' => sprintf(
-                            '<input style="margin-top: 7px;" type="submit" '
+                            '<input type="submit" '
                             . 'name="basics" value="%s"/>',
                             _('Update Settings')
                         ),
@@ -456,7 +456,7 @@ class PluginManagementPage extends FOGPage
                             _('DMI Result')
                         ) => '<input type="text" name="key"/>',
                         '&nbsp;' => sprintf(
-                            '<input type="submit" style="margin-top: 7px;" '
+                            '<input type="submit" '
                             . 'name="addass" value="%s"/>',
                             _('Add Association')
                         ),

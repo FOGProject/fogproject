@@ -276,9 +276,8 @@ class StorageManagementPage extends FOGPage
             '${input}',
         );
         $fields = array(
-            '<input style="display:none" type='
-            . '"text" name="fakeusernameremembered"/>' => '<input style='
-            . '"display:none" type="text" name="fakepasswordremembered"/>',
+            '<input type="text" name="fakeusernameremembered"/>' =>
+            '<input type="text" name="fakepasswordremembered"/>',
             self::$foglang['SNName'] => sprintf(
                 '<input type="text" name="name" value="%s" autocomplete="off"/>*',
                 $_REQUEST['name']
@@ -561,9 +560,8 @@ class StorageManagementPage extends FOGPage
             '${input}',
         );
         $fields = array(
-            '<input style="display:none" type='
-            . '"text" name="fakeusernameremembered"/>' => '<input style='
-            . '"display:none" type="text" name="fakepasswordremembered"/>',
+            '<input type="text" name="fakeusernameremembered"/>' =>
+            '<input type="text" name="fakepasswordremembered"/>',
             self::$foglang['SNName'] => sprintf(
                 '<input type="text" name="name" value="%s" autocomplete="off"/>*',
                 $this->obj->get('name')

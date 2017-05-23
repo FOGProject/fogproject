@@ -159,9 +159,8 @@ class UserManagementPage extends FOGPage
         );
         $this->data = array();
         $fields = array(
-            '<input style="display:none" type='
-            . '"text" name="fakeusernameremembered"/>' => '<input style='
-            . '"display:none" type="password" name="fakepasswordremembered"/>',
+            '<input type="text" name="fakeusernameremembered"/>' =>
+            '<input type="password" name="fakepasswordremembered"/>',
             _('User Name') => sprintf(
                 '<input type="text" class="username-input" name='
                 . '"name" value="%s" autocomplete="off"/>',
@@ -298,9 +297,8 @@ class UserManagementPage extends FOGPage
         $this->title = sprintf('%s: %s', _('Edit'), $this->obj->get('name'));
         echo '<div id="tab-container"><div id="user-general">';
         $fields = array(
-            '<input style="display:none" type='
-            . '"text" name="fakeusernameremembered"/>' => '<input style='
-            . '"display:none" type="password" name="fakepasswordremembered"/>',
+            '<input type="text" name="fakeusernameremembered"/>' => 
+            '<input type="password" name="fakepasswordremembered"/>',
             _('User Name') => sprintf(
                 '<input type="text" class="username-input" name='
                 . '"name" value="%s" autocomplete="off"/>',

@@ -801,9 +801,8 @@ abstract class FOGPage extends FOGBase
                 printf($this->form);
             }
             printf(
-                '<table width="%s" cellpadding="0" cellspacing="0" '
-                . 'border="0" id="%s">%s<tbody>',
-                '100%',
+                '<table cellpadding="0" cellspacing="0" '
+                . 'id="%s">%s<tbody>',
                 $contentField,
                 $this->buildHeaderRow()
             );
