@@ -2168,11 +2168,9 @@ abstract class FOGPage extends FOGBase
                 )
             )
         );
-        if ($this->obj->isValid()) {
-            $ADOU = trim($this->obj->get('ADOU'));
-            $ADOU = str_replace(';', '', $ADOU);
-            $optFound = $ADOU;
-        }
+        $ADOU = trim($ADOU);
+        $ADOU = str_replace(';', '', $ADOU);
+        $optFound = $ADOU;
         if (count($OUs) > 1) {
             ob_start();
             printf(
