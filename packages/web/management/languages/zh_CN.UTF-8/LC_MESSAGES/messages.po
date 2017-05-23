@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-22 12:28-0400\n"
+"POT-Creation-Date: 2017-05-22 23:00-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -826,7 +826,7 @@ msgid "Host"
 msgstr "主办"
 
 #: /var/www/fog/lib/fog/fogftp.class.php:380
-#: /var/www/fog/lib/pages/dashboardpage.class.php:204
+#: /var/www/fog/lib/pages/dashboardpage.class.php:211
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:89
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:562
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:86
@@ -935,6 +935,16 @@ msgstr "这里"
 #, fuzzy
 msgid "min"
 msgstr "分钟"
+
+#: /var/www/fog/lib/fog/fogcore.class.php:76
+#, fuzzy
+msgid "Running Windows"
+msgstr "运行版本"
+
+#: /var/www/fog/lib/fog/fogcore.class.php:88
+#, fuzzy
+msgid "Unavailable"
+msgstr "不可用"
 
 #: /var/www/fog/lib/fog/event.class.php:183
 msgid "Registered"
@@ -2342,86 +2352,86 @@ msgstr "取消任务"
 msgid "Force"
 msgstr "力"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:172
+#: /var/www/fog/lib/pages/dashboardpage.class.php:179
 msgid "Pending hosts"
 msgstr "待主机"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:173
-#: /var/www/fog/lib/pages/dashboardpage.class.php:182
+#: /var/www/fog/lib/pages/dashboardpage.class.php:180
+#: /var/www/fog/lib/pages/dashboardpage.class.php:189
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:244
 msgid "Click"
 msgstr "点击"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:176
-#: /var/www/fog/lib/pages/dashboardpage.class.php:185
+#: /var/www/fog/lib/pages/dashboardpage.class.php:183
+#: /var/www/fog/lib/pages/dashboardpage.class.php:192
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:245
 #: /var/www/fog/commons/text.php:92
 msgid "here"
 msgstr "这里"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:177
-#: /var/www/fog/lib/pages/dashboardpage.class.php:186
+#: /var/www/fog/lib/pages/dashboardpage.class.php:184
+#: /var/www/fog/lib/pages/dashboardpage.class.php:193
 msgid "to review."
 msgstr "回顾。"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:181
+#: /var/www/fog/lib/pages/dashboardpage.class.php:188
 msgid "Pending macs"
 msgstr "待淅淅沥沥"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:205
+#: /var/www/fog/lib/pages/dashboardpage.class.php:212
 msgid "Web Server"
 msgstr "网络服务器"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:209
+#: /var/www/fog/lib/pages/dashboardpage.class.php:216
 msgid "TFTP Server"
 msgstr "TFTP服务器"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:210
+#: /var/www/fog/lib/pages/dashboardpage.class.php:217
 msgid "Load Average"
 msgstr "平均负载"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:211
+#: /var/www/fog/lib/pages/dashboardpage.class.php:218
 msgid "System Uptime"
 msgstr "系统正常运行时间"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:224
+#: /var/www/fog/lib/pages/dashboardpage.class.php:231
 msgid "System Overview"
 msgstr "系统总览"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:251
+#: /var/www/fog/lib/pages/dashboardpage.class.php:258
 msgid "The selected node's storage group slot usage"
 msgstr "所选节点的存储组时隙的使用"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:252
+#: /var/www/fog/lib/pages/dashboardpage.class.php:259
 msgid "Storage Group Activity"
 msgstr "存储组活动"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:268
+#: /var/www/fog/lib/pages/dashboardpage.class.php:275
 #, fuzzy
 msgid "The selected node's image storage usage"
 msgstr "所选节点的图像存储磁盘使用情况"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:269
+#: /var/www/fog/lib/pages/dashboardpage.class.php:276
 msgid "Storage Node Disk Usage"
 msgstr "存储节点的磁盘使用情况"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:281
+#: /var/www/fog/lib/pages/dashboardpage.class.php:288
 msgid "Imaging Over the last 30 days"
 msgstr "成像在过去30天"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:322
+#: /var/www/fog/lib/pages/dashboardpage.class.php:329
 msgid "1 hour"
 msgstr "1小时"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:324
+#: /var/www/fog/lib/pages/dashboardpage.class.php:331
 msgid "30 Minutes"
 msgstr "30分钟"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:326
+#: /var/www/fog/lib/pages/dashboardpage.class.php:333
 msgid "10 Minutes"
 msgstr "10分钟"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:328
+#: /var/www/fog/lib/pages/dashboardpage.class.php:335
 msgid "2 Minutes"
 msgstr "2分钟"
 

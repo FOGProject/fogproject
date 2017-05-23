@@ -99,9 +99,16 @@ class DashboardPage extends FOGPage
         ) {
             $ip = $StorageNode->get('ip');
             $url = sprintf(
-                'http://%s/fog/',
-                $ip
+                '%s/%s/',
+                $ip,
+                $StorageNode->get('webroot')
             );
+            $url = preg_replace(
+                '#/+#',
+                '/',
+                $url
+            );
+            $url = 'http://' . $url;
             $testurls[] = sprintf(
                 '%smanagement/index.php',
                 $url

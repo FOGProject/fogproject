@@ -25,7 +25,7 @@ var GraphDiskUsageOpts = {
         labelFormatter: function(label, series) {
             units = [' iB',' KiB',' MiB',' GiB',' TiB',' PiB',' EiB',' ZiB',' YiB'];
             for (i =0; series.data[0][1] >= 1024 && i < units.length -1; i++) series.data[0][1] /= 1024;
-            return '<div style="font-size:8pt;padding:2px;">'+label+': '+Math.round(series.percent)+'% <br />'+series.data[0][1].toFixed(2)+units[i]+'</div>';
+            return '<div class="graph-legend">'+label+': '+Math.round(series.percent)+'% <br />'+series.data[0][1].toFixed(2)+units[i]+'</div>';
         }
     }
 };
@@ -66,7 +66,7 @@ var Graph30DayOpts = {
     xaxis: {mode: 'time'},
     yaxis: {
         tickFormatter: function(v) {
-            return '<div style="width: 35px; text-align: right; padding-right: 7px;">'+v+'</div>';
+            return '<div class="tick r">'+v+'</div>';
         },
         min: 0,
         minTickSize: 1
@@ -98,7 +98,7 @@ var UpdateClientCountOpts = {
         position: 'se',
         labelColor: '#666',
         labelFormatter: function(label, series) {
-            return '<div style="font-size:8pt;padding:2px;">'+label+': '+series.datapoints.points[1]+'</div>';
+            return '<div class="graph-legend">'+label+': '+series.datapoints.points[1]+'</div>';
         }
     }
 };
