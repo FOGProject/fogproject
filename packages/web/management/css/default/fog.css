@@ -894,11 +894,16 @@ input[type=search].disabled {
     #loginform {
         display: inline-block;
     }
+    header,
+    table,
+    #action-box,
+    #action-boxdel,
     #content,
     #content-inner,
     #search-wrapper,
     #active-tasks,
     #wrapper {
+        width: 95%;
         padding-bottom: 24px;
     }
     #loader-wrapper {
