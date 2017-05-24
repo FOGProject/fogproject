@@ -4,192 +4,159 @@
  * Author: Tom Elliott <tommygunsster@gmail.com
  */
 @media only screen and (max-width: 1920px) {
-html, body {
-    min-height: 440px;
-}
-body {
-    font-family: Tahoma, Geneva, sans-serif;
-    font-size: 13px;
-    color: #00567a;
-    margin-bottom: 24px;
-}
-/**
- * HTML Headings 1-6
- */
-h1, h2, h3, h4, h5, h6 {
-    font-weight: normal;
-}
-h1 {
-    font-size: 28px;
-}
-h2 {
-    font-size: 24px;
-}
-h3 {
-    font-size: 20px;
-}
-h4 {
-    font-size: 16px;
-}
-h5 {
-    font-size: 12px;
-}
-h6 {
-    font-size: 8px;
-}
-/**
- * HTML Links
- */
-a {
-    text-decoration: none;
-    color: #00567a;
-}
-a:hover, a:active, .activelink, .active {
-    color: #0700de;
-}
-/**
- * HTML Img
- */
-img {
-    border: none;
-}
-img.left {
-    clear: right;
-    float: left;
-}
-img.right {
-    clear: left;
-    float: right;
-}
-/**
- * HTML Table
- */
-table tr td:not(.legendColorBox):not(.legendLabel), 
-table tr th:not(.legendColorBox):not(.legendLabel) {
-    margin: 10px;
-    padding: 5px;
-    text-align: left;
-    overflow: hidden;
-}
-table p {
-    line-height: 15px;
-}
-/**
- * HTML Pre
- */
-pre {
-    white-space: pre-wrap;
-}
-/**
- * HTML Form
- */
-form {
-    margin: 0;
-    padding; 0;
-}
-/**
- * HTML Inputs, textarea, select, fieldset, legends.
- */
-input, select {
-    color: #00567a;
-    font-size: 12px;
-    background-color: transparent;
-    vertical-align: top;
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    -o-border-radius: 3px;
-    border-radius: 3px;
-    min-width: 16px;
-    max-width: 210px;
-    min-height: 20px;
-}
-select[name=ulang], select[name=nodesel], select[name=groupsel] {
-    width: 100px;
-}
-select:not([name=ulang]):not([name=nodesel]):not([name=groupsel]) {
-    width: 220px;
-}
-input[type=text],
-input[type=search]:not(.tablesorter-filter),
-input[type=password],
-input[type=submit],
-input[type=button],
-button,
-textarea,
-select:not([name=groupsel]):not([name=nodesel]),
-.select2 {
-    background: transparent;
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    -o-border-radius: 3px;
-    border-radius: 3px;
-    -webkit-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
-    -moz-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
-    -o-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
-    box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
-}
-input[type=text]:not(.showVal),
-input[type=search]:not(.tablesorter-filter),
-input[type=password],
-input[type=submit],
-input[type=button],
-button:not(.search-submit),
-select:not([name=groupsel]):not([name=nodesel]) {
-    min-height: 24px;
-    min-width: 210px;
-}
-.select2, select:not([name=groupsel]):not([name=nodesel]) {
-    min-height: 24px;
-    min-width: 216px;
-}
-textarea {
-    width: 40em;
-    height: 8em;
-}
-legend {
-    font-weight: bold;
-    font-size: 16px;
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    -o-border-radius: 3px;
-    border-radius: 3px;
-    padding: 2px 2px;
-    margin: 5px;
-    -webkit-text-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
-    -moz-text-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
-    -o-text-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
-    text-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
-}
-fieldset {
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    -o-border-radius: 3px;
-    border-radius: 3px;
-}
-/**
- * Custom elements for FOG
- */
-/**
- * Logo image
- */
+    html, body {
+        min-height: 440px;
+    }
+    body {
+        font-family: Tahoma, Geneva, sans-serif;
+        font-size: 13px;
+        color: #00567a;
+        margin-bottom: 24px;
+    }
+    h1, h2, h3, h4, h5, h6 {
+        font-weight: normal;
+    }
+    h1 {
+        font-size: 28px;
+    }
+    h2 {
+        font-size: 24px;
+    }
+    h3 {
+        font-size: 20px;
+    }
+    h4 {
+        font-size: 16px;
+    }
+    h5 {
+        font-size: 12px;
+    }
+    h6 {
+        font-size: 8px;
+    }
+    a {
+        text-decoration: none;
+        color: #00567a;
+    }
+    a:hover, a:active, .activelink, .active {
+        color: #dd5300;
+    }
+    img {
+        border: none;
+    }
+    img.left {
+        clear: right;
+        float: left;
+    }
+    img.right {
+        clear: left;
+        float: right;
+    }
+    table tr td:not(.legendColorBox):not(.legendLabel), 
+    table tr th:not(.legendColorBox):not(.legendLabel) {
+        margin: 10px;
+        padding: 5px;
+        text-align: left;
+        overflow: hidden;
+    }
+    table p {
+        line-height: 15px;
+    }
+    pre {
+        white-space: pre-wrap;
+    }
+    form {
+        margin: 0;
+        padding; 0;
+    }
+    input, select {
+        color: #00567a;
+        font-size: 12px;
+        background-color: transparent;
+        vertical-align: top;
+        -webkit-border-radius: 3px;
+        -moz-border-radius: 3px;
+        -o-border-radius: 3px;
+        border-radius: 3px;
+        min-width: 16px;
+        max-width: 210px;
+        min-height: 20px;
+    }
+    select[name=ulang], select[name=nodesel], select[name=groupsel] {
+        width: 100px;
+    }
+    select:not([name=ulang]):not([name=nodesel]):not([name=groupsel]) {
+        width: 220px;
+    }
+    input[type=text],
+    input[type=search]:not(.tablesorter-filter),
+    input[type=password],
+    input[type=submit],
+    input[type=button],
+    button,
+    textarea,
+    select:not([name=groupsel]):not([name=nodesel]),
+    .select2 {
+        background: transparent;
+        -webkit-border-radius: 3px;
+        -moz-border-radius: 3px;
+        -o-border-radius: 3px;
+        border-radius: 3px;
+        -webkit-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
+        -moz-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
+        -o-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
+        box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
+    }
+    input[type=text]:not(.showVal),
+    input[type=search]:not(.tablesorter-filter),
+    input[type=password],
+    input[type=submit],
+    input[type=button],
+    button:not(.search-submit),
+    select:not([name=groupsel]):not([name=nodesel]) {
+        min-height: 24px;
+        min-width: 210px;
+    }
+    .select2, select:not([name=groupsel]):not([name=nodesel]) {
+        min-height: 24px;
+        min-width: 216px;
+    }
+    textarea {
+        width: 40em;
+        height: 8em;
+    }
+    legend {
+        font-weight: bold;
+        font-size: 16px;
+        -webkit-border-radius: 3px;
+        -moz-border-radius: 3px;
+        -o-border-radius: 3px;
+        border-radius: 3px;
+        padding: 2px 2px;
+        margin: 5px;
+        -webkit-text-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
+        -moz-text-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
+        -o-text-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
+        text-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
+    }
+    fieldset {
+        -webkit-border-radius: 3px;
+        -moz-border-radius: 3px;
+        -o-border-radius: 3px;
+        border-radius: 3px;
+    }
 .logoimg {
     display: inline-block;
     width: 50px;
     height: 50px;
     margin-left: 10px;
 }
-/**
- * Logo placement
- */
 #logo {
     max-height: 75px;
     position: absolute;
     top: -10px;
     left: 0;
 }
-/**
- * The slogan
- */
 #logo h5 {
     position: absolute;
     min-width: 250px;
@@ -197,9 +164,6 @@ fieldset {
     margin: 10px;
     font-weight: bold;
 }
-/**
- * Version items
- */
 #version {
     position: relative;
     top: -67px;
@@ -207,9 +171,6 @@ fieldset {
     font-size: 10px;
     vertical-align: text-top;
 }
-/**
- * Under menu
- */
 hr {
     border: 1px solid #efefef;
 }
@@ -217,9 +178,6 @@ header {
     display: inline-block;
     width: 100%;
 }
-/**
- * Main menu
- */
 .menu {
     height: 25px;
 }
@@ -234,18 +192,12 @@ header {
     display: block;
     padding: 4px;
 }
-/**
- * Wrapper contains sidebar, sidenotes and content
- */
 #wrapper {
     position: relative;
     left: 0;
     right: 0;
     margin: 0 auto;
 }
-/**
- * Sidebar menu
- */
 .sidebar {
     position: absolute;
     margin-left: 0;
@@ -283,9 +235,6 @@ header {
 .sidenotes p {
     width: 160px;
 }
-/**
- * Main content (generalized)
- */
 #content {
     position: relative;
     width: 100%;
@@ -332,9 +281,6 @@ input[name=fakepasswordremembered] {
 .red {
     color: #ce0f0f;
 }
-/**
- * Simple aligns
- */
 .v {
     writing-mode: tb-rl;
     -webkit-transform: rotate(90deg);
@@ -356,9 +302,6 @@ input[name=fakepasswordremembered] {
 .small {
     font-size: 8px;
 }
-/**
- * Debug stuff
- */
 .debug {
     padding: 5px;
     margin: 2px 0;
@@ -375,15 +318,9 @@ input[name=fakepasswordremembered] {
 .debug-hook {
     border-color: magenta;
 }
-/**
- * Hide elements
- */
 .fog-variable, .fog-message-box {
     display: none;
 }
-/**
- * Loader information.
- */
 #loader-wrapper {
     height: 50px;
     display: table;
@@ -414,9 +351,6 @@ input[name=fakepasswordremembered] {
 #loader p {
     float: right;
 }
-/**
- * Login form
- */
 #loginform {
     display: table;
     margin: 0 auto;
@@ -476,12 +410,6 @@ input[name=fakepasswordremembered] {
 #login-form-info .icon {
     vertical-align: text-bottom;
 }
-/**
- * Main content dashboard
- */
-/**
- * Dashboard specific elements
- */
 .dashboard {
     padding: 2px;
     text-align: center;
@@ -495,9 +423,6 @@ input[name=fakepasswordremembered] {
 .dashboard p.infoTitle {
     background-color: #bcbcbc;
 }
-/**
- * The three top boxes.
- */
 .dashboard-boxes {
     margin: 0 auto;
     width: 800px;
@@ -522,9 +447,6 @@ input[name=fakepasswordremembered] {
     padding: 5px;
     margin: 0;
 }
-/**
- * The selectors
- */
 .graph-selectors {
     position: relative;
     white-space: no-wrap;
@@ -540,9 +462,6 @@ input[name=fakepasswordremembered] {
     border: 1px solid #666;
     padding: 0;
 }
-/**
- * Graphs
- */
 .graph {
     height: 150px;
 }
@@ -554,9 +473,6 @@ input[name=fakepasswordremembered] {
     height: 120px;
     margin-top: 5px;
 }
-/**
- * Graph bandwidth
- */
 #graph-bandwidth, #graph-30day, #graph-bandwidth-filters {
     margin: 0 auto;
     width: 800px;
@@ -583,9 +499,6 @@ input[name=fakepasswordremembered] {
     top: -28px;
     right: 21px;
 }
-/**
- * Search elements.
- */
 #search h2 {
     margin-bottom: 20px;
 }
@@ -606,29 +519,21 @@ input[name=fakepasswordremembered] {
     height: 29px;
     vertical-align: top;
 }
-/**
- * Fakes
- */
 .fakes {
     display: none;
 }
-/**
- * Pigz information
- */
 .rangegen {
     width: 200px;
     top: 15px;
 }
-/**
- * Show val
- */
 .imagespage {
     margin-left: 0px;
 }
 .showVal.pigz,
 .showVal.inact,
 .showVal.loglvl {
-    float: right;
+    clear: left;
+    margin-left: 10px;
     width: 20px;
 }
 .showVal:not(.imagespage) {
