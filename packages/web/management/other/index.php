@@ -116,6 +116,7 @@ if (!self::$isMobile) {
             echo self::$FOGPageManager->getSideMenu();
         }
     }
+    echo '<div class="clear"></div>';
     printf(
         '<div id="content"%s>',
         (
