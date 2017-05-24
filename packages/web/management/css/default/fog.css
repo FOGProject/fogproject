@@ -122,7 +122,7 @@
         min-width: 216px;
     }
     textarea {
-        width: 40em;
+        width: 25em;
         height: 8em;
     }
     legend {
@@ -768,6 +768,7 @@
     #search-wrapper,
     #active-tasks,
     #wrapper {
+        margin: 25px;
         width: 95%;
         padding-bottom: 24px;
     }
@@ -775,16 +776,15 @@
         position: relative;
         left: 100px;
     }
-    .sidebar {
-        position: relative;
+    #content-inner {
+        margin-left: 0;
+        left: 180px;
+    }
+    .dashboard #content-inner {
+        margin-left: 0;
         left: 0;
-        right: 0;
-        margin: 0 auto;
-        text-align: center;
-        width: 95%;
     }
     .sidebar li {
-        display: inline-block;
         padding: 10px;
         font-size: 12px;
     }
