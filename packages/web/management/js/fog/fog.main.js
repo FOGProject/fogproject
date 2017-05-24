@@ -197,13 +197,6 @@ $(function() {
     // Tabs
     // Blackout - 9:14 AM 30/11/2011
     $('.organic-tabs').organicTabs({targetID: '#tab-container'});
-    // Hides all the divs in the Service menu
-    $('#tab-container-1 > div').hide();
-    // Shows the div of the containing element.
-    $('#tab-container-1 > a').click(function() {
-        $('#tab-container-1 div#'+$(this).attr('id')).fadeToggle('slow','swing');
-        return false;
-    });
     $('input[name=export]').click(function(e) {
         e.preventDefault();
         url = $(this).parents('form').attr('action');
