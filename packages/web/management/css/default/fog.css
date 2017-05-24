@@ -3,6 +3,7 @@
  *
  * Author: Tom Elliott <tommygunsster@gmail.com
  */
+@media only screen and (max-width: 1920px) {
 html, body {
     min-height: 440px;
 }
@@ -306,7 +307,6 @@ header {
     left: 0;
     right: 0;
     margin: 0 auto;
-    padding-bottom: 24px;
 }
 #tab-container div {
     display: none;
@@ -321,16 +321,6 @@ header {
     right: 0;
     margin: 0 auto;
     margin-bottom: 24px;
-}
-@media all and (max-width: 1280px) {
-    #loader-wrapper {
-        position: relative;
-        left: 100px;
-    }
-    #content-inner {
-        margin-left: 0;
-        left: 225px;
-    }
 }
 input[name=fakeusernameremembered],
 input[name=fakepasswordremembered] {
@@ -868,6 +858,13 @@ input[type=search].disabled {
     width: 200px;
     top: 15px;
 }
+#content,
+#content-inner,
+#search-wrapper,
+#active-tasks,
+#wrapper {
+    padding-bottom: 24px;
+}
 /**
  * Footer placement
  */
@@ -883,4 +880,49 @@ input[type=search].disabled {
     background: #c7cede;
     text-align: center;
     bottom: 0;
+}
+}
+@media only screen and (max-width: 1240px) {
+    .dashboard-boxes,
+    .graph,
+    #graph-bandwidth-filters,
+    #graph-bandwidth-title,
+    .dashboard #content-inner h3 {
+        margin-left: 0;
+        left: 0;
+    }
+    #loginform {
+        display: inline-block;
+    }
+    #content,
+    #content-inner,
+    #search-wrapper,
+    #active-tasks,
+    #wrapper {
+        padding-bottom: 24px;
+    }
+    #loader-wrapper {
+        position: relative;
+        left: 100px;
+    }
+    .sidebar {
+        position: relative;
+        left: 0;
+        right: 0;
+        margin: 0 auto;
+        text-align: center;
+        width: 95%;
+    }
+    .sidebar li {
+        display: inline-block;
+        padding: 10px;
+        font-size: 12px;
+    }
+    .sidenotes {
+        display: none;
+    }
+    textarea {
+        width: 210px;
+        height: 8em;
+    }
 }
