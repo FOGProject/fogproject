@@ -127,6 +127,7 @@ class ReportManagementPage extends FOGPage
      */
     public function __construct($name = '')
     {
+        set_time_limit(0);
         $this->name = 'Report Management';
         parent::__construct($this->name);
         $this->menu = array(
