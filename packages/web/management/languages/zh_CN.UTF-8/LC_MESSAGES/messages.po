@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-24 14:26-0400\n"
+"POT-Creation-Date: 2017-05-24 23:16-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2972,7 +2972,7 @@ msgid "Max Size:"
 msgstr "最大尺寸："
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1105
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:206
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:207
 msgid "Upload File"
 msgstr "上传文件"
 
@@ -4842,11 +4842,11 @@ msgstr "登陆"
 msgid "The following errors occured"
 msgstr "下面的错误发生"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:188
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:189
 msgid "Upload FOG Reports"
 msgstr "上传FOG报告"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:197
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:198
 msgid ""
 "This section allows you to upload user defined reports that may not be part "
 "of the base FOG package. The report files should end in .php"
@@ -4854,21 +4854,21 @@ msgstr ""
 "这部分允许你上传用户定义的报表，可能无法在基地FOG包的一部分。报告文件应该以."
 "php结束"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:202
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:203
 msgid "Upload a FOG Report"
 msgstr "上传FOG报告"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:204
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:205
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:497
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:891
 msgid "Max Size"
 msgstr "最大尺寸"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:216
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:217
 msgid "About FOG Reports"
 msgstr "关于FOG报告"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:220
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:221
 msgid ""
 "FOG Reports exist to give you information about what is going on with your "
 "FOG System. To view a report, select an item from the menu on the left-hand "
