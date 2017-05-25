@@ -63,15 +63,10 @@ class Initiator
                 );
             }
             if (is_array($val)) {
-                foreach ((array)$val as $k => &$v) {
-                    $val[$k] = htmlspecialchars(
-                        $v,
-                        ENT_QUOTES | ENT_HTML401,
-                        'utf-8'
-                    );
-                    unset($v);
-                }
+                array_walk($val, self::$_sanitizeItems);
             }
+            unset($val, $key);
+            return $value;
         };
         /**
          * Find out if the link has service in the call.
@@ -321,21 +316,14 @@ class Initiator
          * Otherwise it will clean the passed value.
          */
         if (!count($value)) {
-            if (session_status() != PHP_SESSION_NONE) {
-                array_walk($_SESSION, self::$_sanitizeItems);
-            }
-            if (count($_REQUEST) > 0) {
-                array_walk($_REQUEST, self::$_sanitizeItems);
-            }
-            if (count($_COOKIE) > 0) {
-                array_walk($_COOKIE, self::$_sanitizeItems);
-            }
-            if (count($_POST) > 0) {
-                array_walk($_POST, self::$_sanitizeItems);
-            }
-            if (count($_GET) > 0) {
-                array_walk($_GET, self::$_sanitizeItems);
-            }
+            $process = array(
+                &$_GET,
+                &$_POST,
+                &$_COOKIE,
+                &$_REQUEST,
+                &$_SESSION
+            );
+            array_walk($process, self::$_sanitizeItems);
         } else {
             if (is_array($value)) {
                 array_walk($value, self::$_sanitizeItems);

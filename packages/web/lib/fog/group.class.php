@@ -700,7 +700,7 @@ class Group extends FOGController
                 self::getClass('TaskManager')
                     ->insertBatch($batchFields, $batchTask);
             }
-        } elseif ($TaskType->isInitNeededTasking()) {
+        } else {
             $hostIDs = $this->get('hosts');
             $hostCount = count($hostIDs);
             $batchFields = array(
