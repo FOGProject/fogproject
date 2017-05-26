@@ -113,8 +113,9 @@ input[type=button]:not(.search-submit),
 input[type=submit]:not(.search-submit),
 button:not(.search-submit),
 select,
+textarea,
 .select2-selection {
-    width: 218px;
+    width: 300px;
 }
 .search-submit {
     width: 23px;
@@ -123,8 +124,7 @@ select,
     text-align: center;
     vertical-align: top;
 }
-.select2-selection,
-.select2-container {
+.select2-selection {
     margin-left: 3px;
 }
 input[type=button],
@@ -595,7 +595,11 @@ table td .icon {
     border-radius: 3px;
 }
 table {
-    width: 100%;
+    max-width: 850px;
+}
+table td:first-child {
+    text-align: left;
+    max-width: 180px;
 }
 .legend table {
     width: 90px;
@@ -687,6 +691,7 @@ input[type=checkbox] + label:before,
     font-size: 16px;
     color: #00567a;
     content: "\f096";
+    padding-right: 15px;
 }
 input[type=checkbox]:checked + label:before,
 .default:checked + label:before,
