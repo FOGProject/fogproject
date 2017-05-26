@@ -94,15 +94,17 @@ class FOGConfigurationPage extends FOGPage
     public function version()
     {
         $this->title = _('FOG Version Information');
+        echo '<div class="latestInfo">';
         printf(
             '<p>%s: %s</p>',
             _('Running Version'),
             FOG_VERSION
         );
         printf(
-            '<p id="latestInfo" vers="%s"></p>',
+            '<p class="placehere" vers="%s"></p>',
             FOG_VERSION
         );
+        echo '</div>';
         printf(
             '<h1>%s</h1>',
             _('Kernel Versions')
@@ -1414,6 +1416,16 @@ class FOGConfigurationPage extends FOGPage
                 );
             if ($curcat != $catset) {
                 if ($catset !== false) {
+                    $this->data[] = array(
+                        'span' => '&nbsp;',
+                        'service_name' => '',
+                        'input_type' => sprintf(
+                            '<input name="update" type="submit" value="%s"/>',
+                            _('Save Changes')
+                        ),
+                    );
+                    $this->render();
+                    unset($this->data);
                     echo '</div>';
                 }
                 printf(
@@ -1747,14 +1759,6 @@ class FOGConfigurationPage extends FOGPage
                 'service_base64val' => base64_encode($Service->get('value')),
                 'service_desc' => $Service->get('description'),
             );
-            $this->data[] = array(
-                'span' => '&nbsp;',
-                'service_name' => '',
-                'input_type' => sprintf(
-                    '<input name="update" type="submit" value="%s"/>',
-                    _('Save Changes')
-                ),
-            );
             self::$HookManager
                 ->processEvent(
                     sprintf(
@@ -1767,9 +1771,8 @@ class FOGConfigurationPage extends FOGPage
                         'attributes' => &$this->attributes
                     )
                 );
-            $this->render();
             $catset = $Service->get('category');
-            unset($this->data, $options, $Service);
+            unset($options, $Service);
         }
         echo '</div></div></form>';
     }
