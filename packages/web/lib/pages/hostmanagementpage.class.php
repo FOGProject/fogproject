@@ -392,6 +392,8 @@ class HostManagementPage extends FOGPage
     {
         $this->title = _('New Host');
         unset($this->data);
+        echo '<!-- General -->';
+        echo '<div id="host-general">';
         $this->headerData = '';
         $this->templates = array(
             '${field}',
@@ -484,6 +486,7 @@ class HostManagementPage extends FOGPage
                 )
             );
         $this->render();
+        echo '</div>';
         if (!isset($_REQUEST['enforcesel'])) {
             $_REQUEST['enforcesel'] = self::getSetting('FOG_ENFORCE_HOST_CHANGES');
         }

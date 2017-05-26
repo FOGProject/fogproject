@@ -3,7 +3,9 @@ var CANCELURL,
     pauseButton,
     pauseUpdate,
     cancelButton,
-    cancelTasks;
+    cancelTasks,
+    AJAXTaskUpdate,
+    AJAXTaskRunning;
 $(function() {
     if (typeof(sub) == 'undefined') {
         window.location.replace(location.href+'&sub=active');
@@ -37,7 +39,7 @@ function pauseButtonPressed(e) {
         ActiveTasksUpdate();
     } else {
         if (AJAXTaskRunning) AJAXTaskRunning.abort();
-        clearInterval(AJAXTaskUpdate);
+        clearTimeout(AJAXTaskUpdate);
         $(this).removeClass().val('Continue auto update');
     }
     e.preventDefault();
@@ -63,7 +65,7 @@ function buttonPress() {
     });
 }
 function ActiveTasksUpdate() {
-    $.ajax({
+    AJAXTaskRunning = $.ajax({
         url: URL,
         dataType: 'json',
         beforeSend: function() {
@@ -87,7 +89,7 @@ function ActiveTasksUpdate() {
             Loader.fogStatusUpdate(_L['ERROR_SEARCHING']+(errorThrown != '' ? errorThrown : '')).addClass('error').find('i').css({color:'red'});
         },
         complete: function() {
-            setTimeout(ActiveTasksUpdate, ActiveTasksUpdateInterval - ((new Date().getTime() - startTime) % ActiveTasksUpdateInterval));
+            AJAXTaskUpdate = setTimeout(ActiveTasksUpdate, ActiveTasksUpdateInterval - ((new Date().getTime() - startTime) % ActiveTasksUpdateInterval));
         }
     });
 }

@@ -79,8 +79,8 @@ class TaskManagementPage extends FOGPage
         );
         $this->templates = array(
             '<input type="checkbox" class="toggle-action" name='
-            . '"task[]" value="${id}" id="task-${id}"/><label for="'
-            . 'task-${id}"></label>',
+            . '"task[]" value="${id}" id="tasker-${id}"/><label for="'
+            . 'tasker-${id}"></label>',
             '${startedby}',
             sprintf(
                 '<p><a href="?node=host&sub=edit&id=${host_id}" title='
