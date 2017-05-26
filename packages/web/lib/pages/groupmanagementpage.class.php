@@ -88,7 +88,8 @@ class GroupManagementPage extends FOGPage
         );
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" '
-            . 'class="toggle-checkboxAction"/>',
+            . 'class="toggle-checkboxAction" id="toggler"/>'
+            . '<label for="toggler"></label>',
             _('Name'),
             _('Members'),
             _('Tasking'),
@@ -97,7 +98,8 @@ class GroupManagementPage extends FOGPage
         $mc = self::getClass('TaskType', 8);
         $this->templates = array(
             '<input type="checkbox" name="group[]" '
-            . 'value="${id}" class="toggle-action" />',
+            . 'value="${id}" class="toggle-action" id="group-${id}"/>'
+            . '<label for="group-${id}"></label>',
             sprintf(
                 '<a href="?node=group&sub=edit&%s=${id}" '
                 . 'title="Edit">${name}</a>',
@@ -574,14 +576,16 @@ class GroupManagementPage extends FOGPage
         echo '</p>';
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkboxprint" '
-            . 'class="toggle-checkboxprint"/>',
+            . 'class="toggle-checkboxprint" id="toggler1"/>'
+            . '<label for="toggler1"></label>',
             '',
             _('Printer Name'),
             _('Configuration'),
         );
         $this->templates = array(
             '<input type="checkbox" name="printers[]" value="${printer_id}" '
-            . 'class="toggle-print" />',
+            . 'class="toggle-print" id="printer-${printer_id}"/>'
+            . '<label for="printer-${printer_id}"></label>',
             '<input class="default" type="radio" name="default" '
             . 'id="printer${printer_id}" value="${printer_id}"/>'
             . '<label for="printer${printer_id}" class="icon icon-hand" '
@@ -641,13 +645,15 @@ class GroupManagementPage extends FOGPage
         printf('<h2>%s</h2>', _('Snapins'));
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkboxsnapin" '
-            . 'class="toggle-checkboxsnapin"/>',
+            . 'class="toggle-checkboxsnapin" id="toggler2"/>'
+            . '<label for="toggler2"></label>',
             _('Snapin Name'),
             _('Created'),
         );
         $this->templates = array(
             '<input type="checkbox" name="snapin[]" value="${snapin_id}" '
-            . 'class="toggle-snapin"/>',
+            . 'class="toggle-snapin" id="snapin-${snapin_id}"/>'
+            . '<label for="snapin-${snapin_id}"></label>',
             sprintf(
                 '<a href="?node=snapin&sub=edit&id=${snapin_id}" '
                 . 'title="%s">${snapin_name}</a>',
@@ -713,7 +719,8 @@ class GroupManagementPage extends FOGPage
         $this->data[] = array(
             'mod_name' => 'Select/Deselect All',
             'input' => '<input type="checkbox" class="checkboxes" '
-            . 'id="checkAll" name="checkAll" value="checkAll"/>',
+            . 'id="checkAll" name="checkAll" value="checkAll"/>'
+            . '<label for="checkAll"></label>',
             'span' => '&nbsp;',
         );
         printf(
@@ -809,7 +816,9 @@ class GroupManagementPage extends FOGPage
             }
             $this->data[] = array(
                 'input' => sprintf(
-                    '<input %stype="checkbox" name="modules[]" value="%s"%s%s/>',
+                    '<input id="%s" %stype="checkbox" name="modules[]" '
+                    . 'value="%s"%s%s/><label for="%s"></label>',
+                    $Module->get('shortName'),
                     (
                         $moduleName[$Module->get('shortName')]
                         || (
@@ -830,9 +839,12 @@ class GroupManagementPage extends FOGPage
                         ' checked' :
                         ''
                     ),
-                    !$moduleName[$Module->get('shortName')] ?
-                    ' disabled' :
-                    ''
+                    (
+                        !$moduleName[$Module->get('shortName')] ?
+                        ' disabled' :
+                        ''
+                    ),
+                    $Module->get('shortName')
                 ),
                 'span' => sprintf(
                     '%s<span class="icon fa fa-question fa-1x hand" '
@@ -1027,7 +1039,8 @@ class GroupManagementPage extends FOGPage
             ),
             _('Perform Immediately?') => sprintf(
                 '<input type="checkbox" name="onDemand" '
-                . 'id="scheduleOnDemand"%s/>',
+                . 'id="scheduleOnDemand"%s/><label for="'
+                . 'scheduleOnDemand"></label>',
                 !is_array($_REQUEST['onDemand'])
                 && isset($_REQUEST['onDemand']) ?
                 ' checked' :

@@ -64,7 +64,8 @@ class TaskManagementPage extends FOGPage
                 )
             );
         $this->headerData = array(
-            '<input type="checkbox" class="toggle-checkboxAction"/>',
+            '<input type="checkbox" class="toggle-checkboxAction" id="toggler"/>'
+            . '<label for="toggler"></label>',
             _('Started By:'),
             sprintf(
                 '%s<br/><small>%s</small>',
@@ -78,7 +79,8 @@ class TaskManagementPage extends FOGPage
         );
         $this->templates = array(
             '<input type="checkbox" class="toggle-action" name='
-            . '"task[]" value="${id}"/>',
+            . '"task[]" value="${id}" id="task-${id}"/><label for="'
+            . 'task-${id}"></label>',
             '${startedby}',
             sprintf(
                 '<p><a href="?node=host&sub=edit&id=${host_id}" title='
@@ -693,7 +695,8 @@ class TaskManagementPage extends FOGPage
         $this->title = 'Active Multi-cast Tasks';
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class='
-            . '"toggle-checkboxAction"/>',
+            . '"toggle-checkboxAction" id="toggler1"/>'
+            . '<label for="toggler1"></label>',
             _('Task Name'),
             _('Hosts'),
             _('Start Time'),
@@ -702,7 +705,8 @@ class TaskManagementPage extends FOGPage
         );
         $this->templates = array(
             '<input type="checkbox" name="task[]" value="${id}" class='
-            . '"toggle-action"/>',
+            . '"toggle-action" id="mctask-${id}"/>'
+            . '<label for="mctask-${id}"></label>',
             '${name}',
             '${count}',
             '${start_date}',
@@ -814,7 +818,8 @@ class TaskManagementPage extends FOGPage
         $this->title = 'Active Snapins';
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class='
-            . '"toggle-checkboxAction"/>',
+            . '"toggle-checkboxAction" id="toggler2"/><label for="'
+            . 'toggler2"></label>',
             _('Host Name'),
             _('Snapin'),
             _('Start Time'),
@@ -822,7 +827,8 @@ class TaskManagementPage extends FOGPage
         );
         $this->templates = array(
             '<input type="checkbox" name="task[]" value="${id}" class='
-            . '"toggle-action"/>',
+            . '"toggle-action" id="sntasks-${id}"/><label for="'
+            . 'sntasks-${id}"></label>',
             sprintf(
                 '<p><a href="?node=host&sub=edit&id=${host_id}" title='
                 . '"%s">${host_name}</a></p><small>${host_mac}</small>',
@@ -993,7 +999,8 @@ class TaskManagementPage extends FOGPage
         $this->title = 'Scheduled Tasks';
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class='
-            . '"toggle-checkboxAction"/>',
+            . '"toggle-checkboxAction" id="toggler3"/><label for="'
+            . 'toggler3"></label>',
             _('Host/Group Name'),
             _('Is Group'),
             _('Task Name'),
@@ -1004,7 +1011,8 @@ class TaskManagementPage extends FOGPage
         );
         $this->templates = array(
             '<input type="checkbox" name="task[]" value="${id}" class='
-            . '"toggle-action"/>',
+            . '"toggle-action" id="sctasks-${id}"/><label for="'
+            . 'sctasks-${id}"></label>',
             '<a href="?node=${hostgroup}&sub=edit&id=${hostgroupid}" title='
             . '"Edit ${nametype}: ${hostgroupname}">${hostgroupname}</a>${extra}',
             '${groupbased}',

@@ -80,7 +80,8 @@ class UserManagementPage extends FOGPage
             );
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class='
-            . '"toggle-checkboxAction" />',
+            . '"toggle-checkboxAction" id="toggler"/>'
+            . '<label for="toggler"></label>',
             _('Mobile Only?'),
             _('API?'),
             _('Username'),
@@ -88,7 +89,8 @@ class UserManagementPage extends FOGPage
         );
         $this->templates = array(
             '<input type="checkbox" name="user[]" value='
-            . '"${id}" class="toggle-action" />',
+            . '"${id}" class="toggle-action" id="user-${id}"/>'
+            . '<label for="user-${id}"></label>',
             '${mobileYes}',
             '${apiYes}',
             sprintf(
@@ -178,7 +180,8 @@ class UserManagementPage extends FOGPage
             . '"password-input2" name="password_confirm" value='
             . '"" autocomplete="off"/>',
             _('Allow API') => '<input type="checkbox" name="apienabled" '
-            . 'autocomplete="off" checked/>',
+            . 'autocomplete="off" id="apion" checked/>'
+            . '<label for="apion"></label>',
             sprintf(
                 '%s&nbsp;'
                 . '<i class="icon icon-help hand fa fa-question" title="%s"></i>',
@@ -190,7 +193,9 @@ class UserManagementPage extends FOGPage
                     _('this user will not be able to log into'),
                     _('this FOG Management console in the future')
                 )
-            ) =>  '<input type="checkbox" name="isGuest" autocomplete="off"/>',
+            ) =>  '<input type="checkbox" name="isGuest" autocomplete="off" id="'
+            . 'isguest"/>'
+            . '<label for="isguest"></label>',
             '&nbsp;' => sprintf(
                 '<input name="add" type="submit" value="%s"/>',
                 _('Create User')
@@ -321,7 +326,8 @@ class UserManagementPage extends FOGPage
                     _('this FOG Management console in the future')
                 )
             ) => sprintf(
-                '<input type="checkbox" name="isGuest" autocomplete="off"%s/>&nbsp;',
+                '<input type="checkbox" name="isGuest" autocomplete="off" id="'
+                . 'isguest"%s/>&nbsp;<label for="isguest"></label>',
                 (
                     $this->type == 1 ?
                     ' checked' :
@@ -409,7 +415,8 @@ class UserManagementPage extends FOGPage
         echo '<div id="user-api">';
         $fields = array(
             _('User API Enabled') => sprintf(
-                '<input type="checkbox" class="api-enabled" name="apienabled"%s/>',
+                '<input type="checkbox" class="api-enabled" name="apienabled" id="'
+                . 'apion"%s/><label for="apion"></label>',
                 $this->obj->get('api') ? ' checked' : ''
             ),
             _('User API Token') => sprintf(

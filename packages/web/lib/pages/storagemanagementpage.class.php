@@ -205,7 +205,8 @@ class StorageManagementPage extends FOGPage
         }
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class='
-            . '"toggle-checkboxAction"/>',
+            . '"toggle-checkboxAction" id="toggler"/>'
+            . '<label for="toggler"></label>',
             self::$foglang['SN'],
             self::$foglang['SG'],
             self::$foglang['Enabled'],
@@ -214,7 +215,8 @@ class StorageManagementPage extends FOGPage
         );
         $this->templates = array(
             '<input type="checkbox" name="node[]" value='
-            . '"${id}" class="toggle-action"/>',
+            . '"${id}" class="toggle-action" id="node-${id}"/>'
+            . '<label for="node-${id}"></label>',
             sprintf(
                 '<a href="?node=%s&sub=edit&%s=${id}" title="%s">${name}</a>',
                 $this->node,
@@ -305,7 +307,9 @@ class StorageManagementPage extends FOGPage
                 $_REQUEST['maxClients']
             ),
             self::$foglang['IsMasterNode'] => sprintf(
-                '<input type="checkbox" name="isMaster"%s/>&nbsp;&nbsp;%s',
+                '<input type="checkbox" name="isMaster" id="'
+                . 'ismaster"%s/><label for="ismaster"></label>'
+                . '&nbsp;&nbsp;%s',
                 (
                     isset($_REQUEST['isMaster']) ?
                     ' checked' :
@@ -393,12 +397,13 @@ class StorageManagementPage extends FOGPage
                 )
             ),
             self::$foglang['IsEnabled'] => '<input type="checkbox" name='
-            . '"isEnabled" checked/>',
+            . '"isEnabled" id="isen" checked/><label for="isen"></label>',
             sprintf(
                 '%s<br/><small>(%s)</small>',
                 self::$foglang['IsGraphEnabled'],
                 self::$foglang['OnDash']
-            ) => '<input type="checkbox" name="isGraphEnabled" checked/>',
+            ) => '<input type="checkbox" name="isGraphEnabled" id="isgren"'
+           . ' checked/><label for="isgren"></label>',
             self::$foglang['ManUser'] => sprintf(
                 '<input type="text" name="user" value="%s" autocomplete="off"/>*',
                 $_REQUST['user']
@@ -585,7 +590,9 @@ class StorageManagementPage extends FOGPage
                 $this->obj->get('maxClients')
             ),
             self::$foglang['IsMasterNode'] => sprintf(
-                '<input type="checkbox" name="isMaster"%s/>&nbsp;&nbsp;%s',
+                '<input type="checkbox" name="isMaster" id="ismaster"%s/>'
+                . '<label for="ismaster"></label>'
+                . '&nbsp;&nbsp;%s',
                 (
                     $this->obj->get('isMaster') > 0 ?
                     ' checked' :
@@ -642,7 +649,8 @@ class StorageManagementPage extends FOGPage
                 $this->obj->get('interface')
             ),
             self::$foglang['IsEnabled'] => sprintf(
-                '<input type="checkbox" name="isEnabled"%s/>',
+                '<input type="checkbox" name="isEnabled" id="isen"%s/>'
+                . '<label for="isen"></label>',
                 (
                     $this->obj->get('isEnabled') > 0 ?
                     ' checked' :
@@ -654,7 +662,8 @@ class StorageManagementPage extends FOGPage
                 self::$foglang['IsGraphEnabled'],
                 self::$foglang['OnDash']
             ) => sprintf(
-                '<input type="checkbox" name="isGraphEnabled"%s/>',
+                '<input type="checkbox" name="isGraphEnabled" id="isgren"%s/>'
+                . '<label for="isgren"></label>',
                 (
                     $this->obj->get('isGraphEnabled') > 0 ?
                     ' checked' :
@@ -924,13 +933,15 @@ class StorageManagementPage extends FOGPage
         }
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class='
-            . '"toggle-checkboxAction"/>',
+            . '"toggle-checkboxAction" id="toggler2"/>'
+            . '<label for="toggler2"></label>',
             self::$foglang['SG'],
             _('Max'),
         );
         $this->templates = array(
             '<input type="checkbox" name="storage[]" value='
-            . '"${id}" class="toggle-action"/>',
+            . '"${id}" class="toggle-action" id="group-${id}"/>'
+            . '<label for="group-${id}"></label>',
             sprintf(
                 '<a href="?node=%s&sub=editStorageGroup&%s=${id}" title='
                 . '"%s">${name}</a>',

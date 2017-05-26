@@ -124,7 +124,7 @@ class FOGConfigurationPage extends FOGPage
             );
             printf(
                 '<h2>%s FOG Version: ()</h2>'
-                . '<pre class="kernvers" urlcall="%s"></pre>',
+                . '<pre class="kernvers l" urlcall="%s"></pre>',
                 $StorageNode->get('name'),
                 $url
             );
@@ -140,14 +140,11 @@ class FOGConfigurationPage extends FOGPage
     public function license()
     {
         $this->title = _('FOG License Information');
-        $file = "./languages/'.self::$locale.'.UTF-8/gpl-3.0.txt";
-        if (($fh = fopen($file, 'rb')) === false) {
-            return;
-        }
-        echo '<pre>';
-        while (($line = fgets($fh)) !== false) {
-            echo $line;
-        }
+        $file = './languages/'
+            . self::$locale
+            . '.UTF-8/gpl-3.0.txt';
+        echo '<pre class="l">';
+        echo trim(file_get_contents($file));
         echo '</pre>';
         fclose($fh);
     }
@@ -371,7 +368,8 @@ class FOGConfigurationPage extends FOGPage
         );
         $fields = array(
             _('No Menu') => sprintf(
-                '<input type="checkbox" name="nomenu" value="1"%s/>'
+                '<input id="nomenu" type="checkbox" name="nomenu" value="1"%s/>'
+                . '<label for="nomenu"></label>'
                 . '<i class="icon fa fa-question hand" title="%s"></i>',
                 $noMenu,
                 sprintf(
@@ -386,7 +384,8 @@ class FOGConfigurationPage extends FOGPage
                 )
             ),
             _('Hide Menu') => sprintf(
-                '<input type="checkbox" name="hidemenu" value="1"%s/>'
+                '<input id="hidemenu" type="checkbox" name="hidemenu" value="1"%s/>'
+                . '<label for="hidemenu"></label>'
                 . '<i class="icon fa fa-question hand" title="%s"></i>',
                 $hidChecked,
                 sprintf(
@@ -405,7 +404,8 @@ class FOGConfigurationPage extends FOGPage
                 _('Option specifies the timeout value for the hidden menu system')
             ),
             _('Advanced Menu Login') => sprintf(
-                '<input type="checkbox" name="advmenulogin" value="1"%s/>'
+                '<input id="advlog" type="checkbox" name="advmenulogin" '
+                . 'value="1"%s/><label for="advlog"></label>'
                 . '<i class="icon fa fa-question hand" title="%s"></i>',
                 $advLogin,
                 sprintf(
@@ -681,11 +681,13 @@ class FOGConfigurationPage extends FOGPage
                     $Menu->get('args')
                 ),
                 _('Default Item:') => sprintf(
-                    '<input type="checkbox" name="menu_default" value="1"%s/>',
+                    '<input type="checkbox" name="menu_default" value="1" id="'
+                    . 'menudef"%s/><label for="menudef"></label>',
                     $menuDefault
                 ),
                 _('Hot Key Enabled') => sprintf(
-                    '<input type="checkbox" name="hotkey"%s/>',
+                    '<input type="checkbox" name="hotkey" id="hotkey"%s/>'
+                    . '<label for="hotkey"></label>',
                     $hotKey
                 ),
                 _('Hot Key to use') => sprintf(
@@ -885,7 +887,8 @@ class FOGConfigurationPage extends FOGPage
                 $_REQUEST['menu_options']
             ),
             _('Default Item:') => sprintf(
-                '<input type="checkbox" name="menu_default" value="1"%s/>',
+                '<input type="checkbox" name="menu_default" value="1" id="'
+                . 'menudef"%s/><label for="menudef"></label>',
                 $menudefault
             ),
             _('Menu Show with:') => self::getClass(
@@ -1688,7 +1691,8 @@ class FOGConfigurationPage extends FOGPage
             case (in_array($Service->get('name'), $ServiceNames)):
                 $type = sprintf(
                     '<input type="checkbox" name="${service_id}" value='
-                    . '"1"%s/>',
+                    . '"1" id="gs-${service_id}"%s/><label for="gs-${service_id}">'
+                    . '</label>',
                     (
                         $Service->get('value') ?
                         ' checked' :
@@ -2339,11 +2343,12 @@ class FOGConfigurationPage extends FOGPage
         unset($vals);
         printf(
             '<select name="n" id="linesToView">%s</select>'
-            . '<br/><p class="c"><label for="reverse">%s : '
+            . '<br/><p class="c">%s : '
             . '<input type="checkbox" name="reverse" id="reverse"/>'
-            . '</label></p></label><br/><p class="c">'
+            . '<label for="reverse">'
+            . '</label></p><br/><p class="c">'
             . '<input type="button" id="logpause"/></p></p>'
-            . '</form><br/><div id="logsGoHere"></div></p>',
+            . '</form><br/><div id="logsGoHere" class="l"></div></p>',
             ob_get_clean(),
             _('Reverse the file: (newest on top)')
         );
@@ -2440,13 +2445,13 @@ class FOGConfigurationPage extends FOGPage
                     printf('<h2>%s</h2>', _('Database changes reverted'));
                 } else {
                     printf(
-                        '%s<br/><br/><code><pre>%s</pre></code>',
+                        '%s<br/><br/><code><pre class="l">%s</pre></code>',
                         _('Errors on revert detected'),
                         $result
                     );
                 }
                 printf(
-                    '<h2>%s</h2><code><pre>%s</pre></code>',
+                    '<h2>%s</h2><code><pre class="l">%s</pre></code>',
                     _('There were errors during import'),
                     $origres
                 );

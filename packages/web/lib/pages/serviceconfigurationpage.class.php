@@ -191,12 +191,15 @@ class ServiceConfigurationPage extends FOGPage
                     $Module->get('name'),
                     _('Enabled')
                 ) => sprintf(
-                    '<input type="checkbox" name="en"%s/>',
+                    '<input type="checkbox" name="en" id="%s"%s/>'
+                    . '<label for="%s"></label>',
+                    $Module->get('shortName'),
                     (
                         $moduleName[$Module->get('shortName')] ?
                         ' checked' :
                         ''
-                    )
+                    ),
+                    $Module->get('shortName')
                 ),
                 sprintf(
                     '%s',
@@ -214,12 +217,15 @@ class ServiceConfigurationPage extends FOGPage
                     (
                         $moduleName[$Module->get('shortName')] ?
                         sprintf(
-                            '<input type="checkbox" name="defen"%s/>',
+                            '<input type="checkbox" name="defen" id="%sdef"%s/>'
+                            . '<label for="%sdef"></label>',
+                            $Module->get('shortName'),
                             (
                                 $Module->get('isDefault') ?
                                 ' checked' :
                                 ''
-                            )
+                            ),
+                            $Module->get('shortName')
                         ) :
                         ''
                     )

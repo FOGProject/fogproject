@@ -262,7 +262,7 @@ function DeployStuff() {
         });
         if (this.checked) {
             $('#scheduleInstant').prop('checked',true);
-            $('.hidden').not(':hidden').hide();
+            $('.hidden').parent().is(':visible').not(':hidden').hide();
         }
         e.preventDefault();
     });
@@ -410,8 +410,10 @@ function checkDOWField(DOW) {
 function checkboxAssociations(selector,checkselectors) {
     $(selector).change(function(e) {
         allchecked = this.checked;
-        $(checkselectors).not(':hidden').each(function() {
-            if (this.checked !== allchecked) this.checked = allchecked;
+        $(checkselectors).each(function() {
+            if ($(this).parent().is(':visible')) {
+                if (this.checked !== allchecked) this.checked = allchecked;
+            }
         });
         e.preventDefault();
     });
