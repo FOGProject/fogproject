@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-26 14:03-0400\n"
+"POT-Creation-Date: 2017-05-26 14:07-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -987,7 +987,7 @@ msgstr "主机ID"
 #: /var/www/fog/lib/reports/virus_history.report.php:60
 #: /var/www/fog/lib/reports/virus_history.report.php:126
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:64
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:77
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:78
 #: /var/www/fog/lib/reports/inventory_report.report.php:52
 #: /var/www/fog/lib/reports/inventory_report.report.php:86
 msgid "Host name"
@@ -1618,7 +1618,7 @@ msgstr "加"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1797
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:996
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:270
-#: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:121
+#: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:122
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:448
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:726
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:236
@@ -1698,7 +1698,7 @@ msgstr "未能摧毁"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3079
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:376
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:168
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:170
 msgid "deleted"
 msgstr "删除"
 
@@ -4922,7 +4922,7 @@ msgid "Delete selected hosts"
 msgstr "删除选定的主机"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:374
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:168
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:170
 #, fuzzy
 msgid "approved"
 msgstr "主机批准"
@@ -4933,7 +4933,7 @@ msgid "All hosts"
 msgstr "所有主机"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:382
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:175
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:177
 #, fuzzy
 msgid "successfully"
 msgstr "成功"
@@ -7167,13 +7167,13 @@ msgstr "没有设置"
 msgid "Is Restricted User "
 msgstr ""
 
-#: /var/www/fog/lib/plugins/site/hooks/addsiteuser.hook.php:336
+#: /var/www/fog/lib/plugins/site/hooks/addsiteuser.hook.php:337
 #: /var/www/fog/lib/plugins/site/hooks/addsitehost.hook.php:315
 #, fuzzy
 msgid "No Site"
 msgstr "没有设置"
 
-#: /var/www/fog/lib/plugins/site/hooks/addsiteuser.hook.php:354
+#: /var/www/fog/lib/plugins/site/hooks/addsiteuser.hook.php:355
 #, fuzzy
 msgid "Sites"
 msgstr "分钟"
@@ -7694,24 +7694,24 @@ msgid "Approve All Pending MACs for all hosts"
 msgstr "批准所有主机的所有待定的MAC"
 
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:65
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:78
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:79
 msgid "Host Primary MAC"
 msgstr "主机主MAC"
 
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:67
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:79
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:80
 msgid "Host Pending MAC"
 msgstr "主持人待定MAC"
 
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:141
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:143
 msgid "Approve selected pending macs"
 msgstr "批准未决选择Mac电脑"
 
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:142
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:144
 msgid "Delete selected pending macs"
 msgstr "删除选定的挂起的Mac"
 
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:173
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:175
 #, fuzzy
 msgid "All pending macs"
 msgstr "待淅淅沥沥"
