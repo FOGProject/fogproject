@@ -597,6 +597,9 @@ table td .icon {
 table {
     width: 100%;
 }
+.legend table {
+    width: 90px;
+}
 table tr.header {
     color: #ededed;
 }
