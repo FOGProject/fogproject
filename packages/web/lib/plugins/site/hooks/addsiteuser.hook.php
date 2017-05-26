@@ -257,7 +257,8 @@ class AddSiteUser extends Hook
             $arguments['fields'],
             _('Is Restricted User '),
             sprintf(
-                '<input type="checkbox" name="isRestricted"%s/>',
+                '<input type="checkbox" name="isRestricted" id="isRestricted"%s/>'
+                . '<label for="isRestricted"></label>',
                 (
                     $isRestricted ?
                     ' checked' :

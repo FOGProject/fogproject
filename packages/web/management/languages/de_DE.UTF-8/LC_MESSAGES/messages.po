@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-26 14:03-0400\n"
+"POT-Creation-Date: 2017-05-26 14:07-0400\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -998,7 +998,7 @@ msgstr "Host-ID"
 #: /var/www/fog/lib/reports/virus_history.report.php:60
 #: /var/www/fog/lib/reports/virus_history.report.php:126
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:64
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:77
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:78
 #: /var/www/fog/lib/reports/inventory_report.report.php:52
 #: /var/www/fog/lib/reports/inventory_report.report.php:86
 msgid "Host name"
@@ -1630,7 +1630,7 @@ msgstr "Hinzufügen"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1797
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:996
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:270
-#: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:121
+#: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:122
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:448
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:726
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:236
@@ -1710,7 +1710,7 @@ msgstr "Fehler beim zerstören"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3079
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:376
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:168
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:170
 msgid "deleted"
 msgstr "gelöscht"
 
@@ -4951,7 +4951,7 @@ msgid "Delete selected hosts"
 msgstr "Löschen der ausgewählten Hosts"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:374
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:168
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:170
 #, fuzzy
 msgid "approved"
 msgstr "Host genehmigt"
@@ -4962,7 +4962,7 @@ msgid "All hosts"
 msgstr "Alle Hosts"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:382
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:175
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:177
 #, fuzzy
 msgid "successfully"
 msgstr "Erfolgreiche"
@@ -7213,13 +7213,13 @@ msgstr "Nicht festgelegt"
 msgid "Is Restricted User "
 msgstr ""
 
-#: /var/www/fog/lib/plugins/site/hooks/addsiteuser.hook.php:336
+#: /var/www/fog/lib/plugins/site/hooks/addsiteuser.hook.php:337
 #: /var/www/fog/lib/plugins/site/hooks/addsitehost.hook.php:315
 #, fuzzy
 msgid "No Site"
 msgstr "Nicht festgelegt"
 
-#: /var/www/fog/lib/plugins/site/hooks/addsiteuser.hook.php:354
+#: /var/www/fog/lib/plugins/site/hooks/addsiteuser.hook.php:355
 #, fuzzy
 msgid "Sites"
 msgstr "Minuten"
@@ -7740,24 +7740,24 @@ msgid "Approve All Pending MACs for all hosts"
 msgstr "Alle ausstehenden MACs für alle Hosts zu genehmigen"
 
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:65
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:78
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:79
 msgid "Host Primary MAC"
 msgstr "Primäre MAC Host"
 
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:67
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:79
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:80
 msgid "Host Pending MAC"
 msgstr "Host bis zu MAC"
 
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:141
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:143
 msgid "Approve selected pending macs"
 msgstr "Genehmigung ausstehend Macs ausgewählt"
 
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:142
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:144
 msgid "Delete selected pending macs"
 msgstr "Löschen bis Macs ausgewählt"
 
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:173
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:175
 #, fuzzy
 msgid "All pending macs"
 msgstr "Ausstehende macs"

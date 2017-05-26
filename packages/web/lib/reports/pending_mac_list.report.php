@@ -73,14 +73,16 @@ class Pending_MAC_List extends ReportManagementPage
         $this->ReportMaker->endCSVLine();
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class='
-            . '"toggle-checkboxAction"/>',
+            . '"toggle-checkboxAction" id="toggler"/>'
+            . '<label for="toggler"></label>',
             _('Host name'),
             _('Host Primary MAC'),
             _('Host Pending MAC'),
         );
         $this->templates = array(
             '<input type="checkbox" name="pendmac[]" value='
-            . '"${id}" class="toggle-action"/>',
+            . '"${id}" class="toggle-action" id="pend-${id}"/>'
+            . '<label for="pend-${id}"></label>',
             '${host_name}',
             '${host_mac}',
             '${host_pend}',

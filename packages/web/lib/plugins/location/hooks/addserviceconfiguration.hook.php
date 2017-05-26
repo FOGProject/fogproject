@@ -105,7 +105,8 @@ class AddServiceConfiguration extends Hook
         echo '<br/><br/>';
         $fields = array(
             _('Enable location Sending') => sprintf(
-                '<input type="checkbox" name="snapinsend"%s/>',
+                '<input type="checkbox" name="snapinsend" id="snapsend"%s/>'
+                . '<label for="snapsend"></label>',
                 (
                     isset($_REQUEST['snapinsend']) ?
                     ' checked' :
