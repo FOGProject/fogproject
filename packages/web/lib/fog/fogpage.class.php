@@ -754,14 +754,7 @@ abstract class FOGPage extends FOGBase
                         $this->node
                     ),
                     sprintf(
-                        '%s %s',
-                        ucwords(
-                            (
-                                substr($this->node, -1) == 's' ?
-                                substr($this->node, 0, -1) :
-                                $this->node
-                            )
-                        ),
+                        '%s...',
                         self::$foglang['Search']
                     ),
                     (

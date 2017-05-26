@@ -35,10 +35,9 @@ h6 {
 }
 a {
     color: #00567a;
-    font-weight: bold;
+    text-decoration: none;
 }
 a:hover, a:active, .activelink, .active {
-    text-decoration: none;
     color: #dd5300;
 }
 img {
@@ -69,61 +68,112 @@ form {
     margin: 0;
     padding; 0;
 }
-input, select {
-    color: #00567a;
-    font-size: 12px;
-    background-color: transparent;
-    vertical-align: top;
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    -o-border-radius: 3px;
-    border-radius: 3px;
-    min-width: 16px;
-    max-width: 210px;
-    min-height: 20px;
-}
-select[name=ulang], select[name=nodesel], select[name=groupsel] {
-    width: 100px;
-}
-select:not([name=ulang]):not([name=nodesel]):not([name=groupsel]) {
-    width: 220px;
-}
 input[type=text],
-input[type=search]:not(.tablesorter-filter),
 input[type=password],
+input[type=search],
 input[type=submit],
 input[type=button],
 button,
 textarea,
-select:not([name=groupsel]):not([name=nodesel]),
-.select2 {
+select {
+    display: inline-block;
+    font-family: sans-serif;
+    font-size: 14px;
+    width: 210px;
+    appearance: none;
+    border-radius: none;
     background: transparent;
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    -o-border-radius: 3px;
-    border-radius: 3px;
-    -webkit-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
-    -moz-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
-    -o-box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
-    box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
+    padding: 3px;
+    margin: 3px;
+    border: solid 1px #fff;
+    box-shadow: inset 1px 1px 2px 1px #707070;
+    transition: box-shadow 0.3s;
 }
-input[type=text]:not(.showVal),
-input[type=search]:not(.tablesorter-filter),
-input[type=password],
-input[type=submit],
+input[type=text]:focus, 
+input[type=password]:focus,
+input[type=search]:focus {
+    box-shadow: inset 1px 1px 2px 0 #c9c9c9;
+}
 input[type=button],
+input[type=submit],
+button {
+    font-weight: bold;
+}
+input[type=button],
+input[type=submit],
+button,
+select {
+    outline: none;
+}
+input[type=button]:not(.search-submit),
+input[type=submit]:not(.search-submit),
 button:not(.search-submit),
-select:not([name=groupsel]):not([name=nodesel]) {
-    min-height: 24px;
-    min-width: 210px;
+select,
+.select2-selection {
+    width: 218px;
 }
-.select2, select:not([name=groupsel]):not([name=nodesel]) {
-    min-height: 24px;
-    min-width: 216px;
+.search-submit {
+    width: 23px;
+    height: 23px;
+    line-height: 40
+    text-align: center;
+    vertical-align: top;
 }
-textarea {
-    width: 25em;
-    height: 8em;
+.select2-selection,
+.select2-container {
+    margin-left: 3px;
+}
+input[type=button],
+input[type=submit],
+button {
+    outline: none;
+    color: #00567a;
+    background-color: transparent;
+    border: solid 1px #00567a;
+    -webkit-box-shadow: 1px 1px 2px #c9c9c9;
+    -moz-box-shadow: 1px 1px 2px #c9c9c9;
+    -o-box-shadow: 1px 1px 2px #c9c9c9;
+    box-shadow: 1px 1px 2px #c9c9c9;
+    border-radius: 3px;
+    cursor: pointer;
+}
+input[type=button]:hover,
+input[type=submit]:hover,
+button:hover {
+    border-color: #dd5300;
+    color: #dd5300;
+}
+input[type=button]:active,
+input[type=submit]:active,
+button:active {
+    background-color: #f6f6f6;
+    -webkit-box-shadow: inset 0px 0px 4px #c9c9c9;
+    -moz-box-shadow: inset 0px 0px 4px #c9c9c9;
+    -o-box-shadow: inset 0px 0px 4px #c9c9c9;
+    box-shadow: inset 0px 0px 4px #c9c9c9;
+}
+.rangegen {
+    width: 200px;
+}
+.showVal.pigz,
+.showVal.inact,
+.showVal.loglvl {
+    margin-left: 10px;
+    min-width: 0;
+    width: 20px;
+}
+.showVal:not(.imagespage) {
+    top: -20px;
+    margin-left: 220px;
+}
+.showVal.regen {
+    width: 40px;
+}
+#iFile {
+    display: block;
+}
+.resettoken {
+    display: block;
 }
 legend {
     font-weight: bold;
@@ -194,11 +244,19 @@ header {
     display: block;
     padding: 4px;
 }
+#action-box,
+#action-boxdel,
+#content,
+#content-inner,
+#search-content,
+#search-wrapper,
 #wrapper {
     position: relative;
     left: 0;
     right: 0;
     margin: 0 auto;
+    padding-bottom: 24px;
+    width: 100%;
 }
 .sidebar {
     position: absolute;
@@ -240,27 +298,23 @@ header {
 .clear {
     clear: both;
 }
-#content {
-    position: relative;
-    width: 100%;
-    left: 0;
-    right: 0;
-    margin: 0 auto;
-    margin-bottom: 24px;
-}
 #content h1 {
     text-align: center;
 }
 #content h2 {
     text-align: center;
 }
-#content-inner {
+#content-inner,
+#search-content,
+#tab-container, 
+#active-tasks {
     min-width: 320px;
     max-width: 850px;
-    position: absolute;
+    text-align: center;
     left: 0;
     right: 0;
     margin: 0 auto;
+    margin-bottom: 24px;
 }
 #tab-container div {
     display: none;
@@ -268,13 +322,10 @@ header {
 #tab-container div:not(#additionalMACsRow):first-child, #tab-container div:target {
     display: inline-block;
 }
-#tab-container {
-    position: absolute;
-    text-align: center;
-    left: 0;
-    right: 0;
-    margin: 0 auto;
-    margin-bottom: 24px;
+.hostgroup,
+.latestInfo,
+#tab-container-1 {
+    text-align: left;
 }
 input[name=fakeusernameremembered],
 input[name=fakepasswordremembered] {
@@ -463,9 +514,11 @@ input[name=fakepasswordremembered] {
     margin-top: 3px;
 }
 .graph-selectors select {
+    box-shadow: none;
     font-size: 10px;
     border: 1px solid #666;
     padding: 0;
+    width: 100px;
 }
 .graph {
     height: 150px;
@@ -512,40 +565,8 @@ input[name=fakepasswordremembered] {
     text-align: center;
     min-width: 270px;
 }
-.search-input {
-    text-align: center;
-    margin-right: 5px;
-}
-.search-submit {
-    color: #00567a;
-    position: relative;
-    padding: 0;
-    margin: 0;
-    width: 29px;
-    height: 29px;
-    vertical-align: top;
-}
 .fakes {
     display: none;
-}
-.rangegen {
-    width: 200px;
-    top: 15px;
-}
-.imagespage {
-    margin-left: 5px;
-}
-.showVal.pigz,
-.showVal.inact,
-.showVal.loglvl {
-    margin-left: 5px;
-    width: 20px;
-}
-.showVal:not(.imagespage) {
-    margin-left: 220px;
-}
-.showVal.regen {
-    width: 40px;
 }
 table td .icon {
     margin: 0 3px;
@@ -728,31 +749,17 @@ input[type=search].disabled {
 .divtabs, .expand_trigger {
     text-decoration: none;
 }
-#loglvl {
-    width: 200px;
-    top: 15px;
-}
-#action-box,
-#action-boxdel,
-#content,
-#content-inner,
-#search-wrapper,
-#active-tasks,
-#wrapper {
-    padding-bottom: 24px;
-}
 #footer {
     position: fixed;
-    width: 100%;
-    clear: both;
-    height: 24px;
     left: 0;
+    bottom: 0;
+    height: 24px;
     line-height: 24px;
+    width: 100%;
     font-size: 11px;
     font-weight: bold;
     background: #c7cede;
     text-align: center;
-    bottom: 0;
 }
 @media only screen and (max-width: 1240px) {
     .dashboard-boxes,
@@ -770,12 +777,11 @@ input[type=search].disabled {
     #action-boxdel,
     #content,
     #content-inner,
+    #search-content,
     #search-wrapper,
     #active-tasks,
     #wrapper {
         margin: 0;
-        width: 100%;
-        padding-bottom: 24px;
     }
     #content-inner {
         margin: auto;
@@ -819,9 +825,11 @@ input[type=search].disabled {
         width: 210px;
         height: 8em;
     }
-    #loader,
-    #loader-wrapper,
-    #logo {
-        display: none;
+    #loader-wrapper {
+        position: relative;
+        left: 100px;
+        right: 0;
+        margin: 0 auto;
+        text-align: right;
     }
 }

@@ -1,13 +1,13 @@
 $(function() {
-    var vers = $('#latestInfo').attr('vers');
+    var vers = $('.placehere').attr('vers');
     $.ajax({
         url: '../status/mainversion.php',
         dataType: 'json',
         success: function(data) {
-            $('#latestInfo').append(data);
+            $('.placehere').append(data);
         },
         error: function() {
-            $('#latestInfo').append('Failed to get latest info');
+            $('.placehere').append('Failed to get latest info');
         }
     });
     $('.kernvers').each(function() {
