@@ -163,7 +163,8 @@ class HostManagementPage extends FOGPage
         $this->headerData = array(
             '',
             '<input type="checkbox" name="toggle-checkbox" '
-            . 'class="toggle-checkboxAction"/>',
+            . 'class="toggle-checkboxAction" id="toggler"/>'
+            . '<label for="toggler"></label>',
         );
         self::$fogpingactive ? array_push($this->headerData, '') : null;
         array_push(
@@ -177,7 +178,8 @@ class HostManagementPage extends FOGPage
             '<span class="icon fa fa-question hand" '
             . 'title="${host_desc}"></span>',
             '<input type="checkbox" name="host[]" '
-            . 'value="${id}" class="toggle-action"/>',
+            . 'value="${id}" class="toggle-action" id="host-${id}"/>'
+            . '<label for="host-${id}"></label>',
         );
         if (self::$fogpingactive) {
             array_push(
@@ -715,7 +717,7 @@ class HostManagementPage extends FOGPage
             );
         }
         ob_start();
-        foreach ((array)$this->obj->get('additionalMACs') as &$MAC) {
+        foreach ((array)$this->obj->get('additionalMACs') as $ind => &$MAC) {
             if (!$MAC->isValid()) {
                 continue;
             }
@@ -727,10 +729,18 @@ class HostManagementPage extends FOGPage
                 . 'remove-mac hand" title="%s"></i>'
                 . '<span class="icon icon-hand" title="%s">'
                 . '<input type="checkbox" name="igclient[]" '
-                . 'value="%s" %s/></span>'
+                . 'value="%s" id="igclient'
+                . ($ind + 1)
+                . '" %s/><label for="igclient'
+                . ($ind + 1)
+                . '"></label></span>'
                 . '<span class="icon icon-hand" title="%s">'
                 . '<input type="checkbox" name="igimage[]" '
-                . 'value="%s" %s/></span>'
+                . 'value="%s" id="igimage'
+                . ($ind + 1)
+                . '" %s/><label for="igimage'
+                . ($ind + 1)
+                . '"></label></span>'
                 . '<br/><span class="mac-manufactor"></span></div>',
                 $MAC,
                 _('Remove MAC'),
@@ -788,9 +798,13 @@ class HostManagementPage extends FOGPage
                 . '<i class="icon add-mac fa fa-plus-circle hand" '
                 . 'title="%s"></i><span class="icon icon-hand" '
                 . 'title="%s"><input type="checkbox" name="igclient[]" '
-                . 'value="%s" %s/></span><span class="icon icon-hand" '
+                . 'value="%s" id="igclient" %s/>'
+                . '<label for="igclient"></label>'
+                . '</span><span class="icon icon-hand" '
                 . 'title="%s"><input type="checkbox" name="igimage[]" '
-                . 'value="%s" %s/></span><br/>'
+                . 'value="%s" id="igimage" %s/>'
+                . '<label for="igimage"></label>'
+                . '</span><br/>'
                 . '<span class="mac-manufactor"></span>',
                 $this->obj->get('mac')->__toString(),
                 _('Add MAC'),
@@ -904,13 +918,16 @@ class HostManagementPage extends FOGPage
         );
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkboxprint" '
-            . 'class="toggle-checkboxprint" />',
+            . 'class="toggle-checkboxprint" id="toggler1"/>'
+            . '<label for="toggler1"></label>',
             _('Printer Name'),
             _('Configuration'),
         );
         $this->templates = array(
             '<input type="checkbox" name="printer[]" '
-            . 'value="${printer_id}" class="toggle-print"${is_default}/>',
+            . 'value="${printer_id}" class="toggle-print"${is_default} id="'
+            . 'printer-${printer_id}"/>'
+            . '<label for="printer-${printer_id}"></label>',
             '<a href="?node=printer&sub=edit&id=${printer_id}">${printer_name}</a>',
             '${printer_type}',
         );
@@ -959,10 +976,11 @@ class HostManagementPage extends FOGPage
                     )
                 );
             printf(
-                '<p class="c"><label for="hostPrinterShow">'
+                '<p class="c">'
                 . '%s&nbsp;&nbsp;<input type="checkbox" '
                 . 'name="hostPrinterShow" id="hostPrinterShow"/>'
-                . '</label></p><div id="printerNotInHost">'
+                . '<label for="hostPrinterShow"></label>'
+                . '</p><div id="printerNotInHost">'
                 . '<h2>%s</h2>',
                 _('Check here to see what printers can be added'),
                 _('Add new printer(s) to this host')
@@ -973,7 +991,8 @@ class HostManagementPage extends FOGPage
         unset($this->data);
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" '
-            . 'class="toggle-checkboxAction"/>',
+            . 'class="toggle-checkboxAction" id="toggler2"/>'
+            . '<label for="toggler2"></label>',
             _('Default'),
             _('Printer Alias'),
             _('Printer Type'),
@@ -986,7 +1005,9 @@ class HostManagementPage extends FOGPage
         );
         $this->templates = array(
             '<input type="checkbox" name="printerRemove[]" '
-            . 'value="${printer_id}" class="toggle-action" />',
+            . 'value="${printer_id}" class="toggle-action" id="'
+            . 'printerrm-${printer_id}"/>'
+            . '<label for="printerrm-${printer_id}"></label>',
             sprintf(
                 '<input class="default" type="radio" '
                 . 'name="default" id="printer${printer_id}" '
@@ -1117,13 +1138,16 @@ class HostManagementPage extends FOGPage
         );
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkboxsnapin" '
-            . 'class="toggle-checkboxsnapin"/>',
+            . 'class="toggle-checkboxsnapin" id="toggler3"/>'
+            . '<label for="toggler3"></label>',
             _('Snapin Name'),
             _('Created'),
         );
         $this->templates = array(
             '<input type="checkbox" name="snapin[]" '
-            . 'value="${snapin_id}" class="toggle-snapin"/>',
+            . 'value="${snapin_id}" class="toggle-snapin" id="'
+            . 'snapin-${snapin_id}"/>'
+            . '<label for="snapin-${snapin_id}"></label>',
             sprintf(
                 '<a href="?node=%s&sub=edit&id=${snapin_id}" '
                 . 'title="%s">${snapin_name}</a>',
@@ -1154,10 +1178,10 @@ class HostManagementPage extends FOGPage
         }
         if (count($this->data) > 0) {
             printf(
-                '<p class="c"><label for="hostSnapinShow">'
+                '<p class="c">'
                 . '%s&nbsp;&nbsp;<input type="checkbox" '
                 . 'name="hostSnapinShow" id="hostSnapinShow"/>'
-                . '</label><div id="snapinNotInHost">',
+                . '<label for="hostSnapinShow"></label><div id="snapinNotInHost">',
                 _('Check here to see what snapins can be added')
             );
             self::$HookManager
@@ -1182,7 +1206,8 @@ class HostManagementPage extends FOGPage
         }
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" '
-            . 'class="toggle-checkboxAction"/>',
+            . 'class="toggle-checkboxAction" id="toggler4"/>'
+            . '<label for="toggler4"></label>',
             _('Snapin Name'),
         );
         $this->attributes = array(
@@ -1191,7 +1216,9 @@ class HostManagementPage extends FOGPage
         );
         $this->templates = array(
             '<input type="checkbox" name="snapinRemove[]" '
-            . 'value="${snap_id}" class="toggle-action"/>',
+            . 'value="${snap_id}" class="toggle-action" id="'
+            . 'snapinrm-${snap_id}"/>'
+            . '<label for="snapinrm-${snap_id}"></label>',
             '<a href="?node=snapin&sub=edit&id=${snap_id}">${snap_name}</a>',
         );
         $Snapins = self::getClass('SnapinManager')
@@ -1240,7 +1267,8 @@ class HostManagementPage extends FOGPage
         $this->data[] = array(
             'mod_name' => _('Select/Deselect All'),
             'input' => '<input type="checkbox" class="checkboxes" '
-            . 'id="checkAll" name="checkAll" value="checkAll"/>',
+            . 'id="checkAll" name="checkAll" value="checkAll"/>'
+            . '<label for="checkAll"></label>',
             'span' => '&nbsp;'
         );
         printf(
@@ -1325,7 +1353,9 @@ class HostManagementPage extends FOGPage
             }
             $this->data[] = array(
                 'input' => sprintf(
-                    '<input %stype="checkbox" name="modules[]" value="%s"%s%s/>',
+                    '<input id="%s" %stype="checkbox" name="modules[]" value="%s"'
+                    . ' %s%s/><label for="%s"></label>',
+                    $Module->get('shortName'),
                     (
                         ($moduleName[$Module->get('shortName')]
                         || $moduleName[$Module->get('shortName')])
@@ -1339,9 +1369,12 @@ class HostManagementPage extends FOGPage
                         ' checked' :
                         ''
                     ),
-                    !$moduleName[$Module->get('shortName')] ?
-                    ' disabled' :
-                    ''
+                    (
+                        !$moduleName[$Module->get('shortName')] ?
+                        ' disabled' :
+                        ''
+                    ),
+                    $Module->get('shortName')
                 ),
                 'span' => sprintf(
                     '%s<span class="icon fa fa-question fa-1x hand" '
@@ -1515,13 +1548,15 @@ class HostManagementPage extends FOGPage
         echo '<!-- Power Management Items -->'
             . '<div id="host-powermanagement"><p id="cronOptions">';
         $this->headerData = array(
-            '<input type="checkbox" id="rempowerselectors"/>',
+            '<input type="checkbox" id="rempowerselectors"/>'
+            . '<label for="rempowerselectors"></label>',
             _('Cron Schedule'),
             _('Action'),
         );
         $this->templates = array(
             '<input type="checkbox" name="rempowermanagements[]" '
-            . 'class="rempoweritems" value="${id}"/>',
+            . 'class="rempoweritems" value="${id}" id="rmpm-${id}"/>'
+            . '<label for="rmpm-${id}"></label>',
             '<div class="deploy-container" class="l">'
             . '<p id="cronOptions"><input type="hidden" '
             . 'name="pmid[]" value="${id}"/><input '
@@ -1627,7 +1662,8 @@ class HostManagementPage extends FOGPage
                 $_REQUEST['scheduleCronDOW']
             ),
             _('Perform Immediately?') => sprintf(
-                '<input type="checkbox" name="onDemand" id="scheduleOnDemand"%s/>',
+                '<input type="checkbox" name="onDemand" id="scheduleOnDemand"%s/>'
+                . '<label for="scheduleOnDemand"></label>',
                 (
                     !is_array($_REQUEST['onDemand'])
                     && isset($_REQUEST['onDemand']) ?

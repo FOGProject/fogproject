@@ -39,10 +39,10 @@ _L['ACTIVE_TASKS_FOUND'] = '%1 active task%2 found';
 _L['ACTIVE_TASKS_LOADING'] = 'Loading...';
 function getChecked() {
     var val = [];
-    $('.toggle-action:checkbox:checked')
-    .not(':hidden')
-    .each(function(i) {
-        val[i] = this.value;
+    $('.toggle-action:checkbox:checked').each(function(i) {
+        if ($(this).parent().is(':visible')) {
+            val[i] = this.value;
+        }
     });
     return val;
 }
@@ -63,9 +63,11 @@ function setEditFocus() {
     });
 }
 function setChecked(ids) {
-    $('.toggle-action:checkbox').not(':hidden').not(':checked').each(function(i) {
-        if ($.inArray(this.value,ids) < 0) return;
-        this.checked = true;
+    $('.toggle-action:checkbox').not(':checked').each(function(i) {
+        if ($(this).parent().is(':visible')) {
+            if ($.inArray(this.value,ids) < 0) return;
+            this.checked = true;
+        }
     });
 }
 function getQueryParams(qs) {

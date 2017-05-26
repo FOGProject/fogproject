@@ -125,7 +125,8 @@ class ImageManagementPage extends FOGPage
         $this->headerData = array(
             '',
             '<input type="checkbox" name="toggle-checkbox" '
-            . 'class="toggle-checkboxAction"/>',
+            . 'class="toggle-checkboxAction" id="toggler"/>'
+            . '<label for="toggler"></label>',
             _('Image Name'),
             _('Storage Group'),
             _('OS'),
@@ -155,7 +156,8 @@ class ImageManagementPage extends FOGPage
         $this->templates = array(
             '${protected}',
             '<input type="checkbox" name="image[]" '
-            . 'value="${id}" class="toggle-action"/>',
+            . 'value="${id}" class="toggle-action" id="'
+            . 'toggler1"/><label for="toggler1"></label>',
             sprintf(
                 '<a href="?node=%s&sub=edit&id=${id}" title="%s: '
                 . '${name} Last captured: ${deployed}">${name} - '
@@ -553,13 +555,15 @@ class ImageManagementPage extends FOGPage
             _('Image Type') => $ImageTypes,
             _('Partition') => $ImagePartitionTypes,
             _('Image Enabled') => '<input type="checkbox" '
-            . 'name="isEnabled" value="1"checked/>',
+            . 'name="isEnabled" value="1" id="isEnabled" checked/>'
+            . '<label for="isEnabled"></label>',
             _('Replicate?') => '<input type="checkbox" '
-            . 'name="toReplicate" value="1" checked/>',
+            . 'name="toReplicate" value="1" id="toRep" checked/>'
+            . '<label for="toRep"></label>',
             _('Compression') => sprintf(
                 '<div class="rangegen pigz"></div>'
                 . '<input type="text" readonly="true" name="compress" '
-                . 'class="imagespage showVal pigz" maxsize="2"'
+                . 'class="showVal pigz" maxsize="2"'
                 . ' value="%s"/>',
                 $compression
             ),
@@ -852,7 +856,9 @@ class ImageManagementPage extends FOGPage
                 $compression
             ),
             _('Protected') => sprintf(
-                '<input type="checkbox" name="protected_image"%s/>',
+                '<input type="checkbox" name="protected_image" id="'
+                . 'protectimage" %s/>'
+                . '<label for="protectimage"></label>',
                 (
                     $this->obj->get('protected') ?
                     ' checked' :
@@ -860,7 +866,8 @@ class ImageManagementPage extends FOGPage
                 )
             ),
             _('Image Enabled') => sprintf(
-                '<input type="checkbox" name="isEnabled" value="1"%s/>',
+                '<input type="checkbox" name="isEnabled" value="1" id="'
+                . 'isEn" %s/><label for="isEn"></label>',
                 (
                     $this->obj->get('isEnabled') ?
                     ' checked' :
@@ -868,7 +875,8 @@ class ImageManagementPage extends FOGPage
                 )
             ),
             _('Replicate?') => sprintf(
-                '<input type="checkbox" name="toReplicate" value="1"%s/>',
+                '<input type="checkbox" name="toReplicate" value="1" id="'
+                . 'toRep" %s/><label for="toRep"></label>',
                 (
                     $this->obj->get('toReplicate') ?
                     ' checked' :
@@ -911,12 +919,15 @@ class ImageManagementPage extends FOGPage
         echo '</form></div><!-- Storage Groups --><div id="image-storage">';
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkboxgroup1" '
-            . 'class="toggle-checkbox1" />',
+            . 'class="toggle-checkbox1" id="toggler2"/>'
+            . '<label for="toggler2"></label>',
             _('Storage Group Name'),
         );
         $this->templates = array(
             '<input type="checkbox" name="storagegroup[]" '
-            . 'value="${storageGroup_id}" class="toggle-group"/>',
+            . 'value="${storageGroup_id}" class="toggle-group" id="'
+            . 'sg-${storageGroup_id}"/><label for="sg-${storageGroup_id}">'
+            . '</label>',
             '${storageGroup_name}',
         );
         $this->attributes = array(
@@ -953,9 +964,9 @@ class ImageManagementPage extends FOGPage
                     )
                 );
             printf(
-                '<p class="c"><label for="groupMeShow">%s&nbsp;&nbsp;'
+                '<p class="c">'
                 . '<input type="checkbox" name="groupMeShow" id="groupMeShow"/>'
-                . '</label>',
+                . '<label for="groupMeShow">%s&nbsp;&nbsp;</label>',
                 _('Check here to see groups not assigned this image')
             );
             printf(
@@ -980,7 +991,8 @@ class ImageManagementPage extends FOGPage
         }
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" '
-            . 'class="toggle-checkboxAction"/>',
+            . 'class="toggle-checkboxAction" id="toggler3"/>'
+            . '<label for="toggler3"></label>',
             '',
             _('Storage Group Name'),
         );
@@ -999,7 +1011,9 @@ class ImageManagementPage extends FOGPage
         );
         $this->templates = array(
             '<input type="checkbox" class="toggle-action" '
-            . 'name="storagegroup-rm[]" value="${storageGroup_id}"/>',
+            . 'name="storagegroup-rm[]" value="${storageGroup_id}" id="'
+            . 'sg1-${storageGroup_id}"/><label for="sg1-${storageGroup_id}">'
+            . '</label>',
             sprintf(
                 '<input type="radio" class="primary" name="primary" '
                 . 'id="group${storageGroup_id}" value="${storageGroup_id}"'

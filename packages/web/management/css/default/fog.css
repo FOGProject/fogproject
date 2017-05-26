@@ -36,6 +36,7 @@ h6 {
 a {
     color: #00567a;
     text-decoration: none;
+    font-weight: bold;
 }
 a:hover, a:active, .activelink, .active {
     color: #dd5300;
@@ -86,6 +87,9 @@ select {
     padding: 3px;
     margin: 3px;
     border: solid 1px #fff;
+    -webkit-box-shadow: inset 1px 1px 2px 1px #707070;
+    -moz-box-shadow: inset 1px 1px 2px 1px #707070;
+    -o-box-shadow: inset 1px 1px 2px 1px #707070;
     box-shadow: inset 1px 1px 2px 1px #707070;
     transition: box-shadow 0.3s;
 }
@@ -162,12 +166,20 @@ button:active {
     min-width: 0;
     width: 20px;
 }
+.ui-slider {
+    top: 5px;
+    vertical-align: top;
+}
 .showVal:not(.imagespage) {
-    top: -20px;
+    top: -15px;
+    vertical-align: top;
     margin-left: 220px;
 }
 .showVal.regen {
     width: 40px;
+}
+.imagespage {
+    top: -1px;
 }
 #iFile {
     display: block;
@@ -252,10 +264,8 @@ header {
 #search-wrapper,
 #wrapper {
     position: relative;
-    left: 0;
-    right: 0;
-    margin: 0 auto;
     padding-bottom: 24px;
+    margin: 0;
     width: 100%;
 }
 .sidebar {
@@ -479,6 +489,8 @@ input[name=fakepasswordremembered] {
 .dashboard p.infoTitle {
     background-color: #bcbcbc;
 }
+.advanced-settings,
+#deploy-container,
 .dashboard-boxes {
     margin: 0 auto;
     width: 800px;
@@ -582,6 +594,9 @@ table td .icon {
     -o-border-radius: 3px;
     border-radius: 3px;
 }
+table {
+    width: 100%;
+}
 table tr.header {
     color: #ededed;
 }
@@ -656,21 +671,29 @@ input[type=search].disabled {
 #action-box input[type=submit], #action-boxdel input[type=submit] {
     margin-top: 10px;
 }
+input[type=checkbox],
 .primary,
 .default {
     display: none;
 }
+input[type=checkbox] + label:before,
 .default + label:before,
 .primary + label:before {
-    font-family: FontAwesome;
+    font-family: 'FontAwesome';
     display: inline-block;
     font-size: 16px;
     color: #00567a;
     content: "\f096";
 }
+input[type=checkbox]:checked + label:before,
 .default:checked + label:before,
 .primary:checked + label:before {
     content: "\f046";
+}
+input[type=checkbox]:disabled + label:before,
+.default:disabled + label:before,
+.primary:disabled + label:before {
+    content: "\f00d";
 }
 #additionalMACsRow {
     display: none;
@@ -781,7 +804,7 @@ input[type=search].disabled {
     #search-wrapper,
     #active-tasks,
     #wrapper {
-        margin: 0;
+        margin: 0 auto;
     }
     #content-inner {
         margin: auto;
@@ -812,7 +835,6 @@ input[type=search].disabled {
     #content {
         margin: 0;
         left: 180px;
-        float: right;
         width: 100%;
     }
     #content.dashboard {

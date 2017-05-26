@@ -153,7 +153,8 @@ class SnapinManagementPage extends FOGPage
          */
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" '
-            . 'class="toggle-checkboxAction"/>',
+            . 'class="toggle-checkboxAction" id="toggler"/>'
+            . '<label for="toggler"></label>',
             _('Snapin Name'),
             _('Is Pack'),
             _('Storage Group'),
@@ -163,7 +164,8 @@ class SnapinManagementPage extends FOGPage
          */
         $this->templates = array(
             '<input type="checkbox" name="snapin[]" value="${id}" '
-            . 'class="toggle-action"/>',
+            . 'class="toggle-action" id="snapin-${id}"/>'
+            . '<label for="snapin-${id}"></label>',
             sprintf(
                 '<a href="?node=%s&sub=edit&%s=${id}" title="%s">${name}</a>',
                 $this->node,
@@ -535,7 +537,8 @@ class SnapinManagementPage extends FOGPage
             _('Replicate?') => sprintf(
                 '<input class='
                 . '"snapinreplicate-input" type="checkbox" name='
-                . '"toReplicate" value="1" checked/>'
+                . '"toReplicate" value="1" id="toRep" checked/>'
+                . '<label for="toRep"></label>'
             ),
             _('Reboot after install') => sprintf(
                 '<input class="snapinreboot-input action" type='
@@ -943,7 +946,8 @@ class SnapinManagementPage extends FOGPage
             ),
             _('Snapin Enabled') => sprintf(
                 '<input class="snapinenabled-input" type="checkbox" name='
-                . '"isEnabled" value="1"%s/>',
+                . '"isEnabled" value="1" id="isen"%s/>'
+                . '<label for="isen"></label>',
                 (
                     $this->obj->get('isEnabled') ?
                     ' checked' :
@@ -1025,12 +1029,14 @@ class SnapinManagementPage extends FOGPage
         echo '<div id="snap-storage">';
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkboxsnapin1" class='
-            . '"toggle-checkbox1"/>',
+            . '"toggle-checkbox1" id="toggler1"/><label for="toggler1"></label>',
             _('Storage Group Name'),
         );
         $this->templates = array(
             '<input type="checkbox" name="storagegroup[]" value='
-            . '"${storageGroup_id}" class="toggle-snapin1"/>',
+            . '"${storageGroup_id}" class="toggle-snapin1" id="'
+            . 'sg-${storageGroup_id}"/>'
+            . '<label for="sg-${storageGroup_id}"></label>',
             '${storageGroup_name}',
         );
         $this->attributes = array(
@@ -1082,7 +1088,8 @@ class SnapinManagementPage extends FOGPage
         unset($this->data);
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class='
-            . '"toggle-checkboxAction"/>',
+            . '"toggle-checkboxAction" id="toggler2"/>'
+            . '<label for="toggler2"></label>',
             '',
             _('Storage Group Name'),
         );
@@ -1101,7 +1108,9 @@ class SnapinManagementPage extends FOGPage
         );
         $this->templates = array(
             '<input type="checkbox" class="toggle-action" name='
-            . '"storagegroup-rm[]" value="${storageGroup_id}"/>',
+            . '"storagegroup-rm[]" value="${storageGroup_id}" id="'
+            . 'sg1-${storageGroup_id}"/>'
+            . '<label for="sg1-${storageGroup_id}"></label>',
             sprintf(
                 '<input class="primary" type="radio" name="primary" id='
                 . '"group${storageGroup_id}" value="${storageGroup_id}"'

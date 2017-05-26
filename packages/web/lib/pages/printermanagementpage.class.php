@@ -77,7 +77,8 @@ class PrinterManagementPage extends FOGPage
         $this->headerData = array(
             '',
             '<input type="checkbox" name="toggle-checkbox" class='
-            . '"toggle-checkboxAction" />',
+            . '"toggle-checkboxAction" id="toggler"/>'
+            . '<label for="toggler"></label>',
             _('Printer Name'),
             _('Printer Type'),
             _('Model'),
@@ -89,7 +90,8 @@ class PrinterManagementPage extends FOGPage
         $this->templates = array(
             '<span class="icon fa fa-question hand" title="${desc}"></span>',
             '<input type="checkbox" name="printer[]" value='
-            . '"${id}" class="toggle-action"/>',
+            . '"${id}" class="toggle-action" id="printer-${id}"/>'
+            . '<label for="printer-${id}"></label>',
             '<a href="?node=printer&sub=edit&id=${id}" title="Edit">${name}</a>',
             '${config}',
             '${model}',

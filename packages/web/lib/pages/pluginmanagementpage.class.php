@@ -475,14 +475,15 @@ class PluginManagementPage extends FOGPage
                     );
                     $this->headerData = array(
                         '<input type="checkbox" id="checkAll" '
-                        . 'name="toggle-checkbox"/>',
+                        . 'name="toggle-checkbox"/><label for="checkAll"></label>',
                         _('Image Name'),
                         _('OS Name'),
                         _('DMI Key'),
                     );
                     $this->templates = array(
                         '<input type="checkbox" name="kill[]" value="${id}"'
-                        . '${class}/>',
+                        . '${class} id="kill-${id}"/>'
+                        . '<label for="kill-${id}"></label>',
                         '${image_name}',
                         '${os_name}',
                         '${capone_key}',
