@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-27 01:13-0400\n"
+"POT-Creation-Date: 2017-05-27 11:54-0400\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -2400,50 +2400,50 @@ msgstr "Durchschnittliche Belastung"
 msgid "System Uptime"
 msgstr "Betriebsbereitschaft des Systems"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:244
+#: /var/www/fog/lib/pages/dashboardpage.class.php:245
 msgid "System Overview"
 msgstr "Systemübersicht"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:247
+#: /var/www/fog/lib/pages/dashboardpage.class.php:248
 #, fuzzy
 msgid "Server information at a glance."
 msgstr "LDAP-Informationen aktualisiert!"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:267
+#: /var/www/fog/lib/pages/dashboardpage.class.php:269
 msgid "Storage Group Activity"
 msgstr "Speichergruppe Aktivität"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:270
+#: /var/www/fog/lib/pages/dashboardpage.class.php:272
 #, fuzzy
 msgid "The selected node's storage grout slot usage"
 msgstr "Den ausgewählten Knoten Speichernutzung Gruppe slot"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:285
+#: /var/www/fog/lib/pages/dashboardpage.class.php:294
 msgid "Storage Node Disk Usage"
 msgstr "Storage Node Datenträgerverwendung"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:288
+#: /var/www/fog/lib/pages/dashboardpage.class.php:297
 #, fuzzy
 msgid "The selected node's image storage usage"
 msgstr "Den ausgewählten Knoten Bild Speicher Datenträgerverwendung"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:305
+#: /var/www/fog/lib/pages/dashboardpage.class.php:317
 msgid "Imaging Over the last 30 days"
 msgstr "Imaging in den letzten 30 Tagen"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:364
+#: /var/www/fog/lib/pages/dashboardpage.class.php:376
 msgid "1 hour"
 msgstr "1 Stunde"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:366
+#: /var/www/fog/lib/pages/dashboardpage.class.php:378
 msgid "30 Minutes"
 msgstr "30 Minuten"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:368
+#: /var/www/fog/lib/pages/dashboardpage.class.php:380
 msgid "10 Minutes"
 msgstr "10 Minuten"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:370
+#: /var/www/fog/lib/pages/dashboardpage.class.php:382
 msgid "2 Minutes"
 msgstr "2 Minuten"
 
@@ -2466,6 +2466,7 @@ msgstr "Nebel-Foren"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:66
 #: /var/www/fog/management/other/index.php:163
+#: /var/www/fog/management/other/index.php:196
 #: /var/www/fog/management/other/index2.php:167
 msgid "Donate to FOG"
 msgstr "Spenden Sie für Nebel"
@@ -5725,6 +5726,11 @@ msgstr "Snap-in-Update fehlgeschlagen"
 msgid "Snapin updated"
 msgstr "Snap-in aktualisiert"
 
+#: /var/www/fog/lib/pages/processlogin.class.php:313
+#, fuzzy
+msgid "Please login"
+msgstr "Bitte wählen Sie eine option"
+
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:55
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:94
 #, php-format
@@ -8665,12 +8671,14 @@ msgid "Example Bolded Header"
 msgstr "Beispiel Fett Header"
 
 #: /var/www/fog/management/other/index.php:149
+#: /var/www/fog/management/other/index.php:182
 #: /var/www/fog/management/other/index2.php:155
 #, fuzzy
 msgid "Credits"
 msgstr "Erstellen"
 
 #: /var/www/fog/management/other/index.php:155
+#: /var/www/fog/management/other/index.php:188
 #: /var/www/fog/management/other/index2.php:160
 #, fuzzy
 msgid "FOG Client"

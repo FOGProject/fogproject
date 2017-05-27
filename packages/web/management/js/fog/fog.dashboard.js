@@ -1,9 +1,9 @@
 var JSONParseFunction = (typeof(JSON) != 'undefined' ? JSON.parse : eval)
 // Disk Usage Graph Stuff
-var GraphDiskUsage = $('#graph-diskusage','#content-inner');
+var GraphDiskUsage = $('#graph-diskusage','.content');
 var GraphDiskUsageAJAX;
-var GraphDiskUsageNode = $('#diskusage-selector select','#content-inner');
-var ClientCountGroup = $('#graph-activity-selector select','#content-inner');
+var GraphDiskUsageNode = $('#diskusage-selector select','.content');
+var ClientCountGroup = $('#graph-activity-selector select','.content');
 var NodeID;
 var GroupID;
 var GraphDiskUsageData = [{label: 'Free',data:0},{label: 'Used',data:0}];
@@ -31,7 +31,7 @@ var GraphDiskUsageOpts = {
 };
 // Bandwidth Variable/Option settings.
 var GraphData = new Array();
-var GraphBandwidth = $('#graph-bandwidth','#content-inner');
+var GraphBandwidth = $('#graph-bandwidth','.content');
 var GraphBandwidthFilterTransmit = $('#graph-bandwidth-filters-transmit','#graph-bandwidth-filters');
 var GraphBandwidthFilterTransmitActive = GraphBandwidthFilterTransmit.hasClass('active');
 var GraphBandwidthData = new Array();
@@ -59,7 +59,7 @@ var GraphBandwidthOpts = {
 var GraphBandwidthFilters = $('#graph-bandwidth-filters-transmit, #graph-bandwidth-filters-receive', '#graph-bandwidth-filters');
 var GraphBandwidthAJAX;
 // 30 Day Data
-var Graph30Day = $('#graph-30day', '#content-inner');
+var Graph30Day = $('#graph-30day', '.content');
 var Graph30DayData;
 var Graph30DayOpts = {
     colors: ['#7386ad'],
@@ -81,7 +81,7 @@ var Graph30DayOpts = {
     legend: {position: 'nw'}
 };
 // Client Count variables
-var GraphClient = $('#graph-activity','#content-inner');
+var GraphClient = $('#graph-activity','.content');
 var UpdateClientCountData = [[0,0]];
 var clientcounttime = 5000;
 var UpdateClientCountOpts = {
