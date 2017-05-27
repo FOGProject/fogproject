@@ -357,4 +357,15 @@ class ProcessLogin extends FOGPage
             self::$foglang['Login']
         );
     }
+    /**
+     * Gets the locale.
+     *
+     * @return string
+     */
+    public static function getLocale()
+    {
+        $lang = explode('_', self::$locale);
+        $lang = $lang[0];
+        return $lang;
+    }
 }

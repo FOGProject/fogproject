@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-26 15:01-0400\n"
+"POT-Creation-Date: 2017-05-27 01:13-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -840,14 +840,6 @@ msgstr ""
 #: /var/www/fog/lib/fog/fogpagemanager.class.php:281
 #, php-format
 msgid "Adding FOGPage: %s, Node: %s"
-msgstr ""
-
-#: /var/www/fog/lib/fog/page.class.php:130
-msgid "Mobile Manager"
-msgstr ""
-
-#: /var/www/fog/lib/fog/page.class.php:131 /var/www/fog/commons/text.php:72
-msgid "Version"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogcore.class.php:40
@@ -2266,43 +2258,47 @@ msgstr ""
 msgid "System Uptime"
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:231
+#: /var/www/fog/lib/pages/dashboardpage.class.php:244
 msgid "System Overview"
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:258
-msgid "The selected node's storage group slot usage"
+#: /var/www/fog/lib/pages/dashboardpage.class.php:247
+msgid "Server information at a glance."
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:259
+#: /var/www/fog/lib/pages/dashboardpage.class.php:267
 msgid "Storage Group Activity"
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:275
-msgid "The selected node's image storage usage"
+#: /var/www/fog/lib/pages/dashboardpage.class.php:270
+msgid "The selected node's storage grout slot usage"
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:276
+#: /var/www/fog/lib/pages/dashboardpage.class.php:285
 msgid "Storage Node Disk Usage"
 msgstr ""
 
 #: /var/www/fog/lib/pages/dashboardpage.class.php:288
+msgid "The selected node's image storage usage"
+msgstr ""
+
+#: /var/www/fog/lib/pages/dashboardpage.class.php:305
 msgid "Imaging Over the last 30 days"
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:329
+#: /var/www/fog/lib/pages/dashboardpage.class.php:364
 msgid "1 hour"
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:331
+#: /var/www/fog/lib/pages/dashboardpage.class.php:366
 msgid "30 Minutes"
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:333
+#: /var/www/fog/lib/pages/dashboardpage.class.php:368
 msgid "10 Minutes"
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:335
+#: /var/www/fog/lib/pages/dashboardpage.class.php:370
 msgid "2 Minutes"
 msgstr ""
 
@@ -2324,7 +2320,8 @@ msgid "FOG Forums"
 msgstr ""
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:66
-#: /var/www/fog/management/other/index.php:167
+#: /var/www/fog/management/other/index.php:163
+#: /var/www/fog/management/other/index2.php:167
 msgid "Donate to FOG"
 msgstr ""
 
@@ -2333,7 +2330,7 @@ msgid "FOG Version Information"
 msgstr ""
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:100
-#: /var/www/fog/management/other/index.php:102
+#: /var/www/fog/management/other/index2.php:102
 msgid "Running Version"
 msgstr ""
 
@@ -8093,16 +8090,18 @@ msgstr ""
 msgid "Example Bolded Header"
 msgstr ""
 
-#: /var/www/fog/management/other/index.php:104
-msgid "SVN Revision"
-msgstr ""
-
-#: /var/www/fog/management/other/index.php:155
+#: /var/www/fog/management/other/index.php:149
+#: /var/www/fog/management/other/index2.php:155
 msgid "Credits"
 msgstr ""
 
-#: /var/www/fog/management/other/index.php:160
+#: /var/www/fog/management/other/index.php:155
+#: /var/www/fog/management/other/index2.php:160
 msgid "FOG Client"
+msgstr ""
+
+#: /var/www/fog/management/other/index2.php:104
+msgid "SVN Revision"
 msgstr ""
 
 #: /var/www/fog/commons/init.php:394
@@ -8195,6 +8194,10 @@ msgstr ""
 
 #: /var/www/fog/commons/text.php:65
 msgid "Users"
+msgstr ""
+
+#: /var/www/fog/commons/text.php:72
+msgid "Version"
 msgstr ""
 
 #: /var/www/fog/commons/text.php:73

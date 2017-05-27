@@ -164,7 +164,7 @@ $(function() {
     HookTooltips();
     // Search boxes
     $('.search-input').fogAjaxSearch();
-    $('#content-inner').fogTableInfo().trigger('updateAll');
+    $('.container-fluid').fogTableInfo().trigger('updateAll');
     $(Container).fogTableInfo().trigger('updateAll');
     function format(icon) {
         if (!icon.id) return icon.text;
