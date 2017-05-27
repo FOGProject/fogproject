@@ -136,7 +136,9 @@ $(function() {
         });
     }
     // Show Password information
-    $(':password').not('[name="fakepasswordremembered"]').after('&nbsp;<i class="fa fa-eye-slash fa-2x"></i>&nbsp;');
+    $(':password')
+    .not('[name="fakepasswordremembered"],[name="upass"]')
+    .after('&nbsp;<i class="fa fa-eye-slash fa-2x"></i>&nbsp;');
     $(':password').next('i').mousedown(function() {
         $(this).removeClass('fa-eye-slash').addClass('fa-eye');
         $(this).prev('input').prop('type','text');

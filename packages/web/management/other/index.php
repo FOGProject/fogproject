@@ -60,114 +60,147 @@ printf(
     '<div class="fog-variable" id="screenview" value="%s"></div>',
     self::$defaultscreen
 );
-echo '<div class="wrapper">';
-echo '<div class="sidebar" data-color="blue">';
-echo '<div class="sidebar-wrapper">';
-echo '<div class="logo">';
-printf(
-    '<a href="%s" class="simple-text">'
-    . '<img src="%s" alt="%s" title="%s" class="logoimg"/>'
-    . '</a>',
-    self::$scriptname,
-    '../favicon.ico',
-    self::$foglang['Home'],
-    self::$foglang['Home']
-);
-echo '</div>';
 if (self::$FOGUser->isValid()) {
+    echo '<div class="wrapper">';
+    echo '<div class="sidebar" data-color="blue">';
+    echo '<div class="sidebar-wrapper">';
+    echo '<div class="logo">';
+    printf(
+        '<a href="%s" class="simple-text">'
+        . '<img src="%s" alt="%s" title="%s" class="logoimg"/>'
+        . '</a>',
+        self::$scriptname,
+        '../favicon.ico',
+        self::$foglang['Home'],
+        self::$foglang['Home']
+    );
+    echo '</div>';
     echo $this->menu;
-}
-echo '</div>';
-echo '</div>';
-echo '<div class="main-panel">';
-echo '<nav class="navbar navbar-default navbar-fixed">';
-echo '<div class="container-fluid">';
-echo '<div class="navbar-header">';
-echo '<button type="button" class="navbar-toggle" data-toggle='
-    . '"collapse" data-target="#navigation-example-2">';
-echo '<span class="sr-only">Toggle navigation</span>';
-echo '<span class="icon-bar"></span>';
-echo '<span class="icon-bar"></span>';
-echo '<span class="icon-bar"></span>';
-echo '</button>';
-echo '<a class="navbar-brand" href="?node=home">';
-echo self::$foglang['Slogan'];
-echo '</div>';
-echo '<div class="collapse navbar-collapse">';
-echo '<ul class="nav navbar-nav navbar-right">';
-echo '<li>';
-echo '<a href="?node=logout">';
-echo '<i class="fa fa-sign-out"></i>';
-echo '<p>';
-echo self::$foglang['Logout'];
-echo '</p>';
-echo '</a>';
-echo '</li>';
-echo '<li class="separator hidden-1g hidden-md"></li>';
-echo '</ul>';
-echo '</div>';
-echo '</div>';
-echo '</nav>';
-printf(
-    '<div class="content%s">',
-    (
-        $this->isHomepage ?
-        ' dashboard' :
-        ''
-    )
-);
-self::$HookManager
-    ->processEvent(
-        'CONTENT_DISPLAY',
-        array(
-            'content' => &$this->body,
-            'sectionTitle' => &$this->sectionTitle,
-            'pageTitle' => &$this->pageTitle
+    echo '</div>';
+    echo '</div>';
+    echo '<div class="main-panel">';
+    echo '<nav class="navbar navbar-default navbar-fixed">';
+    echo '<div class="container-fluid">';
+    echo '<div class="navbar-header">';
+    echo '<button type="button" class="navbar-toggle" data-toggle='
+        . '"collapse" data-target="#navigation-example-2">';
+    echo '<span class="sr-only">Toggle navigation</span>';
+    echo '<span class="icon-bar"></span>';
+    echo '<span class="icon-bar"></span>';
+    echo '<span class="icon-bar"></span>';
+    echo '</button>';
+    echo '<a class="navbar-brand" href="?node=home">';
+    echo 'FOG';
+    echo '</a>';
+    echo '</div>';
+    echo '<div class="collapse navbar-collapse">';
+    echo '<ul class="nav navbar-nav navbar-right">';
+    echo '<li>';
+    echo '<a href="?node=logout">';
+    echo '<i class="fa fa-sign-out"></i>';
+    echo '<p>';
+    echo self::$foglang['Logout'];
+    echo '</p>';
+    echo '</a>';
+    echo '</li>';
+    echo '<li class="separator hidden-1g hidden-md"></li>';
+    echo '</ul>';
+    echo '</div>';
+    echo '</div>';
+    echo '</nav>';
+    printf(
+        '<div class="content%s">',
+        (
+            $this->isHomepage ?
+            ' dashboard' :
+            ''
         )
     );
-echo '<div class="container-fluid">';
-printf(
-    '<h4 class="title">%s</h4>',
-    $this->sectionTitle
-);
-if (self::$FOGUser->isValid() && $this->pageTitle) {
+    self::$HookManager
+        ->processEvent(
+            'CONTENT_DISPLAY',
+            array(
+                'content' => &$this->body,
+                'sectionTitle' => &$this->sectionTitle,
+                'pageTitle' => &$this->pageTitle
+            )
+        );
+    echo '<div class="container-fluid">';
     printf(
-        '<h5 class="title">%s</h5>',
-        $this->pageTitle
+        '<h4 class="title">%s</h4>',
+        $this->sectionTitle
     );
+    if (self::$FOGUser->isValid() && $this->pageTitle) {
+        printf(
+            '<h5 class="title">%s</h5>',
+            $this->pageTitle
+        );
+    }
+    echo $this->body;
+    echo '</div>';
+    echo '</div>';
+    echo '<footer class="footer">';
+    echo '<div class="container-fluid">';
+    echo '<nav class="pull-left">';
+    echo '<ul>';
+    echo '<li>';
+    printf(
+        '<a href="http://fogproject.org/wiki/index.php?title=Credits">%s</a>',
+        _('Credits')
+    );
+    echo '</li>';
+    echo '<li>';
+    printf(
+        '<a href="?node=client">%s</a>',
+        _('FOG Client')
+    );
+    echo '</li>';
+    echo '<li>';
+    printf(
+        '<a href="https://www.paypal.com/cgi-bin/webscr?'
+        . 'item_name=Donation+to+FOG+-+A+Free+Cloning+Solution&cmd=_donations'
+        . '&business=fogproject.org@gmail.com">%s</a>',
+        _('Donate to FOG')
+    );
+    echo '<li>';
+    echo '</ul>';
+    echo '</nav>';
+    echo '</div>';
+    echo '</footer>';
+    echo '</div>';
+} else {
+    echo '<div class="wrapper signin">';
+    echo $this->body;
+    echo '<footer class="footer">';
+    echo '<div class="container-fluid">';
+    echo '<nav class="navbar navbar-default navbar-fixed-bottom">';
+    echo '<div class="container text-center">';
+    echo '<div class="span3">';
+    echo '<span class="span1">';
+    printf(
+        '<a href="http://fogproject.org/wiki/index.php?title=Credits">%s</a>',
+        _('Credits')
+    );
+    echo '</span>&nbsp;&nbsp;';
+    echo '<span class="span1">';
+    printf(
+        '<a href="?node=client">%s</a>',
+        _('FOG Client')
+    );
+    echo '</span>&nbsp;&nbsp;';
+    echo '<span class="span1">';
+    printf(
+        '<a href="https://www.paypal.com/cgi-bin/webscr?'
+        . 'item_name=Donation+to+FOG+-+A+Free+Cloning+Solution&cmd=_donations'
+        . '&business=fogproject.org@gmail.com">%s</a>',
+        _('Donate to FOG')
+    );
+    echo '</span>';
+    echo '</div>';
+    echo '</nav>';
+    echo '</div>';
+    echo '</footer>';
 }
-echo $this->body;
-echo '</div>';
-echo '</div>';
-echo '<footer class="footer">';
-echo '<div class="container-fluid">';
-echo '<nav class="pull-left">';
-echo '<ul>';
-echo '<li>';
-printf(
-    '<a href="http://fogproject.org/wiki/index.php?title=Credits">%s</a>',
-    _('Credits')
-);
-echo '</li>';
-echo '<li>';
-printf(
-    '<a href="?node=client">%s</a>',
-    _('FOG Client')
-);
-echo '</li>';
-echo '<li>';
-printf(
-    '<a href="https://www.paypal.com/cgi-bin/webscr?'
-    . 'item_name=Donation+to+FOG+-+A+Free+Cloning+Solution&cmd=_donations'
-    . '&business=fogproject.org@gmail.com">%s</a>',
-    _('Donate to FOG')
-);
-echo '<li>';
-echo '</ul>';
-echo '</nav>';
-echo '</div>';
-echo '</footer>';
-echo '</div>';
 echo '</div>';
 echo '</body>';
 foreach ((array)$this->javascripts as &$javascript) {

@@ -236,6 +236,7 @@ class DashboardPage extends FOGPage
                 )
             );
         // Dashboard boxes row.
+        // Overview
         echo '<div class="row">';
         echo '<div class="col-lg-4">';
         echo '<div class="card">';
@@ -260,6 +261,7 @@ class DashboardPage extends FOGPage
             $SystemUptime,
             $tftp
         );
+        // Activity
         echo '<div class="col-lg-4">';
         echo '<div class="card">';
         echo '<div class="header">';
@@ -271,13 +273,20 @@ class DashboardPage extends FOGPage
         echo '</p>';
         echo '</div>';
         echo '<div class="content">';
+        echo '<div class="graph pie-graph fogdashbox" id="graph-activity"></div>';
+        echo '<div class="graph-selectors" id="graph-activity-selector">';
         printf(
             '<select name="groupsel">%s</select>',
             self::$_groupOpts
         );
+        echo '<div id="ActivityActive"></div>';
+        echo '<div id="ActivityQueued"></div>';
+        echo '<div id="ActivitySlots"></div>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
+        echo '</div>';
+        // Disk usage
         echo '<div class="col-lg-4">';
         echo '<div class="card">';
         echo '<div class="header">';
@@ -289,10 +298,13 @@ class DashboardPage extends FOGPage
         echo '</p>';
         echo '</div>';
         echo '<div class="content">';
+        echo '<div class="graph pie-graph fogdashbox" id="graph-diskusage"></div>';
+        echo '<div class="graph-selectors" id="diskusage-selector">';
         printf(
             '<select name="nodesel">%s</select>',
             self::$_nodeOpts
         );
+        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -306,7 +318,7 @@ class DashboardPage extends FOGPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="content">';
-        echo '<div id="graph-30day" class="graph"></div>';
+        echo '<div id="graph-30day" class="graph fogdashbox"></div>';
         echo '<div class="fog-variable" id="Graph30dayData"></div>';
         echo '</div>';
         echo '</div>';

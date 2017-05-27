@@ -286,79 +286,80 @@ class Page extends FOGBase
             echo '</ul>';
             $this->menu = ob_get_clean();
         }
-        if (self::$FOGUser->isValid()) {
-            $files = array(
-                'js/jquery-latest.min.js',
-                'js/bootstrap.min.js',
-                'js/light-bootstrap-dashboard.js',
-                'js/jquery.validate.min.js',
-                'js/additional-methods.min.js',
-                'js/jquery.tablesorter.combined.js',
-                'js/select2.min.js',
-                'js/jquery-migrate-latest.min.js',
-                'js/jquery.tipsy.js',
-                'js/jquery.progressbar.js',
-                'js/jquery.tmpl.js',
-                'js/jquery.organicTabs.js',
-                'js/jquery.placeholder.js',
-                'js/jquery-ui.min.js',
-                'js/flot/jquery.flot.js',
-                'js/flot/jquery.flot.time.js',
-                'js/flot/jquery.flot.pie.js',
-                'js/flot/jquery.flot.JUMlib.js',
-                'js/flot/jquery.flot.gantt.js',
-                'js/jquery-ui-timepicker-addon.js',
-                'js/fog/fog.js',
-                'js/fog/fog.main.js',
-                'js/jscolor.min.js'
-            );
-            $subset = $sub;
-            if ($sub == 'membership') {
-                $subset = 'edit';
-            }
-            $node = preg_replace('#_#', '-', $node);
-            $subset = preg_replace('#_#', '-', $subset);
-            $filepaths = array(
-                "js/fog/fog.{$node}.js",
-                "js/fog/fog.{$node}.{$subset}.js",
-            );
-            array_map(
-                function (&$jsFilepath) use (&$files) {
-                    if (file_exists($jsFilepath)) {
-                        array_push($files, $jsFilepath);
-                    }
-                    unset($jsFilepath);
-                },
-                (array)$filepaths
-            );
-            $pluginfilepaths = array(
-                "../lib/plugins/{$node}/js/fog.{$node}.js",
-                "../lib/plugins/{$node}/js/fog.{$node}.{$subset}.js",
-            );
-            array_map(
-                function (&$pluginfilepath) use (&$files) {
-                    if (file_exists($pluginfilepath)) {
-                        array_push($files, $pluginfilepath);
-                    }
-                    unset($pluginfilepath);
-                },
-                (array)$pluginfilepaths
-            );
-            if ($this->isHomepage
-                && ($node == 'home'
-                || !$node)
-            ) {
-                array_push($files, 'js/fog/fog.dashboard.js');
-                $test = preg_match(
-                    '#MSIE [6|7|8|9|10|11]#',
-                    self::$useragent
-                );
-                if ($test) {
-                    array_push(
-                        $files,
-                        'js/flot/excanvas.js'
-                    );
+        $files = array(
+            'js/jquery-latest.min.js',
+            'js/bootstrap.min.js',
+            'js/light-bootstrap-dashboard.js',
+            'js/jquery.validate.min.js',
+            'js/additional-methods.min.js',
+            'js/jquery.tablesorter.combined.js',
+            'js/select2.min.js',
+            'js/jquery-migrate-latest.min.js',
+            'js/jquery.tipsy.js',
+            'js/jquery.progressbar.js',
+            'js/jquery.tmpl.js',
+            'js/jquery.organicTabs.js',
+            'js/jquery.placeholder.js',
+            'js/jquery-ui.min.js',
+            'js/flot/jquery.flot.js',
+            'js/flot/jquery.flot.time.js',
+            'js/flot/jquery.flot.pie.js',
+            'js/flot/jquery.flot.JUMlib.js',
+            'js/flot/jquery.flot.gantt.js',
+            'js/jquery-ui-timepicker-addon.js',
+            'js/fog/fog.js',
+            'js/fog/fog.main.js',
+            'js/jscolor.min.js'
+        );
+        if (!self::$FOGUser->isValid()) {
+            $files[] = 'js/fog/fog.login.js';
+        }
+        $subset = $sub;
+        if ($sub == 'membership') {
+            $subset = 'edit';
+        }
+        $node = preg_replace('#_#', '-', $node);
+        $subset = preg_replace('#_#', '-', $subset);
+        $filepaths = array(
+            "js/fog/fog.{$node}.js",
+            "js/fog/fog.{$node}.{$subset}.js",
+        );
+        array_map(
+            function (&$jsFilepath) use (&$files) {
+                if (file_exists($jsFilepath)) {
+                    array_push($files, $jsFilepath);
                 }
+                unset($jsFilepath);
+            },
+            (array)$filepaths
+        );
+        $pluginfilepaths = array(
+            "../lib/plugins/{$node}/js/fog.{$node}.js",
+            "../lib/plugins/{$node}/js/fog.{$node}.{$subset}.js",
+        );
+        array_map(
+            function (&$pluginfilepath) use (&$files) {
+                if (file_exists($pluginfilepath)) {
+                    array_push($files, $pluginfilepath);
+                }
+                unset($pluginfilepath);
+            },
+            (array)$pluginfilepaths
+        );
+        if ($this->isHomepage
+            && ($node == 'home'
+            || !$node)
+        ) {
+            array_push($files, 'js/fog/fog.dashboard.js');
+            $test = preg_match(
+                '#MSIE [6|7|8|9|10|11]#',
+                self::$useragent
+            );
+            if ($test) {
+                array_push(
+                    $files,
+                    'js/flot/excanvas.js'
+                );
             }
         }
         if ($node === 'schema') {

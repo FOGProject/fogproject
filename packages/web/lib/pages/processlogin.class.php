@@ -298,30 +298,69 @@ class ProcessLogin extends FOGPage
                 self::$foglang['LatestSvnVer']
             );
         }
+        // Login form
+        echo '<div class="form-group form-signin">';
+        echo '<form class="form-horizontal" action="';
+        echo $this->formAction;
+        echo '" method="post">';
+        echo '<h2 class="form-signin-heading">';
         printf(
-            '<div id="loginform">'
-            . '<form method="post" action="%s" id="login-form">'
-            . '<div class="input-field">'
-            . '<label for="username">%s</label>'
-            . '<input type="text" class="input" name="uname" id="username"/>'
-            . '</div><div class="input-field">'
-            . '<label for="password">%s</label>'
-            . '<input type="password" class="input" name="upass" id="password"/>'
-            . '</div><div class="input-field">'
-            . '<label for="language">%s</label>'
-            . '<select name="ulang" id="language">%s</select>'
-            . '</div><div class="input-field">'
-            . '<label for="login-form-submit">&nbsp;</label>'
-            . '<input type="submit" value="%s" id="login-form-submit" name="login"/>'
-            . '</div></form></div>%s',
-            $this->formAction,
-            self::$foglang['Username'],
-            self::$foglang['Password'],
-            self::$foglang['LanguagePhrase'],
-            $this->_langMenu,
-            self::$foglang['Login'],
-            $extra
+            '<img src="%s" alt="%s" class="logoimg"/>',
+            '../favicon.ico',
+            self::$foglang['Slogan']
         );
+        echo '&nbsp;&nbsp;';
+        echo _('Please login');
+        echo '</h2>';
+        // Username
+        echo '<div class="form-group">';
+        echo '<label class="control-label col-sm-2" for="uname">';
+        echo self::$foglang['Username'];
+        echo '</label>';
+        echo '<div class="col-sm-10">';
+        echo '<input type="text" class="form-control" name="uname" '
+            . 'required="" autofocus="" id="uname"/>';
+        echo '</div>';
+        echo '</div>';
+        // Password
+        echo '<div class="form-group">';
+        echo '<label class="control-label col-sm-2" for="upass">';
+        echo self::$foglang['Password'];
+        echo '</label>';
+        echo '<div class="col-sm-10">';
+        echo '<input type="password" class="form-control" name="upass" '
+            . 'required="" id="upass"/>';
+        echo '</div>';
+        echo '</div>';
+        // Language
+        echo '<div class="form-group">';
+        echo '<label class="control-label col-sm-2" for="ulang">';
+        echo self::$foglang['LanguagePhrase'];
+        echo '</label>';
+        echo '<div class="col-sm-10">';
+        echo '<select class="form-control" name="ulang" id="ulang">';
+        echo $this->_langMenu;
+        echo '</select>';
+        echo '</div>';
+        echo '</div>';
+        // Submit button
+        echo '<div class="form-group">';
+        echo '<div class="col-sm-offset-2 col-sm-10">';
+        echo '<button class="btn btn-outline-primary btn-block" '
+            . 'type="submit" name="login">';
+        echo self::$foglang['Login'];
+        echo '</button>';
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
+        // Login information
+        echo '<div class="row">';
+        echo '<div class="form-group">';
+        echo $extra;
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Display the login form for the mobile page.
