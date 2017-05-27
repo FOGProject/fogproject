@@ -225,11 +225,6 @@ class DashboardPage extends FOGPage
             array(),
             array()
         );
-        // Overview
-        printf(
-            '<ul class="dashboard-boxes"><li class="system-overview"><h5>%s</h5>',
-            _('System Overview')
-        );
         array_walk($fields, $this->fieldsToData);
         self::$HookManager
             ->processEvent(
@@ -240,8 +235,23 @@ class DashboardPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
+        // Dashboard boxes row.
+        echo '<div class="row">';
+        echo '<div class="col-lg-4">';
+        echo '<div class="card">';
+        echo '<div class="header">';
+        echo '<h4 class="title">';
+        echo _('System Overview');
+        echo '</h4>';
+        echo '<p class="category">';
+        echo _('Server information at a glance.');
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="content">';
         $this->render();
-        echo '</li>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
         unset(
             $this->data,
             $this->templates,
@@ -250,44 +260,57 @@ class DashboardPage extends FOGPage
             $SystemUptime,
             $tftp
         );
-        // Client Count/Activity
+        echo '<div class="col-lg-4">';
+        echo '<div class="card">';
+        echo '<div class="header">';
+        echo '<h4 class="title">';
+        echo _('Storage Group Activity');
+        echo '</h4>';
+        echo '<p class="category">';
+        echo _('The selected node\'s storage grout slot usage');
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="content">';
         printf(
-            '<li><h5 class="box" title="%s">%s</h5>'
-            . '<div class="graph pie-graph" id="graph-activity">'
-            . '</div><div class="graph-selectors" id="graph-activity-selector">',
-            _('The selected node\'s storage group slot usage'),
-            _('Storage Group Activity')
-        );
-        printf(
-            '<select name="groupsel">%s</select>'
-            . '<div class="fog-variable" id="ActivityActive"></div>'
-            . '<div class="fog-variable" id="ActivityQueued"></div>'
-            . '<div class="fog-variable" id="ActivitySlots"></div>'
-            . '</div></li>',
+            '<select name="groupsel">%s</select>',
             self::$_groupOpts
         );
-        // Disk Usage
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="col-lg-4">';
+        echo '<div class="card">';
+        echo '<div class="header">';
+        echo '<h4 class="title">';
+        echo _('Storage Node Disk Usage');
+        echo '</h4>';
+        echo '<p class="category">';
+        echo _('The selected node\'s image storage usage');
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="content">';
         printf(
-            '<li><h5 class="box" title="%s">%s</h5>'
-            . '<a href="?node=hwinfo"><div class="graph pie-graph" '
-            . 'id="graph-diskusage"></div></a><div id="diskusage-selector" class="'
-            . 'graph-selectors">',
-            _('The selected node\'s image storage usage'),
-            _('Storage Node Disk Usage')
-        );
-        printf(
-            '<select name="nodesel">%s</select>'
-            . '</div></li>',
+            '<select name="nodesel">%s</select>',
             self::$_nodeOpts
         );
-        echo '</ul>';
-        // 30 day history
-        printf(
-            '<h3>%s</h3>'
-            . '<div id="graph-30day" class="graph"></div>',
-            _('Imaging Over the last 30 days')
-        );
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        // 30 day row.
+        echo '<div class="row">';
+        echo '<div class="card">';
+        echo '<div class="header">';
+        echo '<h4 class="title">';
+        echo _('Imaging Over the last 30 days');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="content">';
+        echo '<div id="graph-30day" class="graph"></div>';
         echo '<div class="fog-variable" id="Graph30dayData"></div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
         // Bandwidth display
         $bandwidthtime = self::$_bandwidthtime;
         $datapointshour = (3600 / $bandwidthtime);
@@ -295,6 +318,18 @@ class DashboardPage extends FOGPage
         $datapointshalf = ($datapointshour / 2);
         $datapointsten = ($datapointshour / 6);
         $datapointstwo = ($datapointshour / 30);
+        echo '<div class="row">';
+        echo '<div class="card">';
+        echo '<div class="header">';
+        echo '<h4 class="title graph-bandwidth-title">';
+        echo self::$foglang['Bandwidth'];
+        echo ' - ';
+        echo '<span>';
+        echo self::$foglang['Transmit'];
+        echo '</span>';
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="content">';
         printf(
             '<input type="hidden" id="bandwidthtime" value="%d"/>'
             . '<input id="bandwidthUrls" type="hidden" value="%s"/>'
@@ -303,9 +338,11 @@ class DashboardPage extends FOGPage
             implode(',', self::$_nodeURLs),
             implode(',', self::$_nodeNames)
         );
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
         printf(
-            '<h3 id="graph-bandwidth-title">%s - <span>%s</span></h3>'
-            . '<div id="graph-bandwidth-filters">'
+            '<div id="graph-bandwidth-filters">'
             . '<div>'
             . '<a href="#" id="graph-bandwidth-filters-transmit" '
             . 'class="l active">%s</a>'
@@ -321,8 +358,6 @@ class DashboardPage extends FOGPage
             . '</div>'
             . '</div>'
             . '<div id="graph-bandwidth" class="graph"></div>',
-            self::$foglang['Bandwidth'],
-            self::$foglang['Transmit'],
             self::$foglang['Transmit'],
             self::$foglang['Receive'],
             $datapointshour,

@@ -114,28 +114,21 @@ class Page extends FOGBase
                 $dispTheme = 'css/default/fog.css';
             }
         }
-        if (!self::$isMobile) {
-            $this
-                ->addCSS('css/jquery-ui.css')
-                ->addCSS('css/jquery-ui.theme.css')
-                ->addCSS('css/jquery-ui.structure.css')
-                ->addCSS('css/jquery-ui-timepicker-addon.css')
-                ->addCSS('css/jquery.organicTabs.css')
-                ->addCSS('css/jquery.tipsy.css')
-                ->addCSS($dispTheme);
-        } else {
-            $this->addCSS('../mobile/css/main.css');
-            $this->title = sprintf(
-                'FOG :: %s :: %s %s',
-                _('Mobile Manager'),
-                _('Version'),
-                FOG_VERSION
-            );
-        }
         $this
+            ->addCSS('css/bootstrap.min.css')
+            ->addCSS('css/bootstrap-theme.min.css')
+            ->addCSS('css/animate.min.css')
             ->addCSS('css/font-awesome.min.css')
+            ->addCSS('css/light-bootstrap-dashboard.css')
+            ->addCSS('css/jquery-ui.css')
+            ->addCSS('css/jquery-ui.theme.css')
+            ->addCSS('css/jquery-ui.structure.css')
+            ->addCSS('css/jquery-ui-timepicker-addon.css')
+            ->addCSS('css/jquery.organicTabs.css')
+            ->addCSS('css/jquery.tipsy.css')
             ->addCSS('css/select2.min.css')
-            ->addCSS('css/theme.blue.css');
+            ->addCSS('css/theme.blue.css')
+            ->addCSS($dispTheme);
         if (!isset($node)
             || !$node
         ) {
@@ -155,90 +148,69 @@ class Page extends FOGBase
         if (self::$FOGUser->isValid()
             && strtolower($node) != 'schema'
         ) {
-            if (!self::$isMobile) {
-                $this->main = array(
-                    'home' => array(
-                        self::$foglang['Home'],
-                        'fa fa-home fa-2x'
-                    ),
-                    'user' => array(
-                        self::$foglang['User Management'],
-                        'fa fa-users fa-2x'
-                    ),
-                    'host' => array(
-                        self::$foglang['Host Management'],
-                        'fa fa-desktop fa-2x'
-                    ),
-                    'group' => array(
-                        self::$foglang['Group Management'],
-                        'fa fa-sitemap fa-2x'
-                    ),
-                    'image' => array(
-                        self::$foglang['Image Management'],
-                        'fa fa-picture-o fa-2x'
-                    ),
-                    'storage' => array(
-                        self::$foglang['Storage Management'],
-                        'fa fa-archive fa-2x'
-                    ),
-                    'snapin' => array(
-                        self::$foglang['Snapin Management'],
-                        'fa fa-files-o fa-2x'
-                    ),
-                    'printer' => array(
-                        self::$foglang['Printer Management'],
-                        'fa fa-print fa-2x'
-                    ),
-                    'service' => array(
-                        self::$foglang['Service Configuration'],
-                        'fa fa-cogs fa-2x'
-                    ),
-                    'task' => array(
-                        self::$foglang['Task Management'],
-                        'fa fa-tasks fa-2x'
-                    ),
-                    'report' => array(
-                        self::$foglang['Report Management'],
-                        'fa fa-file-text fa-2x'
-                    ),
-                    'about' => array(
-                        self::$foglang['FOG Configuration'],
-                        'fa fa-wrench fa-2x'
-                    ),
-                    'logout' => array(
-                        self::$foglang['Logout'],
-                        'fa fa-sign-out fa-2x'
-                    ),
-                );
-                if (self::getSetting('FOG_PLUGINSYS_ENABLED')) {
-                    self::arrayInsertAfter(
-                        'about',
-                        $this->main,
-                        'plugin',
-                        array(
-                            self::$foglang['Plugin Management'],
-                            'fa fa-cog fa-2x'
-                        )
-                    );
-                }
-            } else {
-                $this->main = array(
-                    'home' => array(
-                        self::$foglang['Home'],
-                        'fa fa-home fa-2x'
-                    ),
-                    'host' => array(
-                        self::$foglang['Host Management'],
-                        'fa fa-desktop fa-2x'
-                    ),
-                    'task' => array(
-                        self::$foglang['Task Management'],
-                        'fa fa-tasks fa-2x'
-                    ),
-                    'logout' => array(
-                        self::$foglang['Logout'],
-                        'fa fa-sign-out fa-2x'
-                    ),
+            $this->main = array(
+                'home' => array(
+                    self::$foglang['Home'],
+                    'fa fa-dashboard'
+                ),
+                'user' => array(
+                    self::$foglang['User Management'],
+                    'fa fa-users'
+                ),
+                'host' => array(
+                    self::$foglang['Host Management'],
+                    'fa fa-desktop'
+                ),
+                'group' => array(
+                    self::$foglang['Group Management'],
+                    'fa fa-sitemap'
+                ),
+                'image' => array(
+                    self::$foglang['Image Management'],
+                    'fa fa-picture-o'
+                ),
+                'storage' => array(
+                    self::$foglang['Storage Management'],
+                    'fa fa-archive'
+                ),
+                'snapin' => array(
+                    self::$foglang['Snapin Management'],
+                    'fa fa-files-o'
+                ),
+                'printer' => array(
+                    self::$foglang['Printer Management'],
+                    'fa fa-print'
+                ),
+                'service' => array(
+                    self::$foglang['Service Configuration'],
+                    'fa fa-cogs'
+                ),
+                'task' => array(
+                    self::$foglang['Task Management'],
+                    'fa fa-tasks'
+                ),
+                'report' => array(
+                    self::$foglang['Report Management'],
+                    'fa fa-file-text'
+                ),
+                'about' => array(
+                    self::$foglang['FOG Configuration'],
+                    'fa fa-wrench'
+                ),
+                'logout' => array(
+                    self::$foglang['Logout'],
+                    'fa fa-sign-out'
+                ),
+            );
+            if (self::getSetting('FOG_PLUGINSYS_ENABLED')) {
+                self::arrayInsertAfter(
+                    'about',
+                    $this->main,
+                    'plugin',
+                    array(
+                        self::$foglang['Plugin Management'],
+                        'fa fa-cog fa-2x'
+                    )
                 );
             }
             $this->main = array_unique(
@@ -265,31 +237,33 @@ class Page extends FOGBase
                     }
                 );
             }
-            if (!self::$isMobile) {
-                $links = self::fastmerge(
-                    (array)$links,
-                    array(
-                        'hwinfo',
-                        'client',
-                        'schema',
-                        'ipxe'
-                    )
-                );
-            }
+            $links = self::fastmerge(
+                (array)$links,
+                array(
+                    'hwinfo',
+                    'client',
+                    'schema',
+                    'ipxe'
+                )
+            );
             if ($node
                 && !in_array($node, $links)
             ) {
                 self::redirect('index.php');
             }
             ob_start();
-            echo '<nav class="menu"><ul class="nav-list">';
+            echo '<ul class="nav">';
+            $count = false;
             if (count($this->main) > 0) {
                 array_walk(
                     $this->main,
                     function (
                         &$title,
                         &$link
-                    ) use (&$node) {
+                    ) use (&$node, &$count) {
+                        if (false === $count) {
+                            $count = ' class="active"';
+                        }
                         if (!$node
                             && $link == 'home'
                         ) {
@@ -297,30 +271,26 @@ class Page extends FOGBase
                         }
                         $activelink = ($node == $link);
                         printf(
-                            '<li class="nav-item"><a href="?node=%s" '
-                            . 'class="nav-link%s" title="%s"><i class="%s">'
-                            . '</i></a></li>',
+                            '<li%s><a href="?node=%s"><i class="%s"></i>'
+                            . '<p>%s</p></a></li>',
+                            $count,
                             $link,
-                            (
-                                $activelink ?
-                                ' activelink' :
-                                ''
-                            ),
-                            array_shift($title),
-                            array_shift($title)
+                            $title[1],
+                            $title[0]
                         );
+                        $count = '';
                         unset($title, $link);
                     }
                 );
             }
-            echo '</ul></nav>';
+            echo '</ul>';
             $this->menu = ob_get_clean();
         }
-        if (self::$FOGUser->isValid()
-            && !self::$isMobile
-        ) {
+        if (self::$FOGUser->isValid()) {
             $files = array(
                 'js/jquery-latest.min.js',
+                'js/bootstrap.min.js',
+                'js/light-bootstrap-dashboard.js',
                 'js/jquery.validate.min.js',
                 'js/additional-methods.min.js',
                 'js/jquery.tablesorter.combined.js',
@@ -390,21 +360,9 @@ class Page extends FOGBase
                     );
                 }
             }
-        } elseif (!self::$isMobile) {
-            $files = array(
-                'js/jquery-latest.min.js',
-                'js/jquery.tipsy.js',
-                'js/jquery.validate.min.js',
-                'js/additional-methods.min.js',
-                'js/jquery-migrate-latest.min.js',
-                'js/jquery.progressbar.js',
-                'js/fog/fog.js',
-                'js/fog/fog.login.js',
-                'js/jscolor.min.js'
-            );
-            if ($node === 'schema') {
-                array_push($files, 'js/fog/fog.schema.js');
-            }
+        }
+        if ($node === 'schema') {
+            array_push($files, 'js/fog/fog.schema.js');
         }
         $files = array_unique((array)$files);
         array_map(

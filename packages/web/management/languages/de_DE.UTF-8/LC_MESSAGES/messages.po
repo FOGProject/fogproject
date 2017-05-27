@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-26 15:01-0400\n"
+"POT-Creation-Date: 2017-05-27 01:13-0400\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -924,14 +924,6 @@ msgstr "Kein Knoten verbunden sind"
 #, php-format
 msgid "Adding FOGPage: %s, Node: %s"
 msgstr "Hinzufügen von FOGPage: %s, Knoten: %s"
-
-#: /var/www/fog/lib/fog/page.class.php:130
-msgid "Mobile Manager"
-msgstr "Mobile Manager"
-
-#: /var/www/fog/lib/fog/page.class.php:131 /var/www/fog/commons/text.php:72
-msgid "Version"
-msgstr "Version"
 
 #: /var/www/fog/lib/fog/fogcore.class.php:40
 msgid "day"
@@ -2408,44 +2400,50 @@ msgstr "Durchschnittliche Belastung"
 msgid "System Uptime"
 msgstr "Betriebsbereitschaft des Systems"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:231
+#: /var/www/fog/lib/pages/dashboardpage.class.php:244
 msgid "System Overview"
 msgstr "Systemübersicht"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:258
-msgid "The selected node's storage group slot usage"
-msgstr "Den ausgewählten Knoten Speichernutzung Gruppe slot"
+#: /var/www/fog/lib/pages/dashboardpage.class.php:247
+#, fuzzy
+msgid "Server information at a glance."
+msgstr "LDAP-Informationen aktualisiert!"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:259
+#: /var/www/fog/lib/pages/dashboardpage.class.php:267
 msgid "Storage Group Activity"
 msgstr "Speichergruppe Aktivität"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:275
+#: /var/www/fog/lib/pages/dashboardpage.class.php:270
 #, fuzzy
-msgid "The selected node's image storage usage"
-msgstr "Den ausgewählten Knoten Bild Speicher Datenträgerverwendung"
+msgid "The selected node's storage grout slot usage"
+msgstr "Den ausgewählten Knoten Speichernutzung Gruppe slot"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:276
+#: /var/www/fog/lib/pages/dashboardpage.class.php:285
 msgid "Storage Node Disk Usage"
 msgstr "Storage Node Datenträgerverwendung"
 
 #: /var/www/fog/lib/pages/dashboardpage.class.php:288
+#, fuzzy
+msgid "The selected node's image storage usage"
+msgstr "Den ausgewählten Knoten Bild Speicher Datenträgerverwendung"
+
+#: /var/www/fog/lib/pages/dashboardpage.class.php:305
 msgid "Imaging Over the last 30 days"
 msgstr "Imaging in den letzten 30 Tagen"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:329
+#: /var/www/fog/lib/pages/dashboardpage.class.php:364
 msgid "1 hour"
 msgstr "1 Stunde"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:331
+#: /var/www/fog/lib/pages/dashboardpage.class.php:366
 msgid "30 Minutes"
 msgstr "30 Minuten"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:333
+#: /var/www/fog/lib/pages/dashboardpage.class.php:368
 msgid "10 Minutes"
 msgstr "10 Minuten"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:335
+#: /var/www/fog/lib/pages/dashboardpage.class.php:370
 msgid "2 Minutes"
 msgstr "2 Minuten"
 
@@ -2467,7 +2465,8 @@ msgid "FOG Forums"
 msgstr "Nebel-Foren"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:66
-#: /var/www/fog/management/other/index.php:167
+#: /var/www/fog/management/other/index.php:163
+#: /var/www/fog/management/other/index2.php:167
 msgid "Donate to FOG"
 msgstr "Spenden Sie für Nebel"
 
@@ -2476,7 +2475,7 @@ msgid "FOG Version Information"
 msgstr "Nebel-Versionsinformationen"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:100
-#: /var/www/fog/management/other/index.php:102
+#: /var/www/fog/management/other/index2.php:102
 msgid "Running Version"
 msgstr "Laufende Version"
 
@@ -8665,20 +8664,22 @@ msgstr ""
 msgid "Example Bolded Header"
 msgstr "Beispiel Fett Header"
 
-#: /var/www/fog/management/other/index.php:104
-#, fuzzy
-msgid "SVN Revision"
-msgstr "Version"
-
-#: /var/www/fog/management/other/index.php:155
+#: /var/www/fog/management/other/index.php:149
+#: /var/www/fog/management/other/index2.php:155
 #, fuzzy
 msgid "Credits"
 msgstr "Erstellen"
 
-#: /var/www/fog/management/other/index.php:160
+#: /var/www/fog/management/other/index.php:155
+#: /var/www/fog/management/other/index2.php:160
 #, fuzzy
 msgid "FOG Client"
 msgstr "Nebel-Client-Wiki"
+
+#: /var/www/fog/management/other/index2.php:104
+#, fuzzy
+msgid "SVN Revision"
+msgstr "Version"
 
 #: /var/www/fog/commons/init.php:394
 #, fuzzy
@@ -8772,6 +8773,10 @@ msgstr "Neu"
 #: /var/www/fog/commons/text.php:65
 msgid "Users"
 msgstr "Benutzer"
+
+#: /var/www/fog/commons/text.php:72
+msgid "Version"
+msgstr "Version"
 
 #: /var/www/fog/commons/text.php:73
 msgid "Text"
@@ -9650,6 +9655,9 @@ msgstr "Hallo Nebel Client"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "Es gibt keine Orte auf diesem Server."
+
+#~ msgid "Mobile Manager"
+#~ msgstr "Mobile Manager"
 
 #, fuzzy
 #~ msgid "Error: Failed to connect to server"
