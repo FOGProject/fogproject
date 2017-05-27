@@ -1,9 +1,11 @@
 .logoimg {
-    height: 50px;
-    width: 50px;
+    position: relative;
+    top: -10px;
+    height: 40px;
+    width: 40px;
 }
 .fogdashbox {
-    width: 100%;
+    min-width: 200px;
     height: 125px;
     margin-bottom: 10px;
 }
@@ -39,4 +41,23 @@
 }
 #login-form-info b {
     float: right;
+}
+.graph-filters {
+    margin-left: 10px;
+    color: #00567a;
+    font-weight: bold;
+}
+.graph-filters.active,
+.graph-filters:hover {
+    color: #0799ce;
+}
+table td {
+    padding-right: 10px;
+    padding-bottom: 5px;
+}
+.sidebar {
+    margin-top: 60px;
+}
+.fakes {
+    display: none;
 }

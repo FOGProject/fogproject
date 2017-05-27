@@ -214,12 +214,17 @@ class FOGSubMenu extends FOGBase
     {
         ob_start();
         if ($this->items[$node]) {
+            echo '<ul class="nav navbar-nav navbar-left">';
             foreach ((array) $this->items[$node] as $title => &$data) {
                 self::$_title = $this->fixTitle($title);
-                printf(
-                    '<div class="organic-tabs"><h5>%s</h5><ul>',
-                    self::$_title
-                );
+                echo '<li class="dropdown">';
+                echo '<a href="#" class="dropdown-toggle" data-toggle="dropdown">';
+                echo '<p>';
+                echo self::$_title;
+                echo '<b class="caret"></b>';
+                echo '</p>';
+                echo '</a>';
+                echo '<ul class="dropdown-menu">';
                 foreach ((array) $data as $label => &$link) {
                     $string = sprintf(
                         '<li><a class="%s" href="${link}">%s</a></li>',
@@ -267,16 +272,27 @@ class FOGSubMenu extends FOGBase
                     }
                     unset($link, $label);
                 }
-                echo '</ul></div>';
+                echo '<li class="divider"></li>';
+                echo '</ul>';
                 unset($data, $title);
             }
         }
         if ($this->notes[$node]) {
-            printf(
-                '<div class="sidenotes">%s</div>',
-                implode($this->notes[$node])
-            );
+            echo '<li class="dropdown">';
+            echo '<a href="#" class="dropdown-toggle" data-toggle="dropdown">';
+            echo '<p>';
+            echo _('Sidenotes');
+            echo '<b class="caret"></b>';
+            echo '</p>';
+            echo '</a>';
+            echo '<ul class="dropdown-menu">';
+            echo '<li>';
+            echo implode('</li><li>', $this->notes[$node]);
+            echo '</li>';
+            echo '</ul>';
+            echo '</li>';
         }
+        echo '</ul>';
 
         return ob_get_clean();
     }

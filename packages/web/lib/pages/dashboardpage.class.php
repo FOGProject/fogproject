@@ -213,7 +213,6 @@ class DashboardPage extends FOGPage
                 INPUT_SERVER,
                 'SERVER_ADDR'
             ),
-            _('TFTP Server') => self::$_tftp,
             _('Load Average') => $SystemUptime['load'],
             _('System Uptime') => $SystemUptime['uptime']
         );
@@ -269,7 +268,7 @@ class DashboardPage extends FOGPage
         echo _('Storage Group Activity');
         echo '</h4>';
         echo '<p class="category">';
-        echo _('The selected node\'s storage grout slot usage');
+        echo _('Selected groups\'s current activity');
         echo '</p>';
         echo '</div>';
         echo '<div class="content">';
@@ -294,7 +293,7 @@ class DashboardPage extends FOGPage
         echo _('Storage Node Disk Usage');
         echo '</h4>';
         echo '<p class="category">';
-        echo _('The selected node\'s image storage usage');
+        echo _('Selected node\'s disk usage');
         echo '</p>';
         echo '</div>';
         echo '<div class="content">';
@@ -330,57 +329,88 @@ class DashboardPage extends FOGPage
         $datapointshalf = ($datapointshour / 2);
         $datapointsten = ($datapointshour / 6);
         $datapointstwo = ($datapointshour / 30);
+        // 30 day row.
         echo '<div class="row">';
+        printf(
+            '<input type="hidden" id="bandwidthtime" value="%d"/>'
+            . '<input type="hidden" id="bandwidthUrls" type="hidden" value="%s"/>'
+            . '<input type="hidden" id="nodeNames" type="hidden" value="%s"/>',
+            $bandwidthtime,
+            implode(',', self::$_nodeURLs),
+            implode(',', self::$_nodeNames)
+        );
         echo '<div class="card">';
         echo '<div class="header">';
-        echo '<h4 class="title graph-bandwidth-title">';
+        echo '<h4 class="title">';
+        echo self::$foglang['Bandwidth'];
+        echo '</h4>';
+        echo '<div class="row">';
+        echo '<div id="graph-bandwidth-filters-type">';
+        echo '<div class="col-md-2">';
+        echo '<p class="category" id="graph-bandwidth-title">';
         echo self::$foglang['Bandwidth'];
         echo ' - ';
         echo '<span>';
         echo self::$foglang['Transmit'];
         echo '</span>';
-        echo '</h4>';
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="col-md-2">';
+        echo '<a href="#" id="graph-bandwidth-filters-transmit" '
+            . 'class="type-filters graph-filters active">';
+        echo self::$foglang['Transmit'];
+        echo '</a>';
+        echo '<a href="#" id="graph-bandwidth-filters-receive" class='
+            . '"type-filters graph-filters">';
+        echo self::$foglang['Receive'];
+        echo '</a>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="row">';
+        echo '<div id="graph-bandwidth-filters-time">';
+        echo '<div class="col-md-2">';
+        echo '<p class="category" id="graph-bandwidth-time">';
+        echo _('Time');
+        echo ' - ';
+        echo '<span>';
+        echo _('2 Minutes');
+        echo '</span>';
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="col-md-4">';
+        echo '<a href="#" rel="'
+            . $datapointstwo
+            . '" class="time-filters graph-filters active">';
+        echo _('2 Minutes');
+        echo '</a>';
+        echo '<a href="#" rel="'
+            . $datapointsten
+            . '" class="time-filters graph-filters">';
+        echo _('10 Minutes');
+        echo '</a>';
+        echo '<a href="#" rel="'
+            . $datapointshalf
+            . '" class="time-filters graph-filters">';
+        echo _('30 Minutes');
+        echo '</a>';
+        echo '<a href="#" rel="'
+            . $datapointshour
+            . '" class="time-filters graph-filters">';
+        echo _('1 Hour');
+        echo '</a>';
+        echo '</div>';
+        echo '</div>';
         echo '</div>';
         echo '<div class="content">';
-        printf(
-            '<input type="hidden" id="bandwidthtime" value="%d"/>'
-            . '<input id="bandwidthUrls" type="hidden" value="%s"/>'
-            . '<input id="nodeNames" type="hidden" value="%s"/>',
-            $bandwidthtime,
-            implode(',', self::$_nodeURLs),
-            implode(',', self::$_nodeNames)
-        );
+        echo '<div class="row">';
+        echo '</div>';
+        echo '<div class="row">';
+        echo '<div id="graph-bandwidth" class="graph fogdashbox"></div>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
-        printf(
-            '<div id="graph-bandwidth-filters">'
-            . '<div>'
-            . '<a href="#" id="graph-bandwidth-filters-transmit" '
-            . 'class="l active">%s</a>'
-            . '<a href="#" id="graph-bandwidth-filters-receive" '
-            . 'class="l">%s</a>'
-            . '</div>'
-            . '<div class="spacer"></div>'
-            . '<div>'
-            . '<a href="#" rel="%s" class="r">%s</a>'
-            . '<a href="#" rel="%s" class="r">%s</a>'
-            . '<a href="#" rel="%s" class="r">%s</a>'
-            . '<a href="#" rel="%s" class="r active">%s</a>'
-            . '</div>'
-            . '</div>'
-            . '<div id="graph-bandwidth" class="graph"></div>',
-            self::$foglang['Transmit'],
-            self::$foglang['Receive'],
-            $datapointshour,
-            _('1 hour'),
-            $datapointshalf,
-            _('30 Minutes'),
-            $datapointsten,
-            _('10 Minutes'),
-            $datapointstwo,
-            _('2 Minutes')
-        );
+        echo '</div>';
     }
     /**
      * Gets the client count active/used/queued

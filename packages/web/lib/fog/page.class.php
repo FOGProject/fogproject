@@ -196,11 +196,7 @@ class Page extends FOGBase
                 'about' => array(
                     self::$foglang['FOG Configuration'],
                     'fa fa-wrench'
-                ),
-                'logout' => array(
-                    self::$foglang['Logout'],
-                    'fa fa-sign-out'
-                ),
+                )
             );
             if (self::getSetting('FOG_PLUGINSYS_ENABLED')) {
                 self::arrayInsertAfter(
@@ -224,22 +220,14 @@ class Page extends FOGBase
                         'main' => &$this->main
                     )
                 );
-            $links = array();
             if (count($this->main) > 0) {
-                array_walk(
-                    $this->main,
-                    function (
-                        &$title,
-                        &$link
-                    ) use (&$links) {
-                        $links[] = $link;
-                        unset($title, $link);
-                    }
-                );
+                $links = array_keys($this->main);
             }
             $links = self::fastmerge(
                 (array)$links,
                 array(
+                    'home',
+                    'logout',
                     'hwinfo',
                     'client',
                     'schema',
@@ -255,33 +243,29 @@ class Page extends FOGBase
             echo '<ul class="nav">';
             $count = false;
             if (count($this->main) > 0) {
-                array_walk(
-                    $this->main,
-                    function (
-                        &$title,
-                        &$link
-                    ) use (&$node, &$count) {
-                        if (false === $count) {
-                            $count = ' class="active"';
-                        }
-                        if (!$node
-                            && $link == 'home'
-                        ) {
-                            $node = $link;
-                        }
-                        $activelink = ($node == $link);
-                        printf(
-                            '<li%s><a href="?node=%s"><i class="%s"></i>'
-                            . '<p>%s</p></a></li>',
-                            $count,
-                            $link,
-                            $title[1],
-                            $title[0]
-                        );
-                        $count = '';
-                        unset($title, $link);
+                foreach ($this->main as $link => &$title) {
+                    $links[] = $link;
+                    if (!$node && $link == 'home') {
+                        $node = $link;
                     }
-                );
+                    $activelink = ($node == $link);
+                    printf(
+                        '<li%s><a href="%s"><i class="%s"></i><p>%s</p></a></li>',
+                        (
+                            $activelink ?
+                            ' class="active"' :
+                            ''
+                        ),
+                        (
+                            $activelink ?
+                            '#' :
+                            "?node=$link"
+                        ),
+                        $title[1],
+                        $title[0]
+                    );
+                    unset($title);
+                }
             }
             echo '</ul>';
             $this->menu = ob_get_clean();
