@@ -132,10 +132,7 @@ class FOGPageManager extends FOGBase
             unset($title, $link);
         }
         if (!is_object($class->obj)) {
-            return sprintf(
-                '<div class="sidebar">%s</div>',
-                self::$FOGSubMenu->get($this->classValue)
-            );
+            return self::$FOGSubMenu->get($this->classValue);
         }
         foreach ((array)$class->subMenu as $link => &$title) {
             self::$FOGSubMenu->addItems(
@@ -157,10 +154,7 @@ class FOGPageManager extends FOGBase
             );
             unset($title, $link);
         }
-        return sprintf(
-            '<div class="sidebar">%s</div>',
-            self::$FOGSubMenu->get($this->classValue)
-        );
+        return self::$FOGSubMenu->get($this->classValue);
     }
     /**
      * Prints the data to the browser/screen

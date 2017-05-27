@@ -2208,9 +2208,9 @@ abstract class FOGPage extends FOGBase
         );
         $fields = array(
             '<input type="text" '
-            . 'name="fakeusernameremembered"/>' =>
+            . 'name="fakeusernameremembered" class="fakes"/>' =>
             '<input type="password" '
-            . 'name="fakepasswordremembered"/>',
+            . 'name="fakepasswordremembered" class="fakes"/>',
             _('Join Domain after image task') =>
             sprintf(
                 '<input id="adEnabled" type="checkbox" name="domain"%s/>'

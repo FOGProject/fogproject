@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-27 11:54-0400\n"
+"POT-Creation-Date: 2017-05-27 17:39-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -78,12 +78,17 @@ msgstr ""
 msgid "Data must be an array or a callable item."
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogsubmenu.class.php:295
+#: /var/www/fog/lib/fog/fogsubmenu.class.php:284
+#, fuzzy
+msgid "Sidenotes"
+msgstr "minutos"
+
+#: /var/www/fog/lib/fog/fogsubmenu.class.php:311
 #, fuzzy
 msgid "Title must be a string"
 msgstr "Evento debe ser una cadena"
 
-#: /var/www/fog/lib/fog/fogsubmenu.class.php:315
+#: /var/www/fog/lib/fog/fogsubmenu.class.php:331
 #, fuzzy
 msgid "Link must be a string"
 msgstr "Evento debe ser una cadena"
@@ -899,24 +904,24 @@ msgstr "Agente de usuario ha cambiado"
 msgid "Session altered improperly"
 msgstr "Sesión alterado indebidamente"
 
-#: /var/www/fog/lib/fog/fogpagemanager.class.php:197
+#: /var/www/fog/lib/fog/fogpagemanager.class.php:191
 msgid "No FOGPage Class found for this node"
 msgstr "No se encontró Clase FOGPage para este nodo"
 
-#: /var/www/fog/lib/fog/fogpagemanager.class.php:226
+#: /var/www/fog/lib/fog/fogpagemanager.class.php:220
 #, php-format
 msgid "Failed to Render Page: Node: %s, Error: %s"
 msgstr "No se pudo presentar Página: Nodo: %s , error: %s"
 
-#: /var/www/fog/lib/fog/fogpagemanager.class.php:270
+#: /var/www/fog/lib/fog/fogpagemanager.class.php:264
 msgid "No class value sent"
 msgstr "Se desconoce el valor de clase enviado"
 
-#: /var/www/fog/lib/fog/fogpagemanager.class.php:277
+#: /var/www/fog/lib/fog/fogpagemanager.class.php:271
 msgid "No node associated"
 msgstr "No nodo asociado"
 
-#: /var/www/fog/lib/fog/fogpagemanager.class.php:281
+#: /var/www/fog/lib/fog/fogpagemanager.class.php:275
 #, php-format
 msgid "Adding FOGPage: %s, Node: %s"
 msgstr "Adición de FOGPage: %s , Node: %s"
@@ -2385,63 +2390,69 @@ msgid "Web Server"
 msgstr "Servidor web"
 
 #: /var/www/fog/lib/pages/dashboardpage.class.php:216
-msgid "TFTP Server"
-msgstr "servidor TFTP"
-
-#: /var/www/fog/lib/pages/dashboardpage.class.php:217
 msgid "Load Average"
 msgstr "Promedio de carga"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:218
+#: /var/www/fog/lib/pages/dashboardpage.class.php:217
 msgid "System Uptime"
 msgstr "Tiempo de actividad del sistema"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:245
+#: /var/www/fog/lib/pages/dashboardpage.class.php:244
 msgid "System Overview"
 msgstr "Resumen del sistema"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:248
+#: /var/www/fog/lib/pages/dashboardpage.class.php:247
 #, fuzzy
 msgid "Server information at a glance."
 msgstr "información de LDAP actualizado!"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:269
+#: /var/www/fog/lib/pages/dashboardpage.class.php:268
 msgid "Storage Group Activity"
 msgstr "Grupo de almacenamiento de Actividad"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:272
-#, fuzzy
-msgid "The selected node's storage grout slot usage"
-msgstr "el uso de la ranura del grupo de almacenamiento del nodo seleccionado"
+#: /var/www/fog/lib/pages/dashboardpage.class.php:271
+msgid "Selected groups's current activity"
+msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:294
+#: /var/www/fog/lib/pages/dashboardpage.class.php:293
 msgid "Storage Node Disk Usage"
 msgstr "Uso del disco nodo de almacenamiento"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:297
+#: /var/www/fog/lib/pages/dashboardpage.class.php:296
 #, fuzzy
-msgid "The selected node's image storage usage"
+msgid "Selected node's disk usage"
 msgstr "el uso del disco de almacenamiento de imágenes del nodo seleccionado"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:317
+#: /var/www/fog/lib/pages/dashboardpage.class.php:316
 msgid "Imaging Over the last 30 days"
 msgstr "Imaging lo largo de los últimos 30 días"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:376
-msgid "1 hour"
-msgstr "1 hora"
+#: /var/www/fog/lib/pages/dashboardpage.class.php:374
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:464
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1919
+#: /var/www/fog/lib/reports/user_tracking.report.php:215
+#: /var/www/fog/lib/reports/user_tracking.report.php:238
+#: /var/www/fog/commons/text.php:79
+msgid "Time"
+msgstr "Hora"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:378
-msgid "30 Minutes"
-msgstr "30 minutos"
+#: /var/www/fog/lib/pages/dashboardpage.class.php:377
+#: /var/www/fog/lib/pages/dashboardpage.class.php:385
+msgid "2 Minutes"
+msgstr "2 minutos"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:380
+#: /var/www/fog/lib/pages/dashboardpage.class.php:390
 msgid "10 Minutes"
 msgstr "10 minutos"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:382
-msgid "2 Minutes"
-msgstr "2 minutos"
+#: /var/www/fog/lib/pages/dashboardpage.class.php:395
+msgid "30 Minutes"
+msgstr "30 minutos"
+
+#: /var/www/fog/lib/pages/dashboardpage.class.php:400
+#, fuzzy
+msgid "1 Hour"
+msgstr "1 hora"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:56
 msgid "FOG Project on Github"
@@ -2461,8 +2472,8 @@ msgid "FOG Forums"
 msgstr "Foros FOG"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:66
-#: /var/www/fog/management/other/index.php:163
-#: /var/www/fog/management/other/index.php:196
+#: /var/www/fog/management/other/index.php:158
+#: /var/www/fog/management/other/index.php:191
 #: /var/www/fog/management/other/index2.php:167
 msgid "Donate to FOG"
 msgstr "Donar a la niebla"
@@ -3356,14 +3367,6 @@ msgstr "Sin administración de la impresora"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1301
 msgid "This is only here to maintain old client operations"
 msgstr ""
-
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:464
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1919
-#: /var/www/fog/lib/reports/user_tracking.report.php:215
-#: /var/www/fog/lib/reports/user_tracking.report.php:238
-#: /var/www/fog/commons/text.php:79
-msgid "Time"
-msgstr "Hora"
 
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:465
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1049
@@ -8769,15 +8772,15 @@ msgstr ""
 msgid "Example Bolded Header"
 msgstr ""
 
-#: /var/www/fog/management/other/index.php:149
-#: /var/www/fog/management/other/index.php:182
+#: /var/www/fog/management/other/index.php:144
+#: /var/www/fog/management/other/index.php:177
 #: /var/www/fog/management/other/index2.php:155
 #, fuzzy
 msgid "Credits"
 msgstr "Crear"
 
-#: /var/www/fog/management/other/index.php:155
-#: /var/www/fog/management/other/index.php:188
+#: /var/www/fog/management/other/index.php:150
+#: /var/www/fog/management/other/index.php:183
 #: /var/www/fog/management/other/index2.php:160
 #, fuzzy
 msgid "FOG Client"
@@ -9915,6 +9918,14 @@ msgstr "Legado FOG Cliente"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "No hay grupos en este servidor."
+
+#~ msgid "TFTP Server"
+#~ msgstr "servidor TFTP"
+
+#, fuzzy
+#~ msgid "The selected node's storage grout slot usage"
+#~ msgstr ""
+#~ "el uso de la ranura del grupo de almacenamiento del nodo seleccionado"
 
 #~ msgid "Mobile Manager"
 #~ msgstr "Mobile Manager"

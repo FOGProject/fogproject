@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-27 11:54-0400\n"
+"POT-Creation-Date: 2017-05-27 17:39-0400\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -77,12 +77,17 @@ msgstr ""
 msgid "Data must be an array or a callable item."
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogsubmenu.class.php:295
+#: /var/www/fog/lib/fog/fogsubmenu.class.php:284
+#, fuzzy
+msgid "Sidenotes"
+msgstr "Minuten"
+
+#: /var/www/fog/lib/fog/fogsubmenu.class.php:311
 #, fuzzy
 msgid "Title must be a string"
 msgstr "Veranstaltung muss eine Zeichenfolge sein."
 
-#: /var/www/fog/lib/fog/fogsubmenu.class.php:315
+#: /var/www/fog/lib/fog/fogsubmenu.class.php:331
 #, fuzzy
 msgid "Link must be a string"
 msgstr "Veranstaltung muss eine Zeichenfolge sein."
@@ -903,24 +908,24 @@ msgstr "User-Agent geändert"
 msgid "Session altered improperly"
 msgstr "Sitzung nicht ordnungsgemäß geändert"
 
-#: /var/www/fog/lib/fog/fogpagemanager.class.php:197
+#: /var/www/fog/lib/fog/fogpagemanager.class.php:191
 msgid "No FOGPage Class found for this node"
 msgstr "Keine FOGPage-Klasse für diesen Knoten gefunden"
 
-#: /var/www/fog/lib/fog/fogpagemanager.class.php:226
+#: /var/www/fog/lib/fog/fogpagemanager.class.php:220
 #, php-format
 msgid "Failed to Render Page: Node: %s, Error: %s"
 msgstr "Fehler beim Rendern der Seite: Knoten: %s, Fehler: %s"
 
-#: /var/www/fog/lib/fog/fogpagemanager.class.php:270
+#: /var/www/fog/lib/fog/fogpagemanager.class.php:264
 msgid "No class value sent"
 msgstr "Keine Klassenwert gesendet"
 
-#: /var/www/fog/lib/fog/fogpagemanager.class.php:277
+#: /var/www/fog/lib/fog/fogpagemanager.class.php:271
 msgid "No node associated"
 msgstr "Kein Knoten verbunden sind"
 
-#: /var/www/fog/lib/fog/fogpagemanager.class.php:281
+#: /var/www/fog/lib/fog/fogpagemanager.class.php:275
 #, php-format
 msgid "Adding FOGPage: %s, Node: %s"
 msgstr "Hinzufügen von FOGPage: %s, Knoten: %s"
@@ -2389,63 +2394,69 @@ msgid "Web Server"
 msgstr "Web-Server"
 
 #: /var/www/fog/lib/pages/dashboardpage.class.php:216
-msgid "TFTP Server"
-msgstr "TFTP-Server"
-
-#: /var/www/fog/lib/pages/dashboardpage.class.php:217
 msgid "Load Average"
 msgstr "Durchschnittliche Belastung"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:218
+#: /var/www/fog/lib/pages/dashboardpage.class.php:217
 msgid "System Uptime"
 msgstr "Betriebsbereitschaft des Systems"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:245
+#: /var/www/fog/lib/pages/dashboardpage.class.php:244
 msgid "System Overview"
 msgstr "Systemübersicht"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:248
+#: /var/www/fog/lib/pages/dashboardpage.class.php:247
 #, fuzzy
 msgid "Server information at a glance."
 msgstr "LDAP-Informationen aktualisiert!"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:269
+#: /var/www/fog/lib/pages/dashboardpage.class.php:268
 msgid "Storage Group Activity"
 msgstr "Speichergruppe Aktivität"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:272
-#, fuzzy
-msgid "The selected node's storage grout slot usage"
-msgstr "Den ausgewählten Knoten Speichernutzung Gruppe slot"
+#: /var/www/fog/lib/pages/dashboardpage.class.php:271
+msgid "Selected groups's current activity"
+msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:294
+#: /var/www/fog/lib/pages/dashboardpage.class.php:293
 msgid "Storage Node Disk Usage"
 msgstr "Storage Node Datenträgerverwendung"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:297
+#: /var/www/fog/lib/pages/dashboardpage.class.php:296
 #, fuzzy
-msgid "The selected node's image storage usage"
+msgid "Selected node's disk usage"
 msgstr "Den ausgewählten Knoten Bild Speicher Datenträgerverwendung"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:317
+#: /var/www/fog/lib/pages/dashboardpage.class.php:316
 msgid "Imaging Over the last 30 days"
 msgstr "Imaging in den letzten 30 Tagen"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:376
-msgid "1 hour"
-msgstr "1 Stunde"
+#: /var/www/fog/lib/pages/dashboardpage.class.php:374
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:464
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1919
+#: /var/www/fog/lib/reports/user_tracking.report.php:215
+#: /var/www/fog/lib/reports/user_tracking.report.php:238
+#: /var/www/fog/commons/text.php:79
+msgid "Time"
+msgstr "Zeit"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:378
-msgid "30 Minutes"
-msgstr "30 Minuten"
+#: /var/www/fog/lib/pages/dashboardpage.class.php:377
+#: /var/www/fog/lib/pages/dashboardpage.class.php:385
+msgid "2 Minutes"
+msgstr "2 Minuten"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:380
+#: /var/www/fog/lib/pages/dashboardpage.class.php:390
 msgid "10 Minutes"
 msgstr "10 Minuten"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:382
-msgid "2 Minutes"
-msgstr "2 Minuten"
+#: /var/www/fog/lib/pages/dashboardpage.class.php:395
+msgid "30 Minutes"
+msgstr "30 Minuten"
+
+#: /var/www/fog/lib/pages/dashboardpage.class.php:400
+#, fuzzy
+msgid "1 Hour"
+msgstr "1 Stunde"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:56
 msgid "FOG Project on Github"
@@ -2465,8 +2476,8 @@ msgid "FOG Forums"
 msgstr "Nebel-Foren"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:66
-#: /var/www/fog/management/other/index.php:163
-#: /var/www/fog/management/other/index.php:196
+#: /var/www/fog/management/other/index.php:158
+#: /var/www/fog/management/other/index.php:191
 #: /var/www/fog/management/other/index2.php:167
 msgid "Donate to FOG"
 msgstr "Spenden Sie für Nebel"
@@ -3359,14 +3370,6 @@ msgstr "Kein Druckermanagement"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1301
 msgid "This is only here to maintain old client operations"
 msgstr ""
-
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:464
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1919
-#: /var/www/fog/lib/reports/user_tracking.report.php:215
-#: /var/www/fog/lib/reports/user_tracking.report.php:238
-#: /var/www/fog/commons/text.php:79
-msgid "Time"
-msgstr "Zeit"
 
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:465
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1049
@@ -8670,15 +8673,15 @@ msgstr ""
 msgid "Example Bolded Header"
 msgstr "Beispiel Fett Header"
 
-#: /var/www/fog/management/other/index.php:149
-#: /var/www/fog/management/other/index.php:182
+#: /var/www/fog/management/other/index.php:144
+#: /var/www/fog/management/other/index.php:177
 #: /var/www/fog/management/other/index2.php:155
 #, fuzzy
 msgid "Credits"
 msgstr "Erstellen"
 
-#: /var/www/fog/management/other/index.php:155
-#: /var/www/fog/management/other/index.php:188
+#: /var/www/fog/management/other/index.php:150
+#: /var/www/fog/management/other/index.php:183
 #: /var/www/fog/management/other/index2.php:160
 #, fuzzy
 msgid "FOG Client"
@@ -9663,6 +9666,13 @@ msgstr "Hallo Nebel Client"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "Es gibt keine Orte auf diesem Server."
+
+#~ msgid "TFTP Server"
+#~ msgstr "TFTP-Server"
+
+#, fuzzy
+#~ msgid "The selected node's storage grout slot usage"
+#~ msgstr "Den ausgewählten Knoten Speichernutzung Gruppe slot"
 
 #~ msgid "Mobile Manager"
 #~ msgstr "Mobile Manager"

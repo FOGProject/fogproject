@@ -64,24 +64,14 @@ if (self::$FOGUser->isValid()) {
     echo '<div class="wrapper">';
     echo '<div class="sidebar" data-color="blue">';
     echo '<div class="sidebar-wrapper">';
-    echo '<div class="logo">';
-    printf(
-        '<a href="%s" class="simple-text">'
-        . '<img src="%s" alt="%s" title="%s" class="logoimg"/>'
-        . '</a>',
-        self::$scriptname,
-        '../favicon.ico',
-        self::$foglang['Home'],
-        self::$foglang['Home']
-    );
-    echo '</div>';
+    echo '<div class="logo"></div>';
     echo $this->menu;
     echo '</div>';
     echo '</div>';
     echo '<div class="main-panel">';
-    echo '<nav class="navbar navbar-default navbar-fixed">';
+    echo '<nav class="navbar navbar-inverse navbar-default navbar-fixed-top">';
     echo '<div class="container-fluid">';
-    echo '<div class="navbar-header">';
+    echo '<div class="navbar-header navbar-fixed">';
     echo '<button type="button" class="navbar-toggle" data-toggle='
         . '"collapse" data-target="#navigation-example-2">';
     echo '<span class="sr-only">Toggle navigation</span>';
@@ -90,17 +80,22 @@ if (self::$FOGUser->isValid()) {
     echo '<span class="icon-bar"></span>';
     echo '</button>';
     echo '<a class="navbar-brand" href="?node=home">';
-    echo 'FOG';
+    printf(
+        '<img src="%s" alt="%s" title="%s" class="logoimg"/>',
+        '../favicon.ico',
+        self::$foglang['Slogan'],
+        self::$foglang['Home']
+    );
     echo '</a>';
     echo '</div>';
     echo '<div class="collapse navbar-collapse">';
+    if (!$this->isHomepage) {
+        echo self::$FOGPageManager->getSideMenu();
+    }
     echo '<ul class="nav navbar-nav navbar-right">';
     echo '<li>';
     echo '<a href="?node=logout">';
-    echo '<i class="fa fa-sign-out"></i>';
-    echo '<p>';
     echo self::$foglang['Logout'];
-    echo '</p>';
     echo '</a>';
     echo '</li>';
     echo '<li class="separator hidden-1g hidden-md"></li>';
