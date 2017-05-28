@@ -100,7 +100,7 @@ class AddFileIntegrityMenuItem extends Hook
             $arguments['main'],
             $this->node,
             array(
-                _('File Integrity Management'),
+                _('Integrity Settings'),
                 'fa fa-list-ol fa-2x'
             )
         );

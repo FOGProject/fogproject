@@ -95,7 +95,7 @@ class AddLocationMenuItem extends Hook
             $arguments['main'],
             $this->node,
             array(
-                _('Location Management'),
+                _('Locations'),
                 'fa fa-globe fa-2x'
             )
         );

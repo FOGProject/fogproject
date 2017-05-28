@@ -84,7 +84,7 @@ class AddSlackMenuItem extends Hook
             $arguments['main'],
             $this->node,
             array(
-                _('Slack Management'),
+                _('Slack Accounts'),
                 'fa fa-slack fa-2x'
             )
         );

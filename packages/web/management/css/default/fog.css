@@ -55,9 +55,22 @@ table td {
     padding-right: 10px;
     padding-bottom: 5px;
 }
-.sidebar {
-    margin-top: 60px;
-}
 .fakes {
     display: none;
+}
+.sidenotes {
+    padding: 10px;
+    margin: 10px;
+}
+#tab-container div {
+    display: none;
+}
+#tab-container div:not(#additionalMACsRow):first-child,
+#tab-container div:target {
+    display: inline-block;
+}
+.hostgroup,
+.latestInfo,
+#tab-container-l {
+    text-align: left;
 }

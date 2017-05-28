@@ -154,7 +154,8 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function edit()
     {
-        echo '<div id="tab-container"><div id="home">';
+        echo '<div class="organic-tabls" id="tab-container">';
+        echo '<div id="home">';
         $this->home();
         echo '</div>';
         $moduleName = self::getGlobalModuleStatus();

@@ -97,7 +97,7 @@ class AddLDAPMenuItem extends Hook
             $arguments['main'],
             $this->node,
             array(
-                _('LDAP Management'),
+                _('LDAP Servers'),
                 'fa fa-key fa-2x'
             )
         );

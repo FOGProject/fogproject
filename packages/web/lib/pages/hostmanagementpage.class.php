@@ -874,7 +874,8 @@ class HostManagementPage extends FOGPage
                     'Host' => &$this->obj
                 )
             );
-        echo '<div id="tab-container"><!-- General --><div id="host-general">';
+        echo '<div id="tab-container">';
+        echo '<!-- General --><div id="host-general">';
         if ($this->obj->get('pub_key')
             || $this->obj->get('sec_tok')
         ) {

@@ -150,47 +150,47 @@ class Page extends FOGBase
         ) {
             $this->main = array(
                 'home' => array(
-                    self::$foglang['Home'],
+                    self::$foglang['Dashboard'],
                     'fa fa-dashboard'
                 ),
                 'user' => array(
-                    self::$foglang['User Management'],
+                    self::$foglang['Users'],
                     'fa fa-users'
                 ),
                 'host' => array(
-                    self::$foglang['Host Management'],
+                    self::$foglang['Hosts'],
                     'fa fa-desktop'
                 ),
                 'group' => array(
-                    self::$foglang['Group Management'],
+                    self::$foglang['Groups'],
                     'fa fa-sitemap'
                 ),
                 'image' => array(
-                    self::$foglang['Image Management'],
+                    self::$foglang['Images'],
                     'fa fa-picture-o'
                 ),
                 'storage' => array(
-                    self::$foglang['Storage Management'],
+                    self::$foglang['Storage'],
                     'fa fa-archive'
                 ),
                 'snapin' => array(
-                    self::$foglang['Snapin Management'],
+                    self::$foglang['Snapin'],
                     'fa fa-files-o'
                 ),
                 'printer' => array(
-                    self::$foglang['Printer Management'],
+                    self::$foglang['Printer'],
                     'fa fa-print'
                 ),
                 'service' => array(
-                    self::$foglang['Service Configuration'],
+                    self::$foglang['ClientSettings'],
                     'fa fa-cogs'
                 ),
                 'task' => array(
-                    self::$foglang['Task Management'],
+                    self::$foglang['Tasks'],
                     'fa fa-tasks'
                 ),
                 'report' => array(
-                    self::$foglang['Report Management'],
+                    self::$foglang['Reports'],
                     'fa fa-file-text'
                 ),
                 'about' => array(
@@ -204,7 +204,7 @@ class Page extends FOGBase
                     $this->main,
                     'plugin',
                     array(
-                        self::$foglang['Plugin Management'],
+                        self::$foglang['Plugins'],
                         'fa fa-cog fa-2x'
                     )
                 );

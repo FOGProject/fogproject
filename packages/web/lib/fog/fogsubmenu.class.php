@@ -191,11 +191,15 @@ class FOGSubMenu extends FOGBase
         if (is_array($data)) {
             ob_start();
             foreach ((array) $data as $info => &$title) {
-                printf(
-                    '<h5>%s</h5><p>%s</p>',
-                    $this->fixTitle($title),
-                    $info
-                );
+                echo '<li>';
+                echo '<b>';
+                echo $this->fixTitle($title);
+                echo '</b>';
+                echo '<p>';
+                echo $info;
+                echo '</p>';
+                echo '</li>';
+                echo '<li class="divider"></li>';
                 unset($info, $title);
             }
         }
@@ -224,7 +228,7 @@ class FOGSubMenu extends FOGBase
                 echo '<b class="caret"></b>';
                 echo '</p>';
                 echo '</a>';
-                echo '<ul class="dropdown-menu">';
+                echo '<ul class="nav dropdown-menu">';
                 foreach ((array) $data as $label => &$link) {
                     $string = sprintf(
                         '<li><a class="%s" href="${link}">%s</a></li>',
@@ -272,7 +276,6 @@ class FOGSubMenu extends FOGBase
                     }
                     unset($link, $label);
                 }
-                echo '<li class="divider"></li>';
                 echo '</ul>';
                 unset($data, $title);
             }
@@ -285,10 +288,8 @@ class FOGSubMenu extends FOGBase
             echo '<b class="caret"></b>';
             echo '</p>';
             echo '</a>';
-            echo '<ul class="dropdown-menu">';
-            echo '<li>';
-            echo implode('</li><li>', $this->notes[$node]);
-            echo '</li>';
+            echo '<ul class="dropdown-menu sidenotes">';
+            echo implode($this->notes[$node]);
             echo '</ul>';
             echo '</li>';
         }
@@ -312,8 +313,6 @@ class FOGSubMenu extends FOGBase
         }
         $dash = strpos('-', $title) ? '-' : ' ';
         $e = preg_split('#[\s|-]#', $title, null, PREG_SPLIT_NO_EMPTY);
-        $e[0] = "<b>$e[0]</b>";
-
         return implode($dash, $e);
     }
     /**
