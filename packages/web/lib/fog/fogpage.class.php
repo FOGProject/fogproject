@@ -170,12 +170,6 @@ abstract class FOGPage extends FOGBase
      */
     protected $reportString = '';
     /**
-     * The search form url
-     *
-     * @var string
-     */
-    protected $searchFormURL = '';
-    /**
      * Is the title enabled
      *
      * @var bool
@@ -488,9 +482,6 @@ abstract class FOGPage extends FOGBase
         }
         $this->title = _('Search');
         if (in_array($this->node, self::$searchPages)) {
-            $this->searchFormURL = sprintf('?node=%s&sub=search', $this->node);
-        }
-        if (in_array($this->node, self::$searchPages)) {
             $this->title = sprintf(
                 '%s %s',
                 _('All'),
@@ -723,7 +714,6 @@ abstract class FOGPage extends FOGBase
                         'title' => $this->title,
                         'attributes' => $this->attributes,
                         'form' => $this->form,
-                        'searchFormURL' => $this->searchFormURL,
                         'actionbox' => (
                             count($this->data) > 0 ?
                             $actionbox :
@@ -740,47 +730,6 @@ abstract class FOGPage extends FOGBase
             }
             ob_start();
             $contentField = 'active-tasks';
-            if ($this->searchFormURL) {
-                echo '<div class="row text-center">';
-                echo '<form class="form-vertical search-wrapper" action="';
-                echo $this->searchFormURL;
-                echo '" method="post">';
-                echo '<div class="form-group">';
-                echo '<label class="control-label col-sm-2" for="'
-                    . (
-                        substr($this->node, -1) == 's' ?
-                        substr($this->node, 0, -1) :
-                        $this->node
-                    )
-                    . '">';
-                echo self::$foglang['Search'];
-                echo '</label>';
-                echo '<div class="col-sm-4">';
-                echo '<input type="text" class="'
-                    . 'form-control search-input placeholder" id="'
-                    . (
-                        substr($this->node, -1) == 's' ? 
-                        substr($this->node, 0, -1) :
-                        $this->node
-                    )
-                    . '-search" placeholder="'
-                    . self::$foglang['Search']
-                    . '..." name="crit" '
-                    . 'autocomplete="off"/>';
-                echo '</div>';
-                echo '</div>';
-                echo '<div class="form-group">';
-                echo '<div class="col-sm-2">';
-                echo '<button class="'
-                    . 'search-submit btn btn-default btn-block" type='
-                    . '"button">';
-                echo '</button>';
-                echo '</div>';
-                echo '</div>';
-                echo '</form>';
-                echo '</div>';
-                $contentField = 'search-content';
-            }
             if (isset($this->form)) {
                 printf($this->form);
             }
@@ -3102,9 +3051,6 @@ abstract class FOGPage extends FOGBase
             $eventClass = 'host';
         }
         $this->title = _('Search');
-        if (in_array($this->node, self::$searchPages)) {
-            $this->searchFormURL = sprintf('?node=%s&sub=search', $this->node);
-        }
         self::$HookManager->processEvent(
             sprintf(
                 '%s_DATA',
@@ -3116,7 +3062,6 @@ abstract class FOGPage extends FOGBase
                 'headerData' => &$this->headerData,
                 'attributes' => &$this->attributes,
                 'title' => &$this->title,
-                'searchFormURL' => &$this->searchFormURL
             )
         );
         self::$HookManager->processEvent(

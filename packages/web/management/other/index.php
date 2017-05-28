@@ -99,6 +99,31 @@ if (self::$FOGUser->isValid()) {
     echo '</li>';
     echo '<li class="separator hidden-1g hidden-md"></li>';
     echo '</ul>';
+    global $node;
+    global $sub;
+    if (in_array($node, self::$searchPages)) {
+        echo '<form class="navbar-form search-wrapper" role='
+            . '"search" method="post" action="'
+            . '?node='
+            . $node
+            . '&sub=search'
+            . '">';
+        echo '<div class="input-group">';
+        echo '<input type="text" class='
+            . '"form-control search-input placeholder" placeholder='
+            . '"'
+            . self::$foglang['Search']
+            . '..." name="crit"/>';
+        echo '<span class="input-group-addon search-submit">';
+        echo '<i class="fa fa-search">';
+        echo '<span class="sr-only">';
+        echo self::$foglang['Search'];
+        echo '</span>';
+        echo '</i>';
+        echo '</span>';
+        echo '</div>';
+        echo '</form>';
+    }
     echo '</div>';
     echo '</div>';
     echo '</nav>';
@@ -213,107 +238,3 @@ foreach ((array)$this->javascripts as &$javascript) {
 }
 unset($this->javascripts);
 echo '</html>';
-/*if (!self::$isMobile) {
-    echo '<div id="loader-wrapper">';
-    echo '<div id="loader"></div>';
-    self::getMessages();
-    echo '<div id="progress"></div>';
-    echo '</div>';
-    echo '<header>';
-    printf(
-        '<div id="header"%s>',
-        (
-            !self::$FOGUser->isValid() ?
-            ' class="login"' :
-            ''
-        )
-    );
-    echo '<div id="version">';
-    echo '<div id="showtime"></div>';
-    printf(
-        '%s %s<br/>%s: %d',
-        _('Running Version'),
-        FOG_VERSION,
-        _('SVN Revision'),
-        FOG_SVN_REVISION
-    );
-    echo '</div>';
-    echo '</div>';
-    if (self::$FOGUser->isValid()) {
-        echo $this->menu;
-    }
-    echo '</div></header><hr/>';
-    echo '<div id="wrapper">';
-    if (self::$FOGUser->isValid()) {
-        if (!$this->isHomepage) {
-            echo self::$FOGPageManager->getSideMenu();
-        }
-    }
-    echo '<div class="clear"></div>';
-    printf(
-        '<div id="content"%s>',
-        (
-            $this->isHomepage ?
-            ' class="dashboard"' :
-            ''
-        )
-    );
-    self::$HookManager
-        ->processEvent(
-            'CONTENT_DISPLAY',
-            array(
-                'content' => &$this->body,
-                'sectionTitle' => &$this->sectionTitle,
-                'pageTitle' => &$this->pageTitle
-            )
-        );
-    echo '<div id="content-inner">';
-    printf(
-        '<h1>%s</h1>',
-        $this->sectionTitle
-    );
-    if (self::$FOGUser->isValid() && $this->pageTitle) {
-        printf(
-            '<h2 class="title">%s</h2>',
-            $this->pageTitle
-        );
-    }
-    echo $this->body;
-    echo '</div>';
-    echo '</div>';
-    echo '</div>';
-    printf(
-        '<!-- <div id="footer">Memory Usage: %s</div> -->'
-        . '<!-- <div id="footer">Memory Peak: %s</div> -->',
-        self::formatByteSize(memory_get_usage(true)),
-        self::formatByteSize(memory_get_peak_usage())
-    );
-} else {
-    echo '<div id="header"></div>';
-    if (self::$FOGUser->isValid()) {
-        echo '<div id="mainContainer">';
-        echo '<div class="mainContent">';
-        printf(
-            '%s%s',
-            $this->menu,
-            (
-                $this->pageTitle ?
-                sprintf(
-                    '<h2>%s</h2>',
-                    $this->pageTitle
-                ) :
-                ''
-            )
-        );
-        echo '<div id="mobile_content">';
-        echo $this->body;
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-    } else {
-        echo '<div id="mobile_content">';
-        echo $this->body;
-        echo '</div>';
-    }
-}
-echo '</body>';*/

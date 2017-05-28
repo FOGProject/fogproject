@@ -7,7 +7,9 @@
 #login-history,
 .fogdashbox {
     min-width: 200px;
+    max-width: 90%;
     height: 125px;
+    margin: auto;
     margin-bottom: 10px;
 }
 .signin {
@@ -64,18 +66,6 @@ table td {
 .sidenotes {
     padding: 10px;
     margin: 10px;
-}
-#tab-container ~ div {
-    display: none;
-}
-#tab-container ~ div:first,
-#tab-container ~ div:target {
-    display: inline-block;
-}
-.hostgroup,
-.latestInfo,
-#tab-container-l {
-    text-align: left;
 }
 #login-history {
     width: 600px;

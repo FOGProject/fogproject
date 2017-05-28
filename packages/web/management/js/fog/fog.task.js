@@ -14,7 +14,7 @@ $(function() {
     var cancelurl = (sub.indexOf('active') != -1 ? location.href : '');
     var Options = {
         URL: location.href,
-        Container: '#search-content,#active-tasks',
+        Container: '#active-tasks',
         CancelURL:  cancelurl
     };
     Container = $(Options.Container);
@@ -68,15 +68,11 @@ function ActiveTasksUpdate() {
     AJAXTaskRunning = $.ajax({
         url: URL,
         dataType: 'json',
-        beforeSend: function() {
-            Loader.addClass('loading').fogStatusUpdate(_L['ACTIVE_TASKS_LOADING']).find('i').removeClass().addClass('fa fa-refresh fa-spin fa-fw');
-        },
         success: function(response) {
             dataLength = response === null || response.data === null ? dataLength = 0 : response.data.length;
             thead = $('thead',Container);
             tbody = $('tbody',Container);
             LastCount = dataLength;
-            Loader.removeClass('loading').fogStatusUpdate(_L['ACTIVE_TASKS_FOUND'].replace(/%1/,LastCount).replace(/%2/,LastCount != 1 ? 's' : '')).find('i').removeClass().addClass('fa fa-exclamation-circle fa-fw');
             if (dataLength > 0) {
                 buildHeaderRow(response.headerData,response.attributes,'th');
                 thead = $('thead',Container);
@@ -84,9 +80,6 @@ function ActiveTasksUpdate() {
             }
             TableCheck();
             checkboxToggleSearchListPages();
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-            Loader.fogStatusUpdate(_L['ERROR_SEARCHING']+(errorThrown != '' ? errorThrown : '')).addClass('error').find('i').css({color:'red'});
         },
         complete: function() {
             AJAXTaskUpdate = setTimeout(ActiveTasksUpdate, ActiveTasksUpdateInterval - ((new Date().getTime() - startTime) % ActiveTasksUpdateInterval));

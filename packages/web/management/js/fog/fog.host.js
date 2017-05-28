@@ -30,11 +30,9 @@ $(function() {
         group_new = $('#group_new').val().trim();
         group_sel = $('select[name="group"]').val().trim();
         if (checkedIDs.length < 1) {
-            Loader.fogStatusUpdate('No hosts selected to join to a group');
             return;
         }
         if (group_new.length < 1 && group_sel.length < 1) {
-            Loader.fogStatusUpdate('No group name and no selected group to join.');
             return;
         }
         url = $(this).parents('form').attr('action');
@@ -43,12 +41,7 @@ $(function() {
             group: group_sel,
             group_new: group_new
         };
-        $.post(url,postdata,function(data) {
-            Loader.fogStatusUpdate(data);
-        });
-        setTimeout(function() {
-            Loader.fadeOut();
-        },5000);
+        $.post(url,postdata);
     });
     $('.mac-manufactor').each(function() {
         input = $(this).parent().find('input');

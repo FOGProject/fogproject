@@ -235,9 +235,9 @@ class DashboardPage extends FOGPage
                 )
             );
         // Dashboard boxes row.
-        // Overview
         echo '<div class="row">';
-        echo '<div class="col-lg-4">';
+        // Overview
+        echo '<div class="col-xs-4">';
         echo '<div class="card">';
         echo '<div class="header">';
         echo '<h4 class="title">';
@@ -250,8 +250,6 @@ class DashboardPage extends FOGPage
         echo '<div class="content">';
         $this->render();
         echo '</div>';
-        echo '</div>';
-        echo '</div>';
         unset(
             $this->data,
             $this->templates,
@@ -260,8 +258,10 @@ class DashboardPage extends FOGPage
             $SystemUptime,
             $tftp
         );
+        echo '</div>';
+        echo '</div>';
         // Activity
-        echo '<div class="col-lg-4">';
+        echo '<div class="col-xs-4">';
         echo '<div class="card">';
         echo '<div class="header">';
         echo '<h4 class="title">';
@@ -286,7 +286,7 @@ class DashboardPage extends FOGPage
         echo '</div>';
         echo '</div>';
         // Disk usage
-        echo '<div class="col-lg-4">';
+        echo '<div class="col-xs-4">';
         echo '<div class="card">';
         echo '<div class="header">';
         echo '<h4 class="title">';
@@ -310,15 +310,19 @@ class DashboardPage extends FOGPage
         echo '</div>';
         // 30 day row.
         echo '<div class="row">';
+        echo '<div class="col-xs-12">';
         echo '<div class="card">';
         echo '<div class="header">';
+        echo '<div class="row text-center">';
         echo '<h4 class="title">';
         echo _('Imaging Over the last 30 days');
         echo '</h4>';
         echo '</div>';
+        echo '</div>';
         echo '<div class="content">';
         echo '<div id="graph-30day" class="graph fogdashbox"></div>';
         echo '<div class="fog-variable" id="Graph30dayData"></div>';
+        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -331,6 +335,8 @@ class DashboardPage extends FOGPage
         $datapointstwo = ($datapointshour / 30);
         // 30 day row.
         echo '<div class="row">';
+        echo '<div class="col-xs-12">';
+        echo '<div class="card">';
         printf(
             '<input type="hidden" id="bandwidthtime" value="%d"/>'
             . '<input type="hidden" id="bandwidthUrls" type="hidden" value="%s"/>'
@@ -339,12 +345,12 @@ class DashboardPage extends FOGPage
             implode(',', self::$_nodeURLs),
             implode(',', self::$_nodeNames)
         );
-        echo '<div class="card">';
         echo '<div class="header">';
+        echo '<div class="col-xs-2">';
         echo '<h4 class="title">';
         echo self::$foglang['Bandwidth'];
         echo '</h4>';
-        echo '<div class="row">';
+        echo '</div>';
         echo '<div id="graph-bandwidth-filters-type">';
         echo '<div class="col-md-2">';
         echo '<p class="category" id="graph-bandwidth-title">';
@@ -364,7 +370,6 @@ class DashboardPage extends FOGPage
             . '"type-filters graph-filters">';
         echo self::$foglang['Receive'];
         echo '</a>';
-        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '<div class="row">';
@@ -402,9 +407,8 @@ class DashboardPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
-        echo '<div class="content">';
-        echo '<div class="row">';
         echo '</div>';
+        echo '<div class="content">';
         echo '<div class="row">';
         echo '<div id="graph-bandwidth" class="graph fogdashbox"></div>';
         echo '</div>';
