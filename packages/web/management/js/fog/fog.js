@@ -24,7 +24,6 @@ var $_GET = getQueryParams(document.location.search),
     ActionBoxDel,
     Content,
     Container,
-    Loader,
     savedFilters,
     checkedIDs;
 // Searching
@@ -100,10 +99,7 @@ function AJAXServerTime() {
     screenview = $('#screenview').attr('value');
     setTipsyStuff();
     setEditFocus();
-    Content = $('#content');
-    Loader = $('#loader');
-    Loader.append('&nbsp;<i></i>&nbsp;');
-    i = Loader.find('i');
+    Content = $('.content');
     ActionBox = $('#action-box');
     ActionBoxDel = $('#action-boxdel');
     callme = 'hide';
@@ -124,10 +120,6 @@ function AJAXServerTime() {
             context: this,
             url: $(this).prop('href'),
             dataType: 'json',
-            beforeSend: function() {
-                Loader
-                    .addClass('loading')
-            },
             success: function(response) {
                 if (response === null || response.data === null) {
                     dataLength = 0;
@@ -138,14 +130,6 @@ function AJAXServerTime() {
                 thead = $('thead', Container);
                 tbody = $('tbody', Container);
                 LastCount = dataLength;
-                Loader.removeClass('loading')
-                    .fogStatusUpdate(_L['SEARCH_RESULTS_FOUND']
-                            .replace(/%1/,LastCount)
-                            .replace(/%2/,LastCount != 1 ? 's' : '')
-                            )
-                    .find('i')
-                    .removeClass()
-                    .addClass('fa fa-exclamation-circle fa-1x fa-fw');
                 if (dataLength > 0) {
                     buildHeaderRow(response.headerData, response.attributes, 'th');
                     thead = $('thead', Container);
@@ -202,7 +186,7 @@ $.fn.fogAjaxSearch = function(opts) {
     if (this.length == 0) return this;
     var Defaults = {
         URL: $('.search-wrapper').prop('action'),
-        Container: '#search-content,#active-tasks',
+        Container: '#active-tasks',
         SearchDelay: 400,
         SearchMinLength: 1,
     };
@@ -223,7 +207,6 @@ $.fn.fogAjaxSearch = function(opts) {
     return this.each(function() {
         var searchElement = $(this);
         var SubmitButton = $('.search-submit');
-        SubmitButton.append('<i class="fa fa-play fa-1x icon"></i>');
         searchElement.keyup(function() {
             if (this.SearchTimer) clearTimeout(this.SearchTimer);
             this.SearchTimer = setTimeout(PerformSearch,Options.SearchDelay);
@@ -236,7 +219,6 @@ $.fn.fogAjaxSearch = function(opts) {
                 searchElement.addClass('placeholder').val(searchElement.prop('placeholder'));
                 if (this.SearchAJAX) this.SearchAJAX.abort();
                 if (this.SearchTimer) clearTimeout(this.SearchTimer);
-                Loader.fogStatusUpdate();
                 $('tbody',Container).empty().parents('table').hide();
             }
         }).each(function() {
@@ -253,7 +235,6 @@ $.fn.fogAjaxSearch = function(opts) {
                 Container.hide();
                 ActionBox.hide();
                 ActionBoxDel.hide();
-                Loader.hide();
                 return this;
             }
             if (this.SearchAJAX) this.SearchAJAX.abort();
@@ -264,16 +245,14 @@ $.fn.fogAjaxSearch = function(opts) {
                 dataType: 'json',
                 data: {crit: Query},
                 beforeSend: function() {
-                    Loader.fogStatusUpdate();
                     SubmitButton.addClass('searching').find('i').removeClass().addClass('fa fa-spinner fa-pulse fa-fw');
                 },
                 success: function(response) {
                     dataLength = response === null || response.data === null ? dataLength = 0 : response.data.length;
-                    SubmitButton.removeClass('searching').find('i').removeClass().addClass('fa fa-play');
+                    SubmitButton.removeClass('searching').find('i').removeClass().addClass('fa fa-search');
                     thead = $('thead',Container);
                     tbody = $('tbody',Container);
                     LastCount = dataLength;
-                    Loader.removeClass('loading').fogStatusUpdate(_L['SEARCH_RESULTS_FOUND'].replace(/%1/,LastCount).replace(/%2/,LastCount != 1 ? 's' : '')).find('i').removeClass().addClass('fa fa-exclamation-circle fa-1x fa-fw');
                     if (dataLength > 0) {
                         buildHeaderRow(response.headerData,response.attributes,'th');
                         thead = $('thead',Container);
@@ -284,7 +263,6 @@ $.fn.fogAjaxSearch = function(opts) {
                     checkboxToggleSearchListPages();
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
-                    Loader.fogStatusUpdate(_L['ERROR_SEARCHING']+(errorThrown != '' ? errorThrown : ''));
                     this.SearchAJAX = null;
                     this.SearchLastQuery = null;
                 }
@@ -299,7 +277,6 @@ $.fn.fogMessageBox = function() {
         var messageBox = $(this);
         Messages[Messages.length] = messageBox.html();
     });
-    if (Messages.length > 0) Loader.fogStatusUpdate(Messages.join('</p><p>')).hide().fadeIn();
     return this;
 }
 $.fn.fogStatusUpdate = function(txt, opts) {
@@ -309,9 +286,6 @@ $.fn.fogStatusUpdate = function(txt, opts) {
         Progress: null
     };
     var Options = $.extend({},Defaults,opts || {});
-    var Loader = $(this);
-    var i = Loader.find('i');
-    var p = Loader.find('p');
     var ProgressBar = $('#progress',this);
     if (Options.Progress) {
         ProgressBar.show().progressBar(Options.Progress);
@@ -324,10 +298,7 @@ $.fn.fogStatusUpdate = function(txt, opts) {
         i.addClass('fa fa-exclamation-circle fa-1x fa-fw');
         p.remove().end().append((Options.Raw ? txt : '<p>'+txt+'</p>')).show();
     }
-    Loader.removeClass();
-    if (Options.Class) Loader.addClass(Options.Class);
     if (StatusAutoHideTimer) clearTimeout(StatusAutoHideTimer);
-    if (Options.AutoHide) StatusAutoHideTimer = setTimeout(function() {Loader.fadeOut('fast');},Options.AutoHide);
     return this;
 }
 function showForceButton() {
@@ -348,7 +319,7 @@ function showProgressBar() {
 }
 function buildHeaderRow(data,attributes,wrapper) {
     if (!Container || typeof(Container) === null || typeof(Container) === 'undefined') {
-        Container = $('#search-content,#active-tasks');
+        Container = $('#active-tasks');
     }
     savedFilters = Container.find('.tablesorter-filter').map(function(){
         return this.value || '';
@@ -415,7 +386,7 @@ function buildRow(data,templates,attributes,wrapper) {
 }
 function TableCheck() {
     if (!Container || typeof(Container) === null || typeof(Container) === 'undefined') {
-        Container = $('#search-content,#active-tasks');
+        Container = $('#active-tasks');
     }
     callme = 'hide';
     if ($('.not-found').length === 0) Container.after('<p class="c not-found">'+_L['NO_ACTIVE_TASKS']+'</p>');

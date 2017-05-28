@@ -8,12 +8,7 @@ $(function() {
                 type: $(form).attr('method').toUpperCase(),
                 data: data,
                 dataType: 'json'
-            }).done(function(response) {
-                Loader.fogStatusUpdate(response.error ? response.error : response.msg);
-                setTimeout(function() {
-                    Loader.fadeOut();
-                }, 5000);
-            })
+            });
             return false;
         },
         rules: {
