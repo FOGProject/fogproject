@@ -62,11 +62,11 @@ table td {
     padding: 10px;
     margin: 10px;
 }
-#tab-container div {
+#tab-container ~ div {
     display: none;
 }
-#tab-container div:not(#additionalMACsRow):first-child,
-#tab-container div:target {
+#tab-container ~ div:first,
+#tab-container ~ div:target {
     display: inline-block;
 }
 .hostgroup,
