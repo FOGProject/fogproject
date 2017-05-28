@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-27 21:26-0400\n"
+"POT-Creation-Date: 2017-05-27 22:31-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -1666,7 +1666,7 @@ msgid "table backup"
 msgstr "backup della tabella"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3483
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2380
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2391
 #: /var/www/fog/commons/text.php:98
 msgid "Export"
 msgstr "Esportare"
@@ -1741,7 +1741,7 @@ msgid "Row"
 msgstr "Riga"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3776
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2398
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2409
 msgid "Import"
 msgstr "Importare"
 
@@ -2931,6 +2931,7 @@ msgid "issues that are difficult to troubleshoot."
 msgstr "problemi difficili da risolvere."
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1427
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1786
 #: /var/www/fog/commons/text.php:183
 msgid "Save Changes"
 msgstr "Salva i cambiamenti"
