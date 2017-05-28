@@ -39,8 +39,9 @@
         border-top-right-radius: 0;
     }
 }
-#login-form-info b {
-    float: right;
+#login-form-info b
+{
+    color: #00567A;
 }
 .graph-filters {
     margin-left: 10px;
