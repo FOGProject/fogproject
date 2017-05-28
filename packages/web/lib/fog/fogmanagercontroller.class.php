@@ -976,11 +976,7 @@ abstract class FOGManagerController extends FOGBase
     public function search($keyword = '', $returnObjects = false)
     {
         if (empty($keyword)) {
-            if (self::$isMobile) {
-                $keyword = trim($_REQUEST['host-search']);
-            } else {
-                $keyword = trim($_REQUEST['crit']);
-            }
+            $keyword = trim($_REQUEST['crit']);
         }
         $mac_keyword = str_replace(
             array('-', ':'),
