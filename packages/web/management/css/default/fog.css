@@ -41,6 +41,7 @@
 }
 #login-form-info b
 {
+    float: right;
     color: #00567A;
 }
 .graph-filters {
