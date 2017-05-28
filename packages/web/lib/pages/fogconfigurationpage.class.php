@@ -1778,6 +1778,17 @@ class FOGConfigurationPage extends FOGPage
             $catset = $Service->get('category');
             unset($options, $Service);
         }
+        $this->data[] = array(
+            'span' => '&nbsp;',
+            'service_name' => '',
+            'input_type' => sprintf(
+                '<input name="update" type="submit" value="%s"/>',
+                _('Save Changes')
+            ),
+        );
+        $this->render();
+        unset($this->data);
+        echo '</div>';
         echo '</div></div></form>';
     }
     /**
