@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-27 21:26-0400\n"
+"POT-Creation-Date: 2017-05-27 22:31-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1761,7 +1761,7 @@ msgid "table backup"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3483
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2380
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2391
 #: /var/www/fog/commons/text.php:98
 msgid "Export"
 msgstr "出口"
@@ -1843,7 +1843,7 @@ msgid "Row"
 msgstr "行"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3776
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2398
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2409
 msgid "Import"
 msgstr "进口"
 
@@ -3071,6 +3071,7 @@ msgid "issues that are difficult to troubleshoot."
 msgstr ""
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1427
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1786
 #: /var/www/fog/commons/text.php:183
 msgid "Save Changes"
 msgstr "保存更改"

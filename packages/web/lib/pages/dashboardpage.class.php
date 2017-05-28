@@ -411,6 +411,7 @@ class DashboardPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
+        echo '</div>';
     }
     /**
      * Gets the client count active/used/queued
