@@ -437,7 +437,8 @@ class GroupManagementPage extends FOGPage
         );
         printf(
             '<form method="post" action="%s&tab=group-general">'
-            . '<div id="tab-container"><!-- General -->'
+            . '<div id="tab-container">'
+            . '<!-- General -->'
             . '<div id="group-general"><h2>%s: %s</h2>'
             . '<div id="resetSecDataBox" class="hidden"></div>'
             . '<div class="c"><input type="button" id="resetSecData"/>'

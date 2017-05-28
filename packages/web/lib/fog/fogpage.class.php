@@ -741,27 +741,49 @@ abstract class FOGPage extends FOGBase
             ob_start();
             $contentField = 'active-tasks';
             if ($this->searchFormURL) {
-                printf(
-                    '<form method="post" action="%s" id="search-wrapper">'
-                    . '<input id="%s-search" class="search-input placeholder" '
-                    . 'type="text" value="" placeholder="%s" autocomplete="off" %s/>'
-                    . '<%s id="%s-search-submit" class="search-submit" type="%s" '
-                    . 'value="%s"></form>%s',
-                    $this->searchFormURL,
-                    (
+                echo '<div class="row text-center">';
+                echo '<div class="form-group">';
+                echo '<form class="form-horizontal" action="';
+                echo $this->searchFormURL;
+                echo '" method="post">';
+                echo '<div class="form-group">';
+                echo '<label class="control-label col-sm-2" for="'
+                    . (
                         substr($this->node, -1) == 's' ?
                         substr($this->node, 0, -1) :
                         $this->node
-                    ),
-                    sprintf(
-                        '%s...',
-                        self::$foglang['Search']
-                    ),
-                    (
-                        self::$isMobile ?
-                        'name="host-search"' :
-                        ''
-                    ),
+                    )
+                    . '">';
+                echo self::$foglang['Search'];
+                echo '</label>';
+                echo '<div class="col-sm-10">';
+                echo '<input type="text" class="'
+                    . 'form-control search-input placeholder" id="'
+                    . (
+                        substr($this->node, -1) == 's' ? 
+                        substr($this->node, 0, -1) :
+                        $this->node
+                    )
+                    . '-search" placeholder="'
+                    . self::$foglang['Search']
+                    . '..." name="host-search" '
+                    . 'autocomplete="off"/>';
+                echo '</div>';
+                echo '</div>';
+                echo '<div class="form-group">';
+                echo '<div class="col-sm-offset-2 col-sm-10">';
+                echo '<button class="'
+                    . 'search-submit btn btn-outline-primary btn-block" type='
+                    . '"button">';
+                echo '</button>';
+                echo '</div>';
+                echo '</div>';
+                echo '</form>';
+                echo '</div>';
+                echo '</div>';
+                /*printf(
+                    . '<%s id="%s-search-submit" class="search-submit" type="%s" '
+                    . 'value="%s"></form>%s',
                     (
                         self::$isMobile ?
                         'input' :
@@ -787,7 +809,7 @@ abstract class FOGPage extends FOGBase
                         '</input>' :
                         '</button>'
                     )
-                );
+                );*/
                 $contentField = 'search-content';
             }
             if (isset($this->form)) {

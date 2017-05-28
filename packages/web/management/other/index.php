@@ -69,7 +69,7 @@ if (self::$FOGUser->isValid()) {
     echo '</div>';
     echo '</div>';
     echo '<div class="main-panel">';
-    echo '<nav class="navbar navbar-inverse navbar-default navbar-fixed-top">';
+    echo '<nav class="navbar navbar-default navbar-fixed">';
     echo '<div class="container-fluid">';
     echo '<div class="navbar-header navbar-fixed">';
     echo '<button type="button" class="navbar-toggle" data-toggle='
@@ -121,17 +121,23 @@ if (self::$FOGUser->isValid()) {
             )
         );
     echo '<div class="container-fluid">';
+    echo '<div class="card">';
+    echo '<div class="row text-center">';
     printf(
         '<h4 class="title">%s</h4>',
         $this->sectionTitle
     );
+    echo '</div>';
+    echo '<div class="row text-center">';
     if (self::$FOGUser->isValid() && $this->pageTitle) {
         printf(
             '<h5 class="title">%s</h5>',
             $this->pageTitle
         );
     }
+    echo '</div>';
     echo $this->body;
+    echo '</div>';
     echo '</div>';
     echo '</div>';
     echo '<footer class="footer">';

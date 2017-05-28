@@ -300,7 +300,8 @@ class UserManagementPage extends FOGPage
                 ->save();
         }
         $this->title = sprintf('%s: %s', _('Edit'), $this->obj->get('name'));
-        echo '<div id="tab-container"><div id="user-general">';
+        echo '<div id="tab-container">';
+        echo '<div id="user-general">';
         $fields = array(
             '<input type="text" name="fakeusernameremembered" class="fakes"/>' => 
             '<input type="password" name="fakepasswordremembered" class="fakes"/>',

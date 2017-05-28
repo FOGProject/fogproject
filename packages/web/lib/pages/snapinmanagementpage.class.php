@@ -996,7 +996,8 @@ class SnapinManagementPage extends FOGPage
                 _('Update')
             ),
         );
-        echo '<div id="tab-container"><!-- General --><div id="snap-gen">';
+        echo '<div id="tab-container">';
+        echo '<!-- General --><div id="snap-gen">';
         echo '<form method="post" action="'
             . $this->formAction
             . '&tab=snap-gen" enctype="multipart/form-data">';
