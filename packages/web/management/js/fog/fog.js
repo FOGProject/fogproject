@@ -201,7 +201,7 @@ $.fn.fogVariable = function(opts) {
 $.fn.fogAjaxSearch = function(opts) {
     if (this.length == 0) return this;
     var Defaults = {
-        URL: $('#search-wrapper').prop('action'),
+        URL: $('.search-wrapper').prop('action'),
         Container: '#search-content,#active-tasks',
         SearchDelay: 400,
         SearchMinLength: 1,
@@ -222,7 +222,7 @@ $.fn.fogAjaxSearch = function(opts) {
     ActionBoxDel[callme]();
     return this.each(function() {
         var searchElement = $(this);
-        var SubmitButton = $('#'+searchElement.prop('id')+'-submit');
+        var SubmitButton = $('.search-submit');
         SubmitButton.append('<i class="fa fa-play fa-1x icon"></i>');
         searchElement.keyup(function() {
             if (this.SearchTimer) clearTimeout(this.SearchTimer);
@@ -258,9 +258,9 @@ $.fn.fogAjaxSearch = function(opts) {
             }
             if (this.SearchAJAX) this.SearchAJAX.abort();
             this.SearchAJAX = $.ajax({
-                type: $('#search-wrapper').prop('method'),
+                type: $('.search-wrapper').prop('method'),
                 cache: false,
-                url: $('#search-wrapper').prop('action'),
+                url: $('.search-wrapper').prop('action'),
                 dataType: 'json',
                 data: {crit: Query},
                 beforeSend: function() {
