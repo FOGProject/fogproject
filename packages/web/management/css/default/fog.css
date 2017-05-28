@@ -4,6 +4,7 @@
     height: 40px;
     width: 40px;
 }
+#login-history,
 .fogdashbox {
     min-width: 200px;
     height: 125px;
@@ -75,4 +76,7 @@ table td {
 .latestInfo,
 #tab-container-l {
     text-align: left;
+}
+#login-history {
+    width: 600px;
 }
