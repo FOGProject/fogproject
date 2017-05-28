@@ -140,12 +140,10 @@ input[type="file"] > input[type="button"]::-moz-focus-inner {
   outline: 0; }
 
 .ui-slider-handle:focus,
-.navbar-toggle,
-input:focus {
+.navbar-toggle {
   outline: 0 !important; }
 
 /*           Animations              */
-.form-control,
 .input-group-addon,
 .tagsinput,
 .navbar,
@@ -719,22 +717,6 @@ body > .navbar-collapse {
   opacity: 1;
   filter: alpha(opacity=100); }
 
-.form-control {
-  background-color: #FFFFFF;
-  border: 1px solid #E3E3E3;
-  border-radius: 4px;
-  color: #565656;
-  padding: 8px 12px;
-  height: 40px;
-  -webkit-box-shadow: none;
-  box-shadow: none; }
-  .form-control:focus {
-    background-color: #FFFFFF;
-    border: 1px solid #AAAAAA;
-    -webkit-box-shadow: none;
-    box-shadow: none;
-    outline: 0 !important;
-    color: #333333; }
   .has-success .form-control, .has-error .form-control, .has-success .form-control:focus, .has-error .form-control:focus {
     border-color: #E3E3E3;
     -webkit-box-shadow: none;
@@ -785,12 +767,6 @@ body > .navbar-collapse {
   .form-control:focus + .input-group-addon, .form-control:focus ~ .input-group-addon {
     background-color: #FFFFFF;
     border-color: #9A9A9A; }
-
-.input-group .form-control:first-child,
-.input-group-addon:first-child,
-.input-group-btn:first-child > .dropdown-toggle,
-.input-group-btn:last-child > .btn:not(:last-child):not(.dropdown-toggle) {
-  border-right: 0 none; }
 
 .input-group .form-control:last-child,
 .input-group-addon:last-child,
@@ -1172,10 +1148,6 @@ body > .navbar-collapse {
 .nav > li > a:focus {
   background-color: transparent; }
 
-.navbar {
-  border: 0;
-  font-size: 16px;
-  border-radius: 0; }
   .navbar .navbar-brand {
     font-weight: 400;
     margin: 5px 0px;
@@ -1346,15 +1318,6 @@ body > .navbar-collapse {
 .navbar-form {
   -webkit-box-shadow: none;
   box-shadow: none; }
-  .navbar-form .form-control {
-    border-radius: 0;
-    border: 0;
-    padding: 0;
-    background-color: transparent;
-    height: 22px;
-    font-size: 16px;
-    line-height: 1.5;
-    color: #E3E3E3; }
   .navbar-transparent .navbar-form .form-control, [class*="navbar-ct"] .navbar-form .form-control {
     color: #FFFFFF;
     border: 0;

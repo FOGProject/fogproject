@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-28 18:47-0400\n"
+"POT-Creation-Date: 2017-05-28 19:18-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -2342,8 +2342,8 @@ msgid "FOG Forums"
 msgstr "FOG Forum"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:66
-#: /var/www/fog/management/other/index.php:188
-#: /var/www/fog/management/other/index.php:221
+#: /var/www/fog/management/other/index.php:190
+#: /var/www/fog/management/other/index.php:223
 msgid "Donate to FOG"
 msgstr "Donate alla nebbia"
 
@@ -8155,13 +8155,13 @@ msgstr "VNC"
 msgid "Example Bolded Header"
 msgstr "Esempio grassetto Intestazione"
 
-#: /var/www/fog/management/other/index.php:174
-#: /var/www/fog/management/other/index.php:207
+#: /var/www/fog/management/other/index.php:176
+#: /var/www/fog/management/other/index.php:209
 msgid "Credits"
 msgstr "Credits"
 
-#: /var/www/fog/management/other/index.php:180
-#: /var/www/fog/management/other/index.php:213
+#: /var/www/fog/management/other/index.php:182
+#: /var/www/fog/management/other/index.php:215
 msgid "FOG Client"
 msgstr "FOG Client"
 
