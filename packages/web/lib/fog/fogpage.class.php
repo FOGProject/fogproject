@@ -772,7 +772,7 @@ abstract class FOGPage extends FOGBase
                 echo '<div class="form-group">';
                 echo '<div class="col-sm-2">';
                 echo '<button class="'
-                    . 'search-submit btn btn-outline-primary btn-block" type='
+                    . 'search-submit btn btn-default btn-block" type='
                     . '"button">';
                 echo '</button>';
                 echo '</div>';
