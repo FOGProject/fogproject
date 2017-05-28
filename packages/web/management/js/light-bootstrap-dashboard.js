@@ -82,9 +82,13 @@ lbd = {
 
             $sidebar = $('.sidebar');
             sidebar_color = $sidebar.data('color');
-
+            
             $logo = $sidebar.find('.logo').first();
-            logo_content = $logo[0].outerHTML;
+            if ($logo.length > 0) {
+                logo_content = $logo[0].outerHTML;
+            } else {
+                logo_content = '';
+            }
 
             ul_content = '';
 

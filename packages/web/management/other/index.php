@@ -64,7 +64,6 @@ if (self::$FOGUser->isValid()) {
     echo '<div class="wrapper">';
     echo '<div class="sidebar" data-color="blue">';
     echo '<div class="sidebar-wrapper">';
-    echo '<div class="logo"></div>';
     echo $this->menu;
     echo '</div>';
     echo '</div>';
