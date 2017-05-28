@@ -102,6 +102,7 @@ if (self::$FOGUser->isValid()) {
     global $node;
     global $sub;
     if (in_array($node, self::$searchPages)) {
+        echo '<div class="pull-right">';
         echo '<form class="navbar-form search-wrapper" role='
             . '"search" method="post" action="'
             . '?node='
@@ -123,6 +124,7 @@ if (self::$FOGUser->isValid()) {
         echo '</span>';
         echo '</div>';
         echo '</form>';
+        echo '</div>';
     }
     echo '</div>';
     echo '</div>';
