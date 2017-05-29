@@ -138,8 +138,10 @@ if (self::$FOGUser->isValid()) {
     echo $this->body;
     echo '</div>';
     echo '</div>';
+    echo '</div>';
     echo '<footer class="footer">';
     echo '<div class="container-fluid">';
+    //echo '<nav class="pull-left navbar navbar-default">';
     echo '<nav class="pull-left">';
     echo '<ul>';
     echo '<li>';
@@ -166,7 +168,6 @@ if (self::$FOGUser->isValid()) {
     echo '</nav>';
     echo '</div>';
     echo '</footer>';
-    echo '</div>';
 } else {
     echo '<div class="wrapper signin">';
     echo $this->body;
