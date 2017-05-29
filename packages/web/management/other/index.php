@@ -57,7 +57,7 @@ printf(
     (int)self::$fogexportactive
 );
 printf(
-    '<div class="fog-variable" id="screenview" value="%s"></div>',
+    '<input type="hidden" class="fog-variable" id="screenview" value="%s"/>',
     self::$defaultscreen
 );
 if (self::$FOGUser->isValid()) {
@@ -196,12 +196,12 @@ if (self::$FOGUser->isValid()) {
     );
     echo '</span>';
     echo '</div>';
+    echo '</div>';
     echo '</nav>';
     echo '</div>';
     echo '</footer>';
 }
 echo '</div>';
-echo '</body>';
 foreach ((array)$this->javascripts as &$javascript) {
     printf(
         '<script src="%s?ver=%d" type="text/javascript"></script>',
@@ -211,4 +211,5 @@ foreach ((array)$this->javascripts as &$javascript) {
     unset($javascript);
 }
 unset($this->javascripts);
+echo '</body>';
 echo '</html>';
