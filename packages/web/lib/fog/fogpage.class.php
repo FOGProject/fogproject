@@ -656,11 +656,12 @@ abstract class FOGPage extends FOGBase
                 && !self::$isMobile
             ) {
                 if ($node == 'host') {
-                    $actionbox .= '<form class="form-horizontal" method='
+                    $actionbox .= '<form class='
+                        . '"form-horizontal action-boxes host" method='
                         . '"post" action="'
                         . '?node='
                         . $node
-                        . '&sub=saveGroup" id="action-box">';
+                        . '&sub=saveGroup">';
                     $actionbox .= '<div class="form-group">';
                     $actionbox .= '<label class="control-label col-sm-4" for=';
                     $actionbox .= '"group_new">';
@@ -692,11 +693,12 @@ abstract class FOGPage extends FOGBase
                     $actionbox .= '</form>';
                 }
                 if ($node != 'task') {
-                    $actionbox .= '<form class="form-horizontal" method='
+                    $actionbox .= '<form class='
+                        . '"form-horizontal action-boxes del" method='
                         . '"post" action="'
                         . '?node='
                         . $node
-                        . '&sub=deletemulti" id="action-boxdel">';
+                        . '&sub=deletemulti">';
                     $actionbox .= '<div class="form-group">';
                     $actionbox .= '<label class="control-label col-sm-4">';
                     $actionbox .= sprintf(

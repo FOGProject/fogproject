@@ -80,5 +80,8 @@ table td {
     min-width: 220px !important;
 }
 .card {
-    padding: 10px;
+    padding-bottom: 10px;
+}
+.action-boxes {
+    display: none;
 }

@@ -1,6 +1,6 @@
 $(function() {
     checkboxToggleSearchListPages();
-    $('#action-boxdel').submit(function() {
+    $('.action-boxes').submit(function() {
         var checked = $('input.toggle-action:checked');
         var slackIDArray = new Array();
         for (var i = 0,len = checked.size();i < len;i++) {
