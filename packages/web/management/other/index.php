@@ -92,33 +92,6 @@ if (self::$FOGUser->isValid()) {
         echo self::$FOGPageManager->getSideMenu();
     }
     echo '<ul class="nav navbar-nav navbar-right">';
-    global $node;
-    global $sub;
-    if (in_array($node, self::$searchPages)) {
-        echo '<li>';
-        echo '<form class="navbar-form search-wrapper" role='
-            . '"search" method="post" action="'
-            . '?node='
-            . $node
-            . '&sub=search'
-            . '">';
-        echo '<div class="input-group">';
-        echo '<input type="text" class='
-            . '"form-control search-input placeholder" placeholder='
-            . '"'
-            . self::$foglang['Search']
-            . '..." name="crit"/>';
-        echo '<span class="input-group-addon search-submit">';
-        echo '<i class="fogsearch fa fa-search">';
-        echo '<span class="sr-only">';
-        echo self::$foglang['Search'];
-        echo '</span>';
-        echo '</i>';
-        echo '</span>';
-        echo '</div>';
-        echo '</form>';
-        echo '</li>';
-    }
     echo '<li>';
     echo '<a href="?node=logout">';
     echo self::$foglang['Logout'];

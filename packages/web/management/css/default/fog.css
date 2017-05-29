@@ -73,6 +73,9 @@ table td {
 .select2-container {
     max-width: 220px !important;
 }
+.form-signin .select2-container {
+    max-width: 100% !important;
+}
 .input-group {
     min-width: 220px !important;
 }

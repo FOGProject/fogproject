@@ -219,6 +219,31 @@ class FOGSubMenu extends FOGBase
         ob_start();
         if ($this->items[$node]) {
             echo '<ul class="nav navbar-nav navbar-left">';
+            if (in_array($node, self::$searchPages)) {
+                echo '<li>';
+                echo '<form class="navbar-form search-wrapper" role='
+                    . '"search" method="post" action="'
+                    . '?node='
+                    . $node
+                    . '&sub=search'
+                    . '">';
+                echo '<div class="input-group">';
+                echo '<input type="text" class='
+                    . '"form-control search-input placeholder" placeholder='
+                    . '"'
+                    . self::$foglang['Search']
+                    . '..." name="crit"/>';
+                echo '<span class="input-group-addon search-submit">';
+                echo '<i class="fogsearch fa fa-search">';
+                echo '<span class="sr-only">';
+                echo self::$foglang['Search'];
+                echo '</span>';
+                echo '</i>';
+                echo '</span>';
+                echo '</div>';
+                echo '</form>';
+                echo '</li>';
+            }
             foreach ((array) $this->items[$node] as $title => &$data) {
                 self::$_title = $this->fixTitle($title);
                 echo '<li class="dropdown">';

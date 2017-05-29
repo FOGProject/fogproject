@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-29 00:20-0400\n"
+"POT-Creation-Date: 2017-05-29 09:45-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -78,17 +78,17 @@ msgstr ""
 msgid "Data must be an array or a callable item."
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogsubmenu.class.php:287
+#: /var/www/fog/lib/fog/fogsubmenu.class.php:312
 #, fuzzy
 msgid "Sidenotes"
 msgstr "minutos"
 
-#: /var/www/fog/lib/fog/fogsubmenu.class.php:312
+#: /var/www/fog/lib/fog/fogsubmenu.class.php:337
 #, fuzzy
 msgid "Title must be a string"
 msgstr "Evento debe ser una cadena"
 
-#: /var/www/fog/lib/fog/fogsubmenu.class.php:330
+#: /var/www/fog/lib/fog/fogsubmenu.class.php:355
 #, fuzzy
 msgid "Link must be a string"
 msgstr "Evento debe ser una cadena"
@@ -2491,8 +2491,8 @@ msgid "FOG Forums"
 msgstr "Foros FOG"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:66
-#: /var/www/fog/management/other/index.php:189
-#: /var/www/fog/management/other/index.php:222
+#: /var/www/fog/management/other/index.php:162
+#: /var/www/fog/management/other/index.php:195
 #: /var/www/fog/management/other/index2.php:167
 msgid "Donate to FOG"
 msgstr "Donar a la niebla"
@@ -8754,15 +8754,15 @@ msgstr ""
 msgid "Example Bolded Header"
 msgstr ""
 
-#: /var/www/fog/management/other/index.php:175
-#: /var/www/fog/management/other/index.php:208
+#: /var/www/fog/management/other/index.php:148
+#: /var/www/fog/management/other/index.php:181
 #: /var/www/fog/management/other/index2.php:155
 #, fuzzy
 msgid "Credits"
 msgstr "Crear"
 
-#: /var/www/fog/management/other/index.php:181
-#: /var/www/fog/management/other/index.php:214
+#: /var/www/fog/management/other/index.php:154
+#: /var/www/fog/management/other/index.php:187
 #: /var/www/fog/management/other/index2.php:160
 #, fuzzy
 msgid "FOG Client"
