@@ -245,11 +245,11 @@ $.fn.fogAjaxSearch = function(opts) {
                 dataType: 'json',
                 data: {crit: Query},
                 beforeSend: function() {
-                    SubmitButton.addClass('searching').find('i').removeClass().addClass('fa fa-spinner fa-pulse fa-fw');
+                    SubmitButton.addClass('searching').find('i').removeClass().addClass('fogsearch fa fa-spinner fa-pulse fa-fw');
                 },
                 success: function(response) {
                     dataLength = response === null || response.data === null ? dataLength = 0 : response.data.length;
-                    SubmitButton.removeClass('searching').find('i').removeClass().addClass('fa fa-search');
+                    SubmitButton.removeClass('searching').find('i').removeClass().addClass('fogsearch fa fa-search');
                     thead = $('thead',Container);
                     tbody = $('tbody',Container);
                     LastCount = dataLength;

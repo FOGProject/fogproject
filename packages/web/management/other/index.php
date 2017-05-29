@@ -92,17 +92,10 @@ if (self::$FOGUser->isValid()) {
         echo self::$FOGPageManager->getSideMenu();
     }
     echo '<ul class="nav navbar-nav navbar-right">';
-    echo '<li>';
-    echo '<a href="?node=logout">';
-    echo self::$foglang['Logout'];
-    echo '</a>';
-    echo '</li>';
-    echo '<li class="separator hidden-1g hidden-md"></li>';
-    echo '</ul>';
     global $node;
     global $sub;
     if (in_array($node, self::$searchPages)) {
-        echo '<div class="pull-right">';
+        echo '<li>';
         echo '<form class="navbar-form search-wrapper" role='
             . '"search" method="post" action="'
             . '?node='
@@ -116,7 +109,7 @@ if (self::$FOGUser->isValid()) {
             . self::$foglang['Search']
             . '..." name="crit"/>';
         echo '<span class="input-group-addon search-submit">';
-        echo '<i class="fa fa-search">';
+        echo '<i class="fogsearch fa fa-search">';
         echo '<span class="sr-only">';
         echo self::$foglang['Search'];
         echo '</span>';
@@ -124,8 +117,15 @@ if (self::$FOGUser->isValid()) {
         echo '</span>';
         echo '</div>';
         echo '</form>';
-        echo '</div>';
+        echo '</li>';
     }
+    echo '<li>';
+    echo '<a href="?node=logout">';
+    echo self::$foglang['Logout'];
+    echo '</a>';
+    echo '</li>';
+    echo '<li class="separator hidden-1g hidden-md"></li>';
+    echo '</ul>';
     echo '</div>';
     echo '</div>';
     echo '</nav>';
@@ -163,7 +163,6 @@ if (self::$FOGUser->isValid()) {
     }
     echo '</div>';
     echo $this->body;
-    echo '</div>';
     echo '</div>';
     echo '</div>';
     echo '<footer class="footer">';

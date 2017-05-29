@@ -70,3 +70,12 @@ table td {
 #login-history {
     width: 600px;
 }
+.select2-container {
+    max-width: 220px !important;
+}
+.input-group {
+    min-width: 220px !important;
+}
+.card {
+    padding: 10px;
+}
