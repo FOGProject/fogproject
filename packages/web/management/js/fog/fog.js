@@ -100,8 +100,8 @@ function AJAXServerTime() {
     setTipsyStuff();
     setEditFocus();
     Content = $('.content');
-    ActionBox = $('#action-box');
-    ActionBoxDel = $('#action-boxdel');
+    ActionBox = $('.action-boxes.host');
+    ActionBoxDel = $('.action-boxes.del');
     callme = 'hide';
     if ((typeof(sub) == 'undefined' || $.inArray(sub,['list','search','storageGroup','listhosts','listgroups']) > -1) && $('.no-active-tasks').length < 1) callme = 'show';
     ActionBox[callme]();
