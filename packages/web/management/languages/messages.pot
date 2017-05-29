@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-29 17:18-0400\n"
+"POT-Creation-Date: 2017-05-29 17:51-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2347,7 +2347,7 @@ msgstr ""
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:66
 #: /var/www/fog/management/other/index.php:162
-#: /var/www/fog/management/other/index.php:195
+#: /var/www/fog/management/other/index.php:194
 #: /var/www/fog/management/other/index2.php:167
 msgid "Donate to FOG"
 msgstr ""
@@ -5432,7 +5432,7 @@ msgid "Snapin updated"
 msgstr ""
 
 #: /var/www/fog/lib/pages/processlogin.class.php:313
-msgid "Please login"
+msgid "FOG Project"
 msgstr ""
 
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:55
@@ -8082,13 +8082,13 @@ msgid "Example Bolded Header"
 msgstr ""
 
 #: /var/www/fog/management/other/index.php:148
-#: /var/www/fog/management/other/index.php:181
+#: /var/www/fog/management/other/index.php:180
 #: /var/www/fog/management/other/index2.php:155
 msgid "Credits"
 msgstr ""
 
 #: /var/www/fog/management/other/index.php:154
-#: /var/www/fog/management/other/index.php:187
+#: /var/www/fog/management/other/index.php:186
 #: /var/www/fog/management/other/index2.php:160
 msgid "FOG Client"
 msgstr ""

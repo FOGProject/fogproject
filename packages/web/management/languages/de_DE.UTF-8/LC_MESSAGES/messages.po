@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-29 17:18-0400\n"
+"POT-Creation-Date: 2017-05-29 17:51-0400\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -2495,7 +2495,7 @@ msgstr "Nebel-Foren"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:66
 #: /var/www/fog/management/other/index.php:162
-#: /var/www/fog/management/other/index.php:195
+#: /var/www/fog/management/other/index.php:194
 #: /var/www/fog/management/other/index2.php:167
 msgid "Donate to FOG"
 msgstr "Spenden Sie für Nebel"
@@ -5737,8 +5737,8 @@ msgstr "Snap-in aktualisiert"
 
 #: /var/www/fog/lib/pages/processlogin.class.php:313
 #, fuzzy
-msgid "Please login"
-msgstr "Bitte wählen Sie eine option"
+msgid "FOG Project"
+msgstr "Nebel-Projekt auf Github"
 
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:55
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:94
@@ -8661,14 +8661,14 @@ msgid "Example Bolded Header"
 msgstr "Beispiel Fett Header"
 
 #: /var/www/fog/management/other/index.php:148
-#: /var/www/fog/management/other/index.php:181
+#: /var/www/fog/management/other/index.php:180
 #: /var/www/fog/management/other/index2.php:155
 #, fuzzy
 msgid "Credits"
 msgstr "Erstellen"
 
 #: /var/www/fog/management/other/index.php:154
-#: /var/www/fog/management/other/index.php:187
+#: /var/www/fog/management/other/index.php:186
 #: /var/www/fog/management/other/index2.php:160
 #, fuzzy
 msgid "FOG Client"
@@ -9663,6 +9663,10 @@ msgstr "Hallo Nebel Client"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "Es gibt keine Orte auf diesem Server."
+
+#, fuzzy
+#~ msgid "Please login"
+#~ msgstr "Bitte wählen Sie eine option"
 
 #~ msgid "Delete all selected items"
 #~ msgstr "Löschen Sie alle ausgewählten Elemente"

@@ -310,7 +310,7 @@ class ProcessLogin extends FOGPage
             self::$foglang['Slogan']
         );
         echo '&nbsp;&nbsp;';
-        echo _('Please login');
+        echo _('FOG Project');
         echo '</h2>';
         // Username
         echo '<div class="form-group">';

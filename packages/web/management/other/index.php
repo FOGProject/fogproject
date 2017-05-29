@@ -174,27 +174,26 @@ if (self::$FOGUser->isValid()) {
     echo '<div class="container-fluid">';
     echo '<nav class="navbar navbar-default navbar-fixed-bottom">';
     echo '<div class="container text-center">';
-    echo '<div class="span3">';
-    echo '<span class="span1">';
+    echo '<div class="col-xs-4">';
     printf(
         '<a href="http://fogproject.org/wiki/index.php?title=Credits">%s</a>',
         _('Credits')
     );
-    echo '</span>&nbsp;&nbsp;';
-    echo '<span class="span1">';
+    echo '</div>';
+    echo '<div class="col-xs-4">';
     printf(
         '<a href="?node=client">%s</a>',
         _('FOG Client')
     );
-    echo '</span>&nbsp;&nbsp;';
-    echo '<span class="span1">';
+    echo '</div>';
+    echo '<div class="col-xs-4">';
     printf(
         '<a href="https://www.paypal.com/cgi-bin/webscr?'
         . 'item_name=Donation+to+FOG+-+A+Free+Cloning+Solution&cmd=_donations'
         . '&business=fogproject.org@gmail.com">%s</a>',
         _('Donate to FOG')
     );
-    echo '</span>';
+    echo '</div>';
     echo '</div>';
     echo '</div>';
     echo '</nav>';

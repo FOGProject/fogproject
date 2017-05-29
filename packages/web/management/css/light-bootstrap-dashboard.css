@@ -43,7 +43,6 @@ h4, .h4,
 h5, .h5,
 h6, .h6,
 p,
-.navbar,
 .brand,
 .btn-simple,
 .alert,
@@ -123,13 +122,6 @@ body,
   min-height: 100vh;
   position: relative; }
 
-a {
-  color: #1DC7EA; }
-  a:hover, a:focus {
-    color: #42d0ed;
-    text-decoration: none; }
-
-a:focus, a:active,
 button::-moz-focus-inner,
 input::-moz-focus-inner,
 input[type="reset"]::-moz-focus-inner,
@@ -146,7 +138,6 @@ input[type="file"] > input[type="button"]::-moz-focus-inner {
 /*           Animations              */
 .input-group-addon,
 .tagsinput,
-.navbar,
 .navbar .alert {
   -webkit-transition: all 300ms linear;
   -moz-transition: all 300ms linear;
@@ -922,9 +913,6 @@ body > .navbar-collapse {
   border-bottom-color: #FFFFFF;
   border-top-color: #FFFFFF; }
 
-.navbar-default {
-  background-color: rgba(255, 255, 255, 0.96);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1); }
   .navbar-default .navbar-nav > li > a:not(.btn) {
     color: #9A9A9A; }
   .navbar-default .navbar-nav > .active > a,
@@ -1008,9 +996,6 @@ body > .navbar-collapse {
   .navbar-toggle.navbar-default .navbar-toggle:hover, .navbar-toggle.navbar-default .navbar-toggle:focus {
     background-color: transparent; }
 
-.footer {
-  background-color: #FFFFFF;
-  line-height: 20px; }
   .footer nav > ul {
     list-style: none;
     margin: 0;
