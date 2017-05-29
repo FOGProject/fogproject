@@ -360,7 +360,6 @@ class ProcessLogin extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
-        echo '</div>';
     }
     /**
      * Display the login form for the mobile page.
