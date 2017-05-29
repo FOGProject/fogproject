@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-29 00:20-0400\n"
+"POT-Creation-Date: 2017-05-29 09:45-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -73,16 +73,16 @@ msgstr "Gli elementi devono essere un array"
 msgid "Data must be an array or a callable item."
 msgstr "Dati deve essere un array o un callable"
 
-#: /var/www/fog/lib/fog/fogsubmenu.class.php:287
+#: /var/www/fog/lib/fog/fogsubmenu.class.php:312
 #, fuzzy
 msgid "Sidenotes"
 msgstr "minuti"
 
-#: /var/www/fog/lib/fog/fogsubmenu.class.php:312
+#: /var/www/fog/lib/fog/fogsubmenu.class.php:337
 msgid "Title must be a string"
 msgstr "Titolo deve essere una stringa"
 
-#: /var/www/fog/lib/fog/fogsubmenu.class.php:330
+#: /var/www/fog/lib/fog/fogsubmenu.class.php:355
 msgid "Link must be a string"
 msgstr "Collegamento deve essere una stringa"
 
@@ -2359,8 +2359,8 @@ msgid "FOG Forums"
 msgstr "FOG Forum"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:66
-#: /var/www/fog/management/other/index.php:189
-#: /var/www/fog/management/other/index.php:222
+#: /var/www/fog/management/other/index.php:162
+#: /var/www/fog/management/other/index.php:195
 #: /var/www/fog/management/other/index2.php:167
 msgid "Donate to FOG"
 msgstr "Donate alla nebbia"
@@ -8156,14 +8156,14 @@ msgstr "VNC"
 msgid "Example Bolded Header"
 msgstr "Esempio grassetto Intestazione"
 
-#: /var/www/fog/management/other/index.php:175
-#: /var/www/fog/management/other/index.php:208
+#: /var/www/fog/management/other/index.php:148
+#: /var/www/fog/management/other/index.php:181
 #: /var/www/fog/management/other/index2.php:155
 msgid "Credits"
 msgstr "Credits"
 
-#: /var/www/fog/management/other/index.php:181
-#: /var/www/fog/management/other/index.php:214
+#: /var/www/fog/management/other/index.php:154
+#: /var/www/fog/management/other/index.php:187
 #: /var/www/fog/management/other/index2.php:160
 msgid "FOG Client"
 msgstr "FOG Client"
