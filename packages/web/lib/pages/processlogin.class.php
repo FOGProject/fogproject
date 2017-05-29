@@ -346,7 +346,7 @@ class ProcessLogin extends FOGPage
         // Submit button
         echo '<div class="form-group">';
         echo '<div class="col-sm-offset-2 col-sm-10">';
-        echo '<button class="btn btn-default btn-lg btn-block" '
+        echo '<button class="btn btn-default btn-block" '
             . 'type="submit" name="login">';
         echo self::$foglang['Login'];
         echo '</button>';

@@ -647,6 +647,7 @@ abstract class FOGPage extends FOGBase
                 'search',
                 'list'
             );
+            $actionbox = '';
             if (((!$sub
                 || in_array($sub, $defaultScreens)
                 || $sub === 'storageGroup')
@@ -655,50 +656,73 @@ abstract class FOGPage extends FOGBase
                 && !self::$isMobile
             ) {
                 if ($node == 'host') {
-                    $actionbox = sprintf(
-                        '<form method="post" action="%s" id="action-box">'
-                        . '<input type="hidden" name="hostIDArray" value="" '
-                        . 'autocomplete="off"/><p><label for="group_new">%s'
-                        . '</label><input type="text" name="group_new" '
-                        . 'id="group_new" autocomplete="off"/></p><p class="c">'
-                        . 'OR</p><p><label for="group">%s</label>%s</p>'
-                        . '<p class="c"><input type="submit" id="processgroup" '
-                        . 'value="%s"/></p></form>',
-                        sprintf(
-                            '?node=%s&sub=saveGroup',
-                            $node
-                        ),
-                        _('Create new group'),
-                        _('Add to group'),
-                        self::getClass('GroupManager')->buildSelectBox(),
-                        _('Process Group Changes')
-                    );
+                    $actionbox .= '<form class="form-horizontal" method='
+                        . '"post" action="'
+                        . '?node='
+                        . $node
+                        . '&sub=saveGroup" id="action-box">';
+                    $actionbox .= '<div class="form-group">';
+                    $actionbox .= '<label class="control-label col-sm-4" for=';
+                    $actionbox .= '"group_new">';
+                    $actionbox .= _('Create new group');
+                    $actionbox .= '</label>';
+                    $actionbox .= '<input type="hidden" name="hostIDArray"/>';
+                    $actionbox .= '<input type="text" name="group_new" id='
+                        . '"group_new" class="input-group"/>';
+                    $actionbox .= '</div>';
+                    $actionbox .= '<div class="form-group">';
+                    $actionbox .= '<label class="control-label col-sm-4">';
+                    $actionbox .= _('or');
+                    $actionbox .= '</label>';
+                    $actionbox .= '</div>';
+                    $actionbox .= '<div class="form-group">';
+                    $actionbox .= '<label class="control-label col-sm-4" for=';
+                    $actionbox .= '"group">';
+                    $actionbox .= _('Add to group');
+                    $actionbox .= '</label>';
+                    $actionbox .= self::getClass('GroupManager')->buildSelectBox();
+                    $actionbox .= '</div>';
+                    $actionbox .= '<div class="form-group">';
+                    $actionbox .= '<span class="col-sm-4"></span>';
+                    $actionbox .= '<button type="submit" class='
+                        . '"btn btn-default input-group">';
+                    $actionbox .= _('Process group changes');
+                    $actionbox .= '</button>';
+                    $actionbox .= '</div>';
+                    $actionbox .= '</form>';
                 }
                 if ($node != 'task') {
+                    $actionbox .= '<form class="form-horizontal" method='
+                        . '"post" action="'
+                        . '?node='
+                        . $node
+                        . '&sub=deletemulti" id="action-boxdel">';
+                    $actionbox .= '<div class="form-group">';
+                    $actionbox .= '<label class="control-label col-sm-4">';
                     $actionbox .= sprintf(
-                        '<form method="post" class="c" id="action-boxdel" '
-                        . 'action="%s"><p>%s</p><input type="hidden" '
-                        . 'name="%sIDArray" value="" autocomplete="off"/>'
-                        . '<input type="submit" value="%s?"/></form>',
-                        sprintf(
-                            '?node=%s&sub=deletemulti',
-                            $node
-                        ),
-                        _('Delete all selected items'),
-                        strtolower($node),
-                        sprintf(
-                            _('Delete all selected %ss'),
+                        '%s %ss',
+                        _('Delete selected'),
+                        (
+                            strtolower($node) !== 'storage' ?
+                            strtolower($node) :
                             (
-                                strtolower($node) !== 'storage' ?
-                                strtolower($node) :
-                                (
-                                    $sub === 'storageGroup' ?
-                                    strtolower($node).' group' :
-                                    strtolower($node).' node'
-                                )
+                                $sub === 'storageGroup' ?
+                                strtolower($node) . ' group' :
+                                strtolower($node) . ' node'
                             )
                         )
                     );
+                    $actionbox .= '</label>';
+                    $actionbox .= '<input type="hidden" name="'
+                        . strtolower($node)
+                        . 'IDArray"/>';
+                    $actionbox .= '<button type="submit" class='
+                        . '"btn btn-default input-group">';
+                    $actionbox .= _('Delete');
+                    $actionbox .= '</button>';
+                    $actionbox .= '</div>';
+                    $actionbox .= '</div>';
+                    $actionbox .= '</form>';
                 }
             }
             self::$HookManager->processEvent(
