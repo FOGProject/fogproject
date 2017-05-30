@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-29 19:34-0400\n"
+"POT-Creation-Date: 2017-05-29 21:29-0400\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -963,7 +963,7 @@ msgstr "Registriert"
 msgid "Set Failed"
 msgstr "Fehler beim"
 
-#: /var/www/fog/lib/fog/bootmenu.class.php:1452
+#: /var/www/fog/lib/fog/bootmenu.class.php:1462
 #, fuzzy
 msgid "No valid storage nodes found"
 msgstr "Ungültige Speicherknoten"

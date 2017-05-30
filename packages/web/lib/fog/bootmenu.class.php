@@ -821,6 +821,11 @@ class BootMenu extends FOGBase
      */
     public function falseTasking($mc = false, $Image = false)
     {
+        $this->_kernel = str_replace(
+            $this->_storage,
+            '',
+            $this->_kernel
+        );
         $TaskType = new TaskType(1);
         if ($mc) {
             $Image = $mc->getImage();
@@ -1332,6 +1337,11 @@ class BootMenu extends FOGBase
             if ($this->_Host->get('mac')->isImageIgnored()) {
                 $this->_printImageIgnored();
             }
+            $this->_kernel = str_replace(
+                $this->_storage,
+                '',
+                $this->_kernel
+            );
             $TaskType = $Task->getTaskType();
             $imagingTasks = $TaskType->isImagingTask();
             if ($TaskType->isMulticast()) {
