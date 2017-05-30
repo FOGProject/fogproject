@@ -113,3 +113,9 @@ a:hover, a:focus, a:active {
 .advanced-tasks {
     display: none;
 }
+.red {
+    color: #ce0f0f;
+}
+.green {
+    color: #18f008;
+}
