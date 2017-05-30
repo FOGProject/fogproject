@@ -90,7 +90,7 @@ class SchemaUpdaterPage extends FOGPage
             "\n",
         );
         vprintf(
-            '<div id="dbRunning" class="hidden">'
+            '<div id="dbRunning" class="hiddeninitially">'
             . '<p>%s</p><p>%s</p><br/>'
             . '<form method="post" action="%s">'
             . '<p class="c"><input type="hidden" '
@@ -102,7 +102,7 @@ class SchemaUpdaterPage extends FOGPage
             . '<br/></div>',
             $vals
         );
-        echo '<div id="dbNotRunning" class="hidden">';
+        echo '<div id="dbNotRunning" class="hiddeninitially">';
         printf(
             '%s. %s. %s. %s %s%s%s. %s. %s, %s, %s.',
             _('Your database connection appears to be invalid'),

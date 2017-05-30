@@ -71,7 +71,7 @@ table td {
     width: 600px;
 }
 .select2-container {
-    max-width: 220px !important;
+    min-width: 220px !important;
 }
 .form-signin .select2-container {
     max-width: 100% !important;
@@ -80,7 +80,7 @@ table td {
     min-width: 220px !important;
 }
 .card {
-    padding-bottom: 10px;
+    padding: 10px;
 }
 .action-boxes {
     display: none;
@@ -96,4 +96,20 @@ a:hover, a:focus, a:active {
 .footer {
     background-color: #fff;
     line-height: 50px;
+}
+.additionalMACsRow {
+    display: none;
+}
+#tab-container > div:not(.additionalMACsRow) {
+    display: none;
+}
+#tab-container > div:first,
+#tab-container > div:target {
+    display: inline-block;
+}
+.hiddeninitially {
+    display: none;
+}
+.advanced-tasks {
+    display: none;
 }

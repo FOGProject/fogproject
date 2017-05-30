@@ -440,7 +440,7 @@ class GroupManagementPage extends FOGPage
             . '<div id="tab-container">'
             . '<!-- General -->'
             . '<div id="group-general"><h2>%s: %s</h2>'
-            . '<div id="resetSecDataBox" class="hidden"></div>'
+            . '<div id="resetSecDataBox" class="hiddeninitially"></div>'
             . '<div class="c"><input type="button" id="resetSecData"/>'
             . '</div><br/>',
             $this->formAction,

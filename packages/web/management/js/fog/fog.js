@@ -58,7 +58,7 @@ function setEditFocus() {
     $('input,select,textarea').not('[type="checkbox"],[name="groupsel"],[name="nodesel"],[name="ulang"]').change(function(e) {
         e.preventDefault();
         field = $(this);
-        field.not(':focus') ? field.next('i').hide() : field.append('<i class="fa fa-pencil fa-fw"></i>');
+        field.not(':focus') ? field.next('i').hide() : field.append('<span class="input-group-addon"><i class="fa fa-pencil fa-fw"></i></span>');
     });
 }
 function setChecked(ids) {
@@ -195,6 +195,7 @@ $.fn.fogAjaxSearch = function(opts) {
     var SearchLastQuery;
     var Options = $.extend({},Defaults,opts || {});
     Container = $(Options.Container);
+    if (!Container.length || !(sub == 'list' || sub == 'search')) return this;
     if (!Container.length) return this;
     callme = 'hide';
     if ($('tbody > tr', Container).filter('.no-active-tasks').length > 0

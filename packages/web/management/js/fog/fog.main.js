@@ -6,7 +6,8 @@ $(function() {
     });
     // Advanced Tasks stuff
     $('.advanced-tasks-link').click(function(e) {
-        $('#advanced-tasks').toggle();
+        $('.advanced-tasks').appendTo($('#tab-container').parents('.card'));
+        $('.advanced-tasks').toggle();
     });
     $('#FOG_QUICKREG_IMG_ID').change(function() {
         $.ajax({
@@ -198,7 +199,7 @@ $(function() {
     });
     // Tabs
     // Blackout - 9:14 AM 30/11/2011
-    //$('.dropdown,.container-fluid').organicTabs({targetID: '#tab-container'});
+    $('.dropdown,.container-fluid').organicTabs({targetID: '#tab-container'});
     // Hides all the divs in the Service menu
     $('#tab-container-1 > div').hide();
     // Shows the div of the containing element.
@@ -258,13 +259,13 @@ function validateCronInputs(selector) {
 }
 function DeployStuff() {
     $('#checkDebug').change(function(e) {
-        $('.hideFromDebug,.hidden').each(function(e) {
+        $('.hideFromDebug,.hiddeninitially').each(function(e) {
             if ($(this).prev('p').length > 0) $(this).prev('p').toggle();
             else $(this).toggle();
         });
         if (this.checked) {
             $('#scheduleInstant').prop('checked',true);
-            $('.hidden').parent().is(':visible').not(':hidden').hide();
+            $('.hiddeninitially').parent().is(':visible').not(':hidden').hide();
         }
         e.preventDefault();
     });

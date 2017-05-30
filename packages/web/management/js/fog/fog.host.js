@@ -51,14 +51,14 @@ $(function() {
     removeMACField();
     MACUpdate();
     $('.add-mac').click(function(e) {
-        $('#additionalMACsRow').show();
-        $('#additionalMACsCell').append('<div><input class="additionalMAC macaddr" type="text" name="additionalMACs[]"/>&nbsp;&nbsp;<i class="icon fa fa-minus-circle remove-mac hand" title="Remove MAC"></i><br/><span class="mac-manufactor"></span></div>');
+        $('.additionalMACsRow').show();
+        $('.additionalMACsCell').append('<div><input class="additionalMAC macaddr" type="text" name="additionalMACs[]"/>&nbsp;&nbsp;<i class="icon fa fa-minus-circle remove-mac hand" title="Remove MAC"></i><br/><span class="mac-manufactor"></span></div>');
         removeMACField();
         MACUpdate();
         HookTooltips();
         e.preventDefault();
     });
-    if ($('.additionalMAC').size()) $('#additionalMACsRow').show();
+    if ($('.additionalMAC').size()) $('.additionalMACsRow').show();
 });
 function removeMACField() {
     $('.remove-mac').click(function(e) {

@@ -124,7 +124,7 @@ class Page extends FOGBase
             ->addCSS('css/jquery-ui.theme.css')
             ->addCSS('css/jquery-ui.structure.css')
             ->addCSS('css/jquery-ui-timepicker-addon.css')
-            //->addCSS('css/jquery.organicTabs.css')
+            ->addCSS('css/jquery.organicTabs.css')
             ->addCSS('css/jquery.tipsy.css')
             ->addCSS('css/select2.min.css')
             ->addCSS('css/theme.blue.css')
@@ -282,7 +282,7 @@ class Page extends FOGBase
             'js/jquery.tipsy.js',
             'js/jquery.progressbar.js',
             'js/jquery.tmpl.js',
-            //'js/jquery.organicTabs.js',
+            'js/jquery.organicTabs.js',
             'js/jquery.placeholder.js',
             'js/jquery-ui.min.js',
             'js/flot/jquery.flot.js',

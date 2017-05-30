@@ -236,7 +236,7 @@ class PrinterManagementPage extends FOGPage
             ),
             '&nbsp;' => 'e.g. \\\\printerserver\\printername',
         );
-        echo '<div id="network" class="hidden">';
+        echo '<div id="network" class="hiddeninitially">';
         foreach ((array)$fields as $field => &$input) {
             $this->data[] = array(
                 'field'=>$field,
@@ -260,7 +260,7 @@ class PrinterManagementPage extends FOGPage
                 ),
             )
         );
-        echo '<div id="iprint" class="hidden">';
+        echo '<div id="iprint" class="hiddeninitially">';
         foreach ((array)$fields as $field => &$input) {
             $this->data[] = array(
                 'field'=>$field,
@@ -301,7 +301,7 @@ class PrinterManagementPage extends FOGPage
                 $_REQUEST['ip']
             ),
         );
-        echo '<div id="cups" class="hidden">';
+        echo '<div id="cups" class="hiddeninitially">';
         foreach ((array)$fields as $field => &$input) {
             $this->data[] = array(
                 'field'=>$field,
@@ -331,7 +331,7 @@ class PrinterManagementPage extends FOGPage
                 ),
             )
         );
-        echo '<div id="local" class="hidden">';
+        echo '<div id="local" class="hiddeninitially">';
         foreach ((array)$fields as $field => &$input) {
             $this->data[] = array(
                 'field'=>$field,
@@ -523,7 +523,7 @@ class PrinterManagementPage extends FOGPage
             ),
             '&nbsp;'=>'e.g. \\\\printerserver\\printername',
         );
-        echo '<div id="network" class="hidden">';
+        echo '<div id="network" class="hiddeninitially">';
         foreach ((array)$fields as $field => &$input) {
             $this->data[] = array(
                 'field'=>$field,
@@ -547,7 +547,7 @@ class PrinterManagementPage extends FOGPage
                 ),
             )
         );
-        echo '<div id="iprint" class="hidden">';
+        echo '<div id="iprint" class="hiddeninitially">';
         foreach ((array)$fields as $field => &$input) {
             $this->data[] = array(
                 'field'=>$field,
@@ -587,7 +587,7 @@ class PrinterManagementPage extends FOGPage
                 $this->obj->get('ip')
             ),
         );
-        echo '<div id="cups" class="hidden">';
+        echo '<div id="cups" class="hiddeninitially">';
         foreach ((array)$fields as $field => &$input) {
             $this->data[] = array(
                 'field'=>$field,
@@ -617,7 +617,7 @@ class PrinterManagementPage extends FOGPage
                 ),
             )
         );
-        echo '<div id="local" class="hidden">';
+        echo '<div id="local" class="hiddeninitially">';
         foreach ((array)$fields as $field => &$input) {
             $this->data[] = array(
                 'field'=>$field,

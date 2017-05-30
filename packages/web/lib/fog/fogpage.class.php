@@ -906,7 +906,7 @@ abstract class FOGPage extends FOGBase
             '<thead%s><tr class="header">',
             (
                 count($this->data) < 1 ?
-                ' class="hidden"' :
+                ' class="hiddeninitially"' :
                 ''
             )
         );
@@ -1176,7 +1176,7 @@ abstract class FOGPage extends FOGBase
                 _('Schedule'),
                 _('Delayed')
             );
-            echo '<p class="hidden hideFromDebug" id="singleOptions">'
+            echo '<p class="hiddeninitially hideFromDebug" id="singleOptions">'
                 . '<input type="text" name="scheduleSingleTime" '
                 . 'id="scheduleSingleTime" autocomplete="off"/></p>';
             printf(
@@ -1186,7 +1186,7 @@ abstract class FOGPage extends FOGBase
                 _('Schedule'),
                 _('Cron-style')
             );
-            echo '<p class="hidden hideFromDebug" id="cronOptions">';
+            echo '<p class="hiddeninitially hideFromDebug" id="cronOptions">';
             $specialCrons = array(
                 ''=>_('Select a cron type'),
                 'yearly'=>sprintf('%s/%s', _('Yearly'), _('Annually')),
@@ -1921,6 +1921,9 @@ abstract class FOGPage extends FOGBase
     public function basictasksOptions()
     {
         unset($this->headerData);
+        echo '<div class="col-md-12">';
+        echo '<p class="category">I AM WEIRD</p>';
+        echo '</div>';
         $this->templates = array(
             sprintf(
                 '<a href="?node=${node}&sub=${sub}&id='
@@ -1937,7 +1940,7 @@ abstract class FOGPage extends FOGBase
         );
         printf("<!-- Basic Tasks -->");
         printf(
-            '<!-- Basic Tasks --><div id="%s-tasks"><h2>%s %s</h2>',
+            '<div id="%s-tasks"><p class="category">%s %s</p>',
             $this->node,
             $this->childClass,
             _('Tasks')
@@ -2012,7 +2015,7 @@ abstract class FOGPage extends FOGBase
         $this->render();
         unset($this->data);
         printf(
-            '<div id="advanced-tasks" class="hidden"><h2>%s</h2>',
+            '<div class="advanced-tasks"><h2>%s</h2>',
             _('Advanced Actions')
         );
         unset($TaskTypes);
