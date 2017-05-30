@@ -96,8 +96,7 @@ a:hover, a:focus, a:active {
     text-decoration: none;
     color: #00567a;
 }
-.footer {
-    background-color: #fff;
+.signin .footer {
     line-height: 50px;
 }
 .additionalMACsRow {
