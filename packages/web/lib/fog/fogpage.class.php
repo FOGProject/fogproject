@@ -723,7 +723,6 @@ abstract class FOGPage extends FOGBase
                     $actionbox .= _('Delete');
                     $actionbox .= '</button>';
                     $actionbox .= '</div>';
-                    $actionbox .= '</div>';
                     $actionbox .= '</form>';
                 }
             }
@@ -1921,9 +1920,6 @@ abstract class FOGPage extends FOGBase
     public function basictasksOptions()
     {
         unset($this->headerData);
-        echo '<div class="col-md-12">';
-        echo '<p class="category">I AM WEIRD</p>';
-        echo '</div>';
         $this->templates = array(
             sprintf(
                 '<a href="?node=${node}&sub=${sub}&id='
