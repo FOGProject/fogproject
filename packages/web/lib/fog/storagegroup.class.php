@@ -128,18 +128,12 @@ class StorageGroup extends FOGController
         foreach ((array)self::getClass('StorageNodeManager')
             ->find($find) as &$node
         ) {
-            if ($node->get('maxClients') < 0) {
+            if ($node->get('maxClients') < 1) {
                 continue;
             }
-            $testurls[] = sprintf(
-                'http://%s/fog/management/index.php',
-                $node->get('ip')
-            );
             $nodeids[] = $node->get('id');
             unset($node);
         }
-        $test = array_filter(self::$FOGURLRequests->isAvailable($testurls));
-        $nodeids = array_intersect_key($nodeids, $test);
         $this->set('enablednodes', $nodeids);
     }
     /**
@@ -278,6 +272,9 @@ class StorageGroup extends FOGController
                 array('id' => $this->get($getter))
             ) as &$Node
         ) {
+            if ($Node->get('maxClients') < 1) {
+                continue;
+            }
             if ($winner == null
                 || $Node->getClientLoad() < $winner->getClientLoad()
             ) {
