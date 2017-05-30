@@ -819,10 +819,10 @@ class HostManagementPage extends FOGPage
                 $this->obj->imageMacCheck()
             ),
             sprintf(
-                '<div id="additionalMACsRow">%s</div>',
+                '<div class="additionalMACsRow">%s</div>',
                 _('Additional MACs')
             ) => sprintf(
-                '<div id="additionalMACsCell">%s</div>',
+                '<div class="additionalMACsCell">%s</div>',
                 $addMACs
             ),
             (

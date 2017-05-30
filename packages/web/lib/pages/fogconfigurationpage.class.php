@@ -479,7 +479,7 @@ class FOGConfigurationPage extends FOGPage
                 '<a href="#" id="pxeAdvancedLink">%s</a>',
                 _('Advanced configuration options')
             ) => sprintf(
-                '<div id="advancedTextArea" class="hidden">'
+                '<div id="advancedTextArea" class="hiddeninitially">'
                 . '<div class="lighterText tabbed">%s</div>'
                 . '<textarea rows="5" cols="40" name="adv">%s</textarea></div>',
                 sprintf(
@@ -2391,7 +2391,7 @@ class FOGConfigurationPage extends FOGPage
                 _('Export')
             ),
         );
-        echo '<div class="hidden" id="exportDiv"></div>'
+        echo '<div class="hiddeninitially" id="exportDiv"></div>'
             . '<form method="post" action="export.php?type=sql">';
         $this->render();
         unset($this->data);
