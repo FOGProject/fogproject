@@ -85,6 +85,9 @@ table td {
 .action-boxes {
     display: none;
 }
+.action-boxes .select2-container {
+    max-width: 220px !important;
+}
 a {
     text-decoration: none;
     font-weight: bold;
