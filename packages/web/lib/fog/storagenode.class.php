@@ -284,6 +284,9 @@ class StorageNode extends FOGController
      */
     public function getClientLoad()
     {
+        if ($this->getUsedSlotCount() + $this->getQueuedSlotCount() < 0) {
+            return 0;
+        }
         return (float) (
             $this->getUsedSlotCount()
             +
