@@ -272,9 +272,12 @@ class Page extends FOGBase
                         $FOGSub = new FOGSubMenu();
                         if (count($class->menu)) {
                             foreach ($class->menu as $l => &$t) {
-                                $items = $FOGSub->addItems(
+                                $FOGSub->addItems(
                                     $class->node,
-                                    array((string)$t => (string)$l)
+                                    array((string)$t => (string)$l),
+                                    '',
+                                    '',
+                                    'mainmenu'
                                 );
                                 unset($t);
                             }
@@ -282,14 +285,15 @@ class Page extends FOGBase
                         }
                         if (count($class->subMenu)) {
                             foreach ($class->subMenu as $l => &$t) {
-                                $items = $FOGSub->addItems(
+                                $FOGSub->addItems(
                                     $class->node,
                                     array((string)$t => (string)$l),
                                     $class->id,
                                     sprintf(
                                         self::$foglang['SelMenu'],
                                         get_class($class->obj)
-                                    )
+                                    ),
+                                    'submenu'
                                 );
                                 unset($t);
                             }
