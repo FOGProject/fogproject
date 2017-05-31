@@ -1016,7 +1016,7 @@ class GroupManagementPage extends FOGPage
         );
         $fields = array(
             _('Schedule Power') => sprintf(
-                '<p id="cronOptions">'
+                '<p class="cronOptions">'
                 . '<input type="text" name="scheduleCronMin" '
                 . 'id="scheduleCronMin" placeholder="min" '
                 . 'autocomplete="off" value="%s"/>'

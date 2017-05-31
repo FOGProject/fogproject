@@ -1550,7 +1550,7 @@ class HostManagementPage extends FOGPage
         unset($this->data, $fields);
         echo '</fieldset></form></div>';
         echo '<!-- Power Management Items -->'
-            . '<div id="host-powermanagement"><p id="cronOptions">';
+            . '<div id="host-powermanagement"><p class="cronOptions">';
         $this->headerData = array(
             '<input type="checkbox" id="rempowerselectors"/>'
             . '<label for="rempowerselectors"></label>',
@@ -1562,7 +1562,7 @@ class HostManagementPage extends FOGPage
             . 'class="rempoweritems" value="${id}" id="rmpm-${id}"/>'
             . '<label for="rmpm-${id}"></label>',
             '<div class="deploy-container" class="l">'
-            . '<p id="cronOptions"><input type="hidden" '
+            . '<p class="cronOptions"><input type="hidden" '
             . 'name="pmid[]" value="${id}"/><input '
             . 'type="text" name="scheduleCronMin[]" '
             . 'id="scheduleCronMin" autocomplete="off" '
@@ -1644,7 +1644,7 @@ class HostManagementPage extends FOGPage
         );
         $fields = array(
             _('Schedule Power') => sprintf(
-                '<p id="cronOptions"><input type="text" '
+                '<p class="cronOptions"><input type="text" '
                 . 'name="scheduleCronMin" id="scheduleCronMin" '
                 . 'placeholder="min" autocomplete="off" value="%s"/>'
                 . '<input type="text" name="scheduleCronHour" '
