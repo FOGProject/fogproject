@@ -69,6 +69,7 @@ class FOGPageManager extends FOGBase
     public function __construct()
     {
         parent::__construct();
+        $this->loadPageClasses();
         global $node;
         global $sub;
         if (!empty($node)) {
@@ -123,29 +124,6 @@ class FOGPageManager extends FOGBase
         }
         $class = $this->getFOGPageClass();
         self::$FOGSubMenu = self::getClass('FOGSubMenu');
-        foreach ((array)$class->menu as $link => &$title) {
-            self::$FOGSubMenu
-                ->addItems(
-                    $this->classValue,
-                    array((string)$title => (string)$link)
-                );
-            unset($title, $link);
-        }
-        if (!is_object($class->obj)) {
-            return self::$FOGSubMenu->get($this->classValue);
-        }
-        foreach ((array)$class->subMenu as $link => &$title) {
-            self::$FOGSubMenu->addItems(
-                $this->classValue,
-                array((string)$title => (string)$link),
-                $class->id,
-                sprintf(
-                    self::$foglang['SelMenu'],
-                    get_class($class->obj)
-                )
-            );
-            unset($title, $link);
-        }
         foreach ((array)$class->notes as $link => &$title) {
             self::$FOGSubMenu->addNotes(
                 $this->classValue,
@@ -174,7 +152,6 @@ class FOGPageManager extends FOGBase
         ) {
             return;
         }
-        $this->_loadPageClasses();
         $method = $this->methodValue;
         try {
             $class = $this->getFOGPageClass();
@@ -248,7 +225,9 @@ class FOGPageManager extends FOGBase
                 $class->attributes
             );
         }
-        $class->{$method}();
+        if (method_exists($class, $method)) {
+            $class->{$method}();
+        }
         self::resetRequest();
     }
     /**
@@ -295,7 +274,7 @@ class FOGPageManager extends FOGBase
      *
      * @return void
      */
-    private function _loadPageClasses()
+    public function loadPageClasses()
     {
         global $node;
         $regext = sprintf(

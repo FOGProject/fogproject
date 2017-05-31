@@ -1215,7 +1215,8 @@ abstract class FOGPage extends FOGBase
         }
         echo '<div class="form-group">';
         echo '<input type="radio" name='
-            . '"scheduleType" id="scheduleInstant" value="instant"/>';
+            . '"scheduleType" id="scheduleInstant" value="instant"'
+            . 'checked/>';
         echo '<label class="label-control" for="scheduleInstant">';
         echo _('Schedule instant');
         echo '</label>';
@@ -1231,7 +1232,7 @@ abstract class FOGPage extends FOGBase
             echo '</label>';
             echo '<div class="hiddeninitially">';
             echo '<input type="text" name="scheduleSingleTime" id='
-                . '"scheduleSingleTime">';
+                . '"scheduleSingleTime" required="">';
             echo '</div>';
             echo '</div>';
             echo '<div class="form-group hideFromDebug">';
