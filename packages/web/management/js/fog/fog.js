@@ -88,6 +88,19 @@ function AJAXServerTime() {
     });
 }
 (function($) {
+    if ($('#tab-container').length > 0) {
+        if (location.hash == "") {
+            firstid = $('#tab-container > div:first').prop('id');
+            location.hash = '#'+firstid;
+        }
+    }
+    $(document).on(
+        'click',
+        '.mainmenu .dropdown-menu, .submenu .dropdown-menu',
+        function(e) {
+        e.stopPropagation();
+        }
+    );
     $.validator.addMethod(
             'regex',
             function(value, element,regexp) {
@@ -197,7 +210,9 @@ $.fn.fogAjaxSearch = function(opts) {
     Container = $(Options.Container);
     if (!Container.length) return this;
     callme = 'hide';
-    if ($('tbody > tr', Container).filter('.no-active-tasks').length > 0
+    if ($('#active-tasks').length > 0
+        || $('#tab-container').length > 0
+        || $('tbody > tr', Container).filter('.no-active-tasks').length > 0
         || $.inArray(sub,['list','listhosts','listgroups','storageGroup']) > -1) {
         callme = 'show';
     }

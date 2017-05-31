@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-31 11:54-0400\n"
+"POT-Creation-Date: 2017-05-31 18:49-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -63,31 +63,31 @@ msgstr "Evento deve ser uma string"
 msgid "Only tx and rx bytes files can be read"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogsubmenu.class.php:126
-#: /var/www/fog/lib/fog/fogsubmenu.class.php:181
+#: /var/www/fog/lib/fog/fogsubmenu.class.php:128
+#: /var/www/fog/lib/fog/fogsubmenu.class.php:185
 #, fuzzy
 msgid "Node must be a string"
 msgstr "Evento deve ser uma string"
 
-#: /var/www/fog/lib/fog/fogsubmenu.class.php:131
+#: /var/www/fog/lib/fog/fogsubmenu.class.php:133
 msgid "Items must be an array"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogsubmenu.class.php:186
+#: /var/www/fog/lib/fog/fogsubmenu.class.php:190
 msgid "Data must be an array or a callable item."
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogsubmenu.class.php:311
+#: /var/www/fog/lib/fog/fogsubmenu.class.php:330
 #: /var/www/fog/lib/reports/equipment_loan.report.php:211
 msgid "Notes"
 msgstr "notas"
 
-#: /var/www/fog/lib/fog/fogsubmenu.class.php:337
+#: /var/www/fog/lib/fog/fogsubmenu.class.php:356
 #, fuzzy
 msgid "Title must be a string"
 msgstr "Evento deve ser uma string"
 
-#: /var/www/fog/lib/fog/fogsubmenu.class.php:355
+#: /var/www/fog/lib/fog/fogsubmenu.class.php:374
 #, fuzzy
 msgid "Link must be a string"
 msgstr "Evento deve ser uma string"

@@ -111,6 +111,7 @@ class FOGSubMenu extends FOGBase
      * @param array  $items           items to add
      * @param string $ifVariable      tester variable
      * @param string $ifVariableTitle tester variable title setter
+     * @param string $class           class to set with item.
      *
      * @throws exception
      * @return void
@@ -119,7 +120,8 @@ class FOGSubMenu extends FOGBase
         $node,
         $items,
         $ifVariable = '',
-        $ifVariableTitle = ''
+        $ifVariableTitle = '',
+        $class = ''
     ) {
         if (!is_string($node)) {
             throw new Exception(
@@ -159,7 +161,9 @@ class FOGSubMenu extends FOGBase
         } else {
             $this->items[$node][$variableSetter] = $items;
         }
-        return $this->items;
+        if (isset($class)) {
+            $this->items[$node][$variableSetter]['class'] = $class;
+        }
     }
     /**
      * Add nodes to the sub menu.
@@ -222,11 +226,24 @@ class FOGSubMenu extends FOGBase
         if ($this->items[$node]) {
             foreach ((array) $this->items[$node] as $title => &$data) {
                 self::$_title = $this->fixTitle($title);
-                echo '<p class="category">';
+                $class = strtolower(trim($this->items[$node][$title]['class']));
+                if ($class) {
+                    echo '<div class="'
+                        . strtolower($class)
+                        . '">';
+                }
+                echo '<li class="dropdown">';
+                echo '<a href="#" class="dropdown-toggle" data-toggle="dropdown">';
+                echo '<p>';
                 echo self::$_title;
+                echo '<b class="caret"></b>';
                 echo '</p>';
-                echo '<ul class="nav navbar-collapse">';
+                echo '</a>';
+                echo '<ul class="dropdown-menu">';
                 foreach ((array) $data as $label => &$link) {
+                    if ($label == 'class') {
+                        continue;
+                    }
                     $string = sprintf(
                         '<li><a class="%s" href="${link}">%s</a></li>',
                         $link,
@@ -274,6 +291,8 @@ class FOGSubMenu extends FOGBase
                     unset($link, $label);
                 }
                 echo '</ul>';
+                echo '</li>';
+                echo '</div>';
                 unset($data, $title);
             }
         }

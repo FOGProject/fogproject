@@ -635,7 +635,7 @@ class FOGConfigurationPage extends FOGPage
             );
             printf(
                 '<a class="%s" id="%s" href="#%s">'
-                . '<h3>%s</h3></a><div id="%s">'
+                . '<h3>%s</h3></a><div id="%s" class="hidefirst">'
                 . '<form method="post" action="%s">',
                 'divtabs',
                 $divTab,
@@ -1434,7 +1434,7 @@ class FOGConfigurationPage extends FOGPage
                 printf(
                     '<a id="%s" class="expand_trigger"'
                     . ' href="#%s">'
-                    . '<h3>%s</h3></a><div id="%s">',
+                    . '<h3>%s</h3></a><div id="%s" class="hidefirst">',
                     $divTab,
                     $divTab,
                     $Service->get('category'),
