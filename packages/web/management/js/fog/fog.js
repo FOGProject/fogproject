@@ -195,7 +195,6 @@ $.fn.fogAjaxSearch = function(opts) {
     var SearchLastQuery;
     var Options = $.extend({},Defaults,opts || {});
     Container = $(Options.Container);
-    if (!Container.length || !(sub == 'list' || sub == 'search')) return this;
     if (!Container.length) return this;
     callme = 'hide';
     if ($('tbody > tr', Container).filter('.no-active-tasks').length > 0
@@ -516,9 +515,17 @@ function setupFogTableInfoFunction() {
         switch (node) {
             case 'task':
                 if (typeof(sub) == 'undefined' || sub.indexOf('list') > -1) {
-                    headParser = {5: {sorter: 'statusParser'}};
+                    headParser = {
+                        5: {
+                            sorter: 'statusParser'
+                        }
+                    };
                 } else {
-                    headParser = {5: {sorter: 'statusParser'}};
+                    headParser = {
+                        5: {
+                            sorter: 'statusParser'
+                        }
+                    };
                 }
                 break;
             case 'report':
@@ -541,16 +548,37 @@ function setupFogTableInfoFunction() {
                             };
                             break;
                         default:
-                            headParser = {0: {sorter: 'checkboxParser'}};
+                            headParser = {
+                                0: {
+                                    sorter: 'checkboxParser'
+                                }
+                            };
                             break;
                     }
                 }
                 break;
             case 'host':
-                headParser = {0: {sorter: 'questionParser'},1: {sorter: 'checkboxParser'},2: {sorter: 'iParser'}};
+                headParser = {
+                    0: {
+                        sorter: 'questionParser'
+                    },
+                    1: {
+                        sorter: 'checkboxParser'
+                    },
+                    2: {
+                        sorter: 'iParser'
+                    }
+                };
                 break;
             case 'printer':
-                headParser = {0: {sorter: 'questionParser'},1: {sorter: 'checkboxParser'}};
+                headParser = {
+                    0: {
+                        sorter: 'questionParser'
+                    },
+                    1: {
+                        sorter: 'checkboxParser'
+                    }
+                };
                 break;
             case 'image':
                 headParser = 
@@ -565,7 +593,11 @@ function setupFogTableInfoFunction() {
                         sorter: 'sizeParser'
                     }
                 };
-                headExtra = {7: {sorter: 'sizeParser'}};
+                headExtra = {
+                    7: {
+                        sorter: 'sizeParser'
+                    }
+                };
                 if ($('th').length > 7) $.extend(headParser,headExtra);
                 break;
             case 'storage':
@@ -575,16 +607,23 @@ function setupFogTableInfoFunction() {
             case 'group':
             case 'snapin':
             default:
-                headParser = {0: {sorter: 'checkboxParser'}};
+                headParser = {
+                    0: {
+                        sorter: 'checkboxParser'
+                    }
+                };
                 break;
         }
-        table = $('table',this);
-        if (table.length == 0 || !table.has('thead')) return this;
+        table = $('table', this);
+        //if (table.length == 0 || !table.has('thead')) return this;
         table.find('thead > tr').addClass('hand');
         table.tablesorter({
             headers: headParser,
             theme: 'blue',
-            widgets: ["zebra","filter"],
+            widgets: [
+                "zebra",
+                "filter"
+            ],
             widgetOptions: {
                 filter_ignoreCase: true,
                 filter_hideFilters: false,

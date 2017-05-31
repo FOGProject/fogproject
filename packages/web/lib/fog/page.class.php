@@ -269,8 +269,8 @@ class Page extends FOGBase
                     echo '</li>';
                     $class = self::$FOGPageManager->getFOGPageClass();
                     if ($link == $class->node) {
+                        $FOGSub = new FOGSubMenu();
                         if (count($class->menu)) {
-                            $FOGSub = new FOGSubMenu();
                             foreach ($class->menu as $l => &$t) {
                                 $items = $FOGSub->addItems(
                                     $class->node,
@@ -278,6 +278,9 @@ class Page extends FOGBase
                                 );
                                 unset($t);
                             }
+                            unset($class->menu);
+                        }
+                        if (count($class->subMenu)) {
                             foreach ($class->subMenu as $l => &$t) {
                                 $items = $FOGSub->addItems(
                                     $class->node,
@@ -290,8 +293,9 @@ class Page extends FOGBase
                                 );
                                 unset($t);
                             }
-                            echo $FOGSub->get($class->node, false);
+                            unset($classSubMenu);
                         }
+                        echo $FOGSub->get($class->node, false);
                     }
                     unset($title);
                 }
