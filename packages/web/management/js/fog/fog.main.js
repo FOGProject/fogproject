@@ -199,7 +199,7 @@ $(function() {
     });
     // Tabs
     // Blackout - 9:14 AM 30/11/2011
-    $('.dropdown,.container-fluid').organicTabs({targetID: '#tab-container'});
+    $('.nav').organicTabs({targetID: '#tab-container'});
     // Hides all the divs in the Service menu
     $('#tab-container-1 > div').hide();
     // Shows the div of the containing element.

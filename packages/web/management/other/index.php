@@ -94,9 +94,13 @@ if (self::$FOGUser->isValid()) {
         echo self::$FOGPageManager->getSideMenu();
     }
     echo '<ul class="nav navbar-nav navbar-right">';
-    echo '<li><a href="?node=logout">'
+    echo '<li>';
+    echo '<a href="?node=logout">'
+        . strtolower(trim(self::$FOGUser->get('name')))
+        . ': '
         . self::$foglang['Logout']
-        . '</a></li>';
+        . '</a>';
+    echo '</li>';
     echo '<li class="separator hidden-1g hidden-md"></li>';
     echo '</ul>';
     echo '</div>';

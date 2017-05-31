@@ -74,6 +74,7 @@ class DashboardPage extends FOGPage
     {
         $this->name = self::$foglang['Dashboard'];
         parent::__construct($this->name);
+        $this->menu = array();
         global $sub;
         global $id;
         $objName = 'StorageNode';

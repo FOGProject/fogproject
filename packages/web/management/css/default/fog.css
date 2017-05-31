@@ -102,12 +102,13 @@ a:hover, a:focus, a:active {
 .additionalMACsRow {
     display: none;
 }
-#tab-container > div:not(.additionalMACsRow) {
-    display: none;
+#tab-container > div:not(.additionalMACsRow):not(:target) {
+    display: none !important;
 }
-#tab-container > div:first,
-#tab-container > div:target {
-    display: inline-block;
+#tab-container > div,
+#tab-container div:first,
+#tab-container div::target {
+    display: inline-block !important;
 }
 .hiddeninitially {
     display: none;
@@ -139,4 +140,21 @@ a:hover, a:focus, a:active {
 .fogcard .category, .fogcard label {
     color: #000;
     padding-left: 10px;
+}
+.mainmenuholder .open .dropdown-menu > li:first-child > a {
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}
+.mainmenuholder .open .dropdown-menu > li:last-child > a {
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+.mainmenuholder .open .dropdown-menu {
+    position: static;
+    float: none;
+    width: auto;
+    margin-top: 0;
+    background-color: transparent;
+    border: 0;
+    box-shadow: none;
 }

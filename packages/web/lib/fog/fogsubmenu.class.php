@@ -159,6 +159,7 @@ class FOGSubMenu extends FOGBase
         } else {
             $this->items[$node][$variableSetter] = $items;
         }
+        return $this->items;
     }
     /**
      * Add nodes to the sub menu.
@@ -208,52 +209,23 @@ class FOGSubMenu extends FOGBase
     /**
      * Gets the data as setup.
      *
-     * @param string $node The node to get menu for
+     * @param string $node   The node to get menu for
+     * @param bool   $getall Do we do all or partial?
      *
      * @throws Exception
      *
      * @return string
      */
-    public function get($node)
+    public function get($node, $getall = true)
     {
         ob_start();
         if ($this->items[$node]) {
-            echo '<ul class="nav navbar-nav navbar-left">';
-            if (in_array($node, self::$searchPages)) {
-                echo '<li>';
-                echo '<form class="navbar-form search-wrapper" role='
-                    . '"search" method="post" action="'
-                    . '?node='
-                    . $node
-                    . '&sub=search'
-                    . '">';
-                echo '<div class="input-group">';
-                echo '<input type="text" class='
-                    . '"form-control search-input placeholder" placeholder='
-                    . '"'
-                    . self::$foglang['Search']
-                    . '..." name="crit"/>';
-                echo '<span class="input-group-addon search-submit">';
-                echo '<i class="fogsearch fa fa-search">';
-                echo '<span class="sr-only">';
-                echo self::$foglang['Search'];
-                echo '</span>';
-                echo '</i>';
-                echo '</span>';
-                echo '</div>';
-                echo '</form>';
-                echo '</li>';
-            }
             foreach ((array) $this->items[$node] as $title => &$data) {
                 self::$_title = $this->fixTitle($title);
-                echo '<li class="dropdown">';
-                echo '<a href="#" class="dropdown-toggle" data-toggle="dropdown">';
-                echo '<p>';
+                echo '<p class="category">';
                 echo self::$_title;
-                echo '<b class="caret"></b>';
                 echo '</p>';
-                echo '</a>';
-                echo '<ul class="nav dropdown-menu">';
+                echo '<ul class="nav navbar-collapse">';
                 foreach ((array) $data as $label => &$link) {
                     $string = sprintf(
                         '<li><a class="%s" href="${link}">%s</a></li>',
@@ -305,20 +277,48 @@ class FOGSubMenu extends FOGBase
                 unset($data, $title);
             }
         }
-        if ($this->notes[$node]) {
-            echo '<li class="dropdown">';
-            echo '<a href="#" class="dropdown-toggle" data-toggle="dropdown">';
-            echo '<p>';
-            echo _('Sidenotes');
-            echo '<b class="caret"></b>';
-            echo '</p>';
-            echo '</a>';
-            echo '<ul class="dropdown-menu sidenotes">';
-            echo implode($this->notes[$node]);
+        if ($getall) {
+            echo '<ul class="nav navbar-nav navbar-left">';
+            if (in_array($node, self::$searchPages)) {
+                echo '<li>';
+                echo '<form class="navbar-form search-wrapper" role='
+                    . '"search" method="post" action="'
+                    . '?node='
+                    . $node
+                    . '&sub=search'
+                    . '">';
+                echo '<div class="input-group">';
+                echo '<input type="text" class='
+                    . '"form-control search-input placeholder" placeholder='
+                    . '"'
+                    . self::$foglang['Search']
+                    . '..." name="crit"/>';
+                echo '<span class="input-group-addon search-submit">';
+                echo '<i class="fogsearch fa fa-search">';
+                echo '<span class="sr-only">';
+                echo self::$foglang['Search'];
+                echo '</span>';
+                echo '</i>';
+                echo '</span>';
+                echo '</div>';
+                echo '</form>';
+                echo '</li>';
+            }
+            if ($this->notes[$node]) {
+                echo '<li class="dropdown">';
+                echo '<a href="#" class="dropdown-toggle" data-toggle="dropdown">';
+                echo '<p>';
+                echo _('Notes');
+                echo '<b class="caret"></b>';
+                echo '</p>';
+                echo '</a>';
+                echo '<ul class="dropdown-menu sidenotes">';
+                echo implode($this->notes[$node]);
+                echo '</ul>';
+                echo '</li>';
+            }
             echo '</ul>';
-            echo '</li>';
         }
-        echo '</ul>';
 
         return ob_get_clean();
     }

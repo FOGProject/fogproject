@@ -240,7 +240,7 @@ class Page extends FOGBase
                 self::redirect('index.php');
             }
             ob_start();
-            echo '<ul class="nav">';
+            echo '<ul class="nav navbar-collapse">';
             $count = false;
             if (count($this->main) > 0) {
                 foreach ($this->main as $link => &$title) {
@@ -249,21 +249,50 @@ class Page extends FOGBase
                         $node = $link;
                     }
                     $activelink = ($node == $link);
-                    printf(
-                        '<li%s><a href="%s"><i class="%s"></i><p>%s</p></a></li>',
-                        (
+                    echo '<li'
+                        . (
                             $activelink ?
                             ' class="active"' :
                             ''
-                        ),
-                        (
-                            $activelink ?
-                            '#' :
-                            "?node=$link"
-                        ),
-                        $title[1],
-                        $title[0]
-                    );
+                        )
+                        . '>';
+                    echo '<a href="?node='
+                        . $link
+                        . '">';
+                    echo '<i class="'
+                        . $title[1]
+                        . '"></i>';
+                    echo '<p>';
+                    echo $title[0];
+                    echo '</p>';
+                    echo '</a>';
+                    echo '</li>';
+                    $class = self::$FOGPageManager->getFOGPageClass();
+                    if ($link == $class->node) {
+                        if (count($class->menu)) {
+                            $FOGSub = new FOGSubMenu();
+                            foreach ($class->menu as $l => &$t) {
+                                $items = $FOGSub->addItems(
+                                    $class->node,
+                                    array((string)$t => (string)$l)
+                                );
+                                unset($t);
+                            }
+                            foreach ($class->subMenu as $l => &$t) {
+                                $items = $FOGSub->addItems(
+                                    $class->node,
+                                    array((string)$t => (string)$l),
+                                    $class->id,
+                                    sprintf(
+                                        self::$foglang['SelMenu'],
+                                        get_class($class->obj)
+                                    )
+                                );
+                                unset($t);
+                            }
+                            echo $FOGSub->get($class->node, false);
+                        }
+                    }
                     unset($title);
                 }
             }

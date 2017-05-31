@@ -239,7 +239,7 @@ body > .navbar-collapse {
     float: none; }
     .sidebar .nav li > a,
     body > .navbar-collapse .nav li > a {
-      color: #FFFFFF;
+      color: #fff;
       margin: 5px 15px;
       opacity: .86;
       border-radius: 4px;
