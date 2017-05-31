@@ -121,3 +121,22 @@ a:hover, a:focus, a:active {
 .green {
     color: #18f008;
 }
+.cronInputs input {
+    min-width: 0;
+    width: 50px;
+    margin: 10px;
+}
+.cronInputs input:first-child {
+    margin-left: 0;
+}
+.cronInputs input:last-child {
+    margin-right: 0;
+}
+.fogcard {
+    border: 2px #00567a solid;
+    background-color: #e0e0e0;
+}
+.fogcard .category, .fogcard label {
+    color: #000;
+    padding-left: 10px;
+}

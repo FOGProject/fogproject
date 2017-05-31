@@ -152,12 +152,12 @@ $(function() {
     });
     $("form.deploy-container").submit(function() {
         if ($('#scheduleOnDemand').is(':checked')) {
-            $("p#cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
+            $(".cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
                 $(this).val('').prop('disabled',true);
             });
             return true;
         } else {
-            $("p#cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
+            $(".cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
                 result = validateCronInputs($(this));
                 if (result === false) return false;
             });

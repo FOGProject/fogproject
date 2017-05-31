@@ -1045,197 +1045,6 @@ abstract class FOGPage extends FOGBase
                 )
             );
         }
-        $this->title = sprintf(
-            '%s %s %s %s',
-            _('Create'),
-            $TaskType->get('name'),
-            _('task for'),
-            $this->obj->get('name')
-        );
-        printf(
-            '<p class="c"><b>%s</b></p>',
-            _('Are you sure you wish to task these machines')
-        );
-        printf(
-            '<form method="post" action="%s" id="deploy-container">',
-            $this->formAction
-        );
-        echo '<div class="confirm-message">';
-        if ($TaskType->get('id') == 13) {
-            printf(
-                '<p class="c"><p>%s</p>',
-                _('Please select the snapin you want to install')
-            );
-            if ($this->obj instanceof Host) {
-                ob_start();
-                foreach ((array)self::getClass('SnapinManager')
-                    ->find(
-                        array('id' => $this->obj->get('snapins'))
-                    ) as &$Snapin
-                ) {
-                    printf(
-                        '<option value="%d">%s - (%d)</option>',
-                        $Snapin->get('id'),
-                        $Snapin->get('name'),
-                        $Snapin->get('id')
-                    );
-                    unset($Snapin);
-                }
-                unset($Snapins);
-                $options = ob_get_clean();
-                $options ?
-                    printf(
-                        '<select name="snapin">%s</select></p>',
-                        $options
-                    ) :
-                    printf(
-                        '%s</p>',
-                        _('No snapins associated')
-                    );
-            } elseif ($this->obj instanceof Group) {
-                printf(
-                    '%s</p>',
-                    self::getClass('SnapinManager')
-                    ->buildSelectBox(
-                        '',
-                        'snapin'
-                    )
-                );
-            }
-        }
-        printf(
-            '<div class="advanced-settings"><h2>%s</h2>',
-            _('Advanced Settings')
-        );
-        if ($TaskType->isInitNeededTasking()
-            && !$TaskType->isDebug()
-        ) {
-            printf(
-                '<p class="hideFromDebug"><input type="checkbox" '
-                . 'name="shutdown" id="shutdown" '
-                . 'autocomplete="off"%s><label for="shutdown">'
-                . '%s <u>%s</u> %s</label></p>',
-                (
-                    self::getSetting('FOG_TASKING_ADV_SHUTDOWN_ENABLED') ?
-                    ' checked' :
-                    ''
-                ),
-                _('Schedule'),
-                _('Shutdown'),
-                _('after task completion')
-            );
-        }
-        if ($TaskType->get('id') != 14) {
-            printf(
-                '<p><input type="checkbox" name="wol" id="wol"%s/>'
-                . '<label for="wol">%s</label></p>',
-                (
-                    $TaskType->isSnapinTasking() ?
-                    '' :
-                    (
-                        self::getSetting('FOG_TASKING_ADV_WOL_ENABLED') ?
-                        ' checked' :
-                        ''
-                    )
-                ),
-                _('Wake on lan?')
-            );
-        }
-        if (!$TaskType->isDebug()
-            && $TaskType->get('id') != 11
-        ) {
-            if ($TaskType->isInitNeededTasking()
-                && !($this->obj instanceof Group)
-            ) {
-                printf(
-                    '<p><input type="checkbox" name="isDebugTask" '
-                    . 'id="checkDebug"%s/><label for="checkDebug">'
-                    . '%s</label></p>',
-                    (
-                        self::getSetting('FOG_TASKING_ADV_DEBUG_ENABLED') ?
-                        ' checked' :
-                        ''
-                    ),
-                    _('Schedule task as a debug task')
-                );
-            }
-            printf(
-                '<p><input type="radio" name="scheduleType" '
-                . 'id="scheduleInstant" value="instant" '
-                . 'autocomplete="off" checked/><label '
-                . 'for="scheduleInstant">%s <u>%s'
-                . '</u></label></p>',
-                _('Schedule'),
-                _('Instant')
-            );
-            printf(
-                '<p><input type="radio" name="scheduleType" '
-                . 'id="scheduleSingle" value="single" autocomplete="off"/>'
-                . '<label for="scheduleSingle">%s <u>%s</u></label></p>',
-                _('Schedule'),
-                _('Delayed')
-            );
-            echo '<p class="hiddeninitially hideFromDebug" id="singleOptions">'
-                . '<input type="text" name="scheduleSingleTime" '
-                . 'id="scheduleSingleTime" autocomplete="off"/></p>';
-            printf(
-                '<p><input type="radio" name="scheduleType" '
-                . 'id="scheduleCron" value="cron" autocomplete="off">'
-                . '<label for="scheduleCron">%s <u>%s</u></label></p>',
-                _('Schedule'),
-                _('Cron-style')
-            );
-            echo '<p class="hiddeninitially hideFromDebug" id="cronOptions">';
-            $specialCrons = array(
-                ''=>_('Select a cron type'),
-                'yearly'=>sprintf('%s/%s', _('Yearly'), _('Annually')),
-                'monthly'=>_('Monthly'),
-                'weekly'=>_('Weekly'),
-                'daily'=>sprintf('%s/%s', _('Daily'), _('Midnight')),
-                'hourly'=>_('Hourly'),
-            );
-            ob_start();
-            foreach ($specialCrons as $val => &$name) {
-                printf('<option value="%s">%s</option>', $val, $name);
-                unset($name, $val);
-            }
-            printf(
-                '<select id="specialCrons" name="specialCrons">'
-                . '%s</select><br/><br/>',
-                ob_get_clean()
-            );
-            echo '<input type="text" name="scheduleCronMin" '
-                . 'id="scheduleCronMin" placeholder="min" autocomplete="off"/>';
-            echo '<input type="text" name="scheduleCronHour" '
-                . 'id="scheduleCronHour" placeholder="hour" autocomplete="off"/>';
-            echo '<input type="text" name="scheduleCronDOM" '
-                . 'id="scheduleCronDOM" placeholder="dom" autocomplete="off"/>';
-            echo '<input type="text" name="scheduleCronMonth" '
-                . 'id="scheduleCronMonth" placeholder="month" autocomplete="off"/>';
-            echo '<input type="text" name="scheduleCronDOW" '
-                . 'id="scheduleCronDOW" placeholder="dow" autocomplete="off" /></p>';
-        } elseif ($TaskType->isDebug()
-            || $TaskType->get('id') == 11
-        ) {
-            printf(
-                '<p><input type="radio" name="scheduleType" id="scheduleInstant" '
-                . 'value="instant" autocomplete="off" checked/><label '
-                . 'for="scheduleInstant">%s <u>%s</u></label></p>',
-                _('Schedule'),
-                _('Instant')
-            );
-        }
-        if ($TaskType->get('id') == 11) {
-            printf(
-                "<p>%s</p>",
-                _('Which account would you like to reset the pasword for')
-            );
-            echo '<input type="text" name="account" value="Administrator"/>';
-        }
-        printf(
-            '</div></div><h2>%s</h2>',
-            _('Hosts in Task')
-        );
         unset($this->headerData);
         $this->attributes = array(
             array(),
@@ -1315,14 +1124,178 @@ abstract class FOGPage extends FOGBase
                 'attributes' => &$this->attributes
             )
         );
-        if (count($this->data)) {
-            printf(
-                '<p class="c"><input type="submit" value="%s"/></p>',
-                $this->title
+        echo '<div class="card fogcard">';
+        echo '<div class="col-sm-offset-5">';
+        echo '<div class="header">';
+        echo '<h4 class="title">';
+        echo _('Confirm tasking');
+        echo '</h4>';
+        echo '<form class="form-horizontal deploy-container" method="post" action="'
+            . $this->formAction
+            . '">';
+        echo '<p class="category">';
+        echo _('Advanced Settings');
+        echo '</p>';
+        echo '</div>';
+        if ($TaskType->get('id') == 13) {
+            echo '<div class="form-group">';
+            echo '<p class="category">';
+            echo _('Please select the snapin you want to install');
+            echo '</p>';
+            echo self::getClass('SnapinManager')->buildSelectBox(
+                '',
+                'snapin'
             );
+            echo '</div>';
         }
-        $this->render();
+        if ($TaskType->get('id') == 11) {
+            echo '<div class="form-group">';
+            echo '<p class="category">';
+            echo _('Account name to reset');
+            echo '</p>';
+            echo '<input type="text" name="account" value="Administrator"/>';
+            echo '</div>';
+        }
+        if ($TaskType->isInitNeededTasking()
+            && !$TaskType->isDebug()
+        ) {
+            echo '<div class="form-group hideFromDebug">';
+            echo '<input type="checkbox" name='
+                . '"shutdown" id="shutdown"'
+                . (
+                    self::getSetting('FOG_TASKING_ADV_SHUTDOWN_ENABLED') ?
+                    ' checked' :
+                    ''
+                )
+                . '/>';
+            echo '<label class="label-control" for="shutdown">';
+            echo _('Schedule shutdown after task completion');
+            echo '</label>';
+            echo '</div>';
+        }
+        if ($TaskType->get('id') != 14) {
+            echo '<div class="form-group">';
+            echo '<input type="checkbox" name='
+                . '"wol" id="wol"'
+                . (
+                    $TaskType->isSnapinTasking() ?
+                    '' :
+                    (
+                        self::getSetting('FOG_TASKING_ADV_WOL_ENABLED') ?
+                        ' checked' :
+                        ''
+                    )
+                )
+                . '/>';
+            echo '<label class="label-control" for="wol">';
+            echo _('Wake on lan?');
+            echo '</label>';
+            echo '</div>';
+        }
+        if (!$TaskType->isDebug()
+            && $TaskType->get('id') != 11
+        ) {
+            if ($TaskType->isInitNeededTasking()
+                && !($this->obj instanceof Group)
+            ) {
+                echo '<div class="form-group">';
+                echo '<input type="checkbox" name='
+                    . '"isDebugTask" id="checkDebug"'
+                    . (
+                        self::getSetting('FOG_TASKING_ADV_DEBUG_ENABLED') ?
+                        ' checked' :
+                        ''
+                    )
+                    . '/>';
+                echo '<label class="label-control" for="checkDebug">';
+                echo _('Schedule as debug task');
+                echo '</label>';
+                echo '</div>';
+            }
+        }
+        echo '<div class="form-group">';
+        echo '<input type="radio" name='
+            . '"scheduleType" id="scheduleInstant" value="instant"/>';
+        echo '<label class="label-control" for="scheduleInstant">';
+        echo _('Schedule instant');
+        echo '</label>';
+        echo '</div>';
+        if (!$TaskType->isDebug()
+            && $TaskType->get('id') != 11
+        ) {
+            echo '<div class="form-group hideFromDebug">';
+            echo '<input type="radio" name='
+                . '"scheduleType" id="scheduleSingle" value="single"/>';
+            echo '<label class="label-control" for="scheduleSingle">';
+            echo _('Schedule delayed');
+            echo '</label>';
+            echo '<div class="hiddeninitially">';
+            echo '<input type="text" name="scheduleSingleTime" id='
+                . '"scheduleSingleTime">';
+            echo '</div>';
+            echo '</div>';
+            echo '<div class="form-group hideFromDebug">';
+            echo '<input type="radio" name='
+                . '"scheduleType" id="scheduleCron" value="cron"/>';
+            echo '<label class="label-control" for="scheduleCron">';
+            echo _('Schedule cron-style');
+            echo '</label>';
+            $specialCrons = array(
+                ''=>_('Select a cron type'),
+                'yearly'=>sprintf('%s/%s', _('Yearly'), _('Annually')),
+                'monthly'=>_('Monthly'),
+                'weekly'=>_('Weekly'),
+                'daily'=>sprintf('%s/%s', _('Daily'), _('Midnight')),
+                'hourly'=>_('Hourly'),
+            );
+            echo '<div class="hiddeninitially hideFromDebug cronOptions">';
+            ob_start();
+            foreach ($specialCrons as $val => &$name) {
+                printf('<option value="%s">%s</option>', $val, $name);
+                unset($name, $val);
+            }
+            printf(
+                '<select class="form-control" id="specialCrons" name="specialCrons">'
+                . '%s</select><br/><br/>',
+                ob_get_clean()
+            );
+            echo '<div class="cronInputs">';
+            echo '<input type="text" name="scheduleCronMin" '
+                . 'id="scheduleCronMin" placeholder="min" autocomplete="off"/>';
+            echo '<input type="text" name="scheduleCronHour" '
+                . 'id="scheduleCronHour" placeholder="hour" autocomplete="off"/>';
+            echo '<input type="text" name="scheduleCronDOM" '
+                . 'id="scheduleCronDOM" placeholder="dom" autocomplete="off"/>';
+            echo '<input type="text" name="scheduleCronMonth" '
+                . 'id="scheduleCronMonth" placeholder="month" autocomplete="off"/>';
+            echo '<input type="text" name="scheduleCronDOW" '
+                . 'id="scheduleCronDOW" placeholder="dow" autocomplete="off" /></p>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+        }
+        if (count($this->data)) {
+            echo '<button type="submit" class="btn btn-default input-group">';
+            echo _('Create')
+                . ' '
+                . $TaskType->get('name')
+                . ' '
+                . _('Tasking');
+            echo '</button>';
+        }
         echo '</form>';
+        echo '</div>';
+        if ($this->node != 'host') {
+            echo '<div class="row text-center">';
+            echo '<h2 class="title">';
+            echo _('Hosts in task');
+            echo '</h2>';
+            echo '</div>';
+            echo '<div class="col-sm-offset-5">';
+            $this->render();
+            echo '</div>';
+        }
+        echo '</div>';
     }
     /**
      * Actually create the tasking

@@ -260,25 +260,25 @@ function validateCronInputs(selector) {
 function DeployStuff() {
     $('#checkDebug').change(function(e) {
         $('.hideFromDebug,.hiddeninitially').each(function(e) {
-            if ($(this).prev('p').length > 0) $(this).prev('p').toggle();
-            else $(this).toggle();
+            $(this).toggle();
         });
         if (this.checked) {
             $('#scheduleInstant').prop('checked',true);
-            $('.hiddeninitially').parent().is(':visible').not(':hidden').hide();
+            $('.hiddeninitially').not(':hidden').hide();
         }
         e.preventDefault();
     });
     // Bind radio buttons for 'Single' and 'Cron' scheduled task
     $('input[name="scheduleType"]').click(function() {
-        var content = $(this).parents('p').parent().find('p').eq($(this).parent().index());
+        var content = $(this).siblings('.hiddeninitially');
         if (this.checked && !$('#isDebugTask').is(':checked')) {
-            content.slideDown('fast').siblings('.hidden').slideUp('fast');
+            $('.hiddeninitially').not(':hidden').slideUp('fast');
+            content.slideDown('fast');
         } else if (!$('#isDebugTask').is(':checked')) {
             content.slideDown('fast');
             $('.calendar').remove();
             $('.error').removeClass('error');
-        }
+        }   
     });
     $('#specialCrons').change(function(e) {
         e.preventDefault();
@@ -328,7 +328,7 @@ function DeployStuff() {
     var result = true;
     $('input[name="scheduleType"]').change(function() {
         scheduleType = this.value;
-        $('form#deploy-container').submit(function() {
+        $('form.deploy-container').submit(function() {
             if (scheduleType == 'single') {
                 // Format check
                 validateInput = $('#'+scheduleType+'Options > input').removeClass('error');
@@ -337,7 +337,7 @@ function DeployStuff() {
                     validateInput.addClass('error');
                 }
             } else if (scheduleType == 'cron') {
-                $("p#cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
+                $(".cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
                     result = validateCronInputs($(this));
                     if (result === false) return false;
                 });
