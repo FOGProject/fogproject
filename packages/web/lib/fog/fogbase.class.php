@@ -1718,6 +1718,11 @@ abstract class FOGBase
             return;
         }
         try {
+            if (!($this->Host instanceof Host)) {
+                throw new Exception($this->Host);
+            } else if (!($this->Host->isValid())) {
+                throw new Exception('#!ih');
+            }
             $datatosend = trim($datatosend);
             $curdate = self::niceDate();
             $secdate = self::niceDate($this->Host->get('sec_time'));
