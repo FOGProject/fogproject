@@ -69,7 +69,6 @@ class FOGPageManager extends FOGBase
     public function __construct()
     {
         parent::__construct();
-        $this->loadPageClasses();
         global $node;
         global $sub;
         if (!empty($node)) {
@@ -77,6 +76,7 @@ class FOGPageManager extends FOGBase
         } else {
             $this->classValue = 'home';
         }
+        $this->loadPageClasses();
         $this->methodValue = $this->_replaceVariable($sub);
         self::$HookManager->processEvent(
             'SEARCH_PAGES',

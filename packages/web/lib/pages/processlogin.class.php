@@ -58,6 +58,17 @@ class ProcessLogin extends FOGPage
         $this->_lang = self::$locale;
     }
     /**
+     * Index page.
+     *
+     * @return void
+     */
+    public function index()
+    {
+        if (self::$FOGUser->isValid()) {
+            self::redirect('?node=home');
+        }
+    }
+    /**
      * Gets the languages into a string.
      *
      * @return void
