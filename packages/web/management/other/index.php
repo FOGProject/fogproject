@@ -47,7 +47,13 @@ unset($this->stylesheets);
 echo '<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon"/>';
 echo '</head>';
 echo '<body>';
-echo '<div class="wrapper">';
+echo '<div class="wrapper'
+    . (
+        self::$FOGUser->isValid() ?
+        '' :
+        ' signin'
+    )
+    . '">';
 if (self::$FOGUser->isValid()) {
     echo '<input type="hidden" class="fog-delete" id="FOGDeleteAuth" value="'
         . (int)self::$fogdeleteactive

@@ -449,6 +449,9 @@ class Route extends FOGBase
         self::$data[$classname.'s'] = array();
         $find = self::getsearchbody($classname);
         foreach ($classman->find($find) as &$class) {
+            if (false != stripos($class->get('name'), '_api_')) {
+                continue;
+            }
             self::$data[$classname.'s'][] = self::getter($classname, $class);
             self::$data['count']++;
             unset($class);
@@ -480,6 +483,9 @@ class Route extends FOGBase
         self::$data['count'] = 0;
         self::$data[$classname.'s'] = array();
         foreach ($classman->search('', true) as &$class) {
+            if (false != stripos($class->get('name'), '_api_')) {
+                continue;
+            }
             self::$data[$classname.'s'][] = self::getter($classname, $class);
             self::$data['count']++;
             unset($class);
