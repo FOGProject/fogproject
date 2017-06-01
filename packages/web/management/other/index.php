@@ -47,13 +47,7 @@ unset($this->stylesheets);
 echo '<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon"/>';
 echo '</head>';
 echo '<body>';
-echo '<div class="wrapper'
-    . (
-        !self::$FOGUser->isValid() ?
-        ' signin' :
-        ''
-    )
-    . '">';
+echo '<div class="wrapper">';
 if (self::$FOGUser->isValid()) {
     echo '<input type="hidden" class="fog-delete" id="FOGDeleteAuth" value="'
         . (int)self::$fogdeleteactive
@@ -161,7 +155,8 @@ if (self::$FOGUser->isValid()) {
     echo '</footer>';
 } else {
     echo $this->body;
-    echo '<footer class="footer">';
+    echo '</div>';
+    echo '<footer class="signin footer">';
     echo '<div class="container-fluid">';
     echo '<nav class="navbar navbar-default navbar-fixed-bottom">';
     echo '<div class="container text-center">';
@@ -187,7 +182,6 @@ if (self::$FOGUser->isValid()) {
     echo '</div>';
     echo '</footer>';
 }
-echo '</div>';
 foreach ((array)$this->javascripts as &$javascript) {
     echo '<script src="'
         . $javascript
