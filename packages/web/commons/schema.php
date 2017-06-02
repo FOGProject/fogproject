@@ -448,7 +448,7 @@ $this->schema[] = array(
     . "','Web Server'),"
     . "('FOG_WEB_ROOT','This setting defines the path to the "
     . "fog webserver\'s root directory.','"
-    . WEB_ROOT
+    . '/fog/'
     . "','Web Server'),"
     . "('FOG_WOL_HOST','This setting defines the ip address "
     . "of hostname for the server hosting the Wake-on-lan service.','"
