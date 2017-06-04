@@ -199,7 +199,7 @@ $.fn.fogAjaxSearch = function(opts) {
     if (this.length == 0) return this;
     var Defaults = {
         URL: $('.search-wrapper').prop('action'),
-        Container: '#active-tasks',
+        Container: '.table-list-search',
         SearchDelay: 400,
         SearchMinLength: 1,
     };
@@ -210,7 +210,7 @@ $.fn.fogAjaxSearch = function(opts) {
     Container = $(Options.Container);
     if (!Container.length) return this;
     callme = 'hide';
-    if ($('#active-tasks').length > 0
+    if ($('.table-list-search').length > 0
         || $('#tab-container').length > 0
         || $('tbody > tr', Container).filter('.no-active-tasks').length > 0
         || $.inArray(sub,['list','listhosts','listgroups','storageGroup']) > -1) {
@@ -334,7 +334,7 @@ function showProgressBar() {
 }
 function buildHeaderRow(data,attributes,wrapper) {
     if (!Container || typeof(Container) === null || typeof(Container) === 'undefined') {
-        Container = $('#active-tasks');
+        Container = $('.table-list-search');
     }
     savedFilters = Container.find('.tablesorter-filter').map(function(){
         return this.value || '';
@@ -401,7 +401,7 @@ function buildRow(data,templates,attributes,wrapper) {
 }
 function TableCheck() {
     if (!Container || typeof(Container) === null || typeof(Container) === 'undefined') {
-        Container = $('#active-tasks');
+        Container = $('.table-list-search');
     }
     callme = 'hide';
     if ($('.not-found').length === 0) Container.after('<p class="c not-found">'+_L['NO_ACTIVE_TASKS']+'</p>');
@@ -596,7 +596,7 @@ function setupFogTableInfoFunction() {
                 };
                 break;
             case 'image':
-                headParser = 
+                headParser =
                 {
                     0: {
                         sorter: 'iParser'

@@ -24,18 +24,6 @@
 abstract class FOGPage extends FOGBase
 {
     /**
-     * Table cell wrapper
-     *
-     * @var string
-     */
-    private $_wrapper = 'td';
-    /**
-     * Header cell wrapper
-     *
-     * @var string
-     */
-    private $_headerWrap = 'th';
-    /**
      * Name of the page
      *
      * @var string
@@ -753,100 +741,87 @@ abstract class FOGPage extends FOGBase
                     _('Requires templates to process')
                 );
             }
-            ob_start();
-            $contentField = 'active-tasks';
-            if (isset($this->form)) {
-                printf($this->form);
-            }
-            printf(
-                '<table cellpadding="0" cellspacing="0" '
-                . 'id="%s">%s<tbody>',
-                $contentField,
-                $this->buildHeaderRow()
-            );
-            $node = $_REQUEST['node'];
-            $sub = $_REQUEST['sub'];
-            if (in_array($this->node, array('task'))
+            if (in_array($node, array('task'))
                 && (!$sub || $sub == 'list')
             ) {
                 self::redirect(
                     sprintf(
                         '?node=%s&sub=active',
-                        $this->node
+                        $node
                     )
                 );
             }
-            if (!count($this->data)) {
-                $contentField = 'no-active-tasks';
-                printf(
-                    '<tr><td colspan="%s" class="%s">%s</td></tr></tbody></table>',
-                    count($this->templates),
-                    $contentField,
-                    (
-                        $this->data['error'] ?
-                        (
-                            is_array($this->data['error']) ?
-                            sprintf(
-                                '<p>%s</p>',
-                                implode(
-                                    '</p><p>',
-                                    $this->data['error']
-                                )
-                            ) :
-                            $this->data['error']
-                        ) :
-                        (
-                            $this->node != 'task' ?
-                            (
-                                !self::$isMobile ?
-                                self::$foglang['NoResults'] :
-                                ''
-                            ) :
-                            self::$foglang['NoResults']
-                        )
-                    )
+            ob_start();
+            if (isset($this->form)) {
+                printf($this->form);
+            }
+            if ($node != 'home') {
+                echo '<div class="row">';
+                echo '<div class="col-md-3">';
+                echo '<form action="#" method="get">';
+                echo '<div class="input-group">';
+                echo '<input class="form-control" id="system-search" name='
+                    . '"q" placeholder="Search for" required/>';
+                echo '<span class="input-group-addon search-submit">';
+                echo '<i class="fogsearch fa fa-search">';
+                echo '<span class="sr-only">';
+                echo self::$foglang['Search'];
+                echo '</span>';
+                echo '</i>';
+                echo '</span>';
+                echo '</div>';
+                echo '</form>';
+                echo '</div>';
+                echo '<div class="col-md-9">';
+            }
+            echo '<table class="table table-list-search">';
+            echo $this->buildHeaderRow();
+            echo '<tbody>';
+            $tablestr = '<tr><td colspan="'
+                . count($this->templates)
+                . '">';
+            if ($this->data['error']) {
+                $tablestr .= (
+                    is_array($this->data['error']) ?
+                    '<p>'
+                    . implode('</p><p>', $this->data['error'])
+                    : $this->data['error']
                 );
             } else {
-                if ((!$sub
-                    && $defaultScreen == 'list')
-                    || (in_array($sub, $defaultScreens)
-                    && in_array($node, self::$searchPages))
-                ) {
-                    if (!in_array($this->node, array('home', 'hwinfo'))) {
-                        self::setMessage(
-                            sprintf(
-                                '%s %s%s found',
-                                count($this->data),
-                                $this->childClass,
-                                (
-                                    count($this->data) != 1 ?
-                                    's' :
-                                    ''
-                                )
-                            )
-                        );
-                    }
-                }
-                $id_field = "{$node}_id";
-                foreach ((array)$this->data as &$rowData) {
-                    printf(
-                        '<tr id="%s-%s">%s</tr>',
-                        strtolower($this->childClass),
-                        (
-                            isset($rowData['id']) ?
-                            $rowData['id'] :
-                            (
-                                isset($rowData[$id_field]) ?
-                                $rowData[$id_field] :
-                                ''
-                            )
-                        ),
-                        $this->buildRow($rowData)
-                    );
-                    unset($rowData);
-                }
+                $tablestr .= self::$foglang['NoResults'];
             }
-            echo '</tbody></table>';
+            $tablestr .= '</td></tr>';
+            if (count($this->data) > 0) {
+                $tablestr = '';
+            }
+            foreach ((array)$this->data as &$rowData) {
+                $tablestr .= '<tr class="'
+                    . strtolower($node)
+                    . '" '
+                    . (
+                        isset($rowData['id']) || isset($rowData[$id_field]) ?
+                        'id="'
+                        . $node
+                        . '-'
+                        . (
+                            isset($rowData['id']) ?
+                            $rowData['id'] . '"' :
+                            $rowData[$id_field] . '"'
+                        ) :
+                        ''
+                    )
+                    . '>';
+                $tablestr .= $this->buildRow($rowData);
+                $tablestr .= '</tr>';
+                unset($rowData);
+            }
+            echo $tablestr;
+            echo '</tbody>';
+            echo '</table>';
+            if ($node != 'home') {
+                echo '</div>';
+                echo '</div>';
+            }
             $text = ob_get_clean();
             $text .= $actionbox;
             return $text;
@@ -892,17 +867,15 @@ abstract class FOGPage extends FOGBase
         }
         $setHeaderData = function (&$content, $index) {
             printf(
-                '<%s%s data-column="%s">%s</%s>',
-                $this->_headerWrap,
-                ($this->atts[$index] ? $this->atts[$index] : ''),
+                '<th%s data-column="%s">%s</th>',
+                ($this->atts[$index] ?: ''),
                 $index,
-                $content,
-                $this->_headerWrap
+                $content
             );
         };
         ob_start();
         printf(
-            '<thead%s><tr class="header">',
+            '<thead><tr class="header">',
             (
                 count($this->data) < 1 ?
                 ' class="hiddeninitially"' :
@@ -965,19 +938,13 @@ abstract class FOGPage extends FOGBase
         ob_start();
         foreach ((array)$this->templates as $index => &$template) {
             printf(
-                '<%s%s>%s</%s>',
-                $this->_wrapper,
-                (
-                    $this->atts[$index] ?
-                    $this->atts[$index] :
-                    ''
-                ),
+                '<td%s>%s</td>',
+                $this->atts[$index] ?: '',
                 str_replace(
                     $this->dataFind,
                     $this->dataReplace,
                     $template
-                ),
-                $this->_wrapper
+                )
             );
             unset($template);
         }
