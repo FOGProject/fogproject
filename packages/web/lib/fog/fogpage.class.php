@@ -760,9 +760,9 @@ abstract class FOGPage extends FOGBase
                 echo '<div class="col-md-3">';
                 echo '<form action="#" method="get">';
                 echo '<div class="input-group">';
-                echo '<input class="form-control" id="system-search" name='
+                echo '<input class="form-control system-search" name='
                     . '"q" placeholder="Search table for" required/>';
-                echo '<span class="input-group-addon search-submit">';
+                echo '<span class="input-group-addon">';
                 echo '<i class="fogsearch fa fa-search">';
                 echo '<span class="sr-only">';
                 echo self::$foglang['Search'];
@@ -774,7 +774,7 @@ abstract class FOGPage extends FOGBase
                 echo '</div>';
                 echo '<div class="col-md-9">';
             }
-            echo '<table class="table table-list-search">';
+            echo '<table class="table-list-search">';
             echo $this->buildHeaderRow();
             echo '<tbody>';
             $tablestr = '<tr><td colspan="'

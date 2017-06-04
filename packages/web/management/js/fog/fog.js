@@ -14,6 +14,13 @@ var $_GET = getQueryParams(document.location.search),
     sub = $_GET['sub'],
     tab = $_GET['tab'],
     _L = new Array(),
+    subs = [
+        'list',
+        'search',
+        'storageGroup',
+        'listhosts',
+        'listgroups'
+    ],
     StatusAutoHideTimer,
     StatusAutoHideDelay = 30000,
     AJAXTaskUpdate,
@@ -55,10 +62,19 @@ function setTipsyStuff() {
     });
 }
 function setEditFocus() {
-    $('input,select,textarea').not('[type="checkbox"],[name="groupsel"],[name="nodesel"],[name="ulang"]').change(function(e) {
+    $('input,select,textarea').not(
+        '[type="checkbox"],[name="groupsel"],[name="nodesel"],[name="ulang"]'
+    ).change(function(e) {
         e.preventDefault();
         field = $(this);
-        field.not(':focus') ? field.next('i').hide() : field.append('<span class="input-group-addon"><i class="fa fa-pencil fa-fw"></i></span>');
+        if (field.not(':focus')) {
+            field.next('i').hide();
+        } else {
+            field.append(
+                '<span class="input-group-addon"><i class='
+                + '"fa fa-pencil fa-fw"></i></span>'
+            );
+        }
     });
 }
 function setChecked(ids) {
@@ -72,7 +88,9 @@ function setChecked(ids) {
 function getQueryParams(qs) {
     qs = qs.split("+").join(" ");
     var params = {},tokens,re = /[?&]?([^=]+)=([^&]*)/g;
-    while (tokens = re.exec(qs)) params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
+    while (tokens = re.exec(qs)) {
+        params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
+    }
     return params;
 }
 function AJAXServerTime() {
@@ -83,7 +101,10 @@ function AJAXServerTime() {
             $('#showtime').html(data);
         },
         complete : function() {
-            setTimeout(AJAXServerTime, 60000 - ((new Date().getTime() - startTime) % 60000));
+            setTimeout(
+                AJAXServerTime,
+                60000 - ((new Date().getTime() - startTime) % 60000)
+            );
         }
     });
 }
@@ -98,17 +119,17 @@ function AJAXServerTime() {
         'click',
         '.mainmenu .dropdown-menu, .submenu .dropdown-menu',
         function(e) {
-        e.stopPropagation();
+            e.stopPropagation();
         }
     );
     $.validator.addMethod(
-            'regex',
-            function(value, element,regexp) {
-                var re = new RegExp(regexp);
-                return this.optional(element) || re.test(value);
-            },
-            "Invalid Input"
-            );
+        'regex',
+        function(value, element,regexp) {
+            var re = new RegExp(regexp);
+            return this.optional(element) || re.test(value);
+        },
+        "Invalid Input"
+    );
     screenview = $('#screenview').attr('value');
     setTipsyStuff();
     setEditFocus();
@@ -116,14 +137,18 @@ function AJAXServerTime() {
     ActionBox = $('.action-boxes.host');
     ActionBoxDel = $('.action-boxes.del');
     callme = 'hide';
-    if ((typeof(sub) == 'undefined' || $.inArray(sub,['list','search','storageGroup','listhosts','listgroups']) > -1) && $('.no-active-tasks').length < 1) callme = 'show';
+    if ((typeof(sub) == 'undefined' || $.inArray(sub,subs) > -1)
+        && $('.no-active-tasks').length < 1
+    ) {
+        callme = 'show';
+    }
     ActionBox[callme]();
     ActionBoxDel[callme]();
     setupParserInfo();
     setupFogTableInfoFunction();
     AJAXServerTime();
-    $('.list,.search,.storageGroup,.listhosts,.listgroups').click(function(e) {
-        if (sub && $.inArray(sub,['list','search','storageGroup','listhosts','listgroups']) < 0) {
+    $('.'+subs.join(',.')).click(function(e) {
+        if (sub && $.inArray(sub, subs) < 0) {
             return;
         }
         e.preventDefault();
@@ -134,7 +159,9 @@ function AJAXServerTime() {
             url: $(this).prop('href'),
             dataType: 'json',
             success: function(response) {
-                if (response === null || response.data === null) {
+                if (response === null
+                    || response.data === null
+                ) {
                     dataLength = 0;
                 } else {
                     dataLength = response.data.length;
@@ -144,9 +171,18 @@ function AJAXServerTime() {
                 tbody = $('tbody', Container);
                 LastCount = dataLength;
                 if (dataLength > 0) {
-                    buildHeaderRow(response.headerData, response.attributes, 'th');
+                    buildHeaderRow(
+                        response.headerData,
+                        response.attributes,
+                        'th'
+                    );
                     thead = $('thead', Container);
-                    buildRow(response.data, response.templates, response.attributes, 'td');
+                    buildRow(
+                        response.data,
+                        response.templates,
+                        response.attributes,
+                        'td'
+                    );
                 }
                 TableCheck();
                 this.listAJAX = null;
@@ -163,7 +199,7 @@ function AJAXServerTime() {
     $('form').children().each(function() {
         this.value=$(this).val().trim();
     });
-    if ($.inArray(sub,['list','listhosts','listgroups','storageGroup']) < 0 && screenview == 'list') {
+    if ($.inArray(sub, subs) < 0 && screenview == 'list') {
         $('.list').trigger('click');
     }
 })(jQuery);
@@ -174,11 +210,15 @@ function forceClick(e) {
         type: 'POST',
         url: $(this).attr('href'),
         beforeSend: function() {
-            $(this).unbind('click').removeClass().addClass('fa fa-refresh fa-spin fa-fw icon');
+            $(this).unbind('click').removeClass().addClass(
+                'fa fa-refresh fa-spin fa-fw icon'
+            );
         },
         success: function(data) {
             if (typeof(data) == 'undefined' || data === null) return;
-            $(this).unbind('click').removeClass().addClass('fa fa-angle-double-right fa-fw icon');
+            $(this).unbind('click').removeClass().addClass(
+                'fa fa-angle-double-right fa-fw icon'
+            );
         },
         error: function() {
             $(this).bind('click').removeClass().addClass('fa fa-bolt fa-fw icon');
@@ -186,20 +226,24 @@ function forceClick(e) {
     });
     e.preventDefault();
 }
-$.fn.exists = function() {return this.length > 0;}
-$.fn.isIE8 = function() {return $.browser.msie && parseInt($.browser.version, 10) <= 8;}
+$.fn.exists = function() {
+    return this.length > 0;
+};
+$.fn.isIE8 = function() {
+    return $.browser.msie && parseInt($.browser.version, 10) <= 8;
+};
 $.fn.fogVariable = function(opts) {
     if (this.length == 0) return this;
     return this.each(function() {
         window[$(this).prop('id').toString()] = $(this).html().toString();
         $(this).remove();
     });
-}
+};
 $.fn.fogAjaxSearch = function(opts) {
     if (this.length == 0) return this;
     var Defaults = {
         URL: $('.search-wrapper').prop('action'),
-        Container: '.table-list-search',
+        Container: '.table-list-search:first',
         SearchDelay: 400,
         SearchMinLength: 1,
     };
@@ -210,10 +254,9 @@ $.fn.fogAjaxSearch = function(opts) {
     Container = $(Options.Container);
     if (!Container.length) return this;
     callme = 'hide';
-    if ($('.table-list-search').length > 0
-        || $('#tab-container').length > 0
-        || $('tbody > tr', Container).filter('.no-active-tasks').length > 0
-        || $.inArray(sub,['list','listhosts','listgroups','storageGroup']) > -1) {
+    if (Container.length > 0
+            || $('tbody > tr', Container).filter('.no-active-tasks').length > 0
+            || $.inArray(sub, subs) > -1) {
         callme = 'show';
     }
     Container[callme]().fogTableInfo().trigger('updateAll');
@@ -223,7 +266,39 @@ $.fn.fogAjaxSearch = function(opts) {
         var searchElement = $(this);
         var SubmitButton = $('.search-submit');
         searchElement.keyup(function() {
-            if (this.SearchTimer) clearTimeout(this.SearchTimer);
+            if (this.SearchTimer) {
+                clearTimeout(this.SearchTimer);
+            }
+            if ($('#tab-container').length > 0) {
+                tabholder = $('#tab-container');
+                tabholder.addClass('row').removeAttr('id');
+                tablestr = '<div class="col-md-3">'
+                    + '<form action="#" method="get">'
+                    + '<div class="input-group">'
+                    + '<input class="form-control system-search" name='
+                    + '"q" placeholder="Search table for" required/>'
+                    + '<span class="input-group-addon">'
+                    + '<i class="fogsearch fa fa-search">'
+                    + '<span class="sr-only">'
+                    + 'Search...'
+                    + '</span>'
+                    + '</i>'
+                    + '</span>'
+                    + '</div>'
+                    + '</form>'
+                    + '</div>'
+                    + '<div class="col-md-9">'
+                    + '<table class="table table-list-search">'
+                    + '<thead><tr><th></th></tr></thead>'
+                    + '<tbody><tr><td></td></td></tbody>'
+                    + '</table>'
+                    + '</div>';
+                tabholder.html(tablestr);
+                Container = $('.table-list-search');
+                thead = $('thead', Container);
+                tbody = $('tbody', Container);
+                Container.fogTableInfo().trigger('updateAll');
+            }
             this.SearchTimer = setTimeout(PerformSearch,Options.SearchDelay);
         }).focus(function() {
             var searchElement = $(this).removeClass('placeholder');
@@ -274,6 +349,7 @@ $.fn.fogAjaxSearch = function(opts) {
                         buildRow(response.data,response.templates,response.attributes,'td');
                     }
                     TableCheck();
+                    Container.fogTableInfo().trigger('updateAll');
                     this.SearchAJAX = null;
                     checkboxToggleSearchListPages();
                 },
@@ -388,7 +464,7 @@ function buildRow(data,templates,attributes,wrapper) {
                 percentRow += value.elapsed+'/'+value.remains+'</li>';
                 percentRow += '<li>'+parseInt(value.percent)+'%</li>';
                 percentRow += '<li>'+value.copied+' of '+value.total+' (';
-                percentRow += value.bpm+'/min)</li></ul></div></td></tr>';
+                        percentRow += value.bpm+'/min)</li></ul></div></td></tr>';
                 $('#'+node+'-'+value.id).addClass('with-progress').after(percentRow);
             }
         });
@@ -558,8 +634,12 @@ function setupFogTableInfoFunction() {
                             break;
                         case 'imaging-log':
                             headParser = {
-                                2: {sorter: 'dateParser'},
-                                3: {sorter: 'dateParser'}
+                                2: {
+                                    sorter: 'dateParser'
+                                },
+                                3: {
+                                    sorter: 'dateParser'
+                                }
                             };
                             break;
                         default:
