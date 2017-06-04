@@ -761,7 +761,7 @@ abstract class FOGPage extends FOGBase
                 echo '<form action="#" method="get">';
                 echo '<div class="input-group">';
                 echo '<input class="form-control" id="system-search" name='
-                    . '"q" placeholder="Search for" required/>';
+                    . '"q" placeholder="Search table for" required/>';
                 echo '<span class="input-group-addon search-submit">';
                 echo '<i class="fogsearch fa fa-search">';
                 echo '<span class="sr-only">';
