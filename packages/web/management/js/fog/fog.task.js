@@ -14,7 +14,7 @@ $(function() {
     var cancelurl = (sub.indexOf('active') != -1 ? location.href : '');
     var Options = {
         URL: location.href,
-        Container: '#active-tasks',
+        Container: '.table-list-search',
         CancelURL:  cancelurl
     };
     Container = $(Options.Container);

@@ -330,7 +330,8 @@ class Page extends FOGBase
             'js/jquery-ui-timepicker-addon.js',
             'js/fog/fog.js',
             'js/fog/fog.main.js',
-            'js/jscolor.min.js'
+            'js/jscolor.min.js',
+            'js/bootstrap/alltblsearch.js'
         );
         if (!self::$FOGUser->isValid()) {
             $files[] = 'js/fog/fog.login.js';
