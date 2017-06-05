@@ -63,7 +63,7 @@ function setTipsyStuff() {
 }
 function setEditFocus() {
     $('input,select,textarea').not(
-        '[type="checkbox"],[name="groupsel"],[name="nodesel"],[name="ulang"],.system-search,.search-input'
+        '[type="checkbox"],[name="groupsel"],[name="nodesel"],[name="ulang"],#uname,#upass,.system-search,.search-input'
     ).focus(function(e) {
         e.preventDefault();
         field = $(this);

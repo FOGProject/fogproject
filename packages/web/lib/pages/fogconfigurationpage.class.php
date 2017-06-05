@@ -1206,31 +1206,40 @@ class FOGConfigurationPage extends FOGPage
     public function maclist()
     {
         $this->title = _('MAC Address Manufacturer Listing');
-        printf(
-            '<div class="hostgroup">%s</div>'
-            . '<div class="c"><p>%s: %s</p>'
-            . '<p><div id="delete"></div>'
-            . '<div id="update"></div>'
-            . '<input class="macButtons" type='
-            . '"button" title="%s" value="%s" id='
-            . '"macButtonDel"/>&nbsp;&nbsp;&nbsp;&nbsp;'
-            . '<input class="macButtons" id="macButtonUp" type='
-            . '"button" title="%s" value="%s"/></p><p>%s'
-            . '<a href="http://standards.ieee.org/regauth/oui/oui.txt">'
-            . 'http://standards.ieee.org/regauth/oui/oui.txt</a></p></div>',
-            sprintf(
-                '%s %s.',
-                _('This section allows you to import known mac address makers'),
-                _('into the FOG database for easier identication')
-            ),
-            _('Current Records'),
-            self::getMACLookupCount(),
-            _('Delete MACs'),
-            _('Delete Current Records'),
-            _('Update MACs'),
-            _('Update Current Listing'),
-            _('MAC Address listing source: ')
+        echo '<div class="card text-center">';
+        echo '<div class="header">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '<p class="category">';
+        echo _(
+            'This section allows you to import known mac address makers '
+            . 'into the FOG database for easier identification'
         );
+        echo '.';
+        echo '</p>';
+        echo '</div>';
+        echo '<p class="category">';
+        echo _('Current Records');
+        echo ': ';
+        echo self::getMACLookupCount();
+        echo '</p>';
+        echo '<div id="delete"></div>';
+        echo '<div id="update"></div>';
+        echo '<div class="row">';
+        echo '<button class="macButtons btn btn-default" type='
+            . '"button" id="macButtonDel">';
+        echo _('Delete MACs');
+        echo '</button>';
+        echo '<button class="macButtons btn btn-default" type='
+            . '"button" id="macButtonUp">';
+        echo _('Update MACs');
+        echo '</button>';
+        echo '</div>';
+        echo '<a href="http://standards.ieee.org/regauth/oui/oui.txt">';
+        echo 'http://standards.ieee.org/regauth/oui/oui.txt';
+        echo '</a>';
+        echo '</div>';
     }
     /**
      * Safes the data for real for the mac address stuff.
