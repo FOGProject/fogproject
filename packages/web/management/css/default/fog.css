@@ -70,14 +70,20 @@ table td {
 #login-history {
     width: 600px;
 }
+select,
 .select2-container {
-    min-width: 220px !important;
+    min-width: 210px !important;
+    max-width: 220px !important;
 }
 .form-signin .select2-container {
     max-width: 100% !important;
 }
 .input-group {
     min-width: 220px !important;
+}
+.input-group input[type=checkbox] {
+    min-width: 0;
+    width: 16px;
 }
 .card {
     padding: 10px;
@@ -99,10 +105,11 @@ a:hover, a:focus, a:active {
 .signin.footer {
     line-height: 50px;
 }
-.additionalMACsRow {
+.additionalMACsRow,
+.pendingMACsRow {
     display: none;
 }
-#tab-container > div:not(.additionalMACsRow):not(:target) {
+#tab-container > div:not(.additionalMACsRow):not(.pendingMACsRow):not(:target) {
     display: none !important;
 }
 #tab-container > div:target {
@@ -159,4 +166,7 @@ a:hover, a:focus, a:active {
     background-color: transparent;
     border: 0;
     box-shadow: none;
+}
+.tablesorter-filter.disabled {
+    display: none;
 }
