@@ -63,18 +63,18 @@ function setTipsyStuff() {
 }
 function setEditFocus() {
     $('input,select,textarea').not(
-        '[type="checkbox"],[name="groupsel"],[name="nodesel"],[name="ulang"]'
+        '[type="checkbox"],[name="groupsel"],[name="nodesel"],[name="ulang"],.system-search,.search-input'
     ).focus(function(e) {
         e.preventDefault();
         field = $(this);
         $(this).after(
-            '<span class="input-group-addon"><i class='
-            + '"fa fa-pencil fa-fw"></i></span>'
+            '<span class="input-group-addon fogpencil"><i class='
+            + '"fa fa-pencil fa-fw fogpencil"></i></span>'
         );
     }).blur(function(e) {
         e.preventDefault();
         field = $(this);
-        $('.input-group-addon').remove();
+        $('.fogpencil').remove();
     });
 }
 function setChecked(ids) {

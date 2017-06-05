@@ -2027,25 +2027,8 @@ abstract class FOGPage extends FOGBase
             $this->templates,
             $this->attributes
         );
+        global $node;
         global $sub;
-        if (empty($useAD)) {
-            $useAD = $_REQUEST['domain'];
-        }
-        if (empty($ADDomain)) {
-            $ADDomain = $_REQUEST['domainname'];
-        }
-        if (empty($ADOU)) {
-            $ADOU = trim(str_replace(';', '', $_REQUEST['ou']));
-        }
-        if (empty($ADUser)) {
-            $ADUser = $_REQUEST['domainuser'];
-        }
-        if (empty($ADPass)) {
-            $ADPass = $_REQUEST['domainpassword'];
-        }
-        if (empty($ADPassLegacy)) {
-            $ADPassLegacy = $_REQUEST['domainpasswordlegacy'];
-        }
         if ($this->obj->isValid()) {
             if (empty($useAD)) {
                 $useAD = $this->obj->get('useAD');
@@ -2120,22 +2103,23 @@ abstract class FOGPage extends FOGBase
                 $ADOU
             );
         }
-        global $node;
         echo '<!-- Active Directory -->';
-        echo '<div class="text-center" id="'
+        echo '<div id="'
             . $node
             . '-active-directory">';
+        echo '<div class="text-center">';
         echo '<p class="category">';
         echo _('Active Directory');
         echo '</p>';
-        echo '<div id="adClear"></div>';
         echo '</div>';
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '">';
         echo '<div class="form-group">';
+        echo '<div class="input-group">';
         echo '<input type="text" name="fakeusernameremembered" class="fakes"/>';
         echo '<input type="text" name="fakepasswordremembered" class="fakes"/>';
+        echo '</div>';
         $this->templates = array(
             '${field}',
             '${input}',
@@ -2145,6 +2129,11 @@ abstract class FOGPage extends FOGBase
             array(),
         );
         $fields = array(
+            '<label class="label-control" for="clearAD">'
+            . _('Clear all fields?')
+            . '</label>' => '<div class="input-group">'
+            . '<div id="adClear"></div>'
+            . '</div>',
             sprintf(
                 '<label class="label-control" for="adEnabled">%s</label>',
                 _('Join Domain after image task')
@@ -2235,14 +2224,22 @@ abstract class FOGPage extends FOGBase
                     ''
                 )
             ),
-            '&nbsp;' => '<button class="btn btn-default" type="submit" name='
-                . '"updatead">'
+            '<label class="label-control" for="'
+                . $node.'-'.$sub
+                . '">'
+                . _('Make changes?')
+                . '</label>' => '<div class="input-group">'
+                . '<button class="btn btn-default" type="submit" name='
+                . '"updatead" id="'
+                . $node.'-'.$sub
+                . '">'
                 . (
                     $sub == 'add' ?
                     _('Add') :
                     _('Update')
                 )
                 . '</button>'
+                . '</div>'
         );
         foreach ((array)$fields as $field => &$input) {
             $this->data[] = array(
@@ -2269,6 +2266,7 @@ abstract class FOGPage extends FOGBase
         $this->render();
         echo '</div>';
         echo '</form>';
+        echo '</div>';
         unset($this->data);
     }
     /**
