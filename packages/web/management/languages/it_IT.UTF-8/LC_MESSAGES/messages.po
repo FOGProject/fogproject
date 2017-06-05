@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-05 14:56-0400\n"
+"POT-Creation-Date: 2017-06-05 15:22-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -7059,7 +7059,7 @@ msgid "Started/Checked in"
 msgstr "Avviato/controllato"
 
 #: /var/www/fog/lib/reports/snapin_log.report.php:56
-#: /var/www/fog/lib/service/snapinhash.class.php:241
+#: /var/www/fog/lib/service/snapinhash.class.php:232
 #: /var/www/fog/lib/service/imagesize.class.php:240
 msgid "Completed"
 msgstr "Completato"
@@ -7488,15 +7488,11 @@ msgstr "Per aggiornare i valori di hash come necessario"
 msgid "Trying Snapin hash for"
 msgstr "Cercando hash di Snapin per"
 
-#: /var/www/fog/lib/service/snapinhash.class.php:197
-msgid "Snapin hash already set"
-msgstr "L'hash del Snapin è già impostato"
-
-#: /var/www/fog/lib/service/snapinhash.class.php:215
+#: /var/www/fog/lib/service/snapinhash.class.php:206
 msgid "Getting snapin hash and size for"
 msgstr "Ottenere hash di snapin e dimensione per"
 
-#: /var/www/fog/lib/service/snapinhash.class.php:225
+#: /var/www/fog/lib/service/snapinhash.class.php:216
 msgid "Hash"
 msgstr "Hash"
 
@@ -9145,6 +9141,9 @@ msgstr "Ciao FOG client"
 #: /var/www/fog/service/locationlisting.php:28
 msgid "There are no locations on this server"
 msgstr "Non ci sono posizioni su questo server"
+
+#~ msgid "Snapin hash already set"
+#~ msgstr "L'hash del Snapin è già impostato"
 
 #~ msgid "Add new host definition"
 #~ msgstr "Aggiungere nuova definizione ospite"
