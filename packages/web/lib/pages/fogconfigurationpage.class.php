@@ -94,21 +94,13 @@ class FOGConfigurationPage extends FOGPage
     public function version()
     {
         $this->title = _('FOG Version Information');
-        echo '<div class="latestInfo">';
-        printf(
-            '<p>%s: %s</p>',
-            _('Running Version'),
-            FOG_VERSION
-        );
-        printf(
-            '<p class="placehere" vers="%s"></p>',
-            FOG_VERSION
-        );
-        echo '</div>';
-        printf(
-            '<h1>%s</h1>',
-            _('Kernel Versions')
-        );
+        echo '<p class="placehere" vers="'
+            . FOG_VERSION
+            . '"></p>';
+        echo '<div class="col-md-offset-6">';
+        echo '<h3 class="title">';
+        echo _('Kernel Versions');
+        echo '</h3>';
         $find = array(
             'isEnabled' => 1
         );
@@ -122,15 +114,20 @@ class FOGConfigurationPage extends FOGPage
                 ),
                 FILTER_SANITIZE_URL
             );
-            printf(
-                '<h2>%s FOG Version: ()</h2>'
-                . '<pre class="kernvers l" urlcall="%s"></pre>',
-                $StorageNode->get('name'),
-                $url
-            );
+            echo '<p class="category">';
+            echo $StorageNode->get('name');
+            echo ' ';
+            echo _('FOG Version');
+            echo ': ()';
+            echo '</p>';
+            echo '<pre class="kernvers" urlcall="';
+            echo $url;
+            echo '">';
+            echo '</pre>';
             unset($StorageNode);
         }
         unset($Responses, $Nodes);
+        echo '</div>';
     }
     /**
      * Display the fog license information
