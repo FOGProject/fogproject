@@ -392,8 +392,29 @@ class HostManagementPage extends FOGPage
     {
         $this->title = _('New Host');
         unset($this->data);
+        echo '<div class="text-center">';
+        echo '<h3 class="title">';
+        echo $this->title;
+        echo '</h3>';
+        echo '</div>';
+        echo '<div class="form-group">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
         echo '<!-- General -->';
-        echo '<div id="host-general">';
+        echo '<div id="host-general" class="organic-tabs">';
+        echo '</div>';
+        echo $this->adFieldsToDisplay(
+            filter_input(INPUT_POST, 'domain'),
+            filter_input(INPUT_POST, 'domainname'),
+            filter_input(INPUT_POST, 'ou'),
+            filter_input(INPUT_POST, 'domainuser'),
+            filter_input(INPUT_POST, 'domainpassword'),
+            filter_input(INPUT_POST, 'domainpasswordlegacy'),
+            isset($_REQUEST['enforcesel'])
+        );
+        echo '</form>';
+        echo '</div>';
         $this->headerData = '';
         $this->templates = array(
             '${field}',
@@ -455,11 +476,6 @@ class HostManagementPage extends FOGPage
             _('Host Bios Exit Type') => $this->exitNorm,
             _('Host EFI Exit Type') => $this->exitEfi,
         );
-        printf(
-            '<h2>%s</h2><form method="post" action="%s">',
-            _('Add new host definition'),
-            $this->formAction
-        );
         self::$HookManager
             ->processEvent(
                 'HOST_FIELDS',
@@ -490,27 +506,6 @@ class HostManagementPage extends FOGPage
         if (!isset($_REQUEST['enforcesel'])) {
             $_REQUEST['enforcesel'] = self::getSetting('FOG_ENFORCE_HOST_CHANGES');
         }
-        echo $this->adFieldsToDisplay(
-            Initiator::sanitizeItems(
-                $_REQUEST['domain']
-            ),
-            Initiator::sanitizeItems(
-                $_REQUEST['domainname']
-            ),
-            Initiator::sanitizeItems(
-                $_REQUEST['ou']
-            ),
-            Initiator::sanitizeItems(
-                $_REQUEST['domainuser']
-            ),
-            Initiator::sanitizeItems(
-                $_REQUEST['domainpassword']
-            ),
-            Initiator::sanitizeItems(
-                $_REQUEST['domainpasswordlegacy']
-            ),
-            isset($_REQUEST['enforcesel'])
-        );
         echo '</form>';
     }
     /**
@@ -825,14 +820,12 @@ class HostManagementPage extends FOGPage
                 '<div class="additionalMACsCell">%s</div>',
                 $addMACs
             ),
-            (
-                $this->obj->get('pendingMACs') ?
-                _('Pending MACs') :
-                null
-            ) => (
-                $this->obj->get('pendingMACs') ?
-                $pending :
-                null
+            sprintf(
+                '<div class="pendingMACsRow">%s</div>',
+                _('Pending MACs')
+            ) => sprintf(
+                '<div class="pendingMACsCell">%s</div>',
+                $pending
             ),
             _('Host Description') => sprintf(
                 '<textarea name="description" rows="8" cols="40">%s</textarea>',

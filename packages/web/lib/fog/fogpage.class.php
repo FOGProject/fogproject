@@ -774,8 +774,12 @@ abstract class FOGPage extends FOGBase
                 echo '</div>';
                 echo '<div class="col-md-9">';
             }
-            echo '<table class="table-list-search">';
-            echo $this->buildHeaderRow();
+            echo '<table class="table table-list-search">';
+            if (count($this->headerData) > 0) {
+                echo '<thead>';
+                echo $this->buildHeaderRow();
+                echo '</thead>';
+            }
             echo '<tbody>';
             $tablestr = '<tr><td colspan="'
                 . count($this->templates)
@@ -794,7 +798,7 @@ abstract class FOGPage extends FOGBase
             if (count($this->data) > 0) {
                 $tablestr = '';
             }
-            foreach ((array)$this->data as &$rowData) {
+            foreach ($this->data as &$rowData) {
                 $tablestr .= '<tr class="'
                     . strtolower($node)
                     . '" '
@@ -862,30 +866,34 @@ abstract class FOGPage extends FOGBase
     {
         unset($this->atts);
         $this->_setAtts();
-        if (!$this->headerData) {
+        if (!count($this->headerData) < 1) {
             return;
         }
-        $setHeaderData = function (&$content, $index) {
-            printf(
-                '<th%s data-column="%s">%s</th>',
-                ($this->atts[$index] ?: ''),
-                $index,
-                $content
-            );
-        };
         ob_start();
-        printf(
-            '<thead><tr class="header">',
-            (
+        echo '<tr class="header'
+            . (
                 count($this->data) < 1 ?
-                ' class="hiddeninitially"' :
+                ' hiddeninitially' :
                 ''
             )
-        );
-        if (count($this->headerData)) {
-            array_walk($this->headerData, $setHeaderData);
+            . '">';
+        foreach ($this->headerData as $index => &$content) {
+            echo '<th'
+                . (
+                    $this->atts[$index] ?
+                    ' '
+                    . $this->atts[$index]
+                    . ' ' :
+                    ''
+                )
+                . 'data-column="'
+                . $index
+                . '">';
+            echo $content;
+            echo '</th>';
+            unset($content);
         }
-        echo '</tr></thead>';
+        echo '</tr>';
         return ob_get_clean();
     }
     /**
@@ -937,15 +945,19 @@ abstract class FOGPage extends FOGBase
         $this->_setAtts();
         ob_start();
         foreach ((array)$this->templates as $index => &$template) {
-            printf(
-                '<td%s>%s</td>',
-                $this->atts[$index] ?: '',
-                str_replace(
-                    $this->dataFind,
-                    $this->dataReplace,
-                    $template
+            echo '<td'
+                . (
+                    $this->atts[$index] ?
+                    ' ' . $this->atts[$index] . ' ' :
+                    ''
                 )
+                . '>';
+            echo str_replace(
+                $this->dataFind,
+                $this->dataReplace,
+                $template
             );
+            echo '</td>';
             unset($template);
         }
         return ob_get_clean();
@@ -1097,13 +1109,13 @@ abstract class FOGPage extends FOGBase
         echo '<h4 class="title">';
         echo _('Confirm tasking');
         echo '</h4>';
-        echo '<form class="form-horizontal deploy-container" method="post" action="'
-            . $this->formAction
-            . '">';
         echo '<p class="category">';
         echo _('Advanced Settings');
         echo '</p>';
         echo '</div>';
+        echo '<form class="form-horizontal deploy-container" method="post" action="'
+            . $this->formAction
+            . '">';
         if ($TaskType->get('id') == 13) {
             echo '<div class="form-group">';
             echo '<p class="category">';
@@ -1223,7 +1235,7 @@ abstract class FOGPage extends FOGBase
                 unset($name, $val);
             }
             printf(
-                '<select class="form-control" id="specialCrons" name="specialCrons">'
+                '<select class="input-group" id="specialCrons" name="specialCrons">'
                 . '%s</select><br/><br/>',
                 ob_get_clean()
             );
@@ -2093,17 +2105,37 @@ abstract class FOGPage extends FOGBase
                 );
             }
             $OUOptions = sprintf(
-                '<select id="adOU" class="smaller" name="ou">%s</select>',
+                '<div class="input-group">'
+                . '<select id="adOU" class="form-control" name="ou">'
+                . '%s</select>'
+                . '</div>',
                 ob_get_clean()
             );
         } else {
             $OUOptions = sprintf(
-                '<input id="adOU" class="smaller" type="text" name="ou" '
-                . 'value="%s" autocomplete="off"/>',
+                '<div class="input-group">'
+                . '<input id="adOU" class="form-control" type="text" name='
+                . '"ou" value="%s" autocomplete="off"/>'
+                . '</div>',
                 $ADOU
             );
         }
+        global $node;
         echo '<!-- Active Directory -->';
+        echo '<div class="text-center" id="'
+            . $node
+            . '-active-directory">';
+        echo '<p class="category">';
+        echo _('Active Directory');
+        echo '</p>';
+        echo '<div id="adClear"></div>';
+        echo '</div>';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
+        echo '<div class="form-group">';
+        echo '<input type="text" name="fakeusernameremembered" class="fakes"/>';
+        echo '<input type="text" name="fakepasswordremembered" class="fakes"/>';
         $this->templates = array(
             '${field}',
             '${input}',
@@ -2113,92 +2145,104 @@ abstract class FOGPage extends FOGBase
             array(),
         );
         $fields = array(
-            '<input type="text" '
-            . 'name="fakeusernameremembered" class="fakes"/>' =>
-            '<input type="password" '
-            . 'name="fakepasswordremembered" class="fakes"/>',
-            _('Join Domain after image task') =>
             sprintf(
-                '<input id="adEnabled" type="checkbox" name="domain"%s/>'
-                . '<label for="adEnabled"></label>',
+                '<label class="label-control" for="adEnabled">%s</label>',
+                _('Join Domain after image task')
+            ) => sprintf(
+                '<div class="input-group">'
+                . '<input id="adEnabled" type="checkbox" name="domain" class='
+                . '"%s"%s/>'
+                . '</div>',
+                'form-control',
                 (
                     $useAD ?
                     ' checked' :
                     ''
                 )
             ),
-            _('Domain name') =>
             sprintf(
-                '<input id="adDomain" class="smaller" type="text" '
-                . 'name="domainname" value="%s" autocomplete="off"/>',
+                '<label class="label-control" for="adDomain">%s</label>',
+                _('Domain name')
+            ) => sprintf(
+                '<div class="input-group">'
+                . '<input id="adDomain" class="form-control" type="text" '
+                . 'name="domainname" value="%s" autocomplete="off"/>'
+                . '</div>',
                 $ADDomain
             ),
             sprintf(
-                '%s<br/><span class="lightColor">(%s)</span>',
+                '<label class="label-control" for="adOU">%s'
+                . '<br/>(%s)'
+                . '</label>',
                 _('Organizational Unit'),
                 _('Blank for default')
             ) => $OUOptions,
-            _('Domain Username') =>
             sprintf(
-                '<input id="adUsername" class="smaller" type="text" '
-                . 'name="domainuser" value="%s" autocomplete="off"/>',
+                '<label class="label-control" for="adUsername">%s</label>',
+                _('Domain Username')
+            ) => sprintf(
+                '<div class="input-group">'
+                . '<input id="adUsername" class="form-control" type="text" '
+                . 'name="domainuser" value="%s" autocomplete="off"/>'
+                . '</div>',
                 $ADUser
             ),
             sprintf(
-                '%s<br/>(%s)',
+                '<label class="label-control" for="adPassword">%s'
+                . '<br/>(%s)'
+                . '</label>',
                 _('Domain Password'),
                 _('Will auto-encrypt plaintext')
-            ) =>
-            sprintf(
-                '<input id="adPassword" class="smaller" type="password" '
-                . 'name="domainpassword" value="%s" autocomplete="off"/>',
+            ) => sprintf(
+                '<div class="input-group">'
+                . '<input id="adPassword" class="form-control" type='
+                . '"password" '
+                . 'name="domainpassword" value="%s" autocomplete="off"/>'
+                . '</div>',
                 $ADPass
             ),
             sprintf(
-                '%s<br/>(%s)',
+                '<label class="label-control" for="adPasswordLegacy">%s'
+                . '<br/>(%s)'
+                . '</label>',
                 _('Domain Password Legacy'),
                 _('Must be encrypted')
-            ) =>
-            sprintf(
-                '<input id="adPasswordLegacy" class="smaller" '
+            ) => sprintf(
+                '<div class="input-group">'
+                . '<input id="adPasswordLegacy" class="form-control" '
                 . 'type="password" name="domainpasswordlegacy" '
-                . 'value="%s" autocomplete="off"/>',
+                . 'value="%s" autocomplete="off"/>'
+                . '</div>',
                 $ADPassLegacy
             ),
             sprintf(
-                '%s %s?',
+                '<label class="label-control" for="ensel">'
+                . '%s %s?'
+                . '</label>',
                 _('Reboot host on hostname changes and'),
                 _('AD changes even if users are logged in')
             ) =>
             sprintf(
-                '<input name="enforcesel" type="checkbox" id="'
-                . 'ensel" autocomplete="off"%s/><label for="ensel">'
-                . '</label><input type="hidden" '
-                . 'name="enforce"/>',
+                '<div class="input-group">'
+                . '<input name="enforcesel" type="checkbox" id="'
+                . 'ensel" class="form-control" autocomplete="off"%s/>'
+                . '<input type="hidden" '
+                . 'name="enforce"/>'
+                . '</div>',
                 (
                     $enforce ?
                     ' checked' :
                     ''
                 )
             ),
-            '&nbsp;' =>
-            sprintf(
-                '<input name="updatead" type="submit" value="%s"/>',
-                (
+            '&nbsp;' => '<button class="btn btn-default" type="submit" name='
+                . '"updatead">'
+                . (
                     $sub == 'add' ?
                     _('Add') :
                     _('Update')
                 )
-            ),
-        );
-        printf(
-            '<div id="%s-active-directory"><form method="post" '
-            . 'action="%s&tab=%s-active-directory"><h2>%s<div '
-            . 'id="adClear"></div></h2>',
-            $this->node,
-            $this->formAction,
-            $this->node,
-            _('Active Directory')
+                . '</button>'
         );
         foreach ((array)$fields as $field => &$input) {
             $this->data[] = array(
@@ -2223,8 +2267,9 @@ abstract class FOGPage extends FOGBase
             )
         );
         $this->render();
+        echo '</div>';
+        echo '</form>';
         unset($this->data);
-        echo '</form></div>';
     }
     /**
      * Get's the adinformation from ajax

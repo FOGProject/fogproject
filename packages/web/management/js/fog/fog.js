@@ -64,17 +64,17 @@ function setTipsyStuff() {
 function setEditFocus() {
     $('input,select,textarea').not(
         '[type="checkbox"],[name="groupsel"],[name="nodesel"],[name="ulang"]'
-    ).change(function(e) {
+    ).focus(function(e) {
         e.preventDefault();
         field = $(this);
-        if (field.not(':focus')) {
-            field.next('i').hide();
-        } else {
-            field.append(
-                '<span class="input-group-addon"><i class='
-                + '"fa fa-pencil fa-fw"></i></span>'
-            );
-        }
+        $(this).after(
+            '<span class="input-group-addon"><i class='
+            + '"fa fa-pencil fa-fw"></i></span>'
+        );
+    }).blur(function(e) {
+        e.preventDefault();
+        field = $(this);
+        $('.input-group-addon').remove();
     });
 }
 function setChecked(ids) {
@@ -710,7 +710,7 @@ function setupFogTableInfoFunction() {
                 break;
         }
         table = $('table', this);
-        //if (table.length == 0 || !table.has('thead')) return this;
+        if (table.length == 0 || !table.has('thead')) return this;
         table.find('thead > tr').addClass('hand');
         table.tablesorter({
             headers: headParser,
