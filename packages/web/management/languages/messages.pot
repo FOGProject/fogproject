@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-05 14:56-0400\n"
+"POT-Creation-Date: 2017-06-05 15:22-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -6974,7 +6974,7 @@ msgid "Started/Checked in"
 msgstr ""
 
 #: /var/www/fog/lib/reports/snapin_log.report.php:56
-#: /var/www/fog/lib/service/snapinhash.class.php:241
+#: /var/www/fog/lib/service/snapinhash.class.php:232
 #: /var/www/fog/lib/service/imagesize.class.php:240
 msgid "Completed"
 msgstr ""
@@ -7403,15 +7403,11 @@ msgstr ""
 msgid "Trying Snapin hash for"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:197
-msgid "Snapin hash already set"
-msgstr ""
-
-#: /var/www/fog/lib/service/snapinhash.class.php:215
+#: /var/www/fog/lib/service/snapinhash.class.php:206
 msgid "Getting snapin hash and size for"
 msgstr ""
 
-#: /var/www/fog/lib/service/snapinhash.class.php:225
+#: /var/www/fog/lib/service/snapinhash.class.php:216
 msgid "Hash"
 msgstr ""
 
