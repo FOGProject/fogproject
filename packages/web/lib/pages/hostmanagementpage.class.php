@@ -899,7 +899,7 @@ class HostManagementPage extends FOGPage
         if (!$this->obj->get('pending')) {
             $this->basictasksOptions();
         }
-        $this->adFieldsToDisplay(
+        echo $this->adFieldsToDisplay(
             $this->obj->get('useAD'),
             $this->obj->get('ADDomain'),
             $this->obj->get('ADOU'),

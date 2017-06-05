@@ -72,8 +72,8 @@ table td {
 }
 select,
 .select2-container {
-    min-width: 210px !important;
-    max-width: 220px !important;
+    //min-width: 210px !important;
+    //max-width: 220px !important;
 }
 .form-signin .select2-container {
     max-width: 100% !important;
@@ -169,4 +169,7 @@ a:hover, a:focus, a:active {
 }
 .tablesorter-filter.disabled {
     display: none;
+}
+.form-horizontal .form-group {
+    margin: auto;
 }

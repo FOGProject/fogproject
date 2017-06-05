@@ -1379,7 +1379,8 @@ class FOGConfigurationPage extends FOGPage
         $this->title = _('FOG System Settings');
         printf(
             '<p class="hostgroup">%s</p><form method='
-            . '"post" action="%s" enctype="multipart/form-data">'
+            . '"post" action="%s" enctype="multipart/form-data" '
+            . 'class="form-horizontal">'
             . '<div id="tab-container-1">',
             _('This section allows you to customize or alter ')
             . _('the way in which FOG operates. ')
@@ -1420,12 +1421,23 @@ class FOGConfigurationPage extends FOGPage
             if ($curcat != $catset) {
                 if ($catset !== false) {
                     $this->data[] = array(
-                        'span' => '&nbsp;',
-                        'service_name' => '',
-                        'input_type' => sprintf(
-                            '<input name="update" type="submit" value="%s"/>',
-                            _('Save Changes')
-                        ),
+                        'span' => '',
+                        'service_name' => '<label class="label-control" for='
+                        . '"'
+                        . $catset
+                        . $curcat
+                        . '">'
+                        . _('Save changes?')
+                        . '</label>',
+                        'input_type' => '<div class="input-group">'
+                        . '<button class="btn btn-default btn-block" type="submit" '
+                        . 'name="update" id="'
+                        . $catset
+                        . $curcat
+                        . '">'
+                        . _('Save Changes')
+                        . '</button>'
+                        . '</div>'
                     );
                     $this->render();
                     unset($this->data);
@@ -1464,7 +1476,8 @@ class FOGConfigurationPage extends FOGPage
                     $minsize = 5;
                     break;
                 }
-                $type = '<div class="rangegen '
+                $type = '<div class="input-group">'
+                    . '<div class="rangegen '
                     . $extra
                     . '"></div>'
                     . '<input type="text" readonly='
@@ -1473,7 +1486,10 @@ class FOGConfigurationPage extends FOGPage
                     . $extra
                     . '" maxsize="'
                     . $minsize
-                    . '" value="${service_value}"/>';
+                    . '" value="${service_value}" id="'
+                    . $Service->get('name')
+                    . '"/>'
+                    . '</div>';
                 break;
             case 'FOG_IMAGE_COMPRESSION_FORMAT_DEFAULT':
                 $vals = array(
@@ -1500,8 +1516,13 @@ class FOGConfigurationPage extends FOGPage
                 }
                 unset($vals);
                 $type = sprintf(
-                    '<select name="${service_id}" '
-                    . 'autocomplete="off">%s</select>',
+                    '<div class="input-group">'
+                    . '<select name="${service_id}" '
+                    . 'autocomplete="off" '
+                    . 'class="form-control" id="'
+                    . $Service->get('name')
+                    . '">%s</select>'
+                    . '</div>',
                     ob_get_clean()
                 );
                 break;
@@ -1523,8 +1544,13 @@ class FOGConfigurationPage extends FOGPage
                 }
                 unset($screens);
                 $type = sprintf(
-                    '<select name="${service_id}" '
-                    . 'autocomplete="off">%s</select>',
+                    '<div class="input-group">'
+                    . '<select name="${service_id}" '
+                    . 'autocomplete="off" '
+                    . 'class="form-group" id="'
+                    . $Service->get('name')
+                    . '">%s</select>'
+                    . '</div>',
                     ob_get_clean()
                 );
                 break;
@@ -1548,17 +1574,24 @@ class FOGConfigurationPage extends FOGPage
                     unset($val);
                 }
                 $type = sprintf(
-                    '<select name="${service_id}" '
-                    . 'autocomplete="off">%s</select>',
+                    '<div class="input-group">'
+                    . '<select name="${service_id}" '
+                    . 'autocomplete="off" '
+                    . 'class="form-control" id="'
+                    . $Service->get('name')
+                    . '">%s</select>'
+                    . '</div>',
                     ob_get_clean()
                 );
                 break;
             case 'FOG_BOOT_EXIT_TYPE':
             case 'FOG_EFI_BOOT_EXIT_TYPE':
-                $type = Service::buildExitSelector(
-                    $Service->get('id'),
-                    $Service->get('value')
-                );
+                $type = '<div class="input-group">'
+                    . Service::buildExitSelector(
+                        $Service->get('id'),
+                        $Service->get('value')
+                    )
+                    . '</div>';
                 break;
             case 'FOG_DEFAULT_LOCALE':
                 $locale = self::getSetting('FOG_DEFAULT_LOCALE');
@@ -1579,32 +1612,52 @@ class FOGConfigurationPage extends FOGPage
                     unset($humanreadable);
                 }
                 $type = sprintf(
-                    '<select name="${service_id}" '
-                    . 'autocomplete="off">%s</select>',
+                    '<div class="input-group">'
+                    . '<select name="${service_id}" '
+                    . 'autocomplete="off" '
+                    . 'class="form-control" id="'
+                    . $Service->get('name')
+                    . '">%s</select>'
+                    . '</div>',
                     ob_get_clean()
                 );
                 break;
             case 'FOG_QUICKREG_IMG_ID':
-                $type = self::getClass('ImageManager')->buildSelectBox(
-                    $Service->get('value'),
-                    sprintf(
-                        '%s" id="${service_name}"',
-                        $Service->get('id')
+                $type = '<div class="input-group">'
+                    . self::getClass('ImageManager')->buildSelectBox(
+                        $Service->get('value'),
+                        sprintf(
+                            '%s" id="%s"',
+                            $Service->get('id'),
+                            $Service->get('name')
+                        )
                     )
-                );
+                    . '</div>';
                 break;
             case 'FOG_QUICKREG_GROUP_ASSOC':
-                $type = self::getClass('GroupManager')->buildSelectBox(
-                    $Service->get('value'),
-                    $Service->get('id')
-                );
+                $type = '<div class="input-group">'
+                    . self::getClass('GroupManager')->buildSelectBox(
+                        $Service->get('value'),
+                        sprintf(
+                            '%s" id="%s"',
+                            $Service->get('id'),
+                            $Service->get('name')
+                        )
+                    )
+                    . '</div>';
                 break;
             case 'FOG_KEY_SEQUENCE':
-                $type = self::getClass('KeySequenceManager')
+                $type = '<div class="input-group">'
+                    . self::getClass('KeySequenceManager')
                     ->buildSelectBox(
                         $Service->get('value'),
-                        $Service->get('id')
-                    );
+                        sprintf(
+                            '%s" id="%s"',
+                            $Service->get('id'),
+                            $Service->get('name')
+                        )
+                    )
+                    . '</div>';
                 break;
             case 'FOG_QUICKREG_OS_ID':
                 $ImageName = _('No image specified');
@@ -1615,7 +1668,8 @@ class FOGConfigurationPage extends FOGPage
                     )->get('name');
                 }
                 $type = sprintf(
-                    '<p id="${service_name}">%s</p>',
+                    '<p id="%s">%s</p>',
+                    $Service->get('name'),
                     $ImageName
                 );
                 break;
@@ -1623,7 +1677,11 @@ class FOGConfigurationPage extends FOGPage
                 $dt = self::niceDate('now', $utc);
                 $tzIDs = DateTimeZone::listIdentifiers();
                 ob_start();
-                echo '<select name="${service_id}">';
+                echo '<div class="input-group">';
+                echo '<select name="${service_id}" class="form-control" '
+                    . 'id="'
+                    . $Service->get('name')
+                    . '">';
                 foreach ((array)$tzIDs as $i => &$tz) {
                     $current_tz = self::getClass('DateTimeZone', $tz);
                     $offset = $current_tz->getOffset($dt);
@@ -1659,87 +1717,122 @@ class FOGConfigurationPage extends FOGPage
                     );
                 }
                 echo '</select>';
+                echo '</div>';
                 $type = ob_get_clean();
                 break;
             case ('FOG_API_TOKEN' === $Service->get('name') ||
                 (preg_match('#pass#i', $Service->get('name'))
                 && !preg_match('#(valid|min)#i', $Service->get('name')))):
-                $extra = '/>';
+                $extra = '"/></div>';
                 $normal = '${service_value}';
                 if ('FOG_API_TOKEN' === $Service->get('name')) {
-                    $extra = ' readonly class="token"/>'
-                        . '<input type="button" class="resettoken" value="'
+                    $extra = 'token" readonly/></div>'
+                        . '<button class="resettoken btn btn-default btn-block" '
+                        . 'type="button">'
                         . _('Reset Token')
-                        . '"/>';
+                        . '</button>';
                     $normal = '${service_base64val}';
                 }
-                $type = (
+                $type = '<div class="input-group">';
+                $type .= (
                     $Service->get('name') == 'FOG_STORAGENODE_MYSQLPASS' ?
                     '<input type="text" name="${service_id}" value='
                     . '"'
                     . $normal
-                    . '" autocomplete="off"'
+                    . '" autocomplete="off" class="form-control" id='
+                    . '"${service-name}"'
                     . $extra :
                     '<input type="password" name='
                     . '"${service_id}" value="'
                     . $normal
                     . '" autocomplete='
-                    . '"off"'
+                    . '"off" id="'
+                    . $Service->get('name')
+                    . '" class="form-control '
                     . $extra
                 );
                 break;
             case (in_array($Service->get('name'), $ServiceNames)):
                 $type = sprintf(
-                    '<input type="checkbox" name="${service_id}" value='
-                    . '"1" id="gs-${service_id}"%s/><label for="gs-${service_id}">'
-                    . '</label>',
+                    '<div class="input-group">'
+                    . '<input class="form-control" '
+                    . 'type="checkbox" name="${service_id}" value='
+                    . '"1" id="%s"%s/>',
+                    $Service->get('name'),
                     (
                         $Service->get('value') ?
                         ' checked' :
                         ''
                     )
                 );
+                $type .= '</div>';
                 break;
             case 'FOG_COMPANY_TOS':
             case 'FOG_AD_DEFAULT_OU':
-                $type = '<textarea rows="5" name="${service_id}">'
-                    . '${service_value}</textarea>';
+                $type = '<div class="input-group">'
+                    . '<textarea rows="5" name="${service_id}" class='
+                    . '"form-control" id="'
+                    . $Service->get('name')
+                    . '">'
+                    . '${service_value}</textarea>'
+                    . '</div>';
                 break;
             case 'FOG_CLIENT_BANNER_IMAGE':
                 $set = trim($Service->get('value'));
                 if (!$set) {
-                    $type = '<input type="file" name="${service_id}" '
-                        . 'class="newbanner"/>'
-                        . '<input type="hidden" value="" name="banner"/>';
+                    $type = '<div class="input-group">'
+                        . '<input type="file" name="${service_id}" '
+                        . 'class="newbanner form-control" id="'
+                        . $Service->get('name')
+                        . '"/>'
+                        . '<input type="hidden" value="" name="banner"/>'
+                        . '</div>';
                 } else {
                     $type = sprintf(
-                        '<label id="uploader" for="bannerimg">%s'
+                        '<div class="input-group">'
+                        . '<label id="uploader" for="bannerimg">%s'
                         . '<a href="#" id="bannerimg" identi='
                         . '"${service_id}"> <i class='
                         . '"fa fa-arrow-up noBorder"></i></a></label>'
-                        . '<input type="hidden" value="%s" name="banner"/>',
+                        . '<input type="hidden" value="%s" name="banner" '
+                        . 'class="form-control"/>'
+                        . '</div>',
                         basename($set),
                         $Service->get('value')
                     );
                 }
                 break;
             case 'FOG_CLIENT_BANNER_SHA':
-                $type = '<input readonly name="${service_id}" type='
+                $type = '<div class="input-group">'
+                    . '<input readonly name="${service_id}" type='
                     . '"text" value="'
                     . $Service->get('value')
-                    . '"/>';
+                    . '" id="'
+                    . $Service->get('name')
+                    . '" '
+                    . 'class="form-control"/>'
+                    . '</div>';
                 break;
             case 'FOG_COMPANY_COLOR':
-                $type = '<input name="${service_id}" type='
+                $type = '<div class="input-group">'
+                    . '<input name="${service_id}" type='
                     . '"text" maxlength="6" value="'
                     . $Service->get('value')
+                    . '" id="'
+                    . $Service->get('name')
                     . '" '
-                    . 'class="jscolor {required:false} {refine:false}"/>';
+                    . 'class="jscolor {required:false} {refine:false} '
+                    . 'form-control"/>'
+                    . '</div>';
                 break;
             default:
-                $type = '<input id="${service_name}" type='
+                $type = '<div class="input-group">'
+                    . '<input id="'
+                    . $Service->get('name')
+                    . '" type='
                     . '"text" name="${service_id}" value='
-                    . '"${service_value}" autocomplete="off"/>';
+                    . '"${service_value}" autocomplete="off" '
+                    . 'class="form-control"/>';
                 break;
             }
             $this->data[] = array(
@@ -1751,10 +1844,16 @@ class FOGConfigurationPage extends FOGPage
                         )
                     ) <= 1 ?
                     $type :
-                    '<textarea rows="5" name="${service_id}">'
-                    . '${service_value}</textarea>'
+                    '<div class="input-group">'
+                    . '<textarea rows="5" name="${service_id}" '
+                    . 'class="form-control">'
+                    . '${service_value}</textarea></div>'
                 ),
-                'service_name' => $Service->get('name'),
+                'service_name' => '<label class="label-control" for="'
+                . $Service->get('name')
+                . '">'
+                . $Service->get('name')
+                . '</label>',
                 'span' => '<i class="icon fa fa-question hand" title='
                 . '"${service_desc}"></i>',
                 'service_id' => $Service->get('id'),
@@ -1781,10 +1880,12 @@ class FOGConfigurationPage extends FOGPage
         $this->data[] = array(
             'span' => '&nbsp;',
             'service_name' => '',
-            'input_type' => sprintf(
-                '<input name="update" type="submit" value="%s"/>',
-                _('Save Changes')
-            ),
+            'input_type' => '<div class="input-group">'
+            . '<button class="btn btn-default btn-block" name="update" '
+            . 'type="submit">'
+            . _('Save Changes')
+            . '</button>'
+            . '</div>'
         );
         $this->render();
         unset($this->data);

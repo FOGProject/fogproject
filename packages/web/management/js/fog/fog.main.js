@@ -24,13 +24,10 @@ $(function() {
         });
     });
     // Make button
-    $('#adClear').html('<br/><input type="button" id="clearAD" value="Clear Fields"></input>');
+    $('#adClear').html('<div class="row"><button class="btn btn-default" type="button" id="clearAD">Clear Fields</button></div>');
     // Clear fields
     $('#clearAD').on('click',function(event) {
-        clearDoms = ['#adOU[type="text"]','#adDomain','#adUsername','#adPassword','#adPasswordLegacy'];
-        $.each(clearDoms,function(index,value) {
-            $(value).val('');
-        });
+        clearDoms = $('#adOU[type="text"], #adDomain, #adUsername, #adPassword, #adPasswordLegacy').val('');
         $('#adEnabled').prop('checked',false);
     });
     // Bind to AD Settings checkbox
@@ -139,13 +136,18 @@ $(function() {
     // Show Password information
     $(':password')
     .not('[name="fakepasswordremembered"],[name="upass"]')
-    .before('<span class="input-group-addon"><i class="fa fa-eye-slash"></i></span>');
-    $(':password').next('i').mousedown(function() {
-        $(this).removeClass('fa-eye-slash').addClass('fa-eye');
-        $(this).prev('input').prop('type','text');
-    }).mouseup(function() {
-        $(this).removeClass('fa-eye').addClass('fa-eye-slash');
-        $(this).prev('input').prop('type','password');
+    .before('<span class="input-group-addon"><i class="fa fa-eye-slash fogpasswordeye"></i></span>');
+    $('.fogpasswordeye').click(function(e) {
+        e.preventDefault();
+        if (!$(this).hasClass('clicked')) {
+            $(this).addClass('clicked');
+            $(this).removeClass('fa-eye-slash').addClass('fa-eye');
+            $(this).closest('div').find('input').prop('type','text');
+        } else {
+            $(this).removeClass('clicked');
+            $(this).removeClass('fa-eye').addClass('fa-eye-slash');
+            $(this).closest('div').find('input').prop('type','password');
+        }
     });
     // Process FOG JS Variables
     $('.fog-variable').fogVariable();
