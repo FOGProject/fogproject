@@ -70,9 +70,8 @@ table td {
 #login-history {
     width: 600px;
 }
-select,
 .select2-container {
-    //min-width: 210px !important;
+    min-width: 210px !important;
     //max-width: 220px !important;
 }
 .form-signin .select2-container {
