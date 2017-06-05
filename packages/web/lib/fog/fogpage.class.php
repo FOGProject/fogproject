@@ -2479,7 +2479,7 @@ abstract class FOGPage extends FOGBase
             if (!self::getMACLookupCount()) {
                 throw new Exception(
                     sprintf(
-                        '<a href="?node=about&sub=mac-list">%s</a>',
+                        '<a href="?node=about&sub=maclist">%s</a>',
                         _('Load MAC Vendors')
                     )
                 );
