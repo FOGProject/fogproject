@@ -1781,6 +1781,8 @@ class FOGConfigurationPage extends FOGPage
                     . '<textarea rows="5" name="${service_id}" class='
                     . '"form-control" id="'
                     . $Service->get('name')
+                    . '" id="'
+                    . $Service->get('name')
                     . '">'
                     . '${service_value}</textarea>'
                     . '</div>';
@@ -1854,7 +1856,9 @@ class FOGConfigurationPage extends FOGPage
                     $type :
                     '<div class="input-group">'
                     . '<textarea rows="5" name="${service_id}" '
-                    . 'class="form-control">'
+                    . 'class="form-control" id="'
+                    . $Service->get('name')
+                    . '">'
                     . '${service_value}</textarea></div>'
                 ),
                 'service_name' => '<label class="label-control" for="'
