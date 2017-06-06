@@ -1483,9 +1483,11 @@ class FOGConfigurationPage extends FOGPage
                     break;
                 }
                 $type = '<div class="input-group">'
+                    . '<div class="col-md-9">'
                     . '<div class="rangegen '
                     . $extra
                     . '"></div>'
+                    . '</div>'
                     . '<input type="text" readonly='
                     . '"true" name="${service_id}" class='
                     . '"showVal '
