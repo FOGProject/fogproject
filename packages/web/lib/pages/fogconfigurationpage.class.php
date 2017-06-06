@@ -1597,7 +1597,9 @@ class FOGConfigurationPage extends FOGPage
                 $type = '<div class="input-group">'
                     . Service::buildExitSelector(
                         $Service->get('id'),
-                        $Service->get('value')
+                        $Service->get('value'),
+                        '',
+                        $Service->get('name')
                     )
                     . '</div>';
                 break;
