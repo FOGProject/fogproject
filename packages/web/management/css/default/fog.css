@@ -70,15 +70,13 @@ table td {
 #login-history {
     width: 600px;
 }
+.input-group,
 .select2-container {
     min-width: 210px !important;
-    //max-width: 220px !important;
+    max-width: 220px !important;
 }
 .form-signin .select2-container {
     max-width: 100% !important;
-}
-.input-group {
-    min-width: 220px !important;
 }
 .input-group input[type=checkbox] {
     min-width: 0;
