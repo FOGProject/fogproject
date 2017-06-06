@@ -88,8 +88,8 @@ $(function() {
         return false;
     });
     // Assign DOM elements
-    if (typeof($(".pigz").slider) == typeof(Function)) {
-        $(".pigz").slider({
+    if (typeof($("div.pigz").slider) == typeof(Function)) {
+        $("div.pigz").slider({
             min: 0,
             max: 22,
             range: 'min',
@@ -99,8 +99,8 @@ $(function() {
             }
         });
     }
-    if (typeof($(".loglvl").slider) == typeof(Function)) {
-        $(".loglvl").slider({
+    if (typeof($("div.loglvl").slider) == typeof(Function)) {
+        $("div.loglvl").slider({
             min: 0,
             max: 7,
             range: 'min',
@@ -110,8 +110,8 @@ $(function() {
             }
         });
     }
-    if (typeof($(".inact").slider) == typeof(Function)) {
-        $(".inact").slider({
+    if (typeof($("div.inact").slider) == typeof(Function)) {
+        $("div.inact").slider({
             min: 1,
             max: 24,
             range: 'min',
@@ -121,8 +121,8 @@ $(function() {
             }
         });
     }
-    if (typeof($(".regen").slider) == typeof(Function)) {
-        $(".regen").slider({
+    if (typeof($("div.regen").slider) == typeof(Function)) {
+        $("div.regen").slider({
             step: 0.25,
             min: 0.25,
             max: 24,

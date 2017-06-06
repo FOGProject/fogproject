@@ -172,3 +172,10 @@ a:hover, a:focus, a:active {
 .form-horizontal .form-group {
     margin: auto;
 }
+.showVal {
+    position: relative;
+    top: 0;
+    right: 0;
+    min-width: 0;
+    width: 40px;
+}
