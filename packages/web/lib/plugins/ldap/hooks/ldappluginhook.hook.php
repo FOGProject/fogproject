@@ -91,13 +91,6 @@ class LDAPPluginHook extends Hook
                     $this,
                     'isLdapType'
                 )
-            )
-            ->register(
-                'USER_LOGGING_OUT',
-                array(
-                    $this,
-                    'removeLoggedInUser'
-                )
             );
     }
     /**
@@ -157,9 +150,6 @@ class LDAPPluginHook extends Hook
                     ->save();
                 break;
             default:
-                if (!self::$ajax) {
-                    $tmpUser->destroy();
-                }
                 $tmpUser = new User();
             }
         }
@@ -214,22 +204,6 @@ class LDAPPluginHook extends Hook
         $types = array(990, 991);
         if (in_array($arguments['type'], $types)) {
             $arguments['typeIsValid'] = false;
-        }
-    }
-    /**
-     * Tests if the user is an ldap type and if so logs
-     * them out.
-     *
-     * @return void
-     */
-    public function removeLoggedInUser()
-    {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        $types = array(990, 991);
-        if (in_array(self::$FOGUser->get('type'), $types)) {
-            self::$FOGUser->destroy();
         }
     }
 }
