@@ -115,11 +115,8 @@ class Page extends FOGBase
             }
         }
         $this
-            ->addCSS('css/bootstrap.min.css')
-            ->addCSS('css/bootstrap-theme.min.css')
             ->addCSS('css/animate.min.css')
             ->addCSS('css/font-awesome.min.css')
-            ->addCSS('css/light-bootstrap-dashboard.css')
             ->addCSS('css/jquery-ui.css')
             ->addCSS('css/jquery-ui.theme.css')
             ->addCSS('css/jquery-ui.structure.css')
@@ -128,6 +125,8 @@ class Page extends FOGBase
             ->addCSS('css/jquery.tipsy.css')
             ->addCSS('css/select2.min.css')
             ->addCSS('css/theme.blue.css')
+            ->addCSS('css/bootstrap.min.css')
+            ->addCSS('css/bootstrap-theme.min.css')
             ->addCSS($dispTheme);
         if (!isset($node)
             || !$node
@@ -205,7 +204,7 @@ class Page extends FOGBase
                     'plugin',
                     array(
                         self::$foglang['Plugins'],
-                        'fa fa-cog fa-2x'
+                        'fa fa-cog'
                     )
                 );
             }
@@ -240,7 +239,7 @@ class Page extends FOGBase
                 self::redirect('index.php');
             }
             ob_start();
-            echo '<ul class="nav navbar-collapse">';
+            echo '<ul class="nav navbar-nav">';
             $count = false;
             if (count($this->main) > 0) {
                 foreach ($this->main as $link => &$title) {
@@ -258,49 +257,15 @@ class Page extends FOGBase
                         . '>';
                     echo '<a href="?node='
                         . $link
-                        . '">';
+                        . '" data-toggle="tooltip" title="'
+                        . $title[0]
+                        . '" data-placement="bottom">';
                     echo '<i class="'
                         . $title[1]
                         . '"></i>';
-                    echo '<p>';
-                    echo $title[0];
                     echo '</p>';
                     echo '</a>';
                     echo '</li>';
-                    $class = self::$FOGPageManager->getFOGPageClass();
-                    if ($link == $class->node) {
-                        $FOGSub = new FOGSubMenu();
-                        if (count($class->menu)) {
-                            foreach ($class->menu as $l => &$t) {
-                                $FOGSub->addItems(
-                                    $class->node,
-                                    array((string)$t => (string)$l),
-                                    '',
-                                    '',
-                                    'mainmenu'
-                                );
-                                unset($t);
-                            }
-                            unset($class->menu);
-                        }
-                        if (count($class->subMenu)) {
-                            foreach ($class->subMenu as $l => &$t) {
-                                $FOGSub->addItems(
-                                    $class->node,
-                                    array((string)$t => (string)$l),
-                                    $class->id,
-                                    sprintf(
-                                        self::$foglang['SelMenu'],
-                                        get_class($class->obj)
-                                    ),
-                                    'submenu'
-                                );
-                                unset($t);
-                            }
-                            unset($classSubMenu);
-                        }
-                        echo $FOGSub->get($class->node, false);
-                    }
                     unset($title);
                 }
             }
@@ -309,8 +274,6 @@ class Page extends FOGBase
         }
         $files = array(
             'js/jquery-latest.min.js',
-            'js/bootstrap.min.js',
-            'js/light-bootstrap-dashboard.js',
             'js/jquery.validate.min.js',
             'js/additional-methods.min.js',
             'js/jquery.tablesorter.combined.js',
@@ -328,6 +291,7 @@ class Page extends FOGBase
             'js/flot/jquery.flot.JUMlib.js',
             'js/flot/jquery.flot.gantt.js',
             'js/jquery-ui-timepicker-addon.js',
+            'js/bootstrap.min.js',
             'js/fog/fog.js',
             'js/fog/fog.main.js',
             'js/jscolor.min.js',
@@ -496,5 +460,111 @@ class Page extends FOGBase
             unset($$var);
         }
         return $this;
+    }
+    /**
+     * Generate the search form.
+     *
+     * @return void
+     */
+    public static function getSearchForm()
+    {
+        global $node;
+        if (!in_array($node, self::$searchPages)) {
+            return;
+        }
+        echo '<ul class="nav navbar-nav">';
+        echo '<li>';
+        echo '<form class="navbar-form navbar-left search-wrapper" role='
+            . '"search" method="post" action="'
+            . '../management/index.php?node='
+            . $node
+            . '&sub=search">';
+        echo '<div class="input-group">';
+        echo '<input type="text" class="'
+            . 'form-control search-input" placeholder="'
+            . self::$foglang['Search']
+            . '..." name="crit"/>';
+        echo '<span class="input-group-addon search-submit">';
+        echo '<i class="fogsearch fa fa-search">';
+        echo '<span class="sr-only">';
+        echo self::$foglang['Search'];
+        echo '</span>';
+        echo '</i>';
+        echo '</span>';
+        echo '</form>';
+        echo '</li>';
+        echo '</ul>';
+    }
+    /**
+     * Generate the logout element.
+     *
+     * @return void
+     */
+    public static function getLogout()
+    {
+        echo '<ul class="nav navbar-nav navbar-right">';
+        echo '<li>';
+        echo '<a href="../management/index.php?node=logout">';
+        echo strtolower(
+            trim(
+                self::$FOGUser->get('name')
+            )
+        );
+        echo ': ';
+        echo self::$foglang['Logout'];
+        echo '</a>';
+        echo '</li>';
+        echo '<li class="separator hidden-lg hidden-md"></li>';
+        echo '</ul>';
+    }
+    /**
+     * Generates our main item, sub item, and notes tabs.
+     *
+     * @return void
+     */
+    public static function getMenuItems()
+    {
+        $class = self::$FOGPageManager->getFOGPageClass();
+        $FOGSub = new FOGSubMenu();
+        if (count($class->menu)) {
+            foreach ($class->menu as $l => &$t) {
+                $FOGSub->addItems(
+                    $class->node,
+                    array((string)$t => (string)$l),
+                    '',
+                    '',
+                    'mainmenu'
+                );
+                unset($t);
+            }
+            unset($class->menu);
+        }
+        if (count($class->subMenu)) {
+            foreach ($class->subMenu as $l => &$t) {
+                $FOGSub->addItems(
+                    $class->node,
+                    array((string)$t => (string)$l),
+                    $class->id,
+                    sprintf(
+                        self::$foglang['SelMenu'],
+                        get_class($class->obj)
+                    ),
+                    'submenu'
+                );
+                unset($t);
+            }
+            unset($classSubMenu);
+        }
+        if (count($class->notes)) {
+            foreach ($class->notes as $l => &$t) {
+                $FOGSub->addNotes(
+                    $class->node,
+                    array((string)$t => (string)$l),
+                    $class->id
+                );
+                unset($t);
+            }
+        }
+        echo $FOGSub->get($class->node);
     }
 }

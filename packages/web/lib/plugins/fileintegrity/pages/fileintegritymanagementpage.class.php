@@ -52,7 +52,7 @@ class FileIntegrityManagementPage extends FOGPage
             $this->notes = array(
                 _('Name') => $this->obj->get('name'),
                 _('Icon') => sprintf(
-                    '<i class="fa fa-%s fa-fw fa-2x"></i>',
+                    '<i class="fa fa-%s"></i>',
                     $this->obj->get('icon')
                 ),
             );

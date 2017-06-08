@@ -223,15 +223,10 @@ class FOGSubMenu extends FOGBase
     public function get($node, $getall = true)
     {
         ob_start();
+        echo '<ul class="nav nav-tabs">';
         if ($this->items[$node]) {
             foreach ((array) $this->items[$node] as $title => &$data) {
                 self::$_title = $this->fixTitle($title);
-                $class = strtolower(trim($this->items[$node][$title]['class']));
-                if ($class) {
-                    echo '<div class="'
-                        . strtolower($class)
-                        . '">';
-                }
                 echo '<li class="dropdown">';
                 echo '<a href="#" class="dropdown-toggle" data-toggle="dropdown">';
                 echo '<p>';
@@ -292,52 +287,23 @@ class FOGSubMenu extends FOGBase
                 }
                 echo '</ul>';
                 echo '</li>';
-                echo '</div>';
                 unset($data, $title);
             }
         }
-        if ($getall) {
-            echo '<ul class="nav navbar-nav navbar-left">';
-            if (in_array($node, self::$searchPages)) {
-                echo '<li>';
-                echo '<form class="navbar-form search-wrapper" role='
-                    . '"search" method="post" action="'
-                    . '?node='
-                    . $node
-                    . '&sub=search'
-                    . '">';
-                echo '<div class="input-group">';
-                echo '<input type="text" class='
-                    . '"form-control search-input placeholder" placeholder='
-                    . '"'
-                    . self::$foglang['Search']
-                    . '..." name="crit"/>';
-                echo '<span class="input-group-addon search-submit">';
-                echo '<i class="fogsearch fa fa-search">';
-                echo '<span class="sr-only">';
-                echo self::$foglang['Search'];
-                echo '</span>';
-                echo '</i>';
-                echo '</span>';
-                echo '</div>';
-                echo '</form>';
-                echo '</li>';
-            }
-            if ($this->notes[$node]) {
-                echo '<li class="dropdown">';
-                echo '<a href="#" class="dropdown-toggle" data-toggle="dropdown">';
-                echo '<p>';
-                echo _('Notes');
-                echo '<b class="caret"></b>';
-                echo '</p>';
-                echo '</a>';
-                echo '<ul class="dropdown-menu sidenotes">';
-                echo implode($this->notes[$node]);
-                echo '</ul>';
-                echo '</li>';
-            }
+        if ($this->notes[$node]) {
+            echo '<li class="dropdown">';
+            echo '<a href="#" class="dropdown-toggle" data-toggle="dropdown">';
+            echo '<p>';
+            echo _('Notes');
+            echo '<b class="caret"></b>';
+            echo '</p>';
+            echo '</a>';
+            echo '<ul class="dropdown-menu sidenotes">';
+            echo implode($this->notes[$node]);
             echo '</ul>';
+            echo '</li>';
         }
+        echo '</ul>';
 
         return ob_get_clean();
     }

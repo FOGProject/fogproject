@@ -109,6 +109,7 @@ function AJAXServerTime() {
     });
 }
 (function($) {
+    $('[data-toggle="tooltip"]').tooltip();
     if ($('#tab-container').length > 0) {
         if (location.hash == "") {
             firstid = $('#tab-container > div:first').prop('id');

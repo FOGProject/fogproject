@@ -94,7 +94,7 @@ class AddAccessControlMenuItem extends Hook
             $this->node,
             array(
                 _('Access Controls'),
-                'fa fa-user-secret fa-2x'
+                'fa fa-user-secret'
             )
         );
     }
