@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-05 20:52-0400\n"
+"POT-Creation-Date: 2017-06-08 13:40-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -78,18 +78,18 @@ msgstr ""
 msgid "Data must be an array or a callable item."
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogsubmenu.class.php:330
+#: /var/www/fog/lib/fog/fogsubmenu.class.php:297
 #: /var/www/fog/lib/reports/equipment_loan.report.php:211
 #, fuzzy
 msgid "Notes"
 msgstr "no establecido"
 
-#: /var/www/fog/lib/fog/fogsubmenu.class.php:356
+#: /var/www/fog/lib/fog/fogsubmenu.class.php:322
 #, fuzzy
 msgid "Title must be a string"
 msgstr "Evento debe ser una cadena"
 
-#: /var/www/fog/lib/fog/fogsubmenu.class.php:374
+#: /var/www/fog/lib/fog/fogsubmenu.class.php:340
 #, fuzzy
 msgid "Link must be a string"
 msgstr "Evento debe ser una cadena"
@@ -904,24 +904,24 @@ msgstr "Agente de usuario ha cambiado"
 msgid "Session altered improperly"
 msgstr "Sesión alterado indebidamente"
 
-#: /var/www/fog/lib/fog/fogpagemanager.class.php:168
+#: /var/www/fog/lib/fog/fogpagemanager.class.php:160
 msgid "No FOGPage Class found for this node"
 msgstr "No se encontró Clase FOGPage para este nodo"
 
-#: /var/www/fog/lib/fog/fogpagemanager.class.php:197
+#: /var/www/fog/lib/fog/fogpagemanager.class.php:189
 #, php-format
 msgid "Failed to Render Page: Node: %s, Error: %s"
 msgstr "No se pudo presentar Página: Nodo: %s , error: %s"
 
-#: /var/www/fog/lib/fog/fogpagemanager.class.php:243
+#: /var/www/fog/lib/fog/fogpagemanager.class.php:235
 msgid "No class value sent"
 msgstr "Se desconoce el valor de clase enviado"
 
-#: /var/www/fog/lib/fog/fogpagemanager.class.php:250
+#: /var/www/fog/lib/fog/fogpagemanager.class.php:242
 msgid "No node associated"
 msgstr "No nodo asociado"
 
-#: /var/www/fog/lib/fog/fogpagemanager.class.php:254
+#: /var/www/fog/lib/fog/fogpagemanager.class.php:246
 #, php-format
 msgid "Adding FOGPage: %s, Node: %s"
 msgstr "Adición de FOGPage: %s , Node: %s"
@@ -2453,7 +2453,7 @@ msgstr "el uso del disco de almacenamiento de imágenes del nodo seleccionado"
 msgid "Imaging Over the last 30 days"
 msgstr "Imaging lo largo de los últimos 30 días"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:380
+#: /var/www/fog/lib/pages/dashboardpage.class.php:378
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:465
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1913
 #: /var/www/fog/lib/reports/user_tracking.report.php:215
@@ -2462,20 +2462,20 @@ msgstr "Imaging lo largo de los últimos 30 días"
 msgid "Time"
 msgstr "Hora"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:383
-#: /var/www/fog/lib/pages/dashboardpage.class.php:391
+#: /var/www/fog/lib/pages/dashboardpage.class.php:381
+#: /var/www/fog/lib/pages/dashboardpage.class.php:389
 msgid "2 Minutes"
 msgstr "2 minutos"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:396
+#: /var/www/fog/lib/pages/dashboardpage.class.php:394
 msgid "10 Minutes"
 msgstr "10 minutos"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:401
+#: /var/www/fog/lib/pages/dashboardpage.class.php:399
 msgid "30 Minutes"
 msgstr "30 minutos"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:406
+#: /var/www/fog/lib/pages/dashboardpage.class.php:404
 #, fuzzy
 msgid "1 Hour"
 msgstr "1 hora"
@@ -2498,9 +2498,7 @@ msgid "FOG Forums"
 msgstr "Foros FOG"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:66
-#: /var/www/fog/management/other/index.php:156
-#: /var/www/fog/management/other/index.php:183
-#: /var/www/fog/management/other/index2.php:167
+#: /var/www/fog/management/other/index.php:143
 msgid "Donate to FOG"
 msgstr "Donar a la niebla"
 
@@ -8731,32 +8729,19 @@ msgstr ""
 msgid "Example Bolded Header"
 msgstr ""
 
-#: /var/www/fog/management/other/index.php:78
+#: /var/www/fog/management/other/index.php:60
 msgid "Toggle Navigation"
 msgstr ""
 
-#: /var/www/fog/management/other/index.php:148
-#: /var/www/fog/management/other/index.php:171
-#: /var/www/fog/management/other/index2.php:155
+#: /var/www/fog/management/other/index.php:135
 #, fuzzy
 msgid "Credits"
 msgstr "Crear"
 
-#: /var/www/fog/management/other/index.php:151
-#: /var/www/fog/management/other/index.php:176
-#: /var/www/fog/management/other/index2.php:160
+#: /var/www/fog/management/other/index.php:138
 #, fuzzy
 msgid "FOG Client"
 msgstr "FOG Wiki Cliente"
-
-#: /var/www/fog/management/other/index2.php:102
-msgid "Running Version"
-msgstr "ejecutando la versión"
-
-#: /var/www/fog/management/other/index2.php:104
-#, fuzzy
-msgid "SVN Revision"
-msgstr "Versión"
 
 #: /var/www/fog/commons/init.php:394
 msgid "Missing one or more extensions."
@@ -9899,6 +9884,13 @@ msgstr "Legado FOG Cliente"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "No hay grupos en este servidor."
+
+#~ msgid "Running Version"
+#~ msgstr "ejecutando la versión"
+
+#, fuzzy
+#~ msgid "SVN Revision"
+#~ msgstr "Versión"
 
 #~ msgid "Delete Current Records"
 #~ msgstr "Eliminar Registros actuales"

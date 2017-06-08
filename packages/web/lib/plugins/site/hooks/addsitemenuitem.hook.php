@@ -94,7 +94,7 @@ class AddSiteMenuItem extends Hook
             $this->node,
             array(
                 _('Sites'),
-                'fa fa-building fa-2x'
+                'fa fa-building'
             )
         );
     }

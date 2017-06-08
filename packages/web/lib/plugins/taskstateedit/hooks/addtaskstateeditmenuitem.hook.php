@@ -101,7 +101,7 @@ class AddTaskstateeditMenuItem extends Hook
             $this->node,
             array(
                 _('Task States'),
-                'fa fa-hourglass-start fa-2x'
+                'fa fa-hourglass-start'
             )
         );
     }

@@ -49,7 +49,7 @@ class TasktypeeditManagementPage extends FOGPage
             $this->notes = array(
                 _('Name') => $this->obj->get('name'),
                 _('Icon') => sprintf(
-                    '<i class="fa fa-%s fa-2x"></i>',
+                    '<i class="fa fa-%s"></i>',
                     $this->obj->get('icon')
                 ),
                 _('Type') => $this->obj->get('type'),

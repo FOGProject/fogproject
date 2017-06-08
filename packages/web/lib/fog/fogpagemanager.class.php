@@ -124,14 +124,6 @@ class FOGPageManager extends FOGBase
         }
         $class = $this->getFOGPageClass();
         self::$FOGSubMenu = self::getClass('FOGSubMenu');
-        foreach ((array)$class->notes as $link => &$title) {
-            self::$FOGSubMenu->addNotes(
-                $this->classValue,
-                array((string)$title => (string)$link),
-                $class->id
-            );
-            unset($title, $link);
-        }
         return self::$FOGSubMenu->get($this->classValue);
     }
     /**

@@ -47,33 +47,15 @@ unset($this->stylesheets);
 echo '<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon"/>';
 echo '</head>';
 echo '<body>';
-echo '<div class="wrapper'
-    . (
-        self::$FOGUser->isValid() ?
-        '' :
-        ' signin'
-    )
-    . '">';
 if (self::$FOGUser->isValid()) {
-    echo '<input type="hidden" class="fog-delete" id="FOGDeleteAuth" value="'
-        . (int)self::$fogdeleteactive
-        . '"/>';
-    echo '<input type="hidden" class="fog-export" id="FOGExportAuth" value="'
-        . (int)self::$fogexportactive
-        . '"/>';
-    echo '<input type="hidden" class="fog-variable" id="screenview" value="'
-        . self::$defaultscreen
-        . '"/>';
-    echo '<div class="sidebar" data-color="blue">';
-    echo '<div class="sidebar-wrapper">';
-    echo $this->menu;
-    echo '</div>';
-    echo '</div>';
-    echo '<div class="main-panel">';
-    echo '<nav class="navbar navbar-default navbar-fixed">';
+    /**
+     * Navigation items
+     */
+    echo '<nav class="navbar navbar-inverse navbar-fixed-top">';
     echo '<div class="container-fluid">';
-    echo '<div class="navbar-header navbar-fixed">';
-    echo '<button type="button" class="navbar-toggle" data-toggle="collapse">';
+    echo '<div class="navbar-header">';
+    echo '<button type="button" class="navbar-toggle collapsed" data-toggle="'
+        . 'collapse" data-target=".navbar-collapse">';
     echo '<span class="sr-only">'
         . _('Toggle Navigation')
         . '</span>';
@@ -81,38 +63,42 @@ if (self::$FOGUser->isValid()) {
     echo '<span class="icon-bar"></span>';
     echo '<span class="icon-bar"></span>';
     echo '</button>';
-    echo '<a class="navbar-brand" href="?node=home">';
+    echo '<a class="navbar-brand" href="../management/index.php?node=home">';
     echo '<img src="../favicon.ico" alt="'
         . self::$foglang['Slogan']
-        . '" title="'
+        . '" data-toggle="tooltip" data-placement="bottom" title="'
         . self::$foglang['Home']
         . '" class="logoimg"/>';
     echo '</a>';
     echo '</div>';
     echo '<div class="collapse navbar-collapse">';
-    if (!$this->isHomepage) {
-        echo self::$FOGPageManager->getSideMenu();
-    }
-    echo '<ul class="nav navbar-nav navbar-right">';
-    echo '<li>';
-    echo '<a href="?node=logout">'
-        . strtolower(trim(self::$FOGUser->get('name')))
-        . ': '
-        . self::$foglang['Logout']
-        . '</a>';
-    echo '</li>';
-    echo '<li class="separator hidden-1g hidden-md"></li>';
-    echo '</ul>';
+    self::getSearchForm();
+    echo $this->menu;
+    self::getLogout();
     echo '</div>';
     echo '</div>';
     echo '</nav>';
-    echo '<div class="content'
+    /**
+     * Main Content
+     */
+    echo '<div class="container'
         . (
             $this->isHomepage ?
             ' dashboard' :
             ''
         )
         . '">';
+    echo '<div class="panel panel-default">';
+    echo '<div class="panel-heading text-center">';
+    echo '<h4 class="title">'
+        . $this->sectionTitle
+        . '</h4>';
+    if (self::$FOGUser->isValid && $this->pageTitle) {
+        echo '<h5 class="title">'
+            . $this->pageTitle
+            . '</h5>';
+    }
+    echo '</div>';
     self::$HookManager
         ->processEvent(
             'CONTENT_DISPLAY',
@@ -122,72 +108,44 @@ if (self::$FOGUser->isValid()) {
                 'pageTitle' => &$this->pageTitle
             )
         );
-    echo '<div class="container-fluid">';
-    echo '<div class="card">';
-    echo '<div class="row text-center">';
-    echo '<h4 class="title">'
-        . $this->sectionTitle
-        . '</h4>';
-    echo '</div>';
-    if (self::$FOGUser->isValid && $this->pageTitle) {
-        echo '<div class="row text-center">';
-        echo '<h5 class="title">'
-            . $this->pageTitle
-            . '</h5>';
-        echo '</div>';
-    }
+    echo '<input type="hidden" class="fog-delete" id="FOGDeleteAuth" value="'
+        . (int)self::$fogdeleteactive
+        . '"/>';
+    echo '<input type="hidden" class="fog-export" id="FOGExportAuth" value="'
+        . (int)self::$fogexportactive
+        . '"/>';
+    echo '<input type="hidden" class="fog-variable" id="screenview" value="'
+        . self::$defaultscreen
+        . '"/>';
+    echo '<div class="panel-body">';
+    echo self::getMenuItems();
     echo $this->body;
     echo '</div>';
     echo '</div>';
     echo '</div>';
-    echo '<footer class="footer">';
-    echo '<div class="container-fluid">';
-    echo '<nav class="pull-left">';
-    echo '<ul>';
-    echo '<li><a href="https://wiki.fogproject.org/wiki/index.php?title=Credits">'
-        . _('Credits')
-        . '</a></li>';
-    echo '<li><a href="?node=client">'
-        . _('FOG Client')
-        . '</a></li>';
-    echo '<li><a href="https://www.paypal.com/cgi-bin/webscr?item_name=Donation'
-        . '+to+FOG+-+A+Free+Cloning+Solution&cmd=_donations&business=fogproject.org'
-        . '@gmail.com">'
-        . _('Donate to FOG')
-        . '</a></li>';
-    echo '</ul>';
-    echo '</nav>';
-    echo '</div>';
-    echo '</footer>';
 } else {
     echo $this->body;
     echo '</div>';
-    echo '<footer class="signin footer">';
-    echo '<div class="container-fluid">';
-    echo '<nav class="navbar navbar-default navbar-fixed-bottom">';
-    echo '<div class="container text-center">';
-    echo '<div class="col-xs-4">';
-    echo '<a href="https://wiki.fogproject.org/wiki/index.php?title=Credits">'
-        . _('Credits')
-        . '</a>';
-    echo '</div>';
-    echo '<div class="col-xs-4">';
-    echo '<a href="?node=client">'
-        . _('FOG Client')
-        . '</a>';
-    echo '</div>';
-    echo '<div class="col-xs-4">';
-    echo '<a href="https://www.paypal.com/cgi-bin/webscr?item_name=Donation'
-        . '+to+FOG+-+A+Free+Cloning+Solution&cmd=_donations&business=fogproject.org'
-        . '@gmail.com">'
-        . _('Donate to FOG')
-        . '</a>';
-    echo '</div>';
-    echo '</div>';
-    echo '</nav>';
-    echo '</div>';
-    echo '</footer>';
 }
+echo '<footer class="footer">';
+echo '<nav class="navbar navbar-inverse navbar-fixed-bottom center">';
+echo '<div class="container-fluid text-center">';
+echo '<ul class="nav navbar-nav">';
+echo '<li><a href="https://wiki.fogproject.org/wiki/index.php?title=Credits">'
+    . _('Credits')
+    . '</a></li>';
+echo '<li><a href="?node=client">'
+    . _('FOG Client')
+    . '</a></li>';
+echo '<li><a href="https://www.paypal.com/cgi-bin/webscr?item_name=Donation'
+    . '+to+FOG+-+A+Free+Cloning+Solution&cmd=_donations&business=fogproject.org'
+    . '@gmail.com">'
+    . _('Donate to FOG')
+    . '</a></li>';
+echo '</ul>';
+echo '</div>';
+echo '</nav>';
+echo '</footer>';
 foreach ((array)$this->javascripts as &$javascript) {
     echo '<script src="'
         . $javascript

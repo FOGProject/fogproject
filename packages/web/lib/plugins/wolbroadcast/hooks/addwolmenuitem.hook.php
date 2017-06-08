@@ -94,7 +94,7 @@ class AddWOLMenuItem extends Hook
             $this->node,
             array(
                 _('WOL Broadcasts'),
-                'fa fa-plug fa-2x'
+                'fa fa-plug'
             )
         );
     }

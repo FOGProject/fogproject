@@ -101,7 +101,7 @@ class AddFileIntegrityMenuItem extends Hook
             $this->node,
             array(
                 _('Integrity Settings'),
-                'fa fa-list-ol fa-2x'
+                'fa fa-list-ol'
             )
         );
     }
