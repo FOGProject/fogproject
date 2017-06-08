@@ -144,11 +144,6 @@ class User extends FOGController
                     'user' => &$tmpUser
                 )
             );
-        if (!$tmpUser->isValid()) {
-            $tmpUser = self::getClass('User')
-                ->set('name', $username)
-                ->load('name');
-        }
         $typeIsValid = true;
         $type = $tmpUser->get('type');
         self::$HookManager
@@ -166,6 +161,11 @@ class User extends FOGController
                     'typeIsValid' => &$typeIsValid
                 )
             );
+        if (!$tmpUser->isValid() && $typeIsValid) {
+            $tmpUser = self::getClass('User')
+                ->set('name', $username)
+                ->load('name');
+        }
         if ($tmpUser->isValid()
             && preg_match('#^[a-f0-9]{32}$#i', $tmpUser->get('password'))
             && md5($password) === $tmpUser->get('password')
