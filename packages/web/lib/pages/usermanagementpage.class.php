@@ -165,6 +165,7 @@ class UserManagementPage extends FOGPage
             . _('User Name')
             . '</label>' => '<div class="input-group">'
             . '<span class="input-group-addon">'
+            . _('Required')
             . '</span>'
             . '<input type="text" class="'
             . 'form-control username-input" name='
@@ -176,6 +177,7 @@ class UserManagementPage extends FOGPage
             . _('Friendly Name')
             . '</label>' => '<div class="input-group">'
             . '<span class="input-group-addon">'
+            . _('Optional')
             . '</span>'
             . '<input type="text" class="'
             . 'form-control friendlyname-input" name="'
@@ -185,7 +187,7 @@ class UserManagementPage extends FOGPage
             . '</div>',
             '<label class="label-control" for="password">'
             . _('User Password')
-            . '</label>' => '<div class="input-group">'
+            . '</label>' => '<div class="input-group has-error">'
             . '<input type="password" class="'
             . 'form-control password-input1" name="password" value='
             . '"" autocomplete='
@@ -193,7 +195,7 @@ class UserManagementPage extends FOGPage
             . '</div>',
             '<label class="label-control" for="password2">'
             . _('User Password (confirm)')
-            . '</label>' => '<div class="input-group">'
+            . '</label>' => '<div class="input-group has-error">'
             . '<input type="password" class="'
             . 'form-control password-input2" name="password_confirm" value='
             . '"" autocomplete="off" required/>'
@@ -213,7 +215,7 @@ class UserManagementPage extends FOGPage
             . '</div>',
             '<label class="label-control" for="add">'
             . _('Create user?')
-            . '</label> ' => '<button class="btn btn-default" name="'
+            . '</label> ' => '<button class="btn btn-default btn-block" name="'
             . 'add" id="add" type="submit">'
             . _('Create')
             . '</button>'
@@ -327,6 +329,7 @@ class UserManagementPage extends FOGPage
             . _('User Name')
             . '</label>' => '<div class="input-group">'
             . '<span class="input-group-addon">'
+            . _('Required')
             . '</span>'
             . '<input type="text" class="'
             . 'form-control username-input" name='
@@ -338,6 +341,7 @@ class UserManagementPage extends FOGPage
             . _('Friendly Name')
             . '</label>' => '<div class="input-group">'
             . '<span class="input-group-addon">'
+            . _('Optional')
             . '</span>'
             . '<input type="text" class="'
             . 'form-control friendlyname-input" name="'
@@ -554,8 +558,19 @@ class UserManagementPage extends FOGPage
                 array('User' => &$this->obj)
             );
         try {
-            $name = strtolower(trim($_REQUEST['name']));
-            $friendly = trim($_REQUEST['display']);
+            $name = strtolower(
+                trim(
+                    filter_input(INPUT_POST, 'name')
+                )
+            );
+            $password = filter_input(INPUT_POST, 'password');
+            $friendly = trim(
+                filter_input(INPUT_POST, 'dispay')
+            );
+            $apien = isset($_POST['apienabled']);
+            $apitoken = base64_decode(
+                filter_input(INPUT_POST, 'apitoken')
+            );
             global $tab;
             switch ($tab) {
             case 'user-general':
@@ -588,17 +603,16 @@ class UserManagementPage extends FOGPage
                 }
                 $this->obj
                     ->set('name', $name)
-                    ->set('display', $friendly)
-                    ->set('type', isset($_REQUEST['isGuest']));
+                    ->set('display', $friendly);
                 break;
             case 'user-changepw':
                 $this->obj
-                    ->set('password', $_REQUEST['password']);
+                    ->set('password', $password);
                 break;
             case 'user-api':
                 $this->obj
-                    ->set('api', isset($_REQUEST['apienabled']))
-                    ->set('token', base64_decode($_REQUEST['apitoken']));
+                    ->set('api', $apien)
+                    ->set('token', $apitoken);
             }
             if (!$this->obj->save()) {
                 throw new Exception(_('User update failed'));
