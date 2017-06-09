@@ -376,7 +376,6 @@ abstract class FOGPage extends FOGBase
             _('Chassis Asset') => 'caseasset',
         );
         $this->menu = array(
-            'search' => self::$foglang['NewSearch'],
             'list' => sprintf(
                 self::$foglang['ListAll'],
                 _(
@@ -771,7 +770,6 @@ abstract class FOGPage extends FOGBase
                         );
                         unset($t);
                     }
-                    unset($class->menu);
                 }
                 unset($class);
                 ob_start();
@@ -780,7 +778,6 @@ abstract class FOGPage extends FOGBase
                     echo '<h4 class="category">';
                     echo $title;
                     echo '</h4>';
-                    echo '<hr/>';
                     foreach ((array)$data as $label => &$link) {
                         if ($label == 'class') {
                             continue;

@@ -155,16 +155,6 @@ $(function() {
     $('.fog-message-box').fogMessageBox();
     // Placeholder support
     $('input[placeholder]').placeholder();
-    // Nav Menu: Add hover label
-    $('.menu li a').each(function() {
-        $(this).tipsy({
-            gravity: $.fn.tipsy.autoNS
-        }).mouseenter(function() {
-            $('.tipsy').css({
-                'min-width': '35px'
-            });
-        });
-    });
     // Search boxes
     $('.search-input').fogAjaxSearch();
     $('.container-fluid').fogTableInfo().trigger('updateAll');

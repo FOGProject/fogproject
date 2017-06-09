@@ -272,6 +272,7 @@ class Page extends FOGBase
         }
         $files = array(
             'js/jquery-latest.min.js',
+            'js/bootstrap/alltblsearch.js',
             'js/jquery.validate.min.js',
             'js/additional-methods.min.js',
             'js/jquery.tablesorter.combined.js',
@@ -290,8 +291,7 @@ class Page extends FOGBase
             'js/bootstrap.min.js',
             'js/fog/fog.js',
             'js/fog/fog.main.js',
-            'js/jscolor.min.js',
-            'js/bootstrap/alltblsearch.js'
+            'js/jscolor.min.js'
         );
         if (!self::$FOGUser->isValid()) {
             $files[] = 'js/fog/fog.login.js';
@@ -300,8 +300,16 @@ class Page extends FOGBase
         if ($sub == 'membership') {
             $subset = 'edit';
         }
-        $node = preg_replace('#_#', '-', $node);
-        $subset = preg_replace('#_#', '-', $subset);
+        $node = preg_replace(
+            '#_#',
+            '-',
+            $node
+        );
+        $subset = preg_replace(
+            '#_#',
+            '-',
+            $subset
+        );
         $filepaths = array(
             "js/fog/fog.{$node}.js",
             "js/fog/fog.{$node}.{$subset}.js",
@@ -500,15 +508,25 @@ class Page extends FOGBase
     {
         echo '<ul class="nav navbar-nav navbar-right">';
         echo '<li>';
-        echo '<a href="../management/index.php?node=logout">';
-        echo strtolower(
-            trim(
-                self::$FOGUser->get('name')
-            )
-        );
-        echo ': ';
-        echo self::$foglang['Logout'];
-        echo '</a>';
+        if (self::$FOGUser->isValid()) {
+            echo '<a href="../management/index.php?node=logout">';
+            echo '<i class="fa fa-sign-out">&nbsp;&nbsp;';
+            echo strtolower(
+                trim(
+                    self::$FOGUser->get('name')
+                )
+            );
+            echo ': ';
+            echo self::$foglang['Logout'];
+            echo '</i>';
+            echo '</a>';
+        } else {
+            echo '<a href="../management/index.php"';
+            echo '<i class="fa fa-sign-in">&nbsp;&nbsp;';
+            echo self::$foglang['Login'];
+            echo '</i>';
+            echo '</a>';
+        }
         echo '</li>';
         echo '<li class="separator hidden-lg hidden-md"></li>';
         echo '</ul>';

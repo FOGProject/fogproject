@@ -161,45 +161,62 @@ class UserManagementPage extends FOGPage
         );
         $this->data = array();
         $fields = array(
-            '<input type="text" name="fakeusernameremembered" class="fakes"/>' =>
-            '<input type="password" name="fakepasswordremembered" class="fakes"/>',
-            _('User Name') => sprintf(
-                '<input type="text" class="username-input" name='
-                . '"name" value="%s" autocomplete="off"/>',
-                $_REQUEST['name']
-            ),
-            _('Friendly Name') => sprintf(
-                '<input type="text" class="friendlyname-input" name='
-                . '"display" value="%s" autocomplete="off"/>',
-                $_REQUEST['name']
-            ),
-            _('User Password') => '<input type="password" class='
-            . '"password-input1" name="password" value="" autocomplete='
-            . '"off" id="password"/>',
-            _('User Password (confirm)') => '<input type="password" class='
-            . '"password-input2" name="password_confirm" value='
-            . '"" autocomplete="off"/>',
-            _('Allow API') => '<input type="checkbox" name="apienabled" '
-            . 'autocomplete="off" id="apion" checked/>'
-            . '<label for="apion"></label>',
-            sprintf(
-                '%s&nbsp;'
-                . '<i class="icon icon-help hand fa fa-question" title="%s"></i>',
-                _('Mobile/Quick Image Access Only?'),
-                sprintf(
-                    '%s - %s, %s %s.',
-                    _('Warning'),
-                    _('if you tick this box'),
-                    _('this user will not be able to log into'),
-                    _('this FOG Management console in the future')
-                )
-            ) =>  '<input type="checkbox" name="isGuest" autocomplete="off" id="'
-            . 'isguest"/>'
-            . '<label for="isguest"></label>',
-            '&nbsp;' => sprintf(
-                '<input name="add" type="submit" value="%s"/>',
-                _('Create User')
+            '<label class="label-control" for="name">'
+            . _('User Name')
+            . '</label>' => '<div class="input-group">'
+            . '<span class="input-group-addon">'
+            . '</span>'
+            . '<input type="text" class="'
+            . 'form-control username-input" name='
+            . '"name" value="'
+            . $_POST['name']
+            . '" autocomplete="off" id="name" required/>'
+            . '</div>',
+            '<label class="label-control" for="display">'
+            . _('Friendly Name')
+            . '</label>' => '<div class="input-group">'
+            . '<span class="input-group-addon">'
+            . '</span>'
+            . '<input type="text" class="'
+            . 'form-control friendlyname-input" name="'
+            . 'display" value="'
+            . $_POST['display']
+            . '" autocomplete="off"/>'
+            . '</div>',
+            '<label class="label-control" for="password">'
+            . _('User Password')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="password" class="'
+            . 'form-control password-input1" name="password" value='
+            . '"" autocomplete='
+            . '"off" id="password" required/>'
+            . '</div>',
+            '<label class="label-control" for="password2">'
+            . _('User Password (confirm)')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="password" class="'
+            . 'form-control password-input2" name="password_confirm" value='
+            . '"" autocomplete="off" required/>'
+            . '</div>',
+            '<label class="label-control" for="apion">'
+            . _('User API Enabled')
+            . '</label>' => '<div class="checkbox">'
+            . '<input type="checkbox" class="'
+            . 'api-enabled" name="apienabled" id="'
+            . 'apion"'
+            . (
+                isset($_POST['apienabled']) ?
+                ' checked' :
+                ''
             )
+            . '/>'
+            . '</div>',
+            '<label class="label-control" for="add">'
+            . _('Create user?')
+            . '</label> ' => '<button class="btn btn-default" name="'
+            . 'add" id="add" type="submit">'
+            . _('Create')
+            . '</button>'
         );
         self::$HookManager
             ->processEvent(
@@ -219,11 +236,16 @@ class UserManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        printf(
-            '<h2>%s</h2><form method="post" action="%s">',
-            _('Add new user account'),
-            $this->formAction
-        );
+        echo '<div class="form-group">';
+        echo '<input type="text" name="fakeusernameremembered" class="fakes"/>';
+        echo '<input type="password" name="fakepasswordremembered" class="fakes"/>';
+        echo '</div>';
+        echo '<h2>';
+        echo _('Create new user');
+        echo '</h2>';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
         $this->render();
         echo '</form>';
     }
@@ -237,12 +259,18 @@ class UserManagementPage extends FOGPage
         self::$HookManager
             ->processEvent('USER_ADD_POST');
         try {
-            $name = strtolower(trim($_REQUEST['name']));
-            $friendly = trim($_REQUEST['display']);
+            $name = strtolower(
+                filter_input(INPUT_POST, 'name')
+            );
+            $password = filter_input(INPUT_POST, 'password');
+            $friendly = trim(
+                filter_input(INPUT_POST, 'display')
+            );
             $test = preg_match(
                 '/(?=^.{3,40}$)^[\w][\w0-9]*[._-]?[\w0-9]*[.]?[\w0-9]+$/i',
                 $name
             );
+            $apien = isset($_POST['apienabled']);
             if (!$test) {
                 throw new Exception(
                     sprintf(
@@ -260,11 +288,11 @@ class UserManagementPage extends FOGPage
             }
             $User = self::getClass('User')
                 ->set('name', $name)
+                ->set('password', $password)
                 ->set('display', $friendly)
-                ->set('type', isset($_REQUEST['isGuest']))
-                ->set('api', isset($_REQUEST['apienabled']))
-                ->set('token', self::createSecToken())
-                ->set('password', $_REQUEST['password']);
+                ->set('api', $apien)
+                ->set('type', 0)
+                ->set('token', self::createSecToken());
             if (!$User->save()) {
                 throw new Exception(_('Failed to create user'));
             }
@@ -298,6 +326,8 @@ class UserManagementPage extends FOGPage
             '<label class="label-control" for="name">'
             . _('User Name')
             . '</label>' => '<div class="input-group">'
+            . '<span class="input-group-addon">'
+            . '</span>'
             . '<input type="text" class="'
             . 'form-control username-input" name='
             . '"name" value="'
@@ -307,6 +337,8 @@ class UserManagementPage extends FOGPage
             '<label class="label-control" for="display">'
             . _('Friendly Name')
             . '</label>' => '<div class="input-group">'
+            . '<span class="input-group-addon">'
+            . '</span>'
             . '<input type="text" class="'
             . 'form-control friendlyname-input" name="'
             . 'display" value="'
@@ -426,7 +458,7 @@ class UserManagementPage extends FOGPage
             . _('User API Enabled')
             . '</label>' => '<div class="checkbox">'
             . '<input type="checkbox" class="'
-            . 'api-enabled form-control" name="apienabled" id="'
+            . 'api-enabled" name="apienabled" id="'
             . 'apion"'
             . (
                 $this->obj->get('api') ?
