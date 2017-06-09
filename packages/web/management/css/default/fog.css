@@ -123,6 +123,11 @@ table td {
     min-width: 0;
     width: 40px;
 }
+.version-info {
+    color: white;
+    font-size: 9px;
+    padding-top: 10px;
+}
 footer {
     position: fixed;
     width: 100%;
@@ -160,9 +165,4 @@ footer {
         padding-top: 70px;
         padding-bottom: 70px;
     }
-}
-.version-info {
-    color: white;
-    font-size: 9px;
-    margin-top: 10px;
 }
