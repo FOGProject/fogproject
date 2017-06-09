@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-09 14:51-0400\n"
+"POT-Creation-Date: 2017-06-09 15:04-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2491,7 +2491,7 @@ msgid "FOG Forums"
 msgstr "FOG论坛"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:66
-#: /var/www/fog/management/other/index.php:190
+#: /var/www/fog/management/other/index.php:198
 msgid "Donate to FOG"
 msgstr "捐赠雾"
 
@@ -8592,16 +8592,25 @@ msgid "Example Bolded Header"
 msgstr "例如粗体标题"
 
 #: /var/www/fog/management/other/index.php:60
-#: /var/www/fog/management/other/index.php:135
+#: /var/www/fog/management/other/index.php:143
 msgid "Toggle Navigation"
 msgstr ""
 
-#: /var/www/fog/management/other/index.php:182
+#: /var/www/fog/management/other/index.php:76
+msgid "Running Version"
+msgstr "运行版本"
+
+#: /var/www/fog/management/other/index.php:78
+#, fuzzy
+msgid "SVN Revision"
+msgstr "版"
+
+#: /var/www/fog/management/other/index.php:190
 #, fuzzy
 msgid "Credits"
 msgstr "创建"
 
-#: /var/www/fog/management/other/index.php:185
+#: /var/www/fog/management/other/index.php:193
 #, fuzzy
 msgid "FOG Client"
 msgstr "FOG客户维基"
@@ -9609,13 +9618,6 @@ msgstr "有此服务器上没有的位置。"
 
 #~ msgid "Add new user account"
 #~ msgstr "添加新的用户帐户"
-
-#~ msgid "Running Version"
-#~ msgstr "运行版本"
-
-#, fuzzy
-#~ msgid "SVN Revision"
-#~ msgstr "版"
 
 #~ msgid "Delete Current Records"
 #~ msgstr "删除当前记录"

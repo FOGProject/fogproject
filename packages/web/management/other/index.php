@@ -69,9 +69,17 @@ if (self::$FOGUser->isValid()) {
         . '" data-toggle="tooltip" data-placement="bottom" title="'
         . self::$foglang['Home']
         . '" class="logoimg"/>';
-    echo '<div class="">';
-    echo '</div>';
     echo '</a>';
+    echo '<p class="nav-text version-info pull-left">';
+    printf(
+        '%s %s<br/>%s: %d',
+        _('Running Version'),
+        FOG_VERSION,
+        _('SVN Revision'),
+        FOG_SVN_REVISION
+    );
+    echo '<span id="showtime"></span>';
+    echo '</p>';
     echo '</div>';
     echo '<div class="collapse navbar-collapse">';
     self::getSearchForm();
