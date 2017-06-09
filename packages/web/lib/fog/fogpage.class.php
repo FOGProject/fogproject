@@ -833,9 +833,10 @@ abstract class FOGPage extends FOGBase
                 echo ob_get_clean();
                 echo '</ul>';
                 echo '</div>';
-                echo '<div class="col-xs-9">';
+                echo '<div class="table-holder col-xs-9">';
+                echo '<div class="col-xs-12">';
             }
-            echo '<table class="table table-list-search">';
+            echo '<table class="table">';
             if (count($this->headerData) > 0) {
                 echo '<thead>';
                 echo $this->buildHeaderRow();
@@ -884,6 +885,7 @@ abstract class FOGPage extends FOGBase
             echo '</tbody>';
             echo '</table>';
             if ($node != 'home') {
+                echo '</div>';
                 echo '</div>';
             }
             $text = ob_get_clean();

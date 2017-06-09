@@ -232,7 +232,7 @@ $.fn.fogAjaxSearch = function(opts) {
     if (this.length == 0) return this;
     var Defaults = {
         URL: $('.search-wrapper').prop('action'),
-        Container: '.table-list-search:first',
+        Container: '.table-holder',
         SearchDelay: 400,
         SearchMinLength: 1,
     };
@@ -251,43 +251,30 @@ $.fn.fogAjaxSearch = function(opts) {
     Container[callme]().fogTableInfo().trigger('updateAll');
     ActionBox[callme]();
     ActionBoxDel[callme]();
-    return this.each(function() {
+    return this.each(function(evt) {
         var searchElement = $(this);
         var SubmitButton = $('.search-submit');
         searchElement.keyup(function() {
             if (this.SearchTimer) {
                 clearTimeout(this.SearchTimer);
             }
-            /*if ($('#tab-container').length > 0) {
-                tabholder = $('#tab-container');
-                tabholder.addClass('row').removeAttr('id');
-                tablestr = '<div class="col-md-3">'
-                    + '<form action="#" method="get">'
-                    + '<div class="input-group">'
-                    + '<input class="form-control system-search" name='
-                    + '"q" placeholder="Search table for" required/>'
-                    + '<span class="input-group-addon">'
-                    + '<i class="fogsearch fa fa-search">'
-                    + '<span class="sr-only">'
-                    + 'Search...'
-                    + '</span>'
-                    + '</i>'
-                    + '</span>'
-                    + '</div>'
-                    + '</form>'
-                    + '</div>'
-                    + '<div class="col-md-9">'
-                    + '<table class="table table-list-search">'
-                    + '<thead><tr><th></th></tr></thead>'
-                    + '<tbody><tr><td></td></td></tbody>'
-                    + '</table>'
-                    + '</div>';
-                tabholder.html(tablestr);
-                Container = $('.table-list-search');
-                thead = $('thead', Container);
-                tbody = $('tbody', Container);
-                Container.fogTableInfo().trigger('updateAll');
-            }*/
+            var newurl = window.location.protocol
+                + "//"
+                + window.location.host
+                + window.location.pathname
+                + "?node="
+                + node;
+            window.history.pushState({path:newurl}, '', newurl);
+            $('.nav.nav-tabs').remove();
+            Container.html(
+                '<div class="col-xs-12">'
+                + '<table class="table">'
+                + '<thead><tr class="header"></tr></thead>'
+                + '<tbody><tr></tr></tbody>'
+                + '</table>'
+                + '</div>'
+            );
+            Container.fogTableInfo().trigger('updateAll');
             this.SearchTimer = setTimeout(PerformSearch,Options.SearchDelay);
         }).focus(function() {
             var searchElement = $(this).removeClass('placeholder');
@@ -399,12 +386,11 @@ function showProgressBar() {
 }
 function buildHeaderRow(data,attributes,wrapper) {
     if (!Container || typeof(Container) === null || typeof(Container) === 'undefined') {
-        Container = $('.table-list-search');
+        Container = $('.table');
     }
     savedFilters = Container.find('.tablesorter-filter').map(function(){
         return this.value || '';
     }).get();
-    thead.empty();
     var rows = [];
     $.each(data,function(index,value) {
         var attribs = [];
@@ -414,7 +400,7 @@ function buildHeaderRow(data,attributes,wrapper) {
         var row = '<'+wrapper+(attribs.length ? ' '+attribs.join(' ') : '')+' data-column="'+index+'">'+value+'</'+wrapper+'>';
         rows[rows.length] = row;
     });
-    thead.append('<tr class="header hand tablesorter-headerRow" role="row">'+rows.join()+'</tr>');
+    thead.html('<tr class="header" role="row">'+rows.join()+'</tr>');
     thead.hide();
 }
 function buildRow(data,templates,attributes,wrapper) {
@@ -465,7 +451,7 @@ function buildRow(data,templates,attributes,wrapper) {
 }
 function TableCheck() {
     if (!Container || typeof(Container) === null || typeof(Container) === 'undefined') {
-        Container = $('.table-list-search');
+        Container = $('.table');
     }
     callme = 'hide';
     if ($('.not-found').length === 0) Container.after('<p class="c not-found">'+_L['NO_ACTIVE_TASKS']+'</p>');
@@ -696,24 +682,42 @@ function setupFogTableInfoFunction() {
                 };
                 break;
         }
-        table = $('table', this);
+        table = $('table.table');
         if (table.length == 0 || !table.has('thead')) return this;
         table.find('thead > tr').addClass('hand');
+        if ($('tbody', table).length < 1) {
+            table.hide();
+        }
         table.tablesorter({
             headers: headParser,
-            theme: 'blue',
+            theme: 'bootstrap',
             widgets: [
-                "zebra",
-                "filter"
+                "uitheme",
+                "filter",
+                "columns",
+                "zebra"
             ],
             widgetOptions: {
+                zebra: [
+                    "even",
+                    "odd"
+                ],
+                columns: [
+                    "primary",
+                    "secondary",
+                    "tertiary"
+                ],
+                filter_reset: '.reset',
+                filter_cssFilter: "form-control",
                 filter_ignoreCase: true,
                 filter_hideFilters: false,
                 filter_hideEmpty: true,
                 filter_liveSearch: true,
-                filter_placeholder: {search: 'Search...'},
-                filter_reset: 'button.reset',
-            },
+                filter_placeholder: {
+                    search: 'Search...'
+                },
+                filter_reset: '.reset',
+            }
         });
         return this;
     }

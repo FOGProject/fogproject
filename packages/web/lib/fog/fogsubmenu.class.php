@@ -296,6 +296,11 @@ class FOGSubMenu extends FOGBase
     public function get($node)
     {
         ob_start();
+        if (count($this->notes[$node]) < 1
+            && count($this->items[$node]) < 1
+        ) {
+            return;
+        }
         echo '<ul class="nav nav-tabs">';
         if ($this->notes[$node]) {
             echo '<li class="dropdown">';
