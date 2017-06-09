@@ -1,7 +1,6 @@
 $(function() {
     checkboxToggleSearchListPages();
     $('.resettoken').click(function(e) {
-        console.log('here');
         e.preventDefault();
         $.ajax({
             url: '../status/newtoken.php',
@@ -12,13 +11,6 @@ $(function() {
         });
     });
     form = $('.username-input').parents('form');
-    validator = form.validate({
-        name: {
-            required: true,
-            minlength: 1,
-            maxlength: 255
-        }
-    });
     pwform = $('.password-input1').parents('form');
     pwvalidator = pwform.validate({
         rules: {
@@ -41,6 +33,13 @@ $(function() {
     $('.username-input').rules('add', {regex: /^[a-zA-Z0-9_-.]{3,40}$/});
     $('.username-input').on('keyup change blur',function() {
         return validator.element(this);
+    });
+    validator = form.validate({
+        name: {
+            required: true,
+            minlength: 1,
+            maxlength: 255
+        }
     });
     $('.password-input1,.password-input2').on('keyup change blur',function() {
         return pwvalidator.element(this);

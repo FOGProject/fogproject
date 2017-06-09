@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-09 00:42-0400\n"
+"POT-Creation-Date: 2017-06-09 01:20-0400\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -1258,7 +1258,7 @@ msgstr "Bild bearbeiten"
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:446
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:385
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:661
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:533
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:537
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:636
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1155
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:173
@@ -1367,7 +1367,7 @@ msgid "Hourly"
 msgstr "Pro Stunde"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1319
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:218
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:220
 msgid "Create"
 msgstr "Erstellen"
 
@@ -1642,9 +1642,9 @@ msgstr "Hinzufügen"
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:866
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:942
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:991
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:352
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:418
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:490
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:356
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:422
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:494
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:170
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:203
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:859
@@ -3100,7 +3100,7 @@ msgid "No image specified"
 msgstr "Kein Bild angegeben"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1742
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:482
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:486
 #, fuzzy
 msgid "Reset Token"
 msgstr "Zugangs-Token"
@@ -4551,8 +4551,8 @@ msgstr "Einstellungen"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:60
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:88
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:176
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:338
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:177
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:341
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1113
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1188
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:468
@@ -4584,105 +4584,117 @@ msgid "New User"
 msgstr "Neuer Benutzer"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:165
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:327
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:329
 #: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:213
 #: /var/www/fog/lib/plugins/site/hooks/addsiteuser.hook.php:256
 msgid "User Name"
 msgstr "Benutzername"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:187
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:400
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:168
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:332
+#, fuzzy
+msgid "Required"
+msgstr "%s ist erforderlich"
+
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:180
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:344
+#, fuzzy
+msgid "Optional"
+msgstr "Erweiterte Optionen"
+
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:189
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:404
 msgid "User Password"
 msgstr "Benutzer-Passwort"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:195
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:408
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:197
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:412
 msgid "User Password (confirm)"
 msgstr "Benutzer-Passwort (bestätigen)"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:202
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:458
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:204
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:462
 #, fuzzy
 msgid "User API Enabled"
 msgstr "Ist aktiviert"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:215
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:217
 #, fuzzy
 msgid "Create user?"
 msgstr "Benutzer erstellen"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:244
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:246
 #, fuzzy
 msgid "Create new user"
 msgstr "Neue %s erstellen"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:278
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:570
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:280
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:585
 msgid "Username does not meet rules"
 msgstr ""
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:279
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:571
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:281
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:586
 msgid "Must start with a word character"
 msgstr ""
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:280
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:572
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:282
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:587
 msgid "Must be at least 3 characters"
 msgstr ""
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:281
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:573
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:283
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:588
 msgid "Must be shorter than 41 characters"
 msgstr ""
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:282
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:574
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:284
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:589
 msgid "No contiguous special characters"
 msgstr ""
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:287
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:587
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:289
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:602
 msgid "Username already exists"
 msgstr "Benutzername ist bereits vorhanden."
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:297
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:299
 msgid "Failed to create user"
 msgstr "Fehler beim Benutzer erstellen"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:302
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:304
 msgid "User created"
 msgstr "Benutzer erstellt"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:303
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:305
 msgid "You may now create another"
 msgstr "Sie können jetzt eine andere erstellen"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:349
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:353
 #, fuzzy
 msgid "Update General?"
 msgstr "Update-Drucker"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:415
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:419
 #, fuzzy
 msgid "Update Password?"
 msgstr "Benutzer-Passwort"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:471
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:475
 #, fuzzy
 msgid "User API Token"
 msgstr "Zugangs-Token"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:487
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:491
 #, fuzzy
 msgid "Update API?"
 msgstr "Update-MACs"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:604
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:618
 msgid "User update failed"
 msgstr "Benutzer-Update fehlgeschlagen"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:607
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:621
 msgid "User updated"
 msgstr "Benutzer aktualisiert"
 
