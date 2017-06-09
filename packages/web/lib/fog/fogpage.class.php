@@ -926,7 +926,7 @@ abstract class FOGPage extends FOGBase
     {
         unset($this->atts);
         $this->_setAtts();
-        if (!count($this->headerData) < 1) {
+        if (count($this->headerData) < 1) {
             return;
         }
         ob_start();
@@ -944,7 +944,7 @@ abstract class FOGPage extends FOGBase
                     ' '
                     . $this->atts[$index]
                     . ' ' :
-                    ''
+                    ' '
                 )
                 . 'data-column="'
                 . $index

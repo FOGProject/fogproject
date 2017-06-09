@@ -29,7 +29,6 @@ var $_GET = getQueryParams(document.location.search),
     ActiveTasksUpdateInterval = 5000,
     ActionBox,
     ActionBoxDel,
-    Content,
     Container,
     savedFilters,
     checkedIDs;
@@ -124,7 +123,6 @@ function AJAXServerTime() {
     );
     screenview = $('#screenview').attr('value');
     setEditFocus();
-    Content = $('.content');
     ActionBox = $('.action-boxes.host');
     ActionBoxDel = $('.action-boxes.del');
     callme = 'hide';
@@ -260,7 +258,7 @@ $.fn.fogAjaxSearch = function(opts) {
             if (this.SearchTimer) {
                 clearTimeout(this.SearchTimer);
             }
-            if ($('#tab-container').length > 0) {
+            /*if ($('#tab-container').length > 0) {
                 tabholder = $('#tab-container');
                 tabholder.addClass('row').removeAttr('id');
                 tablestr = '<div class="col-md-3">'
@@ -289,7 +287,7 @@ $.fn.fogAjaxSearch = function(opts) {
                 thead = $('thead', Container);
                 tbody = $('tbody', Container);
                 Container.fogTableInfo().trigger('updateAll');
-            }
+            }*/
             this.SearchTimer = setTimeout(PerformSearch,Options.SearchDelay);
         }).focus(function() {
             var searchElement = $(this).removeClass('placeholder');
