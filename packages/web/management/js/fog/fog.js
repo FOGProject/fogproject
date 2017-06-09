@@ -52,15 +52,6 @@ function getChecked() {
     });
     return val;
 }
-function setTipsyStuff() {
-    $('.box,.icon,.icon-ping-up,.icon-ping-down,#logo > h1 > a > img').tipsy({
-        gravity: $.fn.tipsy.autoNS
-    }).mouseenter(function() {
-        $('.tipsy').css({
-            'min-width': '35px',
-        });
-    });
-}
 function setEditFocus() {
     $('input,select,textarea').not(
         '[type="checkbox"],[name="groupsel"],[name="nodesel"],[name="ulang"],#uname,#upass,.system-search,.search-input'
@@ -132,7 +123,6 @@ function AJAXServerTime() {
         "Invalid Input"
     );
     screenview = $('#screenview').attr('value');
-    setTipsyStuff();
     setEditFocus();
     Content = $('.content');
     ActionBox = $('.action-boxes.host');
@@ -474,7 +464,6 @@ function buildRow(data,templates,attributes,wrapper) {
     }
     $('.toggle-action:checkbox,.toggle-checkboxAction:checkbox').change(function() {checkedIDs = getChecked();});
     setChecked(checkedIDs);
-    HookTooltips();
 }
 function TableCheck() {
     if (!Container || typeof(Container) === null || typeof(Container) === 'undefined') {
@@ -498,7 +487,6 @@ function TableCheck() {
         pauseUpdate[callme]();
         cancelTasks[callme]();
     }
-    HookTooltips();
 }
 function setupParserInfo() {
     if (typeof $.tablesorter == 'undefined') return;

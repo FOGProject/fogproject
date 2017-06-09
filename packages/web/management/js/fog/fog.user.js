@@ -1,6 +1,7 @@
 $(function() {
     checkboxToggleSearchListPages();
     $('.resettoken').click(function(e) {
+        console.log('here');
         e.preventDefault();
         $.ajax({
             url: '../status/newtoken.php',

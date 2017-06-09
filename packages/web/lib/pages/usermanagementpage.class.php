@@ -288,57 +288,37 @@ class UserManagementPage extends FOGPage
         self::redirect($this->formAction);
     }
     /**
-     * Enable user to edit a user.
+     * User general div element.
      *
      * @return void
      */
-    public function edit()
+    public function userGeneral()
     {
-        if (!$this->obj->get('token')) {
-            $this->obj
-                ->set('token', self::createSecToken())
-                ->save();
-        }
-        $this->title = sprintf('%s: %s', _('Edit'), $this->obj->get('name'));
-        echo '<div id="tab-container">';
-        echo '<div id="user-general">';
         $fields = array(
-            '<input type="text" name="fakeusernameremembered" class="fakes"/>' => 
-            '<input type="password" name="fakepasswordremembered" class="fakes"/>',
-            _('User Name') => sprintf(
-                '<input type="text" class="username-input" name='
-                . '"name" value="%s" autocomplete="off"/>',
-                $this->obj->get('name')
-            ),
-            _('Friendly Name') => sprintf(
-                '<input type="text" class="friendlyname-input" name='
-                . '"display" value="%s" autocomplete="off"/>',
-                $this->obj->get('display')
-            ),
-            sprintf(
-                '%s&nbsp;'
-                . '<i class="icon icon-help hand fa fa-question" title="%s"></i>',
-                _('Mobile/Quick Image Access Only?'),
-                sprintf(
-                    '%s - %s, %s %s.',
-                    _('Warning'),
-                    _('if you tick this box'),
-                    _('this user will not be able to log into'),
-                    _('this FOG Management console in the future')
-                )
-            ) => sprintf(
-                '<input type="checkbox" name="isGuest" autocomplete="off" id="'
-                . 'isguest"%s/>&nbsp;<label for="isguest"></label>',
-                (
-                    $this->type == 1 ?
-                    ' checked' :
-                    ''
-                )
-            ),
-            '&nbsp;' => sprintf(
-                '<input name="update" type="submit" value="%s"/>',
-                _('Update')
-            )
+            '<label class="label-control" for="name">'
+            . _('User Name')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" class="'
+            . 'form-control username-input" name='
+            . '"name" value="'
+            . $this->obj->get('name')
+            . '" autocomplete="off" id="name" required/>'
+            . '</div>',
+            '<label class="label-control" for="display">'
+            . _('Friendly Name')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" class="'
+            . 'form-control friendlyname-input" name="'
+            . 'display" value="'
+            . $this->obj->get('display')
+            . '" autocomplete="off"/>'
+            . '</div>',
+            '<label class="label-control" for="updategen">'
+            . _('Update General?')
+            . '</label> ' => '<button class="btn btn-default" name="'
+            . 'update" id="updategen" type="submit">'
+            . _('Update')
+            . '</button>'
         );
         self::$HookManager
             ->processEvent(
@@ -368,24 +348,43 @@ class UserManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        printf(
-            '<form method="post" action="%s&tab=user-general">',
-            $this->formAction
-        );
+        echo '<div id="user-general" class="tab-pane fade in active">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '&tab=user-general">';
         $this->render();
-        echo '</form></div>';
-        echo '<div id="user-changepw">';
+        echo '</form>';
+        echo '</div>';
+    }
+    /**
+     * Change password div element.
+     *
+     * @return void
+     */
+    public function userChangePW()
+    {
         $fields = array(
-            _('User Password') => '<input type="password" class='
-            . '"password-input1" name="password" value="" autocomplete='
-            . '"off" id="password"/>',
-            _('User Password (confirm)') => '<input type="password" class='
-            . '"password-input2" name="password_confirm" value='
-            . '"" autocomplete="off"/>',
-            '&nbsp;' => sprintf(
-                '<input name="update" type="submit" value="%s"/>',
-                _('Update')
-            )
+            '<label class="label-control" for="password">'
+            . _('User Password')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="password" class="'
+            . 'form-control password-input1" name="password" value='
+            . '"" autocomplete='
+            . '"off" id="password" required/>'
+            . '</div>',
+            '<label class="label-control" for="password2">'
+            . _('User Password (confirm)')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="password" class="'
+            . 'form-control password-input2" name="password_confirm" value='
+            . '"" autocomplete="off" required/>'
+            . '</div>',
+            '<label class="label-control" for="updatepw">'
+            . _('Update Password?')
+            . '</label> ' => '<button class="btn btn-default" name="'
+            . 'update" id="updatepw" type="submit">'
+            . _('Update')
+            . '</button>'
         );
         unset($this->headerData);
         $this->templates = array(
@@ -407,32 +406,57 @@ class UserManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        printf(
-            '<form method="post" action="%s&tab=user-changepw">',
-            $this->formAction
-        );
+        echo '<div id="user-changepw" class="tab-pane fade">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '&tab=user-changepw">';
         $this->render();
-        echo '</form></div>';
-        echo '<div id="user-api">';
+        echo '</form>';
+        echo '</div>';
+    }
+    /**
+     * API div element.
+     *
+     * @return void
+     */
+    public function userAPI()
+    {
         $fields = array(
-            _('User API Enabled') => sprintf(
-                '<input type="checkbox" class="api-enabled" name="apienabled" id="'
-                . 'apion"%s/><label for="apion"></label>',
-                $this->obj->get('api') ? ' checked' : ''
-            ),
-            _('User API Token') => sprintf(
-                '<input type="password" class="token" name="apitoken" readonly '
-                . 'value="%s"/><br/><input type="button" class="resettoken" '
-                . ' value="%s"/>',
-                base64_encode(
-                    $this->obj->get('token')
-                ),
-                _('Reset Token')
-            ),
-            '&nbsp;' => sprintf(
-                '<input name="update" type="submit" value="%s"/>',
-                _('Update')
+            '<label class="label-control" for="apion">'
+            . _('User API Enabled')
+            . '</label>' => '<div class="checkbox">'
+            . '<input type="checkbox" class="'
+            . 'api-enabled form-control" name="apienabled" id="'
+            . 'apion"'
+            . (
+                $this->obj->get('api') ?
+                ' checked' :
+                ''
             )
+            . '/>'
+            . '</div>',
+            '<label class="label-control" for="token">'
+            . _('User API Token')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="password" class="'
+            . 'form-control token" name="'
+            . 'apitoken" id="token" readonly value="'
+            . base64_encode(
+                $this->obj->get('token')
+            )
+            . '"/>'
+            . '<div class="input-group-btn">'
+            . '<button class="btn btn-default resettoken" type="button">'
+            . _('Reset Token')
+            . '</button>'
+            . '</div>'
+            . '</div>',
+            '<label class="label-control" for="updateapi">'
+            . _('Update API?')
+            . '</label> ' => '<button class="btn btn-default" name="'
+            . 'update" id="updateapi" type="submit">'
+            . _('Update')
+            . '</button>'
         );
         unset($this->headerData);
         $this->templates = array(
@@ -454,12 +478,36 @@ class UserManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        printf(
-            '<form method="post" action="%s&tab=user-api">',
-            $this->formAction
-        );
+        echo '<div id="user-api" class="tab-pane fade">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '&tab=user-api">';
         $this->render();
-        echo '</form></div></div>';
+        echo '</form>';
+        echo '</div>';
+    }
+    /**
+     * Enable user to edit a user.
+     *
+     * @return void
+     */
+    public function edit()
+    {
+        if (!$this->obj->get('token')) {
+            $this->obj
+                ->set('token', self::createSecToken())
+                ->save();
+        }
+        $this->title = sprintf('%s: %s', _('Edit'), $this->obj->get('name'));
+        echo '<div class="form-group">';
+        echo '<input type="text" name="fakeusernameremembered" class="fakes"/>';
+        echo '<input type="password" name="fakepasswordremembered" class="fakes"/>';
+        echo '</div>';
+        echo '<div class="tab-content">';
+        $this->userGeneral();
+        $this->userChangePW();
+        $this->userAPI();
+        echo '</div>';
     }
     /**
      * Actually save the edits.
