@@ -478,10 +478,12 @@ class Page extends FOGBase
     public static function getSearchForm()
     {
         global $node;
+        echo '<div class="col-md-2">';
         if (!in_array($node, self::$searchPages)) {
+            echo '</div>';
             return;
         }
-        echo '<ul class="nav navbar-nav">';
+        echo '<ul class="nav navbar-nav pull-left">';
         echo '<li>';
         echo '<form class="navbar-form navbar-left search-wrapper" role='
             . '"search" method="post" action="'
@@ -503,6 +505,7 @@ class Page extends FOGBase
         echo '</form>';
         echo '</li>';
         echo '</ul>';
+        echo '</div>';
     }
     /**
      * Generate the logout element.

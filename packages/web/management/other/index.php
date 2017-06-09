@@ -69,6 +69,8 @@ if (self::$FOGUser->isValid()) {
         . '" data-toggle="tooltip" data-placement="bottom" title="'
         . self::$foglang['Home']
         . '" class="logoimg"/>';
+    echo '<div class="">';
+    echo '</div>';
     echo '</a>';
     echo '</div>';
     echo '<div class="collapse navbar-collapse">';
