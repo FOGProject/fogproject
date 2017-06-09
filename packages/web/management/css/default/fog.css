@@ -130,3 +130,8 @@ footer {
     line-height: 50px;
     bottom: 0;
 }
+@media (min-width: 768px) {
+    .collapsedmenu-text {
+        display: none;
+    }
+}

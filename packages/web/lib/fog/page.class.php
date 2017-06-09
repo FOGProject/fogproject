@@ -122,9 +122,11 @@ class Page extends FOGBase
             ->addCSS('css/jquery-ui.structure.css')
             ->addCSS('css/jquery-ui-timepicker-addon.css')
             ->addCSS('css/select2.min.css')
-            ->addCSS('css/theme.blue.css')
             ->addCSS('css/bootstrap.min.css')
             ->addCSS('css/bootstrap-theme.min.css')
+            ->addCSS('css/theme.bootstrap_3.css')
+            ->addCSS('css/theme.blue.css')
+            ->addCSS('css/jquery.tablesorter.pager.css')
             ->addCSS($dispTheme);
         if (!isset($node)
             || !$node
@@ -261,6 +263,10 @@ class Page extends FOGBase
                     echo '<i class="'
                         . $title[1]
                         . '"></i>';
+                    echo '<span class="collapsedmenu-text">';
+                    echo ' ';
+                    echo $title[0];
+                    echo '</span>';
                     echo '</p>';
                     echo '</a>';
                     echo '</li>';
@@ -276,6 +282,7 @@ class Page extends FOGBase
             'js/jquery.validate.min.js',
             'js/additional-methods.min.js',
             'js/jquery.tablesorter.combined.js',
+            'js/jquery.tablesorter.pager.js',
             'js/select2.min.js',
             'js/jquery-migrate-latest.min.js',
             'js/jquery.progressbar.js',

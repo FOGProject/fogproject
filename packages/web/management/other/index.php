@@ -171,6 +171,7 @@ if (self::$FOGUser->isValid()) {
     echo '</div>';
     echo '</div>';
 }
+echo '<div class="collapse navbar-collapse">';
 echo '<footer class="footer">';
 echo '<nav class="navbar navbar-inverse navbar-fixed-bottom center">';
 echo '<div class="container-fluid text-center">';
@@ -190,6 +191,7 @@ echo '</ul>';
 echo '</div>';
 echo '</nav>';
 echo '</footer>';
+echo '</div>';
 foreach ((array)$this->javascripts as &$javascript) {
     echo '<script src="'
         . $javascript
