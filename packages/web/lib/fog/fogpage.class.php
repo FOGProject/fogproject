@@ -837,52 +837,57 @@ abstract class FOGPage extends FOGBase
                 echo '<div class="col-xs-12">';
             }
             echo '<table class="table">';
-            if (count($this->headerData) > 0) {
-                echo '<thead>';
-                echo $this->buildHeaderRow();
-                echo '</thead>';
-            }
-            echo '<tbody>';
-            $tablestr = '<tr><td colspan="'
-                . count($this->templates)
-                . '">';
-            if ($this->data['error']) {
-                $tablestr .= (
-                    is_array($this->data['error']) ?
-                    '<p>'
-                    . implode('</p><p>', $this->data['error'])
-                    : $this->data['error']
-                );
+            if (count($this->data) < 1) {
+                echo '<thead><tr class="header"></tr></thead>';
+                echo '<tbody>';
+                $tablestr = '<tr><td colspan="'
+                    . count($this->templates)
+                    . '">';
+                if ($this->data['error']) {
+                    $tablestr .= (
+                        is_array($this->data['error']) ?
+                        '<p>'
+                        . implode('</p><p>', $this->data['error'])
+                        : $this->data['error']
+                    );
+                } else {
+                    $tablestr .= self::$foglang['NoResults'];
+                }
+                $tablestr .= '</td></tr>';
+                echo $tablestr;
+                echo '</tbody>';
             } else {
-                $tablestr .= self::$foglang['NoResults'];
-            }
-            $tablestr .= '</td></tr>';
-            if (count($this->data) > 0) {
+                if (count($this->headerData) > 0) {
+                    echo '<thead>';
+                    echo $this->buildHeaderRow();
+                    echo '</thead>';
+                }
+                echo '<tbody>';
                 $tablestr = '';
-            }
-            foreach ($this->data as &$rowData) {
-                $tablestr .= '<tr class="'
-                    . strtolower($node)
-                    . '" '
-                    . (
-                        isset($rowData['id']) || isset($rowData[$id_field]) ?
-                        'id="'
-                        . $node
-                        . '-'
+                foreach ($this->data as &$rowData) {
+                    $tablestr .= '<tr class="'
+                        . strtolower($node)
+                        . '" '
                         . (
-                            isset($rowData['id']) ?
-                            $rowData['id'] . '"' :
-                            $rowData[$id_field] . '"'
-                        ) :
-                        ''
-                    )
-                    . '>';
-                $tablestr .= $this->buildRow($rowData);
-                $tablestr .= '</tr>';
-                unset($rowData);
+                            isset($rowData['id']) || isset($rowData[$id_field]) ?
+                            'id="'
+                            . $node
+                            . '-'
+                            . (
+                                isset($rowData['id']) ?
+                                $rowData['id'] . '"' :
+                                $rowData[$id_field] . '"'
+                            ) :
+                            ''
+                        )
+                        . '>';
+                    $tablestr .= $this->buildRow($rowData);
+                    $tablestr .= '</tr>';
+                    unset($rowData);
+                }
+                echo $tablestr;
+                echo '</tbody>';
             }
-            echo $tablestr;
-            echo '</tbody>';
             echo '</table>';
             if ($node != 'home') {
                 echo '</div>';
