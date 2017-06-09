@@ -130,10 +130,3 @@ footer {
     line-height: 50px;
     bottom: 0;
 }
-.checkbox {
-    min-width: 0;
-    max-width: 16px;
-    min-height: 0;
-    max-height: 16px;
-    vertical-align: middle;
-}

@@ -78,6 +78,15 @@ if (self::$FOGUser->isValid()) {
     echo '</div>';
     echo '</div>';
     echo '</nav>';
+    self::$HookManager
+        ->processEvent(
+            'CONTENT_DISPLAY',
+            array(
+                'content' => &$this->body,
+                'sectionTitle' => &$this->sectionTitle,
+                'pageTitle' => &$this->pageTitle
+            )
+        );
     /**
      * Main Content
      */
@@ -99,15 +108,6 @@ if (self::$FOGUser->isValid()) {
             . '</h5>';
     }
     echo '</div>';
-    self::$HookManager
-        ->processEvent(
-            'CONTENT_DISPLAY',
-            array(
-                'content' => &$this->body,
-                'sectionTitle' => &$this->sectionTitle,
-                'pageTitle' => &$this->pageTitle
-            )
-        );
     echo '<input type="hidden" class="fog-delete" id="FOGDeleteAuth" value="'
         . (int)self::$fogdeleteactive
         . '"/>';
@@ -124,7 +124,51 @@ if (self::$FOGUser->isValid()) {
     echo '</div>';
     echo '</div>';
 } else {
+    echo '<nav class="navbar navbar-inverse navbar-fixed-top">';
+    echo '<div class="container-fluid">';
+    echo '<div class="navbar-header">';
+    echo '<button type="button" class="navbar-toggle collapsed" data-toggle="'
+        . 'collapse" data-target=".navbar-collapse">';
+    echo '<span class="sr-only">'
+        . _('Toggle Navigation')
+        . '</span>';
+    echo '<span class="icon-bar"></span>';
+    echo '<span class="icon-bar"></span>';
+    echo '<span class="icon-bar"></span>';
+    echo '</button>';
+    echo '<a class="navbar-brand" href="../management/index.php?node=home">';
+    echo '<img src="../favicon.ico" alt="'
+        . self::$foglang['Slogan']
+        . '" data-toggle="tooltip" data-placement="bottom" title="'
+        . self::$foglang['Home']
+        . '" class="logoimg"/>';
+    echo '</a>';
+    echo '</div>';
+    echo '<div class="collapse navbar-collapse">';
+    self::getLogout();
+    echo '</div>';
+    echo '</div>';
+    echo '</nav>';
+    /**
+     * Main Content
+     */
+    echo '<div class="container'
+        . (
+            $this->isHomepage ?
+            ' dashboard' :
+            ''
+        )
+        . '">';
+    echo '<div class="panel panel-default">';
+    echo '<div class="panel-heading text-center">';
+    echo '<h4 class="title">'
+        . $this->sectionTitle
+        . '</h4>';
+    echo '</div>';
+    echo '<div class="panel-body">';
     echo $this->body;
+    echo '</div>';
+    echo '</div>';
     echo '</div>';
 }
 echo '<footer class="footer">';

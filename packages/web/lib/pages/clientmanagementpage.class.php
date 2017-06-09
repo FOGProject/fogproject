@@ -54,34 +54,42 @@ class ClientManagementPage extends FOGPage
     public function index()
     {
         $this->title = _('FOG Client Installer');
-        $webArr = array('name' => array('FOG_WEB_HOST','FOG_WEB_ROOT'));
-        list(
-            $ip,
-            $curroot
-        ) = self::getSubObjectIDs('Service', $webArr, 'value');
-        $curroot = trim(trim($curroot, '/'));
-        $webroot = sprintf(
-            '/%s',
-            (strlen($curroot) > 1 ? sprintf('%s', $curroot) : '')
+        $webArr = array(
+            'name' => array(
+                'FOG_WEB_HOST'
+            )
+        );
+        list($ip) = self::getSubObjectIDs(
+            'Service',
+            $webArr,
+            'value'
         );
         $url = sprintf(
-            'http://%s%s/client/download.php',
-            $ip,
-            $webroot
+            'http://%s/fog/client/download.php',
+            $ip
         );
-        $url = filter_var($url, FILTER_SANITIZE_URL);
-        echo '<ul class="dashboard-boxes">';
-        echo '<li>';
-        printf(
-            '<h5>%s</h5>',
-            _('New Client and Utilities')
+        $url = filter_var(
+            $url,
+            FILTER_SANITIZE_URL
         );
-        printf(
-            '<div>%s %s %s. ',
-            _('The smart installer and msi for'),
-            FOG_CLIENT_VERSION,
-            _('of the new client')
-        );
+        // Dash boxes row.
+        echo '<div class="row">';
+        // New Client and utilties
+        echo '<div class="col-md-4">';
+        echo '<div class="panel panel-default">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('New Client and Utilities');
+        echo '</h4>';
+        echo '<p class="category">';
+        echo _('The installers for the fog client');
+        echo '<br/>';
+        echo _('Client Version');
+        echo ': ';
+        echo FOG_CLIENT_VERSION;
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="panel-body">';
         printf(
             '%s, %s, %s, %s. ',
             _('Cross platform'),
@@ -94,21 +102,25 @@ class ClientManagementPage extends FOGPage
             _('Especially when your organization has many hosts')
         );
         echo '<br/>';
+        echo '<a href="'
+            . $url
+            . '?newclient" data-toggle="tooltip" data-placement="right" ';
         printf(
-            '<a href="%s?newclient" class="icon icon-hand" '
-            . 'title="%s. %s. %s.">%s -- %s</a><br/>',
-            $url,
+            'title="%s. %s. %s.">',
             _('Use this for network installs'),
             _('For example, a GPO policy to push'),
-            _('This file will only work on Windows'),
-            _('MSI'),
-            _('Network Installer')
+            _('This file will only work on Windows')
         );
+        echo '<br/>';
+        echo _('MSI');
+        echo ' -- ';
+        echo _('Network Installer');
+        echo '<br/>';
         printf(
-            '<a href="%s?%s" class="%s" title="%s. %s, %s, %s.">%s (%s)</a>',
+            '<a href="%s?%s" data-toggle="tooltip" data-placement="right" '
+            . 'title="%s. %s, %s, %s.">%s (%s)</a>',
             $url,
             'smartinstaller',
-            'icon icon-hand',
             _('This is the recommended installer to use now'),
             _('It can be used on Windows'),
             _('Linux'),
@@ -116,31 +128,43 @@ class ClientManagementPage extends FOGPage
             _('Smart Installer'),
             _('Recommended')
         );
-        echo '</div></li>';
-        echo '<li>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        // Help and guide box
+        echo '<div class="col-md-4">';
+        echo '<div class="panel panel-default">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Help and Guide');
+        echo '</h4>';
+        echo '<p class="category">';
+        echo _('Where to get help');
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="panel-body">';
         printf(
-            '<h5>%s</h5>',
-            _('Help and Guide')
-        );
-        printf(
-            '<div>%s. %s: %s %s.<br/><br/>',
+            '%s. %s: %s %s.<br/><br/>',
             _('Use the links below if you need assistance'),
             _('NOTE'),
             _('Forums are the most common and fastest method of getting'),
             _('help with any aspect of FOG')
         );
+        echo '<br/>';
         printf(
-            '<a href="%s" class="icon icon-hand" '
+            '<a href="'
+            . 'https://wiki.fogproject.org/wiki/index.php?title=FOG_client'
+            . '" data-toggle="tooltip" data-placement="right" '
             . 'title="%s. %s">%s</a><br/>',
-            'https://wiki.fogproject.org/wiki/index.php?title=FOG_client',
             _('Detailed documentation'),
             _('It is primarily geared for the smart installer methodology now'),
             _('FOG Client Wiki')
         );
         printf(
-            '<a href="%s" class="icon icon-hand" '
+            '<a href="'
+            . 'https://forums.fogproject.org'
+            . '" data-toggle="tooltip" data-placement="right" '
             . 'title="%s? %s. %s %s. %s.">%s</a>',
-            'https://forums.fogproject.org',
             _('Need more support'),
             _('Somebody will be able to help in some form'),
             _('Use the forums to post issues so others'),
@@ -148,23 +172,33 @@ class ClientManagementPage extends FOGPage
             _('Chat is also available on the forums for more realtime help'),
             _('FOG Forums')
         );
-        echo '</div></li>';
-        echo '<li>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        // Help and guide box
+        echo '<div class="col-md-4">';
+        echo '<div class="panel panel-default">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Legacy Client and Utilities');
+        echo '</h4>';
+        echo '<p class="category">';
+        echo _('The old client and fogcrypt, deprecated');
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="panel-body">';
         printf(
-            '<h5>%s</h5>',
-            _('Legacy Client and Utilities')
-        );
-        printf(
-            '<div>%s %s. %s %s.<br/>',
+            '%s %s. %s %s.<br/>',
             _('The legacy client and fog crypt utility for those'),
             _('that are not yet using the new client'),
             _('We highly recommend you make the switch for more'),
             _('security and faster client communication and management')
         );
         printf(
-            '<a href="%s?legclient" class="icon icon-hand" '
+            '<a href="'
+            . $url
+            . '?legclient" data-toggle="tooltip" data-placement="right" '
             . 'title="%s. %s %s. %s %s, %s, %s.">%s</a><br/>',
-            $url,
             _('This is the file to install the legacy client'),
             _('It is recommended to not use this file but'),
             _('you may do as you please'),
@@ -175,14 +209,17 @@ class ClientManagementPage extends FOGPage
             _('Legacy FOG Client')
         );
         printf(
-            '<a href="%s?fogcrypt" class="icon icon-hand" '
+            '<a href="'
+            . $url
+            . '?fogcrypt" data-toggle="tooltip" data-placement="right" '
             . 'title="%s. %s">%s</a>',
-            $url,
             _('This file is used to encrypt the AD Password'),
             _('DO NOT USE THIS IF YOU ARE USING THE NEW CLIENT'),
             _('FOG Crypt')
         );
-        echo '</div></li>';
-        echo '</ul>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
 }
