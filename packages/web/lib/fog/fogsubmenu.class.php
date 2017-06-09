@@ -103,6 +103,7 @@ class FOGSubMenu extends FOGBase
     public $defaultSubs = array(
         'host' => 'edit',
         'group' => 'edit',
+        'user' => 'edit',
     );
     /**
      * Stores items.
@@ -319,51 +320,89 @@ class FOGSubMenu extends FOGBase
             foreach ((array) $this->items[$node] as $title => &$data) {
                 self::$_title = $this->fixTitle($title);
                 foreach ((array) $data as $label => &$link) {
+                    $hash = '';
+                    if (!$this->isExternalLink($link)) {
+                        $hash = $this->getTarget($link);
+                        if ($hash) {
+                            $link = str_replace(
+                                "#$hash",
+                                '',
+                                $link
+                            );
+                        }
+                    }
                     if ($label == 'class') {
                         continue;
                     }
                     $string = sprintf(
-                        '<li><a class="%s" href="${link}" %s>%s</a></li>',
-                        $link,
-                        'data-toggle="tab"',
+                        '<li><a class="%s" href="${link}${hash}"%s>%s</a></li>',
+                        $hash ?: $node.'-'.$sub,
+                        (
+                            !$this->isExternalLink($link)
+                            && !empty($hash) ?
+                            ' data-toggle="tab"' :
+                            ''
+                        ),
                         $label
                     );
                     if ($this->isExternalLink($link)) {
                         echo str_replace(
-                            '${link}',
-                            $link,
-                            $string
+                            '${hash}',
+                            (
+                                $hash ?
+                                "#$hash" :
+                                ''
+                            ),
+                            str_replace(
+                                '${link}',
+                                $link,
+                                $string
+                            )
                         );
                     } elseif (!$link) {
                         echo str_replace(
-                            '${link}',
-                            "?node=$node",
-                            $string
+                            '${hash}',
+                            '',
+                            str_replace(
+                                '${link}',
+                                "?node=$node",
+                                $string
+                            )
                         );
                     } else {
                         global $sub;
                         $string = str_replace(
                             '${link}',
-                            "?node=$node&sub=\${link}",
+                            "\${link}",
                             $string
                         );
                         if (!$sub || $title == self::$foglang['MainMenu']) {
                             echo str_replace(
-                                '${link}',
-                                $link,
-                                $string
-                            );
-                        } elseif ($this->defaultSubs[$node]) {
-                            echo str_replace(
-                                '${link}',
-                                "{$this->defaultSubs[$node]}&tab=$link",
-                                $string
+                                '${hash}',
+                                (
+                                    $hash ?
+                                    "#$hash" :
+                                    ''
+                                ),
+                                str_replace(
+                                    '${link}',
+                                    $link,
+                                    $string
+                                )
                             );
                         } else {
                             echo str_replace(
-                                '${link}',
-                                "$sub&tab=$link",
-                                $string
+                                '${hash}',
+                                (
+                                    $hash ?
+                                    "#$hash" :
+                                    ''
+                                ),
+                                str_replace(
+                                    '${link}',
+                                    $link,
+                                    $string
+                                )
                             );
                         }
                     }
@@ -395,6 +434,21 @@ class FOGSubMenu extends FOGBase
         return implode($dash, $e);
     }
     /**
+     * Gets the target element from url
+     *
+     * @param string $link The link to test against
+     *
+     * @return string
+     */
+    public function getTarget($link)
+    {
+        if (!is_string($link)) {
+            throw new Exception(_('Link must be a string'));
+        }
+        $components = parse_url($link);
+        return isset($components['fragment']) ? $components['fragment'] : '';
+    }
+    /**
      * Test if the link passed is for an external source.
      *
      * @param string $link The link to test against
@@ -408,10 +462,11 @@ class FOGSubMenu extends FOGBase
         if (!is_string($link)) {
             throw new Exception(_('Link must be a string'));
         }
-        $https = (bool) (substr($link, 0, 5) == 'https');
-        $http = (bool) (substr($link, 0, 4) == 'http');
-        $extlink = (bool) in_array($link{0}, array('/', '?', '#'));
-
-        return (bool) $https === true || $http === true || $extlink === true;
+        $components = parse_url($link);
+        return !empty($components['host'])
+            && strcasecmp(
+                $components['host'],
+                filter_input(INPUT_SERVER, 'HTTP_HOST')
+            );
     }
 }

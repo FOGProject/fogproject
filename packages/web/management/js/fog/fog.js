@@ -99,20 +99,50 @@ function AJAXServerTime() {
     });
 }
 (function($) {
-    $('[data-toggle="tooltip"]').tooltip();
-    if ($('#tab-container').length > 0) {
+    /**
+     * Performs tests on direct targetting
+     * and displays for us the proper element.
+     */
+    var url = window.location.toString();
+    if (url.match('#')) {
+        $('.nav-tabs a[href*="#'+url.split('#')[1]+'"]').tab('show');
+    }
+    $('.nav-tabs a').on('shown.bs.tab', function(e) {
+        if (history.pushState) {
+            history.pushState(null, null, e.target.hash);
+        } else {
+            window.location.hash = e.target.hash;
+        }
+        $(this).parent().addClass('active');
+    });
+    /**
+     * If we don't have a hash such as when initially entering
+     * an edit page, we need to display the first item.
+     */
+    if ($('.tab-content').length > 0) {
         if (location.hash == "") {
-            firstid = $('#tab-container > div:first').prop('id');
-            location.hash = '#'+firstid;
+            firstid = $('.tab-content > div:first').prop('id');
+            if (history.pushState) {
+                history.pushState(null, null, '#'+firstid);
+            } else {
+                window.location.hash = '#'+firstid;
+            }
+            $('.nav-tabs a[href*="#'+firstid+'"]').parent().addClass('active');
         }
     }
-    $(document).on(
-        'click',
-        '.mainmenu .dropdown-menu, .submenu .dropdown-menu',
-        function(e) {
-            e.stopPropagation();
+    /**
+     * This allows us to move back and forth between pages.
+     */
+    $('a[data-toggle="tab"]').on('click', function(e) {
+        hash = $(this).prop('href').split('#')[1];
+        if ($('#'+hash).length < 1) {
+            location.href = $(this).prop('href');
         }
-    );
+    });
+    /**
+     * Ensure's bootstrap's tooltip feature is functioning
+     */
+    $('[data-toggle="tooltip"]').tooltip();
     $.validator.addMethod(
         'regex',
         function(value, element,regexp) {

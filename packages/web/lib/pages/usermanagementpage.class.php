@@ -82,7 +82,6 @@ class UserManagementPage extends FOGPage
             '<input type="checkbox" name="toggle-checkbox" class='
             . '"toggle-checkboxAction" id="toggler"/>'
             . '<label for="toggler"></label>',
-            _('Mobile Only?'),
             _('API?'),
             _('Username'),
             _('Friendly Name')
@@ -91,7 +90,6 @@ class UserManagementPage extends FOGPage
             '<input type="checkbox" name="user[]" value='
             . '"${id}" class="toggle-action" id="user-${id}"/>'
             . '<label for="user-${id}"></label>',
-            '${mobileYes}',
             '${apiYes}',
             sprintf(
                 '<a href="?node=%s&sub=edit&%s=${id}" title="%s">${name}</a>',
@@ -130,7 +128,6 @@ class UserManagementPage extends FOGPage
             }
             $this->data[] = array(
                 'id' => $User->get('id'),
-                'mobileYes' => $User->get('type') == 1 ? _('Yes') : _('No'),
                 'apiYes' => $User->get('api') ? _('Yes') : _('No'),
                 'name' => $User->get('name'),
                 'friendly' => (
@@ -351,7 +348,7 @@ class UserManagementPage extends FOGPage
             . '</div>',
             '<label class="label-control" for="updategen">'
             . _('Update General?')
-            . '</label> ' => '<button class="btn btn-default" name="'
+            . '</label> ' => '<button class="btn btn-default btn-block" name="'
             . 'update" id="updategen" type="submit">'
             . _('Update')
             . '</button>'
@@ -417,7 +414,7 @@ class UserManagementPage extends FOGPage
             . '</div>',
             '<label class="label-control" for="updatepw">'
             . _('Update Password?')
-            . '</label> ' => '<button class="btn btn-default" name="'
+            . '</label> ' => '<button class="btn btn-default btn-block" name="'
             . 'update" id="updatepw" type="submit">'
             . _('Update')
             . '</button>'
@@ -489,7 +486,7 @@ class UserManagementPage extends FOGPage
             . '</div>',
             '<label class="label-control" for="updateapi">'
             . _('Update API?')
-            . '</label> ' => '<button class="btn btn-default" name="'
+            . '</label> ' => '<button class="btn btn-default btn-block" name="'
             . 'update" id="updateapi" type="submit">'
             . _('Update')
             . '</button>'

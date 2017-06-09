@@ -126,7 +126,6 @@ class Page extends FOGBase
             ->addCSS('css/bootstrap-theme.min.css')
             ->addCSS('css/theme.bootstrap_3.css')
             ->addCSS('css/theme.blue.css')
-            ->addCSS('css/jquery.tablesorter.pager.css')
             ->addCSS($dispTheme);
         if (!isset($node)
             || !$node
@@ -282,7 +281,6 @@ class Page extends FOGBase
             'js/jquery.validate.min.js',
             'js/additional-methods.min.js',
             'js/jquery.tablesorter.combined.js',
-            'js/jquery.tablesorter.pager.js',
             'js/select2.min.js',
             'js/jquery-migrate-latest.min.js',
             'js/jquery.progressbar.js',
