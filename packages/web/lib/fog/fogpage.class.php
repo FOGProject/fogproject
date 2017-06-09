@@ -756,23 +756,87 @@ abstract class FOGPage extends FOGBase
                 printf($this->form);
             }
             if ($node != 'home') {
-                echo '<div class="row">';
-                echo '<div class="col-md-3">';
-                echo '<form action="#" method="get">';
-                echo '<div class="input-group">';
-                echo '<input class="form-control system-search" name='
-                    . '"q" placeholder="Search table for" required/>';
-                echo '<span class="input-group-addon">';
-                echo '<i class="fogsearch fa fa-search">';
-                echo '<span class="sr-only">';
-                echo self::$foglang['Search'];
-                echo '</span>';
-                echo '</i>';
-                echo '</span>';
+                echo '<div class="col-xs-3">';
+                echo '<ul class="nav nav-pills nav-stacked">';
+                $class = self::$FOGPageManager->getFOGPageClass();
+                $FOGSub = new FOGSubMenu();
+                if (count($class->menu)) {
+                    foreach ($class->menu as $l => &$t) {
+                        $items = $FOGSub->addMainItems(
+                            $class->node,
+                            array((string)$t => (string)$l),
+                            '',
+                            '',
+                            'mainmenu'
+                        );
+                        unset($t);
+                    }
+                    unset($class->menu);
+                }
+                unset($class);
+                ob_start();
+                foreach ((array)$items[$node] as $title => &$data) {
+                    $title = $FOGSub->fixTitle($title);
+                    echo '<h4 class="category">';
+                    echo $title;
+                    echo '</h4>';
+                    echo '<hr/>';
+                    foreach ((array)$data as $label => &$link) {
+                        if ($label == 'class') {
+                            continue;
+                        }
+                        $string = sprintf(
+                            '<li><a class="%s" href="${link}">%s</a></li>',
+                            $link,
+                            $label
+                        );
+                        if ($FOGSub->isExternalLink($link)) {
+                            echo str_replace(
+                                '${link}',
+                                $link,
+                                $string
+                            );
+                        } elseif (!$link) {
+                            echo str_replace(
+                                '${link}',
+                                "../management/index.php?node=$node",
+                                $string
+                            );
+                        } else {
+                            $string = str_replace(
+                                '${link}',
+                                "../management/index.php?node=$node&"
+                                . 'sub=${link}',
+                                $string
+                            );
+                            if (!$sub || $title == self::$foglang['MainMenu']) {
+                                echo str_replace(
+                                    '${link}',
+                                    $link,
+                                    $string
+                                );
+                            } elseif ($FOGSub->defaultSubs[$node]) {
+                                echo str_replace(
+                                    '${link}',
+                                    "{$FOGSub->defaultSubs[$node]}&tab=$link",
+                                    $string
+                                );
+                            } else {
+                                echo str_replace(
+                                    '${link}',
+                                    "$sub&tab=$link",
+                                    $string
+                                );
+                            }
+                        }
+                        unset($link);
+                    }
+                    unset($data);
+                }
+                echo ob_get_clean();
+                echo '</ul>';
                 echo '</div>';
-                echo '</form>';
-                echo '</div>';
-                echo '<div class="col-md-9">';
+                echo '<div class="col-xs-9">';
             }
             echo '<table class="table table-list-search">';
             if (count($this->headerData) > 0) {
@@ -823,7 +887,6 @@ abstract class FOGPage extends FOGBase
             echo '</tbody>';
             echo '</table>';
             if ($node != 'home') {
-                echo '</div>';
                 echo '</div>';
             }
             $text = ob_get_clean();
@@ -1889,7 +1952,8 @@ abstract class FOGPage extends FOGBase
         );
         printf("<!-- Basic Tasks -->");
         printf(
-            '<div id="%s-tasks"><p class="category">%s %s</p>',
+            '<div id="%s-tasks" class="tab-pane fade">'
+            . '<p class="category">%s %s</p>',
             $this->node,
             $this->childClass,
             _('Tasks')
@@ -2106,7 +2170,7 @@ abstract class FOGPage extends FOGBase
         echo '<!-- Active Directory -->';
         echo '<div id="'
             . $node
-            . '-active-directory">';
+            . '-active-directory" class="tab-pane fade">';
         echo '<div class="text-center">';
         echo '<p class="category">';
         echo _('Active Directory');
@@ -2266,7 +2330,6 @@ abstract class FOGPage extends FOGBase
         $this->render();
         echo '</div>';
         echo '</form>';
-        echo '</div>';
         unset($this->data);
     }
     /**

@@ -105,6 +105,80 @@ class FOGSubMenu extends FOGBase
         'group' => 'edit',
     );
     /**
+     * Stores items.
+     *
+     * @var array
+     */
+    public $items = array();
+    /**
+     * Stores main itesm.
+     *
+     * @var array
+     */
+    public $mainitems = array();
+    /**
+     * Add items into the side menu stuff.
+     *
+     * @param string $node            node to work on
+     * @param array  $items           items to add
+     * @param string $ifVariable      tester variable
+     * @param string $ifVariableTitle tester variable title setter
+     * @param string $class           class to set with item.
+     *
+     * @throws exception
+     * @return void
+     */
+    public function addMainItems(
+        $node,
+        $items,
+        $ifVariable = '',
+        $ifVariableTitle = '',
+        $class = ''
+    ) {
+        if (!is_string($node)) {
+            throw new Exception(
+                _('Node must be a string')
+            );
+        }
+        if (!is_array($items)) {
+            throw new Exception(
+                _('Items must be an array')
+            );
+        }
+        if (!$ifVariable) {
+            $variableSetter = self::$foglang['MainMenu'];
+        } else {
+            $variableSetter = $ifVariableTitle;
+        }
+        if (isset($_REQUEST[$ifVariable])) {
+            global $$ifVariable;
+            foreach ((array) $items as $title => $link) {
+                global $$ifVariable;
+                if (!$this->isExternalLink($link)) {
+                    $link = sprintf(
+                        '%s&%s=%s',
+                        $link,
+                        $ifVariable,
+                        $$ifVariable
+                    );
+                }
+                unset($link, $title);
+            }
+        }
+        if (is_array($this->mainitems[$node][$variableSetter])) {
+            $this->mainitems[$node][$variableSetter] = self::fastmerge(
+                $this->mainitems[$node][$variableSetter],
+                $items
+            );
+        } else {
+            $this->mainitems[$node][$variableSetter] = $items;
+        }
+        if (isset($class)) {
+            $this->mainitems[$node][$variableSetter]['class'] = $class;
+        }
+        return $this->mainitems;
+    }
+    /**
      * Add items into the side menu stuff.
      *
      * @param string $node            node to work on
@@ -213,35 +287,40 @@ class FOGSubMenu extends FOGBase
     /**
      * Gets the data as setup.
      *
-     * @param string $node   The node to get menu for
-     * @param bool   $getall Do we do all or partial?
+     * @param string $node The node to get menu for
      *
      * @throws Exception
      *
      * @return string
      */
-    public function get($node, $getall = true)
+    public function get($node)
     {
         ob_start();
         echo '<ul class="nav nav-tabs">';
+        if ($this->notes[$node]) {
+            echo '<li class="dropdown">';
+            echo '<a href="#" class="dropdown-toggle" data-toggle="dropdown">';
+            echo '<p>';
+            echo _('Notes');
+            echo '<b class="caret"></b>';
+            echo '</p>';
+            echo '</a>';
+            echo '<ul class="dropdown-menu sidenotes">';
+            echo implode($this->notes[$node]);
+            echo '</ul>';
+            echo '</li>';
+        }
         if ($this->items[$node]) {
             foreach ((array) $this->items[$node] as $title => &$data) {
                 self::$_title = $this->fixTitle($title);
-                echo '<li class="dropdown">';
-                echo '<a href="#" class="dropdown-toggle" data-toggle="dropdown">';
-                echo '<p>';
-                echo self::$_title;
-                echo '<b class="caret"></b>';
-                echo '</p>';
-                echo '</a>';
-                echo '<ul class="dropdown-menu">';
                 foreach ((array) $data as $label => &$link) {
                     if ($label == 'class') {
                         continue;
                     }
                     $string = sprintf(
-                        '<li><a class="%s" href="${link}">%s</a></li>',
+                        '<li><a class="%s" href="${link}" %s>%s</a></li>',
                         $link,
+                        'data-toggle="tab"',
                         $label
                     );
                     if ($this->isExternalLink($link)) {
@@ -285,23 +364,8 @@ class FOGSubMenu extends FOGBase
                     }
                     unset($link, $label);
                 }
-                echo '</ul>';
-                echo '</li>';
                 unset($data, $title);
             }
-        }
-        if ($this->notes[$node]) {
-            echo '<li class="dropdown">';
-            echo '<a href="#" class="dropdown-toggle" data-toggle="dropdown">';
-            echo '<p>';
-            echo _('Notes');
-            echo '<b class="caret"></b>';
-            echo '</p>';
-            echo '</a>';
-            echo '<ul class="dropdown-menu sidenotes">';
-            echo implode($this->notes[$node]);
-            echo '</ul>';
-            echo '</li>';
         }
         echo '</ul>';
 

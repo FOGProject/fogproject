@@ -165,8 +165,6 @@ $(function() {
             });
         });
     });
-    // Tooltips
-    HookTooltips();
     // Search boxes
     $('.search-input').fogAjaxSearch();
     $('.container-fluid').fogTableInfo().trigger('updateAll');
@@ -200,8 +198,6 @@ $(function() {
         });
     });
     // Tabs
-    // Blackout - 9:14 AM 30/11/2011
-    $('.nav').organicTabs({targetID: '#tab-container'});
     // Hides all the divs in the Service menu
     $('#tab-container-1 > div').hide();
     // Shows the div of the containing element.
@@ -226,18 +222,6 @@ $(function() {
 });
 function debug(txt) {
     if (console) console.log(txt);
-}
-function HookTooltips() {
-    setTimeout(function() {
-        $('.tipsy').remove();
-        $('a[title],.remove-mac[title], .add-mac[title], .icon-help[title], .task-name[title], .icon[title], .icon-ping[title], .icon-ping-down[title], .icon-ping-up[title], img[title]', Content).tipsy({
-            gravity: $.fn.tipsy.autoNS
-        }).mouseenter(function() {
-            $('.tipsy').css({
-                'min-width': '35px'
-            });
-        });
-    }, 400);
 }
 function validateCronInputs(selector) {
     var funcs = {

@@ -60,7 +60,6 @@ $(function() {
         $('.additionalMACsCell').append('<div><input class="additionalMAC macaddr" type="text" name="additionalMACs[]"/>&nbsp;&nbsp;<i class="icon fa fa-minus-circle remove-mac hand" title="Remove MAC"></i><br/><span class="mac-manufactor"></span></div>');
         removeMACField();
         MACUpdate();
-        HookTooltips();
         e.preventDefault();
     });
     if ($('.additionalMAC').size() < 1) {
@@ -91,7 +90,6 @@ function removeMACField() {
         url = remove.parents('form').prop('action');
         $.post(url,{additionalMACsRM: val});
         remove.parent('div').remove();
-        HookTooltips();
     });
 }
 function MACChange(data) {

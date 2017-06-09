@@ -402,7 +402,7 @@ class HostManagementPage extends FOGPage
             . $this->formAction
             . '">';
         echo '<!-- General -->';
-        echo '<div id="host-general" class="organic-tabs">';
+        echo '<div id="host-general">';
         echo '</div>';
         echo $this->adFieldsToDisplay(
             filter_input(INPUT_POST, 'domain'),
@@ -867,8 +867,10 @@ class HostManagementPage extends FOGPage
                     'Host' => &$this->obj
                 )
             );
-        echo '<div id="tab-container">';
-        echo '<!-- General --><div id="host-general">';
+        echo '<div class="tab-content">';
+        echo '<!-- General -->';
+        echo '<div id="host-general" class="'
+            . 'tab-pane fade in active">';
         if ($this->obj->get('pub_key')
             || $this->obj->get('sec_tok')
         ) {
@@ -893,7 +895,8 @@ class HostManagementPage extends FOGPage
             $this->formAction, _('Edit host definition')
         );
         $this->render();
-        echo '</form></div>';
+        echo '</form>';
+        echo '</div>';
         unset($this->data, $this->form);
         unset($this->data, $this->headerData, $this->attributes);
         if (!$this->obj->get('pending')) {
@@ -909,7 +912,7 @@ class HostManagementPage extends FOGPage
             $this->obj->get('enforce')
         );
         printf(
-            '<!-- Printers --><div id="host-printers">'
+            '<!-- Printers --><div id="host-printers" class="tab-pane fade">'
             . '<form method="post" action="%s&tab=host-printers">',
             $this->formAction
         );
@@ -1127,7 +1130,7 @@ class HostManagementPage extends FOGPage
         unset($this->data, $this->headerData);
         echo '</form></div>';
         printf(
-            '<!-- Snapins --><div id="host-snapins">'
+            '<!-- Snapins --><div id="host-snapins" class="tab-pane fade">'
             . '<h2>%s</h2><form method="post" '
             . 'action="%s&tab=host-snapins">',
             _('Snapins'),
@@ -1269,7 +1272,7 @@ class HostManagementPage extends FOGPage
             'span' => '&nbsp;'
         );
         printf(
-            '<div id="host-service"><h2>%s</h2>'
+            '<div id="host-service" class="tab-pane fade"><h2>%s</h2>'
             . '<form method="post" '
             . 'action="%s&tab=host-service">'
             . '<fieldset><legend>%s</legend>',
@@ -1543,7 +1546,8 @@ class HostManagementPage extends FOGPage
         unset($this->data, $fields);
         echo '</fieldset></form></div>';
         echo '<!-- Power Management Items -->'
-            . '<div id="host-powermanagement"><p class="cronOptions">';
+            . '<div id="host-powermanagement" class="tab-page fade">'
+            . '<p class="cronOptions">';
         $this->headerData = array(
             '<input type="checkbox" id="rempowerselectors"/>'
             . '<label for="rempowerselectors"></label>',
@@ -1795,7 +1799,7 @@ class HostManagementPage extends FOGPage
             ),
         );
         printf(
-            '<div id="host-hardware-inventory">'
+            '<div id="host-hardware-inventory" class="tab-pane fade">'
             . '<form method="post" action="%s&tab=host-hardware-inventory">'
             . '<h2>%s</h2>',
             $this->formAction,
@@ -1848,7 +1852,7 @@ class HostManagementPage extends FOGPage
             ),
         );
         printf(
-            '<div id="host-virus-history">'
+            '<div id="host-virus-history" class="tab-pane fade">'
             . '<form method="post" action="%s&tab=host-virus-history">'
             . '<h2>%s</h2>'
             . '<h2><a href="#">'
@@ -1903,7 +1907,8 @@ class HostManagementPage extends FOGPage
         unset($this->data, $this->headerData);
         printf(
             '</form></div>'
-            . '<!-- Login History --><div id="host-login-history">'
+            . '<!-- Login History --><div id="host-login-history" class='
+            . '"tab-pane fade">'
             . '<h2>%s</h2>'
             . '<form id="dte" method="post" action="%s&tab=host-login-history">',
             _('Host Login History'),
@@ -2049,7 +2054,8 @@ class HostManagementPage extends FOGPage
         unset($this->data, $this->headerData);
         printf(
             '<div id="login-history"/></div></form>'
-            . '</div><div id="host-image-history"><h2>%s</h2>',
+            . '</div><div id="host-image-history" class="tab-pane fade">'
+            . '<h2>%s</h2>',
             _('Host Imaging History')
         );
         $this->headerData = array(
@@ -2175,7 +2181,7 @@ class HostManagementPage extends FOGPage
             );
         $this->render();
         unset($this->data);
-        echo '</div><div id="host-snapin-history">';
+        echo '</div><div id="host-snapin-history" class="tab-pane fade">';
         $this->headerData = array(
             _('Snapin Name'),
             _('Start Time'),
@@ -2257,7 +2263,7 @@ class HostManagementPage extends FOGPage
                 )
             );
         $this->render();
-        echo '</div></div>';
+        echo '</div></div></div>';
     }
     /**
      * Updates the host when form is submitted

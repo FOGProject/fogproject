@@ -121,8 +121,6 @@ class Page extends FOGBase
             ->addCSS('css/jquery-ui.theme.css')
             ->addCSS('css/jquery-ui.structure.css')
             ->addCSS('css/jquery-ui-timepicker-addon.css')
-            ->addCSS('css/jquery.organicTabs.css')
-            ->addCSS('css/jquery.tipsy.css')
             ->addCSS('css/select2.min.css')
             ->addCSS('css/theme.blue.css')
             ->addCSS('css/bootstrap.min.css')
@@ -279,10 +277,8 @@ class Page extends FOGBase
             'js/jquery.tablesorter.combined.js',
             'js/select2.min.js',
             'js/jquery-migrate-latest.min.js',
-            'js/jquery.tipsy.js',
             'js/jquery.progressbar.js',
             'js/jquery.tmpl.js',
-            'js/jquery.organicTabs.js',
             'js/jquery.placeholder.js',
             'js/jquery-ui.min.js',
             'js/flot/jquery.flot.js',
@@ -526,19 +522,6 @@ class Page extends FOGBase
     {
         $class = self::$FOGPageManager->getFOGPageClass();
         $FOGSub = new FOGSubMenu();
-        if (count($class->menu)) {
-            foreach ($class->menu as $l => &$t) {
-                $FOGSub->addItems(
-                    $class->node,
-                    array((string)$t => (string)$l),
-                    '',
-                    '',
-                    'mainmenu'
-                );
-                unset($t);
-            }
-            unset($class->menu);
-        }
         if (count($class->subMenu)) {
             foreach ($class->subMenu as $l => &$t) {
                 $FOGSub->addItems(
