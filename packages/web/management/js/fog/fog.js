@@ -416,7 +416,7 @@ function showProgressBar() {
 }
 function buildHeaderRow(data,attributes,wrapper) {
     if (!Container || typeof(Container) === null || typeof(Container) === 'undefined') {
-        Container = $('.table');
+        Container = $('.table-holder .table');
     }
     savedFilters = Container.find('.tablesorter-filter').map(function(){
         return this.value || '';
@@ -481,13 +481,16 @@ function buildRow(data,templates,attributes,wrapper) {
 }
 function TableCheck() {
     if (!Container || typeof(Container) === null || typeof(Container) === 'undefined') {
-        Container = $('.table');
+        Container = $('.table-holder .table');
     }
     callme = 'hide';
     if ($('.not-found').length === 0) Container.after('<p class="c not-found">'+_L['NO_ACTIVE_TASKS']+'</p>');
     if (typeof(LastCount) != 'undefined' && LastCount > 0) {
         if ($('.not-found').length > 0) $('.not-found').remove();
         callme = 'show';
+    }
+    if ($('tbody > tr', Container).length < 1) {
+        callme = 'hide';
     }
     Container[callme]().fogTableInfo().trigger('updateAll').find('.tablesorter-filter').each(function(i){
         if (typeof savedFilters === null || typeof savedFilters === 'undefined') return;
@@ -712,8 +715,10 @@ function setupFogTableInfoFunction() {
                 };
                 break;
         }
-        table = $('table.table');
-        if (table.length == 0 || !table.has('thead')) return this;
+        table = $('.table-holder table.table');
+        if (table.length == 0 || !table.has('thead')) {
+            table.hide();
+        }
         table.find('thead > tr').addClass('hand');
         if ($('tbody', table).length < 1) {
             table.hide();
@@ -748,7 +753,7 @@ function setupFogTableInfoFunction() {
                 },
                 filter_reset: '.reset',
             }
-        });
+        }).trigger('update').trigger('updateAll');
         return this;
     }
 }
