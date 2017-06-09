@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-09 14:52-0400\n"
+"POT-Creation-Date: 2017-06-09 15:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2350,7 +2350,7 @@ msgid "FOG Forums"
 msgstr ""
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:66
-#: /var/www/fog/management/other/index.php:190
+#: /var/www/fog/management/other/index.php:198
 msgid "Donate to FOG"
 msgstr ""
 
@@ -8051,15 +8051,23 @@ msgid "Example Bolded Header"
 msgstr ""
 
 #: /var/www/fog/management/other/index.php:60
-#: /var/www/fog/management/other/index.php:135
+#: /var/www/fog/management/other/index.php:143
 msgid "Toggle Navigation"
 msgstr ""
 
-#: /var/www/fog/management/other/index.php:182
+#: /var/www/fog/management/other/index.php:76
+msgid "Running Version"
+msgstr ""
+
+#: /var/www/fog/management/other/index.php:78
+msgid "SVN Revision"
+msgstr ""
+
+#: /var/www/fog/management/other/index.php:190
 msgid "Credits"
 msgstr ""
 
-#: /var/www/fog/management/other/index.php:185
+#: /var/www/fog/management/other/index.php:193
 msgid "FOG Client"
 msgstr ""
 

@@ -161,3 +161,8 @@ footer {
         padding-bottom: 70px;
     }
 }
+.version-info {
+    color: white;
+    font-size: 9px;
+    margin-top: 10px;
+}

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-09 14:51-0400\n"
+"POT-Creation-Date: 2017-06-09 15:04-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2502,7 +2502,7 @@ msgid "FOG Forums"
 msgstr "Foros FOG"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:66
-#: /var/www/fog/management/other/index.php:190
+#: /var/www/fog/management/other/index.php:198
 msgid "Donate to FOG"
 msgstr "Donar a la niebla"
 
@@ -8737,16 +8737,25 @@ msgid "Example Bolded Header"
 msgstr ""
 
 #: /var/www/fog/management/other/index.php:60
-#: /var/www/fog/management/other/index.php:135
+#: /var/www/fog/management/other/index.php:143
 msgid "Toggle Navigation"
 msgstr ""
 
-#: /var/www/fog/management/other/index.php:182
+#: /var/www/fog/management/other/index.php:76
+msgid "Running Version"
+msgstr "ejecutando la versión"
+
+#: /var/www/fog/management/other/index.php:78
+#, fuzzy
+msgid "SVN Revision"
+msgstr "Versión"
+
+#: /var/www/fog/management/other/index.php:190
 #, fuzzy
 msgid "Credits"
 msgstr "Crear"
 
-#: /var/www/fog/management/other/index.php:185
+#: /var/www/fog/management/other/index.php:193
 #, fuzzy
 msgid "FOG Client"
 msgstr "FOG Wiki Cliente"
@@ -9906,13 +9915,6 @@ msgstr "No hay grupos en este servidor."
 
 #~ msgid "Add new user account"
 #~ msgstr "Añadir nueva cuenta de usuario"
-
-#~ msgid "Running Version"
-#~ msgstr "ejecutando la versión"
-
-#, fuzzy
-#~ msgid "SVN Revision"
-#~ msgstr "Versión"
 
 #~ msgid "Delete Current Records"
 #~ msgstr "Eliminar Registros actuales"
