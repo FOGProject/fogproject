@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-09 14:19-0400\n"
+"POT-Creation-Date: 2017-06-09 14:35-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -149,7 +149,7 @@ msgstr "无法创建打印机"
 #: /var/www/fog/lib/fog/fogcontroller.class.php:815
 #: /var/www/fog/lib/fog/fogcontroller.class.php:953
 #: /var/www/fog/lib/fog/foggetset.class.php:92
-#: /var/www/fog/lib/fog/fogpage.class.php:2445
+#: /var/www/fog/lib/fog/fogpage.class.php:2453
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:174
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:207
 #: /var/www/fog/lib/db/pdodb.class.php:183
@@ -209,8 +209,8 @@ msgstr "未发现记录，错误： %s"
 #: /var/www/fog/lib/fog/fogcontroller.class.php:559
 #: /var/www/fog/lib/fog/fogcontroller.class.php:768
 #: /var/www/fog/lib/fog/fogcontroller.class.php:791
-#: /var/www/fog/lib/fog/fogpage.class.php:3258
-#: /var/www/fog/lib/fog/fogpage.class.php:3378
+#: /var/www/fog/lib/fog/fogpage.class.php:3266
+#: /var/www/fog/lib/fog/fogpage.class.php:3386
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:93
 #: /var/www/fog/lib/plugins/fileintegrity/pages/fileintegritymanagementpage.class.php:53
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:423
@@ -476,8 +476,8 @@ msgid "Invalid ID passed"
 msgstr "无效的单元传递"
 
 #: /var/www/fog/lib/fog/fogcontroller.class.php:952
-#: /var/www/fog/lib/fog/fogpage.class.php:2447
-#: /var/www/fog/lib/fog/fogpage.class.php:3821 /var/www/fog/service/av.php:36
+#: /var/www/fog/lib/fog/fogpage.class.php:2455
+#: /var/www/fog/lib/fog/fogpage.class.php:3829 /var/www/fog/service/av.php:36
 msgid "Failed"
 msgstr "失败"
 
@@ -821,8 +821,8 @@ msgid "You are only allowed to assign"
 msgstr "您只能分配"
 
 #: /var/www/fog/lib/fog/fogftp.class.php:378
-#: /var/www/fog/lib/fog/fogpage.class.php:3256
-#: /var/www/fog/lib/fog/fogpage.class.php:3365
+#: /var/www/fog/lib/fog/fogpage.class.php:3264
+#: /var/www/fog/lib/fog/fogpage.class.php:3373
 #: /var/www/fog/lib/pages/taskmobile.class.php:44
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:172
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:326
@@ -1157,7 +1157,7 @@ msgid "Chassis Asset"
 msgstr "机箱资产"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:470
-#: /var/www/fog/lib/fog/fogpage.class.php:3131
+#: /var/www/fog/lib/fog/fogpage.class.php:3139
 #: /var/www/fog/lib/reports/user_tracking.report.php:86
 #: /var/www/fog/commons/text.php:32
 msgid "Search"
@@ -1167,31 +1167,31 @@ msgstr "搜索"
 msgid "All"
 msgstr "所有"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:656
+#: /var/www/fog/lib/fog/fogpage.class.php:657
 msgid "Create new group"
 msgstr "创建新组"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:664
+#: /var/www/fog/lib/fog/fogpage.class.php:665
 #: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:173
 #: /var/www/fog/commons/text.php:94
 msgid "or"
 msgstr "要么"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:670
+#: /var/www/fog/lib/fog/fogpage.class.php:671
 msgid "Add to group"
 msgstr "添加到组"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:678
+#: /var/www/fog/lib/fog/fogpage.class.php:679
 #, fuzzy
 msgid "Process group changes"
 msgstr "处理组更改"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:696
+#: /var/www/fog/lib/fog/fogpage.class.php:701
 #, fuzzy
 msgid "Delete selected"
 msgstr "删除所选"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:713
+#: /var/www/fog/lib/fog/fogpage.class.php:721
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1010
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1024
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:346
@@ -1205,43 +1205,43 @@ msgstr "删除所选"
 msgid "Delete"
 msgstr "删除"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:744
+#: /var/www/fog/lib/fog/fogpage.class.php:752
 msgid "Requires templates to process"
 msgstr "需要模板来处理"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1052
+#: /var/www/fog/lib/fog/fogpage.class.php:1060
 #, fuzzy
 msgid "Cannot set tasking to invalid hosts"
 msgstr "无法设置taskings未决的或无效的项目"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1059
-#: /var/www/fog/lib/fog/fogpage.class.php:1577
+#: /var/www/fog/lib/fog/fogpage.class.php:1067
+#: /var/www/fog/lib/fog/fogpage.class.php:1585
 #, fuzzy
 msgid "Cannot set tasking to pending hosts"
 msgstr "无法设置taskings未决的或无效的项目"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1067
+#: /var/www/fog/lib/fog/fogpage.class.php:1075
 #, fuzzy
 msgid "Invalid object to try tasking"
 msgstr "无效的对象类型传递"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1074
+#: /var/www/fog/lib/fog/fogpage.class.php:1082
 msgid "Cannot set tasking as image is not enabled"
 msgstr "因为没有启用图像无法设置任务"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1117
+#: /var/www/fog/lib/fog/fogpage.class.php:1125
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:88
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:835
 msgid "Edit Host"
 msgstr "编辑主机"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1118
+#: /var/www/fog/lib/fog/fogpage.class.php:1126
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:93
 msgid "Edit Image"
 msgstr "编辑图像"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1143
 #: /var/www/fog/lib/fog/fogpage.class.php:1151
+#: /var/www/fog/lib/fog/fogpage.class.php:1159
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:167
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:707
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:90
@@ -1276,114 +1276,114 @@ msgstr "编辑图像"
 msgid "Edit"
 msgstr "编辑"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1179
+#: /var/www/fog/lib/fog/fogpage.class.php:1187
 #, fuzzy
 msgid "Confirm tasking"
 msgstr "任务无效"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1182
+#: /var/www/fog/lib/fog/fogpage.class.php:1190
 msgid "Advanced Settings"
 msgstr "高级设置"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1191
+#: /var/www/fog/lib/fog/fogpage.class.php:1199
 #, fuzzy
 msgid "Please select the snapin you want to install"
 msgstr "请选择管理单元要部署"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1202
+#: /var/www/fog/lib/fog/fogpage.class.php:1210
 #, fuzzy
 msgid "Account name to reset"
 msgstr "事件必须是字符串"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1220
+#: /var/www/fog/lib/fog/fogpage.class.php:1228
 #, fuzzy
 msgid "Schedule shutdown after task completion"
 msgstr "任务完成后，"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1239
+#: /var/www/fog/lib/fog/fogpage.class.php:1247
 msgid "Wake on lan?"
 msgstr "网络唤醒？"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1259
+#: /var/www/fog/lib/fog/fogpage.class.php:1267
 #, fuzzy
 msgid "Schedule as debug task"
 msgstr "计划任务作为调试任务"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1269
+#: /var/www/fog/lib/fog/fogpage.class.php:1277
 #, fuzzy
 msgid "Schedule instant"
 msgstr "时间表"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1279
+#: /var/www/fog/lib/fog/fogpage.class.php:1287
 #, fuzzy
 msgid "Schedule delayed"
 msgstr "时间表"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1290
+#: /var/www/fog/lib/fog/fogpage.class.php:1298
 #, fuzzy
 msgid "Schedule cron-style"
 msgstr "调度"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1293
+#: /var/www/fog/lib/fog/fogpage.class.php:1301
 msgid "Select a cron type"
 msgstr "选择一个cron类型"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1294
+#: /var/www/fog/lib/fog/fogpage.class.php:1302
 msgid "Yearly"
 msgstr "每年"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1294
+#: /var/www/fog/lib/fog/fogpage.class.php:1302
 msgid "Annually"
 msgstr "每年"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1295
+#: /var/www/fog/lib/fog/fogpage.class.php:1303
 msgid "Monthly"
 msgstr "每月一次"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1296
+#: /var/www/fog/lib/fog/fogpage.class.php:1304
 msgid "Weekly"
 msgstr "每周"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1297
+#: /var/www/fog/lib/fog/fogpage.class.php:1305
 msgid "Daily"
 msgstr "日常"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1297
+#: /var/www/fog/lib/fog/fogpage.class.php:1305
 msgid "Midnight"
 msgstr "午夜"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1298
+#: /var/www/fog/lib/fog/fogpage.class.php:1306
 msgid "Hourly"
 msgstr "每小时"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1328
+#: /var/www/fog/lib/fog/fogpage.class.php:1336
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:217
 msgid "Create"
 msgstr "创建"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1332
+#: /var/www/fog/lib/fog/fogpage.class.php:1340
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:95
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:303
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:388
 msgid "Tasking"
 msgstr "任务"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1340
+#: /var/www/fog/lib/fog/fogpage.class.php:1348
 #, fuzzy
 msgid "Hosts in task"
 msgstr "在任务主机"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1452
+#: /var/www/fog/lib/fog/fogpage.class.php:1460
 #, fuzzy
 msgid "Invalid scheduling type"
 msgstr "无效类型"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1466
+#: /var/www/fog/lib/fog/fogpage.class.php:1474
 #: /var/www/fog/commons/text.php:283
 msgid "Scheduled date is in the past"
 msgstr "预定日期是过去"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1467
+#: /var/www/fog/lib/fog/fogpage.class.php:1475
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1828
 #: /var/www/fog/lib/reports/equipment_loan.report.php:231
 #: /var/www/fog/lib/reports/equipment_loan.report.php:240
@@ -1393,215 +1393,215 @@ msgstr "预定日期是过去"
 msgid "Date"
 msgstr "日期"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1516
+#: /var/www/fog/lib/fog/fogpage.class.php:1524
 #, fuzzy
 msgid "minute"
 msgstr "分钟"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1525
+#: /var/www/fog/lib/fog/fogpage.class.php:1533
 #, fuzzy
 msgid "hour"
 msgstr "1小时"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1534
+#: /var/www/fog/lib/fog/fogpage.class.php:1542
 msgid "day of month"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1543
+#: /var/www/fog/lib/fog/fogpage.class.php:1551
 #, fuzzy
 msgid "month"
 msgstr "每月一次"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1552
+#: /var/www/fog/lib/fog/fogpage.class.php:1560
 msgid "day of week"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1561
+#: /var/www/fog/lib/fog/fogpage.class.php:1569
 msgid "Task type is not valid"
 msgstr "任务类型无效"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1569
+#: /var/www/fog/lib/fog/fogpage.class.php:1577
 msgid "Password reset requires a user account to reset"
 msgstr "密码重置需要一个用户帐户重置"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1585
+#: /var/www/fog/lib/fog/fogpage.class.php:1593
 #, fuzzy
 msgid "There are no hosts to task in this group"
 msgstr "有此服务器上没有组。"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1595
+#: /var/www/fog/lib/fog/fogpage.class.php:1603
 msgid "To perform an imaging task an image must be assigned"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1600
+#: /var/www/fog/lib/fog/fogpage.class.php:1608
 #, fuzzy
 msgid "Cannot create tasking as image is not enabled"
 msgstr "因为没有启用图像无法设置任务"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1607
+#: /var/www/fog/lib/fog/fogpage.class.php:1615
 #, fuzzy
 msgid "The assigned image is protected"
 msgstr "未选择或项目被保护"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1609
+#: /var/www/fog/lib/fog/fogpage.class.php:1617
 msgid "and cannot be captured"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1615
+#: /var/www/fog/lib/fog/fogpage.class.php:1623
 msgid "Groups are not allowed to schedule upload tasks"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1622
+#: /var/www/fog/lib/fog/fogpage.class.php:1630
 #, fuzzy
 msgid "Multicast tasks from groups"
 msgstr "MulticastTask"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1624
+#: /var/www/fog/lib/fog/fogpage.class.php:1632
 #, fuzzy
 msgid "require all hosts have the same image"
 msgstr "主机没有分配相同的图像"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1644
+#: /var/www/fog/lib/fog/fogpage.class.php:1652
 #, fuzzy
 msgid "No valid hosts found and"
 msgstr "发送无有效类"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1645
+#: /var/www/fog/lib/fog/fogpage.class.php:1653
 #, fuzzy
 msgid "or no valid images specified"
 msgstr "没有指定的图像"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1724
+#: /var/www/fog/lib/fog/fogpage.class.php:1732
 #, fuzzy
 msgid "Failed to create scheduled tasking"
 msgstr "无法创建任务"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1727
+#: /var/www/fog/lib/fog/fogpage.class.php:1735
 #, fuzzy
 msgid "Scheduled tasks successfully created"
 msgstr "已成功更新"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1733
+#: /var/www/fog/lib/fog/fogpage.class.php:1741
 #, fuzzy
 msgid "Failed to start tasking type"
 msgstr "无法启动部署任务"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1752
+#: /var/www/fog/lib/fog/fogpage.class.php:1760
 #, fuzzy
 msgid "Failed to create tasking to some or all"
 msgstr "无法创建任务"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1761
+#: /var/www/fog/lib/fog/fogpage.class.php:1769
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1554
 msgid "Cron Schedule"
 msgstr "Cron排程"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1772
+#: /var/www/fog/lib/fog/fogpage.class.php:1780
 msgid "Delayed Start"
 msgstr "延时启动"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1780
+#: /var/www/fog/lib/fog/fogpage.class.php:1788
 #, fuzzy
 msgid "Successfully created tasks for"
 msgstr "成功更新"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1875
+#: /var/www/fog/lib/fog/fogpage.class.php:1883
 msgid "Are you sure you wish to remove these items"
 msgstr "您确定要删除这些项目"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1881
+#: /var/www/fog/lib/fog/fogpage.class.php:1889
 msgid "No items to delete"
 msgstr "没有要删除的项目"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1882
+#: /var/www/fog/lib/fog/fogpage.class.php:1890
 msgid "None selected or item is protected"
 msgstr "未选择或项目被保护"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1928
+#: /var/www/fog/lib/fog/fogpage.class.php:1936
 msgid "All selected items have been deleted"
 msgstr "所有被选中的项目已被删除"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1965
+#: /var/www/fog/lib/fog/fogpage.class.php:1973
 #: /var/www/fog/commons/text.php:157
 msgid "Tasks"
 msgstr "任务"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2015
+#: /var/www/fog/lib/fog/fogpage.class.php:2023
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:298
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:384
 #: /var/www/fog/commons/text.php:68
 msgid "Advanced"
 msgstr "高级"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2018
+#: /var/www/fog/lib/fog/fogpage.class.php:2026
 msgid "View advanced tasks for this"
 msgstr "查看该高级任务"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2038
+#: /var/www/fog/lib/fog/fogpage.class.php:2046
 msgid "Advanced Actions"
 msgstr "高级操作"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2182
+#: /var/www/fog/lib/fog/fogpage.class.php:2190
 #: /var/www/fog/commons/text.php:125
 msgid "Active Directory"
 msgstr "活动目录"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2203
+#: /var/www/fog/lib/fog/fogpage.class.php:2211
 #, fuzzy
 msgid "Clear all fields?"
 msgstr "清除所有历史"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2209
+#: /var/www/fog/lib/fog/fogpage.class.php:2217
 msgid "Join Domain after image task"
 msgstr "图像任务之后加入域"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2224
+#: /var/www/fog/lib/fog/fogpage.class.php:2232
 msgid "Domain name"
 msgstr "域名"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2236
+#: /var/www/fog/lib/fog/fogpage.class.php:2244
 msgid "Organizational Unit"
 msgstr "组织单位"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2237
+#: /var/www/fog/lib/fog/fogpage.class.php:2245
 msgid "Blank for default"
 msgstr "预设为空白"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2241
+#: /var/www/fog/lib/fog/fogpage.class.php:2249
 msgid "Domain Username"
 msgstr "域用户名"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2253
+#: /var/www/fog/lib/fog/fogpage.class.php:2261
 msgid "Domain Password"
 msgstr "域密码"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2254
+#: /var/www/fog/lib/fog/fogpage.class.php:2262
 msgid "Will auto-encrypt plaintext"
 msgstr "会自动加密明文"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2267
+#: /var/www/fog/lib/fog/fogpage.class.php:2275
 msgid "Domain Password Legacy"
 msgstr "域密码遗产"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2268
+#: /var/www/fog/lib/fog/fogpage.class.php:2276
 msgid "Must be encrypted"
 msgstr "必须加密"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2281
+#: /var/www/fog/lib/fog/fogpage.class.php:2289
 msgid "Reboot host on hostname changes and"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2282
+#: /var/www/fog/lib/fog/fogpage.class.php:2290
 msgid "AD changes even if users are logged in"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2300
+#: /var/www/fog/lib/fog/fogpage.class.php:2308
 #, fuzzy
 msgid "Make changes?"
 msgstr "保存更改"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2308
-#: /var/www/fog/lib/fog/fogpage.class.php:3361
+#: /var/www/fog/lib/fog/fogpage.class.php:2316
+#: /var/www/fog/lib/fog/fogpage.class.php:3369
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:573
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:196
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:558
@@ -1624,7 +1624,7 @@ msgstr "保存更改"
 msgid "Add"
 msgstr "加"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2309
+#: /var/www/fog/lib/fog/fogpage.class.php:2317
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:889
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:247
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:428
@@ -1658,36 +1658,36 @@ msgstr "加"
 msgid "Update"
 msgstr "更新"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2413
+#: /var/www/fog/lib/fog/fogpage.class.php:2421
 msgid "Error: Failed to open temp file"
 msgstr "错误：无法打开临时文件"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2435
+#: /var/www/fog/lib/fog/fogpage.class.php:2443
 msgid "Error: Failed to download kernel"
 msgstr "错误：无法下载内核"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2446
+#: /var/www/fog/lib/fog/fogpage.class.php:2454
 msgid "Download Failed"
 msgstr "下载失败"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2448
+#: /var/www/fog/lib/fog/fogpage.class.php:2456
 msgid "filesize"
 msgstr "文件大小"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2552
+#: /var/www/fog/lib/fog/fogpage.class.php:2560
 msgid "Load MAC Vendors"
 msgstr "加载MAC供应商"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2559
+#: /var/www/fog/lib/fog/fogpage.class.php:2567
 #: /var/www/fog/commons/text.php:117
 msgid "Unknown"
 msgstr "未知"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2564
+#: /var/www/fog/lib/fog/fogpage.class.php:2572
 msgid "Not found"
 msgstr "未找到"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2582
+#: /var/www/fog/lib/fog/fogpage.class.php:2590
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:1335
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:327
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:467
@@ -1697,35 +1697,35 @@ msgstr "未找到"
 msgid "Remove"
 msgstr "去掉"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2597
+#: /var/www/fog/lib/fog/fogpage.class.php:2605
 #: /var/www/fog/commons/text.php:374
 msgid "Please confirm you want to delete"
 msgstr "请确认您要删除"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2603
+#: /var/www/fog/lib/fog/fogpage.class.php:2611
 msgid "Delete all hosts within group"
 msgstr "删除组内的所有主机"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2616
+#: /var/www/fog/lib/fog/fogpage.class.php:2624
 msgid "Delete file data"
 msgstr "删除的文件数据"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3061
+#: /var/www/fog/lib/fog/fogpage.class.php:3069
 msgid "is protected, removal not allowed"
 msgstr "被保护，去除不允许"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3083
+#: /var/www/fog/lib/fog/fogpage.class.php:3091
 msgid "Failed to destroy"
 msgstr "未能摧毁"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3097
+#: /var/www/fog/lib/fog/fogpage.class.php:3105
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:376
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:170
 msgid "deleted"
 msgstr "删除"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3255
-#: /var/www/fog/lib/fog/fogpage.class.php:3364
+#: /var/www/fog/lib/fog/fogpage.class.php:3263
+#: /var/www/fog/lib/fog/fogpage.class.php:3372
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1112
 #: /var/www/fog/lib/service/snapinreplicator.class.php:147
 #: /var/www/fog/lib/service/snapinreplicator.class.php:148
@@ -1737,24 +1737,24 @@ msgstr "删除"
 msgid "Group"
 msgstr "组"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3346
+#: /var/www/fog/lib/fog/fogpage.class.php:3354
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:397
 msgid "Check here to see"
 msgstr "请查看这里以"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3348
+#: /var/www/fog/lib/fog/fogpage.class.php:3356
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:399
 msgid "not within this"
 msgstr "不在此"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3354
+#: /var/www/fog/lib/fog/fogpage.class.php:3362
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1170
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:404
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:525
 msgid "Modify Membership for"
 msgstr "修改为会员"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3430
+#: /var/www/fog/lib/fog/fogpage.class.php:3438
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1039
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1234
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:468
@@ -1763,133 +1763,133 @@ msgstr "修改为会员"
 msgid "Delete Selected"
 msgstr "删除所选"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3432
+#: /var/www/fog/lib/fog/fogpage.class.php:3440
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:470
 msgid "From"
 msgstr "从"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3458
+#: /var/www/fog/lib/fog/fogpage.class.php:3466
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1266
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:496
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:621
 msgid "saved successfully"
 msgstr "保存成功"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3500
+#: /var/www/fog/lib/fog/fogpage.class.php:3508
 #, fuzzy
 msgid "Click the button to download the"
 msgstr "点击按钮，导出数据库。"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3502
+#: /var/www/fog/lib/fog/fogpage.class.php:3510
 msgid "table backup"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3506
+#: /var/www/fog/lib/fog/fogpage.class.php:3514
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2506
 #: /var/www/fog/commons/text.php:98
 msgid "Export"
 msgstr "出口"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3602
+#: /var/www/fog/lib/fog/fogpage.class.php:3610
 msgid "This page allows you to upload a CSV"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3603
+#: /var/www/fog/lib/fog/fogpage.class.php:3611
 msgid "file into FOG to ease migration"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3604
+#: /var/www/fog/lib/fog/fogpage.class.php:3612
 msgid "It will operate based on the fields that"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3605
+#: /var/www/fog/lib/fog/fogpage.class.php:3613
 msgid "are normally required by each area"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3606
+#: /var/www/fog/lib/fog/fogpage.class.php:3614
 msgid "For example"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3607
+#: /var/www/fog/lib/fog/fogpage.class.php:3615
 #, fuzzy
 msgid "Hosts will have macs"
 msgstr "在任务主机"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3608
+#: /var/www/fog/lib/fog/fogpage.class.php:3616
 #, fuzzy
 msgid "name"
 msgstr "名称"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3609
+#: /var/www/fog/lib/fog/fogpage.class.php:3617
 #, fuzzy
 msgid "description"
 msgstr "描述"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3610
+#: /var/www/fog/lib/fog/fogpage.class.php:3618
 msgid "etc"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3617
+#: /var/www/fog/lib/fog/fogpage.class.php:3625
 msgid "CSV File"
 msgstr "CSV文件"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3620
+#: /var/www/fog/lib/fog/fogpage.class.php:3628
 msgid "Upload CSV"
 msgstr "上传CSV"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3671
+#: /var/www/fog/lib/fog/fogpage.class.php:3679
 #, fuzzy
 msgid "File must be a csv"
 msgstr "事件必须是字符串"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3686
+#: /var/www/fog/lib/fog/fogpage.class.php:3694
 msgid "Could not find temp filename"
 msgstr "找不到临时文件名"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3712
+#: /var/www/fog/lib/fog/fogpage.class.php:3720
 #, fuzzy
 msgid "Invalid data being parsed"
 msgstr "无效的令牌传递"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3725
+#: /var/www/fog/lib/fog/fogpage.class.php:3733
 #, fuzzy
 msgid "One or more macs are associated with a host"
 msgstr "错误，与此主机关联的图像"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3744
+#: /var/www/fog/lib/fog/fogpage.class.php:3752
 #, fuzzy
 msgid "This host already exists"
 msgstr "打印机已经存在"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3787
+#: /var/www/fog/lib/fog/fogpage.class.php:3795
 #: /var/www/fog/commons/text.php:95
 msgid "Row"
 msgstr "行"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3799
+#: /var/www/fog/lib/fog/fogpage.class.php:3807
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2524
 msgid "Import"
 msgstr "进口"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3801
+#: /var/www/fog/lib/fog/fogpage.class.php:3809
 msgid "Results"
 msgstr "结果"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3813
+#: /var/www/fog/lib/fog/fogpage.class.php:3821
 msgid "Total Rows"
 msgstr "共行"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3816
+#: /var/www/fog/lib/fog/fogpage.class.php:3824
 msgid "Successful"
 msgstr "成功"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3824
+#: /var/www/fog/lib/fog/fogpage.class.php:3832
 #: /var/www/fog/lib/pages/serverinfo.class.php:138
 #: /var/www/fog/commons/text.php:96
 msgid "Errors"
 msgstr "错误"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3864
+#: /var/www/fog/lib/fog/fogpage.class.php:3872
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:505
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:86
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:301

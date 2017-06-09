@@ -645,8 +645,9 @@ abstract class FOGPage extends FOGBase
                 if ($node == 'host') {
                     $actionbox .= '<div class="col-md-offset-3 col-md-9">';
                     $actionbox .= '<form class='
-                        . '"form-horizontal action-boxes host" method='
-                        . '"post" action="'
+                        . '"form-horizontal action-boxes hiddeninitially host" '
+                        . 'method="post" '
+                        . 'action="'
                         . '?node='
                         . $node
                         . '&sub=saveGroup">';
@@ -684,13 +685,17 @@ abstract class FOGPage extends FOGBase
                 if ($node != 'task') {
                     $actionbox .= '<div class="col-md-offset-3 col-md-9">';
                     $actionbox .= '<form class='
-                        . '"form-horizontal action-boxes del" method='
-                        . '"post" action="'
+                        . '"form-horizontal action-boxes hiddeninitially del" '
+                        . 'method="post" '
+                        . 'action="'
                         . '?node='
                         . $node
                         . '&sub=deletemulti">';
                     $actionbox .= '<div class="form-group">';
-                    $actionbox .= '<label class="control-label col-sm-4">';
+                    $actionbox .= '<label class="control-label col-sm-4" for='
+                        . '"del-'
+                        . $node
+                        . '">';
                     $actionbox .= sprintf(
                         '%s %ss',
                         _('Delete selected'),
@@ -709,7 +714,10 @@ abstract class FOGPage extends FOGBase
                         . strtolower($node)
                         . 'IDArray"/>';
                     $actionbox .= '<button type="submit" class='
-                        . '"btn btn-default input-group">';
+                        . '"btn btn-default input-group" id="'
+                        . 'del-'
+                        . $node
+                        . '">';
                     $actionbox .= _('Delete');
                     $actionbox .= '</button>';
                     $actionbox .= '</div>';
