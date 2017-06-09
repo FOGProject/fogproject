@@ -643,6 +643,7 @@ abstract class FOGPage extends FOGBase
                 && !self::$isMobile
             ) {
                 if ($node == 'host') {
+                    $actionbox .= '<div class="col-md-offset-3 col-md-9">';
                     $actionbox .= '<form class='
                         . '"form-horizontal action-boxes host" method='
                         . '"post" action="'
@@ -678,8 +679,10 @@ abstract class FOGPage extends FOGBase
                     $actionbox .= '</button>';
                     $actionbox .= '</div>';
                     $actionbox .= '</form>';
+                    $actionbox .= '</div>';
                 }
                 if ($node != 'task') {
+                    $actionbox .= '<div class="col-md-offset-3 col-md-9">';
                     $actionbox .= '<form class='
                         . '"form-horizontal action-boxes del" method='
                         . '"post" action="'
@@ -711,6 +714,7 @@ abstract class FOGPage extends FOGBase
                     $actionbox .= '</button>';
                     $actionbox .= '</div>';
                     $actionbox .= '</form>';
+                    $actionbox .= '</div>';
                 }
             }
             self::$HookManager->processEvent(
@@ -893,13 +897,11 @@ abstract class FOGPage extends FOGBase
                 echo '</div>';
                 echo '</div>';
             }
-            $text = ob_get_clean();
-            $text .= $actionbox;
-            return $text;
         } catch (Exception $e) {
             return $e->getMessage();
         }
-        return $result;
+        return ob_get_clean()
+            . $actionbox;
     }
     /**
      * Sets the attributes
