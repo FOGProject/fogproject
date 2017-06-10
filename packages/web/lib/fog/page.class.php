@@ -269,7 +269,7 @@ class Page extends FOGBase
         }
         $files = array(
             'js/jquery-latest.min.js',
-            'js/bootstrap/alltblsearch.js',
+            'js/bootstrap.min.js',
             'js/jquery.validate.min.js',
             'js/additional-methods.min.js',
             'js/jquery.tablesorter.combined.js',
@@ -285,7 +285,6 @@ class Page extends FOGBase
             'js/flot/jquery.flot.JUMlib.js',
             'js/flot/jquery.flot.gantt.js',
             'js/jquery-ui-timepicker-addon.js',
-            'js/bootstrap.min.js',
             'js/fog/fog.js',
             'js/fog/fog.main.js',
             'js/jscolor.min.js'
