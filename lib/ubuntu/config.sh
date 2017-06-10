@@ -61,11 +61,11 @@ if [[ -z $phpcmd ]]; then
     case $linuxReleaseName in
         [Dd][Ee][Bb][Ii][Aa][Nn])
             [[ $php_ver != 5 ]] && phpcmd="php" || phpcmd="php5"
-            [[ -z $phpfpm ]] && phpfpm="php${php_ver}-fpm" || phpfpm="php5-fpm"
+            [[ -z $phpfpm ]] && phpfpm="php${php_ver}-fpm"
             ;;
         *)
             [[ $php_ver != 5 ]] && phpcmd="php" || phpcmd="php5"
-            [[ -z $phpfpm ]] && phpfpm="php${php_ver}-fpm" || phpfpm="php5-fpm"
+            [[ -z $phpfpm ]] && phpfpm="php${php_ver}-fpm"
             ;;
     esac
     [[ $php_ver != 5 ]] && phpcmd="php" || phpcmd="php5"
