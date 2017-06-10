@@ -238,7 +238,7 @@ class DashboardPage extends FOGPage
         // Dashboard boxes row.
         echo '<div class="row">';
         // Overview
-        echo '<div class="col-md-4">';
+        echo '<div class="col-xs-4">';
         echo '<div class="panel panel-default">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
@@ -262,7 +262,7 @@ class DashboardPage extends FOGPage
         );
         echo '</div>';
         // Activity
-        echo '<div class="col-md-4">';
+        echo '<div class="col-xs-4">';
         echo '<div class="panel panel-default">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
@@ -287,7 +287,7 @@ class DashboardPage extends FOGPage
         echo '</div>';
         echo '</div>';
         // Disk usage
-        echo '<div class="col-md-4">';
+        echo '<div class="col-xs-4">';
         echo '<div class="panel panel-default">';
         echo '<div class="panel-heading">';
         echo '<h4 class="title">';
@@ -351,7 +351,7 @@ class DashboardPage extends FOGPage
         echo self::$foglang['Bandwidth'];
         echo '</h4>';
         echo '<div id="graph-bandwidth-filters-type">';
-        echo '<div class="col-md-2">';
+        echo '<div class="col-xs-2">';
         echo '<p class="category" id="graph-bandwidth-title">';
         echo self::$foglang['Bandwidth'];
         echo ' - ';
@@ -360,7 +360,7 @@ class DashboardPage extends FOGPage
         echo '</span>';
         echo '</p>';
         echo '</div>';
-        echo '<div class="col-md-2">';
+        echo '<div class="col-xs-2">';
         echo '<a href="#" id="graph-bandwidth-filters-transmit" '
             . 'class="type-filters graph-filters active">';
         echo self::$foglang['Transmit'];
@@ -373,7 +373,7 @@ class DashboardPage extends FOGPage
         echo '</div>';
         echo '<div class="row">';
         echo '<div id="graph-bandwidth-filters-time">';
-        echo '<div class="col-md-2">';
+        echo '<div class="col-xs-2">';
         echo '<p class="category" id="graph-bandwidth-time">';
         echo _('Time');
         echo ' - ';
@@ -382,7 +382,7 @@ class DashboardPage extends FOGPage
         echo '</span>';
         echo '</p>';
         echo '</div>';
-        echo '<div class="col-md-4">';
+        echo '<div class="col-xs-4">';
         echo '<a href="#" rel="'
             . $datapointstwo
             . '" class="time-filters graph-filters active">';

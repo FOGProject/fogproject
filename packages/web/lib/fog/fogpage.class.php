@@ -643,7 +643,7 @@ abstract class FOGPage extends FOGBase
                 && !self::$isMobile
             ) {
                 if ($node == 'host') {
-                    $actionbox .= '<div class="col-md-offset-3 col-md-9">';
+                    $actionbox .= '<div class="col-xs-offset-3 col-xs-9">';
                     $actionbox .= '<form class='
                         . '"form-horizontal action-boxes hiddeninitially host" '
                         . 'method="post" '
@@ -652,7 +652,7 @@ abstract class FOGPage extends FOGBase
                         . $node
                         . '&sub=saveGroup">';
                     $actionbox .= '<div class="form-group">';
-                    $actionbox .= '<label class="control-label col-sm-4" for=';
+                    $actionbox .= '<label class="control-label col-xs-4" for=';
                     $actionbox .= '"group_new">';
                     $actionbox .= _('Create new group');
                     $actionbox .= '</label>';
@@ -661,19 +661,19 @@ abstract class FOGPage extends FOGBase
                         . '"group_new" class="input-group"/>';
                     $actionbox .= '</div>';
                     $actionbox .= '<div class="form-group">';
-                    $actionbox .= '<label class="control-label col-sm-4">';
+                    $actionbox .= '<label class="control-label col-xs-4">';
                     $actionbox .= _('or');
                     $actionbox .= '</label>';
                     $actionbox .= '</div>';
                     $actionbox .= '<div class="form-group">';
-                    $actionbox .= '<label class="control-label col-sm-4" for=';
+                    $actionbox .= '<label class="control-label col-xs-4" for=';
                     $actionbox .= '"group">';
                     $actionbox .= _('Add to group');
                     $actionbox .= '</label>';
                     $actionbox .= self::getClass('GroupManager')->buildSelectBox();
                     $actionbox .= '</div>';
                     $actionbox .= '<div class="form-group">';
-                    $actionbox .= '<span class="col-sm-4"></span>';
+                    $actionbox .= '<span class="col-xs-4"></span>';
                     $actionbox .= '<button type="submit" class='
                         . '"btn btn-default input-group">';
                     $actionbox .= _('Process group changes');
@@ -683,7 +683,7 @@ abstract class FOGPage extends FOGBase
                     $actionbox .= '</div>';
                 }
                 if ($node != 'task') {
-                    $actionbox .= '<div class="col-md-offset-3 col-md-9">';
+                    $actionbox .= '<div class="col-xs-offset-3 col-xs-9">';
                     $actionbox .= '<form class='
                         . '"form-horizontal action-boxes hiddeninitially del" '
                         . 'method="post" '
@@ -692,7 +692,7 @@ abstract class FOGPage extends FOGBase
                         . $node
                         . '&sub=deletemulti">';
                     $actionbox .= '<div class="form-group">';
-                    $actionbox .= '<label class="control-label col-sm-4" for='
+                    $actionbox .= '<label class="control-label col-xs-4" for='
                         . '"del-'
                         . $node
                         . '">';
@@ -767,8 +767,7 @@ abstract class FOGPage extends FOGBase
                 printf($this->form);
             }
             if ($node != 'home') {
-                echo '<div class="table-holder col-xs-10">';
-                echo '<div class="col-xs-12">';
+                echo '<div class="table-holder col-xs-9">';
             }
             echo '<table class="table">';
             if (count($this->data) < 1) {
@@ -824,7 +823,6 @@ abstract class FOGPage extends FOGBase
             }
             echo '</table>';
             if ($node != 'home') {
-                echo '</div>';
                 echo '</div>';
             }
         } catch (Exception $e) {
@@ -1103,7 +1101,7 @@ abstract class FOGPage extends FOGBase
             )
         );
         echo '<div class="card fogcard">';
-        echo '<div class="col-sm-offset-5">';
+        echo '<div class="col-xs-offset-5">';
         echo '<div class="header">';
         echo '<h4 class="title">';
         echo _('Confirm tasking');
@@ -1146,7 +1144,7 @@ abstract class FOGPage extends FOGBase
                     ''
                 )
                 . '/>';
-            echo '<label class="label-control" for="shutdown">';
+            echo '<label class="control-label" for="shutdown">';
             echo _('Schedule shutdown after task completion');
             echo '</label>';
             echo '</div>';
@@ -1165,7 +1163,7 @@ abstract class FOGPage extends FOGBase
                     )
                 )
                 . '/>';
-            echo '<label class="label-control" for="wol">';
+            echo '<label class="control-label" for="wol">';
             echo _('Wake on lan?');
             echo '</label>';
             echo '</div>';
@@ -1185,7 +1183,7 @@ abstract class FOGPage extends FOGBase
                         ''
                     )
                     . '/>';
-                echo '<label class="label-control" for="checkDebug">';
+                echo '<label class="control-label" for="checkDebug">';
                 echo _('Schedule as debug task');
                 echo '</label>';
                 echo '</div>';
@@ -1195,7 +1193,7 @@ abstract class FOGPage extends FOGBase
         echo '<input type="radio" name='
             . '"scheduleType" id="scheduleInstant" value="instant"'
             . 'checked/>';
-        echo '<label class="label-control" for="scheduleInstant">';
+        echo '<label class="control-label" for="scheduleInstant">';
         echo _('Schedule instant');
         echo '</label>';
         echo '</div>';
@@ -1205,7 +1203,7 @@ abstract class FOGPage extends FOGBase
             echo '<div class="form-group hideFromDebug">';
             echo '<input type="radio" name='
                 . '"scheduleType" id="scheduleSingle" value="single"/>';
-            echo '<label class="label-control" for="scheduleSingle">';
+            echo '<label class="control-label" for="scheduleSingle">';
             echo _('Schedule delayed');
             echo '</label>';
             echo '<div class="hiddeninitially">';
@@ -1216,7 +1214,7 @@ abstract class FOGPage extends FOGBase
             echo '<div class="form-group hideFromDebug">';
             echo '<input type="radio" name='
                 . '"scheduleType" id="scheduleCron" value="cron"/>';
-            echo '<label class="label-control" for="scheduleCron">';
+            echo '<label class="control-label" for="scheduleCron">';
             echo _('Schedule cron-style');
             echo '</label>';
             $specialCrons = array(
@@ -1270,7 +1268,7 @@ abstract class FOGPage extends FOGBase
             echo _('Hosts in task');
             echo '</h2>';
             echo '</div>';
-            echo '<div class="col-sm-offset-5">';
+            echo '<div class="col-xs-offset-5">';
             $this->render();
             echo '</div>';
         }
@@ -2129,13 +2127,13 @@ abstract class FOGPage extends FOGBase
             array(),
         );
         $fields = array(
-            '<label class="label-control" for="clearAD">'
+            '<label class="control-label" for="clearAD">'
             . _('Clear all fields?')
             . '</label>' => '<div class="input-group">'
             . '<div id="adClear"></div>'
             . '</div>',
             sprintf(
-                '<label class="label-control" for="adEnabled">%s</label>',
+                '<label class="control-label" for="adEnabled">%s</label>',
                 _('Join Domain after image task')
             ) => sprintf(
                 '<div class="input-group">'
@@ -2150,7 +2148,7 @@ abstract class FOGPage extends FOGBase
                 )
             ),
             sprintf(
-                '<label class="label-control" for="adDomain">%s</label>',
+                '<label class="control-label" for="adDomain">%s</label>',
                 _('Domain name')
             ) => sprintf(
                 '<div class="input-group">'
@@ -2160,14 +2158,14 @@ abstract class FOGPage extends FOGBase
                 $ADDomain
             ),
             sprintf(
-                '<label class="label-control" for="adOU">%s'
+                '<label class="control-label" for="adOU">%s'
                 . '<br/>(%s)'
                 . '</label>',
                 _('Organizational Unit'),
                 _('Blank for default')
             ) => $OUOptions,
             sprintf(
-                '<label class="label-control" for="adUsername">%s</label>',
+                '<label class="control-label" for="adUsername">%s</label>',
                 _('Domain Username')
             ) => sprintf(
                 '<div class="input-group">'
@@ -2177,7 +2175,7 @@ abstract class FOGPage extends FOGBase
                 $ADUser
             ),
             sprintf(
-                '<label class="label-control" for="adPassword">%s'
+                '<label class="control-label" for="adPassword">%s'
                 . '<br/>(%s)'
                 . '</label>',
                 _('Domain Password'),
@@ -2191,7 +2189,7 @@ abstract class FOGPage extends FOGBase
                 $ADPass
             ),
             sprintf(
-                '<label class="label-control" for="adPasswordLegacy">%s'
+                '<label class="control-label" for="adPasswordLegacy">%s'
                 . '<br/>(%s)'
                 . '</label>',
                 _('Domain Password Legacy'),
@@ -2205,7 +2203,7 @@ abstract class FOGPage extends FOGBase
                 $ADPassLegacy
             ),
             sprintf(
-                '<label class="label-control" for="ensel">'
+                '<label class="control-label" for="ensel">'
                 . '%s %s?'
                 . '</label>',
                 _('Reboot host on hostname changes and'),
@@ -2224,7 +2222,7 @@ abstract class FOGPage extends FOGBase
                     ''
                 )
             ),
-            '<label class="label-control" for="'
+            '<label class="control-label" for="'
                 . $node.'-'.$sub
                 . '">'
                 . _('Make changes?')
@@ -2523,7 +2521,7 @@ abstract class FOGPage extends FOGBase
         );
         if ($this->obj instanceof Group) {
             $fieldsg = array(
-                '<label class="label-control" for="massDel">'
+                '<label class="control-label" for="massDel">'
                 . _('Delete hosts within')
                 . '</label>' => '<div class="input-group checkbox">'
                 . '<input type="checkbox" name="massDelHosts" id="'
@@ -2532,7 +2530,7 @@ abstract class FOGPage extends FOGBase
             );
         } elseif ($this->obj instanceof Image || $this->obj instanceof Snapin) {
             $fieldsi = array(
-                '<label class="label-control" for="andFile">'
+                '<label class="control-label" for="andFile">'
                 . _('Delete files')
                 . '</label>' => '<div class="input-group checkbox">'
                 . '<input type="checkbox" name="andFile" id="'
@@ -2544,7 +2542,7 @@ abstract class FOGPage extends FOGBase
             (array)$fieldsg,
             (array)$fieldsi,
             array(
-                '<label class="label-control" for="delete">'
+                '<label class="control-label" for="delete">'
                 . _('Delete')
                 . ' '
                 . $this->obj->get('name')

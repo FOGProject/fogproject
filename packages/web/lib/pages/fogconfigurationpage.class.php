@@ -97,7 +97,7 @@ class FOGConfigurationPage extends FOGPage
         echo '<p class="placehere" vers="'
             . FOG_VERSION
             . '"></p>';
-        echo '<div class="col-md-offset-6">';
+        echo '<div class="col-xs-offset-6">';
         echo '<h3 class="title">';
         echo _('Kernel Versions');
         echo '</h3>';
@@ -1428,7 +1428,7 @@ class FOGConfigurationPage extends FOGPage
                 if ($catset !== false) {
                     $this->data[] = array(
                         'span' => '',
-                        'service_name' => '<label class="label-control" for='
+                        'service_name' => '<label class="control-label" for='
                         . '"'
                         . $catset
                         . $curcat
@@ -1483,7 +1483,7 @@ class FOGConfigurationPage extends FOGPage
                     break;
                 }
                 $type = '<div class="input-group">'
-                    . '<div class="col-md-9">'
+                    . '<div class="col-xs-9">'
                     . '<div class="rangegen '
                     . $extra
                     . '"></div>'
@@ -1863,7 +1863,7 @@ class FOGConfigurationPage extends FOGPage
                     . '">'
                     . '${service_value}</textarea></div>'
                 ),
-                'service_name' => '<label class="label-control" for="'
+                'service_name' => '<label class="control-label" for="'
                 . $Service->get('name')
                 . '">'
                 . $Service->get('name')

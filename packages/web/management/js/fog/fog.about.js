@@ -4,7 +4,7 @@ $(function() {
         url: '../status/mainversion.php',
         dataType: 'json',
         success: function(data) {
-            $('.placehere').append(data).wrap('<div class="col-sm-4"></div>');
+            $('.placehere').append(data).wrap('<div class="col-xs-4"></div>');
         },
         error: function() {
             $('.placehere').append('Failed to get latest info');

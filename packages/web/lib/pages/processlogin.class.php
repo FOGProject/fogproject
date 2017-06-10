@@ -325,30 +325,30 @@ class ProcessLogin extends FOGPage
         echo '</h2>';
         // Username
         echo '<div class="form-group">';
-        echo '<label class="control-label col-sm-2" for="uname">';
+        echo '<label class="control-label col-xs-2" for="uname">';
         echo self::$foglang['Username'];
         echo '</label>';
-        echo '<div class="col-sm-10">';
+        echo '<div class="col-xs-10">';
         echo '<input type="text" class="form-control" name="uname" '
             . 'required="" autofocus="" id="uname"/>';
         echo '</div>';
         echo '</div>';
         // Password
         echo '<div class="form-group">';
-        echo '<label class="control-label col-sm-2" for="upass">';
+        echo '<label class="control-label col-xs-2" for="upass">';
         echo self::$foglang['Password'];
         echo '</label>';
-        echo '<div class="col-sm-10">';
+        echo '<div class="col-xs-10">';
         echo '<input type="password" class="form-control" name="upass" '
             . 'required="" id="upass"/>';
         echo '</div>';
         echo '</div>';
         // Language
         echo '<div class="form-group">';
-        echo '<label class="control-label col-sm-2" for="ulang">';
+        echo '<label class="control-label col-xs-2" for="ulang">';
         echo self::$foglang['LanguagePhrase'];
         echo '</label>';
-        echo '<div class="col-sm-10">';
+        echo '<div class="col-xs-10">';
         echo '<select class="form-control" name="ulang" id="ulang">';
         echo $this->_langMenu;
         echo '</select>';
@@ -356,7 +356,7 @@ class ProcessLogin extends FOGPage
         echo '</div>';
         // Submit button
         echo '<div class="form-group">';
-        echo '<div class="col-sm-offset-2 col-sm-10">';
+        echo '<div class="col-xs-offset-2 col-xs-10">';
         echo '<button class="btn btn-default btn-block" '
             . 'type="submit" name="login">';
         echo self::$foglang['Login'];
