@@ -238,7 +238,7 @@ class Page extends FOGBase
                 self::redirect('index.php');
             }
             ob_start();
-            echo '<ul class="nav navbar-nav navbar-center">';
+            echo '<ul class="nav navbar-nav">';
             $count = false;
             if (count($this->main) > 0) {
                 foreach ($this->main as $link => &$title) {
@@ -478,10 +478,10 @@ class Page extends FOGBase
     public static function getSearchForm()
     {
         global $node;
-        echo '<div class="col-xs-2">';
-        echo '<ul class="nav navbar-nav">';
-        echo '<li>';
+        echo '<div class="col-md-2">';
         if (in_array($node, self::$searchPages)) {
+            echo '<ul class="nav navbar-nav">';
+            echo '<li>';
             echo '<form class="navbar-form navbar-left search-wrapper" role='
                 . '"search" method="post" action="'
                 . '../management/index.php?node='
@@ -500,9 +500,9 @@ class Page extends FOGBase
             echo '</i>';
             echo '</span>';
             echo '</form>';
+            echo '</li>';
+            echo '</ul>';
         }
-        echo '</li>';
-        echo '</ul>';
         echo '</div>';
     }
     /**

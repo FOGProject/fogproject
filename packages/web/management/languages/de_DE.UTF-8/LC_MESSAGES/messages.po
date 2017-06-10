@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-10 12:21-0400\n"
+"POT-Creation-Date: 2017-06-10 12:27-0400\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -3219,7 +3219,7 @@ msgid "There you can download utilities such as FOG Prep"
 msgstr ""
 
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:134
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:218
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:219
 msgid "FOG Crypt"
 msgstr "Nebel-Krypta"
 
@@ -3615,46 +3615,46 @@ msgstr ""
 msgid "security and faster client communication and management"
 msgstr ""
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:202
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:203
 msgid "This is the file to install the legacy client"
 msgstr ""
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:203
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:204
 msgid "It is recommended to not use this file but"
 msgstr ""
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:204
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:205
 msgid "you may do as you please"
 msgstr ""
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:205
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:206
 msgid "This client is not being developed any further so any issues"
 msgstr ""
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:206
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:207
 msgid "you may find"
 msgstr ""
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:207
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:208
 msgid "or features you may request"
 msgstr ""
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:208
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:209
 msgid "will not be added to this client"
 msgstr ""
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:209
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:210
 msgid "Legacy FOG Client"
 msgstr "Ältere Nebel Client"
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:216
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:217
 #, fuzzy
 msgid "This file is used to encrypt the AD Password"
 msgstr ""
 "Diese Datei wird verwendet, um das AD-Passwort zu verschlüsseln.  VERWENDEN "
 "SIE DIESE NICHT, WENN DEN NEUEN CLIENT VERWENDEN."
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:217
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:218
 msgid "DO NOT USE THIS IF YOU ARE USING THE NEW CLIENT"
 msgstr ""
 
