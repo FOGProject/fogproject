@@ -126,9 +126,6 @@ table td {
 .navbar {
     min-height: 60px;
 }
-.navbar-nav > li > a {
-    padding-bottom: 11px;
-}
 .version-info {
     color: white;
     font-size: 9px;
