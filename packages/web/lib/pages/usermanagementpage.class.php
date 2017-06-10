@@ -158,7 +158,7 @@ class UserManagementPage extends FOGPage
         );
         $this->data = array();
         $fields = array(
-            '<label class="label-control" for="name">'
+            '<label class="control-label" for="name">'
             . _('User Name')
             . '</label>' => '<div class="input-group">'
             . '<span class="input-group-addon">'
@@ -170,7 +170,7 @@ class UserManagementPage extends FOGPage
             . $_POST['name']
             . '" autocomplete="off" id="name" required/>'
             . '</div>',
-            '<label class="label-control" for="display">'
+            '<label class="control-label" for="display">'
             . _('Friendly Name')
             . '</label>' => '<div class="input-group">'
             . '<span class="input-group-addon">'
@@ -182,7 +182,7 @@ class UserManagementPage extends FOGPage
             . $_POST['display']
             . '" autocomplete="off"/>'
             . '</div>',
-            '<label class="label-control" for="password">'
+            '<label class="control-label" for="password">'
             . _('User Password')
             . '</label>' => '<div class="input-group has-error">'
             . '<input type="password" class="'
@@ -190,14 +190,14 @@ class UserManagementPage extends FOGPage
             . '"" autocomplete='
             . '"off" id="password" required/>'
             . '</div>',
-            '<label class="label-control" for="password2">'
+            '<label class="control-label" for="password2">'
             . _('User Password (confirm)')
             . '</label>' => '<div class="input-group has-error">'
             . '<input type="password" class="'
             . 'form-control password-input2" name="password_confirm" value='
             . '"" autocomplete="off" required/>'
             . '</div>',
-            '<label class="label-control" for="apion">'
+            '<label class="control-label" for="apion">'
             . _('User API Enabled')
             . '</label>' => '<div class="input-group checkbox">'
             . '<input type="checkbox" class="'
@@ -210,7 +210,7 @@ class UserManagementPage extends FOGPage
             )
             . '/>'
             . '</div>',
-            '<label class="label-control" for="add">'
+            '<label class="control-label" for="add">'
             . _('Create user?')
             . '</label> ' => '<button class="btn btn-default btn-block" name="'
             . 'add" id="add" type="submit">'
@@ -322,7 +322,7 @@ class UserManagementPage extends FOGPage
     public function userGeneral()
     {
         $fields = array(
-            '<label class="label-control" for="name">'
+            '<label class="control-label" for="name">'
             . _('User Name')
             . '</label>' => '<div class="input-group">'
             . '<span class="input-group-addon">'
@@ -334,7 +334,7 @@ class UserManagementPage extends FOGPage
             . $this->obj->get('name')
             . '" autocomplete="off" id="name" required/>'
             . '</div>',
-            '<label class="label-control" for="display">'
+            '<label class="control-label" for="display">'
             . _('Friendly Name')
             . '</label>' => '<div class="input-group">'
             . '<span class="input-group-addon">'
@@ -346,7 +346,7 @@ class UserManagementPage extends FOGPage
             . $this->obj->get('display')
             . '" autocomplete="off"/>'
             . '</div>',
-            '<label class="label-control" for="updategen">'
+            '<label class="control-label" for="updategen">'
             . _('Update General?')
             . '</label> ' => '<button class="btn btn-default btn-block" name="'
             . 'update" id="updategen" type="submit">'
@@ -397,7 +397,7 @@ class UserManagementPage extends FOGPage
     public function userChangePW()
     {
         $fields = array(
-            '<label class="label-control" for="password">'
+            '<label class="control-label" for="password">'
             . _('User Password')
             . '</label>' => '<div class="input-group">'
             . '<input type="password" class="'
@@ -405,14 +405,14 @@ class UserManagementPage extends FOGPage
             . '"" autocomplete='
             . '"off" id="password" required/>'
             . '</div>',
-            '<label class="label-control" for="password2">'
+            '<label class="control-label" for="password2">'
             . _('User Password (confirm)')
             . '</label>' => '<div class="input-group">'
             . '<input type="password" class="'
             . 'form-control password-input2" name="password_confirm" value='
             . '"" autocomplete="off" required/>'
             . '</div>',
-            '<label class="label-control" for="updatepw">'
+            '<label class="control-label" for="updatepw">'
             . _('Update Password?')
             . '</label> ' => '<button class="btn btn-default btn-block" name="'
             . 'update" id="updatepw" type="submit">'
@@ -455,7 +455,7 @@ class UserManagementPage extends FOGPage
     public function userAPI()
     {
         $fields = array(
-            '<label class="label-control" for="apion">'
+            '<label class="control-label" for="apion">'
             . _('User API Enabled')
             . '</label>' => '<div class="input-group checkbox">'
             . '<input type="checkbox" class="'
@@ -468,7 +468,7 @@ class UserManagementPage extends FOGPage
             )
             . '/>'
             . '</div>',
-            '<label class="label-control" for="token">'
+            '<label class="control-label" for="token">'
             . _('User API Token')
             . '</label>' => '<div class="input-group">'
             . '<input type="password" class="'
@@ -484,7 +484,7 @@ class UserManagementPage extends FOGPage
             . '</button>'
             . '</div>'
             . '</div>',
-            '<label class="label-control" for="updateapi">'
+            '<label class="control-label" for="updateapi">'
             . _('Update API?')
             . '</label> ' => '<button class="btn btn-default btn-block" name="'
             . 'update" id="updateapi" type="submit">'

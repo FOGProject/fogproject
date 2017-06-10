@@ -75,7 +75,7 @@ class ClientManagementPage extends FOGPage
         // Dash boxes row.
         echo '<div class="row">';
         // New Client and utilties
-        echo '<div class="col-md-4">';
+        echo '<div class="col-xs-4">';
         echo '<div class="panel panel-default">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
@@ -132,7 +132,7 @@ class ClientManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
         // Help and guide box
-        echo '<div class="col-md-4">';
+        echo '<div class="col-xs-4">';
         echo '<div class="panel panel-default">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
@@ -176,7 +176,7 @@ class ClientManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
         // Help and guide box
-        echo '<div class="col-md-4">';
+        echo '<div class="col-xs-4">';
         echo '<div class="panel panel-default">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';

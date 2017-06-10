@@ -238,7 +238,7 @@ class Page extends FOGBase
                 self::redirect('index.php');
             }
             ob_start();
-            echo '<ul class="nav navbar-nav">';
+            echo '<ul class="nav navbar-nav navbar-center">';
             $count = false;
             if (count($this->main) > 0) {
                 foreach ($this->main as $link => &$title) {
@@ -478,9 +478,8 @@ class Page extends FOGBase
     public static function getSearchForm()
     {
         global $node;
-        echo '<div class="col-xs-2">';
         if (in_array($node, self::$searchPages)) {
-            echo '<ul class="nav navbar-nav pull-left">';
+            echo '<ul class="nav navbar-nav">';
             echo '<li>';
             echo '<form class="navbar-form navbar-left search-wrapper" role='
                 . '"search" method="post" action="'
@@ -504,7 +503,6 @@ class Page extends FOGBase
             echo '</ul>';
         }
         echo '</ul>';
-        echo '</div>';
     }
     /**
      * Generate the logout element.
@@ -551,7 +549,7 @@ class Page extends FOGBase
         if (count($class->menu) < 1) {
             return;
         }
-        echo '<div class="col-xs-2">';
+        echo '<div class="col-xs-3">';
         echo '<ul class="nav nav-pills nav-stacked">';
         $FOGSub = new FOGSubMenu();
         foreach ($class->menu as $l => &$t) {

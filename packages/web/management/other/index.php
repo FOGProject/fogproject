@@ -70,7 +70,7 @@ if (self::$FOGUser->isValid()) {
         . self::$foglang['Home']
         . '" class="logoimg"/>';
     echo '</a>';
-    echo '<p class="nav-text version-info pull-left">';
+    echo '<span class="nav-text version-info pull-left">';
     printf(
         '%s %s<br/>%s: %d',
         _('Running Version'),
@@ -79,7 +79,7 @@ if (self::$FOGUser->isValid()) {
         FOG_SVN_REVISION
     );
     echo '<span id="showtime"></span>';
-    echo '</p>';
+    echo '</span>';
     echo '</div>';
     echo '<div class="collapse navbar-collapse">';
     self::getSearchForm();
@@ -184,9 +184,9 @@ if (self::$FOGUser->isValid()) {
 }
 echo '<div class="collapse navbar-collapse">';
 echo '<footer class="footer">';
-echo '<nav class="navbar navbar-inverse navbar-fixed-bottom center">';
+echo '<nav class="navbar navbar-inverse navbar-fixed-bottom">';
 echo '<div class="container-fluid text-center">';
-echo '<ul class="nav navbar-nav">';
+echo '<ul class="nav navbar-nav navbar-center">';
 echo '<li><a href="https://wiki.fogproject.org/wiki/index.php?title=Credits">'
     . _('Credits')
     . '</a></li>';
