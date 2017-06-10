@@ -128,7 +128,8 @@ if (self::$FOGUser->isValid()) {
         . self::$defaultscreen
         . '"/>';
     echo '<div class="panel-body">';
-    echo self::getMenuItems();
+    self::getMenuItems();
+    self::getMainSideMenu();
     echo $this->body;
     echo '</div>';
     echo '</div>';

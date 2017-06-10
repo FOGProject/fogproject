@@ -767,85 +767,7 @@ abstract class FOGPage extends FOGBase
                 printf($this->form);
             }
             if ($node != 'home') {
-                echo '<div class="col-xs-3">';
-                echo '<ul class="nav nav-pills nav-stacked">';
-                $class = self::$FOGPageManager->getFOGPageClass();
-                $FOGSub = new FOGSubMenu();
-                if (count($class->menu)) {
-                    foreach ($class->menu as $l => &$t) {
-                        $items = $FOGSub->addMainItems(
-                            $class->node,
-                            array((string)$t => (string)$l),
-                            '',
-                            '',
-                            'mainmenu'
-                        );
-                        unset($t);
-                    }
-                }
-                unset($class);
-                ob_start();
-                foreach ((array)$items[$node] as $title => &$data) {
-                    $title = $FOGSub->fixTitle($title);
-                    echo '<h4 class="category">';
-                    echo $title;
-                    echo '</h4>';
-                    foreach ((array)$data as $label => &$link) {
-                        if ($label == 'class') {
-                            continue;
-                        }
-                        $string = sprintf(
-                            '<li><a class="%s" href="${link}">%s</a></li>',
-                            $link,
-                            $label
-                        );
-                        if ($FOGSub->isExternalLink($link)) {
-                            echo str_replace(
-                                '${link}',
-                                $link,
-                                $string
-                            );
-                        } elseif (!$link) {
-                            echo str_replace(
-                                '${link}',
-                                "../management/index.php?node=$node",
-                                $string
-                            );
-                        } else {
-                            $string = str_replace(
-                                '${link}',
-                                "../management/index.php?node=$node&"
-                                . 'sub=${link}',
-                                $string
-                            );
-                            if (!$sub || $title == self::$foglang['MainMenu']) {
-                                echo str_replace(
-                                    '${link}',
-                                    $link,
-                                    $string
-                                );
-                            } elseif ($FOGSub->defaultSubs[$node]) {
-                                echo str_replace(
-                                    '${link}',
-                                    "{$FOGSub->defaultSubs[$node]}&tab=$link",
-                                    $string
-                                );
-                            } else {
-                                echo str_replace(
-                                    '${link}',
-                                    "$sub&tab=$link",
-                                    $string
-                                );
-                            }
-                        }
-                        unset($link);
-                    }
-                    unset($data);
-                }
-                echo ob_get_clean();
-                echo '</ul>';
-                echo '</div>';
-                echo '<div class="table-holder col-xs-9">';
+                echo '<div class="table-holder col-xs-10">';
                 echo '<div class="col-xs-12">';
             }
             echo '<table class="table">';
@@ -2599,44 +2521,42 @@ abstract class FOGPage extends FOGBase
             '${field}',
             '${input}',
         );
-        $fields = array(
-            sprintf(
-                '%s <b>%s</b>',
-                _('Please confirm you want to delete'),
-                $this->obj->get('name')
-            ) =>
-            '&nbsp;',
-            (
-                $this->obj instanceof Group ?
-                _('Delete all hosts within group') :
-                null
-            ) =>
-            (
-                $this->obj instanceof Group ?
-                '<input type="checkbox" name="massDelHosts" value="1" id="'
+        if ($this->obj instanceof Group) {
+            $fieldsg = array(
+                '<label class="label-control" for="massDel">'
+                . _('Delete hosts within')
+                . '</label>' => '<div class="input-group checkbox">'
+                . '<input type="checkbox" name="massDelHosts" id="'
                 . 'massDel"/>'
-                . '<label for="massDel"></label>' :
-                null
-            ),
-            (
-                $this->obj instanceof Image
-                || $this->obj instanceof Snapin ?
-                _('Delete file data') :
-                null
-            ) =>
-            (
-                $this->obj instanceof Image
-                || $this->obj instanceof Snapin ?
-                '<input type="checkbox" name="andFile" id="andFile" value="1"/>'
-                . '<label for="andFile"></label>' :
-                null
-            ),
-            '&nbsp;' =>
-            sprintf(
-                '<input type="hidden" name="remitems[]" value="%s"/>'
-                . '<input type="submit" name="delete" value="${label}"/>',
-                $this->obj->get('id')
-            ),
+                . '</div>'
+            );
+        } elseif ($this->obj instanceof Image || $this->obj instanceof Snapin) {
+            $fieldsi = array(
+                '<label class="label-control" for="andFile">'
+                . _('Delete files')
+                . '</label>' => '<div class="input-group checkbox">'
+                . '<input type="checkbox" name="andFile" id="'
+                . 'andFile"/>'
+                . '</div>'
+            );
+        }
+        $fields = self::fastmerge(
+            (array)$fieldsg,
+            (array)$fieldsi,
+            array(
+                '<label class="label-control" for="delete">'
+                . _('Delete')
+                . ' '
+                . $this->obj->get('name')
+                . '</label>' => '<input type="hidden" name="remitems[]" '
+                . 'value="'
+                . $this->obj->get('id')
+                . '"/>'
+                . '<button type="submit" name="delete" id="delete" '
+                . 'class="btn btn-default btn-block">'
+                . '${label}'
+                . '</button>'
+            )
         );
         $fields = array_filter($fields);
         self::$HookManager->processEvent(
@@ -2661,12 +2581,12 @@ abstract class FOGPage extends FOGBase
             ),
             array($this->childClass => &$this->obj)
         );
-        printf(
-            '<div id="deleteDiv"></div><form method="post" action="%s">',
-            $this->formAction
-        );
+        echo '<div id="deleteDiv"></div>';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
         $this->render();
-        echo "</form>";
+        echo '</form>';
     }
     /**
      * Sends the new client the configuration options
