@@ -58,7 +58,18 @@ if [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*) ]]; 
     fi
 fi
 if [[ -z $phpcmd ]]; then
+    case $linuxReleaseName in
+        [Dd][Ee][Bb][Ii][Aa][Nn])
+            [[ $php_ver != 5 ]] && phpcmd="php" || phpcmd="php5"
+            [[ -z $phpfpm ]] && phpfpm="php${php_ver}-fpm" || phpfpm="php5-fpm"
+            ;;
+        *)
+            [[ $php_ver != 5 ]] && phpcmd="php" || phpcmd="php5"
+            [[ -z $phpfpm ]] && phpfpm="php${php_ver}-fpm" || phpfpm="php5-fpm"
+            ;;
+    esac
     [[ $php_ver != 5 ]] && phpcmd="php" || phpcmd="php5"
+    [[ $php_ver != 5 ]] && packages="$packages php${php_ver}-mbstring"
     [[ -z $phpfpm ]] && phpfpm="php${php_ver}-fpm" || phpfpm="php5-fpm"
 fi
 [[ -z $packageQuery ]] && packageQuery="dpkg -l \$x | grep '^ii'"
@@ -73,7 +84,6 @@ case $linuxReleaseName in
         [[ -z $olddhcpname ]] && olddhcpname="dhcp3-server"
         ;;
 esac
-[[ $php_ver != 5 ]] && packages="$packages php${php_ver}-mbstring"
 [[ -z $langPackages ]] && langPackages="language-pack-it language-pack-en language-pack-es language-pack-zh-hans"
 if [[ -z $webdirdest ]]; then
     if [[ -z $docroot ]]; then
