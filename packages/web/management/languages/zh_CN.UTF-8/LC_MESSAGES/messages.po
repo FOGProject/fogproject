@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-10 12:57-0400\n"
+"POT-Creation-Date: 2017-06-10 13:05-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -448,7 +448,7 @@ msgstr "数据数组"
 #: /var/www/fog/lib/fog/fogcontroller.class.php:909
 #: /var/www/fog/lib/fog/fogbase.class.php:2200
 #: /var/www/fog/lib/fog/fogftp.class.php:370
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1010
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1009
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2068
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:541
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:55
@@ -1239,13 +1239,13 @@ msgid "Cannot set tasking as image is not enabled"
 msgstr "因为没有启用图像无法设置任务"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1070
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:88
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:835
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:87
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:834
 msgid "Edit Host"
 msgstr "编辑主机"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1071
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:93
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:92
 msgid "Edit Image"
 msgstr "编辑图像"
 
@@ -1372,8 +1372,8 @@ msgstr "创建"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1285
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:95
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:303
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:388
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:302
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:387
 msgid "Tasking"
 msgstr "任务"
 
@@ -1536,8 +1536,8 @@ msgid "Tasks"
 msgstr "任务"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1968
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:298
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:384
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:297
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:383
 #: /var/www/fog/commons/text.php:68
 msgid "Advanced"
 msgstr "高级"
@@ -1929,7 +1929,7 @@ msgstr "主存储组"
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:130
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:540
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:820
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:75
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:74
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:479
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:327
 #: /var/www/fog/lib/reports/host_list.report.php:50
@@ -2275,8 +2275,8 @@ msgid "Start Multicast Session"
 msgstr "开始多播会话"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:1309
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:700
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1006
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:699
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1005
 msgid "Task Name"
 msgstr "任务名称"
 
@@ -2285,10 +2285,10 @@ msgid "Clients"
 msgstr "客户端"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:1311
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:76
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:702
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:825
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1008
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:75
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:701
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:824
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1007
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2187
 #: /var/www/fog/lib/reports/imaging_log.report.php:70
 msgid "Start Time"
@@ -2299,8 +2299,8 @@ msgid "Percent"
 msgstr "百分"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:1313
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:703
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:826
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:702
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:825
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2069
 #: /var/www/fog/lib/reports/snapin_log.report.php:46
 #: /var/www/fog/commons/text.php:106
@@ -3685,7 +3685,7 @@ msgid "Kernel"
 msgstr "核心"
 
 #: /var/www/fog/lib/pages/serverinfo.class.php:152
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:72
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:71
 #: /var/www/fog/lib/reports/host_list.report.php:65
 #: /var/www/fog/lib/reports/user_tracking.report.php:110
 #: /var/www/fog/lib/reports/user_tracking.report.php:214
@@ -3909,7 +3909,7 @@ msgstr "新集团"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:173
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:398
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:387
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:386
 msgid "Group Name"
 msgstr "组名称"
 
@@ -4261,8 +4261,8 @@ msgid "Delete Hosts"
 msgstr "删除主机"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1467
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:301
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:823
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:300
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:822
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:428
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:787
 #: /var/www/fog/lib/reports/snapin_log.report.php:44
@@ -4287,53 +4287,53 @@ msgstr "确认你真的想删除以下主机"
 msgid "Delete listed hosts"
 msgstr "删除列出的主机"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:69
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:68
 msgid "Started By:"
 msgstr "发起者："
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:73
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:72
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:676
 #: /var/www/fog/commons/text.php:71
 msgid "MAC"
 msgstr "苹果电脑"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:77
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:76
 msgid "Working with node"
 msgstr ""
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:78
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:704
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:77
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:703
 #: /var/www/fog/commons/text.php:103
 msgid "Status"
 msgstr "状态"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:164
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:163
 msgid "Task forced to start"
 msgstr "任务强行启动"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:169
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:168
 msgid "Force task to start"
 msgstr "强制任务启动"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:302
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:301
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:175
 msgid "Assigned Image"
 msgstr "分配图像"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:447
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:567
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:446
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:566
 msgid "Invalid object type passed"
 msgstr "无效的对象类型传递"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:456
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:455
 msgid "Invalid Task Type"
 msgstr "无效的任务类型"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:461
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:460
 msgid "Invalid image assigned to host"
 msgstr "分配给主机图像无效"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:469
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:468
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2067
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:412
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:422
@@ -4343,100 +4343,100 @@ msgstr "分配给主机图像无效"
 msgid "Image"
 msgstr "图片"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:471
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:470
 msgid "is protected"
 msgstr "被保护"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:477
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:476
 #, fuzzy
 msgid "Quick"
 msgstr "点击"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:485
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:484
 msgid "Hosts do not have the same image assigned"
 msgstr "主机没有分配相同的图像"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:490
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:489
 msgid "Multicast Quick Deploy"
 msgstr "组播快速部署"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:491
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:490
 #, fuzzy
 msgid "Group Quick Deploy"
 msgstr "快速部署"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:514
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:513
 #, fuzzy
 msgid "Successfully created"
 msgstr "成功更新"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:516
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:515
 #, fuzzy
 msgid "tasking"
 msgstr "任务"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:523
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:522
 #: /var/www/fog/commons/text.php:265
 msgid "Failed to create task"
 msgstr "无法创建任务"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:659
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:658
 msgid "Invalid task"
 msgstr "任务无效"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:701
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:700
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:84
 #: /var/www/fog/commons/text.php:48 /var/www/fog/commons/text.php:105
 msgid "Hosts"
 msgstr "主机"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:757
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:756
 msgid "MulticastTask"
 msgstr "MulticastTask"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:824
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:823
 #: /var/www/fog/commons/text.php:34
 msgid "Snapin"
 msgstr "管理单元"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:931
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:930
 msgid "Cannot cancel tasks this way"
 msgstr "无法取消任务，这种方式"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1004
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1003
 msgid "Host/Group Name"
 msgstr "主机/组名称"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1005
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1004
 msgid "Is Group"
 msgstr "是集团"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1007
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1006
 msgid "Task Type"
 msgstr "任务类型"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1009
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1008
 #: /var/www/fog/commons/text.php:122
 msgid "Active"
 msgstr "活性"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1080
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1079
 #, fuzzy
 msgid "All snapins"
 msgstr "所有管理单元"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1084
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1083
 #, fuzzy
 msgid "Invalid snapin"
 msgstr "无效的管理单元"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1086
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1085
 #, fuzzy
 msgid "Snapin to be installed"
 msgstr "启用管理单元"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1097
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1102
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1096
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1101
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:131
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:227
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:193
@@ -4449,8 +4449,8 @@ msgstr "启用管理单元"
 msgid "Yes"
 msgstr "是"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1098
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1103
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1097
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1102
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:131
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:225
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:194
@@ -4463,12 +4463,12 @@ msgstr "是"
 msgid "No"
 msgstr "没有"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1108
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1107
 #: /var/www/fog/lib/service/taskscheduler.class.php:193
 msgid "group"
 msgstr "组"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1109
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1108
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:383
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:435
 #: /var/www/fog/lib/service/taskscheduler.class.php:196

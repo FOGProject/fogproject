@@ -39,7 +39,6 @@ class TaskManagementPage extends FOGPage
         $this->name = 'Task Management';
         parent::__construct($this->name);
         $this->menu = array(
-            'search' => self::$foglang['NewSearch'],
             'active' => self::$foglang['ActiveTasks'],
             'listhosts' => sprintf(
                 self::$foglang['ListAll'],
