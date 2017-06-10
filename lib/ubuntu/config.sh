@@ -70,7 +70,7 @@ if [[ -z $phpcmd ]]; then
     esac
     [[ $php_ver != 5 ]] && phpcmd="php" || phpcmd="php5"
     [[ $php_ver != 5 ]] && packages="$packages php${php_ver}-mbstring"
-    [[ -z $phpfpm ]] && phpfpm="php${php_ver}-fpm" || phpfpm="php5-fpm"
+    [[ -z $phpfpm ]] && phpfpm="php${php_ver}-fpm"
 fi
 [[ -z $packageQuery ]] && packageQuery="dpkg -l \$x | grep '^ii'"
 case $linuxReleaseName in
