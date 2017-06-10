@@ -273,7 +273,7 @@ abstract class FOGBase
         'host',
         'group',
         'image',
-        'storage',
+        //'storage',
         'snapin',
         'printer',
         'task',

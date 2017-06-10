@@ -199,7 +199,7 @@ class UserManagementPage extends FOGPage
             . '</div>',
             '<label class="label-control" for="apion">'
             . _('User API Enabled')
-            . '</label>' => '<div class="checkbox">'
+            . '</label>' => '<div class="input-group checkbox">'
             . '<input type="checkbox" class="'
             . 'api-enabled" name="apienabled" id="'
             . 'apion"'
@@ -457,7 +457,7 @@ class UserManagementPage extends FOGPage
         $fields = array(
             '<label class="label-control" for="apion">'
             . _('User API Enabled')
-            . '</label>' => '<div class="checkbox">'
+            . '</label>' => '<div class="input-group checkbox">'
             . '<input type="checkbox" class="'
             . 'api-enabled" name="apienabled" id="'
             . 'apion"'

@@ -478,32 +478,31 @@ class Page extends FOGBase
     public static function getSearchForm()
     {
         global $node;
-        echo '<div class="col-md-2">';
-        if (!in_array($node, self::$searchPages)) {
-            echo '</div>';
-            return;
+        echo '<div class="col-xs-2">';
+        if (in_array($node, self::$searchPages)) {
+            echo '<ul class="nav navbar-nav pull-left">';
+            echo '<li>';
+            echo '<form class="navbar-form navbar-left search-wrapper" role='
+                . '"search" method="post" action="'
+                . '../management/index.php?node='
+                . $node
+                . '&sub=search">';
+            echo '<div class="input-group">';
+            echo '<input type="text" class="'
+                . 'form-control search-input" placeholder="'
+                . self::$foglang['Search']
+                . '..." name="crit"/>';
+            echo '<span class="input-group-addon search-submit">';
+            echo '<i class="fogsearch fa fa-search">';
+            echo '<span class="sr-only">';
+            echo self::$foglang['Search'];
+            echo '</span>';
+            echo '</i>';
+            echo '</span>';
+            echo '</form>';
+            echo '</li>';
+            echo '</ul>';
         }
-        echo '<ul class="nav navbar-nav pull-left">';
-        echo '<li>';
-        echo '<form class="navbar-form navbar-left search-wrapper" role='
-            . '"search" method="post" action="'
-            . '../management/index.php?node='
-            . $node
-            . '&sub=search">';
-        echo '<div class="input-group">';
-        echo '<input type="text" class="'
-            . 'form-control search-input" placeholder="'
-            . self::$foglang['Search']
-            . '..." name="crit"/>';
-        echo '<span class="input-group-addon search-submit">';
-        echo '<i class="fogsearch fa fa-search">';
-        echo '<span class="sr-only">';
-        echo self::$foglang['Search'];
-        echo '</span>';
-        echo '</i>';
-        echo '</span>';
-        echo '</form>';
-        echo '</li>';
         echo '</ul>';
         echo '</div>';
     }
@@ -538,6 +537,95 @@ class Page extends FOGBase
         echo '</li>';
         echo '<li class="separator hidden-lg hidden-md"></li>';
         echo '</ul>';
+    }
+    /**
+     * Get main side menu items.
+     *
+     * @return void
+     */
+    public static function getMainSideMenu()
+    {
+        global $node;
+        global $sub;
+        $class = self::$FOGPageManager->getFOGPageClass();
+        if (count($class->menu) < 1) {
+            return;
+        }
+        echo '<div class="col-xs-2">';
+        echo '<ul class="nav nav-pills nav-stacked">';
+        $FOGSub = new FOGSubMenu();
+        foreach ($class->menu as $l => &$t) {
+            $items = $FOGSub->addMainItems(
+                $class->node,
+                array((string)$t => (string)$l),
+                '',
+                '',
+                'mainmenu'
+            );
+            unset($t);
+        }
+        unset($class);
+        ob_start();
+        foreach ((array)$items[$node] as $title => &$data) {
+            $title = $FOGSub->fixTitle($title);
+            echo '<h4 class="category">';
+            echo $title;
+            echo '</h4>';
+            foreach ((array)$data as $label => &$link) {
+                if ($label == 'class') {
+                    continue;
+                }
+                $string = sprintf(
+                    '<li><a class="%s" href="${link}">%s</a></li>',
+                    $link,
+                    $label
+                );
+                if ($FOGSub->isExternalLink($link)) {
+                    echo str_replace(
+                        '${link}',
+                        $link,
+                        $string
+                    );
+                } elseif (!$link) {
+                    echo str_replace(
+                        '${link}',
+                        "../management/index.php?node=$node",
+                        $string
+                    );
+                } else {
+                    $string = str_replace(
+                        '${link}',
+                        "../management/index.php?node=$node&"
+                        . 'sub=${link}',
+                        $string
+                    );
+                    if (!$sub || $title == self::$foglang['MainMenu']) {
+                        echo str_replace(
+                            '${link}',
+                            $link,
+                            $string
+                        );
+                    } elseif ($FOGSub->defaultSubs[$node]) {
+                        echo str_replace(
+                            '${link}',
+                            "{$FOGSub->defaultSubs[$node]}&tab=$link",
+                            $string
+                        );
+                    } else {
+                        echo str_replace(
+                            '${link}',
+                            "$sub&tab=$link",
+                            $string
+                        );
+                    }
+                }
+                unset($link);
+            }
+            unset($data);
+        }
+        echo ob_get_clean();
+        echo '</ul>';
+        echo '</div>';
     }
     /**
      * Generates our main item, sub item, and notes tabs.
