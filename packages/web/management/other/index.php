@@ -186,7 +186,7 @@ echo '<div class="collapse navbar-collapse">';
 echo '<footer class="footer">';
 echo '<nav class="navbar navbar-inverse navbar-fixed-bottom">';
 echo '<div class="container-fluid text-center">';
-echo '<ul class="nav navbar-nav navbar-center">';
+echo '<ul class="nav navbar-nav">';
 echo '<li><a href="https://wiki.fogproject.org/wiki/index.php?title=Credits">'
     . _('Credits')
     . '</a></li>';

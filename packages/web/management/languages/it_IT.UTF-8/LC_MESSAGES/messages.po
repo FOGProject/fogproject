@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-10 12:21-0400\n"
+"POT-Creation-Date: 2017-06-10 12:27-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -3063,7 +3063,7 @@ msgid "There you can download utilities such as FOG Prep"
 msgstr "Qui è possibile scaricare programmi di utilità come FOG Prep"
 
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:134
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:218
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:219
 msgid "FOG Crypt"
 msgstr "FOG Crypt"
 
@@ -3449,43 +3449,43 @@ msgstr "Ti consigliamo di effettuare l'aggiornamento per maggiore"
 msgid "security and faster client communication and management"
 msgstr "sicurezza, comunicazione e gestione dei clienti più veloci"
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:202
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:203
 msgid "This is the file to install the legacy client"
 msgstr "Questo è il file per installare il client legacy"
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:203
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:204
 msgid "It is recommended to not use this file but"
 msgstr "Si raccomanda di non utilizzare questo file ma"
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:204
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:205
 msgid "you may do as you please"
 msgstr "si può fare come ti pare"
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:205
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:206
 msgid "This client is not being developed any further so any issues"
 msgstr "Questo cliente non è più sviluppato così eventuali problemi"
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:206
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:207
 msgid "you may find"
 msgstr "che puoi trovare"
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:207
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:208
 msgid "or features you may request"
 msgstr "c le funzionalità che puoi richiedere"
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:208
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:209
 msgid "will not be added to this client"
 msgstr "von verranno aggiunte a questo client"
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:209
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:210
 msgid "Legacy FOG Client"
 msgstr "Legacy Client FOG"
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:216
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:217
 msgid "This file is used to encrypt the AD Password"
 msgstr "Questo file viene utilizzato per crittografare la password AD"
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:217
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:218
 msgid "DO NOT USE THIS IF YOU ARE USING THE NEW CLIENT"
 msgstr "NON UTILIZZARE QUESTO SE UTILIZZATE IL NUOVO CLIENT"
 

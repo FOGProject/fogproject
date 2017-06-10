@@ -194,6 +194,7 @@ class ClientManagementPage extends FOGPage
             _('We highly recommend you make the switch for more'),
             _('security and faster client communication and management')
         );
+        echo '<br/>';
         printf(
             '<a href="'
             . $url

@@ -289,7 +289,7 @@ class DashboardPage extends FOGPage
         // Disk usage
         echo '<div class="col-xs-4">';
         echo '<div class="panel panel-default">';
-        echo '<div class="panel-heading">';
+        echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
         echo _('Storage Node Disk Usage');
         echo '</h4>';

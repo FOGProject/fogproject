@@ -132,17 +132,9 @@ table td {
     padding-top: 10px;
 }
 footer {
-    line-height: 20px;
+    line-height: 5px;
 }
 @media (min-width: 768px) {
-    .navbar .navbar-nav.navbar-center {
-        display: inline-block;
-        float: none;
-        vertical-align: top;
-    }
-    .navbar .navbar-collapse {
-        text-align: center;
-    }
     .collapsedmenu-text {
         display: none;
     }
