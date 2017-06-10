@@ -246,13 +246,6 @@ class ProcessLogin extends FOGPage
                 'USER_TYPE_HOOK',
                 array('type' => &$type)
             );
-        if (!self::$isMobile) {
-            if ($type) {
-                self::setMessage(self::$foglang['NotAllowedHere']);
-                unset($_REQUEST['login']);
-                self::$FOGUser->logout();
-            }
-        }
         if (!isset($_REQUEST['login'])) {
             return;
         }
@@ -278,7 +271,7 @@ class ProcessLogin extends FOGPage
         $this->_setRedirMode();
     }
     /**
-     * Displays the main login form (non-mobile).
+     * Displays the main login form.
      *
      * @return void
      */
@@ -371,40 +364,6 @@ class ProcessLogin extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
-    }
-    /**
-     * Display the login form for the mobile page.
-     *
-     * @return void
-     */
-    public function mobileLoginForm()
-    {
-        $this->setLang();
-        if (in_array($_REQUEST['node'], array('login', 'logout'))) {
-            unset($_REQUEST['login']);
-            self::redirect('index.php');
-        }
-        $this->_getLanguages();
-        printf(
-            '<div class="c"><p>%s</p>'
-            . '<form method="post" action="">'
-            . '<br/><br/>'
-            . '<label for="username">%s: </label>'
-            . '<input type="text" name="uname" id="username"/><br/><br/>'
-            . '<label for="password">%s: </label>'
-            . '<input type="password" name="upass" id="password"/><br/><br/>'
-            . '<label for="language">%s: </label>'
-            . '<select name="ulang" id="language">%s</select>'
-            . '<br/><br/><label for="login-form-submit"> </label>'
-            . '<input type="submit" value="%s" id="login-form-submit" name="login"/>'
-            . '</form></div>',
-            self::$foglang['FOGMobile'],
-            self::$foglang['Username'],
-            self::$foglang['Password'],
-            self::$foglang['LanguagePhrase'],
-            $this->_langMenu,
-            self::$foglang['Login']
-        );
     }
     /**
      * Gets the locale.
