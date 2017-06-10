@@ -643,9 +643,18 @@ abstract class FOGPage extends FOGBase
                 && !self::$isMobile
             ) {
                 if ($node == 'host') {
-                    $actionbox .= '<div class="col-xs-offset-3 col-xs-9">';
+                    $actionbox .= '<div class='
+                        . '"col-xs-offset-3 col-xs-9 action-boxes host '
+                        . 'hiddeninitially">';
+                    $actionbox .= '<div class="panel panel-default">';
+                    $actionbox .= '<div class="panel-heading text-center">';
+                    $actionbox .= '<h4 class="title">';
+                    $actionbox .= _('Group Associations');
+                    $actionbox .= '</h4>';
+                    $actionbox .= '</div>';
+                    $actionbox .= '<div class="panel-body">';
                     $actionbox .= '<form class='
-                        . '"form-horizontal action-boxes hiddeninitially host" '
+                        . '"form-horizontal" '
                         . 'method="post" '
                         . 'action="'
                         . '?node='
@@ -656,9 +665,11 @@ abstract class FOGPage extends FOGBase
                     $actionbox .= '"group_new">';
                     $actionbox .= _('Create new group');
                     $actionbox .= '</label>';
+                    $actionbox .= '<div class="input-group">';
                     $actionbox .= '<input type="hidden" name="hostIDArray"/>';
                     $actionbox .= '<input type="text" name="group_new" id='
-                        . '"group_new" class="input-group"/>';
+                        . '"group_new" class="form-control"/>';
+                    $actionbox .= '</div>';
                     $actionbox .= '</div>';
                     $actionbox .= '<div class="form-group">';
                     $actionbox .= '<label class="control-label col-xs-4">';
@@ -670,22 +681,35 @@ abstract class FOGPage extends FOGBase
                     $actionbox .= '"group">';
                     $actionbox .= _('Add to group');
                     $actionbox .= '</label>';
+                    $actionbox .= '<div class="input-group">';
                     $actionbox .= self::getClass('GroupManager')->buildSelectBox();
+                    $actionbox .= '</div>';
                     $actionbox .= '</div>';
                     $actionbox .= '<div class="form-group">';
                     $actionbox .= '<span class="col-xs-4"></span>';
                     $actionbox .= '<button type="submit" class='
-                        . '"btn btn-default input-group">';
+                        . '"btn btn-default btn-lg">';
                     $actionbox .= _('Process group changes');
                     $actionbox .= '</button>';
                     $actionbox .= '</div>';
                     $actionbox .= '</form>';
                     $actionbox .= '</div>';
+                    $actionbox .= '</div>';
+                    $actionbox .= '</div>';
                 }
                 if ($node != 'task') {
-                    $actionbox .= '<div class="col-xs-offset-3 col-xs-9">';
+                    $actionbox .= '<div class='
+                        . '"col-xs-offset-3 col-xs-9 action-boxes del '
+                        . 'hiddeninitially">';
+                    $actionbox .= '<div class="panel panel-default">';
+                    $actionbox .= '<div class="panel-heading text-center">';
+                    $actionbox .= '<h4 class="title">';
+                    $actionbox .= _('Delete Selected');
+                    $actionbox .= '</h4>';
+                    $actionbox .= '</div>';
+                    $actionbox .= '<div class="panel-body">';
                     $actionbox .= '<form class='
-                        . '"form-horizontal action-boxes hiddeninitially del" '
+                        . '"form-horizontal" '
                         . 'method="post" '
                         . 'action="'
                         . '?node='
@@ -714,7 +738,7 @@ abstract class FOGPage extends FOGBase
                         . strtolower($node)
                         . 'IDArray"/>';
                     $actionbox .= '<button type="submit" class='
-                        . '"btn btn-default input-group" id="'
+                        . '"btn btn-default btn-lg" id="'
                         . 'del-'
                         . $node
                         . '">';
@@ -722,6 +746,8 @@ abstract class FOGPage extends FOGBase
                     $actionbox .= '</button>';
                     $actionbox .= '</div>';
                     $actionbox .= '</form>';
+                    $actionbox .= '</div>';
+                    $actionbox .= '</div>';
                     $actionbox .= '</div>';
                 }
             }
