@@ -246,12 +246,6 @@ abstract class FOGBase
      */
     public static $httpreferer;
     /**
-     * Is this a mobile request?
-     *
-     * @var int|bool
-     */
-    protected static $isMobile;
-    /**
      * The current server's IP information.
      *
      * @var array
@@ -331,9 +325,6 @@ abstract class FOGBase
         self::$reqmethod = filter_input(INPUT_SERVER, 'REQUEST_METHOD');
         self::$remoteaddr = filter_input(INPUT_SERVER, 'REMOTE_ADDR');
         self::$httpreferer = filter_input(INPUT_SERVER, 'HTTP_REFERER');
-        if (false !== stripos(self::$scriptname, 'mobile')) {
-            self::$isMobile = true;
-        }
         if (false !== stripos(self::$scriptname, $scriptPattern)) {
             self::$service = true;
         } elseif (false !== stripos(self::$querystring, $queryPattern)) {

@@ -640,7 +640,6 @@ abstract class FOGPage extends FOGBase
                 || $sub === 'storageGroup')
                 && in_array($node, self::$searchPages)
                 && in_array($node, $this->PagesWithObjects))
-                && !self::$isMobile
             ) {
                 if ($node == 'host') {
                     $actionbox .= '<div class='

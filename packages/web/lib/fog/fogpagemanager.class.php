@@ -374,11 +374,6 @@ class FOGPageManager extends FOGBase
             ) {
                 return;
             }
-            if ((self::$isMobile && !preg_match('#mobile#i', $className))
-                || (!self::$isMobile && preg_match('#mobile#i', $className))
-            ) {
-                return;
-            }
             $vals = get_class_vars($className);
             if ($vals['node'] !== trim($node)) {
                 return;

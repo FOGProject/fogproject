@@ -71,9 +71,6 @@ class EventManager extends FOGBase
                 array_push($this->data[$event], $listener);
                 break;
             case 'HookManager':
-                if (self::$isMobile && !$listener[0]->mobile) {
-                    throw new Exception(_('Not registering to mobile page'));
-                }
                 if (!is_array($listener) || count($listener) !== 2) {
                     throw new Exception(
                         _('Second paramater must be in array(class,function)')

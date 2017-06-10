@@ -99,17 +99,9 @@ class Page extends FOGBase
                 $this->theme = 'default/fog.css';
             }
             $dispTheme = "css/$this->theme";
-            $this->imagelink = sprintf(
-                'css/%simages/',
-                (
-                    !self::$isMobile ?
-                    sprintf(
-                        '%s/',
-                        dirname($this->theme)
-                    ) :
-                    ''
-                )
-            );
+            $this->imagelink = 'css/'
+                . dirname($this->theme)
+                . '/images/';
             if (!file_exists("../management/$dispTheme")) {
                 $dispTheme = 'css/default/fog.css';
             }
@@ -444,21 +436,6 @@ class Page extends FOGBase
      */
     public function render()
     {
-        if (!self::$isMobile) {
-            $this->title = sprintf(
-                '%s%s &gt; FOG &gt; %s',
-                (
-                    $this->pageTitle ?
-                    sprintf(
-                        '%s &gt; ',
-                        $this->pageTitle
-                    ) :
-                    ''
-                ),
-                $this->sectionTitle,
-                self::$foglang['Slogan']
-            );
-        }
         if (true === self::$showhtml) {
             include '../management/other/index.php';
         } else {
