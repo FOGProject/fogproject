@@ -1630,6 +1630,7 @@ configureHttpd() {
     mariadb=$(mysql -V |  sed -n 's/.*Distrib[ ].*[-]\(.*\)[,].*/\1/p')
     vertocheck="5.7"
     [[ -n $mariadb ]] && vertocheck="10.2"
+    configureMySql
     mysqlver=$(echo $mysqlver | awk -F'([.])' '{print $1"."$2}')
     runTest=$(echo "$mysqlver < $vertocheck" | bc)
     if [[ $runTest -eq 0 ]]; then
