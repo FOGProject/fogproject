@@ -1648,6 +1648,9 @@ configureHttpd() {
                 mysql ${options} -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 ;;
         esac
+    else
+        sql="UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root';"
+        mysql ${options} -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     fi
     dots "Setting up Apache and PHP files"
     if [[ ! -f $phpini ]]; then
