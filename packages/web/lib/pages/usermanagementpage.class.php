@@ -80,10 +80,8 @@ class UserManagementPage extends FOGPage
             );
         $this->headerData = array(
             '<label class="control-label" for="toggler">'
-            . '<div class="checkbox">'
             . '<input type="checkbox" name="toggle-checkbox" class='
             . '"toggle-checkboxAction" id="toggler"/>'
-            . '</div>'
             . '</label>',
             _('API?'),
             _('Username'),
@@ -91,10 +89,8 @@ class UserManagementPage extends FOGPage
         );
         $this->templates = array(
             '<label class="control-label" for="user-${id}">'
-            . '<div class="checkbox">'
             . '<input type="checkbox" name="user[]" value='
             . '"${id}" class="toggle-action" id="user-${id}"/>'
-            . '</div>'
             . '</label>',
             '${apiYes}',
             sprintf(
@@ -205,8 +201,7 @@ class UserManagementPage extends FOGPage
             . '</div>',
             '<label class="control-label" for="apion">'
             . _('User API Enabled')
-            . '</label>' => '<div class="input-group checkbox">'
-            . '<input type="checkbox" class="'
+            . '</label>' => '<input type="checkbox" class="'
             . 'api-enabled" name="apienabled" id="'
             . 'apion"'
             . (
@@ -214,8 +209,7 @@ class UserManagementPage extends FOGPage
                 ' checked' :
                 ''
             )
-            . '/>'
-            . '</div>',
+            . '/>',
             '<label class="control-label" for="add">'
             . _('Create user?')
             . '</label> ' => '<button class="btn btn-default btn-block" name="'
@@ -463,8 +457,7 @@ class UserManagementPage extends FOGPage
         $fields = array(
             '<label class="control-label" for="apion">'
             . _('User API Enabled')
-            . '</label>' => '<div class="input-group checkbox">'
-            . '<input type="checkbox" class="'
+            . '</label>' => '<input type="checkbox" class="'
             . 'api-enabled" name="apienabled" id="'
             . 'apion"'
             . (
@@ -472,8 +465,7 @@ class UserManagementPage extends FOGPage
                 ' checked' :
                 ''
             )
-            . '/>'
-            . '</div>',
+            . '/>',
             '<label class="control-label" for="token">'
             . _('User API Token')
             . '</label>' => '<div class="input-group">'

@@ -162,9 +162,10 @@ class HostManagementPage extends FOGPage
         );
         $this->headerData = array(
             '',
-            '<input type="checkbox" name="toggle-checkbox" '
+            '<label class="control-label" for="toggler">'
+            . '<input type="checkbox" name="toggle-checkbox" '
             . 'class="toggle-checkboxAction" id="toggler"/>'
-            . '<label for="toggler"></label>',
+            . '</label>',
         );
         self::$fogpingactive ? array_push($this->headerData, '') : null;
         array_push(
@@ -175,11 +176,11 @@ class HostManagementPage extends FOGPage
             _('Assigned Image')
         );
         $this->templates = array(
-            '<span class="icon fa fa-question hand" '
-            . 'title="${host_desc}"></span>',
-            '<input type="checkbox" name="host[]" '
+            '<i class="icon fa fa-question hand"></i>',
+            '<label class="control-label" for="host-${id}">'
+            . '<input type="checkbox" name="host[]" '
             . 'value="${id}" class="toggle-action" id="host-${id}"/>'
-            . '<label for="host-${id}"></label>',
+            . '</label>',
         );
         if (self::$fogpingactive) {
             array_push(
@@ -221,7 +222,10 @@ class HostManagementPage extends FOGPage
             array(
                 'width' => 16,
                 'id' => 'host-${host_name}',
-                'class' => 'l filter-false'
+                'class' => 'l filter-false',
+                'title' => '${host_desc}',
+                'data-toggle' => 'tooltip',
+                'data-placement' => 'right'
             ),
             array(
                 'class' => 'l filter-false',
@@ -331,7 +335,7 @@ class HostManagementPage extends FOGPage
         );
         if (count($this->data) > 0) {
             printf(
-                '<form method="post" action="%s">',
+                '<form class="form-horizontal" method="post" action="%s">',
                 $this->formAction
             );
         }
@@ -1617,9 +1621,9 @@ class HostManagementPage extends FOGPage
             );
             $this->render();
             printf(
-                '<center><input type="submit" name="pmupdate" '
+                '<input type="submit" name="pmupdate" '
                 . 'value="%s"/>&nbsp;<input type="submit" '
-                . 'name="pmdelete" value="%s"/></center><br/>',
+                . 'name="pmdelete" value="%s"/><br/>',
                 _('Update Values'),
                 _('Remove selected')
             );
@@ -1690,8 +1694,8 @@ class HostManagementPage extends FOGPage
         );
         $this->render();
         printf(
-            '<center><input type="submit" name="pmsubmit" '
-            . 'value="%s"/></center></form></div>',
+            '<input type="submit" name="pmsubmit" '
+            . 'value="%s"/></form></div>',
             _('Add Option')
         );
         unset(

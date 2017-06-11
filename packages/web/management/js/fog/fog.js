@@ -98,6 +98,9 @@ function AJAXServerTime() {
         }
     });
 }
+function HookTooltip() {
+    $('[data-toggle="tooltip"]').tooltip({container: 'body'});
+}
 (function($) {
     /**
      * Performs tests on direct targetting
@@ -139,10 +142,10 @@ function AJAXServerTime() {
             location.href = $(this).prop('href');
         }
     });
+    HookTooltip();
     /**
      * Ensure's bootstrap's tooltip feature is functioning
      */
-    $('[data-toggle="tooltip"]').tooltip();
     $.validator.addMethod(
         'regex',
         function(value, element,regexp) {
@@ -504,6 +507,7 @@ function TableCheck() {
         pauseUpdate[callme]();
         cancelTasks[callme]();
     }
+    HookTooltip();
 }
 function setupParserInfo() {
     if (typeof $.tablesorter == 'undefined') return;
@@ -754,6 +758,7 @@ function setupFogTableInfoFunction() {
                 filter_reset: '.reset',
             }
         }).trigger('update').trigger('updateAll');
+        HookTooltip();
         return this;
     }
 }

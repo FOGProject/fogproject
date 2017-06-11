@@ -23,8 +23,6 @@ $(function() {
             }
         });
     });
-    // Make button
-    $('#adClear').html('<div class="row"><button class="btn btn-default" type="button" id="clearAD">Clear Fields</button></div>');
     // Clear fields
     $('#clearAD').on('click',function(event) {
         clearDoms = $('#adOU[type="text"], #adDomain, #adUsername, #adPassword, #adPasswordLegacy').val('');
