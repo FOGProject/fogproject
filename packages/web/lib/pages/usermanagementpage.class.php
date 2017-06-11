@@ -79,17 +79,23 @@ class UserManagementPage extends FOGPage
                 )
             );
         $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" class='
+            '<label class="control-label" for="toggler">'
+            . '<div class="checkbox">'
+            . '<input type="checkbox" name="toggle-checkbox" class='
             . '"toggle-checkboxAction" id="toggler"/>'
-            . '<label for="toggler"></label>',
+            . '</div>'
+            . '</label>',
             _('API?'),
             _('Username'),
             _('Friendly Name')
         );
         $this->templates = array(
-            '<input type="checkbox" name="user[]" value='
+            '<label class="control-label" for="user-${id}">'
+            . '<div class="checkbox">'
+            . '<input type="checkbox" name="user[]" value='
             . '"${id}" class="toggle-action" id="user-${id}"/>'
-            . '<label for="user-${id}"></label>',
+            . '</div>'
+            . '</label>',
             '${apiYes}',
             sprintf(
                 '<a href="?node=%s&sub=edit&%s=${id}" title="%s">${name}</a>',
@@ -101,7 +107,7 @@ class UserManagementPage extends FOGPage
         );
         $this->attributes = array(
             array(
-                'class' => 'l filter-false',
+                'class' => 'l filter-false form-group',
                 'width' => 16
             ),
             array(
@@ -364,11 +370,11 @@ class UserManagementPage extends FOGPage
         unset($this->headerData);
         $this->templates = array(
             '${field}',
-            '${input}',
+            '${input}'
         );
         $this->attributes = array(
             array(),
-            array(),
+            array('class' => 'form-group')
         );
         $this->data = array();
         array_walk($fields, $this->fieldsToData);
@@ -422,11 +428,11 @@ class UserManagementPage extends FOGPage
         unset($this->headerData);
         $this->templates = array(
             '${field}',
-            '${input}',
+            '${input}'
         );
         $this->attributes = array(
             array(),
-            array(),
+            array('class' => 'form-group')
         );
         $this->data = array();
         array_walk($fields, $this->fieldsToData);
@@ -494,11 +500,11 @@ class UserManagementPage extends FOGPage
         unset($this->headerData);
         $this->templates = array(
             '${field}',
-            '${input}',
+            '${input}'
         );
         $this->attributes = array(
             array(),
-            array(),
+            array('class' => 'form-group')
         );
         $this->data = array();
         array_walk($fields, $this->fieldsToData);
