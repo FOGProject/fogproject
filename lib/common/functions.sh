@@ -1629,10 +1629,7 @@ configureHttpd() {
     mysqlver=$(mysql -V |  sed -n 's/.*Distrib[ ]\(\([0-9]\([.]\|\)\)*\).*\([-]\|\)[,].*/\1/p')
     mariadb=$(mysql -V |  sed -n 's/.*Distrib[ ].*[-]\(.*\)[,].*/\1/p')
     vertocheck="5.7"
-    if [[ -n $mariadb ]]; then
-        mysqlver=$(mysql -V | sed -n 's/.*Ver[ ]\(.*\)[ ].*Distrib.*/\1/p')
-        vertocheck="10.2"
-    fi
+    [[ -n $mariadb ]] && vertocheck="10.2"
     mysqlver=$(echo $mysqlver | awk -F'([.])' '{print $1"."$2}')
     runTest=$(echo "$mysqlver < $vertocheck" | bc)
     if [[ $runTest -eq 0 ]]; then
