@@ -1624,6 +1624,8 @@ configureHttpd() {
     [[ -n $snmysqlhost ]] && options="$options -h$snmysqlhost"
     [[ -n $snmysqluser ]] && options="$options -u'$snmysqluser'"
     [[ -n $snmysqlpass ]] && options="$options -p'$snmysqlpass'"
+    sql="UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root';"
+    mysql ${options} -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     mysqlver=$(mysql -V |  sed -n 's/.*Distrib[ ]\(\([0-9]\([.]\|\)\)*\).*\([-]\|\)[,].*/\1/p')
     mariadb=$(mysql -V |  sed -n 's/.*Distrib[ ].*[-]\(.*\)[,].*/\1/p')
     vertocheck="5.7"
@@ -1652,9 +1654,6 @@ configureHttpd() {
                 mysql ${options} -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 ;;
         esac
-    else
-        sql="UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root';"
-        mysql ${options} -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     fi
     dots "Setting up Apache and PHP files"
     if [[ ! -f $phpini ]]; then
