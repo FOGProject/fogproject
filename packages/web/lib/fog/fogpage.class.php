@@ -2111,18 +2111,14 @@ abstract class FOGPage extends FOGBase
                 );
             }
             $OUOptions = sprintf(
-                '<div class="input-group">'
-                . '<select id="adOU" class="form-control" name="ou">'
-                . '%s</select>'
-                . '</div>',
+                '<select id="adOU" class="form-control" name="ou">'
+                . '%s</select>',
                 ob_get_clean()
             );
         } else {
             $OUOptions = sprintf(
-                '<div class="input-group">'
-                . '<input id="adOU" class="form-control" type="text" name='
-                . '"ou" value="%s" autocomplete="off"/>'
-                . '</div>',
+                '<input id="adOU" class="form-control" type="text" name='
+                . '"ou" value="%s" autocomplete="off"/>',
                 $ADOU
             );
         }
@@ -2130,19 +2126,16 @@ abstract class FOGPage extends FOGBase
         echo '<div id="'
             . $node
             . '-active-directory" class="tab-pane fade">';
-        echo '<div class="text-center">';
-        echo '<p class="category">';
-        echo _('Active Directory');
-        echo '</p>';
-        echo '</div>';
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '">';
-        echo '<div class="form-group">';
-        echo '<div class="input-group">';
-        echo '<input type="text" name="fakeusernameremembered" class="fakes"/>';
-        echo '<input type="text" name="fakepasswordremembered" class="fakes"/>';
-        echo '</div>';
+        echo '<h4 class="title text-center">';
+        echo _('Active Directory');
+        echo '</h4>';
+        echo '<input type="text" name="fakeusernameremembered" class='
+            . '"fakes hidden"/>';
+        echo '<input type="password" name="fakepasswordremembered" class='
+            . '"fakes hidden"/>';
         $this->templates = array(
             '${field}',
             '${input}',
@@ -2154,18 +2147,15 @@ abstract class FOGPage extends FOGBase
         $fields = array(
             '<label class="control-label" for="clearAD">'
             . _('Clear all fields?')
-            . '</label>' => '<div class="input-group">'
-            . '<div id="adClear"></div>'
-            . '</div>',
+            . '</label>' => '<button class="btn btn-default btn-block" '
+            . 'type="button" id="clearAD">'
+            . _('Clear Fields')
+            . '</button>',
             sprintf(
                 '<label class="control-label" for="adEnabled">%s</label>',
                 _('Join Domain after image task')
             ) => sprintf(
-                '<div class="input-group">'
-                . '<input id="adEnabled" type="checkbox" name="domain" class='
-                . '"%s"%s/>'
-                . '</div>',
-                'form-control',
+                '<input id="adEnabled" type="checkbox" name="domain"%s/>',
                 (
                     $useAD ?
                     ' checked' :
@@ -2176,10 +2166,8 @@ abstract class FOGPage extends FOGBase
                 '<label class="control-label" for="adDomain">%s</label>',
                 _('Domain name')
             ) => sprintf(
-                '<div class="input-group">'
-                . '<input id="adDomain" class="form-control" type="text" '
-                . 'name="domainname" value="%s" autocomplete="off"/>'
-                . '</div>',
+                '<input id="adDomain" class="form-control" type="text" '
+                . 'name="domainname" value="%s" autocomplete="off"/>',
                 $ADDomain
             ),
             sprintf(
@@ -2193,10 +2181,8 @@ abstract class FOGPage extends FOGBase
                 '<label class="control-label" for="adUsername">%s</label>',
                 _('Domain Username')
             ) => sprintf(
-                '<div class="input-group">'
-                . '<input id="adUsername" class="form-control" type="text" '
-                . 'name="domainuser" value="%s" autocomplete="off"/>'
-                . '</div>',
+                '<input id="adUsername" class="form-control" type="text" '
+                . 'name="domainuser" value="%s" autocomplete="off"/>',
                 $ADUser
             ),
             sprintf(
@@ -2206,11 +2192,9 @@ abstract class FOGPage extends FOGBase
                 _('Domain Password'),
                 _('Will auto-encrypt plaintext')
             ) => sprintf(
-                '<div class="input-group">'
-                . '<input id="adPassword" class="form-control" type='
+                '<input id="adPassword" class="form-control" type='
                 . '"password" '
-                . 'name="domainpassword" value="%s" autocomplete="off"/>'
-                . '</div>',
+                . 'name="domainpassword" value="%s" autocomplete="off"/>',
                 $ADPass
             ),
             sprintf(
@@ -2220,11 +2204,9 @@ abstract class FOGPage extends FOGBase
                 _('Domain Password Legacy'),
                 _('Must be encrypted')
             ) => sprintf(
-                '<div class="input-group">'
-                . '<input id="adPasswordLegacy" class="form-control" '
+                '<input id="adPasswordLegacy" class="form-control" '
                 . 'type="password" name="domainpasswordlegacy" '
-                . 'value="%s" autocomplete="off"/>'
-                . '</div>',
+                . 'value="%s" autocomplete="off"/>',
                 $ADPassLegacy
             ),
             sprintf(
@@ -2235,12 +2217,10 @@ abstract class FOGPage extends FOGBase
                 _('AD changes even if users are logged in')
             ) =>
             sprintf(
-                '<div class="input-group">'
-                . '<input name="enforcesel" type="checkbox" id="'
+                '<input name="enforcesel" type="checkbox" id="'
                 . 'ensel" class="form-control" autocomplete="off"%s/>'
                 . '<input type="hidden" '
-                . 'name="enforce"/>'
-                . '</div>',
+                . 'name="enforce"/>',
                 (
                     $enforce ?
                     ' checked' :
@@ -2248,22 +2228,29 @@ abstract class FOGPage extends FOGBase
                 )
             ),
             '<label class="control-label" for="'
-                . $node.'-'.$sub
-                . '">'
-                . _('Make changes?')
-                . '</label>' => '<div class="input-group">'
-                . '<button class="btn btn-default" type="submit" name='
-                . '"updatead" id="'
-                . $node.'-'.$sub
-                . '">'
-                . (
-                    $sub == 'add' ?
-                    _('Add') :
-                    _('Update')
-                )
-                . '</button>'
-                . '</div>'
+            . $node
+            . '-'
+            . $sub
+            . '">'
+            . _('Make changes?')
+            . '</label>' => '<button class="btn btn-default" type="submit" name='
+            . '"updatead" id="'
+            . $node
+            . '-'
+            . $sub
+            . '">'
+            . (
+                $sub == 'add' ?
+                _('Add') :
+                _('Update')
+            )
+            . '</button>'
         );
+        $this->attributes = array(
+            array(),
+            array('class' => 'form-group input-group')
+        );
+
         foreach ((array)$fields as $field => &$input) {
             $this->data[] = array(
                 'field' => $field,
@@ -2287,8 +2274,8 @@ abstract class FOGPage extends FOGBase
             )
         );
         $this->render();
-        echo '</div>';
         echo '</form>';
+        echo '</div>';
         unset($this->data);
     }
     /**

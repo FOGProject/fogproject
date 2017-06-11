@@ -134,9 +134,6 @@ table td {
 footer {
     line-height: 5px;
 }
-.checkbox input[type=checkbox] {
-    margin-left: 0;
-}
 @media (min-width: 768px) {
     .collapsedmenu-text {
         display: none;
