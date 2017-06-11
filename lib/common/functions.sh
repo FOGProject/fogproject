@@ -1642,9 +1642,13 @@ configureHttpd() {
                 mysql ${options} -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 sql="ALTER USER '$snmysqluser'@'localhost' IDENTIFIED WITH mysql_native_password BY '$snmysqlpass';"
                 mysql ${options} -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                sql="UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root';"
+                mysql ${options} -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 ;;
             *)
                 sql="ALTER USER '$snmysqluser'@'$snmysqlhost' IDENTIFIED WITH mysql_native_password BY '$snmysqlpass';"
+                mysql ${options} -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                sql="UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root';"
                 mysql ${options} -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 ;;
         esac
