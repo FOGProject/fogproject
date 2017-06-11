@@ -1948,13 +1948,8 @@ class Config
     chmod +rx $apacheacclog
     chown -R ${apacheuser}:${apacheuser} $webdirdest
     errorStat $?
-    rm -f "$webdirdest/mobile/css/font-awesome.css" $webdirdest/mobile/{fonts,less,scss} &>>$workingdir/error_logs/fog_error_${version}.log 2>&1
     [[ -d /var/www/html/ && ! -e /var/www/html/fog/ ]] && ln -s "$webdirdest" /var/www/html/
     [[ -d /var/www/ && ! -e /var/www/fog ]] && ln -s "$webdirdest" /var/www/
-    ln -s "$webdirdest/management/css/font-awesome.css" "$webdirdest/mobile/css/font-awesome.css"
-    ln -s "$webdirdest/management/fonts" "$webdirdest/mobile/"
-    ln -s "$webdirdest/management/less" "$webdirdest/mobile/"
-    ln -s "$webdirdest/management/scss" "$webdirdest/mobile/"
     chown -R ${apacheuser}:${apacheuser} "$webdirdest"
 }
 downloadfiles() {
