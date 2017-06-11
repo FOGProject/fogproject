@@ -20,8 +20,11 @@
 [[ -z $packageQuery ]] && packageQuery="dpkg -l \$x | grep '^ii'"
 if [[ $linuxReleaseName == +(*[Bb][Ii][Aa][Nn]*) ]]; then
     if [[ $OSVersion -gt 8 ]]; then
-        [[ -z $php_ver || $phpVer != "7.0" ]] && php_ver="7.0"
+        [[ -z $php_ver || $php_ver != "7.0" ]] && php_ver="7.0"
         [[ -z $php_verAdds ]] && php_verAdds="-7.0"
+    else
+        [[ -z $php_ver ]] && php_ver="5"
+        [[ -z $php_verAdds ]] && php_verAdds="-5.6"
     fi
 elif [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*) ]]; then
     if [[ -z $php_ver || $php_ver != "7.1" ]]; then
