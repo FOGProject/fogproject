@@ -180,7 +180,7 @@ class TaskManagementPage extends FOGPage
                     $Task->createdTime,
                     'Y-m-d H:i:s'
                 ),
-                'state' => $Task->getTaskStateText(),
+                'state' => $Task->state->name,
                 'forced' => $Task->isForced,
                 'type' => $Task->type->name,
                 'width' => 600 * intval($Task->percent) / 100,
