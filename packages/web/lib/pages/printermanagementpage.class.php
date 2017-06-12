@@ -437,6 +437,79 @@ class PrinterManagementPage extends FOGPage
         exit;
     }
     /**
+     * Printer general fields
+     *
+     * @return void
+     */
+    public function printerGeneral()
+    {
+        $this->attributes = array(
+            array(),
+            array('class' => 'form-group'),
+        );
+        $this->templates = array(
+            '${field}',
+            '${input}',
+        );
+        if (!isset($_POST['printertype']) || empty($_POST['printertype'])) {
+            $_POST['printertype'] = $this->obj->get('config');
+        }
+        $alias = filter_input(
+            INPUT_POST, 'alias'
+        ) ?: $this->obj->get('name');
+        $desc = filter_input(
+            INPUT_POST, 'description'
+        ) ?: $this->obj->get('description');
+        $fields = array(
+            '<label for="printer-copy">'
+            . _('Copy from existing printer')
+            . '</label>' => '<div class="input-group">'
+            . self::getClass('PrinterManager')->buildSelectBox(
+                $this->obj->get('id'),
+                'printer-copy'
+            )
+            . '</div>',
+            '<label for="printertype">'
+            . _('Printer Type')
+            . '</label>' => '<div class="input-group">'
+            . Printer::buildPrinterTypeSelector()
+            . '</div>',
+            '<label for="alias">'
+            . _('Printer Alias')
+            . '<br/>'
+            . '<i>(e.g. \\\\printerserver\printername)</i>'
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" class="form-control" name="'
+            . 'alias" id="alias" value="'
+            . $alias
+            . '"/>'
+            . '</div>',
+            '<label for="description">'
+            . _('Printer Description')
+            . '</label>' => '<div class="input-group">'
+            . '<textarea name="description" id="description" class="'
+            . 'form-control">'
+            . $desc
+            . '</textarea>'
+            . '</div>'
+        );
+        self::$HookManager->processEvent(
+            'PRINTER_GENERAL_FIELDS',
+            array(
+                'fields' => &$fields
+            )
+        );
+        array_walk($fields, $this->fieldsToData);
+        echo '<!-- General -->';
+        echo '<div id="printer-gen" class="tab-pane fade in active">';
+        echo '<form class="form-horizontal" method-"post" action="'
+            . $this->formAction
+            . '&tab=printer-gen">';
+        $this->render();
+        echo '</form>';
+        echo '</div>';
+    }
+    /**
      * Edit printer object.
      *
      * @return void
@@ -444,86 +517,12 @@ class PrinterManagementPage extends FOGPage
     public function edit()
     {
         $this->title = sprintf('%s: %s', _('Edit'), $this->obj->get('name'));
-        echo '<div id="tab-container">';
         unset($this->headerData);
-        $this->attributes = array(
-            array(),
-            array(),
-        );
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
-        echo '<!-- General --><div id="printer-gen">';
-        if (!isset($_REQUEST['printertype']) || empty($_REQUEST['printertype'])) {
-            $_REQUEST['printertype'] = $this->obj->get('config');
-        }
-        $printerTypes = array(
-            'Local'=>_('TCP/IP Port Printer'),
-            'iPrint'=>_('iPrint Printer'),
-            'Network'=>_('Network Printer'),
-            'Cups'=>_('CUPS Printer'),
-        );
-        ob_start();
-        foreach ((array)$printerTypes as $short => &$long) {
-            printf(
-                '<option value="%s"%s>%s</option>',
-                $short,
-                (
-                    $_REQUEST['printertype'] === $short ?
-                    ' selected' :
-                    ''
-                ),
-                $long
-            );
-            unset($short, $long);
-        }
-        $optionPrinter = ob_get_clean();
-        printf(
-            '<form method="post" action="%s&tab=printer-gen"><br/>',
-            $this->formAction
-        );
-        echo '<div id="printer-copy">';
-        $fields = array(
-            sprintf(
-                '%s',
-                _('Copy from existing printer')
-            ) => sprintf(
-                '%s',
-                self::getClass('PrinterManager')->buildSelectBox(
-                    $this->obj->get('id')
-                )
-            ),
-            _('Printer Type') => sprintf(
-                '<select name="printertype">%s</select>',
-                $optionPrinter
-            ),
-        );
-        foreach ((array)$fields as $field => &$input) {
-            $this->data[] = array(
-                'field'=>$field,
-                'input'=>$input,
-            );
-        }
-        $this->render();
-        echo '</div>';
         unset($this->data);
-        $fields = array(
-            _('Printer Description') => sprintf(
-                '<textarea name="description" rows="8" cols="40">%s</textarea>',
-                $this->obj->get('description')
-            ),
-            sprintf(
-                '%s*',
-                _('Printer Alias')
-            ) => sprintf(
-                '<input class="printername-input" type='
-                . '"text" name="alias" value="%s"/>',
-                $this->obj->get('name')
-            ),
-            '&nbsp;'=>'e.g. \\\\printerserver\\printername',
-        );
-        echo '<div id="network" class="hiddeninitially">';
+        echo '<div class="tab-content">';
+        $this->printerGeneral();
+        echo '</div>';
+        /*echo '<div id="network" class="hiddeninitially">';
         foreach ((array)$fields as $field => &$input) {
             $this->data[] = array(
                 'field'=>$field,
@@ -652,7 +651,7 @@ class PrinterManagementPage extends FOGPage
             );
         $this->render();
         echo '</form></div></div>';
-        unset($this->data);
+        unset($this->data);*/
     }
     /**
      * Save the edits.

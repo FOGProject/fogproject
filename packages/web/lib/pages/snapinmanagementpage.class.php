@@ -996,8 +996,9 @@ class SnapinManagementPage extends FOGPage
                 _('Update')
             ),
         );
-        echo '<div id="tab-container">';
-        echo '<!-- General --><div id="snap-gen">';
+        echo '<div class="tab-content">';
+        echo '<!-- General -->';
+        echo '<div id="snap-gen" class="tab-pane fade in active">';
         echo '<form method="post" action="'
             . $this->formAction
             . '&tab=snap-gen" enctype="multipart/form-data">';
@@ -1027,7 +1028,7 @@ class SnapinManagementPage extends FOGPage
         echo '</form></div>';
         unset($this->data);
         echo "<!-- Snapin Groups -->";
-        echo '<div id="snap-storage">';
+        echo '<div id="snap-storage" class="tab-pane fade">';
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkboxsnapin1" class='
             . '"toggle-checkbox1" id="toggler1"/><label for="toggler1"></label>',

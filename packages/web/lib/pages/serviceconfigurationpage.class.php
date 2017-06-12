@@ -44,7 +44,8 @@ class ServiceConfigurationPage extends FOGPage
             '?node=%s',
             $this->node
         );
-        $this->menu = array(
+        $this->menu = array();
+        $this->subMenu = array(
             sprintf(
                 '?node=%s#home',
                 $this->node
@@ -154,8 +155,8 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function edit()
     {
-        echo '<div id="tab-container">';
-        echo '<div id="home">';
+        echo '<div class="tab-content">';
+        echo '<div id="home" class="tab-pane fade in active">';
         $this->home();
         echo '</div>';
         $moduleName = self::getGlobalModuleStatus();
@@ -256,7 +257,7 @@ class ServiceConfigurationPage extends FOGPage
             array_walk($fields, $this->fieldsToData);
             unset($this->span);
             printf(
-                '<!-- %s --><div id="%s"><h2>%s</h2>'
+                '<!-- %s --><div id="%s" class="tab-pane fade"><h2>%s</h2>'
                 . '<form method="post" action="?node=service&sub=edit&tab=%s">'
                 . '<p>%s</p><h2>%s</h2>',
                 $Module->get('name'),
