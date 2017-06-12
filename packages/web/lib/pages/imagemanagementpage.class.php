@@ -705,7 +705,7 @@ class ImageManagementPage extends FOGPage
     public function edit()
     {
         $this->title = sprintf('%s: %s', _('Edit'), $this->obj->get('name'));
-        echo '<div id="tab-container">';
+        echo '<div class="tab-content">';
         unset($this->headerData);
         $this->attributes = array(
             array(),
@@ -908,15 +908,20 @@ class ImageManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        printf(
-            '<!-- General --><div id="image-gen"><h2>%s</h2><form method="post" '
-            . 'action="%s&tab=image-gen">',
-            _('Edit image definition'),
-            $this->formAction
-        );
+        echo '<!-- General -->';
+        echo '<div id="image-gen" class="tab-pane fade in active">';
+        echo '<h4 class="title">';
+        echo _('Edit image definition');
+        echo '</h4>';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '&tab=image-gen">';
         $this->render();
         unset($this->data);
-        echo '</form></div><!-- Storage Groups --><div id="image-storage">';
+        echo '</form>';
+        echo '</div>';
+        echo '<!-- Storage Groups -->';
+        echo '<div id="image-storage" class="tab-pane fade">';
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkboxgroup1" '
             . 'class="toggle-checkbox1" id="toggler2"/>'
