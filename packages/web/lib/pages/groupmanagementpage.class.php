@@ -437,9 +437,10 @@ class GroupManagementPage extends FOGPage
         );
         printf(
             '<form method="post" action="%s&tab=group-general">'
-            . '<div id="tab-container">'
+            . '<div class="tab-content">'
             . '<!-- General -->'
-            . '<div id="group-general"><h2>%s: %s</h2>'
+            . '<div id="group-general" class="tab-pane fade in active">'
+            . '<h2>%s: %s</h2>'
             . '<div id="resetSecDataBox" class="hiddeninitially"></div>'
             . '<div class="c"><input type="button" id="resetSecData"/>'
             . '</div><br/>',
@@ -469,7 +470,8 @@ class GroupManagementPage extends FOGPage
         echo '</form></div>';
         $imageSelector = self::getClass('ImageManager')
             ->buildSelectBox($imageMatchID, 'image');
-        echo '<!-- Image Association --><div id="group-image">';
+        echo '<!-- Image Association --><div id="group-image" class="'
+            . 'tab-pane fade">';
         printf(
             '<h2>%s: %s</h2><form method="post" action="%s&tab=group-image">',
             _('Image Association for'),
@@ -527,7 +529,7 @@ class GroupManagementPage extends FOGPage
             $ADPassLegacy,
             $enforce
         );
-        echo '<!-- Printers --><div id="group-printers">';
+        echo '<!-- Printers --><div id="group-printers" class="tab-pane fade">';
         printf(
             '<form method="post" action="%s&tab=group-printers"><h2>%s</h2>',
             $this->formAction,
@@ -642,7 +644,7 @@ class GroupManagementPage extends FOGPage
         $this->render();
         unset($this->data);
         echo "$inputupdate</form></div>";
-        echo '<!-- Snapins --><div id="group-snapins">';
+        echo '<!-- Snapins --><div id="group-snapins" class="tab-pane fade">';
         printf('<h2>%s</h2>', _('Snapins'));
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkboxsnapin" '
@@ -706,7 +708,8 @@ class GroupManagementPage extends FOGPage
         }
         unset($this->headerData, $this->data);
         echo '</div>';
-        echo '<!-- Service Settings --><div id="group-service">';
+        echo '<!-- Service Settings --><div id="group-service" class="'
+            . 'tab-pane fade">';
         $this->attributes = array(
             array('width'=>270),
             array('class'=>'c'),
@@ -1003,7 +1006,8 @@ class GroupManagementPage extends FOGPage
         $this->render();
         unset($this->data);
         echo '</fieldset></form></div>';
-        echo '<!-- Power Management Items --><div id="group-powermanagement">'
+        echo '<!-- Power Management Items --><div id="group-powermanagement" class="'
+            . 'tab-pane fade">'
             . '<div id="delAllPMBox"></div><div class="c"><input '
             . 'type="button" id="delAllPM"/></div><br/>';
         $this->templates = array(

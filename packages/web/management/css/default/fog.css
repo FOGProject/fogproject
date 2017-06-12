@@ -16,6 +16,10 @@ body {
     margin: auto;
     margin-bottom: 10px;
 }
+.select2-container,
+.input-group {
+    width: 100% !important;
+}
 .form-signin {
     margin: auto;
     max-width: 500px;
@@ -43,8 +47,7 @@ body {
         border-top-right-radius: 0;
     }
 }
-#login-form-info b
-{
+#login-form-info b {
     float: right;
     color: #00567A;
 }
@@ -130,6 +133,9 @@ table td {
     color: white;
     font-size: 9px;
     padding-top: 10px;
+}
+.input-group-addon {
+    min-width: 50px;
 }
 footer {
     line-height: 5px;

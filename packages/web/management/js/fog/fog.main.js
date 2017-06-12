@@ -140,11 +140,11 @@ $(function() {
         if (!$(this).hasClass('clicked')) {
             $(this).addClass('clicked');
             $(this).removeClass('fa-eye-slash').addClass('fa-eye');
-            $(this).closest('div').find('input').prop('type','text');
+            $(this).closest('.input-group').find('input[type="password"]').prop('type','text');
         } else {
             $(this).removeClass('clicked');
             $(this).removeClass('fa-eye').addClass('fa-eye-slash');
-            $(this).closest('div').find('input').prop('type','password');
+            $(this).closest('.input-group').find('input[type="text"]').prop('type','password');
         }
     });
     // Process FOG JS Variables
