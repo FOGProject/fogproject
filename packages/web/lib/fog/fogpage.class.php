@@ -2032,6 +2032,8 @@ abstract class FOGPage extends FOGBase
      * @param string $ADPass       the password
      * @param string $ADPassLegacy the legacy password
      * @param mixed  $enforce      enforced selected
+     * @param mixed  $ownElement   do we need to be our own container
+     * @param mixed  $retFields    return just the fields?
      *
      * @return void
      */
@@ -2042,14 +2044,10 @@ abstract class FOGPage extends FOGBase
         $ADUser = '',
         $ADPass = '',
         $ADPassLegacy = '',
-        $enforce = ''
+        $enforce = '',
+        $ownElement = true,
+        $retFields = false
     ) {
-        unset(
-            $this->data,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
         global $node;
         global $sub;
         if ($this->obj->isValid()) {
@@ -2122,13 +2120,135 @@ abstract class FOGPage extends FOGBase
                 $ADOU
             );
         }
-        echo '<!-- Active Directory -->';
-        echo '<div id="'
+        $fields = array(
+            '<label for="clearAD">'
+            . _('Clear all fields?')
+            . '</label>' => '<button class="btn btn-default btn-block" '
+            . 'type="button" id="clearAD">'
+            . _('Clear Fields')
+            . '</button>',
+            sprintf(
+                '<label for="adEnabled">%s</label>',
+                _('Join Domain after deploy')
+            ) => sprintf(
+                '<input id="adEnabled" type="checkbox" name="domain"%s/>',
+                (
+                    $useAD ?
+                    ' checked' :
+                    ''
+                )
+            ),
+            sprintf(
+                '<label for="adDomain">%s</label>',
+                _('Domain name')
+            ) => sprintf(
+                '<div class="input-group">'
+                . '<input id="adDomain" class="form-control" type="text" '
+                . 'name="domainname" value="%s" autocomplete="off"/>'
+                . '</div>',
+                $ADDomain
+            ),
+            sprintf(
+                '<label for="adOU">%s'
+                . '<br/>(%s)'
+                . '</label>',
+                _('Organizational Unit'),
+                _('Blank for default')
+            ) => $OUOptions,
+            sprintf(
+                '<label for="adUsername">%s</label>',
+                _('Domain Username')
+            ) => sprintf(
+                '<div class="input-group">'
+                . '<input id="adUsername" class="form-control" type="text" '
+                . 'name="domainuser" value="%s" autocomplete="off"/>'
+                . '</div>',
+                $ADUser
+            ),
+            sprintf(
+                '<label for="adPassword">%s'
+                . '<br/>(%s)'
+                . '</label>',
+                _('Domain Password'),
+                _('Will auto-encrypt plaintext')
+            ) => sprintf(
+                '<div class="input-group">'
+                . '<input id="adPassword" class="form-control" type='
+                . '"password" '
+                . 'name="domainpassword" value="%s" autocomplete="off"/>'
+                . '</div>',
+                $ADPass
+            ),
+            sprintf(
+                '<label for="adPasswordLegacy">%s'
+                . '<br/>(%s)'
+                . '</label>',
+                _('Domain Password Legacy'),
+                _('Must be encrypted')
+            ) => sprintf(
+                '<div class="input-group">'
+                . '<input id="adPasswordLegacy" class="form-control" '
+                . 'type="password" name="domainpasswordlegacy" '
+                . 'value="%s" autocomplete="off"/>'
+                . '</div>',
+                $ADPassLegacy
+            ),
+            sprintf(
+                '<label for="ensel">'
+                . '%s?'
+                . '</label>',
+                _('Name Change/AD Join Forced reboot')
+            ) =>
+            sprintf(
+                '<input name="enforcesel" type="checkbox" id="'
+                . 'ensel" autocomplete="off"%s/>',
+                (
+                    $enforce ?
+                    ' checked' :
+                    ''
+                )
+            ),
+            '<label for="'
             . $node
-            . '-active-directory" class="tab-pane fade">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '">';
+            . '-'
+            . $sub
+            . '">'
+            . _('Make changes?')
+            . '</label>' => '<button class="'
+            . 'btn btn-default btn-block" type="submit" name='
+            . '"updatead" id="'
+            . $node
+            . '-'
+            . $sub
+            . '">'
+            . (
+                $sub == 'add' ?
+                _('Add') :
+                _('Update')
+            )
+            . '</button>'
+        );
+        if ($retFields) {
+            return $fields;
+        }
+        unset(
+            $this->data,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
+        echo '<!-- Active Directory -->';
+        if ($ownElement) {
+            echo '<div id="'
+                . $node
+                . '-active-directory" class="tab-pane fade">';
+            echo '<form class="form-horizontal" method="post" action="'
+                . $this->formAction
+                . '&tab='
+                . $node
+                . '-active-directory'
+                . '">';
+        }
         echo '<h4 class="title text-center">';
         echo _('Active Directory');
         echo '</h4>';
@@ -2142,125 +2262,9 @@ abstract class FOGPage extends FOGBase
         );
         $this->attributes = array(
             array(),
-            array(),
+            array('class' => 'form-group'),
         );
-        $fields = array(
-            '<label class="control-label" for="clearAD">'
-            . _('Clear all fields?')
-            . '</label>' => '<button class="btn btn-default btn-block" '
-            . 'type="button" id="clearAD">'
-            . _('Clear Fields')
-            . '</button>',
-            sprintf(
-                '<label class="control-label" for="adEnabled">%s</label>',
-                _('Join Domain after image task')
-            ) => sprintf(
-                '<input id="adEnabled" type="checkbox" name="domain"%s/>',
-                (
-                    $useAD ?
-                    ' checked' :
-                    ''
-                )
-            ),
-            sprintf(
-                '<label class="control-label" for="adDomain">%s</label>',
-                _('Domain name')
-            ) => sprintf(
-                '<input id="adDomain" class="form-control" type="text" '
-                . 'name="domainname" value="%s" autocomplete="off"/>',
-                $ADDomain
-            ),
-            sprintf(
-                '<label class="control-label" for="adOU">%s'
-                . '<br/>(%s)'
-                . '</label>',
-                _('Organizational Unit'),
-                _('Blank for default')
-            ) => $OUOptions,
-            sprintf(
-                '<label class="control-label" for="adUsername">%s</label>',
-                _('Domain Username')
-            ) => sprintf(
-                '<input id="adUsername" class="form-control" type="text" '
-                . 'name="domainuser" value="%s" autocomplete="off"/>',
-                $ADUser
-            ),
-            sprintf(
-                '<label class="control-label" for="adPassword">%s'
-                . '<br/>(%s)'
-                . '</label>',
-                _('Domain Password'),
-                _('Will auto-encrypt plaintext')
-            ) => sprintf(
-                '<input id="adPassword" class="form-control" type='
-                . '"password" '
-                . 'name="domainpassword" value="%s" autocomplete="off"/>',
-                $ADPass
-            ),
-            sprintf(
-                '<label class="control-label" for="adPasswordLegacy">%s'
-                . '<br/>(%s)'
-                . '</label>',
-                _('Domain Password Legacy'),
-                _('Must be encrypted')
-            ) => sprintf(
-                '<input id="adPasswordLegacy" class="form-control" '
-                . 'type="password" name="domainpasswordlegacy" '
-                . 'value="%s" autocomplete="off"/>',
-                $ADPassLegacy
-            ),
-            sprintf(
-                '<label class="control-label" for="ensel">'
-                . '%s %s?'
-                . '</label>',
-                _('Reboot host on hostname changes and'),
-                _('AD changes even if users are logged in')
-            ) =>
-            sprintf(
-                '<input name="enforcesel" type="checkbox" id="'
-                . 'ensel" class="form-control" autocomplete="off"%s/>'
-                . '<input type="hidden" '
-                . 'name="enforce"/>',
-                (
-                    $enforce ?
-                    ' checked' :
-                    ''
-                )
-            ),
-            '<label class="control-label" for="'
-            . $node
-            . '-'
-            . $sub
-            . '">'
-            . _('Make changes?')
-            . '</label>' => '<button class="btn btn-default" type="submit" name='
-            . '"updatead" id="'
-            . $node
-            . '-'
-            . $sub
-            . '">'
-            . (
-                $sub == 'add' ?
-                _('Add') :
-                _('Update')
-            )
-            . '</button>'
-        );
-        $this->attributes = array(
-            array(),
-            array('class' => 'form-group input-group')
-        );
-
-        foreach ((array)$fields as $field => &$input) {
-            $this->data[] = array(
-                'field' => $field,
-                'input' => $input
-            );
-            unset(
-                $input,
-                $field
-            );
-        }
+        array_walk($fields, $this->fieldsToData);
         self::$HookManager->processEvent(
             sprintf(
                 '%s_EDIT_AD',
@@ -2274,8 +2278,10 @@ abstract class FOGPage extends FOGBase
             )
         );
         $this->render();
-        echo '</form>';
-        echo '</div>';
+        if ($ownElement) {
+            echo '</form>';
+            echo '</div>';
+        }
         unset($this->data);
     }
     /**

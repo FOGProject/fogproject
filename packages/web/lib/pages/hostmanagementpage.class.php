@@ -139,12 +139,14 @@ class HostManagementPage extends FOGPage
         $this->exitNorm = Service::buildExitSelector(
             'bootTypeExit',
             $this->exitNorm,
-            true
+            true,
+            'bootTypeExit'
         );
         $this->exitEfi = Service::buildExitSelector(
             'efiBootTypeExit',
             $this->exitEfi,
-            true
+            true,
+            'efiBootTypeExit'
         );
         self::$HookManager->processEvent(
             'SUB_MENULINK_DATA',
@@ -396,89 +398,99 @@ class HostManagementPage extends FOGPage
     {
         $this->title = _('New Host');
         unset($this->data);
-        echo '<div class="text-center">';
-        echo '<h3 class="title">';
-        echo $this->title;
-        echo '</h3>';
-        echo '</div>';
-        echo '<div class="form-group">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '">';
-        echo '<!-- General -->';
-        echo '<div id="host-general">';
-        echo '</div>';
-        echo $this->adFieldsToDisplay(
-            filter_input(INPUT_POST, 'domain'),
-            filter_input(INPUT_POST, 'domainname'),
-            filter_input(INPUT_POST, 'ou'),
-            filter_input(INPUT_POST, 'domainuser'),
-            filter_input(INPUT_POST, 'domainpassword'),
-            filter_input(INPUT_POST, 'domainpasswordlegacy'),
-            isset($_REQUEST['enforcesel'])
-        );
-        echo '</form>';
-        echo '</div>';
-        $this->headerData = '';
+        unset($this->headerData);
         $this->templates = array(
             '${field}',
             '${input}',
         );
         $this->attributes = array(
             array(),
-            array(),
+            array('class' => 'form-group'),
         );
         $fields = array(
-            _('Host Name') => sprintf(
-                '<input type="text" name="host" '
-                . 'value="%s" maxlength="15" '
-                . 'class="hostname-input"/>*',
-                $_REQUEST['host']
-            ),
-            _('Primary MAC') => sprintf(
-                '<input type="text" name="mac" class="macaddr" '
-                . 'id="mac" value="%s" maxlength="17"/>*'
-                . '<span id="priMaker"></span>'
-                . '<span class="mac-manufactor"></span>'
-                . '<i class="icon add-mac fa fa-plus-circle hand" '
-                . 'title="%s"></i>',
-                $_REQUEST['mac'],
-                _('Add MAC')
-            ),
-            _('Host Description') => sprintf(
-                '<textarea name="description" '
-                . 'rows="8" cols="40">%s</textarea>',
-                $_REQUEST['description']
-            ),
-            _('Host Product Key') => sprintf(
-                '<input id="productKey" type="text" '
-                . 'name="key" value="%s"/>',
-                $_REQUEST['key']
-            ),
-            _('Host Image') => self::getClass('ImageManager')->buildSelectBox(
-                $_REQUEST['image'],
+            '<label class="control-label" for="host">'
+            . _('Host Name')
+            . '</label>' => '<div class="input-group has-error">'
+            . '<input type="text" name="host" '
+            . 'value="'
+            . filter_input(INPUT_POST, 'host')
+            . '" maxlength="15" '
+            . 'class="hostname-input form-control" '
+            . 'id="host" required/>'
+            . '</div>',
+            '<label class="control-label" for="mac">'
+            . _('Primary MAC')
+            . '</label>' => '<div class="input-group has-error">'
+            . '<span class="mac-manufactor input-group-addon">'
+            . '</span>'
+            . '<input type="text" name="mac" class="macaddr form-control" '
+            . 'id="mac" value="'
+            . filter_input(INPUT_POST, 'mac')
+            . '" maxlength="17" required/>'
+            . '</div>',
+            '<label class="control-label" for="description">'
+            . _('Host Description')
+            . '</label>' => '<div class="input-group">'
+            . '<textarea class="form-control" '
+            . 'id="description" name="description">'
+            . filter_input(INPUT_POST, 'description')
+            . '</textarea>'
+            . '</div>',
+            '<label class="control-label" for="productKey">'
+            . _('Host Product Key')
+            . '</label>' => '<div class="input-group">'
+            . '<input id="productKey" type="text" '
+            . 'name="key" value="'
+            . filter_input(INPUT_POST, 'key')
+            . '" class="form-control"/>'
+            . '</div>',
+            '<label class="control-label" for="image">'
+            . _('Host Image')
+            . '</label>' => '<div class="input-group">'
+            . self::getClass('ImageManager')->buildSelectBox(
+                filter_input(INPUT_POST, 'image'),
                 '',
                 'id'
-            ),
-            _('Host Kernel') => sprintf(
-                '<input type="text" name="kern" '
-                . 'value="%s"/>',
-                $_REQUEST['kern']
-            ),
-            _('Host Kernel Arguments') => sprintf(
-                '<input type="text" name="args" value="%s"/>',
-                $_REQUEST['args']
-            ),
-            _('Host Init') => sprintf(
-                '<input type="text" name="init" value="%s"/>',
-                $_REQUEST['init']
-            ),
-            _('Host Primary Disk') => sprintf(
-                '<input type="text" name="dev" value="%s"/>',
-                $_REQUEST['dev']
-            ),
-            _('Host Bios Exit Type') => $this->exitNorm,
-            _('Host EFI Exit Type') => $this->exitEfi,
+            )
+            . '</div>',
+            '<label class="control-label" for="kern">'
+            . _('Host Kernel')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="kern" '
+            . 'value="'
+            . filter_input(INPUT_POST, 'kern')
+            . '" class="form-control" id="kern"/>'
+            . '</div>',
+            '<label class="control-label" for="args">'
+            . _('Host Kernel Arguments')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="args" id="args" value="'
+            . filter_input(INPUT_POST, 'args')
+            . '" class="form-control"/>'
+            . '</div>',
+            '<label class="control-label" for="init">'
+            . _('Host Init')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="init" value="'
+            . filter_input(INPUT_POST, 'init')
+            . '" id="init" class="form-control"/>',
+            '<label class="control-label" for="dev">'
+            . _('Host Primary Disk')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="dev" value="'
+            . filter_input(INPUT_POST, 'dev')
+            . '" id="dev" class="form-control"/>'
+            . '</div>',
+            '<label class="control-label" for="bootTypeExit">'
+            . _('Host Bios Exit Type')
+            . '</label>' => '<div class="input-group">'
+            . $this->exitNorm
+            . '</div>',
+            '<label class="control-label" for="efiBootTypeExit">'
+            . _('Host EFI Exit Type')
+            . '</label>' => '<div class="input-group">'
+            . $this->exitEfi
+            . '</div>',
         );
         self::$HookManager
             ->processEvent(
@@ -488,13 +500,21 @@ class HostManagementPage extends FOGPage
                     'Host' => self::getClass('Host')
                 )
             );
-        foreach ($fields as $field => &$input) {
-            $this->data[] = array(
-                'field' => $field,
-                'input' => $input,
-            );
-            unset($field, $input);
-        }
+        $fields = self::fastmerge(
+            $fields,
+            (array)$this->adFieldsToDisplay(
+                filter_input(INPUT_POST, 'domain'),
+                filter_input(INPUT_POST, 'domainname'),
+                filter_input(INPUT_POST, 'ou'),
+                filter_input(INPUT_POST, 'domainuser'),
+                filter_input(INPUT_POST, 'domainpassword'),
+                filter_input(INPUT_POST, 'domainpasswordlegacy'),
+                isset($_POST['enforcesel']),
+                false,
+                true
+            )
+        );
+        array_walk($fields, $this->fieldsToData);
         self::$HookManager
             ->processEvent(
                 'HOST_ADD_GEN',
@@ -502,14 +522,20 @@ class HostManagementPage extends FOGPage
                     'data' => &$this->data,
                     'templates' => &$this->templates,
                     'attributes' => &$this->attributes,
-                    'fields' => &$fields
+                    'headerData' => &$this->headerData
                 )
             );
-        $this->render();
-        echo '</div>';
-        if (!isset($_REQUEST['enforcesel'])) {
-            $_REQUEST['enforcesel'] = self::getSetting('FOG_ENFORCE_HOST_CHANGES');
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
+        echo '<h3 class="title">';
+        echo $this->title;
+        echo '</h3>';
+        if (!isset($_POST['enforcesel'])) {
+            $_POST['enforcesel'] = self::getSetting('FOG_ENFORCE_HOST_CHANGES');
         }
+        echo '<!-- General -->';
+        $this->render();
         echo '</form>';
     }
     /**
@@ -906,7 +932,7 @@ class HostManagementPage extends FOGPage
         if (!$this->obj->get('pending')) {
             $this->basictasksOptions();
         }
-        echo $this->adFieldsToDisplay(
+        $this->adFieldsToDisplay(
             $this->obj->get('useAD'),
             $this->obj->get('ADDomain'),
             $this->obj->get('ADOU'),
@@ -1550,7 +1576,7 @@ class HostManagementPage extends FOGPage
         unset($this->data, $fields);
         echo '</fieldset></form></div>';
         echo '<!-- Power Management Items -->'
-            . '<div id="host-powermanagement" class="tab-page fade">'
+            . '<div id="host-powermanagement" class="tab-pane fade">'
             . '<p class="cronOptions">';
         $this->headerData = array(
             '<input type="checkbox" id="rempowerselectors"/>'
