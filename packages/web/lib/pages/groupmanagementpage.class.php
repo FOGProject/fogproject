@@ -141,6 +141,31 @@ class GroupManagementPage extends FOGPage
                 'class' => 'c filter-false'
             ),
         );
+        /**
+         * Lamda function to return data either by list or search.
+         *
+         * @param object $Group the object to use.
+         *
+         * @return void
+         */
+        self::$returnData = function (&$Group) {
+            $this->data[] = array(
+                'id' => $Group->id,
+                'name' => $Group->name,
+                'description' => $Group->description,
+                'count' => $Group->hostcount
+            );
+            unset($Group);
+        };
+        /**
+         * Lamda function to return data either by list or search.
+         *
+         * @param object $Group the object to use.
+         *
+         * @return void
+         */
+        /**
+         * Old method
         self::$returnData = function (&$Group) {
             $this->data[] = array(
                 'id' => $Group->get('id'),
@@ -150,6 +175,7 @@ class GroupManagementPage extends FOGPage
             );
             unset($Group);
         };
+         */
     }
     /**
      * Create new group

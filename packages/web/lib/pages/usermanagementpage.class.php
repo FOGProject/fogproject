@@ -122,6 +122,13 @@ class UserManagementPage extends FOGPage
             'USER_TYPES_FILTER',
             array('types' => &$types)
         );
+        /**
+         * Lambda function to return data either by list or search.
+         *
+         * @param object $User the object to use
+         *
+         * @return void
+         */
         self::$returnData = function (&$User) use (&$types) {
             if (count($types) > 0
                 && in_array($User->get('type'), $types)

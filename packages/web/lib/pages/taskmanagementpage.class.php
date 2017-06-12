@@ -130,9 +130,96 @@ class TaskManagementPage extends FOGPage
             ),
         );
         self::$returnData = function (&$Task) {
-            if (!$Task->isValid()) {
-                return;
+            $tmpTask = self::getClass(
+                'Task',
+                $Task->id
+            );
+            $SnapinTrue = $tmpTask->isSnapinTasking();
+            if ($SnapinTrue) {
+                $SnapinJob = self::getClass(
+                    'SnapinJob',
+                    $Task->host->snapinjob->id
+                );
+                if ($SnapinJob->isValid()) {
+                    $STCount = self::getClass('SnapinTaskManager')
+                        ->count(
+                            array(
+                                'jobID' => $SnapinJob->get('id'),
+                                'stateID' => self::fastmerge(
+                                    (array)$this->getQueuedStates(),
+                                    (array)$this->getProgressState()
+                                )
+                            )
+                        );
+                    if ($STCount < 1) {
+                        $tmpTask->cancel();
+                        return;
+                    }
+                }
             }
+            if ($Task->type->id < 3) {
+                if ($Task->isForced) {
+                    $forcetask = sprintf(
+                        '<i class="icon-forced" title="%s"></i>',
+                        _('Task forced to start')
+                    );
+                } else {
+                    $forcetask = sprintf(
+                        '<i class="icon-force icon" title="%s" href="?%s"></i>',
+                        _('Force task to start'),
+                        'node=task&sub=forceTask&id=${id}'
+                    );
+                }
+            }
+            $this->data[] = array(
+                'startedby' => $Task->createdBy,
+                'details_taskforce' => $forcetask,
+                'id' => $Task->id,
+                'name' => $Task->name,
+                'time' => self::formatTime(
+                    $Task->createdTime,
+                    'Y-m-d H:i:s'
+                ),
+                'state' => $Task->getTaskStateText(),
+                'forced' => $Task->isForced,
+                'type' => $Task->type->name,
+                'width' => 600 * intval($Task->percent) / 100,
+                'elapsed' => $Task->timeElapsed,
+                'remains' => $Task->timeRemaining,
+                'percent' => $Task->pct,
+                'copied' => $Task->dataCopied,
+                'total' => $Task->dataTotal,
+                'bpm' => $Task->bpm,
+                'details_taskname' => (
+                    $Task->name ?
+                    sprintf(
+                        '<div class="task-name">%s</div>',
+                        $Task->name
+                    ) :
+                    ''
+                ),
+                'host_id' => $Task->host->id,
+                'host_name' => $Task->host->name,
+                'host_mac' => $Task->host->mac,
+                'icon_state' => $Task->state->icon,
+                'icon_type' => $Task->type->icon,
+                'state_id' => $Task->state->id,
+                'image_name' => $Task->image->name,
+                'image_id' => $Task->image->id,
+                'node_name' => $Task->storagenode->name
+            );
+            unset($tmpTask, $Task);
+        };
+        /**
+         * Lamda function to return data either by list or search.
+         *
+         * @param object $Image the object to use.
+         *
+         * @return void
+         */
+        /**
+         * Old method
+        self::$returnData = function (&$Task) {
             $Host = $Task->getHost();
             if (!$Host->isValid()) {
                 return;
@@ -209,6 +296,7 @@ class TaskManagementPage extends FOGPage
             );
             unset($Task, $Host);
         };
+         */
     }
     /**
      * Default page to show (active always).

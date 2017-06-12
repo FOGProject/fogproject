@@ -116,6 +116,40 @@ class PrinterManagementPage extends FOGPage
             array(),
             array(),
         );
+        /**
+         * Lamda function to return data either by list or search.
+         *
+         * @param object $Image the object to use.
+         *
+         * @return void
+         */
+        self::$returnData = function (&$Printer) {
+            $config = _('TCP/IP');
+            if (false === stripos($Printer->config, 'local')) {
+                $config = $Printer->config;
+            }
+            $this->data[] = array(
+                'id' => $Printer->id,
+                'name' => $Printer->name,
+                'config' => $config,
+                'model' => $Printer->model,
+                'port' => $Printer->port,
+                'file' => $Printer->file,
+                'ip' => $Printer->ip,
+                'configFile' => $Printer->configFile,
+                'desc' => $Printer->description
+            );
+            unset($Printer);
+        };
+        /**
+         * Lamda function to return data either by list or search.
+         *
+         * @param object $Image the object to use.
+         *
+         * @return void
+         */
+        /**
+         * Old method
         self::$returnData = function (&$Printer) {
             $config = _('TCP/IP');
             if (false === stripos($Printer->get('config'), 'local')) {
@@ -134,6 +168,7 @@ class PrinterManagementPage extends FOGPage
             );
             unset($Printer);
         };
+         */
     }
     /**
      * Gets the printer information.
