@@ -1106,7 +1106,17 @@ class Route extends FOGBase
                     ),
                     'imagename' => $class->getImageName(),
                     'pingstatus' => $class->getPingCodeStr(),
-                    'macs' => $class->getMyMacs()
+                    'macs' => $class->getMyMacs(),
+                    'snapinjob' => $class->get('snapinjob')
+                )
+            );
+            break;
+        case 'group':
+            $data = FOGCore::fastmerge(
+                $class->get(),
+                array(
+                    'hosts' => $class->get('hosts'),
+                    'hostcount' => $class->getHostCount()
                 )
             );
             break;

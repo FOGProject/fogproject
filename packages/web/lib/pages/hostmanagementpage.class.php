@@ -195,9 +195,15 @@ class HostManagementPage extends FOGPage
         $mc = new TaskType(8);
         array_push(
             $this->templates,
-            '<a href="?node=host&sub=edit&id=${id}" title="Edit: '
-            . '${host_name}" id="host-${host_name}">${host_name}</a>'
-            . '<br /><small>${host_mac}</small>',
+            '<a href="?node=host&sub=edit&id=${id}" '
+            . 'title="'
+            . _('Edit')
+            . ': ${host_name}" id="host-${host_name}" '
+            . 'data-toggle="tooltip" data-placement="right">'
+            . '${host_name}'
+            . '</a>'
+            . '<br/>'
+            . '<small>${host_mac}</small>',
             '<small>${deployed}</small>',
             sprintf(
                 '<a href="?node=host&sub=deploy&sub=deploy&type=1&id=${id}">'
@@ -230,7 +236,7 @@ class HostManagementPage extends FOGPage
                 'data-placement' => 'right'
             ),
             array(
-                'class' => 'l filter-false',
+                'class' => 'l filter-false form-group',
                 'width' => 16
             ),
         );
@@ -263,8 +269,6 @@ class HostManagementPage extends FOGPage
          *
          * @return void
          */
-        /**
-         * Use when api is established.
         self::$returnData = function (&$Host) {
             $this->data[] = array(
                 'id' => $Host->id,
@@ -281,7 +285,6 @@ class HostManagementPage extends FOGPage
             );
             unset($Host);
         };
-         */
         /**
          * Lambda function to return data either by list or search.
          *
@@ -289,6 +292,8 @@ class HostManagementPage extends FOGPage
          *
          * @return void
          */
+        /**
+         * Old method
         self::$returnData = function (&$Host) {
             $this->data[] = array(
                 'id' => $Host->get('id'),
@@ -305,6 +310,7 @@ class HostManagementPage extends FOGPage
             );
             unset($Host);
         };
+         */
     }
     /**
      * Lists the pending hosts

@@ -2166,8 +2166,12 @@ class Host extends FOGController
     {
         $val =  (int)$this->get('pingstatus');
         $socketstr = socket_strerror($val);
-        $strtoupdate = "<i class=\"icon-ping-%s fa fa-exclamation-circle %s "
-            . "fa-1x\" title=\"$socketstr\"></i>";
+        $strtoupdate = '<i class="icon-ping-%s fa fa-exclamation-circle %s'
+            . '" data-toggle="tooltip" '
+            . 'data-placement="right" '
+            . 'title="'
+            . $socketstr
+            . '"></i>';
         ob_start();
         if ($val === 0) {
             printf($strtoupdate, 'up', 'green');

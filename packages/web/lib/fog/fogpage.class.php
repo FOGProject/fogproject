@@ -486,35 +486,35 @@ abstract class FOGPage extends FOGBase
                     'pending' => array(0, '')
                 );
             }
-            /**
-             * For use with API system.
-            $url = sprintf(
-                'http%s://%s/fog/%s',
-                filter_input(INPUT_SERVER, 'HTTPS') ? 's' : '',
-                filter_input(INPUT_SERVER, 'HTTP_HOST'),
-                strtolower($this->childClass)
-            );
-            self::$FOGURLRequests->headers = array(
-                'fog-api-token: '
-                . base64_encode(self::getSetting('FOG_API_TOKEN'))
-            );
-            $items = self::$FOGURLRequests
-                ->process(
-                    $url,
-                    'GET',
-                    null,
-                    false,
-                    self::$FOGUser->get('name')
-                    . ':'
-                    . self::$FOGUser->get('password')
+            if (in_array($this->node, Route::$validClasses)) {
+                $url = sprintf(
+                    'http%s://%s/fog/%s',
+                    filter_input(INPUT_SERVER, 'HTTPS') ? 's' : '',
+                    filter_input(INPUT_SERVER, 'HTTP_HOST'),
+                    $this->node
                 );
-            $items = json_decode(
-                $items[0]
-            );
-            $type = $_REQUEST['node'].'s';
-            $items = $items->$type;
-             */
-            $items = (array)self::getClass($manager)->find($find);
+                self::$FOGURLRequests->headers = array(
+                    'fog-api-token: '
+                    . base64_encode(self::getSetting('FOG_API_TOKEN')),
+                    'fog-user-token: '
+                    . base64_encode(self::$FOGUser->get('token'))
+                );
+                $items = self::$FOGURLRequests
+                    ->process(
+                        $url,
+                        'GET',
+                        null,
+                        false
+                    );
+                $items = json_decode(
+                    $items[0]
+                );
+                $type = $this->node
+                    . 's';
+                $items = $items->$type;
+            } else {
+                $items = (array)self::getClass($manager)->find($find);
+            }
             if (count($items) > 0) {
                 array_walk($items, static::$returnData);
             }
@@ -3107,36 +3107,36 @@ abstract class FOGPage extends FOGBase
             '%sManager',
             $this->childClass
         );
-        /**
-         * For use with api based system.
-        $url = sprintf(
-            'http%s://%s/fog/%s/search/%s',
-            filter_input(INPUT_SERVER, 'HTTPS') ? 's' : '',
-            filter_input(INPUT_SERVER, 'HTTP_HOST'),
-            strtolower($this->childClass),
-            $_REQUEST['crit']
-        );
-        self::$FOGURLRequests->headers = array(
-            'fog-api-token: '
-            . base64_encode(self::getSetting('FOG_API_TOKEN'))
-        );
-        $items = self::$FOGURLRequests
-            ->process(
-                $url,
-                'GET',
-                null,
-                false,
-                self::$FOGUser->get('name')
-                . ':'
-                . self::$FOGUser->get('password')
+        if (in_array($this->node, Route::$validClasses)) {
+            $url = sprintf(
+                'http%s://%s/fog/%s/search/%s',
+                filter_input(INPUT_SERVER, 'HTTPS') ? 's' : '',
+                filter_input(INPUT_SERVER, 'HTTP_HOST'),
+                strtolower($this->childClass),
+                $_REQUEST['crit']
             );
-        $items = json_decode(
-            $items[0]
-        );
-        $type = $_REQUEST['node'].'s';
-        $search = $items->$type;
-         */
-        $search = self::getClass($manager)->search('', true);
+            self::$FOGURLRequests->headers = array(
+                'fog-api-token: '
+                . base64_encode(self::getSetting('FOG_API_TOKEN')),
+                'fog-user-token: '
+                . base64_encode(self::$FOGUser->get('token'))
+            );
+            $items = self::$FOGURLRequests
+                ->process(
+                    $url,
+                    'GET',
+                    null,
+                    false
+                );
+            $items = json_decode(
+                $items[0]
+            );
+            $type = $this->node
+                .'s';
+            $search = $items->$type;
+        } else {
+            $search = self::getClass($manager)->search('', true);
+        }
         if (count($search) > 0) {
             array_walk($search, static::$returnData);
         }

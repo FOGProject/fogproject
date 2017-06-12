@@ -185,43 +185,36 @@ class SnapinManagementPage extends FOGPage
             array('class'=>'r'),
         );
         /**
-         * Lambda function to manage the output
-         * of searched/listed items.
+         * Lamda function to return data either by list or search.
          *
-         * @param Snapin $Snapin the snapin item.
+         * @param object $Image the object to use.
          *
          * @return void
          */
         self::$returnData = function (&$Snapin) {
-            /**
-             * If the snapin isn't valid return immediately.
-             */
-            if (!$Snapin->isValid()) {
-                return;
-            }
             /**
              * Stores the items in a nicer name.
              */
             /**
              * The id.
              */
-            $id = $Snapin->get('id');
+            $id = $Snapin->id;
             /**
              * The name.
              */
-            $name = $Snapin->get('name');
+            $name = $Snapin->name;
             /**
              * The description.
              */
-            $description = $Snapin->get('description');
+            $description = $Snapin->description;
             /**
              * The file name.
              */
-            $file = $Snapin->get('file');
+            $file = $Snapin->file;
             /**
              * Tell if packtype is true or not.
              */
-            if ($Snapin->get('packtype') < 0) {
+            if ($Snapin->packtype < 0) {
                 $packtype = _('No');
             } else {
                 $packtype = _('Yes');
@@ -229,7 +222,7 @@ class SnapinManagementPage extends FOGPage
             /**
              * The storage group name.
              */
-            $storageGroup = $Snapin->getStorageGroup()->get('name');
+            $storageGroup = $Snapin->storagegroupname;
             /**
              * Store the data.
              */
@@ -253,6 +246,76 @@ class SnapinManagementPage extends FOGPage
                 $Snapin
             );
         };
+        /**
+         * Lamda function to return data either by list or search.
+         *
+         * @param object $Image the object to use.
+         *
+         * @return void
+         */
+        /**
+         * Old method
+        self::$returnData = function (&$Snapin) {
+            /**
+             * If the snapin isn't valid return immediately.
+             */
+            /*if (!$Snapin->isValid()) {
+                return;
+            }*/
+            /**
+             * Stores the items in a nicer name.
+             */
+            /**
+             * The id.
+             */
+            //$id = $Snapin->get('id');
+            /**
+             * The name.
+             */
+            //$name = $Snapin->get('name');
+            /**
+             * The description.
+             */
+            //$description = $Snapin->get('description');
+            /**
+             * The file name.
+             */
+            //$file = $Snapin->get('file');
+            /**
+             * Tell if packtype is true or not.
+             */
+            /*if ($Snapin->get('packtype') < 0) {
+                $packtype = _('No');
+            } else {
+                $packtype = _('Yes');
+            }*/
+            /**
+             * The storage group name.
+             */
+            //$storageGroup = $Snapin->getStorageGroup()->get('name');
+            /**
+             * Store the data.
+             */
+            /*$this->data[] = array(
+                'id' => $id,
+                'name' => $name,
+                'description' => $description,
+                'file' => $file,
+                'packtype' => $packtype,
+                'storageGroup' => $storageGroup,
+            );*/
+            /**
+             * Cleanup.
+             */
+            /*unset(
+                $id,
+                $name,
+                $description,
+                $file,
+                $packtype,
+                $Snapin
+            );
+        };*/
     }
     /**
      * Generates the selector for Snapin Packs.

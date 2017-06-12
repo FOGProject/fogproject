@@ -124,9 +124,10 @@ class ImageManagementPage extends FOGPage
          */
         $this->headerData = array(
             '',
-            '<input type="checkbox" name="toggle-checkbox" '
+            '<label class="control-label" for="toggler">'
+            . '<input type="checkbox" name="toggle-checkbox" '
             . 'class="toggle-checkboxAction" id="toggler"/>'
-            . '<label for="toggler"></label>',
+            . '</label>',
             _('Image Name'),
             _('Storage Group'),
             _('OS'),
@@ -155,17 +156,23 @@ class ImageManagementPage extends FOGPage
          */
         $this->templates = array(
             '${protected}',
-            '<input type="checkbox" name="image[]" '
+            '<label class="control-label" for="toggler1">'
+            . '<input type="checkbox" name="image[]" '
             . 'value="${id}" class="toggle-action" id="'
-            . 'toggler1"/><label for="toggler1"></label>',
-            sprintf(
-                '<a href="?node=%s&sub=edit&id=${id}" title="%s: '
-                . '${name} Last captured: ${deployed}">${name} - '
-                . '${id}</a><br/><small>${image_type}</small><br/>'
-                . '<small>${type}</small>',
-                $this->node,
-                _('Edit')
-            ),
+            . 'toggler1"/></label>',
+            '<a href="?node='
+            . $node
+            . '&sub=edit&id=${id}" '
+            . 'data-toggle="tooltip" data-placement="right" '
+            . 'title="'
+            . _('Edit')
+            . ': ${name} '
+            . _('Last captured')
+            . ': ${deployed}">${name} - ${id}</a>'
+            . '<br/>'
+            . '<small>${image_type}</small>'
+            . '<br/>'
+            . '<small>${type}</small>',
             '${storageGroup}',
             '${os}',
             '${image_partition_type}',
@@ -198,7 +205,7 @@ class ImageManagementPage extends FOGPage
             ),
             array(
                 'width' => 16,
-                'class' => 'l filter-false'
+                'class' => 'l filter-false form-group'
             ),
             array(),
             array(),
@@ -230,10 +237,9 @@ class ImageManagementPage extends FOGPage
             array()
         );
         /**
-         * Lambda functino to manage the output
-         * of search/listed items.
+         * Lamda function to return data either by list or search.
          *
-         * @param Image $Image the image item.
+         * @param object $Image the object to use.
          *
          * @return void
          */
@@ -245,7 +251,7 @@ class ImageManagementPage extends FOGPage
                 array_sum(
                     explode(
                         ':',
-                        $Image->get('size')
+                        $Image->size
                     )
                 )
             );
@@ -255,23 +261,23 @@ class ImageManagementPage extends FOGPage
             /**
              * The id.
              */
-            $id = $Image->get('id');
+            $id = $Image->id;
             /**
              * The name.
              */
-            $name = $Image->get('name');
+            $name = $Image->name;
             /**
              * The description.
              */
-            $description = $Image->get('description');
+            $description = $Image->description;
             /**
              * The storage group name.
              */
-            $storageGroup = $Image->getStorageGroup()->get('name');
+            $storageGroup = $Image->storagegroupname;
             /**
              * The os name.
              */
-            $os = $Image->getOS()->get('name');
+            $os = $Image->osname;
             /**
              * If no os is set/found set to not set.
              */
@@ -281,7 +287,7 @@ class ImageManagementPage extends FOGPage
             /**
              * The deployed date.
              */
-            $date = $Image->get('deployed');
+            $date = $Image->deployed;
             /**
              * If the date is valid format in Y-m-d H:i:s
              * and if not set to no valid data.
@@ -289,40 +295,44 @@ class ImageManagementPage extends FOGPage
             if (self::validDate($date)) {
                 $date = self::formatTime($date, 'Y-m-d H:i:s');
             } else {
-                $date = _('No valid data');
+                $date = _('Invalid date');
             }
             /**
              * The image type name.
              */
-            $imageType = $Image->getImageType()->get('name');
+            $imageType = $Image->imagetypename;
             /**
              * The image partition type name.
              */
-            $imagePartitionType = $Image->getImagePartitionType()->get('name');
+            $imagePartitionType = $Image->imageparttypename;
             /**
              * The path.
              */
-            $path = $Image->get('path');
+            $path = $Image->path;
             $serverSize = 0;
             /**
              * If size on server we get our function.
              */
             if ($SizeServer) {
-                $serverSize = self::formatByteSize($Image->get('srvsize'));
+                $serverSize = self::formatByteSize($Image->srvsize);
             }
             /**
              * If the image is not protected show
              * the unlocked symbol and title of not protected
              * otherwise set as is protected.
              */
-            if ($Image->get('protected') < 1) {
+            if ($Image->protected < 1) {
                 $protected = sprintf(
-                    '<i class="fa fa-unlock fa-1x icon hand" title="%s"></i>',
+                    '<i class="fa fa-unlock fa-1x icon hand" '
+                    . 'data-toggle="tooltip" data-placement="right" '
+                    . 'title="%s"></i>',
                     _('Not protected')
                 );
             } else {
                 $protected = sprintf(
-                    '<i class="fa fa-lock fa-1x icon hand" title="%s"></i>',
+                    '<i class="fa fa-lock fa-1x icon hand" '
+                    . 'data-toggle="tooltip" data-placement="right" '
+                    . 'title="%s"></i>',
                     _('Protected')
                 );
             }
@@ -330,7 +340,7 @@ class ImageManagementPage extends FOGPage
              * If the image format not one, we must
              * be using partclone otherwise partimage.
              */
-            switch ($Image->get('format')) {
+            switch ($Image->format) {
             case 0:
                 $type = _('Partclone Compressed');
                 break;
@@ -389,6 +399,171 @@ class ImageManagementPage extends FOGPage
                 $Image
             );
         };
+        /**
+         * Lamda function to return data either by list or search.
+         *
+         * @param object $Image the object to use.
+         *
+         * @return void
+         */
+        /**
+         * Old method
+        self::$returnData = function (&$Image) use ($SizeServer) {
+            /**
+             * Stores the image on client size.
+             */
+            /*$imageSize = self::formatByteSize(
+                array_sum(
+                    explode(
+                        ':',
+                        $Image->get('size')
+                    )
+                )
+            );*/
+            /**
+             * Stores the items in a nicer name
+             */
+            /**
+             * The id.
+             */
+            //$id = $Image->get('id');
+            /**
+             * The name.
+             */
+            //$name = $Image->get('name');
+            /**
+             * The description.
+             */
+            //$description = $Image->get('description');
+            /**
+             * The storage group name.
+             */
+            //$storageGroup = $Image->getStorageGroup()->get('name');
+            /**
+             * The os name.
+             */
+            //$os = $Image->getOS()->get('name');
+            /**
+             * If no os is set/found set to not set.
+             */
+            /*if (!$os) {
+                $os = _('Not set');
+            }*/
+            /**
+             * The deployed date.
+             */
+            //$date = $Image->get('deployed');
+            /**
+             * If the date is valid format in Y-m-d H:i:s
+             * and if not set to no valid data.
+             */
+            /*if (self::validDate($date)) {
+                $date = self::formatTime($date, 'Y-m-d H:i:s');
+            } else {
+                $date = _('No valid data');
+            }*/
+            /**
+             * The image type name.
+             */
+            //$imageType = $Image->getImageType()->get('name');
+            /**
+             * The image partition type name.
+             */
+            //$imagePartitionType = $Image->getImagePartitionType()->get('name');
+            /**
+             * The path.
+             */
+            //$path = $Image->get('path');
+            //$serverSize = 0;
+            /**
+             * If size on server we get our function.
+             */
+            /*if ($SizeServer) {
+                $serverSize = self::formatByteSize($Image->get('srvsize'));
+            }*/
+            /**
+             * If the image is not protected show
+             * the unlocked symbol and title of not protected
+             * otherwise set as is protected.
+             */
+            /*if ($Image->get('protected') < 1) {
+                $protected = sprintf(
+                    '<i class="fa fa-unlock fa-1x icon hand" '
+                    . 'data-toggle="tooltip" data-placement="right" '
+                    . 'title="%s"></i>',
+                    _('Not protected')
+                );
+            } else {
+                $protected = sprintf(
+                    '<i class="fa fa-lock fa-1x icon hand" '
+                    . 'data-toggle="tooltip" data-placement="right" '
+                    . 'title="%s"></i>',
+                    _('Protected')
+                );
+            }*/
+            /**
+             * If the image format not one, we must
+             * be using partclone otherwise partimage.
+             */
+            /*switch ($Image->get('format')) {
+            case 0:
+                $type = _('Partclone Compressed');
+                break;
+            case 1:
+                $type = _('Partimage');
+                break;
+            case 2:
+                $type = _('Partclone Compressed 200MiB split');
+                break;
+            case 3:
+                $type = _('Partclone Uncompressed');
+                break;
+            case 4:
+                $type = _('Partclone Uncompressed 200MiB split');
+                break;
+            case 5:
+                $type = _('ZSTD Compressed');
+                break;
+            case 6:
+                $type = _('ZSTD Compressed 200MiB split');
+                break;
+            }*/
+            /**
+             * Store the data.
+             */
+            /*$this->data[] = array(
+                'id' => $id,
+                'name' => $name,
+                'description' => $description,
+                'storageGroup' => $storageGroup,
+                'os' => $os,
+                'deployed' => $date,
+                'size' => $imageSize,
+                'serv_size' => $serverSize,
+                'image_type' => $imageType,
+                'image_partition_type' => $imagePartitionType,
+                'protected' => $protected,
+                'type' => $type
+            );*/
+            /**
+             * Cleanup.
+             */
+            /*unset(
+                $id,
+                $name,
+                $description,
+                $storageGroup,
+                $os,
+                $date,
+                $imageSize,
+                $serverSize,
+                $imageType,
+                $imagePartitionType,
+                $protected,
+                $type,
+                $Image
+            );
+        };*/
     }
     /**
      * The form to display when adding a new image
