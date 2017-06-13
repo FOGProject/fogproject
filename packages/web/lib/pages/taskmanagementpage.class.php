@@ -129,174 +129,181 @@ class TaskManagementPage extends FOGPage
                 'class' => 'r filter-false'
             ),
         );
-        self::$returnData = function (&$Task) {
-            $tmpTask = self::getClass(
-                'Task',
-                $Task->id
-            );
-            $SnapinTrue = $tmpTask->isSnapinTasking();
-            if ($SnapinTrue) {
-                $SnapinJob = self::getClass(
-                    'SnapinJob',
-                    $Task->host->snapinjob->id
+        if (self::$FOGUser->get('api')) {
+            /**
+             * Lamda function to return data either by list or search.
+             *
+             * @param object $Image the object to use.
+             *
+             * @return void
+             */
+            self::$returnData = function (&$Task) {
+                $tmpTask = self::getClass(
+                    'Task',
+                    $Task->id
                 );
-                if ($SnapinJob->isValid()) {
-                    $STCount = self::getClass('SnapinTaskManager')
-                        ->count(
-                            array(
-                                'jobID' => $SnapinJob->get('id'),
-                                'stateID' => self::fastmerge(
-                                    (array)$this->getQueuedStates(),
-                                    (array)$this->getProgressState()
+                $SnapinTrue = $tmpTask->isSnapinTasking();
+                if ($SnapinTrue) {
+                    $SnapinJob = self::getClass(
+                        'SnapinJob',
+                        $Task->host->snapinjob->id
+                    );
+                    if ($SnapinJob->isValid()) {
+                        $STCount = self::getClass('SnapinTaskManager')
+                            ->count(
+                                array(
+                                    'jobID' => $SnapinJob->get('id'),
+                                    'stateID' => self::fastmerge(
+                                        (array)$this->getQueuedStates(),
+                                        (array)$this->getProgressState()
+                                    )
                                 )
-                            )
-                        );
-                    if ($STCount < 1) {
-                        $tmpTask->cancel();
-                        return;
+                            );
+                        if ($STCount < 1) {
+                            $tmpTask->cancel();
+                            return;
+                        }
                     }
                 }
-            }
-            if ($Task->type->id < 3) {
-                if ($Task->isForced) {
-                    $forcetask = sprintf(
-                        '<i class="icon-forced" title="%s"></i>',
-                        _('Task forced to start')
-                    );
-                } else {
-                    $forcetask = sprintf(
-                        '<i class="icon-force icon" title="%s" href="?%s"></i>',
-                        _('Force task to start'),
-                        'node=task&sub=forceTask&id=${id}'
-                    );
-                }
-            }
-            $this->data[] = array(
-                'startedby' => $Task->createdBy,
-                'details_taskforce' => $forcetask,
-                'id' => $Task->id,
-                'name' => $Task->name,
-                'time' => self::formatTime(
-                    $Task->createdTime,
-                    'Y-m-d H:i:s'
-                ),
-                'state' => $Task->state->name,
-                'forced' => $Task->isForced,
-                'type' => $Task->type->name,
-                'width' => 600 * intval($Task->percent) / 100,
-                'elapsed' => $Task->timeElapsed,
-                'remains' => $Task->timeRemaining,
-                'percent' => $Task->pct,
-                'copied' => $Task->dataCopied,
-                'total' => $Task->dataTotal,
-                'bpm' => $Task->bpm,
-                'details_taskname' => (
-                    $Task->name ?
-                    sprintf(
-                        '<div class="task-name">%s</div>',
-                        $Task->name
-                    ) :
-                    ''
-                ),
-                'host_id' => $Task->host->id,
-                'host_name' => $Task->host->name,
-                'host_mac' => $Task->host->mac,
-                'icon_state' => $Task->state->icon,
-                'icon_type' => $Task->type->icon,
-                'state_id' => $Task->state->id,
-                'image_name' => $Task->image->name,
-                'image_id' => $Task->image->id,
-                'node_name' => $Task->storagenode->name
-            );
-            unset($tmpTask, $Task);
-        };
-        /**
-         * Lamda function to return data either by list or search.
-         *
-         * @param object $Image the object to use.
-         *
-         * @return void
-         */
-        /**
-         * Old method
-        self::$returnData = function (&$Task) {
-            $Host = $Task->getHost();
-            if (!$Host->isValid()) {
-                return;
-            }
-            if ($Task->isSnapinTasking()) {
-                $SnapinJob = $Host->get('snapinjob');
-                if ($SnapinJob->isValid()) {
-                    $STCount = self::getClass('SnapinTaskManager')
-                        ->count(
-                            array(
-                                'jobID' => $SnapinJob->get('id'),
-                                'stateID' => self::fastmerge(
-                                    (array)$this->getQueuedStates(),
-                                    (array)$this->getProgressState()
-                                )
-                            )
+                if ($Task->type->id < 3) {
+                    if ($Task->isForced) {
+                        $forcetask = sprintf(
+                            '<i class="icon-forced" title="%s"></i>',
+                            _('Task forced to start')
                         );
-                    if ($STCount < 1) {
-                        $Task->cancel();
-                        return;
+                    } else {
+                        $forcetask = sprintf(
+                            '<i class="icon-force icon" title="%s" href="?%s"></i>',
+                            _('Force task to start'),
+                            'node=task&sub=forceTask&id=${id}'
+                        );
                     }
                 }
-            }
-            if ($Task->get('typeID') < 3) {
-                if ($Task->get('isForced')) {
-                    $forcetask = sprintf(
-                        '<i class="icon-forced" title="%s"></i>',
-                        _('Task forced to start')
-                    );
-                } else {
-                    $forcetask = sprintf(
-                        '<i class="icon-force icon" title="%s" href="?%s"></i>',
-                        _('Force task to start'),
-                        'node=task&sub=forceTask&id=${id}'
-                    );
+                $this->data[] = array(
+                    'startedby' => $Task->createdBy,
+                    'details_taskforce' => $forcetask,
+                    'id' => $Task->id,
+                    'name' => $Task->name,
+                    'time' => self::formatTime(
+                        $Task->createdTime,
+                        'Y-m-d H:i:s'
+                    ),
+                    'state' => $Task->state->name,
+                    'forced' => $Task->isForced,
+                    'type' => $Task->type->name,
+                    'width' => 600 * intval($Task->percent) / 100,
+                    'elapsed' => $Task->timeElapsed,
+                    'remains' => $Task->timeRemaining,
+                    'percent' => $Task->pct,
+                    'copied' => $Task->dataCopied,
+                    'total' => $Task->dataTotal,
+                    'bpm' => $Task->bpm,
+                    'details_taskname' => (
+                        $Task->name ?
+                        sprintf(
+                            '<div class="task-name">%s</div>',
+                            $Task->name
+                        ) :
+                        ''
+                    ),
+                    'host_id' => $Task->host->id,
+                    'host_name' => $Task->host->name,
+                    'host_mac' => $Task->host->mac,
+                    'icon_state' => $Task->state->icon,
+                    'icon_type' => $Task->type->icon,
+                    'state_id' => $Task->state->id,
+                    'image_name' => $Task->image->name,
+                    'image_id' => $Task->image->id,
+                    'node_name' => $Task->storagenode->name
+                );
+                unset($tmpTask, $Task);
+            };
+        } else {
+            /**
+             * Lamda function to return data either by list or search.
+             *
+             * @param object $Image the object to use.
+             *
+             * @return void
+             */
+            self::$returnData = function (&$Task) {
+                $Host = $Task->getHost();
+                if (!$Host->isValid()) {
+                    return;
                 }
-            }
-            $this->data[] = array(
-                'startedby' => $Task->get('createdBy'),
-                'details_taskforce' => $forcetask,
-                'id' => $Task->get('id'),
-                'name' => $Task->get('name'),
-                'time' => self::formatTime(
-                    $Task->get('createdTime'),
-                    'Y-m-d H:i:s'
-                ),
-                'state' => $Task->getTaskStateText(),
-                'forced' => $Task->get('isForced'),
-                'type' => $Task->getTaskTypeText(),
-                'width' => 600 * intval($Task->get('percent')) / 100,
-                'elapsed' => $Task->get('timeElapsed'),
-                'remains' => $Task->get('timeRemaining'),
-                'percent' => $Task->get('pct'),
-                'copied' => $Task->get('dataCopied'),
-                'total' => $Task->get('dataTotal'),
-                'bpm' => $Task->get('bpm'),
-                'details_taskname' => (
-                    $Task->get('name') ?
-                    sprintf(
-                        '<div class="task-name">%s</div>',
-                        $Task->get('name')
-                    ) :
-                    ''
-                ),
-                'host_id' => $Task->get('hostID'),
-                'host_name' => $Host->get('name'),
-                'host_mac' => $Host->get('mac')->__toString(),
-                'icon_state' => $Task->getTaskState()->getIcon(),
-                'icon_type' => $Task->getIcon(),
-                'state_id' => $Task->getTaskState()->get('id'),
-                'image_name' => $Task->getImage()->get('name'),
-                'image_id' => $Task->getImage()->get('id'),
-                'node_name' => $Task->getStorageNode()->get('name')
-            );
-            unset($Task, $Host);
-        };
-         */
+                if ($Task->isSnapinTasking()) {
+                    $SnapinJob = $Host->get('snapinjob');
+                    if ($SnapinJob->isValid()) {
+                        $STCount = self::getClass('SnapinTaskManager')
+                            ->count(
+                                array(
+                                    'jobID' => $SnapinJob->get('id'),
+                                    'stateID' => self::fastmerge(
+                                        (array)$this->getQueuedStates(),
+                                        (array)$this->getProgressState()
+                                    )
+                                )
+                            );
+                        if ($STCount < 1) {
+                            $Task->cancel();
+                            return;
+                        }
+                    }
+                }
+                if ($Task->get('typeID') < 3) {
+                    if ($Task->get('isForced')) {
+                        $forcetask = sprintf(
+                            '<i class="icon-forced" title="%s"></i>',
+                            _('Task forced to start')
+                        );
+                    } else {
+                        $forcetask = sprintf(
+                            '<i class="icon-force icon" title="%s" href="?%s"></i>',
+                            _('Force task to start'),
+                            'node=task&sub=forceTask&id=${id}'
+                        );
+                    }
+                }
+                $this->data[] = array(
+                    'startedby' => $Task->get('createdBy'),
+                    'details_taskforce' => $forcetask,
+                    'id' => $Task->get('id'),
+                    'name' => $Task->get('name'),
+                    'time' => self::formatTime(
+                        $Task->get('createdTime'),
+                        'Y-m-d H:i:s'
+                    ),
+                    'state' => $Task->getTaskStateText(),
+                    'forced' => $Task->get('isForced'),
+                    'type' => $Task->getTaskTypeText(),
+                    'width' => 600 * intval($Task->get('percent')) / 100,
+                    'elapsed' => $Task->get('timeElapsed'),
+                    'remains' => $Task->get('timeRemaining'),
+                    'percent' => $Task->get('pct'),
+                    'copied' => $Task->get('dataCopied'),
+                    'total' => $Task->get('dataTotal'),
+                    'bpm' => $Task->get('bpm'),
+                    'details_taskname' => (
+                        $Task->get('name') ?
+                        sprintf(
+                            '<div class="task-name">%s</div>',
+                            $Task->get('name')
+                        ) :
+                        ''
+                    ),
+                    'host_id' => $Task->get('hostID'),
+                    'host_name' => $Host->get('name'),
+                    'host_mac' => $Host->get('mac')->__toString(),
+                    'icon_state' => $Task->getTaskState()->getIcon(),
+                    'icon_type' => $Task->getIcon(),
+                    'state_id' => $Task->getTaskState()->get('id'),
+                    'image_name' => $Task->getImage()->get('name'),
+                    'image_id' => $Task->getImage()->get('id'),
+                    'node_name' => $Task->getStorageNode()->get('name')
+                );
+                unset($Task, $Host);
+            };
+        }
     }
     /**
      * Default page to show (active always).
@@ -335,10 +342,41 @@ class TaskManagementPage extends FOGPage
                 (array) self::getProgressState()
             )
         );
-        $tasks = self::getClass('TaskManager')->find($find);
-        if (count($tasks) > 0) {
+        if (self::$FOGUser->get('api')) {
+            $url = sprintf(
+                'http%s://%s/fog/task/active',
+                filter_input(INPUT_SERVER, 'HTTPS') ? 's' : '',
+                filter_input(INPUT_SERVER, 'HTTP_HOST')
+            );
+            self::$FOGURLRequests->headers = array(
+                'fog-api-token: '
+                . base64_encode(self::getSetting('FOG_API_TOKEN')),
+                    'fog-user-token: '
+                    . base64_encode(self::$FOGUser->get('token'))
+                );
+            $items = self::$FOGURLRequests
+                ->process(
+                    $url,
+                    'GET',
+                    null,
+                    false
+                );
+            $items = json_decode(
+                $items[0]
+            );
+            $items = $items->tasks;
+        } else {
+            $find = array(
+                'stateID' => self::fastmerge(
+                    (array)self::getQueuedStates(),
+                    (array)self::getProgressState()
+                )
+            );
+            $items = self::getClass('TaskManager')->find($find);
+        }
+        if (count($items) > 0) {
             array_walk(
-                $tasks,
+                $items,
                 static::$returnData
             );
         }

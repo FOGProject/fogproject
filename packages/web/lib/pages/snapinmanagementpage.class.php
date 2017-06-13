@@ -184,138 +184,139 @@ class SnapinManagementPage extends FOGPage
             array('class'=>'c','width'=>50),
             array('class'=>'r'),
         );
-        /**
-         * Lamda function to return data either by list or search.
-         *
-         * @param object $Image the object to use.
-         *
-         * @return void
-         */
-        self::$returnData = function (&$Snapin) {
+        if (self::$FOGUser->get('api')) {
             /**
-             * Stores the items in a nicer name.
+             * Lamda function to return data either by list or search.
+             *
+             * @param object $Image the object to use.
+             *
+             * @return void
              */
+            self::$returnData = function (&$Snapin) {
+                /**
+                 * Stores the items in a nicer name.
+                 */
+                /**
+                 * The id.
+                 */
+                $id = $Snapin->id;
+                /**
+                 * The name.
+                 */
+                $name = $Snapin->name;
+                /**
+                 * The description.
+                 */
+                $description = $Snapin->description;
+                /**
+                 * The file name.
+                 */
+                $file = $Snapin->file;
+                /**
+                 * Tell if packtype is true or not.
+                 */
+                if ($Snapin->packtype < 0) {
+                    $packtype = _('No');
+                } else {
+                    $packtype = _('Yes');
+                }
+                /**
+                 * The storage group name.
+                 */
+                $storageGroup = $Snapin->storagegroupname;
+                /**
+                 * Store the data.
+                 */
+                $this->data[] = array(
+                    'id' => $id,
+                    'name' => $name,
+                    'description' => $description,
+                    'file' => $file,
+                    'packtype' => $packtype,
+                    'storageGroup' => $storageGroup,
+                );
+                /**
+                 * Cleanup.
+                 */
+                unset(
+                    $id,
+                    $name,
+                    $description,
+                    $file,
+                    $packtype,
+                    $Snapin
+                );
+            };
+        } else {
             /**
-             * The id.
+             * Lamda function to return data either by list or search.
+             *
+             * @param object $Image the object to use.
+             *
+             * @return void
              */
-            $id = $Snapin->id;
-            /**
-             * The name.
-             */
-            $name = $Snapin->name;
-            /**
-             * The description.
-             */
-            $description = $Snapin->description;
-            /**
-             * The file name.
-             */
-            $file = $Snapin->file;
-            /**
-             * Tell if packtype is true or not.
-             */
-            if ($Snapin->packtype < 0) {
-                $packtype = _('No');
-            } else {
-                $packtype = _('Yes');
-            }
-            /**
-             * The storage group name.
-             */
-            $storageGroup = $Snapin->storagegroupname;
-            /**
-             * Store the data.
-             */
-            $this->data[] = array(
-                'id' => $id,
-                'name' => $name,
-                'description' => $description,
-                'file' => $file,
-                'packtype' => $packtype,
-                'storageGroup' => $storageGroup,
-            );
-            /**
-             * Cleanup.
-             */
-            unset(
-                $id,
-                $name,
-                $description,
-                $file,
-                $packtype,
-                $Snapin
-            );
-        };
-        /**
-         * Lamda function to return data either by list or search.
-         *
-         * @param object $Image the object to use.
-         *
-         * @return void
-         */
-        /**
-         * Old method
-        self::$returnData = function (&$Snapin) {
-            /**
-             * If the snapin isn't valid return immediately.
-             */
-            /*if (!$Snapin->isValid()) {
-                return;
-            }*/
-            /**
-             * Stores the items in a nicer name.
-             */
-            /**
-             * The id.
-             */
-            //$id = $Snapin->get('id');
-            /**
-             * The name.
-             */
-            //$name = $Snapin->get('name');
-            /**
-             * The description.
-             */
-            //$description = $Snapin->get('description');
-            /**
-             * The file name.
-             */
-            //$file = $Snapin->get('file');
-            /**
-             * Tell if packtype is true or not.
-             */
-            /*if ($Snapin->get('packtype') < 0) {
-                $packtype = _('No');
-            } else {
-                $packtype = _('Yes');
-            }*/
-            /**
-             * The storage group name.
-             */
-            //$storageGroup = $Snapin->getStorageGroup()->get('name');
-            /**
-             * Store the data.
-             */
-            /*$this->data[] = array(
-                'id' => $id,
-                'name' => $name,
-                'description' => $description,
-                'file' => $file,
-                'packtype' => $packtype,
-                'storageGroup' => $storageGroup,
-            );*/
-            /**
-             * Cleanup.
-             */
-            /*unset(
-                $id,
-                $name,
-                $description,
-                $file,
-                $packtype,
-                $Snapin
-            );
-        };*/
+            self::$returnData = function (&$Snapin) {
+                /**
+                 * If the snapin isn't valid return immediately.
+                 */
+                if (!$Snapin->isValid()) {
+                    return;
+                }
+                /**
+                 * Stores the items in a nicer name.
+                 */
+                /**
+                 * The id.
+                 */
+                $id = $Snapin->get('id');
+                /**
+                 * The name.
+                 */
+                $name = $Snapin->get('name');
+                /**
+                 * The description.
+                 */
+                $description = $Snapin->get('description');
+                /**
+                 * The file name.
+                 */
+                $file = $Snapin->get('file');
+                /**
+                 * Tell if packtype is true or not.
+                 */
+                if ($Snapin->get('packtype') < 0) {
+                    $packtype = _('No');
+                } else {
+                    $packtype = _('Yes');
+                }
+                /**
+                 * The storage group name.
+                 */
+                $storageGroup = $Snapin->getStorageGroup()->get('name');
+                /**
+                 * Store the data.
+                 */
+                $this->data[] = array(
+                    'id' => $id,
+                    'name' => $name,
+                    'description' => $description,
+                    'file' => $file,
+                    'packtype' => $packtype,
+                    'storageGroup' => $storageGroup,
+                );
+                /**
+                 * Cleanup.
+                 */
+                unset(
+                    $id,
+                    $name,
+                    $description,
+                    $file,
+                    $packtype,
+                    $Snapin
+                );
+            };
+        }
     }
     /**
      * Generates the selector for Snapin Packs.

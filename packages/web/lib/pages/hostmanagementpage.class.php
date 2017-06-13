@@ -262,55 +262,55 @@ class HostManagementPage extends FOGPage
                 'class' => 'r'
             )
         );
-        /**
-         * Lambda function to return data either by list or search.
-         *
-         * @param object $Host the object to use.
-         *
-         * @return void
-         */
-        self::$returnData = function (&$Host) {
-            $this->data[] = array(
-                'id' => $Host->id,
-                'deployed' => self::formatTime(
-                    $Host->deployed,
-                    'Y-m-d H:i:s'
-                ),
-                'host_name' => $Host->name,
-                'host_mac' => $Host->primac,
-                'host_desc' => $Host->description,
-                'image_id' => $Host->imageID,
-                'image_name' => $Host->imagename,
-                'pingstatus' => $Host->pingstatus,
-            );
-            unset($Host);
-        };
-        /**
-         * Lambda function to return data either by list or search.
-         *
-         * @param object $Host the object to use.
-         *
-         * @return void
-         */
-        /**
-         * Old method
-        self::$returnData = function (&$Host) {
-            $this->data[] = array(
-                'id' => $Host->get('id'),
-                'deployed' => self::formatTime(
-                    $Host->get('deployed'),
-                    'Y-m-d H:i:s'
-                ),
-                'host_name' => $Host->get('name'),
-                'host_mac' => $Host->get('mac')->__toString(),
-                'host_desc' => $Host->get('description'),
-                'image_id' => $Host->get('imageID'),
-                'image_name' => $Host->getImageName(),
-                'pingstatus' => $Host->getPingCodeStr(),
-            );
-            unset($Host);
-        };
-         */
+        if (self::$FOGUser->get('api')) {
+            /**
+             * Lambda function to return data either by list or search.
+             *
+             * @param object $Host the object to use.
+             *
+             * @return void
+             */
+            self::$returnData = function (&$Host) {
+                $this->data[] = array(
+                    'id' => $Host->id,
+                    'deployed' => self::formatTime(
+                        $Host->deployed,
+                        'Y-m-d H:i:s'
+                    ),
+                    'host_name' => $Host->name,
+                    'host_mac' => $Host->primac,
+                    'host_desc' => $Host->description,
+                    'image_id' => $Host->imageID,
+                    'image_name' => $Host->imagename,
+                    'pingstatus' => $Host->pingstatus,
+                );
+                unset($Host);
+            };
+        } else {
+            /**
+             * Lambda function to return data either by list or search.
+             *
+             * @param object $Host the object to use.
+             *
+             * @return void
+             */
+            self::$returnData = function (&$Host) {
+                $this->data[] = array(
+                    'id' => $Host->get('id'),
+                    'deployed' => self::formatTime(
+                        $Host->get('deployed'),
+                        'Y-m-d H:i:s'
+                    ),
+                    'host_name' => $Host->get('name'),
+                    'host_mac' => $Host->get('mac')->__toString(),
+                    'host_desc' => $Host->get('description'),
+                    'image_id' => $Host->get('imageID'),
+                    'image_name' => $Host->getImageName(),
+                    'pingstatus' => $Host->getPingCodeStr(),
+                );
+                unset($Host);
+            };
+        }
     }
     /**
      * Lists the pending hosts
