@@ -1349,13 +1349,15 @@ abstract class FOGPage extends FOGBase
         echo '</div>';
         echo '</div>';
         if ($this->node != 'host') {
-            echo '<div class="row text-center">';
+            echo '<div class="col-xs-offset-3 panel panel-default">';
+            echo '<div class="panel-heading text-center">';
             echo '<h2 class="title">';
             echo _('Hosts in task');
             echo '</h2>';
             echo '</div>';
-            echo '<div class="col-xs-offset-5">';
+            echo '<div class="panel-body fogcard">';
             $this->render();
+            echo '</div>';
             echo '</div>';
         }
         echo '</div>';
@@ -1386,16 +1388,11 @@ abstract class FOGPage extends FOGBase
             /**
              * Account Setup.
              */
-            if (!(isset($_REQUEST['account'])
-                && is_string($_REQUEST['account']))
-            ) {
-                $_REQUEST['account'] = '';
-            }
-            $passreset = $_REQUEST['account'];
+            $passreset = filter_input(INPUT_POST, 'account');
             /**
              * Snapin Setup.
              */
-            $enableSnapins = intval($_REQUEST['snapin']);
+            $enableSnapins = intval(filter_input(INPUT_POST, 'snapin'));
             if (0 === $enableSnapins) {
                 $enableSnapins = -1;
             }
@@ -1408,7 +1405,7 @@ abstract class FOGPage extends FOGBase
              * Shutdown Setup.
              */
             $enableShutdown = false;
-            $shutdown = isset($_REQUEST['shutdown']);
+            $shutdown = isset($_POST['shutdown']);
             if ($shutdown) {
                 $enableShutdown = true;
             }
@@ -1416,8 +1413,8 @@ abstract class FOGPage extends FOGBase
              * Debug Setup.
              */
             $enableDebug = false;
-            $debug = isset($_REQUEST['debug']);
-            $isdebug = isset($_REQUEST['isDebugTask']);
+            $debug = isset($_POST['debug']);
+            $isdebug = isset($_POST['isDebugTask']);
             if ($debug || $isdebug) {
                 $enableDebug = true;
             }
@@ -1425,7 +1422,7 @@ abstract class FOGPage extends FOGBase
              * WOL Setup.
              */
             $wol = false;
-            $wolon = isset($_REQUEST['wol']);
+            $wolon = isset($_POST['wol']);
             if (14 == $type
                 || $wolon
             ) {
@@ -1440,7 +1437,7 @@ abstract class FOGPage extends FOGBase
              * Schedule Type Setup.
              */
             $scheduleType = strtolower(
-                $_REQUEST['scheduleType']
+                filter_input(INPUT_POST, 'scheduleType')
             );
             $scheduleTypes = array(
                 'cron',
@@ -1469,7 +1466,7 @@ abstract class FOGPage extends FOGBase
              * Schedule delayed/cron checks.
              */
             $scheduleDeployTime = self::niceDate(
-                $_REQUEST['scheduleSingleTime']
+                filter_input(INPUT_POST, 'scheduleSingleTime')
             );
             switch ($scheduleType) {
             case 'single':
@@ -1485,36 +1482,11 @@ abstract class FOGPage extends FOGBase
                 }
                 break;
             case 'cron':
-                if (!(isset($_REQUEST['scheduleCronMin'])
-                    && is_string($_REQUEST['scheduleCronMin']))
-                ) {
-                    $_REQUEST['scheduleCronMin'] = '';
-                }
-                if (!(isset($_REQUEST['scheduleCronHour'])
-                    && is_string($_REQUEST['scheduleCronHour']))
-                ) {
-                    $_REQUEST['scheduleCronHour'] = '';
-                }
-                if (!(isset($_REQUEST['scheduleCronDOM'])
-                    && is_string($_REQUEST['scheduleCronDOM']))
-                ) {
-                    $_REQUEST['scheduleCronDOM'] = '';
-                }
-                if (!(isset($_REQUEST['scheduleCronMonth'])
-                    && is_string($_REQUEST['scheduleCronMonth']))
-                ) {
-                    $_REQUEST['scheduleCronMonth'] = '';
-                }
-                if (!(isset($_REQUEST['scheduleCronDOW'])
-                    && is_string($_REQUEST['scheduleCronDOW']))
-                ) {
-                    $_REQUEST['scheduleCronDOW'] = '';
-                }
-                $min = strval($_REQUEST['scheduleCronMin']);
-                $hour = strval($_REQUEST['scheduleCronHour']);
-                $dom = strval($_REQUEST['scheduleCronDOM']);
-                $month = strval($_REQUEST['scheduleCronMonth']);
-                $dow = strval($_REQUEST['scheduleCronDOW']);
+                $min = strval(filter_input(INPUT_POST, 'scheduleCronMin'));
+                $hour = strval(filter_input(INPUT_POST, 'scheduleCronHour'));
+                $dom = strval(filter_input(INPUT_POST, 'scheduleCronDOM'));
+                $month = strval(filter_input(INPUT_POST, 'scheduleCronMonth'));
+                $dow = strval(filter_input(INPUT_POST, 'scheduleCronDOW'));
                 $valsToSet = array(
                     'minute' => $min,
                     'hour' => $hour,
@@ -1591,15 +1563,15 @@ abstract class FOGPage extends FOGBase
                     _('Cannot set tasking to pending hosts')
                 );
             } elseif ($this->obj instanceof Group) {
-                if (!(isset($_REQUEST['taskhosts'])
-                    && is_array($_REQUEST['taskhosts'])
-                    && count($_REQUEST['taskhosts']) > 0)
+                if (!(isset($_POST['taskhosts'])
+                    && is_array($_POST['taskhosts'])
+                    && count($_POST['taskhosts']) > 0)
                 ) {
                     throw new Exception(
                         _('There are no hosts to task in this group')
                     );
                 }
-                $this->obj->set('hosts', $_REQUEST['taskhosts']);
+                $this->obj->set('hosts', $_POST['taskhosts']);
             }
             if ($TaskType->isImagingTask()) {
                 if ($this->obj instanceof Host) {
@@ -1752,7 +1724,9 @@ abstract class FOGPage extends FOGBase
             if (count($error)) {
                 throw new Exception(
                     sprintf(
-                        '<ul><li>%s</li></ul>',
+                        '<ul class="nav nav-pills nav-stacked">'
+                        . '<li>%s</li>'
+                        . '</ul>',
                         implode(
                             '</li><li>',
                             $error
@@ -1762,7 +1736,14 @@ abstract class FOGPage extends FOGBase
             }
         } catch (Exception $e) {
             printf(
-                '<div class="task-start-failed"><p>%s</p><p>%s</p></div>',
+                '<div class="col-xs-offset-3">'
+                . '<div class="panel panel-default">'
+                . '<div class="panel-body text-center alert alert-danger">'
+                . '<p>%s</p>'
+                . '<p>%s</p>'
+                . '</div>'
+                . '</div>'
+                . '</div>',
                 _('Failed to create tasking to some or all'),
                 $e->getMessage()
             );
@@ -1789,16 +1770,20 @@ abstract class FOGPage extends FOGBase
                 break;
             }
             printf(
-                '<div class="task-start-ok"><p>%s: %s</p><p>%s%s</p></div>',
+                '<div class="col-xs-offset-3">'
+                . '<div class="panel panel-default">'
+                . '<div class="panel-body text-center alert alert-success">'
+                . '<p>%s: %s</p>'
+                . '<p>%s%s</p>'
+                . '</div>'
+                . '</div>'
+                . '</div>',
                 $TaskType->get('name'),
                 _('Successfully created tasks for'),
                 $time,
                 sprintf(
-                    '<ul>%s</ul>',
-                    implode(
-                        '</ul><ul>',
-                        (array)$success
-                    )
+                    '<ul class="nav nav-pills nav-stacked">%s</ul>',
+                    implode((array)$success)
                 )
             );
         }
