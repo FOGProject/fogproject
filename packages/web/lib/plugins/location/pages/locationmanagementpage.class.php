@@ -93,20 +93,20 @@ class LocationManagementPage extends FOGPage
             array('class' => 'c'),
             array('class' => 'r'),
         );
+        /**
+         * Lambda function to return data either by list or search.
+         *
+         * @param object $Location the object to use
+         *
+         * @return void
+         */
         self::$returnData = function (&$Location) {
-            if (!$Location->isValid()) {
-                return;
-            }
             $this->data[] = array(
-                'id' => $Location->get('id'),
-                'name' => $Location->get('name'),
-                'storageGroup' => $Location->get('storagegroup')->get('name'),
-                'storageNode' => (
-                    $Location->get('storagenode')->isValid() ?
-                    $Location->get('storagenode')->get('name') :
-                    _('Not Set')
-                ),
-                'tftp' => $Location->get('tftp') ? _('Yes') : _('No'),
+                'id' => $Location->id,
+                'name' => $Location->name,
+                'storageGroup' => $Location->storagegroup->name,
+                'storageNode' => $Location->storagenode->name,
+                'tftp' => $Location->tftp ? _('Yes') : _('No'),
             );
             unset($Location);
         };

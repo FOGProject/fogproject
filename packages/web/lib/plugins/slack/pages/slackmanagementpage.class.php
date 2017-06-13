@@ -73,16 +73,23 @@ class SlackManagementPage extends FOGPage
             array('class' => 'l','width'=> 80),
             array('class' => 'r filter-false','width' => 16),
         );
+        /**
+         * Lambda function to return data either by list or search.
+         *
+         * @param object $Slack the object to use
+         *
+         * @return void
+         */
         self::$returnData = function (&$Slack) {
-            if (!$Slack->isValid()) {
-                return;
-            }
-            $team_name = $Slack->call('auth.test');
+            $team_name = self::getClass(
+                'Slack',
+                $Slack->id
+            )->call('auth.test');
             $this->data[] = array(
-                'id' => $Slack->get('id'),
+                'id' => $Slack->id,
                 'team' => $team_name['team'],
                 'createdBy' => $team_name['user'],
-                'name' => $Slack->get('name'),
+                'name' => $Slack->name,
             );
             unset($Slack);
         };

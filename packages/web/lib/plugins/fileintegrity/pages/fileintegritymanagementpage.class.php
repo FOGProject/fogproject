@@ -77,13 +77,20 @@ class FileIntegrityManagementPage extends FOGPage
             array(),
             array(),
         );
+        /**
+         * Lambda function to return data either by list or search.
+         *
+         * @param object $FileIntegrity the object to use
+         *
+         * @return void
+         */
         self::$returnData = function (&$FileIntegrity) {
             $this->data[] = array(
-                'checksum' => $FileIntegrity->get('checksum'),
-                'modtime' => $FileIntegrity->get('modtime'),
-                'storagenodeID' => $FileIntegrity->get('storageNode')->get('id'),
-                'storage_name' => $FileIntegrity->get('storageNode')->get('name'),
-                'file_path' => $FileIntegrity->get('path'),
+                'checksum' => $FileIntegrity->checksum,
+                'modtime' => $FileIntegrity->modtime,
+                'storagenodeID' => $FileIntegrity->storagenode->id,
+                'storage_name' => $FileIntegrity->storagenode->name,
+                'file_path' => $FileIntegrity->path,
             );
             unset($FileIntegrity);
         };

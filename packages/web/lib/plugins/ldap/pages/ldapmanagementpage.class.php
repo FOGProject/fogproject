@@ -83,26 +83,30 @@ class LDAPManagementPage extends FOGPage
             array('class' => 'l'),
             array('class' => 'l'),
         );
+        /**
+         * Lambda function to return data either by list or search.
+         *
+         * @param object $LDAP the object to use
+         *
+         * @return void
+         */
         self::$returnData = function (&$LDAP) {
-            if (!$LDAP->isValid()) {
-                return;
-            }
             $this->data[] = array(
-                'id' => $LDAP->get('id'),
-                'name' => $LDAP->get('name'),
-                'description' => $LDAP->get('description'),
-                'address' => $LDAP->get('address'),
-                'searchDN' => $LDAP->get('DN'),
-                'port' => $LDAP->get('port'),
-                'userNamAttr' => $LDAP->get('userNamAttr'),
-                'grpMemberAttr' => $LDAP->get('grpMemberAttr'),
-                'grpSearchDN' => $LDAP->get('grpSearchDN'),
-                'adminGroup' => $LDAP->get('adminGroup'),
-                'userGroup' => $LDAP->get('userGroup'),
-                'searchScope' => $LDAP->get('searchScope'),
-                'bindDN' => $LDAP->get('bindDN'),
-                'bindPwd' => $LDAP->get('bindPwd'),
-                'useGroupMatch' => $LDAP->get('useGroupMatch'),
+                'id' => $LDAP->id,
+                'name' => $LDAP->name,
+                'description' => $LDAP->description,
+                'address' => $LDAP->address,
+                'searchDN' => $LDAP->DN,
+                'port' => $LDAP->port,
+                'userNamAttr' => $LDAP->userNamAttr,
+                'grpMemberAttr' => $LDAP->grpMemberAttr,
+                'grpSearchDN' => $LDAP->grpSearchDN,
+                'adminGroup' => $LDAP->adminGroup,
+                'userGroup' => $LDAP->userGroup,
+                'searchScope' => $LDAP->searchScope,
+                'bindDN' => $LDAP->bindDN,
+                'bindPwd' => $LDAP->bindPwd,
+                'useGroupMatch' => $LDAP->useGroupMatch,
             );
             unset($LDAP);
         };

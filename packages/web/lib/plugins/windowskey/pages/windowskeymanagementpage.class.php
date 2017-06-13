@@ -80,10 +80,17 @@ class WindowsKeyManagementPage extends FOGPage
             ),
             array('class' => 'l')
         );
+        /**
+         * Lambda function to return data either by list or search.
+         *
+         * @param object $WindowsKey the object to use
+         *
+         * @return void
+         */
         self::$returnData = function (&$WindowsKey) {
             $this->data[] = array(
-                'id' => $WindowsKey->get('id'),
-                'name' => $WindowsKey->get('name')
+                'id' => $WindowsKey->id,
+                'name' => $WindowsKey->name
             );
             unset($WindowsKey);
         };

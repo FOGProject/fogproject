@@ -99,19 +99,19 @@ class SiteManagementPage extends FOGPage
             array('class' => 'l'),
             array('class' => 'c filter-false'),
         );
+        /**
+         * Lambda function to return data either by list or search.
+         *
+         * @param object $Site the object to use
+         *
+         * @return void
+         */
         self::$returnData = function (&$Site) {
-            if (!$Site->isValid()) {
-                return;
-            }
-            $this->obj->loadHosts($Site->get('id'));
             $this->data[] = array(
-                'id' => $Site->get('id'),
-                'name' => $Site->get('name'),
-                'description' => $Site->get('description'),
-                'hosts' => sprintf(
-                    '%s',
-                    count($this->obj->get('hosts'))
-                )
+                'id' => $Site->id,
+                'name' => $Site->name,
+                'description' => $Site->description,
+                'hosts' => $Site->hostcount
             );
             unset($Site);
         };

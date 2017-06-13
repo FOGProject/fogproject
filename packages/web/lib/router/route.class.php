@@ -667,11 +667,6 @@ class Route extends FOGBase
                     ->addHost($vars->hosts);
             }
             break;
-        case 'user':
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_IMPLEMENTED
-            );
-            break;
         }
         // Store the data and recreate.
         // If failed present so.
@@ -848,11 +843,6 @@ class Route extends FOGBase
                     ->addHost($vars->hosts);
             }
             break;
-        case 'user':
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_IMPLEMENTED
-            );
-            break;
         }
         foreach ($classVars['databaseFieldsRequired'] as &$key) {
             $key = $class->key($key);
@@ -1009,13 +999,6 @@ class Route extends FOGBase
     public static function delete($class, $id)
     {
         $classname = strtolower($class);
-        switch ($classname) {
-        case 'user':
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_IMPLEMENTED
-            );
-            break;
-        }
         $class = new $class($id);
         if (!$class->isValid()) {
             self::sendResponse(
@@ -1075,11 +1058,6 @@ class Route extends FOGBase
     public static function getter($classname, $class)
     {
         switch ($classname) {
-        case 'user':
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_IMPLEMENTED
-            );
-            break;
         case 'host':
             $data = FOGCore::fastmerge(
                 $class->get(),
