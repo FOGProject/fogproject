@@ -486,7 +486,9 @@ abstract class FOGPage extends FOGBase
                     'pending' => array(0, '')
                 );
             }
-            if (in_array($this->node, Route::$validClasses)) {
+            if (in_array($this->node, Route::$validClasses)
+                && self::$FOGUser->get('api')
+            ) {
                 $url = sprintf(
                     'http%s://%s/fog/%s',
                     filter_input(INPUT_SERVER, 'HTTPS') ? 's' : '',
@@ -1048,30 +1050,37 @@ abstract class FOGPage extends FOGBase
         }
         unset($this->headerData);
         $this->attributes = array(
+            array(
+                'data-toggle' => 'tooltip',
+                'data-placement' => 'right',
+                'title' => '${host_title}'
+            ),
             array(),
-            array(),
-            array(),
+            array(
+                'data-toggle' => 'tooltip',
+                'data-placement' => 'right',
+                'title' => '${image_title}'
+            )
         );
         $this->templates = array(
-            '<a href="${host_link}" title="${host_title}">${host_name}</a>',
+            '<a href="${host_link}">${host_name}</a>',
             '${host_mac}',
-            '<a href="${image_link}" title="${image_title}">${image_name}</a>'
+            '<a href="${image_link}">${image_name}</a>'
             . '<input type="hidden" name="taskhosts[]" value="${host_id}"/>',
         );
         if ($this->obj instanceof Host) {
             $this->data[] = array(
-                'host_link'=>'?node=host&sub=edit&id=${host_id}',
-                'image_link'=>'?node=image&sub=edit&id=${image_id}',
-                'host_id'=>$this->obj->get('id'),
-                'image_id'=>$this->obj->getImage()->get('id'),
-                'host_name'=>$this->obj->get('name'),
-                'host_mac'=>$this->obj->get('mac'),
-                'image_name'=>$this->obj->getImage()->get('name'),
-                'host_title'=>_('Edit Host'),
-                'image_title'=>_('Edit Image'),
+                'host_link' => '?node=host&sub=edit&id=${host_id}',
+                'image_link' => '?node=image&sub=edit&id=${image_id}',
+                'host_id' => $this->obj->get('id'),
+                'image_id' => $this->obj->getImage()->get('id'),
+                'host_name' => $this->obj->get('name'),
+                'host_mac' => $this->obj->get('mac'),
+                'image_name' => $this->obj->getImage()->get('name'),
+                'host_title' => _('Edit Host'),
+                'image_title' => _('Edit Image'),
             );
-        }
-        if ($this->obj instanceof Group) {
+        } elseif ($this->obj instanceof Group) {
             foreach ((array)self::getClass('HostManager')
                 ->find(
                     array('id' => $this->obj->get('hosts'))
@@ -1125,9 +1134,8 @@ abstract class FOGPage extends FOGBase
                 'attributes' => &$this->attributes
             )
         );
-        echo '<div class="card fogcard">';
-        echo '<div class="col-xs-offset-5">';
-        echo '<div class="header">';
+        echo '<div class="col-xs-offset-3 panel panel-default">';
+        echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
         echo _('Confirm tasking');
         echo '</h4>';
@@ -1135,32 +1143,40 @@ abstract class FOGPage extends FOGBase
         echo _('Advanced Settings');
         echo '</p>';
         echo '</div>';
+        echo '<div class="panel-body fogcard">';
+        echo '<div class="col-xs-10">';
         echo '<form class="form-horizontal deploy-container" method="post" action="'
             . $this->formAction
             . '">';
         if ($TaskType->get('id') == 13) {
             echo '<div class="form-group">';
-            echo '<p class="category">';
+            echo '<label class="control-label" for="snapin">';
             echo _('Please select the snapin you want to install');
-            echo '</p>';
+            echo '</label>';
+            echo '<div class="input-group">';
             echo self::getClass('SnapinManager')->buildSelectBox(
                 '',
                 'snapin'
             );
             echo '</div>';
+            echo '</div>';
         }
         if ($TaskType->get('id') == 11) {
             echo '<div class="form-group">';
-            echo '<p class="category">';
+            echo '<label class="control-label" for="account">';
             echo _('Account name to reset');
-            echo '</p>';
-            echo '<input type="text" name="account" value="Administrator"/>';
+            echo '</label>';
+            echo '<div class="input-group">';
+            echo '<input class="form-control" id="account" type="'
+                . 'text" name="account" value="Administrator"/>';
+            echo '</div>';
             echo '</div>';
         }
         if ($TaskType->isInitNeededTasking()
             && !$TaskType->isDebug()
         ) {
-            echo '<div class="form-group hideFromDebug">';
+            echo '<div class="checkbox hideFromDebug">';
+            echo '<label class="control-label" for="shutdown">';
             echo '<input type="checkbox" name='
                 . '"shutdown" id="shutdown"'
                 . (
@@ -1169,13 +1185,13 @@ abstract class FOGPage extends FOGBase
                     ''
                 )
                 . '/>';
-            echo '<label class="control-label" for="shutdown">';
-            echo _('Schedule shutdown after task completion');
+            echo _('Schedule with shutdown');
             echo '</label>';
             echo '</div>';
         }
         if ($TaskType->get('id') != 14) {
-            echo '<div class="form-group">';
+            echo '<div class="checkbox">';
+            echo '<label class="control-label" for="wol">';
             echo '<input type="checkbox" name='
                 . '"wol" id="wol"'
                 . (
@@ -1188,7 +1204,6 @@ abstract class FOGPage extends FOGBase
                     )
                 )
                 . '/>';
-            echo '<label class="control-label" for="wol">';
             echo _('Wake on lan?');
             echo '</label>';
             echo '</div>';
@@ -1199,7 +1214,8 @@ abstract class FOGPage extends FOGBase
             if ($TaskType->isInitNeededTasking()
                 && !($this->obj instanceof Group)
             ) {
-                echo '<div class="form-group">';
+                echo '<div class="checkbox">';
+                echo '<label class="control-label" for="checkDebug">';
                 echo '<input type="checkbox" name='
                     . '"isDebugTask" id="checkDebug"'
                     . (
@@ -1208,40 +1224,43 @@ abstract class FOGPage extends FOGBase
                         ''
                     )
                     . '/>';
-                echo '<label class="control-label" for="checkDebug">';
                 echo _('Schedule as debug task');
                 echo '</label>';
                 echo '</div>';
             }
         }
-        echo '<div class="form-group">';
+        echo '<div class="radio">';
+        echo '<label class="control-label" for="scheduleInstant">';
         echo '<input type="radio" name='
             . '"scheduleType" id="scheduleInstant" value="instant"'
             . 'checked/>';
-        echo '<label class="control-label" for="scheduleInstant">';
         echo _('Schedule instant');
         echo '</label>';
         echo '</div>';
         if (!$TaskType->isDebug()
             && $TaskType->get('id') != 11
         ) {
-            echo '<div class="form-group hideFromDebug">';
+            // Delayed elements
+            echo '<div class="hideFromDebug">';
+            echo '<div class="radio">';
+            echo '<label class="control-label" for="scheduleSingle">';
             echo '<input type="radio" name='
                 . '"scheduleType" id="scheduleSingle" value="single"/>';
-            echo '<label class="control-label" for="scheduleSingle">';
             echo _('Schedule delayed');
             echo '</label>';
-            echo '<div class="hiddeninitially">';
-            echo '<input type="text" name="scheduleSingleTime" id='
-                . '"scheduleSingleTime" required="">';
             echo '</div>';
-            echo '</div>';
-            echo '<div class="form-group hideFromDebug">';
-            echo '<input type="radio" name='
-                . '"scheduleType" id="scheduleCron" value="cron"/>';
-            echo '<label class="control-label" for="scheduleCron">';
-            echo _('Schedule cron-style');
+            echo '<div class="form-group hiddeninitially">';
+            echo '<label class="control-label" for="scheduleSingleTime">';
+            echo _('Date and Time');
             echo '</label>';
+            echo '<div class="input-group">';
+            echo '<input class="form-control" type="text" name='
+                . '"scheduleSingleTime" id='
+                . '"scheduleSingleTime">';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            // Cron elements
             $specialCrons = array(
                 ''=>_('Select a cron type'),
                 'yearly'=>sprintf('%s/%s', _('Yearly'), _('Annually')),
@@ -1250,34 +1269,75 @@ abstract class FOGPage extends FOGBase
                 'daily'=>sprintf('%s/%s', _('Daily'), _('Midnight')),
                 'hourly'=>_('Hourly'),
             );
-            echo '<div class="hiddeninitially hideFromDebug cronOptions">';
             ob_start();
             foreach ($specialCrons as $val => &$name) {
-                printf('<option value="%s">%s</option>', $val, $name);
-                unset($name, $val);
+                echo '<option value="'
+                    . $val
+                    . '">'
+                    . $name
+                    . '</option>';
+                unset($name);
             }
-            printf(
-                '<select class="input-group" id="specialCrons" name="specialCrons">'
-                . '%s</select><br/><br/>',
-                ob_get_clean()
-            );
+            $cronOpts = ob_get_clean();
+            echo '<div class="hideFromDebug">';
+            echo '<div class="radio">';
+            echo '<label class="control-label" for="scheduleCron">';
+            echo '<input type="radio" name='
+                . '"scheduleType" id="scheduleCron" value="cron"/>';
+            echo _('Schedule cron-style');
+            echo '</label>';
+            echo '</div>';
+            echo '<div class="form-group hiddeninitially">';
+            echo '<div class="cronOptions input-group">';
+            echo '<select class="form-control" id="specialCrons" name='
+                . '"specialCrons">';
+            echo $cronOpts;
+            echo '</select>';
+            echo '</div>';
+            echo '<div class="col-xs-12">';
             echo '<div class="cronInputs">';
+            echo '<div class="col-xs-2">';
+            echo '<div class="input-group">';
             echo '<input type="text" name="scheduleCronMin" '
-                . 'id="scheduleCronMin" placeholder="min" autocomplete="off"/>';
+                . 'id="scheduleCronMin" placeholder="min" autocomplete="off" '
+                . 'class="form-control cronInput"/>';
+            echo '</div>';
+            echo '</div>';
+            echo '<div class="col-xs-2">';
+            echo '<div class="input-group">';
             echo '<input type="text" name="scheduleCronHour" '
-                . 'id="scheduleCronHour" placeholder="hour" autocomplete="off"/>';
+                . 'id="scheduleCronHour" placeholder="hour" autocomplete="off" '
+                . 'class="form-control cronInput"/>';
+            echo '</div>';
+            echo '</div>';
+            echo '<div class="col-xs-2">';
+            echo '<div class="input-group">';
             echo '<input type="text" name="scheduleCronDOM" '
-                . 'id="scheduleCronDOM" placeholder="dom" autocomplete="off"/>';
+                . 'id="scheduleCronDOM" placeholder="dom" autocomplete="off" '
+                . 'class="form-control cronInput"/>';
+            echo '</div>';
+            echo '</div>';
+            echo '<div class="col-xs-2">';
+            echo '<div class="input-group">';
             echo '<input type="text" name="scheduleCronMonth" '
-                . 'id="scheduleCronMonth" placeholder="month" autocomplete="off"/>';
+                . 'id="scheduleCronMonth" placeholder="month" autocomplete="off" '
+                . 'class="form-control cronInput"/>';
+            echo '</div>';
+            echo '</div>';
+            echo '<div class="col-xs-2">';
+            echo '<div class="input-group">';
             echo '<input type="text" name="scheduleCronDOW" '
-                . 'id="scheduleCronDOW" placeholder="dow" autocomplete="off" /></p>';
+                . 'id="scheduleCronDOW" placeholder="dow" autocomplete="off" '
+                . 'class="form-control cronInput"/>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
             echo '</div>';
             echo '</div>';
             echo '</div>';
         }
         if (count($this->data)) {
-            echo '<button type="submit" class="btn btn-default input-group">';
+            echo '<button type="submit" class="btn btn-default btn-block">';
             echo _('Create')
                 . ' '
                 . $TaskType->get('name')
@@ -1286,6 +1346,7 @@ abstract class FOGPage extends FOGBase
             echo '</button>';
         }
         echo '</form>';
+        echo '</div>';
         echo '</div>';
         if ($this->node != 'host') {
             echo '<div class="row text-center">';
@@ -3107,7 +3168,9 @@ abstract class FOGPage extends FOGBase
             '%sManager',
             $this->childClass
         );
-        if (in_array($this->node, Route::$validClasses)) {
+        if (in_array($this->node, Route::$validClasses)
+            && self::$FOGUser->get('api')
+        ) {
             $url = sprintf(
                 'http%s://%s/fog/%s/search/%s',
                 filter_input(INPUT_SERVER, 'HTTPS') ? 's' : '',

@@ -242,16 +242,22 @@ function DeployStuff() {
         }
         e.preventDefault();
     });
+    $('#isDebugTask').on('click, change', function() {
+        if (this.checked) {
+            $('.hideFromDebug, .hiddeninitially').not(':hidden').slideUp('fast');
+        } else {
+            $('.hideFromDebug').slideDown('fast');
+        }
+    });
     // Bind radio buttons for 'Single' and 'Cron' scheduled task
-    $('input[name="scheduleType"]').click(function() {
-        var content = $(this).siblings('.hiddeninitially');
-        if (this.checked && !$('#isDebugTask').is(':checked')) {
-            $('.hiddeninitially').not(':hidden').slideUp('fast');
-            content.slideDown('fast');
-        } else if (!$('#isDebugTask').is(':checked')) {
-            content.slideDown('fast');
-            $('.calendar').remove();
-            $('.error').removeClass('error');
+    $('input[name="scheduleType"]').on('click, change', function() {
+        if (this.checked) {
+            var content = $(this).closest('div');
+            $('.hiddeninitially').not($(this)).slideUp('fast');
+            content.next('.form-group.hiddeninitially').slideDown('fast');
+            if ($(this).prop('id') == 'scheduleSingle') {
+                $('#scheduleSingleTime').focus();
+            }
         }
     });
     $('#specialCrons').change(function(e) {

@@ -53,7 +53,7 @@ function getChecked() {
 }
 function setEditFocus() {
     $('input,select,textarea').not(
-        '[type="checkbox"],[name="groupsel"],[name="nodesel"],[name="ulang"],#uname,#upass,.system-search,.search-input'
+        '[type="checkbox"],[name="groupsel"],[name="nodesel"],[name="ulang"],#uname,#upass,.system-search,.search-input,[type="radio"]'
     ).focus(function(e) {
         e.preventDefault();
         field = $(this);
