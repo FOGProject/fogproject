@@ -131,19 +131,15 @@ class UserManagementPage extends FOGPage
          */
         self::$returnData = function (&$User) use (&$types) {
             if (count($types) > 0
-                && in_array($User->get('type'), $types)
+                && in_array($User->type, $types)
             ) {
                 return;
             }
             $this->data[] = array(
-                'id' => $User->get('id'),
-                'apiYes' => $User->get('api') ? _('Yes') : _('No'),
-                'name' => $User->get('name'),
-                'friendly' => (
-                    $User->get('display') ?
-                    $User->get('display') :
-                    _('No friendly name defined')
-                )
+                'id' => $User->id,
+                'apiYes' => $User->api ? _('Yes') : _('No'),
+                'name' => $User->name,
+                'friendly' => $User->display
             );
             unset($User);
         };
@@ -567,7 +563,7 @@ class UserManagementPage extends FOGPage
             );
             $password = filter_input(INPUT_POST, 'password');
             $friendly = trim(
-                filter_input(INPUT_POST, 'dispay')
+                filter_input(INPUT_POST, 'display')
             );
             $apien = isset($_POST['apienabled']);
             $apitoken = base64_decode(

@@ -82,16 +82,20 @@ class TasktypeeditManagementPage extends FOGPage
             array('class' => 'c'),
             array('class' => 'r'),
         );
+        /**
+         * Lambda function to return data either by list or search.
+         *
+         * @param object $TaskType the object to use
+         *
+         * @return void
+         */
         self::$returnData = function (&$TaskType) {
-            if (!$TaskType->isValid()) {
-                return;
-            }
             $this->data[] = array(
-                'icon'=>$TaskType->get('icon'),
-                'id'=>$TaskType->get('id'),
-                'name'=>$TaskType->get('name'),
-                'access'=>$TaskType->get('access'),
-                'args'=>$TaskType->get('kernelArgs'),
+                'icon' => $TaskType->icon,
+                'id' => $TaskType->id,
+                'name' => $TaskType->name,
+                'access' => $TaskType->access,
+                'args' => $TaskType->kernelArgs,
             );
             unset($TaskType);
         };

@@ -73,14 +73,18 @@ class WOLBroadcastManagementPage extends FOGPage
             array('class' => 'l'),
             array('class' => 'r'),
         );
+        /**
+         * Lambda function to return data either by list or search.
+         *
+         * @param object $WOLBroadcast the object to use
+         *
+         * @return void
+         */
         self::$returnData = function (&$WOLBroadcast) {
-            if (!$WOLBroadcast->isValid()) {
-                return;
-            }
             $this->data[] = array(
-                'id'    => $WOLBroadcast->get('id'),
-                'name'  => $WOLBroadcast->get('name'),
-                'wol_ip' => $WOLBroadcast->get('broadcast'),
+                'id'    => $WOLBroadcast->id,
+                'name'  => $WOLBroadcast->name,
+                'wol_ip' => $WOLBroadcast->broadcast,
             );
             unset($WOLBroadcast);
         };

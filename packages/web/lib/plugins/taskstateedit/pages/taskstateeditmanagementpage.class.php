@@ -83,14 +83,18 @@ class TaskstateeditManagementPage extends FOGPage
             ),
             array('class' => 'l'),
         );
+        /**
+         * Lambda function to return data either by list or search.
+         *
+         * @param object $TaskState the object to use
+         *
+         * @return void
+         */
         self::$returnData = function (&$TaskState) {
-            if (!$TaskState->isValid()) {
-                return;
-            }
             $this->data[] = array(
-                'id'=>$TaskState->get('id'),
-                'name'=>$TaskState->get('name'),
-                'icon'=>$TaskState->get('icon'),
+                'id' => $TaskState->id,
+                'name' => $TaskState->name,
+                'icon' => $TaskState->icon,
             );
             unset($TaskState);
         };

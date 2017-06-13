@@ -236,335 +236,169 @@ class ImageManagementPage extends FOGPage
             $this->attributes,
             array()
         );
-        if (self::$FOGUser->get('api')) {
+        /**
+         * Lamda function to return data either by list or search.
+         *
+         * @param object $Image the object to use.
+         *
+         * @return void
+         */
+        self::$returnData = function (&$Image) use ($SizeServer) {
             /**
-             * Lamda function to return data either by list or search.
-             *
-             * @param object $Image the object to use.
-             *
-             * @return void
+             * Stores the image on client size.
              */
-            self::$returnData = function (&$Image) use ($SizeServer) {
-                /**
-                 * Stores the image on client size.
-                 */
-                $imageSize = self::formatByteSize(
-                    array_sum(
-                        explode(
-                            ':',
-                            $Image->size
-                        )
+            $imageSize = self::formatByteSize(
+                array_sum(
+                    explode(
+                        ':',
+                        $Image->size
                     )
-                );
-                /**
-                 * Stores the items in a nicer name
-                 */
-                /**
-                 * The id.
-                 */
-                $id = $Image->id;
-                /**
-                 * The name.
-                 */
-                $name = $Image->name;
-                /**
-                 * The description.
-                 */
-                $description = $Image->description;
-                /**
-                 * The storage group name.
-                 */
-                $storageGroup = $Image->storagegroupname;
-                /**
-                 * The os name.
-                 */
-                $os = $Image->osname;
-                /**
-                 * If no os is set/found set to not set.
-                 */
-                if (!$os) {
-                    $os = _('Not set');
-                }
-                /**
-                 * The deployed date.
-                 */
-                $date = $Image->deployed;
-                /**
-                 * If the date is valid format in Y-m-d H:i:s
-                 * and if not set to no valid data.
-                 */
-                if (self::validDate($date)) {
-                    $date = self::formatTime($date, 'Y-m-d H:i:s');
-                } else {
-                    $date = _('Invalid date');
-                }
-                /**
-                 * The image type name.
-                 */
-                $imageType = $Image->imagetypename;
-                /**
-                 * The image partition type name.
-                 */
-                $imagePartitionType = $Image->imageparttypename;
-                /**
-                 * The path.
-                 */
-                $path = $Image->path;
-                $serverSize = 0;
-                /**
-                 * If size on server we get our function.
-                 */
-                if ($SizeServer) {
-                    $serverSize = self::formatByteSize($Image->srvsize);
-                }
-                /**
-                 * If the image is not protected show
-                 * the unlocked symbol and title of not protected
-                 * otherwise set as is protected.
-                 */
-                if ($Image->protected < 1) {
-                    $protected = sprintf(
-                        '<i class="fa fa-unlock fa-1x icon hand" '
-                        . 'data-toggle="tooltip" data-placement="right" '
-                        . 'title="%s"></i>',
-                        _('Not protected')
-                    );
-                } else {
-                    $protected = sprintf(
-                        '<i class="fa fa-lock fa-1x icon hand" '
-                        . 'data-toggle="tooltip" data-placement="right" '
-                        . 'title="%s"></i>',
-                        _('Protected')
-                    );
-                }
-                /**
-                 * If the image format not one, we must
-                 * be using partclone otherwise partimage.
-                 */
-                switch ($Image->format) {
-                case 0:
-                    $type = _('Partclone Compressed');
-                    break;
-                case 1:
-                    $type = _('Partimage');
-                    break;
-                case 2:
-                    $type = _('Partclone Compressed 200MiB split');
-                    break;
-                case 3:
-                    $type = _('Partclone Uncompressed');
-                    break;
-                case 4:
-                    $type = _('Partclone Uncompressed 200MiB split');
-                    break;
-                case 5:
-                    $type = _('ZSTD Compressed');
-                    break;
-                case 6:
-                    $type = _('ZSTD Compressed 200MiB split');
-                    break;
-                }
-                /**
-                 * Store the data.
-                 */
-                $this->data[] = array(
-                    'id' => $id,
-                    'name' => $name,
-                    'description' => $description,
-                    'storageGroup' => $storageGroup,
-                    'os' => $os,
-                    'deployed' => $date,
-                    'size' => $imageSize,
-                    'serv_size' => $serverSize,
-                    'image_type' => $imageType,
-                    'image_partition_type' => $imagePartitionType,
-                    'protected' => $protected,
-                    'type' => $type
-                );
-                /**
-                 * Cleanup.
-                 */
-                unset(
-                    $id,
-                    $name,
-                    $description,
-                    $storageGroup,
-                    $os,
-                    $date,
-                    $imageSize,
-                    $serverSize,
-                    $imageType,
-                    $imagePartitionType,
-                    $protected,
-                    $type,
-                    $Image
-                );
-            };
-        } else {
+                )
+            );
             /**
-             * Lamda function to return data either by list or search.
-             *
-             * @param object $Image the object to use.
-             *
-             * @return void
+             * Stores the items in a nicer name
              */
-            self::$returnData = function (&$Image) use ($SizeServer) {
-                /**
-                 * Stores the image on client size.
-                 */
-                $imageSize = self::formatByteSize(
-                    array_sum(
-                        explode(
-                            ':',
-                            $Image->get('size')
-                        )
-                    )
+            /**
+             * The id.
+             */
+            $id = $Image->id;
+            /**
+             * The name.
+             */
+            $name = $Image->name;
+            /**
+             * The description.
+             */
+            $description = $Image->description;
+            /**
+             * The storage group name.
+             */
+            $storageGroup = $Image->storagegroupname;
+            /**
+             * The os name.
+             */
+            $os = $Image->osname;
+            /**
+             * If no os is set/found set to not set.
+             */
+            if (!$os) {
+                $os = _('Not set');
+            }
+            /**
+             * The deployed date.
+             */
+            $date = $Image->deployed;
+            /**
+             * If the date is valid format in Y-m-d H:i:s
+             * and if not set to no valid data.
+             */
+            if (self::validDate($date)) {
+                $date = self::formatTime($date, 'Y-m-d H:i:s');
+            } else {
+                $date = _('Invalid date');
+            }
+            /**
+             * The image type name.
+             */
+            $imageType = $Image->imagetypename;
+            /**
+             * The image partition type name.
+             */
+            $imagePartitionType = $Image->imageparttypename;
+            /**
+             * The path.
+             */
+            $path = $Image->path;
+            $serverSize = 0;
+            /**
+             * If size on server we get our function.
+             */
+            if ($SizeServer) {
+                $serverSize = self::formatByteSize($Image->srvsize);
+            }
+            /**
+             * If the image is not protected show
+             * the unlocked symbol and title of not protected
+             * otherwise set as is protected.
+             */
+            if ($Image->protected < 1) {
+                $protected = sprintf(
+                    '<i class="fa fa-unlock fa-1x icon hand" '
+                    . 'data-toggle="tooltip" data-placement="right" '
+                    . 'title="%s"></i>',
+                    _('Not protected')
                 );
-                /**
-                 * Stores the items in a nicer name
-                 */
-                /**
-                 * The id.
-                 */
-                $id = $Image->get('id');
-                /**
-                 * The name.
-                 */
-                $name = $Image->get('name');
-                /**
-                 * The description.
-                 */
-                $description = $Image->get('description');
-                /**
-                 * The storage group name.
-                 */
-                $storageGroup = $Image->getStorageGroup()->get('name');
-                /**
-                 * The os name.
-                 */
-                $os = $Image->getOS()->get('name');
-                /**
-                 * If no os is set/found set to not set.
-                 */
-                if (!$os) {
-                    $os = _('Not set');
-                }
-                /**
-                 * The deployed date.
-                 */
-                $date = $Image->get('deployed');
-                /**
-                 * If the date is valid format in Y-m-d H:i:s
-                 * and if not set to no valid data.
-                 */
-                if (self::validDate($date)) {
-                    $date = self::formatTime($date, 'Y-m-d H:i:s');
-                } else {
-                    $date = _('No valid data');
-                }
-                /**
-                 * The image type name.
-                 */
-                $imageType = $Image->getImageType()->get('name');
-                /**
-                 * The image partition type name.
-                 */
-                $imagePartitionType = $Image->getImagePartitionType()->get('name');
-                /**
-                 * The path.
-                 */
-                $path = $Image->get('path');
-                $serverSize = 0;
-                /**
-                 * If size on server we get our function.
-                 */
-                if ($SizeServer) {
-                    $serverSize = self::formatByteSize($Image->get('srvsize'));
-                }
-                /**
-                 * If the image is not protected show
-                 * the unlocked symbol and title of not protected
-                 * otherwise set as is protected.
-                 */
-                if ($Image->get('protected') < 1) {
-                    $protected = sprintf(
-                        '<i class="fa fa-unlock fa-1x icon hand" '
-                        . 'data-toggle="tooltip" data-placement="right" '
-                        . 'title="%s"></i>',
-                        _('Not protected')
-                    );
-                } else {
-                    $protected = sprintf(
-                        '<i class="fa fa-lock fa-1x icon hand" '
-                        . 'data-toggle="tooltip" data-placement="right" '
-                        . 'title="%s"></i>',
-                        _('Protected')
-                    );
-                }
-                /**
-                 * If the image format not one, we must
-                 * be using partclone otherwise partimage.
-                 */
-                switch ($Image->get('format')) {
-                case 0:
-                    $type = _('Partclone Compressed');
-                    break;
-                case 1:
-                    $type = _('Partimage');
-                    break;
-                case 2:
-                    $type = _('Partclone Compressed 200MiB split');
-                    break;
-                case 3:
-                    $type = _('Partclone Uncompressed');
-                    break;
-                case 4:
-                    $type = _('Partclone Uncompressed 200MiB split');
-                    break;
-                case 5:
-                    $type = _('ZSTD Compressed');
-                    break;
-                case 6:
-                    $type = _('ZSTD Compressed 200MiB split');
-                    break;
-                }
-                /**
-                 * Store the data.
-                 */
-                $this->data[] = array(
-                    'id' => $id,
-                    'name' => $name,
-                    'description' => $description,
-                    'storageGroup' => $storageGroup,
-                    'os' => $os,
-                    'deployed' => $date,
-                    'size' => $imageSize,
-                    'serv_size' => $serverSize,
-                    'image_type' => $imageType,
-                    'image_partition_type' => $imagePartitionType,
-                    'protected' => $protected,
-                    'type' => $type
+            } else {
+                $protected = sprintf(
+                    '<i class="fa fa-lock fa-1x icon hand" '
+                    . 'data-toggle="tooltip" data-placement="right" '
+                    . 'title="%s"></i>',
+                    _('Protected')
                 );
-                /**
-                 * Cleanup.
-                 */
-                unset(
-                    $id,
-                    $name,
-                    $description,
-                    $storageGroup,
-                    $os,
-                    $date,
-                    $imageSize,
-                    $serverSize,
-                    $imageType,
-                    $imagePartitionType,
-                    $protected,
-                    $type,
-                    $Image
-                );
-            };
-        }
+            }
+            /**
+             * If the image format not one, we must
+             * be using partclone otherwise partimage.
+             */
+            switch ($Image->format) {
+            case 0:
+                $type = _('Partclone Compressed');
+                break;
+            case 1:
+                $type = _('Partimage');
+                break;
+            case 2:
+                $type = _('Partclone Compressed 200MiB split');
+                break;
+            case 3:
+                $type = _('Partclone Uncompressed');
+                break;
+            case 4:
+                $type = _('Partclone Uncompressed 200MiB split');
+                break;
+            case 5:
+                $type = _('ZSTD Compressed');
+                break;
+            case 6:
+                $type = _('ZSTD Compressed 200MiB split');
+                break;
+            }
+            /**
+             * Store the data.
+             */
+            $this->data[] = array(
+                'id' => $id,
+                'name' => $name,
+                'description' => $description,
+                'storageGroup' => $storageGroup,
+                'os' => $os,
+                'deployed' => $date,
+                'size' => $imageSize,
+                'serv_size' => $serverSize,
+                'image_type' => $imageType,
+                'image_partition_type' => $imagePartitionType,
+                'protected' => $protected,
+                'type' => $type
+            );
+            /**
+             * Cleanup.
+             */
+            unset(
+                $id,
+                $name,
+                $description,
+                $storageGroup,
+                $os,
+                $date,
+                $imageSize,
+                $serverSize,
+                $imageType,
+                $imagePartitionType,
+                $protected,
+                $type,
+                $Image
+            );
+        };
     }
     /**
      * The form to display when adding a new image

@@ -486,37 +486,15 @@ abstract class FOGPage extends FOGBase
                     'pending' => array(0, '')
                 );
             }
-            if (in_array($this->node, Route::$validClasses)
-                && self::$FOGUser->get('api')
-            ) {
-                $url = sprintf(
-                    'http%s://%s/fog/%s',
-                    filter_input(INPUT_SERVER, 'HTTPS') ? 's' : '',
-                    filter_input(INPUT_SERVER, 'HTTP_HOST'),
-                    $this->node
-                );
-                self::$FOGURLRequests->headers = array(
-                    'fog-api-token: '
-                    . base64_encode(self::getSetting('FOG_API_TOKEN')),
-                    'fog-user-token: '
-                    . base64_encode(self::$FOGUser->get('token'))
-                );
-                $items = self::$FOGURLRequests
-                    ->process(
-                        $url,
-                        'GET',
-                        null,
-                        false
-                    );
-                $items = json_decode(
-                    $items[0]
-                );
-                $type = $this->node
-                    . 's';
-                $items = $items->$type;
-            } else {
-                $items = (array)self::getClass($manager)->find($find);
-            }
+            Route::listem($this->childClass);
+            $items = json_decode(
+                json_encode(
+                    Route::$data
+                )
+            );
+            $type = $this->node
+                . 's';
+            $items = $items->$type;
             if (count($items) > 0) {
                 array_walk($items, static::$returnData);
             }
@@ -3153,38 +3131,16 @@ abstract class FOGPage extends FOGBase
             '%sManager',
             $this->childClass
         );
-        if (in_array($this->node, Route::$validClasses)
-            && self::$FOGUser->get('api')
-        ) {
-            $url = sprintf(
-                'http%s://%s/fog/%s/search/%s',
-                filter_input(INPUT_SERVER, 'HTTPS') ? 's' : '',
-                filter_input(INPUT_SERVER, 'HTTP_HOST'),
-                strtolower($this->childClass),
-                $_REQUEST['crit']
-            );
-            self::$FOGURLRequests->headers = array(
-                'fog-api-token: '
-                . base64_encode(self::getSetting('FOG_API_TOKEN')),
-                'fog-user-token: '
-                . base64_encode(self::$FOGUser->get('token'))
-            );
-            $items = self::$FOGURLRequests
-                ->process(
-                    $url,
-                    'GET',
-                    null,
-                    false
-                );
-            $items = json_decode(
-                $items[0]
-            );
-            $type = $this->node
-                .'s';
-            $search = $items->$type;
-        } else {
-            $search = self::getClass($manager)->search('', true);
-        }
+        Route::search(
+            $this->childClass,
+            filter_input(INPUT_POST, 'crit')
+        );
+        $items = json_decode(
+            json_encode(Route::$data)
+        );
+        $type = $this->node
+            .'s';
+        $search = $items->$type;
         if (count($search) > 0) {
             array_walk($search, static::$returnData);
         }

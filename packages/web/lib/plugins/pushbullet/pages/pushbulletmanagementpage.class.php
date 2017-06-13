@@ -66,14 +66,18 @@ class PushbulletManagementPage extends FOGPage
             array('class' => 'l'),
             array('class' => 'r'),
         );
+        /**
+         * Lambda function to return data either by list or search.
+         *
+         * @param object $PushBullet the object to use
+         *
+         * @return void
+         */
         self::$returnData = function (&$PushBullet) {
-            if (!$PushBullet->isValid()) {
-                return;
-            }
             $this->data[] = array(
-                'name'    => $PushBullet->get('name'),
-                'email'   => $PushBullet->get('email'),
-                'id'      => $PushBullet->get('id'),
+                'name'    => $PushBullet->name,
+                'email'   => $PushBullet->email,
+                'id'      => $PushBullet->id,
             );
             unset($PushBullet);
         };
