@@ -212,5 +212,11 @@ foreach ((array)$this->javascripts as &$javascript) {
     unset($javascript);
 }
 unset($this->javascripts);
+echo '<!-- Memory Usage: ';
+echo self::formatByteSize(memory_get_usage(true));
+echo '-->';
+echo '<!-- Memory Peak: ';
+echo self::formatByteSize(memory_get_peak_usage());
+echo '-->';
 echo '</body>';
 echo '</html>';
