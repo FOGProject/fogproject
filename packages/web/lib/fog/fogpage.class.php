@@ -487,11 +487,7 @@ abstract class FOGPage extends FOGBase
                 );
             }
             Route::listem($this->childClass);
-            $items = json_decode(
-                json_encode(
-                    Route::$data
-                )
-            );
+            $items = json_decode(Route::getData());
             $type = $this->node
                 . 's';
             $items = $items->$type;
@@ -3135,9 +3131,7 @@ abstract class FOGPage extends FOGBase
             $this->childClass,
             filter_input(INPUT_POST, 'crit')
         );
-        $items = json_decode(
-            json_encode(Route::$data)
-        );
+        $items = json_decode(Route::getData());
         $type = $this->node
             .'s';
         $search = $items->$type;

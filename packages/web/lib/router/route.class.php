@@ -1022,6 +1022,20 @@ class Route extends FOGBase
         self::printer(self::$data, $code);
     }
     /**
+     * Gets json data
+     *
+     * @return string
+     */
+    public static function getData()
+    {
+        $message = json_encode(
+            self::$data,
+            JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
+        );
+        self::$data = '';
+        return $message;
+    }
+    /**
      * Generates a default means to print data to screen.
      *
      * @param mixed    $data The data to print.
