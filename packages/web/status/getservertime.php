@@ -23,10 +23,8 @@ require '../commons/base.inc.php';
 session_write_close();
 ignore_user_abort(true);
 set_time_limit(0);
-echo '<p class="nav-text">'
-    . FOGCore::formatTime(
-        'Now',
-        'M d, Y G:i a'
-    )
-    . '</p>';
+echo FOGCore::formatTime(
+    'Now',
+    'M d, Y G:i a'
+);
 exit;

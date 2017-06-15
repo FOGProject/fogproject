@@ -72,13 +72,18 @@ if (self::$FOGUser->isValid()) {
     echo '</a>';
     echo '<span class="nav-text version-info pull-left">';
     printf(
-        '%s %s<br/>%s: %d',
+        '%s %s<br/>%s: %d<br/>',
         _('Running Version'),
         FOG_VERSION,
         _('SVN Revision'),
         FOG_SVN_REVISION
     );
-    echo '<span id="showtime"></span>';
+    echo '<span id="showtime">'
+        . FOGCore::formatTime(
+            'Now',
+            'M d, Y G:i a'
+        )
+        . '</span>';
     echo '</span>';
     echo '</div>';
     echo '<div class="collapse navbar-collapse">';
