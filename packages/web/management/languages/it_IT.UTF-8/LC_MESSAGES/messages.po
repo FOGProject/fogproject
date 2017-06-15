@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-15 15:30-0400\n"
+"POT-Creation-Date: 2017-06-15 15:56-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -80,12 +80,12 @@ msgstr "Dati deve essere un array o un callable"
 msgid "Notes"
 msgstr "Note"
 
-#: /var/www/fog/lib/fog/fogsubmenu.class.php:551
+#: /var/www/fog/lib/fog/fogsubmenu.class.php:557
 msgid "Title must be a string"
 msgstr "Titolo deve essere una stringa"
 
-#: /var/www/fog/lib/fog/fogsubmenu.class.php:567
-#: /var/www/fog/lib/fog/fogsubmenu.class.php:584
+#: /var/www/fog/lib/fog/fogsubmenu.class.php:573
+#: /var/www/fog/lib/fog/fogsubmenu.class.php:590
 msgid "Link must be a string"
 msgstr "Collegamento deve essere una stringa"
 

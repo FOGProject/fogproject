@@ -435,13 +435,17 @@ class FOGSubMenu extends FOGBase
             return;
         }
         echo '<div class="col-xs-3">';
-        echo '<ul class="nav nav-pills nav-stacked">';
         if ($this->mainitems[$node]) {
             foreach ((array)$this->mainitems[$node] as $title => &$data) {
+                echo '<div class="panel panel-info">';
                 self::$_title = $this->fixTitle($title);
+                echo '<div class="panel-heading">';
                 echo '<h4 class="category">';
                 echo self::$_title;
                 echo '</h4>';
+                echo '</div>';
+                echo '<div class="panel-body">';
+                echo '<ul class="nav nav-pills nav-stacked">';
                 foreach ((array) $data as $label => &$link) {
                     $hash = '';
                     if (!$this->isExternalLink($link)) {
@@ -529,10 +533,12 @@ class FOGSubMenu extends FOGBase
                     }
                     unset($link, $label);
                 }
+                echo '</ul>';
+                echo '</div>';
                 unset($data, $title);
             }
+            echo '</div>';
         }
-        echo '</ul>';
         echo '</div>';
         return ob_get_clean();
     }
