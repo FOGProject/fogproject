@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-15 14:55-0400\n"
+"POT-Creation-Date: 2017-06-15 15:30-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2518,12 +2518,12 @@ msgid "FOG Wiki"
 msgstr "FOG Wiki"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:62
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:173
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:174
 msgid "FOG Forums"
 msgstr "Foros FOG"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:66
-#: /var/www/fog/management/other/index.php:204
+#: /var/www/fog/management/other/index.php:195
 msgid "Donate to FOG"
 msgstr "Donar a la niebla"
 
@@ -3455,178 +3455,178 @@ msgstr "actualización de servicio no pudo"
 msgid "Service Updated!"
 msgstr "Servicio de Actualización!"
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:56
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:57
 msgid "FOG Client Installer"
 msgstr "FOG Client Installer"
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:82
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:83
 msgid "New Client and Utilities"
 msgstr "Nuevo Cliente y Utilidades"
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:85
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:86
 #, fuzzy
 msgid "The installers for the fog client"
 msgstr "Este ajuste define el nombre de usuario utilizado para el cliente ssh."
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:87
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:88
 #, fuzzy
 msgid "Client Version"
 msgstr "Versión de la CPU"
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:95
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:96
 msgid "Cross platform"
 msgstr ""
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:96
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:97
 #, fuzzy
 msgid "more secure"
 msgstr "Importar usuarios"
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:97
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:98
 #, fuzzy
 msgid "faster"
 msgstr "Fecha"
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:98
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:99
 msgid "and much easier on the server"
 msgstr ""
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:102
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:103
 msgid "Especially when your organization has many hosts"
 msgstr ""
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:110
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:111
 msgid "Use this for network installs"
 msgstr ""
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:111
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:112
 msgid "For example, a GPO policy to push"
 msgstr ""
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:112
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:113
 msgid "This file will only work on Windows"
 msgstr ""
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:115
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:116
 msgid "MSI"
 msgstr ""
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:117
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:118
 #, fuzzy
 msgid "Network Installer"
 msgstr "impresora de red"
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:124
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:125
 #, fuzzy
 msgid "This is the recommended installer to use now"
 msgstr ""
 "Este es el programa de instalación se recomiendan utilizar ahora. Se puede "
 "utilizar en Windows, Linux y Mac OS X."
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:125
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:126
 msgid "It can be used on Windows"
 msgstr ""
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:126
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:127
 msgid "Linux"
 msgstr "Linux"
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:127
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:128
 msgid "and Mac OS X"
 msgstr ""
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:128
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:129
 #, fuzzy
 msgid "Smart Installer"
 msgstr "Instalador inteligente (recomendado)"
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:129
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:130
 msgid "Recommended"
 msgstr ""
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:139
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:140
 msgid "Help and Guide"
 msgstr "Ayuda y Guía"
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:142
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:143
 msgid "Where to get help"
 msgstr ""
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:148
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:149
 msgid "Use the links below if you need assistance"
 msgstr ""
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:149
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:150
 #: /var/www/fog/lib/plugins/windowskey/config/plugin.config.php:34
 #, fuzzy
 msgid "NOTE"
 msgstr "NO"
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:150
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:151
 msgid "Forums are the most common and fastest method of getting"
 msgstr ""
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:151
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:152
 msgid "help with any aspect of FOG"
 msgstr ""
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:159
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:160
 #, fuzzy
 msgid "Detailed documentation"
 msgstr "No se pudo crear Sesión"
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:160
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:161
 #, fuzzy
 msgid "It is primarily geared for the smart installer methodology now"
 msgstr ""
 "La documentación detallada. Está dirigido principalmente a la metodología "
 "instalador inteligente ahora."
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:161
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:162
 msgid "FOG Client Wiki"
 msgstr "FOG Wiki Cliente"
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:168
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:169
 msgid "Need more support"
 msgstr ""
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:169
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:170
 msgid "Somebody will be able to help in some form"
 msgstr ""
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:170
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:171
 msgid "Use the forums to post issues so others"
 msgstr ""
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:171
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:172
 msgid "may see the issue and help and/or use the solutions"
 msgstr ""
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:172
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:173
 msgid "Chat is also available on the forums for more realtime help"
 msgstr ""
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:183
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:184
 msgid "Legacy Client and Utilities"
 msgstr "Cliente heredado y utilidades"
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:186
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:187
 msgid "The old client and fogcrypt, deprecated"
 msgstr ""
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:192
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:193
 msgid "The legacy client and fog crypt utility for those"
 msgstr ""
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:193
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:194
 msgid "that are not yet using the new client"
 msgstr ""
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:194
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:195
 msgid "We highly recommend you make the switch for more"
 msgstr ""
 
-#: /var/www/fog/lib/pages/clientmanagementpage.class.php:195
+#: /var/www/fog/lib/pages/clientmanagementpage.class.php:196
 msgid "security and faster client communication and management"
 msgstr ""
 
@@ -8711,12 +8711,12 @@ msgstr "ejecutando la versión"
 msgid "SVN Revision"
 msgstr "Versión"
 
-#: /var/www/fog/management/other/index.php:196
+#: /var/www/fog/management/other/index.php:187
 #, fuzzy
 msgid "Credits"
 msgstr "Crear"
 
-#: /var/www/fog/management/other/index.php:199
+#: /var/www/fog/management/other/index.php:190
 #, fuzzy
 msgid "FOG Client"
 msgstr "FOG Wiki Cliente"
