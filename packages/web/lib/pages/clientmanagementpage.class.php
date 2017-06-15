@@ -44,6 +44,7 @@ class ClientManagementPage extends FOGPage
     {
         $this->name = 'Client Management';
         parent::__construct($this->name);
+        $this->menu = array();
     }
     /**
      * This is the default method called.  Displays what we want on the
@@ -76,7 +77,7 @@ class ClientManagementPage extends FOGPage
         echo '<div class="row">';
         // New Client and utilties
         echo '<div class="col-xs-4">';
-        echo '<div class="panel panel-default">';
+        echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
         echo _('New Client and Utilities');
@@ -133,7 +134,7 @@ class ClientManagementPage extends FOGPage
         echo '</div>';
         // Help and guide box
         echo '<div class="col-xs-4">';
-        echo '<div class="panel panel-default">';
+        echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
         echo _('Help and Guide');
@@ -177,7 +178,7 @@ class ClientManagementPage extends FOGPage
         echo '</div>';
         // Help and guide box
         echo '<div class="col-xs-4">';
-        echo '<div class="panel panel-default">';
+        echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
         echo _('Legacy Client and Utilities');
@@ -194,7 +195,6 @@ class ClientManagementPage extends FOGPage
             _('We highly recommend you make the switch for more'),
             _('security and faster client communication and management')
         );
-        echo '<br/>';
         printf(
             '<a href="'
             . $url

@@ -112,7 +112,7 @@ if (self::$FOGUser->isValid()) {
             ''
         )
         . '">';
-    echo '<div class="panel panel-default">';
+    echo '<div class="panel panel-primary">';
     echo '<div class="panel-heading text-center">';
     echo '<h4 class="title">'
         . $this->sectionTitle
@@ -175,16 +175,7 @@ if (self::$FOGUser->isValid()) {
             ''
         )
         . '">';
-    echo '<div class="panel panel-default">';
-    echo '<div class="panel-heading text-center">';
-    echo '<h4 class="title">'
-        . $this->sectionTitle
-        . '</h4>';
-    echo '</div>';
-    echo '<div class="panel-body">';
     echo $this->body;
-    echo '</div>';
-    echo '</div>';
     echo '</div>';
 }
 echo '<div class="collapse navbar-collapse">';

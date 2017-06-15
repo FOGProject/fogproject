@@ -621,7 +621,7 @@ abstract class FOGPage extends FOGBase
                     $actionbox .= '<div class='
                         . '"col-xs-offset-3 col-xs-9 action-boxes host '
                         . 'hiddeninitially">';
-                    $actionbox .= '<div class="panel panel-default">';
+                    $actionbox .= '<div class="panel panel-info">';
                     $actionbox .= '<div class="panel-heading text-center">';
                     $actionbox .= '<h4 class="title">';
                     $actionbox .= _('Group Associations');
@@ -663,7 +663,7 @@ abstract class FOGPage extends FOGBase
                     $actionbox .= '<div class="form-group">';
                     $actionbox .= '<span class="col-xs-4"></span>';
                     $actionbox .= '<button type="submit" class='
-                        . '"btn btn-default btn-lg">';
+                        . '"btn btn-info btn-lg">';
                     $actionbox .= _('Process group changes');
                     $actionbox .= '</button>';
                     $actionbox .= '</div>';
@@ -676,7 +676,7 @@ abstract class FOGPage extends FOGBase
                     $actionbox .= '<div class='
                         . '"col-xs-offset-3 col-xs-9 action-boxes del '
                         . 'hiddeninitially">';
-                    $actionbox .= '<div class="panel panel-default">';
+                    $actionbox .= '<div class="panel panel-warning">';
                     $actionbox .= '<div class="panel-heading text-center">';
                     $actionbox .= '<h4 class="title">';
                     $actionbox .= _('Delete Selected');
@@ -713,7 +713,7 @@ abstract class FOGPage extends FOGBase
                         . strtolower($node)
                         . 'IDArray"/>';
                     $actionbox .= '<button type="submit" class='
-                        . '"btn btn-default btn-lg" id="'
+                        . '"btn btn-danger btn-lg" id="'
                         . 'del-'
                         . $node
                         . '">';
@@ -1108,7 +1108,7 @@ abstract class FOGPage extends FOGBase
                 'attributes' => &$this->attributes
             )
         );
-        echo '<div class="col-xs-offset-3 panel panel-default">';
+        echo '<div class="col-xs-offset-3 panel panel-primary">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
         echo _('Confirm tasking');
@@ -1311,7 +1311,7 @@ abstract class FOGPage extends FOGBase
             echo '</div>';
         }
         if (count($this->data)) {
-            echo '<button type="submit" class="btn btn-default btn-block">';
+            echo '<button type="submit" class="btn btn-success btn-block">';
             echo _('Create')
                 . ' '
                 . $TaskType->get('name')
@@ -1323,7 +1323,7 @@ abstract class FOGPage extends FOGBase
         echo '</div>';
         echo '</div>';
         if ($this->node != 'host') {
-            echo '<div class="col-xs-offset-3 panel panel-default">';
+            echo '<div class="col-xs-offset-3 panel panel-info">';
             echo '<div class="panel-heading text-center">';
             echo '<h2 class="title">';
             echo _('Hosts in task');
@@ -1711,8 +1711,8 @@ abstract class FOGPage extends FOGBase
         } catch (Exception $e) {
             printf(
                 '<div class="col-xs-offset-3">'
-                . '<div class="panel panel-default">'
-                . '<div class="panel-body text-center alert alert-danger">'
+                . '<div class="panel panel-danger">'
+                . '<div class="panel-body text-center">'
                 . '<p>%s</p>'
                 . '<p>%s</p>'
                 . '</div>'
@@ -1745,8 +1745,8 @@ abstract class FOGPage extends FOGBase
             }
             printf(
                 '<div class="col-xs-offset-3">'
-                . '<div class="panel panel-default">'
-                . '<div class="panel-body text-center alert alert-success">'
+                . '<div class="panel panel-success">'
+                . '<div class="panel-body text-center">'
                 . '<p>%s: %s</p>'
                 . '<p>%s%s</p>'
                 . '</div>'

@@ -239,7 +239,7 @@ class DashboardPage extends FOGPage
         echo '<div class="row">';
         // Overview
         echo '<div class="col-xs-4">';
-        echo '<div class="panel panel-default">';
+        echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
         echo _('System Overview');
@@ -263,7 +263,7 @@ class DashboardPage extends FOGPage
         echo '</div>';
         // Activity
         echo '<div class="col-xs-4">';
-        echo '<div class="panel panel-default">';
+        echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
         echo _('Storage Group Activity');
@@ -288,7 +288,7 @@ class DashboardPage extends FOGPage
         echo '</div>';
         // Disk usage
         echo '<div class="col-xs-4">';
-        echo '<div class="panel panel-default">';
+        echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
         echo _('Storage Node Disk Usage');
@@ -314,7 +314,7 @@ class DashboardPage extends FOGPage
         // 30 day row.
         echo '<div class="row">';
         echo '<div class="col-xs-12">';
-        echo '<div class="panel panel-default">';
+        echo '<div class="panel panel-info">';
         echo '<div class="panel-heading">';
         echo '<div class="row text-center">';
         echo '<h4 class="title">';
@@ -347,7 +347,7 @@ class DashboardPage extends FOGPage
             implode(',', self::$_nodeURLs),
             implode(',', self::$_nodeNames)
         );
-        echo '<div class="panel panel-default">';
+        echo '<div class="panel panel-info">';
         echo '<div class="panel-heading">';
         echo '<h4 class="title">';
         echo self::$foglang['Bandwidth'];
