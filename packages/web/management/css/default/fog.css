@@ -1,6 +1,7 @@
 body {
     padding-top: 70px;
     padding-bottom: 130px;
+    overflow-y: hidden;
 }
 .logoimg {
     position: relative;
@@ -125,6 +126,10 @@ table td {
 }
 .input-group-addon {
     min-width: 50px;
+}
+.container {
+    overflow: auto;
+    max-height: 620px;
 }
 footer {
     line-height: 5px;
