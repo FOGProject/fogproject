@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-15 13:05-0400\n"
+"POT-Creation-Date: 2017-06-15 14:55-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -85,13 +85,13 @@ msgstr ""
 msgid "Notes"
 msgstr "Remarques"
 
-#: /var/www/fog/lib/fog/fogsubmenu.class.php:430
+#: /var/www/fog/lib/fog/fogsubmenu.class.php:551
 #, fuzzy
 msgid "Title must be a string"
 msgstr "Événement doit être une chaîne"
 
-#: /var/www/fog/lib/fog/fogsubmenu.class.php:446
-#: /var/www/fog/lib/fog/fogsubmenu.class.php:463
+#: /var/www/fog/lib/fog/fogsubmenu.class.php:567
+#: /var/www/fog/lib/fog/fogsubmenu.class.php:584
 #, fuzzy
 msgid "Link must be a string"
 msgstr "Événement doit être une chaîne"
@@ -2479,11 +2479,11 @@ msgstr "Utilisation Noeud de stockage de disque"
 msgid "Selected node's disk usage"
 msgstr "stockage d'image de l'utilisation du disque du noeud sélectionné"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:319
+#: /var/www/fog/lib/pages/dashboardpage.class.php:321
 msgid "Imaging Over the last 30 days"
 msgstr "Imaging Au cours des 30 derniers jours"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:378
+#: /var/www/fog/lib/pages/dashboardpage.class.php:380
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:466
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1931
 #: /var/www/fog/lib/reports/user_tracking.report.php:215
@@ -2492,20 +2492,20 @@ msgstr "Imaging Au cours des 30 derniers jours"
 msgid "Time"
 msgstr "Temps"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:381
-#: /var/www/fog/lib/pages/dashboardpage.class.php:389
+#: /var/www/fog/lib/pages/dashboardpage.class.php:383
+#: /var/www/fog/lib/pages/dashboardpage.class.php:391
 msgid "2 Minutes"
 msgstr "2 minutes"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:394
+#: /var/www/fog/lib/pages/dashboardpage.class.php:396
 msgid "10 Minutes"
 msgstr "10 minutes"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:399
+#: /var/www/fog/lib/pages/dashboardpage.class.php:401
 msgid "30 Minutes"
 msgstr "30 minutes"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:404
+#: /var/www/fog/lib/pages/dashboardpage.class.php:406
 #, fuzzy
 msgid "1 Hour"
 msgstr "1 heure"
