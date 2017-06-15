@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-13 20:20-0400\n"
+"POT-Creation-Date: 2017-06-15 13:05-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2513,7 +2513,7 @@ msgid "FOG Forums"
 msgstr "FOG论坛"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:66
-#: /var/www/fog/management/other/index.php:199
+#: /var/www/fog/management/other/index.php:204
 msgid "Donate to FOG"
 msgstr "捐赠雾"
 
@@ -8555,7 +8555,7 @@ msgid "Example Bolded Header"
 msgstr "例如粗体标题"
 
 #: /var/www/fog/management/other/index.php:60
-#: /var/www/fog/management/other/index.php:144
+#: /var/www/fog/management/other/index.php:149
 msgid "Toggle Navigation"
 msgstr ""
 
@@ -8568,12 +8568,12 @@ msgstr "运行版本"
 msgid "SVN Revision"
 msgstr "版"
 
-#: /var/www/fog/management/other/index.php:191
+#: /var/www/fog/management/other/index.php:196
 #, fuzzy
 msgid "Credits"
 msgstr "创建"
 
-#: /var/www/fog/management/other/index.php:194
+#: /var/www/fog/management/other/index.php:199
 #, fuzzy
 msgid "FOG Client"
 msgstr "FOG客户维基"
