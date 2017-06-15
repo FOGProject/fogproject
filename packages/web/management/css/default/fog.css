@@ -138,7 +138,7 @@ footer {
         display: none;
     }
 }
-@media (min-width: 850px) and (max-width: 1147px) {
+@media (min-width: 850px) and (max-width: 1189px) {
     body {
         padding-top: 120px;
         padding-bottom: 70px;
@@ -150,7 +150,7 @@ footer {
         padding-bottom: 70px;
     }
 }
-@media (min-width: 1147px) {
+@media (min-width: 1189px) {
     body {
         padding-top: 70px;
         padding-bottom: 70px;
