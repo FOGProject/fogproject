@@ -526,11 +526,9 @@ class Page extends FOGBase
         if (count($class->menu) < 1) {
             return;
         }
-        echo '<div class="col-xs-3">';
-        echo '<ul class="nav nav-pills nav-stacked">';
         $FOGSub = new FOGSubMenu();
         foreach ($class->menu as $l => &$t) {
-            $items = $FOGSub->addMainItems(
+            $FOGSub->addMainItems(
                 $class->node,
                 array((string)$t => (string)$l),
                 '',
@@ -540,67 +538,8 @@ class Page extends FOGBase
             unset($t);
         }
         unset($class);
-        ob_start();
-        foreach ((array)$items[$node] as $title => &$data) {
-            $title = $FOGSub->fixTitle($title);
-            echo '<h4 class="category">';
-            echo $title;
-            echo '</h4>';
-            foreach ((array)$data as $label => &$link) {
-                if ($label == 'class') {
-                    continue;
-                }
-                $string = sprintf(
-                    '<li><a class="%s" href="${link}">%s</a></li>',
-                    $link,
-                    $label
-                );
-                if ($FOGSub->isExternalLink($link)) {
-                    echo str_replace(
-                        '${link}',
-                        $link,
-                        $string
-                    );
-                } elseif (!$link) {
-                    echo str_replace(
-                        '${link}',
-                        "../management/index.php?node=$node",
-                        $string
-                    );
-                } else {
-                    $string = str_replace(
-                        '${link}',
-                        "../management/index.php?node=$node&"
-                        . 'sub=${link}',
-                        $string
-                    );
-                    if (!$sub || $title == self::$foglang['MainMenu']) {
-                        echo str_replace(
-                            '${link}',
-                            $link,
-                            $string
-                        );
-                    } elseif ($FOGSub->defaultSubs[$node]) {
-                        echo str_replace(
-                            '${link}',
-                            "{$FOGSub->defaultSubs[$node]}&tab=$link",
-                            $string
-                        );
-                    } else {
-                        echo str_replace(
-                            '${link}',
-                            "$sub&tab=$link",
-                            $string
-                        );
-                    }
-                }
-                unset($link);
-            }
-            unset($data);
-        }
-        echo ob_get_clean();
-        echo '</ul>';
-        echo '</div>';
+        echo $FOGSub->getMainItems($node);
+        unset($FOGSub);
     }
     /**
      * Generates our main item, sub item, and notes tabs.

@@ -298,7 +298,9 @@ class DashboardPage extends FOGPage
         echo '</p>';
         echo '</div>';
         echo '<div class="panel-body">';
+        echo '<a href="?node=hwinfo">';
         echo '<div class="graph pie-graph fogdashbox" id="graph-diskusage"></div>';
+        echo '</a>';
         echo '<div class="graph-selectors" id="diskusage-selector">';
         printf(
             '<select name="nodesel">%s</select>',

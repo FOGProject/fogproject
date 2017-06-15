@@ -371,11 +371,15 @@ class FOGSubMenu extends FOGBase
                         );
                     } else {
                         global $sub;
-                        $string = str_replace(
-                            '${link}',
-                            "\${link}",
-                            $string
-                        );
+                        $components = parse_url($link);
+                        if (!isset($components['query'])) {
+                            $string = str_replace(
+                                '${link}',
+                                "?node=$node&"
+                                . 'sub=${link}',
+                                $string
+                            );
+                        }
                         if (!$sub || $title == self::$foglang['MainMenu']) {
                             echo str_replace(
                                 '${hash}',
@@ -413,6 +417,123 @@ class FOGSubMenu extends FOGBase
         }
         echo '</ul>';
 
+        return ob_get_clean();
+    }
+    /**
+     * Gets the data as setup.
+     *
+     * @param string $node The node to get menu for
+     *
+     * @throws Exception
+     *
+     * @return string
+     */
+    public function getMainItems($node)
+    {
+        ob_start();
+        if (count($this->mainitems[$node]) < 1) {
+            return;
+        }
+        echo '<div class="col-xs-3">';
+        echo '<ul class="nav nav-pills nav-stacked">';
+        if ($this->mainitems[$node]) {
+            foreach ((array)$this->mainitems[$node] as $title => &$data) {
+                self::$_title = $this->fixTitle($title);
+                echo '<h4 class="category">';
+                echo self::$_title;
+                echo '</h4>';
+                foreach ((array) $data as $label => &$link) {
+                    $hash = '';
+                    if (!$this->isExternalLink($link)) {
+                        $hash = $this->getTarget($link);
+                        if ($hash) {
+                            $link = str_replace(
+                                "#$hash",
+                                '',
+                                $link
+                            );
+                        }
+                    }
+                    if ($label == 'class') {
+                        continue;
+                    }
+                    $string = sprintf(
+                        '<li><a class="%s" href="${link}${hash}">%s</a></li>',
+                        $hash ?: $node.'-'.$sub,
+                        $label
+                    );
+                    if ($this->isExternalLink($link)) {
+                        echo str_replace(
+                            '${hash}',
+                            (
+                                $hash ?
+                                "#$hash" :
+                                ''
+                            ),
+                            str_replace(
+                                '${link}',
+                                $link,
+                                $string
+                            )
+                        );
+                    } elseif (!$link) {
+                        echo str_replace(
+                            '${hash}',
+                            '',
+                            str_replace(
+                                '${link}',
+                                "?node=$node",
+                                $string
+                            )
+                        );
+                    } else {
+                        global $sub;
+                        $components = parse_url($link);
+                        if (!isset($components['query'])) {
+                            $string = str_replace(
+                                '${link}',
+                                "?node=$node&"
+                                . 'sub=${link}',
+                                $string
+                            );
+                        }
+                        if (!$sub || $title == self::$foglang['MainMenu']) {
+                            echo str_replace(
+                                '${hash}',
+                                (
+                                    $hash ?
+                                    "#$hash" :
+                                    ''
+                                ),
+                                str_replace(
+                                    '${link}',
+                                    $link,
+                                    $string
+                                )
+                            );
+                        } else {
+                            echo str_replace(
+                                '${hash}',
+                                (
+                                    $hash ?
+                                    "#$hash" :
+                                    ''
+                                ),
+                                str_replace(
+                                    '${link}',
+                                    $link,
+                                    $string
+                                )
+                            );
+                        }
+                    }
+                    unset($link, $label);
+                }
+                unset($data, $title);
+            }
+        }
+        echo '</ul>';
+        echo '</div>';
         return ob_get_clean();
     }
     /**
