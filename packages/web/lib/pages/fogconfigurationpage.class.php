@@ -1224,11 +1224,11 @@ class FOGConfigurationPage extends FOGPage
         echo '<div id="delete"></div>';
         echo '<div id="update"></div>';
         echo '<div class="row">';
-        echo '<button class="macButtons btn btn-default" type='
+        echo '<button class="macButtons btn btn-danger" type='
             . '"button" id="macButtonDel">';
         echo _('Delete MACs');
         echo '</button>';
-        echo '<button class="macButtons btn btn-default" type='
+        echo '<button class="macButtons btn btn-info" type='
             . '"button" id="macButtonUp">';
         echo _('Update MACs');
         echo '</button>';
@@ -1383,11 +1383,13 @@ class FOGConfigurationPage extends FOGPage
                 )
             );
         $this->title = _('FOG System Settings');
+        echo '<div class="col-xs-9">';
         printf(
-            '<p class="hostgroup">%s</p><form method='
+            '<div class="panel panel-info">'
+            . '<div class="panel-body">'
+            . '<p class="hostgroup">%s</p><form method='
             . '"post" action="%s" enctype="multipart/form-data" '
-            . 'class="form-horizontal">'
-            . '<div id="tab-container-1">',
+            . 'class="form-horizontal"></div></div>',
             _('This section allows you to customize or alter ')
             . _('the way in which FOG operates. ')
             . _('Please be very careful changing any of ')
@@ -1399,17 +1401,22 @@ class FOGConfigurationPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 270,
-                'height' => 35
+                'height' => 35,
+                'class' => 'col-xs-2'
             ),
-            array(),
-            array('class' => 'r'),
+            array('class' => 'col-xs-9'),
+            array('class' => 'col-xs-1'),
         );
         $this->templates = array(
             '${service_name}',
             '${input_type}',
             '${span}',
         );
-        echo '<a href="#" class="trigger_expand"><h3>Expand All</h3></a>';
+        echo '<div class="col-xs-12">'
+            . '<a href="#" class='
+            . '"btn btn-info btn-block trigger_expand"><h4>'
+            . _('Expand All')
+            . '</h4></a></div>';
         $catset = false;
         foreach ((array)self::getClass('ServiceManager')
             ->find(
@@ -1436,7 +1443,7 @@ class FOGConfigurationPage extends FOGPage
                         . _('Save changes?')
                         . '</label>',
                         'input_type' => '<div class="input-group">'
-                        . '<button class="btn btn-default btn-block" type="submit" '
+                        . '<button class="btn btn-info btn-block" type="submit" '
                         . 'name="update" id="'
                         . $catset
                         . $curcat
@@ -1445,14 +1452,16 @@ class FOGConfigurationPage extends FOGPage
                         . '</button>'
                         . '</div>'
                     );
-                    $this->render();
+                    $this->render(12);
                     unset($this->data);
                     echo '</div>';
                 }
                 printf(
-                    '<a id="%s" class="expand_trigger"'
+                    '<div class="col-xs-12">'
+                    . '<a id="%s" class='
+                    . '"expand_trigger btn btn-info btn-block"'
                     . ' href="#%s">'
-                    . '<h3>%s</h3></a><div id="%s" class="hidefirst">',
+                    . '<h4>%s</h4></a></div><div id="%s" class="hidefirst">',
                     $divTab,
                     $divTab,
                     $Service->get('category'),
@@ -1736,11 +1745,12 @@ class FOGConfigurationPage extends FOGPage
                 $extra = '"/></div>';
                 $normal = '${service_value}';
                 if ('FOG_API_TOKEN' === $Service->get('name')) {
-                    $extra = 'token" readonly/></div>'
-                        . '<button class="resettoken btn btn-default btn-block" '
-                        . 'type="button">'
+                    $extra = 'token" readonly/>'
+                        . '<span class='
+                        . '"resettoken input-group-addon">'
                         . _('Reset Token')
-                        . '</button>';
+                        . '</span>'
+                        . '</div>';
                     $normal = '${service_base64val}';
                 }
                 $type = '<div class="input-group">';
@@ -1765,7 +1775,7 @@ class FOGConfigurationPage extends FOGPage
             case (in_array($Service->get('name'), $ServiceNames)):
                 $type = sprintf(
                     '<div class="input-group">'
-                    . '<input class="form-control" '
+                    . '<input '
                     . 'type="checkbox" name="${service_id}" value='
                     . '"1" id="%s"%s/>',
                     $Service->get('name'),
@@ -1844,7 +1854,8 @@ class FOGConfigurationPage extends FOGPage
                     . '" type='
                     . '"text" name="${service_id}" value='
                     . '"${service_value}" autocomplete="off" '
-                    . 'class="form-control"/>';
+                    . 'class="form-control"/>'
+                    . '</div>';
                 break;
             }
             $this->data[] = array(
@@ -1869,7 +1880,8 @@ class FOGConfigurationPage extends FOGPage
                 . $Service->get('name')
                 . '</label>',
                 'span' => '<i class="icon fa fa-question hand" title='
-                . '"${service_desc}"></i>',
+                . '"${service_desc}" data-toggle='
+                . '"tooltip" data-placement="top"></i>',
                 'service_id' => $Service->get('id'),
                 'id' => $Service->get('id'),
                 'service_value' => $Service->get('value'),
@@ -1895,16 +1907,18 @@ class FOGConfigurationPage extends FOGPage
             'span' => '&nbsp;',
             'service_name' => '',
             'input_type' => '<div class="input-group">'
-            . '<button class="btn btn-default btn-block" name="update" '
+            . '<button class="btn btn-info btn-block" name="update" '
             . 'type="submit">'
             . _('Save Changes')
             . '</button>'
             . '</div>'
         );
-        $this->render();
+        $this->render(12);
         unset($this->data);
         echo '</div>';
-        echo '</div></div></form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
     }
     /**
      * Gets the osid information

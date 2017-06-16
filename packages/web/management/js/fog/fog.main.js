@@ -4,11 +4,6 @@ $(function() {
         var checked = getChecked()
         $('input[name="'+node+'IDArray"]').val(checked.join(','));
     });
-    // Advanced Tasks stuff
-    $('.advanced-tasks-link').click(function(e) {
-        $('.advanced-tasks').appendTo($('#tab-container').parents('.card'));
-        $('.advanced-tasks').toggle();
-    });
     $('#FOG_QUICKREG_IMG_ID').change(function() {
         $.ajax({
             url: '?node=about',
@@ -77,11 +72,11 @@ $(function() {
         active = all.filter('.active');
         if (all.length && all.length === active.length) {
             // All open; close them
-            all.removeClass('active').next().slideUp();
-            $('.trigger_expand').html('<a href="#" class="trigger_expand"><h3>Expand All</h3></a>');
+            all.removeClass('active').parents('div').next().slideUp();
+            $('.trigger_expand').html('<h4 class="title">Expand All</h4>');
         } else {
-            all.not('.active').addClass('active').next().slideDown();
-            $('.trigger_expand').html('<a href="#" class="trigger_expand"><h3>Collapse All</h3></a>');
+            all.not('.active').addClass('active').parents('div').next().slideDown();
+            $('.trigger_expand').html('<h4 class="title">Collapse All</h4>');
         }
         return false;
     });
@@ -187,11 +182,10 @@ $(function() {
     });
     // Tabs
     // Hides all the divs in the Service menu
-    $('#tab-container-1 > div').hide();
     // Shows the div of the containing element.
-    $('#tab-container-1 > a').click(function() {
-        $('#tab-container-1 div#'+$(this).attr('id')).fadeToggle('slow','swing');
-        return false;
+    $('.expand_trigger').click(function(e) {
+        e.preventDefault();
+        $('div#'+$(this).prop('id')).fadeToggle('slow','swing');
     });
     $('input[name=export]').click(function(e) {
         e.preventDefault();

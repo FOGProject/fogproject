@@ -588,18 +588,22 @@ abstract class FOGPage extends FOGBase
     /**
      * Print the information
      *
+     * @param int $colsize Col size
+     *
      * @return void
      */
-    public function render()
+    public function render($colsize = 9)
     {
-        echo $this->process();
+        echo $this->process($colsize);
     }
     /**
      * Process the information
      *
+     * @param int $colsize Col Size
+     *
      * @return string
      */
-    public function process()
+    public function process($colsize = 9)
     {
         try {
             unset($actionbox);
@@ -640,32 +644,37 @@ abstract class FOGPage extends FOGBase
                     $actionbox .= '"group_new">';
                     $actionbox .= _('Create new group');
                     $actionbox .= '</label>';
+                    $actionbox .= '<div class="col-xs-5">';
                     $actionbox .= '<div class="input-group">';
                     $actionbox .= '<input type="hidden" name="hostIDArray"/>';
                     $actionbox .= '<input type="text" name="group_new" id='
                         . '"group_new" class="form-control"/>';
                     $actionbox .= '</div>';
                     $actionbox .= '</div>';
+                    $actionbox .= '</div>';
                     $actionbox .= '<div class="form-group">';
+                    $actionbox .= '<div class="col-xs-9 text-center">';
                     $actionbox .= '<label class="control-label col-xs-4">';
                     $actionbox .= _('or');
                     $actionbox .= '</label>';
+                    $actionbox .= '</div>';
                     $actionbox .= '</div>';
                     $actionbox .= '<div class="form-group">';
                     $actionbox .= '<label class="control-label col-xs-4" for=';
                     $actionbox .= '"group">';
                     $actionbox .= _('Add to group');
                     $actionbox .= '</label>';
-                    $actionbox .= '<div class="input-group">';
+                    $actionbox .= '<div class="col-xs-5">';
                     $actionbox .= self::getClass('GroupManager')->buildSelectBox();
                     $actionbox .= '</div>';
                     $actionbox .= '</div>';
                     $actionbox .= '<div class="form-group">';
-                    $actionbox .= '<span class="col-xs-4"></span>';
+                    $actionbox .= '<div class="col-xs-offset-4 col-xs-5">';
                     $actionbox .= '<button type="submit" class='
-                        . '"btn btn-info btn-lg">';
+                        . '"btn btn-info btn-block">';
                     $actionbox .= _('Process group changes');
                     $actionbox .= '</button>';
+                    $actionbox .= '</div>';
                     $actionbox .= '</div>';
                     $actionbox .= '</form>';
                     $actionbox .= '</div>';
@@ -709,16 +718,18 @@ abstract class FOGPage extends FOGBase
                         )
                     );
                     $actionbox .= '</label>';
+                    $actionbox .= '<div class="col-xs-5">';
                     $actionbox .= '<input type="hidden" name="'
                         . strtolower($node)
                         . 'IDArray"/>';
                     $actionbox .= '<button type="submit" class='
-                        . '"btn btn-danger btn-lg" id="'
+                        . '"btn btn-danger btn-block" id="'
                         . 'del-'
                         . $node
                         . '">';
                     $actionbox .= _('Delete');
                     $actionbox .= '</button>';
+                    $actionbox .= '</div>';
                     $actionbox .= '</div>';
                     $actionbox .= '</form>';
                     $actionbox .= '</div>';
@@ -768,7 +779,9 @@ abstract class FOGPage extends FOGBase
                 printf($this->form);
             }
             if ($node != 'home') {
-                echo '<div class="table-holder col-xs-9">';
+                echo '<div class="table-holder col-xs-'
+                    . $colsize
+                    . '">';
             }
             echo '<table class="table">';
             if (count($this->data) < 1) {
