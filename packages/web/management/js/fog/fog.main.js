@@ -1,4 +1,45 @@
 $(function() {
+    // Special crons as possible.
+    $('.specialCrons').on('change focus focusout', function(e) {
+        e.preventDefault();
+        switch(this.value) {
+            case 'hourly':
+                $(this).parents('.cronOptions').next().find('.scheduleCronMin').focus().val('0');
+                $(this).parents('.cronOptions').next().find('.scheduleCronHour').focus().val('*');
+                $(this).parents('.cronOptions').next().find('.scheduleCronDOM').focus().val('*');
+                $(this).parents('.cronOptions').next().find('.scheduleCronMonth').focus().val('*');
+                $(this).parents('.cronOptions').next().find('.scheduleCronDOW').focus().val('*');
+                break;
+            case 'daily':
+                $(this).parents('.cronOptions').next().find('.scheduleCronMin').focus().val('0');
+                $(this).parents('.cronOptions').next().find('.scheduleCronHour').focus().val('0');
+                $(this).parents('.cronOptions').next().find('.scheduleCronDOM').focus().val('*');
+                $(this).parents('.cronOptions').next().find('.scheduleCronMonth').focus().val('*');
+                $(this).parents('.cronOptions').next().find('.scheduleCronDOW').focus().val('*');
+                break;
+            case 'weekly':
+                $(this).parents('.cronOptions').next().find('.scheduleCronMin').focus().val('0');
+                $(this).parents('.cronOptions').next().find('.scheduleCronHour').focus().val('0');
+                $(this).parents('.cronOptions').next().find('.scheduleCronDOM').focus().val('*');
+                $(this).parents('.cronOptions').next().find('.scheduleCronMonth').focus().val('*');
+                $(this).parents('.cronOptions').next().find('.scheduleCronDOW').focus().val('0');
+                break;
+            case 'monthly':
+                $(this).parents('.cronOptions').next().find('.scheduleCronMin').focus().val('0');
+                $(this).parents('.cronOptions').next().find('.scheduleCronHour').focus().val('0');
+                $(this).parents('.cronOptions').next().find('.scheduleCronDOM').focus().val('1');
+                $(this).parents('.cronOptions').next().find('.scheduleCronMonth').focus().val('*');
+                $(this).parents('.cronOptions').next().find('.scheduleCronDOW').focus().val('*');
+                break;
+            case 'yearly':
+                $(this).parents('.cronOptions').next().find('.scheduleCronMin').focus().val('0');
+                $(this).parents('.cronOptions').next().find('.scheduleCronHour').focus().val('0');
+                $(this).parents('.cronOptions').next().find('.scheduleCronDOM').focus().val('1');
+                $(this).parents('.cronOptions').next().find('.scheduleCronMonth').focus().val('1');
+                $(this).parents('.cronOptions').next().find('.scheduleCronDOW').focus().val('*');
+                break
+        }
+    });
     // Multi delete stuff
     $('.action-boxes').submit(function() {
         var checked = getChecked()
@@ -253,49 +294,6 @@ function DeployStuff() {
                 $('#scheduleSingleTime').focus();
             }
         }
-    });
-    $('#specialCrons').change(function(e) {
-        e.preventDefault();
-        switch(this.value) {
-            case 'hourly':
-                $('#scheduleCronMin').focus().val('0');
-                $('#scheduleCronHour').focus().val('*');
-                $('#scheduleCronDOM').focus().val('*');
-                $('#scheduleCronMonth').focus().val('*');
-                $('#scheduleCronDOW').focus().val('*');
-                break;
-            case 'daily':
-                $('#scheduleCronMin').focus().val('0');
-                $('#scheduleCronHour').focus().val('0');
-                $('#scheduleCronDOM').focus().val('*');
-                $('#scheduleCronMonth').focus().val('*');
-                $('#scheduleCronDOW').focus().val('*');
-                break;
-            case 'weekly':
-                $('#scheduleCronMin').focus().val('0');
-                $('#scheduleCronHour').focus().val('0');
-                $('#scheduleCronDOM').focus().val('*');
-                $('#scheduleCronMonth').focus().val('*');
-                $('#scheduleCronDOW').focus().val('0');
-                break;
-            case 'monthly':
-                $('#scheduleCronMin').focus().val('0');
-                $('#scheduleCronHour').focus().val('0');
-                $('#scheduleCronDOM').focus().val('1');
-                $('#scheduleCronMonth').focus().val('*');
-                $('#scheduleCronDOW').focus().val('*');
-                break;
-            case 'yearly':
-                $('#scheduleCronMin').focus().val('0');
-                $('#scheduleCronHour').focus().val('0');
-                $('#scheduleCronDOM').focus().val('1');
-                $('#scheduleCronMonth').focus().val('1');
-                $('#scheduleCronDOW').focus().val('*');
-                break
-        }
-        $('.placeholder').each(function() {
-            $(this).focus().val('*');
-        });
     });
     // Basic validation on deployment page
     var scheduleType = $('input[name="scheduleType"]:checked').val();

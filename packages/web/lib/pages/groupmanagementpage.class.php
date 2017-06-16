@@ -1015,70 +1015,14 @@ class GroupManagementPage extends FOGPage
         echo '</fieldset></form></div>';
         echo '<!-- Power Management Items --><div id="group-powermanagement" class="'
             . 'tab-pane fade">'
-            . '<div id="delAllPMBox"></div><div class="c"><input '
-            . 'type="button" id="delAllPM"/></div><br/>';
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
-        $this->attributes = array(
-            array(),
-            array(),
-        );
-        $fields = array(
-            _('Schedule Power') => sprintf(
-                '<p class="cronOptions">'
-                . '<input type="text" name="scheduleCronMin" '
-                . 'id="scheduleCronMin" placeholder="min" '
-                . 'autocomplete="off" value="%s"/>'
-                . '<input type="text" name="scheduleCronHour" '
-                . 'id="scheduleCronHour" placeholder="hour" '
-                . 'autocomplete="off" value="%s"/>'
-                . '<input type="text" name="scheduleCronDOM" '
-                . 'id="scheduleCronDOM" placeholder="dom" '
-                . 'autocomplete="off" value="%s"/>'
-                . '<input type="text" name="scheduleCronMonth" '
-                . 'id="scheduleCronMonth" placeholder="month" '
-                . 'autocomplete="off" value="%s"/>'
-                . '<input type="text" name="scheduleCronDOW" '
-                . 'id="scheduleCronDOW" placeholder="dow" '
-                . 'autocomplete="off" value="%s"/></p>',
-                $_REQUEST['scheduleCronMin'],
-                $_REQUEST['scheduleCronHour'],
-                $_REQUEST['scheduleCronDOM'],
-                $_REQUEST['scheduleCronMonth'],
-                $_REQUEST['scheduleCronDOW']
-            ),
-            _('Perform Immediately?') => sprintf(
-                '<input type="checkbox" name="onDemand" '
-                . 'id="scheduleOnDemand"%s/><label for="'
-                . 'scheduleOnDemand"></label>',
-                !is_array($_REQUEST['onDemand'])
-                && isset($_REQUEST['onDemand']) ?
-                ' checked' :
-                ''
-            ),
-            _('Action') => self::getClass('PowerManagementManager')
-            ->getActionSelect($_REQUEST['action'])
-        );
-        foreach ($fields as $field => &$input) {
-            $this->data[] = array(
-                'field' => $field,
-                'input' => $input,
-            );
-            unset($input, $field);
-        }
-        printf(
-            '<form method="post" action="%s&tab=group-powermanagement" '
-            . 'class="deploy-container">',
-            $this->formAction
-        );
-        $this->render();
-        printf(
-            '<center><input type="submit" name="pmsubmit" value="%s"/>'
-            . '</center></form></div>',
-            _('Add Option')
-        );
+            . '<div class="col-xs-9 text-center">'
+            . '<button id="delAllPM" type="button" class='
+            . '"btn btn-danger btn-block">'
+            . _('Delete all PMs for group')
+            . '</button>'
+            . '<div id="delAllPMBox" class="hiddeninitially"></div>'
+            . '</div>';
+        $this->newPMDisplay();
         unset(
             $this->headerData,
             $this->templates,

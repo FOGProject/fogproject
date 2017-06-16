@@ -1276,46 +1276,43 @@ abstract class FOGPage extends FOGBase
             echo '</div>';
             echo '<div class="form-group hiddeninitially">';
             echo '<div class="cronOptions input-group">';
-            echo '<select class="form-control" id="specialCrons" name='
-                . '"specialCrons">';
-            echo $cronOpts;
-            echo '</select>';
+            echo FOGCron::buildSpecialCron('specialCrons');
             echo '</div>';
             echo '<div class="col-xs-12">';
             echo '<div class="cronInputs">';
             echo '<div class="col-xs-2">';
             echo '<div class="input-group">';
             echo '<input type="text" name="scheduleCronMin" '
-                . 'id="scheduleCronMin" placeholder="min" autocomplete="off" '
-                . 'class="form-control cronInput"/>';
+                . 'placeholder="min" autocomplete="off" '
+                . 'class="form-control scheduleCronMin cronInput"/>';
             echo '</div>';
             echo '</div>';
             echo '<div class="col-xs-2">';
             echo '<div class="input-group">';
             echo '<input type="text" name="scheduleCronHour" '
-                . 'id="scheduleCronHour" placeholder="hour" autocomplete="off" '
-                . 'class="form-control cronInput"/>';
+                . 'placeholder="hour" autocomplete="off" '
+                . 'class="form-control scheduleCronHour cronInput"/>';
             echo '</div>';
             echo '</div>';
             echo '<div class="col-xs-2">';
             echo '<div class="input-group">';
             echo '<input type="text" name="scheduleCronDOM" '
-                . 'id="scheduleCronDOM" placeholder="dom" autocomplete="off" '
-                . 'class="form-control cronInput"/>';
+                . 'placeholder="dom" autocomplete="off" '
+                . 'class="form-control scheduleCronDOM cronInput"/>';
             echo '</div>';
             echo '</div>';
             echo '<div class="col-xs-2">';
             echo '<div class="input-group">';
             echo '<input type="text" name="scheduleCronMonth" '
-                . 'id="scheduleCronMonth" placeholder="month" autocomplete="off" '
-                . 'class="form-control cronInput"/>';
+                . 'placeholder="month" autocomplete="off" '
+                . 'class="form-control scheduleCronMonth cronInput"/>';
             echo '</div>';
             echo '</div>';
             echo '<div class="col-xs-2">';
             echo '<div class="input-group">';
             echo '<input type="text" name="scheduleCronDOW" '
-                . 'id="scheduleCronDOW" placeholder="dow" autocomplete="off" '
-                . 'class="form-control cronInput"/>';
+                . 'placeholder="dow" autocomplete="off" '
+                . 'class="form-control scheduleCronDOW cronInput"/>';
             echo '</div>';
             echo '</div>';
             echo '</div>';
@@ -1851,8 +1848,9 @@ abstract class FOGPage extends FOGBase
             $this->render();
             printf(
                 '<p class="c"><input type="hidden" name="storagegroup" '
-                . 'value="%d"/><input type="submit" name="delete" '
-                . 'value="%s?"/></p>',
+                . 'value="%d"/><button class="btn btn-danger" type="submit" name='
+                . '"delete">%s?</button>'
+                . '</p>',
                 (
                     $this->childClass === 'StorageGroup' ?
                     1 :
@@ -3311,8 +3309,9 @@ abstract class FOGPage extends FOGBase
             );
             $this->render();
             printf(
-                '</div><br/><p class="c"><input type="submit" '
-                . 'value="%s %s(s) to %s" name="addHosts"/></p><br/>',
+                '</div><br/><p class="c"><button class="btn btn-info" type='
+                . '"submit" name="addHosts">%s %s(s) to %s</button> '
+                . '</p><br/>',
                 _('Add'),
                 (
                     $objType ?
@@ -3380,8 +3379,8 @@ abstract class FOGPage extends FOGBase
         $this->render();
         if (count($this->data)) {
             printf(
-                '<p class="c"><input type="submit" '
-                . 'value="%s %ss %s %s" name="remhosts"/></p>',
+                '<p class="c"><button type="submit" name="remhosts" '
+                . 'class="btn btn-danger">%s %ss %s %s</button></p>',
                 _('Delete Selected'),
                 $ClassCall,
                 _('From'),
@@ -3457,7 +3456,8 @@ abstract class FOGPage extends FOGBase
                 _('table backup')
             ) => sprintf(
                 '<div id="exportDiv"></div>'
-                . '<input name="export" type="submit" value="%s"/>',
+                . '<button name="export" type="submit" class="'
+                . 'btn btn-info btn-block">%s</button>',
                 _('Export')
             ),
         );
@@ -3571,7 +3571,8 @@ abstract class FOGPage extends FOGBase
         $fields = array(
             _('CSV File') => '<input class="smaller" type="file" name="file" />',
             '&nbsp;' => sprintf(
-                '<input class="smaller" type="submit" value="%s"/>',
+                '<button class="smaller" type="submit" class='
+                . '"btn btn-info btn-block">%s</button>',
                 _('Upload CSV')
             ),
         );
@@ -3828,5 +3829,111 @@ abstract class FOGPage extends FOGBase
         }
         echo '</select>';
         return ob_get_clean();
+    }
+    /**
+     * Displays "add" powermanagement item
+     *
+     * @return void
+     */
+    public function newPMDisplay()
+    {
+        // New data
+        unset(
+            $this->headerData,
+            $this->templates,
+            $this->attributes,
+            $this->data
+        );
+        $this->templates = array(
+            '${field}',
+            '${input}',
+        );
+        $this->attributes = array(
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8'),
+        );
+        $fields = array(
+            '<label for="specialCrons">'
+            . _('Schedule Power')
+            . '</label>' => '<div class="cronOptions input-group">'
+            . FOGCron::buildSpecialCron('specialCrons')
+            . '</div>'
+            . '<div class="col-xs-12">'
+            . '<div class="cronInputs">'
+            . '<div class="col-xs-2">'
+            . '<div class="input-group">'
+            . '<input type="text" name="scheduleCronMin" '
+            . 'placeholder="min" autocomplete="off" '
+            . 'class="form-control scheduleCronMin cronInput"/>'
+            . '</div>'
+            . '</div>'
+            . '<div class="col-xs-2">'
+            . '<div class="input-group">'
+            . '<input type="text" name="scheduleCronHour" '
+            . 'placeholder="hour" autocomplete="off" '
+            . 'class="form-control scheduleCronHour cronInput"/>'
+            . '</div>'
+            . '</div>'
+            . '<div class="col-xs-2">'
+            . '<div class="input-group">'
+            . '<input type="text" name="scheduleCronDOM" '
+            . 'placeholder="dom" autocomplete="off" '
+            . 'class="form-control scheduleCronDOM cronInput"/>'
+            . '</div>'
+            . '</div>'
+            . '<div class="col-xs-2">'
+            . '<div class="input-group">'
+            . '<input type="text" name="scheduleCronMonth" '
+            . 'placeholder="month" autocomplete="off" '
+            . 'class="form-control scheduleCronMonth cronInput"/>'
+            . '</div>'
+            . '</div>'
+            . '<div class="col-xs-2">'
+            . '<div class="input-group">'
+            . '<input type="text" name="scheduleCronDOW" '
+            . 'placeholder="dow" autocomplete="off" '
+            . 'class="form-control scheduleCronDOW cronInput"/>'
+            . '</div>'
+            . '</div>'
+            . '</div>'
+            . '</div>',
+            '<label for="scheduleOnDemand">'
+            . _('Perform Immediately?')
+            . '</label>' => '<input type="checkbox" name="onDemand" id='
+            . '"scheduleOnDemand"'
+            . (
+                isset($_POST['onDemand']) ?
+                ' checked' :
+                ''
+            )
+            . '/>',
+            '<label for="action">'
+            . _('Action')
+            . '</label>' => self::getClass(
+                'PowerManagementManager'
+            )->getActionSelect(
+                filter_input(INPUT_POST, 'action'),
+                false,
+                'action'
+            ),
+            '<label for="pmsubmit">'
+            . _('Create new PM Schedule')
+            . '</label>' => '<button type="submit" name="pmsubmit" id='
+            . '"pmsubmit" class="btn btn-info btn-block">'
+            . _('Add')
+            . '</button>'
+        );
+        array_walk($fields, $this->fieldsToData);
+        echo '<div class="col-xs-9">';
+        echo '<form class="deploy-container form-horizontal" '
+            . 'method="post" action="'
+            . $this->formAction
+            . '&tab='
+            . $this->node
+            . '-powermanagement">';
+        $this->render(12);
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
     }
 }

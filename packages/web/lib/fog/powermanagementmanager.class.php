@@ -97,12 +97,14 @@ class PowerManagementManager extends FOGManagerController
      *
      * @param string $selected the item that is selected
      * @param bool   $array    the item is an array
+     * @param string $id       the id to set this with.
      *
      * @return string
      */
     public function getActionSelect(
         $selected = '',
-        $array = false
+        $array = false,
+        $id = ''
     ) {
         $types = array(
             'shutdown' => _('Shutdown'),
@@ -133,10 +135,15 @@ class PowerManagementManager extends FOGManagerController
         }
 
         return sprintf(
-            '<select name="action%s">%s%s</select>',
+            '<select class="form-control" name="action%s"%s>%s%s</select>',
             (
                 $array !== false ?
                 '[]' :
+                ''
+            ),
+            (
+                $id ?
+                ' id="'.$id.'"' :
                 ''
             ),
             (
