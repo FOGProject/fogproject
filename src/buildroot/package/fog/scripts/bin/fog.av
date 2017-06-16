@@ -8,6 +8,8 @@ disk=""
 hd=""
 parts=""
 part=""
+sysuuid=$(dmidecode -s system-uuid)
+sysuuid=${sysuuid,,}
 dots "Mounting Clamav"
 [[ ! -d /opt/fog/clamav ]] && mkdir -p /opt/fog/clamav >/dev/null 2>&1
 mount -o nolock,proto=tcp,rsize=32768,wsize=32768,intr,noatime $clamav /opt/fog/clamav >/tmp/mount-output 2>&1
@@ -165,7 +167,7 @@ for disk in $disks; do
             let cnt+=1
             echo " * File id: $cnt"
             dots "Sending file id"
-            curl -ks --data "mac=$mac&string=$b64&mode=$avmode" http://${web}service/av.php 2>/dev/null
+            curl -ks --data "sysuuid=${sysuuid}&mac=$mac&string=$b64&mode=$avmode" http://${web}service/av.php 2>/dev/null
             case $? in
                 0)
                     echo "Done"

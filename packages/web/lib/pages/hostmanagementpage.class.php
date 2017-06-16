@@ -1748,6 +1748,7 @@ class HostManagementPage extends FOGPage
         $sysver = $Inv->get('sysversion');
         $sysser = $Inv->get('sysserial');
         $systype = $Inv->get('systype');
+        $sysuuid = $Inv->get('sysuuid');
         $biosven = $Inv->get('biosvendor');
         $biosver = $Inv->get('biosversion');
         $biosdate = $Inv->get('biosdate');

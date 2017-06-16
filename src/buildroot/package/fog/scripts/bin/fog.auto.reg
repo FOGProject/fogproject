@@ -6,12 +6,10 @@ disks=""
 disk=""
 hd=""
 sysman=""
-sysman64=""
 sysproduct=""
-sysproduct64=""
 sysversion=""
-sysversion64=""
 sysserial=""
+sysuuid=""
 systype=""
 biosversion=""
 biosvendor=""
@@ -31,7 +29,11 @@ caseman=""
 casever=""
 caseserial=""
 casesasset=""
+sysman64=""
+sysproduct64=""
+sysversion64=""
 sysserial64=""
+sysuuid64=""
 systype64=""
 biosversion64=""
 biosvendor64=""
@@ -56,11 +58,14 @@ getHardDisk
 echo "$hd"
 echo "Starting host registration"
 mac=$(getMACAddresses | base64)
+sysuuid=$(dmidecode -s system-uuid)
+sysuuid=${sysuuid,,}
+sysuuid=$(echo $sysuuid | base64)
 dots "Attempting to register host"
 count=0
 res=""
 while [[ -z $res ]]; do
-    res=$(curl -ks --data "mac=$mac" http://${web}service/auto.register.php 2>/dev/null)
+    res=$(curl -ks --data "sysuuid=${sysuuid}&mac=$mac" http://${web}service/auto.register.php 2>/dev/null)
     case $count in
         [0-8])
             let count+=1
