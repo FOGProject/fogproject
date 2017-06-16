@@ -475,10 +475,23 @@ abstract class FOGBase
     ) {
         // Store the mac
         $mac = $_REQUEST['mac'];
+        $sysuuid = $_REQUEST['sysuuid'];
 
         // If encoded decode and store value
         if ($encoded === true) {
             $mac = base64_decode($mac);
+            $sysuuid = base64_decode($sysuuid);
+        }
+
+        // See if we can find the host by system uuid rather than by mac's first.
+        if ($sysuuid) {
+            $Inventory = self::getClass('Inventory')
+                ->set('sysuuid', $sysuuid)
+                ->load('sysuuid');
+            $Host = $Inventory->getHost();
+            if ($Host->isValid()) {
+                return $Host;
+            }
         }
 
         // Trim the mac list.

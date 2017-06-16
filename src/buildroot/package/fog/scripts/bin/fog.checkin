@@ -93,12 +93,14 @@ case $mc in
         php_post="Pre_Stage1.php"
         ;;
 esac
+sysuuid=$(dmidecode -s system-uuid)
+sysuuid=${sysuuid,,}
 case $mode in
     clamav)
-        poststring="mac=$mac&avmode=$avmode"
+        poststring="sysuuid=${sysuuid}&mac=$mac&avmode=$avmode"
         ;;
     ""|*)
-        poststring="mac=$mac&type=$type"
+        poststring="sysuuid=${sysuuid}&mac=$mac&type=$type"
         ;;
 esac
 [[ ! $capone -eq 1 ]] && checkin "$poststring" "$php_post"

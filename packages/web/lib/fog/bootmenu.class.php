@@ -503,6 +503,7 @@ class BootMenu extends FOGBase
                 'param platform ${platform}',
                 'param menuAccess 1',
                 "param debug $debug",
+                'param sysuuid ${uuid}',
                 'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
                 'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
                 ':bootme',
@@ -537,6 +538,7 @@ class BootMenu extends FOGBase
                 'param password ${password}',
                 'param menuaccess 1',
                 "param debug $debug",
+                'param sysuuid ${uuid}',
                 'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
                 'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
                 ':bootme',
@@ -683,6 +685,7 @@ class BootMenu extends FOGBase
             'param arch ${arch}',
             'param platform ${platform}',
             'param delconf 1',
+            'param sysuuid ${uuid}',
             'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
             'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
             ':bootme',
@@ -705,6 +708,7 @@ class BootMenu extends FOGBase
             'param arch ${arch}',
             'param platform ${platform}',
             'param aprvconf 1',
+            'param sysuuid ${uuid}',
             'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
             'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
             ':bootme',
@@ -728,6 +732,7 @@ class BootMenu extends FOGBase
             'param arch ${arch}',
             'param platform ${platform}',
             'param key ${key}',
+            'param sysuuid ${uuid}',
             'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
             'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
             ':bootme',
@@ -776,6 +781,7 @@ class BootMenu extends FOGBase
                 'param arch ${arch}',
                 'param platform ${platform}',
                 'param sessionJoin 1',
+                'param sysuuid ${uuid}',
                 'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
                 'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
                 ':bootme',
@@ -802,6 +808,7 @@ class BootMenu extends FOGBase
             'param arch ${arch}',
             'param platform ${platform}',
             'param sessname ${sessname}',
+            'param sysuuid ${uuid}',
             'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
             'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
             ':bootme',
@@ -1032,6 +1039,7 @@ class BootMenu extends FOGBase
                         'param qihost 1',
                         'param username ${username}',
                         'param password ${password}',
+                        'param sysuuid ${uuid}',
                         'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
                         'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
                     );
@@ -1044,6 +1052,7 @@ class BootMenu extends FOGBase
                 'params',
                 'param mac0 ${net0/mac}',
                 'param arch ${arch}',
+                'param sysuuid ${uuid}',
                 'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
                 'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
             );
@@ -1766,6 +1775,8 @@ class BootMenu extends FOGBase
                 }
             }
             $params = trim(implode("\n", (array)$params));
+            $params .= "\n"
+                . 'param sysuuid ${uuid}';
             $Send = self::fastmerge($Send, array($params));
         }
         switch ($option->get('id')) {

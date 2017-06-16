@@ -2,8 +2,10 @@
 . /usr/share/fog/lib/funcs.sh
 ### If USB Boot device we need a way to get the kernel args properly
 if [[ $boottype == usb && ! -z $web ]]; then
+    sysuuid=$(dmidecode -s system-uuid)
+    sysuuid=${sysuuid,,}
     mac=$(getMACAddresses)
-    curl -ks -o /tmp/hinfo.txt --data "mac=$mac" "http://${web}service/hostinfo.php" -A ''
+    curl -ks -o /tmp/hinfo.txt --data "sysuuid=${sysuuid}&mac=$mac" "http://${web}service/hostinfo.php" -A ''
     [[ -f /tmp/hinfo.txt ]] && . /tmp/hinfo.txt
 fi
 dots "Running post init scripts"
