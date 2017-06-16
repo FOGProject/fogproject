@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-15 15:56-0400\n"
+"POT-Creation-Date: 2017-06-15 20:55-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -145,7 +145,7 @@ msgstr "Could not create printer"
 #: /var/www/fog/lib/fog/fogcontroller.class.php:815
 #: /var/www/fog/lib/fog/fogcontroller.class.php:953
 #: /var/www/fog/lib/fog/foggetset.class.php:92
-#: /var/www/fog/lib/fog/fogpage.class.php:2411
+#: /var/www/fog/lib/fog/fogpage.class.php:2424
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:174
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:207
 #: /var/www/fog/lib/db/pdodb.class.php:183
@@ -205,8 +205,8 @@ msgstr "Record not found, Error: %s"
 #: /var/www/fog/lib/fog/fogcontroller.class.php:559
 #: /var/www/fog/lib/fog/fogcontroller.class.php:768
 #: /var/www/fog/lib/fog/fogcontroller.class.php:791
-#: /var/www/fog/lib/fog/fogpage.class.php:3200
-#: /var/www/fog/lib/fog/fogpage.class.php:3320
+#: /var/www/fog/lib/fog/fogpage.class.php:3213
+#: /var/www/fog/lib/fog/fogpage.class.php:3333
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:93
 #: /var/www/fog/lib/plugins/fileintegrity/pages/fileintegritymanagementpage.class.php:53
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:430
@@ -470,8 +470,8 @@ msgid "Invalid ID passed"
 msgstr "Invalid unit passed"
 
 #: /var/www/fog/lib/fog/fogcontroller.class.php:952
-#: /var/www/fog/lib/fog/fogpage.class.php:2413
-#: /var/www/fog/lib/fog/fogpage.class.php:3763 /var/www/fog/service/av.php:36
+#: /var/www/fog/lib/fog/fogpage.class.php:2426
+#: /var/www/fog/lib/fog/fogpage.class.php:3776 /var/www/fog/service/av.php:36
 msgid "Failed"
 msgstr "Failed"
 
@@ -735,7 +735,7 @@ msgstr "Event must be a string"
 
 #: /var/www/fog/lib/fog/fogbase.class.php:2202
 #: /var/www/fog/lib/fog/fogftp.class.php:372
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2442
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2456
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:86
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1839
 #: /var/www/fog/lib/reports/virus_history.report.php:55
@@ -819,8 +819,8 @@ msgid "You are only allowed to assign"
 msgstr "You are only allowed to assign"
 
 #: /var/www/fog/lib/fog/fogftp.class.php:378
-#: /var/www/fog/lib/fog/fogpage.class.php:3198
-#: /var/www/fog/lib/fog/fogpage.class.php:3307
+#: /var/www/fog/lib/fog/fogpage.class.php:3211
+#: /var/www/fog/lib/fog/fogpage.class.php:3320
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:175
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:326
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:392
@@ -1174,7 +1174,7 @@ msgid "Chassis Asset"
 msgstr "Chassis Asset"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:470
-#: /var/www/fog/lib/fog/fogpage.class.php:3095
+#: /var/www/fog/lib/fog/fogpage.class.php:3108
 #: /var/www/fog/lib/reports/user_tracking.report.php:86
 #: /var/www/fog/commons/text.php:32
 msgid "Search"
@@ -1184,32 +1184,32 @@ msgstr "Search"
 msgid "All"
 msgstr "All"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:627
+#: /var/www/fog/lib/fog/fogpage.class.php:631
 #, fuzzy
 msgid "Group Associations"
 msgstr "Group Location"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:641
+#: /var/www/fog/lib/fog/fogpage.class.php:645
 msgid "Create new group"
 msgstr "Create new group"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:651
+#: /var/www/fog/lib/fog/fogpage.class.php:658
 #: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:180
 #: /var/www/fog/commons/text.php:94
 msgid "or"
 msgstr "or"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:657
+#: /var/www/fog/lib/fog/fogpage.class.php:665
 msgid "Add to group"
 msgstr "Add to group"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:667
+#: /var/www/fog/lib/fog/fogpage.class.php:675
 #, fuzzy
 msgid "Process group changes"
 msgstr "Process Group Changes"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:682
-#: /var/www/fog/lib/fog/fogpage.class.php:3372
+#: /var/www/fog/lib/fog/fogpage.class.php:691
+#: /var/www/fog/lib/fog/fogpage.class.php:3385
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1039
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1234
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:475
@@ -1218,13 +1218,13 @@ msgstr "Process Group Changes"
 msgid "Delete Selected"
 msgstr "Delete Selected"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:700
+#: /var/www/fog/lib/fog/fogpage.class.php:709
 #, fuzzy
 msgid "Delete selected"
 msgstr "Delete Selected"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:720
-#: /var/www/fog/lib/fog/fogpage.class.php:2584
+#: /var/www/fog/lib/fog/fogpage.class.php:730
+#: /var/www/fog/lib/fog/fogpage.class.php:2597
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1010
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1024
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:347
@@ -1238,43 +1238,43 @@ msgstr "Delete Selected"
 msgid "Delete"
 msgstr "Delete"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:753
+#: /var/www/fog/lib/fog/fogpage.class.php:764
 msgid "Requires templates to process"
 msgstr "Requires templates to process"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:981
+#: /var/www/fog/lib/fog/fogpage.class.php:994
 #, fuzzy
 msgid "Cannot set tasking to invalid hosts"
 msgstr "Cannot set taskings to pending or invalid items"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:988
-#: /var/www/fog/lib/fog/fogpage.class.php:1537
+#: /var/www/fog/lib/fog/fogpage.class.php:1001
+#: /var/www/fog/lib/fog/fogpage.class.php:1550
 #, fuzzy
 msgid "Cannot set tasking to pending hosts"
 msgstr "Cannot set taskings to pending or invalid items"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:996
+#: /var/www/fog/lib/fog/fogpage.class.php:1009
 #, fuzzy
 msgid "Invalid object to try tasking"
 msgstr "Invalid object type passed"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1003
+#: /var/www/fog/lib/fog/fogpage.class.php:1016
 msgid "Cannot set tasking as image is not enabled"
 msgstr "Cannot set tasking as image is not enabled"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1054
+#: /var/www/fog/lib/fog/fogpage.class.php:1067
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:87
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:846
 msgid "Edit Host"
 msgstr "Edit Host"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1055
+#: /var/www/fog/lib/fog/fogpage.class.php:1068
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:92
 msgid "Edit Image"
 msgstr "Edit Image"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1079
-#: /var/www/fog/lib/fog/fogpage.class.php:1087
+#: /var/www/fog/lib/fog/fogpage.class.php:1092
+#: /var/www/fog/lib/fog/fogpage.class.php:1100
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:168
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:717
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:91
@@ -1310,119 +1310,119 @@ msgstr "Edit Image"
 msgid "Edit"
 msgstr "Edit"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1114
+#: /var/www/fog/lib/fog/fogpage.class.php:1127
 #, fuzzy
 msgid "Confirm tasking"
 msgstr "Invalid task"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1117
+#: /var/www/fog/lib/fog/fogpage.class.php:1130
 msgid "Advanced Settings"
 msgstr "Advanced Settings"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1128
+#: /var/www/fog/lib/fog/fogpage.class.php:1141
 #, fuzzy
 msgid "Please select the snapin you want to install"
 msgstr "Please select the snapin you want to deploy"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1141
+#: /var/www/fog/lib/fog/fogpage.class.php:1154
 #, fuzzy
 msgid "Account name to reset"
 msgstr "Event must be a string"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1162
+#: /var/www/fog/lib/fog/fogpage.class.php:1175
 #, fuzzy
 msgid "Schedule with shutdown"
 msgstr "Schedule"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1181
+#: /var/www/fog/lib/fog/fogpage.class.php:1194
 msgid "Wake on lan?"
 msgstr "Wake on lan?"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1201
+#: /var/www/fog/lib/fog/fogpage.class.php:1214
 #, fuzzy
 msgid "Schedule as debug task"
 msgstr "Schedule task as a debug task"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1211
+#: /var/www/fog/lib/fog/fogpage.class.php:1224
 #, fuzzy
 msgid "Schedule instant"
 msgstr "Schedule"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1223
+#: /var/www/fog/lib/fog/fogpage.class.php:1236
 #, fuzzy
 msgid "Schedule delayed"
 msgstr "Schedule"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1228
+#: /var/www/fog/lib/fog/fogpage.class.php:1241
 #, fuzzy
 msgid "Date and Time"
 msgstr "Host Update Failed"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1239
+#: /var/www/fog/lib/fog/fogpage.class.php:1252
 msgid "Select a cron type"
 msgstr "Select a cron type"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1240
+#: /var/www/fog/lib/fog/fogpage.class.php:1253
 msgid "Yearly"
 msgstr "Yearly"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1240
+#: /var/www/fog/lib/fog/fogpage.class.php:1253
 msgid "Annually"
 msgstr "Annually"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1241
+#: /var/www/fog/lib/fog/fogpage.class.php:1254
 msgid "Monthly"
 msgstr "Monthly"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1242
+#: /var/www/fog/lib/fog/fogpage.class.php:1255
 msgid "Weekly"
 msgstr "Weekly"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1243
+#: /var/www/fog/lib/fog/fogpage.class.php:1256
 msgid "Daily"
 msgstr "Daily"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1243
+#: /var/www/fog/lib/fog/fogpage.class.php:1256
 msgid "Midnight"
 msgstr "Midnight"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1244
+#: /var/www/fog/lib/fog/fogpage.class.php:1257
 msgid "Hourly"
 msgstr "Hourly"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1261
+#: /var/www/fog/lib/fog/fogpage.class.php:1274
 #, fuzzy
 msgid "Schedule cron-style"
 msgstr "Scheduler"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1315
+#: /var/www/fog/lib/fog/fogpage.class.php:1328
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:220
 msgid "Create"
 msgstr "Create"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1319
+#: /var/www/fog/lib/fog/fogpage.class.php:1332
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:95
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:314
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:399
 msgid "Tasking"
 msgstr "Tasking"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1329
+#: /var/www/fog/lib/fog/fogpage.class.php:1342
 #, fuzzy
 msgid "Hosts in task"
 msgstr "Hosts in Task"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1437
+#: /var/www/fog/lib/fog/fogpage.class.php:1450
 #, fuzzy
 msgid "Invalid scheduling type"
 msgstr "Invalid type"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1451
+#: /var/www/fog/lib/fog/fogpage.class.php:1464
 #: /var/www/fog/commons/text.php:282
 msgid "Scheduled date is in the past"
 msgstr "Scheduled date is in the past"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1452
+#: /var/www/fog/lib/fog/fogpage.class.php:1465
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1841
 #: /var/www/fog/lib/reports/equipment_loan.report.php:231
 #: /var/www/fog/lib/reports/equipment_loan.report.php:240
@@ -1432,212 +1432,212 @@ msgstr "Scheduled date is in the past"
 msgid "Date"
 msgstr "Date"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1476
+#: /var/www/fog/lib/fog/fogpage.class.php:1489
 #, fuzzy
 msgid "minute"
 msgstr "minutes"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1485
+#: /var/www/fog/lib/fog/fogpage.class.php:1498
 #, fuzzy
 msgid "hour"
 msgstr "1 hour"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1494
+#: /var/www/fog/lib/fog/fogpage.class.php:1507
 msgid "day of month"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1503
+#: /var/www/fog/lib/fog/fogpage.class.php:1516
 #, fuzzy
 msgid "month"
 msgstr "Monthly"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1512
+#: /var/www/fog/lib/fog/fogpage.class.php:1525
 msgid "day of week"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1521
+#: /var/www/fog/lib/fog/fogpage.class.php:1534
 msgid "Task type is not valid"
 msgstr "Task type is not valid"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1529
+#: /var/www/fog/lib/fog/fogpage.class.php:1542
 msgid "Password reset requires a user account to reset"
 msgstr "Password reset requires a user account to reset"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1545
+#: /var/www/fog/lib/fog/fogpage.class.php:1558
 #, fuzzy
 msgid "There are no hosts to task in this group"
 msgstr "There are no groups on this server."
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1555
+#: /var/www/fog/lib/fog/fogpage.class.php:1568
 msgid "To perform an imaging task an image must be assigned"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1560
+#: /var/www/fog/lib/fog/fogpage.class.php:1573
 #, fuzzy
 msgid "Cannot create tasking as image is not enabled"
 msgstr "Cannot set tasking as image is not enabled"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1567
+#: /var/www/fog/lib/fog/fogpage.class.php:1580
 #, fuzzy
 msgid "The assigned image is protected"
 msgstr "None selected or item is protected"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1569
+#: /var/www/fog/lib/fog/fogpage.class.php:1582
 msgid "and cannot be captured"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1575
+#: /var/www/fog/lib/fog/fogpage.class.php:1588
 msgid "Groups are not allowed to schedule upload tasks"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1582
+#: /var/www/fog/lib/fog/fogpage.class.php:1595
 #, fuzzy
 msgid "Multicast tasks from groups"
 msgstr "MulticastTask"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1584
+#: /var/www/fog/lib/fog/fogpage.class.php:1597
 #, fuzzy
 msgid "require all hosts have the same image"
 msgstr "Hosts do not have the same image assigned"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1604
+#: /var/www/fog/lib/fog/fogpage.class.php:1617
 #, fuzzy
 msgid "No valid hosts found and"
 msgstr "No valid class sent"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1605
+#: /var/www/fog/lib/fog/fogpage.class.php:1618
 #, fuzzy
 msgid "or no valid images specified"
 msgstr "No image specified"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1684
+#: /var/www/fog/lib/fog/fogpage.class.php:1697
 #, fuzzy
 msgid "Failed to create scheduled tasking"
 msgstr "Failed to create task"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1687
+#: /var/www/fog/lib/fog/fogpage.class.php:1700
 #, fuzzy
 msgid "Scheduled tasks successfully created"
 msgstr "has been successfully updated"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1693
+#: /var/www/fog/lib/fog/fogpage.class.php:1706
 #, fuzzy
 msgid "Failed to start tasking type"
 msgstr "Failed to start deployment tasking"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1721
+#: /var/www/fog/lib/fog/fogpage.class.php:1734
 #, fuzzy
 msgid "Failed to create tasking to some or all"
 msgstr "Failed to create task"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1730
+#: /var/www/fog/lib/fog/fogpage.class.php:1743
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1567
 msgid "Cron Schedule"
 msgstr "Cron Schedule"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1741
+#: /var/www/fog/lib/fog/fogpage.class.php:1754
 msgid "Delayed Start"
 msgstr "Delayed Start"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1756
+#: /var/www/fog/lib/fog/fogpage.class.php:1769
 #, fuzzy
 msgid "Successfully created tasks for"
 msgstr "successfully updated"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1848
+#: /var/www/fog/lib/fog/fogpage.class.php:1861
 msgid "Are you sure you wish to remove these items"
 msgstr "Are you sure you wish to remove these items"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1854
+#: /var/www/fog/lib/fog/fogpage.class.php:1867
 msgid "No items to delete"
 msgstr "No items to delete"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1855
+#: /var/www/fog/lib/fog/fogpage.class.php:1868
 msgid "None selected or item is protected"
 msgstr "None selected or item is protected"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1901
+#: /var/www/fog/lib/fog/fogpage.class.php:1914
 msgid "All selected items have been deleted"
 msgstr "All selected items have been deleted"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1938
+#: /var/www/fog/lib/fog/fogpage.class.php:1951
 #: /var/www/fog/commons/text.php:157
 msgid "Tasks"
 msgstr "Tasks"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1988
+#: /var/www/fog/lib/fog/fogpage.class.php:2001
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:309
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:395
 #: /var/www/fog/commons/text.php:68
 msgid "Advanced"
 msgstr "Advanced"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:1991
+#: /var/www/fog/lib/fog/fogpage.class.php:2004
 msgid "View advanced tasks for this"
 msgstr "View advanced tasks for this"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2011
+#: /var/www/fog/lib/fog/fogpage.class.php:2024
 msgid "Advanced Actions"
 msgstr "Advanced Actions"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2145
+#: /var/www/fog/lib/fog/fogpage.class.php:2158
 #, fuzzy
 msgid "Clear all fields?"
 msgstr "clear all history"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2148
+#: /var/www/fog/lib/fog/fogpage.class.php:2161
 #, fuzzy
 msgid "Clear Fields"
 msgstr "clear all history"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2152
+#: /var/www/fog/lib/fog/fogpage.class.php:2165
 #, fuzzy
 msgid "Join Domain after deploy"
 msgstr "Join Domain after image task"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2163
+#: /var/www/fog/lib/fog/fogpage.class.php:2176
 msgid "Domain name"
 msgstr "Domain name"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2175
+#: /var/www/fog/lib/fog/fogpage.class.php:2188
 msgid "Organizational Unit"
 msgstr "Organizational Unit"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2176
+#: /var/www/fog/lib/fog/fogpage.class.php:2189
 msgid "Blank for default"
 msgstr "Blank for default"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2180
+#: /var/www/fog/lib/fog/fogpage.class.php:2193
 msgid "Domain Username"
 msgstr "Domain Username"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2192
+#: /var/www/fog/lib/fog/fogpage.class.php:2205
 msgid "Domain Password"
 msgstr "Domain Password"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2193
+#: /var/www/fog/lib/fog/fogpage.class.php:2206
 msgid "Will auto-encrypt plaintext"
 msgstr "Will auto-encrypt plaintext"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2206
+#: /var/www/fog/lib/fog/fogpage.class.php:2219
 msgid "Domain Password Legacy"
 msgstr "Domain Password Legacy"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2207
+#: /var/www/fog/lib/fog/fogpage.class.php:2220
 msgid "Must be encrypted"
 msgstr "Must be encrypted"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2220
+#: /var/www/fog/lib/fog/fogpage.class.php:2233
 msgid "Name Change/AD Join Forced reboot"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2236
+#: /var/www/fog/lib/fog/fogpage.class.php:2249
 #, fuzzy
 msgid "Make changes?"
 msgstr "Save Changes"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2246
-#: /var/www/fog/lib/fog/fogpage.class.php:3303
+#: /var/www/fog/lib/fog/fogpage.class.php:2259
+#: /var/www/fog/lib/fog/fogpage.class.php:3316
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:583
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:203
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:551
@@ -1660,7 +1660,7 @@ msgstr "Save Changes"
 msgid "Add"
 msgstr "Add"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2247
+#: /var/www/fog/lib/fog/fogpage.class.php:2260
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:899
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:248
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:435
@@ -1694,41 +1694,41 @@ msgstr "Add"
 msgid "Update"
 msgstr "Update"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2273
+#: /var/www/fog/lib/fog/fogpage.class.php:2286
 #: /var/www/fog/commons/text.php:125
 msgid "Active Directory"
 msgstr "Active Directory"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2379
+#: /var/www/fog/lib/fog/fogpage.class.php:2392
 msgid "Error: Failed to open temp file"
 msgstr "Error: Failed to open temp file"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2401
+#: /var/www/fog/lib/fog/fogpage.class.php:2414
 msgid "Error: Failed to download kernel"
 msgstr "Error: Failed to download kernel"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2412
+#: /var/www/fog/lib/fog/fogpage.class.php:2425
 msgid "Download Failed"
 msgstr "Download Failed"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2414
+#: /var/www/fog/lib/fog/fogpage.class.php:2427
 msgid "filesize"
 msgstr "filesize"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2518
+#: /var/www/fog/lib/fog/fogpage.class.php:2531
 msgid "Load MAC Vendors"
 msgstr "Load MAC Vendors"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2525
+#: /var/www/fog/lib/fog/fogpage.class.php:2538
 #: /var/www/fog/commons/text.php:117
 msgid "Unknown"
 msgstr "Unknown"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2530
+#: /var/www/fog/lib/fog/fogpage.class.php:2543
 msgid "Not found"
 msgstr "Not found"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2548
+#: /var/www/fog/lib/fog/fogpage.class.php:2561
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:1350
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:328
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:468
@@ -1738,32 +1738,32 @@ msgstr "Not found"
 msgid "Remove"
 msgstr "Remove"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2563
+#: /var/www/fog/lib/fog/fogpage.class.php:2576
 #, fuzzy
 msgid "Delete hosts within"
 msgstr "Delete all hosts within group"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2572
+#: /var/www/fog/lib/fog/fogpage.class.php:2585
 #, fuzzy
 msgid "Delete files"
 msgstr "Delete file data"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3025
+#: /var/www/fog/lib/fog/fogpage.class.php:3038
 msgid "is protected, removal not allowed"
 msgstr "is protected, removal not allowed"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3047
+#: /var/www/fog/lib/fog/fogpage.class.php:3060
 msgid "Failed to destroy"
 msgstr "Failed to destroy"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3061
+#: /var/www/fog/lib/fog/fogpage.class.php:3074
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:365
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:170
 msgid "deleted"
 msgstr "deleted"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3197
-#: /var/www/fog/lib/fog/fogpage.class.php:3306
+#: /var/www/fog/lib/fog/fogpage.class.php:3210
+#: /var/www/fog/lib/fog/fogpage.class.php:3319
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1123
 #: /var/www/fog/lib/service/snapinreplicator.class.php:147
 #: /var/www/fog/lib/service/snapinreplicator.class.php:148
@@ -1775,150 +1775,150 @@ msgstr "deleted"
 msgid "Group"
 msgstr "Group"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3288
+#: /var/www/fog/lib/fog/fogpage.class.php:3301
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:404
 msgid "Check here to see"
 msgstr "Check here to see"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3290
+#: /var/www/fog/lib/fog/fogpage.class.php:3303
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:406
 msgid "not within this"
 msgstr "not within this"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3296
+#: /var/www/fog/lib/fog/fogpage.class.php:3309
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1170
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:411
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:525
 msgid "Modify Membership for"
 msgstr "Modify Membership for"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3374
+#: /var/www/fog/lib/fog/fogpage.class.php:3387
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:477
 msgid "From"
 msgstr "From"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3400
+#: /var/www/fog/lib/fog/fogpage.class.php:3413
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1266
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:503
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:621
 msgid "saved successfully"
 msgstr "saved successfully"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3442
+#: /var/www/fog/lib/fog/fogpage.class.php:3455
 #, fuzzy
 msgid "Click the button to download the"
 msgstr "Click the button to export the database."
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3444
+#: /var/www/fog/lib/fog/fogpage.class.php:3457
 msgid "table backup"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3448
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2506
+#: /var/www/fog/lib/fog/fogpage.class.php:3461
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2520
 #: /var/www/fog/commons/text.php:98
 msgid "Export"
 msgstr "Export"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3544
+#: /var/www/fog/lib/fog/fogpage.class.php:3557
 msgid "This page allows you to upload a CSV"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3545
+#: /var/www/fog/lib/fog/fogpage.class.php:3558
 msgid "file into FOG to ease migration"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3546
+#: /var/www/fog/lib/fog/fogpage.class.php:3559
 msgid "It will operate based on the fields that"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3547
+#: /var/www/fog/lib/fog/fogpage.class.php:3560
 msgid "are normally required by each area"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3548
+#: /var/www/fog/lib/fog/fogpage.class.php:3561
 msgid "For example"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3549
+#: /var/www/fog/lib/fog/fogpage.class.php:3562
 #, fuzzy
 msgid "Hosts will have macs"
 msgstr "Hosts in Task"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3550
+#: /var/www/fog/lib/fog/fogpage.class.php:3563
 #, fuzzy
 msgid "name"
 msgstr "Name"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3551
+#: /var/www/fog/lib/fog/fogpage.class.php:3564
 #, fuzzy
 msgid "description"
 msgstr "Description"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3552
+#: /var/www/fog/lib/fog/fogpage.class.php:3565
 msgid "etc"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3559
+#: /var/www/fog/lib/fog/fogpage.class.php:3572
 msgid "CSV File"
 msgstr "CSV File"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3562
+#: /var/www/fog/lib/fog/fogpage.class.php:3575
 msgid "Upload CSV"
 msgstr "Upload CSV"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3613
+#: /var/www/fog/lib/fog/fogpage.class.php:3626
 #, fuzzy
 msgid "File must be a csv"
 msgstr "Event must be a string"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3628
+#: /var/www/fog/lib/fog/fogpage.class.php:3641
 msgid "Could not find temp filename"
 msgstr "Could not find temp filename"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3654
+#: /var/www/fog/lib/fog/fogpage.class.php:3667
 #, fuzzy
 msgid "Invalid data being parsed"
 msgstr "Invalid token passed"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3667
+#: /var/www/fog/lib/fog/fogpage.class.php:3680
 #, fuzzy
 msgid "One or more macs are associated with a host"
 msgstr "Error, Is an image associated with this host"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3686
+#: /var/www/fog/lib/fog/fogpage.class.php:3699
 #, fuzzy
 msgid "This host already exists"
 msgstr "Printer already exists"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3729
+#: /var/www/fog/lib/fog/fogpage.class.php:3742
 #: /var/www/fog/commons/text.php:95
 msgid "Row"
 msgstr "Row"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3741
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2524
+#: /var/www/fog/lib/fog/fogpage.class.php:3754
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2538
 msgid "Import"
 msgstr "Import"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3743
+#: /var/www/fog/lib/fog/fogpage.class.php:3756
 msgid "Results"
 msgstr "Results"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3755
+#: /var/www/fog/lib/fog/fogpage.class.php:3768
 msgid "Total Rows"
 msgstr "Total Rows"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3758
+#: /var/www/fog/lib/fog/fogpage.class.php:3771
 msgid "Successful"
 msgstr "Successful"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3766
+#: /var/www/fog/lib/fog/fogpage.class.php:3779
 #: /var/www/fog/lib/pages/serverinfo.class.php:138
 #: /var/www/fog/commons/text.php:96
 msgid "Errors"
 msgstr "Errors"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3806
+#: /var/www/fog/lib/fog/fogpage.class.php:3819
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:506
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:86
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:294
@@ -2044,7 +2044,7 @@ msgstr ""
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:354
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:529
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:809
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1506
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1515
 msgid "Partclone Uncompressed"
 msgstr ""
 
@@ -2067,34 +2067,34 @@ msgstr "New Image"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:511
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:791
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1504
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1513
 #, fuzzy
 msgid "Partclone Gzip"
 msgstr "Partclone"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:523
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:803
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1505
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1514
 msgid "Partclone Gzip Split 200MiB"
 msgstr ""
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:535
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:815
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1507
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1516
 #, fuzzy
 msgid "Partclone Uncompressed Split 200MiB"
 msgstr "Partclone"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:541
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:821
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1508
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1517
 #, fuzzy
 msgid "Partclone Zstd"
 msgstr "Partclone"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:547
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:827
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1509
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1518
 #, fuzzy
 msgid "Partclone Zstd Split 200MiB"
 msgstr "Partclone"
@@ -3077,140 +3077,144 @@ msgstr " mac addresses updated!"
 msgid "FOG System Settings"
 msgstr "FOG System Settings"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1391
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1393
 msgid "This section allows you to customize or alter "
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1392
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1394
 msgid "the way in which FOG operates. "
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1393
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1395
 msgid "Please be very careful changing any of "
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1394
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1396
 msgid "the following settings, as they can cause "
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1395
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1397
 msgid "issues that are difficult to troubleshoot."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1436
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1418
+msgid "Expand All"
+msgstr ""
+
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1443
 #, fuzzy
 msgid "Save changes?"
 msgstr "Save Changes"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1444
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1900
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1451
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1912
 #: /var/www/fog/commons/text.php:183
 msgid "Save Changes"
 msgstr "Save Changes"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1673
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1682
 msgid "No image specified"
 msgstr "No image specified"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1742
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1751
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:484
 #, fuzzy
 msgid "Reset Token"
 msgstr "Access Token"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1923
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1937
 msgid "No Image specified"
 msgstr "No Image specified"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2136
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2150
 msgid "Width must be 650 pixels."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2142
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2156
 msgid "Height must be 120 pixels."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2266
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2280
 msgid "Service Master"
 msgstr "Service Master"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2275
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2289
 #: /var/www/fog/lib/service/taskscheduler.class.php:212
 #: /var/www/fog/commons/text.php:102
 msgid "Multicast"
 msgstr "Multicast"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2284
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2298
 msgid "Scheduler"
 msgstr "Scheduler"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2293
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2307
 msgid "Image Replicator"
 msgstr "Image Replicator"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2302
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2316
 #, fuzzy
 msgid "Image Size"
 msgstr "Image Name"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2311
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2325
 msgid "Snapin Replicator"
 msgstr "Snapin Replicator"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2320
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2334
 #, fuzzy
 msgid "Snapin Hash"
 msgstr "Snapin Path"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2329
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2343
 msgid "Ping Hosts"
 msgstr "Ping Hosts"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2371
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2385
 msgid "Image Transfer Log"
 msgstr "Image Transfer Log"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2385
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2399
 msgid "Snapin Transfer Log"
 msgstr "Snapin Transfer Log"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2437
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2451
 msgid "FOG Log Viewer"
 msgstr "FOG Log Viewer"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2444
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2458
 msgid "Number of lines"
 msgstr "Number of lines"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2479
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2493
 msgid "Reverse the file: (newest on top)"
 msgstr "Reverse the file: (newest on top)"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2503
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2517
 msgid "Click the button to export the database."
 msgstr "Click the button to export the database."
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2515
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2529
 msgid "Import a previous backup file."
 msgstr "Import a previous backup file."
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2563
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2577
 msgid "Database Imported and added successfully"
 msgstr "Database Imported and added successfully"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2565
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2579
 msgid "Errors detected on import"
 msgstr "Errors detected on import"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2571
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2585
 msgid "Database changes reverted"
 msgstr "Database changes reverted"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2575
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2589
 msgid "Errors on revert detected"
 msgstr "Errors on revert detected"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2581
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2595
 msgid "There were errors during import"
 msgstr "There were errors during import"
 
