@@ -326,10 +326,11 @@ class HostManagementPage extends FOGPage
         }
         $this->render();
         if (count($this->data) > 0) {
-            echo '<p class="c"><input name="approvependhost" type="submit" ';
+            echo '<p class="c"><button name="approvependhost" type="submit" ';
             printf(
-                'value="%s"/>&nbsp;&nbsp;'
-                . '<input name="delpendhost" type="submit" value="%s"/>'
+                'class="btn btn-info">%s</button>&nbsp;&nbsp;'
+                . '<button name="delpendhost" type="submit" '
+                . 'class="btn btn-danger">%s</button>'
                 . '</p></form>',
                 _('Approve selected hosts'),
                 _('Delete selected hosts')
@@ -638,6 +639,123 @@ class HostManagementPage extends FOGPage
         self::redirect($this->formAction);
     }
     /**
+     * Generates the powermanagement display items.
+     *
+     * @return void
+     */
+    public function pmDisplay()
+    {
+        // PowerManagement
+        $this->headerData = array(
+            '<input type="checkbox" id="rempowerselectors"/>'
+            . '<label for="rempowerselectors"></label>',
+            _('Cron Schedule'),
+            _('Action'),
+        );
+        $this->templates = array(
+            '<input type="checkbox" name="rempowermanagements[]" '
+            . 'class="rempoweritems" value="${id}" id="rmpm-${id}"/>'
+            . '<label for="rmpm-${id}"></label>',
+            '<div class="cronOptions input-group">'
+            . FOGCron::buildSpecialCron()
+            . '</div>'
+            . '<div class="col-xs-12">'
+            . '<div class="cronInputs">'
+            . '<div class="col-xs-2">'
+            . '<div class="input-group">'
+            . '<input type="text" name="scheduleCronMin" '
+            . 'class="scheduleCronMin form-control cronInput" value="${min}"/>'
+            . '</div>'
+            . '</div>'
+            . '<div class="col-xs-2">'
+            . '<div class="input-group">'
+            . '<input type="text" name="scheduleCronHour" '
+            . 'class="scheduleCronHour form-control cronInput" value="${hour}"/>'
+            . '</div>'
+            . '</div>'
+            . '<div class="col-xs-2">'
+            . '<div class="input-group">'
+            . '<input type="text" name="scheduleCronDOM" '
+            . 'class="scheduleCronDOM form-control cronInput" value="${dom}"/>'
+            . '</div>'
+            . '</div>'
+            . '<div class="col-xs-2">'
+            . '<div class="input-group">'
+            . '<input type="text" name="scheduleCronMonth" '
+            . 'class="scheduleCronMonth form-control cronInput" value="${month}"/>'
+            . '</div>'
+            . '</div>'
+            . '<div class="col-xs-2">'
+            . '<div class="input-group">'
+            . '<input type="text" name="scheduleCronDOW" '
+            . 'class="scheduleCronDOW form-control cronInput" value="${dow}"/>'
+            . '</div>'
+            . '</div>'
+            . '</div>'
+            . '</div>',
+            '${action}',
+        );
+        $this->attributes = array(
+            array('width'=>16,'class'=>'l filter-false'),
+            array('class'=>'filter-false'),
+            array('class'=>'filter-false'),
+        );
+        $PowerManagements = self::getClass('PowerManagementManager')
+            ->find(
+                array(
+                    'id' => $this->obj->get('powermanagementtasks')
+                )
+            );
+        foreach ((array)$PowerManagements as &$PowerManagement) {
+            if (!$PowerManagement->isValid()) {
+                continue;
+            }
+            if ($PowerManagement->get('onDemand')) {
+                continue;
+            }
+            $this->data[] = array(
+                'id' => $PowerManagement->get('id'),
+                'min' => $PowerManagement->get('min'),
+                'hour' => $PowerManagement->get('hour'),
+                'dom' => $PowerManagement->get('dom'),
+                'month' => $PowerManagement->get('month'),
+                'dow' => $PowerManagement->get('dow'),
+                'is_selected' => (
+                    $PowerManagement->get('action') ?
+                    ' selected' :
+                    ''
+                ),
+                'action' => $PowerManagement->getActionSelect(),
+            );
+        }
+        echo '<!-- Power Management Items -->'
+            . '<div class="tab-pane fade" id="host-powermanagement">';
+        // Current data.
+        if (count($this->data) > 0) {
+            echo '<div class="col-xs-9">';
+            echo '<form class="deploy-container form-horizontal" '
+                . 'method="post" action="'
+                . $this->formAction
+                . '&tab=host-powermanagement">';
+            $this->render(12);
+            echo '<div class="col-xs-6">';
+            echo '<button type="submit" name="pmupdate" class='
+                . '"btn btn-info btn-block">';
+            echo _('Update Values');
+            echo '</button>';
+            echo '</div>';
+            echo '<div class="col-xs-6">';
+            echo '<button type="submit" name="pmdelete" class='
+                . '"btn btn-danger btn-block">';
+            echo _('Remove selected');
+            echo '</button>';
+            echo '</div>';
+            echo '</form>';
+            echo '</div>';
+        }
+        $this->newPMDisplay();
+    }
+    /**
      * Edits an existing item.
      *
      * @return void
@@ -868,7 +986,7 @@ class HostManagementPage extends FOGPage
             _('Host Bios Exit Type') => $this->exitNorm,
             _('Host EFI Exit Type') => $this->exitEfi,
             '&nbsp;' => sprintf(
-                '<input type="submit" value="%s"/>',
+                '<button type="submit" class="btn btn-info btn-block">%s</button>',
                 _('Update')
             ),
         );
@@ -1128,15 +1246,16 @@ class HostManagementPage extends FOGPage
         $this->render();
         if ($PrintersFound || count($this->data) > 0) {
             printf(
-                '<p class="c"><input type="submit" '
-                . 'value="%s" name="updateprinters"/>',
+                '<p class="c"><button type="submit" '
+                . 'name="updateprinters" class="btn btn-info">'
+                . '%s</button>',
                 _('Update')
             );
         }
         if (count($this->data) > 0) {
             printf(
-                '&nbsp;&nbsp;<input type="submit" '
-                . 'value="%s" name="printdel"/></p>',
+                '&nbsp;&nbsp;<button type="submit" '
+                . 'name="printdel" class="btn btn-danger">%s</button></p>',
                 _('Remove selected printers')
             );
         }
@@ -1209,7 +1328,7 @@ class HostManagementPage extends FOGPage
                 );
             $this->render();
             printf(
-                '<input type="submit" value="%s"/>'
+                '<button type="submit" class="btn btn-info">%s</button>'
                 . '</form></div></p><form method="post" '
                 . 'action="%s&tab=host-snapins">',
                 _('Add Snapin(s)'),
@@ -1260,7 +1379,8 @@ class HostManagementPage extends FOGPage
         $this->render();
         if (count($this->data)) {
             $inputremove = sprintf(
-                '<input type="submit" name="snaprem" value="%s"/>',
+                '<button type="submit" name="snaprem" class='
+                . '"btn btn-danger">%s</button>',
                 _('Remove selected snapins')
             );
         }
@@ -1408,7 +1528,8 @@ class HostManagementPage extends FOGPage
             'mod_name' => '',
             'input' => '',
             'span' => sprintf(
-                '<input type="submit" name="updatestatus" value="%s"/>',
+                '<button type="submit" name="updatestatus" class="'
+                . 'btn btn-info">%s</button>',
                 _('Update')
             ),
         );
@@ -1495,7 +1616,8 @@ class HostManagementPage extends FOGPage
             'field' => '',
             'input' => '',
             'span' => sprintf(
-                '<input type="submit" name="updatedisplay" value="%s"/>',
+                '<button type="submit" name="updatedisplay" class="'
+                . 'btn btn-info">%s</button>',
                 _('Update')
             ),
         );
@@ -1541,7 +1663,8 @@ class HostManagementPage extends FOGPage
             'field' => '',
             'input' => '',
             'desc' => sprintf(
-                '<input type="submit" name="updatealo" value="%s"/>',
+                '<button type="submit" name="updatealo" class="'
+                . 'btn btn-info btn-block">%s</button>',
                 _('Update')
             ),
         );
@@ -1558,155 +1681,7 @@ class HostManagementPage extends FOGPage
         $this->render();
         unset($this->data, $fields);
         echo '</fieldset></form></div>';
-        echo '<!-- Power Management Items -->'
-            . '<div id="host-powermanagement" class="tab-pane fade">'
-            . '<p class="cronOptions">';
-        $this->headerData = array(
-            '<input type="checkbox" id="rempowerselectors"/>'
-            . '<label for="rempowerselectors"></label>',
-            _('Cron Schedule'),
-            _('Action'),
-        );
-        $this->templates = array(
-            '<input type="checkbox" name="rempowermanagements[]" '
-            . 'class="rempoweritems" value="${id}" id="rmpm-${id}"/>'
-            . '<label for="rmpm-${id}"></label>',
-            '<div class="deploy-container" class="l">'
-            . '<p class="cronOptions"><input type="hidden" '
-            . 'name="pmid[]" value="${id}"/><input '
-            . 'type="text" name="scheduleCronMin[]" '
-            . 'id="scheduleCronMin" autocomplete="off" '
-            . 'value="${min}"/><input type="text" '
-            . 'name="scheduleCronHour[]" id="scheduleCronHour" '
-            . 'autocomplete="off" value="${hour}"/>'
-            . '<input type="text" name="scheduleCronDOM[]" '
-            . 'id="scheduleCronDOM" autocomplete="off" '
-            . 'value="${dom}"/><input type="text" '
-            . 'name="scheduleCronMonth[]" id="scheduleCronMonth" '
-            . 'autocomplete="off" value="${month}"/>'
-            . '<input type="text" name="scheduleCronDOW[]" '
-            . 'id="scheduleCronDOW" autocomplete="off" '
-            . 'value="${dow}"/></p></div>',
-            '${action}',
-        );
-        $this->attributes = array(
-            array('width'=>16,'class'=>'l filter-false'),
-            array('class'=>'filter-false'),
-            array('class'=>'filter-false'),
-        );
-        $PowerManagements = self::getClass('PowerManagementManager')
-            ->find(
-                array(
-                    'id' => $this->obj->get('powermanagementtasks')
-                )
-            );
-        foreach ((array)$PowerManagements as &$PowerManagement) {
-            if (!$PowerManagement->isValid()) {
-                continue;
-            }
-            if ($PowerManagement->get('onDemand')) {
-                continue;
-            }
-            $this->data[] = array(
-                'id' => $PowerManagement->get('id'),
-                'min' => $PowerManagement->get('min'),
-                'hour' => $PowerManagement->get('hour'),
-                'dom' => $PowerManagement->get('dom'),
-                'month' => $PowerManagement->get('month'),
-                'dow' => $PowerManagement->get('dow'),
-                'is_selected' => (
-                    $PowerManagement->get('action') ?
-                    ' selected' :
-                    ''
-                ),
-                'action' => $PowerManagement->getActionSelect(),
-            );
-        }
-        if (count($this->data) > 0) {
-            printf(
-                '<form method="post" action="%s&tab=host-powermanagement" '
-                . 'class="deploy-container">',
-                $this->formAction
-            );
-            $this->render();
-            printf(
-                '<input type="submit" name="pmupdate" '
-                . 'value="%s"/>&nbsp;<input type="submit" '
-                . 'name="pmdelete" value="%s"/><br/>',
-                _('Update Values'),
-                _('Remove selected')
-            );
-            echo '</form>';
-        }
-        unset(
-            $this->headerData,
-            $this->templates,
-            $this->attributes,
-            $this->data
-        );
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
-        $this->attributes = array(
-            array(),
-            array(),
-        );
-        $fields = array(
-            _('Schedule Power') => sprintf(
-                '<p class="cronOptions"><input type="text" '
-                . 'name="scheduleCronMin" id="scheduleCronMin" '
-                . 'placeholder="min" autocomplete="off" value="%s"/>'
-                . '<input type="text" name="scheduleCronHour" '
-                . 'id="scheduleCronHour" placeholder="hour" '
-                . 'autocomplete="off" value="%s"/>'
-                . '<input type="text" name="scheduleCronDOM" '
-                . 'id="scheduleCronDOM" placeholder="dom" '
-                . 'autocomplete="off" value="%s"/>'
-                . '<input type="text" name="scheduleCronMonth" '
-                . 'id="scheduleCronMonth" placeholder="month" '
-                . 'autocomplete="off" value="%s"/>'
-                . '<input type="text" name="scheduleCronDOW" '
-                . 'id="scheduleCronDOW" placeholder="dow" '
-                . 'autocomplete="off" value="%s"/></p>',
-                $_REQUEST['scheduleCronMin'],
-                $_REQUEST['scheduleCronHour'],
-                $_REQUEST['scheduleCronDOM'],
-                $_REQUEST['scheduleCronMonth'],
-                $_REQUEST['scheduleCronDOW']
-            ),
-            _('Perform Immediately?') => sprintf(
-                '<input type="checkbox" name="onDemand" id="scheduleOnDemand"%s/>'
-                . '<label for="scheduleOnDemand"></label>',
-                (
-                    !is_array($_REQUEST['onDemand'])
-                    && isset($_REQUEST['onDemand']) ?
-                    ' checked' :
-                    ''
-                )
-            ),
-            _('Action') => self::getClass('PowerManagementManager')->getActionSelect(
-                $_REQUEST['action']
-            ),
-        );
-        foreach ($fields as $field => &$input) {
-            $this->data[] = array(
-                'field' => $field,
-                'input' => $input,
-            );
-            unset($input);
-        }
-        printf(
-            '<form method="post" action="%s&tab=host-powermanagement" '
-            . 'class="deploy-container">',
-            $this->formAction
-        );
-        $this->render();
-        printf(
-            '<input type="submit" name="pmsubmit" '
-            . 'value="%s"/></form></div>',
-            _('Add Option')
-        );
+        $this->pmDisplay();
         unset(
             $this->headerData,
             $this->templates,
@@ -1786,6 +1761,7 @@ class HostManagementPage extends FOGPage
             _('System Product') => $sysprod,
             _('System Version') => $sysver,
             _('System Serial Number') => $sysser,
+            _('System UUID') => $sysuuid,
             _('System Type') => $systype,
             _('BIOS Vendor') => $biosven,
             _('BIOS Version') => $biosver,
@@ -1808,7 +1784,8 @@ class HostManagementPage extends FOGPage
             _('Chassis Serial') => $caseser,
             _('Chassis Asset') => $caseast,
             '&nbsp;' => sprintf(
-                '<input name="update" type="submit" value="%s"/>',
+                '<button name="update" type="submit" class="'
+                . 'btn btn-info btn-block">%s</button>',
                 _('Update')
             ),
         );
