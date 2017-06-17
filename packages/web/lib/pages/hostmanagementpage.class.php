@@ -484,20 +484,9 @@ class HostManagementPage extends FOGPage
                     'Host' => self::getClass('Host')
                 )
             );
-        $fields = self::fastmerge(
-            $fields,
-            (array)$this->adFieldsToDisplay(
-                filter_input(INPUT_POST, 'domain'),
-                filter_input(INPUT_POST, 'domainname'),
-                filter_input(INPUT_POST, 'ou'),
-                filter_input(INPUT_POST, 'domainuser'),
-                filter_input(INPUT_POST, 'domainpassword'),
-                filter_input(INPUT_POST, 'domainpasswordlegacy'),
-                isset($_POST['enforcesel']),
-                false,
-                true
-            )
-        );
+        //$fields = self::fastmerge(
+        //    $fields,
+        //);
         array_walk($fields, $this->fieldsToData);
         self::$HookManager
             ->processEvent(
@@ -509,17 +498,36 @@ class HostManagementPage extends FOGPage
                     'headerData' => &$this->headerData
                 )
             );
+        echo '<div class="col-xs-offset-3">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '">';
-        echo '<h3 class="title">';
-        echo $this->title;
-        echo '</h3>';
         if (!isset($_POST['enforcesel'])) {
             $_POST['enforcesel'] = self::getSetting('FOG_ENFORCE_HOST_CHANGES');
         }
-        echo '<!-- General -->';
-        $this->render();
+        echo '<!-- Host General -->';
+        $this->render(12);
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        $this->adFieldsToDisplay(
+            filter_input(INPUT_POST, 'domain'),
+            filter_input(INPUT_POST, 'domainname'),
+            filter_input(INPUT_POST, 'ou'),
+            filter_input(INPUT_POST, 'domainuser'),
+            filter_input(INPUT_POST, 'domainpassword'),
+            filter_input(INPUT_POST, 'domainpasswordlegacy'),
+            isset($_POST['enforcesel']),
+            false
+        );
         echo '</form>';
     }
     /**
@@ -757,6 +765,323 @@ class HostManagementPage extends FOGPage
         $this->newPMDisplay();
     }
     /**
+     * Displays the host general tab.
+     *
+     * @return void
+     */
+    public function hostGeneral()
+    {
+        ob_start();
+        foreach ((array)$this->obj->get('additionalMACs') as $ind => &$MAC) {
+            echo '<div class="addrow">';
+            echo '<div class="col-xs-10 form-group">';
+            echo '<div class="input-group">';
+            echo '<span class="mac-manufactor input-group-addon"></span>';
+            echo '<input type="text" class="macaddr additionalMAC form-control" '
+                . 'name="additionalMACs[]" '
+                . 'value="'
+                . $MAC
+                . '" maxlength="17"/>';
+            echo '<span class="icon remove-mac fa fa-minus-circle hand '
+                . 'input-group-addon" '
+                . 'data-toggle="tooltip" data-placement="top" '
+                . 'title="'
+                . _('Remove MAC')
+                . '"></span>';
+            echo '</div>';
+            echo '</div>';
+            echo '<div class="col-xs-1">';
+            echo '<div class="checkbox">';
+            echo '<label>';
+            echo '<input type="checkbox" name="igclient[]" '
+                . 'data-toggle="tooltip" data-placement="top" title="'
+                . _('Ignore MAC on Client')
+                . '"'
+                . $this->obj->clientMacCheck($MAC)
+                . '/>';
+            echo '</label>';
+            echo '</div>';
+            echo '</div>';
+            echo '<div class="col-xs-1">';
+            echo '<div class="checkbox">';
+            echo '<label>';
+            echo '<input type="checkbox" name="igimage[]" '
+                . 'data-toggle="tooltip" data-placement="top" title="'
+                . _('Ignore MAC on Image')
+                . '"'
+                . $this->obj->imageMacCheck($MAC)
+                . '/>';
+            echo '</label>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+        }
+        $addMACs = ob_get_clean();
+        ob_start();
+        foreach ((array)$this->obj->get('pendingMACs') as &$MAC) {
+            echo '<div class="addrow">';
+            echo '<div class="col-xs-10 form-group">';
+            echo '<div class="input-group">';
+            echo '<span class="mac-manufactor input-group-addon"></span>';
+            echo '<input type="text" class="macaddr pending-mac form-control" '
+                . 'name="pendingMACs[]" '
+                . 'value="'
+                . $MAC
+                . '" maxlength="17"/>';
+            echo '<a class="input-group-addon" href="'
+                . $this->formAction
+                . '&confirmMAC='
+                . $MAC
+                . '" data-toggle="tooltip" data-placement="top" '
+                . 'title="'
+                . _('Approve MAC')
+                . '">'
+                . '<i class="icon fa fa-check-circle"></i>'
+                . '</a>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            unset($MAC);
+        }
+        $pending = ob_get_clean();
+        if ($pending) {
+            $pending .= '<div class="addrow">'
+                . '<div class="col-xs-10">'
+                . _('Approve all pending? ')
+                . '<a href="'
+                . $this->formAction
+                . '&approveAll=1" '
+                . 'data-toggle="tooltip" data-placement="top" '
+                . 'title="'
+                . _('Approve all pending macs')
+                . '">'
+                . '<i class="icon fa fa-check-circle"></i>'
+                . '</a>'
+                . '</div>'
+                . '</div>';
+        }
+        $imageSelect = self::getClass('ImageManager')
+            ->buildSelectBox(
+                filter_input(INPUT_POST, 'image') ?: $this->obj->get('imageID')
+            );
+
+        // Either use the passed in or get the objects info.
+        $name = (
+            filter_input(INPUT_POST, 'name') ?: $this->obj->get('name')
+        );
+        $mac = (
+            filter_input(INPUT_POST, 'mac') ?: $this->obj->get('mac')
+        );
+        $desc = (
+            filter_input(INPUT_POST, 'description') ?: $this->obj->get('description')
+        );
+        $productKey = (
+            filter_input(INPUT_POST, 'key') ?: self::aesdecrypt(
+                $this->obj->get('productKey')
+            )
+        );
+        $kern = (
+            filter_input(INPUT_POST, 'kern') ?: $this->obj->get('kernel')
+        );
+        $args = (
+            filter_input(INPUT_POST, 'args') ?: $this->obj->get('kernelArgs')
+        );
+        $init = (
+            filter_input(INPUT_POST, 'init') ?: $this->obj->get('init')
+        );
+        $dev = (
+            filter_input(INPUT_POST, 'dev') ?: $this->obj->get('kernelDevice')
+        );
+        $fields = array(
+            '<label class="control-label" for="name">'
+            . _('Host Name')
+            . '</label>' => '<div class="form-group">'
+            . '<div class="input-group">'
+            . '<input type="text" name="host" value="'
+            . $name
+            . '" maxlength="15" class="hostname-input form-control" '
+            . 'id="name" required/>'
+            . '</div>'
+            . '</div>',
+            '<label class="control-label" for="mac">'
+            . _('Primary MAC')
+            . '</label>' => '<div class="col-xs-10 form-group">'
+            . '<div class="input-group">'
+            . '<span class="mac-manufactor input-group-addon"></span>'
+            . '<input type="text" class="macaddr form-control" '
+            . 'name="mac" '
+            . 'value="'
+            . $mac
+            . '" id="mac" '
+            . 'maxlength="17" required/>'
+            . '<span class="icon add-mac fa fa-plus-circle hand '
+            . 'input-group-addon" '
+            . 'data-toggle="tooltip" data-placement="top" title="'
+            . _('Add MAC')
+            . '"></span>'
+            . '</div>'
+            . '</div>'
+            . '<div class="col-xs-1">'
+            . '<div class="checkbox">'
+            . '<label>'
+            . '<input type="checkbox" name="igclient[]" '
+            . 'data-toggle="tooltip" data-placement="top" title="'
+            . _('Ignore MAC on Client')
+            . '"'
+            . $this->obj->clientMacCheck()
+            . '/>'
+            . '</label>'
+            . '</div>'
+            . '</div>'
+            . '<div class="col-xs-1">'
+            . '<div class="checkbox">'
+            . '<label>'
+            . '<input type="checkbox" name="igimage[]" value="'
+            . $mac
+            . '" data-toggle="tooltip" data-placement="top" '
+            . 'id="igimage" title="'
+            . _('Ignore MAC on Image')
+            . '"'
+            . $this->obj->imageMacCheck()
+            . '/>'
+            . '</label>'
+            . '</div>'
+            . '</div>'
+            . '</div>',
+            '<div class="additionalMACsRow">'
+            . '<label>'
+            . _('Additional MACs')
+            . '</label>'
+            . '</div>' => '<div class="additionalMACsCell">'
+            . $addMACs
+            . '</div>',
+            '<div class="pendingMACsRow">'
+            . '<label>'
+            . _('Pending MACs')
+            . '</label>'
+            . '</div>' => '<div class="additionalMACsCell">'
+            . $pending
+            . '</div>',
+            '<label class="control-label" for="description">'
+            . _('Host description')
+            . '</label>' => '<div class="form-group">'
+            . '<div class="input-group">'
+            . '<textarea class="form-control" id="description" '
+            . 'name="description">'
+            . $desc
+            . '</textarea>'
+            . '</div>'
+            . '</div>',
+            '<label class="control-label" for="productKey">'
+            . _('Host Product Key')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="key" value="'
+            . $productKey
+            . '" id="productKey" class="form-control"/>'
+            . '</div>',
+            '<label class="control-label" for="image">'
+            . _('Host Image')
+            . '</label>' => $imageSelect,
+            '<label class="control-label" for="kern">'
+            . _('Host Kernel')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="kern" id="kern" '
+            . 'class="form-control" value="'
+            . $kern
+            . '"/>',
+            '<label class="control-label" for="args">'
+            . _('Host Kernel Arguments')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="args" id="args" '
+            . 'class="form-control" value="'
+            . $args
+            . '"/>',
+            '<label class="control-label" for="init">'
+            . _('Host Init')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="init" id="init" '
+            . 'class="form-control" value="'
+            . $init
+            . '"/>',
+            '<label class="control-label" for="dev">'
+            . _('Host Primary Disk')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="dev" id="dev" '
+            . 'class="form-control" value="'
+            . $dev
+            . '"/>',
+            '<label class="control-label" for="bootTypeExit">'
+            . _('Host Bios Exit Type')
+            . '</label>' => $this->exitNorm,
+            '<label class="control-label" for="efiBootTypeExit">'
+            . _('Host EFI Exit Type')
+            . '</label>' => $this->exitEfi,
+            '&nbsp;' => sprintf(
+                '<button type="submit" class="btn btn-info btn-block">%s</button>',
+                _('Update')
+            ),
+        );
+        self::$HookManager
+            ->processEvent(
+                'HOST_FIELDS',
+                array(
+                    'fields' => &$fields,
+                    'Host' => &$this->obj
+                )
+            );
+        echo '<!-- General -->';
+        echo '<div id="host-general" class="'
+            . 'tab-pane fade in active">';
+        if ($this->obj->get('pub_key')
+            || $this->obj->get('sec_tok')
+        ) {
+            $this->form = '<div class="text-center" id="resetSecDataBox">'
+                . '<button type="button" '
+                . 'id="resetSecData" '
+                . 'class="btn btn-warning btn-block">'
+                . _('Reset Encryption Data')
+                . '</button>'
+                . '</div>';
+        }
+        array_walk($fields, $this->fieldsToData);
+        unset($input);
+        self::$HookManager
+            ->processEvent(
+                'HOST_EDIT_GEN',
+                array(
+                    'headerData' => &$this->headerData,
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes,
+                    'Host'=>&$this->obj
+                )
+            );
+        echo '<div class="col-xs-offset-3 panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Edit host definition');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" '
+            . 'action="'
+            . $this->formAction
+            . '&host-general">';
+        $this->render(12);
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->attributes,
+            $this->templates
+        );
+    }
+    /**
      * Edits an existing item.
      *
      * @return void
@@ -846,300 +1171,8 @@ class HostManagementPage extends FOGPage
                 )
             );
         }
-        ob_start();
-        foreach ((array)$this->obj->get('additionalMACs') as $ind => &$MAC) {
-            echo '<div class="col-xs-10 form-group">';
-            echo '<div class="input-group">';
-            echo '<span class="mac-manufactor input-group-addon"></span>';
-            echo '<input type="text" class="additionalMAC" name="additionalMACs[]" '
-                . 'value="'
-                . $MAC
-                . '" maxlength="17" class="macaddr form-control"/>';
-            echo '<span class="icon add-mac fa fa-minus-circle hand '
-                . 'input-group-addon" '
-                . 'data-toggle="tooltip" data-placement="top" '
-                . 'title="'
-                . _('Remove MAC')
-                . '">';
-            printf(
-                '<div><input class="additionalMAC" '
-                . 'type="text" name="additionalMACs[]" '
-                . 'value="%s"/>&nbsp;&nbsp;'
-                . '<i class="icon fa fa-minus-circle '
-                . 'remove-mac hand" title="%s"></i>'
-                . '<span class="icon icon-hand" title="%s">'
-                . '<input type="checkbox" name="igclient[]" '
-                . 'value="%s" id="igclient'
-                . ($ind + 1)
-                . '" %s/><label for="igclient'
-                . ($ind + 1)
-                . '"></label></span>'
-                . '<span class="icon icon-hand" title="%s">'
-                . '<input type="checkbox" name="igimage[]" '
-                . 'value="%s" id="igimage'
-                . ($ind + 1)
-                . '" %s/><label for="igimage'
-                . ($ind + 1)
-                . '"></label></span>'
-                . '<br/><span class="mac-manufactor"></span></div>',
-                $MAC,
-                _('Remove MAC'),
-                _('Ignore MAC on Client'),
-                $MAC,
-                $this->obj->clientMacCheck($MAC),
-                _('Ignore MAC for imaging'),
-                $MAC,
-                $this->obj->imageMacCheck($MAC),
-                $MAC
-            );
-            unset($MAC);
-        }
-        $addMACs = ob_get_clean();
-        ob_start();
-        foreach ((array)$this->obj->get('pendingMACs') as &$MAC) {
-            if (!$MAC->isValid()) {
-                continue;
-            }
-            printf(
-                '<div><input class="pending-mac" type="text" '
-                . 'name="pendingMACs[]" value="%s"/>'
-                . '<a href="%s&confirmMAC=%s">'
-                . '<i class="icon fa fa-check-circle"></i>'
-                . '</a><span class="mac-manufactor"></span></div>',
-                $MAC,
-                $this->formAction,
-                $MAC
-            );
-            unset($MAC);
-        }
-        if (ob_get_contents()) {
-            printf(
-                '<div>%s<a href="%s&approveAll=1">'
-                . '<i class="icon fa fa-check-circle"></i></a></div>',
-                _('Approve All MACs?'),
-                $this->formAction
-            );
-        }
-        $pending = ob_get_clean();
-        $imageSelect = self::getClass('ImageManager')
-            ->buildSelectBox(
-                $this->obj->get('imageID')
-            );
-
-        // Either use the passed in or get the objects info.
-        $name = (
-            filter_input(INPUT_POST, 'name') ?: $this->obj->get('name')
-        );
-        $mac = (
-            filter_input(INPUT_POST, 'mac') ?: $this->obj->get('mac')
-        );
-        $desc = (
-            filter_input(INPUT_POST, 'description') ?: $this->obj->get('description')
-        );
-        $productKey = (
-            filter_input(INPUT_POST, 'key') ?: self::aesdecrypt(
-                $this->obj->get('productKey')
-            )
-        );
-        $fields = array(
-            '<label class="control-label" for="name">'
-            . _('Host Name')
-            . '</label>' => '<div class="form-group">'
-            . '<div class="input-group">'
-            . '<input type="text" name="host" value="'
-            . $name
-            . '" maxlength="15" class="hostname-input form-control" '
-            . 'id="name" required/>'
-            . '</div>'
-            . '</div>',
-            '<label class="control-label" for="mac">'
-            . _('Primary MAC')
-            . '</label>' => '<div class="col-xs-10 form-group">'
-            . '<div class="input-group">'
-            . '<span class="mac-manufactor input-group-addon"></span>'
-            . '<input type="text" name="mac" value="'
-            . $mac
-            . '" maxlength="17" class="macaddr form-control" '
-            . 'id="mac" required/>'
-            . '<span class="icon add-mac fa fa-plus-circle hand '
-            . 'input-group-addon" '
-            . 'data-toggle="tooltip" data-placement="top" title="'
-            . _('Add MAC')
-            . '"></span>'
-            . '</div>'
-            . '</div>'
-            . '<div class="col-xs-1">'
-            . '<div class="checkbox">'
-            . '<label for="igclient">'
-            . '<input type="checkbox" name="igclient[]" value="'
-            . $mac
-            . '" data-toggle="tooltip" data-placement="top" '
-            . 'id="igclient" title="'
-            . _('Ignore MAC on Client')
-            . '"'
-            . $this->obj->clientMacCheck()
-            . '/>'
-            . '</label>'
-            . '</div>'
-            . '</div>'
-            . '<div class="col-xs-1">'
-            . '<div class="checkbox">'
-            . '<label for="igimage">'
-            . '<input type="checkbox" name="igimage[]" value="'
-            . $mac
-            . '" data-toggle="tooltip" data-placement="top" '
-            . 'id="igimage" title="'
-            . _('Ignore MAC on Image')
-            . '"'
-            . $this->obj->imageMacCheck()
-            . '/>'
-            . '</label>'
-            . '</div>'
-            . '</div>'
-            . '</div>',
-            '<div class="additionalMACsRow">'
-            . _('Additional MACs')
-            . '</div>' => '<div class="additionalMACsCell">'
-            . $addMACs
-            . '</div>',
-            '<div class="pendingMACsRow">'
-            . _('Pending MACs')
-            . '</div>' => '<div class="additionalMACsCell">'
-            . $pending
-            . '</div>',
-            '<label class="control-label" for="description">'
-            . _('Host description')
-            . '</label>' => '<div class="form-group">'
-            . '<div class="input-group">'
-            . '<textarea class="form-control" id="description" '
-            . 'name="description">'
-            . $desc
-            . '</textarea>'
-            . '</div>'
-            . '</div>',
-            '<label class="control-label" for="productKey">'
-            . _('Host Product Key')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="key" value="'
-            . $productKey
-            . '" id="productKey" class="form-control"/>'
-            . '</div>',
-        //$fields = array(
-            /*_('Host Name') => sprintf(
-                '<input type="text" name="host" value="%s"'
-                . 'maxlength="15" class="hostname-input" />*',
-                $this->obj->get('name')
-            ),
-            _('Primary MAC') => sprintf(
-                '<input type="text" name="mac" class="macaddr" '
-                . 'id="mac" value="%s" maxlength="17"/>*'
-                . '<span id="priMaker"></span>'
-                . '<i class="icon add-mac fa fa-plus-circle hand" '
-                . 'title="%s"></i><span class="icon icon-hand" '
-                . 'title="%s"><input type="checkbox" name="igclient[]" '
-                . 'value="%s" id="igclient" %s/>'
-                . '<label for="igclient"></label>'
-                . '</span><span class="icon icon-hand" '
-                . 'title="%s"><input type="checkbox" name="igimage[]" '
-                . 'value="%s" id="igimage" %s/>'
-                . '<label for="igimage"></label>'
-                . '</span><br/>'
-                . '<span class="mac-manufactor"></span>',
-                $this->obj->get('mac')->__toString(),
-                _('Add MAC'),
-                _('Ignore MAC on Client'),
-                $this->obj->get('mac')->__toString(),
-                $this->obj->clientMacCheck(),
-                _('Ignore MAC for Imaging'),
-                $this->obj->get('mac')->__toString(),
-                $this->obj->imageMacCheck()
-            ),
-            sprintf(
-                '<div class="additionalMACsRow">%s</div>',
-                _('Additional MACs')
-            ) => sprintf(
-                '<div class="additionalMACsCell">%s</div>',
-                $addMACs
-            ),
-            sprintf(
-                '<div class="pendingMACsRow">%s</div>',
-                _('Pending MACs')
-            ) => sprintf(
-                '<div class="pendingMACsCell">%s</div>',
-                $pending
-            ),
-            _('Host Description') => sprintf(
-                '<textarea name="description" rows="8" cols="40">%s</textarea>',
-                $this->obj->get('description')
-            ),
-            _('Host Product Key') => sprintf(
-                '<input id="productKey" type="text" name="key" value="%s"/>',
-                self::aesdecrypt($this->obj->get('productKey'))
-            ),*/
-            _('Host Image') => $imageSelect,
-            _('Host Kernel') => sprintf(
-                '<input type="text" name="kern" value="%s"/>',
-                $this->obj->get('kernel')
-            ),
-            _('Host Kernel Arguments') => sprintf(
-                '<input type="text" name="args" value="%s"/>',
-                $this->obj->get('kernelArgs')
-            ),
-            _('Host Init') => sprintf(
-                '<input type="text" name="init" value="%s"/>',
-                $this->obj->get('init')
-            ),
-            _('Host Primary Disk') => sprintf(
-                '<input type="text" name="dev" value="%s"/>',
-                $this->obj->get('kernelDevice')
-            ),
-            _('Host Bios Exit Type') => $this->exitNorm,
-            _('Host EFI Exit Type') => $this->exitEfi,
-            '&nbsp;' => sprintf(
-                '<button type="submit" class="btn btn-info btn-block">%s</button>',
-                _('Update')
-            ),
-        );
-        self::$HookManager
-            ->processEvent(
-                'HOST_FIELDS',
-                array(
-                    'fields' => &$fields,
-                    'Host' => &$this->obj
-                )
-            );
         echo '<div class="tab-content">';
-        echo '<!-- General -->';
-        echo '<div id="host-general" class="'
-            . 'tab-pane fade in active">';
-        if ($this->obj->get('pub_key')
-            || $this->obj->get('sec_tok')
-        ) {
-            $this->form = '<div class="c" id="resetSecDataBox">'
-                . '<input type="button" id="resetSecData"/></div><br/>';
-        }
-        array_walk($fields, $this->fieldsToData);
-        unset($input);
-        self::$HookManager
-            ->processEvent(
-                'HOST_EDIT_GEN',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes,
-                    'Host'=>&$this->obj
-                )
-            );
-        printf(
-            '<form method="post" action="%s&tab=host-general"><h2>%s</h2>',
-            $this->formAction, _('Edit host definition')
-        );
-        $this->render();
-        echo '</form>';
-        echo '</div>';
-        unset($this->data, $this->form);
-        unset($this->data, $this->headerData, $this->attributes);
+        $this->hostGeneral();
         if (!$this->obj->get('pending')) {
             $this->basictasksOptions();
         }

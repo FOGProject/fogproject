@@ -2273,6 +2273,16 @@ abstract class FOGPage extends FOGBase
             echo '<div id="'
                 . $node
                 . '-active-directory" class="tab-pane fade">';
+        }
+        echo '<div class="col-xs-offset-3">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title text-center">';
+        echo _('Active Directory');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        if ($ownElement) {
             echo '<form class="form-horizontal" method="post" action="'
                 . $this->formAction
                 . '&tab='
@@ -2280,9 +2290,6 @@ abstract class FOGPage extends FOGBase
                 . '-active-directory'
                 . '">';
         }
-        echo '<h4 class="title text-center">';
-        echo _('Active Directory');
-        echo '</h4>';
         echo '<input type="text" name="fakeusernameremembered" class='
             . '"fakes hidden"/>';
         echo '<input type="password" name="fakepasswordremembered" class='
@@ -2308,9 +2315,14 @@ abstract class FOGPage extends FOGBase
                 'templates' => &$this->templates
             )
         );
-        $this->render();
+        $this->render(12);
         if ($ownElement) {
             echo '</form>';
+        }
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        if ($ownElement) {
             echo '</div>';
         }
         unset($this->data);
