@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-01 11:00-0400\n"
+"POT-Creation-Date: 2017-06-16 21:32-0400\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -2468,7 +2468,6 @@ msgstr "Nebel-Foren"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:66
 #: /var/www/fog/management/other/index.php:167
-#: /var/www/fog/management/other/index2.php:167
 msgid "Donate to FOG"
 msgstr "Spenden Sie für Nebel"
 
@@ -2478,7 +2477,6 @@ msgstr "Nebel-Versionsinformationen"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:100
 #: /var/www/fog/management/other/index.php:102
-#: /var/www/fog/management/other/index2.php:102
 msgid "Running Version"
 msgstr "Laufende Version"
 
@@ -8669,19 +8667,16 @@ msgid "Example Bolded Header"
 msgstr "Beispiel Fett Header"
 
 #: /var/www/fog/management/other/index.php:104
-#: /var/www/fog/management/other/index2.php:104
 #, fuzzy
 msgid "SVN Revision"
 msgstr "Version"
 
 #: /var/www/fog/management/other/index.php:155
-#: /var/www/fog/management/other/index2.php:155
 #, fuzzy
 msgid "Credits"
 msgstr "Erstellen"
 
 #: /var/www/fog/management/other/index.php:160
-#: /var/www/fog/management/other/index2.php:160
 #, fuzzy
 msgid "FOG Client"
 msgstr "Nebel-Client-Wiki"
