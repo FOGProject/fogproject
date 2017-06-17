@@ -388,8 +388,8 @@ class HostManagementPage extends FOGPage
             '${input}',
         );
         $this->attributes = array(
-            array(),
-            array('class' => 'form-group'),
+            array('class' => 'col-xs-3'),
+            array('class' => 'col-xs-9 form-group'),
         );
         $fields = array(
             '<label class="control-label" for="host">'
@@ -484,9 +484,6 @@ class HostManagementPage extends FOGPage
                     'Host' => self::getClass('Host')
                 )
             );
-        //$fields = self::fastmerge(
-        //    $fields,
-        //);
         array_walk($fields, $this->fieldsToData);
         self::$HookManager
             ->processEvent(
@@ -739,9 +736,15 @@ class HostManagementPage extends FOGPage
         }
         echo '<!-- Power Management Items -->'
             . '<div class="tab-pane fade" id="host-powermanagement">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Power Management');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
         // Current data.
         if (count($this->data) > 0) {
-            echo '<div class="col-xs-9">';
             echo '<form class="deploy-container form-horizontal" '
                 . 'method="post" action="'
                 . $this->formAction
@@ -760,9 +763,11 @@ class HostManagementPage extends FOGPage
             echo '</button>';
             echo '</div>';
             echo '</form>';
-            echo '</div>';
         }
         $this->newPMDisplay();
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Displays the host general tab.
@@ -771,6 +776,15 @@ class HostManagementPage extends FOGPage
      */
     public function hostGeneral()
     {
+        unset($this->headerData);
+        $this->attributes = array(
+            array('class' => 'col-xs-3'),
+            array('class' => 'col-xs-9'),
+        );
+        $this->templates = array(
+            '${field}',
+            '${input}',
+        );
         ob_start();
         foreach ((array)$this->obj->get('additionalMACs') as $ind => &$MAC) {
             echo '<div class="addrow">';
@@ -791,11 +805,18 @@ class HostManagementPage extends FOGPage
             echo '</div>';
             echo '</div>';
             echo '<div class="col-xs-1">';
+            echo '<div class="row">';
+            echo '<span data-toggle="tooltip" data-placement="top" '
+                . 'title="'
+                . _('Ignore MAC on Client')
+                . '" class="hand">'
+                . _('I.M.C.')
+                . '</span>';
+            echo '</div>';
             echo '<div class="checkbox">';
             echo '<label>';
-            echo '<input type="checkbox" name="igclient[]" '
-                . 'data-toggle="tooltip" data-placement="top" title="'
-                . _('Ignore MAC on Client')
+            echo '<input type="checkbox" name="igclient[]" value="'
+                . $MAC
                 . '"'
                 . $this->obj->clientMacCheck($MAC)
                 . '/>';
@@ -803,11 +824,18 @@ class HostManagementPage extends FOGPage
             echo '</div>';
             echo '</div>';
             echo '<div class="col-xs-1">';
+            echo '<div class="row">';
+            echo '<span data-toggle="tooltip" data-placement="top" '
+                . 'title="'
+                . _('Ignore MAC on Image')
+                . '" class="hand">'
+                . _('I.M.I.')
+                . '</span>';
+            echo '</div>';
             echo '<div class="checkbox">';
             echo '<label>';
-            echo '<input type="checkbox" name="igimage[]" '
-                . 'data-toggle="tooltip" data-placement="top" title="'
-                . _('Ignore MAC on Image')
+            echo '<input type="checkbox" name="igimage[]" value="'
+                . $MAC
                 . '"'
                 . $this->obj->imageMacCheck($MAC)
                 . '/>';
@@ -923,11 +951,18 @@ class HostManagementPage extends FOGPage
             . '</div>'
             . '</div>'
             . '<div class="col-xs-1">'
+            . '<div class="row">'
+            . '<span data-toggle="tooltip" data-placement="top" '
+            . 'title="'
+            . _('Ignore MAC on Client')
+            . '" class="hand">'
+            . _('I.M.C.')
+            . '</span>'
+            . '</div>'
             . '<div class="checkbox">'
             . '<label>'
-            . '<input type="checkbox" name="igclient[]" '
-            . 'data-toggle="tooltip" data-placement="top" title="'
-            . _('Ignore MAC on Client')
+            . '<input type="checkbox" name="igclient[]" value="'
+            . $mac
             . '"'
             . $this->obj->clientMacCheck()
             . '/>'
@@ -935,13 +970,18 @@ class HostManagementPage extends FOGPage
             . '</div>'
             . '</div>'
             . '<div class="col-xs-1">'
+            . '<div class="row">'
+            . '<span data-toggle="tooltip" data-placement="top" '
+            . 'title="'
+            . _('Ignore MAC on Image')
+            . '" class="hand">'
+            . _('I.M.I.')
+            . '</span>'
+            . '</div>'
             . '<div class="checkbox">'
             . '<label>'
             . '<input type="checkbox" name="igimage[]" value="'
             . $mac
-            . '" data-toggle="tooltip" data-placement="top" '
-            . 'id="igimage" title="'
-            . _('Ignore MAC on Image')
             . '"'
             . $this->obj->imageMacCheck()
             . '/>'
@@ -1017,10 +1057,12 @@ class HostManagementPage extends FOGPage
             '<label class="control-label" for="efiBootTypeExit">'
             . _('Host EFI Exit Type')
             . '</label>' => $this->exitEfi,
-            '&nbsp;' => sprintf(
-                '<button type="submit" class="btn btn-info btn-block">%s</button>',
-                _('Update')
-            ),
+            '<label class="control-label" for="generalupdate">'
+            . _('Make Changes?')
+           . '</label>' => '<button type="submit" class="btn btn-info btn-block" '
+           . 'id="generalupdate">'
+           . _('Update')
+           . '</button>'
         );
         self::$HookManager
             ->processEvent(
@@ -1057,7 +1099,7 @@ class HostManagementPage extends FOGPage
                     'Host'=>&$this->obj
                 )
             );
-        echo '<div class="col-xs-offset-3 panel panel-info">';
+        echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
         echo _('Edit host definition');
@@ -1067,7 +1109,7 @@ class HostManagementPage extends FOGPage
         echo '<form class="form-horizontal" method="post" '
             . 'action="'
             . $this->formAction
-            . '&host-general">';
+            . '&tab=host-general">';
         $this->render(12);
         echo '</form>';
         echo '</div>';
@@ -1080,6 +1122,141 @@ class HostManagementPage extends FOGPage
             $this->attributes,
             $this->templates
         );
+    }
+    /**
+     * Host general post update.
+     *
+     * @return void
+     */
+    public function hostGeneralPost()
+    {
+        $name = trim(
+            filter_input(INPUT_POST, 'host')
+        );
+        $mac = trim(
+            filter_input(INPUT_POST, 'mac')
+        );
+        $desc = trim(
+            filter_input(INPUT_POST, 'description')
+        );
+        $imageID = trim(
+            filter_input(INPUT_POST, 'image')
+        );
+        $key = strtoupper(
+            trim(
+                filter_input(INPUT_POST, 'key')
+            )
+        );
+        $productKey = preg_replace(
+            '/([\w+]{5})/',
+            '$1-',
+            str_replace(
+                '-',
+                '',
+                $key
+            )
+        );
+        $productKey = substr($productKey, 0, 29);
+        $productKey = self::aesencrypt($productKey);
+        $kern = trim(
+            filter_input(INPUT_POST, 'kern')
+        );
+        $args = trim(
+            filter_input(INPUT_POST, 'args')
+        );
+        $dev = trim(
+            filter_input(INPUT_POST, 'dev')
+        );
+        $init = trim(
+            filter_input(INPUT_POST, 'init')
+        );
+        $bte = trim(
+            filter_input(INPUT_POST, 'bootTypeExit')
+        );
+        $ebte = trim(
+            filter_input(INPUT_POST, 'efiBootTypeExit')
+        );
+        if (empty($name)) {
+            throw new Exception(_('Please enter a hostname'));
+        }
+        if ($name != $this->obj->get('name')
+        ) {
+            if (!$this->obj->isHostnameSafe($name)) {
+                throw new Exception(_('Please enter a valid hostname'));
+            }
+            if ($this->obj->getManager()->exists($name)) {
+                throw new Exception(_('Please use another hostname'));
+            }
+        }
+        if (empty($mac)) {
+            throw new Exception(_('Please enter a mac address'));
+        }
+        $mac = self::parseMacList($mac);
+        if (count($mac) < 1) {
+            throw new Exception(_('Please enter a valid mac address'));
+        }
+        $mac = array_shift($mac);
+        if (!$mac->isValid()) {
+            throw new Exception(_('Please enter a valid mac address'));
+        }
+        $Task = $this->obj->get('task');
+        if ($Task->isValid()
+            && $imageID != $this->obj->get('imageID')
+        ) {
+            throw new Exception(_('Cannot change image when in tasking'));
+        }
+        $this
+            ->obj
+            ->set('name', $name)
+            ->set('description', $desc)
+            ->set('imageID', $imageID)
+            ->set('kernel', $kern)
+            ->set('kernelArgs', $args)
+            ->set('kernelDevice', $dev)
+            ->set('init', $init)
+            ->set('biosexit', $bte)
+            ->set('efiexit', $ebte)
+            ->set('productKey', $productKey);
+        $primac = $this->obj->get('mac')->__toString();
+        $setmac = $mac->__toString();
+        if ($primac != $setmac) {
+            $this->obj->addPriMAC($mac->__toString());
+        }
+        $addMACs = filter_input_array(
+            INPUT_POST,
+            array(
+                'additionalMACs' => array(
+                    'flags' => FILTER_REQUIRE_ARRAY
+                )
+            )
+        );
+        $addMACs = $addMACs['additionalMACs'];
+        $addmacs = self::parseMacList($addMACs);
+        unset($addMACs);
+        $macs = array();
+        foreach ((array)$addmacs as &$addmac) {
+            if (!$addmac->isValid()) {
+                continue;
+            }
+            $macs[] = $addmac->__toString();
+            unset($addmac);
+        }
+        $removeMACs = array_diff(
+            (array)self::getSubObjectIDs(
+                'MACAddressAssociation',
+                array(
+                    'hostID' => $this->obj->get('id'),
+                    'primary' => 0,
+                    'pending' => 0
+                ),
+                'mac'
+            ),
+            $macs
+        );
+        $this
+            ->obj
+            ->addAddMAC($macs)
+            ->removeAddMAC($removeMACs);
     }
     /**
      * Edits an existing item.
@@ -1115,15 +1292,6 @@ class HostManagementPage extends FOGPage
                 _('Approve this host?')
             );
         }
-        unset($this->headerData);
-        $this->attributes = array(
-            array(),
-            array(),
-        );
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
         if ($_REQUEST['confirmMAC']) {
             try {
                 $this->obj->addPendtoAdd($_REQUEST['confirmMAC']);
@@ -1171,7 +1339,7 @@ class HostManagementPage extends FOGPage
                 )
             );
         }
-        echo '<div class="tab-content">';
+        echo '<div class="col-xs-offset-3 tab-content">';
         $this->hostGeneral();
         if (!$this->obj->get('pending')) {
             $this->basictasksOptions();
@@ -2414,110 +2582,7 @@ class HostManagementPage extends FOGPage
             global $tab;
             switch ($tab) {
             case 'host-general':
-                $hostName = trim($_REQUEST['host']);
-                if (empty($hostName)) {
-                    throw new Exception(
-                        _('Please enter a hostname')
-                    );
-                }
-                if ($this->obj->get('name') != $hostName
-                    && !$this->obj->isHostnameSafe($hostName)
-                ) {
-                    throw new Exception(
-                        _('Please enter a valid hostname')
-                    );
-                }
-                if ($this->obj->get('name') != $hostName
-                    && $this->obj->getManager()->exists($hostName)
-                ) {
-                    throw new Exception(
-                        _('Hostname Exists already')
-                    );
-                }
-                if (empty($_REQUEST['mac'])) {
-                    throw new Exception(
-                        _('MAC Address is required')
-                    );
-                }
-                $mac = self::parseMacList($_REQUEST['mac']);
-                if (count($mac) < 1) {
-                    throw new Exception(
-                        _('No valid macs returned')
-                    );
-                }
-                $mac = array_shift($mac);
-                if (!$mac->isValid()) {
-                    throw new Exception(
-                        _('The returned MAC is invalid')
-                    );
-                }
-                $Task = $this->obj->get('task');
-                if ($Task->isValid()
-                    && $_REQUEST['image'] != $this->obj->get('imageID')
-                ) {
-                    throw new Exception(
-                        sprintf(
-                            '%s.<br/>%s.',
-                            _('Cannot change image'),
-                            _('Host is in a tasking')
-                        )
-                    );
-                }
-                $key = $_REQUEST['key'];
-                $key = trim($key);
-                $key = strtoupper($key);
-                $productKey = preg_replace(
-                    '/([\w+]{5})/',
-                    '$1-',
-                    str_replace(
-                        '-',
-                        '',
-                        $key
-                    )
-                );
-                $productKey = substr($productKey, 0, 29);
-                $this
-                    ->obj
-                    ->set('name', $hostName)
-                    ->set('description', $_REQUEST['description'])
-                    ->set('imageID', $_REQUEST['image'])
-                    ->set('kernel', $_REQUEST['kern'])
-                    ->set('kernelArgs', $_REQUEST['args'])
-                    ->set('kernelDevice', $_REQUEST['dev'])
-                    ->set('init', $_REQUEST['init'])
-                    ->set('biosexit', $_REQUEST['bootTypeExit'])
-                    ->set('efiexit', $_REQUEST['efiBootTypeExit'])
-                    ->set('productKey', self::encryptpw($productKey));
-                $primac = $this->obj->get('mac')->__toString();
-                $setmac = $mac->__toString();
-                if ($primac != $setmac) {
-                    $this->obj->addPriMAC($mac->__toString());
-                }
-                $addmacs = self::parseMacList($_REQUEST['additionalMACs']);
-                $macs = array();
-                foreach ((array)$addmacs as &$addmac) {
-                    if (!$addmac->isValid()) {
-                        continue;
-                    }
-                    $macs[] = $addmac->__toString();
-                    unset($addmac);
-                }
-                $removeMACs = array_diff(
-                    (array)self::getSubObjectIDs(
-                        'MACAddressAssociation',
-                        array(
-                            'hostID' => $this->obj->get('id'),
-                            'primary' => 0,
-                            'pending' => 0
-                        ),
-                        'mac'
-                    ),
-                    $macs
-                );
-                $this
-                    ->obj
-                    ->addAddMAC($macs)
-                    ->removeAddMAC($removeMACs);
+                $this->hostGeneralPost();
                 break;
             case 'host-active-directory':
                 $useAD = isset($_REQUEST['domain']);
@@ -2715,7 +2780,7 @@ class HostManagementPage extends FOGPage
                 throw new Exception(_('Host Update Failed'));
             }
             $this->obj->setAD();
-            if ($_REQUEST['tab'] == 'host-general') {
+            if ($tab == 'host-general') {
                 $this->obj->ignore($_REQUEST['igimage'], $_REQUEST['igclient']);
             }
             $hook = 'HOST_EDIT_SUCCESS';

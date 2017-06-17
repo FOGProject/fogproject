@@ -1121,17 +1121,19 @@ abstract class FOGPage extends FOGBase
                 'attributes' => &$this->attributes
             )
         );
-        echo '<div class="col-xs-offset-3 panel panel-primary">';
+        echo '<div class="col-xs-offset-3 panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
         echo _('Confirm tasking');
         echo '</h4>';
-        echo '<p class="category">';
-        echo _('Advanced Settings');
-        echo '</p>';
         echo '</div>';
-        echo '<div class="panel-body fogcard">';
-        echo '<div class="col-xs-10">';
+        echo '<div class="panel-body">';
+        echo '<div class="text-center">';
+        echo '<h4 class="title">';
+        echo _('Advanced Settings');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="col-xs-offset-3">';
         echo '<form class="form-horizontal deploy-container" method="post" action="'
             . $this->formAction
             . '">';
@@ -1321,7 +1323,7 @@ abstract class FOGPage extends FOGBase
             echo '</div>';
         }
         if (count($this->data)) {
-            echo '<button type="submit" class="btn btn-success btn-block">';
+            echo '<button type="submit" class="btn btn-info btn-block">';
             echo _('Create')
                 . ' '
                 . $TaskType->get('name')
@@ -1339,7 +1341,7 @@ abstract class FOGPage extends FOGBase
             echo _('Hosts in task');
             echo '</h2>';
             echo '</div>';
-            echo '<div class="panel-body fogcard">';
+            echo '<div class="panel-body">';
             $this->render();
             echo '</div>';
             echo '</div>';
@@ -2154,7 +2156,7 @@ abstract class FOGPage extends FOGBase
         $fields = array(
             '<label for="clearAD">'
             . _('Clear all fields?')
-            . '</label>' => '<button class="btn btn-default btn-block" '
+            . '</label>' => '<button class="btn btn-warning btn-block" '
             . 'type="button" id="clearAD">'
             . _('Clear Fields')
             . '</button>',
@@ -2246,7 +2248,7 @@ abstract class FOGPage extends FOGBase
             . '">'
             . _('Make changes?')
             . '</label>' => '<button class="'
-            . 'btn btn-default btn-block" type="submit" name='
+            . 'btn btn-info btn-block" type="submit" name='
             . '"updatead" id="'
             . $node
             . '-'
@@ -2274,7 +2276,6 @@ abstract class FOGPage extends FOGBase
                 . $node
                 . '-active-directory" class="tab-pane fade">';
         }
-        echo '<div class="col-xs-offset-3">';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title text-center">';
@@ -2299,8 +2300,8 @@ abstract class FOGPage extends FOGBase
             '${input}',
         );
         $this->attributes = array(
-            array(),
-            array('class' => 'form-group'),
+            array('class' => 'col-xs-3'),
+            array('class' => 'col-xs-9 form-group'),
         );
         array_walk($fields, $this->fieldsToData);
         self::$HookManager->processEvent(
@@ -2319,7 +2320,6 @@ abstract class FOGPage extends FOGBase
         if ($ownElement) {
             echo '</form>';
         }
-        echo '</div>';
         echo '</div>';
         echo '</div>';
         if ($ownElement) {
@@ -3861,8 +3861,8 @@ abstract class FOGPage extends FOGBase
             '${input}',
         );
         $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8'),
+            array('class' => 'col-xs-3'),
+            array('class' => 'col-xs-9'),
         );
         $fields = array(
             '<label for="specialCrons">'
@@ -3936,7 +3936,6 @@ abstract class FOGPage extends FOGBase
             . '</button>'
         );
         array_walk($fields, $this->fieldsToData);
-        echo '<div class="col-xs-9">';
         echo '<form class="deploy-container form-horizontal" '
             . 'method="post" action="'
             . $this->formAction
@@ -3945,7 +3944,5 @@ abstract class FOGPage extends FOGBase
             . '-powermanagement">';
         $this->render(12);
         echo '</form>';
-        echo '</div>';
-        echo '</div>';
     }
 }

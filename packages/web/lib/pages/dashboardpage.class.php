@@ -238,7 +238,7 @@ class DashboardPage extends FOGPage
         // Dashboard boxes row.
         echo '<div class="row">';
         // Overview
-        echo '<div class="col-xs-4">';
+        echo '<div class="col-md-4">';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
@@ -262,7 +262,7 @@ class DashboardPage extends FOGPage
         );
         echo '</div>';
         // Activity
-        echo '<div class="col-xs-4">';
+        echo '<div class="col-md-4">';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
@@ -287,7 +287,7 @@ class DashboardPage extends FOGPage
         echo '</div>';
         echo '</div>';
         // Disk usage
-        echo '<div class="col-xs-4">';
+        echo '<div class="col-md-4">';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
