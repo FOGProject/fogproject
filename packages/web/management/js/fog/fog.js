@@ -99,7 +99,9 @@ function AJAXServerTime() {
     });
 }
 function HookTooltip() {
-    $('[data-toggle="tooltip"]').tooltip({container: 'body'});
+    $(document).on('mouseover', function() {
+        $('[data-toggle="tooltip"]').tooltip({container: 'body'});
+    });
 }
 (function($) {
     /**

@@ -158,10 +158,18 @@ class UserManagementPage extends FOGPage
             '${input}',
         );
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-3'),
+            array('class' => 'col-xs-9 form-group'),
         );
         $this->data = array();
+        $name = filter_input(
+            INPUT_POST,
+            'name'
+        );
+        $display = filter_input(
+            INPUT_POST,
+            'display'
+        );
         $fields = array(
             '<label class="control-label" for="name">'
             . _('User Name')
@@ -172,7 +180,7 @@ class UserManagementPage extends FOGPage
             . '<input type="text" class="'
             . 'form-control username-input" name='
             . '"name" value="'
-            . $_POST['name']
+            . $name
             . '" autocomplete="off" id="name" required/>'
             . '</div>',
             '<label class="control-label" for="display">'
@@ -184,8 +192,8 @@ class UserManagementPage extends FOGPage
             . '<input type="text" class="'
             . 'form-control friendlyname-input" name="'
             . 'display" value="'
-            . $_POST['display']
-            . '" autocomplete="off"/>'
+            . $display
+            . '" autocomplete="off" id="display"/>'
             . '</div>',
             '<label class="control-label" for="password">'
             . _('User Password')
@@ -347,7 +355,7 @@ class UserManagementPage extends FOGPage
             . 'form-control friendlyname-input" name="'
             . 'display" value="'
             . $this->obj->get('display')
-            . '" autocomplete="off"/>'
+            . '" autocomplete="off" id="display"/>'
             . '</div>',
             '<label class="control-label" for="updategen">'
             . _('Update General?')
@@ -370,8 +378,8 @@ class UserManagementPage extends FOGPage
             '${input}'
         );
         $this->attributes = array(
-            array(),
-            array('class' => 'form-group')
+            array('class' => 'col-xs-3'),
+            array('class' => 'col-xs-9 form-group')
         );
         $this->data = array();
         array_walk($fields, $this->fieldsToData);
@@ -388,7 +396,7 @@ class UserManagementPage extends FOGPage
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '&tab=user-general">';
-        $this->render();
+        $this->render(12);
         echo '</form>';
         echo '</div>';
     }
@@ -428,8 +436,8 @@ class UserManagementPage extends FOGPage
             '${input}'
         );
         $this->attributes = array(
-            array(),
-            array('class' => 'form-group')
+            array('class' => 'col-xs-3'),
+            array('class' => 'col-xs-9 form-group')
         );
         $this->data = array();
         array_walk($fields, $this->fieldsToData);
@@ -446,7 +454,7 @@ class UserManagementPage extends FOGPage
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '&tab=user-changepw">';
-        $this->render();
+        $this->render(12);
         echo '</form>';
         echo '</div>';
     }
@@ -498,8 +506,8 @@ class UserManagementPage extends FOGPage
             '${input}'
         );
         $this->attributes = array(
-            array(),
-            array('class' => 'form-group')
+            array('class' => 'col-xs-3'),
+            array('class' => 'col-xs-9 form-group')
         );
         $this->data = array();
         array_walk($fields, $this->fieldsToData);
@@ -516,7 +524,7 @@ class UserManagementPage extends FOGPage
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '&tab=user-api">';
-        $this->render();
+        $this->render(12);
         echo '</form>';
         echo '</div>';
     }
@@ -537,7 +545,7 @@ class UserManagementPage extends FOGPage
         echo '<input type="text" name="fakeusernameremembered" class="fakes"/>';
         echo '<input type="password" name="fakepasswordremembered" class="fakes"/>';
         echo '</div>';
-        echo '<div class="tab-content">';
+        echo '<div class="col-xs-offset-3 tab-content">';
         $this->userGeneral();
         $this->userChangePW();
         $this->userAPI();
