@@ -847,9 +847,19 @@ class HostManagementPage extends FOGPage
         }
         ob_start();
         foreach ((array)$this->obj->get('additionalMACs') as $ind => &$MAC) {
-            if (!$MAC->isValid()) {
-                continue;
-            }
+            echo '<div class="col-xs-10 form-group">';
+            echo '<div class="input-group">';
+            echo '<span class="mac-manufactor input-group-addon"></span>';
+            echo '<input type="text" class="additionalMAC" name="additionalMACs[]" '
+                . 'value="'
+                . $MAC
+                . '" maxlength="17" class="macaddr form-control"/>';
+            echo '<span class="icon add-mac fa fa-minus-circle hand '
+                . 'input-group-addon" '
+                . 'data-toggle="tooltip" data-placement="top" '
+                . 'title="'
+                . _('Remove MAC')
+                . '">';
             printf(
                 '<div><input class="additionalMAC" '
                 . 'type="text" name="additionalMACs[]" '
@@ -914,8 +924,107 @@ class HostManagementPage extends FOGPage
             ->buildSelectBox(
                 $this->obj->get('imageID')
             );
+
+        // Either use the passed in or get the objects info.
+        $name = (
+            filter_input(INPUT_POST, 'name') ?: $this->obj->get('name')
+        );
+        $mac = (
+            filter_input(INPUT_POST, 'mac') ?: $this->obj->get('mac')
+        );
+        $desc = (
+            filter_input(INPUT_POST, 'description') ?: $this->obj->get('description')
+        );
+        $productKey = (
+            filter_input(INPUT_POST, 'key') ?: self::aesdecrypt(
+                $this->obj->get('productKey')
+            )
+        );
         $fields = array(
-            _('Host Name') => sprintf(
+            '<label class="control-label" for="name">'
+            . _('Host Name')
+            . '</label>' => '<div class="form-group">'
+            . '<div class="input-group">'
+            . '<input type="text" name="host" value="'
+            . $name
+            . '" maxlength="15" class="hostname-input form-control" '
+            . 'id="name" required/>'
+            . '</div>'
+            . '</div>',
+            '<label class="control-label" for="mac">'
+            . _('Primary MAC')
+            . '</label>' => '<div class="col-xs-10 form-group">'
+            . '<div class="input-group">'
+            . '<span class="mac-manufactor input-group-addon"></span>'
+            . '<input type="text" name="mac" value="'
+            . $mac
+            . '" maxlength="17" class="macaddr form-control" '
+            . 'id="mac" required/>'
+            . '<span class="icon add-mac fa fa-plus-circle hand '
+            . 'input-group-addon" '
+            . 'data-toggle="tooltip" data-placement="top" title="'
+            . _('Add MAC')
+            . '"></span>'
+            . '</div>'
+            . '</div>'
+            . '<div class="col-xs-1">'
+            . '<div class="checkbox">'
+            . '<label for="igclient">'
+            . '<input type="checkbox" name="igclient[]" value="'
+            . $mac
+            . '" data-toggle="tooltip" data-placement="top" '
+            . 'id="igclient" title="'
+            . _('Ignore MAC on Client')
+            . '"'
+            . $this->obj->clientMacCheck()
+            . '/>'
+            . '</label>'
+            . '</div>'
+            . '</div>'
+            . '<div class="col-xs-1">'
+            . '<div class="checkbox">'
+            . '<label for="igimage">'
+            . '<input type="checkbox" name="igimage[]" value="'
+            . $mac
+            . '" data-toggle="tooltip" data-placement="top" '
+            . 'id="igimage" title="'
+            . _('Ignore MAC on Image')
+            . '"'
+            . $this->obj->imageMacCheck()
+            . '/>'
+            . '</label>'
+            . '</div>'
+            . '</div>'
+            . '</div>',
+            '<div class="additionalMACsRow">'
+            . _('Additional MACs')
+            . '</div>' => '<div class="additionalMACsCell">'
+            . $addMACs
+            . '</div>',
+            '<div class="pendingMACsRow">'
+            . _('Pending MACs')
+            . '</div>' => '<div class="additionalMACsCell">'
+            . $pending
+            . '</div>',
+            '<label class="control-label" for="description">'
+            . _('Host description')
+            . '</label>' => '<div class="form-group">'
+            . '<div class="input-group">'
+            . '<textarea class="form-control" id="description" '
+            . 'name="description">'
+            . $desc
+            . '</textarea>'
+            . '</div>'
+            . '</div>',
+            '<label class="control-label" for="productKey">'
+            . _('Host Product Key')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="key" value="'
+            . $productKey
+            . '" id="productKey" class="form-control"/>'
+            . '</div>',
+        //$fields = array(
+            /*_('Host Name') => sprintf(
                 '<input type="text" name="host" value="%s"'
                 . 'maxlength="15" class="hostname-input" />*',
                 $this->obj->get('name')
@@ -965,7 +1074,7 @@ class HostManagementPage extends FOGPage
             _('Host Product Key') => sprintf(
                 '<input id="productKey" type="text" name="key" value="%s"/>',
                 self::aesdecrypt($this->obj->get('productKey'))
-            ),
+            ),*/
             _('Host Image') => $imageSelect,
             _('Host Kernel') => sprintf(
                 '<input type="text" name="kern" value="%s"/>',

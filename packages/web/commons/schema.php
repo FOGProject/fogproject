@@ -3768,3 +3768,7 @@ $this->schema[] = array(
 $this->schema[] = array(
     "ALTER TABLE `inventory` ADD `iSystemUUID` VARCHAR(255) NOT NULL"
 );
+// 262
+$this->schema[] = array(
+    "ALTER TABLE `taskTypes` ADD `ttInitrd` LONGTEXT NOT NULL"
+);

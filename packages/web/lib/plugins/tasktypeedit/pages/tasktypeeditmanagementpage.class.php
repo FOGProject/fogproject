@@ -133,6 +133,9 @@ class TasktypeeditManagementPage extends FOGPage
             unset($type);
         }
         unset($accessTypes);
+        $initrd = (
+            filter_input(INPUT_POST, 'initrd') ?: ''
+        );
         $access_opt = ob_get_clean();
         $fields = array(
             _('Name') => sprintf(
@@ -152,6 +155,12 @@ class TasktypeeditManagementPage extends FOGPage
                 '<input type="text" name="kernelargs" class="smaller" value="%s"/>',
                 $_REQUEST['kernelargs']
             ),
+            '<label class="control-label" for="initrd">'
+            . _('Init')
+            . '</label>' => '<textarea name="initrd" class='
+            . '"form-control" id="initrd">'
+            . $initrd
+            . '</textarea>',
             _('Type') => sprintf(
                 '<input type="text" name="type" class="smaller" value="%s"/>',
                 $_REQUEST['type']
@@ -211,9 +220,11 @@ class TasktypeeditManagementPage extends FOGPage
             $icon = $_REQUEST['icon'];
             $kernel = $_REQUEST['kernel'];
             $kernelargs = $_REQUEST['kernelargs'];
+            $initrd = filter_input(INPUT_POST, 'initrd');
             $type = (string)$_REQUEST['type'];
             $advanced = (string)intval(isset($_REQUEST['advanced']));
             $access = $_REQUEST['access'];
+            $initrd = filter_input(INPUT_POST, 'initrd');
             if (!$name) {
                 throw new Exception(_('You must enter a name'));
             }
@@ -228,6 +239,7 @@ class TasktypeeditManagementPage extends FOGPage
                 ->set('icon', $icon)
                 ->set('kernel', $kernel)
                 ->set('kernelArgs', $kernelargs)
+                ->set('initrd', $initrd)
                 ->set('type', $type)
                 ->set('isAdvanced', $advanced)
                 ->set('access', $access);
@@ -280,6 +292,9 @@ class TasktypeeditManagementPage extends FOGPage
         }
         unset($accessTypes);
         $access_opt = ob_get_clean();
+        $initrd = (
+            filter_input(INPUT_POST, 'initrd') ?: $this->obj->get('initrd')
+        );
         $fields = array(
             _('Name') => sprintf(
                 '<input type="text" name="name" class="smaller" value="%s"/>',
@@ -303,6 +318,12 @@ class TasktypeeditManagementPage extends FOGPage
                 '<input type="text" name="kernelargs" class="smaller" value="%s"/>',
                 $this->obj->get('kernelArgs')
             ),
+            '<label class="control-label" for="initrd">'
+            . _('Init')
+            . '</label>' => '<textarea name="initrd" class='
+            . '"form-control" id="initrd">'
+            . $initrd
+            . '</textarea>',
             _('Type') => sprintf(
                 '<input type="text" name="type" class="smaller" value="%s"/>',
                 $this->obj->get('type')
@@ -370,6 +391,7 @@ class TasktypeeditManagementPage extends FOGPage
             $type = $_REQUEST['type'];
             $advanced = (string)intval(isset($_REQUEST['advanced']));
             $access = $_REQUEST['access'];
+            $initrd = filter_input(INPUT_POST, 'initrd');
             if (!$name) {
                 throw new Exception(_('You must enter a name'));
             }
@@ -386,6 +408,7 @@ class TasktypeeditManagementPage extends FOGPage
                 ->set('icon', $icon)
                 ->set('kernel', $kernel)
                 ->set('kernelArgs', $kernelargs)
+                ->set('initrd', $initrd)
                 ->set('type', $type)
                 ->set('isAdvanced', $advanced)
                 ->set('access', $access);

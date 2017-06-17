@@ -2024,11 +2024,11 @@ class Host extends FOGController
                 $mac = new MACAddress($mac);
             }
             if ($mac->isClientIgnored()) {
-                return 'checked';
+                return ' checked';
             }
             return '';
         }
-        return $this->get('mac')->isClientIgnored() ? 'checked' : '';
+        return $this->get('mac')->isClientIgnored() ? ' checked' : '';
     }
     /**
      * Tells if the mac is image ignored
@@ -2044,11 +2044,11 @@ class Host extends FOGController
                 $mac = new MACAddress($mac);
             }
             if ($mac->isImageIgnored()) {
-                return 'checked';
+                return ' checked';
             }
             return '';
         }
-        return $this->get('mac')->isImageIgnored() ? 'checked' : '';
+        return $this->get('mac')->isImageIgnored() ? ' checked' : '';
     }
     /**
      * Sets the host settings for AD (mainly)
