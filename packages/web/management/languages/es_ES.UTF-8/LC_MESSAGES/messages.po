@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-01 11:00-0400\n"
+"POT-Creation-Date: 2017-06-16 21:32-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2464,7 +2464,6 @@ msgstr "Foros FOG"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:66
 #: /var/www/fog/management/other/index.php:167
-#: /var/www/fog/management/other/index2.php:167
 msgid "Donate to FOG"
 msgstr "Donar a la niebla"
 
@@ -2474,7 +2473,6 @@ msgstr "FOG Información de la versión"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:100
 #: /var/www/fog/management/other/index.php:102
-#: /var/www/fog/management/other/index2.php:102
 msgid "Running Version"
 msgstr "ejecutando la versión"
 
@@ -8768,19 +8766,16 @@ msgid "Example Bolded Header"
 msgstr ""
 
 #: /var/www/fog/management/other/index.php:104
-#: /var/www/fog/management/other/index2.php:104
 #, fuzzy
 msgid "SVN Revision"
 msgstr "Versión"
 
 #: /var/www/fog/management/other/index.php:155
-#: /var/www/fog/management/other/index2.php:155
 #, fuzzy
 msgid "Credits"
 msgstr "Crear"
 
 #: /var/www/fog/management/other/index.php:160
-#: /var/www/fog/management/other/index2.php:160
 #, fuzzy
 msgid "FOG Client"
 msgstr "FOG Wiki Cliente"
