@@ -130,6 +130,43 @@ table td {
     overflow-y: auto;
     max-height: 620px;
 }
+input[type=radio].default {
+    border: 0;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+}
+/**
+ * Default printer information.
+ * Radio button as circle/checks
+ */
+input[type=radio].default {
+    display: none;
+}
+input[type=radio].default + label {
+    display: block;
+}
+input[type=radio].default + label:before {
+    display: inline-block;
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    padding:right: 8px;
+    width: 23px;
+}
+input[type=radio] + label:before {
+    content: "\f10c";
+}
+input[type=radio]:checked + label:before {
+    content: "\f05d";
+}
 footer {
     line-height: 5px;
 }
