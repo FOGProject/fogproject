@@ -1929,82 +1929,59 @@ abstract class FOGPage extends FOGBase
     {
         unset($this->headerData);
         $this->templates = array(
-            sprintf(
-                '<a href="?node=${node}&sub=${sub}&id='
-                . '${%s_id}${task_type}"><i class="fa '
-                . 'fa-${task_icon} fa-3x"></i><br/>'
-                . '${task_name}</a>',
-                $this->node
-            ),
-            '${task_desc}',
+            '<a href="?node='
+            . $this->node
+            . '&sub=deploy&id=${'
+            . $this->node
+            . '_id}${task_id}"><i class="fa '
+            . 'fa-${task_icon} fa-3x"></i><br/>'
+            . '${task_name}</a>',
+            '${task_desc}'
         );
         $this->attributes = array(
-            array('class' => 'l'),
-            array('style' => 'padding-left: 20px'),
+            array('class' => 'col-xs-3'),
+            array('class' => 'col-xs-9')
         );
-        printf("<!-- Basic Tasks -->");
-        printf(
-            '<div id="%s-tasks" class="tab-pane fade">'
-            . '<p class="category">%s %s</p>',
-            $this->node,
-            $this->childClass,
-            _('Tasks')
-        );
-        $taskTypeIterator = function (&$TaskType) {
-            if (!$TaskType->isValid()) {
+        $taskTypeIterator = function (&$TaskType) use (&$access, &$advanced) {
+            if (!in_array($TaskType->access, $access)) {
+                return;
+            }
+            if ($advanced != $TaskType->isAdvanced) {
                 return;
             }
             $this->data[] = array(
-                'node' => $this->node,
-                'sub'=> 'deploy',
-                sprintf(
-                    '%s_id',
-                    $this->node
-                ) =>
-                $this->obj->get('id'),
-                    'task_type' => sprintf(
-                        '&type=%s',
-                        $TaskType->get('id')
-                    ),
-                    'task_icon' => $TaskType->get('icon'),
-                    'task_name' => $TaskType->get('name'),
-                    'task_desc' => $TaskType->get('description'),
-                );
+                $this->node.'_id' => $this->obj->get('id'),
+                'task_id' => '&type='.$TaskType->id,
+                'task_icon' => $TaskType->icon,
+                'task_name' => $TaskType->name,
+                'task_desc' => $TaskType->description,
+            );
             unset($TaskType);
         };
-        $find = array(
-            'access' => array('both', $this->node),
-            'isAdvanced' => 0
+        Route::listem('tasktype', 'id');
+        $items = json_decode(Route::getData());
+        $items = $items->tasktypes;
+        $advanced = 0;
+        $access = array(
+            'both',
+            $this->node
         );
-        foreach ((array)self::getClass('TaskTypeManager')
-            ->find(
-                $find,
-                'AND',
-                'id'
-            ) as &$TaskType
-        ) {
+        foreach ((array)$items as $TaskType) {
             $taskTypeIterator($TaskType);
             unset($TaskType);
         }
         $this->data[] = array(
-            'node' => $this->node,
-            'sub' => 'edit',
-            sprintf(
-                '%s_id',
-                $this->node
-            ) => $this->obj->get('id'),
-                'task_type' => sprintf(
-                    '#%s-tasks" class="advanced-tasks-link',
-                    $this->node
-                ),
-                'task_icon' => 'bars',
-                'task_name' => _('Advanced'),
-                'task_desc' => sprintf(
-                    '%s %s',
-                    _('View advanced tasks for this'),
-                    $this->node
-                ),
-            );
+            $this->node.'_id' => $this->obj->get('id'),
+            'task_id' => '#'
+            . $this->node
+            . '-tasks" class="advanced-tasks-link',
+            'task_icon' => 'bars',
+            'task_name' => _('Advanced'),
+            'task_desc' => _('View advanced tasks for this')
+            . ' '
+            . $this->node
+            . '.'
+        );
         self::$HookManager->processEvent(
             sprintf(
                 '%s_EDIT_TASKS',
@@ -2017,24 +1994,32 @@ abstract class FOGPage extends FOGBase
                 'attributes' => &$this->attributes
             )
         );
-        $this->render();
+        echo '<!-- Taskings -->';
+        echo '<div class="tab-pane fade" id="'
+            . $this->node
+            . '-tasks">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->childClass;
+        echo ' ';
+        echo _('Tasks');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        $this->render(12);
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="panel panel-info advanced-tasks">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Advanced Actions');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
         unset($this->data);
-        printf(
-            '<div class="advanced-tasks"><h2>%s</h2>',
-            _('Advanced Actions')
-        );
-        unset($TaskTypes);
-        $find = array(
-            'access' => array('both', $this->node),
-            'isAdvanced' => 1
-        );
-        foreach ((array)self::getClass('TaskTypeManager')
-            ->find(
-                $find,
-                'AND',
-                'id'
-            ) as &$TaskType
-        ) {
+        $advanced = 1;
+        foreach ((array)$items as &$TaskType) {
             $taskTypeIterator($TaskType);
             unset($TaskType);
         }
@@ -2050,9 +2035,11 @@ abstract class FOGPage extends FOGBase
                 'attributes' => &$this->attributes
             )
         );
-        $this->render();
+        $this->render(12);
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
         unset($TaskTypes);
-        echo '</div></div>';
         unset($this->data);
     }
     /**
