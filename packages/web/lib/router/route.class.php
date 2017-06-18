@@ -436,11 +436,12 @@ class Route extends FOGBase
     /**
      * Presents the equivalent of a page's list all.
      *
-     * @param string $class The class to work with.
+     * @param string $class  The class to work with.
+     * @param string $sortby How to sort the data.
      *
      * @return void
      */
-    public static function listem($class)
+    public static function listem($class, $sortby = 'name')
     {
         $classname = strtolower($class);
         $classman = self::getClass($class)->getManager();
@@ -448,7 +449,7 @@ class Route extends FOGBase
         self::$data['count'] = 0;
         self::$data[$classname.'s'] = array();
         $find = self::getsearchbody($classname);
-        foreach ($classman->find($find) as &$class) {
+        foreach ($classman->find($find, 'AND', $sortby) as &$class) {
             if (false != stripos($class->get('name'), '_api_')) {
                 continue;
             }

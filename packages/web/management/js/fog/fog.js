@@ -108,6 +108,10 @@ function HookTooltip() {
      * Performs tests on direct targetting
      * and displays for us the proper element.
      */
+    $('.advanced-tasks-link').on('click', function(e) {
+        e.preventDefault();
+        $('.advanced-tasks').toggle();
+    });
     var url = window.location.toString();
     if (url.match('#')) {
         $('.nav-tabs a[href*="#'+url.split('#')[1]+'"]').tab('show');
