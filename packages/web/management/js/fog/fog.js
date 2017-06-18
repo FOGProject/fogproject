@@ -108,6 +108,16 @@ function HookTooltip() {
      * Performs tests on direct targetting
      * and displays for us the proper element.
      */
+    $(document.body).css(
+        'padding-top',
+        $('.navbar-fixed-top').height() + 10
+    );
+    $(window).resize(function() {
+        $(document.body).css(
+            'padding-top',
+            $('.navbar-fixed-top').height() + 10
+        );
+    });
     $('.advanced-tasks-link').on('click', function(e) {
         e.preventDefault();
         $('.advanced-tasks').toggle();
