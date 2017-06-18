@@ -650,6 +650,23 @@ class HostManagementPage extends FOGPage
      */
     public function pmDisplay()
     {
+        echo '<!-- Power Management Items -->'
+            . '<div class="tab-pane fade" id="host-powermanagement">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Power Management');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        $this->newPMDisplay();
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
         // PowerManagement
         $this->headerData = array(
             '<input type="checkbox" id="rempowerselectors"/>'
@@ -702,69 +719,88 @@ class HostManagementPage extends FOGPage
             '${action}',
         );
         $this->attributes = array(
-            array('width'=>16,'class'=>'l filter-false'),
-            array('class'=>'filter-false'),
-            array('class'=>'filter-false'),
+            array(
+                'width' => 16,
+                'class' => 'filter-false'
+            ),
+            array(
+                'class' => 'filter-false'
+            ),
+            array(
+                'class' => 'filter-false'
+            )
         );
-        $PowerManagements = self::getClass('PowerManagementManager')
-            ->find(
-                array(
-                    'id' => $this->obj->get('powermanagementtasks')
-                )
-            );
+        Route::listem('powermanagement');
+        $PowerManagements = json_decode(
+            Route::getData()
+        );
+        $PowerManagements = $PowerManagements->powermanagements;
         foreach ((array)$PowerManagements as &$PowerManagement) {
-            if (!$PowerManagement->isValid()) {
+            $mine = in_array(
+                $PowerManagement->id,
+                $this->obj->get('powermanagementtasks')
+            );
+            if (!$mine) {
                 continue;
             }
-            if ($PowerManagement->get('onDemand')) {
+            if ($PowerManagement->onDemand) {
                 continue;
             }
             $this->data[] = array(
-                'id' => $PowerManagement->get('id'),
-                'min' => $PowerManagement->get('min'),
-                'hour' => $PowerManagement->get('hour'),
-                'dom' => $PowerManagement->get('dom'),
-                'month' => $PowerManagement->get('month'),
-                'dow' => $PowerManagement->get('dow'),
-                'is_selected' => (
-                    $PowerManagement->get('action') ?
-                    ' selected' :
-                    ''
-                ),
-                'action' => $PowerManagement->getActionSelect(),
+                'id' => $PowerManagement->id,
+                'min' => $PowerManagement->min,
+                'hour' => $PowerManagement->hour,
+                'dom' => $PowerManagement->dom,
+                'month' => $PowerManagement->month,
+                'dow' => $PowerManagement->dow,
+                'action' => self::getClass('PowerManagementManager')
+                    ->getActionSelect(
+                        $PowerManagement->action,
+                        true
+                    )
             );
+            unset($PowerManagement);
         }
-        echo '<!-- Power Management Items -->'
-            . '<div class="tab-pane fade" id="host-powermanagement">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Power Management');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
         // Current data.
         if (count($this->data) > 0) {
+            echo '<div class="panel panel-info">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Current Power Management settings');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="body">';
             echo '<form class="deploy-container form-horizontal" '
                 . 'method="post" action="'
                 . $this->formAction
                 . '&tab=host-powermanagement">';
             $this->render(12);
-            echo '<div class="col-xs-6">';
+            echo '<div class="form-group">';
+            echo '<label class="col-xs-4 control-label" for="pmupdate">';
+            echo _('Update PM Values');
+            echo '</label>';
+            echo '<div class="col-xs-8">';
             echo '<button type="submit" name="pmupdate" class='
-                . '"btn btn-info btn-block">';
-            echo _('Update Values');
+                . '"btn btn-info btn-block" id="pmupdate">';
+            echo _('Update');
             echo '</button>';
             echo '</div>';
-            echo '<div class="col-xs-6">';
+            echo '</div>';
+            echo '<div class="form-group">';
+            echo '<label class="col-xs-4 control-label" for="pmdelete">';
+            echo _('Delete selected');
+            echo '</label>';
+            echo '<div class="col-xs-8">';
             echo '<button type="submit" name="pmdelete" class='
-                . '"btn btn-danger btn-block">';
-            echo _('Remove selected');
+                . '"btn btn-danger btn-block" id="pmdelete">';
+            echo _('Remove');
             echo '</button>';
+            echo '</div>';
             echo '</div>';
             echo '</form>';
+            echo '</div>';
+            echo '</div>';
         }
-        $this->newPMDisplay();
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -1325,9 +1361,101 @@ class HostManagementPage extends FOGPage
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '&tab=host-printers">';
-        $PrintersFound = false;
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading">';
+        echo '<h4 class="title text-center">';
+        echo _('Host printer configuration');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<h5 class="title text-center">';
+        echo _('Select management level for this host');
+        echo '</h5>';
+        echo '<div class="col-xs-offset-4">';
+        echo '<div class="radio">';
+        echo '<label for="nolevel" data-toggle="tooltip" data-placement="left" '
+            . 'title="'
+            . _('This setting turns off all FOG Printer Management')
+            . '.'
+            . _('Although there are multiple levels already')
+            . ' '
+            . _('between host and global settings')
+            . ', '
+            . _('this is just another to ensure safety')
+            . '.">';
+        echo '<input type="radio" name="level" value="0" '
+            . 'id="nolevel"'
+            . (
+                $this->obj->get('printerLevel') == 0 ?
+                ' checked' :
+                ''
+            )
+            . '/>';
+        echo _('No Printer Manaagement');
+        echo '</label>';
+        echo '</div>';
+        echo '<div class="radio">';
+        echo '<label for="addlevel" data-toggle="tooltip" data-placement="left" '
+            . 'title="'
+            . _(
+                'This setting only adds and removes '
+                . 'printers that are managed by FOG. '
+                . 'If the printer exists in printer '
+                . 'management but is not assigned to a '
+                . 'host, it will remove the printer if '
+                . 'it exists on the unassigned host. '
+                . 'It will add printers to the host '
+                . 'that are assigned.'
+            )
+            . '">';
+        echo '<input type="radio" name="level" value="1" '
+            . 'id="addlevel"'
+            . (
+                $this->obj->get('printerLevel') == 1 ?
+                ' checked' :
+                ''
+            )
+            . '/>';
+        echo _('FOG Managed Printers');
+        echo '</label>';
+        echo '</div>';
+        echo '<div class="radio">';
+        echo '<label for="alllevel" data-toggle="tooltip" data-placement="left" '
+            . 'title="'
+            . _(
+                'This setting will only allow FOG Assigned '
+                . 'printers to be added to the host. Any '
+                . 'printer that is not assigned will be '
+                . 'removed including non-FOG managed printers.'
+            )
+            . '">';
+        echo '<input type="radio" name="level" value="1" '
+            . 'id="alllevel"'
+            . (
+                $this->obj->get('printerLevel') == 2 ?
+                ' checked' :
+                ''
+            )
+            . '/>';
+        echo _('Only Assigned Printers');
+        echo '</label>';
+        echo '</div>';
+        echo '</div>';
+        echo '<br/>';
+        echo '<div class="form-group">';
+        echo '<label for="levelup" class="control-label col-xs-4">';
+        echo _('Update printer configuration');
+        echo '</label>';
+        echo '<div class="col-xs-8">';
+        echo '<button type="submit" name="levelup" class='
+            . '"btn btn-info btn-block" id="levelup">'
+            . _('Update')
+            . '</button>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
         if (count($this->data) > 0) {
-            $PrintersFound = true;
             self::$HookManager
                 ->processEvent(
                     'HOST_ADD_PRINTER',
@@ -1356,6 +1484,17 @@ class HostManagementPage extends FOGPage
             echo '</div>';
             echo '<div class="panel-body">';
             $this->render(12);
+            echo '<div class="form-group">';
+            echo '<label for="updateprinters" class="control-label col-xs-4">';
+            echo _('Add selected printers');
+            echo '</label>';
+            echo '<div class="col-xs-8">';
+            echo '<button type="submit" name="updateprinters" class='
+                . '"btn btn-info btn-block" id="updateprinters">'
+                . _('Add')
+                . '</button>';
+            echo '</div>';
+            echo '</div>';
             echo '</div>';
             echo '</div>';
         }
@@ -1421,7 +1560,7 @@ class HostManagementPage extends FOGPage
         if (count($this->data) > 0) {
             self::$HookManager
                 ->processEvent(
-                    'HOST_DEL_PRINTER',
+                    'HOST_EDIT_PRINTER',
                     array(
                         'headerData' => &$this->headerData,
                         'data' => &$this->data,
@@ -1429,84 +1568,39 @@ class HostManagementPage extends FOGPage
                         'attributes' => &$this->attributes
                     )
                 );
-            echo '<div class="panel panel-danger">';
+            echo '<div class="panel panel-info">';
             echo '<div class="panel-heading text-center">';
             echo '<h4 class="title">';
-            echo _('Remove printers');
+            echo _('Update/Remove printers');
             echo '</h4>';
             echo '</div>';
             echo '<div class="panel-body">';
             $this->render(12);
+            echo '<div class="form-group">';
+            echo '<label for="defaultsel" class="control-label col-xs-4">';
+            echo _('Update default printer');
+            echo '</label>';
+            echo '<div class="col-xs-8">';
+            echo '<button type="submit" name="defaultsel" class='
+                . '"btn btn-info btn-block" id="defaultsel">'
+                . _('Update')
+                . '</button>';
+            echo '</div>';
+            echo '</div>';
+            echo '<div class="form-group">';
+            echo '<label for="printdel" class="control-label col-xs-4">';
+            echo _('Remove selected printers');
+            echo '</label>';
+            echo '<div class="col-xs-8">';
+            echo '<button type="submit" name="printdel" class='
+                . '"btn btn-danger btn-block" id="printdel">'
+                . _('Remove')
+                . '</button>';
+            echo '</div>';
+            echo '</div>';
             echo '</div>';
             echo '</div>';
         }
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading">';
-        echo '<h4 class="title text-center">';
-        echo _('Host printer configuration');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<h5 class="title text-center">';
-        echo _('Select management level for this host');
-        echo '</h5>';
-        echo '</div>';
-        echo '</div>';
-        /*printf(
-            '<h2>%s</h2><p>%s</p><p>'
-            . '<span class="icon fa fa-question hand" '
-            . 'title="%s"></span><input type="radio" '
-            . 'name="level" value="0"%s/>%s<br/>'
-            . '<span class="icon fa fa-question hand" '
-            . 'title="%s"></span><input type="radio" '
-            . 'name="level" value="1"%s/>%s<br/>'
-            . '<span class="icon fa fa-question hand" '
-            . 'title="%s"></span><input type="radio" '
-            . 'name="level" value="2"%s/>%s<br/></p>',
-            _('Host Printer Configuration'),
-            _('Select Management Level for this Host'),
-            sprintf(
-                '%s. %s %s, %s.',
-                _('This setting turns off all FOG Printer Management'),
-                _('Although there are multiple levels already'),
-                _('between host and global settings'),
-                _('this is just another to ensure safety')
-            ),
-            (
-                $this->obj->get('printerLevel') == 0 ?
-                ' checked' :
-                ''
-            ),
-            _('No Printer Management'),
-            _(
-                'This setting only adds and removes '
-                . 'printers that are managed by FOG. '
-                . 'If the printer exists in printer '
-                . 'management but is not assigned to a '
-                . 'host, it will remove the printer if '
-                . 'it exists on the unsigned host. '
-                . 'It will add printers to the host '
-                . 'that are assigned.'
-            ),
-            (
-                $this->obj->get('printerLevel') == 1 ?
-                ' checked' :
-                ''
-            ),
-            _('FOG Managed Printers'),
-            _(
-                'This setting will only allow FOG Assigned '
-                . 'printers to be added to the host. Any '
-                . 'printer that is not assigned will be '
-                . 'removed including non-FOG managed printers.'
-            ),
-            (
-                $this->obj->get('printerLevel') == 2 ?
-                ' checked':
-                ''
-            ),
-            _('Only Assigned Printers')
-        );*/
         echo '</form>';
         echo '</div>';
         echo '</div>';
@@ -1623,25 +1717,22 @@ class HostManagementPage extends FOGPage
             $this->obj->get('enforce')
         );
         $this->hostPrinters();
-        /*
-        $this->render();
-        if ($PrintersFound || count($this->data) > 0) {
-            printf(
-                '<p class="c"><button type="submit" '
-                . 'name="updateprinters" class="btn btn-info">'
-                . '%s</button>',
-                _('Update')
-            );
-        }
-        if (count($this->data) > 0) {
-            printf(
-                '&nbsp;&nbsp;<button type="submit" '
-                . 'name="printdel" class="btn btn-danger">%s</button></p>',
-                _('Remove selected printers')
-            );
-        }
-        unset($this->data, $this->headerData);
-        echo '</form></div>';*/
+        /*echo '<!-- Snapins -->';
+        echo '<div id="host-snapins" class="tab-pane fade">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Host Snapins');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '&tab=host-snapins">';
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';*/
         printf(
             '<!-- Snapins --><div id="host-snapins" class="tab-pane fade">'
             . '<h2>%s</h2><form method="post" '
@@ -2638,6 +2729,193 @@ class HostManagementPage extends FOGPage
         echo '</div></div></div>';
     }
     /**
+     * Host active directory post element.
+     *
+     * @return void
+     */
+    public function hostADPost()
+    {
+        $useAD = isset($_POST['domain']);
+        $domain = trim(
+            filter_input(
+                INPUT_POST,
+                'domainname'
+            )
+        );
+        $ou = trim(
+            filter_input(
+                INPUT_POST,
+                'ou'
+            )
+        );
+        $user = trim(
+            filter_input(
+                INPUT_POST,
+                'domainuser'
+            )
+        );
+        $pass = trim(
+            filter_input(
+                INPUT_POST,
+                'domainpassword'
+            )
+        );
+        $passlegacy = trim(
+            filter_input(
+                INPUT_POST,
+                'domainpasswordlegacy'
+            )
+        );
+        $enforce = isset($_POST['enforcesel']);
+        $this->obj->setAD(
+            $useAD,
+            $domain,
+            $ou,
+            $user,
+            $pass,
+            true,
+            true,
+            $passlegacy,
+            $productKey,
+            $enforce
+        );
+    }
+    /**
+     * Host power management post.
+     *
+     * @return void
+     */
+    public function hostPMPost()
+    {
+        $onDemand = (int)isset($_POST['onDemand']);
+        $items = array();
+        $flags = array('flags' => FILTER_REQUIRE_ARRAY);
+        if (isset($_POST['pmupdate'])) {
+            $items = filter_input_array(
+                INPUT_POST,
+                array(
+                    'scheduleCronMin' => $flags,
+                    'scheduleCronHour' => $flags,
+                    'scheduleCronDOM' => $flags,
+                    'scheduleCronMonth' => $flags,
+                    'scheduleCronDOW' => $flags,
+                    'pmid' => $flags,
+                    'action' => $flags
+                )
+            );
+            extract($items);
+            if (!$action) {
+                throw new Exception(
+                    _('You must select an action to perform')
+                );
+            }
+            $items = array();
+            foreach ((array)$pmid as $index => &$pm) {
+                $onDemandItem = array_search(
+                    $pm,
+                    $onDemand
+                );
+                $items[] = array(
+                    $pm,
+                    $this->obj->get('id'),
+                    $scheduleCronMin[$index],
+                    $scheduleCronHour[$index],
+                    $scheduleCronDOM[$index],
+                    $scheduleCronMonth[$index],
+                    $scheduleCronDOW[$index],
+                    $onDemandItem !== -1
+                    && $onDemand[$onDemandItem] === $pm ?
+                    1 :
+                    0,
+                    $action[$index]
+                );
+                unset($pm);
+            }
+            self::getClass('PowerManagementManager')
+                ->insertBatch(
+                    array(
+                        'id',
+                        'hostID',
+                        'min',
+                        'hour',
+                        'dom',
+                        'month',
+                        'dow',
+                        'onDemand',
+                        'action'
+                    ),
+                    $items
+                );
+        }
+        if (isset($_POST['pmsubmit'])) {
+            $min = trim(
+                filter_input(
+                    INPUT_POST,
+                    'scheduleCronMin'
+                )
+            );
+            $hour = trim(
+                filter_input(
+                    INPUT_POST,
+                    'scheduleCronHour'
+                )
+            );
+            $dom = trim(
+                filter_input(
+                    INPUT_POST,
+                    'scheduleCronDOM'
+                )
+            );
+            $month = trim(
+                filter_input(
+                    INPUT_POST,
+                    'scheduleCronMonth'
+                )
+            );
+            $dow = trim(
+                filter_input(
+                    INPUT_POST,
+                    'scheduleCronDOW'
+                )
+            );
+            $action = trim(
+                filter_input(
+                    INPUT_POST,
+                    'action'
+                )
+            );
+            if ($onDemand && $action === 'wol') {
+                $this->obj->wakeOnLAN();
+                return;
+            }
+            self::getClass('PowerManagement')
+                ->set('hostID', $this->obj->get('id'))
+                ->set('min', $min)
+                ->set('hour', $hour)
+                ->set('dom', $dom)
+                ->set('month', $month)
+                ->set('dow', $dow)
+                ->set('onDemand', $onDemand)
+                ->set('action', $action)
+                ->save();
+        }
+        if (isset($_POST['pmdelete'])) {
+            $pmid = filter_input_array(
+                INPUT_POST,
+                array(
+                    'rempowermanagements' => $flags
+                )
+            );
+            $pmid = $pmid['rempowermanagements'];
+            self::getClass('PowerManagementManager')
+                ->destroy(
+                    array(
+                        'id' => $pmid
+                    )
+                );
+        }
+    }
+    /**
      * Updates the host when form is submitted
      *
      * @return void
@@ -2655,119 +2933,67 @@ class HostManagementPage extends FOGPage
                 $this->hostGeneralPost();
                 break;
             case 'host-active-directory':
-                $useAD = isset($_REQUEST['domain']);
-                $domain = trim($_REQUEST['domainname']);
-                $ou = trim($_REQUEST['ou']);
-                $user = trim($_REQUEST['domainuser']);
-                $pass = trim($_REQUEST['domainpassword']);
-                $passlegacy = trim($_REQUEST['domainpasswordlegacy']);
-                $enforce = isset($_REQUEST['enforcesel']);
-                $this->obj->setAD(
-                    $useAD,
-                    $domain,
-                    $ou,
-                    $user,
-                    $pass,
-                    true,
-                    true,
-                    $passlegacy,
-                    $productKey,
-                    $enforce
-                );
+                $this->hostADPost();
                 break;
             case 'host-powermanagement':
-                $min = $_REQUEST['scheduleCronMin'];
-                $hour = $_REQUEST['scheduleCronHour'];
-                $dom = $_REQUEST['scheduleCronDOM'];
-                $month = $_REQUEST['scheduleCronMonth'];
-                $dow = $_REQUEST['scheduleCronDOW'];
-                $onDemand = (string)intval(isset($_REQUEST['onDemand']));
-                $action = $_REQUEST['action'];
-                if (!$action) {
-                    throw new Exception(
-                        _('You must select an action to perform')
-                    );
-                }
-                $items = array();
-                if (isset($_REQUEST['pmupdate'])) {
-                    $pmid = $_REQUEST['pmid'];
-                    $items = array();
-                    foreach ((array)$pmid as $index => &$pm) {
-                        $onDemandItem = array_search($pm, $onDemand);
-                        $items[] = array(
-                            $pm,
-                            $this->obj->get('id'),
-                            $min[$index],
-                            $hour[$index],
-                            $dom[$index],
-                            $month[$index],
-                            $dow[$index],
-                            $onDemandItem !== -1
-                            && $onDemand[$onDemandItem] === $pm ?
-                            1 :
-                            0,
-                            $action[$index]
-                        );
-                        unset($pm);
-                    }
-                    self::getClass('PowerManagementManager')
-                        ->insertBatch(
-                            array(
-                                'id',
-                                'hostID',
-                                'min',
-                                'hour',
-                                'dom',
-                                'month',
-                                'dow',
-                                'onDemand',
-                                'action'
-                            ),
-                            $items
-                        );
-                }
-                if (isset($_REQUEST['pmsubmit'])) {
-                    if ($onDemand && $action === 'wol') {
-                        $this->obj->wakeOnLAN();
-                        break;
-                    }
-                    self::getClass('PowerManagement')
-                        ->set('hostID', $this->obj->get('id'))
-                        ->set('min', $min)
-                        ->set('hour', $hour)
-                        ->set('dom', $dom)
-                        ->set('month', $month)
-                        ->set('dow', $dow)
-                        ->set('onDemand', $onDemand)
-                        ->set('action', $action)
-                        ->save();
-                }
-                if (isset($_REQUEST['pmdelete'])) {
-                    self::getClass('PowerManagementManager')
-                        ->destroy(
-                            array(
-                                'id' => $_REQUEST['rempowermanagements']
+                $this->hostPMPost();
+                break;
+            case 'host-printers':
+                if (isset($_POST['levelup'])) {
+                    $this
+                        ->obj
+                        ->set(
+                            'printerLevel',
+                            filter_input(
+                                INPUT_POST,
+                                'level'
                             )
                         );
                 }
-                break;
-            case 'host-printers':
-                $PrinterManager = self::getClass('PrinterAssociationManager');
-                if (isset($_REQUEST['level'])) {
-                    $this->obj->set('printerLevel', $_REQUEST['level']);
-                }
-                if (isset($_REQUEST['updateprinters'])) {
-                    if (isset($_REQUEST['printer'])) {
-                        $this->obj->addPrinter($_REQUEST['printer']);
-                    }
-                    $this->obj->updateDefault(
-                        $_REQUEST['default'],
-                        isset($_REQUEST['default'])
+                if (isset($_POST['updateprinters'])) {
+                    $printers = filter_input_array(
+                        INPUT_POST,
+                        array(
+                            'printer' => array(
+                                'flags' => FILTER_REQUIRE_ARRAY
+                            )
+                        )
                     );
-                    unset($printerid);
+                    $printers = $printers['printer'];
+                    if (count($printers) > 0) {
+                        $this
+                            ->obj
+                            ->addPrinter(
+                                $printers
+                            );
+                    }
                 }
-                if (isset($_REQUEST['printdel'])) {
-                    $this->obj->removePrinter($_REQUEST['printerRemove']);
+                if (isset($_POST['defaultsel'])) {
+                    $this->obj->updateDefault(
+                        filter_input(
+                            INPUT_POST,
+                            'default'
+                        ),
+                        isset($_POST['default'])
+                    );
+                }
+                if (isset($_POST['printdel'])) {
+                    $printers = filter_input_array(
+                        INPUT_POST,
+                        array(
+                            'printerRemove' => array(
+                                'flags' => FILTER_REQUIRE_ARRAY
+                            )
+                        )
+                    );
+                    $printers = $printers['printerRemove'];
+                    if (count($printers) > 0) {
+                        $this
+                            ->obj
+                            ->removePrinter(
+                                $printers
+                            );
+                    }
                 }
                 break;
             case 'host-snapins':

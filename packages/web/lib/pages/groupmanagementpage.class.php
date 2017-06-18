@@ -444,7 +444,7 @@ class GroupManagementPage extends FOGPage
         );
         printf(
             '<form method="post" action="%s&tab=group-general">'
-            . '<div class="tab-content">'
+            . '<div class="col-xs-offset-3 tab-content">'
             . '<!-- General -->'
             . '<div id="group-general" class="tab-pane fade in active">'
             . '<h2>%s: %s</h2>'

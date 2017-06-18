@@ -3923,6 +3923,13 @@ abstract class FOGPage extends FOGBase
             . '</button>'
         );
         array_walk($fields, $this->fieldsToData);
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('New power management task');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
         echo '<form class="deploy-container form-horizontal" '
             . 'method="post" action="'
             . $this->formAction
@@ -3931,5 +3938,7 @@ abstract class FOGPage extends FOGBase
             . '-powermanagement">';
         $this->render(12);
         echo '</form>';
+        echo '</div>';
+        echo '</div>';
     }
 }
