@@ -132,8 +132,11 @@ $(function() {
     });
     $('#hostPrinterShow:checkbox').trigger('change');
     $('#hostSnapinShow:checkbox').change(function(e) {
-        if ($(this).is(':checked')) $('#snapinNotInHost').show();
-        else $('#snapinNotInHost').hide();
+        if ($(this).is(':checked')) {
+            $('.snapinNotInHost').show();
+        } else {
+            $('.snapinNotInHost').hide();
+        }
         e.preventDefault();
     });
     $('#hostSnapinShow:checkbox').trigger('change');
