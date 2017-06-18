@@ -122,9 +122,12 @@ $(function() {
         e.preventDefault();
     });
     $('#groupMeShow:checkbox').trigger('change');
-    $('#hostPrinterShow:checkbox').change(function(e) {
-        if ($(this).is(':checked')) $('#printerNotInHost').show();
-        else $('#printerNotInHost').hide();
+    $('#hostPrinterShow:checkbox').on('change', function(e) {
+        if ($(this).is(':checked')) {
+            $('.printerNotInHost').show();
+        } else {
+            $('.printerNotInHost').hide();
+        }
         e.preventDefault();
     });
     $('#hostPrinterShow:checkbox').trigger('change');

@@ -1259,151 +1259,72 @@ class HostManagementPage extends FOGPage
             ->removeAddMAC($removeMACs);
     }
     /**
-     * Edits an existing item.
+     * Host printers display.
      *
      * @return void
      */
-    public function edit()
+    public function hostPrinters()
     {
-        $this->title = sprintf(
-            '%s: %s',
-            _('Edit'),
-            $this->obj->get('name')
-        );
-        if ($_REQUEST['approveHost']) {
-            $this->obj->set('pending', null);
-            if ($this->obj->save()) {
-                self::setMessage(_('Host approved'));
-            } else {
-                self::setMessage(_('Host approval failed.'));
-            }
-            self::redirect(
-                sprintf(
-                    '?node=%s&sub=edit&id=%s',
-                    $this->node,
-                    $_REQUEST['id']
-                )
-            );
-        }
-        if ($this->obj->get('pending')) {
-            printf(
-                '<h2><a href="%s&approveHost=1">%s</a></h2>',
-                $this->formAction,
-                _('Approve this host?')
-            );
-        }
-        if ($_REQUEST['confirmMAC']) {
-            try {
-                $this->obj->addPendtoAdd($_REQUEST['confirmMAC']);
-                if ($this->obj->save()) {
-                    $msg = sprintf(
-                        '%s: %s %s!',
-                        _('MAC'),
-                        $_REQUEST['confirmMAC'],
-                        _('Approved')
-                    );
-                    self::setMessage($msg);
-                    unset($msg);
-                }
-            } catch (Exception $e) {
-                self::setMessage($e->getMessage());
-            }
-            self::redirect(
-                sprintf(
-                    '?node=%s&sub=edit&id=%s',
-                    $this->node,
-                    $_REQUEST['id']
-                )
-            );
-        } elseif ($_REQUEST['approveAll']) {
-            self::getClass('MACAddressAssociationManager')
-                ->update(
-                    array(
-                        'hostID' => $this->obj->get('id')
-                    ),
-                    '',
-                    array(
-                        'pending' => 0
-                    )
-                );
-            $msg = sprintf(
-                '%s.',
-                _('All Pending MACs approved')
-            );
-            self::setMessage($msg);
-            self::redirect(
-                sprintf(
-                    '?node=%s&sub=edit&id=%s',
-                    $this->node,
-                    $_REQUEST['id']
-                )
-            );
-        }
-        echo '<div class="col-xs-offset-3 tab-content">';
-        $this->hostGeneral();
-        if (!$this->obj->get('pending')) {
-            $this->basictasksOptions();
-        }
-        $this->adFieldsToDisplay(
-            $this->obj->get('useAD'),
-            $this->obj->get('ADDomain'),
-            $this->obj->get('ADOU'),
-            $this->obj->get('ADUser'),
-            $this->obj->get('ADPass'),
-            $this->obj->get('ADPassLegacy'),
-            $this->obj->get('enforce')
-        );
-        printf(
-            '<!-- Printers --><div id="host-printers" class="tab-pane fade">'
-            . '<form method="post" action="%s&tab=host-printers">',
-            $this->formAction
-        );
         $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkboxprint" '
-            . 'class="toggle-checkboxprint" id="toggler1"/>'
-            . '<label for="toggler1"></label>',
-            _('Printer Name'),
-            _('Configuration'),
+            '<label class="control-label" for="toggler1">'
+            . '<input type="checkbox" name="toggle-checkboxprint" class='
+            . '"toggle-checkboxprint" id="toggler1"/></label>',
+            _('Printer Alias'),
+            _('Printer Type')
         );
         $this->templates = array(
-            '<input type="checkbox" name="printer[]" '
-            . 'value="${printer_id}" class="toggle-print"${is_default} id="'
-            . 'printer-${printer_id}"/>'
-            . '<label for="printer-${printer_id}"></label>',
+            '<label class="control-label" for="printer-${printer_id}">'
+            . '<input type="checkbox" name="printer[]" class='
+            . '"toggle-print"${is_default} id="printer-${printer_id}" '
+            . 'value="${printer_id}"/></label>',
             '<a href="?node=printer&sub=edit&id=${printer_id}">${printer_name}</a>',
-            '${printer_type}',
+            '${printer_type}'
         );
         $this->attributes = array(
-            array('width'=>16,'class'=>'l filter-false'),
-            array('width'=>50,'class'=>'l'),
-            array('width'=>50,'class'=>'r'),
+            array(
+                'width' => 16,
+                'class' => 'filter-false'
+            ),
+            array(),
+            array()
         );
-        $Printers = self::getClass('PrinterManager')
-            ->find(
-                array(
-                    'id' => $this->obj->get('printersnotinme')
-                )
-            );
+        Route::listem('printer');
+        $Printers = json_decode(
+            Route::getData()
+        );
+        $Printers = $Printers->printers;
         foreach ((array)$Printers as &$Printer) {
-            if (!$Printer->isValid()) {
+            if (!in_array($Printer->id, $this->obj->get('printersnotinme'))) {
                 continue;
             }
             $this->data[] = array(
-                'printer_id' => $Printer->get('id'),
+                'printer_id' => $Printer->id,
                 'is_default' => (
-                    $this->obj->getDefault($Printer->get('id')) ?
+                    $this->obj->getDefault($Printer->id) ?
                     ' checked' :
                     ''
                 ),
-                'printer_name' => $Printer->get('name'),
+                'printer_name' => $Printer->name,
                 'printer_type' => (
-                    stripos($Printer->get('config'), 'local') !== false ?
+                    stripos($Printer->config, 'local') !== false ?
                     _('TCP/IP') :
-                    $Printer->get('config')
-                ),
+                    $Printer->config
+                )
             );
             unset($Printer);
         }
+        echo '<!-- Printers -->';
+        echo '<div class="tab-pane fade" id="host-printers">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Host Printers');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '&tab=host-printers">';
         $PrintersFound = false;
         if (count($this->data) > 0) {
             $PrintersFound = true;
@@ -1417,89 +1338,121 @@ class HostManagementPage extends FOGPage
                         'attributes' => &$this->attributes
                     )
                 );
-            printf(
-                '<p class="c">'
-                . '%s&nbsp;&nbsp;<input type="checkbox" '
-                . 'name="hostPrinterShow" id="hostPrinterShow"/>'
-                . '<label for="hostPrinterShow"></label>'
-                . '</p><div id="printerNotInHost">'
-                . '<h2>%s</h2>',
-                _('Check here to see what printers can be added'),
-                _('Add new printer(s) to this host')
-            );
-            $this->render();
+            echo '<div class="text-center">';
+            echo '<div class="checkbox">';
+            echo '<label for="hostPrinterShow">';
+            echo '<input type="checkbox" name="hostPrinterShow" '
+                . 'id="hostPrinterShow"/>';
+            echo _('Check here to see what printers can be added');
+            echo '</label>';
+            echo '</div>';
+            echo '</div>';
+            echo '<br/>';
+            echo '<div class="hiddeninitially printerNotInHost panel panel-info">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Add Printers');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            $this->render(12);
+            echo '</div>';
             echo '</div>';
         }
-        unset($this->data);
+        unset(
+            $this->data,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
         $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" '
-            . 'class="toggle-checkboxAction" id="toggler2"/>'
-            . '<label for="toggler2"></label>',
+            '<label class="control-label" for="toggler2">'
+            . '<input type="checkbox" name="toggle-checkbox" class='
+            . '"toggle-checkboxAction" id="toggler2"/></label>',
             _('Default'),
             _('Printer Alias'),
-            _('Printer Type'),
-        );
-        $this->attributes = array(
-            array('class'=>'l filter-false','width'=>16),
-            array('class'=>'l filter-false','width'=>22),
-            array(),
-            array(),
+            _('Printer Type')
         );
         $this->templates = array(
-            '<input type="checkbox" name="printerRemove[]" '
-            . 'value="${printer_id}" class="toggle-action" id="'
-            . 'printerrm-${printer_id}"/>'
-            . '<label for="printerrm-${printer_id}"></label>',
-            sprintf(
-                '<input class="default" type="radio" '
-                . 'name="default" id="printer${printer_id}" '
-                . 'value="${printer_id}" ${is_default}/>'
-                . '<label for="printer${printer_id}" '
-                . 'class="icon icon-hand" title="%s">'
-                . '&nbsp;</label><input type="hidden" '
-                . 'name="printerid[]" value="${printer_id}"/>',
-                _('Default Printer Select')
-            ),
+            '<label class="control-label" for="printerrm-${printer_id}">'
+            . '<input type="checkbox" name="printerRemove[]" class='
+            . '"toggle-action" id="printerrm-${printer_id}" '
+            . 'value="${printer_id}"/></label>',
+            '<div class="radio">'
+            . '<input type="radio" class="default" '
+            . 'name="default" id="printer${printer_id}" '
+            . 'value="${printer_id}" ${is_default}/>'
+            . '<label for="printer${printer_id}">'
+            . '</label>'
+            . '</div>',
             '<a href="?node=printer&sub=edit&id=${printer_id}">${printer_name}</a>',
-            '${printer_type}',
+            '${printer_type}'
         );
-        $Printers = self::getClass('PrinterManager')
-            ->find(
-                array(
-                    'id' => $this->obj->get('printers')
-                )
-            );
-        foreach ((array)$Printers as &$Printer) {
-            if (!$Printer->isValid()) {
+        $this->attributes = array(
+            array(
+                'class' => 'filter-false col-xs-1'
+            ),
+            array(
+                'class' => 'filter-false col-xs-1'
+            ),
+            array(),
+            array()
+        );
+        foreach ((array)$Printers as $Printer) {
+            if (!in_array($Printer->id, $this->obj->get('printers'))) {
                 continue;
             }
             $this->data[] = array(
-                'printer_id' => $Printer->get('id'),
+                'printer_id' => $Printer->id,
                 'is_default' => (
-                    $this->obj->getDefault($Printer->get('id')) ?
+                    $this->obj->getDefault($Printer->id) ?
                     ' checked' :
                     ''
                 ),
-                'printer_name' => $Printer->get('name'),
+                'printer_name' => $Printer->name,
                 'printer_type' => (
-                    stripos($Printer->get('config'), 'local') !== false ?
+                    stripos($Printer->config, 'local') !== false ?
                     _('TCP/IP') :
-                    $Printer->get('config')
-                ),
+                    $Printer->config
+                )
             );
             unset($Printer);
         }
-        self::$HookManager
-            ->processEvent(
-                'HOST_EDIT_PRINTER',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        printf(
+        if (count($this->data) > 0) {
+            self::$HookManager
+                ->processEvent(
+                    'HOST_DEL_PRINTER',
+                    array(
+                        'headerData' => &$this->headerData,
+                        'data' => &$this->data,
+                        'templates' => &$this->templates,
+                        'attributes' => &$this->attributes
+                    )
+                );
+            echo '<div class="panel panel-danger">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Remove printers');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            $this->render(12);
+            echo '</div>';
+            echo '</div>';
+        }
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading">';
+        echo '<h4 class="title text-center">';
+        echo _('Host printer configuration');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<h5 class="title text-center">';
+        echo _('Select management level for this host');
+        echo '</h5>';
+        echo '</div>';
+        echo '</div>';
+        /*printf(
             '<h2>%s</h2><p>%s</p><p>'
             . '<span class="icon fa fa-question hand" '
             . 'title="%s"></span><input type="radio" '
@@ -1553,7 +1506,124 @@ class HostManagementPage extends FOGPage
                 ''
             ),
             _('Only Assigned Printers')
+        );*/
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Edits an existing item.
+     *
+     * @return void
+     */
+    public function edit()
+    {
+        $this->title = sprintf(
+            '%s: %s',
+            _('Edit'),
+            $this->obj->get('name')
         );
+        $approve = filter_input(INPUT_GET, 'approveHost');
+        if ($approve) {
+            $this
+                ->obj
+                ->set(
+                    'pending',
+                    0
+                );
+            /*if ($this->obj->save()) {
+                self::setMessage(_('Host approved'));
+            } else {
+                self::setMessage(_('Host approval failed.'));
+            }*/
+            self::redirect(
+                '?node='
+                . $this->node
+                . '&sub=edit&id='
+                . $this->obj->get('id')
+            );
+        }
+        if ($this->obj->get('pending')) {
+            echo '<div class="panel panel-info">';
+            echo '<div class="panel-heading">';
+            echo '<h4 class="title">';
+            echo _('Approve Host');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            echo '<a href="'
+                . $this->formAction
+                . '&approveHost=1">'
+                . _('Approve this host?')
+                . '</a>';
+            echo '</div>';
+            echo '</div>';
+        }
+        $confirmMac = filter_input(INPUT_GET, 'confirmMAC');
+        $approveAll = filter_input(INPUT_GET, 'approveAll');
+        if ($confirmMac) {
+            try {
+                $this->obj->addPendtoAdd($confirmMac);
+                if ($this->obj->save()) {
+                    $msg = _('MAC')
+                        . ': '
+                        . $confirmMac
+                        . ' '
+                        . _('Approved')
+                        . '!';
+                    self::setMessage($msg);
+                    unset($msg);
+                }
+            } catch (Exception $e) {
+                self::setMessage($e->getMessage());
+            }
+            self::redirect(
+                '?node='
+                . $this->node
+                . '&sub=edit&id='
+                . $this->obj->get('id')
+            );
+        } elseif ($approveAll) {
+            self::getClass('MACAddressAssociationManager')
+                ->update(
+                    array(
+                        'hostID' => $this->obj->get('id')
+                    ),
+                    '',
+                    array(
+                        'pending' => 0
+                    )
+                );
+            $msg = sprintf(
+                '%s.',
+                _('All Pending MACs approved')
+            );
+            self::setMessage($msg);
+            self::redirect(
+                sprintf(
+                    '?node=%s&sub=edit&id=%s',
+                    $this->node,
+                    $_REQUEST['id']
+                )
+            );
+        }
+        echo '<div class="col-xs-offset-3 tab-content">';
+        $this->hostGeneral();
+        if (!$this->obj->get('pending')) {
+            $this->basictasksOptions();
+        }
+        $this->adFieldsToDisplay(
+            $this->obj->get('useAD'),
+            $this->obj->get('ADDomain'),
+            $this->obj->get('ADOU'),
+            $this->obj->get('ADUser'),
+            $this->obj->get('ADPass'),
+            $this->obj->get('ADPassLegacy'),
+            $this->obj->get('enforce')
+        );
+        $this->hostPrinters();
+        /*
         $this->render();
         if ($PrintersFound || count($this->data) > 0) {
             printf(
@@ -1571,7 +1641,7 @@ class HostManagementPage extends FOGPage
             );
         }
         unset($this->data, $this->headerData);
-        echo '</form></div>';
+        echo '</form></div>';*/
         printf(
             '<!-- Snapins --><div id="host-snapins" class="tab-pane fade">'
             . '<h2>%s</h2><form method="post" '
