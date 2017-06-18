@@ -648,7 +648,7 @@ class HostManagementPage extends FOGPage
      *
      * @return void
      */
-    public function pmDisplay()
+    public function hostPMDisplay()
     {
         echo '<!-- Power Management Items -->'
             . '<div class="tab-pane fade" id="host-powermanagement">';
@@ -1138,7 +1138,7 @@ class HostManagementPage extends FOGPage
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
-        echo _('Edit host definition');
+        echo _('Host general');
         echo '</h4>';
         echo '</div>';
         echo '<div class="panel-body">';
@@ -1301,6 +1301,13 @@ class HostManagementPage extends FOGPage
      */
     public function hostPrinters()
     {
+        unset(
+            $this->headerData,
+            $this->templates,
+            $this->attributes,
+            $this->form,
+            $this->data
+        );
         $this->headerData = array(
             '<label class="control-label" for="toggler1">'
             . '<input type="checkbox" name="toggle-checkboxprint" class='
@@ -1605,6 +1612,211 @@ class HostManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
+        unset(
+            $this->headerData,
+            $this->templates,
+            $this->attributes,
+            $this->form,
+            $this->data
+        );
+    }
+    /**
+     * Host snapins.
+     *
+     * @return void
+     */
+    public function hostSnapins()
+    {
+        unset(
+            $this->headerData,
+            $this->templates,
+            $this->attributes,
+            $this->form,
+            $this->data
+        );
+        $this->headerData = array(
+            '<label class="control-label" for="toggler3">'
+            . '<input type="checkbox" name="toggle-checkboxsnapin" class='
+            . '"toggle-checkboxsnapin" id="toggler3"/></label>',
+            _('Snapin Name'),
+            _('Snapin Created')
+        );
+        $this->templates = array(
+            '<label class="control-label" for="snapin-${snapin_id}">'
+            . '<input type="checkbox" name="snapin[]" class='
+            . '"toggle-snapin" id="snapin-${snapin_id}" '
+            . 'value="${snapin_id}"/></label>',
+            '<a href="?node=snapin&sub=edit&id=${snapin_id}">${snapin_name}</a>',
+            '${snapin_created}'
+        );
+        $this->attributes = array(
+            array(
+                'width' => 16,
+                'class' => 'filter-false'
+            ),
+            array(),
+            array()
+        );
+        Route::listem('snapin');
+        $Snapins = json_decode(
+            Route::getData()
+        );
+        $Snapins = $Snapins->snapins;
+        foreach ((array)$Snapins as &$Snapin) {
+            if (!in_array($Snapin->id, $this->obj->get('snapinsnotinme'))) {
+                continue;
+            }
+            $this->data[] = array(
+                'snapin_id' => $Snapin->id,
+                'snapin_name' => $Snapin->name,
+                'snapin_created' => self::niceDate(
+                    $Snapin->createdTime
+                )->format('Y-m-d H:i:s')
+            );
+            unset($Snapin);
+        }
+        echo '<!-- Snapins -->';
+        echo '<div id="host-snapins" class="tab-pane fade">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Host Snapins');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '&tab=host-snapins">';
+        if (count($this->data) > 0) {
+            self::$HookManager
+                ->processEvent(
+                    'HOST_ADD_SNAPIN',
+                    array(
+                        'headerData' => &$this->headerData,
+                        'data' => &$this->data,
+                        'templates' => &$this->templates,
+                        'attributes' => &$this->attributes
+                    )
+                );
+            echo '<div class="text-center">';
+            echo '<div class="checkbox">';
+            echo '<label for="hostSnapinShow">';
+            echo '<input type="checkbox" name="hostSnapinShow" '
+                . 'id="hostSnapinShow"/>';
+            echo _('Check here to see what snapins can be added');
+            echo '</label>';
+            echo '</div>';
+            echo '</div>';
+            echo '<br/>';
+            echo '<div class="hiddeninitially snapinNotInHost panel panel-info">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Add Snapins');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            $this->render(12);
+            echo '<div class="form-group">';
+            echo '<label for="updatesnapins" class="control-label col-xs-4">';
+            echo _('Add selected snapins');
+            echo '</label>';
+            echo '<div class="col-xs-8">';
+            echo '<button type="submit" name="updatesnapins" class='
+                . '"btn btn-info btn-block" id="updatesnapins">'
+                . _('Add')
+                . '</button>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+        }
+        unset(
+            $this->headerData,
+            $this->templates,
+            $this->attributes,
+            $this->form,
+            $this->data
+        );
+        $this->headerData = array(
+            '<label class="control-label" for="toggler4">'
+            . '<input type="checkbox" name="toggle-checkbox" class='
+            . '"toggle-checkboxAction" id="toggler4"/></label>',
+            _('Snapin Name'),
+            _('Snapin Created')
+        );
+        $this->templates = array(
+            '<label class="control-label" for="snapinrm-${snapin_id}">'
+            . '<input type="checkbox" name="snapinRemove[]" class='
+            . '"toggle-action" id="snapinrm-${snapin_id}" '
+            . 'value="${snapin_id}"/></label>',
+            '<a href="?node=snapin&sub=edit&id=${snapin_id}">${snapin_name}</a>',
+            '${snapin_created}'
+        );
+        $this->attributes = array(
+            array(
+                'width' => 16,
+                'class' => 'filter-false'
+            ),
+            array(),
+            array()
+        );
+        foreach ((array)$Snapins as $Snapin) {
+            if (!in_array($Snapin->id, $this->obj->get('snapins'))) {
+                continue;
+            }
+            $this->data[] = array(
+                'snapin_id' => $Snapin->id,
+                'snapin_name' => $Snapin->name,
+                'snapin_created' => self::niceDate(
+                    $Snapin->createdTime
+                )->format('Y-m-d H:i:s')
+            );
+            unset($Snapin);
+        }
+        if (count($this->data) > 0) {
+            self::$HookManager
+                ->processEvent(
+                    'HOST_EDIT_SNAPIN',
+                    array(
+                        'headerData' => &$this->headerData,
+                        'data' => &$this->data,
+                        'templates' => &$this->templates,
+                        'attributes' => &$this->attributes
+                    )
+                );
+            echo '<div class="panel panel-info">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Remove snapins');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            $this->render(12);
+            echo '<div class="form-group">';
+            echo '<label for="snapdel" class="control-label col-xs-4">';
+            echo _('Remove selected snapins');
+            echo '</label>';
+            echo '<div class="col-xs-8">';
+            echo '<button type="submit" name="snapdel" class='
+                . '"btn btn-danger btn-block" id="snapdel">'
+                . _('Remove')
+                . '</button>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+        }
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        unset(
+            $this->headerData,
+            $this->templates,
+            $this->attributes,
+            $this->form,
+            $this->data
+        );
     }
     /**
      * Edits an existing item.
@@ -1717,147 +1929,7 @@ class HostManagementPage extends FOGPage
             $this->obj->get('enforce')
         );
         $this->hostPrinters();
-        /*echo '<!-- Snapins -->';
-        echo '<div id="host-snapins" class="tab-pane fade">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Host Snapins');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '&tab=host-snapins">';
-        echo '</form>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';*/
-        printf(
-            '<!-- Snapins --><div id="host-snapins" class="tab-pane fade">'
-            . '<h2>%s</h2><form method="post" '
-            . 'action="%s&tab=host-snapins">',
-            _('Snapins'),
-            $this->formAction
-        );
-        $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkboxsnapin" '
-            . 'class="toggle-checkboxsnapin" id="toggler3"/>'
-            . '<label for="toggler3"></label>',
-            _('Snapin Name'),
-            _('Created'),
-        );
-        $this->templates = array(
-            '<input type="checkbox" name="snapin[]" '
-            . 'value="${snapin_id}" class="toggle-snapin" id="'
-            . 'snapin-${snapin_id}"/>'
-            . '<label for="snapin-${snapin_id}"></label>',
-            sprintf(
-                '<a href="?node=%s&sub=edit&id=${snapin_id}" '
-                . 'title="%s">${snapin_name}</a>',
-                'snapin',
-                _('Edit')
-            ),
-            '${snapin_created}',
-        );
-        $this->attributes = array(
-            array('width'=>16,'class'=>'l filter-false'),
-            array('width'=>90,'class'=>'l'),
-            array('width'=>20,'class'=>'r'),
-        );
-        $Snapins = self::getClass('SnapinManager')
-            ->find(
-                array('id' => $this->obj->get('snapinsnotinme'))
-            );
-        foreach ($Snapins as &$Snapin) {
-            if (!$Snapin->isValid()) {
-                continue;
-            }
-            $this->data[] = array(
-                'snapin_id' => $Snapin->get('id'),
-                'snapin_name' => $Snapin->get('name'),
-                'snapin_created' => $Snapin->get('createdTime'),
-            );
-            unset($Snapin);
-        }
-        if (count($this->data) > 0) {
-            printf(
-                '<p class="c">'
-                . '%s&nbsp;&nbsp;<input type="checkbox" '
-                . 'name="hostSnapinShow" id="hostSnapinShow"/>'
-                . '<label for="hostSnapinShow"></label><div id="snapinNotInHost">',
-                _('Check here to see what snapins can be added')
-            );
-            self::$HookManager
-                ->processEvent(
-                    'HOST_SNAPIN_JOIN',
-                    array(
-                        'headerData' => &$this->headerData,
-                        'data' => &$this->data,
-                        'templates' => &$this->templates,
-                        'attributes' => &$this->attributes
-                    )
-                );
-            $this->render();
-            printf(
-                '<button type="submit" class="btn btn-info">%s</button>'
-                . '</form></div></p><form method="post" '
-                . 'action="%s&tab=host-snapins">',
-                _('Add Snapin(s)'),
-                $this->formAction
-            );
-            unset($this->data);
-        }
-        $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" '
-            . 'class="toggle-checkboxAction" id="toggler4"/>'
-            . '<label for="toggler4"></label>',
-            _('Snapin Name'),
-        );
-        $this->attributes = array(
-            array('class'=>'l filter-false','width'=>16),
-            array(),
-        );
-        $this->templates = array(
-            '<input type="checkbox" name="snapinRemove[]" '
-            . 'value="${snap_id}" class="toggle-action" id="'
-            . 'snapinrm-${snap_id}"/>'
-            . '<label for="snapinrm-${snap_id}"></label>',
-            '<a href="?node=snapin&sub=edit&id=${snap_id}">${snap_name}</a>',
-        );
-        $Snapins = self::getClass('SnapinManager')
-            ->find(
-                array('id' => $this->obj->get('snapins'))
-            );
-        foreach ((array)$Snapins as &$Snapin) {
-            if (!$Snapin->isValid()) {
-                continue;
-            }
-            $this->data[] = array(
-                'snap_id'=>$Snapin->get('id'),
-                'snap_name'=>$Snapin->get('name'),
-            );
-            unset($Snapin);
-        }
-        self::$HookManager->processEvent(
-            'HOST_EDIT_SNAPIN',
-            array(
-                'headerData' => &$this->headerData,
-                'data' => &$this->data,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
-            )
-        );
-        $this->render();
-        if (count($this->data)) {
-            $inputremove = sprintf(
-                '<button type="submit" name="snaprem" class='
-                . '"btn btn-danger">%s</button>',
-                _('Remove selected snapins')
-            );
-        }
-        echo "<p class='c'>$inputremove</p></form></div>";
-        unset($this->data, $this->headerData);
+        $this->hostSnapins();
         echo '<!-- Service Configuration -->';
         $this->attributes = array(
             array('width'=>270),
@@ -2153,7 +2225,7 @@ class HostManagementPage extends FOGPage
         $this->render();
         unset($this->data, $fields);
         echo '</fieldset></form></div>';
-        $this->pmDisplay();
+        $this->hostPMDisplay();
         unset(
             $this->headerData,
             $this->templates,
@@ -2916,6 +2988,112 @@ class HostManagementPage extends FOGPage
         }
     }
     /**
+     * Host printer post.
+     *
+     * @return void
+     */
+    public function hostPrinterPost()
+    {
+        if (isset($_POST['levelup'])) {
+            $this
+                ->obj
+                ->set(
+                    'printerLevel',
+                    filter_input(
+                        INPUT_POST,
+                        'level'
+                    )
+                );
+        }
+        if (isset($_POST['updateprinters'])) {
+            $printers = filter_input_array(
+                INPUT_POST,
+                array(
+                    'printer' => array(
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    )
+                )
+            );
+            $printers = $printers['printer'];
+            if (count($printers) > 0) {
+                $this
+                    ->obj
+                    ->addPrinter(
+                        $printers
+                    );
+            }
+        }
+        if (isset($_POST['defaultsel'])) {
+            $this->obj->updateDefault(
+                filter_input(
+                    INPUT_POST,
+                    'default'
+                ),
+                isset($_POST['default'])
+            );
+        }
+        if (isset($_POST['printdel'])) {
+            $printers = filter_input_array(
+                INPUT_POST,
+                array(
+                    'printerRemove' => array(
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    )
+                )
+            );
+            $printers = $printers['printerRemove'];
+            if (count($printers) > 0) {
+                $this
+                    ->obj
+                    ->removePrinter(
+                        $printers
+                    );
+            }
+        }
+    }
+    /**
+     * Host snapin post
+     *
+     * @return void
+     */
+    public function hostSnapinPost()
+    {
+        if (isset($_POST['updatesnapins'])) {
+            $snapins = filter_input_array(
+                INPUT_POST,
+                array(
+                    'snapin' => array(
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    )
+                )
+            );
+            $snapins = $snapins['snapin'];
+            if (count($snapins) > 0) {
+                $this
+                    ->obj
+                    ->addSnapin($snapins);
+            }
+        }
+        if (isset($_POST['snapdel'])) {
+            $snapins = filter_input_array(
+                INPUT_POST,
+                array(
+                    'snapinRemove' => array(
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    )
+                )
+            );
+            $snapins = $snapins['snapinRemove'];
+            if (count($snapins) > 0) {
+                $this
+                    ->obj
+                    ->removeSnapin(
+                        $snapins
+                    );
+            }
+        }
+    }
+    /**
      * Updates the host when form is submitted
      *
      * @return void
@@ -2939,70 +3117,10 @@ class HostManagementPage extends FOGPage
                 $this->hostPMPost();
                 break;
             case 'host-printers':
-                if (isset($_POST['levelup'])) {
-                    $this
-                        ->obj
-                        ->set(
-                            'printerLevel',
-                            filter_input(
-                                INPUT_POST,
-                                'level'
-                            )
-                        );
-                }
-                if (isset($_POST['updateprinters'])) {
-                    $printers = filter_input_array(
-                        INPUT_POST,
-                        array(
-                            'printer' => array(
-                                'flags' => FILTER_REQUIRE_ARRAY
-                            )
-                        )
-                    );
-                    $printers = $printers['printer'];
-                    if (count($printers) > 0) {
-                        $this
-                            ->obj
-                            ->addPrinter(
-                                $printers
-                            );
-                    }
-                }
-                if (isset($_POST['defaultsel'])) {
-                    $this->obj->updateDefault(
-                        filter_input(
-                            INPUT_POST,
-                            'default'
-                        ),
-                        isset($_POST['default'])
-                    );
-                }
-                if (isset($_POST['printdel'])) {
-                    $printers = filter_input_array(
-                        INPUT_POST,
-                        array(
-                            'printerRemove' => array(
-                                'flags' => FILTER_REQUIRE_ARRAY
-                            )
-                        )
-                    );
-                    $printers = $printers['printerRemove'];
-                    if (count($printers) > 0) {
-                        $this
-                            ->obj
-                            ->removePrinter(
-                                $printers
-                            );
-                    }
-                }
+                $this->hostPrinterPost();
                 break;
             case 'host-snapins':
-                if (!isset($_REQUEST['snapinRemove'])) {
-                    $this->obj->addSnapin($_REQUEST['snapin']);
-                }
-                if (isset($_REQUEST['snaprem'])) {
-                    $this->obj->removeSnapin($_REQUEST['snapinRemove']);
-                }
+                $this->hostSnapinPost();
                 break;
             case 'host-service':
                 $x = $_REQUEST['x'];
