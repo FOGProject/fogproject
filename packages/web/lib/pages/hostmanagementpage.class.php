@@ -130,8 +130,8 @@ class HostManagementPage extends FOGPage
             }
         }
         if (!($this->obj instanceof Host && $this->obj->isValid())) {
-            $this->exitNorm = $_REQUEST['bootTypeExit'];
-            $this->exitEfi = $_REQUEST['efiBootTypeExit'];
+            $this->exitNorm = filter_input(INPUT_POST, 'bootTypeExit');
+            $this->exitEfi = filter_input(INPUT_POST, 'efiBootTypeExit');
         } else {
             $this->exitNorm = $this->obj->get('biosexit');
             $this->exitEfi = $this->obj->get('efiexit');
@@ -650,8 +650,8 @@ class HostManagementPage extends FOGPage
      */
     public function hostPMDisplay()
     {
-        echo '<!-- Power Management Items -->'
-            . '<div class="tab-pane fade" id="host-powermanagement">';
+        echo '<!-- Power Management Items -->';
+        echo '<div class="tab-pane fade" id="host-powermanagement">';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
@@ -669,8 +669,11 @@ class HostManagementPage extends FOGPage
         );
         // PowerManagement
         $this->headerData = array(
-            '<input type="checkbox" id="rempowerselectors"/>'
-            . '<label for="rempowerselectors"></label>',
+            '<div class="checkbox">'
+            . '<label for="rempowerselectors">'
+            . '<input type="checkbox" id="rempowerselectors"/>'
+            . '</label>'
+            . '</div>',
             _('Cron Schedule'),
             _('Action'),
         );
@@ -812,10 +815,16 @@ class HostManagementPage extends FOGPage
      */
     public function hostGeneral()
     {
-        unset($this->headerData);
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->attributes,
+            $this->templates
+        );
         $this->attributes = array(
-            array('class' => 'col-xs-3'),
-            array('class' => 'col-xs-9'),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',
@@ -824,7 +833,7 @@ class HostManagementPage extends FOGPage
         ob_start();
         foreach ((array)$this->obj->get('additionalMACs') as $ind => &$MAC) {
             echo '<div class="addrow">';
-            echo '<div class="col-xs-10 form-group">';
+            echo '<div class="col-xs-10">';
             echo '<div class="input-group">';
             echo '<span class="mac-manufactor input-group-addon"></span>';
             echo '<input type="text" class="macaddr additionalMAC form-control" '
@@ -885,7 +894,7 @@ class HostManagementPage extends FOGPage
         ob_start();
         foreach ((array)$this->obj->get('pendingMACs') as &$MAC) {
             echo '<div class="addrow">';
-            echo '<div class="col-xs-10 form-group">';
+            echo '<div class="col-xs-10">';
             echo '<div class="input-group">';
             echo '<span class="mac-manufactor input-group-addon"></span>';
             echo '<input type="text" class="macaddr pending-mac form-control" '
@@ -960,17 +969,15 @@ class HostManagementPage extends FOGPage
         $fields = array(
             '<label class="control-label" for="name">'
             . _('Host Name')
-            . '</label>' => '<div class="form-group">'
-            . '<div class="input-group">'
+            . '</label>' => '<div class="input-group">'
             . '<input type="text" name="host" value="'
             . $name
             . '" maxlength="15" class="hostname-input form-control" '
             . 'id="name" required/>'
-            . '</div>'
             . '</div>',
             '<label class="control-label" for="mac">'
             . _('Primary MAC')
-            . '</label>' => '<div class="col-xs-10 form-group">'
+            . '</label>' => '<div class="col-xs-10">'
             . '<div class="input-group">'
             . '<span class="mac-manufactor input-group-addon"></span>'
             . '<input type="text" class="macaddr form-control" '
@@ -1041,13 +1048,11 @@ class HostManagementPage extends FOGPage
             . '</div>',
             '<label class="control-label" for="description">'
             . _('Host description')
-            . '</label>' => '<div class="form-group">'
-            . '<div class="input-group">'
+            . '</label>' => '<div class="input-group">'
             . '<textarea class="form-control" id="description" '
             . 'name="description">'
             . $desc
             . '</textarea>'
-            . '</div>'
             . '</div>',
             '<label class="control-label" for="productKey">'
             . _('Host Product Key')
@@ -1065,28 +1070,32 @@ class HostManagementPage extends FOGPage
             . '<input type="text" name="kern" id="kern" '
             . 'class="form-control" value="'
             . $kern
-            . '"/>',
+            . '"/>'
+            . '</div>',
             '<label class="control-label" for="args">'
             . _('Host Kernel Arguments')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="args" id="args" '
             . 'class="form-control" value="'
             . $args
-            . '"/>',
+            . '"/>'
+            . '</div>',
             '<label class="control-label" for="init">'
             . _('Host Init')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="init" id="init" '
             . 'class="form-control" value="'
             . $init
-            . '"/>',
+            . '"/>'
+            . '</div>',
             '<label class="control-label" for="dev">'
             . _('Host Primary Disk')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="dev" id="dev" '
             . 'class="form-control" value="'
             . $dev
-            . '"/>',
+            . '"/>'
+            . '</div>',
             '<label class="control-label" for="bootTypeExit">'
             . _('Host Bios Exit Type')
             . '</label>' => $this->exitNorm,
@@ -1108,22 +1117,7 @@ class HostManagementPage extends FOGPage
                     'Host' => &$this->obj
                 )
             );
-        echo '<!-- General -->';
-        echo '<div id="host-general" class="'
-            . 'tab-pane fade in active">';
-        if ($this->obj->get('pub_key')
-            || $this->obj->get('sec_tok')
-        ) {
-            $this->form = '<div class="text-center" id="resetSecDataBox">'
-                . '<button type="button" '
-                . 'id="resetSecData" '
-                . 'class="btn btn-warning btn-block">'
-                . _('Reset Encryption Data')
-                . '</button>'
-                . '</div>';
-        }
         array_walk($fields, $this->fieldsToData);
-        unset($input);
         self::$HookManager
             ->processEvent(
                 'HOST_EDIT_GEN',
@@ -1135,6 +1129,20 @@ class HostManagementPage extends FOGPage
                     'Host'=>&$this->obj
                 )
             );
+        if ($this->obj->get('pub_key')
+            || $this->obj->get('sec_tok')
+        ) {
+            $this->form = '<div class="text-center" id="resetSecDataBox">'
+                . '<button type="button" '
+                . 'id="resetSecData" '
+                . 'class="btn btn-warning btn-block">'
+                . _('Reset Encryption Data')
+                . '</button>'
+                . '</div>';
+        }
+        echo '<!-- General -->';
+        echo '<div id="host-general" class="'
+            . 'tab-pane fade in active">';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';

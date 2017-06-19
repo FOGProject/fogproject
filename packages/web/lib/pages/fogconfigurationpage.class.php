@@ -1746,10 +1746,11 @@ class FOGConfigurationPage extends FOGPage
                 $normal = '${service_value}';
                 if ('FOG_API_TOKEN' === $Service->get('name')) {
                     $extra = 'token" readonly/>'
-                        . '<span class='
-                        . '"resettoken input-group-addon">'
+                        . '<div class="input-group-btn">'
+                        . '<button class="btn btn-warning resettoken" type="button">'
                         . _('Reset Token')
-                        . '</span>'
+                        . '</button>'
+                        . '</div>'
                         . '</div>';
                     $normal = '${service_base64val}';
                 }

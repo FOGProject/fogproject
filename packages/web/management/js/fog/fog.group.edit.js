@@ -1,7 +1,8 @@
 $(function() {
     $('#resetSecData').val('Reset Encryption Data');
     $('#delAllPM').val('Delete all power management for group');
-    $('#resetSecData').click(function() {
+    $('#resetSecData').on('click', function(e) {
+        e.preventDefault();
         $('#resetSecDataBox').html('Are you sure you wish to reset this groups hosts encryption data?');
         $('#resetSecDataBox').dialog({
             resizable: false,

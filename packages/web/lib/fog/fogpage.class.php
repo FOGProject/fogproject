@@ -2287,8 +2287,8 @@ abstract class FOGPage extends FOGBase
             '${input}',
         );
         $this->attributes = array(
-            array('class' => 'col-xs-3'),
-            array('class' => 'col-xs-9 form-group'),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         array_walk($fields, $this->fieldsToData);
         self::$HookManager->processEvent(
@@ -3848,8 +3848,8 @@ abstract class FOGPage extends FOGBase
             '${input}',
         );
         $this->attributes = array(
-            array('class' => 'col-xs-3'),
-            array('class' => 'col-xs-9'),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $fields = array(
             '<label for="specialCrons">'

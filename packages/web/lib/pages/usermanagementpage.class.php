@@ -359,7 +359,7 @@ class UserManagementPage extends FOGPage
             . '</div>',
             '<label class="control-label" for="updategen">'
             . _('Update General?')
-            . '</label> ' => '<button class="btn btn-default btn-block" name="'
+            . '</label> ' => '<button class="btn btn-info btn-block" name="'
             . 'update" id="updategen" type="submit">'
             . _('Update')
             . '</button>'
@@ -378,8 +378,8 @@ class UserManagementPage extends FOGPage
             '${input}'
         );
         $this->attributes = array(
-            array('class' => 'col-xs-3'),
-            array('class' => 'col-xs-9 form-group')
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group')
         );
         $this->data = array();
         array_walk($fields, $this->fieldsToData);
@@ -393,11 +393,20 @@ class UserManagementPage extends FOGPage
                 )
             );
         echo '<div id="user-general" class="tab-pane fade in active">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('User general');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '&tab=user-general">';
         $this->render(12);
         echo '</form>';
+        echo '</div>';
+        echo '</div>';
         echo '</div>';
     }
     /**
@@ -416,16 +425,16 @@ class UserManagementPage extends FOGPage
             . '"" autocomplete='
             . '"off" id="password" required/>'
             . '</div>',
-            '<label class="control-label" for="password2">'
+            '<label class="control-label" for="passwordConfirm">'
             . _('User Password (confirm)')
             . '</label>' => '<div class="input-group">'
             . '<input type="password" class="'
             . 'form-control password-input2" name="password_confirm" value='
-            . '"" autocomplete="off" required/>'
+            . '"" autocomplete="off" id="passwordConfirm" required/>'
             . '</div>',
             '<label class="control-label" for="updatepw">'
             . _('Update Password?')
-            . '</label> ' => '<button class="btn btn-default btn-block" name="'
+            . '</label> ' => '<button class="btn btn-info btn-block" name="'
             . 'update" id="updatepw" type="submit">'
             . _('Update')
             . '</button>'
@@ -436,8 +445,8 @@ class UserManagementPage extends FOGPage
             '${input}'
         );
         $this->attributes = array(
-            array('class' => 'col-xs-3'),
-            array('class' => 'col-xs-9 form-group')
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group')
         );
         $this->data = array();
         array_walk($fields, $this->fieldsToData);
@@ -451,11 +460,20 @@ class UserManagementPage extends FOGPage
                 )
             );
         echo '<div id="user-changepw" class="tab-pane fade">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('User change password');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '&tab=user-changepw">';
         $this->render(12);
         echo '</form>';
+        echo '</div>';
+        echo '</div>';
         echo '</div>';
     }
     /**
@@ -488,14 +506,14 @@ class UserManagementPage extends FOGPage
             )
             . '"/>'
             . '<div class="input-group-btn">'
-            . '<button class="btn btn-default resettoken" type="button">'
+            . '<button class="btn btn-warning resettoken" type="button">'
             . _('Reset Token')
             . '</button>'
             . '</div>'
             . '</div>',
             '<label class="control-label" for="updateapi">'
             . _('Update API?')
-            . '</label> ' => '<button class="btn btn-default btn-block" name="'
+            . '</label> ' => '<button class="btn btn-info btn-block" name="'
             . 'update" id="updateapi" type="submit">'
             . _('Update')
             . '</button>'
@@ -506,8 +524,8 @@ class UserManagementPage extends FOGPage
             '${input}'
         );
         $this->attributes = array(
-            array('class' => 'col-xs-3'),
-            array('class' => 'col-xs-9 form-group')
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group')
         );
         $this->data = array();
         array_walk($fields, $this->fieldsToData);
@@ -521,11 +539,20 @@ class UserManagementPage extends FOGPage
                 )
             );
         echo '<div id="user-api" class="tab-pane fade">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading">';
+        echo '<h4 class="title">';
+        echo _('User API');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '&tab=user-api">';
         $this->render(12);
         echo '</form>';
+        echo '</div>';
+        echo '</div>';
         echo '</div>';
     }
     /**
