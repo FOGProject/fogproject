@@ -176,7 +176,7 @@ function HookTooltip() {
     ActionBoxDel = $('.action-boxes.del');
     callme = 'hide';
     if ((typeof(sub) == 'undefined' || $.inArray(sub,subs) > -1)
-        && $('.no-active-tasks').length < 1
+        && !$('.table').hasClass('noresults')
     ) {
         callme = 'show';
     }
@@ -292,9 +292,7 @@ $.fn.fogAjaxSearch = function(opts) {
     Container = $(Options.Container);
     if (!Container.length) return this;
     callme = 'hide';
-    if (Container.length > 0
-            || $('tbody > tr', Container).filter('.no-active-tasks').length > 0
-            || $.inArray(sub, subs) > -1) {
+    if (!$('.table').hasClass('noresults')) {
         callme = 'show';
     }
     Container[callme]().fogTableInfo().trigger('updateAll');

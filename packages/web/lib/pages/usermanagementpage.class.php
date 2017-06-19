@@ -158,8 +158,8 @@ class UserManagementPage extends FOGPage
             '${input}',
         );
         $this->attributes = array(
-            array('class' => 'col-xs-3'),
-            array('class' => 'col-xs-9 form-group'),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->data = array();
         $name = filter_input(
@@ -223,7 +223,7 @@ class UserManagementPage extends FOGPage
             . '/>',
             '<label class="control-label" for="add">'
             . _('Create user?')
-            . '</label> ' => '<button class="btn btn-default btn-block" name="'
+            . '</label> ' => '<button class="btn btn-info btn-block" name="'
             . 'add" id="add" type="submit">'
             . _('Create')
             . '</button>'
@@ -246,18 +246,24 @@ class UserManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        echo '<div class="form-group">';
-        echo '<input type="text" name="fakeusernameremembered" class="fakes"/>';
-        echo '<input type="password" name="fakepasswordremembered" class="fakes"/>';
+        echo '<div class="col-xs-offset-3">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
         echo '</div>';
-        echo '<h2>';
-        echo _('Create new user');
-        echo '</h2>';
+        echo '<div class="panel-body">';
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '">';
-        $this->render();
+        echo '<input type="text" name="fakeusernameremembered" class="fakes"/>';
+        echo '<input type="password" name="fakepasswordremembered" class="fakes"/>';
+        $this->render(12);
         echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Actually create the new user.
