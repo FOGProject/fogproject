@@ -161,7 +161,7 @@ class ImageManagementPage extends FOGPage
             . 'value="${id}" class="toggle-action" id="'
             . 'toggler1"/></label>',
             '<a href="?node='
-            . $node
+            . $this->node
             . '&sub=edit&id=${id}" '
             . 'data-toggle="tooltip" data-placement="right" '
             . 'title="'
