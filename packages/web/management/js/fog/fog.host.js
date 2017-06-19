@@ -54,7 +54,7 @@ $(function() {
         $('.additionalMACsRow').parents('tr').show();
         $('.additionalMACsCell').append(
             '<div class="addrow">'
-            + '<div class="col-xs-10 form-group">'
+            + '<div class="col-xs-10">'
             + '<div class="input-group">'
             + '<span class="mac-manufactor input-group-addon"></span>'
             + '<input type="text" class="macaddr additionalMAC form-control" '

@@ -540,7 +540,7 @@ class UserManagementPage extends FOGPage
             );
         echo '<div id="user-api" class="tab-pane fade">';
         echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading">';
+        echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
         echo _('User API');
         echo '</h4>';
