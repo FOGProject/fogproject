@@ -1782,6 +1782,7 @@ abstract class FOGPage extends FOGBase
     public function deletemulti()
     {
         global $sub;
+        global $node;
         $this->title = sprintf(
             "%s's to remove",
             (
@@ -1798,83 +1799,93 @@ abstract class FOGPage extends FOGBase
                 )
             )
         );
-        unset($this->headerData);
-        $this->attributes = array(
-            array(),
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
         );
         $this->templates = array(
-            sprintf(
-                '<a href="?node=%s&sub=edit&id=${id}">${name}</a>',
-                $this->node
-            ),
-            '<input type="hidden" value="${id}" name="remitems[]"/>',
+            '${field}',
+            '${input}'
         );
-        $this->additional = array();
-        global $sub;
-        global $node;
-        $reqID = sprintf(
-            '%sIDArray',
-            $node
+        $this->attributes = array(
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group')
         );
-        $reqID = explode(',', $_REQUEST[$reqID]);
-        $reqID = array_unique($reqID);
-        $reqID = array_filter($reqID);
-        foreach ((array)self::getClass($this->childClass)
-            ->getManager()
-            ->find(
-                array('id' => $reqID)
-            ) as &$Object
-        ) {
-            if ($Object->get('protected')) {
+        $reqID = $node
+            . 'IDArray';
+        $items = filter_input(
+            INPUT_POST,
+            $reqID
+        );
+        $reqID = array_values(
+            array_filter(
+                array_unique(
+                    explode(',', $items)
+                )
+            )
+        );
+        Route::listem($node);
+        $items = json_decode(
+            Route::getData()
+        );
+        $getme = $node.'s';
+        $items = $items->$getme;
+        foreach ((array)$items as &$object) {
+            if (!in_array($object->id, $reqID)
+                || $object->protected
+            ) {
                 continue;
             }
             $this->data[] = array(
-                'id' => $Object->get('id'),
-                'name' => $Object->get('name'),
+                'field' => '<input type="hidden" value="'
+                . $object->id
+                . '" name="remitems[]"/>',
+                'input' => '<a href="?node='
+                . $node
+                . '&sub=edit&id='
+                . $object->id
+                . '">'
+                . $object->name
+                . '</a>'
             );
-            array_push(
-                $this->additional,
-                sprintf(
-                    '<p>%s</p>',
-                    $Object->get('name')
-                )
-            );
-            unset($Object);
+            unset($object);
         }
-        if (count($this->data)) {
-            printf(
-                '<div class="confirm-message"><p>%s:</p>'
-                . '<div id="deleteDiv"></div>',
-                $this->title
-            );
-            $this->render();
-            printf(
-                '<p class="c"><input type="hidden" name="storagegroup" '
-                . 'value="%d"/><button class="btn btn-danger" type="submit" name='
-                . '"delete">%s?</button>'
-                . '</p>',
-                (
-                    $this->childClass === 'StorageGroup' ?
-                    1 :
-                    0
-                ),
-                _('Are you sure you wish to remove these items')
-            );
-        } else {
-            self::setMessage(
-                sprintf(
-                    '%s<br/>%s',
-                    _('No items to delete'),
-                    _('None selected or item is protected')
-                )
-            );
-            self::redirect(
-                sprintf(
-                    '?node=%s',
-                    $this->node
-                )
-            );
+        if (count($this->data) < 1) {
+            self::redirect('?node=' . $node);
         }
+        $this->data[] = array(
+            'field' => '<label class="control-label">'
+            . _('Remove these items?')
+            . '</label>',
+            'input' => '<button class="btn btn-danger btn-block" type="submit" '
+            . 'name="delete" id="delete">'
+            . _('Delete')
+            . '</button>',
+        );
+        echo '<!-- Delete Items -->';
+        echo '<div class="col-xs-offset-3">';
+        echo '<div class="panel panel-warning">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<div id="deleteDiv"></div>';
+        $this->render(12);
+        echo '<input type="hidden" name="storagegroup" value="'
+            . (
+                $this->childClass === 'StorageGroup' ?
+                1 :
+                0
+            )
+            . '"/>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Actually performs the deletion actions
@@ -2591,16 +2602,14 @@ abstract class FOGPage extends FOGBase
             (array)$fieldsi,
             array(
                 '<label class="control-label" for="delete">'
-                . _('Delete')
-                . ' '
-                . $this->obj->get('name')
+                . $this->title
                 . '</label>' => '<input type="hidden" name="remitems[]" '
                 . 'value="'
                 . $this->obj->get('id')
                 . '"/>'
                 . '<button type="submit" name="delete" id="delete" '
-                . 'class="btn btn-default btn-block">'
-                . '${label}'
+                . 'class="btn btn-danger btn-block">'
+                . _('Delete')
                 . '</button>'
             )
         );
@@ -2612,27 +2621,37 @@ abstract class FOGPage extends FOGBase
             ),
             array($this->childClass => &$this->obj)
         );
-        foreach ((array)$fields as $field => &$input) {
-            $this->data[] = array(
-                'field' => $field,
-                'input' => $input,
-                'label' => $this->title,
-            );
-            unset($input, $field);
-        }
+        array_walk($fields, $this->fieldsToData);
         self::$HookManager->processEvent(
             sprintf(
                 '%S_DEL',
                 strtoupper($this->childClass)
             ),
-            array($this->childClass => &$this->obj)
+            array(
+                'data' => &$this->data,
+                'headerData' => &$this->headerData,
+                'templates' => &$this->templates,
+                'attributes' => &$this->attributes,
+                $this->childClass => &$this->obj
+            )
         );
+        echo '<div class="col-xs-offset-3">';
+        echo '<div class="panel panel-warning">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
         echo '<div id="deleteDiv"></div>';
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '">';
-        $this->render();
+        $this->render(12);
         echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Sends the new client the configuration options
