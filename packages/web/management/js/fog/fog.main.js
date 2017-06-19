@@ -228,12 +228,12 @@ $(function() {
         e.preventDefault();
         $('div#'+$(this).prop('id')).fadeToggle('slow','swing');
     });
-    $('input[name=export]').click(function(e) {
+    $('[name=export]').click(function(e) {
         e.preventDefault();
         url = $(this).parents('form').attr('action');
         exportDialog(url);
     });
-    $('input[name=delete]').click(function(e) {
+    $('[name=delete]').click(function(e) {
         e.preventDefault();
         url = $(this).parents('form').attr('action');
         deleteDialog(url);
