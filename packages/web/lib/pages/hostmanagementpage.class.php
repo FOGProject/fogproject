@@ -388,8 +388,8 @@ class HostManagementPage extends FOGPage
             '${input}',
         );
         $this->attributes = array(
-            array('class' => 'col-xs-3'),
-            array('class' => 'col-xs-9 form-group'),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $fields = array(
             '<label class="control-label" for="host">'
@@ -511,8 +511,6 @@ class HostManagementPage extends FOGPage
         }
         echo '<!-- Host General -->';
         $this->render(12);
-        echo '</form>';
-        echo '</div>';
         echo '</div>';
         echo '</div>';
         $this->adFieldsToDisplay(
@@ -526,6 +524,7 @@ class HostManagementPage extends FOGPage
             false
         );
         echo '</form>';
+        echo '</div>';
     }
     /**
      * Handles the forum submission process.
