@@ -22,6 +22,12 @@
 class GroupManagementPage extends FOGPage
 {
     /**
+     * Group->Host common items
+     *
+     * @var array
+     */
+    private static $_common = array();
+    /**
      * The node that uses this class
      *
      * @var string
@@ -141,6 +147,7 @@ class GroupManagementPage extends FOGPage
                 'class' => 'c filter-false'
             ),
         );
+        $this->_getHostCommon();
         /**
          * Lamda function to return data either by list or search.
          *
@@ -263,12 +270,15 @@ class GroupManagementPage extends FOGPage
         self::redirect($this->formAction);
     }
     /**
-     * The group edit display method
+     * Get host common items
      *
      * @return void
      */
-    public function edit()
+    private function _getHostCommon()
     {
+        if (count(self::$_common) > 0) {
+            return;
+        }
         $HostCount = $this->obj->getHostCount();
         $hostids = $this->obj->get('hosts');
         $Host = new Host(@max($hostids));
@@ -286,20 +296,30 @@ class GroupManagementPage extends FOGPage
             'biosexit',
             'efiexit',
         );
-        $tmpStorage = array();
         foreach ($getItems as &$idField) {
             $tmp = self::getClass('HostManager')
                 ->distinct(
                     $idField,
                     array('id' => $hostids)
                 );
-            if ($tmp == 1) {
-                $tmpStorage[] = true;
-            } else {
-                $tmpStorage[] = false;
-            }
+            self::$_common[] = (bool)($tmp == 1);
             unset($idField);
         }
+    }
+    /**
+     * Displays the group general tab.
+     *
+     * @return void
+     */
+    public function groupGeneral()
+    {
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->attributes,
+            $this->templates
+        );
         list(
             $imageIDs,
             $groupKey,
@@ -313,8 +333,342 @@ class GroupManagementPage extends FOGPage
             $adPassLegacy,
             $biosExit,
             $efiExit
-        ) = $tmpStorage;
-        unset($tmpStorage);
+        ) = self::$_common;
+        $hostids = $this->obj->get('hosts');
+        $Host = new Host(@max($hostids));
+        $exitNorm = Service::buildExitSelector(
+            'bootTypeExit',
+            (
+                $biosExit ?
+                $Host->get('biosexit') :
+                filter_input(INPUT_POST, 'bootTypeExit')
+            ),
+            true,
+            'bootTypeExit'
+        );
+        $exitEfi = Service::buildExitSelector(
+            'efiBootTypeExit',
+            (
+                $efiExit ?
+                $Host->get('efiexit') :
+                filter_input(INPUT_POST, 'efiBootTypeExit')
+            ),
+            true,
+            'efiBootTypeExit'
+        );
+        $name = (
+            filter_input(INPUT_POST, 'name') ?: $this->obj->get('name')
+        );
+        $desc = (
+            filter_input(INPUT_POST, 'description') ?: $this->obj->get('description')
+        );
+        $productKey = (
+            filter_input(INPUT_POST, 'key') ?: $productKey
+        );
+        $productKey = self::aesdecrypt($productKey);
+        $kern = (
+            filter_input(INPUT_POST, 'kern') ?: (
+                $kern ?: $this->obj->get('kernel')
+            )
+        );
+        $args = (
+            filter_input(INPUT_POST, 'args') ?: (
+                $args ?: $this->obj->get('kernelArgs')
+            )
+        );
+        $init = (
+            filter_input(INPUT_POST, 'init') ?: $init
+        );
+        $dev = (
+            filter_input(INPUT_POST, 'dev') ?: (
+                $dev ?: $this->obj->get('kernelDevice')
+            )
+        );
+        $this->attributes = array(
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group')
+        );
+        $this->templates = array(
+            '${field}',
+            '${input}'
+        );
+        $fields = array(
+            '<label class="control-label" for="name">'
+            . _('Group Name')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="name" value="'
+            . $name
+            . '" class="groupname-input form-control" '
+            . 'id="name" required/>'
+            . '</div>',
+            '<label class="control-label" for="description">'
+            . _('Group Description')
+            . '</label>' => '<div class="input-group">'
+            . '<textarea class="form-control" id="description" '
+            . 'name="description">'
+            . $desc
+            . '</textarea>'
+            . '</div>',
+            '<label class="control-label" for="productKey">'
+            . _('Group Product Key')
+            . '</label>' => '<div class="input-group">'
+            . '<input id="productKey" type="text" '
+            . 'name="key" value="'
+            . $productKey
+            .'" class="form-control"/>'
+            . '</div>',
+            '<label class="control-label" for="kern">'
+            . _('Group Kernel')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="kern" id="kern" '
+            . 'class="form-control" value="'
+            . $kern
+            . '"/>'
+            . '</div>',
+            '<label class="control-label" for="args">'
+            . _('Group Kernel Arguments')
+            . '</label>' =>'<div class="input-group">'
+            . '<input type="text" name="args" id="args" '
+            . 'class="form-control" value="'
+            . $args
+            . '"/>'
+            . '</div>',
+            '<label class="control-label" for="dev">'
+            . _('Group Primary Disk')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="dev" id="dev" '
+            . 'class="form-control" value="'
+            . $dev
+            . '"/>'
+            . '</div>',
+            '<label class="control-label" for="bootTypeExit">'
+            . _('Group Bios Exit Type')
+            . '</label>' => $exitNorm,
+            '<label class="control-label" for="efiBootTypeExit">'
+            . _('Group EFI Exit Type')
+            . '</label>' => $exitEfi,
+            '<label class="control-label" for="generalupdate">'
+            . _('Make Changes?')
+            . '</label>' => '<button type="submit" class="btn btn-info btn-block" '
+            . 'id="generalupdate">'
+            . _('Update')
+            . '</button>'
+        );
+        self::$HookManager->processEvent(
+            'GROUP_FIELDS',
+            array(
+                'fields' => &$fields,
+                'Group' => &$this->obj
+            )
+        );
+        array_walk($fields, $this->fieldsToData);
+        self::$HookManager
+            ->processEvent(
+                'GROUP_EDIT_GEN',
+                array(
+                    'headerData' => &$this->headerData,
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes,
+                    'Group' => &$this->obj
+                )
+            );
+        $this->form = '<div class="text-center" id="resetSecDataBox">'
+            . '<button type="button" '
+            . 'id="resetSecData" '
+            . 'class="btn btn-warning btn-block">'
+            . _('Reset Encryption Data')
+            . '</button>'
+            . '</div>';
+        echo '<!-- General -->';
+        echo '<div id="group-general" class="'
+            . 'tab-pane fade in active">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Group general');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '&tab=group-general">';
+        $this->render(12);
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->attributes,
+            $this->templates
+        );
+    }
+    /**
+     * Prints the group image element.
+     *
+     * @return void
+     */
+    public function groupImage()
+    {
+        // Group Images
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
+        $imageSelector = self::getClass('ImageManager')
+            ->buildSelectBox($imageMatchID, 'image');
+        $this->attributes = array(
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
+        );
+        $this->templates = array(
+            '${field}',
+            '${input}',
+        );
+        $fields = array(
+            '<label class="control-label" for="image">'
+            . _('Group image')
+            . '</label>' => $imageSelector,
+            '<label class="control-label" for="updateimage">'
+            . _('Make Changes?')
+            . '</label>' => '<button type="submit" class="btn btn-info btn-block" '
+            . 'id="updateimage">'
+            . _('Update')
+            . '</button>'
+        );
+        self::$HookManager
+            ->processEvent(
+                'GROUP_IMAGE_FIELDS',
+                array(
+                    'fields' => &$fields,
+                    'Group' => &$this->obj
+                )
+            );
+        array_walk($fields, $this->fieldsToData);
+        self::$HookManager
+            ->processEvent(
+                'GROUP_EDIT_IMAGE',
+                array(
+                    'data' => &$this->data,
+                    'headerData' => &$this->headerData,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes
+                )
+            );
+        echo '<!-- Image association -->';
+        echo '<div id="group-image" class="tab-pane fade">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Group image association');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '&tab=group-image">';
+        $this->render(12);
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
+    }
+    /**
+     * Display the group PM stuff.
+     *
+     * @return void
+     */
+    public function groupPMDisplay()
+    {
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
+        echo '<!-- Power Management Items -->';
+        echo '<div class="tab-pane fade" id="group-powermanagement">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Power Management');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        $this->newPMDisplay();
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Group Power Management Remove');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<label for="delAllPM" class="col-xs-4">'
+            . _('Delete all PM tasks?')
+            . '</label>';
+        echo '<div class="col-xs-8">';
+        echo '<button id="delAllPM" type="button" class='
+            . '"btn btn-danger btn-block">'
+            . _('Delete')
+            . '</button>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
+    }
+    /**
+     * The group edit display method
+     *
+     * @return void
+     */
+    public function edit()
+    {
+        list(
+            $imageIDs,
+            $groupKey,
+            $printerLevel,
+            $aduse,
+            $enforcetest,
+            $adDomain,
+            $adOU,
+            $adUser,
+            $adPass,
+            $adPassLegacy,
+            $biosExit,
+            $efiExit
+        ) = self::$_common;
+        $hostids = $this->obj->get('hosts');
+        $Host = new Host(@max($hostids));
         // Set Field Information
         $printerLevel = (
             $printerLevel ?
@@ -362,170 +716,9 @@ class GroupManagementPage extends FOGPage
             $Host->get('ADPassLegacy') :
             ''
         );
-        $productKey = (
-            $groupKey ?
-            $Host->get('productKey') :
-            ''
-        );
-        $groupKeyMatch = self::encryptpw($productKey);
-        unset($productKey, $groupKey);
-        $exitNorm = Service::buildExitSelector(
-            'bootTypeExit',
-            (
-                $biosExit ?
-                $Host->get('biosexit') :
-                $_REQUEST['bootTypeExit']
-            ),
-            true
-        );
-        $exitEfi = Service::buildExitSelector(
-            'efiBootTypeExit',
-            (
-                $efiExit ?
-                $Host->get('efiexit') :
-                $_REQUEST['efiBootTypeExit']
-            ),
-            true
-        );
-        $this->title = sprintf(
-            '%s: %s',
-            _('Edit'),
-            $this->obj->get('name')
-        );
-        unset($this->headerData);
-        $this->attributes = array(
-            array(),
-            array(),
-        );
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
-        $fields = array(
-            _('Group Name') => sprintf(
-                '<input type="text" class="groupname-input" '
-                . 'name="name" value="%s"/>',
-                $this->obj->get('name')
-            ),
-            _('Group Description') => sprintf(
-                '<textarea name="description" rows="8" cols="40">'
-                . '%s</textarea>',
-                $this->obj->get('description')
-            ),
-            _('Group Product Key') => sprintf(
-                '<input id="productKey" type="text" name="key" value="%s"/>',
-                self::aesdecrypt($groupKeyMatch)
-            ),
-            _('Group Kernel') => sprintf(
-                '<input type="text" name="kern" value="%s"/>',
-                $this->obj->get('kernel')
-            ),
-            _('Group Kernel Arguments') => sprintf(
-                '<input type="text" name="args" value="%s"/>',
-                $this->obj->get('kernelArgs')
-            ),
-            _('Group Primary Disk') => sprintf(
-                '<input type="text" name="dev" value="%s"/>',
-                $this->obj->get('kernelDevice')
-            ),
-            _('Group Bios Exit Type') => $exitNorm,
-            _('Group EFI Exit Type') => $exitEfi,
-            '&nbsp;' => sprintf(
-                '<input type="submit" name="updategroup" value="%s"/>',
-                _('Update')
-            ),
-        );
-        self::$HookManager->processEvent(
-            'GROUP_FIELDS',
-            array(
-                'fields' => &$fields,
-                'Group' => &$this->obj
-            )
-        );
-        printf(
-            '<form method="post" action="%s&tab=group-general">'
-            . '<div class="col-xs-offset-3 tab-content">'
-            . '<!-- General -->'
-            . '<div id="group-general" class="tab-pane fade in active">'
-            . '<h2>%s: %s</h2>'
-            . '<div id="resetSecDataBox" class="hiddeninitially"></div>'
-            . '<div class="c"><input type="button" id="resetSecData"/>'
-            . '</div><br/>',
-            $this->formAction,
-            _('Modify Group'),
-            $this->obj->get('name')
-        );
-        foreach ($fields as $field => &$input) {
-            $this->data[] = array(
-                'field' => $field,
-                'input' => $input,
-            );
-            unset($input, $field);
-        }
-        unset($fields);
-        self::$HookManager->processEvent(
-            'GROUP_DATA_GEN',
-            array(
-                'headerData' => &$this->headerData,
-                'data' => &$this->data,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
-            )
-        );
-        $this->render();
-        unset($this->data, $exitNorm, $exitEfi);
-        echo '</form></div>';
-        $imageSelector = self::getClass('ImageManager')
-            ->buildSelectBox($imageMatchID, 'image');
-        echo '<!-- Image Association --><div id="group-image" class="'
-            . 'tab-pane fade">';
-        printf(
-            '<h2>%s: %s</h2><form method="post" action="%s&tab=group-image">',
-            _('Image Association for'),
-            $this->obj->get('name'),
-            $this->formAction
-        );
-        unset($this->headerData);
-        $this->attributes = array(
-            array(),
-            array(),
-        );
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
-        $this->data[] = array(
-            'field' => $imageSelector,
-            'input' => sprintf(
-                '<input type="submit" value="%s"/>',
-                _('Update Images')
-            ),
-        );
-        self::$HookManager->processEvent(
-            'GROUP_IMAGE',
-            array(
-                'headerData' => &$this->headerData,
-                'data' => &$this->data,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
-            )
-        );
-        $this->render();
-        echo '</form></div>';
-        unset($this->data);
-        self::$HookManager->processEvent(
-            'GROUP_GENERAL_EXTRA',
-            array(
-                'headerData' => &$this->headerData,
-                'data' => &$this->data,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes,
-                'Group' => &$this->obj,
-                'formAction' => &$this->formAction,
-                'render' => &$this
-            )
-        );
-        unset($this->data);
+        echo '<div class="col-xs-offset-3 tab-content">';
+        $this->groupGeneral();
+        $this->groupImage();
         $this->basictasksOptions();
         $this->adFieldsToDisplay(
             $useAD,
@@ -1013,23 +1206,7 @@ class GroupManagementPage extends FOGPage
         $this->render();
         unset($this->data);
         echo '</fieldset></form></div>';
-        echo '<!-- Power Management Items --><div id="group-powermanagement" class="'
-            . 'tab-pane fade">'
-            . '<div class="col-xs-9 text-center">'
-            . '<button id="delAllPM" type="button" class='
-            . '"btn btn-danger btn-block">'
-            . _('Delete all PMs for group')
-            . '</button>'
-            . '<div id="delAllPMBox" class="hiddeninitially"></div>'
-            . '</div>';
-        $this->newPMDisplay();
-        unset(
-            $this->headerData,
-            $this->templates,
-            $this->data,
-            $this->attributes
-        );
-        echo '</div>';
+        $this->groupPMDisplay();
         unset(
             $imageID,
             $imageMatchID,

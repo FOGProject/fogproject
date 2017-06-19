@@ -83,7 +83,7 @@ function UpdateLoginGraphPlot(data) {
 }
 $(function() {
     $('#resetSecData').val('Reset Encryption Data');
-    $('#resetSecData').click(function() {
+    $('#resetSecData').on('click', function() {
         $('#resetSecDataBox').html('Are you sure you wish to reset this hosts encryption data?');
         $('#resetSecDataBox').dialog({
             resizable: false,
