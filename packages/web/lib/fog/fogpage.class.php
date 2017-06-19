@@ -474,6 +474,7 @@ abstract class FOGPage extends FOGBase
                 _('All'),
                 _("{$this->childClass}s")
             );
+            global $node;
             global $sub;
             $manager = sprintf(
                 '%sManager',
@@ -488,8 +489,7 @@ abstract class FOGPage extends FOGBase
             }
             Route::listem($this->childClass);
             $items = json_decode(Route::getData());
-            $type = $this->node
-                . 's';
+            $type = $node.'s';
             $items = $items->$type;
             if (count($items) > 0) {
                 array_walk($items, static::$returnData);
@@ -517,7 +517,16 @@ abstract class FOGPage extends FOGBase
                     'headerData' => &$this->headerData
                 )
             );
-            $this->render();
+            echo '<div class="col-xs-offset-3">';
+            echo '<div class="panel panel-info">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo $this->title;
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            $this->render(12);
+            echo '</div>';
             unset(
                 $this->headerData,
                 $this->data,
@@ -622,8 +631,10 @@ abstract class FOGPage extends FOGBase
                 && in_array($node, $this->PagesWithObjects))
             ) {
                 if ($node == 'host') {
+                    $actionbox .= '</div>';
+                    $actionbox .= '</div>';
                     $actionbox .= '<div class='
-                        . '"col-xs-offset-3 col-xs-9 action-boxes host '
+                        . '"action-boxes host '
                         . 'hiddeninitially">';
                     $actionbox .= '<div class="panel panel-info">';
                     $actionbox .= '<div class="panel-heading text-center">';
@@ -644,7 +655,7 @@ abstract class FOGPage extends FOGBase
                     $actionbox .= '"group_new">';
                     $actionbox .= _('Create new group');
                     $actionbox .= '</label>';
-                    $actionbox .= '<div class="col-xs-5">';
+                    $actionbox .= '<div class="col-xs-8">';
                     $actionbox .= '<div class="input-group">';
                     $actionbox .= '<input type="hidden" name="hostIDArray"/>';
                     $actionbox .= '<input type="text" name="group_new" id='
@@ -653,8 +664,8 @@ abstract class FOGPage extends FOGBase
                     $actionbox .= '</div>';
                     $actionbox .= '</div>';
                     $actionbox .= '<div class="form-group">';
-                    $actionbox .= '<div class="col-xs-9 text-center">';
-                    $actionbox .= '<label class="control-label col-xs-4">';
+                    $actionbox .= '<div class="text-center">';
+                    $actionbox .= '<label class="control-label">';
                     $actionbox .= _('or');
                     $actionbox .= '</label>';
                     $actionbox .= '</div>';
@@ -664,15 +675,19 @@ abstract class FOGPage extends FOGBase
                     $actionbox .= '"group">';
                     $actionbox .= _('Add to group');
                     $actionbox .= '</label>';
-                    $actionbox .= '<div class="col-xs-5">';
+                    $actionbox .= '<div class="col-xs-8">';
                     $actionbox .= self::getClass('GroupManager')->buildSelectBox();
                     $actionbox .= '</div>';
                     $actionbox .= '</div>';
                     $actionbox .= '<div class="form-group">';
-                    $actionbox .= '<div class="col-xs-offset-4 col-xs-5">';
+                    $actionbox .= '<label class="control-label col-xs-4" for=';
+                    $actionbox .= '"process">';
+                    $actionbox .= _('Make changes?');
+                    $actionbox .= '</label>';
+                    $actionbox .= '<div class="col-xs-8">';
                     $actionbox .= '<button type="submit" class='
-                        . '"btn btn-info btn-block">';
-                    $actionbox .= _('Process group changes');
+                        . '"btn btn-info btn-block" name="process" id="process">';
+                    $actionbox .= _('Update');
                     $actionbox .= '</button>';
                     $actionbox .= '</div>';
                     $actionbox .= '</div>';
@@ -682,9 +697,12 @@ abstract class FOGPage extends FOGBase
                     $actionbox .= '</div>';
                 }
                 if ($node != 'task') {
+                    if (!$actionbox) {
+                        $actionbox .= '</div>';
+                        $actionbox .= '</div>';
+                    }
                     $actionbox .= '<div class='
-                        . '"col-xs-offset-3 col-xs-9 action-boxes del '
-                        . 'hiddeninitially">';
+                        . '"action-boxes del hiddeninitially">';
                     $actionbox .= '<div class="panel panel-warning">';
                     $actionbox .= '<div class="panel-heading text-center">';
                     $actionbox .= '<h4 class="title">';
@@ -718,7 +736,7 @@ abstract class FOGPage extends FOGBase
                         )
                     );
                     $actionbox .= '</label>';
-                    $actionbox .= '<div class="col-xs-5">';
+                    $actionbox .= '<div class="col-xs-8">';
                     $actionbox .= '<input type="hidden" name="'
                         . strtolower($node)
                         . 'IDArray"/>';
@@ -783,7 +801,13 @@ abstract class FOGPage extends FOGBase
                     . $colsize
                     . '">';
             }
-            echo '<table class="table">';
+            echo '<table class="table'
+                . (
+                    count($this->data) < 1 ?
+                    ' noresults' :
+                    ''
+                )
+                . '">';
             if (count($this->data) < 1) {
                 echo '<thead><tr class="header"></tr></thead>';
                 echo '<tbody>';
@@ -3121,7 +3145,10 @@ abstract class FOGPage extends FOGBase
         if ($this->childClass == 'Task') {
             $eventClass = 'host';
         }
-        $this->title = _('Search');
+        $this->title = _('Search')
+            . ' '
+            . $this->node
+            . "s";
         self::$HookManager->processEvent(
             sprintf(
                 '%s_DATA',
@@ -3142,7 +3169,16 @@ abstract class FOGPage extends FOGBase
             ),
             array('headerData' => &$this->headerData)
         );
-        $this->render();
+        echo '<div class="col-xs-offset-3">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        $this->render(12);
+        echo '</div>';
     }
     /**
      * Search form submission
