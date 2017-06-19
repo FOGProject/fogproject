@@ -173,52 +173,81 @@ class GroupManagementPage extends FOGPage
     public function add()
     {
         $this->title = _('New Group');
-        $this->data = array();
-        unset($this->headerData);
-        $this->attributes = array(
-            array(),
-            array(),
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
         );
         $this->templates = array(
             '${field}',
-            '${formField}',
+            '${input}'
+        );
+        $this->attributes = array(
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group')
         );
         $fields = array(
-            _('Group Name') => sprintf(
-                '<input type="text" class="groupname-input" '
-                . 'name="name" value="%s"/>',
-                $_REQUEST['name']
-            ),
-            _('Group Description') => sprintf(
-                '<textarea name="description" rows="8" cols="40">%s</textarea>',
-                $_REQUEST['description']
-            ),
-            _('Group Kernel') => sprintf(
-                '<input type="text" name="kern" value="%s"/>',
-                $_REQUEST['kern']
-            ),
-            _('Group Kernel Arguments') => sprintf(
-                '<input type="text" name="args" name="%s"/>',
-                $_REQUEST['args']
-            ),
-            _('Group Primary Disk') => sprintf(
-                '<input type="text" name="dev" name="%s"/>',
-                $_REQUEST['dev']
-            ),
-            '&nbsp;' => sprintf(
-                '<input type="submit" value="%s"/>',
-                _('Add')
-            ),
+            '<label class="control-label" for="name">'
+            . _('Group Name')
+            . '</label>' => '<div class="input-group has-error">'
+            . '<input type="text" name="name" '
+            . 'value="'
+            . filter_input(INPUT_POST, 'name')
+            . '" class="groupname-input form-control" '
+            . 'id="name" required/>'
+            . '</div>',
+            '<label class="control-label" for="description">'
+            . _('Group Description')
+            . '</label>' => '<div class="input-group">'
+            . '<textarea class="form-control" '
+            . 'id="description" name="description">'
+            . filter_input(INPUT_POST, 'description')
+            . '</textarea>'
+            . '</div>',
+            '<label class="control-label" for="kern">'
+            . _('Group Kernel')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="kern" '
+            . 'value="'
+            . filter_input(INPUT_POST, 'kern')
+            . '" class="groupkern-input form-control" '
+            . 'id="kern"/>'
+            . '</div>',
+            '<label class="control-label" for="args">'
+            . _('Group Kernel Arguments')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="args" '
+            . 'value="'
+            . filter_input(INPUT_POST, 'args')
+            . '" class="groupargs-input form-control" '
+            . 'id="args"/>'
+            . '</div>',
+            '<label class="control-label" for="dev">'
+            . _('Group Primary Disk')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="dev" '
+            . 'value="'
+            . filter_input(INPUT_POST, 'dev')
+            . '" class="groupdev-input form-control" '
+            . 'id="dev"/>'
+            . '</div>',
+            '<label class="control-label" for="addgroup">'
+            . _('Make changes?')
+            . '</label>' => '<button class="'
+            . 'btn btn-info btn-block" type="submit" name='
+            . '"addgroup" id="addgroup">'
+            . _('Add')
+            . '</button>'
         );
-        printf('<form method="post" action="%s">', $this->formAction);
-        foreach ($fields as $field => &$formField) {
-            $this->data[] = array(
-                'field' => $field,
-                'formField' => $formField,
-            );
-            unset($formField, $field);
-        }
-        unset($fields);
+        self::$HookManager->processEvent(
+            'GROUP_ADD_FIELDS',
+            array(
+                'fields' => &$fields,
+            )
+        );
+        array_walk($fields, $this->fieldsToData);
         self::$HookManager->processEvent(
             'GROUP_ADD',
             array(
@@ -228,8 +257,22 @@ class GroupManagementPage extends FOGPage
                 'attributes' => &$this->attributes
             )
         );
-        $this->render();
+        echo '<div class="col-xs-offset-3">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="pst" action="'
+            . $this->formAction
+            . '">';
+        $this->render(12);
         echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * When submitted to add post this is what's run

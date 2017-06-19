@@ -128,7 +128,8 @@ table td {
 }
 .container {
     overflow-y: auto;
-    max-height: 620px;
+    overflow-x: hidden;
+    height: 768px;
 }
 input[type=radio].default {
     border: 0;
