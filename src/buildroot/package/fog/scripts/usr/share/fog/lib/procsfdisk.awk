@@ -575,6 +575,8 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
     old_sorted_in = PROCINFO["sorted_in"];
     # curr-start must be set to MIN_START initially.
     curr_start = int(MIN_START);
+    # Prior size should start as 0
+    prior_size = 0;
     # Iterate the ordered start positions.
     for (i in ordered_starts) {
         # pName will be the ordered start position.
@@ -587,12 +589,20 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         p_size = int(partitions[pName, "size"]);
         # Set p_start.
         p_start = int(partitions[pName, "start"]);
+        # Regex setter.
+        regex = "/^([:]+)?"p_number"([:]+)?$|([:]+)?"p_number"([:]+)?|([:]+)?"p_number"$/"
         # Skip empty sized partitions.
         if (p_size == 0) {
             continue;
         }
+        # If a fixed partition, go to next.
+        if (!match(fixedList, regex)) {
+            p_start = curr_start;
+        }
+        if (prior_size > 0 && p_start < (prior_size + prior_start)) {
+            p_start = prior_size + prior_start;
+        }
         # p_start is adjusted to whatever curr_start is.
-        p_start = curr_start;
         # Set the new start value.
         partitions[pName, "start"] = p_start;
         # If we are not GPT test for logical/extended partitions
@@ -619,6 +629,8 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
             p_size -= (p_size % int(SECTOR_SIZE));
             partitions[pName, "size"] = p_size;
         }
+        prior_size = p_size;
+        prior_start = p_start;
     }
     # Sorted in setter.
     PROCINFO["sorted_in"] = old_sorted_in;
