@@ -295,7 +295,13 @@ $.fn.fogAjaxSearch = function(opts) {
     if (!$('.table').hasClass('noresults')) {
         callme = 'show';
     }
-    Container[callme]().fogTableInfo().trigger('updateAll');
+    Container.each(function(e) {
+        if ($(this).hasClass('.noresults')) {
+            $(this).hide();
+        } else {
+            $(this).show().fogTableInfo().trigger('updateAll');
+        }
+    });
     ActionBox[callme]();
     ActionBoxDel[callme]();
     return this.each(function(evt) {
@@ -509,11 +515,17 @@ function TableCheck() {
     if ($('tbody > tr', Container).length < 1) {
         callme = 'hide';
     }
-    Container[callme]().fogTableInfo().trigger('updateAll').find('.tablesorter-filter').each(function(i){
-        if (typeof savedFilters === null || typeof savedFilters === 'undefined') return;
-        if (typeof savedFilters[i] === null || typeof savedFilters === 'undefined') return;
-        $(this).val(savedFilters[i]);
-    }).trigger('search');
+    Container.each(function(e) {
+        if ($(this).hasClass('.noresults')) {
+            $(this).hide();
+        } else {
+            $(this).show().fogTableInfo().trigger('updateAll').find('.tablesorter-filter').each(function(i){
+                if (typeof savedFilters === null || typeof savedFilters === 'undefined') return;
+                if (typeof savedFilters[i] === null || typeof savedFilters === 'undefined') return;
+                $(this).val(savedFilters[i]);
+            }).trigger('search');
+        }
+    });
     ActionBox[callme]();
     ActionBoxDel[callme]();
     thead[callme]();
