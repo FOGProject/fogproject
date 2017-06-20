@@ -1133,12 +1133,12 @@ class FOGConfigurationPage extends FOGPage
                 )
             );
         $this->render(12);
-        echo '<label class="control-label col-xs-4" for="delete">';
-        echo _('Delete selected items');
+        echo '<label class="control-label col-xs-4" for="deletecu">';
+        echo _('Delete Selected Items');
         echo '</label>';
         echo '<div class="col-xs-8">';
-        echo '<button class="btn btn-danger btn-block" type="submit" id="delete" '
-            . 'name="delete">';
+        echo '<button class="btn btn-danger btn-block" type="submit" id="deletecu" '
+            . 'name="deletecu">';
         echo _('Delete');
         echo '</button>';
         echo '</div>';
@@ -1173,7 +1173,7 @@ class FOGConfigurationPage extends FOGPage
     public function clientupdaterPost()
     {
         try {
-            if (isset($_POST['delcus'])) {
+            if (isset($_POST['deletecu'])) {
                 $delcus = filter_input_array(
                     INPUT_POST,
                     array(
@@ -1182,6 +1182,7 @@ class FOGConfigurationPage extends FOGPage
                         )
                     )
                 );
+                $delcus = $delcus['delcu'];
                 self::getClass('ClientUpdaterManager')
                     ->destroy(array('id' => $delcus));
                 throw new Exception(_('Item removed successfully'));
