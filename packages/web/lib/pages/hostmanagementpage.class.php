@@ -1873,8 +1873,14 @@ class HostManagementPage extends FOGPage
             echo '</div>';
             echo '</div>';
         }
-        $confirmMac = filter_input(INPUT_GET, 'confirmMAC');
-        $approveAll = filter_input(INPUT_GET, 'approveAll');
+        $confirmMac = filter_input(
+            INPUT_GET,
+            'confirmMAC'
+        );
+        $approveAll = filter_input(
+            INPUT_GET,
+            'approveAll'
+        );
         if ($confirmMac) {
             try {
                 $this->obj->addPendtoAdd($confirmMac);
@@ -1937,32 +1943,12 @@ class HostManagementPage extends FOGPage
         );
         $this->hostPrinters();
         $this->hostSnapins();
-        echo '<!-- Service Configuration -->';
-        $this->attributes = array(
-            array('width'=>270),
-            array('class'=>'c'),
-            array('class'=>'r'),
-        );
-        $this->templates = array(
-            '${mod_name}',
-            '${input}',
-            '${span}',
-        );
-        $this->data[] = array(
-            'mod_name' => _('Select/Deselect All'),
-            'input' => '<input type="checkbox" class="checkboxes" '
-            . 'id="checkAll" name="checkAll" value="checkAll"/>'
-            . '<label for="checkAll"></label>',
-            'span' => '&nbsp;'
-        );
-        printf(
-            '<div id="host-service" class="tab-pane fade"><h2>%s</h2>'
-            . '<form method="post" '
-            . 'action="%s&tab=host-service">'
-            . '<fieldset><legend>%s</legend>',
-            _('Service Configuration'),
-            $this->formAction,
-            _('General')
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
         );
         $dcnote = sprintf(
             '%s. %s. %s %s.',
@@ -1995,39 +1981,68 @@ class HostManagementPage extends FOGPage
             _('with modules and config'),
             _('on the old client')
         );
+        $this->attributes = array(
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-4'),
+        );
+        $this->templates = array(
+            '${mod_name}',
+            '${input}',
+            '${span}',
+        );
+        $this->data[] = array(
+            'mod_name' => '<label class="control-label" for="checkAll">'
+            . _('Select/Deselect All')
+            . '</label>',
+            'input' => '<div class="checkbox">'
+            . '<input type="checkbox" class="checkboxes" '
+            . 'id="checkAll" name="checkAll" value="checkAll"/>'
+            . '</div>',
+            'span' => ' '
+        );
         $moduleName = self::getGlobalModuleStatus();
         $ModuleOn = $this->obj->get('modules');
-        $Modules = self::getClass('ModuleManager')->find();
+        Route::listem('module');
+        $Modules = json_decode(
+            Route::getData()
+        );
+        $Modules = $Modules->modules;
         foreach ((array)$Modules as &$Module) {
-            if (!$Module->isValid()) {
-                return;
-            }
-            switch ($Module->get('shortName')) {
+            switch ($Module->shortName) {
             case 'dircleanup':
                 $note = sprintf(
                     '<i class="icon fa fa-exclamation-triangle '
-                    . 'fa-1x hand" title="%s"></i>',
+                    . 'fa-1x hand" '
+                    . 'data-toggle="tooltip" data-placement="right" '
+                    . 'title="%s"></i>',
                     $dcnote
                 );
                 break;
             case 'greenfog':
                 $note = sprintf(
                     '<i class="icon fa fa-exclamation-triangle '
-                    . 'fa-1x hand" title="%s"></i>',
+                    . 'fa-1x hand" '
+                    . 'data-toggle="tooltip" data-placement="right" '
+                    . 'title="%s"></i>',
                     $gfnote
                 );
                 break;
             case 'usercleanup':
                 $note = sprintf(
                     '<i class="icon fa fa-exclamation-triangle '
-                    . 'fa-1x hand" title="%s"></i>',
+                    . 'fa-1x hand" '
+                    . 'data-toggle="tooltip" data-placement="right" '
+                    . 'title="%s"></i>',
                     $ucnote
                 );
                 break;
             case 'clientupdater':
                 $note = sprintf(
                     '<i class="icon fa fa-exclamation-triangle '
-                    . 'fa-1x hand" title="%s"></i>',
+                    . 'fa-1x hand" '
+                    . 'data-toggle="tooltip" data-placement="right" '
+                    . 'title="%s"></i>',
                     $cunote
                 );
                 break;
@@ -2035,55 +2050,61 @@ class HostManagementPage extends FOGPage
                 $note = '';
                 break;
             }
+            if ($note) {
+                $note = '<div class="col-xs-2">'
+                    . $note
+                    . '</div>';
+            }
             $this->data[] = array(
                 'input' => sprintf(
-                    '<input id="%s" %stype="checkbox" name="modules[]" value="%s"'
-                    . ' %s%s/><label for="%s"></label>',
-                    $Module->get('shortName'),
+                    '<div class="checkbox">'
+                    . '<input id="%s"%stype="checkbox" name="modules[]" value="%s"'
+                    . '%s%s/>'
+                    . '</div>',
+                    $Module->shortName,
                     (
-                        ($moduleName[$Module->get('shortName')]
-                        || $moduleName[$Module->get('shortName')])
-                        && $Module->get('isDefault') ?
-                        'class="checkboxes" ':
+                        ($moduleName[$Module->shortName]
+                        || $moduleName[$Module->shortName])
+                        && $Module->isDefault ?
+                        ' class="checkboxes" ':
                         ''
                     ),
-                    $Module->get('id'),
+                    $Module->id,
                     (
-                        in_array($Module->get('id'), $ModuleOn) ?
+                        in_array($Module->id, $ModuleOn) ?
                         ' checked' :
                         ''
                     ),
                     (
-                        !$moduleName[$Module->get('shortName')] ?
+                        !$moduleName[$Module->shortName] ?
                         ' disabled' :
                         ''
                     ),
-                    $Module->get('shortName')
+                    $Module->shortName
                 ),
                 'span' => sprintf(
-                    '%s<span class="icon fa fa-question fa-1x hand" '
-                    . 'title="%s"></span>',
-                    $note,
+                    '<div class="col-xs-2">'
+                    . '<span class="icon fa fa-question fa-1x hand" '
+                    . 'data-toggle="tooltip" data-placement="left" '
+                    . 'title="%s"></span>'
+                    . '</div>'
+                    . '%s',
                     str_replace(
                         '"',
                         '\"',
-                        $Module->get('description')
-                    )
+                        $Module->description
+                    ),
+                    $note
                 ),
-                'mod_name' => $Module->get('name'),
+                'mod_name' => '<label class="control-label" for="'
+                . $Module->shortName
+                . '">'
+                . $Module->name
+                . '</label>',
             );
             unset($Module);
         }
         unset($moduleName, $ModuleOn);
-        $this->data[] = array(
-            'mod_name' => '',
-            'input' => '',
-            'span' => sprintf(
-                '<button type="submit" name="updatestatus" class="'
-                . 'btn btn-info">%s</button>',
-                _('Update')
-            ),
-        );
         self::$HookManager
             ->processEvent(
                 'HOST_EDIT_SERVICE',
@@ -2094,16 +2115,54 @@ class HostManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        $this->render();
-        unset($this->data);
-        printf(
-            '</fieldset><fieldset><legend>%s</legend>',
-            _('Host Screen Resolution')
+        echo '<!-- Service Configuration -->';
+        echo '<div class="tab-pane fade" id="host-service">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Host FOG Client Module configuration');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '&tab=host-service">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Host module settings');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        $this->render(12);
+        echo '<label class="control-label col-xs-4" for="updatestatus">';
+        echo _('Update module configurations');
+        echo '</label>';
+        echo '<div class="col-xs-8">';
+        echo '<button type="submit" name="updatestatus" id="updatestatus" '
+            . 'class="btn btn-info btn-block">';
+        echo _('Update');
+        echo '</button>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
         );
         $this->attributes = array(
-            array('class'=>'l','style'=>'padding-right: 25px'),
-            array('class'=>'c'),
-            array('class'=>'r'),
+            array(
+                'class' => 'col-xs-4'
+            ),
+            array(
+                'class' => 'col-xs-4'
+            ),
+            array(
+                'class' => 'col-xs-4'
+            )
         );
         $this->templates = array(
             '${field}',
@@ -2150,28 +2209,28 @@ class HostManagementPage extends FOGPage
         foreach ($names as $name => &$get) {
             $this->data[] = array(
                 'input' => sprintf(
-                    '<input type="text" name="%s" value="%s"/>',
+                    '<div class="input-group">'
+                    . '<input type="text" id="%s" name="%s" value="%s" '
+                    . 'class="form-control"/>'
+                    . '</div>',
+                    $name,
                     $name,
                     $this->obj->getDispVals($get[0])
                 ),
                 'span' => sprintf(
                     '<span class="icon fa fa-question fa-1x hand" '
+                    . 'data-toggle="tooltip" data-placement="right" '
                     . 'title="%s"></span>',
                     $get[1]
                 ),
-                'field' => $get[2],
+                'field' => '<label class="control-label" for="'
+                . $name
+                . '">'
+                . $get[2]
+                . '</label>',
             );
             unset($get);
         }
-        $this->data[] = array(
-            'field' => '',
-            'input' => '',
-            'span' => sprintf(
-                '<button type="submit" name="updatedisplay" class="'
-                . 'btn btn-info">%s</button>',
-                _('Update')
-            ),
-        );
         self::$HookManager
             ->processEvent(
                 'HOST_EDIT_DISPSERV',
@@ -2182,8 +2241,53 @@ class HostManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        $this->render();
-        unset($this->data);
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Host Screen Resolution');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        $this->render(12);
+        echo '<label class="control-label col-xs-4" for="updatedisplay">';
+        echo _('Update display resolution');
+        echo '</label>';
+        echo '<div class="col-xs-8">';
+        echo '<button type="submit" name="updatedisplay" id="updatedisplay" '
+            . 'class="btn btn-info btn-block">';
+        echo _('Update');
+        echo '</button>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Host Auto Logout');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
+        /*
         printf(
             '</fieldset><fieldset><legend>%s</legend>',
             _('Auto Log Out Settings')
@@ -2231,7 +2335,7 @@ class HostManagementPage extends FOGPage
             );
         $this->render();
         unset($this->data, $fields);
-        echo '</fieldset></form></div>';
+        echo '</fieldset></form></div>';*/
         $this->hostPMDisplay();
         unset(
             $this->headerData,
