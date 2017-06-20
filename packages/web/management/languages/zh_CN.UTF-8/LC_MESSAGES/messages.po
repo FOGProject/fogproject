@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-20 16:58-0400\n"
+"POT-Creation-Date: 2017-06-20 18:11-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1207,6 +1207,7 @@ msgstr "保存更改"
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1151
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:273
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:352
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:496
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:497
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:585
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:874
@@ -1262,6 +1263,8 @@ msgstr "删除所选"
 #: /var/www/fog/lib/fog/fogpage.class.php:2636
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1009
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1142
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:417
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:486
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:676
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2511
 #: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:54
@@ -2976,6 +2979,7 @@ msgid "Module Type"
 msgstr "模块类型"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1056
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:450
 #, fuzzy
 msgid "NOTICE"
 msgstr "不"
@@ -3050,6 +3054,7 @@ msgid "Delete Selected Items"
 msgstr "删除所有选中的项目"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1146
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:490
 #, fuzzy
 msgid "Make Changes"
 msgstr "保存更改"
@@ -3321,10 +3326,10 @@ msgstr "服务状态"
 
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:326
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:393
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:419
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:444
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:469
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:494
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:446
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:523
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:548
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:573
 #, fuzzy
 msgid "Current settings"
 msgstr "设置"
@@ -3333,11 +3338,51 @@ msgstr "设置"
 msgid "Default log out time (in minutes)"
 msgstr "默认注销时间（分钟）"
 
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:979
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:418
+#: /var/www/fog/commons/text.php:76
+msgid "Path"
+msgstr "路径"
+
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:452
+#, fuzzy
+msgid "This module is only used on the old client."
+msgstr "此设置定义使用SSH客户端的用户名。"
+
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:453
+msgid "The old client iswhat was distributed with"
+msgstr ""
+
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:455
+msgid "FOG 1.2.0 and earlier."
+msgstr ""
+
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:457
+msgid "This module did not work past Windows XP"
+msgstr ""
+
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:459
+msgid "due to UAC introduced in Vista and up."
+msgstr ""
+
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:464
+#, fuzzy
+msgid "Directories"
+msgstr "目录"
+
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:471
+msgid "Add Directory"
+msgstr "添加目录"
+
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:480
+#, fuzzy
+msgid "Delete directories"
+msgstr "删除所选"
+
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:1058
 msgid "Service update failed"
 msgstr "服务更新失败"
 
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:986
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:1065
 msgid "Service Updated!"
 msgstr "服务更新！"
 
@@ -8761,10 +8806,6 @@ msgstr "文本"
 msgid "Graphical"
 msgstr "图形"
 
-#: /var/www/fog/commons/text.php:76
-msgid "Path"
-msgstr "路径"
-
 #: /var/www/fog/commons/text.php:81
 msgid "Printer"
 msgstr "打印机"
@@ -9643,9 +9684,6 @@ msgstr "有此服务器上没有的位置。"
 
 #~ msgid "Update Defaults"
 #~ msgstr "默认更新"
-
-#~ msgid "Add Directory"
-#~ msgstr "添加目录"
 
 #~ msgid "Directory Path"
 #~ msgstr "目录路径"
