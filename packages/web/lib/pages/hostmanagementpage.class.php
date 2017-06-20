@@ -1826,123 +1826,13 @@ class HostManagementPage extends FOGPage
         );
     }
     /**
-     * Edits an existing item.
+     * Display's the host service stuff
      *
      * @return void
      */
-    public function edit()
+    public function hostService()
     {
-        $this->title = sprintf(
-            '%s: %s',
-            _('Edit'),
-            $this->obj->get('name')
-        );
-        $approve = filter_input(INPUT_GET, 'approveHost');
-        if ($approve) {
-            $this
-                ->obj
-                ->set(
-                    'pending',
-                    0
-                );
-            /*if ($this->obj->save()) {
-                self::setMessage(_('Host approved'));
-            } else {
-                self::setMessage(_('Host approval failed.'));
-            }*/
-            self::redirect(
-                '?node='
-                . $this->node
-                . '&sub=edit&id='
-                . $this->obj->get('id')
-            );
-        }
-        if ($this->obj->get('pending')) {
-            echo '<div class="panel panel-info">';
-            echo '<div class="panel-heading">';
-            echo '<h4 class="title">';
-            echo _('Approve Host');
-            echo '</h4>';
-            echo '</div>';
-            echo '<div class="panel-body">';
-            echo '<a href="'
-                . $this->formAction
-                . '&approveHost=1">'
-                . _('Approve this host?')
-                . '</a>';
-            echo '</div>';
-            echo '</div>';
-        }
-        $confirmMac = filter_input(
-            INPUT_GET,
-            'confirmMAC'
-        );
-        $approveAll = filter_input(
-            INPUT_GET,
-            'approveAll'
-        );
-        if ($confirmMac) {
-            try {
-                $this->obj->addPendtoAdd($confirmMac);
-                if ($this->obj->save()) {
-                    $msg = _('MAC')
-                        . ': '
-                        . $confirmMac
-                        . ' '
-                        . _('Approved')
-                        . '!';
-                    self::setMessage($msg);
-                    unset($msg);
-                }
-            } catch (Exception $e) {
-                self::setMessage($e->getMessage());
-            }
-            self::redirect(
-                '?node='
-                . $this->node
-                . '&sub=edit&id='
-                . $this->obj->get('id')
-            );
-        } elseif ($approveAll) {
-            self::getClass('MACAddressAssociationManager')
-                ->update(
-                    array(
-                        'hostID' => $this->obj->get('id')
-                    ),
-                    '',
-                    array(
-                        'pending' => 0
-                    )
-                );
-            $msg = sprintf(
-                '%s.',
-                _('All Pending MACs approved')
-            );
-            self::setMessage($msg);
-            self::redirect(
-                sprintf(
-                    '?node=%s&sub=edit&id=%s',
-                    $this->node,
-                    $_REQUEST['id']
-                )
-            );
-        }
-        echo '<div class="col-xs-offset-3 tab-content">';
-        $this->hostGeneral();
-        if (!$this->obj->get('pending')) {
-            $this->basictasksOptions();
-        }
-        $this->adFieldsToDisplay(
-            $this->obj->get('useAD'),
-            $this->obj->get('ADDomain'),
-            $this->obj->get('ADOU'),
-            $this->obj->get('ADUser'),
-            $this->obj->get('ADPass'),
-            $this->obj->get('ADPassLegacy'),
-            $this->obj->get('enforce')
-        );
-        $this->hostPrinters();
-        $this->hostSnapins();
+        // Client module stuff
         unset(
             $this->data,
             $this->form,
@@ -2218,9 +2108,11 @@ class HostManagementPage extends FOGPage
                     $this->obj->getDispVals($get[0])
                 ),
                 'span' => sprintf(
-                    '<span class="icon fa fa-question fa-1x hand" '
+                    '<div class="col-xs-2">'
+                    . '<span class="icon fa fa-question fa-1x hand" '
                     . 'data-toggle="tooltip" data-placement="right" '
-                    . 'title="%s"></span>',
+                    . 'title="%s"></span>'
+                    . '</div>',
                     $get[1]
                 ),
                 'field' => '<label class="control-label" for="'
@@ -2267,6 +2159,46 @@ class HostManagementPage extends FOGPage
             $this->templates,
             $this->attributes
         );
+        $this->attributes = array(
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-4')
+        );
+        $this->templates = array(
+            '${field}',
+            '${input}',
+            '${desc}',
+        );
+        $alodesc = self::getClass('Service')
+            ->set('name', 'FOG_CLIENT_AUTOLOGOFF_MIN')
+            ->load('name')
+            ->get('description');
+        $this->data[] = array(
+            'field' => '<label class="control-label" for="tme">'
+            . _('Auto Log Out Time (in minutes)')
+            . '</label>',
+            'input' => '<div class="input-group">'
+            . '<input type="text" name="tme" value="${value}" class='
+            . '"form-control" id="tme"/>'
+            . '</div>',
+            'desc' => '<div class="col-xs-2">'
+            . '<span class="icon fa fa-question fa-1x hand" '
+            . 'data-toggle="tooltip" data-placement="right" '
+            . 'title="${serv_desc}"></span>'
+            . '</div>',
+            'value' => $this->obj->getAlo(),
+            'serv_desc' => $alodesc,
+        );
+        self::$HookManager
+            ->processEvent(
+                'HOST_EDIT_ALO',
+                array(
+                    'headerData' => &$this->headerData,
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes
+                )
+            );
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
@@ -2274,6 +2206,16 @@ class HostManagementPage extends FOGPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="panel-body">';
+        $this->render(12);
+        echo '<label class="control-label col-xs-4" for="updatealo">';
+        echo _('Update auto-logout time');
+        echo '</label>';
+        echo '<div class="col-xs-8">';
+        echo '<button type="submit" name="updatealo" id="updatealo" '
+            . 'class="btn btn-info btn-block">';
+        echo _('Update');
+        echo '</button>';
+        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '</form>';
@@ -2287,60 +2229,132 @@ class HostManagementPage extends FOGPage
             $this->templates,
             $this->attributes
         );
-        /*
-        printf(
-            '</fieldset><fieldset><legend>%s</legend>',
-            _('Auto Log Out Settings')
+    }
+    /**
+     * Edits an existing item.
+     *
+     * @return void
+     */
+    public function edit()
+    {
+        $this->title = sprintf(
+            '%s: %s',
+            _('Edit'),
+            $this->obj->get('name')
         );
-        $this->attributes = array(
-            array('width'=>270),
-            array('class'=>'c'),
-            array('class'=>'r'),
+        $approve = filter_input(INPUT_GET, 'approveHost');
+        if ($approve) {
+            $this
+                ->obj
+                ->set(
+                    'pending',
+                    0
+                );
+            /*if ($this->obj->save()) {
+                self::setMessage(_('Host approved'));
+            } else {
+                self::setMessage(_('Host approval failed.'));
+            }*/
+            self::redirect(
+                '?node='
+                . $this->node
+                . '&sub=edit&id='
+                . $this->obj->get('id')
+            );
+        }
+        if ($this->obj->get('pending')) {
+            echo '<div class="panel panel-info">';
+            echo '<div class="panel-heading">';
+            echo '<h4 class="title">';
+            echo _('Approve Host');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            echo '<a href="'
+                . $this->formAction
+                . '&approveHost=1">'
+                . _('Approve this host?')
+                . '</a>';
+            echo '</div>';
+            echo '</div>';
+        }
+        $confirmMac = filter_input(
+            INPUT_GET,
+            'confirmMAC'
         );
-        $this->templates = array(
-            '${field}',
-            '${input}',
-            '${desc}',
+        $approveAll = filter_input(
+            INPUT_GET,
+            'approveAll'
         );
-        $alodesc = self::getClass('Service')
-            ->set('name', 'FOG_CLIENT_AUTOLOGOFF_MIN')
-            ->load('name')
-            ->get('description');
-        $this->data[] = array(
-            'field' => _('Auto Log Out Time (in minutes)'),
-            'input' => '<input type="text" name="tme" value="${value}"/>',
-            'desc' => '<span class="icon fa fa-question fa-1x hand" '
-            . 'title="${serv_desc}"></span>',
-            'value'=>$this->obj->getAlo(),
-            'serv_desc' => $alodesc,
-        );
-        $this->data[] = array(
-            'field' => '',
-            'input' => '',
-            'desc' => sprintf(
-                '<button type="submit" name="updatealo" class="'
-                . 'btn btn-info btn-block">%s</button>',
-                _('Update')
-            ),
-        );
-        self::$HookManager
-            ->processEvent(
-                'HOST_EDIT_ALO',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
+        if ($confirmMac) {
+            try {
+                $this->obj->addPendtoAdd($confirmMac);
+                if ($this->obj->save()) {
+                    $msg = _('MAC')
+                        . ': '
+                        . $confirmMac
+                        . ' '
+                        . _('Approved')
+                        . '!';
+                    self::setMessage($msg);
+                    unset($msg);
+                }
+            } catch (Exception $e) {
+                self::setMessage($e->getMessage());
+            }
+            self::redirect(
+                '?node='
+                . $this->node
+                . '&sub=edit&id='
+                . $this->obj->get('id')
+            );
+        } elseif ($approveAll) {
+            self::getClass('MACAddressAssociationManager')
+                ->update(
+                    array(
+                        'hostID' => $this->obj->get('id')
+                    ),
+                    '',
+                    array(
+                        'pending' => 0
+                    )
+                );
+            $msg = sprintf(
+                '%s.',
+                _('All Pending MACs approved')
+            );
+            self::setMessage($msg);
+            self::redirect(
+                sprintf(
+                    '?node=%s&sub=edit&id=%s',
+                    $this->node,
+                    $_REQUEST['id']
                 )
             );
-        $this->render();
-        unset($this->data, $fields);
-        echo '</fieldset></form></div>';*/
+        }
+        echo '<div class="col-xs-offset-3 tab-content">';
+        $this->hostGeneral();
+        if (!$this->obj->get('pending')) {
+            $this->basictasksOptions();
+        }
+        $this->adFieldsToDisplay(
+            $this->obj->get('useAD'),
+            $this->obj->get('ADDomain'),
+            $this->obj->get('ADOU'),
+            $this->obj->get('ADUser'),
+            $this->obj->get('ADPass'),
+            $this->obj->get('ADPassLegacy'),
+            $this->obj->get('enforce')
+        );
+        $this->hostPrinters();
+        $this->hostSnapins();
+        $this->hostService();
         $this->hostPMDisplay();
         unset(
+            $this->data,
+            $this->form,
             $this->headerData,
             $this->templates,
-            $this->data,
             $this->attributes
         );
         echo '<!-- Inventory -->';
