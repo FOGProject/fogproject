@@ -1098,9 +1098,37 @@ class Route extends FOGBase
                         $class->get('inventory')
                     ),
                     'imagename' => $class->getImageName(),
-                    'pingstatus' => $class->getPingCodeStr(),
                     'macs' => $class->getMyMacs(),
-                    'snapinjob' => $class->get('snapinjob')
+                    'modules' => array_map(
+                        'intval',
+                        $class->get('modules')
+                    ),
+                    'pingstatus' => $class->getPingCodeStr(),
+                    'snapinjob' => $class->get('snapinjob'),
+                    'snapins' => array_map(
+                        'intval',
+                        $class->get('snapins')
+                    ),
+                    'snapinsnotinme' => array_map(
+                        'intval',
+                        $class->get('snapinsnotinme')
+                    ),
+                    'printers' => array_map(
+                        'intval',
+                        $class->get('printers')
+                    ),
+                    'printersnotinme' => array_map(
+                        'intval',
+                        $class->get('printersnotinme')
+                    ),
+                    'groups' => array_map(
+                        'intval',
+                        $class->get('groups')
+                    ),
+                    'groupsnotinme' => array_map(
+                        'intval',
+                        $class->get('groupsnotinme')
+                    )
                 )
             );
             break;
@@ -1108,7 +1136,14 @@ class Route extends FOGBase
             $data = FOGCore::fastmerge(
                 $class->get(),
                 array(
-                    'hosts' => $class->get('hosts'),
+                    'hosts' => array_map(
+                        'intval',
+                        $class->get('hosts')
+                    ),
+                    'hostsnotinme' => array_map(
+                        'intval',
+                        $class->get('hostsnotinme')
+                    ),
                     'hostcount' => $class->getHostCount()
                 )
             );
@@ -1136,6 +1171,10 @@ class Route extends FOGBase
                         'intval',
                         (array)$class->get('hosts')
                     ),
+                    'hostsnotinme' => array_map(
+                        'intval',
+                        (array)$class->get('hostsnotinme')
+                    ),
                     'storagegroups' => array_map(
                         'intval',
                         (array)$class->get('storagegroups')
@@ -1151,6 +1190,10 @@ class Route extends FOGBase
                     'hosts' => array_map(
                         'intval',
                         (array)$class->get('hosts')
+                    ),
+                    'hostsnotinme' => array_map(
+                        'intval',
+                        (array)$class->get('hostsnotinme')
                     ),
                     'storagegroups' => array_map(
                         'intval',
@@ -1186,6 +1229,21 @@ class Route extends FOGBase
                         'storagegroup',
                         $class->get('storagegroup')
                     ),
+                )
+            );
+            break;
+        case 'module':
+            $data = FOGCore::fastmerge(
+                $class->get(),
+                array(
+                    'hosts' => array_map(
+                        'intval',
+                        (array)$class->get('hosts')
+                    ),
+                    'hostsnotinme' => array_map(
+                        'intval',
+                        $class->get('hostsnotinme')
+                    )
                 )
             );
             break;
