@@ -127,9 +127,7 @@ table td {
     min-width: 50px;
 }
 .container {
-    overflow-y: auto;
-    overflow-x: hidden;
-    height: 768px;
+    overflow-y: scroll;
 }
 input[type=radio].default {
     border: 0;
