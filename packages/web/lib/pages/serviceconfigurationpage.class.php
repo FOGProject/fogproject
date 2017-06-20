@@ -524,18 +524,6 @@ class ServiceConfigurationPage extends FOGPage
             $this->render(12);
             echo '</form>';*/
             /*switch ($Module->shortName) {
-            case 'clientupdater':
-                unset(
-                    $this->data,
-                    $this->headerData,
-                    $this->attributes,
-                    $this->templates
-                );
-                ob_start();
-                self::getClass('FOGConfigurationPage')
-                    ->clientupdater();
-                $extra = ob_get_clean();
-                break;
             case 'dircleanup':
                 $extra = sprintf(
                     '%s: %s',
