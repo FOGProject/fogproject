@@ -413,6 +413,33 @@ class ServiceConfigurationPage extends FOGPage
                     $this->templates,
                     $this->attributes
                 );
+                $this->headerData = array(
+                    _('Delete'),
+                    _('Path')
+                );
+                $this->attributes = array(
+                    array(
+                        'width' => 16,
+                        'class' => 'filter-false'
+                    ),
+                    array()
+                );
+                $this->templates = array(
+                    '<input type="checkbox" name="delid" value="${dir_id}"/>',
+                    '${dir_path}'
+                );
+                Route::listem('dircleaner');
+                $dircleanups = json_decode(
+                    Route::getData()
+                );
+                $dircleanups = $dircleanups->dircleaners;
+                foreach ((array)$dircleanups as &$DirCleanup) {
+                    $this->data[] = array(
+                        'dir_id' => $DirCleanup->id,
+                        'dir_path' => $DirCleanup->path
+                    );
+                    unset($DirCleanup);
+                }
                 echo '<div class="panel panel-info">';
                 echo '<div class="panel-heading text-center">';
                 echo '<h4 class="title">';
@@ -420,6 +447,58 @@ class ServiceConfigurationPage extends FOGPage
                 echo '</h4>';
                 echo '</div>';
                 echo '<div class="panel-body">';
+                echo _('NOTICE');
+                echo ': ';
+                echo _('This module is only used on the old client.');
+                echo _('The old client iswhat was distributed with');
+                echo ' ';
+                echo _('FOG 1.2.0 and earlier.');
+                echo ' ';
+                echo _('This module did not work past Windows XP');
+                echo ' ';
+                echo _('due to UAC introduced in Vista and up.');
+                echo '<hr/>';
+                echo '<div class="panel panel-info">';
+                echo '<div class="panel-heading text-center">';
+                echo '<h4 class="title">';
+                echo _('Directories');
+                echo '</h4>';
+                echo '</div>';
+                echo '<div class="panel-body">';
+                $this->render(12);
+                echo '<div class="form-group">';
+                echo '<label class="control-label col-xs-4" for="adddir">';
+                echo _('Add Directory');
+                echo '</label>';
+                echo '<div class="col-xs-8">';
+                echo '<div class="input-group">';
+                echo '<input class="form-control" id="adddir" name="adddir" '
+                    . 'type="text"/>';
+                echo '</div>';
+                echo '</div>';
+                echo '<label class="control-label col-xs-4" for="deletedc">';
+                echo _('Delete directories');
+                echo '</label>';
+                echo '<div class="col-xs-8">';
+                echo '<button class="btn btn-danger btn-block" name='
+                    . '"deletedc" type="submit" name="deletedc" id="'
+                    . 'deletedc">';
+                echo _('Delete');
+                echo '</button>';
+                echo '</div>';
+                echo '<label class="control-label col-xs-4" for="updatedc">';
+                echo _('Make Changes');
+                echo '</label>';
+                echo '<div class="col-xs-8">';
+                echo '<button class="btn btn-info btn-block" name='
+                    . '"updatedc" type="submit" name="updatedc" id="'
+                    . 'updatedc">';
+                echo _('Update');
+                echo '</button>';
+                echo '</div>';
+                echo '</div>';
+                echo '</div>';
+                echo '</div>';
                 echo '</div>';
                 echo '</div>';
                 unset(
