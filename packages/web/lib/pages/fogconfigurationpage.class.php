@@ -998,68 +998,48 @@ class FOGConfigurationPage extends FOGPage
     /**
      * Client updater element from config page.
      *
+     * @param bool $formNeeded Is the element needing form?
+     *
      * @return void
      */
-    public function clientupdater()
+    public function clientupdater($formNeeded = true)
     {
-        $this->title = _("FOG Client Service Updater");
+        $this->title = _('FOG Client Service Updater');
         $this->headerData = array(
+            _('Delete'),
             _('Module Name'),
             _('Module MD5'),
             _('Module Type'),
-            _('Delete'),
         );
         $this->templates = array(
+            '<input type="checkbox" name="delcu[]" class='
+            . '"delid" id="delcuid${client_id}" value='
+            . '"${client_id}"/>',
             '<input type="hidden" name="name" value='
-            . '"FOG_CLIENT_CLIENTUPDATER_ENABLED" />${name}',
+            . '"FOG_CLIENT_CLIENTUPDATER_ENABLED"/>${name}',
             '${module}',
-            '${type}',
-            sprintf(
-                '<input type="checkbox" name="delcu" class='
-                . '"delid" id="delcuid${client_id}" value='
-                . '"${client_id}" /><label for='
-                . '"delcuid${client_id}" class='
-                . '"icon fa fa-minus-circle icon-hand" title='
-                . '"%s">&nbsp;</label>',
-                _('Delete')
-            )
+            '${type}'
         );
         $this->attributes = array(
             array(),
             array(),
             array(),
-            array('class'=>'filter-false'),
+            array(
+                'class' => 'filter-false'
+            )
         );
-        printf(
-            '<br/><br/>%s: %s<br/><br/>',
-            _('NOTICE'),
-            _('The below items are only used for the old client. ')
-            . _('The new client only uses the above settings as a means to ')
-            . _('determine whether the client should ')
-            . _('automatically update or not. ')
-            . _('Old clients are the clients that came with FOG ')
-            . _('Version 1.2.0 and earlier.')
+        Route::listem('clientupdater');
+        $ClientUpdates = json_decode(
+            Route::getData()
         );
-        echo '<hr/>';
-        printf(
-            '<div class="hostgroup">%s</div>',
-            _('This section allows you to update the modules and ')
-            . _('config files that run on the client computers. ')
-            . _('The clients will checkin with the server from time ')
-            . _('to time to see if a new module is published. ')
-            . _('If a new module is published the client will ')
-            . _('download the module and use it on the next ')
-            . _('time the service is started.')
-        );
-        foreach ((array)self::getClass('ClientUpdaterManager')
-           ->find() as &$ClientUpdate
-        ) {
+        $ClientUpdates = $ClientUpdates->clientupdaters;
+        foreach ((array)$ClientUpdates as &$ClientUpdate) {
             $this->data[] = array(
-                'name' => $ClientUpdate->get('name'),
-                'module' => $ClientUpdate->get('md5'),
-                'type' => $ClientUpdate->get('type'),
-                'client_id' => $ClientUpdate->get('id'),
-                'id' => $ClientUpdate->get('id'),
+                'name' => $ClientUpdate->name,
+                'module' => $ClientUpdate->md5,
+                'type' => $ClientUpdate->type,
+                'client_id' => $ClientUpdate->id,
+                'id' => $ClientUpdate->id,
             );
             unset($ClientUpdate);
         }
@@ -1069,52 +1049,80 @@ class FOGConfigurationPage extends FOGPage
                 array(
                     'data' => &$this->data,
                     'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
+                    'attributes' => &$this->attributes,
+                    'headerData' => &$this->headerData
                 )
             );
-        printf(
-            '<form method="post" action="%s&tab=clientupdater">',
-            $this->formAction
-        );
-        $this->render();
-        echo '</form>';
+        echo _('NOTICE');
+        echo ': ';
+        echo _('The below items are only used for the old client.');
+        echo ' ';
+        echo _('Old clients are the clients that came with FOG');
+        echo ' ';
+        echo _('Version 1.2.0 and earlier');
+        echo '<hr/>';
+        if ($formNeeded) {
+            echo '<div class="col-xs-offset-3">';
+            echo '<form class="form-horizontal" method="post" action="'
+                . $this->formAction
+                . '&tab=clientupdater" enctype="multipart/form-data">';
+        }
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Current files');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo _('This section allows you to update the modules and');
+        echo ' ';
+        echo _('config files that run on the client computers.');
+        echo ' ';
+        echo _('The clients will checkin with the server from time');
+        echo ' ';
+        echo _('to time to see if a new module is published.');
+        echo ' ';
+        echo _('If a new module is published the client will');
+        echo ' ';
+        echo _('download the module and use it on the next');
+        echo ' ';
+        echo _('time the service is started.');
+        echo '<hr/>';
+        $this->render(12);
         unset(
+            $this->data,
+            $this->form,
             $this->headerData,
-            $this->attributes,
             $this->templates,
-            $this->data
-        );
-        printf(
-            '<p class="header">%s</p>',
-            _('Upload a new client module/configuration file')
-        );
-        $this->attributes = array(
-            array(),
-            array('class'=>'filter-false'),
+            $this->attributes
         );
         $this->templates = array(
             '${field}',
-            '${input}',
+            '${input}'
+        );
+        $this->attributes = array(
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8')
         );
         $fields = array(
-            sprintf(
-                '<input type="file" name="module[]" value='
-                . '"" multiple/> <span class="lightColor">%s%s</span>',
-                _('Max Size:'),
-                ini_get('post_max_size')
-            ) => sprintf(
-                '<input type="submit" value="%s"/>',
-                _('Upload File')
-            )
+            '<label for="file">'
+            . _('Upload file')
+            . ' '
+            . _('Max Size')
+            . ': '
+            . ini_get('post_max_size')
+            . '</label>' => '<div class="input-group">'
+            . '<label class="input-group-btn">'
+            . '<span class="btn btn-info">'
+            . _('Browse')
+            . '<input type="file" class="hidden" multiple name='
+            . '"module[]" id="file"/>'
+            . '</span>'
+            . '</label>'
+            . '<input type="text" class="form-control filedisp" readonly/>'
+            . '</div>'
         );
-        foreach ((array)$fields as $field => &$input) {
-            $this->data[] = array(
-                'field' => $field,
-                'input' => $input,
-            );
-            unset($input);
-        }
-        unset($fields);
+        array_walk($fields, $this->fieldsToData);
         self::$HookManager
             ->processEvent(
                 'CLIENT_UPDATE',
@@ -1124,14 +1132,38 @@ class FOGConfigurationPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        printf(
-            '<form method="post" action="%s&tab=clientupdater" enctype='
-            . '"multipart/form-data"><input type="hidden" name='
-            . '"name" value="FOG_CLIENT_CLIENTUPDATER_ENABLED"/>',
-            $this->formAction
+        $this->render(12);
+        echo '<label class="control-label col-xs-4" for="delete">';
+        echo _('Delete selected items');
+        echo '</label>';
+        echo '<div class="col-xs-8">';
+        echo '<button class="btn btn-danger btn-block" type="submit" id="delete" '
+            . 'name="delete">';
+        echo _('Delete');
+        echo '</button>';
+        echo '</div>';
+        echo '<label class="control-label col-xs-4" for="upload">';
+        echo _('Make Changes');
+        echo '</label>';
+        echo '<div class="col-xs-8">';
+        echo '<button class="btn btn-info btn-block" type="submit" id="upload" '
+            . 'name="upload">';
+        echo _('Update');
+        echo '</button>';
+        echo '</div>';
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
         );
-        $this->render();
-        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        if ($formNeeded) {
+            echo '</form>';
+            echo '</div>';
+        }
     }
     /**
      * Submits the changes as needed.
@@ -1141,18 +1173,23 @@ class FOGConfigurationPage extends FOGPage
     public function clientupdaterPost()
     {
         try {
-            if (isset($_REQUEST['delcu'])) {
-                self::getClasee('ClientUpdaterManager')
-                    ->destroy(array('id' => $_REQUEST['delcu']));
+            if (isset($_POST['delcus'])) {
+                $delcus = filter_input_array(
+                    INPUT_POST,
+                    array(
+                        'delcu' => array(
+                            'flags' => FILTER_REQUIRE_ARRAY
+                        )
+                    )
+                );
+                self::getClass('ClientUpdaterManager')
+                    ->destroy(array('id' => $delcus));
                 throw new Exception(_('Item removed successfully'));
             }
             if (count($_FILES['module']['tmp_name']) < 1) {
                 throw new Exception(_('No file uploaded'));
             }
             $error = $_FILES['module']['error'];
-            if ($error > 0) {
-                throw new UploadException($error);
-            }
             foreach ((array)$error as &$err) {
                 if ($err > 0) {
                     throw new UploadException($err);
