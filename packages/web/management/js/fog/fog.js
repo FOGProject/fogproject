@@ -118,6 +118,17 @@ function HookTooltip() {
             $('.navbar-fixed-top').height() + 10
         );
     });
+    $(document).on('change', ':file', function() {
+        var input = $(this),
+            numFiles = input.get(0).files ? input.get(0).files.length : 1,
+            label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+        input.trigger('fileselect', [numFiles, label]);
+        if (numFiles == 1) {
+            $('.filedisp').val(label);
+        } else {
+            $('.filedisp').val(numFiles + ' files selected');
+        }
+    });
     $('.advanced-tasks-link').on('click', function(e) {
         e.preventDefault();
         $('.advanced-tasks').toggle();
