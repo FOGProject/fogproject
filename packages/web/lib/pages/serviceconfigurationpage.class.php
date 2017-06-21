@@ -425,7 +425,7 @@ class ServiceConfigurationPage extends FOGPage
                     array()
                 );
                 $this->templates = array(
-                    '<input type="checkbox" name="delid" value="${dir_id}"/>',
+                    '<input type="checkbox" name="delid[]" value="${dir_id}"/>',
                     '${dir_path}'
                 );
                 Route::listem('dircleaner');
@@ -481,8 +481,7 @@ class ServiceConfigurationPage extends FOGPage
                 echo '</label>';
                 echo '<div class="col-xs-8">';
                 echo '<button class="btn btn-danger btn-block" name='
-                    . '"deletedc" type="submit" name="deletedc" id="'
-                    . 'deletedc">';
+                    . '"deletedc" type="submit" id="deletedc">';
                 echo _('Delete');
                 echo '</button>';
                 echo '</div>';
@@ -491,9 +490,8 @@ class ServiceConfigurationPage extends FOGPage
                 echo '</label>';
                 echo '<div class="col-xs-8">';
                 echo '<button class="btn btn-info btn-block" name='
-                    . '"updatedc" type="submit" name="updatedc" id="'
-                    . 'updatedc">';
-                echo _('Update');
+                    . '"adddc" type="submit" id="updatedc">';
+                echo _('Add');
                 echo '</button>';
                 echo '</div>';
                 echo '</div>';
@@ -517,6 +515,63 @@ class ServiceConfigurationPage extends FOGPage
                     $this->templates,
                     $this->attributes
                 );
+                $this->attributes = array(
+                    array('class' => 'col-xs-4'),
+                    array('class' => 'col-xs-8')
+                );
+                $this->templates = array(
+                    '${field}',
+                    '${input}'
+                );
+                $disps = array(
+                    'FOG_CLIENT_DISPLAYMANAGER_R',
+                    'FOG_CLIENT_DISPLAYMANAGER_X',
+                    'FOG_CLIENT_DISPLAYMANAGER_Y'
+                );
+                list(
+                    $r,
+                    $x,
+                    $y
+                ) = self::getSubObjectIDs(
+                    'Service',
+                    array('name' => $disps),
+                    'value'
+                );
+                unset($disps);
+                $fields = array(
+                    '<label class="control-label" for="width">'
+                    . _('Default Width')
+                    . '</label>' => '<div class="input-group">'
+                    . '<input type="text" class="form-control" name="width" '
+                    . 'value="'
+                    . $x
+                    . '" id="width"/>'
+                    . '</div>',
+                    '<label class="control-label" for="height">'
+                    . _('Default Height')
+                    . '</label>' => '<div class="input-group">'
+                    . '<input type="text" class="form-control" name="height" '
+                    . 'value="'
+                    . $y
+                    . '" id="height"/>'
+                    . '</div>',
+                    '<label class="control-label" for="refresh">'
+                    . _('Default Refresh Rate')
+                    . '</label>' => '<div class="input-group">'
+                    . '<input type="text" class="form-control" name="refresh" '
+                    . 'value="'
+                    . $r
+                    . '" id="refresh"/>'
+                    . '</div>',
+                    '<label class="control-label" for="updatescreen">'
+                    . _('Make Changes?')
+                    . '</label>' => '<button type="submit" class='
+                    . '"btn btn-info btn-block" name='
+                    . '"updatescreen" id="updatescreen">'
+                    . _('Update')
+                    . '</button>'
+                );
+                array_walk($fields, $this->fieldsToData);
                 echo '<div class="panel panel-info">';
                 echo '<div class="panel-heading text-center">';
                 echo '<h4 class="title">';
@@ -524,6 +579,7 @@ class ServiceConfigurationPage extends FOGPage
                 echo '</h4>';
                 echo '</div>';
                 echo '<div class="panel-body">';
+                $this->render(12);
                 echo '</div>';
                 echo '</div>';
                 unset(
@@ -590,164 +646,6 @@ class ServiceConfigurationPage extends FOGPage
             echo '</div>';
             echo '</div>';
             /*printf(
-                '<!-- %s --><div id="%s" class="tab-pane fade"><h2>%s</h2>'
-                . '<form method="post" action="?node=service&sub=edit&tab=%s">'
-                . '<p>%s</p><h2>%s</h2>',
-                $Module->name,
-                $Module->shortName,
-                $Module->name,
-                $Module->shortName,
-                $Module->description,
-                _('Service Status')
-            );
-            $this->render(12);
-            echo '</form>';*/
-            /*switch ($Module->shortName) {
-            case 'dircleanup':
-                $extra = sprintf(
-                    '%s: %s',
-                    _('NOTICE'),
-                    sprintf(
-                        '%s. %s %s. %s %s.',
-                        _('This module is only used on the old client'),
-                        _('The old client is what was distributed with'),
-                        _('FOG 1.2.0 and earlier'),
-                        _('This module did not work past Windows XP'),
-                        _('due to UAC introduced in Vista and up')
-                    )
-                );
-                $extra .= '<hr/>';
-                unset(
-                    $this->data,
-                    $this->headerData,
-                    $this->attributes,
-                    $this->templates
-                );
-                $this->headerData = array(
-                    _('Path'),
-                    _('Remove'),
-                );
-                $this->attributes = array(
-                    array(
-                        'class' => 'l'
-                    ),
-                    array(
-                        'class' => 'filter-false'
-                    ),
-                );
-                $this->templates = array(
-                    '${dir_path}',
-                    sprintf(
-                        '<input type"checkbox" id="rmdir${dir_id}" class='
-                        . '"delid" name="delid" onclick='
-                        . '"this.form.submit()" value='
-                        . '"${dir_id}"/><label for='
-                        . '"rmdir${dir_id}" class="icon fa fa-minus-'
-                        . 'circle hand" title="%s">&nbsp;</label>',
-                        _('Delete')
-                    )
-                );
-                $extra .= sprintf(
-                    '<h2>%s</h2>'
-                    . '<form method="post" action="%s&sub=edit&tab=%s">'
-                    . '<p>%s: <input type="text" name="adddir"/></p>'
-                    . '<p><input type="hidden" name="name" value="%s"/>'
-                    . '<input type="submit" value="%s"/></p><h2>%s</h2>',
-                    _('Add Directory'),
-                    $this->formAction,
-                    $Module->shortName,
-                    _('Directory Path'),
-                    $modNames[$Module->shortName],
-                    _('Add Directory'),
-                    _('Directories Cleaned')
-                );
-                Route::listem('dircleaner');
-                $DirCleaners = json_decode(
-                    Route::getData()
-                );
-                $DirCleaners = $DirCleaners->dircleaners;
-                foreach ((array)$DirCleaners as &$DirCleaner
-                ) {
-                    $this->data[] = array(
-                        'dir_path'=>$DirCleaner->path,
-                        'dir_id'=>$DirCleaner->id,
-                    );
-                    unset($DirCleaner);
-                }
-                unset($DirCleaners);
-                ob_start();
-                $this->render(12);
-                echo '</form>';
-                $extra = ob_get_clean();
-                break;
-            case 'displaymanager':
-                unset(
-                    $this->data,
-                    $this->headerData,
-                    $this->attributes,
-                    $this->templates
-                );
-                $this->attributes = array(
-                    array(),
-                    array(),
-                );
-                $this->templates = array(
-                    '${field}',
-                    '${input}',
-                );
-                $disps = array(
-                    'FOG_CLIENT_DISPLAYMANAGER_R',
-                    'FOG_CLIENT_DISPLAYMANAGER_X',
-                    'FOG_CLIENT_DISPLAYMANAGER_Y'
-                );
-                list(
-                    $r,
-                    $x,
-                    $y
-                ) = self::getSubObjectIDs(
-                    'Service',
-                    array('name' => $disps),
-                    'value',
-                    false,
-                    'AND',
-                    'name',
-                    false,
-                    ''
-                );
-                unset($disps);
-                $fields = array(
-                    _('Default Width') => sprintf(
-                        '<input type="text" name="width" value="%s"/>',
-                        $x
-                    ),
-                    _('Default Height') => sprintf(
-                        '<input type="text" name="height" value="%s"/>',
-                        $y
-                    ),
-                    _('Default Refresh Rate') => sprintf(
-                        '<input type="text" name="refresh" value="%s"/>',
-                        $r
-                    ),
-                    sprintf(
-                        '<input type="hidden" name="name" value="%s"/>',
-                        $modNames[$Module->shortName]
-                    ) => sprintf(
-                        '<input name="updatedefaults" type="submit" value="%s"/>',
-                        _('Update Defaults')
-                    ),
-                );
-                $extra = sprintf(
-                    '<h2>%s</h2><form method="post" action="%s&sub=edit&tab=%s">',
-                    _('Default Setting'),
-                    $this->formAction,
-                    $Module->shortName
-                );
-                array_walk($fields, $this->fieldsToData);
-                ob_start();
-                $this->render();
-                echo '</form>';
-                $extra .= ob_get_clean();
-                break;
             case 'greenfog':
                 $extra = sprintf(
                     '%s: %s',
@@ -965,21 +863,22 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function editPost()
     {
+        global $tab;
         $Service = self::getClass('Service')
-            ->set('name', $_REQUEST['name'])
+            ->set('name', filter_input(INPUT_POST, 'name'))
             ->load('name');
         $Module = self::getClass('Module')
-            ->set('shortName', $_REQUEST['tab'])
+            ->set('shortName', $tab)
             ->load('shortName');
         self::$HookManager
             ->processEvent(
                 'SERVICE_EDIT_POST',
                 array('Service' => &$Service)
             );
-        $onoff = isset($_REQUEST['en']);
-        $defen = isset($_REQUEST['defen']);
+        $onoff = isset($_POST['en']);
+        $defen = isset($_POST['defen']);
         try {
-            if (isset($_REQUEST['updatestatus'])) {
+            if (isset($_POST['updatestatus'])) {
                 if ($Service) {
                     $Service->set('value', $onoff)->save();
                 }
@@ -987,35 +886,45 @@ class ServiceConfigurationPage extends FOGPage
                     $Module->set('isDefault', $defen)->save();
                 }
             }
-            switch ($_REQUEST['tab']) {
+            switch ($tab) {
             case 'autologout':
-                if (isset($_REQUEST['updatedefaults'])
-                    && is_numeric($_REQUEST['tme'])
+                $tme = (int)filter_input(INPUT_POST, 'tme');
+                if (isset($_POST['updatedefaults'])
+                    && is_numeric($tme)
                 ) {
-                    $Service->set('value', $_REQUEST['tme']);
+                    $Service->set('value', $tme);
                 }
                 break;
             case 'snapinclient':
                 self::$HookManager->processEvent('SNAPIN_CLIENT_SERVICE_POST');
                 break;
             case 'dircleanup':
-                if (trim($_REQUEST['adddir'])) {
-                    $Service->addDir($_REQUEST['adddir']);
+                if (isset($_POST['adddc'])) {
+                    $adddir = filter_input(INPUT_POST, 'adddir');
+                    $Service->addDir($adddir);
                 }
-                if (isset($_REQUEST['delid'])) {
-                    $Service->remDir($_REQUEST['delid']);
+                if (isset($_POST['deletedc'])) {
+                    $dcids = filter_input_array(
+                        INPUT_POST,
+                        array(
+                            'delid' => array(
+                                'flags' => FILTER_REQUIRE_ARRAY
+                            )
+                        )
+                    );
+                    $dcids = $dcids['delid'];
+                    $Service->remDir($dcids);
                 }
                 break;
             case 'displaymanager':
-                if (isset($_REQUEST['updatedefaults'])
-                    && (is_numeric($_REQUEST['height'])
-                    && is_numeric($_REQUEST['width'])
-                    && is_numeric($_REQUEST['refresh']))
-                ) {
+                if (isset($_POST['updatescreen'])) {
+                    $r = (int)filter_input(INPUT_POST, 'refresh');
+                    $x = (int)filter_input(INPUT_POST, 'width');
+                    $y = (int)filter_input(INPUT_POST, 'height');
                     $Service->setDisplay(
-                        $_REQUEST['width'],
-                        $_REQUEST['height'],
-                        $_REQUEST['refresh']
+                        $x,
+                        $y,
+                        $r
                     );
                 }
                 break;
