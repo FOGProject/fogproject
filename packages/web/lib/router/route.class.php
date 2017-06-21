@@ -180,9 +180,8 @@ class Route extends FOGBase
          */
         if (!self::$_enabled) {
             header(
-                'Location: ',
                 sprintf(
-                    '%s://%s/fog/management/index.php',
+                    'Location: %s://%s/fog/management/index.php',
                     self::$httpproto,
                     self::$httphost
                 )
