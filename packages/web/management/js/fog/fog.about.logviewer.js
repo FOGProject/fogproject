@@ -1,40 +1,68 @@
 var LogToView;
 var LinesToView;
 var LogTimer;
+var logdata;
 $(function() {
     LogToView = $('#logToView').val();
     LinesToView = $('#linesToView').val();
-    $('#logpause').val('Pause');
     LogGetData();
     $("input[name='reverse']:checkbox").change(LogGetData);
-    $('#logpause').click(function(e) {
-        if ($(this).hasClass('active')) {
-            $(this).removeClass('active').val('Pause');
-            LogGetData;
+    $('#logpause').on('click', function(e) {
+        if ($(this).hasClass('activenow')) {
+            $(this).removeClass('activenow').text('Pause');
+            LogGetData();
         } else {
-            $(this).addClass('active').val('Continue');
+            $(this).addClass('activenow').text('Continue');
             clearTimeout(LogTimer);
         }
         e.preventDefault();
     });
-    $('#logToView, #linesToView').change(function(e) {
+    $('#logToView, #linesToView').on('change', function(e) {
         LogToView = $('#logToView').val();
         LinesToView = $('#linesToView').val();
-        $('#logpause').val('Pause');
-        if ($('#logpause').hasClass('active')) $('#logpause').removeClass('active');
+        if ($('#logpause').hasClass('activenow')) {
+            $('#logpause').removeClass('activenow').text('Pause');
+        }
         LogGetData();
         e.preventDefault();
     });
 })
 function LogGetData() {
-    if (!$('#logpause').hasClass('active')) {
-        splitUs = LogToView.split('||');
-        ip = splitUs[0];
-        file = splitUs[1];
-        reverse = $("input[name='reverse']").is(':checked') ? 1 : 0;
-        $.post('../status/logtoview.php',{ip: ip,file: file,lines: LinesToView,reverse: reverse},displayLog,'json').done(function() {LogTimer = setTimeout(LogGetData,10000)});
+    if ($('#logpause').hasClass('activenow')) {
+        return;
     }
+    splitUs = LogToView.split('||');
+    ip = splitUs[0];
+    file = splitUs[1];
+    reverse = $('[name=reverse]').is(':checked') ? 1 : 0;
+    $.post(
+        '../status/logtoview.php',
+        {
+            ip: ip,
+            file: file,
+            lines: LinesToView,
+            reverse: reverse
+        },
+        displayLog,
+        'json'
+    ).done(function() {
+        $('#logsGoHere').html(
+            '<div class="panel panel-info">'
+            + '<div class="panel-heading text-center">'
+            + '<h4 class="title">'
+            + file
+            + '</h4>'
+            + '</div>'
+            + '<div class="panel-body">'
+            + logdata
+            + '</div>'
+            + '</div>'
+        );
+        LogTimer = setTimeout(LogGetData,10000)
+    });
 }
 function displayLog(data) {
-    $('#logsGoHere').html('<pre>'+data+'</pre>');
+    logdata = '<pre>'
+        + data
+        + '</pre>';
 }

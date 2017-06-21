@@ -1456,18 +1456,17 @@ class FOGConfigurationPage extends FOGPage
             . _('Expand All')
             . '</h4></a></div>';
         $catset = false;
-        foreach ((array)self::getClass('ServiceManager')
-            ->find(
-                '',
-                'AND',
-                'category'
-            ) as &$Service
-        ) {
-            $curcat = $Service->get('category');
+        Route::listem('service');
+        $Services = json_decode(
+            Route::getData()
+        );
+        $Services = $Services->services;
+        foreach ((array)$Services as &$Service) {
+            $curcat = $Service->category;
                 $divTab = preg_replace(
                     '#[^\w\-]#',
                     '_',
-                    $Service->get('category')
+                    $Service->category
                 );
             if ($curcat != $catset) {
                 if ($catset !== false) {
@@ -1502,16 +1501,16 @@ class FOGConfigurationPage extends FOGPage
                     . '<h4>%s</h4></a></div><div id="%s" class="hidefirst">',
                     $divTab,
                     $divTab,
-                    $Service->get('category'),
+                    $Service->category,
                     $divTab
                 );
             }
-            switch ($Service->get('name')) {
+            switch ($Service->name) {
             case 'FOG_PIGZ_COMP':
             case 'FOG_KERNEL_LOGLEVEL':
             case 'FOG_INACTIVITY_TIMEOUT':
             case 'FOG_REGENERATE_TIMEOUT':
-                switch ($Service->get('name')) {
+                switch ($Service->name) {
                 case 'FOG_PIGZ_COMP':
                     $extra = 'pigz';
                     $minsize = 2;
@@ -1542,7 +1541,7 @@ class FOGConfigurationPage extends FOGPage
                     . '" maxsize="'
                     . $minsize
                     . '" value="${service_value}" id="'
-                    . $Service->get('name')
+                    . $Service->name
                     . '"/>'
                     . '</div>';
                 break;
@@ -1561,7 +1560,7 @@ class FOGConfigurationPage extends FOGPage
                         '<option value="%s"%s>%s</option>',
                         $value,
                         (
-                            $Service->get('value') == $value ?
+                            $Service->value == $value ?
                             ' selected' :
                             ''
                         ),
@@ -1575,7 +1574,7 @@ class FOGConfigurationPage extends FOGPage
                     . '<select name="${service_id}" '
                     . 'autocomplete="off" '
                     . 'class="form-control" id="'
-                    . $Service->get('name')
+                    . $Service->name
                     . '">%s</select>'
                     . '</div>',
                     ob_get_clean()
@@ -1589,7 +1588,7 @@ class FOGConfigurationPage extends FOGPage
                         '<option value="%s"%s>%s</option>',
                         strtolower($viewop),
                         (
-                            $Service->get('value') == strtolower($viewop) ?
+                            $Service->value == strtolower($viewop) ?
                             ' selected' :
                             ''
                         ),
@@ -1603,7 +1602,7 @@ class FOGConfigurationPage extends FOGPage
                     . '<select name="${service_id}" '
                     . 'autocomplete="off" '
                     . 'class="form-group" id="'
-                    . $Service->get('name')
+                    . $Service->name
                     . '">%s</select>'
                     . '</div>',
                     ob_get_clean()
@@ -1620,7 +1619,7 @@ class FOGConfigurationPage extends FOGPage
                         '<option value="%s"%s>%s</option>',
                         $val,
                         (
-                            $Service->get('value') == $val ?
+                            $Service->value == $val ?
                             ' selected' :
                             ''
                         ),
@@ -1633,7 +1632,7 @@ class FOGConfigurationPage extends FOGPage
                     . '<select name="${service_id}" '
                     . 'autocomplete="off" '
                     . 'class="form-control" id="'
-                    . $Service->get('name')
+                    . $Service->name
                     . '">%s</select>'
                     . '</div>',
                     ob_get_clean()
@@ -1643,10 +1642,10 @@ class FOGConfigurationPage extends FOGPage
             case 'FOG_EFI_BOOT_EXIT_TYPE':
                 $type = '<div class="input-group">'
                     . Service::buildExitSelector(
-                        $Service->get('id'),
-                        $Service->get('value'),
+                        $Service->id,
+                        $Service->value,
                         '',
-                        $Service->get('name')
+                        $Service->name
                     )
                     . '</div>';
                 break;
@@ -1673,7 +1672,7 @@ class FOGConfigurationPage extends FOGPage
                     . '<select name="${service_id}" '
                     . 'autocomplete="off" '
                     . 'class="form-control" id="'
-                    . $Service->get('name')
+                    . $Service->name
                     . '">%s</select>'
                     . '</div>',
                     ob_get_clean()
@@ -1682,11 +1681,11 @@ class FOGConfigurationPage extends FOGPage
             case 'FOG_QUICKREG_IMG_ID':
                 $type = '<div class="input-group">'
                     . self::getClass('ImageManager')->buildSelectBox(
-                        $Service->get('value'),
+                        $Service->value,
                         sprintf(
                             '%s" id="%s"',
-                            $Service->get('id'),
-                            $Service->get('name')
+                            $Service->id,
+                            $Service->name
                         )
                     )
                     . '</div>';
@@ -1694,11 +1693,11 @@ class FOGConfigurationPage extends FOGPage
             case 'FOG_QUICKREG_GROUP_ASSOC':
                 $type = '<div class="input-group">'
                     . self::getClass('GroupManager')->buildSelectBox(
-                        $Service->get('value'),
+                        $Service->value,
                         sprintf(
                             '%s" id="%s"',
-                            $Service->get('id'),
-                            $Service->get('name')
+                            $Service->id,
+                            $Service->name
                         )
                     )
                     . '</div>';
@@ -1707,26 +1706,26 @@ class FOGConfigurationPage extends FOGPage
                 $type = '<div class="input-group">'
                     . self::getClass('KeySequenceManager')
                     ->buildSelectBox(
-                        $Service->get('value'),
+                        $Service->value,
                         sprintf(
                             '%s" id="%s"',
-                            $Service->get('id'),
-                            $Service->get('name')
+                            $Service->id,
+                            $Service->name
                         )
                     )
                     . '</div>';
                 break;
             case 'FOG_QUICKREG_OS_ID':
                 $ImageName = _('No image specified');
-                if ($Service->get('value') > 0) {
+                if ($Service->value > 0) {
                     $ImageName = self::getClass(
                         'Image',
-                        $Service->get('value')
+                        $Service->value
                     )->get('name');
                 }
                 $type = sprintf(
                     '<p id="%s">%s</p>',
-                    $Service->get('name'),
+                    $Service->name,
                     $ImageName
                 );
                 break;
@@ -1737,7 +1736,7 @@ class FOGConfigurationPage extends FOGPage
                 echo '<div class="input-group">';
                 echo '<select name="${service_id}" class="form-control" '
                     . 'id="'
-                    . $Service->get('name')
+                    . $Service->name
                     . '">';
                 foreach ((array)$tzIDs as $i => &$tz) {
                     $current_tz = self::getClass('DateTimeZone', $tz);
@@ -1756,7 +1755,7 @@ class FOGConfigurationPage extends FOGPage
                         '<option value="%s"%s>%s [%s %s]</option>',
                         $tz,
                         (
-                            $Service->get('value') == $tz ?
+                            $Service->value == $tz ?
                             ' selected' :
                             ''
                         ),
@@ -1777,12 +1776,12 @@ class FOGConfigurationPage extends FOGPage
                 echo '</div>';
                 $type = ob_get_clean();
                 break;
-            case ('FOG_API_TOKEN' === $Service->get('name') ||
-                (preg_match('#pass#i', $Service->get('name'))
-                && !preg_match('#(valid|min)#i', $Service->get('name')))):
+            case ('FOG_API_TOKEN' === $Service->name ||
+                (preg_match('#pass#i', $Service->name)
+                && !preg_match('#(valid|min)#i', $Service->name))):
                 $extra = '"/></div>';
                 $normal = '${service_value}';
-                if ('FOG_API_TOKEN' === $Service->get('name')) {
+                if ('FOG_API_TOKEN' === $Service->name) {
                     $extra = 'token" readonly/>'
                         . '<div class="input-group-btn">'
                         . '<button class="btn btn-warning resettoken" type="button">'
@@ -1794,7 +1793,7 @@ class FOGConfigurationPage extends FOGPage
                 }
                 $type = '<div class="input-group">';
                 $type .= (
-                    $Service->get('name') == 'FOG_STORAGENODE_MYSQLPASS' ?
+                    $Service->name == 'FOG_STORAGENODE_MYSQLPASS' ?
                     '<input type="text" name="${service_id}" value='
                     . '"'
                     . $normal
@@ -1806,20 +1805,20 @@ class FOGConfigurationPage extends FOGPage
                     . $normal
                     . '" autocomplete='
                     . '"off" id="'
-                    . $Service->get('name')
+                    . $Service->name
                     . '" class="form-control '
                     . $extra
                 );
                 break;
-            case (in_array($Service->get('name'), $ServiceNames)):
+            case (in_array($Service->name, $ServiceNames)):
                 $type = sprintf(
                     '<div class="input-group">'
                     . '<input '
                     . 'type="checkbox" name="${service_id}" value='
                     . '"1" id="%s"%s/>',
-                    $Service->get('name'),
+                    $Service->name,
                     (
-                        $Service->get('value') ?
+                        $Service->value ?
                         ' checked' :
                         ''
                     )
@@ -1831,20 +1830,20 @@ class FOGConfigurationPage extends FOGPage
                 $type = '<div class="input-group">'
                     . '<textarea rows="5" name="${service_id}" class='
                     . '"form-control" id="'
-                    . $Service->get('name')
+                    . $Service->name
                     . '" id="'
-                    . $Service->get('name')
+                    . $Service->name
                     . '">'
                     . '${service_value}</textarea>'
                     . '</div>';
                 break;
             case 'FOG_CLIENT_BANNER_IMAGE':
-                $set = trim($Service->get('value'));
+                $set = trim($Service->value);
                 if (!$set) {
                     $type = '<div class="input-group">'
                         . '<input type="file" name="${service_id}" '
                         . 'class="newbanner form-control" id="'
-                        . $Service->get('name')
+                        . $Service->name
                         . '"/>'
                         . '<input type="hidden" value="" name="banner"/>'
                         . '</div>';
@@ -1859,7 +1858,7 @@ class FOGConfigurationPage extends FOGPage
                         . 'class="form-control"/>'
                         . '</div>',
                         basename($set),
-                        $Service->get('value')
+                        $Service->value
                     );
                 }
                 break;
@@ -1867,9 +1866,9 @@ class FOGConfigurationPage extends FOGPage
                 $type = '<div class="input-group">'
                     . '<input readonly name="${service_id}" type='
                     . '"text" value="'
-                    . $Service->get('value')
+                    . $Service->value
                     . '" id="'
-                    . $Service->get('name')
+                    . $Service->name
                     . '" '
                     . 'class="form-control"/>'
                     . '</div>';
@@ -1878,9 +1877,9 @@ class FOGConfigurationPage extends FOGPage
                 $type = '<div class="input-group">'
                     . '<input name="${service_id}" type='
                     . '"text" maxlength="6" value="'
-                    . $Service->get('value')
+                    . $Service->value
                     . '" id="'
-                    . $Service->get('name')
+                    . $Service->name
                     . '" '
                     . 'class="jscolor {required:false} {refine:false} '
                     . 'form-control"/>'
@@ -1889,7 +1888,7 @@ class FOGConfigurationPage extends FOGPage
             default:
                 $type = '<div class="input-group">'
                     . '<input id="'
-                    . $Service->get('name')
+                    . $Service->name
                     . '" type='
                     . '"text" name="${service_id}" value='
                     . '"${service_value}" autocomplete="off" '
@@ -1902,30 +1901,30 @@ class FOGConfigurationPage extends FOGPage
                     count(
                         explode(
                             chr(10),
-                            $Service->get('value')
+                            $Service->value
                         )
                     ) <= 1 ?
                     $type :
                     '<div class="input-group">'
                     . '<textarea rows="5" name="${service_id}" '
                     . 'class="form-control" id="'
-                    . $Service->get('name')
+                    . $Service->name
                     . '">'
                     . '${service_value}</textarea></div>'
                 ),
                 'service_name' => '<label class="control-label" for="'
-                . $Service->get('name')
+                . $Service->name
                 . '">'
-                . $Service->get('name')
+                . $Service->name
                 . '</label>',
                 'span' => '<i class="icon fa fa-question hand" title='
                 . '"${service_desc}" data-toggle='
-                . '"tooltip" data-placement="top"></i>',
-                'service_id' => $Service->get('id'),
-                'id' => $Service->get('id'),
-                'service_value' => $Service->get('value'),
-                'service_base64val' => base64_encode($Service->get('value')),
-                'service_desc' => $Service->get('description'),
+                . '"tooltip" data-placement="right"></i>',
+                'service_id' => $Service->id,
+                'id' => $Service->id,
+                'service_value' => $Service->value,
+                'service_base64val' => base64_encode($Service->value),
+                'service_desc' => $Service->description,
             );
             self::$HookManager
                 ->processEvent(
@@ -1939,7 +1938,7 @@ class FOGConfigurationPage extends FOGPage
                         'attributes' => &$this->attributes
                     )
                 );
-            $catset = $Service->get('category');
+            $catset = $Service->category;
             unset($options, $Service);
         }
         $this->data[] = array(
@@ -1966,9 +1965,7 @@ class FOGConfigurationPage extends FOGPage
      */
     public function getOSID()
     {
-        $imageid = intval(
-            $_REQUEST['image_id']
-        );
+        $imageid = (int)filter_input(INPUT_POST, 'image_id');
         $osname = self::getClass(
             'Image',
             $imageid
@@ -2242,20 +2239,23 @@ class FOGConfigurationPage extends FOGPage
      */
     public function logviewer()
     {
-        foreach ((array)self::getClass('StorageGroupManager')
-            ->find() as &$StorageGroup
-        ) {
-            if (!count($StorageGroup->get('enablednodes'))) {
+        Route::listem('storagegroup');
+        $StorageGroups = json_decode(
+            Route::getData()
+        );
+        $StorageGroups = $StorageGroups->storagegroups;
+        foreach ((array)$StorageGroups as &$StorageGroup) {
+            if (count($StorageGroup->enablednodes) < 1) {
                 continue;
             }
-            $StorageNode = $StorageGroup->getMasterStorageNode();
-            if (!$StorageNode->isValid()) {
+            $StorageNode = $StorageGroup->masternode;
+            if (!$StorageNode->isEnabled) {
                 continue;
             }
-            if (!$StorageNode->get('isEnabled')) {
-                continue;
-            }
-            $fogfiles = (array)$StorageNode->get('logfiles');
+            $fogfiles = json_decode(
+                json_encode($StorageNode->logfiles),
+                true
+            );
             try {
                 $apacheerrlog = preg_grep(
                     '#(error\.log$|.*error_log$)#i',
@@ -2313,7 +2313,7 @@ class FOGConfigurationPage extends FOGPage
                     '#(fogsnapinrep.log.transfer)#i',
                     $fogfiles
                 );
-                $files[$StorageNode->get('name')] = array(
+                $files[$StorageNode->name] = array(
                     (
                         $svcmasterlog ?
                         _('Service Master') :
@@ -2407,7 +2407,7 @@ class FOGConfigurationPage extends FOGPage
                         $logtype,
                         basename($log)
                     );
-                    $files[$StorageNode->get('name')][_($str)] = $log;
+                    $files[$StorageNode->name][_($str)] = $log;
                 };
                 array_map($logparse, (array)$apacheerrlog);
                 $logtype = 'access';
@@ -2423,7 +2423,7 @@ class FOGConfigurationPage extends FOGPage
                         $str,
                         _('Image Transfer Log')
                     );
-                    $files[$StorageNode->get('name')][$str] = $file;
+                    $files[$StorageNode->name][$str] = $file;
                     unset($file);
                 }
                 foreach ((array)$snptransferlogs as &$file) {
@@ -2437,18 +2437,18 @@ class FOGConfigurationPage extends FOGPage
                         $str,
                         _('Snapin Transfer Log')
                     );
-                    $files[$StorageNode->get('name')][$str] = $file;
+                    $files[$StorageNode->name][$str] = $file;
                     unset($file);
                 }
-                $files[$StorageNode->get('name')] = array_filter(
-                    (array)$files[$StorageNode->get('name')]
+                $files[$StorageNode->name] = array_filter(
+                    (array)$files[$StorageNode->name]
                 );
             } catch (Exception $e) {
-                $files[$StorageNode->get('name')] = array(
+                $files[$StorageNode->name] = array(
                     $e->getMessage() => null,
                 );
             }
-            $ip[$StorageNode->get('name')] = $StorageNode->get('ip');
+            $ip[$StorageNode->name] = $StorageNode->ip;
             self::$HookManager
                 ->processEvent(
                     'LOG_VIEWER_HOOK',
@@ -2487,15 +2487,7 @@ class FOGConfigurationPage extends FOGPage
             unset($filearray);
         }
         unset($files);
-        $this->title = _('FOG Log Viewer');
-        printf(
-            '<p><form method="post" action="%s"><p>%s:'
-            . '<select name="logtype" id="logToView">%s</select>%s:',
-            $this->formAction,
-            _('File'),
-            ob_get_clean(),
-            _('Number of lines')
-        );
+        $logOpts = ob_get_clean();
         $vals = array(
             20,
             50,
@@ -2520,7 +2512,56 @@ class FOGConfigurationPage extends FOGPage
             unset($value);
         }
         unset($vals);
-        printf(
+        $lineOpts = ob_get_clean();
+        $this->title = _('FOG Log Viewer');
+        echo '<div class="col-xs-offset-3">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
+        echo '<div class="col-xs-4">';
+        echo '<label class="control-label" for="logToView">';
+        echo _('File') .': ';
+        echo '</label>';
+        echo '<select name="logtype" class="form-control" id="logToView">';
+        echo $logOpts;
+        echo '</select>';
+        echo '</div>';
+        echo '<div class="col-xs-4">';
+        echo '<label class="control-label" for="linesToView">';
+        echo _('Lines') .': ';
+        echo '</label>';
+        echo '<select name="n" class="form-control" id="linesToView">';
+        echo $lineOpts;
+        echo '</select>';
+        echo '</div>';
+        echo '<div class="col-xs-2">';
+        echo '<div class="checkbox">';
+        echo '<label for="reverse">';
+        echo '<input type="checkbox" name="reverse" id="reverse"/>';
+        echo _('Reverse the file: (newest on top)');
+        echo '</label>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="col-xs-2">';
+        echo '<button type="button" id="logpause" class="btn btn-info btn-block">';
+        echo _('Pause');
+        echo '</button>';
+        echo '</div>';
+        echo '<div class="col-xs-12">';
+        echo '<div id="logsGoHere"></div>';
+        echo '</div>';
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        /*printf(
             '<select name="n" id="linesToView">%s</select>'
             . '<br/><p class="c">%s : '
             . '<input type="checkbox" name="reverse" id="reverse"/>'
@@ -2530,7 +2571,7 @@ class FOGConfigurationPage extends FOGPage
             . '</form><br/><div id="logsGoHere" class="l"></div></p>',
             ob_get_clean(),
             _('Reverse the file: (newest on top)')
-        );
+        );*/
     }
     /**
      * Present the config screen.
