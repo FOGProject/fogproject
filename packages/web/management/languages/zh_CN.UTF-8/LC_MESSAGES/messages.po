@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-21 13:04-0400\n"
+"POT-Creation-Date: 2017-06-21 18:47-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -6011,13 +6011,13 @@ msgstr "销毁作业"
 msgid "Destroyed assignment"
 msgstr "销毁作业"
 
-#: /var/www/fog/lib/router/route.class.php:565
-#: /var/www/fog/lib/router/route.class.php:768
+#: /var/www/fog/lib/router/route.class.php:564
+#: /var/www/fog/lib/router/route.class.php:767
 #, fuzzy
 msgid "Already created"
 msgstr "已注册为"
 
-#: /var/www/fog/lib/router/route.class.php:706
+#: /var/www/fog/lib/router/route.class.php:705
 #, fuzzy
 msgid "Invalid tasking type passed"
 msgstr "无效的对象类型传递"
