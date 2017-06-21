@@ -437,11 +437,15 @@ class Route extends FOGBase
      *
      * @param string $class  The class to work with.
      * @param string $sortby How to sort the data.
+     * @param string $bypass Allow showing hidden data.
      *
      * @return void
      */
-    public static function listem($class, $sortby = 'name')
-    {
+    public static function listem(
+        $class,
+        $sortby = 'name',
+        $bypass = false
+    ) {
         $classname = strtolower($class);
         $classman = self::getClass($class)->getManager();
         self::$data = array();
@@ -449,7 +453,11 @@ class Route extends FOGBase
         self::$data[$classname.'s'] = array();
         $find = self::getsearchbody($classname);
         foreach ($classman->find($find, 'AND', $sortby) as &$class) {
-            if (false != stripos($class->get('name'), '_api_')) {
+            $test = stripos(
+                $class->get('name'),
+                '_api_'
+            );
+            if (!$bypass && false != $test) {
                 continue;
             }
             self::$data[$classname.'s'][] = self::getter($classname, $class);
