@@ -1456,7 +1456,7 @@ class FOGConfigurationPage extends FOGPage
             . _('Expand All')
             . '</h4></a></div>';
         $catset = false;
-        Route::listem('service');
+        Route::listem('service', 'category', true);
         $Services = json_decode(
             Route::getData()
         );
