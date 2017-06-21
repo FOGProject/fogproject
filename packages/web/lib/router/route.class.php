@@ -1067,10 +1067,11 @@ class Route extends FOGBase
      *
      * @param string $classname The name of the class.
      * @param object $class     The class to work with.
+     * @param bool   $objget    Should we send object, useful if internal getter.
      *
      * @return object|array
      */
-    public static function getter($classname, $class)
+    public static function getter($classname, $class, $objget = true)
     {
         switch ($classname) {
         case 'host':
@@ -1206,12 +1207,34 @@ class Route extends FOGBase
             $data = FOGCore::fastmerge(
                 $class->get(),
                 array(
-                    'storagegroup' => self::getter(
-                        'storagegroup',
-                        $class->get('storagegroup')
+                    'logfiles' => $class->get('logfiles')
+                )
+            );
+            if ($objget) {
+                $data['storagegroup'] = self::getter(
+                    'storagegroup',
+                    $class->get('storagegroup'),
+                    false
+                );
+            }
+            break;
+        case 'storagegroup':
+            $data = FOGCore::fastmerge(
+                $class->get(),
+                array(
+                    'enablednodes' => array_map(
+                        'intval',
+                        $class->get('enablednodes')
                     )
                 )
             );
+            if ($objget) {
+                $data['masternode'] = self::getter(
+                    'storagenode',
+                    $class->getMasterStorageNode(),
+                    false
+                );
+            }
             break;
         case 'task':
             $data = FOGCore::fastmerge(
