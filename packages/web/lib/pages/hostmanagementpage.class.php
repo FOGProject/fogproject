@@ -381,8 +381,13 @@ class HostManagementPage extends FOGPage
     public function add()
     {
         $this->title = _('New Host');
-        unset($this->data);
-        unset($this->headerData);
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
         $this->templates = array(
             '${field}',
             '${input}',
