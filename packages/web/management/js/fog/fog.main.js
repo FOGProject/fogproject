@@ -226,7 +226,7 @@ $(function() {
     // Shows the div of the containing element.
     $('.expand_trigger').on('click', function(e) {
         e.preventDefault();
-        $('div#'+this.id).fadeToggle('slow','swing');
+        $('div#'+this.id).not('.panel-heading').fadeToggle('slow','swing');
     });
     $('[name=export]').click(function(e) {
         e.preventDefault();
