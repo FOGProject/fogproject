@@ -41,9 +41,6 @@ $(function() {
             }
         });
     });
-    $('#kernelsel').change(function(e) {
-        this.form.submit();
-    });
     $('#bannerimg').click(function(e) {
         e.preventDefault();
         $('input[name="banner"]').val('');

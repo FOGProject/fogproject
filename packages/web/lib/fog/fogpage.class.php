@@ -2409,12 +2409,13 @@ abstract class FOGPage extends FOGBase
     public function kernelfetch()
     {
         try {
+            $msg = filter_input(INPUT_POST, 'msg');
             if ($_SESSION['allow_ajax_kdl']
                 && $_SESSION['dest-kernel-file']
                 && $_SESSION['tmp-kernel-file']
                 && $_SESSION['dl-kernel-file']
             ) {
-                if ($_REQUEST['msg'] == 'dl') {
+                if ($msg == 'dl') {
                     $fh = fopen(
                         $_SESSION['tmp-kernel-file'],
                         'wb'
@@ -2424,14 +2425,6 @@ abstract class FOGPage extends FOGBase
                             _('Error: Failed to open temp file')
                         );
                     }
-                    /*$test = self::$FOGURLRequests
-                        ->isAvailable($_SESSION['dl-kernel-file']);
-                    $test = array_shift($test);
-                    if (false === $test) {
-                        throw new Exception(
-                            _('Error: Failed to connect to server')
-                        );
-                    }*/
                     self::$FOGURLRequests->process(
                         $_SESSION['dl-kernel-file'],
                         'GET',
@@ -2462,7 +2455,7 @@ abstract class FOGPage extends FOGBase
                         );
                     }
                     die('##OK##');
-                } elseif ($_REQUEST['msg'] == 'tftp') {
+                } elseif ($msg == 'tftp') {
                     $destfile = $_SESSION['dest-kernel-file'];
                     $tmpfile = $_SESSION['tmp-kernel-file'];
                     unset(
