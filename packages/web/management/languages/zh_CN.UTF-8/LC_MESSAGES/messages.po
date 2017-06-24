@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-23 21:47-0400\n"
+"POT-Creation-Date: 2017-06-24 12:52-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -727,7 +727,7 @@ msgstr "事件必须是字符串"
 
 #: /var/www/fog/lib/fog/fogbase.class.php:2215
 #: /var/www/fog/lib/fog/fogftp.class.php:372
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2570
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2596
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:86
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2491
 #: /var/www/fog/lib/reports/virus_history.report.php:55
@@ -1204,7 +1204,7 @@ msgstr "保存更改"
 #: /var/www/fog/lib/fog/fogpage.class.php:690
 #: /var/www/fog/lib/fog/fogpage.class.php:2282
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:899
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1191
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1217
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:273
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:352
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:571
@@ -1261,8 +1261,8 @@ msgstr "删除所选"
 #: /var/www/fog/lib/fog/fogpage.class.php:748
 #: /var/www/fog/lib/fog/fogpage.class.php:1889
 #: /var/www/fog/lib/fog/fogpage.class.php:2629
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1049
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1182
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1075
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1208
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:417
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:485
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:676
@@ -1814,7 +1814,7 @@ msgid "table backup"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3508
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2640
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2666
 #: /var/www/fog/commons/text.php:98
 msgid "Export"
 msgstr "出口"
@@ -1896,7 +1896,7 @@ msgid "Row"
 msgstr "行"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3802
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2658
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2684
 msgid "Import"
 msgstr "进口"
 
@@ -2071,7 +2071,7 @@ msgstr ""
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:354
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:529
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:809
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1592
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1618
 msgid "Partclone Uncompressed"
 msgstr ""
 
@@ -2094,34 +2094,34 @@ msgstr "新图片"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:511
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:791
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1590
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1616
 #, fuzzy
 msgid "Partclone Gzip"
 msgstr "Partclone"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:523
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:803
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1591
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1617
 msgid "Partclone Gzip Split 200MiB"
 msgstr ""
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:535
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:815
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1593
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1619
 #, fuzzy
 msgid "Partclone Uncompressed Split 200MiB"
 msgstr "Partclone"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:541
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:821
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1594
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1620
 #, fuzzy
 msgid "Partclone Zstd"
 msgstr "Partclone"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:547
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:827
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1595
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1621
 #, fuzzy
 msgid "Partclone Zstd Split 200MiB"
 msgstr "Partclone"
@@ -2551,729 +2551,729 @@ msgstr "捐赠雾"
 msgid "FOG Version Information"
 msgstr "FOG版本信息"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:102
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:114
 msgid "Kernel Versions"
 msgstr "内核版本"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:120
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:140
 #, fuzzy
 msgid "FOG Version"
 msgstr "BIOS版本"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:139
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:165
 msgid "FOG License Information"
 msgstr "FOG许可证信息"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:149
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:175
 msgid "GNU Gneral Public License"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:178
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:204
 #, fuzzy
 msgid "Unable to contact server"
 msgstr "服务器连接出错"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:185
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:211
 #: /var/www/fog/commons/text.php:135
 msgid "Kernel Update"
 msgstr "内核更新"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:191
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:217
 msgid "This section allows you to update"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:192
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:218
 msgid "the Linux kernel which is used to"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:193
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:219
 msgid "boot the client computers"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:194
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:220
 #, fuzzy
 msgid "In FOG"
 msgstr "在"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:195
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:221
 msgid "this kernel holds all the drivers for the client computer"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:196
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:222
 msgid "so if you are unable to boot a client you may wish to"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:197
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:223
 msgid "update to a newer kernel which may have more drivers built in"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:198
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:224
 msgid "This installation process may take a few minutes"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:199
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:225
 msgid "as FOG will attempt to go out to the internet"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:200
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:226
 #, fuzzy
 msgid "to get the requested Kernel"
 msgstr "没有要求的关键"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:201
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:227
 msgid "so if it seems like the process is hanging please be patient"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:253
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:279
 #, fuzzy
 msgid "Downloading Kernel"
 msgstr "下载"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:259
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:285
 #, fuzzy
 msgid "Starting process"
 msgstr "启动过程中..."
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:281
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:307
 #, fuzzy
 msgid "Save Kernel"
 msgstr "核心"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:293
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:319
 msgid "Kernel Name"
 msgstr "内核名称"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:306
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:332
 #, fuzzy
 msgid "Install Kernel"
 msgstr "主机内核"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:312
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:338
 #, fuzzy
 msgid "Install"
 msgstr "安装/更新失败！"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:328
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:354
 msgid "FOG PXE Boot Menu Configuration"
 msgstr "FOG PXE启动菜单配置"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:407
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:433
 msgid "No Menu"
 msgstr "无菜单"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:414
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:440
 msgid "Option sets if there will even"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:415
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:441
 msgid "be the presence of a menu"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:416
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:442
 msgid "to the client systems"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:417
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:443
 #, fuzzy
 msgid "If there is not a task set"
 msgstr "有在一个任务的主机"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:418
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:444
 msgid "it boots to the first device"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:419
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:445
 #, fuzzy
 msgid "if there is a task"
 msgstr "有在一个任务的主机"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:420
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:446
 msgid "it performs that task"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:423
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:449
 msgid "Hide Menu"
 msgstr "隐藏菜单"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:430
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:456
 msgid "Option below sets the key sequence"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:431
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:457
 #, fuzzy
 msgid "If none is specified"
 msgstr "没有指定的图像"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:432
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:458
 #, fuzzy
 msgid "ESC is defaulted"
 msgstr "启用默认"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:433
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:459
 msgid "Login with the FOG credentials and you will see the menu"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:434
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:460
 msgid "Otherwise it will just boot like normal"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:437
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:463
 msgid "Hide Menu Timeout"
 msgstr "隐藏菜单超时"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:441
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:467
 msgid "Option specifies the timeout value for the hidden menu system"
 msgstr "选项​​为隐藏的菜单系统的超时值"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:443
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:469
 msgid "Advanced Menu Login"
 msgstr "高级菜单登录"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:450
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:476
 msgid "Option below enforces a login system"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:451
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:477
 msgid "for the advanced menu parameters"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:452
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:478
 msgid "If off"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:453
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:479
 msgid "no login will appear"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:454
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:480
 #, fuzzy
 msgid "If on"
 msgstr "图标"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:455
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:481
 msgid "it will only allow login to the advanced system"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:458
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:484
 msgid "Boot Key Sequence"
 msgstr "开机按键顺序"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:461
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:487
 #, fuzzy
 msgid "Menu Timeout"
 msgstr "隐藏菜单超时"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:462
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:488
 msgid "in seconds"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:467
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:493
 msgid "Menu Background File"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:471
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:497
 msgid "Option specifies background file to use"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:473
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:499
 msgid "Main Colors"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:477
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:503
 #, fuzzy
 msgid "Option specifies the color settings of the main items"
 msgstr "选项​​为隐藏的菜单系统的超时值"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:479
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:505
 #, fuzzy
 msgid "Valid Host Colors"
 msgstr "无效的主机"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:483
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:509
 #, fuzzy
 msgid "Option specifies the color text of a valid host"
 msgstr "选项​​为隐藏的菜单系统的超时值"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:485
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:511
 #, fuzzy
 msgid "Invalid Host Colors"
 msgstr "无效的主机"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:489
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:515
 #, fuzzy
 msgid "Option specifies the color text of an invalid host"
 msgstr "选项​​为隐藏的菜单系统的超时值"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:491
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:517
 msgid "Main pairings"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:497
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:523
 msgid "Option specifies the pairings of colors to"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:498
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:524
 msgid "present and where how they need to display"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:501
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:527
 msgid "Main fallback pairings"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:505
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:531
 msgid "Option specifies the pairings as a fallback"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:507
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:533
 #, fuzzy
 msgid "Host pairings"
 msgstr "主机列表"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:511
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:537
 msgid "Option specifies the pairings after host checks"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:513
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:539
 msgid "Exit to Hard Drive Type"
 msgstr "退出硬盘类型"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:514
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:540
 msgid "Exit to Hard Drive Type(EFI)"
 msgstr "退出硬盘类型（EFI）"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:517
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:543
 #, fuzzy
 msgid "Advanced configuration options"
 msgstr "FOG服务配置信息"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:524
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:550
 msgid "Add any custom text you would like"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:525
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:551
 msgid "included as a part of your"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:526
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:552
 #, fuzzy
 msgid "default"
 msgstr "默认"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:527
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:553
 #, fuzzy
 msgid "file"
 msgstr "文件"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:533
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:559
 msgid "Save PXE MENU"
 msgstr "保存PXE MENU"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:573
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:585
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:599
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:611
 msgid "Invalid Timeout Value"
 msgstr "无效的超时值"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:632
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:658
 msgid "PXE Menu has been updated"
 msgstr "PXE菜单已更新"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:650
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:676
 msgid "This item allows you to edit all of the"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:651
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:677
 msgid "PXE Menu items as you see fit"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:652
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:678
 msgid "Mind you"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:653
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:679
 msgid "iPXE syntax is very finicky when it comes to edits"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:654
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:680
 msgid "If you need help understanding what items are needed"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:655
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:681
 msgid "please see the forums"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:656
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:682
 msgid "You can also look at ipxe.org for syntactic usage and methods"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:657
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:683
 msgid "Some of the items here are bound to limitations"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:658
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:684
 msgid "Documentation will follow when enough time is provided"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:700
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:906
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:726
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:932
 msgid "Menu Item:"
 msgstr "菜单项："
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:705
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:911
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:731
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:937
 msgid "Description:"
 msgstr "描述："
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:710
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:916
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:736
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:942
 msgid "Parameters:"
 msgstr "参数："
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:715
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:921
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:741
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:947
 msgid "Boot Options:"
 msgstr "启动选项："
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:720
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:926
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:746
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:952
 msgid "Default Item:"
 msgstr "默认项："
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:725
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:751
 #, fuzzy
 msgid "Hot Key Enabled"
 msgstr "图片启用"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:730
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:756
 #, fuzzy
 msgid "Hot Key to use"
 msgstr "不能够更新"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:734
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:931
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:760
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:957
 msgid "Menu Show with:"
 msgstr "菜单显示有："
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:852
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:878
 msgid "successfully updated"
 msgstr "成功更新"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:868
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:894
 msgid "successfully removed"
 msgstr "成功切除"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:895
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:921
 msgid "Create New iPXE Menu Entry"
 msgstr "新建iPXE菜单项"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:939
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:965
 msgid "New Menu"
 msgstr "新菜单"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:976
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1002
 msgid "Menu Item or title cannot be blank"
 msgstr "菜单项或标题不能为空"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:979
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1005
 msgid "A description needs to be set"
 msgstr "描述需要设置"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:999
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1025
 msgid "Menu create failed"
 msgstr "菜单创建失败"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1017
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1043
 msgid "Menu Added"
 msgstr "菜单中添加"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1047
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1073
 msgid "FOG Client Service Updater"
 msgstr "FOG客户服务更新"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1050
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1076
 msgid "Module Name"
 msgstr "模块名称"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1051
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1077
 msgid "Module MD5"
 msgstr "模块MD5"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1052
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1078
 msgid "Module Type"
 msgstr "模块类型"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1096
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1122
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:450
 #, fuzzy
 msgid "NOTICE"
 msgstr "不"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1098
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1124
 #, fuzzy
 msgid "The below items are only used for the old client."
 msgstr "此设置定义使用SSH客户端的用户名。"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1100
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1126
 msgid "Old clients are the clients that came with FOG"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1102
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1128
 msgid "Version 1.2.0 and earlier"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1113
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1139
 #, fuzzy
 msgid "Current files"
 msgstr "当前记录"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1117
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1143
 #, fuzzy
 msgid "This section allows you to update the modules and"
 msgstr "此设置定义代理用户名使用。"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1119
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1145
 msgid "config files that run on the client computers."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1121
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1147
 msgid "The clients will checkin with the server from time"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1123
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1149
 msgid "to time to see if a new module is published."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1125
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1151
 #, fuzzy
 msgid "If a new module is published the client will"
 msgstr "此设置定义使用SSH客户端的用户名。"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1127
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1153
 msgid "download the module and use it on the next"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1129
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1155
 msgid "time the service is started."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1149
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1175
 #, fuzzy
 msgid "Upload file"
 msgstr "上传文件"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1151
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1177
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:205
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:492
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:887
 msgid "Max Size"
 msgstr "最大尺寸"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1157
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1183
 msgid "Browse"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1177
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1203
 #, fuzzy
 msgid "Delete Selected Items"
 msgstr "删除所有选中的项目"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1186
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1212
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:489
 #, fuzzy
 msgid "Make Changes"
 msgstr "保存更改"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1228
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1254
 #, fuzzy
 msgid "Item removed successfully"
 msgstr "保存成功"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1231
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1257
 msgid "No file uploaded"
 msgstr "没有文件上传"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1270
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1296
 msgid "Modules added/updated"
 msgstr "模块新增/更新"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1283
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1309
 msgid "MAC Address Manufacturer Listing"
 msgstr "MAC地址制造商上市"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1291
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1317
 #, fuzzy
 msgid ""
 "This section allows you to import known mac address makers into the FOG "
 "database for easier identification"
 msgstr "这部分可以导入已知MAC地址厂商成雾数据库更容易识别。"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1298
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1324
 msgid "Current Records"
 msgstr "当前记录"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1307
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1333
 msgid "Delete MACs"
 msgstr "删除的MAC"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1311
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1337
 msgid "Update MACs"
 msgstr "更新的MAC"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1330
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1356
 msgid "Could not read temp file"
 msgstr "无法读取临时文件"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1386
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1412
 msgid " mac addresses updated!"
 msgstr "MAC地址更新！"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1463
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1489
 msgid "FOG System Settings"
 msgstr "FOG系统设置"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1471
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1497
 msgid "This section allows you to customize or alter "
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1472
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1498
 msgid "the way in which FOG operates. "
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1473
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1499
 msgid "Please be very careful changing any of "
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1474
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1500
 msgid "the following settings, as they can cause "
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1475
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1501
 msgid "issues that are difficult to troubleshoot."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1496
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1522
 msgid "Expand All"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1520
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1546
 #, fuzzy
 msgid "Save changes?"
 msgstr "保存更改"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1528
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1990
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1554
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2016
 #: /var/www/fog/commons/text.php:183
 msgid "Save Changes"
 msgstr "保存更改"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1759
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1785
 msgid "No image specified"
 msgstr "没有指定的图像"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1828
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1854
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:516
 #, fuzzy
 msgid "Reset Token"
 msgstr "访问令牌"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2013
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2039
 msgid "No Image specified"
 msgstr "没有指定的Image"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2226
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2252
 msgid "Width must be 650 pixels."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2232
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2258
 msgid "Height must be 120 pixels."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2359
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2385
 msgid "Service Master"
 msgstr "服务主"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2368
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2394
 #: /var/www/fog/lib/service/taskscheduler.class.php:212
 #: /var/www/fog/commons/text.php:102
 msgid "Multicast"
 msgstr "组播"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2377
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2403
 msgid "Scheduler"
 msgstr "调度"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2386
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2412
 msgid "Image Replicator"
 msgstr "图像复制"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2395
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2421
 #, fuzzy
 msgid "Image Size"
 msgstr "图片名称"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2404
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2430
 msgid "Snapin Replicator"
 msgstr "管理单元复制"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2413
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2439
 #, fuzzy
 msgid "Snapin Hash"
 msgstr "管理单元路径"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2422
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2448
 msgid "Ping Hosts"
 msgstr "平主机"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2464
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2490
 msgid "Image Transfer Log"
 msgstr "图像传输日志"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2478
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2504
 msgid "Snapin Transfer Log"
 msgstr "管理单元传输日志"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2556
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2582
 msgid "FOG Log Viewer"
 msgstr "FOG日志查看器"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2578
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2604
 #, fuzzy
 msgid "Lines"
 msgstr "线"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2588
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2614
 msgid "Reverse the file: (newest on top)"
 msgstr "反转文件：（最新的在上面）"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2594
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2620
 #, fuzzy
 msgid "Pause"
 msgstr "用户"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2637
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2663
 msgid "Click the button to export the database."
 msgstr "点击按钮，导出数据库。"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2649
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2675
 msgid "Import a previous backup file."
 msgstr "导入以前的备份文件。"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2697
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2723
 msgid "Database Imported and added successfully"
 msgstr "数据库导入并成功添加"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2699
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2725
 msgid "Errors detected on import"
 msgstr "进口检测到的错误"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2705
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2731
 msgid "Database changes reverted"
 msgstr "数据库恢复的变化"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2709
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2735
 msgid "Errors on revert detected"
 msgstr "在复归错误检测"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2715
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2741
 msgid "There were errors during import"
 msgstr "进口过程中有错误"
 
