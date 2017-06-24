@@ -94,39 +94,65 @@ class FOGConfigurationPage extends FOGPage
     public function version()
     {
         $this->title = _('FOG Version Information');
-        echo '<p class="placehere" vers="'
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body placehere" vers="'
             . FOG_VERSION
-            . '"></p>';
-        echo '<div class="col-xs-offset-6">';
-        echo '<h3 class="title">';
+            . '">';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
         echo _('Kernel Versions');
-        echo '</h3>';
-        $find = array(
-            'isEnabled' => 1
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        Route::listem('storagenode');
+        $StorageNodes = json_decode(
+            Route::getData()
         );
-        foreach ((array)self::getClass('StorageNodeManager')
-            ->find($find) as &$StorageNode
-        ) {
+        $StorageNodes = $StorageNodes->storagenodes;
+        foreach ((array)$StorageNodes as &$StorageNode) {
             $url = filter_var(
                 sprintf(
                     'http://%s/fog/status/kernelvers.php',
-                    $StorageNode->get('ip')
+                    $StorageNode->ip
                 ),
                 FILTER_SANITIZE_URL
             );
-            echo '<p class="category">';
-            echo $StorageNode->get('name');
+            echo '<a id="'
+                . $StorageNode->name
+                . '" class="expand_trigger btn btn-info btn-block"'
+                . 'href="#'
+                . $StorageNode->name
+                . '">';
+            echo '<h4 class="title kernversionupdate">';
+            echo $StorageNode->name;
             echo ' ';
             echo _('FOG Version');
             echo ': ()';
-            echo '</p>';
+            echo '</h4>';
+            echo '</a>';
+            echo '<div id="'
+                . $StorageNode->name
+                . '" class="hidefirst">';
             echo '<pre class="kernvers" urlcall="';
             echo $url;
             echo '">';
             echo '</pre>';
+            echo '</div>';
             unset($StorageNode);
         }
-        unset($Responses, $Nodes);
+        echo '</div>';
+        echo '</div>';
         echo '</div>';
     }
     /**
