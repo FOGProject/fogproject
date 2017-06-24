@@ -224,9 +224,9 @@ $(function() {
     // Tabs
     // Hides all the divs in the Service menu
     // Shows the div of the containing element.
-    $('.expand_trigger').click(function(e) {
+    $('.expand_trigger').on('click', function(e) {
         e.preventDefault();
-        $('div#'+$(this).prop('id')).fadeToggle('slow','swing');
+        $('div#'+this.id).fadeToggle('slow','swing');
     });
     $('[name=export]').click(function(e) {
         e.preventDefault();

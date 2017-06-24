@@ -140,10 +140,20 @@ class FOGConfigurationPage extends FOGPage
         $file = './languages/'
             . self::$locale
             . '.UTF-8/gpl-3.0.txt';
-        echo '<pre class="l">';
-        echo trim(file_get_contents($file));
-        echo '</pre>';
-        fclose($fh);
+        $contents = file_get_contents($file);
+        $contents = preg_replace('!\r?\n!', '<br/>', $contents);
+        echo '<div class="col-xs-offset-3">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('GNU Gneral Public License');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body text-justify">';
+        echo $contents;
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Post our kernel download.
@@ -161,53 +171,41 @@ class FOGConfigurationPage extends FOGPage
      */
     public function kernelUpdate()
     {
-        $this->kernelselForm('pk');
-        $url = 'https://fogproject.org/kernels/kernelupdate.php';
+        $url = 'https://fogproject.org/kernels/kernelupdate_bootstrap.php';
         $test = self::$FOGURLRequests->isAvailable($url);
         $test = array_shift($test);
         if (false === $test) {
             return print _('Unable to contact server');
         }
         $htmlData = self::$FOGURLRequests->process($url);
-        echo $htmlData[0];
-    }
-    /**
-     * Presents the kernel selection form.
-     *
-     * @param string $type the form to present
-     *
-     * @return void
-     */
-    public function kernelselForm($type)
-    {
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Kernel Update');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
         printf(
-            '<div class="hostgroup">%s</div>'
-            . '<div><form method="post" action="%s">'
-            . '<select id="kernelsel" name="kernelsel">'
-            . '<option value="pk"%s>%s</option>'
-            . '</select></form></div>',
-            sprintf(
-                '%s %s %s. %s, %s, %s %s. %s, %s %s, %s.',
-                _('This section allows you to update'),
-                _('the Linux kernel which is used to'),
-                _('boot the client computers'),
-                _('In FOG'),
-                _('this kernel holds all the drivers for the client computer'),
-                _('so if you are unable to boot a client you may wish to'),
-                _('update to a newer kernel which may have more drivers built in'),
-                _('This installation process may take a few minutes'),
-                _('as FOG will attempt to go out to the internet'),
-                _('to get the requested Kernel'),
-                _('so if it seems like the process is hanging please be patient')
-            ),
-            $this->formAction,
-            (
-                $type == 'pk' ?
-                ' selected' :
-                ''
-            ),
-            _('Published Kernel')
+            '%s %s %s. %s, %s, %s %s. %s, %s %s, %s.',
+            _('This section allows you to update'),
+            _('the Linux kernel which is used to'),
+            _('boot the client computers'),
+            _('In FOG'),
+            _('this kernel holds all the drivers for the client computer'),
+            _('so if you are unable to boot a client you may wish to'),
+            _('update to a newer kernel which may have more drivers built in'),
+            _('This installation process may take a few minutes'),
+            _('as FOG will attempt to go out to the internet'),
+            _('to get the requested Kernel'),
+            _('so if it seems like the process is hanging please be patient')
         );
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo $htmlData[0];
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Download the form.
@@ -216,20 +214,18 @@ class FOGConfigurationPage extends FOGPage
      */
     public function kernelUpdatePost()
     {
+        global $node;
         global $sub;
-        if (!isset($_REQUEST['install']) && $sub == 'kernelUpdate') {
-            $this->kernelselForm('pk');
-            $url = sprintf(
-                'https://fogproject.org/kernels/kernelupdate.php?version=%s',
-                FOG_VERSION
-            );
+        if (!isset($_POST['install']) && $sub == 'kernelUpdate') {
+            $url = 'https://fogproject.org/kernels/kernelupdate_bootstrap.php';
             $htmlData = self::$FOGURLRequests->process($url);
             echo $htmlData[0];
-        } elseif (isset($_REQUEST['install'])) {
+        } elseif (isset($_POST['install'])) {
             $_SESSION['allow_ajax_kdl'] = true;
+            $dstName = filter_input(INPUT_POST, 'dstName');
             $_SESSION['dest-kernel-file'] = trim(
                 basename(
-                    $_REQUEST['dstName']
+                    $dstName
                 )
             );
             $_SESSION['tmp-kernel-file'] = sprintf(
@@ -242,40 +238,84 @@ class FOGConfigurationPage extends FOGPage
                 DS,
                 basename($_SESSION['dest-kernel-file'])
             );
-            $_SESSION['dl-kernel-file'] = base64_decode($_REQUEST['file']);
+            $file = filter_input(INPUT_GET, 'file');
+            $_SESSION['dl-kernel-file'] = base64_decode(
+                $file
+            );
             if (file_exists($_SESSION['tmp-kernel-file'])) {
                 unlink($_SESSION['tmp-kernel-file']);
             }
-            printf(
-                '<div id="kdlRes"><p id="currentdlstate">%s</p>'
-                . '<i id="img" class="fa fa-cog fa-2x fa-spin"></i></div>',
-                _('Starting process...')
-            );
+            echo '<div class="col-xs-9">';
+            echo '<div class="kerninfo">';
+            echo '<div class="panel panel-info">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Downloading Kernel');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            echo '<i class="fa fa-cog fa-2x fa-spin"></i>';
+            echo ' ';
+            echo _('Starting process');
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
         } else {
-            $tmpFile = basename($_REQUEST['file']);
-            $tmpFile = Initiator::sanitizeItems(
-                $tmpFile
+            $file = filter_input(INPUT_GET, 'file');
+            $arch = filter_input(INPUT_GET, 'arch');
+            $tmpFile = basename(
+                $file
             );
             $tmpArch = (
-                $_REQUEST['arch'] == 64 ?
+                $arch == 64 ?
                 'bzImage' :
                 'bzImage32'
             );
             $formstr = "?node={$node}&sub=kernelUpdate";
-            echo '<form method="post" action="';
+            echo '<div class="col-xs-9">';
+            echo '<div class="panel panel-info">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Save Kernel');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            echo '<form class="form-horizontal" method="post" action="';
             $formstr;
             echo '">';
             echo '<input type="hidden" name="file" value="';
             echo $tmpFile;
             echo '"/>';
-            echo '<p>';
+            echo '<div class="col-xs-4">';
+            echo '<label class="control-label" for="dstName">';
             echo _('Kernel Name');
-            echo '<input class="smaller" type="text" name="dstName" value="';
-            echo $tmpArch;
-            echo '"/></p><p><input class="smaller" type="submit" name="';
-            echo 'install" value="';
-            echo _('Next');
-            echo '"/></p></form>';
+            echo '</label>';
+            echo '</div>';
+            echo '<div class="col-xs-8">';
+            echo '<div class="input-group">';
+            echo '<input class="form-control" type="text" name="dstName" id='
+                . '"dstName" value="'
+                . $tmpArch
+                . '"/>';
+            echo '</div>';
+            echo '</div>';
+            echo '<div class="col-xs-4">';
+            echo '<label class="control-label" for="install">';
+            echo _('Install Kernel');
+            echo '</label>';
+            echo '</div>';
+            echo '<div class="col-xs-8">';
+            echo '<button type="submit" class="btn btn-info btn-block" id='
+                . '"install" name="install">';
+            echo _('Install');
+            echo '</button>';
+            echo '</div>';
+            echo '</form>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
         }
     }
     /**

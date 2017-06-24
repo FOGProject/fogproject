@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-23 01:04-0400\n"
+"POT-Creation-Date: 2017-06-23 21:47-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -147,7 +147,7 @@ msgstr "Não foi possível criar impressora"
 #: /var/www/fog/lib/fog/fogcontroller.class.php:815
 #: /var/www/fog/lib/fog/fogcontroller.class.php:953
 #: /var/www/fog/lib/fog/foggetset.class.php:92
-#: /var/www/fog/lib/fog/fogpage.class.php:2456
+#: /var/www/fog/lib/fog/fogpage.class.php:2449
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:198
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:231
 #: /var/www/fog/lib/db/pdodb.class.php:183
@@ -207,8 +207,8 @@ msgstr "Registro não encontrado, erro: %s"
 #: /var/www/fog/lib/fog/fogcontroller.class.php:559
 #: /var/www/fog/lib/fog/fogcontroller.class.php:768
 #: /var/www/fog/lib/fog/fogcontroller.class.php:791
-#: /var/www/fog/lib/fog/fogpage.class.php:3265
-#: /var/www/fog/lib/fog/fogpage.class.php:3386
+#: /var/www/fog/lib/fog/fogpage.class.php:3258
+#: /var/www/fog/lib/fog/fogpage.class.php:3379
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:99
 #: /var/www/fog/lib/plugins/fileintegrity/pages/fileintegritymanagementpage.class.php:53
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:430
@@ -472,8 +472,8 @@ msgid "Invalid ID passed"
 msgstr "unidade inválido passado"
 
 #: /var/www/fog/lib/fog/fogcontroller.class.php:952
-#: /var/www/fog/lib/fog/fogpage.class.php:2458
-#: /var/www/fog/lib/fog/fogpage.class.php:3831 /var/www/fog/service/av.php:36
+#: /var/www/fog/lib/fog/fogpage.class.php:2451
+#: /var/www/fog/lib/fog/fogpage.class.php:3824 /var/www/fog/service/av.php:36
 msgid "Failed"
 msgstr "fracassado"
 
@@ -506,7 +506,7 @@ msgid "No icons found"
 msgstr "Nenhum ícone encontrado"
 
 #: /var/www/fog/lib/fog/snapin.class.php:344
-#: /var/www/fog/lib/fog/image.class.php:385
+#: /var/www/fog/lib/fog/image.class.php:390
 msgid "No viable storage groups found"
 msgstr ""
 
@@ -733,7 +733,7 @@ msgstr "Evento deve ser uma string"
 
 #: /var/www/fog/lib/fog/fogbase.class.php:2215
 #: /var/www/fog/lib/fog/fogftp.class.php:372
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2530
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2570
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:86
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2491
 #: /var/www/fog/lib/reports/virus_history.report.php:55
@@ -818,8 +818,8 @@ msgid "You are only allowed to assign"
 msgstr "Você só está autorizado a transferir"
 
 #: /var/www/fog/lib/fog/fogftp.class.php:378
-#: /var/www/fog/lib/fog/fogpage.class.php:3263
-#: /var/www/fog/lib/fog/fogpage.class.php:3373
+#: /var/www/fog/lib/fog/fogpage.class.php:3256
+#: /var/www/fog/lib/fog/fogpage.class.php:3366
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:175
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:326
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:392
@@ -1172,7 +1172,7 @@ msgid "Chassis Asset"
 msgstr "chassis de ativos"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:470
-#: /var/www/fog/lib/fog/fogpage.class.php:3148
+#: /var/www/fog/lib/fog/fogpage.class.php:3141
 #: /var/www/fog/lib/reports/user_tracking.report.php:86
 #: /var/www/fog/commons/text.php:32
 msgid "Search"
@@ -1211,7 +1211,7 @@ msgstr "Salvar alterações"
 #: /var/www/fog/lib/fog/fogpage.class.php:690
 #: /var/www/fog/lib/fog/fogpage.class.php:2282
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:899
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1151
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1191
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:273
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:352
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:571
@@ -1250,7 +1250,7 @@ msgid "Update"
 msgstr "Atualizar"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:709
-#: /var/www/fog/lib/fog/fogpage.class.php:3438
+#: /var/www/fog/lib/fog/fogpage.class.php:3431
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1039
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1234
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:475
@@ -1267,9 +1267,9 @@ msgstr "Delete Selected"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:748
 #: /var/www/fog/lib/fog/fogpage.class.php:1889
-#: /var/www/fog/lib/fog/fogpage.class.php:2636
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1009
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1142
+#: /var/www/fog/lib/fog/fogpage.class.php:2629
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1049
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1182
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:417
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:485
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:676
@@ -1674,8 +1674,8 @@ msgid "Name Change/AD Join Forced reboot"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:2281
-#: /var/www/fog/lib/fog/fogpage.class.php:3369
-#: /var/www/fog/lib/fog/fogpage.class.php:3977
+#: /var/www/fog/lib/fog/fogpage.class.php:3362
+#: /var/www/fog/lib/fog/fogpage.class.php:3970
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:583
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:494
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:241
@@ -1706,36 +1706,36 @@ msgstr "Adicionar"
 msgid "Active Directory"
 msgstr "Active Directory"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2424
+#: /var/www/fog/lib/fog/fogpage.class.php:2425
 msgid "Error: Failed to open temp file"
 msgstr "Erro: Falha ao abrir o arquivo temporário"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2446
+#: /var/www/fog/lib/fog/fogpage.class.php:2439
 msgid "Error: Failed to download kernel"
 msgstr "Erro: falha ao baixar do kernel"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2457
+#: /var/www/fog/lib/fog/fogpage.class.php:2450
 msgid "Download Failed"
 msgstr "Falha no download"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2459
+#: /var/www/fog/lib/fog/fogpage.class.php:2452
 msgid "filesize"
 msgstr "tamanho do arquivo"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2563
+#: /var/www/fog/lib/fog/fogpage.class.php:2556
 msgid "Load MAC Vendors"
 msgstr "Coloque Vendors MAC"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2570
+#: /var/www/fog/lib/fog/fogpage.class.php:2563
 #: /var/www/fog/commons/text.php:117
 msgid "Unknown"
 msgstr "Desconhecido"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2575
+#: /var/www/fog/lib/fog/fogpage.class.php:2568
 msgid "Not found"
 msgstr "Não encontrado"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2593
+#: /var/www/fog/lib/fog/fogpage.class.php:2586
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:1350
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:803
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1616
@@ -1745,32 +1745,32 @@ msgstr "Não encontrado"
 msgid "Remove"
 msgstr "Remover"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2608
+#: /var/www/fog/lib/fog/fogpage.class.php:2601
 #, fuzzy
 msgid "Delete hosts within"
 msgstr "Excluir todos os hosts dentro do grupo"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:2617
+#: /var/www/fog/lib/fog/fogpage.class.php:2610
 #, fuzzy
 msgid "Delete files"
 msgstr "Apagar dados de arquivo"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3078
+#: /var/www/fog/lib/fog/fogpage.class.php:3071
 msgid "is protected, removal not allowed"
 msgstr "é protegido, a remoção não permitidos"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3100
+#: /var/www/fog/lib/fog/fogpage.class.php:3093
 msgid "Failed to destroy"
 msgstr "Falha ao destruir"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3114
+#: /var/www/fog/lib/fog/fogpage.class.php:3107
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:366
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:170
 msgid "deleted"
 msgstr "suprimido"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3262
-#: /var/www/fog/lib/fog/fogpage.class.php:3372
+#: /var/www/fog/lib/fog/fogpage.class.php:3255
+#: /var/www/fog/lib/fog/fogpage.class.php:3365
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1287
 #: /var/www/fog/lib/service/snapinreplicator.class.php:147
 #: /var/www/fog/lib/service/snapinreplicator.class.php:148
@@ -1782,150 +1782,150 @@ msgstr "suprimido"
 msgid "Group"
 msgstr "Grupo"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3353
+#: /var/www/fog/lib/fog/fogpage.class.php:3346
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:404
 msgid "Check here to see"
 msgstr "Verifique aqui para ver"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3355
+#: /var/www/fog/lib/fog/fogpage.class.php:3348
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:406
 msgid "not within this"
 msgstr "não dentro desta"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3361
+#: /var/www/fog/lib/fog/fogpage.class.php:3354
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1170
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:411
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:525
 msgid "Modify Membership for"
 msgstr "Modificar a associação para"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3440
+#: /var/www/fog/lib/fog/fogpage.class.php:3433
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:477
 msgid "From"
 msgstr "A partir de"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3466
+#: /var/www/fog/lib/fog/fogpage.class.php:3459
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1266
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:503
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:621
 msgid "saved successfully"
 msgstr "Salvo com sucesso"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3508
+#: /var/www/fog/lib/fog/fogpage.class.php:3501
 #, fuzzy
 msgid "Click the button to download the"
 msgstr "Clique no botão para exportar o banco de dados."
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3510
+#: /var/www/fog/lib/fog/fogpage.class.php:3503
 msgid "table backup"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3515
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2600
+#: /var/www/fog/lib/fog/fogpage.class.php:3508
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2640
 #: /var/www/fog/commons/text.php:98
 msgid "Export"
 msgstr "Exportar"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3611
+#: /var/www/fog/lib/fog/fogpage.class.php:3604
 msgid "This page allows you to upload a CSV"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3612
+#: /var/www/fog/lib/fog/fogpage.class.php:3605
 msgid "file into FOG to ease migration"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3613
+#: /var/www/fog/lib/fog/fogpage.class.php:3606
 msgid "It will operate based on the fields that"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3614
+#: /var/www/fog/lib/fog/fogpage.class.php:3607
 msgid "are normally required by each area"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3615
+#: /var/www/fog/lib/fog/fogpage.class.php:3608
 msgid "For example"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3616
+#: /var/www/fog/lib/fog/fogpage.class.php:3609
 #, fuzzy
 msgid "Hosts will have macs"
 msgstr "Hotéis em Task"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3617
+#: /var/www/fog/lib/fog/fogpage.class.php:3610
 #, fuzzy
 msgid "name"
 msgstr "Nome"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3618
+#: /var/www/fog/lib/fog/fogpage.class.php:3611
 #, fuzzy
 msgid "description"
 msgstr "Descrição"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3619
+#: /var/www/fog/lib/fog/fogpage.class.php:3612
 msgid "etc"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3626
+#: /var/www/fog/lib/fog/fogpage.class.php:3619
 msgid "CSV File"
 msgstr "Arquivo CSV"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3630
+#: /var/www/fog/lib/fog/fogpage.class.php:3623
 msgid "Upload CSV"
 msgstr "Carregar CSV"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3681
+#: /var/www/fog/lib/fog/fogpage.class.php:3674
 #, fuzzy
 msgid "File must be a csv"
 msgstr "Evento deve ser uma string"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3696
+#: /var/www/fog/lib/fog/fogpage.class.php:3689
 msgid "Could not find temp filename"
 msgstr "Não foi possível encontrar temporário filename"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3722
+#: /var/www/fog/lib/fog/fogpage.class.php:3715
 #, fuzzy
 msgid "Invalid data being parsed"
 msgstr "Token inválido passado"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3735
+#: /var/www/fog/lib/fog/fogpage.class.php:3728
 #, fuzzy
 msgid "One or more macs are associated with a host"
 msgstr "Erro, é uma imagem associada com este anfitrião"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3754
+#: /var/www/fog/lib/fog/fogpage.class.php:3747
 #, fuzzy
 msgid "This host already exists"
 msgstr "Impressora já existe"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3797
+#: /var/www/fog/lib/fog/fogpage.class.php:3790
 #: /var/www/fog/commons/text.php:95
 msgid "Row"
 msgstr "Linha"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3809
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2618
+#: /var/www/fog/lib/fog/fogpage.class.php:3802
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2658
 msgid "Import"
 msgstr "Importar"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3811
+#: /var/www/fog/lib/fog/fogpage.class.php:3804
 msgid "Results"
 msgstr "Resultados"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3823
+#: /var/www/fog/lib/fog/fogpage.class.php:3816
 msgid "Total Rows"
 msgstr "total de linhas"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3826
+#: /var/www/fog/lib/fog/fogpage.class.php:3819
 msgid "Successful"
 msgstr "Bem sucedido"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3834
+#: /var/www/fog/lib/fog/fogpage.class.php:3827
 #: /var/www/fog/lib/pages/serverinfo.class.php:138
 #: /var/www/fog/commons/text.php:96
 msgid "Errors"
 msgstr "erros"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3874
+#: /var/www/fog/lib/fog/fogpage.class.php:3867
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:86
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:294
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:421
@@ -1936,16 +1936,16 @@ msgstr "erros"
 msgid "Please select an option"
 msgstr "Por favor selecione uma opção"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3911
+#: /var/www/fog/lib/fog/fogpage.class.php:3904
 #, fuzzy
 msgid "Schedule Power"
 msgstr "Scheduler"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3955
+#: /var/www/fog/lib/fog/fogpage.class.php:3948
 msgid "Perform Immediately?"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3965
+#: /var/www/fog/lib/fog/fogpage.class.php:3958
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:682
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2584
 #: /var/www/fog/lib/reports/user_tracking.report.php:212
@@ -1954,12 +1954,12 @@ msgstr ""
 msgid "Action"
 msgstr "Açao"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3974
+#: /var/www/fog/lib/fog/fogpage.class.php:3967
 #, fuzzy
 msgid "Create new PM Schedule"
 msgstr "Criar novo %s"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3984
+#: /var/www/fog/lib/fog/fogpage.class.php:3977
 #, fuzzy
 msgid "New power management task"
 msgstr "Gerenciamento de usuários"
@@ -2078,7 +2078,7 @@ msgstr ""
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:354
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:529
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:809
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1552
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1592
 msgid "Partclone Uncompressed"
 msgstr ""
 
@@ -2101,34 +2101,34 @@ msgstr "Nova imagem"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:511
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:791
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1550
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1590
 #, fuzzy
 msgid "Partclone Gzip"
 msgstr "partclone"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:523
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:803
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1551
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1591
 msgid "Partclone Gzip Split 200MiB"
 msgstr ""
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:535
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:815
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1553
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1593
 #, fuzzy
 msgid "Partclone Uncompressed Split 200MiB"
 msgstr "partclone"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:541
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:821
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1554
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1594
 #, fuzzy
 msgid "Partclone Zstd"
 msgstr "partclone"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:547
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:827
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1555
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1595
 #, fuzzy
 msgid "Partclone Zstd Split 200MiB"
 msgstr "partclone"
@@ -2571,10 +2571,19 @@ msgstr "Versão do BIOS"
 msgid "FOG License Information"
 msgstr "Informações FOG License"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:169
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:149
+msgid "GNU Gneral Public License"
+msgstr ""
+
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:178
 #, fuzzy
 msgid "Unable to contact server"
 msgstr "servidor entrar em contato com erro"
+
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:185
+#: /var/www/fog/commons/text.php:135
+msgid "Kernel Update"
+msgstr "Kernel Atualização"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:191
 msgid "This section allows you to update"
@@ -2622,471 +2631,484 @@ msgstr "Nenhuma chave que está sendo solicitado"
 msgid "so if it seems like the process is hanging please be patient"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:209
-msgid "Published Kernel"
-msgstr "publicado Kernel"
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:253
+#, fuzzy
+msgid "Downloading Kernel"
+msgstr "baixar"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:252
-msgid "Starting process..."
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:259
+#, fuzzy
+msgid "Starting process"
 msgstr "processo a partir ..."
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:272
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:281
+#, fuzzy
+msgid "Save Kernel"
+msgstr "Núcleo"
+
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:293
 msgid "Kernel Name"
 msgstr "Nome Kernel"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:277
-msgid "Next"
-msgstr "Próximo"
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:306
+#, fuzzy
+msgid "Install Kernel"
+msgstr "hospedar Kernel"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:288
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:312
+#, fuzzy
+msgid "Install"
+msgstr "Instalar / Atualizar Falha!"
+
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:328
 msgid "FOG PXE Boot Menu Configuration"
 msgstr "Configuração do menu FOG Boot PXE"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:367
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:407
 msgid "No Menu"
 msgstr "Sem menu"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:374
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:414
 msgid "Option sets if there will even"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:375
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:415
 msgid "be the presence of a menu"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:376
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:416
 msgid "to the client systems"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:377
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:417
 #, fuzzy
 msgid "If there is not a task set"
 msgstr "Há uma série de tarefas"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:378
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:418
 msgid "it boots to the first device"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:379
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:419
 #, fuzzy
 msgid "if there is a task"
 msgstr "Há uma série de tarefas"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:380
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:420
 msgid "it performs that task"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:383
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:423
 msgid "Hide Menu"
 msgstr "FECHAR"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:390
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:430
 msgid "Option below sets the key sequence"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:391
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:431
 #, fuzzy
 msgid "If none is specified"
 msgstr "Nenhuma imagem especificada"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:392
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:432
 #, fuzzy
 msgid "ESC is defaulted"
 msgstr "Ativado como padrão"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:393
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:433
 msgid "Login with the FOG credentials and you will see the menu"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:394
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:434
 msgid "Otherwise it will just boot like normal"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:397
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:437
 msgid "Hide Menu Timeout"
 msgstr "Timeout FECHAR"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:401
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:441
 msgid "Option specifies the timeout value for the hidden menu system"
 msgstr "Opção especifica o valor de tempo limite para o sistema de menu oculto"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:403
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:443
 msgid "Advanced Menu Login"
 msgstr "Login avançado menu"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:410
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:450
 msgid "Option below enforces a login system"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:411
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:451
 msgid "for the advanced menu parameters"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:412
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:452
 msgid "If off"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:413
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:453
 msgid "no login will appear"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:414
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:454
 #, fuzzy
 msgid "If on"
 msgstr "Ícone"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:415
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:455
 msgid "it will only allow login to the advanced system"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:418
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:458
 msgid "Boot Key Sequence"
 msgstr "Bota Key Sequence"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:421
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:461
 #, fuzzy
 msgid "Menu Timeout"
 msgstr "Timeout FECHAR"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:422
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:462
 msgid "in seconds"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:427
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:467
 msgid "Menu Background File"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:431
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:471
 msgid "Option specifies background file to use"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:433
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:473
 msgid "Main Colors"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:437
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:477
 #, fuzzy
 msgid "Option specifies the color settings of the main items"
 msgstr "Opção especifica o valor de tempo limite para o sistema de menu oculto"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:439
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:479
 #, fuzzy
 msgid "Valid Host Colors"
 msgstr "Anfitrião inválido"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:443
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:483
 #, fuzzy
 msgid "Option specifies the color text of a valid host"
 msgstr "Opção especifica o valor de tempo limite para o sistema de menu oculto"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:445
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:485
 #, fuzzy
 msgid "Invalid Host Colors"
 msgstr "Anfitrião inválido"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:449
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:489
 #, fuzzy
 msgid "Option specifies the color text of an invalid host"
 msgstr "Opção especifica o valor de tempo limite para o sistema de menu oculto"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:451
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:491
 msgid "Main pairings"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:457
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:497
 msgid "Option specifies the pairings of colors to"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:458
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:498
 msgid "present and where how they need to display"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:461
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:501
 msgid "Main fallback pairings"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:465
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:505
 msgid "Option specifies the pairings as a fallback"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:467
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:507
 #, fuzzy
 msgid "Host pairings"
 msgstr "Lista de Host"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:471
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:511
 msgid "Option specifies the pairings after host checks"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:473
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:513
 msgid "Exit to Hard Drive Type"
 msgstr "Sair para Tipo de disco rígido"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:474
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:514
 msgid "Exit to Hard Drive Type(EFI)"
 msgstr "Sair para Tipo de disco rígido (EFI)"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:477
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:517
 #, fuzzy
 msgid "Advanced configuration options"
 msgstr "FOG Serviço de Informações de Configuração"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:484
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:524
 msgid "Add any custom text you would like"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:485
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:525
 msgid "included as a part of your"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:486
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:526
 #, fuzzy
 msgid "default"
 msgstr "Padrão"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:487
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:527
 #, fuzzy
 msgid "file"
 msgstr "Arquivo"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:493
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:533
 msgid "Save PXE MENU"
 msgstr "Salvar PXE MENU"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:533
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:545
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:573
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:585
 msgid "Invalid Timeout Value"
 msgstr "Valor do Tempo Limite inválido"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:592
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:632
 msgid "PXE Menu has been updated"
 msgstr "Menu de PXE foi atualizado"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:610
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:650
 msgid "This item allows you to edit all of the"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:611
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:651
 msgid "PXE Menu items as you see fit"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:612
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:652
 msgid "Mind you"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:613
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:653
 msgid "iPXE syntax is very finicky when it comes to edits"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:614
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:654
 msgid "If you need help understanding what items are needed"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:615
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:655
 msgid "please see the forums"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:616
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:656
 msgid "You can also look at ipxe.org for syntactic usage and methods"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:617
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:657
 msgid "Some of the items here are bound to limitations"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:618
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:658
 msgid "Documentation will follow when enough time is provided"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:660
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:866
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:700
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:906
 msgid "Menu Item:"
 msgstr "Item do menu:"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:665
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:871
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:705
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:911
 msgid "Description:"
 msgstr "Descrição:"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:670
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:876
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:710
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:916
 msgid "Parameters:"
 msgstr "parâmetros:"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:675
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:881
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:715
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:921
 msgid "Boot Options:"
 msgstr "Opções de inicialização:"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:680
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:886
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:720
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:926
 msgid "Default Item:"
 msgstr "Item padrão:"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:685
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:725
 #, fuzzy
 msgid "Hot Key Enabled"
 msgstr "imagem Ativado"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:690
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:730
 #, fuzzy
 msgid "Hot Key to use"
 msgstr "Não é capaz de atualizar"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:694
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:891
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:734
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:931
 msgid "Menu Show with:"
 msgstr "Menu Show com:"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:812
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:852
 msgid "successfully updated"
 msgstr "atualizado com sucesso"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:828
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:868
 msgid "successfully removed"
 msgstr "removido com sucesso"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:855
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:895
 msgid "Create New iPXE Menu Entry"
 msgstr "Criar Nova gpxe entrada do menu"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:899
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:939
 msgid "New Menu"
 msgstr "novo menu"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:936
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:976
 msgid "Menu Item or title cannot be blank"
 msgstr "Artigo ou título de menu não pode ficar em branco"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:939
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:979
 msgid "A description needs to be set"
 msgstr "Uma descrição precisa ser definida"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:959
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:999
 msgid "Menu create failed"
 msgstr "Menu Criar falhou"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:977
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1017
 msgid "Menu Added"
 msgstr "Menu Adicionado"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1007
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1047
 msgid "FOG Client Service Updater"
 msgstr "FOG Service Client Updater"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1010
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1050
 msgid "Module Name"
 msgstr "Nome do módulo"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1011
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1051
 msgid "Module MD5"
 msgstr "módulo MD5"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1012
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1052
 msgid "Module Type"
 msgstr "Tipo de módulo"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1056
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1096
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:450
 #, fuzzy
 msgid "NOTICE"
 msgstr "NÃO"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1058
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1098
 #, fuzzy
 msgid "The below items are only used for the old client."
 msgstr ""
 "Esta configuração define o nome de usuário utilizado para o cliente ssh."
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1060
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1100
 msgid "Old clients are the clients that came with FOG"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1062
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1102
 msgid "Version 1.2.0 and earlier"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1073
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1113
 #, fuzzy
 msgid "Current files"
 msgstr "Registros atuais"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1077
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1117
 #, fuzzy
 msgid "This section allows you to update the modules and"
 msgstr "Esta configuração define o nome de usuário proxy para usar."
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1079
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1119
 msgid "config files that run on the client computers."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1081
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1121
 msgid "The clients will checkin with the server from time"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1083
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1123
 msgid "to time to see if a new module is published."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1085
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1125
 #, fuzzy
 msgid "If a new module is published the client will"
 msgstr ""
 "Esta configuração define o nome de usuário utilizado para o cliente ssh."
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1087
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1127
 msgid "download the module and use it on the next"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1089
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1129
 msgid "time the service is started."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1109
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1149
 #, fuzzy
 msgid "Upload file"
 msgstr "Subir arquivo"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1111
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1151
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:205
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:492
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:887
 msgid "Max Size"
 msgstr "Max Size"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1117
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1157
 msgid "Browse"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1137
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1177
 #, fuzzy
 msgid "Delete Selected Items"
 msgstr "Excluir todos os itens selecionados"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1146
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1186
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:489
 #, fuzzy
 msgid "Make Changes"
 msgstr "Salvar alterações"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1188
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1228
 #, fuzzy
 msgid "Item removed successfully"
 msgstr "Salvo com sucesso"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1191
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1231
 msgid "No file uploaded"
 msgstr "No arquivo carregado"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1230
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1270
 msgid "Modules added/updated"
 msgstr "Módulos adicionado / atualizado"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1243
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1283
 msgid "MAC Address Manufacturer Listing"
 msgstr "MAC Listing Endereço Fabricante"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1251
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1291
 #, fuzzy
 msgid ""
 "This section allows you to import known mac address makers into the FOG "
@@ -3095,174 +3117,174 @@ msgstr ""
 "Esta seção permite que você importe os fabricantes de endereço MAC "
 "conhecidos na névoa banco de dados para facilitar a identificação."
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1258
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1298
 msgid "Current Records"
 msgstr "Registros atuais"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1267
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1307
 msgid "Delete MACs"
 msgstr "excluir MACs"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1271
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1311
 msgid "Update MACs"
 msgstr "Atualizar MACs"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1290
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1330
 msgid "Could not read temp file"
 msgstr "Não foi possível ler arquivo temporário"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1346
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1386
 msgid " mac addresses updated!"
 msgstr " endereços MAC atualizado!"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1423
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1463
 msgid "FOG System Settings"
 msgstr "Configurações do sistema FOG"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1431
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1471
 msgid "This section allows you to customize or alter "
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1432
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1472
 msgid "the way in which FOG operates. "
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1433
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1473
 msgid "Please be very careful changing any of "
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1434
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1474
 msgid "the following settings, as they can cause "
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1435
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1475
 msgid "issues that are difficult to troubleshoot."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1456
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1496
 msgid "Expand All"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1480
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1520
 #, fuzzy
 msgid "Save changes?"
 msgstr "Salvar alterações"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1488
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1950
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1528
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1990
 #: /var/www/fog/commons/text.php:183
 msgid "Save Changes"
 msgstr "Salvar alterações"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1719
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1759
 msgid "No image specified"
 msgstr "Nenhuma imagem especificada"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1788
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1828
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:516
 #, fuzzy
 msgid "Reset Token"
 msgstr "token de acesso"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1973
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2013
 msgid "No Image specified"
 msgstr "Sem Imagem do especificado"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2186
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2226
 msgid "Width must be 650 pixels."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2192
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2232
 msgid "Height must be 120 pixels."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2319
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2359
 msgid "Service Master"
 msgstr "Mestre serviço"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2328
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2368
 #: /var/www/fog/lib/service/taskscheduler.class.php:212
 #: /var/www/fog/commons/text.php:102
 msgid "Multicast"
 msgstr "multicast"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2337
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2377
 msgid "Scheduler"
 msgstr "Scheduler"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2346
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2386
 msgid "Image Replicator"
 msgstr "Replicator imagem"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2355
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2395
 #, fuzzy
 msgid "Image Size"
 msgstr "Nome da imagem"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2364
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2404
 msgid "Snapin Replicator"
 msgstr "Snapin Replicator"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2373
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2413
 #, fuzzy
 msgid "Snapin Hash"
 msgstr "Caminho Snapin"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2382
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2422
 msgid "Ping Hosts"
 msgstr "Hosts Ping"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2424
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2464
 msgid "Image Transfer Log"
 msgstr "Transferência de Imagem Log"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2438
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2478
 msgid "Snapin Transfer Log"
 msgstr "Snapin Transferência de Log"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2516
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2556
 msgid "FOG Log Viewer"
 msgstr "FOG Visualizador de Log"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2538
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2578
 #, fuzzy
 msgid "Lines"
 msgstr "Linha"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2548
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2588
 msgid "Reverse the file: (newest on top)"
 msgstr "Reverter o arquivo: (a mais recente no topo)"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2554
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2594
 #, fuzzy
 msgid "Pause"
 msgstr "Do utilizador"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2597
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2637
 msgid "Click the button to export the database."
 msgstr "Clique no botão para exportar o banco de dados."
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2609
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2649
 msgid "Import a previous backup file."
 msgstr "Importar um arquivo de backup anterior."
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2657
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2697
 msgid "Database Imported and added successfully"
 msgstr "Banco de dados importado e adicionado com sucesso"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2659
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2699
 msgid "Errors detected on import"
 msgstr "Erros detectados na importação"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2665
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2705
 msgid "Database changes reverted"
 msgstr "alterações banco de dados revertido"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2669
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2709
 msgid "Errors on revert detected"
 msgstr "Erros em revert detectado"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2675
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2715
 msgid "There were errors during import"
 msgstr "Ocorreram erros durante a importação"
 
@@ -8925,10 +8947,6 @@ msgstr "História Snapin"
 msgid "License"
 msgstr "Licença"
 
-#: /var/www/fog/commons/text.php:135
-msgid "Kernel Update"
-msgstr "Kernel Atualização"
-
 #: /var/www/fog/commons/text.php:136
 msgid "iPXE Boot Menu"
 msgstr "Menu de gpxe Bota"
@@ -9722,6 +9740,12 @@ msgstr "Olá Cliente FOG"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "Não há locais neste servidor."
+
+#~ msgid "Published Kernel"
+#~ msgstr "publicado Kernel"
+
+#~ msgid "Next"
+#~ msgstr "Próximo"
 
 #~ msgid "Number of lines"
 #~ msgstr "Número de linhas"
@@ -10610,9 +10634,6 @@ msgstr "Não há locais neste servidor."
 
 #~ msgid "Upload"
 #~ msgstr "Envio"
-
-#~ msgid "Download"
-#~ msgstr "baixar"
 
 #~ msgid "[Organization Here]"
 #~ msgstr "[Organização Aqui]"
