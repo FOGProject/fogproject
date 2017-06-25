@@ -517,7 +517,7 @@ abstract class FOGPage extends FOGBase
                     'headerData' => &$this->headerData
                 )
             );
-            echo '<div class="col-xs-offset-3">';
+            echo '<div class="col-xs-9">';
             echo '<div class="panel panel-info">';
             echo '<div class="panel-heading text-center">';
             echo '<h4 class="title">';
@@ -1145,7 +1145,7 @@ abstract class FOGPage extends FOGBase
                 'attributes' => &$this->attributes
             )
         );
-        echo '<div class="col-xs-offset-3 panel panel-info">';
+        echo '<div class="col-xs-9 panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
         echo _('Confirm tasking');
@@ -1359,7 +1359,7 @@ abstract class FOGPage extends FOGBase
         echo '</div>';
         echo '</div>';
         if ($this->node != 'host') {
-            echo '<div class="col-xs-offset-3 panel panel-info">';
+            echo '<div class="col-xs-9 panel panel-info">';
             echo '<div class="panel-heading text-center">';
             echo '<h2 class="title">';
             echo _('Hosts in task');
@@ -1746,7 +1746,7 @@ abstract class FOGPage extends FOGBase
             }
         } catch (Exception $e) {
             printf(
-                '<div class="col-xs-offset-3">'
+                '<div class="col-xs-9">'
                 . '<div class="panel panel-danger">'
                 . '<div class="panel-body text-center">'
                 . '<p>%s</p>'
@@ -1780,7 +1780,7 @@ abstract class FOGPage extends FOGBase
                 break;
             }
             printf(
-                '<div class="col-xs-offset-3">'
+                '<div class="col-xs-9">'
                 . '<div class="panel panel-success">'
                 . '<div class="panel-body text-center">'
                 . '<p>%s: %s</p>'
@@ -1890,7 +1890,7 @@ abstract class FOGPage extends FOGBase
             . '</button>',
         );
         echo '<!-- Delete Items -->';
-        echo '<div class="col-xs-offset-3">';
+        echo '<div class="col-xs-9">';
         echo '<div class="panel panel-warning">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
@@ -2652,7 +2652,7 @@ abstract class FOGPage extends FOGBase
                 $this->childClass => &$this->obj
             )
         );
-        echo '<div class="col-xs-offset-3">';
+        echo '<div class="col-xs-9">';
         echo '<div class="panel panel-warning">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
@@ -3162,7 +3162,7 @@ abstract class FOGPage extends FOGBase
             ),
             array('headerData' => &$this->headerData)
         );
-        echo '<div class="col-xs-offset-3">';
+        echo '<div class="col-xs-9">';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';

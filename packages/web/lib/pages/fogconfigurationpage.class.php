@@ -947,11 +947,11 @@ class FOGConfigurationPage extends FOGPage
                         $items
                     );
             }
-            throw new Exception(_('PXE Menu has been updated'));
+            //throw new Exception(_('PXE Menu has been updated'));
         } catch (Exception $e) {
             //self::setMessage($e->getMessage());
-            self::redirect($this->formAction);
         }
+        self::redirect($this->formAction);
     }
     /**
      * Saves/updates the pxe customizations.
@@ -961,147 +961,226 @@ class FOGConfigurationPage extends FOGPage
     public function customizepxe()
     {
         $this->title = self::$foglang['PXEMenuCustomization'];
-        printf(
-            '<p>%s</p><div id="tab-container-1">',
-            sprintf(
-                '%s %s. %s, %s. %s, %s. %s. %s. %s.',
-                _('This item allows you to edit all of the'),
-                _('PXE Menu items as you see fit'),
-                _('Mind you'),
-                _('iPXE syntax is very finicky when it comes to edits'),
-                _('If you need help understanding what items are needed'),
-                _('please see the forums'),
-                _('You can also look at ipxe.org for syntactic usage and methods'),
-                _('Some of the items here are bound to limitations'),
-                _('Documentation will follow when enough time is provided')
-            )
-        );
         $this->templates = array(
             '${field}',
             '${input}',
         );
-        foreach ((array)self::getClass('PXEMenuOptionsManager')
-            ->find('', '', 'id') as &$Menu
-        ) {
+        Route::listem('pxemenuoptions');
+        $Menus = json_decode(
+            Route::getData()
+        );
+        $Menus = $Menus->pxemenuoptionss;
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo _('This item allows you to edit all of the iPXE Menu items as you');
+        echo ' ';
+        echo _('see fit');
+        echo '. ';
+        echo _('Mind you');
+        echo ', ';
+        echo _('iPXE syntax is very finicky when it comes to editing');
+        echo '. ';
+        echo _('If you need help understanding what items are needed please');
+        echo ' ';
+        echo _('see the forums or lookup the commands and scripts available');
+        echo ' ';
+        echo _('from');
+        echo ' ';
+        echo '<a href="http://ipxe.org">';
+        echo 'ipxe.org';
+        echo '</a>';
+        echo '.';
+        echo '<hr/>';
+        foreach ((array)$Menus as &$Menu) {
             $divTab = preg_replace(
                 '#[^\w\-]#',
                 '_',
-                $Menu->get('name')
-            );
-            printf(
-                '<a class="%s" id="%s" href="#%s">'
-                . '<h3>%s</h3></a><div id="%s" class="hidefirst">'
-                . '<form method="post" action="%s">',
-                'divtabs',
-                $divTab,
-                $divTab,
-                $Menu->get('name'),
-                $divTab,
-                $this->formAction
+                $Menu->name
             );
             $menuid = in_array(
-                $Menu->get('id'),
+                $Menu->id,
                 range(1, 13)
             );
             $menuDefault = (
-                $Menu->get('default') ?
+                $Menu->default ?
                 ' checked' :
                 ''
             );
             $hotKey = (
-                $Menu->get('hotkey') ?
+                $Menu->hotkey ?
                 ' checked' :
                 ''
             );
-            $keySeq = $Menu->get('keysequence');
+            $keySeq = $Menu->keysequence;
             $fields = array(
-                _('Menu Item:') => sprintf(
-                    '<input type="text" name="menu_item" value='
-                    . '"%s" id="menu_item"/>',
-                    $Menu->get('name')
-                ),
-                _('Description:') => sprintf(
-                    '<textarea cols="40" rows="2" name='
-                    . '"menu_description">%s</textarea>',
-                    $Menu->get('description')
-                ),
-                _('Parameters:') => sprintf(
-                    '<textarea cols="40" rows="8" name='
-                    . '"menu_params">%s</textarea>',
-                    $Menu->get('params')
-                ),
-                _('Boot Options:') => sprintf(
-                    '<input type="text" name="menu_options" id='
-                    . '"menu_options" value="%s"/>',
-                    $Menu->get('args')
-                ),
-                _('Default Item:') => sprintf(
-                    '<input type="checkbox" name="menu_default" value="1" id="'
-                    . 'menudef"%s/><label for="menudef"></label>',
-                    $menuDefault
-                ),
-                _('Hot Key Enabled') => sprintf(
-                    '<input type="checkbox" name="hotkey" id="hotkey"%s/>'
-                    . '<label for="hotkey"></label>',
-                    $hotKey
-                ),
-                _('Hot Key to use') => sprintf(
-                    '<input type="text" name="keysequence" value="%s"/>',
-                    $keySeq
-                ),
-                _('Menu Show with:') => self::getClass(
+                '<label for="menu_item'
+                . $divTab
+                . '">'
+                . _('Menu Item')
+                . '</label>' => '<div class="input-group">'
+                . '<input type="text" class="form-control" value="'
+                . $Menu->name
+                . '" name="menu_item" id="menu_item'
+                . $divTab
+                . '"/>'
+                . '</div>',
+                '<label for="menu_description'
+                . $divTab
+                . '">'
+                . _('Description')
+                . '</label>' => '<div class="input-group">'
+                . '<textarea name="menu_description" id="menu_description'
+                . $divTab
+                . '" class="form-control">'
+                . $Menu->description
+                . '</textarea>'
+                . '</div>',
+                '<label for="menu_params'
+                . $divTab
+                . '">'
+                . _('Parameters')
+                . '</label>' => '<div class="input-group">'
+                . '<textarea name="menu_params" id="menu_params'
+                . $divTab
+                . '" class="form-control">'
+                . $Menu->params
+                . '</textarea>'
+                . '</div>',
+                '<label for="menu_options'
+                . $divTab
+                . '">'
+                . _('Boot Options')
+                . '</label>' => '<div class="input-group">'
+                . '<input type="text" name="menu_options" id="'
+                . 'menu_options'
+                . $divTab
+                . '" value="'
+                . $Menu->args
+                . '" class="form-control"/>'
+                . '</div>',
+                '<label for="menudef'
+                . $divTab
+                . '">'
+                . _('Default Item')
+                . '</label>' => '<input type="checkbox" name="menu_default" id="'
+                . 'menudef'
+                . $divTab
+                . '"'
+                . $menuDefault
+                . '/>',
+                '<label for="hotkey'
+                . $divTab
+                . '">'
+                . _('Hot Key Enabled')
+                . '</label>' => '<input type="checkbox" name="hotkey" id="hotkey'
+                . $divTab
+                . '"'
+                . $hotKey
+                . '/>',
+                '<label for="menu_hotkey'
+                . $divTab
+                . '">'
+                . _('Hot Key to use')
+                . '</label>' => '<div class="input-group">'
+                . '<input type="text" name="keysequence" value="'
+                . $keySeq
+                . '" class="form-control" id="menu_hotkey'
+                . $divTab
+                . '"/>'
+                . '</div>',
+                '<label for="menu_regsel'
+                . $divTab
+                . '">'
+                . _('Menu Show with')
+                . '</label>' => '<div class="input-group">'
+                . self::getClass(
                     'PXEMenuOptionsManager'
                 )->regSelect(
-                    $Menu->get('regMenu')
-                ),
-                sprintf(
-                    '<input type="hidden" name="menu_id" value="%s"/>',
-                    $Menu->get('id')
-                ) => sprintf(
-                    '<input type="submit" name="saveform" value="%s"/>',
-                    self::$foglang['Submit']
-                ),
+                    $Menu->regMenu,
+                    'menu_regsel'
+                    . $divTab
+                )
+                . '</div>',
+                '<label for="menu_id'
+                . $divTab
+                . '">'
+                . _('Make Changes?')
+                . '</label>'
+                . '<input type="hidden" name="menu_id" value="'
+                . $Menu->id
+                . '"/>' => '<button name="saveform" type="submit" class="'
+                . 'btn btn-info btn-block" id="menu_id'
+                . $divTab
+                . '">'
+                . self::$foglang['Submit']
+                . '</button>',
                 (
                     !$menuid ?
-                    sprintf(
-                        '<input type="hidden" name="rmid" value="%s"/>',
-                        $Menu->get('id')
-                    ) :
+                    '<label for="menu_del'
+                    . $divTab
+                    . '">'
+                    . _('Delete Menu Item')
+                    . '</label>'
+                    . '<input type="hidden" name="rmid" value="'
+                    . $Menu->id
+                    . '"/>' :
                     ''
-                )=> (
+                ) => (
                     !$menuid ?
-                    sprintf(
-                        '<input type="submit" name="delform" value="%s %s"/>',
-                        self::$foglang['Delete'],
-                        $Menu->get('name')
-                    ) :
+                    '<button name="delform" type="submit" class="'
+                    . 'btn btn-danger btn-block" id="menu_del'
+                    . $divTab
+                    . '">'
+                    . self::$foglang['Delete']
+                    . '</button>' :
                     ''
                 ),
             );
-            foreach ((array)$fields as $field => &$input) {
-                $this->data[] = array(
-                    'field'=>$field,
-                    'input'=>$input,
-                );
-                unset($input);
-            }
-            self::$HookManager
-                ->processEvent(
-                    sprintf(
-                        'BOOT_ITEMS_%s',
-                        $divTab
-                    ),
-                    array(
-                        'data' => &$this->data,
-                        'templates' => &$this->templates,
-                        'attributes' => &$this->attributes,
-                        'headerData' => &$this->headerData
-                    )
-                );
-            $this->render();
-            echo '</form></div>';
-            unset($this->data, $Menu);
+            $fields = array_filter($fields);
+            array_walk($fields, $this->fieldsToData);
+            self::$HookManager->processEvent(
+                sprintf(
+                    'BOOT_ITEMS_%s',
+                    $divTab
+                ),
+                array(
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes,
+                    'headerData' => &$this->headerData
+                )
+            );
+            echo '<div class="panel panel-info">';
+            echo '<div class="panel-heading text-center expand_trigger hand" id="'
+                . $divTab
+                . '">';
+            echo '<h4 class="title">';
+            echo $Menu->name;
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body hidefirst" id="'
+                . $divTab
+                . '">';
+            echo '<form class="form-horizontal" method="post" action="'
+                . $this->formAction
+                . '">';
+            echo $this->render(12);
+            echo '</form>';
+            echo '</div>';
+            echo '</div>';
+            unset(
+                $this->data,
+                $Menu
+            );
         }
+        echo '</div>';
+        echo '</div>';
         echo '</div>';
     }
     /**
@@ -1111,33 +1190,61 @@ class FOGConfigurationPage extends FOGPage
      */
     public function customizepxePost()
     {
-        if (isset($_REQUEST['saveform'])
-            && $_REQUEST['menu_id']
-        ) {
+        $menuid = filter_input(
+            INPUT_POST,
+            'menu_id'
+        );
+        if (isset($_POST['saveform'])) {
+            $menu_item = filter_input(
+                INPUT_POST,
+                'menu_item'
+            );
+            $menu_desc = filter_input(
+                INPUT_POST,
+                'menu_description'
+            );
+            $menu_params = filter_input(
+                INPUT_POST,
+                'menu_params'
+            );
+            $menu_options = filter_input(
+                INPUT_POST,
+                'menu_options'
+            );
+            $menu_regmenu = filter_input(
+                INPUT_POST,
+                'menu_regmenu'
+            );
+            $menu_hotkey = (int)isset($_POST['hotkey']);
+            $menu_key = filter_input(
+                INPUT_POST,
+                'keysequence'
+            );
+            $menu_default = (int)isset($_POST['menu_default']);
             self::getClass('PXEMenuOptionsManager')
                 ->update(
                     array(
-                        'id' => $_REQUEST['menu_id']
+                        'id' => $menuid
                     ),
                     '',
                     array(
-                        'name' => $_REQUEST['menu_item'],
-                        'description' => $_REQUEST['menu_description'],
-                        'params' => $_REQUEST['menu_params'],
-                        'regMenu' => $_REQUEST['menu_regmenu'],
-                        'args' => $_REQUEST['menu_options'],
-                        'default' => $_REQUEST['menu_default'],
-                        'hotkey' => isset($_REQUEST['hotkey']),
-                        'keysequence' => $_REQUEST['keysequence']
+                        'name' => $menu_item,
+                        'description' => $menu_desc,
+                        'params' => $menu_params,
+                        'regMenu' => $menu_regmenu,
+                        'args' => $menu_options,
+                        'default' => $menu_default,
+                        'hotkey' => $menu_hotkey,
+                        'keysequence' => $menu_key
                     )
                 );
-            if ($_REQUEST['menu_default']) {
+            if ($menu_default) {
                 $MenuIDs = self::getSubObjectIDs('PXEMenuOptions');
                 natsort($MenuIDs);
                 $MenuIDs = array_unique(
                     array_diff(
                         $MenuIDs,
-                        (array)$_REQUEST['menu_id']
+                        (array)$menuid
                     )
                 );
                 natsort($MenuIDs);
@@ -1166,17 +1273,19 @@ class FOGConfigurationPage extends FOGPage
             self::setMessage(
                 sprintf(
                     '%s %s!',
-                    $_REQUEST['menu_item'],
+                    $menu_item,
                     _('successfully updated')
                 )
             );
         }
-        if (isset($_REQUEST['delform'])
-            && $_REQUEST['rmid']
-        ) {
+        $rmid = filter_input(
+            INPUT_POST,
+            'rmid'
+        );
+        if (isset($_POST['delform'])) {
             $menuname = self::getClass(
                 'PXEMenuOptions',
-                $_REQUEST['rmid']
+                $rmid
             );
             if ($menuname->destroy()) {
                 self::setMessage(
@@ -1187,19 +1296,19 @@ class FOGConfigurationPage extends FOGPage
                     )
                 );
             }
-        }
-        $countDefault = self::getClass('PXEMenuOptionsManager')
-            ->count(
-                array(
-                    'default' => 1
-                )
-            );
-        if ($countDefault == 0
-            || $countDefault > 1
-        ) {
-            self::getClass('PXEMenuOptions', 1)
-                ->set('default', 1)
-                ->save();
+            $countDefault = self::getClass('PXEMenuOptionsManager')
+                ->count(
+                    array(
+                        'default' => 1
+                    )
+                );
+            if ($countDefault == 0
+                || $countDefault > 1
+            ) {
+                self::getClass('PXEMenuOptions', 1)
+                    ->set('default', 1)
+                    ->save();
+            }
         }
         self::redirect($this->formAction);
     }
@@ -1215,56 +1324,118 @@ class FOGConfigurationPage extends FOGPage
             '${field}',
             '${input}',
         );
-        $menudefault = (
-            $_REQUEST['menu_default'] ?
+        $menu_item = filter_input(
+            INPUT_POST,
+            'menu_item'
+        );
+        $menu_desc = filter_input(
+            INPUT_POST,
+            'menu_description'
+        );
+        $menu_params = filter_input(
+            INPUT_POST,
+            'menu_params'
+        );
+        $menu_options = filter_input(
+            INPUT_POST,
+            'menu_options'
+        );
+        $menu_regmenu = filter_input(
+            INPUT_POST,
+            'menu_regmenu'
+        );
+        $menu_hotkey = (
+            isset($_POST['hotkey']) ?
+            ' checked' :
+            ''
+        );
+        $menu_key = filter_input(
+            INPUT_POST,
+            'keysequence'
+        );
+        $menu_default = (
+            isset($_POST['menu_default']) ?
             ' checked' :
             ''
         );
         $fields = array(
-            _('Menu Item:') => sprintf(
-                '<input type="text" name="menu_item" value='
-                . '"%s" id="menu_item"/>',
-                $_REQUEST['menu_item']
-            ),
-            _('Description:') => sprintf(
-                '<textarea cols="40" rows="2" name='
-                . '"menu_description">%s</textarea>',
-                $_REQUEST['menu_description']
-            ),
-            _('Parameters:') => sprintf(
-                '<textarea cols="40" rows="8" name='
-                . '"menu_params">%s</textarea>',
-                $_REQUEST['menu_params']
-            ),
-            _('Boot Options:') => sprintf(
-                '<input type="text" name="menu_options" id='
-                . '"menu_options" value="%s"/>',
-                $_REQUEST['menu_options']
-            ),
-            _('Default Item:') => sprintf(
-                '<input type="checkbox" name="menu_default" value="1" id="'
-                . 'menudef"%s/><label for="menudef"></label>',
-                $menudefault
-            ),
-            _('Menu Show with:') => self::getClass(
+            '<label for="menu_item">'
+            . _('Menu Item')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" class="form-control" value="'
+            . '" name="menu_item" id="menu_item'
+            . $menu_item
+            . '"/>'
+            . '</div>',
+            '<label for="menu_description">'
+            . _('Description')
+            . '</label>' => '<div class="input-group">'
+            . '<textarea name="menu_description" id="menu_description'
+            . '" class="form-control">'
+            . $menu_desc
+            . '</textarea>'
+            . '</div>',
+            '<label for="menu_params">'
+            . _('Parameters')
+            . '</label>' => '<div class="input-group">'
+            . '<textarea name="menu_params" id="menu_params'
+            . '" class="form-control">'
+            . $menu_params
+            . '</textarea>'
+            . '</div>',
+            '<label for="menu_options">'
+            . _('Boot Options')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="menu_options" id="'
+            . 'menu_options'
+            . '" value="'
+            . $menu_options
+            . '" class="form-control"/>'
+            . '</div>',
+            '<label for="menudef">'
+            . _('Default Item')
+            . '</label>' => '<input type="checkbox" name="menu_default" id="'
+            . 'menudef'
+            . '"'
+            . $menu_default
+            . '/>',
+            '<label for="hotkey">'
+            . _('Hot Key Enabled')
+            . '</label>' => '<input type="checkbox" name="hotkey" id="hotkey'
+            . '"'
+            . $menu_hotkey
+            . '/>',
+            '<label for="menu_hotkey">'
+            . _('Hot Key to use')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="keysequence" value="'
+            . $menu_key
+            . '" class="form-control" id="menu_hotkey'
+            . '"/>'
+            . '</div>',
+            '<label for="menu_regsel">'
+            . _('Menu Show with')
+            . '</label>' => '<div class="input-group">'
+            . self::getClass(
                 'PXEMenuOptionsManager'
             )->regSelect(
-                $_REQUEST['menu_regmenu']
-            ),
-            '&nbsp;' => sprintf(
-                '<input type="submit" value="%s %s"/>',
-                self::$foglang['Add'],
-                _('New Menu')
-            ),
+                $menu_regmenu,
+                'menu_regsel'
+            )
+            . '</div>',
+            '<label for="menu_id'
+            . '">'
+            . _('Make Changes?')
+            . '</label>'
+            . '<input type="hidden" name="menu_id" value="'
+            . '"/>' => '<button name="saveform" type="submit" class="'
+            . 'btn btn-info btn-block" id="menu_id'
+            . '">'
+            . self::$foglang['Submit']
+            . '</button>',
         );
-        foreach ((array)$fields as $field => &$input) {
-            $this->data[] = array(
-                'field'=>$field,
-                'input'=>$input,
-            );
-            unset($input);
-        }
-        unset($fields);
+        $fields = array_filter($fields);
+        array_walk($fields, $this->fieldsToData);
         self::$HookManager
             ->processEvent(
                 'BOOT_ITEMS_ADD',
@@ -1275,12 +1446,22 @@ class FOGConfigurationPage extends FOGPage
                     'headerData' => &$this->headerData
                 )
             );
-        printf(
-            '<form method="post" action="%s">',
-            $this->formAction
-        );
-        $this->render();
-        echo "</form>";
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('New iPXE Menu');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
+        $this->render(12);
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Creates the new Menu items.
@@ -1289,14 +1470,40 @@ class FOGConfigurationPage extends FOGPage
      */
     public function newMenuPost()
     {
+        $menu_item = filter_input(
+            INPUT_POST,
+            'menu_item'
+        );
+        $menu_desc = filter_input(
+            INPUT_POST,
+            'menu_description'
+        );
+        $menu_params = filter_input(
+            INPUT_POST,
+            'menu_params'
+        );
+        $menu_options = filter_input(
+            INPUT_POST,
+            'menu_options'
+        );
+        $menu_regmenu = filter_input(
+            INPUT_POST,
+            'menu_regmenu'
+        );
+        $menu_hotkey = (int)isset($_POST['hotkey']);
+        $menu_key = filter_input(
+            INPUT_POST,
+            'keysequence'
+        );
+        $menu_default = (int)isset($_POST['menu_default']);
         try {
-            if (!$_REQUEST['menu_item']) {
+            if (!$menu_item) {
                 throw new Exception(_('Menu Item or title cannot be blank'));
             }
-            if (!$_REQUEST['menu_description']) {
+            if (!$menu_desc) {
                 throw new Exception(_('A description needs to be set'));
             }
-            if ($_REQUEST['menu_default']) {
+            if ($menu_default) {
                 self::getClass('PXEMenuOptionsManager')
                     ->update(
                         '',
@@ -1307,12 +1514,12 @@ class FOGConfigurationPage extends FOGPage
                     );
             }
             $Menu = self::getClass('PXEMenuOptions')
-                ->set('name', $_REQUEST['menu_item'])
-                ->set('description', $_REQUEST['menu_description'])
-                ->set('params', $_REQUEST['menu_params'])
-                ->set('regMenu', $_REQUEST['menu_regmenu'])
-                ->set('args', $_REQUEST['menu_options'])
-                ->set('default', $_REQUEST['menu_default']);
+                ->set('name', $menu_item)
+                ->set('description', $menu_description)
+                ->set('params', $menu_params)
+                ->set('regMenu', $menu_regmenu)
+                ->set('args', $menu_options)
+                ->set('default', $menu_default);
             if (!$Menu->save()) {
                 throw new Exception(_('Menu create failed'));
             }
@@ -1323,7 +1530,9 @@ class FOGConfigurationPage extends FOGPage
                     )
                 );
             if ($countDefault == 0 || $countDefault > 1) {
-                self::getClass('PXEMenuOptions', 1)->set('default', 1)->save();
+                self::getClass('PXEMenuOptions', 1)
+                    ->set('default', 1)
+                    ->save();
             }
             self::$HookManager
                 ->processEvent(
@@ -2939,49 +3148,101 @@ class FOGConfigurationPage extends FOGPage
     public function config()
     {
         self::$HookManager->processEvent('IMPORT');
-        $this->title='Configuration Import/Export';
+        $this->title = _('Configuration Import/Export');
         $report = self::getClass('ReportMaker');
-        $_SESSION['foglastreport']=serialize($report);
-        unset($this->data, $this->headerData);
+        $_SESSION['foglastreport'] = serialize($report);
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
         $this->attributes = array(
-            array(),
-            array('class'=>'r'),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8'),
         );
         $this->templates = array(
             '${field}',
             '${input}',
         );
         $this->data[] = array(
-            'field' => _('Click the button to export the database.'),
-            'input' => sprintf(
-                '<input type="submit" name="export" value="%s"/>',
-                _('Export')
-            ),
+            'field' => '<label for="export">'
+            . _('Export Database?')
+            . '</label>',
+            'input' => '<div class="hiddeninitially" id="exportDiv"></div>'
+            . '<button type="submit" name="export" class="'
+            . 'btn btn-info btn-block" id="export">'
+            . _('Export')
+            . '</button>'
         );
-        echo '<div class="hiddeninitially" id="exportDiv"></div>'
-            . '<form method="post" action="export.php?type=sql">';
-        $this->render();
-        unset($this->data);
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Export Database');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action='
+            . '"export.php?type=sql">';
+        $this->render(12);
+        $this->data = array();
+        $this->data[] = array(
+            'field' => '<label for="import">'
+            . _('Import Database?')
+            . '<br/>'
+            . _('Max Size')
+            . ': '
+            . ini_get('post_max_size')
+            . '</label>',
+            'input' => '<div class="input-group">'
+            . '<label class="input-group-btn">'
+            . '<span class="btn btn-info">'
+            . _('Browse')
+            . '<input type="file" class="hidden" name='
+            . '"dbFile" id="import"/>'
+            . '</span>'
+            . '</label>'
+            . '<input type="text" class="form-control filedisp" readonly/>'
+            . '</div>'
+        );
+        $this->data[] = array(
+            'field' => '<label for="importbtn">'
+            . _('Import Database?')
+            . '</label>',
+            'input' => '<button type="submit" name="importbtn" class="'
+            . 'btn btn-info btn-block" id="importbtn">'
+            . _('Import')
+            . '</button>'
+        );
         echo '</form>';
-        $this->data[] = array(
-            'field' => _('Import a previous backup file.'),
-            'input' => sprintf(
-                '<span class="lightColor">Max Size: ${size}</span>'
-                . '<input type="file" name="dbFile"/>'
-            ),
-            'size' => ini_get('post_max_size'),
-        );
-        $this->data[] = array(
-            'field' => null,
-            'input' => sprintf('<input type="submit" value="%s"/>', _('Import')),
-        );
-        printf(
-            '<form method="post" action="%s" enctype="multipart/form-data">',
-            $this->formAction
-        );
-        $this->render();
-        echo "</form>";
-        unset($this->attributes, $this->templates, $this->data);
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Import Database');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '" enctype="multipart/form-data">';
+        $this->render(12);
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Process import of config data
@@ -3011,29 +3272,66 @@ class FOGConfigurationPage extends FOGPage
                 $tmp_name
             );
             $result = self::getClass('Schema')->importdb($filename);
+            echo '<div class="col-xs-9">';
             if ($result === true) {
-                printf('<h2>%s</h2>', _('Database Imported and added successfully'));
+                echo '<div class="panel panel-success">';
+                echo '<div class="panel-heading text-center">';
+                echo '<h4 class="title">';
+                echo _('Import Successful');
+                echo '</h4>';
+                echo '</div>';
+                echo '<div class="panel-body">';
+                echo _('Database imported and added successfully!');
+                echo '</div>';
+                echo '</div>';
             } else {
-                printf('<h2>%s</h2>', _('Errors detected on import'));
                 $origres = $result;
                 $result = $Schema->importdb($original);
                 unlink($original);
                 unset($original);
+                echo '<div class="panel panel-warning">';
+                echo '<div class="panel-heading text-center">';
+                echo '<h4 class="title">';
+                echo _('Import Failed');
+                echo '</h4>';
+                echo '</div>';
+                echo '<div class="panel-body">';
+                echo _('There were errors during import!');
+                echo '<br/>';
+                echo '<br/>';
+                echo '<pre>';
+                echo $origres;
+                echo '</pre>';
                 if ($result === true) {
-                    printf('<h2>%s</h2>', _('Database changes reverted'));
+                    echo '<div class="panel panel-success">';
+                    echo '<div class="panel-heading text-center">';
+                    echo _('Database Reverted');
+                    echo '</div>';
+                    echo '<div class="panel-body">';
+                    echo _('Database changes reverted!');
+                    echo '</div>';
+                    echo '</div>';
                 } else {
-                    printf(
-                        '%s<br/><br/><code><pre class="l">%s</pre></code>',
-                        _('Errors on revert detected'),
-                        $result
-                    );
+                    echo '<div class="panel panel-danger">';
+                    echo '<div class="panel-heading text-center">';
+                    echo '<h4 class="title">';
+                    echo _('Database Failure');
+                    echo '</h4>';
+                    echo '</div>';
+                    echo '<div class="panel-body">';
+                    echo _('Errors on revert detected!');
+                    echo '<br/>';
+                    echo '<br/>';
+                    echo '<pre>';
+                    echo $result;
+                    echo '</pre>';
+                    echo '</div>';
+                    echo '</div>';
                 }
-                printf(
-                    '<h2>%s</h2><code><pre class="l">%s</pre></code>',
-                    _('There were errors during import'),
-                    $origres
-                );
+                echo '</div>';
+                echo '</div>';
             }
+            echo '</div>';
         } catch (Exception $e) {
             self::setMessage($e->getMessage());
             self::redirect($this->formAction);
