@@ -3486,57 +3486,54 @@ abstract class FOGPage extends FOGBase
             'Export %s',
             $this->childClass
         );
-        unset($this->headerData);
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8'),
         );
         $this->templates = array(
             '${field}',
             '${input}',
         );
         $fields = array(
-            sprintf(
-                "%s %s's %s.",
-                _('Click the button to download the'),
-                strtolower($this->childClass),
-                _('table backup')
-            ) => sprintf(
-                '<div id="exportDiv"></div>'
-                . '<button name="export" type="submit" class="'
-                . 'btn btn-info btn-block">%s</button>',
-                _('Export')
-            ),
+            '<label for="exportbtn">'
+            . _('Export CSV')
+            . '</label>' => '<div id="exportDiv"></div>'
+            . '<button name="export" type="submit" class="'
+            . 'btn btn-info btn-block" id="exportbtn">'
+            . _('Export')
+            . '</button>'
         );
         $report = self::getClass('ReportMaker');
         self::arrayRemove('id', $this->databaseFields);
-        foreach ((array)self::getClass($this->childClass)
-            ->getManager()
-            ->find() as &$Item
-        ) {
-            if ($Item instanceof Host) {
-                $macs = $maccolumn = array();
-                $macs[] = $Item->get('mac');
-                $macs = self::fastmerge($macs, $Item->get('additionalMACs'));
-                $macs = self::parseMacList($macs);
-                foreach ((array)$macs as &$mac) {
-                    if (!$mac->isValid()) {
-                        continue;
-                    }
-                    $maccolumn[] = $mac->__toString();
-                    unset($mac);
-                }
-                $report->addCSVCell(
-                    implode(
-                        '|',
-                        $maccolumn
-                    )
+        if ($this->node == 'host') {
+            self::arrayRemove('pingstatus', $this->databaseFields);
+        }
+        Route::listem($this->node);
+        $Items = json_decode(
+            Route::getData()
+        );
+        $items = $this->node
+            . 's';
+        $Items = $Items->$items;
+        foreach ((array)$Items as &$Item) {
+            if ($this->node == 'host') {
+                $macs = implode(
+                    '|',
+                    $Item->macs
                 );
-                unset($maccolumn);
+                $report->addCSVCell($macs);
+                unset($macs);
             }
             $keys = array_keys((array)$this->databaseFields);
             foreach ((array)$keys as $ind => &$field) {
-                $report->addCSVCell($Item->get($field));
+                $report->addCSVCell($Item->$field);
                 unset($field);
             }
             self::$HookManager->processEvent(
@@ -3553,31 +3550,32 @@ abstract class FOGPage extends FOGBase
             unset($Item);
         }
         $_SESSION['foglastreport'] = serialize($report);
-        printf(
-            '<form method="post" action="export.php?type=%s">',
-            strtolower($this->childClass)
-        );
-        foreach ((array)$fields as $field => &$input) {
-            $this->data[] = array(
-                'field' => $field,
-                'input' => $input
-            );
-            unset($input);
-        }
+        array_walk($fields, $this->fieldsToData);
         self::$HookManager->processEvent(
-            sprintf(
-                '%s_EXPORT',
-                strtoupper($this->childClass)
-            ),
+            strtoupper($this->node) . '_EXPORT',
             array(
-                'headerData' => &$this->headerData,
                 'data' => &$this->data,
+                'headerData' => &$this->headerData,
                 'templates' => &$this->templates,
                 'attributes' => &$this->attributes
             )
         );
-        $this->render();
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';;
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="export.php?type='
+            . $this->node
+            . '">';
+        $this->render(12);
         echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Presents the importer elements
