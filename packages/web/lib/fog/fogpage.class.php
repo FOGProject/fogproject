@@ -3586,67 +3586,86 @@ abstract class FOGPage extends FOGBase
      */
     public function import()
     {
-        $this->title = sprintf(
-            'Import %s List',
-            $this->childClass
+        $this->title = _('Import')
+            . ' '
+            . $this->childClass
+            . ' '
+            . _('List');
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
         );
-        unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8'),
         );
         $this->templates = array(
             '${field}',
             '${input}',
         );
-        printf(
-            '%s %s. %s %s. %s, %s, %s, %s, %s...',
-            _('This page allows you to upload a CSV'),
-            _('file into FOG to ease migration'),
-            _('It will operate based on the fields that'),
-            _('are normally required by each area'),
-            _('For example'),
-            _('Hosts will have macs'),
-            _('name'),
-            _('description'),
-            _('etc')
+        $this->data[] = array(
+            'field' => '<label for="import">'
+            . _('Import CSV')
+            . '<br/>'
+            . _('Max Size')
+            . ': '
+            . ini_get('post_max_size')
+            . '</label>',
+            'input' => '<div class="input-group">'
+            . '<label class="input-group-btn">'
+            . '<span class="btn btn-info">'
+            . _('Browse')
+            . '<input type="file" class="hidden" name="file" id="import"/>'
+            . '</span>'
+            . '</label>'
+            . '<input type="text" class="form-control filedisp" readonly/>'
+            . '</div>'
         );
-        printf(
-            '<form enctype="multipart/form-data" method="post" action="%s">',
-            $this->formAction
-        );
-        $fields = array(
-            _('CSV File') => '<input class="smaller" type="file" name="file" />',
-            '&nbsp;' => sprintf(
-                '<button class="smaller" type="submit" class='
-                . '"btn btn-info btn-block">%s</button>',
-                _('Upload CSV')
-            ),
-        );
-        foreach ((array)$fields as $field => &$input) {
-            $this->data[] = array(
-                'field' => $field,
-                'input' => $input
-            );
-            unset($input);
-        }
-        $upper = strtoupper($this->childClass);
-        $event = sprintf(
-            '%s_IMPORT_OUT',
-            $upper
-        );
-        $arr = array(
-            'headerData' => &$this->headerData,
-            'data' => &$this->data,
-            'templates' => &$this->templates,
-            'attributes' => &$this->attributes
+        $this->data[] = array(
+            'field' => '<label for="importbtn">'
+            . _('Import CSV?')
+            . '</label>',
+            'input' => '<button type="submit" name="importbtn" class="'
+            . 'btn btn-info btn-block" id="importbtn">'
+            . _('Import')
+            . '</button>'
         );
         self::$HookManager->processEvent(
-            $event,
-            $arr
+            'IMPORT_CSV_'
+            . strtoupper($this->node),
+            array(
+                'data' => &$this->data,
+                'headerData' => &$this->headerData,
+                'templates' => &$this->templates,
+                'attributes' => &$this->attributes
+            )
         );
-        $this->render();
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '" enctype="multipart/form-data">';
+        echo _('This page allows you to upload a CSV file into FOG to ease')
+            . ' '
+            . _('migration or mass import new items')
+            . '. '
+            . _('It will operate based on the fields the area typically requires')
+            . '.';
+        echo '<hr/>';
+        $this->render(12);
         echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Perform the import based on the uploaded file

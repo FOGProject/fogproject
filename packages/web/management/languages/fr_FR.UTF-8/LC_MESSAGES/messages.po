@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-25 02:46-0400\n"
+"POT-Creation-Date: 2017-06-25 12:53-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -474,7 +474,7 @@ msgstr "unité non valide passé"
 
 #: /var/www/fog/lib/fog/fogcontroller.class.php:952
 #: /var/www/fog/lib/fog/fogpage.class.php:2451
-#: /var/www/fog/lib/fog/fogpage.class.php:3824 /var/www/fog/service/av.php:36
+#: /var/www/fog/lib/fog/fogpage.class.php:3843 /var/www/fog/service/av.php:36
 msgid "Failed"
 msgstr "Échoué"
 
@@ -1687,7 +1687,7 @@ msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:2281
 #: /var/www/fog/lib/fog/fogpage.class.php:3362
-#: /var/www/fog/lib/fog/fogpage.class.php:3970
+#: /var/www/fog/lib/fog/fogpage.class.php:3989
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:583
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:494
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:241
@@ -1838,106 +1838,106 @@ msgstr ""
 msgid "Export"
 msgstr "Exportation"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3604
-msgid "This page allows you to upload a CSV"
-msgstr ""
+#: /var/www/fog/lib/fog/fogpage.class.php:3589
+#: /var/www/fog/lib/fog/fogpage.class.php:3633
+#: /var/www/fog/lib/fog/fogpage.class.php:3821
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3223
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:230
+msgid "Import"
+msgstr "Importer"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3605
-msgid "file into FOG to ease migration"
-msgstr ""
-
-#: /var/www/fog/lib/fog/fogpage.class.php:3606
-msgid "It will operate based on the fields that"
-msgstr ""
-
-#: /var/www/fog/lib/fog/fogpage.class.php:3607
-msgid "are normally required by each area"
-msgstr ""
-
-#: /var/www/fog/lib/fog/fogpage.class.php:3608
-msgid "For example"
-msgstr ""
-
-#: /var/www/fog/lib/fog/fogpage.class.php:3609
+#: /var/www/fog/lib/fog/fogpage.class.php:3593
 #, fuzzy
-msgid "Hosts will have macs"
-msgstr "Hôtes sur Task"
-
-#: /var/www/fog/lib/fog/fogpage.class.php:3610
-#, fuzzy
-msgid "name"
-msgstr "prénom"
+msgid "List"
+msgstr "Ligne"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3611
 #, fuzzy
-msgid "description"
-msgstr "La description"
+msgid "Import CSV"
+msgstr "Export CSV"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3612
-msgid "etc"
+#: /var/www/fog/lib/fog/fogpage.class.php:3613
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1678
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3202
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:209
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:492
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:887
+msgid "Max Size"
+msgstr "Max Taille"
+
+#: /var/www/fog/lib/fog/fogpage.class.php:3620
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1684
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3209
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:216
+msgid "Browse"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3619
-msgid "CSV File"
-msgstr "fichier CSV"
+#: /var/www/fog/lib/fog/fogpage.class.php:3629
+#, fuzzy
+msgid "Import CSV?"
+msgstr "Export CSV"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3623
-msgid "Upload CSV"
-msgstr "Upload CSV"
+#: /var/www/fog/lib/fog/fogpage.class.php:3657
+#, fuzzy
+msgid "This page allows you to upload a CSV file into FOG to ease"
+msgstr "Ce paramètre définit le nom d'utilisateur proxy à utiliser."
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3674
+#: /var/www/fog/lib/fog/fogpage.class.php:3659
+msgid "migration or mass import new items"
+msgstr ""
+
+#: /var/www/fog/lib/fog/fogpage.class.php:3661
+msgid "It will operate based on the fields the area typically requires"
+msgstr ""
+
+#: /var/www/fog/lib/fog/fogpage.class.php:3693
 #, fuzzy
 msgid "File must be a csv"
 msgstr "Événement doit être une chaîne"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3689
+#: /var/www/fog/lib/fog/fogpage.class.php:3708
 msgid "Could not find temp filename"
 msgstr "Impossible de trouver le nom de fichier temporaire"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3715
+#: /var/www/fog/lib/fog/fogpage.class.php:3734
 #, fuzzy
 msgid "Invalid data being parsed"
 msgstr "jeton non valide transmis"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3728
+#: /var/www/fog/lib/fog/fogpage.class.php:3747
 #, fuzzy
 msgid "One or more macs are associated with a host"
 msgstr "Erreur, est une image associée à cet hôte"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3747
+#: /var/www/fog/lib/fog/fogpage.class.php:3766
 #, fuzzy
 msgid "This host already exists"
 msgstr "Imprimante existe déjà"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3790
+#: /var/www/fog/lib/fog/fogpage.class.php:3809
 #: /var/www/fog/commons/text.php:95
 msgid "Row"
 msgstr "Rangée"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3802
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3223
-msgid "Import"
-msgstr "Importer"
-
-#: /var/www/fog/lib/fog/fogpage.class.php:3804
+#: /var/www/fog/lib/fog/fogpage.class.php:3823
 msgid "Results"
 msgstr "Résultats"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3816
+#: /var/www/fog/lib/fog/fogpage.class.php:3835
 msgid "Total Rows"
 msgstr "Nombre de lignes"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3819
+#: /var/www/fog/lib/fog/fogpage.class.php:3838
 msgid "Successful"
 msgstr "Réussi"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3827
+#: /var/www/fog/lib/fog/fogpage.class.php:3846
 #: /var/www/fog/lib/pages/serverinfo.class.php:138
 #: /var/www/fog/commons/text.php:96
 msgid "Errors"
 msgstr "les erreurs"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3867
+#: /var/www/fog/lib/fog/fogpage.class.php:3886
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:86
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:294
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:421
@@ -1948,16 +1948,16 @@ msgstr "les erreurs"
 msgid "Please select an option"
 msgstr "veuillez sélectionner une option"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3904
+#: /var/www/fog/lib/fog/fogpage.class.php:3923
 #, fuzzy
 msgid "Schedule Power"
 msgstr "Planificateur"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3948
+#: /var/www/fog/lib/fog/fogpage.class.php:3967
 msgid "Perform Immediately?"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3958
+#: /var/www/fog/lib/fog/fogpage.class.php:3977
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:682
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2584
 #: /var/www/fog/lib/reports/user_tracking.report.php:212
@@ -1966,12 +1966,12 @@ msgstr ""
 msgid "Action"
 msgstr "action"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3967
+#: /var/www/fog/lib/fog/fogpage.class.php:3986
 #, fuzzy
 msgid "Create new PM Schedule"
 msgstr "Créer un nouveau %s"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3977
+#: /var/www/fog/lib/fog/fogpage.class.php:3996
 #, fuzzy
 msgid "New power management task"
 msgstr "Gestion des utilisateurs"
@@ -3181,19 +3181,6 @@ msgstr ""
 #, fuzzy
 msgid "Upload file"
 msgstr "Téléverser un fichier"
-
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1678
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3202
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:205
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:492
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:887
-msgid "Max Size"
-msgstr "Max Taille"
-
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1684
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3209
-msgid "Browse"
-msgstr ""
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1704
 #, fuzzy
@@ -5022,40 +5009,51 @@ msgstr "ouvrir une session"
 msgid "The following errors occured"
 msgstr "Les erreurs suivantes se sont produites"
 
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:158
+#, fuzzy
+msgid "Import Reports"
+msgstr "Hôtes d'importation"
+
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:189
-msgid "Upload FOG Reports"
-msgstr "Télécharger Rapports BROUILLARD"
-
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:198
-msgid ""
-"This section allows you to upload user defined reports that may not be part "
-"of the base FOG package. The report files should end in .php"
-msgstr ""
-"Cette section vous permet de télécharger des rapports définis par "
-"l'utilisateur qui ne peuvent pas faire partie du paquet de FOG de base. Les "
-"fichiers de rapport doivent se terminer en .php"
-
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:203
-msgid "Upload a FOG Report"
-msgstr "Ajouter un rapport FOG"
+#, fuzzy
+msgid "Import FOG Reports"
+msgstr "Hôtes d'importation"
 
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:207
-msgid "Upload File"
-msgstr "Téléverser un fichier"
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:226
+#, fuzzy
+msgid "Import Report?"
+msgstr "Hôtes d'importation"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:217
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:250
+#, fuzzy
+msgid "This section allows you to uploade user"
+msgstr "Ce paramètre définit le nom d'utilisateur proxy à utiliser."
+
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:252
+msgid "defined reports that may not be a part of"
+msgstr ""
+
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:254
+#, fuzzy
+msgid "the base FOG install"
+msgstr "Redémarrez après l'installation"
+
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:273
 msgid "About FOG Reports"
 msgstr "À propos des rapports de BROUILLARD"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:221
-msgid ""
-"FOG Reports exist to give you information about what is going on with your "
-"FOG System. To view a report, select an item from the menu on the left-hand "
-"side of this page."
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:282
+msgid "FOG Reports exist to give you information about what"
 msgstr ""
-"Les rapports BROUILLARD existent pour vous donner des informations sur ce "
-"qui se passe avec votre système de FOG. Pour afficher un rapport, "
-"sélectionnez un élément dans le menu sur le côté gauche de cette page."
+
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:284
+msgid "is going on with your FOG System"
+msgstr ""
+
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:286
+msgid "To view a report, select an item from the menu"
+msgstr ""
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:176
 msgid "Imaged"
@@ -9873,6 +9871,50 @@ msgstr "Bonjour FOG client"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "Il n'y a aucun emplacement sur ce serveur."
+
+#, fuzzy
+#~ msgid "Hosts will have macs"
+#~ msgstr "Hôtes sur Task"
+
+#, fuzzy
+#~ msgid "name"
+#~ msgstr "prénom"
+
+#, fuzzy
+#~ msgid "description"
+#~ msgstr "La description"
+
+#~ msgid "CSV File"
+#~ msgstr "fichier CSV"
+
+#~ msgid "Upload CSV"
+#~ msgstr "Upload CSV"
+
+#~ msgid "Upload FOG Reports"
+#~ msgstr "Télécharger Rapports BROUILLARD"
+
+#~ msgid ""
+#~ "This section allows you to upload user defined reports that may not be "
+#~ "part of the base FOG package. The report files should end in .php"
+#~ msgstr ""
+#~ "Cette section vous permet de télécharger des rapports définis par "
+#~ "l'utilisateur qui ne peuvent pas faire partie du paquet de FOG de base. "
+#~ "Les fichiers de rapport doivent se terminer en .php"
+
+#~ msgid "Upload a FOG Report"
+#~ msgstr "Ajouter un rapport FOG"
+
+#~ msgid "Upload File"
+#~ msgstr "Téléverser un fichier"
+
+#~ msgid ""
+#~ "FOG Reports exist to give you information about what is going on with "
+#~ "your FOG System. To view a report, select an item from the menu on the "
+#~ "left-hand side of this page."
+#~ msgstr ""
+#~ "Les rapports BROUILLARD existent pour vous donner des informations sur ce "
+#~ "qui se passe avec votre système de FOG. Pour afficher un rapport, "
+#~ "sélectionnez un élément dans le menu sur le côté gauche de cette page."
 
 #~ msgid "PXE Menu has been updated"
 #~ msgstr "PXE Menu a été mis à jour"
