@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-25 02:46-0400\n"
+"POT-Creation-Date: 2017-06-25 12:53-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -436,7 +436,7 @@ msgstr "ID non valido passato"
 
 #: /var/www/fog/lib/fog/fogcontroller.class.php:952
 #: /var/www/fog/lib/fog/fogpage.class.php:2451
-#: /var/www/fog/lib/fog/fogpage.class.php:3824 /var/www/fog/service/av.php:36
+#: /var/www/fog/lib/fog/fogpage.class.php:3843 /var/www/fog/service/av.php:36
 msgid "Failed"
 msgstr "Fallito"
 
@@ -1580,7 +1580,7 @@ msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:2281
 #: /var/www/fog/lib/fog/fogpage.class.php:3362
-#: /var/www/fog/lib/fog/fogpage.class.php:3970
+#: /var/www/fog/lib/fog/fogpage.class.php:3989
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:583
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:494
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:241
@@ -1730,99 +1730,103 @@ msgstr "backup della tabella"
 msgid "Export"
 msgstr "Esportare"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3604
-msgid "This page allows you to upload a CSV"
-msgstr "Questa pagina consente di caricare un CSV"
+#: /var/www/fog/lib/fog/fogpage.class.php:3589
+#: /var/www/fog/lib/fog/fogpage.class.php:3633
+#: /var/www/fog/lib/fog/fogpage.class.php:3821
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3223
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:230
+msgid "Import"
+msgstr "Importare"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3605
-msgid "file into FOG to ease migration"
-msgstr "file in FOG per una facile migrazione"
-
-#: /var/www/fog/lib/fog/fogpage.class.php:3606
-msgid "It will operate based on the fields that"
-msgstr "Opererà basandosi sui campi che"
-
-#: /var/www/fog/lib/fog/fogpage.class.php:3607
-msgid "are normally required by each area"
-msgstr "sono normalmente necessari in ciascuna area"
-
-#: /var/www/fog/lib/fog/fogpage.class.php:3608
-msgid "For example"
-msgstr "Per esempio"
-
-#: /var/www/fog/lib/fog/fogpage.class.php:3609
-msgid "Hosts will have macs"
-msgstr "Gli host devono avere il MAC"
-
-#: /var/www/fog/lib/fog/fogpage.class.php:3610
-msgid "name"
-msgstr "nome"
+#: /var/www/fog/lib/fog/fogpage.class.php:3593
+#, fuzzy
+msgid "List"
+msgstr "linea"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3611
-msgid "description"
-msgstr "descrizione"
+#, fuzzy
+msgid "Import CSV"
+msgstr "Esporta CSV"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3612
-msgid "etc"
-msgstr "ecc"
+#: /var/www/fog/lib/fog/fogpage.class.php:3613
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1678
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3202
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:209
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:492
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:887
+msgid "Max Size"
+msgstr "Dimensione massima"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3619
-msgid "CSV File"
-msgstr "File CSV"
+#: /var/www/fog/lib/fog/fogpage.class.php:3620
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1684
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3209
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:216
+msgid "Browse"
+msgstr ""
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3623
-msgid "Upload CSV"
-msgstr "Carica CSV"
+#: /var/www/fog/lib/fog/fogpage.class.php:3629
+#, fuzzy
+msgid "Import CSV?"
+msgstr "Esporta CSV"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3674
+#: /var/www/fog/lib/fog/fogpage.class.php:3657
+#, fuzzy
+msgid "This page allows you to upload a CSV file into FOG to ease"
+msgstr "Questa pagina consente di caricare un CSV"
+
+#: /var/www/fog/lib/fog/fogpage.class.php:3659
+msgid "migration or mass import new items"
+msgstr ""
+
+#: /var/www/fog/lib/fog/fogpage.class.php:3661
+#, fuzzy
+msgid "It will operate based on the fields the area typically requires"
+msgstr "Opererà basandosi sui campi che"
+
+#: /var/www/fog/lib/fog/fogpage.class.php:3693
 msgid "File must be a csv"
 msgstr "Il file deve essere un csv"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3689
+#: /var/www/fog/lib/fog/fogpage.class.php:3708
 msgid "Could not find temp filename"
 msgstr "Impossibile trovare il nome del file temporaneo"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3715
+#: /var/www/fog/lib/fog/fogpage.class.php:3734
 msgid "Invalid data being parsed"
 msgstr "Dati non validi parsati"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3728
+#: /var/www/fog/lib/fog/fogpage.class.php:3747
 msgid "One or more macs are associated with a host"
 msgstr "Uno o più MAC sono associati a questo host"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3747
+#: /var/www/fog/lib/fog/fogpage.class.php:3766
 msgid "This host already exists"
 msgstr "Questo host esiste già"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3790
+#: /var/www/fog/lib/fog/fogpage.class.php:3809
 #: /var/www/fog/commons/text.php:95
 msgid "Row"
 msgstr "Riga"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3802
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3223
-msgid "Import"
-msgstr "Importare"
-
-#: /var/www/fog/lib/fog/fogpage.class.php:3804
+#: /var/www/fog/lib/fog/fogpage.class.php:3823
 msgid "Results"
 msgstr "risultati"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3816
+#: /var/www/fog/lib/fog/fogpage.class.php:3835
 msgid "Total Rows"
 msgstr "Righe totali"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3819
+#: /var/www/fog/lib/fog/fogpage.class.php:3838
 msgid "Successful"
 msgstr "Riuscito"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3827
+#: /var/www/fog/lib/fog/fogpage.class.php:3846
 #: /var/www/fog/lib/pages/serverinfo.class.php:138
 #: /var/www/fog/commons/text.php:96
 msgid "Errors"
 msgstr "Errori"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3867
+#: /var/www/fog/lib/fog/fogpage.class.php:3886
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:86
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:294
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:421
@@ -1833,15 +1837,15 @@ msgstr "Errori"
 msgid "Please select an option"
 msgstr "per favore selezionate un'opzione"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3904
+#: /var/www/fog/lib/fog/fogpage.class.php:3923
 msgid "Schedule Power"
 msgstr "Pianifica spegnimento"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3948
+#: /var/www/fog/lib/fog/fogpage.class.php:3967
 msgid "Perform Immediately?"
 msgstr "Esegui immediatamente?"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3958
+#: /var/www/fog/lib/fog/fogpage.class.php:3977
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:682
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2584
 #: /var/www/fog/lib/reports/user_tracking.report.php:212
@@ -1850,12 +1854,12 @@ msgstr "Esegui immediatamente?"
 msgid "Action"
 msgstr "Azione"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3967
+#: /var/www/fog/lib/fog/fogpage.class.php:3986
 #, fuzzy
 msgid "Create new PM Schedule"
 msgstr "Crea nuovo %s"
 
-#: /var/www/fog/lib/fog/fogpage.class.php:3977
+#: /var/www/fog/lib/fog/fogpage.class.php:3996
 #, fuzzy
 msgid "New power management task"
 msgstr "Gestione energetica"
@@ -3041,19 +3045,6 @@ msgstr "volta che il servizio viene avviato."
 #, fuzzy
 msgid "Upload file"
 msgstr "Caricare un file"
-
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1678
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3202
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:205
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:492
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:887
-msgid "Max Size"
-msgstr "Dimensione massima"
-
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1684
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3209
-msgid "Browse"
-msgstr ""
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1704
 #, fuzzy
@@ -4831,40 +4822,52 @@ msgstr "il login"
 msgid "The following errors occured"
 msgstr "I seguenti errori si è verificato"
 
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:158
+#, fuzzy
+msgid "Import Reports"
+msgstr "Importa Host"
+
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:189
-msgid "Upload FOG Reports"
-msgstr "Carica Rapporti FOG"
-
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:198
-msgid ""
-"This section allows you to upload user defined reports that may not be part "
-"of the base FOG package. The report files should end in .php"
-msgstr ""
-"Questa sezione permette di caricare i rapporti definiti dall'utente che "
-"possono non essere parte del pacchetto base di nebbia. I file di report "
-"dovrebbe finire in .php"
-
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:203
-msgid "Upload a FOG Report"
-msgstr "Carica un rapporto FOG"
+#, fuzzy
+msgid "Import FOG Reports"
+msgstr "Importa Host"
 
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:207
-msgid "Upload File"
-msgstr "Caricare un file"
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:226
+#, fuzzy
+msgid "Import Report?"
+msgstr "Importa Host"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:217
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:250
+#, fuzzy
+msgid "This section allows you to uploade user"
+msgstr "Questa sezione ti consente di aggiornare"
+
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:252
+msgid "defined reports that may not be a part of"
+msgstr ""
+
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:254
+#, fuzzy
+msgid "the base FOG install"
+msgstr "o questa è una nuova installazione di FOG"
+
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:273
 msgid "About FOG Reports"
 msgstr "Informazioni sui report FOG"
 
-#: /var/www/fog/lib/pages/reportmanagementpage.class.php:221
-msgid ""
-"FOG Reports exist to give you information about what is going on with your "
-"FOG System. To view a report, select an item from the menu on the left-hand "
-"side of this page."
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:282
+msgid "FOG Reports exist to give you information about what"
 msgstr ""
-"FOG rapporti esistono per dare informazioni su ciò che sta succedendo con il "
-"tuo sistema di nebbia. Per visualizzare un report, selezionare una voce dal "
-"menu sul lato sinistro di questa pagina."
+
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:284
+msgid "is going on with your FOG System"
+msgstr ""
+
+#: /var/www/fog/lib/pages/reportmanagementpage.class.php:286
+#, fuzzy
+msgid "To view a report, select an item from the menu"
+msgstr "Per iniziare, seleziona un elemento dal menu a sinistra"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:176
 msgid "Imaged"
@@ -9395,6 +9398,59 @@ msgstr "Ciao FOG client"
 #: /var/www/fog/service/locationlisting.php:28
 msgid "There are no locations on this server"
 msgstr "Non ci sono posizioni su questo server"
+
+#~ msgid "file into FOG to ease migration"
+#~ msgstr "file in FOG per una facile migrazione"
+
+#~ msgid "are normally required by each area"
+#~ msgstr "sono normalmente necessari in ciascuna area"
+
+#~ msgid "For example"
+#~ msgstr "Per esempio"
+
+#~ msgid "Hosts will have macs"
+#~ msgstr "Gli host devono avere il MAC"
+
+#~ msgid "name"
+#~ msgstr "nome"
+
+#~ msgid "description"
+#~ msgstr "descrizione"
+
+#~ msgid "etc"
+#~ msgstr "ecc"
+
+#~ msgid "CSV File"
+#~ msgstr "File CSV"
+
+#~ msgid "Upload CSV"
+#~ msgstr "Carica CSV"
+
+#~ msgid "Upload FOG Reports"
+#~ msgstr "Carica Rapporti FOG"
+
+#~ msgid ""
+#~ "This section allows you to upload user defined reports that may not be "
+#~ "part of the base FOG package. The report files should end in .php"
+#~ msgstr ""
+#~ "Questa sezione permette di caricare i rapporti definiti dall'utente che "
+#~ "possono non essere parte del pacchetto base di nebbia. I file di report "
+#~ "dovrebbe finire in .php"
+
+#~ msgid "Upload a FOG Report"
+#~ msgstr "Carica un rapporto FOG"
+
+#~ msgid "Upload File"
+#~ msgstr "Caricare un file"
+
+#~ msgid ""
+#~ "FOG Reports exist to give you information about what is going on with "
+#~ "your FOG System. To view a report, select an item from the menu on the "
+#~ "left-hand side of this page."
+#~ msgstr ""
+#~ "FOG rapporti esistono per dare informazioni su ciò che sta succedendo con "
+#~ "il tuo sistema di nebbia. Per visualizzare un report, selezionare una "
+#~ "voce dal menu sul lato sinistro di questa pagina."
 
 #~ msgid "PXE Menu has been updated"
 #~ msgstr "PXE Menu è stato aggiornato"
