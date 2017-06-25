@@ -58,7 +58,7 @@ class SchemaUpdaterPage extends FOGPage
         );
         // Success
         echo '<div class="panel panel-info hiddeninitially" id="dbRunning">';
-        echo '<div class="panel-heading">';
+        echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
         echo _('Install/Update');
         echo '</h4>';

@@ -61,10 +61,12 @@ class PushbulletManagementPage extends FOGPage
             '${email}',
         );
         $this->attributes = array(
-            array('class' => 'l filter-false','width' => 16),
-            array('class' => 'l'),
-            array('class' => 'l'),
-            array('class' => 'r'),
+            array(
+                'class' => 'filter-false',
+                'width' => 16
+            ),
+            array(),
+            array()
         );
         /**
          * Lambda function to return data either by list or search.
@@ -89,31 +91,44 @@ class PushbulletManagementPage extends FOGPage
      */
     public function add()
     {
+        unset(
+            $this->data,
+            $this->form,
+            $this->span,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
         $this->title = _('Link New Account');
-        unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8'),
         );
         $this->templates = array(
             '${field}',
             '${input}',
         );
-        $fields = array(
-            _('Access Token') => '<input class="smaller" type="text" '
-            . 'name="apiToken" />',
-            '' => sprintf(
-                '<input name="add" class="smaller" type="submit" value="%s"/>',
-                _('Add')
-            ),
+        $value = filter_input(
+            INPUT_POST,
+            'apiToken'
         );
-        foreach ((array)$fields as $field => &$input) {
-            $this->data[] = array(
-                'field' => $field,
-                'input' => $input,
-            );
-            unset($input);
-        }
+        $fields = array(
+            '<label for="apiToken">'
+            . _('Access Token')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" '
+            . 'name="apiToken" id="apiToken" value="'
+            . $value
+            . '"/>'
+            . '</div>',
+            '<label for="addpb">'
+            . _('Add Pushbullet Account')
+            . '</label>' => '<button type="submit" name="add" class="'
+            . 'btn btn-info btn-block" id="addpb">'
+            . _('Add')
+            . '</button>'
+        );
+        array_walk($fields, $this->fieldsToData);
         self::$HookManager->processEvent(
             'PUSHBULLET_ADD',
             array(
@@ -123,12 +138,22 @@ class PushbulletManagementPage extends FOGPage
                 'attributes' => &$this->attributes
             )
         );
-        printf(
-            '<form method="post" action="%s">',
-            $this->formAction
-        );
-        $this->render();
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
+        $this->render(12);
         echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Actually insert the new object
@@ -138,7 +163,12 @@ class PushbulletManagementPage extends FOGPage
     public function addPost()
     {
         try {
-            $token = trim($_REQUEST['apiToken']);
+            $token = trim(
+                filter_input(
+                    INPUT_POST,
+                    'apiToken'
+                )
+            );
             $PushExists = self::getClass('PushbulletManager')
                 ->exists(
                     $token,
