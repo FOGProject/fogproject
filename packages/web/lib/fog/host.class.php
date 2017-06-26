@@ -1528,11 +1528,14 @@ class Host extends FOGController
         if ($taskTypeID == 14) {
             $Task->destroy();
         }
-        return sprintf(
-            '<li>%s &ndash; %s</li>',
-            $this->get('name'),
-            $this->getImage()->get('name')
-        );
+        $str = '<li>';
+        $str .= '<a href="#">';
+        $str .= $this->get('name');
+        $str .= ' &ndash; ';
+        $str .= $this->getImage()->get('name');
+        $str .= '</a>';
+        $str .= '</li>';
+        return $str;
     }
     /**
      * Returns task if host image is valid

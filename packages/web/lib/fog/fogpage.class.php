@@ -1092,22 +1092,23 @@ abstract class FOGPage extends FOGBase
                 'image_title' => _('Edit Image'),
             );
         } elseif ($this->obj instanceof Group) {
-            foreach ((array)self::getClass('HostManager')
-                ->find(
-                    array('id' => $this->obj->get('hosts'))
-                ) as &$Host
-            ) {
+            Route::listem('host');
+            $Hosts = json_decode(
+                Route::getData()
+            );
+            $Hosts = $Hosts->hosts;
+            foreach ((array)$Hosts as &$Host) {
+                if (!in_array($Host->id, $this->obj->get('hosts'))) {
+                    continue;
+                }
                 $imageID = $imageName = '';
                 if ($TaskType->isImagingTask()) {
-                    $Image = $Host->getImage();
-                    if (!$Image->isValid()) {
+                    $Image = $Host->image;
+                    if (!$Image->isEnabled) {
                         continue;
                     }
-                    if (!$Image->get('isEnabled')) {
-                        continue;
-                    }
-                    $imageID = $Image->get('id');
-                    $imageName = $Image->get('name');
+                    $imageID = $Image->id;
+                    $imageName = $Image->name;
                 }
                 $this->data[] = array(
                     'host_link' => '?node=host&sub=edit&id=${host_id}',
@@ -1115,9 +1116,9 @@ abstract class FOGPage extends FOGBase
                         '%s: ${host_name}',
                         _('Edit')
                     ),
-                    'host_id' => $Host->get('id'),
-                    'host_name' => $Host->get('name'),
-                    'host_mac' => $Host->get('mac')->__toString(),
+                    'host_id' => $Host->id,
+                    'host_name' => $Host->name,
+                    'host_mac' => $Host->macs[0],
                     'image_link' => '?node=image&sub=edit&id=${image_id}',
                     'image_title' => sprintf(
                         '%s: ${image_name}',
@@ -1145,22 +1146,24 @@ abstract class FOGPage extends FOGBase
                 'attributes' => &$this->attributes
             )
         );
-        echo '<div class="col-xs-9 panel panel-info">';
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
         echo _('Confirm tasking');
         echo '</h4>';
         echo '</div>';
         echo '<div class="panel-body">';
-        echo '<div class="text-center">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
         echo _('Advanced Settings');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="col-xs-offset-3">';
-        echo '<form class="form-horizontal deploy-container" method="post" action="'
-            . $this->formAction
-            . '">';
+        echo '<div class="panel-body">';
         if ($TaskType->get('id') == 13) {
             echo '<div class="form-group">';
             echo '<label class="control-label" for="snapin">';
@@ -1189,7 +1192,7 @@ abstract class FOGPage extends FOGBase
             && !$TaskType->isDebug()
         ) {
             echo '<div class="checkbox hideFromDebug">';
-            echo '<label class="control-label" for="shutdown">';
+            echo '<label for="shutdown">';
             echo '<input type="checkbox" name='
                 . '"shutdown" id="shutdown"'
                 . (
@@ -1204,7 +1207,7 @@ abstract class FOGPage extends FOGBase
         }
         if ($TaskType->get('id') != 14) {
             echo '<div class="checkbox">';
-            echo '<label class="control-label" for="wol">';
+            echo '<label for="wol">';
             echo '<input type="checkbox" name='
                 . '"wol" id="wol"'
                 . (
@@ -1228,7 +1231,7 @@ abstract class FOGPage extends FOGBase
                 && !($this->obj instanceof Group)
             ) {
                 echo '<div class="checkbox">';
-                echo '<label class="control-label" for="checkDebug">';
+                echo '<label for="checkDebug">';
                 echo '<input type="checkbox" name='
                     . '"isDebugTask" id="checkDebug"'
                     . (
@@ -1243,7 +1246,7 @@ abstract class FOGPage extends FOGBase
             }
         }
         echo '<div class="radio">';
-        echo '<label class="control-label" for="scheduleInstant">';
+        echo '<label for="scheduleInstant">';
         echo '<input type="radio" name='
             . '"scheduleType" id="scheduleInstant" value="instant"'
             . 'checked/>';
@@ -1256,14 +1259,14 @@ abstract class FOGPage extends FOGBase
             // Delayed elements
             echo '<div class="hideFromDebug">';
             echo '<div class="radio">';
-            echo '<label class="control-label" for="scheduleSingle">';
+            echo '<label for="scheduleSingle">';
             echo '<input type="radio" name='
                 . '"scheduleType" id="scheduleSingle" value="single"/>';
             echo _('Schedule delayed');
             echo '</label>';
             echo '</div>';
             echo '<div class="form-group hiddeninitially">';
-            echo '<label class="control-label" for="scheduleSingleTime">';
+            echo '<label for="scheduleSingleTime">';
             echo _('Date and Time');
             echo '</label>';
             echo '<div class="input-group">';
@@ -1294,7 +1297,7 @@ abstract class FOGPage extends FOGBase
             $cronOpts = ob_get_clean();
             echo '<div class="hideFromDebug">';
             echo '<div class="radio">';
-            echo '<label class="control-label" for="scheduleCron">';
+            echo '<label for="scheduleCron">';
             echo '<input type="radio" name='
                 . '"scheduleType" id="scheduleCron" value="cron"/>';
             echo _('Schedule cron-style');
@@ -1347,29 +1350,39 @@ abstract class FOGPage extends FOGBase
             echo '</div>';
         }
         if (count($this->data)) {
-            echo '<button type="submit" class="btn btn-info btn-block">';
-            echo _('Create')
-                . ' '
-                . $TaskType->get('name')
-                . ' '
-                . _('Tasking');
+            echo '<div class="col-xs-12">';
+            echo '<label class="control-label col-xs-4" for="taskingbtn">';
+            echo _('Create');
+            echo ' ';
+            echo $TaskType->get('name');
+            echo ' ';
+            echo _('Tasking');
+            echo '</label>';
+            echo '<div class="col-xs-8">';
+            echo '<button type="submit" class="btn btn-info btn-block" id='
+                . '"taskingbtn">';
+            echo _('Task');
             echo '</button>';
+            echo '</div>';
+            echo '</div>';
+        }
+        echo '</div>';
+        echo '</div>';
+        if ($this->node != 'host') {
+            echo '<div class="panel panel-info">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Hosts in task');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body text-center">';
+            $this->render(12);
+            echo '</div>';
+            echo '</div>';
         }
         echo '</form>';
         echo '</div>';
         echo '</div>';
-        if ($this->node != 'host') {
-            echo '<div class="col-xs-9 panel panel-info">';
-            echo '<div class="panel-heading text-center">';
-            echo '<h2 class="title">';
-            echo _('Hosts in task');
-            echo '</h2>';
-            echo '</div>';
-            echo '<div class="panel-body">';
-            $this->render();
-            echo '</div>';
-            echo '</div>';
-        }
         echo '</div>';
     }
     /**
@@ -1402,7 +1415,7 @@ abstract class FOGPage extends FOGBase
             /**
              * Snapin Setup.
              */
-            $enableSnapins = intval(filter_input(INPUT_POST, 'snapin'));
+            $enableSnapins = (int)filter_input(INPUT_POST, 'snapin');
             if (0 === $enableSnapins) {
                 $enableSnapins = -1;
             }
@@ -1566,15 +1579,14 @@ abstract class FOGPage extends FOGBase
                 );
             }
             // Is host pending, don't send
-            if ($this->obj instanceof Host
-                && $this->obj->get('pending')
-            ) {
-                throw new Exception(
-                    _('Cannot set tasking to pending hosts')
-                );
+            if ($this->obj instanceof Host) {
+                if ($this->obj->get('pending')) {
+                    throw new Exception(
+                        _('Cannot set tasking to pending hosts')
+                    );
+                }
             } elseif ($this->obj instanceof Group) {
                 if (!(isset($_POST['taskhosts'])
-                    && is_array($_POST['taskhosts'])
                     && count($_POST['taskhosts']) > 0)
                 ) {
                     throw new Exception(
@@ -1779,23 +1791,35 @@ abstract class FOGPage extends FOGBase
                 );
                 break;
             }
-            printf(
-                '<div class="col-xs-9">'
-                . '<div class="panel panel-success">'
-                . '<div class="panel-body text-center">'
-                . '<p>%s: %s</p>'
-                . '<p>%s%s</p>'
-                . '</div>'
-                . '</div>'
-                . '</div>',
-                $TaskType->get('name'),
-                _('Successfully created tasks for'),
-                $time,
-                sprintf(
-                    '<ul class="nav nav-pills nav-stacked">%s</ul>',
-                    implode((array)$success)
-                )
-            );
+            echo '<div class="col-xs-9">';
+            echo '<div class="panel panel-success">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Tasked Successfully');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body text-center">';
+            echo _('Task');
+            echo ' ';
+            echo $TaskType->get('name');
+            echo ' ';
+            echo _('Successfully created');
+            echo '!';
+            echo '</div>';
+            echo '</div>';
+            echo '<div class="panel panel-success">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Created Tasks For');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body text-center">';
+            echo '<ul class="nav nav-pills nav-stacked">';
+            echo implode((array)$success);
+            echo '</ul>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
         }
     }
     /**

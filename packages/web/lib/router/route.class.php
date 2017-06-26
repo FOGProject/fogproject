@@ -1105,6 +1105,7 @@ class Route extends FOGBase
                         'inventory',
                         $class->get('inventory')
                     ),
+                    'image' => self::getter('image', $class->get('imagename')),
                     'imagename' => $class->getImageName(),
                     'macs' => $class->getMyMacs(),
                     'modules' => array_map(
