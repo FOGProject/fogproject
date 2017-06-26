@@ -155,7 +155,7 @@ class TasktypeeditManagementPage extends FOGPage
                 '<input type="text" name="kernelargs" class="smaller" value="%s"/>',
                 $_REQUEST['kernelargs']
             ),
-            '<label class="control-label" for="initrd">'
+            '<label for="initrd">'
             . _('Init')
             . '</label>' => '<textarea name="initrd" class='
             . '"form-control" id="initrd">'
@@ -318,7 +318,7 @@ class TasktypeeditManagementPage extends FOGPage
                 '<input type="text" name="kernelargs" class="smaller" value="%s"/>',
                 $this->obj->get('kernelArgs')
             ),
-            '<label class="control-label" for="initrd">'
+            '<label for="initrd">'
             . _('Init')
             . '</label>' => '<textarea name="initrd" class='
             . '"form-control" id="initrd">'

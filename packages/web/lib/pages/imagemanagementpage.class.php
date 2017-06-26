@@ -124,7 +124,7 @@ class ImageManagementPage extends FOGPage
          */
         $this->headerData = array(
             '',
-            '<label class="control-label" for="toggler">'
+            '<label for="toggler">'
             . '<input type="checkbox" name="toggle-checkbox" '
             . 'class="toggle-checkboxAction" id="toggler"/>'
             . '</label>',
@@ -156,7 +156,7 @@ class ImageManagementPage extends FOGPage
          */
         $this->templates = array(
             '${protected}',
-            '<label class="control-label" for="toggler1">'
+            '<label for="toggler1">'
             . '<input type="checkbox" name="image[]" '
             . 'value="${id}" class="toggle-action" id="'
             . 'toggler1"/></label>',

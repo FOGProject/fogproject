@@ -1881,7 +1881,7 @@ abstract class FOGPage extends FOGBase
             self::redirect('?node=' . $node);
         }
         $this->data[] = array(
-            'field' => '<label class="control-label">'
+            'field' => '<label for="delete">'
             . _('Remove these items?')
             . '</label>',
             'input' => '<button class="btn btn-danger btn-block" type="submit" '
@@ -2597,7 +2597,7 @@ abstract class FOGPage extends FOGBase
         );
         if ($this->obj instanceof Group) {
             $fieldsg = array(
-                '<label class="control-label" for="massDel">'
+                '<label for="massDel">'
                 . _('Delete hosts within')
                 . '</label>' => '<div class="input-group checkbox">'
                 . '<input type="checkbox" name="massDelHosts" id="'
@@ -2606,7 +2606,7 @@ abstract class FOGPage extends FOGBase
             );
         } elseif ($this->obj instanceof Image || $this->obj instanceof Snapin) {
             $fieldsi = array(
-                '<label class="control-label" for="andFile">'
+                '<label for="andFile">'
                 . _('Delete files')
                 . '</label>' => '<div class="input-group checkbox">'
                 . '<input type="checkbox" name="andFile" id="'
@@ -2618,7 +2618,7 @@ abstract class FOGPage extends FOGBase
             (array)$fieldsg,
             (array)$fieldsi,
             array(
-                '<label class="control-label" for="delete">'
+                '<label for="delete">'
                 . $this->title
                 . '</label>' => '<input type="hidden" name="remitems[]" '
                 . 'value="'
