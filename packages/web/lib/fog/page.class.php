@@ -491,16 +491,17 @@ class Page extends FOGBase
         echo '<ul class="nav navbar-nav navbar-right">';
         echo '<li>';
         if (self::$FOGUser->isValid()) {
-            echo '<a href="../management/index.php?node=logout">';
-            echo '<i class="fa fa-sign-out">&nbsp;&nbsp;';
-            echo strtolower(
-                trim(
-                    self::$FOGUser->get('name')
+            echo '<a href="../management/index.php?node=logout" '
+                . 'data-toggle="tooltip" data-placement="bottom" title="'
+                . _('Logout')
+                . ': '
+                . strtolower(
+                    trim(
+                        self::$FOGUser->get('name')
+                    )
                 )
-            );
-            echo ': ';
-            echo self::$foglang['Logout'];
-            echo '</i>';
+                . '">';
+            echo '<i class="fa fa-sign-out"></i>';
             echo '</a>';
         } else {
             echo '<a href="../management/index.php"';

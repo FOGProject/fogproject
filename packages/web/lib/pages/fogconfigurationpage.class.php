@@ -1988,40 +1988,51 @@ class FOGConfigurationPage extends FOGPage
                 )
             );
         $this->title = _('FOG System Settings');
-        echo '<div class="col-xs-9">';
-        printf(
-            '<div class="panel panel-info">'
-            . '<div class="panel-body">'
-            . '<p class="hostgroup">%s</p><form method='
-            . '"post" action="%s" enctype="multipart/form-data" '
-            . 'class="form-horizontal"></div></div>',
-            _('This section allows you to customize or alter ')
-            . _('the way in which FOG operates. ')
-            . _('Please be very careful changing any of ')
-            . _('the following settings, as they can cause ')
-            . _('issues that are difficult to troubleshoot.'),
-            $this->formAction
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
         );
-        unset($this->headerData);
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
+        echo _('This section allows you to customize or alter')
+            . ' '
+            . _('the way in which FOG operates')
+            . '. '
+            . _('Please be very careful changing any of the following settings')
+            . ', '
+            . _('as they can cause issues that are difficult to troubleshoot')
+            . '.';
+        echo '<hr/>';
         $this->attributes = array(
-            array(
-                'width' => 270,
-                'height' => 35,
-                'class' => 'col-xs-2'
-            ),
-            array('class' => 'col-xs-9'),
-            array('class' => 'col-xs-1'),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-6'),
+            array('class' => 'col-xs-2'),
         );
         $this->templates = array(
-            '${service_name}',
-            '${input_type}',
+            '${field}',
+            '${input}',
             '${span}',
         );
-        echo '<div class="col-xs-12">'
-            . '<a href="#" class='
-            . '"btn btn-info btn-block trigger_expand"><h4>'
-            . _('Expand All')
-            . '</h4></a></div>';
+        echo '<div class="col-xs-12">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center trigger_expand hand">';
+        echo '<h4 class="title">';
+        echo _('Expand All');
+        echo '</h4>';
+        echo '</div>';
+        echo '</div>';
         $catset = false;
         Route::listem('service', 'category', true);
         $Services = json_decode(
@@ -2038,78 +2049,88 @@ class FOGConfigurationPage extends FOGPage
             if ($curcat != $catset) {
                 if ($catset !== false) {
                     $this->data[] = array(
-                        'span' => '',
-                        'service_name' => '<label class="control-label" for='
+                        'field' => '<label for='
                         . '"'
                         . $catset
                         . $curcat
-                        . '">'
-                        . _('Save changes?')
+                        . 'save">'
+                        . _('Make Changes?')
                         . '</label>',
-                        'input_type' => '<div class="input-group">'
-                        . '<button class="btn btn-info btn-block" type="submit" '
+                        'input' => '<button class="'
+                        . 'btn btn-info btn-block" type="submit" '
                         . 'name="update" id="'
                         . $catset
                         . $curcat
-                        . '">'
-                        . _('Save Changes')
-                        . '</button>'
-                        . '</div>'
+                        . 'save">'
+                        . _('Update')
+                        . '</button>',
+                        'span' => ''
                     );
                     $this->render(12);
                     unset($this->data);
                     echo '</div>';
+                    echo '</div>';
                 }
-                printf(
-                    '<div class="col-xs-12">'
-                    . '<a id="%s" class='
-                    . '"expand_trigger btn btn-info btn-block"'
-                    . ' href="#%s">'
-                    . '<h4>%s</h4></a></div><div id="%s" class="hidefirst">',
-                    $divTab,
-                    $divTab,
-                    $Service->category,
-                    $divTab
-                );
+                echo '<div class="panel panel-info">';
+                echo '<div class="panel-heading text-center expand_trigger '
+                    . 'hand" id="'
+                    . $divTab
+                    . '">';
+                echo '<h4 class="title">';
+                echo $Service->category;
+                echo '</h4>';
+                echo '</div>';
+                echo '<div class="panel-body hidefirst" id="'
+                    . $divTab
+                    . '">';
             }
             switch ($Service->name) {
             case 'FOG_PIGZ_COMP':
-            case 'FOG_KERNEL_LOGLEVEL':
-            case 'FOG_INACTIVITY_TIMEOUT':
-            case 'FOG_REGENERATE_TIMEOUT':
-                switch ($Service->name) {
-                case 'FOG_PIGZ_COMP':
-                    $extra = 'pigz';
-                    $minsize = 2;
-                    break;
-                case 'FOG_KERNEL_LOGLEVEL':
-                    $extra = 'loglvl';
-                    $minsize = 2;
-                    break;
-                case 'FOG_INACTIVITY_TIMEOUT':
-                    $extra = 'inact';
-                    $minsize = 2;
-                    break;
-                case 'FOG_REGENERATE_TIMEOUT':
-                    $extra = 'regen';
-                    $minsize = 5;
-                    break;
-                }
-                $type = '<div class="input-group">'
-                    . '<div class="col-xs-9">'
-                    . '<div class="rangegen '
-                    . $extra
-                    . '"></div>'
+                $type = '<div class="col-xs-8">'
+                    . '<div class="rangegen pigz"></div>'
                     . '</div>'
-                    . '<input type="text" readonly='
-                    . '"true" name="${service_id}" class='
-                    . '"showVal '
-                    . $extra
-                    . '" maxsize="'
-                    . $minsize
-                    . '" value="${service_value}" id="'
-                    . $Service->name
-                    . '"/>'
+                    . '<div class="col-xs-4">'
+                    . '<div class="input-group">'
+                    . '<input type="text" name="${service_id}" class="form-control '
+                    . 'showVal pigz" maxsize="2" value="${service_value}" id='
+                    . '"${service_name}" readonly/>'
+                    . '</div>'
+                    . '</div>';
+                break;
+            case 'FOG_KERNEL_LOGLEVEL':
+                $type = '<div class="col-xs-8">'
+                    . '<div class="rangegen loglvl"></div>'
+                    . '</div>'
+                    . '<div class="col-xs-4">'
+                    . '<div class="input-group">'
+                    . '<input type="text" name="${service_id}" class="form-control '
+                    . 'showVal loglvl" maxsize="2" value="${service_value}" id='
+                    . '"${service_name}" readonly/>'
+                    . '</div>'
+                    . '</div>';
+                break;
+            case 'FOG_INACTIVITY_TIMEOUT':
+                $type = '<div class="col-xs-8">'
+                    . '<div class="rangegen inact"></div>'
+                    . '</div>'
+                    . '<div class="col-xs-4">'
+                    . '<div class="input-group">'
+                    . '<input type="text" name="${service_id}" class="form-control '
+                    . 'showVal inact" maxsize="2" value="${service_value}" id='
+                    . '"${service_name}" readonly/>'
+                    . '</div>'
+                    . '</div>';
+                break;
+            case 'FOG_REGENERATE_TIMEOUT':
+                $type = '<div class="col-xs-8">'
+                    . '<div class="rangegen regen"></div>'
+                    . '</div>'
+                    . '<div class="col-xs-4">'
+                    . '<div class="input-group">'
+                    . '<input type="text" name="${service_id}" class="form-control '
+                    . 'showVal regen" maxsize="5" value="${service_value}" id='
+                    . '"${service_name}" readonly/>'
+                    . '</div>'
                     . '</div>';
                 break;
             case 'FOG_IMAGE_COMPRESSION_FORMAT_DEFAULT':
@@ -2136,16 +2157,13 @@ class FOGConfigurationPage extends FOGPage
                     unset($value);
                 }
                 unset($vals);
-                $type = sprintf(
-                    '<div class="input-group">'
+                $type = '<div class="input-group">'
                     . '<select name="${service_id}" '
                     . 'autocomplete="off" '
-                    . 'class="form-control" id="'
-                    . $Service->name
-                    . '">%s</select>'
-                    . '</div>',
-                    ob_get_clean()
-                );
+                    . 'class="form-control" id="${service_name}">'
+                    . ob_get_clean()
+                    . '</select>'
+                    . '</div>';
                 break;
             case 'FOG_VIEW_DEFAULT_SCREEN':
                 $screens = array('SEARCH','LIST');
@@ -2164,16 +2182,13 @@ class FOGConfigurationPage extends FOGPage
                     unset($viewop);
                 }
                 unset($screens);
-                $type = sprintf(
-                    '<div class="input-group">'
+                $type = '<div class="input-group">'
                     . '<select name="${service_id}" '
                     . 'autocomplete="off" '
-                    . 'class="form-group" id="'
-                    . $Service->name
-                    . '">%s</select>'
-                    . '</div>',
-                    ob_get_clean()
-                );
+                    . 'class="form-control" id="${service_name}">'
+                    . ob_get_clean()
+                    . '</select>'
+                    . '</div>';
                 break;
             case 'FOG_MULTICAST_DUPLEX':
                 $duplexTypes = array(
@@ -2194,16 +2209,13 @@ class FOGConfigurationPage extends FOGPage
                     );
                     unset($val);
                 }
-                $type = sprintf(
-                    '<div class="input-group">'
+                $type = '<div class="input-group">'
                     . '<select name="${service_id}" '
                     . 'autocomplete="off" '
-                    . 'class="form-control" id="'
-                    . $Service->name
-                    . '">%s</select>'
-                    . '</div>',
-                    ob_get_clean()
-                );
+                    . 'class="form-control" id="${service_name}">'
+                    . ob_get_clean()
+                    . '</select>'
+                    . '</div>';
                 break;
             case 'FOG_BOOT_EXIT_TYPE':
             case 'FOG_EFI_BOOT_EXIT_TYPE':
@@ -2211,7 +2223,7 @@ class FOGConfigurationPage extends FOGPage
                     . Service::buildExitSelector(
                         $Service->id,
                         $Service->value,
-                        '',
+                        false,
                         $Service->name
                     )
                     . '</div>';
@@ -2234,26 +2246,19 @@ class FOGConfigurationPage extends FOGPage
                     );
                     unset($humanreadable);
                 }
-                $type = sprintf(
-                    '<div class="input-group">'
+                $type = '<div class="input-group">'
                     . '<select name="${service_id}" '
                     . 'autocomplete="off" '
-                    . 'class="form-control" id="'
-                    . $Service->name
-                    . '">%s</select>'
-                    . '</div>',
-                    ob_get_clean()
-                );
+                    . 'class="form-control" id="${service_name}">'
+                    . ob_get_clean()
+                    . '</select>'
+                    . '</div>';
                 break;
             case 'FOG_QUICKREG_IMG_ID':
                 $type = '<div class="input-group">'
                     . self::getClass('ImageManager')->buildSelectBox(
                         $Service->value,
-                        sprintf(
-                            '%s" id="%s"',
-                            $Service->id,
-                            $Service->name
-                        )
+                        $Service->id
                     )
                     . '</div>';
                 break;
@@ -2261,11 +2266,7 @@ class FOGConfigurationPage extends FOGPage
                 $type = '<div class="input-group">'
                     . self::getClass('GroupManager')->buildSelectBox(
                         $Service->value,
-                        sprintf(
-                            '%s" id="%s"',
-                            $Service->id,
-                            $Service->name
-                        )
+                        $Service->id
                     )
                     . '</div>';
                 break;
@@ -2274,11 +2275,7 @@ class FOGConfigurationPage extends FOGPage
                     . self::getClass('KeySequenceManager')
                     ->buildSelectBox(
                         $Service->value,
-                        sprintf(
-                            '%s" id="%s"',
-                            $Service->id,
-                            $Service->name
-                        )
+                        $Service->id
                     )
                     . '</div>';
                 break;
@@ -2290,11 +2287,9 @@ class FOGConfigurationPage extends FOGPage
                         $Service->value
                     )->get('name');
                 }
-                $type = sprintf(
-                    '<p id="%s">%s</p>',
-                    $Service->name,
-                    $ImageName
-                );
+                $type = '<p id="${service_name}">'
+                    . $ImageName
+                    . '</p>';
                 break;
             case 'FOG_TZ_INFO':
                 $dt = self::niceDate('now', $utc);
@@ -2302,9 +2297,7 @@ class FOGConfigurationPage extends FOGPage
                 ob_start();
                 echo '<div class="input-group">';
                 echo '<select name="${service_id}" class="form-control" '
-                    . 'id="'
-                    . $Service->name
-                    . '">';
+                    . 'id="${service_name}">';
                 foreach ((array)$tzIDs as $i => &$tz) {
                     $current_tz = self::getClass('DateTimeZone', $tz);
                     $offset = $current_tz->getOffset($dt);
@@ -2346,125 +2339,91 @@ class FOGConfigurationPage extends FOGPage
             case ('FOG_API_TOKEN' === $Service->name ||
                 (preg_match('#pass#i', $Service->name)
                 && !preg_match('#(valid|min)#i', $Service->name))):
-                $extra = '"/></div>';
-                $normal = '${service_value}';
-                if ('FOG_API_TOKEN' === $Service->name) {
-                    $extra = 'token" readonly/>'
+                $type = '<div class="input-group">';
+                switch ($Service->name) {
+                case 'FOG_API_TOKEN':
+                    $type .= '<input type="password" name="${service_id}" value="'
+                        . '${service_base64val}" autocomplete="off" class='
+                        . '"form-control token"'
+                        . 'id="${service_name}" readonly/>'
                         . '<div class="input-group-btn">'
-                        . '<button class="btn btn-warning resettoken" type="button">'
+                        . '<button class='
+                        . '"btn btn-warning resettoken" type="button">'
                         . _('Reset Token')
                         . '</button>'
-                        . '</div>'
                         . '</div>';
-                    $normal = '${service_base64val}';
+                    break;
+                case 'FOG_STORAGENODE_MYSQLPASS':
+                    $type .= '<input type="text" name="${service_id}" value="'
+                        . '${service_value}" autocomplete="off" class='
+                        . '"form-control" id="${service_name}"/>';
+                    break;
+                default:
+                    $type .= '<input type="password" name="${service_id}" value="'
+                        . '${service_value}" autocomplete="off" class='
+                        . '"form-control" id="${service_name}"/>';
                 }
-                $type = '<div class="input-group">';
-                $type .= (
-                    $Service->name == 'FOG_STORAGENODE_MYSQLPASS' ?
-                    '<input type="text" name="${service_id}" value='
-                    . '"'
-                    . $normal
-                    . '" autocomplete="off" class="form-control" id='
-                    . '"${service-name}"'
-                    . $extra :
-                    '<input type="password" name='
-                    . '"${service_id}" value="'
-                    . $normal
-                    . '" autocomplete='
-                    . '"off" id="'
-                    . $Service->name
-                    . '" class="form-control '
-                    . $extra
-                );
+                $type .= '</div>';
                 break;
             case (in_array($Service->name, $ServiceNames)):
-                $type = sprintf(
-                    '<div class="input-group">'
-                    . '<input '
-                    . 'type="checkbox" name="${service_id}" value='
-                    . '"1" id="%s"%s/>',
-                    $Service->name,
-                    (
+                $type = '<input type="checkbox" name="${service_id}" value="1" '
+                    . 'id="${service_name}"'
+                    . (
                         $Service->value ?
                         ' checked' :
                         ''
                     )
-                );
-                $type .= '</div>';
+                    . '/>';
                 break;
             case 'FOG_COMPANY_TOS':
             case 'FOG_AD_DEFAULT_OU':
                 $type = '<div class="input-group">'
-                    . '<textarea rows="5" name="${service_id}" class='
-                    . '"form-control" id="'
-                    . $Service->name
-                    . '" id="'
-                    . $Service->name
-                    . '">'
-                    . '${service_value}</textarea>'
+                    . '<textarea name="${service_id}" class='
+                    . '"form-control" id="${service_name}">'
+                    . '${service_value}'
+                    . '</textarea>'
                     . '</div>';
                 break;
             case 'FOG_CLIENT_BANNER_IMAGE':
-                $set = trim($Service->value);
-                if (!$set) {
-                    $type = '<div class="input-group">'
-                        . '<input type="file" name="${service_id}" '
-                        . 'class="newbanner form-control" id="'
-                        . $Service->name
-                        . '"/>'
-                        . '<input type="hidden" value="" name="banner"/>'
-                        . '</div>';
-                } else {
-                    $type = sprintf(
-                        '<div class="input-group">'
-                        . '<label id="uploader" for="bannerimg">%s'
-                        . '<a href="#" id="bannerimg" identi='
-                        . '"${service_id}"> <i class='
-                        . '"fa fa-arrow-up noBorder"></i></a></label>'
-                        . '<input type="hidden" value="%s" name="banner" '
-                        . 'class="form-control"/>'
-                        . '</div>',
-                        basename($set),
-                        $Service->value
-                    );
-                }
+                $type = '<div class="input-group">'
+                    . '<label class="input-group-btn">'
+                    . '<span class="btn btn-info">'
+                    . _('Browse')
+                    . '<input type="file" class="hidden newbanner" name='
+                    . '"${service_id}" id="${service_name}"/>'
+                    . '</span>'
+                    . '</label>'
+                    . '<input type="text" class="form-control filedisp" '
+                    . 'value="${service_value}" readonly/>'
+                    . '</div>';
                 break;
             case 'FOG_CLIENT_BANNER_SHA':
                 $type = '<div class="input-group">'
-                    . '<input readonly name="${service_id}" type='
-                    . '"text" value="'
-                    . $Service->value
-                    . '" id="'
-                    . $Service->name
-                    . '" '
-                    . 'class="form-control"/>'
+                    . '<input class="form-control" name="${service_id}" type='
+                    . '"text" value="${service_value}" id="${service_name}"'
+                    . ' readonly/>'
                     . '</div>';
                 break;
             case 'FOG_COMPANY_COLOR':
                 $type = '<div class="input-group">'
-                    . '<input name="${service_id}" type='
-                    . '"text" maxlength="6" value="'
-                    . $Service->value
-                    . '" id="'
-                    . $Service->name
-                    . '" '
-                    . 'class="jscolor {required:false} {refine:false} '
-                    . 'form-control"/>'
+                    . '<input name="${service_id}" type="text" maxlength="6" value='
+                    . '"${service_value}" id="${service_name}" class='
+                    . '"jscolor {required:false} {refine: false} form-control"/>'
                     . '</div>';
                 break;
             default:
                 $type = '<div class="input-group">'
-                    . '<input id="'
-                    . $Service->name
-                    . '" type='
-                    . '"text" name="${service_id}" value='
-                    . '"${service_value}" autocomplete="off" '
-                    . 'class="form-control"/>'
+                    . '<input id="${service_name}" type="text" name="${service_id}" '
+                    . 'value="${service_value}" autocomplete="off" '
+                    . 'class="form-control">'
                     . '</div>';
                 break;
             }
             $this->data[] = array(
-                'input_type' => (
+                'field' => '<label for="${service_name}">'
+                . '${label_name}'
+                . '</label>',
+                'input' => (
                     count(
                         explode(
                             chr(10),
@@ -2473,22 +2432,23 @@ class FOGConfigurationPage extends FOGPage
                     ) <= 1 ?
                     $type :
                     '<div class="input-group">'
-                    . '<textarea rows="5" name="${service_id}" '
-                    . 'class="form-control" id="'
-                    . $Service->name
-                    . '">'
-                    . '${service_value}</textarea></div>'
+                    . '<textarea name="${service_id}" '
+                    . 'class="form-control" id="${service_name}">'
+                    . '${service_value}'
+                    . '</textarea>'
+                    . '</div>'
                 ),
-                'service_name' => '<label class="control-label" for="'
-                . $Service->name
-                . '">'
-                . $Service->name
-                . '</label>',
                 'span' => '<i class="icon fa fa-question hand" title='
                 . '"${service_desc}" data-toggle='
                 . '"tooltip" data-placement="right"></i>',
-                'service_id' => $Service->id,
                 'id' => $Service->id,
+                'service_id' => $Service->id,
+                'service_name' => $Service->name,
+                'label_name' => str_replace(
+                    array('FOG_', '_'),
+                    array('', ' '),
+                    $Service->name
+                ),
                 'service_value' => $Service->value,
                 'service_base64val' => base64_encode($Service->value),
                 'service_desc' => $Service->description,
@@ -2509,18 +2469,25 @@ class FOGConfigurationPage extends FOGPage
             unset($options, $Service);
         }
         $this->data[] = array(
-            'span' => '&nbsp;',
-            'service_name' => '',
-            'input_type' => '<div class="input-group">'
-            . '<button class="btn btn-info btn-block" name="update" '
-            . 'type="submit">'
-            . _('Save Changes')
-            . '</button>'
-            . '</div>'
+            'field' => '<label for='
+            . '"'
+            . $catset
+            . $curcat
+            . 'save">'
+            . _('Make Changes?')
+            . '</label>',
+            'input' => '<button class="'
+            . 'btn btn-info btn-block" type="submit" '
+            . 'name="update" id="'
+            . $catset
+            . $curcat
+            . 'save">'
+            . _('Update')
+            . '</button>',
+            'span' => ''
         );
         $this->render(12);
         unset($this->data);
-        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '</form>';
