@@ -164,7 +164,7 @@ class HostManagementPage extends FOGPage
         );
         $this->headerData = array(
             '',
-            '<label class="control-label" for="toggler">'
+            '<label for="toggler">'
             . '<input type="checkbox" name="toggle-checkbox" '
             . 'class="toggle-checkboxAction" id="toggler"/>'
             . '</label>',
@@ -179,7 +179,7 @@ class HostManagementPage extends FOGPage
         );
         $this->templates = array(
             '<i class="icon fa fa-question hand"></i>',
-            '<label class="control-label" for="host-${id}">'
+            '<label for="host-${id}">'
             . '<input type="checkbox" name="host[]" '
             . 'value="${id}" class="toggle-action" id="host-${id}"/>'
             . '</label>',
@@ -397,7 +397,7 @@ class HostManagementPage extends FOGPage
             array('class' => 'col-xs-8 form-group'),
         );
         $fields = array(
-            '<label class="control-label" for="host">'
+            '<label for="host">'
             . _('Host Name')
             . '</label>' => '<div class="input-group has-error">'
             . '<input type="text" name="host" '
@@ -407,7 +407,7 @@ class HostManagementPage extends FOGPage
             . 'class="hostname-input form-control" '
             . 'id="host" required/>'
             . '</div>',
-            '<label class="control-label" for="mac">'
+            '<label for="mac">'
             . _('Primary MAC')
             . '</label>' => '<div class="input-group has-error">'
             . '<span class="mac-manufactor input-group-addon">'
@@ -417,7 +417,7 @@ class HostManagementPage extends FOGPage
             . filter_input(INPUT_POST, 'mac')
             . '" maxlength="17" required/>'
             . '</div>',
-            '<label class="control-label" for="description">'
+            '<label for="description">'
             . _('Host Description')
             . '</label>' => '<div class="input-group">'
             . '<textarea class="form-control" '
@@ -425,7 +425,7 @@ class HostManagementPage extends FOGPage
             . filter_input(INPUT_POST, 'description')
             . '</textarea>'
             . '</div>',
-            '<label class="control-label" for="productKey">'
+            '<label for="productKey">'
             . _('Host Product Key')
             . '</label>' => '<div class="input-group">'
             . '<input id="productKey" type="text" '
@@ -433,7 +433,7 @@ class HostManagementPage extends FOGPage
             . filter_input(INPUT_POST, 'key')
             . '" class="form-control"/>'
             . '</div>',
-            '<label class="control-label" for="image">'
+            '<label for="image">'
             . _('Host Image')
             . '</label>' => '<div class="input-group">'
             . self::getClass('ImageManager')->buildSelectBox(
@@ -442,7 +442,7 @@ class HostManagementPage extends FOGPage
                 'id'
             )
             . '</div>',
-            '<label class="control-label" for="kern">'
+            '<label for="kern">'
             . _('Host Kernel')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="kern" '
@@ -450,32 +450,32 @@ class HostManagementPage extends FOGPage
             . filter_input(INPUT_POST, 'kern')
             . '" class="form-control" id="kern"/>'
             . '</div>',
-            '<label class="control-label" for="args">'
+            '<label for="args">'
             . _('Host Kernel Arguments')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="args" id="args" value="'
             . filter_input(INPUT_POST, 'args')
             . '" class="form-control"/>'
             . '</div>',
-            '<label class="control-label" for="init">'
+            '<label for="init">'
             . _('Host Init')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="init" value="'
             . filter_input(INPUT_POST, 'init')
             . '" id="init" class="form-control"/>',
-            '<label class="control-label" for="dev">'
+            '<label for="dev">'
             . _('Host Primary Disk')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="dev" value="'
             . filter_input(INPUT_POST, 'dev')
             . '" id="dev" class="form-control"/>'
             . '</div>',
-            '<label class="control-label" for="bootTypeExit">'
+            '<label for="bootTypeExit">'
             . _('Host Bios Exit Type')
             . '</label>' => '<div class="input-group">'
             . $this->exitNorm
             . '</div>',
-            '<label class="control-label" for="efiBootTypeExit">'
+            '<label for="efiBootTypeExit">'
             . _('Host EFI Exit Type')
             . '</label>' => '<div class="input-group">'
             . $this->exitEfi
@@ -971,7 +971,7 @@ class HostManagementPage extends FOGPage
             filter_input(INPUT_POST, 'dev') ?: $this->obj->get('kernelDevice')
         );
         $fields = array(
-            '<label class="control-label" for="name">'
+            '<label for="name">'
             . _('Host Name')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="host" value="'
@@ -979,7 +979,7 @@ class HostManagementPage extends FOGPage
             . '" maxlength="15" class="hostname-input form-control" '
             . 'id="name" required/>'
             . '</div>',
-            '<label class="control-label" for="mac">'
+            '<label for="mac">'
             . _('Primary MAC')
             . '</label>' => '<div class="col-xs-10">'
             . '<div class="input-group">'
@@ -1050,7 +1050,7 @@ class HostManagementPage extends FOGPage
             . '</div>' => '<div class="additionalMACsCell">'
             . $pending
             . '</div>',
-            '<label class="control-label" for="description">'
+            '<label for="description">'
             . _('Host description')
             . '</label>' => '<div class="input-group">'
             . '<textarea class="form-control" id="description" '
@@ -1058,17 +1058,17 @@ class HostManagementPage extends FOGPage
             . $desc
             . '</textarea>'
             . '</div>',
-            '<label class="control-label" for="productKey">'
+            '<label for="productKey">'
             . _('Host Product Key')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="key" value="'
             . $productKey
             . '" id="productKey" class="form-control"/>'
             . '</div>',
-            '<label class="control-label" for="image">'
+            '<label for="image">'
             . _('Host Image')
             . '</label>' => $imageSelect,
-            '<label class="control-label" for="kern">'
+            '<label for="kern">'
             . _('Host Kernel')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="kern" id="kern" '
@@ -1076,7 +1076,7 @@ class HostManagementPage extends FOGPage
             . $kern
             . '"/>'
             . '</div>',
-            '<label class="control-label" for="args">'
+            '<label for="args">'
             . _('Host Kernel Arguments')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="args" id="args" '
@@ -1084,7 +1084,7 @@ class HostManagementPage extends FOGPage
             . $args
             . '"/>'
             . '</div>',
-            '<label class="control-label" for="init">'
+            '<label for="init">'
             . _('Host Init')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="init" id="init" '
@@ -1092,7 +1092,7 @@ class HostManagementPage extends FOGPage
             . $init
             . '"/>'
             . '</div>',
-            '<label class="control-label" for="dev">'
+            '<label for="dev">'
             . _('Host Primary Disk')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="dev" id="dev" '
@@ -1100,13 +1100,13 @@ class HostManagementPage extends FOGPage
             . $dev
             . '"/>'
             . '</div>',
-            '<label class="control-label" for="bootTypeExit">'
+            '<label for="bootTypeExit">'
             . _('Host Bios Exit Type')
             . '</label>' => $this->exitNorm,
-            '<label class="control-label" for="efiBootTypeExit">'
+            '<label for="efiBootTypeExit">'
             . _('Host EFI Exit Type')
             . '</label>' => $this->exitEfi,
-            '<label class="control-label" for="generalupdate">'
+            '<label for="generalupdate">'
             . _('Make Changes?')
            . '</label>' => '<button type="submit" class="btn btn-info btn-block" '
            . 'id="generalupdate">'
@@ -1321,14 +1321,14 @@ class HostManagementPage extends FOGPage
             $this->data
         );
         $this->headerData = array(
-            '<label class="control-label" for="toggler1">'
+            '<label for="toggler1">'
             . '<input type="checkbox" name="toggle-checkboxprint" class='
             . '"toggle-checkboxprint" id="toggler1"/></label>',
             _('Printer Alias'),
             _('Printer Type')
         );
         $this->templates = array(
-            '<label class="control-label" for="printer-${printer_id}">'
+            '<label for="printer-${printer_id}">'
             . '<input type="checkbox" name="printer[]" class='
             . '"toggle-print"${is_default} id="printer-${printer_id}" '
             . 'value="${printer_id}"/></label>',
@@ -1524,7 +1524,7 @@ class HostManagementPage extends FOGPage
             $this->attributes
         );
         $this->headerData = array(
-            '<label class="control-label" for="toggler2">'
+            '<label for="toggler2">'
             . '<input type="checkbox" name="toggle-checkbox" class='
             . '"toggle-checkboxAction" id="toggler2"/></label>',
             _('Default'),
@@ -1532,7 +1532,7 @@ class HostManagementPage extends FOGPage
             _('Printer Type')
         );
         $this->templates = array(
-            '<label class="control-label" for="printerrm-${printer_id}">'
+            '<label for="printerrm-${printer_id}">'
             . '<input type="checkbox" name="printerRemove[]" class='
             . '"toggle-action" id="printerrm-${printer_id}" '
             . 'value="${printer_id}"/></label>',
@@ -1647,14 +1647,14 @@ class HostManagementPage extends FOGPage
             $this->data
         );
         $this->headerData = array(
-            '<label class="control-label" for="toggler3">'
+            '<label for="toggler3">'
             . '<input type="checkbox" name="toggle-checkboxsnapin" class='
             . '"toggle-checkboxsnapin" id="toggler3"/></label>',
             _('Snapin Name'),
             _('Snapin Created')
         );
         $this->templates = array(
-            '<label class="control-label" for="snapin-${snapin_id}">'
+            '<label for="snapin-${snapin_id}">'
             . '<input type="checkbox" name="snapin[]" class='
             . '"toggle-snapin" id="snapin-${snapin_id}" '
             . 'value="${snapin_id}"/></label>',
@@ -1750,14 +1750,14 @@ class HostManagementPage extends FOGPage
             $this->data
         );
         $this->headerData = array(
-            '<label class="control-label" for="toggler4">'
+            '<label for="toggler4">'
             . '<input type="checkbox" name="toggle-checkbox" class='
             . '"toggle-checkboxAction" id="toggler4"/></label>',
             _('Snapin Name'),
             _('Snapin Created')
         );
         $this->templates = array(
-            '<label class="control-label" for="snapinrm-${snapin_id}">'
+            '<label for="snapinrm-${snapin_id}">'
             . '<input type="checkbox" name="snapinRemove[]" class='
             . '"toggle-action" id="snapinrm-${snapin_id}" '
             . 'value="${snapin_id}"/></label>',
@@ -1887,7 +1887,7 @@ class HostManagementPage extends FOGPage
             '${span}',
         );
         $this->data[] = array(
-            'mod_name' => '<label class="control-label" for="checkAll">'
+            'mod_name' => '<label for="checkAll">'
             . _('Select/Deselect All')
             . '</label>',
             'input' => '<div class="checkbox">'
@@ -1991,7 +1991,7 @@ class HostManagementPage extends FOGPage
                     ),
                     $note
                 ),
-                'mod_name' => '<label class="control-label" for="'
+                'mod_name' => '<label for="'
                 . $Module->shortName
                 . '">'
                 . $Module->name
@@ -2120,7 +2120,7 @@ class HostManagementPage extends FOGPage
                     . '</div>',
                     $get[1]
                 ),
-                'field' => '<label class="control-label" for="'
+                'field' => '<label for="'
                 . $name
                 . '">'
                 . $get[2]
@@ -2179,7 +2179,7 @@ class HostManagementPage extends FOGPage
             ->load('name')
             ->get('description');
         $this->data[] = array(
-            'field' => '<label class="control-label" for="tme">'
+            'field' => '<label for="tme">'
             . _('Auto Log Out Time (in minutes)')
             . '</label>',
             'input' => '<div class="input-group">'

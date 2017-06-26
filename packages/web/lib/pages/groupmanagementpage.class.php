@@ -189,7 +189,7 @@ class GroupManagementPage extends FOGPage
             array('class' => 'col-xs-8 form-group')
         );
         $fields = array(
-            '<label class="control-label" for="name">'
+            '<label for="name">'
             . _('Group Name')
             . '</label>' => '<div class="input-group has-error">'
             . '<input type="text" name="name" '
@@ -198,7 +198,7 @@ class GroupManagementPage extends FOGPage
             . '" class="groupname-input form-control" '
             . 'id="name" required/>'
             . '</div>',
-            '<label class="control-label" for="description">'
+            '<label for="description">'
             . _('Group Description')
             . '</label>' => '<div class="input-group">'
             . '<textarea class="form-control" '
@@ -206,7 +206,7 @@ class GroupManagementPage extends FOGPage
             . filter_input(INPUT_POST, 'description')
             . '</textarea>'
             . '</div>',
-            '<label class="control-label" for="kern">'
+            '<label for="kern">'
             . _('Group Kernel')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="kern" '
@@ -215,7 +215,7 @@ class GroupManagementPage extends FOGPage
             . '" class="groupkern-input form-control" '
             . 'id="kern"/>'
             . '</div>',
-            '<label class="control-label" for="args">'
+            '<label for="args">'
             . _('Group Kernel Arguments')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="args" '
@@ -224,7 +224,7 @@ class GroupManagementPage extends FOGPage
             . '" class="groupargs-input form-control" '
             . 'id="args"/>'
             . '</div>',
-            '<label class="control-label" for="dev">'
+            '<label for="dev">'
             . _('Group Primary Disk')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="dev" '
@@ -233,7 +233,7 @@ class GroupManagementPage extends FOGPage
             . '" class="groupdev-input form-control" '
             . 'id="dev"/>'
             . '</div>',
-            '<label class="control-label" for="addgroup">'
+            '<label for="addgroup">'
             . _('Make changes?')
             . '</label>' => '<button class="'
             . 'btn btn-info btn-block" type="submit" name='
@@ -436,7 +436,7 @@ class GroupManagementPage extends FOGPage
             '${input}'
         );
         $fields = array(
-            '<label class="control-label" for="name">'
+            '<label for="name">'
             . _('Group Name')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="name" value="'
@@ -444,7 +444,7 @@ class GroupManagementPage extends FOGPage
             . '" class="groupname-input form-control" '
             . 'id="name" required/>'
             . '</div>',
-            '<label class="control-label" for="description">'
+            '<label for="description">'
             . _('Group Description')
             . '</label>' => '<div class="input-group">'
             . '<textarea class="form-control" id="description" '
@@ -452,7 +452,7 @@ class GroupManagementPage extends FOGPage
             . $desc
             . '</textarea>'
             . '</div>',
-            '<label class="control-label" for="productKey">'
+            '<label for="productKey">'
             . _('Group Product Key')
             . '</label>' => '<div class="input-group">'
             . '<input id="productKey" type="text" '
@@ -460,7 +460,7 @@ class GroupManagementPage extends FOGPage
             . $productKey
             .'" class="form-control"/>'
             . '</div>',
-            '<label class="control-label" for="kern">'
+            '<label for="kern">'
             . _('Group Kernel')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="kern" id="kern" '
@@ -468,7 +468,7 @@ class GroupManagementPage extends FOGPage
             . $kern
             . '"/>'
             . '</div>',
-            '<label class="control-label" for="args">'
+            '<label for="args">'
             . _('Group Kernel Arguments')
             . '</label>' =>'<div class="input-group">'
             . '<input type="text" name="args" id="args" '
@@ -476,7 +476,7 @@ class GroupManagementPage extends FOGPage
             . $args
             . '"/>'
             . '</div>',
-            '<label class="control-label" for="dev">'
+            '<label for="dev">'
             . _('Group Primary Disk')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="dev" id="dev" '
@@ -484,13 +484,13 @@ class GroupManagementPage extends FOGPage
             . $dev
             . '"/>'
             . '</div>',
-            '<label class="control-label" for="bootTypeExit">'
+            '<label for="bootTypeExit">'
             . _('Group Bios Exit Type')
             . '</label>' => $exitNorm,
-            '<label class="control-label" for="efiBootTypeExit">'
+            '<label for="efiBootTypeExit">'
             . _('Group EFI Exit Type')
             . '</label>' => $exitEfi,
-            '<label class="control-label" for="generalupdate">'
+            '<label for="generalupdate">'
             . _('Make Changes?')
             . '</label>' => '<button type="submit" class="btn btn-info btn-block" '
             . 'id="generalupdate">'
@@ -575,10 +575,10 @@ class GroupManagementPage extends FOGPage
             '${input}',
         );
         $fields = array(
-            '<label class="control-label" for="image">'
+            '<label for="image">'
             . _('Group image')
             . '</label>' => $imageSelector,
-            '<label class="control-label" for="updateimage">'
+            '<label for="updateimage">'
             . _('Make Changes?')
             . '</label>' => '<button type="submit" class="btn btn-info btn-block" '
             . 'id="updateimage">'

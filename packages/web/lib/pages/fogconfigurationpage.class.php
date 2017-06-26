@@ -453,7 +453,7 @@ class FOGConfigurationPage extends FOGPage
         };
         // Menu based changes.
         $fields = array(
-            '<label class="control-label" for="mainColors">'
+            '<label for="mainColors">'
             . _('Main Colors')
             . '</label>' => array(
                 '<div class="input-group">'
@@ -465,7 +465,7 @@ class FOGConfigurationPage extends FOGPage
                 . _('Option specifies the color settings of the main menu items')
                 . '." data-toggle="tooltip" data-placement="right"></i>'
             ),
-            '<label class="control-label" for="hostValid">'
+            '<label for="hostValid">'
             . _('Valid Host Colors')
             . '<label>' => array(
                 '<div class="input-group">'
@@ -479,7 +479,7 @@ class FOGConfigurationPage extends FOGPage
                 . _('is valid')
                 . '." data-toggle="tooltip" data-placement="right"></i>'
             ),
-            '<label class="control-label" for="hostInvalid">'
+            '<label for="hostInvalid">'
             . _('Invalid Host Colors')
             . '</label>' => array(
                 '<div class="input-group">'
@@ -494,7 +494,7 @@ class FOGConfigurationPage extends FOGPage
                 . _('is invalid')
                 . '." data-toggle="tooltip" data-placement="right"></i>'
             ),
-            '<label class="control-label" for="mainCpairs">'
+            '<label for="mainCpairs">'
             . _('Main pairings')
             . '</label>' => array(
                 '<div class="input-group">'
@@ -509,7 +509,7 @@ class FOGConfigurationPage extends FOGPage
                 . _('present and where/how they need to display')
                 . '." data-toggle="tooltip" data-placement="right"></i>'
             ),
-            '<label class="control-label" for="mainFallback">'
+            '<label for="mainFallback">'
             . _('Main fallback pairings')
             . '</label>' => array(
                 '<div class="input-group">'
@@ -522,7 +522,7 @@ class FOGConfigurationPage extends FOGPage
                 . _('Option specifies the pairings as a fallback')
                 . '." data-toggle="tooltip" data-placement="right"></i>'
             ),
-            '<label class="control-label" for="hostCpairs">'
+            '<label for="hostCpairs">'
             . _('Host pairings')
             . '</label>' => array(
                 '<div class="input-group">'
@@ -534,7 +534,7 @@ class FOGConfigurationPage extends FOGPage
                 . _('Option specifies the pairings after host checks')
                 . '." data-toggle="tooltip" data-placement="right"></i>'
             ),
-            '<label class="control-label" for="timeout">'
+            '<label for="timeout">'
             . _('Menu Timeout')
             . ' ('
             . _('in seconds')
@@ -555,7 +555,7 @@ class FOGConfigurationPage extends FOGPage
                 . _('open')
                 . '." data-toggle="tooltip" data-placement="right"></i>'
             ),
-            '<label class="control-label" for="bgfile">'
+            '<label for="bgfile">'
             . _('Menu Background File')
             . '</label>' => array(
                 '<div class="input-group">'
@@ -569,7 +569,7 @@ class FOGConfigurationPage extends FOGPage
                 . _('for the menu background')
                 . '." data-toggle="tooltip" data-placement="right"></i>'
             ),
-            '<label class="control-label" for="menuSet">'
+            '<label for="menuSet">'
             . _('Make Changes?')
             . '</label>' => '<button type="submit" id="menuSet" class="'
             . 'btn btn-info btn-block" name="update">'
@@ -608,7 +608,7 @@ class FOGConfigurationPage extends FOGPage
         echo '</div>';
         $this->data = array();
         $fields = array(
-            '<label class="control-label" for="nomenu">'
+            '<label for="nomenu">'
             . _('No Menu')
             . '</label>' => array(
                 '<input type="checkbox" id="nomenu" name="nomenu"'
@@ -630,7 +630,7 @@ class FOGConfigurationPage extends FOGPage
                 . _('it performs that task')
                 . '." data-toggle="tooltip" data-placement="right"></i>'
             ),
-            '<label class="control-label" for="hidemenu">'
+            '<label for="hidemenu">'
             . _('Hide Menu')
             . '</label>' => array(
                 '<input type="checkbox" id="hidemenu" name="hidemenu"'
@@ -648,7 +648,7 @@ class FOGConfigurationPage extends FOGPage
                 . _('Otherwise it will just boot like normal')
                 . '." data-toggle="tooltip" data-placement="right"></i>'
             ),
-            '<label class="control-label" for="hidetimeout">'
+            '<label for="hidetimeout">'
             . _('Hide Menu Timeout')
             . '</label>' => array(
                 '<div class="input-group">'
@@ -661,7 +661,7 @@ class FOGConfigurationPage extends FOGPage
                 . _('Option specifies the timeout value for the hidden menu system')
                 . '." data-toggle="tooltip" data-placement="right"></i>'
             ),
-            '<label class="control-label" for="keysequence">'
+            '<label for="keysequence">'
             . _('Boot Key Sequence')
             . '</label>' => array(
                 $bootKeys,
@@ -671,7 +671,7 @@ class FOGConfigurationPage extends FOGPage
                 . _('access to the hidden menu system')
                 . '." data-toggle="tooltip" data-placement="right"></i>'
             ),
-            '<label class="control-label" for="hideSet">'
+            '<label for="hideSet">'
             . _('Make Changes?')
             . '</label>' => '<button type="submit" id="hideSet" class="'
             . 'btn btn-info btn-block" name="update">'
@@ -706,7 +706,7 @@ class FOGConfigurationPage extends FOGPage
         echo '</div>';
         $this->data = array();
         $fields = array(
-            '<label class="control-label" for="bootTypeExit">'
+            '<label for="bootTypeExit">'
             . _('Exit to Hard Drive Type')
             . '</label>' => array(
                 $exitNorm,
@@ -714,7 +714,7 @@ class FOGConfigurationPage extends FOGPage
                 . _('Option specifies the legacy boot exit method ipxe will use')
                 . '." data-toggle="tooltip" data-placement="right"></i>'
             ),
-            '<label class="control-label" for="efiBootTypeExit">'
+            '<label for="efiBootTypeExit">'
             . _('Exit to Hard Drive Type(EFI)')
             . '</label>' => array(
                 $exitEfi,
@@ -722,7 +722,7 @@ class FOGConfigurationPage extends FOGPage
                 . _('Option specifies the efi boot exit method ipxe will use')
                 . '." data-toggle="tooltip" data-placement="right"></i>'
             ),
-            '<label class="control-label" for="exitSet">'
+            '<label for="exitSet">'
             . _('Make Changes?')
             . '</label>' => '<button type="submit" id="exitSet" class="'
             . 'btn btn-info btn-block" name="update">'
@@ -757,7 +757,7 @@ class FOGConfigurationPage extends FOGPage
         echo '</div>';
         $this->data = array();
         $fields = array(
-            '<label class="control-label" for="advlog">'
+            '<label for="advlog">'
             . _('Advanced Menu Login')
             . '</label>' => array(
                 '<input type="checkbox" id="advlog" name="advmenulogin"'
@@ -779,7 +779,7 @@ class FOGConfigurationPage extends FOGPage
                 . _('menu system')
                 . '." data-toggle="tooltip" data-placement="right"></i>'
             ),
-            '<label class="control-label" for="advtext">'
+            '<label for="advtext">'
             . _('Advanced menu command')
             . '</label>' => array(
                 '<div class="input-group">'
@@ -795,7 +795,7 @@ class FOGConfigurationPage extends FOGPage
                 . _('This is ipxe script commands to operate with')
                 . '." data-toggle="tooltip" data-placement="right"></i>'
             ),
-            '<label class="control-label" for="advSet">'
+            '<label for="advSet">'
             . _('Make Changes?')
             . '</label>' => '<button type="submit" id="advSet" class="'
             . 'btn btn-info btn-block" name="update">'

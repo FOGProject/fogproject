@@ -207,7 +207,7 @@ class ServiceConfigurationPage extends FOGPage
             );
             $fields = array(
                 sprintf(
-                    '<label "control-label" for="'
+                    '<label for="'
                     . $Module->shortName
                     . 'main">%s %s?</label>',
                     $Module->name,
@@ -223,7 +223,7 @@ class ServiceConfigurationPage extends FOGPage
                     $Module->shortName
                 ),
                 sprintf(
-                    '<label clas="control-label" for="'
+                    '<label for="'
                     . $Module->shortName
                     . 'def'
                     . '">%s</label>',
@@ -274,7 +274,7 @@ class ServiceConfigurationPage extends FOGPage
                 . '</button>'
             );
             $fields = array(
-                '<label class="control-label" for="update'
+                '<label for="update'
                 . $Module->shortName
                 . '"/>'
                 . _('Make Changes?')
@@ -539,7 +539,7 @@ class ServiceConfigurationPage extends FOGPage
                 );
                 unset($disps);
                 $fields = array(
-                    '<label class="control-label" for="width">'
+                    '<label for="width">'
                     . _('Default Width')
                     . '</label>' => '<div class="input-group">'
                     . '<input type="text" class="form-control" name="width" '
@@ -547,7 +547,7 @@ class ServiceConfigurationPage extends FOGPage
                     . $x
                     . '" id="width"/>'
                     . '</div>',
-                    '<label class="control-label" for="height">'
+                    '<label for="height">'
                     . _('Default Height')
                     . '</label>' => '<div class="input-group">'
                     . '<input type="text" class="form-control" name="height" '
@@ -555,7 +555,7 @@ class ServiceConfigurationPage extends FOGPage
                     . $y
                     . '" id="height"/>'
                     . '</div>',
-                    '<label class="control-label" for="refresh">'
+                    '<label for="refresh">'
                     . _('Default Refresh Rate')
                     . '</label>' => '<div class="input-group">'
                     . '<input type="text" class="form-control" name="refresh" '
@@ -563,7 +563,7 @@ class ServiceConfigurationPage extends FOGPage
                     . $r
                     . '" id="refresh"/>'
                     . '</div>',
-                    '<label class="control-label" for="updatescreen">'
+                    '<label for="updatescreen">'
                     . _('Make Changes?')
                     . '</label>' => '<button type="submit" class='
                     . '"btn btn-info btn-block" name='
