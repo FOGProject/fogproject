@@ -108,18 +108,19 @@ $(function() {
         });
         $(this).bind('click', function(e) {setCheck(e);});
     });
-    $('.trigger_expand').click(function() {
-        var all = $('.expand_trigger'),
-        active = all.filter('.active');
-        if (all.length && all.length === active.length) {
-            // All open; close them
-            all.removeClass('active').parents('div').next().slideUp();
-            $('.trigger_expand').html('<h4 class="title">Expand All</h4>');
+    $('.trigger_expand').on('click', function(e) {
+        e.preventDefault();
+        var all = $('.expand_trigger');
+        if (!$(this).hasClass('activeclicked')) {
+            $(this).addClass('activeclicked').html('<h4 class="title">Collapse All</h4>');
+            all = $('.expand_trigger').not('.activenow');
         } else {
-            all.not('.active').addClass('active').parents('div').next().slideDown();
-            $('.trigger_expand').html('<h4 class="title">Collapse All</h4>');
+            $(this).removeClass('activeclicked').html('<h4 class="title">Expand All</h4>');
+            all = $('.activenow');
         }
-        return false;
+        all.each(function() {
+            $(this).trigger('click');
+        });
     });
     // Assign DOM elements
     if (typeof($("div.pigz").slider) == typeof(Function)) {
@@ -226,6 +227,11 @@ $(function() {
     // Shows the div of the containing element.
     $('.expand_trigger').on('click', function(e) {
         e.preventDefault();
+        if ($(this).hasClass('activenow')) {
+            $(this).removeClass('activenow');
+        } else {
+            $(this).addClass('activenow');
+        }
         $('div#'+this.id).not('.panel-heading').fadeToggle('slow','swing');
     });
     $('[name=export]').click(function(e) {

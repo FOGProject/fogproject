@@ -61,7 +61,7 @@ class Host extends FOGController
         'pingstatus' => 'hostPingCode',
         'biosexit' => 'hostExitBios',
         'efiexit' => 'hostExitEfi',
-        'enforce' => 'hostEnforce',
+        'enforce' => 'hostEnforce'
     );
     /**
      * The required fields
@@ -69,7 +69,7 @@ class Host extends FOGController
      * @var array
      */
     protected $databaseFieldsRequired = array(
-        'name',
+        'name'
     );
     /**
      * Additional fields
@@ -97,7 +97,7 @@ class Host extends FOGController
         'snapinjob',
         'users',
         'fingerprint',
-        'powermanagementtasks',
+        'powermanagementtasks'
     );
     /**
      * Database -> Class field relationships
