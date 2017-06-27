@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-16 21:32-0400\n"
+"POT-Creation-Date: 2017-06-23 01:08-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -5666,12 +5666,12 @@ msgstr "Assegnamenti distrutti"
 msgid "Destroyed assignment"
 msgstr "Assegnazione distrutta"
 
-#: /var/www/fog/lib/router/route.class.php:558
-#: /var/www/fog/lib/router/route.class.php:766
+#: /var/www/fog/lib/router/route.class.php:557
+#: /var/www/fog/lib/router/route.class.php:765
 msgid "Already created"
 msgstr "Già creato"
 
-#: /var/www/fog/lib/router/route.class.php:704
+#: /var/www/fog/lib/router/route.class.php:703
 msgid "Invalid tasking type passed"
 msgstr "È passato il tipo di attività non valido"
 
