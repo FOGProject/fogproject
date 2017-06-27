@@ -1860,7 +1860,7 @@ abstract class FOGPage extends FOGBase
         );
         $this->attributes = array(
             array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group')
+            array('class' => 'col-xs-8')
         );
         $reqID = $node
             . 'IDArray';
@@ -1998,8 +1998,8 @@ abstract class FOGPage extends FOGBase
             '${task_desc}'
         );
         $this->attributes = array(
-            array('class' => 'col-xs-3'),
-            array('class' => 'col-xs-9')
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8')
         );
         $taskTypeIterator = function (&$TaskType) use (&$access, &$advanced) {
             if (!in_array($TaskType->access, $access)) {
@@ -2316,6 +2316,27 @@ abstract class FOGPage extends FOGBase
             $this->templates,
             $this->attributes
         );
+        $this->templates = array(
+            '${field}',
+            '${input}',
+        );
+        $this->attributes = array(
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8'),
+        );
+        array_walk($fields, $this->fieldsToData);
+        self::$HookManager->processEvent(
+            sprintf(
+                '%s_EDIT_AD',
+                strtoupper($this->childClass)
+            ),
+            array(
+                'headerData' => &$this->headerData,
+                'data' => &$this->data,
+                'attributes' => &$this->attributes,
+                'templates' => &$this->templates
+            )
+        );
         echo '<!-- Active Directory -->';
         if ($ownElement) {
             echo '<div id="'
@@ -2341,27 +2362,6 @@ abstract class FOGPage extends FOGBase
             . '"fakes hidden"/>';
         echo '<input type="password" name="fakepasswordremembered" class='
             . '"fakes hidden"/>';
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
-        );
-        array_walk($fields, $this->fieldsToData);
-        self::$HookManager->processEvent(
-            sprintf(
-                '%s_EDIT_AD',
-                strtoupper($this->childClass)
-            ),
-            array(
-                'headerData' => &$this->headerData,
-                'data' => &$this->data,
-                'attributes' => &$this->attributes,
-                'templates' => &$this->templates
-            )
-        );
         $this->render(12);
         if ($ownElement) {
             echo '</form>';
@@ -2613,7 +2613,7 @@ abstract class FOGPage extends FOGBase
         unset($this->headerData);
         $this->attributes = array(
             array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
+            array('class' => 'col-xs-8'),
         );
         $this->templates = array(
             '${field}',
@@ -3938,7 +3938,7 @@ abstract class FOGPage extends FOGBase
         );
         $this->attributes = array(
             array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
+            array('class' => 'col-xs-8'),
         );
         $fields = array(
             '<label for="specialCrons">'

@@ -514,11 +514,16 @@ function buildRow(data,templates,attributes,wrapper) {
     setChecked(checkedIDs);
 }
 function TableCheck() {
-    if (!Container || typeof(Container) === null || typeof(Container) === 'undefined') {
+    if (!Container
+        || typeof(Container) === null
+        || typeof(Container) === 'undefined'
+    ) {
         Container = $('.table-holder .table');
     }
     callme = 'hide';
-    if ($('.not-found').length === 0) Container.after('<p class="c not-found">'+_L['NO_ACTIVE_TASKS']+'</p>');
+    if ($('.not-found').length === 0) {
+        Container.after('<p class="c not-found">'+_L['NO_ACTIVE_TASKS']+'</p>');
+    }
     if (typeof(LastCount) != 'undefined' && LastCount > 0) {
         if ($('.not-found').length > 0) $('.not-found').remove();
         callme = 'show';
