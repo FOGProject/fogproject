@@ -130,8 +130,6 @@ class ImageManagementPage extends FOGPage
             . '</label>',
             _('Image Name'),
             _('Storage Group'),
-            _('OS'),
-            _('Partition'),
             _('Image Size: ON CLIENT'),
         );
         /**
@@ -174,8 +172,6 @@ class ImageManagementPage extends FOGPage
             . '<br/>'
             . '<small>${type}</small>',
             '${storageGroup}',
-            '${os}',
-            '${image_partition_type}',
             '${size}',
         );
         /**
@@ -201,19 +197,18 @@ class ImageManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 5,
-                'class' => 'l filter-false'
+                'class' => 'filter-false'
             ),
             array(
                 'width' => 16,
-                'class' => 'l filter-false form-group'
+                'class' => 'filter-false'
             ),
             array(),
-            array(),
-            array(),
-            array(),
             array(
-                'width' => 50,
-                'class' => 'c'
+                'class' => 'col-xs-1'
+            ),
+            array(
+                'class' => 'col-xs-1'
             ),
         );
         /**
@@ -224,8 +219,7 @@ class ImageManagementPage extends FOGPage
             array_push(
                 $this->attributes,
                 array(
-                    'width' => 50,
-                    'class' => 'c'
+                    'class' => 'col-xs-1'
                 )
             );
         }
@@ -234,7 +228,7 @@ class ImageManagementPage extends FOGPage
          */
         array_push(
             $this->attributes,
-            array()
+            array('class' => 'col-xs-1')
         );
         /**
          * Lamda function to return data either by list or search.

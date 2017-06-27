@@ -186,7 +186,7 @@ class GroupManagementPage extends FOGPage
         );
         $this->attributes = array(
             array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group')
+            array('class' => 'col-xs-8')
         );
         $fields = array(
             '<label for="name">'
@@ -429,7 +429,7 @@ class GroupManagementPage extends FOGPage
         );
         $this->attributes = array(
             array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group')
+            array('class' => 'col-xs-8')
         );
         $this->templates = array(
             '${field}',
@@ -568,7 +568,7 @@ class GroupManagementPage extends FOGPage
             ->buildSelectBox($imageMatchID, 'image');
         $this->attributes = array(
             array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
+            array('class' => 'col-xs-8'),
         );
         $this->templates = array(
             '${field}',
