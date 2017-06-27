@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-26 21:32-0400\n"
+"POT-Creation-Date: 2017-06-26 22:10-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1384,7 +1384,7 @@ msgstr "Event must be a string"
 #: /var/www/fog/lib/fog/fogpage.class.php:1204
 #, fuzzy
 msgid "Schedule with shutdown"
-msgstr "Schedule"
+msgstr "Scheduler"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1223
 msgid "Wake on lan?"
@@ -1642,7 +1642,7 @@ msgstr "Create User"
 #: /var/www/fog/lib/fog/fogpage.class.php:1909
 #, fuzzy
 msgid "Remove these items?"
-msgstr "Remove selected snapins"
+msgstr "Remove selected printers"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1973
 msgid "All selected items have been deleted"
@@ -1674,9 +1674,8 @@ msgid "Clear all fields?"
 msgstr "clear all history"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:2207
-#, fuzzy
 msgid "Clear Fields"
-msgstr "clear all history"
+msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:2211
 #, fuzzy
@@ -1898,7 +1897,7 @@ msgstr "Import"
 #: /var/www/fog/lib/fog/fogpage.class.php:3615
 #, fuzzy
 msgid "List"
-msgstr "Line"
+msgstr "Host List"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3633
 #, fuzzy
@@ -1928,9 +1927,8 @@ msgid "Import CSV?"
 msgstr "Export CSV"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3679
-#, fuzzy
 msgid "This page allows you to upload a CSV file into FOG to ease"
-msgstr "This setting defines the proxy username to use."
+msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3681
 msgid "migration or mass import new items"
@@ -2019,7 +2017,7 @@ msgstr "Action"
 #: /var/www/fog/lib/fog/fogpage.class.php:4008
 #, fuzzy
 msgid "Create new PM Schedule"
-msgstr "Create New %s"
+msgstr "Cron Schedule"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:4018
 #, fuzzy
@@ -2714,7 +2712,7 @@ msgstr "Host Kernel"
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:338
 #, fuzzy
 msgid "Install"
-msgstr "Install / Update Failed!"
+msgstr "Smart Installer (Recommended)"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:354
 msgid "FOG PXE Boot Menu Configuration"
@@ -2951,7 +2949,7 @@ msgstr "Option specifies the timeout value for the hidden menu system"
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:751
 #, fuzzy
 msgid "Boot Exit settings"
-msgstr "Host Description"
+msgstr "Auto Log Out Settings"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:761
 msgid "Advanced Menu Login"
@@ -3110,7 +3108,7 @@ msgstr "Menu Show with:"
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1128
 #, fuzzy
 msgid "Delete Menu Item"
-msgstr "Delete all selected items"
+msgstr "Menu Item:"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1277
 msgid "successfully updated"
@@ -3188,7 +3186,9 @@ msgstr "Current Records"
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1644
 #, fuzzy
 msgid "This section allows you to update the modules and"
-msgstr "This setting defines the proxy username to use."
+msgstr ""
+"This section allows you to import known mac address makers into the FOG "
+"Database for easier identification."
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1646
 msgid "config files that run on the client computers."
@@ -3223,7 +3223,7 @@ msgstr "Upload File"
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1704
 #, fuzzy
 msgid "Delete Selected Items"
-msgstr "Delete all selected items"
+msgstr "Delete Selected"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1713
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:489
@@ -3284,7 +3284,9 @@ msgstr "FOG System Settings"
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2009
 #, fuzzy
 msgid "This section allows you to customize or alter"
-msgstr "This setting defines the proxy username to use."
+msgstr ""
+"This section allows you to import known mac address makers into the FOG "
+"Database for easier identification."
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2011
 msgid "the way in which FOG operates"
@@ -3455,7 +3457,7 @@ msgstr "Errors on revert detected"
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:132
 #, fuzzy
 msgid "Service general"
-msgstr "Host Kernel"
+msgstr "Service Tag"
 
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:136
 msgid "This will allow you to configure how services"
@@ -3527,7 +3529,7 @@ msgstr "Service Status"
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:629
 #, fuzzy
 msgid "Current settings"
-msgstr "Settings"
+msgstr "Update Current Listing"
 
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:332
 msgid "Default log out time (in minutes)"
@@ -4132,7 +4134,7 @@ msgstr "Group Name"
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:612
 #, fuzzy
 msgid "Group image association"
-msgstr "Group Location"
+msgstr "Image Association"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:651
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:662
@@ -4777,7 +4779,7 @@ msgstr "Update Printer"
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:405
 #, fuzzy
 msgid "User general"
-msgstr "Host Kernel"
+msgstr "General"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:442
 #, fuzzy
@@ -5011,7 +5013,7 @@ msgstr "Import Hosts"
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:189
 #, fuzzy
 msgid "Import FOG Reports"
-msgstr "Import Hosts"
+msgstr "About FOG Reports"
 
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:207
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:226
@@ -5022,7 +5024,9 @@ msgstr "Import Hosts"
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:250
 #, fuzzy
 msgid "This section allows you to uploade user"
-msgstr "This setting defines the proxy username to use."
+msgstr ""
+"This section allows you to import known mac address makers into the FOG "
+"Database for easier identification."
 
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:252
 msgid "defined reports that may not be a part of"
@@ -5337,7 +5341,7 @@ msgstr "Printer"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1508
 #, fuzzy
 msgid "Add selected printers"
-msgstr "Printer"
+msgstr "Remove selected printers"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1530
 msgid "Default"
@@ -5346,7 +5350,7 @@ msgstr "Default"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1593
 #, fuzzy
 msgid "Update/Remove printers"
-msgstr "Remove selected printers"
+msgstr "Update Printer"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1600
 #, fuzzy
@@ -5354,9 +5358,8 @@ msgid "Update default printer"
 msgstr "Update Printer"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1611
-#, fuzzy
 msgid "Remove selected printers"
-msgstr "Remove selected snapins"
+msgstr "Remove selected printers"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1654
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1757
@@ -5381,7 +5384,7 @@ msgstr "Add Snapin(s)"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1733
 #, fuzzy
 msgid "Add selected snapins"
-msgstr "Printer"
+msgstr "Remove selected snapins"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1802
 #, fuzzy
@@ -5422,14 +5425,13 @@ msgid "Host FOG Client Module configuration"
 msgstr "Host Printer Configuration"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2028
-#, fuzzy
 msgid "Host module settings"
-msgstr "Host Description"
+msgstr ""
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2034
 #, fuzzy
 msgid "Update module configurations"
-msgstr "Host Printer Configuration"
+msgstr "Upload a new client module/configuration file"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2144
 msgid "Host Screen Resolution"
@@ -5447,7 +5449,7 @@ msgstr ""
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2216
 #, fuzzy
 msgid "Update auto-logout time"
-msgstr "Update Printer"
+msgstr "Update Images"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2274
 #, fuzzy
@@ -9829,17 +9831,50 @@ msgstr "Hello FOG Client"
 msgid "There are no locations on this server"
 msgstr "There are no locations on this server."
 
+#~ msgid "Not registering to mobile page"
+#~ msgstr "Not registering to mobile page"
+
+#~ msgid "Mobile Manager"
+#~ msgstr "Mobile Manager"
+
+#~ msgid "Process Group Changes"
+#~ msgstr "Process Group Changes"
+
+#~ msgid "Delete all selected items"
+#~ msgstr "Delete all selected items"
+
+#~ msgid "task for"
+#~ msgstr "task for"
+
 #, fuzzy
-#~ msgid "OS"
-#~ msgstr "O/S"
+#~ msgid "Are you sure you wish to task these machines"
+#~ msgstr "Are you sure you wish to deploy task to these machines"
+
+#~ msgid "No snapins associated"
+#~ msgstr "No snapins associated"
+
+#~ msgid "after task completion"
+#~ msgstr "after task completion"
+
+#, fuzzy
+#~ msgid "Cron-style"
+#~ msgstr "Cron-style Deployment"
+
+#~ msgid "Which account would you like to reset the pasword for"
+#~ msgstr "Which account would you like to reset the pasword for"
 
 #, fuzzy
 #~ msgid "Successfully created tasks for"
 #~ msgstr "successfully updated"
 
-#, fuzzy
-#~ msgid "Save changes?"
-#~ msgstr "Save Changes"
+#~ msgid "Are you sure you wish to remove these items"
+#~ msgstr "Are you sure you wish to remove these items"
+
+#~ msgid "No items to delete"
+#~ msgstr "No items to delete"
+
+#~ msgid "None selected or item is protected"
+#~ msgstr "None selected or item is protected"
 
 #, fuzzy
 #~ msgid "Click the button to download the"
@@ -9863,45 +9898,25 @@ msgstr "There are no locations on this server."
 #~ msgid "Upload CSV"
 #~ msgstr "Upload CSV"
 
-#~ msgid "Upload FOG Reports"
-#~ msgstr "Upload FOG Reports"
+#, fuzzy
+#~ msgid "OS"
+#~ msgstr "O/S"
 
-#~ msgid ""
-#~ "This section allows you to upload user defined reports that may not be "
-#~ "part of the base FOG package. The report files should end in .php"
-#~ msgstr ""
-#~ "This section allows you to upload user defined reports that may not be "
-#~ "part of the base FOG package. The report files should end in .php"
+#, fuzzy
+#~ msgid "No valid data"
+#~ msgstr "Invalid data"
 
-#~ msgid "Upload a FOG Report"
-#~ msgstr "Upload a FOG Report"
+#~ msgid "TFTP Server"
+#~ msgstr "TFTP Server"
 
-#~ msgid "Upload File"
-#~ msgstr "Upload File"
+#~ msgid "The selected node's storage group slot usage"
+#~ msgstr "The selected node's storage group slot usage"
 
-#~ msgid ""
-#~ "FOG Reports exist to give you information about what is going on with "
-#~ "your FOG System. To view a report, select an item from the menu on the "
-#~ "left-hand side of this page."
-#~ msgstr ""
-#~ "FOG Reports exist to give you information about what is going on with "
-#~ "your FOG System. To view a report, select an item from the menu on the "
-#~ "left-hand side of this page."
+#~ msgid "Published Kernel"
+#~ msgstr "Published Kernel"
 
-#~ msgid "PXE Menu has been updated"
-#~ msgstr "PXE Menu has been updated"
-
-#~ msgid "Description:"
-#~ msgstr "Description:"
-
-#~ msgid "Click the button to export the database."
-#~ msgstr "Click the button to export the database."
-
-#~ msgid "Import a previous backup file."
-#~ msgstr "Import a previous backup file."
-
-#~ msgid "Errors detected on import"
-#~ msgstr "Errors detected on import"
+#~ msgid "Next"
+#~ msgstr "Next"
 
 #, fuzzy
 #~ msgid "Advanced configuration options"
@@ -9918,20 +9933,32 @@ msgstr "There are no locations on this server."
 #~ msgid "Save PXE MENU"
 #~ msgstr "Save PXE MENU"
 
-#~ msgid "Published Kernel"
-#~ msgstr "Published Kernel"
+#~ msgid "PXE Menu has been updated"
+#~ msgstr "PXE Menu has been updated"
 
-#~ msgid "Next"
-#~ msgstr "Next"
+#~ msgid "Description:"
+#~ msgstr "Description:"
+
+#~ msgid "Max Size:"
+#~ msgstr "Max Size:"
+
+#~ msgid "Delete Current Records"
+#~ msgstr "Delete Current Records"
+
+#~ msgid "MAC Address listing source: "
+#~ msgstr "MAC Address listing source: "
 
 #~ msgid "Number of lines"
 #~ msgstr "Number of lines"
 
-#~ msgid "Upload a new client module/configuration file"
-#~ msgstr "Upload a new client module/configuration file"
+#~ msgid "Click the button to export the database."
+#~ msgstr "Click the button to export the database."
 
-#~ msgid "Max Size:"
-#~ msgstr "Max Size:"
+#~ msgid "Import a previous backup file."
+#~ msgstr "Import a previous backup file."
+
+#~ msgid "Errors detected on import"
+#~ msgstr "Errors detected on import"
 
 #~ msgid "FOG Service Configuration Information"
 #~ msgstr "FOG Service Configuration Information"
@@ -9971,25 +9998,15 @@ msgstr "There are no locations on this server."
 #~ msgstr "Current Protected User Accounts"
 
 #, fuzzy
-#~ msgid "Process group changes"
-#~ msgstr "Process Group Changes"
+#~ msgid "The smart installer and msi for"
+#~ msgstr "The smart installer and msi for "
+
+#~ msgid "Welcome to FOG Mobile"
+#~ msgstr "Welcome to FOG Mobile"
 
 #, fuzzy
-#~ msgid "Process changes?"
-#~ msgstr "Process Group Changes"
-
-#, fuzzy
-#~ msgid "Create new user"
-#~ msgstr "Create New %s"
-
-#~ msgid "Are you sure you wish to remove these items"
-#~ msgstr "Are you sure you wish to remove these items"
-
-#~ msgid "No items to delete"
-#~ msgstr "No items to delete"
-
-#~ msgid "None selected or item is protected"
-#~ msgstr "None selected or item is protected"
+#~ msgid "Mobile"
+#~ msgstr "File"
 
 #~ msgid "Modify Group"
 #~ msgstr "Modify Group"
@@ -10000,12 +10017,44 @@ msgstr "There are no locations on this server."
 #~ msgid "Update Images"
 #~ msgstr "Update Images"
 
-#~ msgid "Edit host definition"
-#~ msgstr "Edit host definition"
+#, fuzzy
+#~ msgid "Mobile Only?"
+#~ msgstr "File"
 
 #, fuzzy
-#~ msgid "Remove selected"
-#~ msgstr "Remove selected snapins"
+#~ msgid "Allow API"
+#~ msgstr "All LDAPs"
+
+#~ msgid "Mobile/Quick Image Access Only?"
+#~ msgstr "Mobile/Quick Image Access Only?"
+
+#~ msgid "Add new user account"
+#~ msgstr "Add new user account"
+
+#~ msgid "Upload FOG Reports"
+#~ msgstr "Upload FOG Reports"
+
+#~ msgid ""
+#~ "This section allows you to upload user defined reports that may not be "
+#~ "part of the base FOG package. The report files should end in .php"
+#~ msgstr ""
+#~ "This section allows you to upload user defined reports that may not be "
+#~ "part of the base FOG package. The report files should end in .php"
+
+#~ msgid "Upload a FOG Report"
+#~ msgstr "Upload a FOG Report"
+
+#~ msgid ""
+#~ "FOG Reports exist to give you information about what is going on with "
+#~ "your FOG System. To view a report, select an item from the menu on the "
+#~ "left-hand side of this page."
+#~ msgstr ""
+#~ "FOG Reports exist to give you information about what is going on with "
+#~ "your FOG System. To view a report, select an item from the menu on the "
+#~ "left-hand side of this page."
+
+#~ msgid "Add new host definition"
+#~ msgstr "Add new host definition"
 
 #~ msgid "Host approved"
 #~ msgstr "Host approved"
@@ -10013,11 +10062,21 @@ msgstr "There are no locations on this server."
 #~ msgid "Host approval failed."
 #~ msgstr "Host approval failed."
 
+#~ msgid "Ignore MAC for imaging"
+#~ msgstr "Ignore MAC for imaging"
+
+#~ msgid "Edit host definition"
+#~ msgstr "Edit host definition"
+
 #~ msgid "Add new printer(s) to this host"
 #~ msgstr "Add new printer(s) to this host"
 
 #~ msgid "Default Printer Select"
 #~ msgstr "Default Printer Select"
+
+#, fuzzy
+#~ msgid "Remove selected"
+#~ msgstr "Remove selected snapins"
 
 #, fuzzy
 #~ msgid "No valid macs returned"
@@ -10031,118 +10090,15 @@ msgstr "There are no locations on this server."
 #~ msgid "Host is in a tasking"
 #~ msgstr "Hosts in Task"
 
-#~ msgid "Ignore MAC for imaging"
-#~ msgstr "Ignore MAC for imaging"
-
-#, fuzzy
-#~ msgid "Add Option"
-#~ msgstr "Advanced Options"
-
-#, fuzzy
-#~ msgid "No valid data"
-#~ msgstr "Invalid data"
-
-#~ msgid "Not Set"
-#~ msgstr "Not Set"
-
-#, fuzzy
-#~ msgid "Schedule shutdown after task completion"
-#~ msgstr "after task completion"
-
-#~ msgid "Not registering to mobile page"
-#~ msgstr "Not registering to mobile page"
-
-#~ msgid "Welcome to FOG Mobile"
-#~ msgstr "Welcome to FOG Mobile"
-
-#, fuzzy
-#~ msgid "Mobile"
-#~ msgstr "File"
-
-#~ msgid "FOG Mobile Login"
-#~ msgstr "FOG Mobile Login"
-
-#~ msgid "Quick Image Menu"
-#~ msgstr "Quick Image Menu"
-
-#~ msgid "Task Started"
-#~ msgstr "Task Started"
-
-#~ msgid "Error, Is an image associated with this host"
-#~ msgstr "Error, Is an image associated with this host"
-
-#~ msgid "Host Search"
-#~ msgstr "Host Search"
-
-#, fuzzy
-#~ msgid "Mobile Only?"
-#~ msgstr "File"
-
-#, fuzzy
-#~ msgid "The smart installer and msi for"
-#~ msgstr "The smart installer and msi for "
-
-#, fuzzy
-#~ msgid "Allow API"
-#~ msgstr "All LDAPs"
-
-#~ msgid "Mobile/Quick Image Access Only?"
-#~ msgstr "Mobile/Quick Image Access Only?"
-
-#~ msgid "Add new user account"
-#~ msgstr "Add new user account"
-
-#~ msgid "Delete Current Records"
-#~ msgstr "Delete Current Records"
-
-#~ msgid "Update Current Listing"
-#~ msgstr "Update Current Listing"
-
-#~ msgid "MAC Address listing source: "
-#~ msgstr "MAC Address listing source: "
-
-#, fuzzy
-#~ msgid "Snapin hash already set"
-#~ msgstr "Snapin with that name already exists"
-
-#~ msgid "Add new host definition"
-#~ msgstr "Add new host definition"
-
-#, fuzzy
-#~ msgid "Sidenotes"
-#~ msgstr "minutes"
-
-#~ msgid "task for"
-#~ msgstr "task for"
-
-#, fuzzy
-#~ msgid "Are you sure you wish to task these machines"
-#~ msgstr "Are you sure you wish to deploy task to these machines"
-
-#~ msgid "No snapins associated"
-#~ msgstr "No snapins associated"
-
-#, fuzzy
-#~ msgid "Cron-style"
-#~ msgstr "Cron-style Deployment"
-
-#~ msgid "Which account would you like to reset the pasword for"
-#~ msgstr "Which account would you like to reset the pasword for"
-
-#, fuzzy
-#~ msgid "Please login"
-#~ msgstr "Please select an option"
-
-#, fuzzy
-#~ msgid "Close"
-#~ msgstr "Tasks"
-
 #~ msgid "Slack Management"
 #~ msgstr "Slack Management"
 
 #, fuzzy
 #~ msgid "File Integrity Management"
 #~ msgstr "Printer Management"
+
+#~ msgid "Not Set"
+#~ msgstr "Not Set"
 
 #, fuzzy
 #~ msgid "Access Control Manager"
@@ -10171,15 +10127,24 @@ msgstr "There are no locations on this server."
 #~ msgid "WOL Broadcast Management"
 #~ msgstr "WOL Broadcast Management"
 
-#~ msgid "TFTP Server"
-#~ msgstr "TFTP Server"
-
 #, fuzzy
-#~ msgid "The selected node's storage grout slot usage"
-#~ msgstr "The selected node's storage group slot usage"
+#~ msgid "Snapin hash already set"
+#~ msgstr "Snapin with that name already exists"
 
-#~ msgid "Mobile Manager"
-#~ msgstr "Mobile Manager"
+#~ msgid "FOG Mobile Login"
+#~ msgstr "FOG Mobile Login"
+
+#~ msgid "Quick Image Menu"
+#~ msgstr "Quick Image Menu"
+
+#~ msgid "Task Started"
+#~ msgstr "Task Started"
+
+#~ msgid "Error, Is an image associated with this host"
+#~ msgstr "Error, Is an image associated with this host"
+
+#~ msgid "Host Search"
+#~ msgstr "Host Search"
 
 #, fuzzy
 #~ msgid "Error: Failed to connect to server"
@@ -11192,11 +11157,11 @@ msgstr "There are no locations on this server."
 #~ msgid ""
 #~ "This setting defines if user cleanup should be enabled.  The User Cleanup "
 #~ "module will remove all local windows users from the workstation on log "
-#~ "off accept for users that are whitelisted.  (Valid values are 0 or 1)"
+#~ "off except for users that are whitelisted.  (Valid values are 0 or 1)"
 #~ msgstr ""
 #~ "This setting defines if user cleanup should be enabled.  The User Cleanup "
 #~ "module will remove all local windows users from the workstation on log "
-#~ "off accept for users that are whitelisted.  (Valid values are 0 or 1)"
+#~ "off except for users that are whitelisted.  (Valid values are 0 or 1)"
 
 #~ msgid ""
 #~ "This setting defines if the green fog module should be enabled.  The "
