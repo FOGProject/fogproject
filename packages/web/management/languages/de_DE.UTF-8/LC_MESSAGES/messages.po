@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-16 21:32-0400\n"
+"POT-Creation-Date: 2017-06-23 01:08-0400\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -5945,13 +5945,13 @@ msgstr "Zerstörte Zuordnung"
 msgid "Destroyed assignment"
 msgstr "Zerstörte Zuordnung"
 
-#: /var/www/fog/lib/router/route.class.php:558
-#: /var/www/fog/lib/router/route.class.php:766
+#: /var/www/fog/lib/router/route.class.php:557
+#: /var/www/fog/lib/router/route.class.php:765
 #, fuzzy
 msgid "Already created"
 msgstr "Bereits registriert als"
 
-#: /var/www/fog/lib/router/route.class.php:704
+#: /var/www/fog/lib/router/route.class.php:703
 #, fuzzy
 msgid "Invalid tasking type passed"
 msgstr "Ungültiges Objekttyp übergeben"
