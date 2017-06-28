@@ -258,7 +258,6 @@ class Page extends FOGBase
                     echo ' ';
                     echo $title[0];
                     echo '</span>';
-                    echo '</p>';
                     echo '</a>';
                     echo '</li>';
                     unset($title);
@@ -502,12 +501,18 @@ class Page extends FOGBase
                 )
                 . '">';
             echo '<i class="fa fa-sign-out"></i>';
+            echo '<span class="collapsedmenu-text">';
+            echo ' ';
+            echo _('Logout');
+            echo '</span>';
             echo '</a>';
         } else {
             echo '<a href="../management/index.php"';
-            echo '<i class="fa fa-sign-in">&nbsp;&nbsp;';
-            echo self::$foglang['Login'];
-            echo '</i>';
+            echo '<i class="fa fa-sign-in"></i>';
+            echo '<span class="collapsedmenu-text">';
+            echo ' ';
+            echo _('Login');
+            echo '</span>';
             echo '</a>';
         }
         echo '</li>';
