@@ -173,6 +173,7 @@ function Update30Day() {
                 }
             ];
             $.plot(Graph30Day, Graph30DayData, Graph30DayOpts);
+            setTimeout(Update30Day, bandwidthtime - ((new Date().getTime() - startTime) % bandwidthtime));
         }
     });
 }
