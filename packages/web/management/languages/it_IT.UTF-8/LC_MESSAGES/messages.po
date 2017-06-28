@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-26 21:32-0400\n"
+"POT-Creation-Date: 2017-06-27 21:57-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -860,13 +860,21 @@ msgstr "Nessun nodo associato"
 msgid "Adding FOGPage: %s, Node: %s"
 msgstr "FOGPage Aggiunta: %s , nodo: %s"
 
-#: /var/www/fog/lib/fog/page.class.php:496
+#: /var/www/fog/lib/fog/page.class.php:495
+#: /var/www/fog/lib/fog/page.class.php:506
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2662
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2692
 #: /var/www/fog/lib/reports/user_tracking.report.php:261
 #: /var/www/fog/commons/text.php:46
 msgid "Logout"
 msgstr "Disconnettersi"
+
+#: /var/www/fog/lib/fog/page.class.php:514
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2681
+#: /var/www/fog/lib/reports/user_tracking.report.php:262
+#: /var/www/fog/commons/text.php:114
+msgid "Login"
+msgstr "Accesso"
 
 #: /var/www/fog/lib/fog/fogcore.class.php:40
 msgid "day"
@@ -5422,12 +5430,6 @@ msgstr "Logout non trovato"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2672
 msgid "Setting logout to one second prior to next login"
 msgstr "Impostare l'accesso a un secondo prima del login successivo"
-
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2681
-#: /var/www/fog/lib/reports/user_tracking.report.php:262
-#: /var/www/fog/commons/text.php:114
-msgid "Login"
-msgstr "Accesso"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2717
 msgid "No user history data found!"

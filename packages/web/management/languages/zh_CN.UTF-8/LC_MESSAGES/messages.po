@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-26 21:32-0400\n"
+"POT-Creation-Date: 2017-06-27 21:57-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -929,13 +929,21 @@ msgstr "无关联的节点"
 msgid "Adding FOGPage: %s, Node: %s"
 msgstr "添加FOGPage： %s ，节点： %s"
 
-#: /var/www/fog/lib/fog/page.class.php:496
+#: /var/www/fog/lib/fog/page.class.php:495
+#: /var/www/fog/lib/fog/page.class.php:506
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2662
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2692
 #: /var/www/fog/lib/reports/user_tracking.report.php:261
 #: /var/www/fog/commons/text.php:46
 msgid "Logout"
 msgstr "登出"
+
+#: /var/www/fog/lib/fog/page.class.php:514
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2681
+#: /var/www/fog/lib/reports/user_tracking.report.php:262
+#: /var/www/fog/commons/text.php:114
+msgid "Login"
+msgstr "登录"
 
 #: /var/www/fog/lib/fog/fogcore.class.php:40
 msgid "day"
@@ -5573,12 +5581,6 @@ msgstr "未发现记录，错误： %s"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2672
 msgid "Setting logout to one second prior to next login"
 msgstr ""
-
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2681
-#: /var/www/fog/lib/reports/user_tracking.report.php:262
-#: /var/www/fog/commons/text.php:114
-msgid "Login"
-msgstr "登录"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2717
 msgid "No user history data found!"
