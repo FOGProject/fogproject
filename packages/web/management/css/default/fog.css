@@ -1036,7 +1036,7 @@ pre
 /* Dashboard - Bandwidth Graph */
 #graph-bandwidth, #graph-30day, #graph-bandwidth-filters {
     margin: 0 auto;
-    width: 800px;
+    width: 750px;
     z-index: 1;
 }
 #graph-bandwidth
