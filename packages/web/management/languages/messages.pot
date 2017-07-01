@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-01 17:48-0400\n"
+"POT-Creation-Date: 2017-07-01 19:44-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1051,7 +1051,7 @@ msgid "CPU Version"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:367
-#: /var/www/fog/lib/pages/serverinfo.class.php:157
+#: /var/www/fog/lib/pages/serverinfo.class.php:176
 msgid "CPU Speed"
 msgstr ""
 
@@ -1863,7 +1863,7 @@ msgid "Successful"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3859
-#: /var/www/fog/lib/pages/serverinfo.class.php:138
+#: /var/www/fog/lib/pages/serverinfo.class.php:159
 #: /var/www/fog/commons/text.php:96
 msgid "Errors"
 msgstr ""
@@ -3580,36 +3580,39 @@ msgstr ""
 msgid "Hostname / IP"
 msgstr ""
 
-#: /var/www/fog/lib/pages/serverinfo.class.php:76
+#: /var/www/fog/lib/pages/serverinfo.class.php:75
+msgid "Server information"
+msgstr ""
+
+#: /var/www/fog/lib/pages/serverinfo.class.php:80
 msgid "Invalid Server Information!"
 msgstr ""
 
-#: /var/www/fog/lib/pages/serverinfo.class.php:89
-msgid "Unable to pull server information!"
-msgstr ""
-
-#: /var/www/fog/lib/pages/serverinfo.class.php:136
-msgid "TX"
-msgstr ""
-
-#: /var/www/fog/lib/pages/serverinfo.class.php:137
-msgid "RX"
-msgstr ""
-
-#: /var/www/fog/lib/pages/serverinfo.class.php:139
-msgid "Dropped"
+#: /var/www/fog/lib/pages/serverinfo.class.php:93
+msgid "Unable to get server infromation!"
 msgstr ""
 
 #: /var/www/fog/lib/pages/serverinfo.class.php:144
-#, php-format
-msgid "Unable to find basic information"
+msgid "Unable to find basic information!"
 msgstr ""
 
-#: /var/www/fog/lib/pages/serverinfo.class.php:148
+#: /var/www/fog/lib/pages/serverinfo.class.php:157
+msgid "TX"
+msgstr ""
+
+#: /var/www/fog/lib/pages/serverinfo.class.php:158
+msgid "RX"
+msgstr ""
+
+#: /var/www/fog/lib/pages/serverinfo.class.php:160
+msgid "Dropped"
+msgstr ""
+
+#: /var/www/fog/lib/pages/serverinfo.class.php:164
 msgid "General Information"
 msgstr ""
 
-#: /var/www/fog/lib/pages/serverinfo.class.php:149
+#: /var/www/fog/lib/pages/serverinfo.class.php:166
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2741
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:661
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1237
@@ -3623,13 +3626,13 @@ msgstr ""
 msgid "Storage Node"
 msgstr ""
 
-#: /var/www/fog/lib/pages/serverinfo.class.php:150
+#: /var/www/fog/lib/pages/serverinfo.class.php:167
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:87
 #: /var/www/fog/commons/text.php:70
 msgid "IP"
 msgstr ""
 
-#: /var/www/fog/lib/pages/serverinfo.class.php:151
+#: /var/www/fog/lib/pages/serverinfo.class.php:170
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:150
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:313
 #: /var/www/fog/lib/reports/host_list.report.php:55
@@ -3637,7 +3640,7 @@ msgstr ""
 msgid "Kernel"
 msgstr ""
 
-#: /var/www/fog/lib/pages/serverinfo.class.php:152
+#: /var/www/fog/lib/pages/serverinfo.class.php:171
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:71
 #: /var/www/fog/lib/reports/host_list.report.php:65
 #: /var/www/fog/lib/reports/user_tracking.report.php:110
@@ -3647,59 +3650,59 @@ msgstr ""
 msgid "Hostname"
 msgstr ""
 
-#: /var/www/fog/lib/pages/serverinfo.class.php:153
+#: /var/www/fog/lib/pages/serverinfo.class.php:172
 msgid "Uptime"
 msgstr ""
 
-#: /var/www/fog/lib/pages/serverinfo.class.php:154
+#: /var/www/fog/lib/pages/serverinfo.class.php:173
 msgid "CPU Type"
 msgstr ""
 
-#: /var/www/fog/lib/pages/serverinfo.class.php:155
+#: /var/www/fog/lib/pages/serverinfo.class.php:174
 msgid "CPU Count"
 msgstr ""
 
-#: /var/www/fog/lib/pages/serverinfo.class.php:156
+#: /var/www/fog/lib/pages/serverinfo.class.php:175
 msgid "CPU Model"
 msgstr ""
 
-#: /var/www/fog/lib/pages/serverinfo.class.php:158
+#: /var/www/fog/lib/pages/serverinfo.class.php:177
 msgid "CPU Cache"
 msgstr ""
 
-#: /var/www/fog/lib/pages/serverinfo.class.php:159
+#: /var/www/fog/lib/pages/serverinfo.class.php:178
 msgid "Total Memory"
 msgstr ""
 
-#: /var/www/fog/lib/pages/serverinfo.class.php:160
+#: /var/www/fog/lib/pages/serverinfo.class.php:179
 msgid "Used Memory"
 msgstr ""
 
-#: /var/www/fog/lib/pages/serverinfo.class.php:161
+#: /var/www/fog/lib/pages/serverinfo.class.php:180
 msgid "Free Memory"
 msgstr ""
 
-#: /var/www/fog/lib/pages/serverinfo.class.php:162
+#: /var/www/fog/lib/pages/serverinfo.class.php:198
 msgid "File System Information"
 msgstr ""
 
-#: /var/www/fog/lib/pages/serverinfo.class.php:163
+#: /var/www/fog/lib/pages/serverinfo.class.php:200
 msgid "Total Disk Space"
 msgstr ""
 
-#: /var/www/fog/lib/pages/serverinfo.class.php:164
+#: /var/www/fog/lib/pages/serverinfo.class.php:201
 msgid "Used Disk Space"
 msgstr ""
 
-#: /var/www/fog/lib/pages/serverinfo.class.php:165
+#: /var/www/fog/lib/pages/serverinfo.class.php:202
 msgid "Free Disk Space"
 msgstr ""
 
-#: /var/www/fog/lib/pages/serverinfo.class.php:166
+#: /var/www/fog/lib/pages/serverinfo.class.php:219
 msgid "Network Information"
 msgstr ""
 
-#: /var/www/fog/lib/pages/serverinfo.class.php:174
+#: /var/www/fog/lib/pages/serverinfo.class.php:245
 msgid "Information"
 msgstr ""
 
