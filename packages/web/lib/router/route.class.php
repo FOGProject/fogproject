@@ -452,17 +452,40 @@ class Route extends FOGBase
         self::$data['count'] = 0;
         self::$data[$classname.'s'] = array();
         $find = self::getsearchbody($classname);
-        foreach ($classman->find($find, 'AND', $sortby) as &$class) {
-            $test = stripos(
-                $class->get('name'),
-                '_api_'
-            );
-            if (!$bypass && false != $test) {
-                continue;
+        switch ($classname) {
+        case 'plugin':
+            self::$data['count_active'] = 0;
+            self::$data['count_installed'] = 0;
+            self::$data['count_not_active'] = 0;
+            foreach (self::getClass('Plugin')->getPlugins() as $class) {
+                self::$data[$classname.'s'][] = self::getter($classname, $class);
+                if ($class->isActive() && !$class->isInstalled()) {
+                    self::$data['count_active']++;
+                }
+                if ($class->isActive() && $class->isInstalled()) {
+                    self::$data['count_installed']++;
+                }
+                if (!$class->isActive() && !$class->isInstalled()) {
+                    self::$data['count_not_active']++;
+                }
+                self::$data['count']++;
+                unset($class);
             }
-            self::$data[$classname.'s'][] = self::getter($classname, $class);
-            self::$data['count']++;
-            unset($class);
+            break;
+        default:
+            foreach ($classman->find($find, 'AND', $sortby) as &$class) {
+                $test = stripos(
+                    $class->get('name'),
+                    '_api_'
+                );
+                if (!$bypass && false != $test) {
+                    continue;
+                }
+                self::$data[$classname.'s'][] = self::getter($classname, $class);
+                self::$data['count']++;
+                unset($class);
+            }
+            break;
         }
         self::$HookManager
             ->processEvent(
@@ -1275,6 +1298,16 @@ class Route extends FOGBase
                         'intval',
                         $class->get('hostsnotinme')
                     )
+                )
+            );
+            break;
+        case 'plugin':
+            $data = FOGCore::fastmerge(
+                $class->get(),
+                array(
+                    'location' => $class->getPath(),
+                    'description' => $class->get('description'),
+                    'icon' => $class->getIcon()
                 )
             );
             break;

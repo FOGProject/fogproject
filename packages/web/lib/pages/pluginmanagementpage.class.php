@@ -22,6 +22,12 @@
 class PluginManagementPage extends FOGPage
 {
     /**
+     * Stores the type of sub we're working on.
+     *
+     * @var string
+     */
+    private static $_plugintype = 'activate';
+    /**
      * Stores all the plugins from our caller
      *
      * @var array
@@ -73,30 +79,52 @@ class PluginManagementPage extends FOGPage
             '${location}',
         );
         $this->attributes = array(
-            array(),
-            array(),
-            array(),
+            array(
+                'width' => 66,
+                'height' => 66
+            ),
+            array('class' => 'col-xs-8'),
+            array('class' => 'col-xs-3'),
         );
         global $sub;
         $subs = array('installed', 'install');
         if (in_array($sub, $subs)) {
-            array_push(
+            array_unshift(
                 $this->headerData,
                 _('Remove')
             );
-            array_push(
+            array_unshift(
                 $this->templates,
                 '<a href="?node=plugin&sub=removeplugin&rmid='
                 . '${pluginid}"><i class="icon fa fa-minus-circle" '
                 . 'title="Remove Plugin"></i></a>'
             );
-            array_push(
+            array_unshift(
                 $this->attributes,
                 array(
                     'class' => 'filter-false'
                 )
             );
         }
+        /**
+         * Lambda function to return data for list.
+         *
+         * @param object $Plugin the plugin to use
+         *
+         * @return void
+         */
+        self::$returnData = function (&$Plugin) {
+            $this->data[] = array(
+                'type' => self::$_plugintype,
+                'encname' => md5($Plugin->name),
+                'name' => $Plugin->name,
+                'icon' => $Plugin->icon,
+                'id' => $Plugin->id,
+                'desc' => $Plugin->description,
+                'location' => $Plugin->location
+            );
+            unset($Plugin);
+        };
     }
     /**
      * The basic function / home page of the class if you will
@@ -115,6 +143,7 @@ class PluginManagementPage extends FOGPage
     public function activate()
     {
         $this->title = _('Activate Plugins');
+        self::$_plugintype = 'activate';
         foreach (self::$_plugins as &$Plugin) {
             if ($Plugin->get('state')) {
                 continue;
@@ -159,7 +188,8 @@ class PluginManagementPage extends FOGPage
      */
     public function install()
     {
-        $this->title = 'Install Plugins';
+        $this->title = _('Install Plugins');
+        self::$_plugintype = 'install';
         foreach (self::$_plugins as &$Plugin) {
             if (!$Plugin->isActive() || $Plugin->isInstalled()) {
                 continue;
@@ -233,6 +263,7 @@ class PluginManagementPage extends FOGPage
     public function installed()
     {
         $this->title = _('Installed Plugins');
+        self::$_plugintype = 'installed';
         foreach (self::$_plugins as &$Plugin) {
             if (!$Plugin->isActive() || !$Plugin->isInstalled()) {
                 continue;

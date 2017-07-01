@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-01 01:03-0400\n"
+"POT-Creation-Date: 2017-07-01 13:41-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -445,7 +445,7 @@ msgid "Window size must be greater than 1"
 msgstr "La finestra dati deve essere maggiore di 1"
 
 #: /var/www/fog/lib/fog/powermanagementmanager.class.php:110
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:423
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:454
 #: /var/www/fog/commons/text.php:77
 msgid "Shutdown"
 msgstr "Spegnimento"
@@ -1698,7 +1698,7 @@ msgstr "Non trovato"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:802
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1615
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1813
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:85
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:94
 #: /var/www/fog/commons/text.php:36
 msgid "Remove"
 msgstr "Rimuovere"
@@ -1901,7 +1901,7 @@ msgstr "Errori"
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:294
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:421
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:820
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:418
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:449
 #: /var/www/fog/lib/reports/equipment_loan.report.php:61
 #: /var/www/fog/commons/text.php:295
 msgid "Please select an option"
@@ -1943,7 +1943,7 @@ msgid "Delayed"
 msgstr "Ritardato"
 
 #: /var/www/fog/lib/fog/service.class.php:220
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:427
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:458
 msgid "Please Select an option"
 msgstr "Per favore selezionate un'opzione"
 
@@ -1966,7 +1966,7 @@ msgstr "Gruppo di archiviazione primaria"
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:544
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:824
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:74
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:479
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:510
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:334
 #: /var/www/fog/lib/reports/host_list.report.php:50
 #: /var/www/fog/lib/reports/host_list.report.php:67
@@ -2946,7 +2946,7 @@ msgstr "Elemento del menu:"
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1036
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1371
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2585
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:65
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:71
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:75
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:145
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:145
@@ -5794,36 +5794,41 @@ msgstr "Premi"
 msgid "to access the menu"
 msgstr "Per accedere al menu"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:64
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:70
 msgid "Plugin Name"
 msgstr "Nome Plugin"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:66
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:72
 #: /var/www/fog/lib/plugins/location/hooks/addlocationtasks.hook.php:90
 #: /var/www/fog/lib/reports/equipment_loan.report.php:165
 #: /var/www/fog/commons/text.php:109 /var/www/fog/commons/text.php:133
 msgid "Location"
 msgstr "Luogo"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:117
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:145
 #: /var/www/fog/commons/text.php:175
 msgid "Activate Plugins"
 msgstr "Attiva Plugin"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:146
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:175
 msgid "Successfully activated Plugin!"
 msgstr "attivato con successo Plugin!"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:235
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:191
+#: /var/www/fog/commons/text.php:174
+msgid "Install Plugins"
+msgstr "installare plugin"
+
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:265
 #: /var/www/fog/commons/text.php:173
 msgid "Installed Plugins"
 msgstr "plugin installati"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:298
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:329
 msgid "Unable to determine plugin details."
 msgstr "Impossibile determinare i dettagli plugin."
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:302
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:333
 #: /var/www/fog/lib/plugins/example/html/run.php:35
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:287
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:364
@@ -5839,123 +5844,123 @@ msgstr "Impossibile determinare i dettagli plugin."
 msgid "Plugin"
 msgstr "Collegare"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:307
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:338
 #: /var/www/fog/lib/plugins/example/html/run.php:40
 msgid "Plugin Description"
 msgstr "Plugin Descrizione"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:315
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:346
 msgid "Plugin Installation"
 msgstr "Installazione Plugin"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:316
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:347
 msgid "This plugin is currently not installed"
 msgstr "Questo plugin non è attualmente installato"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:317
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:348
 msgid "would you like to install it now"
 msgstr "ti piacerebbe installarlo ora"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:351
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:382
 #: /var/www/fog/commons/text.php:120
 msgid "Settings"
 msgstr "impostazioni"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:393
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:424
 msgid "Reboot after deploy"
 msgstr "Riavvio dopo Deploy"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:394
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:425
 msgid "Shutdown after deploy"
 msgstr "Shutdown dopo Deploy"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:414
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:445
 msgid "DMI Field"
 msgstr "DMI campo"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:433
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:464
 msgid "Update Settings"
 msgstr "Aggiorna impostazioni"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:446
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:477
 msgid "Add Image to DMI Associations"
 msgstr "Aggiungi alla DMI Associazioni"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:452
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:483
 msgid "Image Definition"
 msgstr "immagine Definizione"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:456
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:487
 msgid "DMI Result"
 msgstr "DMI Risultato"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:461
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:492
 msgid "Add Association"
 msgstr "Aggiungere Association"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:474
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:505
 msgid "Current Image to DMI Associations"
 msgstr "Immagine corrente a DMI Associazioni"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:480
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:511
 #: /var/www/fog/lib/reports/host_list.report.php:57
 msgid "OS Name"
 msgstr "Nome OS"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:481
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:512
 msgid "DMI Key"
 msgstr "DMI chiave"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:529
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:560
 msgid "Remove selected associations"
 msgstr "Rimuovere le associazioni selezionate"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:573
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:604
 msgid "Invalid Plugin Passed"
 msgstr "Plugin non valido passato"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:579
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:610
 msgid "Failed to install plugin"
 msgstr "Impossibile installare plug-in"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:590
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:621
 msgid "Failed to save plugin"
 msgstr "Impossibile salvare plug-in"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:599
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:630
 msgid "Plugin Installed!"
 msgstr "Plugin Installed!"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:612
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:643
 msgid "Settings Updated"
 msgstr "Impostazioni aggiornate"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:617
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:648
 msgid "Must have an image associated"
 msgstr "Deve avere un'immagine associata"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:625
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:656
 msgid "Failed to save assignment"
 msgstr "Impossibile salvare l'assegnazione"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:627
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:658
 msgid "Assignment saved successfully"
 msgstr "Assegnazione salvata"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:633
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:664
 msgid "Destroyed assignments"
 msgstr "Assegnamenti distrutti"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:635
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:666
 msgid "Destroyed assignment"
 msgstr "Assegnazione distrutta"
 
-#: /var/www/fog/lib/router/route.class.php:572
-#: /var/www/fog/lib/router/route.class.php:775
+#: /var/www/fog/lib/router/route.class.php:595
+#: /var/www/fog/lib/router/route.class.php:798
 msgid "Already created"
 msgstr "Già creato"
 
-#: /var/www/fog/lib/router/route.class.php:713
+#: /var/www/fog/lib/router/route.class.php:736
 msgid "Invalid tasking type passed"
 msgstr "È passato il tipo di attività non valido"
 
@@ -8766,10 +8771,6 @@ msgstr "Compiti Snap-attivi"
 #: /var/www/fog/commons/text.php:172
 msgid "Scheduled Tasks"
 msgstr "Attività pianificate"
-
-#: /var/www/fog/commons/text.php:174
-msgid "Install Plugins"
-msgstr "installare plugin"
 
 #: /var/www/fog/commons/text.php:176
 msgid "Export Configuration"
