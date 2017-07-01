@@ -230,22 +230,16 @@ class StorageManagementPage extends FOGPage
         );
         $this->attributes = array(
             array(
-                'class' => 'l filter-false',
+                'class' => 'filter-false',
                 'width' => 22
             ),
             array(),
             array(
-                'class' => 'c',
-                'width' => 90
             ),
+            array(),
             array(
-                'class' => 'c',
-                'width' => 90),
-            array(
-                'class' => 'c',
-                'width' => 90
             ),
-            array('class' => 'c'),
+            array(),
         );
         self::$HookManager
             ->processEvent(
@@ -270,8 +264,8 @@ class StorageManagementPage extends FOGPage
         $this->title = self::$foglang['AddSN'];
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',
@@ -557,8 +551,8 @@ class StorageManagementPage extends FOGPage
         );
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',
@@ -828,8 +822,8 @@ class StorageManagementPage extends FOGPage
         );
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',
@@ -953,12 +947,11 @@ class StorageManagementPage extends FOGPage
         );
         $this->attributes = array(
             array(
-                'class' => 'l filter-false',
+                'class' => 'filter-false',
                 'width' => 22
             ),
             array(),
             array(
-                'class' => 'c',
                 'width' => 20
             ),
         );
@@ -985,8 +978,8 @@ class StorageManagementPage extends FOGPage
         $this->title = self::$foglang['AddSG'];
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',
@@ -1086,8 +1079,8 @@ class StorageManagementPage extends FOGPage
         );
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',
@@ -1193,8 +1186,8 @@ class StorageManagementPage extends FOGPage
         );
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',

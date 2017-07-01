@@ -100,14 +100,6 @@ table td {
 .green {
     color: #18f008;
 }
-.fogcard {
-    border: 2px #00567a solid;
-    background-color: #e0e0e0;
-}
-.fogcard .category, .fogcard label {
-    color: #000;
-    padding-left: 10px;
-}
 .tablesorter-filter.disabled {
     display: none;
 }
@@ -132,10 +124,9 @@ table td {
 .hand {
     cursor: pointer;
 }
-.container {
+.container-fluid {
     overflow-y: auto;
     overflow-x: hidden;
-    max-height: 620px;
 }
 input[type=radio].default {
     border: 0;

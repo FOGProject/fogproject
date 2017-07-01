@@ -179,10 +179,10 @@ class SnapinManagementPage extends FOGPage
          * The attributes for the table items.
          */
         $this->attributes = array(
-            array('class'=>'l filter-false','width'=>16),
+            array('class'=>'filter-false','width'=>16),
             array(),
-            array('class'=>'c','width'=>50),
-            array('class'=>'r'),
+            array('width'=>50),
+            array()
         );
         /**
          * Lamda function to return data either by list or search.
@@ -325,8 +325,8 @@ class SnapinManagementPage extends FOGPage
          * The table attributes.
          */
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         /**
          * The table template.
@@ -760,8 +760,8 @@ class SnapinManagementPage extends FOGPage
         $this->title = sprintf('%s: %s', _('Edit'), $this->obj->get('name'));
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',
@@ -1036,7 +1036,7 @@ class SnapinManagementPage extends FOGPage
         );
         $this->attributes = array(
             array(
-                'class' => 'l filter-false',
+                'class' => 'filter-false',
                 'width' => 16
             ),
             array(),
@@ -1091,15 +1091,13 @@ class SnapinManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'l filter-false'
+                'class' => 'filter-false'
             ),
             array(
                 'width' => 22,
-                'class' => 'l filter-false'
+                'class' => 'filter-false'
             ),
-            array(
-                'class' => 'r'
-            ),
+            array(),
         );
         $this->templates = array(
             '<input type="checkbox" class="toggle-action" name='

@@ -355,7 +355,7 @@ class FOGConfigurationPage extends FOGPage
         unset($this->headerData);
         $this->attributes = array(
             array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-6'),
+            array('class' => 'col-xs-6 form-group'),
             array('class' => 'col-xs-2')
         );
         $this->templates = array(
@@ -1669,7 +1669,7 @@ class FOGConfigurationPage extends FOGPage
         );
         $this->attributes = array(
             array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8')
+            array('class' => 'col-xs-8 form-group')
         );
         $fields = array(
             '<label for="file">'
@@ -2017,7 +2017,7 @@ class FOGConfigurationPage extends FOGPage
         echo '<hr/>';
         $this->attributes = array(
             array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-6'),
+            array('class' => 'col-xs-6 form-group'),
             array('class' => 'col-xs-2'),
         );
         $this->templates = array(
@@ -3127,7 +3127,7 @@ class FOGConfigurationPage extends FOGPage
         );
         $this->attributes = array(
             array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',

@@ -85,13 +85,13 @@ class LocationManagementPage extends FOGPage
         );
         $this->attributes = array(
             array(
-                'class' => 'l filter-false',
+                'class' => 'filter-false',
                 'width' => 16
             ),
-            array('class' => 'l'),
-            array('class' => 'l'),
-            array('class' => 'c'),
-            array('class' => 'r'),
+            array(),
+            array(),
+            array(),
+            array()
         );
         /**
          * Lambda function to return data either by list or search.
@@ -121,8 +121,8 @@ class LocationManagementPage extends FOGPage
         $this->title = _('New Location');
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',
@@ -225,8 +225,8 @@ class LocationManagementPage extends FOGPage
         );
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',

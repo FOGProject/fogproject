@@ -76,12 +76,12 @@ class LDAPManagementPage extends FOGPage
             '${adminGroup}',
         );
         $this->attributes = array(
-            array('class' => 'l filter-false','width' => 16),
-            array('class' => 'l'),
-            array('class' => 'l'),
-            array('class' => 'l'),
-            array('class' => 'l'),
-            array('class' => 'l'),
+            array('class' => 'filter-false','width' => 16),
+            array(),
+            array(),
+            array(),
+            array(),
+            array()
         );
         /**
          * Lambda function to return data either by list or search.
@@ -121,8 +121,8 @@ class LDAPManagementPage extends FOGPage
         $this->title = _('New LDAP Server');
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',
@@ -372,8 +372,8 @@ class LDAPManagementPage extends FOGPage
         $this->title = sprintf('%s: %s', _('Edit'), $this->obj->get('name'));
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',

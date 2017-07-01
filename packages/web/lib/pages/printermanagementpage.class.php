@@ -102,7 +102,7 @@ class PrinterManagementPage extends FOGPage
         );
         $this->attributes = array(
             array(
-                'class' => 'l filter-false',
+                'class' => 'filter-false',
                 'width' => 16
             ),
             array(
@@ -171,8 +171,8 @@ class PrinterManagementPage extends FOGPage
         $this->title = 'New Printer';
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',
@@ -451,8 +451,8 @@ class PrinterManagementPage extends FOGPage
     public function printerGeneral()
     {
         $this->attributes = array(
-            array(),
-            array('class' => 'form-group'),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',

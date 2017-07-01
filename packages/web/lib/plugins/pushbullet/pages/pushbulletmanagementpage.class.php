@@ -102,7 +102,7 @@ class PushbulletManagementPage extends FOGPage
         $this->title = _('Link New Account');
         $this->attributes = array(
             array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',

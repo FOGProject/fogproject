@@ -222,8 +222,8 @@ class DashboardPage extends FOGPage
             '${input}'
         );
         $this->attributes = array(
-            array(),
-            array()
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8')
         );
         array_walk($fields, $this->fieldsToData);
         self::$HookManager

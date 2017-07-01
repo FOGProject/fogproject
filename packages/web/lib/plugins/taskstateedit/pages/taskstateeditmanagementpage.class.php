@@ -74,14 +74,13 @@ class TaskstateeditManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' =>
-                'l filter-false'
+                'class' => 'filter-false'
             ),
             array(
                 'width' => 22,
-                'class' => 'l filter-false'
+                'class' => 'filter-false'
             ),
-            array('class' => 'l'),
+            array()
         );
         /**
          * Lambda function to return data either by list or search.
@@ -109,8 +108,8 @@ class TaskstateeditManagementPage extends FOGPage
         $this->title = _('New Task State');
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',
@@ -210,8 +209,8 @@ class TaskstateeditManagementPage extends FOGPage
         $this->title = sprintf('%s: %s', _('Edit'), $this->obj->get('name'));
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',

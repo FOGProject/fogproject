@@ -75,10 +75,10 @@ class WindowsKeyManagementPage extends FOGPage
         );
         $this->attributes = array(
             array(
-                'class' => 'l filter-false',
+                'class' => 'filter-false',
                 'width' => 16
             ),
-            array('class' => 'l')
+            array()
         );
         /**
          * Lambda function to return data either by list or search.
@@ -105,8 +105,8 @@ class WindowsKeyManagementPage extends FOGPage
         $this->title = _('New Windows Key');
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',
@@ -204,8 +204,8 @@ class WindowsKeyManagementPage extends FOGPage
         );
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',
@@ -349,11 +349,10 @@ class WindowsKeyManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'l filter-false'
+                'class' => 'filter-false'
             ),
             array(
-                'width' => 150,
-                'class' => 'l'
+                'width' => 150
             )
         );
         extract(

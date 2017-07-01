@@ -67,11 +67,11 @@ class SlackManagementPage extends FOGPage
             ),
         );
         $this->attributes = array(
-            array('class' => 'l filter-false','width' => 16),
-            array('class' => 'l','width'=> 50),
-            array('class' => 'l','width'=> 80),
-            array('class' => 'l','width'=> 80),
-            array('class' => 'r filter-false','width' => 16),
+            array('class' => 'filter-false','width' => 16),
+            array('width'=> 50),
+            array('width'=> 80),
+            array('width'=> 80),
+            array('class' => 'filter-false','width' => 16),
         );
         /**
          * Lambda function to return data either by list or search.
@@ -113,8 +113,8 @@ class SlackManagementPage extends FOGPage
         $this->title = _('Link New Account');
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',

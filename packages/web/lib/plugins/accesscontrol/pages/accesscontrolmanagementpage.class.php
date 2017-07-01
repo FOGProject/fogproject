@@ -303,11 +303,11 @@ class AccessControlManagementPage extends FOGPage
         );
         $this->attributes = array(
             array(
-                'class' => 'l filter-false',
+                'class' => 'filter-false',
                 'width' => 16
             ),
-            array('class' => 'l'),
-            array('class' => 'l'),
+            array(),
+            array()
         );
         self::$HookManager
             ->processEvent(
@@ -333,8 +333,8 @@ class AccessControlManagementPage extends FOGPage
         $this->title = _('New Role');
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',
@@ -420,8 +420,8 @@ class AccessControlManagementPage extends FOGPage
         );
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',
@@ -559,13 +559,13 @@ class AccessControlManagementPage extends FOGPage
         );
         $this->attributes = array(
             array(
-                'class' => 'l filter-false',
+                'class' => 'filter-false',
                 'width' => 16
             ),
-            array('class' => 'l'),
-            array('class' => 'l'),
-            array('class' => 'l'),
-            array('class' => 'l')
+            array(),
+            array(),
+            array(),
+            array()
         );
         self::$HookManager
             ->processEvent(
@@ -590,8 +590,8 @@ class AccessControlManagementPage extends FOGPage
         $this->title = _('New Rule');
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',
@@ -681,8 +681,8 @@ class AccessControlManagementPage extends FOGPage
         );
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',
@@ -805,8 +805,8 @@ class AccessControlManagementPage extends FOGPage
         );
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8'),
         );
         $this->templates = array(
             '${field}',
@@ -925,12 +925,12 @@ class AccessControlManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'l filter-false',
+                'class' => 'filter-false',
             ),
-            array('class' => 'l'),
-            array('class' => 'l'),
-            array('class' => 'l'),
-            array('class' => 'l'),
+            array(),
+            array(),
+            array(),
+            array()
         );
         foreach ((array)self::getClass('AccessControlRuleManager')
             ->find(
@@ -1128,10 +1128,9 @@ class AccessControlManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'l filter-false'
+                'class' => 'filter-false'
             ),
             array(
-                'class' => 'l'
             ),
             array()
         );

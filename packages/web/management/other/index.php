@@ -105,7 +105,7 @@ if (self::$FOGUser->isValid()) {
     /**
      * Main Content
      */
-    echo '<div class="container'
+    echo '<div class="container-fluid'
         . (
             $this->isHomepage ?
             ' dashboard' :
@@ -168,7 +168,7 @@ if (self::$FOGUser->isValid()) {
     /**
      * Main Content
      */
-    echo '<div class="container'
+    echo '<div class="container-fluid'
         . (
             $this->isHomepage ?
             ' dashboard' :
