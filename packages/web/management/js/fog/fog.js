@@ -15,6 +15,8 @@ var $_GET = getQueryParams(document.location.search),
     tab = $_GET['tab'],
     _L = new Array(),
     subs = [
+        'install',
+        'installed',
         'list',
         'search',
         'storageGroup',
