@@ -197,6 +197,9 @@ function HookTooltip() {
     ) {
         callme = 'show';
     }
+    if (sub == 'installed') {
+        callme = 'show';
+    }
     ActionBox[callme]();
     ActionBoxDel[callme]();
     setupParserInfo();
