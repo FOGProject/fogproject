@@ -137,14 +137,12 @@ class GroupManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'l filter-false'),
+                'class' => 'filter-false'),
             array(),
             array(
-                'width' => 30,
-                'class' => 'c'),
+                'class' => 'col-xs-4 text-center'),
             array(
-                'width' => 90,
-                'class' => 'c filter-false'
+                'class' => 'col-xs-7 text-center filter-false'
             ),
         );
         $this->_getHostCommon();
@@ -186,7 +184,7 @@ class GroupManagementPage extends FOGPage
         );
         $this->attributes = array(
             array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8')
+            array('class' => 'col-xs-8 form-group')
         );
         $fields = array(
             '<label for="name">'
@@ -429,7 +427,7 @@ class GroupManagementPage extends FOGPage
         );
         $this->attributes = array(
             array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8')
+            array('class' => 'col-xs-8 form-group')
         );
         $this->templates = array(
             '${field}',
@@ -568,7 +566,7 @@ class GroupManagementPage extends FOGPage
             ->buildSelectBox($imageMatchID, 'image');
         $this->attributes = array(
             array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',
@@ -843,10 +841,10 @@ class GroupManagementPage extends FOGPage
             '${printer_type}',
         );
         $this->attributes = array(
-            array('width'=>16,'class'=>'l filter-false'),
-            array('width'=>16,'class'=>'l filter-false'),
+            array('width'=>16,'class'=>'filter-false'),
+            array('width'=>16,'class'=>'filter-false'),
             array(),
-            array('width'=>50,'class'=>'r'),
+            array(),
         );
         foreach ((array)self::getClass('PrinterManager')
             ->find() as &$Printer
@@ -908,9 +906,9 @@ class GroupManagementPage extends FOGPage
             '${snapin_created}',
         );
         $this->attributes = array(
-            array('width'=>16,'class'=>'l filter-false'),
+            array('width'=>16,'class'=>'filter-false'),
             array(),
-            array('width'=>107,'class'=>'r'),
+            array(),
         );
         foreach ((array)self::getClass('SnapinManager')
             ->find() as &$Snapin
@@ -955,8 +953,8 @@ class GroupManagementPage extends FOGPage
             . 'tab-pane fade">';
         $this->attributes = array(
             array('width'=>270),
-            array('class'=>'c'),
-            array('class'=>'r'),
+            array(),
+            array(),
         );
         $this->templates = array(
             '${mod_name}',
@@ -1128,9 +1126,9 @@ class GroupManagementPage extends FOGPage
             _('Group Screen Resolution')
         );
         $this->attributes = array(
-            array('class'=>'l','style'=>'padding-right: 25px'),
-            array('class'=>'c'),
-            array('class'=>'r'),
+            array(),
+            array(),
+            array(),
         );
         $this->templates = array(
             '${field}',
@@ -1205,8 +1203,8 @@ class GroupManagementPage extends FOGPage
         );
         $this->attributes = array(
             array('width'=>270),
-            array('class'=>'c'),
-            array('class'=>'r'),
+            array(),
+            array(),
         );
         $this->templates = array(
             '${field}',
@@ -1643,8 +1641,8 @@ class GroupManagementPage extends FOGPage
             _('Last Deployed'),
         );
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${host_name}<br/><small>${host_mac}</small>',

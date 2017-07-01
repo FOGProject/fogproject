@@ -410,8 +410,8 @@ class ImageManagementPage extends FOGPage
          * The table attributes.
          */
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         /**
          * The table template.
@@ -712,8 +712,8 @@ class ImageManagementPage extends FOGPage
         echo '<div class="tab-content">';
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',
@@ -941,7 +941,7 @@ class ImageManagementPage extends FOGPage
         );
         $this->attributes = array(
             array(
-                'class' => 'l filter-false',
+                'class' => 'filter-false',
                 'width' => 16
             ),
             array(),
@@ -1008,15 +1008,13 @@ class ImageManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'l filter-false'
+                'class' => 'filter-false'
             ),
             array(
                 'width' => 22,
-                'class' => 'l filter-false'
+                'class' => 'filter-false'
             ),
-            array(
-                'class' => 'r'
-            ),
+            array(),
         );
         $this->templates = array(
             '<input type="checkbox" class="toggle-action" '
@@ -1256,8 +1254,8 @@ class ImageManagementPage extends FOGPage
         $this->title = self::$foglang['Multicast'];
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',
@@ -1328,7 +1326,7 @@ class ImageManagementPage extends FOGPage
             array(),
             array(),
             array(),
-            array('class'=>'r filter-false'),
+            array('class'=>'filter-false'),
         );
         $this->templates = array(
             '${mc_name}<br/><small>${image_name}:${os}</small>',

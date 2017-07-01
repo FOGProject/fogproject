@@ -104,7 +104,7 @@ class ServiceConfigurationPage extends FOGPage
         $this->attributes = array(
             array(),
             array(
-                'class' => 'c filter-false',
+                'class' => 'filter-false',
                 'width' => 55
             )
         );
@@ -517,7 +517,7 @@ class ServiceConfigurationPage extends FOGPage
                 );
                 $this->attributes = array(
                     array('class' => 'col-xs-4'),
-                    array('class' => 'col-xs-8')
+                    array('class' => 'col-xs-8 form-group')
                 );
                 $this->templates = array(
                     '${field}',

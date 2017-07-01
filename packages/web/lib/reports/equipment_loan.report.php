@@ -35,8 +35,8 @@ class Equipment_Loan extends ReportManagementPage
             '${input}',
         );
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         ob_start();
         foreach ((array)self::getClass('InventoryManager')

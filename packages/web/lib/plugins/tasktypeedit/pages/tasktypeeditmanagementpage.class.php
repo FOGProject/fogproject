@@ -76,11 +76,11 @@ class TasktypeeditManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'l filter-false'
+                'class' => 'filter-false'
             ),
-            array('class' => 'l'),
-            array('class' => 'c'),
-            array('class' => 'r'),
+            array(),
+            array(),
+            array()
         );
         /**
          * Lambda function to return data either by list or search.
@@ -110,8 +110,8 @@ class TasktypeeditManagementPage extends FOGPage
         $this->title = _('New Task Type');
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',
@@ -269,8 +269,8 @@ class TasktypeeditManagementPage extends FOGPage
         $this->title = sprintf('%s: %s', _('Edit'), $this->obj->get('name'));
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',

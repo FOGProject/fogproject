@@ -100,33 +100,28 @@ class TaskManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'l filter-false',
+                'class' => 'filter-false',
                 'task-id' => '${id}'
             ),
             array(
                 'width' => 65,
-                'class' => 'l',
                 'id' => 'host-${host_id}'
             ),
             array(
                 'width' => 120,
-                'class' => 'l'
             ),
             array(
                 'width' => 70,
-                'class' => 'r'
             ),
             array(
                 'width' => 100,
-                'class' => 'r'
             ),
             array(
                 'width' => 70,
-                'class' => 'c'
             ),
             array(
                 'width' => 50,
-                'class' => 'r filter-false'
+                'class' => 'filter-false'
             ),
         );
         /**
@@ -331,11 +326,10 @@ class TaskManagementPage extends FOGPage
             ),
             array(
                 'width' => 60,
-                'class' => 'c'
             ),
             array(
                 'width' => 60,
-                'class' => 'r filter-false'
+                'class' => 'filter-false'
             ),
         );
         foreach ((array)self::getClass('HostManager')
@@ -414,7 +408,7 @@ class TaskManagementPage extends FOGPage
             ),
             array(
                 'width' => 60,
-                'class' => 'r filter-false'
+                'class' => 'filter-false'
             ),
         );
         foreach ((array)self::getClass('GroupManager')
@@ -587,8 +581,8 @@ class TaskManagementPage extends FOGPage
             '${description}',
         );
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8'),
         );
         foreach ((array)self::getClass('TaskTypeManager')
             ->find(
@@ -727,24 +721,19 @@ class TaskManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'l filter-false',
+                'class' => 'filter-false',
                 'task-id' => '${id}'
             ),
             array(
-                'class' => 'c'
             ),
             array(
-                'class' => 'c'
             ),
             array(
-                'class' => 'c'
             ),
             array(
-                'class' => 'c'
             ),
             array(
-                'width' => 40,
-                'class' => 'c'
+                'width' => 40
             )
         );
         $find = array(
@@ -851,24 +840,20 @@ class TaskManagementPage extends FOGPage
         );
         $this->attributes = array(
             array(
-                'class' => 'l filter-false',
+                'class' => 'filter-false',
                 'width' => 16,
                 'task-id'=>'${id}'
             ),
             array(
-                'class' => 'l',
                 'width' => 50
             ),
             array(
-                'class' => 'l',
                 'width' => 50
             ),
             array(
-                'class' => 'l',
                 'width' => 50
             ),
             array(
-                'class' => 'r',
                 'width' => 40
             )
         );
@@ -1036,36 +1021,29 @@ class TaskManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'l filter-false',
+                'class' => 'filter-false',
                 'task-id' => '${id}'
             ),
             array(
                 'width' => 100,
-                'class' => 'l'
             ),
             array(
                 'width' => 25,
-                'class' => 'l'
             ),
             array(
                 'width' => 110,
-                'class' => 'l'
             ),
             array(
                 'width' => 80,
-                'class' => 'c'
             ),
             array(
                 'width' => 70,
-                'class' => 'c'
             ),
             array(
                 'width' => 30,
-                'class' => 'c'
             ),
             array(
                 'width' => 80,
-                'class' => 'c'
             ),
         );
         foreach ((array)self::getClass('ScheduledTaskManager')

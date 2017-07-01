@@ -230,7 +230,7 @@ class HostManagementPage extends FOGPage
             array(
                 'width' => 16,
                 'id' => 'host-${host_name}',
-                'class' => 'l filter-false',
+                'class' => 'filter-false',
                 'title' => '${host_desc}',
                 'data-toggle' => 'tooltip',
                 'data-placement' => 'right'
@@ -245,7 +245,7 @@ class HostManagementPage extends FOGPage
                 $this->attributes,
                 array(
                     'width' => 16,
-                    'class' => 'l filter-false'
+                    'class' => 'filter-false'
                 )
             );
         }
@@ -255,11 +255,10 @@ class HostManagementPage extends FOGPage
             array('width' => 145),
             array(
                 'width' => 60,
-                'class' => 'r filter-false'
+                'class' => 'filter-false'
             ),
             array(
-                'width' => 20,
-                'class' => 'r'
+                'width' => 20
             )
         );
         /**
@@ -1878,7 +1877,7 @@ class HostManagementPage extends FOGPage
         );
         $this->attributes = array(
             array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-4 form-group'),
             array('class' => 'col-xs-4'),
         );
         $this->templates = array(
@@ -2053,7 +2052,7 @@ class HostManagementPage extends FOGPage
                 'class' => 'col-xs-4'
             ),
             array(
-                'class' => 'col-xs-4'
+                'class' => 'col-xs-4 form-group'
             ),
             array(
                 'class' => 'col-xs-4'
@@ -2166,7 +2165,7 @@ class HostManagementPage extends FOGPage
         );
         $this->attributes = array(
             array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-4 form-group'),
             array('class' => 'col-xs-4')
         );
         $this->templates = array(
@@ -2364,8 +2363,8 @@ class HostManagementPage extends FOGPage
         );
         echo '<!-- Inventory -->';
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',

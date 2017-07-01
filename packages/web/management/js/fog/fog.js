@@ -149,7 +149,7 @@ function HookTooltip() {
      * If we don't have a hash such as when initially entering
      * an edit page, we need to display the first item.
      */
-    if ($('.tab-content').length > 0) {
+    /*if ($('.tab-content').length > 0) {
         if (location.hash == "") {
             firstid = $('.tab-content > div:first').prop('id');
             if (history.pushState) {
@@ -159,14 +159,18 @@ function HookTooltip() {
             }
             $('.nav-tabs a[href*="#'+firstid+'"]').parent().addClass('active');
         }
-    }
+    }*/
     /**
      * This allows us to move back and forth between pages.
      */
     $('a[data-toggle="tab"]').on('click', function(e) {
         hash = $(this).prop('href').split('#')[1];
         if ($('#'+hash).length < 1) {
-            location.href = $(this).prop('href');
+            if (history.pushState) {
+                history.pushState(null, null, '#'+hash);
+            } else {
+                window.location.hash = '#'+hash;
+            }
         }
     });
     HookTooltip();

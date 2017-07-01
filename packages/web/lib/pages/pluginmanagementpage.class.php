@@ -93,7 +93,7 @@ class PluginManagementPage extends FOGPage
             array_push(
                 $this->attributes,
                 array(
-                    'class' => 'l filter-false'
+                    'class' => 'filter-false'
                 )
             );
         }
@@ -356,8 +356,8 @@ class PluginManagementPage extends FOGPage
                         '${input}',
                     );
                     $this->attributes = array(
-                        array(),
-                        array(),
+                        array('class' => 'col-xs-4'),
+                        array('class' => 'col-xs-8 form-group'),
                     );
                     list($dbField, $dbShutdown) = self::getSubObjectIDs(
                         'Service',
@@ -491,7 +491,7 @@ class PluginManagementPage extends FOGPage
                     $this->attributes = array(
                         array(
                             'width' => 16,
-                            'class' => 'l filter-false'
+                            'class' => 'filter-false'
                         ),
                         array(),
                         array(),

@@ -35,8 +35,8 @@ class User_Tracking extends ReportManagementPage
             '${input}'
         );
         $this->attributes = array(
-            array(),
-            array()
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group')
         );
         $UserNames = self::getSubObjectIDs(
             'UserTracking',
@@ -140,8 +140,8 @@ class User_Tracking extends ReportManagementPage
             )
         );
         $this->attributes = array(
-            array(),
-            array()
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group')
         );
         if (!$hostsearch) {
             $hostsearch = '%';

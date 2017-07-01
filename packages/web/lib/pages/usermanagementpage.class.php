@@ -103,15 +103,13 @@ class UserManagementPage extends FOGPage
         );
         $this->attributes = array(
             array(
-                'class' => 'l filter-false form-group',
+                'class' => 'filter-false form-group',
                 'width' => 16
             ),
             array(
-                'class' => 'l',
                 'width' => 22
             ),
             array(
-                'class' => 'l',
                 'width' => 22
             ),
             array(),
