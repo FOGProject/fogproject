@@ -74,6 +74,8 @@ doInventory() {
     sysproduct=$(dmidecode -s system-product-name)
     sysversion=$(dmidecode -s system-version)
     sysserial=$(dmidecode -s system-serial-number)
+    sysuuid=$(dmidecode -s system-uuid)
+    sysuuid=${sysuuid,,}
     systype=$(dmidecode -t 3 | grep Type:)
     biosversion=$(dmidecode -s bios-version)
     biosvendor=$(dmidecode -s bios-vendor)
@@ -97,6 +99,7 @@ doInventory() {
     sysproduct64=$(echo $sysproduct | base64)
     sysversion64=$(echo $sysversion | base64)
     sysserial64=$(echo $sysserial | base64)
+    sysuuid64=$(echo $sysuuid | base64)
     systype64=$(echo $systype | base64)
     biosversion64=$(echo $biosversion | base64)
     biosvendor64=$(echo $biosvendor | base64)
@@ -208,9 +211,12 @@ expandPartition() {
                 0)
                     ;;
                 *)
-                    echo "Failed"
-                    debugPause
-                    handleError "Could not check before resize (${FUNCNAME[0]})\n   Info: $(cat /tmp/e2fsck.txt)\n   Args Passed: $*"
+                    e2fsck -fy $part >>/tmp/e2fsck.txt 2>&1
+                    if [[ $? -gt 0 ]]; then
+                        echo "Failed"
+                        debugPause
+                        handleError "Could not check before resize (${FUNCNAME[0]})\n   Info: $(cat /tmp/e2fsck.txt)\n   Args Passed: $*"
+                    fi
                     ;;
             esac
             resize2fs $part >/tmp/resize2fs.txt 2>&1
@@ -593,9 +599,13 @@ shrinkPartition() {
                     echo "Done"
                     ;;
                 *)
-                    echo "Failed"
-                    debugPause
-                    handleError "Could not check expanded volume ($part) (${FUNCNAME[0]})\n   Info: $(cat /tmp/e2fsck.txt)\n   Args Passed: $*"
+                    e2fsck -fy $part >>/tmp/e2fsck.txt 2>&1
+                    if [[ $? -gt 0 ]]; then
+                        echo "Failed"
+                        debugPause
+                        handleError "Could not check expanded volume ($part) (${FUNCNAME[0]})\n   Info: $(cat /tmp/e2fsck.txt)\n   Args Passed: $*"
+                    fi
+                    echo "Done"
                     ;;
             esac
             ;;
