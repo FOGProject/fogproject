@@ -168,11 +168,7 @@ function HookTooltip() {
     $('a[data-toggle="tab"]').on('click', function(e) {
         hash = $(this).prop('href').split('#')[1];
         if ($('#'+hash).length < 1) {
-            if (history.pushState) {
-                history.pushState(null, null, '#'+hash);
-            } else {
-                window.location.hash = '#'+hash;
-            }
+            location.href = $(this).prop('href');
         }
     });
     HookTooltip();

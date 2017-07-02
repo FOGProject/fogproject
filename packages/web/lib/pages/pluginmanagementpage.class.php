@@ -180,7 +180,9 @@ class PluginManagementPage extends FOGPage
                 'attributes' => &$this->attributes
             )
         );
+        echo '<div class="col-xs-9">';
         $this->indexDivDisplay();
+        echo '</div>';
         $activate = filter_input(INPUT_GET, 'activate');
         if ($activate) {
             self::getClass('Plugin')->activatePlugin($activate);
@@ -209,9 +211,9 @@ class PluginManagementPage extends FOGPage
         $runset = trim(
             filter_input(INPUT_GET, 'run')
         );
+        echo '<div class="col-xs-9">';
         if ($runset) {
             $this->indexDivDisplay();
-            echo '<div class="col-xs-offset-3 col-xs-12">';
             foreach (self::$_plugins as &$Plugin) {
                 $hash = trim($Plugin->hash);
                 $name = $Plugin->name;
@@ -233,6 +235,7 @@ class PluginManagementPage extends FOGPage
             }
         }
         $this->indexDivDisplay(true);
+        echo '</div>';
     }
     /**
      * The installed portion with the sub.
@@ -256,9 +259,9 @@ class PluginManagementPage extends FOGPage
         $runset = trim(
             filter_input(INPUT_GET, 'run')
         );
+        echo '<div class="col-xs-9">';
         if ($runset) {
             $this->indexDivDisplay();
-            echo '<div class="col-xs-offset-3 col-xs-12">';
             foreach (self::$_plugins as &$Plugin) {
                 $hash = trim($Plugin->hash);
                 $name = $Plugin->name;
@@ -280,6 +283,7 @@ class PluginManagementPage extends FOGPage
             }
         }
         $this->indexDivDisplay(true);
+        echo '</div>';
     }
     /**
      * Perform running actions
@@ -514,7 +518,23 @@ class PluginManagementPage extends FOGPage
                         );
                         unset($Capone);
                     }
-                    $this->indexDivDisplay();
+                    echo '<div class="panel panel-info">';
+                    echo '<div class="panel-heading text-center">';
+                    echo '<h4 class="title">';
+                    echo $this->title;
+                    echo '</h4>';
+                    echo '</div>';
+                    echo '<div class="panel-body">';
+                    echo '<div class="panel panel-info">';
+                    echo '<div class="panel-heading text-center">';
+                    echo '<h4 class="title">';
+                    echo _('Current Associations');
+                    echo '</h4>';
+                    echo '</div>';
+                    echo '<div class="panel-body">';
+                    $this->render(12);
+                    echo '</div>';
+                    echo '</div>';
                     unset(
                         $this->data,
                         $this->form,
@@ -539,7 +559,18 @@ class PluginManagementPage extends FOGPage
                         . '</button>'
                     );
                     array_walk($fields, $this->fieldsToData);
-                    $this->indexDivDisplay();
+                    echo '<div class="panel panel-warning">';
+                    echo '<div class="panel-heading text-center">';
+                    echo '<h4 class="title">';
+                    echo _('Remove Associations');
+                    echo '</h4>';
+                    echo '</div>';
+                    echo '<div class="panel-body">';
+                    $this->render(12);
+                    echo '</div>';
+                    echo '</div>';
+                    echo '</div>';
+                    echo '</div>';
                     echo '</form>';
                 }
             }

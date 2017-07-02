@@ -196,12 +196,14 @@ class BootMenu extends FOGBase
         );
         $this->_parseMe($Send);
         $this->_Host = $Host;
-        if (!$this->_Host->get('inventory')->get('sysuuid')) {
-            $this
-                ->_Host
-                ->get('inventory')
-                ->set('sysuuid', $_REQUEST['sysuuid'])
-                ->save();
+        if ($this->_Host->isValid()) {
+            if (!$this->_Host->get('inventory')->get('sysuuid')) {
+                $this
+                    ->_Host
+                    ->get('inventory')
+                    ->set('sysuuid', $_REQUEST['sysuuid'])
+                    ->save();
+            }
         }
         $host_field_test = 'biosexit';
         $global_field_test = 'FOG_BOOT_EXIT_TYPE';
