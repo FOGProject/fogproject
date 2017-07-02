@@ -235,9 +235,13 @@ expandPartition() {
                     echo "Done"
                     ;;
                 *)
-                    echo "Failed"
-                    debugPause
-                    handleError "Could not check after resize (${FUNCNAME[0]})\n   Info: $(cat /tmp/e2fsck.txt)\n   Args Passed: $*"
+                    e2fsck -fy $part >>/tmp/e2fsck.txt 2>&1
+                    if [[ $? -gt 0 ]]; then
+                        echo "Failed"
+                        debugPause
+                        handleError "Could not check after resize (${FUNCNAME[0]})\n   Info: $(cat /tmp/e2fsck.txt)\n   Args Passed: $*"
+                    fi
+                    echo "Done"
                     ;;
             esac
             ;;
@@ -582,17 +586,6 @@ shrinkPartition() {
             resizePartition "$part" "$sizeextresize" "$imagePath"
             echo "Done"
             debugPause
-            #dots "Resizing $fstype volume ($part)"
-            #resize2fs $part >/tmp/resize2fs.txt 2>&1
-            #case $? in
-            #    0)
-            #        ;;
-            #    *)
-            #        echo "Failed"
-            #        debugPause
-            #        handleError "Could not resize $fstype volume ($part) (${FUNCNAME[0]})\n   Info: $(cat /tmp/resize2fs.txt)\n   Args Passed: $*"
-            #        ;;
-            #esac
             e2fsck -fp $part >/tmp/e2fsck.txt 2>&1
             case $? in
                 0)
