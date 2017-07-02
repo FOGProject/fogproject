@@ -517,7 +517,9 @@ abstract class FOGPage extends FOGBase
                     'headerData' => &$this->headerData
                 )
             );
+            echo '<div class="col-xs-9">';
             $this->indexDivDisplay();
+            echo '</div>';
             unset(
                 $this->headerData,
                 $this->data,
@@ -4055,7 +4057,6 @@ abstract class FOGPage extends FOGBase
      */
     public function indexDivDisplay($delNeeded = false)
     {
-        echo '<div class="col-xs-9">';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
@@ -4066,45 +4067,43 @@ abstract class FOGPage extends FOGBase
         echo $this->render(12);
         echo '</div>';
         echo '</div>';
-        if ($delNeeded) {
-            echo '<div class="action-boxes del">';
-            echo '<div class="panel panel-warning">';
-            echo '<div class="panel-heading text-center">';
-            echo '<h4 class="title">';
-            echo _('Delete Selected');
-            echo '</h4>';
-            echo '</div>';
-            echo '<div class="panel-body">';
-            echo '<form class="form-horizontal" method="post" action="'
-                . $this->formAction
-                . '&sub=deletemulti">';
-            echo '<div class="form-group">';
-            echo '<label class="control-label col-xs-4" for="del-'
-                . $this->node
-                . '">';
-            echo _('Delete selected');
-            echo ' ';
-            echo $this->node;
-            echo 's';
-            echo '</label>';
-            echo '<div class="col-xs-8">';
-            echo '<input type="hidden" name="'
-                . $this->node
-                . 'IDArray"/>';
-            echo '<button type="submit" class='
-                . '"btn btn-danger btn-block" id="'
-                . 'del-'
-                . $this->node
-                . '">';
-            echo _('Delete');
-            echo '</button>';
-            echo '</div>';
-            echo '</div>';
-            echo '</form>';
-            echo '</div>';
-            echo '</div>';
-            echo '</div>';
+        if (!$delNeeded) {
+            return;
         }
+        echo '<div class="panel panel-warning">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Delete Selected');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '&sub=deletemulti">';
+        echo '<div class="form-group">';
+        echo '<label class="control-label col-xs-4" for="del-'
+            . $this->node
+            . '">';
+        echo _('Delete selected');
+        echo ' ';
+        echo $this->node;
+        echo 's';
+        echo '</label>';
+        echo '<div class="col-xs-8">';
+        echo '<input type="hidden" name="'
+            . $this->node
+            . 'IDArray"/>';
+        echo '<button type="submit" class='
+            . '"btn btn-danger btn-block" id="'
+            . 'del-'
+            . $this->node
+            . '">';
+        echo _('Delete');
+        echo '</button>';
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
+        echo '</div>';
         echo '</div>';
     }
 }

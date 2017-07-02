@@ -211,9 +211,12 @@ expandPartition() {
                 0)
                     ;;
                 *)
-                    echo "Failed"
-                    debugPause
-                    handleError "Could not check before resize (${FUNCNAME[0]})\n   Info: $(cat /tmp/e2fsck.txt)\n   Args Passed: $*"
+                    e2fsck -fy $part >>/tmp/e2fsck.txt 2>&1
+                    if [[ $? -gt 0 ]]; then
+                        echo "Failed"
+                        debugPause
+                        handleError "Could not check before resize (${FUNCNAME[0]})\n   Info: $(cat /tmp/e2fsck.txt)\n   Args Passed: $*"
+                    fi
                     ;;
             esac
             resize2fs $part >/tmp/resize2fs.txt 2>&1
@@ -596,9 +599,13 @@ shrinkPartition() {
                     echo "Done"
                     ;;
                 *)
-                    echo "Failed"
-                    debugPause
-                    handleError "Could not check expanded volume ($part) (${FUNCNAME[0]})\n   Info: $(cat /tmp/e2fsck.txt)\n   Args Passed: $*"
+                    e2fsck -fy $part >>/tmp/e2fsck.txt 2>&1
+                    if [[ $? -gt 0 ]]; then
+                        echo "Failed"
+                        debugPause
+                        handleError "Could not check expanded volume ($part) (${FUNCNAME[0]})\n   Info: $(cat /tmp/e2fsck.txt)\n   Args Passed: $*"
+                    fi
+                    echo "Done"
                     ;;
             esac
             ;;
