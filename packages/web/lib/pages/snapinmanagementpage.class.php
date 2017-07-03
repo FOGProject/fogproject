@@ -989,7 +989,7 @@ class SnapinManagementPage extends FOGPage
                 _('Update')
             ),
         );
-        echo '<div class="tab-content">';
+        echo '<div class="col-xs-9 tab-content">';
         echo '<!-- General -->';
         echo '<div id="snap-gen" class="tab-pane fade in active">';
         echo '<form method="post" action="'

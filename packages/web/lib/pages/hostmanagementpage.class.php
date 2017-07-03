@@ -2336,7 +2336,7 @@ class HostManagementPage extends FOGPage
                 )
             );
         }
-        echo '<div class="col-xs-offset-3 tab-content">';
+        echo '<div class="col-xs-9 tab-content">';
         $this->hostGeneral();
         if (!$this->obj->get('pending')) {
             $this->basictasksOptions();

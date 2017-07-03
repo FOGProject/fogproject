@@ -526,7 +526,7 @@ class PrinterManagementPage extends FOGPage
         $this->title = sprintf('%s: %s', _('Edit'), $this->obj->get('name'));
         unset($this->headerData);
         unset($this->data);
-        echo '<div class="tab-content">';
+        echo '<div class="col-xs-9 tab-content">';
         $this->printerGeneral();
         echo '</div>';
         /*echo '<div id="network" class="hiddeninitially">';

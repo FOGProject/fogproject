@@ -151,24 +151,27 @@ function HookTooltip() {
      * If we don't have a hash such as when initially entering
      * an edit page, we need to display the first item.
      */
-    /*if ($('.tab-content').length > 0) {
+    if ($('.tab-content').length > 0) {
         if (location.hash == "") {
             firstid = $('.tab-content > div:first').prop('id');
-            if (history.pushState) {
-                history.pushState(null, null, '#'+firstid);
-            } else {
-                window.location.hash = '#'+firstid;
-            }
             $('.nav-tabs a[href*="#'+firstid+'"]').parent().addClass('active');
         }
-    }*/
+    }
     /**
      * This allows us to move back and forth between pages.
      */
+    if (location.hash) {
+        setTimeout(function() {
+            window.scrollTo(0, 0);
+        }, 1);
+    }
     $('a[data-toggle="tab"]').on('click', function(e) {
-        hash = $(this).prop('href').split('#')[1];
+        var newLoadedHtml = $(this).prop('href');
+        var hash = newLoadedHtml.split('#');
+        var link = hash[0];
+        hash = hash[1];
         if ($('#'+hash).length < 1) {
-            location.href = $(this).prop('href');
+            window.location.href = newLoadedHtml;
         }
     });
     HookTooltip();
