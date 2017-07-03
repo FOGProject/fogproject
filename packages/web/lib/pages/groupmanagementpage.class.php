@@ -1332,8 +1332,8 @@ class GroupManagementPage extends FOGPage
         );
         list(
             $r,
-            $w,
-            $h
+            $x,
+            $y
         ) = self::getSubObjectIDs(
             'Service',
             array(
@@ -1364,14 +1364,14 @@ class GroupManagementPage extends FOGPage
         );
         foreach ($names as $name => &$get) {
             switch ($name) {
-            case 'refresh':
+            case 'r':
                 $val = $r;
                 break;
-            case 'width':
-                $val = $w;
+            case 'x':
+                $val = $x;
                 break;
-            case 'height':
-                $val = $h;
+            case 'y':
+                $val = $y;
                 break;
             }
             $this->data[] = array(
