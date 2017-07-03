@@ -1067,6 +1067,451 @@ class GroupManagementPage extends FOGPage
         );
     }
     /**
+     * Display's the group service stuff
+     *
+     * @return void
+     */
+    public function groupService()
+    {
+        unset(
+            $this->headerData,
+            $this->templates,
+            $this->attributes,
+            $this->form,
+            $this->data
+        );
+        $dcnote = sprintf(
+            '%s. %s. %s %s.',
+            _('This module is only used on the old client'),
+            _('The old client is what was distributed with FOG 1.2.0 and earlier'),
+            _('This module did not work past Windows XP due to'),
+            _('UAC introduced in Vista and up')
+        );
+        $gfnote = sprintf(
+            '%s. %s %s. %s %s %s. %s.',
+            _('This module is only used on the old client'),
+            _('The old client is what was distributed with'),
+            _('FOG 1.2.0 and earlier'),
+            _('This module has been replaced in the new client'),
+            _('and the equivalent module for what Green'),
+            _('FOG did is now called Power Management'),
+            _('This is only here to maintain old client operations')
+        );
+        $ucnote = sprintf(
+            '%s. %s %s. %s %s.',
+            _('This module is only used on the old client'),
+            _('The old client is what was distributed with'),
+            _('FOG 1.2.0 and earlier'),
+            _('This module did not work past Windows XP due'),
+            _('to UAC introduced in Vista and up')
+        );
+        $cunote = sprintf(
+            '%s (%s) %s.',
+            _('This module is only used'),
+            _('with modules and config'),
+            _('on the old client')
+        );
+        $this->attributes = array(
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-4 form-group'),
+            array('class' => 'col-xs-4'),
+        );
+        $this->templates = array(
+            '${mod_name}',
+            '${input}',
+            '${span}',
+        );
+        $this->data[] = array(
+            'mod_name' => '<label for="checkAll">'
+            . _('Select/Deselect All')
+            . '</label>',
+            'input' => '<div class="checkbox">'
+            . '<input type="checkbox" class="checkboxes" '
+            . 'id="checkAll" name="checkAll" value="checkAll"/>'
+            . '</div>',
+            'span' => ' '
+        );
+        $moduleName = self::getGlobalModuleStatus();
+        $ModuleOn = array_values(
+            self::getSubObjectIDs(
+                'ModuleAssociation',
+                array(
+                    'hostID' => $this->obj->get('hosts')
+                ),
+                'moduleID',
+                false,
+                'AND',
+                'id'
+            )
+        );
+        Route::listem('module');
+        $Modules = json_decode(
+            Route::getData()
+        );
+        $Modules = $Modules->modules;
+        foreach ((array)$Modules as &$Module) {
+            switch ($Module->shortName) {
+            case 'dircleanup':
+                $note = sprintf(
+                    '<i class="icon fa fa-exclamation-triangle '
+                    . 'fa-1x hand" '
+                    . 'data-toggle="tooltip" data-placement="right" '
+                    . 'title="%s"></i>',
+                    $dcnote
+                );
+                break;
+            case 'greenfog':
+                $note = sprintf(
+                    '<i class="icon fa fa-exclamation-triangle '
+                    . 'fa-1x hand" '
+                    . 'data-toggle="tooltip" data-placement="right" '
+                    . 'title="%s"></i>',
+                    $gfnote
+                );
+                break;
+            case 'usercleanup':
+                $note = sprintf(
+                    '<i class="icon fa fa-exclamation-triangle '
+                    . 'fa-1x hand" '
+                    . 'data-toggle="tooltip" data-placement="right" '
+                    . 'title="%s"></i>',
+                    $ucnote
+                );
+                break;
+            case 'clientupdater':
+                $note = sprintf(
+                    '<i class="icon fa fa-exclamation-triangle '
+                    . 'fa-1x hand" '
+                    . 'data-toggle="tooltip" data-placement="right" '
+                    . 'title="%s"></i>',
+                    $cunote
+                );
+                break;
+            default:
+                $note = '';
+                break;
+            }
+            if ($note) {
+                $note = '<div class="col-xs-2">'
+                    . $note
+                    . '</div>';
+            }
+            $this->data[] = array(
+                'input' => sprintf(
+                    '<div class="checkbox">'
+                    . '<input id="%s"%stype="checkbox" name="modules[]" value="%s"'
+                    . '%s%s/>'
+                    . '</div>',
+                    $Module->shortName,
+                    (
+                        ($moduleName[$Module->shortName]
+                        || $moduleName[$Module->shortName])
+                        && $Module->isDefault ?
+                        ' class="checkboxes" ':
+                        ''
+                    ),
+                    $Module->id,
+                    (
+                        in_array($Module->id, $ModuleOn) ?
+                        ' checked' :
+                        ''
+                    ),
+                    (
+                        !$moduleName[$Module->shortName] ?
+                        ' disabled' :
+                        ''
+                    ),
+                    $Module->shortName
+                ),
+                'span' => sprintf(
+                    '<div class="col-xs-2">'
+                    . '<span class="icon fa fa-question fa-1x hand" '
+                    . 'data-toggle="tooltip" data-placement="left" '
+                    . 'title="%s"></span>'
+                    . '</div>'
+                    . '%s',
+                    str_replace(
+                        '"',
+                        '\"',
+                        $Module->description
+                    ),
+                    $note
+                ),
+                'mod_name' => '<label for="'
+                . $Module->shortName
+                . '">'
+                . $Module->name
+                . '</label>',
+            );
+            unset($Module);
+        }
+        unset($moduleName, $ModuleOn);
+        self::$HookManager
+            ->processEvent(
+                'GROUP_EDIT_SERVICE',
+                array(
+                    'headerData' => &$this->headerData,
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes
+                )
+            );
+        echo '<!-- Service Configuration -->';
+        echo '<div class="tab-pane fade" id="group-service">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Group FOG Client Module configuration');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '&tab=group-service">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Group module settings');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        $this->render(12);
+        echo '<label class="control-label col-xs-4" for="updatestatus">';
+        echo _('Update module configurations');
+        echo '</label>';
+        echo '<div class="col-xs-8">';
+        echo '<button type="submit" name="updatestatus" id="updatestatus" '
+            . 'class="btn btn-info btn-block">';
+        echo _('Update');
+        echo '</button>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
+        $this->attributes = array(
+            array(
+                'class' => 'col-xs-4'
+            ),
+            array(
+                'class' => 'col-xs-4 form-group'
+            ),
+            array(
+                'class' => 'col-xs-4'
+            )
+        );
+        $this->templates = array(
+            '${field}',
+            '${input}',
+            '${span}',
+        );
+        list(
+            $refresh,
+            $width,
+            $height,
+        ) = self::getSubObjectIDs(
+            'Service',
+            array(
+                'name' => array(
+                    'FOG_CLIENT_DISPLAYMANAGER_R',
+                    'FOG_CLIENT_DISPLAYMANAGER_X',
+                    'FOG_CLIENT_DISPLAYMANAGER_Y',
+                )
+            ),
+            'description',
+            false,
+            'AND',
+            'name',
+            false,
+            false
+        );
+        list(
+            $r,
+            $w,
+            $h
+        ) = self::getSubObjectIDs(
+            'Service',
+            array(
+                'name' => array(
+                    'FOG_CLIENT_DISPLAYMANAGER_R',
+                    'FOG_CLIENT_DISPLAYMANAGER_X',
+                    'FOG_CLIENT_DISPLAYMANAGER_Y',
+                )
+            ),
+            'value'
+        );
+        $names = array(
+            'x' => array(
+                'width',
+                $width,
+                _('Screen Width (in pixels)'),
+            ),
+            'y' => array(
+                'height',
+                $height,
+                _('Screen Height (in pixels)'),
+            ),
+            'r' => array(
+                'refresh',
+                $refresh,
+                _('Screen Refresh Rate (in Hz)'),
+            )
+        );
+        foreach ($names as $name => &$get) {
+            switch ($name) {
+            case 'refresh':
+                $val = $r;
+                break;
+            case 'width':
+                $val = $w;
+                break;
+            case 'height':
+                $val = $h;
+                break;
+            }
+            $this->data[] = array(
+                'input' => sprintf(
+                    '<div class="input-group">'
+                    . '<input type="text" id="%s" name="%s" value="%s" '
+                    . 'class="form-control"/>'
+                    . '</div>',
+                    $name,
+                    $name,
+                    $val
+                ),
+                'span' => sprintf(
+                    '<div class="col-xs-2">'
+                    . '<span class="icon fa fa-question fa-1x hand" '
+                    . 'data-toggle="tooltip" data-placement="right" '
+                    . 'title="%s"></span>'
+                    . '</div>',
+                    $get[1]
+                ),
+                'field' => '<label for="'
+                . $name
+                . '">'
+                . $get[2]
+                . '</label>',
+            );
+            unset($get);
+        }
+        self::$HookManager
+            ->processEvent(
+                'GROUP_EDIT_DISPSERV',
+                array(
+                    'headerData' => &$this->headerData,
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes
+                )
+            );
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Group Screen Resolution');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        $this->render(12);
+        echo '<label class="control-label col-xs-4" for="updatedisplay">';
+        echo _('Update display resolution');
+        echo '</label>';
+        echo '<div class="col-xs-8">';
+        echo '<button type="submit" name="updatedisplay" id="updatedisplay" '
+            . 'class="btn btn-info btn-block">';
+        echo _('Update');
+        echo '</button>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        unset(
+            $this->headerData,
+            $this->templates,
+            $this->attributes,
+            $this->form,
+            $this->data
+        );
+        $this->attributes = array(
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-4 form-group'),
+            array('class' => 'col-xs-4')
+        );
+        $this->templates = array(
+            '${field}',
+            '${input}',
+            '${desc}',
+        );
+        $alodesc = self::getClass('Service')
+            ->set('name', 'FOG_CLIENT_AUTOLOGOFF_MIN')
+            ->load('name')
+            ->get('description');
+        $aloval = self::getClass('Service')
+            ->set('name', 'FOG_CLIENT_AUTOLOGOFF_MIN')
+            ->load('name')
+            ->get('value');
+        $this->data[] = array(
+            'field' => '<label for="tme">'
+            . _('Auto Log Out Time (in minutes)')
+            . '</label>',
+            'input' => '<div class="input-group">'
+            . '<input type="text" name="tme" value="${value}" class='
+            . '"form-control" id="tme"/>'
+            . '</div>',
+            'desc' => '<div class="col-xs-2">'
+            . '<span class="icon fa fa-question fa-1x hand" '
+            . 'data-toggle="tooltip" data-placement="right" '
+            . 'title="${serv_desc}"></span>'
+            . '</div>',
+            'value' => $aloval,
+            'serv_desc' => $alodesc,
+        );
+        self::$HookManager
+            ->processEvent(
+                'GROUP_EDIT_ALO',
+                array(
+                    'headerData' => &$this->headerData,
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes
+                )
+            );
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Group Auto Logout');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        $this->render(12);
+        echo '<label class="control-label col-xs-4" for="updatealo">';
+        echo _('Update auto-logout time');
+        echo '</label>';
+        echo '<div class="col-xs-8">';
+        echo '<button type="submit" name="updatealo" id="updatealo" '
+            . 'class="btn btn-info btn-block">';
+        echo _('Update');
+        echo '</button>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        unset(
+            $this->headerData,
+            $this->templates,
+            $this->attributes,
+            $this->form,
+            $this->data
+        );
+    }
+    /**
      * The group edit display method
      *
      * @return void
@@ -1151,304 +1596,7 @@ class GroupManagementPage extends FOGPage
         );
         $this->groupPrinters();
         $this->groupSnapins();
-        echo '<!-- Service Settings --><div id="group-service" class="'
-            . 'tab-pane fade">';
-        $this->attributes = array(
-            array('width'=>270),
-            array(),
-            array(),
-        );
-        $this->templates = array(
-            '${mod_name}',
-            '${input}',
-            '${span}',
-        );
-        $this->data[] = array(
-            'mod_name' => 'Select/Deselect All',
-            'input' => '<input type="checkbox" class="checkboxes" '
-            . 'id="checkAll" name="checkAll" value="checkAll"/>'
-            . '<label for="checkAll"></label>',
-            'span' => '&nbsp;',
-        );
-        printf(
-            '<h2>%s</h2><form method="post" action="%s&tab=group-service">'
-            . '<fieldset><legend>%s</legend>',
-            _('Service Configuration'),
-            $this->formAction,
-            _('General')
-        );
-        $dcnote = sprintf(
-            '%s. %s %s. %s %s.',
-            _('This module is only used on the old client'),
-            _('The old client is what was distributed with'),
-            _('FOG 1.2.0 and earlier'),
-            _('This module did not work past Windows XP due'),
-            _('to UAC introduced in Vista and up')
-        );
-        $gfnote = sprintf(
-            '%s. %s %s. %s %s %s. %s.',
-            _('This module is only used on the old client'),
-            _('The old client is what was distributed'),
-            _('with FOG 1.2.0 and earlier'),
-            _('This module has been replaced in the new client'),
-            _('and the equivalent module for what Green FOG'),
-            _('did is now called Power Management'),
-            _('This is only here to maintain old client operations')
-        );
-        $ucnote = sprintf(
-            '%s. %s %s. %s %s.',
-            _('This module is only used on the old client'),
-            _('The old client is what was distributed with'),
-            _('FOG 1.2.0 and earlier'),
-            _('This module did not work past Windows XP due'),
-            _('to UAC introduced in Vista and up')
-        );
-        $cunote = sprintf(
-            '%s (%s) %s.',
-            _('This module is only used'),
-            _('with modules and config'),
-            _('on the old client')
-        );
-        $moduleName = self::getGlobalModuleStatus();
-        $ModuleOn = array_values(
-            self::getSubObjectIDs(
-                'ModuleAssociation',
-                array(
-                    'hostID' => $this->obj->get('hosts')
-                ),
-                'moduleID',
-                false,
-                'AND',
-                'id',
-                false,
-                ''
-            )
-        );
-        foreach ((array)self::getClass('ModuleManager')
-            ->find() as &$Module
-        ) {
-            $note = '';
-            switch ($Module->get('shortName')) {
-            case 'dircleanup':
-                $note = sprintf(
-                    '<i class="icon fa fa-exclamation-triangle '
-                    . 'fa-1x hand" title="%s"></i>',
-                    $dcnote
-                );
-                break;
-            case 'greenfog':
-                $note = sprintf(
-                    '<i class="icon fa fa-exclamation-triangle fa-1x '
-                    . 'hand" title="%s"></i>',
-                    $gfnote
-                );
-                break;
-            case 'usercleanup':
-                $note = sprintf(
-                    '<i class="icon fa fa-exclamation-triangle fa-1x '
-                    . 'hand" title="%s"></i>',
-                    $ucnote
-                );
-                break;
-            case 'clientupdater':
-                $note = sprintf(
-                    '<i class="icon fa fa-exclamation-triangle fa-1x '
-                    . 'hand" title="%s"></i>',
-                    $cunote
-                );
-                break;
-            default:
-                $note = '';
-                break;
-            }
-            $this->data[] = array(
-                'input' => sprintf(
-                    '<input id="%s" %stype="checkbox" name="modules[]" '
-                    . 'value="%s"%s%s/><label for="%s"></label>',
-                    $Module->get('shortName'),
-                    (
-                        $moduleName[$Module->get('shortName')]
-                        || (
-                            $moduleName[$Module->get('shortName')]
-                            && $Module->get('isDefault')
-                        ) ?
-                        'class="checkboxes" ':
-                        ''
-                    ),
-                    $Module->get('id'),
-                    (
-                        count(
-                            array_keys(
-                                $ModuleOn,
-                                $Module->get('id')
-                            )
-                        ) == $HostCount ?
-                        ' checked' :
-                        ''
-                    ),
-                    (
-                        !$moduleName[$Module->get('shortName')] ?
-                        ' disabled' :
-                        ''
-                    ),
-                    $Module->get('shortName')
-                ),
-                'span' => sprintf(
-                    '%s<span class="icon fa fa-question fa-1x hand" '
-                    . 'title="%s"></span>',
-                    $note,
-                    str_replace('"', '\"', $Module->get('description'))
-                ),
-                'mod_name' => $Module->get('name'),
-            );
-            unset($Module);
-        }
-        unset($moduleName, $ModuleOn);
-        $this->data[] = array(
-            'mod_name' => '',
-            'input' => '',
-            'span' => sprintf(
-                '<input type="submit" name="updatestatus" value="%s"/>',
-                _('Update')
-            ),
-        );
-        self::$HookManager->processEvent(
-            'GROUP_MODULES',
-            array(
-                'headerData' => &$this->headerData,
-                'data' => &$this->data,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
-            )
-        );
-        $this->render();
-        unset($this->data);
-        printf(
-            '</fieldset><fieldset><legend>%s</legend>',
-            _('Group Screen Resolution')
-        );
-        $this->attributes = array(
-            array(),
-            array(),
-            array(),
-        );
-        $this->templates = array(
-            '${field}',
-            '${input}',
-            '${span}',
-        );
-        $find = array(
-            'name' => array(
-                'FOG_CLIENT_DISPLAYMANAGER_X',
-                'FOG_CLIENT_DISPLAYMANAGER_Y',
-                'FOG_CLIENT_DISPLAYMANAGER_R',
-            )
-        );
-        foreach ((array)self::getClass('ServiceManager')
-            ->find(
-                $find,
-                'OR',
-                'id'
-            ) as $Service
-        ) {
-            switch ($Service->get('name')) {
-            case 'FOG_CLIENT_DISPLAYMANAGER_X':
-                $name = 'x';
-                $field = _('Screen Width (in pixels)');
-                break;
-            case 'FOG_CLIENT_DISPLAYMANAGER_Y':
-                $name = 'y';
-                $field = _('Screen Height (in pixels)');
-                break;
-            case 'FOG_CLIENT_DISPLAYMANAGER_R':
-                $name = 'r';
-                $field = _('Screen Refresh Rate (in Hz)');
-                break;
-            }
-            $this->data[] = array(
-                'input' => sprintf(
-                    '<input type="text" name="%s" value="%s"/>',
-                    $name,
-                    $Service->get('value')
-                ),
-                'span' => sprintf(
-                    '<span class="icon fa fa-question fa-1x hand" title="%s">'
-                    . '</span>',
-                    $Service->get('description')
-                ),
-                'field' => $field,
-            );
-            unset($name, $field, $Service);
-        }
-        $this->data[] = array(
-            'field'=>'',
-            'input'=>'',
-            'span'=>sprintf(
-                '<input type="submit" name="updatedisplay" value="%s"/>',
-                _('Update')
-            ),
-        );
-        self::$HookManager->processEvent(
-            'GROUP_DISPLAY',
-            array(
-                'headerData' => &$this->headerData,
-                'data' => &$this->data,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
-            )
-        );
-        $this->render();
-        unset($this->data);
-        printf(
-            '</fieldset><fieldset><legend>%s</legend>',
-            _('Auto Log Out Settings')
-        );
-        $this->attributes = array(
-            array('width'=>270),
-            array(),
-            array(),
-        );
-        $this->templates = array(
-            '${field}',
-            '${input}',
-            '${desc}',
-        );
-        $Service = self::getClass('Service')
-            ->set('name', 'FOG_CLIENT_AUTOLOGOFF_MIN')
-            ->load('name');
-        $this->data[] = array(
-            'field' => _('Auto Log Out Time (in minutes)'),
-            'input' => sprintf(
-                '<input type="text" name="tme" value="%s"/>',
-                $Service->get('value')
-            ),
-            'desc' => sprintf(
-                '<span class="icon fa fa-question fa-1x hand" '
-                . 'title="%s"></span>',
-                $Service->get('description')
-            ),
-        );
-        unset($Service);
-        $this->data[] = array(
-            'field' => '',
-            'input' => '',
-            'desc' => sprintf(
-                '<input type="submit" name="updatealo" value="%s"/>',
-                _('Update')
-            ),
-        );
-        self::$HookManager->processEvent(
-            'GROUP_ALO',
-            array(
-                'headerData' => &$this->headerData,
-                'data' => &$this->data,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
-            )
-        );
-        $this->render();
-        unset($this->data);
-        echo '</fieldset></form></div>';
+        $this->groupService();
         $this->groupPMDisplay();
         unset(
             $imageID,
