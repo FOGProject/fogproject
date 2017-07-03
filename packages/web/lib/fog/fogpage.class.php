@@ -3251,206 +3251,185 @@ abstract class FOGPage extends FOGBase
      */
     public function membership()
     {
-        $objType = $this->obj instanceof Host;
-        $this->data = array();
-        echo '<!-- Membership -->';
-        printf(
-            '<div id="%s-membership">',
-            $this->node
+        $objType = $this->obj instanceof Host ? 'group' : 'host';
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
         );
         $this->headerData = array(
-            sprintf(
-                '<input type="checkbox" name="toggle-checkbox%s1" '
-                . 'class="toggle-checkbox1" id="toggler"/>'
-                . '<label for="toggler"></label>',
-                $this->node
-            ),
-            sprintf(
-                '%s %s',
-                (
-                    $objType ?
-                    _('Group') :
-                    _('Host')
-                ),
-                _('Name')
-            ),
+            '<label for="toggler">'
+            . '<input type="checkbox" name="toggle-checkbox'
+            . $this->node
+            . '1" class="toggle-checkbox1" id="toggler"/>'
+            . '</label>',
+            _(ucfirst($objType) . ' Name')
         );
         $this->templates = array(
-            sprintf(
-                '<input type="checkbox" name="host[]" value="${host_id}" '
-                . 'class="toggle-%s${check_num}" id="host-${host_id}"/>'
-                . '<label for="host-${host_id}"></label>',
-                (
-                    $objType ?
-                    'group' :
-                    'host'
-                )
-            ),
-            sprintf(
-                '<a href="?node=%s&sub=edit&id=${host_id}" '
-                . 'title="Edit: ${host_name}">${host_name}</a>',
-                (
-                    $objType ?
-                    'group' :
-                    'host'
-                )
-            ),
+            '<label for="host-${host_id}">'
+            . '<input type="checkbox" name="host[]" class="toggle-'
+            . $objType
+            . '${check_num}" id="host-${host_id}" '
+            . 'value="${host_id}"/>'
+            . '</label>',
+            '<a href="?node='
+            . $objType
+            . '&sub=edit&id=${host_id}">${host_name}</a>'
         );
         $this->attributes = array(
-            array('width'=>16,'class'=>'l filter-false'),
-            array('width'=>150,'class'=>'l'),
-        );
-        $ClassCall = (
-            $objType ?
-            'Group' :
-            'Host'
-        );
-        extract(
-            self::getSubObjectIDs(
-                $ClassCall,
-                array(
-                    'id' => $this->obj->get(
-                        sprintf(
-                            '%ssnotinme',
-                            strtolower($ClassCall)
-                        )
-                    )
-                ),
-                array(
-                    'name',
-                    'id'
-                )
-            )
-        );
-        $itemParser = function (
-            &$nam,
-            &$index
-        ) use (&$id) {
-            $this->data[] = array(
-                'host_id'=>$id[$index],
-                'host_name'=>$nam,
-                'check_num'=>1,
-            );
-            unset(
-                $nam,
-                $id[$index],
-                $index
-            );
-        };
-        if (count($name) > 0) {
-            array_walk($name, $itemParser);
-        }
-        if (count($this->data) > 0) {
-            self::$HookManager->processEvent(
-                sprintf(
-                    'OBJ_%s_NOT_IN_ME',
-                    strtoupper($ClassCall)
-                ),
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-            printf(
-                '<form method="post" action="%s">'
-                . '<p class="c">%s %ss %s %s&nbsp;&nbsp;<input '
-                . 'type="checkbox" name="%sMeShow" id="%sMeShow"/>'
-                . '<label for="%sMeShow"></label></p>'
-                . '<div id="%sNotInMe"><h2>%s %s</h2>',
-                $this->formAction,
-                _('Check here to see'),
-                strtolower($ClassCall),
-                _('not within this'),
-                $this->node,
-                strtolower($ClassCall),
-                strtolower($ClassCall),
-                strtolower($ClassCall),
-                strtolower($ClassCall),
-                _('Modify Membership for'),
-                $this->obj->get('name')
-            );
-            $this->render();
-            printf(
-                '</div><br/><p class="c"><button class="btn btn-info" type='
-                . '"submit" name="addHosts">%s %s(s) to %s</button> '
-                . '</p><br/>',
-                _('Add'),
-                (
-                    $objType ?
-                    _('Group') :
-                    _('Host')
-                ),
-                $this->node
-            );
-        }
-        unset($this->data);
-        $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" '
-            . 'class="toggle-checkboxAction" id="toggler1"/>'
-            . '<label for="toggler1"></label>',
-            sprintf(
-                '%s %s',
-                _($ClassCall),
-                _('Name')
+            array(
+                'width' => 16,
+                'class' => 'filter-false'
             ),
+            array()
+        );
+        Route::listem($objType);
+        $items = json_decode(
+            Route::getData()
+        );
+        $getType = $objType . 's';
+        $getter = $getType . 'notinme';
+        $items = $items->$getType;
+        $returnData = function (&$item) use (&$getter) {
+            if (!in_array($item->id, $this->obj->get($getter))) {
+                return;
+            }
+            $this->data[] = array(
+                'host_id' => $item->id,
+                'host_name' => $item->name,
+                'check_num' => 1,
+            );
+            unset($item);
+        };
+        array_walk($items, $returnData);
+        echo '<!-- Membership -->';
+        echo '<div class="col-xs-9">';
+        echo '<div class="tab-pane fade in active" id="'
+            . $this->node
+            . '-membership">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->childClass
+            . ' '
+            . _('Membership');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
+        if (count($this->data) > 0) {
+            $notInMe = $meShow = $objType;
+            $meShow .= 'MeShow';
+            $notInMe .= 'NotInMe';
+            echo '<div class="text-center">';
+            echo '<div class="checkbox">';
+            echo '<label for="'
+                . $meShow
+                . '">';
+            echo '<input type="checkbox" name="'
+                . $meShow
+                . '" id="'
+                . $meShow
+                . '"/>';
+            echo _("Check here to see what $getType can be added");
+            echo '</label>';
+            echo '</div>';
+            echo '</div>';
+            echo '<br/>';
+            echo '<div class="hiddeninitially panel panel-info" id="'
+                . $notInMe
+                . '">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Add')
+                . ' '
+                . ucfirst($getType);
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            $this->render(12);
+            echo '<div class="form-group">';
+            echo '<label for="update'
+                . $getType
+                . '" class="control-label col-xs-4">';
+            echo _("Add selected $getType");
+            echo '</label>';
+            echo '<div class="col-xs-8">';
+            echo '<button type="submit" name="addHosts" '
+                . 'id="update'
+                . $getType
+                . '" class="btn btn-info btn-block">'
+                . _('Add')
+                . '</button>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+        }
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
+        $this->headerData = array(
+            '<label for="toggler1">'
+            . '<input type="checkbox" name="toggle-checkbox" '
+            . 'class="toggle-checkboxAction" id="toggler1"/></label>',
+            _(ucfirst($objType) . ' Name')
         );
         $this->templates = array(
-            '<input type="checkbox" name="hostdel[]" '
+            '<label for="hostrm-${host_id}">'
+            . '<input type="checkbox" name="hostdel[]" '
             . 'value="${host_id}" class="toggle-action" id="'
-            . 'host1-${host_id}"/>'
-            . '<label for="host1-${host_id}"></label>',
-            sprintf(
-                '<a href="?node=%s&sub=edit&id=${host_id}" '
-                . 'title="Edit: ${host_name}">${host_name}</a>',
-                strtolower($ClassCall)
-            ),
+            . 'hostrm-${host_id}"/>'
+            . '</label>',
+            '<a href="?node='
+            . $objType
+            . '&sub=edit&id=${host_id}">${host_name}</a>'
         );
-        extract(
-            self::getSubObjectIDs(
-                $ClassCall,
-                array(
-                    'id' => $this->obj->get(
-                        sprintf(
-                            '%ss',
-                            strtolower($ClassCall)
-                        )
-                    )
-                ),
-                array(
-                    'name',
-                    'id'
-                )
-            )
-        );
-        if (count($name) > 0) {
-            array_walk($name, $itemParser);
-        }
-        self::$HookManager->processEvent(
-            'OBJ_MEMBERSHIP',
+        $this->attributes = array(
             array(
-                'headerData' => &$this->headerData,
-                'data' => &$this->data,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
-            )
+                'width' => 16,
+                'class' => 'filter-false'
+            ),
+            array()
         );
-        printf(
-            '<form method="post" action="%s">',
-            $this->formAction
-        );
-        $this->render();
-        if (count($this->data)) {
-            printf(
-                '<p class="c"><button type="submit" name="remhosts" '
-                . 'class="btn btn-danger">%s %ss %s %s</button></p>',
-                _('Delete Selected'),
-                $ClassCall,
-                _('From'),
-                $this->node
-            );
+        $getter = $getType;
+        array_walk($items, $returnData);
+        if (count($this->data) > 0) {
+            echo '<div class="panel panel-warning">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Remove ' . ucfirst($getType));
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            $this->render(12);
+            echo '<div class="form-group">';
+            echo '<label for="remhosts" class="control-label col-xs-4">';
+            echo _('Remove selected ' . $getType);
+            echo '</label>';
+            echo '<div class="col-xs-8">';
+            echo '<button type="submit" name="remhosts" class='
+                . '"btn btn-danger btn-block" id="remhosts">'
+                . _('Remove')
+                . '</button>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
         }
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Commonized membership actions
@@ -3462,20 +3441,26 @@ abstract class FOGPage extends FOGBase
         if (self::$ajax) {
             return;
         }
-        if (isset($_REQUEST['addHosts'])) {
-            $this->obj->addHost($_REQUEST['host']);
+        $reqitems = filter_input_array(
+            INPUT_POST,
+            array(
+                'host' => array(
+                    'flags' => FILTER_REQUIRE_ARRAY
+                ),
+                'hostdel' => array(
+                    'flags' => FILTER_REQUIRE_ARRAY
+                )
+            )
+        );
+        $host = $reqitems['host'];
+        $hostdel = $reqitems['hostdel'];
+        if (isset($_POST['addHosts'])) {
+            $this->obj->addHost($host);
         }
-        if (isset($_REQUEST['remhosts'])) {
-            $this->obj->removeHost($_REQUEST['hostdel']);
+        if (isset($_POST['remhosts'])) {
+            $this->obj->removeHost($hostdel);
         }
         if ($this->obj->save()) {
-            self::setMessage(
-                sprintf(
-                    '%s %s',
-                    $this->obj->get('name'),
-                    _('saved successfully')
-                )
-            );
             self::redirect($this->formAction);
         }
     }

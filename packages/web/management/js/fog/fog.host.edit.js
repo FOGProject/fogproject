@@ -100,7 +100,9 @@ $(function() {
             }
         });
     });
-    UpdateLoginGraph();
+    if (LoginHistory.length > 0) {
+        UpdateLoginGraph();
+    }
     $('input:not(:hidden):checkbox[name="default"]').change(function() {
         $(this).each(function(e) {
             if (this.checked) this.checked = false;
