@@ -933,6 +933,138 @@ class GroupManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
+        unset(
+            $this->headerData,
+            $this->templates,
+            $this->attributes,
+            $this->form,
+            $this->data
+        );
+    }
+    /**
+     * Display Group Snapin element.
+     *
+     * @return void
+     */
+    public function groupSnapins()
+    {
+        unset(
+            $this->headerData,
+            $this->templates,
+            $this->attributes,
+            $this->form,
+            $this->data
+        );
+        $this->headerData = array(
+            '<label for="toggler2">'
+            . '<input type="checkbox" name="toggle-checkboxsnapin" class='
+            . '"toggle-checkboxsnapin" id="toggler2"/>'
+            . '</label>',
+            _('Snapin Name'),
+            _('Snapin Created')
+        );
+        $this->templates = array(
+            '<label for="snapin-${snapin_id}">'
+            . '<input type="checkbox" name="snapin[]" class='
+            . '"toggle-checkboxsnapin" id="toggler2" '
+            . 'value="${snapin_id}"/>'
+            . '</label>',
+            '<a href="?node=snapin&sub=edit&id=${snapin_id}">${snapin_name}</a>',
+            '${snapin_created}'
+        );
+        $this->attributes = array(
+            array('class' => 'filter-false col-xs-1'),
+            array(),
+            array()
+        );
+        Route::listem('snapin');
+        $Snapins = json_decode(
+            Route::getData()
+        );
+        $Snapins = $Snapins->snapins;
+        foreach ((array)$Snapins as &$Snapin) {
+            $this->data[] = array(
+                'snapin_id' => $Snapin->id,
+                'snapin_name' => $Snapin->name,
+                'snapin_created' => self::niceDate(
+                    $Snapin->createdTime
+                )->format('Y-m-d H:i:s')
+            );
+            unset($Snapin);
+        }
+        self::$HookManager->processEvent(
+            'GROUP_SNAPINS',
+            array(
+                'data' => &$this->data,
+                'templates' => &$this->templates,
+                'headerData' => &$this->headerData,
+                'attributes' => &$this->attributes,
+            )
+        );
+        echo '<!-- Snapins -->';
+        echo '<div class="tab-pane fade" id="group-snapins">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Group Snapins');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '&tab=group-snapins">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Available Snapins');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        $this->render(12);
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Make Snapin Changes');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<div class="form-group">';
+        echo '<label for="addsnapins" class="control-label col-xs-4">';
+        echo _('Add selected snapins');
+        echo '</label>';
+        echo '<div class="col-xs-8">';
+        echo '<button type="submit" name="add" class='
+            . '"btn btn-info btn-block" id="addsnapins">';
+        echo _('Add');
+        echo '</button>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="form-group">';
+        echo '<label for="remsnapins" class="control-label col-xs-4">';
+        echo _('Remove selected snapins');
+        echo '</label>';
+        echo '<div class="col-xs-8">';
+        echo '<button type="submit" name="remove" class='
+            . '"btn btn-danger btn-block" id="remsnapins">';
+        echo _('Remove');
+        echo '</button>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        unset(
+            $this->headerData,
+            $this->templates,
+            $this->attributes,
+            $this->form,
+            $this->data
+        );
     }
     /**
      * The group edit display method
@@ -1018,70 +1150,7 @@ class GroupManagementPage extends FOGPage
             $enforce
         );
         $this->groupPrinters();
-        echo '<!-- Snapins --><div id="group-snapins" class="tab-pane fade">';
-        printf('<h2>%s</h2>', _('Snapins'));
-        $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkboxsnapin" '
-            . 'class="toggle-checkboxsnapin" id="toggler2"/>'
-            . '<label for="toggler2"></label>',
-            _('Snapin Name'),
-            _('Created'),
-        );
-        $this->templates = array(
-            '<input type="checkbox" name="snapin[]" value="${snapin_id}" '
-            . 'class="toggle-snapin" id="snapin-${snapin_id}"/>'
-            . '<label for="snapin-${snapin_id}"></label>',
-            sprintf(
-                '<a href="?node=snapin&sub=edit&id=${snapin_id}" '
-                . 'title="%s">${snapin_name}</a>',
-                _('Edit')
-            ),
-            '${snapin_created}',
-        );
-        $this->attributes = array(
-            array('width'=>16,'class'=>'filter-false'),
-            array(),
-            array(),
-        );
-        foreach ((array)self::getClass('SnapinManager')
-            ->find() as &$Snapin
-        ) {
-            $this->data[] = array(
-                'snapin_id' => $Snapin->get('id'),
-                'snapin_name' => $Snapin->get('name'),
-                'snapin_created' => self::formatTime(
-                    $Snapin->get('createdTime'),
-                    'Y-m-d H:i:s'
-                ),
-            );
-            unset($Snapin);
-        }
-        self::$HookManager->processEvent(
-            'GROUP_SNAPINS',
-            array(
-                'data' => &$this->data,
-                'templates' => &$this->templates,
-                'headerData' => &$this->headerData,
-                'attributes' => &$this->attributes,
-                'inputupdate' => &$inputupdate
-            )
-        );
-        if (count($this->data)) {
-            printf(
-                '<form method="post" action="%s&tab=group-snapins">',
-                $this->formAction
-            );
-            $this->render();
-            printf(
-                '<p class="c"><input type="submit" value="%s" '
-                . 'name="add"/>&nbsp<input type="submit" value="%s" '
-                . 'name="remove"/></p></form>',
-                self::$foglang['Add'],
-                self::$foglang['Remove']
-            );
-        }
-        unset($this->headerData, $this->data);
-        echo '</div>';
+        $this->groupSnapins();
         echo '<!-- Service Settings --><div id="group-service" class="'
             . 'tab-pane fade">';
         $this->attributes = array(
