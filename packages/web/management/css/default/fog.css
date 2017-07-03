@@ -186,10 +186,10 @@ input[type=checkbox].delvid + label:before {
     width: 23px;
     color: red;
 }
-input[type=checkbox] + label:before {
+input[type=checkbox].delvid + label:before {
     content: "\f10c";
 }
-input[type=checkbox]:checked + label:before {
+input[type=checkbox].delvid:checked + label:before {
     content: "\f05d";
 }
 footer {
