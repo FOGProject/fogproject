@@ -688,6 +688,253 @@ class GroupManagementPage extends FOGPage
         );
     }
     /**
+     * Displays group printer element.
+     *
+     * @return void
+     */
+    public function groupPrinters()
+    {
+        unset(
+            $this->headerData,
+            $this->templates,
+            $this->attributes,
+            $this->form,
+            $this->data
+        );
+        list(
+            $imageIDs,
+            $groupKey,
+            $printerLevel,
+            $aduse,
+            $enforcetest,
+            $adDomain,
+            $adOU,
+            $adUser,
+            $adPass,
+            $adPassLegacy,
+            $biosExit,
+            $efiExit
+        ) = self::$_common;
+        $this->headerData = array(
+            '<label for="toggler1">'
+            . '<input type="checkbox" name="toggle-checkboxprint" id="toggler1" '
+            . 'class="toggle-checkboxprint"/>'
+            . '</label>',
+            '',
+            _('Printer Alias'),
+            _('Printer Type')
+        );
+        $this->templates = array(
+            '<label for="printer-${printer_id}">'
+            . '<input type="checkbox" name="printers[]" class='
+            . '"toggle-print" id="printer-${printer_id}" '
+            . 'value="${printer_id}"/>'
+            . '</label>',
+            '<div class="radio">'
+            . '<input type="radio" class="default" '
+            . 'name="default" id="printer${printer_id}" value="${printer_id}"/>'
+            . '<label for="printer${printer_id}"></label>'
+            . '</div>',
+            '<a href="?node=printer&sub=edit&id=${printer_id}">${printer_name}</a>',
+            '${printer_type}'
+        );
+        $this->attributes = array(
+            array(
+                'class' => 'filter-false col-xs-1'
+            ),
+            array(
+                'class' => 'filter-false col-xs-1'
+            ),
+            array(),
+            array()
+        );
+        Route::listem('printer');
+        $Printers = json_decode(
+            Route::getData()
+        );
+        $Printers = $Printers->printers;
+        foreach ((array)$Printers as &$Printer) {
+            $this->data[] = array(
+                'printer_id' => $Printer->id,
+                'printer_name' => $Printer->name,
+                'printer_type' => (
+                    stripos($Printer->config, 'local') !== false ?
+                    _('TCP/IP') :
+                    $Printer->config
+                )
+            );
+            unset($Printer);
+        }
+        self::$HookManager->processEvent(
+            'GROUP_PRINTER',
+            array(
+                'data' => &$this->data,
+                'templates' => &$this->templates,
+                'headerData' => &$this->headerData,
+                'attributes' => &$this->attributes,
+            )
+        );
+        echo '<!-- Printers -->';
+        echo '<div class="tab-pane fade" id="group-printers">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Group Printers');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '&tab=group-printers">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Printer Configuration');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<h5 class="title text-center">';
+        echo _('Select management level for these hosts');
+        echo '</h5>';
+        echo '<div class="col-xs-offset-4">';
+        echo '<div class="radio">';
+        echo '<label for="nolevel" data-toggle="tooltip" data-placement="left" '
+            . 'title="'
+            . _('This setting turns off all FOG Printer Management')
+            . '. '
+            . _('Although there are multiple levels already')
+            . ' '
+            . _('between host and global settings')
+            . ', '
+            . _('this is just another to ensure safety')
+            . '.">';
+        echo '<input type="radio" name="level" value="0" id="nolevel"'
+            . (
+                $printerLevel == 1 ?
+                ' checked' :
+                ''
+            )
+            . '/>';
+        echo _('No Printer Management');
+        echo '</label>';
+        echo '</div>';
+        echo '<div class="radio">';
+        echo '<label for="addlevel" data-toggle="tooltip" data-placement="left" '
+            . 'title="'
+            . _(
+                'This setting only adds and removes '
+                . 'printers that are managed by FOG. '
+                . 'If the printer exists in printer '
+                . 'management but is not assigned to a '
+                . 'host, it will remove the printer if '
+                . 'it exists on the unassigned host. '
+                . 'It will add printers to the host '
+                . 'that are assigned.'
+            )
+            . '">';
+        echo '<input type="radio" name="level" value="1" id="addlevel"'
+            . (
+                $printerLevel == 1 ?
+                ' checked' :
+                ''
+            )
+            . '/>';
+        echo _('FOG Managed Printers');
+        echo '</label>';
+        echo '</div>';
+        echo '<div class="radio">';
+        echo '<label for="alllevel" data-toggle="tooltip" data-placement="left" '
+            . 'title="'
+            . _(
+                'This setting will only allow FOG Assigned '
+                . 'printers to be added to the host. Any '
+                . 'printer that is not assigned will be '
+                . 'removed including non-FOG managed printers.'
+            )
+            . '">';
+        echo '<input type="radio" name="level" value="2" id="alllevel"'
+            . (
+                $printerLevel == 2 ?
+                ' checked' :
+                ''
+            )
+            . '/>';
+        echo _('Only Assigned Printers');
+        echo '</label>';
+        echo '</div>';
+        echo '</div>';
+        echo '<br/>';
+        echo '<div class="form-group">';
+        echo '<label for="levelup" class="control-label col-xs-4">';
+        echo _('Update printer configuration');
+        echo '</label>';
+        echo '<div class="col-xs-8">';
+        echo '<button type="submit" name="levelup" class='
+            . '"btn btn-info btn-block" id="levelup">'
+            . _('Update')
+            . '</button>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Printer Associations');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        $this->render(12);
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Make Printer Changes');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<div class="form-group">';
+        echo '<label class="control-label col-xs-4" for="add">';
+        echo _('Add Printers');
+        echo '</label>';
+        echo '<div class="col-xs-8">';
+        echo '<button type="submit" name="add" class='
+            . '"btn btn-info btn-block" id="add">'
+            . _('Add')
+            . '</button>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="form-group">';
+        echo '<label class="control-label col-xs-4" for="update">';
+        echo _('Update Default Printer');
+        echo '</label>';
+        echo '<div class="col-xs-8">';
+        echo '<button type="submit" name="update" class='
+            . '"btn btn-info btn-block" id="update">'
+            . _('Update')
+            . '</button>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="form-group">';
+        echo '<label class="control-label col-xs-4" for="remove">';
+        echo _('Remove selected printers');
+        echo '</label>';
+        echo '<div class="col-xs-8">';
+        echo '<button type="submit" name="remove" class='
+            . '"btn btn-danger btn-block" id="remove">'
+            . _('Remove')
+            . '</button>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
      * The group edit display method
      *
      * @return void
@@ -770,121 +1017,7 @@ class GroupManagementPage extends FOGPage
             $ADPassLegacy,
             $enforce
         );
-        echo '<!-- Printers --><div id="group-printers" class="tab-pane fade">';
-        printf(
-            '<form method="post" action="%s&tab=group-printers"><h2>%s</h2>',
-            $this->formAction,
-            _('Printer Management Level')
-        );
-        printf(
-            '<p class="l"><span class="icon fa fa-question hand" '
-            .' title="%s. %s %s, %s."></span>',
-            _('This setting turns off all FOG Printer Management'),
-            _('Although there are multiple levels already'),
-            _('between host and global settings'),
-            _('this is just another to ensure safety')
-        );
-        printf(
-            '<input type="radio" name="level" value="0"%s/>%s<br/>',
-            $printerLevel == 0 ? ' checked' : '',
-            _('No Printer Management')
-        );
-        printf(
-            '<span class="icon fa fa-question hand" '
-            . 'title="%s %s. %s %s. %s %s."></span>',
-            _('This setting only adds and removes'),
-            _('printers that FOG is aware of'),
-            _('Printers that are associated to the host'),
-            _('will have those printers added'),
-            _('Printers that are defined in FOG but'),
-            _('not associated to the host will be removed')
-        );
-        printf(
-            '<input type="radio" name="level" value="1"%s/>%s<br/>',
-            $printerLevel == 1 ? ' checked' : '',
-            _('FOG Managed Printers')
-        );
-        printf(
-            '<span class="icon fa fa-question hand" '
-            . 'title="%s %s. %s %s."></span>',
-            _('This setting only allows the host to have'),
-            _('printers associated that are assigned through FOG'),
-            _('Any printer on the host that is not associated to the'),
-            _('host through FOG will be removed')
-        );
-        printf(
-            '<input type="radio" name="level" value="2"%s/>%s<br/>',
-            $printerLevel == 2 ? ' checked' : '',
-            _('Only FOG Printers')
-        );
-        echo '</p>';
-        $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkboxprint" '
-            . 'class="toggle-checkboxprint" id="toggler1"/>'
-            . '<label for="toggler1"></label>',
-            '',
-            _('Printer Name'),
-            _('Configuration'),
-        );
-        $this->templates = array(
-            '<input type="checkbox" name="printers[]" value="${printer_id}" '
-            . 'class="toggle-print" id="printer-${printer_id}"/>'
-            . '<label for="printer-${printer_id}"></label>',
-            '<input class="default" type="radio" name="default" '
-            . 'id="printer${printer_id}" value="${printer_id}"/>'
-            . '<label for="printer${printer_id}" class="icon icon-hand" '
-            . 'title="'
-            . _('Default Printer Selector')
-            . '">&nbsp;</label><input type="hidden" name="printerid[]"/>',
-            '<a href="?node=printer&sub=edit&id=${printer_id}">'
-            . '${printer_name}</a>',
-            '${printer_type}',
-        );
-        $this->attributes = array(
-            array('width'=>16,'class'=>'filter-false'),
-            array('width'=>16,'class'=>'filter-false'),
-            array(),
-            array(),
-        );
-        foreach ((array)self::getClass('PrinterManager')
-            ->find() as &$Printer
-        ) {
-            $this->data[] = array(
-                'printer_id'=>$Printer->get('id'),
-                'printer_name'=>$Printer->get('name'),
-                'printer_type'=>$Printer->get('config'),
-            );
-            unset($Printer);
-        }
-        $inputupdate = '';
-        if (count($this->data) > 0) {
-            printf(
-                '<h2>%s</h2>',
-                _('Printer association(s)')
-            );
-            $inputupdate = sprintf(
-                '<p class="c"><input type="submit" value="%s" '
-                . 'name="add"/>&nbsp<input type="submit" value="%s"'
-                . ' name="remove"/><br/><br/><input type="submit" '
-                . 'value="%s" name="update"/></p>',
-                self::$foglang['Add'],
-                self::$foglang['Remove'],
-                _('Update')
-            );
-        }
-        self::$HookManager->processEvent(
-            'GROUP_PRINTER',
-            array(
-                'data' => &$this->data,
-                'templates' => &$this->templates,
-                'headerData' => &$this->headerData,
-                'attributes' => &$this->attributes,
-                'inputupdate' => &$inputupdate
-            )
-        );
-        $this->render();
-        unset($this->data);
-        echo "$inputupdate</form></div>";
+        $this->groupPrinters();
         echo '<!-- Snapins --><div id="group-snapins" class="tab-pane fade">';
         printf('<h2>%s</h2>', _('Snapins'));
         $this->headerData = array(

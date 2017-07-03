@@ -1380,8 +1380,8 @@ class HostManagementPage extends FOGPage
             . $this->formAction
             . '&tab=host-printers">';
         echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading">';
-        echo '<h4 class="title text-center">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
         echo _('Host printer configuration');
         echo '</h4>';
         echo '</div>';
@@ -1394,7 +1394,7 @@ class HostManagementPage extends FOGPage
         echo '<label for="nolevel" data-toggle="tooltip" data-placement="left" '
             . 'title="'
             . _('This setting turns off all FOG Printer Management')
-            . '.'
+            . '. '
             . _('Although there are multiple levels already')
             . ' '
             . _('between host and global settings')
@@ -1447,7 +1447,7 @@ class HostManagementPage extends FOGPage
                 . 'removed including non-FOG managed printers.'
             )
             . '">';
-        echo '<input type="radio" name="level" value="1" '
+        echo '<input type="radio" name="level" value="2" '
             . 'id="alllevel"'
             . (
                 $this->obj->get('printerLevel') == 2 ?
