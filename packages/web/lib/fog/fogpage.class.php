@@ -3876,6 +3876,7 @@ abstract class FOGPage extends FOGBase
      * @param array  $items    The items to generate.
      * @param string $selected The item to select.
      * @param bool   $useidsel Use id of array as selector/value.
+     * @param string $addClass Add additional Classes.
      *
      * @return string
      */
@@ -3883,11 +3884,18 @@ abstract class FOGPage extends FOGBase
         $name,
         $items = array(),
         $selected = '',
-        $useidsel = false
+        $useidsel = false,
+        $addClass = ''
     ) {
         ob_start();
         printf(
-            '<select class="form-control" id="%s" name="%s">'
+            '<select class="form-control'
+            . (
+                $addClass ?
+                " $addClass" :
+                ''
+            )
+            . '" id="%s" name="%s">'
             . '<option value="">- %s -</option>',
             $name,
             $name,
