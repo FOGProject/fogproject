@@ -82,6 +82,12 @@ function UpdateLoginGraphPlot(data) {
     $.plot(LoginHistory, LoginHistoryData, LoginHistoryOpts);
 }
 $(function() {
+    LoginHistoryDate.on('change', function(e) {
+        this.form.submit();
+    });
+    $('a.loghist-date, .delvid').click(function(e) {
+        $(this).parents('form').submit();
+    });
     $('#resetSecData').val('Reset Encryption Data');
     $('#resetSecData').on('click', function() {
         $('#resetSecDataBox').html('Are you sure you wish to reset this hosts encryption data?');
@@ -177,11 +183,5 @@ $(function() {
         }).blur(function() {
             if (!validateCronInputs($(this))) $(this).addClass('error');
         });
-    });
-    $('select.loghist-date').change(function(e) {
-        this.form.submit();
-    });
-    $('a.loghist-date, .delvid').click(function(e) {
-        $(this).parents('form').submit();
     });
 });

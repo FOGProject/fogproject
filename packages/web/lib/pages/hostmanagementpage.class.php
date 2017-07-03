@@ -2235,6 +2235,754 @@ class HostManagementPage extends FOGPage
         );
     }
     /**
+     * Displays Host Inventory
+     *
+     * @return void
+     */
+    public function hostInventory()
+    {
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
+        $this->attributes = array(
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
+        );
+        $this->templates = array(
+            '${field}',
+            '${input}',
+        );
+        $cpus = array('cpuman', 'spuversion');
+        foreach ($cpus as &$x) {
+            $this->obj->get('inventory')
+                ->set(
+                    $x,
+                    implode(
+                        ' ',
+                        array_unique(
+                            explode(
+                                ' ',
+                                $this->obj->get('inventory')->get($x)
+                            )
+                        )
+                    )
+                );
+            unset($x);
+        }
+        $Inv = $this->obj->get('inventory');
+        $puser = $Inv->get('primaryUser');
+        $other1 = $Inv->get('other1');
+        $other2 = $Inv->get('other2');
+        $sysman = $Inv->get('sysman');
+        $sysprod = $Inv->get('sysproduct');
+        $sysver = $Inv->get('sysversion');
+        $sysser = $Inv->get('sysserial');
+        $systype = $Inv->get('systype');
+        $sysuuid = $Inv->get('sysuuid');
+        $biosven = $Inv->get('biosvendor');
+        $biosver = $Inv->get('biosversion');
+        $biosdate = $Inv->get('biosdate');
+        $mbman = $Inv->get('mbman');
+        $mbprod = $Inv->get('mbproductname');
+        $mbver = $Inv->get('mbversion');
+        $mbser = $Inv->get('mbserial');
+        $mbast = $Inv->get('mbasset');
+        $cpuman = $Inv->get('cpuman');
+        $cpuver = $Inv->get('cpuversion');
+        $cpucur = $Inv->get('cpucurrent');
+        $cpumax = $Inv->get('cpumax');
+        $mem = $Inv->getMem();
+        $hdmod = $Inv->get('hdmodel');
+        $hdfirm = $Inv->get('hdfirmware');
+        $hdser = $Inv->get('hdserial');
+        $caseman = $Inv->get('caseman');
+        $casever = $Inv->get('caseversion');
+        $caseser = $Inv->get('caseserial');
+        $caseast = $Inv->get('caseasset');
+        $fields = array(
+            '<label for="pu">'
+            . _('Primary User')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" value="'
+            . $puser
+            . '" name="pu" id="pu"/>'
+            . '</div>',
+            '<label for="other1"/>'
+            . _('Other Tag #1')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" value="'
+            . $other1
+            . '" name="other1" id="other1"/>'
+            . '</div>',
+            '<label for="other2"/>'
+            . _('Other Tag #2')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" value="'
+            . $other1
+            . '" name="other2" id="other2"/>'
+            . '</div>',
+            _('System Manufacturer') => $sysman,
+            _('System Product') => $sysprod,
+            _('System Version') => $sysver,
+            _('System Serial Number') => $sysser,
+            _('System UUID') => $sysuuid,
+            _('System Type') => $systype,
+            _('BIOS Vendor') => $biosven,
+            _('BIOS Version') => $biosver,
+            _('BIOS Date') => $biosdate,
+            _('Motherboard Manufacturer') => $mbman,
+            _('Motherboard Product Name') => $mbprod,
+            _('Motherboard Version') => $mbver,
+            _('Motherboard Serial Number') => $mbser,
+            _('Motherboard Asset Tag') => $mbast,
+            _('CPU Manufacturer') => $cpuman,
+            _('CPU Version') => $cpuver,
+            _('CPU Normal Speed') => $cpucur,
+            _('CPU Max Speed') => $cpumax,
+            _('Memory') => $mem,
+            _('Hard Disk Model') => $hdmod,
+            _('Hard Disk Firmware') => $hdfirm,
+            _('Hard Disk Serial Number') => $hdser,
+            _('Chassis Manufacturer') => $caseman,
+            _('Chassis Version') => $casever,
+            _('Chassis Serial') => $caseser,
+            _('Chassis Asset') => $caseast,
+            '<label for="updateinv">'
+            . _('Make Changes?')
+            . '</label>' => '<button name="update" type="submit" class="'
+            . 'btn btn-info btn-block" id="updateinv">'
+            . _('Update')
+            . '</button>'
+        );
+        $this->title = _('Host Hardware Inventory');
+        if ($this->obj->get('inventory')->isValid()) {
+            array_walk($fields, $this->fieldsToData);
+        }
+        self::$HookManager
+            ->processEvent(
+                'HOST_INVENTORY',
+                array(
+                    'headerData' => &$this->headerData,
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes
+                )
+            );
+        echo '<!-- Inventory -->';
+        echo '<div class="tab-pane fade" id="host-hardware-inventory">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '&tab=host-hardware-inventory">';
+        $this->render(12);
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
+    }
+    /**
+     * Display host virus information.
+     *
+     * @return void
+     */
+    public function hostVirus()
+    {
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
+        $this->headerData = array(
+            _('Virus Name'),
+            _('File'),
+            _('Mode'),
+            _('Date'),
+            _('Clear'),
+        );
+        $this->attributes = array(
+            array(),
+            array(),
+            array(),
+            array(),
+            array(),
+        );
+        $this->templates = array(
+            '<a href="http://www.google.com/search?q='
+            . '${virus_name}" target="_blank">${virus_name}</a>',
+            '${virus_file}',
+            '${virus_mode}',
+            '${virus_date}',
+            sprintf(
+                '<input type="checkbox" id="vir_del${virus_id}" '
+                . 'class="delvid" name="delvidarr[]" value="${virus_id}"/>'
+                . '<label for="${virus_id}" class="icon icon-hand" '
+                . 'title="%s ${virus_name}">'
+                . '<i class="icon fa fa-minus-circle link"></i>'
+                . '</label>',
+                _('Delete')
+            ),
+        );
+        Route::listem('virus');
+        $Viruses = json_decode(
+            Route::getData()
+        );
+        $Viruses = $Viruses->viruss;
+        foreach ((array)$Viruses as &$Virus) {
+            if (!in_array($Virus->mac, $this->obj->getMyMacs())) {
+                continue;
+            }
+            switch (strtolower($Virus->mode)) {
+            case 'q':
+                $mode = _('Quarantine');
+                break;
+            case 's':
+                $mode = _('Report');
+                break;
+            default:
+                $mode = _('N/A');
+                break;
+            }
+            $this->data[] = array(
+                'virus_name' => $Virus->name,
+                'virus_file' => $Virus->file,
+                'virus_mode' => $mode,
+                'virus_date' => $Virus->date,
+                'virus_id' => $Virus->id,
+            );
+            unset($Virus);
+        }
+        self::$HookManager
+            ->processEvent(
+                'HOST_VIRUS',
+                array(
+                    'headerData' => &$this->headerData,
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes
+                )
+            );
+        $paneltype = 'info';
+        if (count($this->data) > 0) {
+            $paneltype = 'warning';
+        }
+        echo '<!-- Virus -->';
+        echo '<div class="tab-pane fade" id="host-virus-history">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Host Virus History');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '&tab=host-virus-history">';
+        echo '<h4 class="title text-center">';
+        echo '<a href="#">';
+        echo '<div class="checkbox">';
+        echo '<label for="all">';
+        echo '<input type="checkbox" class="delvid" id="all" '
+            . 'name="delvid" value="all"/>';
+        echo _('Clear all history');
+        echo '</label>';
+        echo '</div>';
+        echo '</a>';
+        echo '</h4>';
+        echo '<div class="panel panel-'
+            . $paneltype
+            . '">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Virus Report');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        $this->render(12);
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
+    }
+    /**
+     * Display Login History for Host.
+     *
+     * @return void
+     */
+    public function hostLoginHistory()
+    {
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
+        $this->headerData = array(
+            _('Time'),
+            _('Action'),
+            _('Username'),
+            _('Description')
+        );
+        $this->attributes = array(
+            array(),
+            array(),
+            array(),
+            array(),
+        );
+        $this->templates = array(
+            '${user_time}',
+            '${action}',
+            '${user_name}',
+            '${user_desc}',
+        );
+        $dte = filter_input(INPUT_GET, 'dte');
+        if (!$dte) {
+            self::niceDate()->format('Y-m-d');
+        }
+        $Dates = self::getSubObjectIDs(
+            'UserTracking',
+            array(
+                'id' => $this->obj->get('users')
+            ),
+            'date'
+        );
+        if (count($Dates) > 0) {
+            rsort($Dates);
+            $dateSel = self::selectForm(
+                'dte',
+                $Dates,
+                $dte,
+                false,
+                'loghist-date'
+            );
+        }
+        Route::listem('usertracking');
+        $UserLogins = json_decode(
+            Route::getData()
+        );
+        $UserLogins = $UserLogins->usertrackings;
+        $Data = array();
+        foreach ((array)$UserLogins as &$UserLogin) {
+            if ($UserLogin->hostID != $this->obj->get('id')
+                || $UserLogin->date != $dte
+                || !in_array($UserLogin->action, array('', 0, 1))
+            ) {
+                continue;
+            }
+            $time = self::niceDate(
+                $UserLogin->datetime
+            )->format('U');
+            if (!isset($Data[$UserLogin->username])) {
+                $Data[$UserLogin->username] = array();
+            }
+            if (array_key_exists('login', $Data[$UserLogin->username])) {
+                if ($UserLogin->action > 0) {
+                    $this->data[] = array(
+                        'action' => _('Logout'),
+                        'user_name' => $UserLogin->username,
+                        'user_time' => (
+                            self::niceDate()
+                            ->setTimestamp($time - 1)
+                            ->format('Y-m-d H:i:s')
+                        ),
+                        'user_desc' => _('Logout not found')
+                        . '<br/>'
+                        . _('Setting logout to one second prior to next login')
+                    );
+                    $Data[$UserLogin->username] = array();
+                }
+            }
+            if ($UserLogin->action > 0) {
+                $Data[$UserLogin->username]['login'] = true;
+                $this->data[] = array(
+                    'action' => _('Login'),
+                    'user_name' => $UserLogin->username,
+                    'user_time' => (
+                        self::niceDate()
+                        ->setTimestamp($time)
+                        ->format('Y-m-d H:i:s')
+                    ),
+                    'user_desc' => $UserLogin->description
+                );
+            } elseif ($UserLogin->action < 1) {
+                $this->data[] = array(
+                    'action' => _('Logout'),
+                    'user_name' => $UserLogin->username,
+                    'user_time' => (
+                        self::niceDate()
+                        ->setTimestamp($time)
+                        ->format('Y-m-d H:i:s')
+                    ),
+                    'user_desc' => $UserLogin->description
+                );
+                $Data[$UserLogin->username] = array();
+            }
+            unset($UserLogin);
+        }
+        self::$HookManager
+            ->processEvent(
+                'HOST_USER_LOGIN',
+                array(
+                    'headerData' => &$this->headerData,
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes
+                )
+            );
+        echo '<!-- Login History -->';
+        echo '<div class="tab-pane fade" id="host-login-history">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Host Login History');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '&tab=host-login-history">';
+        if (count($Dates) > 0) {
+            echo '<div class="form-group">';
+            echo '<label class="control-label col-xs-4" for="dte">';
+            echo _('View History For');
+            echo '</label>';
+            echo '<div class="col-xs-8">';
+            echo $dateSel;
+            echo '</div>';
+            echo '</div>';
+        }
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Selected Logins');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        $this->render(12);
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('History Graph');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body" id="login-history">';
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
+    }
+    /**
+     * Display host imaging history.
+     *
+     * @return void
+     */
+    public function hostImageHistory()
+    {
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
+        $this->headerData = array(
+            _('Engineer'),
+            _('Imaged From'),
+            _('Start'),
+            _('End'),
+            _('Duration'),
+            _('Image'),
+            _('Type'),
+            _('State'),
+        );
+        $this->templates = array(
+            '${createdBy}',
+            sprintf(
+                '<small>%s: ${group_name}</small><br/><small>%s: '
+                . '${node_name}</small>',
+                _('Storage Group'),
+                _('Storage Node')
+            ),
+            '<small>${start_date}</small><br/><small>${start_time}</small>',
+            '<small>${end_date}</small><br/><small>${end_time}</small>',
+            '${duration}',
+            '${image_name}',
+            '${type}',
+            '${state}',
+        );
+        $this->attributes = array(
+            array(),
+            array(),
+            array(),
+            array(),
+            array(),
+            array(),
+            array(),
+            array(),
+        );
+        Route::listem('imaginglog');
+        $Logs = json_decode(
+            Route::getData()
+        );
+        $Logs = $Logs->imaginglogs;
+        $imgTypes = array(
+            'up' => _('Capture'),
+            'down' => _('Deploy'),
+        );
+        foreach ((array)$Logs as &$Log) {
+            if ($Log->hostID != $this->obj->get('id')) {
+                continue;
+            }
+            $start = $Log->start;
+            $finish = $Log->finish;
+            if (!self::validDate($start)
+                || !self::validDate($finish)
+            ) {
+                continue;
+            }
+            $diff = self::diff($start, $finish);
+            $start = self::niceDate($start);
+            $finish = self::niceDate($finish);
+            $TaskIDs = self::getSubObjectIDs(
+                'Task',
+                array(
+                    'checkInTime' => $Log->start,
+                    'hostID' => $this->obj->get('id')
+                )
+            );
+            $taskID = @max($TaskIDs);
+            if (!$taskID) {
+                continue;
+            }
+            Route::indiv('task', $taskID);
+            $Task = json_decode(
+                Route::getData()
+            );
+            $groupName = $Task->storagegroup->name;
+            $nodeName = $Task->storagenode->name;
+            $typeName = $Task->type->name;
+            if (!$typeName) {
+                $typeName = $Log->type;
+            }
+            if (in_array($typeName, array('up', 'down'))) {
+                $typeName = $imgTypes[$typeName];
+            }
+            $stateName = $Task->state->name;
+            unset($Task);
+            $createdBy = (
+                $log->createdBy ?:
+                self::$FOGUser->get('name')
+            );
+            $Image = $Log->image;
+            if (!$Image->id) {
+                $imgName = $Image;
+                $imgPath = _('N/A');
+            } else {
+                $imgName = $Image->name;
+                $imgPath = $Image->path;
+            }
+            $this->data[] = array(
+                'createdBy' => $createdBy,
+                'group_name' => $groupName,
+                'node_name' => $nodeName,
+                'start_date' => $start->format('Y-m-d'),
+                'start_time' => $start->format('H:i:s'),
+                'end_date' => $finish->format('Y-m-d'),
+                'end_time' => $finish->format('H:i:s'),
+                'duration' => $diff,
+                'image_name' => $imgName,
+                'type' => $typeName,
+                'state' => $stateName,
+            );
+            unset($Image, $Log);
+        }
+        self::$HookManager
+            ->processEvent(
+                'HOST_IMAGE_HIST',
+                array(
+                    'headerData' => &$this->headerData,
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes
+                )
+            );
+        echo '<!-- Image History -->';
+        echo '<div class="tab-pane fade" id="host-image-history">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Host Imaging History');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        $this->render(12);
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
+    }
+    /**
+     * Display host snapin history
+     *
+     * @return void
+     */
+    public function hostSnapinHistory()
+    {
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
+        $this->headerData = array(
+            _('Snapin Name'),
+            _('Start Time'),
+            _('Complete'),
+            _('Duration'),
+            _('Return Code')
+        );
+        $this->templates = array(
+            '${snapin_name}',
+            '${snapin_start}',
+            '${snapin_end}',
+            '${snapin_duration}',
+            '${snapin_return}'
+        );
+        $this->attributes = array(
+            array(),
+            array(),
+            array(),
+            array(),
+            array()
+        );
+        $SnapinJobIDs = self::getSubObjectIDs(
+            'SnapinJob',
+            array(
+                'hostID' => $this->obj->get('id')
+            )
+        );
+        $doneStates = array(
+            self::getCompleteState(),
+            self::getCancelledState()
+        );
+        Route::listem('snapintask');
+        $SnapinTasks = json_decode(
+            Route::getData()
+        );
+        $SnapinTasks = $SnapinTasks->snapintasks;
+        foreach ((array)$SnapinTasks as &$SnapinTask) {
+            if (!in_array($SnapinTask->jobID, $SnapinJobIDs)) {
+                continue;
+            }
+            $Snapin = $SnapinTask->snapin;
+            $start = self::niceDate($SnapinTask->checkin);
+            $end = self::niceDate($SnapinTask->complete);
+            if (!self::validDate($start)) {
+                continue;
+            }
+            if (!in_array($SnapinTask->stateID, $doneStates)) {
+                $diff = _('Snapin task not completed');
+            } elseif (!self::validDate($end)) {
+                $diff = _('No complete time recorded');
+            } else {
+                $diff = self::diff($start, $end);
+            }
+            $this->data[] = array(
+                'snapin_name' => $Snapin->name,
+                'snapin_start' => self::formatTime(
+                    $SnapinTask->checkin,
+                    'Y-m-d H:i:s'
+                ),
+                'snapin_end' => sprintf(
+                    '<span class="icon" title="%s">%s</span>',
+                    self::formatTime(
+                        $SnapinTask->complete,
+                        'Y-m-d H:i:s'
+                    ),
+                    $SnapinTask->state->name
+                ),
+                'snapin_duration' => $diff,
+                'snapin_return'=> $SnapinTask->return,
+            );
+            unset($SnapinTask);
+        }
+        self::$HookManager
+            ->processEvent(
+                'HOST_SNAPIN_HIST',
+                array(
+                    'headerData' => &$this->headerData,
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes
+                )
+            );
+        echo '<div class="tab-pane fade" id="host-snapin-history">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Host Snapin History');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        $this->render(12);
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
+    }
+    /**
      * Edits an existing item.
      *
      * @return void
@@ -2254,11 +3002,11 @@ class HostManagementPage extends FOGPage
                     'pending',
                     0
                 );
-            /*if ($this->obj->save()) {
+            if ($this->obj->save()) {
                 self::setMessage(_('Host approved'));
             } else {
                 self::setMessage(_('Host approval failed.'));
-            }*/
+            }
             self::redirect(
                 '?node='
                 . $this->node
@@ -2354,580 +3102,12 @@ class HostManagementPage extends FOGPage
         $this->hostSnapins();
         $this->hostService();
         $this->hostPMDisplay();
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
-        echo '<!-- Inventory -->';
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
-        );
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
-        $cpus = array('cpuman', 'spuversion');
-        foreach ($cpus as &$x) {
-            $this->obj->get('inventory')
-                ->set(
-                    $x,
-                    implode(
-                        ' ',
-                        array_unique(
-                            explode(
-                                ' ',
-                                $this->obj->get('inventory')->get($x)
-                            )
-                        )
-                    )
-                );
-            unset($x);
-        }
-        $Inv = $this->obj->get('inventory');
-        $puser = $Inv->get('primaryUser');
-        $other1 = $Inv->get('other1');
-        $other2 = $Inv->get('other2');
-        $sysman = $Inv->get('sysman');
-        $sysprod = $Inv->get('sysproduct');
-        $sysver = $Inv->get('sysversion');
-        $sysser = $Inv->get('sysserial');
-        $systype = $Inv->get('systype');
-        $sysuuid = $Inv->get('sysuuid');
-        $biosven = $Inv->get('biosvendor');
-        $biosver = $Inv->get('biosversion');
-        $biosdate = $Inv->get('biosdate');
-        $mbman = $Inv->get('mbman');
-        $mbprod = $Inv->get('mbproductname');
-        $mbver = $Inv->get('mbversion');
-        $mbser = $Inv->get('mbserial');
-        $mbast = $Inv->get('mbasset');
-        $cpuman = $Inv->get('cpuman');
-        $cpuver = $Inv->get('cpuversion');
-        $cpucur = $Inv->get('cpucurrent');
-        $cpumax = $Inv->get('cpumax');
-        $mem = $Inv->getMem();
-        $hdmod = $Inv->get('hdmodel');
-        $hdfirm = $Inv->get('hdfirmware');
-        $hdser = $Inv->get('hdserial');
-        $caseman = $Inv->get('caseman');
-        $casever = $Inv->get('caseversion');
-        $caseser = $Inv->get('caseserial');
-        $caseast = $Inv->get('caseasset');
-        $fields = array(
-            _('Primary User') => sprintf(
-                '<input type="text" value="%s" name="pu"/>',
-                $puser
-            ),
-            _('Other Tag #1') => sprintf(
-                '<input type="text" value="%s" name="other1"/>',
-                $other1
-            ),
-            _('Other Tag #2') => sprintf(
-                '<input type="text" value="%s" name="other2"/>',
-                $other2
-            ),
-            _('System Manufacturer') => $sysman,
-            _('System Product') => $sysprod,
-            _('System Version') => $sysver,
-            _('System Serial Number') => $sysser,
-            _('System UUID') => $sysuuid,
-            _('System Type') => $systype,
-            _('BIOS Vendor') => $biosven,
-            _('BIOS Version') => $biosver,
-            _('BIOS Date') => $biosdate,
-            _('Motherboard Manufacturer') => $mbman,
-            _('Motherboard Product Name') => $mbprod,
-            _('Motherboard Version') => $mbver,
-            _('Motherboard Serial Number') => $mbser,
-            _('Motherboard Asset Tag') => $mbast,
-            _('CPU Manufacturer') => $cpuman,
-            _('CPU Version') => $cpuver,
-            _('CPU Normal Speed') => $cpucur,
-            _('CPU Max Speed') => $cpumax,
-            _('Memory') => $mem,
-            _('Hard Disk Model') => $hdmod,
-            _('Hard Disk Firmware') => $hdfirm,
-            _('Hard Disk Serial Number') => $hdser,
-            _('Chassis Manufacturer') => $caseman,
-            _('Chassis Version') => $casever,
-            _('Chassis Serial') => $caseser,
-            _('Chassis Asset') => $caseast,
-            '&nbsp;' => sprintf(
-                '<button name="update" type="submit" class="'
-                . 'btn btn-info btn-block">%s</button>',
-                _('Update')
-            ),
-        );
-        printf(
-            '<div id="host-hardware-inventory" class="tab-pane fade">'
-            . '<form method="post" action="%s&tab=host-hardware-inventory">'
-            . '<h2>%s</h2>',
-            $this->formAction,
-            _('Host Hardware Inventory')
-        );
-        if ($this->obj->get('inventory')->isValid()) {
-            array_walk($fields, $this->fieldsToData);
-        }
-        self::$HookManager
-            ->processEvent(
-                'HOST_INVENTORY',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        $this->render();
-        unset($this->data, $fields);
-        echo '</form></div><!-- Virus -->';
-        $this->headerData = array(
-            _('Virus Name'),
-            _('File'),
-            _('Mode'),
-            _('Date'),
-            _('Clear'),
-        );
-        $this->attributes = array(
-            array(),
-            array(),
-            array(),
-            array(),
-            array(),
-        );
-        $this->templates = array(
-            '<a href="http://www.google.com/search?q='
-            . '${virus_name}" target="_blank">${virus_name}</a>',
-            '${virus_file}',
-            '${virus_mode}',
-            '${virus_date}',
-            sprintf(
-                '<input type="checkbox" id="vir_del${virus_id}" '
-                . 'class="delvid" name="delvid" value="${virus_id}"/>'
-                . '<label for="${virus_id}" class="icon icon-hand" '
-                . 'title="%s ${virus_name}">'
-                . '<i class="icon fa fa-minus-circle link"></i>'
-                . '</label>',
-                _('Delete')
-            ),
-        );
-        printf(
-            '<div id="host-virus-history" class="tab-pane fade">'
-            . '<form method="post" action="%s&tab=host-virus-history">'
-            . '<h2>%s</h2>'
-            . '<h2><a href="#">'
-            . '<input type="checkbox" class="delvid" id="all" '
-            . 'name="delvid" value="all"/>'
-            . '<label for="all">(%s)</label></a></h2>',
-            $this->formAction,
-            _('Virus History'),
-            _('clear all history')
-        );
-        $virHists = self::getClass('VirusManager')
-            ->find(
-                array(
-                    'mac' => $this->obj->getMyMacs()
-                ),
-                'OR'
-            );
-        foreach ((array)$virHists as &$Virus) {
-            if (!$Virus->isValid()) {
-                continue;
-            }
-            switch (strtolower($Virus->get('mode'))) {
-            case 'q':
-                $mode = _('Quarantine');
-                break;
-            case 's':
-                $mode = _('Report');
-                break;
-            default:
-                $mode = _('N/A');
-            }
-            $this->data[] = array(
-                'virus_name' => $Virus->get('name'),
-                'virus_file' => $Virus->get('file'),
-                'virus_mode' => $mode,
-                'virus_date' => $Virus->get('date'),
-                'virus_id' => $Virus->get('id'),
-            );
-            unset($Virus);
-        }
-        self::$HookManager
-            ->processEvent(
-                'HOST_VIRUS',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        $this->render();
-        unset($this->data, $this->headerData);
-        printf(
-            '</form></div>'
-            . '<!-- Login History --><div id="host-login-history" class='
-            . '"tab-pane fade">'
-            . '<h2>%s</h2>'
-            . '<form id="dte" method="post" action="%s&tab=host-login-history">',
-            _('Host Login History'),
-            $this->formAction
-        );
-        $this->headerData = array(
-            _('Time'),
-            _('Action'),
-            _('Username'),
-            _('Description')
-        );
-        $this->attributes = array(
-            array(),
-            array(),
-            array(),
-            array(),
-        );
-        $this->templates = array(
-            '${user_time}',
-            '${action}',
-            '${user_name}',
-            '${user_desc}',
-        );
-        $Dates = self::getSubObjectIDs(
-            'UserTracking',
-            array(
-                'id' => $this->obj->get('users')
-            ),
-            'date'
-        );
-        if (count($Dates) > 0) {
-            rsort($Dates);
-            printf(
-                '<p>%s</p>',
-                _('View History for')
-            );
-            ob_start();
-            foreach ((array)$Dates as $i => &$Date) {
-                if ($_REQUEST['dte'] == '') {
-                    $_REQUEST['dte'] = $Date;
-                }
-                printf(
-                    '<option value="%s"%s>%s</option>',
-                    $Date,
-                    (
-                        $Date == $_REQUEST['dte'] ?
-                        ' selected' :
-                        ''
-                    ),
-                    $Date
-                );
-                unset($Date);
-            }
-            unset($Dates);
-            printf(
-                '<select name="dte" class="loghist-date" size="1">'
-                . '%s</select><a class="loghist-date" href="#">'
-                . '<i class="icon fa fa-play noBorder"></i></a></p>',
-                ob_get_clean()
-            );
-            $UserLogins = self::getClass('UserTrackingManager')
-                ->find(
-                    array(
-                        'hostID' => $this->obj->get('id'),
-                        'date' => $_REQUEST['dte'],
-                        'action' => array(
-                            '',
-                            0,
-                            1
-                        )
-                    ),
-                    'AND',
-                    array('username','datetime','action'),
-                    array('ASC','ASC','DESC')
-                );
-            $Data = array();
-            foreach ((array)$UserLogins as &$Login) {
-                $time = self::niceDate($Login->get('datetime'))
-                    ->format('U');
-                if (!isset($Data[$Login->get('username')])) {
-                    $Data[$Login->get('username')] = array();
-                }
-                if (array_key_exists('login', $Data[$Login->get('username')])) {
-                    if ($Login->get('action') > 0) {
-                        $this->data[] = array(
-                            'action' => _('Logout'),
-                            'user_name' => $Login->get('username'),
-                            'user_time' => (
-                                self::niceDate()
-                                ->setTimestamp($time - 1)
-                                ->format('Y-m-d H:i:s')
-                            ),
-                            'user_desc' => sprintf(
-                                '%s.<br/><small>%s.</small>',
-                                _('Logout not found'),
-                                _('Setting logout to one second prior to next login')
-                            )
-                        );
-                        $Data[$Login->get('username')] = array();
-                    }
-                }
-                if ($Login->get('action') > 0) {
-                    $Data[$Login->get('username')]['login'] = true;
-                    $this->data[] = array(
-                        'action' => _('Login'),
-                        'user_name' => $Login->get('username'),
-                        'user_time' => (
-                            self::niceDate()
-                            ->setTimestamp($time)
-                            ->format('Y-m-d H:i:s')
-                        ),
-                        'user_desc' => $Login->get('description')
-                    );
-                } elseif ($Login->get('action') < 1) {
-                    $this->data[] = array(
-                        'action' => _('Logout'),
-                        'user_name' => $Login->get('username'),
-                        'user_time' => (
-                            self::niceDate()
-                            ->setTimestamp($time)
-                            ->format('Y-m-d H:i:s')
-                        ),
-                        'user_desc' => $Login->get('description')
-                    );
-                    $Data[$Login->get('username')] = array();
-                }
-                unset($Login);
-            }
-            self::$HookManager
-                ->processEvent(
-                    'HOST_USER_LOGIN',
-                    array(
-                        'headerData' => &$this->headerData,
-                        'data' => &$this->data,
-                        'templates' => &$this->templates,
-                        'attributes' => &$this->attributes
-                    )
-                );
-            $this->render();
-        } else {
-            printf('<p>%s</p>', _('No user history data found!'));
-        }
-        unset($this->data, $this->headerData);
-        printf(
-            '<div id="login-history"/></div></form>'
-            . '</div><div id="host-image-history" class="tab-pane fade">'
-            . '<h2>%s</h2>',
-            _('Host Imaging History')
-        );
-        $this->headerData = array(
-            _('Engineer'),
-            _('Imaged From'),
-            _('Start'),
-            _('End'),
-            _('Duration'),
-            _('Image'),
-            _('Type'),
-            _('State'),
-        );
-        $this->templates = array(
-            '${createdBy}',
-            sprintf(
-                '<small>%s: ${group_name}</small><br/><small>%s: '
-                . '${node_name}</small>',
-                _('Storage Group'),
-                _('Storage Node')
-            ),
-            '<small>${start_date}</small><br/><small>${start_time}</small>',
-            '<small>${end_date}</small><br/><small>${end_time}</small>',
-            '${duration}',
-            '${image_name}',
-            '${type}',
-            '${state}',
-        );
-        $this->attributes = array(
-            array(),
-            array(),
-            array(),
-            array(),
-            array(),
-            array(),
-            array(),
-            array(),
-        );
-        $imagingLogs = self::getClass('ImagingLogManager')
-            ->find(
-                array(
-                    'hostID' => $this->obj->get('id')
-                )
-            );
-        $imgTypes = array(
-            'up' => _('Capture'),
-            'down' => _('Deploy'),
-        );
-        foreach ((array)$imagingLogs as &$log) {
-            if (!$log->isValid()) {
-                continue;
-            }
-            $start = $log->get('start');
-            $end = $log->get('finish');
-            if (!self::validDate($start) || !self::validDate($end)) {
-                continue;
-            }
-            $diff = self::diff($start, $end);
-            $start = self::niceDate($start);
-            $end = self::niceDate($end);
-            $TaskIDs = self::getSubObjectIDs(
-                'Task',
-                array(
-                    'checkInTime' => $log->get('start'),
-                    'hostID' => $this->obj->get('id')
-                )
-            );
-            $taskID = @max($TaskIDs);
-            unset($TaskIDs);
-            $Task = new Task($taskID);
-            if (!$Task->isValid()) {
-                continue;
-            }
-            $groupName = $Task->getStorageGroup()->get('name');
-            $nodeName = $Task->getStorageNode()->get('name');
-            $typeName = $Task->getTaskType()->get('name');
-            $stateName = $Task->getTaskState()->get('name');
-            unset($Task);
-            if (!$typeName) {
-                $typeName = $log->get('type');
-            }
-            if (in_array($typeName, array('up', 'downl'))) {
-                $typeName = $imgTypes[$typeName];
-            }
-            $createdBy = (
-                $log->get('createdBy') ?
-                $log->get('createdBy') :
-                self::$FOGUser->get('name')
-            );
-            $Image = self::getClass('Image')
-                ->set('name', $log->get('image'))
-                ->load('name');
-            if ($Image->isValid()) {
-                $imgName = $Image->get('name');
-                $imgPath = $Image->get('path');
-            } else {
-                $imgName = $log->get('image');
-                $imgPath = 'N/A';
-            }
-            unset($Image, $log);
-            $this->data[] = array(
-                'createdBy' => $createdBy,
-                'group_name' => $groupName,
-                'node_name' => $nodeName,
-                'start_date' => $start->format('Y-m-d'),
-                'start_time' => $start->format('H:i:s'),
-                'end_date' => $end->format('Y-m-d'),
-                'end_time' => $end->format('H:i:s'),
-                'duration' => $diff,
-                'image_name' => $imgName,
-                'type' => $typeName,
-                'state' => $stateName,
-            );
-        }
-        self::$HookManager
-            ->processEvent(
-                'HOST_IMAGE_HIST',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        $this->render();
-        unset($this->data);
-        echo '</div><div id="host-snapin-history" class="tab-pane fade">';
-        $this->headerData = array(
-            _('Snapin Name'),
-            _('Start Time'),
-            _('Complete'),
-            _('Duration'),
-            _('Return Code'),
-        );
-        $this->templates = array(
-            '${snapin_name}',
-            '${snapin_start}',
-            '${snapin_end}',
-            '${snapin_duration}',
-            '${snapin_return}',
-        );
-        $SnapinJobIDs = self::getSubObjectIDs(
-            'SnapinJob',
-            array(
-                'hostID' => $this->obj->get('id')
-            )
-        );
-        $SnapinTasks = self::getClass('SnapinTaskManager')
-            ->find(
-                array(
-                    'jobID' => $SnapinJobIDs
-                )
-            );
-        $doneStates = array(
-            self::getCompleteState(),
-            self::getCancelledState()
-        );
-        foreach ((array)$SnapinTasks as &$SnapinTask) {
-            if (!$SnapinTask->isValid()) {
-                continue;
-            }
-            $Snapin = $SnapinTask->getSnapin();
-            if (!$Snapin->isValid()) {
-                continue;
-            }
-            $start = self::niceDate($SnapinTask->get('checkin'));
-            $end = self::niceDate($SnapinTask->get('complete'));
-            if (!self::validDate($start)) {
-                continue;
-            }
-            if (!in_array($SnapinTask->get('stateID'), $doneStates)) {
-                $diff = _('Snapin task not completed');
-            } elseif (!self::validDate($end)) {
-                $diff = _('No complete time recorded');
-            } else {
-                $diff = self::diff($start, $end);
-            }
-            $this->data[] = array(
-                'snapin_name' => $Snapin->get('name'),
-                'snapin_start' => self::formatTime(
-                    $SnapinTask->get('checkin'), 'Y-m-d H:i:s'
-                ),
-                'snapin_end' => sprintf(
-                    '<span class="icon" title="%s">%s</span>',
-                    self::formatTime(
-                        $SnapinTask->get('complete'), 'Y-m-d H:i:s'
-                    ),
-                    self::getClass(
-                        'TaskState',
-                        $SnapinTask->get('stateID')
-                    )->get('name')
-                ),
-                'snapin_duration' => $diff,
-                'snapin_return'=> $SnapinTask->get('return'),
-            );
-            unset($Snapin, $SnapinTask);
-        }
-        self::$HookManager
-            ->processEvent(
-                'HOST_SNAPIN_HIST',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        $this->render();
-        echo '</div></div></div>';
+        $this->hostInventory();
+        $this->hostVirus();
+        $this->hostLoginHistory();
+        $this->hostImageHistory();
+        $this->hostSnapinHistory();
+        echo '</div>';
     }
     /**
      * Host active directory post element.
@@ -3223,6 +3403,39 @@ class HostManagementPage extends FOGPage
         }
     }
     /**
+     * Update the actual thing.
+     *
+     * @return void
+     */
+    public function hostServicePost()
+    {
+        $x = filter_input(INPUT_POST, 'x');
+        $y = filter_input(INPUT_POST, 'y');
+        $r = filter_input(INPUT_POST, 'r');
+        $tme = filter_input(INPUT_POST, 'tme');
+        $modOn = filter_input_array(
+            INPUT_POST,
+            array(
+                'modules' => array(
+                    'flags' => FILTER_REQUIRE_ARRAY
+                )
+            )
+        );
+        $modOn = $modOn['modules'];
+        $modOff = self::getSubObjectIDs(
+            'Module',
+            array(
+                'id' => $modOn
+            ),
+            'id',
+            true
+        );
+        $this->obj->addModule($modOn);
+        $this->obj->removeModule($modOff);
+        $this->obj->setDisp($x, $y, $r);
+        $this->obj->setAlo($tme);
+    }
+    /**
      * Updates the host when form is submitted
      *
      * @return void
@@ -3252,29 +3465,13 @@ class HostManagementPage extends FOGPage
                 $this->hostSnapinPost();
                 break;
             case 'host-service':
-                $x = $_REQUEST['x'];
-                $y = $_REQUEST['y'];
-                $r = $_REQUEST['r'];
-                $tme = $_REQUEST['tme'];
-                $modOn = (array)$_REQUEST['modules'];
-                $modOff = self::getSubObjectIDs(
-                    'Module',
-                    array(
-                        'id' => $modOn
-                    ),
-                    'id',
-                    true
-                );
-                $this->obj->addModule($modOn);
-                $this->obj->removeModule($modOff);
-                $this->obj->setDisp($x, $y, $r);
-                $this->obj->setAlo($tme);
+                $this->hostServicePost();
                 break;
             case 'host-hardware-inventory':
-                $pu = trim($_REQUEST['pu']);
-                $other1 = trim($_REQUEST['other1']);
-                $other2 = trim($_REQUEST['other2']);
-                if (isset($_REQUEST['update'])) {
+                $pu = filter_input(INPUT_POST, 'pu');
+                $other1 = filter_input(INPUT_POST, 'other1');
+                $other2 = filter_input(INPUT_POST, 'other2');
+                if (isset($_POST['update'])) {
                     $this->obj
                         ->get('inventory')
                         ->set('primaryUser', $pu)
@@ -3284,38 +3481,43 @@ class HostManagementPage extends FOGPage
                 }
                 break;
             case 'host-login-history':
+                $dte = filter_input(INPUT_POST, 'dte');
                 self::setMessage(_('Date Changed'));
                 self::redirect(
                     sprintf(
                         '?node=host&sub=edit&id=%s&dte=%s#%s',
                         $this->obj->get('id'),
-                        $_REQUEST['dte'],
-                        $_REQUEST['tab']
+                        $dte,
+                        $tab
                     )
                 );
                 break;
             case 'host-virus-history':
-                if (isset($_REQUEST['delvid'])
-                    && $_REQUEST['delvid'] == 'all'
-                ) {
+                $delvid = filter_input(INPUT_POST, 'delvid');
+                $delvidarr = filter_input_array(
+                    INPUT_POST,
+                    array(
+                        'delvidarr' => array(
+                            'flags' => FILTER_REQUIRE_ARRAY
+                        )
+                    )
+                );
+                $delvidarr = $delvidarr['delvidarr'];
+                if ($delvid == 'all') {
                     $this->obj->clearAVRecordsForHost();
-                    self::setMessage(
-                        _('All virus history cleared for this host')
-                    );
-                } elseif (isset($_REQUEST['delvid'])) {
+                } else {
                     self::getClass('VirusManager')
                         ->destroy(
                             array(
-                                'id' => $_REQUEST['delvid']
+                                'id' => $delvidarr
                             )
                         );
-                    self::setMessage(_('Selected virus history item cleaned'));
                 }
                 self::redirect(
                     sprintf(
                         '?node=host&sub=edit&id=%s#%s',
                         $this->obj->get('id'),
-                        $_REQUEST['tab']
+                        $tab
                     )
                 );
             }
@@ -3324,7 +3526,20 @@ class HostManagementPage extends FOGPage
             }
             $this->obj->setAD();
             if ($tab == 'host-general') {
-                $this->obj->ignore($_REQUEST['igimage'], $_REQUEST['igclient']);
+                $igstuff = filter_input_array(
+                    INPUT_POST,
+                    array(
+                        'igimage' => array(
+                            'flags' => FILTER_REQUIRE_ARRAY
+                        ),
+                        'igclient' => array(
+                            'flags' => FILTER_REQUIRE_ARRAY
+                        )
+                    )
+                );
+                $igimage = $igstuff['igimage'];
+                $igclient = $igstuff['igclient'];
+                $this->obj->ignore($igimage, $igclient);
             }
             $hook = 'HOST_EDIT_SUCCESS';
             $msg = _('Host updated');

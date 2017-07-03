@@ -1313,6 +1313,35 @@ class Route extends FOGBase
                 )
             );
             break;
+        case 'imaginglog':
+            $data = FOGCore::fastmerge(
+                $class->get(),
+                array(
+                    'host' => self::getter('host', $class->get('host')),
+                    'image' => (
+                        $class->get('images')->isValid() ?
+                        self::getter('image', $class->get('images')) :
+                        $class->get('image')
+                    )
+                )
+            );
+            unset($data['images']);
+            break;
+        case 'snapintask':
+            $data = FOGCore::fastmerge(
+                $class->get(),
+                array(
+                    'state' => self::getter(
+                        'taskstate',
+                        new TaskState($class->get('stateID'))
+                    ),
+                    'snapin' => self::getter(
+                        'snapin',
+                        new Snapin($class->get('snapinID'))
+                    )
+                )
+            );
+            break;
         default:
             $data = $class->get();
             break;
