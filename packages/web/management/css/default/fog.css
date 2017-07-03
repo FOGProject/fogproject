@@ -159,10 +159,37 @@ input[type=radio].default + label:before {
     padding:right: 8px;
     width: 23px;
 }
-input[type=radio] + label:before {
+input[type=radio].default + label:before {
     content: "\f10c";
 }
-input[type=radio]:checked + label:before {
+input[type=radio].default:checked + label:before {
+    content: "\f05d";
+}
+/**
+ * Virus checkbox thing.
+ */
+input[type=checkbox].delvid {
+    display: none;
+}
+input[type=checkbox].delvid + label {
+    display: block;
+}
+input[type=checkbox].delvid + label:before {
+    display: inline-block;
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    padding-right: 8px;
+    width: 23px;
+    color: red;
+}
+input[type=checkbox] + label:before {
+    content: "\f10c";
+}
+input[type=checkbox]:checked + label:before {
     content: "\f05d";
 }
 footer {

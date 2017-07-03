@@ -2499,9 +2499,9 @@ class HostManagementPage extends FOGPage
         echo '<h4 class="title text-center">';
         echo '<a href="#">';
         echo '<div class="checkbox">';
-        echo '<label for="all">';
         echo '<input type="checkbox" class="delvid" id="all" '
             . 'name="delvid" value="all"/>';
+        echo '<label for="all">';
         echo _('Clear all history');
         echo '</label>';
         echo '</div>';
