@@ -709,7 +709,7 @@ class ImageManagementPage extends FOGPage
     public function edit()
     {
         $this->title = sprintf('%s: %s', _('Edit'), $this->obj->get('name'));
-        echo '<div class="tab-content">';
+        echo '<div class="col-xs-9 tab-content">';
         unset($this->headerData);
         $this->attributes = array(
             array('class' => 'col-xs-4'),

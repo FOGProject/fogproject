@@ -576,7 +576,7 @@ class UserManagementPage extends FOGPage
         echo '<input type="text" name="fakeusernameremembered" class="fakes"/>';
         echo '<input type="password" name="fakepasswordremembered" class="fakes"/>';
         echo '</div>';
-        echo '<div class="col-xs-offset-3 tab-content">';
+        echo '<div class="col-xs-9 tab-content">';
         $this->userGeneral();
         $this->userChangePW();
         $this->userAPI();

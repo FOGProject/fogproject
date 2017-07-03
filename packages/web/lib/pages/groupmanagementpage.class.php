@@ -757,7 +757,7 @@ class GroupManagementPage extends FOGPage
             $Host->get('ADPassLegacy') :
             ''
         );
-        echo '<div class="col-xs-offset-3 tab-content">';
+        echo '<div class="col-xs-9 tab-content">';
         $this->groupGeneral();
         $this->groupImage();
         $this->basictasksOptions();
