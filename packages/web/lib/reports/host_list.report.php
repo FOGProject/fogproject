@@ -35,14 +35,14 @@ class Host_List extends ReportManagementPage
             _('Host Desc') => 'description',
             _('Host MAC') => 'mac',
             _('Host Created') => 'createdTime',
+            _('Host AD Join') => 'useAD',
+            _('Host AD OU') => 'ADOU',
+            _('Host AD Domain') => 'ADDomain',
+            _('Host Kernel') => 'kernel',
+            _('Host HD Device') => 'kernelDevice',
             _('Image ID') => 'id',
             _('Image Name') => 'name',
             _('Image Desc') => 'description',
-            _('AD Join') => 'useAD',
-            _('AD OU') => 'ADOU',
-            _('AD Domain') => 'ADDomain',
-            _('Kernel') => 'kernel',
-            _('HD Device') => 'kernelDevice',
             _('OS Name') => 'name',
         );
         foreach ((array)$csvHead as $csvHeader => &$classGet) {
@@ -87,7 +87,7 @@ class Host_List extends ReportManagementPage
                 case _('Image Desc'):
                     $this->ReportMaker->addCSVCell($imgDesc);
                     break;
-                case _('AD Join'):
+                case _('Host AD Join'):
                     $this->ReportMaker->addCSVCell(
                         (
                             $Host->useAD == 1 ?

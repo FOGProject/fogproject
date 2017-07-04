@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-04 14:50-0400\n"
+"POT-Creation-Date: 2017-07-04 16:17-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -996,9 +996,10 @@ msgstr "%s ID %s is not valid"
 #: /var/www/fog/lib/fog/fogpage.class.php:347
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1713
 #: /var/www/fog/lib/reports/snapin_log.report.php:75
+#: /var/www/fog/lib/reports/product_keys.report.php:33
 #: /var/www/fog/lib/reports/host_list.report.php:33
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:33
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:63
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:46
 #: /var/www/fog/lib/reports/imaging_log.report.php:52
 #: /var/www/fog/lib/reports/inventory_report.report.php:75
 msgid "Host ID"
@@ -1009,8 +1010,8 @@ msgstr "Host ID"
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1718
 #: /var/www/fog/lib/reports/virus_history.report.php:60
 #: /var/www/fog/lib/reports/virus_history.report.php:126
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:64
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:78
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:47
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:61
 #: /var/www/fog/lib/reports/inventory_report.report.php:41
 #: /var/www/fog/lib/reports/inventory_report.report.php:78
 msgid "Host name"
@@ -1019,6 +1020,8 @@ msgstr "Host name"
 #: /var/www/fog/lib/fog/fogpage.class.php:349
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1723
 #: /var/www/fog/lib/reports/snapin_log.report.php:77
+#: /var/www/fog/lib/reports/product_keys.report.php:36
+#: /var/www/fog/lib/reports/product_keys.report.php:56
 #: /var/www/fog/lib/reports/host_list.report.php:36
 #: /var/www/fog/lib/reports/host_list.report.php:55
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:36
@@ -1031,9 +1034,10 @@ msgstr "Host MAC"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:350
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1728
+#: /var/www/fog/lib/reports/product_keys.report.php:35
 #: /var/www/fog/lib/reports/host_list.report.php:35
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:35
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:66
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:49
 #: /var/www/fog/lib/reports/imaging_log.report.php:55
 #: /var/www/fog/lib/reports/inventory_report.report.php:84
 msgid "Host Desc"
@@ -1301,6 +1305,7 @@ msgstr "Delete Selected"
 #: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:54
 #: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:66
 #: /var/www/fog/lib/reports/virus_history.report.php:79
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:176
 #: /var/www/fog/commons/text.php:28
 msgid "Delete"
 msgstr "Delete"
@@ -1827,7 +1832,6 @@ msgstr "Failed to destroy"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3123
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:365
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:170
 msgid "deleted"
 msgstr "deleted"
 
@@ -1857,8 +1861,8 @@ msgstr "Remove selected snapins"
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1660
 #: /var/www/fog/lib/reports/snapin_log.report.php:35
 #: /var/www/fog/lib/reports/snapin_log.report.php:36
-#: /var/www/fog/lib/reports/product_keys.report.php:35
-#: /var/www/fog/lib/reports/product_keys.report.php:36
+#: /var/www/fog/lib/reports/product_keys.report.php:129
+#: /var/www/fog/lib/reports/product_keys.report.php:130
 #: /var/www/fog/lib/reports/host_list.report.php:121
 #: /var/www/fog/lib/reports/host_list.report.php:122
 #: /var/www/fog/lib/reports/virus_history.report.php:35
@@ -1867,8 +1871,8 @@ msgstr "Remove selected snapins"
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:131
 #: /var/www/fog/lib/reports/user_tracking.report.php:203
 #: /var/www/fog/lib/reports/user_tracking.report.php:204
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:46
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:47
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:137
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:138
 #: /var/www/fog/lib/reports/imaging_log.report.php:170
 #: /var/www/fog/lib/reports/imaging_log.report.php:171
 #: /var/www/fog/lib/reports/inventory_report.report.php:112
@@ -2051,7 +2055,10 @@ msgstr "Primary Storage Group"
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:74
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:482
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:334
-#: /var/www/fog/lib/reports/host_list.report.php:39
+#: /var/www/fog/lib/reports/product_keys.report.php:45
+#: /var/www/fog/lib/reports/product_keys.report.php:58
+#: /var/www/fog/lib/reports/product_keys.report.php:89
+#: /var/www/fog/lib/reports/host_list.report.php:44
 #: /var/www/fog/lib/reports/host_list.report.php:56
 #: /var/www/fog/lib/reports/host_list.report.php:84
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:39
@@ -3879,7 +3886,6 @@ msgstr "IP"
 #: /var/www/fog/lib/pages/serverinfo.class.php:170
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:150
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:313
-#: /var/www/fog/lib/reports/host_list.report.php:44
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:44
 #: /var/www/fog/commons/text.php:108
 msgid "Kernel"
@@ -3887,6 +3893,7 @@ msgstr "Kernel"
 
 #: /var/www/fog/lib/pages/serverinfo.class.php:171
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:71
+#: /var/www/fog/lib/reports/product_keys.report.php:55
 #: /var/www/fog/lib/reports/host_list.report.php:54
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:55
 #: /var/www/fog/lib/reports/user_tracking.report.php:110
@@ -4474,8 +4481,8 @@ msgstr "Group"
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1667
 #: /var/www/fog/lib/reports/snapin_log.report.php:39
 #: /var/www/fog/lib/reports/snapin_log.report.php:40
-#: /var/www/fog/lib/reports/product_keys.report.php:39
-#: /var/www/fog/lib/reports/product_keys.report.php:40
+#: /var/www/fog/lib/reports/product_keys.report.php:133
+#: /var/www/fog/lib/reports/product_keys.report.php:134
 #: /var/www/fog/lib/reports/host_list.report.php:125
 #: /var/www/fog/lib/reports/host_list.report.php:126
 #: /var/www/fog/lib/reports/equipment_loan.report.php:254
@@ -4486,8 +4493,8 @@ msgstr "Group"
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:135
 #: /var/www/fog/lib/reports/user_tracking.report.php:207
 #: /var/www/fog/lib/reports/user_tracking.report.php:208
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:50
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:51
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:141
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:142
 #: /var/www/fog/lib/reports/imaging_log.report.php:174
 #: /var/www/fog/lib/reports/imaging_log.report.php:175
 #: /var/www/fog/lib/reports/inventory_report.report.php:116
@@ -4548,6 +4555,7 @@ msgstr "Force task to start"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:974
 #: /var/www/fog/lib/reports/snapin_log.report.php:44
 #: /var/www/fog/lib/reports/snapin_log.report.php:76
+#: /var/www/fog/lib/reports/product_keys.report.php:34
 #: /var/www/fog/lib/reports/host_list.report.php:34
 #: /var/www/fog/lib/reports/virus_history.report.php:53
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:34
@@ -4681,6 +4689,7 @@ msgstr "Snapin Enabled"
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:170
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:464
 #: /var/www/fog/lib/plugins/site/hooks/addsiteuser.hook.php:219
+#: /var/www/fog/lib/reports/product_keys.report.php:99
 #: /var/www/fog/lib/reports/host_list.report.php:94
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:98
 msgid "Yes"
@@ -4696,6 +4705,7 @@ msgstr "Yes"
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:164
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:451
 #: /var/www/fog/lib/plugins/site/hooks/addsiteuser.hook.php:220
+#: /var/www/fog/lib/reports/product_keys.report.php:100
 #: /var/www/fog/lib/reports/host_list.report.php:95
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:99
 msgid "No"
@@ -5144,7 +5154,6 @@ msgid "Delete selected hosts"
 msgstr "Delete selected Hosts"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:363
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:170
 #, fuzzy
 msgid "approved"
 msgstr "Host approved"
@@ -5155,7 +5164,6 @@ msgid "All hosts"
 msgstr "All Hosts"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:371
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:177
 #, fuzzy
 msgid "successfully"
 msgstr "Successful"
@@ -5178,6 +5186,9 @@ msgstr "Host Description"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1061
 #: /var/www/fog/lib/plugins/location/hooks/addlocationhost.hook.php:247
 #: /var/www/fog/lib/plugins/site/hooks/addsitehost.hook.php:223
+#: /var/www/fog/lib/reports/product_keys.report.php:38
+#: /var/www/fog/lib/reports/product_keys.report.php:57
+#: /var/www/fog/lib/reports/product_keys.report.php:104
 msgid "Host Product Key"
 msgstr "Host Product Key"
 
@@ -5188,6 +5199,8 @@ msgstr "Host Image"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:445
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1071
+#: /var/www/fog/lib/reports/product_keys.report.php:42
+#: /var/www/fog/lib/reports/host_list.report.php:41
 msgid "Host Kernel"
 msgstr "Host Kernel"
 
@@ -6099,6 +6112,7 @@ msgid "Image to DMI Mappings"
 msgstr "Add Image to DMI Associations"
 
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:483
+#: /var/www/fog/lib/reports/product_keys.report.php:47
 #: /var/www/fog/lib/reports/host_list.report.php:46
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:46
 msgid "OS Name"
@@ -7730,50 +7744,59 @@ msgstr "Task Checkin Time"
 msgid "Host Product Keys"
 msgstr "Host Product Key"
 
-#: /var/www/fog/lib/reports/host_list.report.php:31
-msgid "Host Listing Export"
-msgstr "Host Listing Export"
-
+#: /var/www/fog/lib/reports/product_keys.report.php:37
 #: /var/www/fog/lib/reports/host_list.report.php:37
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:37
 msgid "Host Created"
 msgstr "Host Created"
 
+#: /var/www/fog/lib/reports/product_keys.report.php:39
+#: /var/www/fog/lib/reports/product_keys.report.php:95
 #: /var/www/fog/lib/reports/host_list.report.php:38
+#: /var/www/fog/lib/reports/host_list.report.php:90
+#, fuzzy
+msgid "Host AD Join"
+msgstr "AD Join"
+
+#: /var/www/fog/lib/reports/product_keys.report.php:40
+#: /var/www/fog/lib/reports/host_list.report.php:39
+#, fuzzy
+msgid "Host AD OU"
+msgstr "Host ID"
+
+#: /var/www/fog/lib/reports/product_keys.report.php:41
+#: /var/www/fog/lib/reports/host_list.report.php:40
+#, fuzzy
+msgid "Host AD Domain"
+msgstr "AD Domain"
+
+#: /var/www/fog/lib/reports/product_keys.report.php:43
+#: /var/www/fog/lib/reports/host_list.report.php:42
+#, fuzzy
+msgid "Host HD Device"
+msgstr "HD Device"
+
+#: /var/www/fog/lib/reports/product_keys.report.php:44
+#: /var/www/fog/lib/reports/product_keys.report.php:86
+#: /var/www/fog/lib/reports/host_list.report.php:43
 #: /var/www/fog/lib/reports/host_list.report.php:81
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:38
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:85
 msgid "Image ID"
 msgstr "Image ID"
 
-#: /var/www/fog/lib/reports/host_list.report.php:40
+#: /var/www/fog/lib/reports/product_keys.report.php:46
+#: /var/www/fog/lib/reports/product_keys.report.php:92
+#: /var/www/fog/lib/reports/host_list.report.php:45
 #: /var/www/fog/lib/reports/host_list.report.php:87
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:40
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:91
 msgid "Image Desc"
 msgstr "Image Desc"
 
-#: /var/www/fog/lib/reports/host_list.report.php:41
-#: /var/www/fog/lib/reports/host_list.report.php:90
-#: /var/www/fog/lib/reports/hosts_and_users.report.php:41
-#: /var/www/fog/lib/reports/hosts_and_users.report.php:94
-msgid "AD Join"
-msgstr "AD Join"
-
-#: /var/www/fog/lib/reports/host_list.report.php:42
-#: /var/www/fog/lib/reports/hosts_and_users.report.php:42
-msgid "AD OU"
-msgstr "AD OU"
-
-#: /var/www/fog/lib/reports/host_list.report.php:43
-#: /var/www/fog/lib/reports/hosts_and_users.report.php:43
-msgid "AD Domain"
-msgstr "AD Domain"
-
-#: /var/www/fog/lib/reports/host_list.report.php:45
-#: /var/www/fog/lib/reports/hosts_and_users.report.php:45
-msgid "HD Device"
-msgstr "HD Device"
+#: /var/www/fog/lib/reports/host_list.report.php:31
+msgid "Host Listing Export"
+msgstr "Host Listing Export"
 
 #: /var/www/fog/lib/reports/equipment_loan.report.php:31
 #: /var/www/fog/lib/reports/equipment_loan.report.php:103
@@ -7932,6 +7955,23 @@ msgstr "Virus cleared"
 msgid "FOG Hosts and Users Login"
 msgstr "FOG Hosts and Users Login"
 
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:41
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:94
+msgid "AD Join"
+msgstr "AD Join"
+
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:42
+msgid "AD OU"
+msgstr "AD OU"
+
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:43
+msgid "AD Domain"
+msgstr "AD Domain"
+
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:45
+msgid "HD Device"
+msgstr "HD Device"
+
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:47
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:58
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:103
@@ -7972,40 +8012,48 @@ msgstr "FOG User Login History Summary"
 msgid "Service Start"
 msgstr "Service Status"
 
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:40
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:41
 msgid "All Pending MACs approved."
 msgstr "All Pending MACs approved."
 
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:42
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:43
 msgid "Pending MAC Export"
 msgstr "Pending MAC Export"
 
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:58
-msgid "Approve All Pending MACs for all hosts"
-msgstr "Approve All Pending MACs for all hosts"
-
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:65
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:79
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:48
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:62
 msgid "Host Primary MAC"
 msgstr "Host Primary MAC"
 
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:67
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:80
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:50
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:63
 msgid "Host Pending MAC"
 msgstr "Host Pending MAC"
 
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:143
-msgid "Approve selected pending macs"
-msgstr "Approve selected pending macs"
-
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:144
-msgid "Delete selected pending macs"
-msgstr "Delete selected pending macs"
-
-#: /var/www/fog/lib/reports/pending_mac_list.report.php:175
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:130
 #, fuzzy
-msgid "All pending macs"
-msgstr "Pending macs"
+msgid "Approve All Pending MACs for All Hosts"
+msgstr "Approve All Pending MACs for all hosts"
+
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:154
+#, fuzzy
+msgid "Pending MAC Actions"
+msgstr "Pending MACs"
+
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:160
+#, fuzzy
+msgid "Approve Selected MACs"
+msgstr "Approve selected Hosts"
+
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:165
+#, fuzzy
+msgid "Approve"
+msgstr "Host approved"
+
+#: /var/www/fog/lib/reports/pending_mac_list.report.php:171
+#, fuzzy
+msgid "Delete Selected MACs"
+msgstr "Delete Selected"
 
 #: /var/www/fog/lib/reports/imaging_log.report.php:31
 msgid "FOG Imaging Log"
@@ -9916,6 +9964,16 @@ msgstr "Hello FOG Client"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "There are no locations on this server."
+
+#~ msgid "Approve selected pending macs"
+#~ msgstr "Approve selected pending macs"
+
+#~ msgid "Delete selected pending macs"
+#~ msgstr "Delete selected pending macs"
+
+#, fuzzy
+#~ msgid "All pending macs"
+#~ msgstr "Pending macs"
 
 #~ msgid "Delete Hosts"
 #~ msgstr "Delete Hosts"
