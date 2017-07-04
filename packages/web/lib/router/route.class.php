@@ -1177,6 +1177,14 @@ class Route extends FOGBase
                 )
             );
             break;
+        case 'inventory':
+            $data = FOGCore::fastmerge(
+                $class->get(),
+                array(
+                    'memory' => $class->getMem()
+                )
+            );
+            break;
         case 'group':
             $data = FOGCore::fastmerge(
                 $class->get(),

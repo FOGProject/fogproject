@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-04 13:52-0400\n"
+"POT-Creation-Date: 2017-07-04 14:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -416,7 +416,7 @@ msgstr ""
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:55
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:164
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:327
-#: /var/www/fog/lib/reports/imaging_log.report.php:50
+#: /var/www/fog/lib/reports/imaging_log.report.php:39
 #: /var/www/fog/commons/text.php:119
 msgid "Type"
 msgstr ""
@@ -740,7 +740,7 @@ msgstr ""
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:175
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:326
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:392
-#: /var/www/fog/lib/reports/imaging_log.report.php:45
+#: /var/www/fog/lib/reports/imaging_log.report.php:34
 #: /var/www/fog/commons/text.php:47
 msgid "Host"
 msgstr ""
@@ -916,8 +916,8 @@ msgstr ""
 #: /var/www/fog/lib/reports/host_list.report.php:33
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:33
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:63
-#: /var/www/fog/lib/reports/imaging_log.report.php:63
-#: /var/www/fog/lib/reports/inventory_report.report.php:83
+#: /var/www/fog/lib/reports/imaging_log.report.php:52
+#: /var/www/fog/lib/reports/inventory_report.report.php:75
 msgid "Host ID"
 msgstr ""
 
@@ -928,8 +928,8 @@ msgstr ""
 #: /var/www/fog/lib/reports/virus_history.report.php:126
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:64
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:78
-#: /var/www/fog/lib/reports/inventory_report.report.php:52
-#: /var/www/fog/lib/reports/inventory_report.report.php:86
+#: /var/www/fog/lib/reports/inventory_report.report.php:41
+#: /var/www/fog/lib/reports/inventory_report.report.php:78
 msgid "Host name"
 msgstr ""
 
@@ -941,8 +941,8 @@ msgstr ""
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:36
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:56
 #: /var/www/fog/lib/reports/user_tracking.report.php:236
-#: /var/www/fog/lib/reports/imaging_log.report.php:65
-#: /var/www/fog/lib/reports/inventory_report.report.php:89
+#: /var/www/fog/lib/reports/imaging_log.report.php:54
+#: /var/www/fog/lib/reports/inventory_report.report.php:81
 msgid "Host MAC"
 msgstr ""
 
@@ -951,8 +951,8 @@ msgstr ""
 #: /var/www/fog/lib/reports/host_list.report.php:35
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:35
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:66
-#: /var/www/fog/lib/reports/imaging_log.report.php:66
-#: /var/www/fog/lib/reports/inventory_report.report.php:92
+#: /var/www/fog/lib/reports/imaging_log.report.php:55
+#: /var/www/fog/lib/reports/inventory_report.report.php:84
 msgid "Host Desc"
 msgstr ""
 
@@ -985,7 +985,7 @@ msgstr ""
 #: /var/www/fog/lib/fog/fogpage.class.php:357
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1680
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2329
-#: /var/www/fog/lib/reports/inventory_report.report.php:54
+#: /var/www/fog/lib/reports/inventory_report.report.php:43
 msgid "System Product"
 msgstr ""
 
@@ -996,7 +996,7 @@ msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:359
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1681
-#: /var/www/fog/lib/reports/inventory_report.report.php:55
+#: /var/www/fog/lib/reports/inventory_report.report.php:44
 msgid "System Serial"
 msgstr ""
 
@@ -1063,8 +1063,8 @@ msgstr ""
 #: /var/www/fog/lib/fog/fogpage.class.php:373
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1679
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2346
-#: /var/www/fog/lib/reports/inventory_report.report.php:53
-#: /var/www/fog/lib/reports/inventory_report.report.php:95
+#: /var/www/fog/lib/reports/inventory_report.report.php:42
+#: /var/www/fog/lib/reports/inventory_report.report.php:87
 msgid "Memory"
 msgstr ""
 
@@ -1744,10 +1744,10 @@ msgstr ""
 #: /var/www/fog/lib/reports/user_tracking.report.php:204
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:46
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:47
-#: /var/www/fog/lib/reports/imaging_log.report.php:35
-#: /var/www/fog/lib/reports/imaging_log.report.php:36
-#: /var/www/fog/lib/reports/inventory_report.report.php:35
-#: /var/www/fog/lib/reports/inventory_report.report.php:36
+#: /var/www/fog/lib/reports/imaging_log.report.php:170
+#: /var/www/fog/lib/reports/imaging_log.report.php:171
+#: /var/www/fog/lib/reports/inventory_report.report.php:112
+#: /var/www/fog/lib/reports/inventory_report.report.php:113
 msgid "Export CSV"
 msgstr ""
 
@@ -1922,7 +1922,7 @@ msgstr ""
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:39
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:57
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:88
-#: /var/www/fog/lib/reports/imaging_log.report.php:67
+#: /var/www/fog/lib/reports/imaging_log.report.php:56
 msgid "Image Name"
 msgstr ""
 
@@ -2046,7 +2046,7 @@ msgstr ""
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:554
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:843
-#: /var/www/fog/lib/reports/imaging_log.report.php:68
+#: /var/www/fog/lib/reports/imaging_log.report.php:57
 #: /var/www/fog/commons/text.php:313
 msgid "Image Path"
 msgstr ""
@@ -2236,7 +2236,7 @@ msgstr ""
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:1291
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2730
-#: /var/www/fog/lib/reports/imaging_log.report.php:46
+#: /var/www/fog/lib/reports/imaging_log.report.php:35
 msgid "Start"
 msgstr ""
 
@@ -2260,7 +2260,7 @@ msgstr ""
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:825
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1004
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2885
-#: /var/www/fog/lib/reports/imaging_log.report.php:70
+#: /var/www/fog/lib/reports/imaging_log.report.php:59
 msgid "Start Time"
 msgstr ""
 
@@ -4187,10 +4187,10 @@ msgstr ""
 #: /var/www/fog/lib/reports/user_tracking.report.php:208
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:50
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:51
-#: /var/www/fog/lib/reports/imaging_log.report.php:39
-#: /var/www/fog/lib/reports/imaging_log.report.php:40
-#: /var/www/fog/lib/reports/inventory_report.report.php:39
-#: /var/www/fog/lib/reports/inventory_report.report.php:40
+#: /var/www/fog/lib/reports/imaging_log.report.php:174
+#: /var/www/fog/lib/reports/imaging_log.report.php:175
+#: /var/www/fog/lib/reports/inventory_report.report.php:116
+#: /var/www/fog/lib/reports/inventory_report.report.php:117
 msgid "Export PDF"
 msgstr ""
 
@@ -4248,7 +4248,7 @@ msgstr ""
 #: /var/www/fog/lib/reports/host_list.report.php:34
 #: /var/www/fog/lib/reports/virus_history.report.php:53
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:34
-#: /var/www/fog/lib/reports/imaging_log.report.php:64
+#: /var/www/fog/lib/reports/imaging_log.report.php:53
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:273
 msgid "Host Name"
 msgstr ""
@@ -4276,7 +4276,7 @@ msgstr ""
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:418
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:428
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:439
-#: /var/www/fog/lib/reports/imaging_log.report.php:49
+#: /var/www/fog/lib/reports/imaging_log.report.php:38
 #: /var/www/fog/commons/text.php:41
 msgid "Image"
 msgstr ""
@@ -5190,25 +5190,25 @@ msgid "Imaged From"
 msgstr ""
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2731
-#: /var/www/fog/lib/reports/imaging_log.report.php:47
+#: /var/www/fog/lib/reports/imaging_log.report.php:36
 msgid "End"
 msgstr ""
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2732
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2887
-#: /var/www/fog/lib/reports/imaging_log.report.php:48
-#: /var/www/fog/lib/reports/imaging_log.report.php:73
+#: /var/www/fog/lib/reports/imaging_log.report.php:37
+#: /var/www/fog/lib/reports/imaging_log.report.php:62
 msgid "Duration"
 msgstr ""
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2768
-#: /var/www/fog/lib/reports/imaging_log.report.php:77
+#: /var/www/fog/lib/reports/imaging_log.report.php:66
 #: /var/www/fog/commons/text.php:101
 msgid "Capture"
 msgstr ""
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2769
-#: /var/www/fog/lib/reports/imaging_log.report.php:78
+#: /var/www/fog/lib/reports/imaging_log.report.php:67
 #: /var/www/fog/commons/text.php:100
 msgid "Deploy"
 msgstr ""
@@ -5785,8 +5785,8 @@ msgid "Team"
 msgstr ""
 
 #: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:52
-#: /var/www/fog/lib/reports/imaging_log.report.php:44
-#: /var/www/fog/lib/reports/imaging_log.report.php:62
+#: /var/www/fog/lib/reports/imaging_log.report.php:33
+#: /var/www/fog/lib/reports/imaging_log.report.php:51
 msgid "Created By"
 msgstr ""
 
@@ -7422,23 +7422,23 @@ msgstr ""
 msgid "FOG Imaging Log"
 msgstr ""
 
-#: /var/www/fog/lib/reports/imaging_log.report.php:69
+#: /var/www/fog/lib/reports/imaging_log.report.php:58
 msgid "Start Date"
 msgstr ""
 
-#: /var/www/fog/lib/reports/imaging_log.report.php:71
+#: /var/www/fog/lib/reports/imaging_log.report.php:60
 msgid "End Date"
 msgstr ""
 
-#: /var/www/fog/lib/reports/imaging_log.report.php:72
+#: /var/www/fog/lib/reports/imaging_log.report.php:61
 msgid "End Time"
 msgstr ""
 
-#: /var/www/fog/lib/reports/imaging_log.report.php:74
+#: /var/www/fog/lib/reports/imaging_log.report.php:63
 msgid "Deploy/Capture"
 msgstr ""
 
-#: /var/www/fog/lib/reports/imaging_log.report.php:116
+#: /var/www/fog/lib/reports/imaging_log.report.php:108
 msgid "Not Valid"
 msgstr ""
 
