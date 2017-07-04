@@ -522,7 +522,7 @@ function ajaxRun(username,password,url,selector,formid,target,authneeded) {
                     } else {
                         $(selector).append('<form id="'+formid+'" method="post" action="'+url+'"></form>');
                     }
-                    $('#'+formid).submit();
+                    $('#'+formid).submit().remove();
                 }
             } else {
                 setTimeout(function() {
