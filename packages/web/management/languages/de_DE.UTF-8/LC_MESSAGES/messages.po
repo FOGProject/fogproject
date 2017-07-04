@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-04 00:19-0400\n"
+"POT-Creation-Date: 2017-07-04 11:59-0400\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -5669,16 +5669,28 @@ msgstr "Host-Update fehlgeschlagen"
 msgid "Host updated"
 msgstr "Benutzer aktualisiert"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3574
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3587
 msgid "Failed to create new Group"
 msgstr "Fehler beim Erstellen der neuen Gruppe"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3576
-msgid "Successfully associated Hosts with the Group "
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3593
+#, fuzzy
+msgid "Group Association Success"
+msgstr "Standort des Konzerns"
+
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3597
+#, fuzzy
+msgid "Successfully added selected hosts to the group."
 msgstr "Erfolgreich damit verbundenen Hosts mit der Gruppe "
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3580
-msgid "Failed to Associate Hosts with Group"
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3606
+#, fuzzy
+msgid "Group Association Failed"
+msgstr "Standort des Konzerns"
+
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3610
+#, fuzzy
+msgid "Failed to add selected hosts to the group."
 msgstr "Fehler beim Gastgeber Gruppe zuordnen"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:129

@@ -24,23 +24,29 @@ $(function() {
     });
     $('.hostname-input').rules('add', {regex: /^[\w!@#$%^()\-'{}\.~]{1,15}$/});
     $('.macaddr').rules('add', {regex: macregex});
-    $('#processgroup').click(function(e) {
-        e.preventDefault();
+    $('#process').click(function(e) {
+        //e.preventDefault();
         checkedIDs = getChecked();
         group_new = $('#group_new').val().trim();
-        group_sel = $('select[name="group"]').val().trim();
+        group_sel = $('select[name="group"]').val();
+        if (typeof(group_sel) != 'undefined') {
+            group_sel = group_sel.trim();
+        }
         if (checkedIDs.length < 1) {
             return;
         }
         if (group_new.length < 1 && group_sel.length < 1) {
             return;
         }
-        url = $(this).parents('form').attr('action');
+        url = $(this).parents('form').prop('action');
         postdata = {
-            hostIDArray: checkedIDs,
-            group: group_sel,
-            group_new: group_new
+            hostIDArray: checkedIDs.join(',')
         };
+        if (group_new) {
+            $.extend(postdata, {group_new : group_new});
+        } else {
+            $.extend(postdata, {group: group_sel});
+        }
         $.post(url,postdata);
     });
     $('.mac-manufactor').each(function() {
