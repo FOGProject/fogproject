@@ -31,12 +31,12 @@ backupReports() {
 registerStorageNode() {
     [[ -z $webroot ]] && webroot="/"
     dots "Checking if this node is registered"
-    storageNodeExists=$(wget --no-check-certificate -qO - http://$ipaddress/${webroot}/maintenance/check_node_exists.php --post-data="ip=${ipaddress}")
+    storageNodeExists=$(wget --no-check-certificate -qO - ${httpproto}://$ipaddress/${webroot}/maintenance/check_node_exists.php --post-data="ip=${ipaddress}")
     echo "Done"
     if [[ $storageNodeExists != exists ]]; then
         [[ -z $maxClients ]] && maxClients=10
         dots "Node being registered"
-        wget --no-check-certificate -qO - http://$ipaddress/${webroot}/maintenance/create_update_node.php --post-data="newNode&name=$(echo -n $ipaddress| base64)&path=$(echo -n $storageLocation|base64)&ftppath=$(echo -n $storageLocation|base64)&snapinpath=$(echo -n $snapindir|base64)&sslpath=$(echo -n $sslpath|base64)&ip=$(echo -n $ipaddress|base64)&maxClients=$(echo -n $maxClients|base64)&user=$(echo -n $username|base64)&pass=$(echo -n $password|base64)&interface=$(echo -n $interface|base64)&bandwidth=$(echo -n $interface|base64)&webroot=$(echo -n $webroot|base64)&fogverified"
+        wget --no-check-certificate -qO - $httpproto://$ipaddress/${webroot}/maintenance/create_update_node.php --post-data="newNode&name=$(echo -n $ipaddress| base64)&path=$(echo -n $storageLocation|base64)&ftppath=$(echo -n $storageLocation|base64)&snapinpath=$(echo -n $snapindir|base64)&sslpath=$(echo -n $sslpath|base64)&ip=$(echo -n $ipaddress|base64)&maxClients=$(echo -n $maxClients|base64)&user=$(echo -n $username|base64)&pass=$(echo -n $password|base64)&interface=$(echo -n $interface|base64)&bandwidth=$(echo -n $interface|base64)&webroot=$(echo -n $webroot|base64)&fogverified"
         echo "Done"
     else
         echo " * Node is registered"
@@ -45,14 +45,14 @@ registerStorageNode() {
 updateStorageNodeCredentials() {
     [[ -z $webroot ]] && webroot="/"
     dots "Ensuring node username and passwords match"
-    wget --no-check-certificate -qO - http://$ipaddress${webroot}maintenance/create_update_node.php --post-data="nodePass&ip=$(echo -n $ipaddress|base64)&user=$(echo -n $username|base64)&pass=$(echo -n $password|base64)&fogverified"
+    wget --no-check-certificate -qO - $httpproto://$ipaddress${webroot}maintenance/create_update_node.php --post-data="nodePass&ip=$(echo -n $ipaddress|base64)&user=$(echo -n $username|base64)&pass=$(echo -n $password|base64)&fogverified"
     echo "Done"
 }
 backupDB() {
     dots "Backing up database"
     if [[ -d $backupPath/fog_web_${version}.BACKUP ]]; then
         [[ ! -d $backupPath/fogDBbackups ]] && mkdir -p $backupPath/fogDBbackups >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        wget --no-check-certificate -O $backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql "http://$ipaddress/$webroot/maintenance/backup_db.php" --post-data="type=sql&fogajaxonly=1" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        wget --no-check-certificate -O $backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql "${httpproto}://$ipaddress/$webroot/maintenance/backup_db.php" --post-data="type=sql&fogajaxonly=1" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     fi
     errorStat $?
 }
@@ -60,7 +60,7 @@ updateDB() {
     case $dbupdate in
         [Yy]|[Yy][Ee][Ss])
             dots "Updating Database"
-            wget --no-check-certificate -qO - --post-data="confirm&fogverified" --no-proxy http://${ipaddress}/${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            wget --no-check-certificate -qO - --post-data="confirm&fogverified" --no-proxy ${httpproto}://${ipaddress}/${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             errorStat $?
             ;;
         *)
@@ -68,7 +68,7 @@ updateDB() {
             echo " * You still need to install/update your database schema."
             echo " * This can be done by opening a web browser and going to:"
             echo
-            echo "   http://${ipaddress}/fog/management"
+            echo "   $httpproto://${ipaddress}/fog/management"
             echo
             read -p " * Press [Enter] key when database is updated/installed."
             echo
@@ -420,7 +420,7 @@ configureFTP() {
 }
 configureDefaultiPXEfile() {
     [[ -z $webroot ]] && webroot='/'
-    echo -e "#!ipxe\ncpuid --ext 29 && set arch x86_64 || set arch i386\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${product}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n:bootme\nchain http://$ipaddress${webroot}service/ipxe/boot.php##params" > "$tftpdirdst/default.ipxe"
+    echo -e "#!ipxe\ncpuid --ext 29 && set arch x86_64 || set arch i386\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${product}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n:bootme\nchain ${httpproto}://$ipaddress${webroot}service/ipxe/boot.php##params" > "$tftpdirdst/default.ipxe"
 }
 configureTFTPandPXE() {
     dots "Setting up and starting TFTP and PXE Servers"

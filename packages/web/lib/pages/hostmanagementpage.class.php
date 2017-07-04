@@ -3562,25 +3562,57 @@ class HostManagementPage extends FOGPage
      */
     public function saveGroup()
     {
+        $group = filter_input(INPUT_POST, 'group');
+        $newgroup = filter_input(INPUT_POST, 'group_new');
+        $hostids = filter_input(
+            INPUT_POST,
+            'hostIDArray'
+        );
+        $hostids = array_values(
+            array_filter(
+                array_unique(
+                    explode(',', $hostids)
+                )
+            )
+        );
         try {
-            $Group = self::getClass('Group', $_REQUEST['group']);
-            if (!empty($_REQUEST['group_new'])) {
+            $Group = new Group($group);
+            if ($newgroup) {
                 $Group
-                    ->set('name', $_REQUEST['group_new'])
+                    ->set('name', $newgroup)
                     ->load('name');
             }
-            $Group->addHost($_REQUEST['hostIDArray']);
+            $Group->addHost($hostids);
             if (!$Group->save()) {
                 throw new Exception(_('Failed to create new Group'));
             }
-            return print _('Successfully associated Hosts with the Group ');
+            echo '<div class="col-xs-9">';
+            echo '<div class="panel panel-success">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Group Association Success');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            echo _('Successfully added selected hosts to the group.');
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
         } catch (Exception $e) {
-            echo sprintf(
-                '%s<br/>%s',
-                _('Failed to Associate Hosts with Group'),
-                $e->getMessage()
-            );
-            exit;
+            echo '<div class="col-xs-9">';
+            echo '<div class="panel panel-warning">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Group Association Failed');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            echo _('Failed to add selected hosts to the group.');
+            echo '<br/>';
+            echo $e->getMessage();
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
         }
     }
     /**
@@ -3590,55 +3622,50 @@ class HostManagementPage extends FOGPage
      */
     public function hostlogins()
     {
-        $MainDate = self::niceDate($_REQUEST['dte'])
+        $date = filter_input(INPUT_GET, 'dte');
+        $MainDate = self::niceDate($date)
             ->getTimestamp();
-        $MainDate_1 = self::niceDate($_REQUEST['dte'])
+        $MainDate_1 = self::niceDate($date)
             ->modify('+1 day')
             ->getTimestamp();
-        $UserTracks = self::getClass('UserTrackingManager')
-            ->find(
-                array(
-                    'hostID' => $this->obj->get('id'),
-                    'date' => $_REQUEST['dte'],
-                    'action' => array(
-                        '',
-                        0,
-                        1
-                    )
-                ),
-                'AND',
-                array('username','datetime','action'),
-                array('ASC','ASC','DESC')
-            );
+        Route::listem('UserTracking');
+        $UserTracks = json_decode(
+            Route::getData()
+        );
+        $UserTracks = $UserTracks->usertrackings;
         $data = null;
         $Data = array();
         foreach ((array)$UserTracks as &$Login) {
-            $time = self::niceDate($Login->get('datetime'))
-                ->format('U');
-            $Data[$Login->get('username')]['user'] = $Login->get('username');
-            $Data[$Login->get('username')]['min'] = $MainDate;
-            $Data[$Login->get('username')]['max'] = $MainDate_1;
-            if (array_key_exists('login', $Data[$Login->get('username')])) {
-                if ($Login->get('action') > 0) {
-                    $Data[$Login->get('username')]['logout'] = (int)$time - 1;
-                    $data[] = $Data[$Login->get('username')];
-                    $Data[$Login->get('username')] = array(
-                        'user' => $Login->get('username'),
-                        'min' => $MainDate,
-                        'max' => $MainDate_1
-                    );
-                } elseif ($Login->get('action') < 1) {
-                    $Data[$Login->get('username')]['logout'] = (int)$time;
-                    $data[] = $Data[$Login->get('username')];
-                    $Data[$Login->get('username')] = array(
-                        'user' => $Login->get('username'),
-                        'min' => $MainDate,
-                        'max' => $MainDate_1
-                    );
-                }
+            $ldate = self::niceDate($Login->date)
+                ->format('Y-m-d');
+            if ($Login->hostID != $this->obj->get('id')
+                || $ldate != $date
+                || !in_array($Login->action, array('', 0, 1))
+            ) {
+                continue;
             }
-            if ($Login->get('action') > 0) {
-                $Data[$Login->get('username')]['login'] = (int)$time;
+            $time = self::niceDate($Login->datetime);
+            $Data[$Login->username] = array(
+                'user' => $Login->username,
+                'min' => $MainDate,
+                'max' => $MainDate_1
+            );
+            if (array_key_exists('login', $Data[$Login->username])) {
+                if ($Login->action > 0) {
+                    $Data[$Login->username]['logout'] = (int)$time - 1;
+                    $data[] = $Data[$Login->username];
+                } elseif ($Login->action < 1) {
+                    $Data[$Login->username]['logout'] = (int)$time;
+                    $data[] = $Data[$Login->username];
+                }
+                $Data[$Login->username] = array(
+                    'user' => $Login->username,
+                    'min' => $MainDate,
+                    'max' => $MainDate_1
+                );
+            }
+            if ($Login->action > 0) {
+                $Data[$Login->username]['login'] = (int)$time;
             }
             unset($Login);
         }

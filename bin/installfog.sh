@@ -571,7 +571,7 @@ while [[ -z $blGo ]]; do
                         echo " | below."
                         echo
                         echo " * Management Server URL:"
-                        echo "   http://fog-server${webroot}"
+                        echo "   ${httpproto}://fog-server${webroot}"
                         echo
                         echo "   You will need this, write this down!"
                         echo "   Username:  $username"
@@ -609,7 +609,7 @@ while [[ -z $blGo ]]; do
                     echo
                     echo "   This can be done by opening a web browser and going to:"
                     echo
-                    echo "   http://${ipaddress}${webroot}management"
+                    echo "   ${httpproto}://${ipaddress}${webroot}management"
                     echo
                     echo "   Default User Information"
                     echo "   Username: fog"

@@ -127,6 +127,7 @@ table td {
 .container-fluid {
     overflow-y: auto;
     overflow-x: hidden;
+    max-height: 620px;
 }
 input[type=radio].default {
     border: 0;

@@ -921,7 +921,7 @@ abstract class FOGManagerController extends FOGBase
             . '" id="'
             . $elementName
             . '" autocomplete="off">';
-        $tmpStr .= '<option>- ';
+        $tmpStr .= '<option value="">- ';
         $tmpStr .= self::$foglang['PleaseSelect'];
         $tmpStr .= ' -</option>';
         $tmpStr .= $objOpts;

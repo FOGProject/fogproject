@@ -429,7 +429,6 @@ function loginDialog(selector,url,submitButton,closeButton,titleText,formid,targ
     exportauth = $('.fog-export').val();
     deleteauth = $('.fog-delete').val();
     authneeded = true;
-    console.log(url);
     switch (selector) {
         case '#exportDiv':
             if (exportauth == 0) {
