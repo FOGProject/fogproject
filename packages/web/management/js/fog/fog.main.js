@@ -429,6 +429,7 @@ function loginDialog(selector,url,submitButton,closeButton,titleText,formid,targ
     exportauth = $('.fog-export').val();
     deleteauth = $('.fog-delete').val();
     authneeded = true;
+    console.log(url);
     switch (selector) {
         case '#exportDiv':
             if (exportauth == 0) {
@@ -488,16 +489,23 @@ function ajaxRun(username,password,url,selector,formid,target,authneeded) {
     $('input[name="remitems[]"]').each(function() {
         ids[ids.length] = $(this).val();
     });
+    var data = {};
+    if (authneeded) {
+        $.extend(data, {fogguiuser: username, fogguipass: password});
+    };
+    if ($('#andFile').is(':checked')) {
+        $.extend(data, {andFile: $('#andFile').is(':checked')});
+    }
+    if (ids.length > 0) {
+        $.extend(data, {remitems: ids});
+    }
+    if ($('input[name="storagegroup"]').val()) {
+        $.extend(data, {storagegroup: $('input[name="storagegroup"]').val()});
+    }
     $.ajax({
         url: url,
         type: 'POST',
-        data: {
-            fogguiuser: username,
-            fogguipass: password,
-            andFile: $('#andFile').is(':checked'),
-            remitems: ids,
-            storagegroup: $('input[name="storagegroup"]').val()
-        },
+        data: data,
         dataType: 'json',
         beforeSend: function() {
             if (authneeded) {

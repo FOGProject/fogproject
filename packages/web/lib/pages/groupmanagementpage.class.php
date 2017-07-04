@@ -280,19 +280,24 @@ class GroupManagementPage extends FOGPage
     public function addPost()
     {
         self::$HookManager->processEvent('GROUP_ADD_POST');
+        $name = filter_input(INPUT_POST, 'name');
+        $desc = filter_input(INPUT_POST, 'description');
+        $kern = filter_input(INPUT_POST, 'kern');
+        $args = filter_input(INPUT_POST, 'args');
+        $dev = filter_input(INPUT_POST, 'dev');
         try {
-            if (empty($_REQUEST['name'])) {
+            if (!$name) {
                 throw new Exception('Group Name is required');
             }
-            if (self::getClass('GroupManager')->exists($_REQUEST['name'])) {
+            if (self::getClass('GroupManager')->exists($name)) {
                 throw new Exception('Group Name already exists');
             }
             $Group = self::getClass('Group')
-                ->set('name', $_REQUEST['name'])
-                ->set('description', $_REQUEST['description'])
-                ->set('kernel', $_REQUEST['kern'])
-                ->set('kernelArgs', $_REQUEST['args'])
-                ->set('kernelDevice', $_REQUEST['dev']);
+                ->set('name', $name)
+                ->set('description', $desc)
+                ->set('kernel', $kern)
+                ->set('kernelArgs', $args)
+                ->set('kernelDevice', $dev);
             if (!$Group->save()) {
                 throw new Exception(_('Group create failed'));
             }
@@ -965,8 +970,8 @@ class GroupManagementPage extends FOGPage
         );
         $this->templates = array(
             '<label for="snapin-${snapin_id}">'
-            . '<input type="checkbox" name="snapin[]" class='
-            . '"toggle-checkboxsnapin" id="toggler2" '
+            . '<input type="checkbox" name="snapins[]" class='
+            . '"toggle-snapin" id="toggler2" '
             . 'value="${snapin_id}"/>'
             . '</label>',
             '<a href="?node=snapin&sub=edit&id=${snapin_id}">${snapin_name}</a>',
@@ -1635,6 +1640,16 @@ class GroupManagementPage extends FOGPage
             _('Group'),
             self::$foglang['Inventory']
         );
+        echo '<div class="col-xs-9">';
+        echo '<div class="tab-pane fade in active">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<div class="text-center">';
         printf(
             $this->reportString,
             sprintf(
@@ -1652,6 +1667,7 @@ class GroupManagementPage extends FOGPage
             _('Export PDF'),
             self::$pdffile
         );
+        echo '</div>';
         $this->ReportMaker = self::getClass('ReportMaker');
         foreach (self::$inventoryCsvHead as $csvHeader => &$classGet) {
             $this->ReportMaker->addCSVCell($csvHeader);
@@ -1662,13 +1678,13 @@ class GroupManagementPage extends FOGPage
             _('Host name'),
             _('Memory'),
             _('System Product'),
-            _('System Serial'),
+            _('System Serial')
         );
         $this->templates = array(
             '${host_name}<br/><small>${host_mac}</small>',
             '${memory}',
             '${sysprod}',
-            '${sysser}',
+            '${sysser}'
         );
         $this->attributes = array(
             array(),
@@ -1731,9 +1747,12 @@ class GroupManagementPage extends FOGPage
             unset($Host, $index);
         }
         unset($Hosts);
-        $this->ReportMaker->appendHTML($this->__toString());
+        $this->ReportMaker->appendHTML($this->process(12));
         $this->ReportMaker->outputReport(false);
         $_SESSION['foglastreport'] = serialize($this->ReportMaker);
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
         echo '</div>';
     }
     /**
@@ -1749,18 +1768,63 @@ class GroupManagementPage extends FOGPage
                 array('Group' => &$this->obj)
             );
         try {
+            global $tab;
             $hostids = $this->obj->get('hosts');
-            switch ($_REQUEST['tab']) {
+            $name = filter_input(INPUT_POST, 'name');
+            $desc = filter_input(INPUT_POST, 'description');
+            $kern = filter_input(INPUT_POST, 'kern');
+            $args = filter_input(INPUT_POST, 'args');
+            $dev = filter_input(INPUT_POST, 'dev');
+            $key = filter_input(INPUT_POST, 'key');
+            $image = filter_input(INPUT_POST, 'image');
+            $useAD = isset($_POST['domain']);
+            $domain = filter_input(INPUT_POST, 'domainname');
+            $ou = filter_input(INPUT_POST, 'ou');
+            $user = filter_input(INPUT_POST, 'domainuser');
+            $pass = filter_input(INPUT_POST, 'domainpassword');
+            $legacy = filter_input(INPUT_POST, 'domainpasswordlegacy');
+            $enforce = isset($_POST['enforcesel']);
+            $items = filter_input_array(
+                INPUT_POST,
+                array(
+                    'printers' => array(
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ),
+                    'snapins' => array(
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ),
+                    'modules' => array(
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    )
+                )
+            );
+            $printers = $items['printers'];
+            $snapins = $items['snapins'];
+            $modules = $items['modules'];
+            $level = filter_input(INPUT_POST, 'level');
+            $default = filter_input(INPUT_POST, 'default');
+            $x1 = filter_input(INPUT_POST, 'x');
+            $y1 = filter_input(INPUT_POST, 'y');
+            $r1 = filter_input(INPUT_POST, 'r');
+            $time1 = filter_input(INPUT_POST, 'tme');
+            $onDemand = (int)isset($_POST['onDemand']);
+            $min = filter_input(INPUT_POST, 'scheduleCronMin');
+            $hour = filter_input(INPUT_POST, 'scheduleCronHour');
+            $dom = filter_input(INPUT_POST, 'scheduleCronDOM');
+            $month = filter_input(INPUT_POST, 'scheduleCronMonth');
+            $dow = filter_input(INPUT_POST, 'scheduleCronDOW');
+            $action = filter_input(INPUT_POST, 'action');
+            switch ($tab) {
             case 'group-general':
-                if (empty($_REQUEST['name'])) {
+                if (empty($name)) {
                     throw new Exception(_('Group Name is required'));
                 }
                 $this->obj
-                    ->set('name', $_REQUEST['name'])
-                    ->set('description', $_REQUEST['description'])
-                    ->set('kernel', $_REQUEST['kern'])
-                    ->set('kernelArgs', $_REQUEST['args'])
-                    ->set('kernelDevice', $_REQUEST['dev']);
+                    ->set('name', $name)
+                    ->set('description', $desc)
+                    ->set('kernel', $kern)
+                    ->set('kernelArgs', $args)
+                    ->set('kernelDevice', $dev);
                 $productKey = preg_replace(
                     '/([\w+]{5})/',
                     '$1-',
@@ -1769,12 +1833,14 @@ class GroupManagementPage extends FOGPage
                         '',
                         strtoupper(
                             trim(
-                                $_REQUEST['key']
+                                $key
                             )
                         )
                     )
                 );
                 $productKey = substr($productKey, 0, 29);
+                $efibootexit = filter_input(INPUT_POST, 'efiBootTypeExit');
+                $bootexit = filter_input(INPUT_POST, 'bootTypeExit');
                 self::getClass('HostManager')
                     ->update(
                         array(
@@ -1782,30 +1848,23 @@ class GroupManagementPage extends FOGPage
                         ),
                         '',
                         array(
-                            'kernel' => $_REQUEST['kern'],
-                            'kernelArgs' => $_REQUEST['args'],
-                            'kernelDevice' => $_REQUEST['dev'],
-                            'efiexit' => $_REQUEST['efiBootTypeExit'],
-                            'biosexit' => $_REQUEST['bootTypeExit'],
+                            'kernel' => $kern,
+                            'kernelArgs' => $args,
+                            'kernelDevice' => $dev,
+                            'efiexit' => $efibootexit,
+                            'biosexit' => $boottexit,
                             'productKey' => self::encryptpw(
                                 trim(
-                                    $_REQUEST['key']
+                                    $productKey
                                 )
                             )
                         )
                     );
                 break;
             case 'group-image':
-                $this->obj->addImage($_REQUEST['image']);
+                $this->obj->addImage($image);
                 break;
             case 'group-active-directory':
-                $useAD = isset($_REQUEST['domain']);
-                $domain = $_REQUEST['domainname'];
-                $ou = $_REQUEST['ou'];
-                $user = $_REQUEST['domainuser'];
-                $pass = $_REQUEST['domainpassword'];
-                $legacy = $_REQUEST['domainpasswordlegacy'];
-                $enforce = isset($_REQUEST['enforcesel']);
                 $this->obj->setAD(
                     $useAD,
                     $domain,
@@ -1817,45 +1876,43 @@ class GroupManagementPage extends FOGPage
                 );
                 break;
             case 'group-printers':
-                if (isset($_REQUEST['add'])) {
+                if (isset($_POST['add'])) {
                     $this->obj->addPrinter(
-                        $_REQUEST['printers'],
+                        $printers,
                         array(),
-                        $_REQUEST['level']
+                        $level
                     );
-                    $default = $_REQUEST['default'];
-                    $printrs = $_REQUEST['printers'];
-                    if (in_array($default, (array)$printrs)) {
+                    if (in_array($default, (array)$printers)) {
                         $this->obj->updateDefault($default);
                     }
                 }
-                if (isset($_REQUEST['remove'])) {
+                if (isset($_POST['remove'])) {
                     $this->obj->addPrinter(
                         array(),
-                        $_REQUEST['printers'],
-                        $_REQUEST['level']
+                        $printers,
+                        $level
                     );
                 }
-                if (isset($_REQUEST['update'])) {
+                if (isset($_POST['update'])) {
                     $this->obj->addPrinter(
                         array(),
                         array(),
-                        $_REQUEST['level']
+                        $level
                     );
                     $this->obj->addPrinter(
-                        $_REQUEST['default'],
+                        $default,
                         array(),
-                        $_REQUEST['level']
+                        $level
                     );
-                    $this->obj->updateDefault($_REQUEST['default']);
+                    $this->obj->updateDefault($default);
                 }
                 break;
             case 'group-snapins':
-                if (isset($_REQUEST['add'])) {
-                    $this->obj->addSnapin($_REQUEST['snapin']);
+                if (isset($_POST['add'])) {
+                    $this->obj->addSnapin($snapins);
                 }
-                if (isset($_REQUEST['remove'])) {
-                    $this->obj->removeSnapin($_REQUEST['snapin']);
+                if (isset($_POST['remove'])) {
+                    $this->obj->removeSnapin($snapins);
                 }
                 break;
             case 'group-service':
@@ -1877,29 +1934,29 @@ class GroupManagementPage extends FOGPage
                     'value'
                 );
                 $x = (
-                    is_numeric($_REQUEST['x']) ?
-                    $_REQUEST['x'] :
+                    is_numeric($x1) ?
+                    $x1 :
                     $x
                 );
                 $y = (
-                    is_numeric($_REQUEST['y']) ?
-                    $_REQUEST['y'] :
+                    is_numeric($y1) ?
+                    $y1 :
                     $y
                 );
                 $r = (
-                    is_numeric($_REQUEST['r']) ?
-                    $_REQUEST['r'] :
+                    is_numeric($r1) ?
+                    $r1 :
                     $r
                 );
                 $time = (
-                    is_numeric($_REQUEST['tme']) ?
-                    $_REQUEST['tme'] :
+                    is_numeric($time1) ?
+                    $time1 :
                     $time
                 );
                 $mods = self::getSubObjectIDs('Module');
                 $modOn = array_intersect(
                     (array)$mods,
-                    (array)$_REQUEST['modules']
+                    (array)$modules
                 );
                 $modOff = array_diff(
                     (array)$mods,
@@ -1912,18 +1969,11 @@ class GroupManagementPage extends FOGPage
                     ->setAlo($time);
                 break;
             case 'group-powermanagement':
-                $min = $_REQUEST['scheduleCronMin'];
-                $hour = $_REQUEST['scheduleCronHour'];
-                $dom = $_REQUEST['scheduleCronDOM'];
-                $month = $_REQUEST['scheduleCronMonth'];
-                $dow = $_REQUEST['scheduleCronDOW'];
-                $onDemand = (string)intval(isset($_REQUEST['onDemand']));
-                $action = $_REQUEST['action'];
                 if (!$action) {
                     throw new Exception(_('You must select an action to perform'));
                 }
                 $items = array();
-                if (isset($_REQUEST['pmsubmit'])) {
+                if (isset($_POST['pmsubmit'])) {
                     if ($onDemand && $action === 'wol') {
                         $this->obj->wakeOnLAN();
                         break;
@@ -1976,66 +2026,5 @@ class GroupManagementPage extends FOGPage
             );
         self::setMessage($msg);
         self::redirect($this->formAction);
-    }
-    /**
-     * Delete the hosts with the delete group.
-     *
-     * @return void
-     */
-    public function deletehosts()
-    {
-        $this->title = _('Delete Hosts');
-        unset($this->data);
-        $this->headerData = array(
-            _('Host Name'),
-            _('Last Deployed'),
-        );
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
-        );
-        $this->templates = array(
-            '${host_name}<br/><small>${host_mac}</small>',
-            '<small>${host_deployed}</small>',
-        );
-        $hostids = $this->obj->get('hosts');
-        foreach ((array)self::getClass('HostManager')
-            ->find(
-                array('id' => $hostids)
-            ) as &$Host
-        ) {
-            $this->data[] = array(
-                'host_name' => $Host->get('name'),
-                'host_mac' => $Host->get('mac'),
-                'host_deployed' => self::formatTime(
-                    $Host->get('deployed'),
-                    'Y-m-d H:i:s'
-                ),
-            );
-            unset($Host);
-        }
-        printf(
-            '<p>%s</p>',
-            _('Confirm you really want to delete the following hosts')
-        );
-        printf(
-            '<form method="post" action="?node=group&sub=delete&id=%s" class="c">',
-            $this->obj->get('id')
-        );
-        self::$HookManager
-            ->processEvent(
-                'GROUP_DELETE_HOST_FORM',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        $this->render();
-        printf(
-            '<input type="submit" name="delHostConfirm" value="%s" /></form>',
-            _('Delete listed hosts')
-        );
     }
 }
