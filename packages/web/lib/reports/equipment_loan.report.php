@@ -267,7 +267,7 @@ class Equipment_Loan extends ReportManagementPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="panel-body">';
-        echo $this->ReportMaker->outputReport(false);
+        $this->ReportMaker->outputReport(0);
         echo '</div>';
         echo '</div>';
         echo '</div>';

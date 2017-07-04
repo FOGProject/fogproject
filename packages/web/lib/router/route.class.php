@@ -1160,6 +1160,19 @@ class Route extends FOGBase
                     'groupsnotinme' => array_map(
                         'intval',
                         $class->get('groupsnotinme')
+                    ),
+                    'users' => array_values(
+                        array_filter(
+                            array_unique(
+                                self::getSubObjectIDs(
+                                    'UserTracking',
+                                    array(
+                                        'id' => $class->get('users')
+                                    ),
+                                    'username'
+                                )
+                            )
+                        )
                     )
                 )
             );

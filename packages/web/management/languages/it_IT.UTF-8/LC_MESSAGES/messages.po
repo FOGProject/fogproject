@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-04 13:10-0400\n"
+"POT-Creation-Date: 2017-07-04 13:52-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -918,7 +918,8 @@ msgstr "%s ID %d non valido"
 #: /var/www/fog/lib/fog/fogpage.class.php:347
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1713
 #: /var/www/fog/lib/reports/snapin_log.report.php:75
-#: /var/www/fog/lib/reports/host_list.report.php:44
+#: /var/www/fog/lib/reports/host_list.report.php:33
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:33
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:63
 #: /var/www/fog/lib/reports/imaging_log.report.php:63
 #: /var/www/fog/lib/reports/inventory_report.report.php:83
@@ -940,8 +941,10 @@ msgstr "Nome host"
 #: /var/www/fog/lib/fog/fogpage.class.php:349
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1723
 #: /var/www/fog/lib/reports/snapin_log.report.php:77
-#: /var/www/fog/lib/reports/host_list.report.php:47
-#: /var/www/fog/lib/reports/host_list.report.php:66
+#: /var/www/fog/lib/reports/host_list.report.php:36
+#: /var/www/fog/lib/reports/host_list.report.php:55
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:36
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:56
 #: /var/www/fog/lib/reports/user_tracking.report.php:236
 #: /var/www/fog/lib/reports/imaging_log.report.php:65
 #: /var/www/fog/lib/reports/inventory_report.report.php:89
@@ -950,7 +953,8 @@ msgstr "Host MAC"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:350
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1728
-#: /var/www/fog/lib/reports/host_list.report.php:46
+#: /var/www/fog/lib/reports/host_list.report.php:35
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:35
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:66
 #: /var/www/fog/lib/reports/imaging_log.report.php:66
 #: /var/www/fog/lib/reports/inventory_report.report.php:92
@@ -1760,12 +1764,12 @@ msgstr "Rimuovi i selezionati"
 #: /var/www/fog/lib/reports/snapin_log.report.php:36
 #: /var/www/fog/lib/reports/product_keys.report.php:35
 #: /var/www/fog/lib/reports/product_keys.report.php:36
-#: /var/www/fog/lib/reports/host_list.report.php:35
-#: /var/www/fog/lib/reports/host_list.report.php:36
+#: /var/www/fog/lib/reports/host_list.report.php:121
+#: /var/www/fog/lib/reports/host_list.report.php:122
 #: /var/www/fog/lib/reports/virus_history.report.php:35
 #: /var/www/fog/lib/reports/virus_history.report.php:36
-#: /var/www/fog/lib/reports/hosts_and_users.report.php:35
-#: /var/www/fog/lib/reports/hosts_and_users.report.php:36
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:130
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:131
 #: /var/www/fog/lib/reports/user_tracking.report.php:203
 #: /var/www/fog/lib/reports/user_tracking.report.php:204
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:46
@@ -1949,9 +1953,12 @@ msgstr "Gruppo di archiviazione primaria"
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:74
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:482
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:334
-#: /var/www/fog/lib/reports/host_list.report.php:50
-#: /var/www/fog/lib/reports/host_list.report.php:67
-#: /var/www/fog/lib/reports/host_list.report.php:92
+#: /var/www/fog/lib/reports/host_list.report.php:39
+#: /var/www/fog/lib/reports/host_list.report.php:56
+#: /var/www/fog/lib/reports/host_list.report.php:84
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:39
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:57
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:88
 #: /var/www/fog/lib/reports/imaging_log.report.php:67
 msgid "Image Name"
 msgstr "Nome immagine"
@@ -3751,14 +3758,16 @@ msgstr "IP"
 #: /var/www/fog/lib/pages/serverinfo.class.php:170
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:150
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:313
-#: /var/www/fog/lib/reports/host_list.report.php:55
+#: /var/www/fog/lib/reports/host_list.report.php:44
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:44
 #: /var/www/fog/commons/text.php:108
 msgid "Kernel"
 msgstr "nocciolo"
 
 #: /var/www/fog/lib/pages/serverinfo.class.php:171
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:71
-#: /var/www/fog/lib/reports/host_list.report.php:65
+#: /var/www/fog/lib/reports/host_list.report.php:54
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:55
 #: /var/www/fog/lib/reports/user_tracking.report.php:110
 #: /var/www/fog/lib/reports/user_tracking.report.php:214
 #: /var/www/fog/lib/reports/user_tracking.report.php:235
@@ -4339,14 +4348,14 @@ msgstr "Gruppo"
 #: /var/www/fog/lib/reports/snapin_log.report.php:40
 #: /var/www/fog/lib/reports/product_keys.report.php:39
 #: /var/www/fog/lib/reports/product_keys.report.php:40
-#: /var/www/fog/lib/reports/host_list.report.php:39
-#: /var/www/fog/lib/reports/host_list.report.php:40
+#: /var/www/fog/lib/reports/host_list.report.php:125
+#: /var/www/fog/lib/reports/host_list.report.php:126
 #: /var/www/fog/lib/reports/equipment_loan.report.php:254
 #: /var/www/fog/lib/reports/equipment_loan.report.php:256
 #: /var/www/fog/lib/reports/virus_history.report.php:39
 #: /var/www/fog/lib/reports/virus_history.report.php:40
-#: /var/www/fog/lib/reports/hosts_and_users.report.php:39
-#: /var/www/fog/lib/reports/hosts_and_users.report.php:40
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:134
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:135
 #: /var/www/fog/lib/reports/user_tracking.report.php:207
 #: /var/www/fog/lib/reports/user_tracking.report.php:208
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:50
@@ -4409,8 +4418,9 @@ msgstr "Task da forzare a partire"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:974
 #: /var/www/fog/lib/reports/snapin_log.report.php:44
 #: /var/www/fog/lib/reports/snapin_log.report.php:76
-#: /var/www/fog/lib/reports/host_list.report.php:45
+#: /var/www/fog/lib/reports/host_list.report.php:34
 #: /var/www/fog/lib/reports/virus_history.report.php:53
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:34
 #: /var/www/fog/lib/reports/imaging_log.report.php:64
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:273
 msgid "Host Name"
@@ -4535,7 +4545,8 @@ msgstr "Snapin da installare"
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:170
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:464
 #: /var/www/fog/lib/plugins/site/hooks/addsiteuser.hook.php:219
-#: /var/www/fog/lib/reports/host_list.report.php:102
+#: /var/www/fog/lib/reports/host_list.report.php:94
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:98
 msgid "Yes"
 msgstr "Sì"
 
@@ -4549,7 +4560,8 @@ msgstr "Sì"
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:164
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:451
 #: /var/www/fog/lib/plugins/site/hooks/addsiteuser.hook.php:220
-#: /var/www/fog/lib/reports/host_list.report.php:103
+#: /var/www/fog/lib/reports/host_list.report.php:95
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:99
 msgid "No"
 msgstr "No"
 
@@ -5895,7 +5907,8 @@ msgid "Image to DMI Mappings"
 msgstr "Aggiungi alla DMI Associazioni"
 
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:483
-#: /var/www/fog/lib/reports/host_list.report.php:57
+#: /var/www/fog/lib/reports/host_list.report.php:46
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:46
 msgid "OS Name"
 msgstr "Nome OS"
 
@@ -7422,34 +7435,44 @@ msgstr "Tasti del prodotto host"
 msgid "Host Listing Export"
 msgstr "Esportazione delle liste host"
 
-#: /var/www/fog/lib/reports/host_list.report.php:48
+#: /var/www/fog/lib/reports/host_list.report.php:37
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:37
 msgid "Host Created"
 msgstr "Host Creato"
 
-#: /var/www/fog/lib/reports/host_list.report.php:49
-#: /var/www/fog/lib/reports/host_list.report.php:89
+#: /var/www/fog/lib/reports/host_list.report.php:38
+#: /var/www/fog/lib/reports/host_list.report.php:81
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:38
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:85
 msgid "Image ID"
 msgstr "ID immagine"
 
-#: /var/www/fog/lib/reports/host_list.report.php:51
-#: /var/www/fog/lib/reports/host_list.report.php:95
+#: /var/www/fog/lib/reports/host_list.report.php:40
+#: /var/www/fog/lib/reports/host_list.report.php:87
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:40
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:91
 msgid "Image Desc"
 msgstr "immagine Desc"
 
-#: /var/www/fog/lib/reports/host_list.report.php:52
-#: /var/www/fog/lib/reports/host_list.report.php:98
+#: /var/www/fog/lib/reports/host_list.report.php:41
+#: /var/www/fog/lib/reports/host_list.report.php:90
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:41
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:94
 msgid "AD Join"
 msgstr "AD Join"
 
-#: /var/www/fog/lib/reports/host_list.report.php:53
+#: /var/www/fog/lib/reports/host_list.report.php:42
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:42
 msgid "AD OU"
 msgstr "AD OU"
 
-#: /var/www/fog/lib/reports/host_list.report.php:54
+#: /var/www/fog/lib/reports/host_list.report.php:43
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:43
 msgid "AD Domain"
 msgstr "AD Domain"
 
-#: /var/www/fog/lib/reports/host_list.report.php:56
+#: /var/www/fog/lib/reports/host_list.report.php:45
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:45
 msgid "HD Device"
 msgstr "dispositivo HD"
 
@@ -7607,6 +7630,13 @@ msgstr "Virus eliminato"
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:31
 msgid "FOG Hosts and Users Login"
 msgstr "Host nebbia e Accesso utenti"
+
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:47
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:58
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:103
+#, fuzzy
+msgid "Login Users"
+msgstr "Tempo di accesso"
 
 #: /var/www/fog/lib/reports/user_tracking.report.php:31
 msgid "FOG User tracking - Search"
