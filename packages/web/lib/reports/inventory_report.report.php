@@ -29,17 +29,6 @@ class Inventory_Report extends ReportManagementPage
     public function file()
     {
         $this->title = _('Full Inventory Export');
-        printf(
-            $this->reportString,
-            'InventoryReport',
-            _('Export CSV'),
-            _('Export CSV'),
-            self::$csvfile,
-            'InventoryReport',
-            _('Export PDF'),
-            _('Export PDF'),
-            self::$pdffile
-        );
         array_walk(
             self::$inventoryCsvHead,
             function (&$classGet, &$csvHeader) {
@@ -52,51 +41,54 @@ class Inventory_Report extends ReportManagementPage
             _('Host name'),
             _('Memory'),
             _('System Product'),
-            _('System Serial'),
+            _('System Serial')
         );
         $this->templates = array(
             '${host_name}<br/><small>${host_mac}</small>',
             '${memory}',
             '${sysprod}',
-            '${sysser}',
+            '${sysser}'
         );
         $this->attributes = array(
             array(),
             array(),
             array(),
-            array(),
+            array()
         );
-        foreach ((array)self::getClass('HostManager')
-            ->find() as &$Host
-        ) {
-            $Image = $Host->getImage();
-            $Inventory = $Host->get('inventory');
+        Route::listem('host');
+        $Hosts = json_decode(
+            Route::getData()
+        );
+        $Hosts = $Hosts->hosts;
+        foreach ((array)$Hosts as &$Host) {
+            $Image = $Host->image;
+            $Inventory = $Host->inventory;
             $this->data[] = array(
-                'host_name' => $Host->get('name'),
-                'host_mac' => $Host->get('mac'),
-                'memory' => $Inventory->getMem(),
-                'sysprod' => $Inventory->get('sysproduct'),
-                'sysser' => $Inventory->get('sysserial'),
+                'host_name' => $Host->name,
+                'host_mac' => $Host->macs[0],
+                'memory' => $Inventory->memory,
+                'sysprod' => $Inventory->sysproduct,
+                'sysser' => $Inventory->sysserial,
             );
             foreach (self::$inventoryCsvHead as $head => &$classGet) {
                 switch ($head) {
                 case _('Host ID'):
-                    $this->ReportMaker->addCSVCell($Host->get('id'));
+                    $this->ReportMaker->addCSVCell($Host->id);
                     break;
                 case _('Host name'):
-                    $this->ReportMaker->addCSVCell($Host->get('name'));
+                    $this->ReportMaker->addCSVCell($Host->name);
                     break;
                 case _('Host MAC'):
-                    $this->ReportMaker->addCSVCell($Host->get('mac'));
+                    $this->ReportMaker->addCSVCell($Host->macs[0]);
                     break;
                 case _('Host Desc'):
-                    $this->ReportMaker->addCSVCell($Host->get('description'));
+                    $this->ReportMaker->addCSVCell($Host->description);
                     break;
                 case _('Memory'):
-                    $this->ReportMaker->addCSVCell($Inventory->getMem());
+                    $this->ReportMaker->addCSVCell($Inventory->memory);
                     break;
                 default:
-                    $this->ReportMaker->addCSVCell($Inventory->get($classGet));
+                    $this->ReportMaker->addCSVCell($Inventory->$classGet);
                     break;
                 }
                 unset($classGet, $head);
@@ -104,8 +96,32 @@ class Inventory_Report extends ReportManagementPage
             $this->ReportMaker->endCSVLine();
             unset($Inventory, $Host);
         }
-        $this->ReportMaker->appendHTML($this->__toString());
-        $this->ReportMaker->outputReport(false);
+        $this->ReportMaker->appendHTML($this->process(12));
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<div class="text-center">';
+        printf(
+            $this->reportString,
+            'InventoryReport',
+            _('Export CSV'),
+            _('Export CSV'),
+            self::$csvfile,
+            'InventoryReport',
+            _('Export PDF'),
+            _('Export PDF'),
+            self::$pdffile
+        );
+        echo '</div>';
+        $this->ReportMaker->outputReport(0);
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
         $_SESSION['foglastreport'] = serialize($this->ReportMaker);
     }
 }

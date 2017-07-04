@@ -29,17 +29,6 @@ class Imaging_Log extends ReportManagementPage
     public function file()
     {
         $this->title = _('FOG Imaging Log');
-        printf(
-            $this->reportString,
-            'ImagingLog',
-            _('Export CSV'),
-            _('Export CSV'),
-            self::$csvfile,
-            'ImagingLog',
-            _('Export PDF'),
-            _('Export PDF'),
-            self::$pdffile
-        );
         $this->headerData = array(
             _('Created By'),
             _('Host'),
@@ -82,37 +71,40 @@ class Imaging_Log extends ReportManagementPage
             unset($csvHeader);
         }
         $this->ReportMaker->endCSVLine();
-        foreach (self::getClass('ImagingLogManager')
-            ->find() as &$ImagingLog
-        ) {
-            if (!$ImagingLog->get('host')->isValid()) {
+        Route::listem('imaginglog');
+        $ImagingLogs = json_decode(
+            Route::getData()
+        );
+        $ImagingLogs = $ImagingLogs->imaginglogs;
+        foreach ((array)$ImagingLogs as &$ImagingLog) {
+            if (!$ImagingLog->host->id) {
                 continue;
             }
-            $start = $ImagingLog->get('start');
-            $end = $ImagingLog->get('finish');
+            $start = $ImagingLog->start;
+            $end = $ImagingLog->finish;
             if (!self::validDate($start)) {
                 continue;
             }
             $diff = self::diff($start, $end);
             $start = self::niceDate($start);
             $end = self::niceDate($end);
-            $hostname = $ImagingLog->get('host')->get('name');
-            $hostid = $ImagingLog->get('host')->get('id');
-            $hostmac = $ImagingLog->get('host')->get('mac')->__toString();
-            $hostdesc = $ImagingLog->get('host')->get('description');
-            $typename = $ImagingLog->get('type');
+            $hostname = $ImagingLog->host->name;
+            $hostid = $ImagingLog->host->id;
+            $hostmac = $ImagingLog->host->macs[0];
+            $hostdesc = $ImagingLog->host->description;
+            $typename = $ImagingLog->type;
             if (in_array($typename, array_keys($imgTypes))) {
                 $typename = $imgTypes[$typename];
             }
             $createdBy = (
-                $ImagingLog->get('createdBy') ?:
+                $ImagingLog->createdBy ?:
                 self::$FOGUser->get('name')
             );
-            if ($ImagingLog->getImage()->isValid()) {
-                $imagename = $ImagingLog->getImage()->get('name');
-                $imagepath = $ImagingLog->getImage()->get('path');
+            if ($ImagingLog->image->id) {
+                $imagename = $ImagingLog->image->name;
+                $imagepath = $ImagingLog->image->path;
             } else {
-                $imagename = $ImagingLog->get('image');
+                $imagename = $ImagingLog->image;
                 $imagepath = _('Not Valid');
             }
             unset($ImagingLog);
@@ -162,8 +154,32 @@ class Imaging_Log extends ReportManagementPage
                 $typename
             );
         }
-        $this->ReportMaker->appendHTML($this->__toString());
+        $this->ReportMaker->appendHTML($this->process(12));
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<div class="text-center">';
+        printf(
+            $this->reportString,
+            'ImagingLog',
+            _('Export CSV'),
+            _('Export CSV'),
+            self::$csvfile,
+            'ImagingLog',
+            _('Export PDF'),
+            _('Export PDF'),
+            self::$pdffile
+        );
+        echo '</div>';
         $this->ReportMaker->outputReport(0);
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
         $_SESSION['foglastreport'] = serialize($this->ReportMaker);
     }
 }

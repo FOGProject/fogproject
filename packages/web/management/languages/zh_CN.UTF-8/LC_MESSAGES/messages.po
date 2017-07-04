@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-04 13:52-0400\n"
+"POT-Creation-Date: 2017-07-04 14:50-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -452,7 +452,7 @@ msgstr "数据数组"
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:55
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:164
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:327
-#: /var/www/fog/lib/reports/imaging_log.report.php:50
+#: /var/www/fog/lib/reports/imaging_log.report.php:39
 #: /var/www/fog/commons/text.php:119
 msgid "Type"
 msgstr "类型"
@@ -811,7 +811,7 @@ msgstr "您只能分配"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:175
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:326
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:392
-#: /var/www/fog/lib/reports/imaging_log.report.php:45
+#: /var/www/fog/lib/reports/imaging_log.report.php:34
 #: /var/www/fog/commons/text.php:47
 msgid "Host"
 msgstr "主办"
@@ -995,8 +995,8 @@ msgstr "%s ID %s是无效的"
 #: /var/www/fog/lib/reports/host_list.report.php:33
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:33
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:63
-#: /var/www/fog/lib/reports/imaging_log.report.php:63
-#: /var/www/fog/lib/reports/inventory_report.report.php:83
+#: /var/www/fog/lib/reports/imaging_log.report.php:52
+#: /var/www/fog/lib/reports/inventory_report.report.php:75
 msgid "Host ID"
 msgstr "主机ID"
 
@@ -1007,8 +1007,8 @@ msgstr "主机ID"
 #: /var/www/fog/lib/reports/virus_history.report.php:126
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:64
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:78
-#: /var/www/fog/lib/reports/inventory_report.report.php:52
-#: /var/www/fog/lib/reports/inventory_report.report.php:86
+#: /var/www/fog/lib/reports/inventory_report.report.php:41
+#: /var/www/fog/lib/reports/inventory_report.report.php:78
 msgid "Host name"
 msgstr "主机名"
 
@@ -1020,8 +1020,8 @@ msgstr "主机名"
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:36
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:56
 #: /var/www/fog/lib/reports/user_tracking.report.php:236
-#: /var/www/fog/lib/reports/imaging_log.report.php:65
-#: /var/www/fog/lib/reports/inventory_report.report.php:89
+#: /var/www/fog/lib/reports/imaging_log.report.php:54
+#: /var/www/fog/lib/reports/inventory_report.report.php:81
 msgid "Host MAC"
 msgstr "主机的MAC"
 
@@ -1030,8 +1030,8 @@ msgstr "主机的MAC"
 #: /var/www/fog/lib/reports/host_list.report.php:35
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:35
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:66
-#: /var/www/fog/lib/reports/imaging_log.report.php:66
-#: /var/www/fog/lib/reports/inventory_report.report.php:92
+#: /var/www/fog/lib/reports/imaging_log.report.php:55
+#: /var/www/fog/lib/reports/inventory_report.report.php:84
 msgid "Host Desc"
 msgstr "主持人说明"
 
@@ -1064,7 +1064,7 @@ msgstr "系统制造商"
 #: /var/www/fog/lib/fog/fogpage.class.php:357
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1680
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2329
-#: /var/www/fog/lib/reports/inventory_report.report.php:54
+#: /var/www/fog/lib/reports/inventory_report.report.php:43
 msgid "System Product"
 msgstr "系统产品"
 
@@ -1075,7 +1075,7 @@ msgstr "系统版本"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:359
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1681
-#: /var/www/fog/lib/reports/inventory_report.report.php:55
+#: /var/www/fog/lib/reports/inventory_report.report.php:44
 msgid "System Serial"
 msgstr "系统序列"
 
@@ -1142,8 +1142,8 @@ msgstr "CPU最大速度"
 #: /var/www/fog/lib/fog/fogpage.class.php:373
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1679
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2346
-#: /var/www/fog/lib/reports/inventory_report.report.php:53
-#: /var/www/fog/lib/reports/inventory_report.report.php:95
+#: /var/www/fog/lib/reports/inventory_report.report.php:42
+#: /var/www/fog/lib/reports/inventory_report.report.php:87
 msgid "Memory"
 msgstr "记忆"
 
@@ -1866,10 +1866,10 @@ msgstr "删除选定snapins"
 #: /var/www/fog/lib/reports/user_tracking.report.php:204
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:46
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:47
-#: /var/www/fog/lib/reports/imaging_log.report.php:35
-#: /var/www/fog/lib/reports/imaging_log.report.php:36
-#: /var/www/fog/lib/reports/inventory_report.report.php:35
-#: /var/www/fog/lib/reports/inventory_report.report.php:36
+#: /var/www/fog/lib/reports/imaging_log.report.php:170
+#: /var/www/fog/lib/reports/imaging_log.report.php:171
+#: /var/www/fog/lib/reports/inventory_report.report.php:112
+#: /var/www/fog/lib/reports/inventory_report.report.php:113
 msgid "Export CSV"
 msgstr "导出CSV"
 
@@ -2055,7 +2055,7 @@ msgstr "主存储组"
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:39
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:57
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:88
-#: /var/www/fog/lib/reports/imaging_log.report.php:67
+#: /var/www/fog/lib/reports/imaging_log.report.php:56
 msgid "Image Name"
 msgstr "图片名称"
 
@@ -2189,7 +2189,7 @@ msgstr "操作系统"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:554
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:843
-#: /var/www/fog/lib/reports/imaging_log.report.php:68
+#: /var/www/fog/lib/reports/imaging_log.report.php:57
 #: /var/www/fog/commons/text.php:313
 msgid "Image Path"
 msgstr "图像路径"
@@ -2385,7 +2385,7 @@ msgstr "选择图片"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:1291
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2730
-#: /var/www/fog/lib/reports/imaging_log.report.php:46
+#: /var/www/fog/lib/reports/imaging_log.report.php:35
 msgid "Start"
 msgstr "开始"
 
@@ -2409,7 +2409,7 @@ msgstr "客户端"
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:825
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1004
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2885
-#: /var/www/fog/lib/reports/imaging_log.report.php:70
+#: /var/www/fog/lib/reports/imaging_log.report.php:59
 msgid "Start Time"
 msgstr "开始时间"
 
@@ -4472,10 +4472,10 @@ msgstr "组"
 #: /var/www/fog/lib/reports/user_tracking.report.php:208
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:50
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:51
-#: /var/www/fog/lib/reports/imaging_log.report.php:39
-#: /var/www/fog/lib/reports/imaging_log.report.php:40
-#: /var/www/fog/lib/reports/inventory_report.report.php:39
-#: /var/www/fog/lib/reports/inventory_report.report.php:40
+#: /var/www/fog/lib/reports/imaging_log.report.php:174
+#: /var/www/fog/lib/reports/imaging_log.report.php:175
+#: /var/www/fog/lib/reports/inventory_report.report.php:116
+#: /var/www/fog/lib/reports/inventory_report.report.php:117
 msgid "Export PDF"
 msgstr "导出PDF"
 
@@ -4535,7 +4535,7 @@ msgstr "强制任务启动"
 #: /var/www/fog/lib/reports/host_list.report.php:34
 #: /var/www/fog/lib/reports/virus_history.report.php:53
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:34
-#: /var/www/fog/lib/reports/imaging_log.report.php:64
+#: /var/www/fog/lib/reports/imaging_log.report.php:53
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:273
 msgid "Host Name"
 msgstr "主机名"
@@ -4563,7 +4563,7 @@ msgstr "分配给主机图像无效"
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:418
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:428
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:439
-#: /var/www/fog/lib/reports/imaging_log.report.php:49
+#: /var/www/fog/lib/reports/imaging_log.report.php:38
 #: /var/www/fog/commons/text.php:41
 msgid "Image"
 msgstr "图片"
@@ -5555,26 +5555,26 @@ msgid "Imaged From"
 msgstr "成像"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2731
-#: /var/www/fog/lib/reports/imaging_log.report.php:47
+#: /var/www/fog/lib/reports/imaging_log.report.php:36
 msgid "End"
 msgstr "结束"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2732
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2887
-#: /var/www/fog/lib/reports/imaging_log.report.php:48
-#: /var/www/fog/lib/reports/imaging_log.report.php:73
+#: /var/www/fog/lib/reports/imaging_log.report.php:37
+#: /var/www/fog/lib/reports/imaging_log.report.php:62
 msgid "Duration"
 msgstr "为期"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2768
-#: /var/www/fog/lib/reports/imaging_log.report.php:77
+#: /var/www/fog/lib/reports/imaging_log.report.php:66
 #: /var/www/fog/commons/text.php:101
 #, fuzzy
 msgid "Capture"
 msgstr "创建"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2769
-#: /var/www/fog/lib/reports/imaging_log.report.php:78
+#: /var/www/fog/lib/reports/imaging_log.report.php:67
 #: /var/www/fog/commons/text.php:100
 msgid "Deploy"
 msgstr "部署"
@@ -6202,8 +6202,8 @@ msgid "Team"
 msgstr "球队"
 
 #: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:52
-#: /var/www/fog/lib/reports/imaging_log.report.php:44
-#: /var/www/fog/lib/reports/imaging_log.report.php:62
+#: /var/www/fog/lib/reports/imaging_log.report.php:33
+#: /var/www/fog/lib/reports/imaging_log.report.php:51
 msgid "Created By"
 msgstr "由...制作"
 
@@ -7990,24 +7990,24 @@ msgstr "待淅淅沥沥"
 msgid "FOG Imaging Log"
 msgstr "FOG成像测井"
 
-#: /var/www/fog/lib/reports/imaging_log.report.php:69
+#: /var/www/fog/lib/reports/imaging_log.report.php:58
 msgid "Start Date"
 msgstr "开始日期"
 
-#: /var/www/fog/lib/reports/imaging_log.report.php:71
+#: /var/www/fog/lib/reports/imaging_log.report.php:60
 msgid "End Date"
 msgstr "结束日期"
 
-#: /var/www/fog/lib/reports/imaging_log.report.php:72
+#: /var/www/fog/lib/reports/imaging_log.report.php:61
 msgid "End Time"
 msgstr "时间结束"
 
-#: /var/www/fog/lib/reports/imaging_log.report.php:74
+#: /var/www/fog/lib/reports/imaging_log.report.php:63
 #, fuzzy
 msgid "Deploy/Capture"
 msgstr "部署"
 
-#: /var/www/fog/lib/reports/imaging_log.report.php:116
+#: /var/www/fog/lib/reports/imaging_log.report.php:108
 #, fuzzy
 msgid "Not Valid"
 msgstr "数据无效"
