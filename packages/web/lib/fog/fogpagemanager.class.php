@@ -159,10 +159,9 @@ class FOGPageManager extends FOGBase
             if (!array_key_exists($this->classValue, $this->_nodes)) {
                 throw new Exception(_('No FOGPage Class found for this node'));
             }
-            if (isset($_REQUEST[$class->id])
-                && $_REQUEST[$class->id]
-            ) {
-                $this->_arguments = array('id' => $_REQUEST[$class->id]);
+            $id = filter_input(INPUT_GET, $class->id);
+            if ($id) {
+                $this->_arguments = array('id' => $id);
             }
             if (self::$post) {
                 self::setRequest();

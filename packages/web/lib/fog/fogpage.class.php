@@ -243,7 +243,7 @@ abstract class FOGPage extends FOGBase
         $subs = array(
             'configure',
             'authorize',
-            'requestClientInfo',
+            'requestClientInfo'
         );
         if (in_array($sub, $subs)) {
             return $this->{$sub}();
@@ -332,11 +332,15 @@ abstract class FOGPage extends FOGBase
                 }
             }
         }
-        $this->reportString = '<h2><div id="exportDiv"></div><a id="csvsub" '
-            . 'href="../management/export.php?filename=%s&type=csv" alt="%s" '
-            . 'title="%s" target="_blank">%s</a> <a id="pdfsub" '
-            . 'href="../management/export.php?filename=%s&type=pdf" alt="%s" '
-            . 'title="%s" target="_blank">%s</a></h2>';
+        $this->reportString = '<h4 class="title">'
+            . '<div id="exportDiv"></div>'
+            . '<a id="csvsub" href="../management/export.php?filename=%s&type=csv" '
+            . 'alt="%s" title="%s" target="_blank" data-toggle="tooltip" '
+            . 'data-placement="top">%s</a> '
+            . '<a id="pdfsub" href="../management/export.php?filename=%s&type=pdf" '
+            . 'alt="%s" title="%s" target="_blank" data-toggle="tooltip" '
+            . 'data-placement="top">%s</a>'
+            . '</h4>';
         self::$pdffile = '<i class="fa fa-file-pdf-o fa-2x"></i>';
         self::$csvfile = '<i class="fa fa-file-excel-o fa-2x"></i>';
         self::$inventoryCsvHead = array(
@@ -2606,7 +2610,7 @@ abstract class FOGPage extends FOGBase
         unset($this->headerData);
         $this->attributes = array(
             array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',
@@ -3090,19 +3094,14 @@ abstract class FOGPage extends FOGBase
                 );
             }
             if ($this->obj instanceof Group) {
-                if (isset($_REQUEST['delHostConfirm'])) {
+                if (isset($_POST['massDelHosts'])) {
                     self::getClass('HostManager')
                         ->destroy(
                             array('id' => $this->obj->get('hosts'))
                         );
                 }
-                if (isset($_REQUEST['massDelHosts'])) {
-                    self::redirect(
-                        "?node=group&sub=deletehosts&id={$this->obj->get(id)}"
-                    );
-                }
             }
-            if ($_REQUEST['andFile'] === "true") {
+            if (isset($_POST['andFile'])) {
                 $this->obj->deleteFile();
             }
             if (!$this->obj->destroy()) {

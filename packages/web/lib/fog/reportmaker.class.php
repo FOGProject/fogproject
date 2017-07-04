@@ -143,33 +143,34 @@ class ReportMaker extends FOGBase
     public function outputReport($intType = 0)
     {
         $keys = array_keys($this->types);
-        if (!(isset($_REQUEST['type'])
-            && is_string($_REQUEST['type']))
+        $type = filter_input(INPUT_GET, 'type');
+        $filename = filter_input(INPUT_GET, 'filename');
+        if (!(isset($type)
+            && is_string($type))
         ) {
-            $_REQUEST['type'] = $keys[$intType];
+            $type = $keys[$intType];
         }
-        $type = Initiator::sanitizeItems($_REQUEST['type']);
         if (!in_array($type, $keys)) {
             die(_('Invalid type'));
         }
-        if (!(isset($_REQUEST['filename'])
-            && is_string($_REQUEST['filename']))
+        if (!(isset($filename)
+            && is_string($filename))
         ) {
-            $_REQUEST['filename'] = '';
+            $filename = '';
         }
-        $file = Initiator::sanitizeItems($_REQUEST['filename']);
+        $file = $filename;
         $file = basename(
             trim(
                 $file
             )
         );
-        if (!isset($_REQUEST['export'])) {
+        if (!isset($_POST['export'])) {
             $this->setFileName($file);
         }
         $intType = (
             $intType !== false ?
             (
-                isset($_REQUEST['export']) ?
+                isset($_POST['export']) ?
                 3 :
                 $this->types[$type]
             ) :
@@ -177,7 +178,7 @@ class ReportMaker extends FOGBase
         );
         switch ($intType) {
         case 0:
-            echo implode("\n", (array) $this->_strHTML);
+            echo implode("\n", (array)$this->_strHTML);
             break;
         case 1:
             $filename = $this->_filename;
