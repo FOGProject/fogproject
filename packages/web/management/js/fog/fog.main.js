@@ -520,7 +520,7 @@ function ajaxRun(username,password,url,selector,formid,target,authneeded) {
                     if (authneeded) {
                         $(selector).html('<form id="'+formid+'" method="post" action="'+url+'"><input type="hidden" name="fogguiuser" value="'+username+'"/><input type="hidden" name="fogguipass" value="'+password+'"/></form>').dialog('close');
                     } else {
-                        $(selector).append('<form id="'+formid+'" method="post" action="'+url+'"><input type="hidden" name="fogguiuser" value="'+username+'"/><input type="hidden" name="fogguipass" value="'+password+'"/></form>');
+                        $(selector).append('<form id="'+formid+'" method="post" action="'+url+'"></form>');
                     }
                     $('#'+formid).submit();
                 }

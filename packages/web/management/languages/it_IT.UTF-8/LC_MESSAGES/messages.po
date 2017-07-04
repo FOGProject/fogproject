@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-04 11:59-0400\n"
+"POT-Creation-Date: 2017-07-04 13:10-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -76,7 +76,7 @@ msgid "Data must be an array or a callable item."
 msgstr "Dati deve essere un array o un callable"
 
 #: /var/www/fog/lib/fog/fogsubmenu.class.php:310
-#: /var/www/fog/lib/reports/equipment_loan.report.php:211
+#: /var/www/fog/lib/reports/equipment_loan.report.php:207
 msgid "Notes"
 msgstr "Note"
 
@@ -202,7 +202,7 @@ msgstr "Record non trovato"
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:119
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:221
 #: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:54
-#: /var/www/fog/lib/reports/equipment_loan.report.php:163
+#: /var/www/fog/lib/reports/equipment_loan.report.php:159
 #: /var/www/fog/lib/service/fogservice.class.php:391
 #: /var/www/fog/lib/service/fogservice.class.php:420
 #: /var/www/fog/lib/service/fogservice.class.php:505
@@ -1433,8 +1433,8 @@ msgstr "Data prevista è nel passato"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1498
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2418
-#: /var/www/fog/lib/reports/equipment_loan.report.php:231
-#: /var/www/fog/lib/reports/equipment_loan.report.php:240
+#: /var/www/fog/lib/reports/equipment_loan.report.php:227
+#: /var/www/fog/lib/reports/equipment_loan.report.php:236
 #: /var/www/fog/lib/reports/virus_history.report.php:57
 #: /var/www/fog/lib/reports/virus_history.report.php:64
 #: /var/www/fog/commons/text.php:89
@@ -1885,7 +1885,6 @@ msgstr "Errori"
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:294
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:421
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:820
-#: /var/www/fog/lib/reports/equipment_loan.report.php:61
 #: /var/www/fog/commons/text.php:295
 msgid "Please select an option"
 msgstr "per favore selezionate un'opzione"
@@ -4342,8 +4341,8 @@ msgstr "Gruppo"
 #: /var/www/fog/lib/reports/product_keys.report.php:40
 #: /var/www/fog/lib/reports/host_list.report.php:39
 #: /var/www/fog/lib/reports/host_list.report.php:40
-#: /var/www/fog/lib/reports/equipment_loan.report.php:104
-#: /var/www/fog/lib/reports/equipment_loan.report.php:105
+#: /var/www/fog/lib/reports/equipment_loan.report.php:254
+#: /var/www/fog/lib/reports/equipment_loan.report.php:256
 #: /var/www/fog/lib/reports/virus_history.report.php:39
 #: /var/www/fog/lib/reports/virus_history.report.php:40
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:39
@@ -5791,7 +5790,7 @@ msgstr "Nome Plugin"
 
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:76
 #: /var/www/fog/lib/plugins/location/hooks/addlocationtasks.hook.php:90
-#: /var/www/fog/lib/reports/equipment_loan.report.php:165
+#: /var/www/fog/lib/reports/equipment_loan.report.php:161
 #: /var/www/fog/commons/text.php:109 /var/www/fog/commons/text.php:133
 msgid "Location"
 msgstr "Luogo"
@@ -7455,127 +7454,139 @@ msgid "HD Device"
 msgstr "dispositivo HD"
 
 #: /var/www/fog/lib/reports/equipment_loan.report.php:31
-#: /var/www/fog/lib/reports/equipment_loan.report.php:96
+#: /var/www/fog/lib/reports/equipment_loan.report.php:103
 msgid "FOG Equipment Loan Form"
 msgstr "FOG Attrezzature prestito Modulo"
 
-#: /var/www/fog/lib/reports/equipment_loan.report.php:56
+#: /var/www/fog/lib/reports/equipment_loan.report.php:63
 msgid "Select User"
 msgstr "Selezionare utente"
 
 #: /var/www/fog/lib/reports/equipment_loan.report.php:66
-msgid "Create Report"
+#, fuzzy
+msgid "Create Report?"
 msgstr "Crea rapporto"
 
-#: /var/www/fog/lib/reports/equipment_loan.report.php:155
-#: /var/www/fog/lib/reports/equipment_loan.report.php:233
+#: /var/www/fog/lib/reports/equipment_loan.report.php:69
+#, fuzzy
+msgid "Generate"
+msgstr "Generale"
+
+#: /var/www/fog/lib/reports/equipment_loan.report.php:151
+#: /var/www/fog/lib/reports/equipment_loan.report.php:229
 msgid "of"
 msgstr "di"
 
-#: /var/www/fog/lib/reports/equipment_loan.report.php:156
-#: /var/www/fog/lib/reports/equipment_loan.report.php:234
+#: /var/www/fog/lib/reports/equipment_loan.report.php:152
+#: /var/www/fog/lib/reports/equipment_loan.report.php:230
 msgid "Printed"
 msgstr "Stampato"
 
-#: /var/www/fog/lib/reports/equipment_loan.report.php:158
+#: /var/www/fog/lib/reports/equipment_loan.report.php:154
 #: /var/www/fog/commons/text.php:226
 msgid "Equipment Loan"
 msgstr "attrezzature di prestito"
 
-#: /var/www/fog/lib/reports/equipment_loan.report.php:161
+#: /var/www/fog/lib/reports/equipment_loan.report.php:157
 msgid "PC Check-out Agreement"
 msgstr "PC accordo check-out"
 
-#: /var/www/fog/lib/reports/equipment_loan.report.php:162
+#: /var/www/fog/lib/reports/equipment_loan.report.php:158
 msgid "Personal Information"
 msgstr "Informazione personale"
 
-#: /var/www/fog/lib/reports/equipment_loan.report.php:166
+#: /var/www/fog/lib/reports/equipment_loan.report.php:162
 msgid "Your Location Here"
 msgstr "Qui la tua posizione"
 
-#: /var/www/fog/lib/reports/equipment_loan.report.php:167
+#: /var/www/fog/lib/reports/equipment_loan.report.php:163
 msgid "Home Address"
 msgstr "Indirizzo di casa"
 
-#: /var/www/fog/lib/reports/equipment_loan.report.php:169
+#: /var/www/fog/lib/reports/equipment_loan.report.php:165
 msgid "City/State/Zip"
 msgstr "Città stato CAP"
 
-#: /var/www/fog/lib/reports/equipment_loan.report.php:171
+#: /var/www/fog/lib/reports/equipment_loan.report.php:167
 msgid "Extension"
 msgstr "Estensione"
 
-#: /var/www/fog/lib/reports/equipment_loan.report.php:173
+#: /var/www/fog/lib/reports/equipment_loan.report.php:169
 msgid "Home Phone"
 msgstr "Telefono di casa"
 
-#: /var/www/fog/lib/reports/equipment_loan.report.php:175
+#: /var/www/fog/lib/reports/equipment_loan.report.php:171
 msgid "Computer Information"
 msgstr "Informazioni sul computer"
 
-#: /var/www/fog/lib/reports/equipment_loan.report.php:179
+#: /var/www/fog/lib/reports/equipment_loan.report.php:175
 #: /var/www/fog/lib/reg-task/taskqueue.class.php:275
 msgid "Serial Number"
 msgstr "Numero di serie"
 
-#: /var/www/fog/lib/reports/equipment_loan.report.php:180
+#: /var/www/fog/lib/reports/equipment_loan.report.php:176
 msgid "Service Tag"
 msgstr "Etichetta di servizio"
 
-#: /var/www/fog/lib/reports/equipment_loan.report.php:194
+#: /var/www/fog/lib/reports/equipment_loan.report.php:190
 msgid "Barcode Numbers"
 msgstr "I numeri di codici a barre"
 
-#: /var/www/fog/lib/reports/equipment_loan.report.php:207
+#: /var/www/fog/lib/reports/equipment_loan.report.php:203
 msgid "Date of checkout"
 msgstr "Data di cassa"
 
-#: /var/www/fog/lib/reports/equipment_loan.report.php:212
+#: /var/www/fog/lib/reports/equipment_loan.report.php:208
 msgid "Miscellaneous"
 msgstr "miscellaneo"
 
-#: /var/www/fog/lib/reports/equipment_loan.report.php:213
+#: /var/www/fog/lib/reports/equipment_loan.report.php:209
 msgid "Included Items"
 msgstr "Elementi inclusi"
 
-#: /var/www/fog/lib/reports/equipment_loan.report.php:217
+#: /var/www/fog/lib/reports/equipment_loan.report.php:213
 msgid "Releasing Staff Initials"
 msgstr "Il rilascio del personale Iniziali"
 
-#: /var/www/fog/lib/reports/equipment_loan.report.php:219
+#: /var/www/fog/lib/reports/equipment_loan.report.php:215
 msgid "To be released only by"
 msgstr "Per essere rilasciato solo da"
 
-#: /var/www/fog/lib/reports/equipment_loan.report.php:223
+#: /var/www/fog/lib/reports/equipment_loan.report.php:219
 msgid "I have read"
 msgstr "ho letto"
 
-#: /var/www/fog/lib/reports/equipment_loan.report.php:224
+#: /var/www/fog/lib/reports/equipment_loan.report.php:220
 msgid "understood"
 msgstr "inteso"
 
-#: /var/www/fog/lib/reports/equipment_loan.report.php:225
+#: /var/www/fog/lib/reports/equipment_loan.report.php:221
 msgid "and agree to all the"
 msgstr "e d'accordo a tutti"
 
-#: /var/www/fog/lib/reports/equipment_loan.report.php:226
-#: /var/www/fog/lib/reports/equipment_loan.report.php:236
+#: /var/www/fog/lib/reports/equipment_loan.report.php:222
+#: /var/www/fog/lib/reports/equipment_loan.report.php:232
 msgid "Terms and Conditions"
 msgstr "Termini e condizioni"
 
-#: /var/www/fog/lib/reports/equipment_loan.report.php:227
+#: /var/www/fog/lib/reports/equipment_loan.report.php:223
 msgid "on the following pages of this document"
 msgstr "nelle pagine seguenti di questo documento"
 
-#: /var/www/fog/lib/reports/equipment_loan.report.php:229
-#: /var/www/fog/lib/reports/equipment_loan.report.php:238
+#: /var/www/fog/lib/reports/equipment_loan.report.php:225
+#: /var/www/fog/lib/reports/equipment_loan.report.php:234
 msgid "Signed"
 msgstr "firmato"
 
-#: /var/www/fog/lib/reports/equipment_loan.report.php:244
-msgid "Your form is ready."
+#: /var/www/fog/lib/reports/equipment_loan.report.php:262
+#, fuzzy
+msgid "Your form is ready"
 msgstr "Il modulo è pronto."
+
+#: /var/www/fog/lib/reports/equipment_loan.report.php:266
+#, fuzzy
+msgid "Form"
+msgstr "Formato"
 
 #: /var/www/fog/lib/reports/virus_history.report.php:31
 msgid "FOG Virus Summary"
@@ -10011,9 +10022,6 @@ msgstr "Non ci sono posizioni su questo server"
 
 #~ msgid "Cannot connect to node."
 #~ msgstr "Impossibile connettersi al nodo."
-
-#~ msgid "Format"
-#~ msgstr "Formato"
 
 #, fuzzy
 #~ msgid "Add to role"
