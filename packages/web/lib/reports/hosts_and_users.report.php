@@ -123,19 +123,21 @@ class Hosts_And_Users extends ReportManagementPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="panel-body">';
-        echo '<div class="text-center">';
-        printf(
-            $this->reportString,
-            'Hosts_and_Users',
-            _('Export CSV'),
-            _('Export CSV'),
-            self::$csvfile,
-            'Hosts_and_Users',
-            _('Export PDF'),
-            _('Export PDF'),
-            self::$pdffile
-        );
-        echo '</div>';
+        if (count($this->data) > 0) {
+            echo '<div class="text-center">';
+            printf(
+                $this->reportString,
+                'Hosts_and_Users',
+                _('Export CSV'),
+                _('Export CSV'),
+                self::$csvfile,
+                'Hosts_and_Users',
+                _('Export PDF'),
+                _('Export PDF'),
+                self::$pdffile
+            );
+            echo '</div>';
+        }
         $this->ReportMaker->outputReport(0);
         echo '</div>';
         echo '</div>';
