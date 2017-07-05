@@ -2441,7 +2441,12 @@ class HostManagementPage extends FOGPage
                 _('Delete')
             ),
         );
-        Route::listem('virus');
+        Route::listem(
+            'virus',
+            'name',
+            false,
+            array('mac' => $this->obj->getMyMacs())
+        );
         $Viruses = json_decode(
             Route::getData()
         );
@@ -2584,19 +2589,22 @@ class HostManagementPage extends FOGPage
                 'loghist-date'
             );
         }
-        Route::listem('usertracking');
+        Route::listem(
+            'usertracking',
+            'name',
+            false,
+            array(
+                'hostID' => $this->obj->get('id'),
+                'date' => $dte,
+                'action' => array('', 0, 1)
+            )
+        );
         $UserLogins = json_decode(
             Route::getData()
         );
         $UserLogins = $UserLogins->usertrackings;
         $Data = array();
         foreach ((array)$UserLogins as &$UserLogin) {
-            if ($UserLogin->hostID != $this->obj->get('id')
-                || $UserLogin->date != $dte
-                || !in_array($UserLogin->action, array('', 0, 1))
-            ) {
-                continue;
-            }
             $time = self::niceDate(
                 $UserLogin->datetime
             )->format('U');
@@ -2759,7 +2767,12 @@ class HostManagementPage extends FOGPage
             array(),
             array(),
         );
-        Route::listem('imaginglog');
+        Route::listem(
+            'imaginglog',
+            'name',
+            false,
+            array('hostID' => $this->obj->get('id'))
+        );
         $Logs = json_decode(
             Route::getData()
         );
@@ -2769,9 +2782,6 @@ class HostManagementPage extends FOGPage
             'down' => _('Deploy'),
         );
         foreach ((array)$Logs as &$Log) {
-            if ($Log->hostID != $this->obj->get('id')) {
-                continue;
-            }
             $start = $Log->start;
             $finish = $Log->finish;
             if (!self::validDate($start)
@@ -2911,15 +2921,17 @@ class HostManagementPage extends FOGPage
             self::getCompleteState(),
             self::getCancelledState()
         );
-        Route::listem('snapintask');
+        Route::listem(
+            'snapintask',
+            'name',
+            false,
+            array('jobID' => $SnapinJobIDs)
+        );
         $SnapinTasks = json_decode(
             Route::getData()
         );
         $SnapinTasks = $SnapinTasks->snapintasks;
         foreach ((array)$SnapinTasks as &$SnapinTask) {
-            if (!in_array($SnapinTask->jobID, $SnapinJobIDs)) {
-                continue;
-            }
             $Snapin = $SnapinTask->snapin;
             $start = self::niceDate($SnapinTask->checkin);
             $end = self::niceDate($SnapinTask->complete);
@@ -3080,7 +3092,7 @@ class HostManagementPage extends FOGPage
                 sprintf(
                     '?node=%s&sub=edit&id=%s',
                     $this->node,
-                    $_REQUEST['id']
+                    (int)$_POST['id']
                 )
             );
         }

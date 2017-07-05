@@ -1808,27 +1808,34 @@ class FOGConfigurationPage extends FOGPage
     public function maclist()
     {
         $this->title = _('MAC Address Manufacturer Listing');
-        echo '<div class="card text-center">';
-        echo '<div class="header">';
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
         echo $this->title;
         echo '</h4>';
-        echo '<p class="category">';
+        echo '</div>';
+        echo '<div class="panel-body text-center">';
         echo _(
             'This section allows you to import known mac address makers '
             . 'into the FOG database for easier identification'
         );
-        echo '.';
-        echo '</p>';
-        echo '</div>';
-        echo '<p class="category">';
+        echo '<br/>';
+        echo '<div class="row">';
         echo _('Current Records');
         echo ': ';
         echo self::getMACLookupCount();
-        echo '</p>';
+        echo '</div>';
+        echo '<br/>';
+        echo '<div class="row">';
+        echo '<a href="http://standards.ieee.org/regauth/oui/oui.txt">';
+        echo 'http://standards.ieee.org/regauth/oui/oui.txt';
+        echo '</a>';
+        echo '</div>';
+        echo '<br/>';
+        echo '<div class="row">';
         echo '<div id="delete"></div>';
         echo '<div id="update"></div>';
-        echo '<div class="row">';
         echo '<button class="macButtons btn btn-danger" type='
             . '"button" id="macButtonDel">';
         echo _('Delete MACs');
@@ -1838,9 +1845,8 @@ class FOGConfigurationPage extends FOGPage
         echo _('Update MACs');
         echo '</button>';
         echo '</div>';
-        echo '<a href="http://standards.ieee.org/regauth/oui/oui.txt">';
-        echo 'http://standards.ieee.org/regauth/oui/oui.txt';
-        echo '</a>';
+        echo '</div>';
+        echo '</div>';
         echo '</div>';
     }
     /**
