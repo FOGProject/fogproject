@@ -437,21 +437,26 @@ class Route extends FOGBase
      *
      * @param string $class  The class to work with.
      * @param string $sortby How to sort the data.
-     * @param string $bypass Allow showing hidden data.
+     * @param bool   $bypass Allow showing hidden data.
+     * @param array  $find   Additional filter items.
      *
      * @return void
      */
     public static function listem(
         $class,
         $sortby = 'name',
-        $bypass = false
+        $bypass = false,
+        $find = array()
     ) {
         $classname = strtolower($class);
         $classman = self::getClass($class)->getManager();
         self::$data = array();
         self::$data['count'] = 0;
         self::$data[$classname.'s'] = array();
-        $find = self::getsearchbody($classname);
+        $find = self::fastmerge(
+            $find,
+            self::getsearchbody($classname)
+        );
         switch ($classname) {
         case 'plugin':
             self::$data['count_active'] = 0;
