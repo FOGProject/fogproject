@@ -122,19 +122,21 @@ class Product_Keys extends ReportManagementPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="panel-body">';
-        echo '<div class="text-center">';
-        printf(
-            $this->reportString,
-            'Product_Keys',
-            _('Export CSV'),
-            _('Export CSV'),
-            self::$csvfile,
-            'Product_Keys',
-            _('Export PDF'),
-            _('Export PDF'),
-            self::$pdffile
-        );
-        echo '</div>';
+        if (count($this->data) > 0) {
+            echo '<div class="text-center">';
+            printf(
+                $this->reportString,
+                'Product_Keys',
+                _('Export CSV'),
+                _('Export CSV'),
+                self::$csvfile,
+                'Product_Keys',
+                _('Export PDF'),
+                _('Export PDF'),
+                self::$pdffile
+            );
+            echo '</div>';
+        }
         $this->ReportMaker->outputReport(0);
         echo '</div>';
         echo '</div>';

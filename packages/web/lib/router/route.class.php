@@ -1352,13 +1352,47 @@ class Route extends FOGBase
             $data = FOGCore::fastmerge(
                 $class->get(),
                 array(
-                    'state' => self::getter(
-                        'taskstate',
-                        new TaskState($class->get('stateID'))
-                    ),
                     'snapin' => self::getter(
                         'snapin',
-                        new Snapin($class->get('snapinID'))
+                        $class->get('snapin')
+                    ),
+                    'snapinjob' => self::getter(
+                        'snapinjob',
+                        $class->get('snapinjob')
+                    ),
+                    'state' => self::getter(
+                        'taskstate',
+                        $class->get('state')
+                    )
+                )
+            );
+            break;
+        case 'snapinjob':
+            $data = FOGCore::fastmerge(
+                $class->get(),
+                array(
+                    'host' => self::getter(
+                        'host',
+                        $class->get('host')
+                    ),
+                    'state' => self::getter(
+                        'taskstate',
+                        $class->get('state')
+                    ),
+                    'snapintasks' => array_map(
+                        'intval',
+                        $class->get('snapintasks')
+                    )
+                )
+            );
+            break;
+        case 'usertracking':
+            $data = FOGCore::fastmerge(
+                $class->get(),
+                array(
+                    'host' => self::getter(
+                        'host',
+                        $class->get('host')
                     )
                 )
             );

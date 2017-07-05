@@ -29,38 +29,23 @@ class Snapin_Log extends ReportManagementPage
     public function file()
     {
         $this->title = _('FOG Snapin Log');
-        printf(
-            $this->reportString,
-            'SnapinLog',
-            _('Export CSV'),
-            _('Export CSV'),
-            self::$csvfile,
-            'SnapinLog',
-            _('Export PDF'),
-            _('Export PDF'),
-            self::$pdffile
-        );
         $this->headerData = array(
             _('Host Name'),
             _('Snapin Name'),
             _('State'),
             _('Return Code'),
             _('Return Desc'),
-            _('Create Date'),
-            _('Create Time')
+            _('Checkin Time'),
+            _('Complete Time')
         );
         $this->templates = array(
-            '${host_name}<br/><small>'
-            . _('Started/Checked in')
-            . ': ${checkin}<br/>'
-            . _('Completed')
-            . ': ${complete}</small>',
+            '${host_name}',
             '${snap_name}',
             '${snap_state}',
             '${snap_return}',
             '${snap_detail}',
-            '${snap_create}',
-            '${snap_time}',
+            '${checkin}',
+            '${complete}'
         );
         $this->attributes = array(
             array(),
@@ -99,103 +84,106 @@ class Snapin_Log extends ReportManagementPage
             unset($csvHeader);
         }
         $this->ReportMaker->endCSVLine();
-        foreach ((array)self::getClass('SnapinTaskManager')
-            ->find() as &$SnapinTask
-        ) {
-            $start = self::niceDate($SnapinTask->get('checkin'));
-            $end = self::niceDate($SnapinTask->get('complete'));
+        Route::listem('snapintask');
+        $SnapinTasks = json_decode(
+            Route::getData()
+        );
+        $SnapinTasks = $SnapinTasks->snapintasks;
+        foreach ((array)$SnapinTasks as &$SnapinTask) {
+            $start = self::niceDate($SnapinTask->checkin);
+            $end = self::niceDate($SnapinTask->complete);
             if (!self::validDate($start)) {
                 continue;
             }
-            $Snapin = $SnapinTask->getSnapin();
-            if (!$Snapin->isValid()) {
+            $Snapin = $SnapinTask->snapin;
+            if (!$Snapin->id) {
                 continue;
             }
-            $SnapinJob = $SnapinTask->getSnapinJob();
-            if (!$SnapinJob->isValid()) {
+            $SnapinJob = $SnapinTask->snapinjob;
+            if (!$SnapinJob->id) {
                 continue;
             }
-            $Host = $SnapinJob->getHost();
-            if (!$Host->isValid()) {
+            $Host = $SnapinJob->host;
+            if (!$Host->id) {
                 continue;
             }
-            $State = new TaskState($SnapinTask->get('stateID'));
+            $State = $SnapinTask->state;
             $this->data[] = array(
-                'host_name' => $Host->get('name'),
-                'checkin' => $SnapinTask->get('checkin'),
-                'complete' => $SnapinTask->get('complete'),
-                'snap_name' => $Snapin->get('name'),
-                'snap_state' => $State->get('name'),
-                'snap_return' => $SnapinTask->get('return'),
-                'snap_detail' => $SnapinTask->get('detail'),
+                'host_name' => $Host->name,
+                'checkin' => $SnapinTask->checkin,
+                'complete' => $SnapinTask->complete,
+                'snap_name' => $Snapin->name,
+                'snap_state' => $State->name,
+                'snap_return' => $SnapinTask->return,
+                'snap_detail' => $SnapinTask->detail,
                 'snap_create' => self::formatTime(
-                    $Snapin->get('createdTime'),
+                    $Snapin->createdTime,
                     'Y-m-d'
                 ),
                 'snap_time'=> self::formatTime(
-                    $Snapin->get('createdTime'),
+                    $Snapin->createdTime,
                     'H:i:s'
                 )
             );
             $this->ReportMaker
-                ->addCSVCell($Host->get('id'))
-                ->addCSVCell($Host->get('name'))
-                ->addCSVCell($Host->get('mac')->__toString())
-                ->addCSVCell($Snapin->get('id'))
-                ->addCSVCell($Snapin->get('name'))
-                ->addCSVCell($Snapin->get('description'))
-                ->addCSVCell($Snapin->get('file'))
-                ->addCSVCell($Snapin->get('args'))
-                ->addCSVCell($Snapin->get('runWith'))
-                ->addCSVCell($Snapin->get('runWithArgs'))
-                ->addCSVCell($State->get('name'))
-                ->addCSVCell($SnapinTask->get('return'))
-                ->addCSVCell($SnapinTask->get('detail'))
+                ->addCSVCell($Host->id)
+                ->addCSVCell($Host->name)
+                ->addCSVCell($Host->macs[0])
+                ->addCSVCell($Snapin->id)
+                ->addCSVCell($Snapin->name)
+                ->addCSVCell($Snapin->description)
+                ->addCSVCell($Snapin->file)
+                ->addCSVCell($Snapin->args)
+                ->addCSVCell($Snapin->runWith)
+                ->addCSVCell($Snapin->runWithArgs)
+                ->addCSVCell($State->name)
+                ->addCSVCell($SnapinTask->return)
+                ->addCSVCell($SnapinTask->detail)
                 ->addCSVCell(
                     self::formatTime(
-                        $Snapin->get('createdTime'),
+                        $Snapin->createdTime,
                         'Y-m-d'
                     )
                 )
                 ->addCSVCell(
                     self::formatTime(
-                        $Snapin->get('createdTime'),
+                        $Snapin->createdTime,
                         'H:i:s'
                     )
                 )
                 ->addCSVCell(
                     self::formatTime(
-                        $SnapinJob->get('createdTime'),
+                        $SnapinJob->createdTime,
                         'Y-m-d'
                     )
                 )
                 ->addCSVCell(
                     self::formatTime(
-                        $SnapinJob->get('createdTime'),
+                        $SnapinJob->createdTime,
                         'H:i:s'
                     )
                 )
                 ->addCSVCell(
                     self::formatTime(
-                        $SnapinTask->get('checkin'),
+                        $SnapinTask->checkin,
                         'Y-m-d'
                     )
                 )
                 ->addCSVCell(
                     self::formatTime(
-                        $SnapinTask->get('checkin'),
+                        $SnapinTask->checkin,
                         'H:i:s'
                     )
                 )
                 ->addCSVCell(
                     self::formatTime(
-                        $SnapinTask->get('complete'),
+                        $SnapinTask->complete,
                         'Y-m-d'
                     )
                 )
                 ->addCSVCell(
                     self::formatTime(
-                        $SnapinTask->get('complete'),
+                        $SnapinTask->complete,
                         'H:i:s'
                     )
                 )
@@ -208,8 +196,34 @@ class Snapin_Log extends ReportManagementPage
                 $State
             );
         }
-        $this->ReportMaker->appendHTML($this->__toString());
+        $this->ReportMaker->appendHTML($this->process(12));
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        if (count($this->data) > 0) {
+            echo '<div class="text-center">';
+            printf(
+                $this->reportString,
+                'SnapinLog',
+                _('Export CSV'),
+                _('Export CSV'),
+                self::$csvfile,
+                'SnapinLog',
+                _('Export PDF'),
+                _('Export PDF'),
+                self::$pdffile
+            );
+            echo '</div>';
+        }
         $this->ReportMaker->outputReport(0);
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
         $_SESSION['foglastreport'] = serialize($this->ReportMaker);
     }
 }

@@ -29,26 +29,6 @@ class Virus_History extends ReportManagementPage
     public function file()
     {
         $this->title = _('FOG Virus Summary');
-        printf(
-            $this->reportString,
-            'VirusHistory',
-            _('Export CSV'),
-            _('Export CSV'),
-            self::$csvfile,
-            'VirusHistory',
-            _('Export PDF'),
-            _('Export PDF'),
-            self::$pdffile
-        );
-        printf(
-            '<form method="post" action="%s"><h2><a href="#">'
-            . '<input onclick="this.form.submit()" type='
-            . '"checkbox" class="delvid" name="delvall" id='
-            . '"delvid" value="all"/><label for="delvid">(%s)'
-            . '</label></a></h2></form>',
-            $this->formAction,
-            _('clear all history')
-        );
         $csvHead = array(
             _('Host Name') => 'name',
             _('Virus Name') => 'name',
@@ -92,24 +72,27 @@ class Virus_History extends ReportManagementPage
             unset($classGet);
         }
         $this->ReportMaker->endCSVLine();
-        foreach ((array)self::getClass('VirusManager')
-            ->find() as &$Virus
-        ) {
+        Route::listem('virus');
+        $Viruses = json_decode(
+            Route::getData()
+        );
+        $Viruses = $Viruses->viruss;
+        foreach ((array)$Viruses as &$Virus) {
             $Host = self::getClass('HostManager')
-                ->getHostByMacAddresses($Virus->get('mac'));
+                ->getHostByMacAddresses($Virus->mac);
             if (!$Host->isValid()) {
                 continue;
             }
             $hostName = $Host->get('name');
             unset($Host);
-            $virusName = $Virus->get('name');
-            $virusFile = $Virus->get('file');
+            $virusName = $Virus->name;
+            $virusFile = $Virus->file;
             $virusMode = (
-                $Virus->get('mode') == 'q' ?
+                $Virus->mode == 'q' ?
                 _('Quarantine') :
                 _('Report')
             );
-            $virusDate = self::niceDate($Virus->get('date'));
+            $virusDate = self::niceDate($Virus->date);
             $this->data[] = array(
                 'host_name' => $hostName,
                 'vir_id' => $id,
@@ -130,7 +113,7 @@ class Virus_History extends ReportManagementPage
                     $this->ReportMaker->addCSVCell($virusMode);
                     break;
                 default:
-                    $this->ReportMaker->addCSVCell($Virus->get($classGet));
+                    $this->ReportMaker->addCSVCell($Virus->$classGet);
                     break;
                 }
                 unset($classGet);
@@ -138,31 +121,34 @@ class Virus_History extends ReportManagementPage
             unset($Virus);
             $this->ReportMaker->endCSVLine();
         }
-        unset($Virus);
-        $this->ReportMaker->appendHTML($this->__toString());
-        printf(
-            '<form method="post" action="%s">',
-            $this->formAction
-        );
-        $this->ReportMaker->outputReport(false);
-        echo '</form>';
-        $_SESSION['foglastreport'] = serialize($this->ReportMaker);
-    }
-    /**
-     * Form submitted.
-     *
-     * @return void
-     */
-    public function filePost()
-    {
-        if ($_REQUEST['delvall'] == 'all') {
-            self::getClass('VirusManager')->destroy();
-            self::setMessage(_("All Virus' cleared"));
-            self::redirect($this->formAction);
-        } elseif (is_numeric($_REQUEST['delvid'])) {
-            self::getClass('Virus', $_REQUEST['delvid'])->destroy();
-            self::setMessage(_('Virus cleared'));
-            self::redirect($this->formAction);
+        $this->ReportMaker->appendHTML($this->process(12));
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        if (count($this->data) > 0) {
+            echo '<div class="text-center">';
+            printf(
+                $this->reportString,
+                'VirusHistory',
+                _('Export CSV'),
+                _('Export CSV'),
+                self::$csvfile,
+                'VirusHistory',
+                _('Export PDF'),
+                _('Export PDF'),
+                self::$pdffile
+            );
+            echo '</div>';
         }
+        $this->ReportMaker->outputReport(0);
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        $_SESSION['foglastreport'] = serialize($this->ReportMaker);
     }
 }

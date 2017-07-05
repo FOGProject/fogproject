@@ -29,7 +29,13 @@ class User_Tracking extends ReportManagementPage
     public function file()
     {
         $this->title = _('FOG User tracking - Search');
-        unset($this->headerData);
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
         $this->templates = array(
             '${field}',
             '${input}'
@@ -71,32 +77,50 @@ class User_Tracking extends ReportManagementPage
         natcasesort($UserNames);
         natcasesort($HostNames);
         if (count($UserNames) > 0) {
-            $userSelForm = self::selectForm('usersearch', $UserNames);
+            $userSelForm = self::selectForm(
+                'usersearch',
+                $UserNames
+            );
             unset($UserNames);
         }
         if (count($HostNames) > 0) {
-            $hostSelForm = self::selectForm('hostsearch', $HostNames);
+            $hostSelForm = self::selectForm(
+                'hostsearch',
+                $HostNames
+            );
             unset($HostNames);
         }
         $fields = array(
-            _('Enter a username to search for') => $userSelForm,
-            _('Enter a hostname to search for') => $hostSelForm,
-            '&nbsp;' => sprintf(
-                '<input type="submit" value="%s"/>',
-                _('Search')
-            )
+            '<label for="usersearch">'
+            . _('Enter a username to search for')
+            . '</label>' => $userSelForm,
+            '<label for="hostsearch">'
+            . _('Enter a hostname to search for')
+            . '</label>' => $hostSelForm,
+            '<label for="performsearch">'
+            . _('Perform search')
+            . '</label>' => '<button type="submit" name="performsearch" '
+            . 'class="btn btn-info btn-block" id="performsearch">'
+            . _('Search')
+            . '</button>'
         );
         array_walk($fields, $this->fieldsToData);
-        ob_start();
-        printf(
-            '<form method="post" action="%s">',
-            $this->formAction
-        );
-        $this->render();
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
+        $this->render(12);
         echo '</form>';
-        flush();
-        ob_flush();
-        ob_end_flush();
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Form submitted.
@@ -160,34 +184,44 @@ class User_Tracking extends ReportManagementPage
                 'hostID' => $hostIDs
             )
         );
-        if (count($userIDs) < 1) {
-            echo _('No Data Found');
-        } else {
-            foreach (self::getClass('UserTrackingManager')
-                ->find(
-                    array(
-                        'id' => $userIDs
-                    ),
-                    'AND',
-                    'name',
-                    'ASC',
-                    '=',
-                    'username'
-                ) as &$User
-            ) {
-                $this->data[] = array(
-                    'host_id' => $User->get('hostID'),
-                    'host_name' => $User->get('host')->get('name'),
-                    'user_id' => sprintf(
-                        '&userID=%s',
-                        base64_encode($User->get('username'))
-                    ),
-                    'user_name' => $User->get('username')
-                );
-                unset($User);
+        Route::listem('usertracking');
+        $UserTrackings = json_decode(
+            Route::getData()
+        );
+        $UserTrackings = $UserTrackings->usertrackings;
+        $sethost = $setuser = array();
+        foreach ((array)$UserTrackings as &$User) {
+            if (!in_array($User->id, $userIDs)) {
+                continue;
             }
-            $this->render();
+            $hostname = $User->host->name;
+            $username = $User->username;
+            if (isset($sethost[$hostname])
+                && isset($setuser[$username])
+            ) {
+                continue;
+            }
+            $this->data[] = array(
+                'host_id' => $User->hostID,
+                'host_name' => $User->host->name,
+                'user_id' => base64_encode($User->username),
+                'user_name' => $User->username
+            );
+            $sethost[$hostname] = $setuser[$username] = true;
+            unset($User);
         }
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        $this->render(12);
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Display after choices made
@@ -197,17 +231,6 @@ class User_Tracking extends ReportManagementPage
     public function filedisp()
     {
         $this->title = _('FOG User tracking history');
-        printf(
-            $this->reportString,
-            'UserTrackingList',
-            _('Export CSV'),
-            _('Export CSV'),
-            self::$csvfile,
-            'UserTrackingList',
-            _('Export PDF'),
-            _('Export PDF'),
-            self::$pdffile
-        );
         $this->headerData = array(
             _('Action'),
             _('Username'),
@@ -243,37 +266,41 @@ class User_Tracking extends ReportManagementPage
         );
         $hostID = filter_input(INPUT_GET, 'hostID');
         if (!$userID) {
-            $userID = '%';
+            unset($userID);
         }
         if (!$hostID) {
-            $hostID = '%';
+            unset($hostID);
         }
-        foreach (self::getClass('UserTrackingManager')
-            ->find(
-                array(
-                    'hostID' => $hostID,
-                    'username' => $userID
-                )
-            ) as &$User
-        ) {
-            $date = self::niceDate($User->get('datetime'));
+        Route::listem('usertracking');
+        $UserTrackings = json_decode(
+            Route::getData()
+        );
+        $UserTrackings = $UserTrackings->usertrackings;
+        foreach ((array)$UserTrackings as &$User) {
+            if (isset($hostID) && $User->host->id != $hostID) {
+                continue;
+            }
+            if (isset($userID) && $User->username != $userID) {
+                continue;
+            }
+            $date = self::niceDate($User->datetime);
             $actions = array(
                 0 => _('Logout'),
                 1 => _('Login'),
                 99 => _('Service Start')
             );
             $logintext = (
-                !in_array($User->get('action'), array_keys($actions)) ?
+                !in_array($User->action, array_keys($actions)) ?
                 _('N/A') :
-                $actions[$User->get('action')]
+                $actions[$User->action]
             );
             unset($actions);
-            $username = $User->get('username');
-            $hostname = $User->get('host')->get('name');
-            $hostmac = $User->get('host')->get('mac')->__toString();
-            $hostdesc = $User->get('host')->get('description');
+            $username = $User->username;
+            $hostname = $User->host->name;
+            $hostmac = $User->host->macs[0];
+            $hostdesc = $User->host->description;
             $date = $date->format('Y-m-d H:i:s');
-            $desc = $User->get('description');
+            $desc = $User->description;
             $this->data[] = array(
                 'action' => $logintext,
                 'username' => $username,
@@ -301,8 +328,34 @@ class User_Tracking extends ReportManagementPage
                 $User
             );
         }
-        $this->ReportMaker->appendHTML($this->__toString());
-        $this->ReportMaker->outputReport(false);
+        $this->ReportMaker->appendHTML($this->process(12));
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        if (count($this->data) > 0) {
+            echo '<div class="text-center">';
+            printf(
+                $this->reportString,
+                'UserTrackingList',
+                _('Export CSV'),
+                _('Export CSV'),
+                self::$csvfile,
+                'UserTrackingList',
+                _('Export PDF'),
+                _('Export PDF'),
+                self::$pdffile
+            );
+            echo '</div>';
+        }
+        $this->ReportMaker->outputReport(0);
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
         $_SESSION['foglastreport'] = serialize($this->ReportMaker);
     }
 }
