@@ -631,7 +631,13 @@ class ImageManagementPage extends FOGPage
                     )
                 );
             }
-            if (self::getClass('ImageManager')->exists($_REQUEST['file'], 'path')) {
+            $exists = self::getClass('ImageManager')
+                ->exists(
+                    $_REQUEST['file'],
+                    '',
+                    'path'
+                );
+            if ($exists) {
                 throw new Exception(
                     sprintf(
                         '%s, %s.',
@@ -1112,6 +1118,7 @@ class ImageManagementPage extends FOGPage
                 $exists = self::getClass('ImageManager')
                     ->exists(
                         $_REQUEST['file'],
+                        '',
                         'path'
                     );
                 if ($this->obj->get('path') != $_REQUEST['file']
