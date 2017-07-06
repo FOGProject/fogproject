@@ -139,11 +139,8 @@ class GroupManagementPage extends FOGPage
                 'width' => 16,
                 'class' => 'filter-false'),
             array(),
-            array(
-                'class' => 'col-xs-4 text-center'),
-            array(
-                'class' => 'col-xs-7 text-center filter-false'
-            ),
+            array('class' => 'text-center'),
+            array()
         );
         $this->_getHostCommon();
         /**
