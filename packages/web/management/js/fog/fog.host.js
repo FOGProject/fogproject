@@ -24,7 +24,7 @@ $(function() {
     });
     $('.hostname-input').rules('add', {regex: /^[\w!@#$%^()\-'{}\.~]{1,15}$/});
     $('.macaddr').rules('add', {regex: macregex});
-    $('#process').click(function(e) {
+    $('#process').on('click', function(e) {
         //e.preventDefault();
         checkedIDs = getChecked();
         group_new = $('#group_new').val().trim();

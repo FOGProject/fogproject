@@ -262,16 +262,7 @@ class StorageManagementPage extends FOGPage
                 )
             );
         echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo $this->title;
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        $this->render(12);
-        echo '</div>';
-        echo '</div>';
+        $this->indexDivDisplay(true, 'node');
         echo '</div>';
         unset(
             $this->data,
@@ -515,6 +506,7 @@ class StorageManagementPage extends FOGPage
         $storagegroupID = filter_input(INPUT_POST, 'storagegroupID');
         $path = filter_input(INPUT_POST, 'path');
         $ftppath = filter_input(INPUT_POST, 'ftppath');
+        $snapinpath = filter_input(INPUT_POST, 'snapinpath');
         $sslpath = filter_input(INPUT_POST, 'sslpath');
         $bitrate = filter_input(INPUT_POST, 'bitrate');
         self::$HookManager->processEvent('STORAGE_NODE_ADD_POST');
@@ -547,7 +539,7 @@ class StorageManagementPage extends FOGPage
             }
             $StorageNode = self::getClass('StorageNode')
                 ->set('name', $name)
-                ->set('description', $description)
+                ->set('description', $desc)
                 ->set('ip', $ip)
                 ->set('webroot', $webroot)
                 ->set('maxClients', $maxClients)
@@ -877,6 +869,7 @@ class StorageManagementPage extends FOGPage
         $storagegroupID = filter_input(INPUT_POST, 'storagegroupID');
         $path = filter_input(INPUT_POST, 'path');
         $ftppath = filter_input(INPUT_POST, 'ftppath');
+        $snapinpath = filter_input(INPUT_POST, 'snapinpath');
         $sslpath = filter_input(INPUT_POST, 'sslpath');
         $bitrate = filter_input(INPUT_POST, 'bitrate');
         self::$HookManager
@@ -991,27 +984,18 @@ class StorageManagementPage extends FOGPage
             '${input}',
         );
         $fields = array(
-            sprintf(
-                '%s <b>%s</b>',
-                self::$foglang['ConfirmDel'],
-                $this->obj->get('name')
-            ) => sprintf(
-                '<input type="submit" value="%s"/>',
-                $this->title
-            )
+            '<label for="delete">'
+            . $this->title
+            . '</label>' => '<input type="hidden" name="remitems[]" '
+            . 'value="'
+            . $this->obj->get('id')
+            . '"/>'
+            . '<button type="submit" name="delete" id="delete" '
+            . 'class="btn btn-danger btn-block">'
+            . _('Delete')
+            . '</button>'
         );
-        foreach ((array)$fields as $field => &$input) {
-            $this->data[] = array(
-                'field'=>$field,
-                'input'=>$input,
-            );
-            unset($field, $input);
-        }
-        unset($input);
-        printf(
-            '<form method="post" action="%s" class="c">',
-            $this->formAction
-        );
+        array_walk($fields, $this->fieldsToData);
         self::$HookManager
             ->processEvent(
                 'STORAGE_NODE_DELETE',
@@ -1022,8 +1006,22 @@ class StorageManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        $this->render();
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
+        $this->render(12);
         echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Actually delete the node.
@@ -1032,6 +1030,23 @@ class StorageManagementPage extends FOGPage
      */
     public function deleteStorageNodePost()
     {
+        if (self::getSetting('FOG_REAUTH_ON_DELETE')) {
+            $user = filter_input(INPUT_POST, 'fogguiuser');
+            $pass = filter_input(INPUT_POST, 'fogguipass');
+            $validate = self::getClass('User')
+                ->passwordValidate(
+                    $user,
+                    $pass,
+                    true
+                );
+            if ($validate) {
+                printf(
+                    '###%s',
+                    self::$foglang['InvalidLogin']
+                );
+                exit;
+            }
+        }
         self::$HookManager
             ->processEvent(
                 'STORAGE_NODE_DELETE_POST',
@@ -1137,16 +1152,7 @@ class StorageManagementPage extends FOGPage
                 )
             );
         echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo $this->title;
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        $this->render(12);
-        echo '</div>';
-        echo '</div>';
+        $this->indexDivDisplay(true, 'group');
         echo '</div>';
         unset(
             $this->data,
