@@ -1282,7 +1282,8 @@ class Route extends FOGBase
                     'enablednodes' => array_map(
                         'intval',
                         $class->get('enablednodes')
-                    )
+                    ),
+                    'totalsupportedclients' => $class->getTotalSupportedClients()
                 )
             );
             if ($objget) {

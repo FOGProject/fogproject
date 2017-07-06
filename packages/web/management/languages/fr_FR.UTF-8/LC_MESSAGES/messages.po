@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-05 20:58-0400\n"
+"POT-Creation-Date: 2017-07-06 12:19-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1265,6 +1265,7 @@ msgstr "Sauvegarder les modifications"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2220
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2358
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:989
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:822
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:437
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:464
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:270
@@ -1308,6 +1309,7 @@ msgstr "Supprimer sélectionnée"
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:485
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:679
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2441
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1430
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:558
 #: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:54
 #: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:66
@@ -1758,6 +1760,8 @@ msgstr ""
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1512
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1737
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:551
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:462
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1197
 #: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:135
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:149
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:352
@@ -2339,6 +2343,8 @@ msgstr "image créée"
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:585
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1109
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2355
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:819
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1315
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:434
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:461
 #, fuzzy
@@ -4674,8 +4680,8 @@ msgstr "snapin Enabled"
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1091
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:138
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:220
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:193
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:198
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:203
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:208
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:109
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:170
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:464
@@ -4690,8 +4696,8 @@ msgstr "Oui"
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1092
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:138
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:218
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:194
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:199
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:204
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:209
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:109
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:164
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:451
@@ -5963,33 +5969,63 @@ msgstr "Projet FOG sur Github"
 msgid "%s ID %s is not valid"
 msgstr "%s ID %s est pas valide"
 
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:214
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:224
 #: /var/www/fog/commons/text.php:312
 msgid "Max Clients"
 msgstr "Les clients de Max"
 
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:290
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:577
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:346
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:703
 msgid "Web root"
 msgstr "Web racine"
 
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:379
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:636
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:419
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:776
 msgid "Bitrate"
 msgstr "Bitrate"
 
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:474
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:459
+#, fuzzy
+msgid "Create Storage Node"
+msgstr "nœud de stockage"
+
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:480
+#, fuzzy
+msgid "New Storage Node"
+msgstr "nœud de stockage"
+
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:545
 msgid "Bandwidth should be numeric and greater than 0"
 msgstr "La bande passante doit être numérique et supérieur à 0"
 
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:753
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:670
+#, fuzzy
+msgid "Storage Node General"
+msgstr "Stockage Interface Node"
+
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:914
 #, fuzzy
 msgid "Bandwidth should be greater than 0"
 msgstr "La bande passante doit être numérique et supérieur à 0"
 
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:933
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1104
 msgid "Max"
 msgstr ""
+
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1194
+#, fuzzy
+msgid "Create Storage Group"
+msgstr "nœud de stockage"
+
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1215
+#, fuzzy
+msgid "New Storage Group"
+msgstr "Groupe de stockage"
+
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1286
+#, fuzzy
+msgid "Storage Group General"
+msgstr "Nom du groupe de stockage"
 
 #: /var/www/fog/lib/pages/ipxemenu.class.php:196
 #: /var/www/fog/lib/pages/ipxemenu.class.php:210
