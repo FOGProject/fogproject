@@ -1844,6 +1844,13 @@ abstract class FOGPage extends FOGBase
                 )
             )
         );
+        if ('Storage' === $this->childClass) {
+            if ('storageGroup' === $sub) {
+                $this->childClass = 'StorageGroup';
+            } else {
+                $this->childClass = 'StorageNode';
+            }
+        }
         unset(
             $this->data,
             $this->form,
@@ -1857,7 +1864,7 @@ abstract class FOGPage extends FOGBase
         );
         $this->attributes = array(
             array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8')
+            array('class' => 'col-xs-8 form-group')
         );
         $reqID = $node
             . 'IDArray';
@@ -1872,11 +1879,11 @@ abstract class FOGPage extends FOGBase
                 )
             )
         );
-        Route::listem($node);
+        Route::listem($this->childClass);
         $items = json_decode(
             Route::getData()
         );
-        $getme = $node.'s';
+        $getme = strtolower($this->childClass).'s';
         $items = $items->$getme;
         foreach ((array)$items as &$object) {
             if (!in_array($object->id, $reqID)
@@ -4043,11 +4050,12 @@ abstract class FOGPage extends FOGBase
      * might want to do similar after minor changes. This allows
      * it to happen.
      *
-     * @param bool $delNeeded If we need to be able to delete items.
+     * @param bool        $delNeeded If we need to be able to delete items.
+     * @param bool|string $storage   If storage, set node or group.
      *
      * @return void
      */
-    public function indexDivDisplay($delNeeded = false)
+    public function indexDivDisplay($delNeeded = false, $storage = false)
     {
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
@@ -4078,7 +4086,11 @@ abstract class FOGPage extends FOGBase
             . '">';
         echo _('Delete selected');
         echo ' ';
-        echo $this->node;
+        echo (
+            $storage ?
+            $this->node . ' ' . $storage :
+            $this->node
+        );
         echo 's';
         echo '</label>';
         echo '<div class="col-xs-8">';
