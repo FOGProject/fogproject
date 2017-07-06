@@ -1041,8 +1041,211 @@ class ImageManagementPage extends FOGPage
             $this->attributes,
             $this->headerData
         );
+        $this->headerData = array(
+            '<label for="toggler2">'
+            . '<input type="checkbox" name="toggle-checkboxgroup1" '
+            . 'class="toggle-checkbox1" id="toggler2"/>'
+            . '</label>',
+            _('Storage Group Name')
+        );
+        $this->templates = array(
+            '<label for="sg-${storageGroup_id}">'
+            . '<input type="checkbox" name="storagegroup[]" class='
+            . '"toggle-group" id="sg-${storageGroup_id}" '
+            . 'value="${storageGroup_id}"/>'
+            . '</label>',
+            '<a href="?node=storage&editStorageGroup&id=${storageGroup_id}">'
+            . '${storageGroup_name}'
+            . '</a>'
+        );
+        $this->attributes = array(
+            array(
+                'class' => 'filter-false',
+                'width' => 16
+            ),
+            array(),
+        );
+        Route::listem('storagegroup');
+        $StorageGroups = json_decode(
+            Route::getData()
+        );
+        $StorageGroups = $StorageGroups->storagegroups;
+        foreach ((array)$StorageGroups as &$StorageGroup) {
+            $groupinme = in_array(
+                $StorageGroup->id,
+                $this->obj->get('storagegroups')
+            );
+            if ($groupinme) {
+                continue;
+            }
+            $this->data[] = array(
+                'storageGroup_id' => $StorageGroup->id,
+                'storageGroup_name' => $StorageGroup->name,
+            );
+            unset($StorageGroup);
+        }
+        self::$HookManager->processEvent(
+            'IMAGE_ADD_STORAGE_GROUP',
+            array(
+                'data' => &$this->data,
+                'headerData' => &$this->headerData,
+                'templates' => &$this->templates,
+                'attributes' => &$this->attributes
+            )
+        );
         echo '<!-- Storage Groups -->';
         echo '<div class="tab-pane fade" id="image-storage">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Image Storage Groups');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '&tab=image-storage">';
+        if (count($this->data)) {
+            echo '<div class="text-center">';
+            echo '<div class="checkbox">';
+            echo '<label for="groupMeShow">';
+            echo '<input type="checkbox" name="groupMeShow" '
+                . 'id="groupMeShow"/>';
+            echo _('Check here to see what storage groups can be added');
+            echo '</label>';
+            echo '</div>';
+            echo '</div>';
+            echo '<br/>';
+            echo '<div class="hiddeninitially groupNotInMe panel panel-info" '
+                . 'id="groupNotInMe">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Add Storage Groups');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            $this->render(12);
+            echo '<div class="form-group">';
+            echo '<label for="updategroups" class="control-label col-xs-4">';
+            echo _('Add selected storage groups');
+            echo '</label>';
+            echo '<div class="col-xs-8">';
+            echo '<button type="submit" name="updategroups" class='
+                . '"btn btn-info btn-block" id="updategroups">'
+                . _('Add')
+                . '</button>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+        }
+        unset(
+            $this->data,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
+        $this->headerData = array(
+            '<label for="toggler3">'
+            . '<input type="checkbox" name="toggle-checkbox" '
+            . 'class="toggle-checkboxAction" id="toggler3"/>'
+            . '</label>',
+            '',
+            _('Storage Group Name')
+        );
+        $this->templates = array(
+            '<label for="sg1-${storageGroup_id}">'
+            . '<input type="checkbox" name="storagegroup-rm[]" class='
+            . '"toggle-group" id="sg1-${storageGroup_id}" '
+            . 'value="${storageGroup_id}"/>'
+            . '</label>',
+            '<div class="radio">'
+            . '<input type="radio" class="default" '
+            . 'name="primary" id="group${storageGroup_id}" '
+            . 'value="${storageGroup_id}" ${is_primary}/>'
+            . '<label for="group${storageGroup_id}">'
+            . '</label>'
+            . '</div>',
+            '<a href="?node=storage&editStorageGroup&id=${storageGroup_id}">'
+            . '${storageGroup_name}'
+            . '</a>'
+        );
+        $this->attributes = array(
+            array(
+                'class' => 'filter-false',
+                'width' => 16
+            ),
+            array(
+                'class' => 'filter-false',
+                'width' => 16
+            ),
+            array(),
+        );
+        foreach ((array)$StorageGroups as &$StorageGroup) {
+            $groupinme = in_array(
+                $StorageGroup->id,
+                $this->obj->get('storagegroups')
+            );
+            if (!$groupinme) {
+                continue;
+            }
+            $this->data[] = array(
+                'storageGroup_id' => $StorageGroup->id,
+                'storageGroup_name' => $StorageGroup->name,
+                'is_primary' => (
+                    $this->obj->getPrimaryGroup($StorageGroup->id) ?
+                    ' checked' :
+                    ''
+                )
+            );
+            unset($StorageGroup);
+        }
+        if (count($this->data) > 0) {
+            self::$HookManager->processEvent(
+                'IMAGE_EDIT_STORAGE_GROUP',
+                array(
+                    'data' => &$this->data,
+                    'headerData' => &$this->headerData,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes
+                )
+            );
+            echo '<div class="panel panel-info">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Update/Remove Storage Groups');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            $this->render(12);
+            echo '<div class="form-group">';
+            echo '<label for="primarysel" class="control-label col-xs-4">';
+            echo _('Update primary group');
+            echo '</label>';
+            echo '<div class="col-xs-8">';
+            echo '<button type="submit" name="primarysel" class='
+                . '"btn btn-info btn-block" id="primarysel">'
+                . _('Update')
+                . '</button>';
+            echo '</div>';
+            echo '</div>';
+            echo '<div class="form-group">';
+            echo '<label for="groupdel" class="control-label col-xs-4">';
+            echo _('Remove selected groups');
+            echo '</label>';
+            echo '<div class="col-xs-8">';
+            echo '<button type="submit" name="groupdel" class='
+                . '"btn btn-danger btn-block" id="groupdel">'
+                . _('Remove')
+                . '</button>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+        }
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
         echo '</div>';
         unset(
             $this->data,
@@ -1063,155 +1266,6 @@ class ImageManagementPage extends FOGPage
         $this->imageGeneral();
         $this->imageStoragegroups();
         echo '</div>';
-        // Storage groups.
-        /*echo '<!-- Storage Groups -->';
-        echo '<div id="image-storage" class="tab-pane fade">';
-        $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkboxgroup1" '
-            . 'class="toggle-checkbox1" id="toggler2"/>'
-            . '<label for="toggler2"></label>',
-            _('Storage Group Name'),
-        );
-        $this->templates = array(
-            '<input type="checkbox" name="storagegroup[]" '
-            . 'value="${storageGroup_id}" class="toggle-group" id="'
-            . 'sg-${storageGroup_id}"/><label for="sg-${storageGroup_id}">'
-            . '</label>',
-            '${storageGroup_name}',
-        );
-        $this->attributes = array(
-            array(
-                'class' => 'filter-false',
-                'width' => 16
-            ),
-            array(),
-        );
-        foreach ((array)self::getClass('StorageGroupManager')
-            ->find(
-                array(
-                    'id' => $this->obj->get('storagegroupsnotinme')
-                )
-            ) as &$Group
-        ) {
-            $this->data[] = array(
-                'storageGroup_id' => $Group->get('id'),
-                'storageGroup_name' => $Group->get('name'),
-            );
-            unset($Group);
-        }
-        $GroupDataExists = false;
-        if (count($this->data) > 0) {
-            $GroupDataExists = true;
-            self::$HookManager
-                ->processEvent(
-                    'IMAGE_GROUP_ASSOC',
-                    array(
-                        'headerData' => &$this->headerData,
-                        'data' => &$this->data,
-                        'templates' => &$this->templates,
-                        'attributes' => &$this->attributes
-                    )
-                );
-            printf(
-                '<p class="c">'
-                . '<input type="checkbox" name="groupMeShow" id="groupMeShow"/>'
-                . '<label for="groupMeShow">%s&nbsp;&nbsp;</label>',
-                _('Check here to see groups not assigned this image')
-            );
-            printf(
-                '<form method="post" action="%s&tab=image-storage">'
-                . '<div class="c" id="groupNotInMe"><h2>%s %s</h2>'
-                . '<p>%s %s</p>',
-                $this->formAction,
-                _('Modify group association for'),
-                $this->obj->get('name'),
-                _('Add image to groups'),
-                $this->obj->get('name')
-            );
-            $this->render();
-            echo '</div>';
-        }
-        unset($this->data);
-        if ($GroupDataExists) {
-            printf(
-                '<br/><p class="c"><input type="submit" value="%s"/></p></form></p>',
-                _('Add Image to Group(s)')
-            );
-        }
-        $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" '
-            . 'class="toggle-checkboxAction" id="toggler3"/>'
-            . '<label for="toggler3"></label>',
-            '',
-            _('Storage Group Name'),
-        );
-        $this->attributes = array(
-            array(
-                'width' => 16,
-                'class' => 'filter-false'
-            ),
-            array(
-                'width' => 22,
-                'class' => 'filter-false'
-            ),
-            array(),
-        );
-        $this->templates = array(
-            '<input type="checkbox" class="toggle-action" '
-            . 'name="storagegroup-rm[]" value="${storageGroup_id}" id="'
-            . 'sg1-${storageGroup_id}"/><label for="sg1-${storageGroup_id}">'
-            . '</label>',
-            sprintf(
-                '<input type="radio" class="primary" name="primary" '
-                . 'id="group${storageGroup_id}" value="${storageGroup_id}"'
-                . '${is_primary}/><label for="group${storageGroup_id}" '
-                . 'class="icon icon-hand" title="%s">&nbsp;</label>',
-                _('Primary Group Selector')
-            ),
-            '${storageGroup_name}',
-        );
-        foreach ((array)self::getClass('StorageGroupManager')
-            ->find(
-                array(
-                    'id' => $this->obj->get('storagegroups')
-                )
-            ) as &$Group
-        ) {
-            $this->data[] = array(
-                'storageGroup_id' => $Group->get('id'),
-                'storageGroup_name' => $Group->get('name'),
-                'is_primary' => (
-                    $this->obj->getPrimaryGroup($Group->get('id')) ?
-                    ' checked' :
-                    ''
-                ),
-            );
-            unset($Group);
-        }
-        self::$HookManager
-            ->processEvent(
-                'IMAGE_EDIT_GROUP',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        printf(
-            '<form method="post" action="%s&tab=image-storage">',
-            $this->formAction
-        );
-        $this->render();
-        if (count($this->data) > 0) {
-            printf(
-                '<p class="c"><input name="update" type="submit" value="%s"/>'
-                . '&nbsp;<input name="deleteGroup" type="submit" value="%s"/></p>',
-                _('Update Primary Group'),
-                _('Delete Selected Group associations')
-            );
-        }
-        echo '</form></div></div>';*/
     }
     /**
      * Submit save/update the image.
@@ -1245,18 +1299,19 @@ class ImageManagementPage extends FOGPage
         $isEnabled = (int)isset($_POST['isEnabled']);
         $toReplicate = (int)isset($_POST['toReplicate']);
         $compress = (int)filter_input(INPUT_POST, 'compress');
-        $storagegroup = filter_input(
+        $items = filter_input_array(
             INPUT_POST,
-            'storagegroup',
-            FILTER_DEFAULT,
-            FILTER_REQUIRE_ARRAY
+            array(
+                'storagegroup' => array(
+                    'flags' => FILTER_REQUIRE_ARRAY
+                ),
+                'storagegroup-rm' => array(
+                    'flags' => FILTER_REQUIRE_ARRAY
+                )
+            )
         );
-        $storagegrouprm = filter_input(
-            INPUT_POST,
-            'storagegroup-rm',
-            FILTER_DEFAULT,
-            FILTER_REQUIRE_ARRAY
-        );
+        $storagegroup = $items['storagegroup'];
+        $storagegrouprm = $items['storagegroup-rm'];
         $primary = (int)filter_input(
             INPUT_POST,
             'primary'
@@ -1367,11 +1422,11 @@ class ImageManagementPage extends FOGPage
                     );
                 break;
             case 'image-storage':
-                $this->obj->addGroup($storagegroup);
-                if (isset($_POST['update'])) {
+                if (isset($_POST['updategroups'])) {
+                    $this->obj->addGroup($storagegroup);
+                } elseif (isset($_POST['primarysel'])) {
                     $this->obj->setPrimaryGroup($primary);
-                } elseif (isset($_POST['deleteGroup'])) {
-                    $
+                } elseif (isset($_POST['groupdel'])) {
                     $groupdel = count($storagegrouprm);
                     $ingroups = count($this->obj->get('storagegroups'));
                     if ($groupdel < 1) {
@@ -1387,7 +1442,7 @@ class ImageManagementPage extends FOGPage
                     $this
                         ->obj
                         ->removeGroup(
-                            $groupdel
+                            $storagegrouprm
                         );
                 }
                 break;
