@@ -498,7 +498,13 @@ class PrinterManagementPage extends FOGPage
             . 'form-control">'
             . $desc
             . '</textarea>'
-            . '</div>'
+            . '</div>',
+            '<label for="update">'
+            . _('Make Changes?')
+            . '</label>' => '<button type="submit" name="update" id="update" '
+            . 'class="btn btn-info btn-block">'
+            . _('Update')
+            . '</button>'
         );
         self::$HookManager->processEvent(
             'PRINTER_GENERAL_FIELDS',
@@ -509,11 +515,20 @@ class PrinterManagementPage extends FOGPage
         array_walk($fields, $this->fieldsToData);
         echo '<!-- General -->';
         echo '<div id="printer-gen" class="tab-pane fade in active">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Printer General');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
         echo '<form class="form-horizontal" method-"post" action="'
             . $this->formAction
             . '&tab=printer-gen">';
-        $this->render();
+        $this->render(12);
         echo '</form>';
+        echo '</div>';
+        echo '</div>';
         echo '</div>';
     }
     /**
