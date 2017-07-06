@@ -1402,6 +1402,23 @@ class Route extends FOGBase
                 )
             );
             break;
+        case 'multicastsession':
+            $data = FOGCore::fastmerge(
+                $class->get(),
+                array(
+                    'imageID' => $class->get('image'),
+                    'image' => self::getter(
+                        'image',
+                        $class->get('imagename')
+                    ),
+                    'state' => self::getter(
+                        'taskstate',
+                        $class->get('state')
+                    )
+                )
+            );
+            unset($data['imagename']);
+            break;
         default:
             $data = $class->get();
             break;
