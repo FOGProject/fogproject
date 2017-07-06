@@ -37,7 +37,6 @@ $(function() {
                 $(this).text(data.join('\n'));
                 var setter = $('.kernversionupdate');
                 var nodename = setter.text();
-                console.log(nodename);
                 setter.text(nodename.replace(/\(.*\)/,'('+nodevers+')'));
             }
         });

@@ -78,7 +78,6 @@ $(function() {
         if ($('#scheduleOnDemand').is(':checked')) {
             $(".cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
                 $(this).val('').prop('disabled',true);
-                console.log('here');
             });
             return true;
         } else {
