@@ -403,6 +403,19 @@ class ImageManagementPage extends FOGPage
     public function add()
     {
         /**
+         * Setup our variables for back up/incorrect settings without
+         * making the user reset entirely
+         */
+        $storagegroup = (int)filter_input(INPUT_POST, 'storagegroup');
+        $os = (int)filter_input(INPUT_POST, 'os');
+        $imagetype = (int)filter_input(INPUT_POST, 'imagetype');
+        $imagepartitiontype = (int)filter_input(INPUT_POST, 'imagepartitiontype');
+        $compress = (int)filter_input(INPUT_POST, 'compress');
+        $imagemanage = filter_input(INPUT_POST, 'imagemanage');
+        $name = filter_input(INPUT_POST, 'name');
+        $desc = filter_input(INPUT_POST, 'description');
+        $file = filter_input(INPUT_POST, 'file');
+        /**
          * Title of initial/general element.
          */
         $this->title = _('New Image');
@@ -423,11 +436,8 @@ class ImageManagementPage extends FOGPage
         /**
          * Set the storage group to pre-select.
          */
-        if (isset($_REQUEST['storagegroup'])
-            && is_numeric($_REQUEST['storagegroup'])
-            && $_REQUEST['storagegroup'] > 0
-        ) {
-            $sgID = $_REQUEST['storagegroup'];
+        if ($storagegroup > 0) {
+            $sgID = $storagegroup;
         } else {
             $sgID = @min(self::getSubObjectIDs('StorageGroup'));
         }
@@ -446,13 +456,10 @@ class ImageManagementPage extends FOGPage
          */
         $StorageNode = $StorageGroup->getMasterStorageNode();
         $OSs = self::getClass('OSManager')
-            ->buildSelectBox($_REQUEST['os']);
+            ->buildSelectBox($os);
         $itID = 1;
-        if (isset($_REQUEST['imagetype'])
-            && is_numeric($_REQUEST['imagetype'])
-            && $_REQUEST['imagetype'] > 0
-        ) {
-            $itID = $_REQUEST['imagetype'];
+        if ($imagetype > 0) {
+            $itID = $imagetype;
         }
         $ImageTypes = self::getClass('ImageTypeManager')
             ->buildSelectBox(
@@ -461,11 +468,8 @@ class ImageManagementPage extends FOGPage
                 'id'
             );
         $iptID = 1;
-        if (isset($_REQUEST['imagepartitiontype'])
-            && is_numeric($_REQUEST['imagepartitiontype'])
-            && $_REQUEST['imagepartitiontype'] > 0
-        ) {
-            $iptID = $_REQUEST['imagepartitiontype'];
+        if ($imagepartitiontype > 0) {
+            $iptID = $imagepartitiontype;
         } else {
             $iptID = 1;
         }
@@ -476,19 +480,14 @@ class ImageManagementPage extends FOGPage
                 'id'
             );
         $compression = self::getSetting('FOG_PIGZ_COMP');
-        if ($_REQUEST['compress']
-            && is_numeric($_REQUEST['compress'])
-            && $_REQUEST['compress'] > -1
-            && $_REQUEST['compress'] < 10
-        ) {
-            $compression = $_REQUEST['compress'];
+        if ($compress < 0 || $compress > 23) {
+            $compression = $compress;
         }
-        if (!isset($_REQUEST['imagemanage'])) {
-            $_REQUEST['imagemanage']
-                = self::getSetting('FOG_IMAGE_COMPRESSION_FORMAT_DEFAULT');
+        if (!isset($imagemanage)) {
+            $imagemanage = self::getSetting('FOG_IMAGE_COMPRESSION_FORMAT_DEFAULT');
         }
         $format = sprintf(
-            '<select name="imagemanage">'
+            '<select name="imagemanage" id="imagemanage" class="form-control">'
             . '<option value="0"%s>%s</option>'
             . '<option value="1"%s>%s</option>'
             . '<option value="2"%s>%s</option>'
@@ -498,86 +497,117 @@ class ImageManagementPage extends FOGPage
             . '<option value="6"%s>%s</option>'
             . '</select>',
             (
-                !$_REQUEST['imagemanage'] || $_REQUEST['imagemanage'] == 0 ?
+                !$imagemanage || $imagemanage == 0 ?
                 ' selected' :
                 ''
             ),
             _('Partclone Gzip'),
             (
-                $_REQUEST['imagemanage'] == 1 ?
+                $imagemanage == 1 ?
                 ' selected' :
                 ''
             ),
             _('Partimage'),
             (
-                $_REQUEST['imagemanage'] == 2 ?
+                $imagemanage == 2 ?
                 ' selected' :
                 ''
             ),
             _('Partclone Gzip Split 200MiB'),
             (
-                $_REQUEST['imagemanage'] == 3 ?
+                $imagemanage == 3 ?
                 ' selected' :
                 ''
             ),
             _('Partclone Uncompressed'),
             (
-                $_REQUEST['imagemanage'] == 4 ?
+                $imagemanage == 4 ?
                 ' selected' :
                 ''
             ),
             _('Partclone Uncompressed Split 200MiB'),
             (
-                $_REQUEST['imagemanage'] == 5 ?
+                $imagemanage == 5 ?
                 ' selected' :
                 ''
             ),
             _('Partclone Zstd'),
             (
-                $_REQUEST['imagemanage'] == 6 ?
+                $imagemanage == 6 ?
                 ' selected' :
                 ''
             ),
             _('Partclone Zstd Split 200MiB')
         );
         $fields = array(
-            _('Image Name') => sprintf(
-                '<input type="text" name="name" id="iName" value="%s"/>',
-                $_REQUEST['name']
-            ),
-            _('Image Description') => sprintf(
-                '<textarea name="description" rows="8" cols="40">%s</textarea>',
-                $_REQUEST['description']
-            ),
-            _('Storage Group') => $StorageGroups,
-            _('Operating System') => $OSs,
-            _('Image Path') => sprintf(
-                '%s/&nbsp;<input type="text" name="file" id="iFile" value="%s"/>',
-                $StorageNode->get('path'),
-                $_REQUEST['file']
-            ),
-            _('Image Type') => $ImageTypes,
-            _('Partition') => $ImagePartitionTypes,
-            _('Image Enabled') => '<input type="checkbox" '
-            . 'name="isEnabled" value="1" id="isEnabled" checked/>'
-            . '<label for="isEnabled"></label>',
-            _('Replicate?') => '<input type="checkbox" '
-            . 'name="toReplicate" value="1" id="toRep" checked/>'
-            . '<label for="toRep"></label>',
-            _('Compression') => sprintf(
-                '<div class="rangegen pigz"></div>'
-                . '<input type="text" readonly="true" name="compress" '
-                . 'class="showVal pigz" maxsize="2"'
-                . ' value="%s"/>',
-                $compression
-            ),
-            _('Image Manager') => $format,
-            '&nbsp;' => sprintf(
-                '<input type="submit" name="add" value="%s"/>',
-                _('Add')
-            )
+            '<label for="iName">'
+            . _('Image Name')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" name="name" id="iName" '
+            . 'value="'
+            . $name
+            . '"/>'
+            . '</div>',
+            '<label for="description">'
+            . _('Image Description')
+            . '</label>' => '<div class="input-group">'
+            . '<textarea name="description" class="form-control" id="description">'
+            . $description
+            . '</textarea>',
+            '<label for="storagegroup">'
+            . _('Storage Group')
+            . '</label>' => $StorageGroups,
+            '<label for="os">'
+            . _('Operating System')
+            . '</label>' => $OSs,
+            '<label for="iFile">'
+            . _('Image Path')
+            . '</label>' => '<div class="input-group">'
+            . '<span class="input-group-addon">'
+            . $StorageNode->get('path')
+            . '/'
+            . '</span>'
+            . '<input type="text" class="form-control" name="file" id="iFile" '
+            . 'value="'
+            . $file
+            . '"/>',
+            '<label for="imagetype">'
+            . _('Image Type')
+            . '</label>' => $ImageTypes,
+            '<label for="imagepartitiontype">'
+            . _('Partition')
+            . '</label>' => $ImagePartitionTypes,
+            '<label for="isEnabled">'
+            . _('Image Enabled')
+            . '</label>' => '<input type="checkbox" '
+            . 'name="isEnabled" id="isEnabled" checked/>',
+            '<label for="toRep">'
+            . _('Replicate?')
+            . '</label>' => '<input type="checkbox" '
+            . 'name="toReplicate" id="toRep" checked/>',
+            '<label for="pigzcomp">'
+            . _('Compression')
+            . '</label>' => '<div class="col-xs-8">'
+            . '<div class="rangegen pigz"></div>'
+            . '</div>'
+            . '<div class="col-xs-2">'
+            . '<div class="input-group">'
+            . '<input type="text" name="compress" class="form-control '
+            . 'showVal pigz" maxsize="2" value="'
+            . $compression
+            . '" id="pigzcomp" readonly/>'
+            . '</div>'
+            . '</div>',
+            '<label for="imagemanage">'
+            . _('Image Manager')
+            . '</label>' => $format,
+            '<label for="add">'
+            . _('Create Image')
+            . '</label>' => '<button class="btn btn-info btn-block" type="submit" '
+            . 'id="add" name="add">'
+            . _('Add')
+            . '</button>'
         );
-        printf('<h2>%s</h2>', _('Add new image definition'));
         self::$HookManager
             ->processEvent(
                 'IMAGE_FIELDS',
@@ -597,12 +627,22 @@ class ImageManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        printf(
-            '<form method="post" action="%s">',
-            $this->formAction
-        );
-        $this->render();
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
+        $this->render(12);
         echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Actually submit the creation of the image.
@@ -612,20 +652,35 @@ class ImageManagementPage extends FOGPage
     public function addPost()
     {
         self::$HookManager->processEvent('IMAGE_ADD_POST');
+        $file = trim(
+            filter_input(INPUT_POST, 'file')
+        );
+        $name = trim(
+            filter_input(INPUT_POST, 'name')
+        );
+        $desc = trim(
+            filter_input(INPUT_POST, 'description')
+        );
+        $storagegroup = (int)filter_input(INPUT_POST, 'storagegroup');
+        $os = (int)filter_input(INPUT_POST, 'os');
+        $imagetype = (int)filter_input(INPUT_POST, 'imagetype');
+        $imagepartitiontype = (int)filter_input(INPUT_POST, 'imagepartitiontype');
+        $imagemanage = (int)filter_input(INPUT_POST, 'imagemanage');
+        $compress = (int)filter_input(INPUT_POST, 'compress');
+        $isenabled = (int)isset($_POST['isEnabled']);
+        $torep = (int)isset($_POST['toReplicate']);
         try {
-            $_REQUEST['file'] = trim($_REQUEST['file']);
-            $name = trim($_REQUEST['name']);
             if (!$name) {
                 throw new Exception(_('An image name is required!'));
             }
             if (self::getClass('ImageManager')->exists($name)) {
                 throw new Exception(_('An image already exists with this name!'));
             }
-            if (empty($_REQUEST['file'])) {
+            if (empty($file)) {
                 throw new Exception(_('An image file name is required!'));
             }
-            if ($_REQUEST['file'] == 'postdownloadscripts'
-                || $_REQUEST['file'] == 'dev'
+            if ($file == 'postdownloadscripts'
+                || $file == 'dev'
             ) {
                 throw new Exception(
                     sprintf(
@@ -635,7 +690,7 @@ class ImageManagementPage extends FOGPage
                     )
                 );
             }
-            if (self::getClass('ImageManager')->exists($_REQUEST['file'], 'path')) {
+            if (self::getClass('ImageManager')->exists($file, '', 'path')) {
                 throw new Exception(
                     sprintf(
                         '%s, %s.',
@@ -644,34 +699,30 @@ class ImageManagementPage extends FOGPage
                     )
                 );
             }
-            if (empty($_REQUEST['storagegroup'])) {
+            if (!$storagegroup) {
                 throw new Exception(_('A Storage Group is required!'));
             }
-            if (empty($_REQUEST['os'])) {
+            if (!$os) {
                 throw new Exception(_('An Operating System is required!'));
             }
-            if (empty($_REQUEST['imagetype'])
-                || !is_numeric($_REQUEST['imagetype'])
-            ) {
+            if (!$imagetype) {
                 throw new Exception(_('An image type is required!'));
             }
-            if (empty($_REQUEST['imagepartitiontype'])
-                || !is_numeric($_REQUEST['imagepartitiontype'])
-            ) {
+            if (!$imagepartitiontype) {
                 throw new Exception(_('An image partition type is required!'));
             }
             $Image = self::getClass('Image')
-                ->set('name', $_REQUEST['name'])
-                ->set('description', $_REQUEST['description'])
-                ->set('osID', $_REQUEST['os'])
-                ->set('path', $_REQUEST['file'])
-                ->set('imageTypeID', $_REQUEST['imagetype'])
-                ->set('imagePartitionTypeID', $_REQUEST['imagepartitiontype'])
-                ->set('compress', $_REQUEST['compress'])
-                ->set('isEnabled', (string)intval(isset($_REQUEST['isEnabled'])))
-                ->set('format', $_REQUEST['imagemanage'])
-                ->set('toReplicate', (string)intval(isset($_REQUEST['toReplicate'])))
-                ->addGroup($_REQUEST['storagegroup']);
+                ->set('name', $name)
+                ->set('description', $desc)
+                ->set('osID', $os)
+                ->set('path', $file)
+                ->set('imageTypeID', $imagetype)
+                ->set('imagePartitionTypeID', $imagepartitiontype)
+                ->set('compress', $compress)
+                ->set('isEnabled', $isenabled)
+                ->set('format', $imagemanage)
+                ->set('toReplicate', $torep)
+                ->addGroup($storagegroup);
             if (!$Image->save()) {
                 throw new Exception(_('Database update failed'));
             }
@@ -679,7 +730,7 @@ class ImageManagementPage extends FOGPage
              * During image creation we only allow a single group anyway.
              * This will set it to be the primary master.
              */
-            $Image->setPrimaryGroup($_REQUEST['storagegroup']);
+            $Image->setPrimaryGroup($storagegroup);
             $hook = 'IMAGE_ADD_SUCCESS';
             $msg = _('Image created');
             $url = sprintf(
@@ -702,15 +753,19 @@ class ImageManagementPage extends FOGPage
         self::redirect($url);
     }
     /**
-     * Edit this image
+     * Diplay image general information.
      *
      * @return void
      */
-    public function edit()
+    public function imageGeneral()
     {
-        $this->title = sprintf('%s: %s', _('Edit'), $this->obj->get('name'));
-        echo '<div class="col-xs-9 tab-content">';
-        unset($this->headerData);
+        unset(
+            $this->data,
+            $this->form,
+            $this->templates,
+            $this->attributes,
+            $this->headerData
+        );
         $this->attributes = array(
             array('class' => 'col-xs-4'),
             array('class' => 'col-xs-8 form-group'),
@@ -723,11 +778,9 @@ class ImageManagementPage extends FOGPage
             ->obj
             ->getStorageGroup()
             ->getMasterStorageNode();
-        $osID = $this->obj->get('osID');
-        if ($_REQUEST['os']
-            && is_numeric($_REQUEST['os'])
-        ) {
-            $osID = $_REQUEST['os'];
+        $osID = (int)filter_input(INPUT_POST, 'os');
+        if ($osID < 1) {
+            $osID = $this->obj->get('osID');
         }
         $OSs = self::getClass('OSManager')
             ->buildSelectBox(
@@ -735,11 +788,9 @@ class ImageManagementPage extends FOGPage
                 '',
                 'id'
             );
-        $itID = $this->obj->get('imageTypeID');
-        if ($_REQUEST['imagetype']
-            && is_numeric($_REQUEST['imagetype'])
-        ) {
-            $itID = $_REQUEST['imagetype'];
+        $itID = (int)filter_input(INPUT_POST, 'imagetype');
+        if ($itID < 1) {
+            $itID = $this->obj->get('imageTypeID');
         }
         $ImageTypes = self::getClass('ImageTypeManager')
             ->buildSelectBox(
@@ -747,28 +798,64 @@ class ImageManagementPage extends FOGPage
                 '',
                 'id'
             );
-        $iptID = $this->obj->get('imagePartitionTypeID');
-        if ($_REQUEST['imagepartitiontype']
-            && is_numeric($_REQUEST['imagepartitiontype'])
-        ) {
-            $iptID = $_REQUEST['imagepartitiontype'];
-        }
+        $iptID = (
+            filter_input(INPUT_POST, 'imagepartitiontype') ?: $this->obj->get(
+                'imagePartitionTypeID'
+            )
+        );
         $ImagePartitionTypes = self::getClass('ImagePartitionTypeManager')
             ->buildSelectBox(
                 $iptID,
                 '',
                 'id'
             );
-        $compression = $this->obj->get('compress');
-        if ($_REQUEST['compress']
-            && is_numeric($_REQUEST['compress'])
-            && $_REQUEST['compress'] > -1
-            && $_REQUEST['compress'] < 10
-        ) {
-            $compression = $_REQUEST['compress'];
+        $compression = (
+            filter_input(INPUT_POST, 'compress') ?: $this->obj->get('compress')
+        );
+        $imagemanage = (
+            filter_input(INPUT_POST, 'imagemanage') ?: $this->obj->get('format')
+        );
+        $name = (
+            filter_input(INPUT_POST, 'name') ?: $this->obj->get('name')
+        );
+        $desc = (
+            filter_input(INPUT_POST, 'description') ?: $this->obj->get('description')
+        );
+        $isen = (int)isset($_POST['isEnabled']);
+        if (!$isen) {
+            $isen = $this->obj->get('isEnabled');
+        }
+        if ($isen) {
+            $isen = ' checked';
+        } else {
+            $isen = '';
+        }
+        $torep = (int)isset($_POST['toReplicate']);
+        if (!$torep) {
+            $torep = $this->obj->get('toReplicate');
+        }
+        if ($torep) {
+            $torep = ' checked';
+        } else {
+            $torep = '';
+        }
+        $toprot = (int)isset($_POST['protected_image']);
+        if (!$toprot) {
+            $toprot = $this->obj->get('protect');
+        }
+        if ($toprot) {
+            $toprot = ' checked';
+        } else {
+            $toprot = '';
+        }
+        $file = trim(
+            filter_input(INPUT_POST, 'file')
+        );
+        if (!$file) {
+            $file = $this->obj->get('path');
         }
         $format = sprintf(
-            '<select name="imagemanage">'
+            '<select name="imagemanage" id="imagemanage" class="form-control">'
             . '<option value="0"%s>%s</option>'
             . '<option value="1"%s>%s</option>'
             . '<option value="2"%s>%s</option>'
@@ -778,120 +865,123 @@ class ImageManagementPage extends FOGPage
             . '<option value="6"%s>%s</option>'
             . '</select>',
             (
-                !$this->obj->get('format') || $this->obj->get('format') == 0 ?
+                !$imagemanage ?
                 ' selected' :
                 ''
             ),
             _('Partclone Gzip'),
             (
-                $this->obj->get('format') == 1 ?
+                $imagemanage == 1 ?
                 ' selected' :
                 ''
             ),
             _('Partimage'),
             (
-                $this->obj->get('format') == 2 ?
+                $imagemanage == 2 ?
                 ' selected' :
                 ''
             ),
             _('Partclone Gzip Split 200MiB'),
             (
-                $this->obj->get('format') == 3 ?
+                $imagemanage == 3 ?
                 ' selected' :
                 ''
             ),
             _('Partclone Uncompressed'),
             (
-                $this->obj->get('format') == 4 ?
+                $imagemanage == 4 ?
                 ' selected' :
                 ''
             ),
             _('Partclone Uncompressed Split 200MiB'),
             (
-                $this->obj->get('format') == 5 ?
+                $imagemanage == 5 ?
                 ' selected' :
                 ''
             ),
             _('Partclone Zstd'),
             (
-                $this->obj->get('format') == 6 ?
+                $imagemanage == 6 ?
                 ' selected' :
                 ''
             ),
             _('Partclone Zstd Split 200MiB')
         );
         $fields = array(
-            _('Image Name') => sprintf(
-                '<input type="text" name="name" id="iName" value="%s"/>',
-                (
-                    isset($_REQUEST['name'])
-                    && $_REQUEST['name'] != $this->obj->get('name') ?
-                    $_REQUEST['name'] :
-                    $this->obj->get('name')
-                )
-            ),
-            _('Image Description') => sprintf(
-                '<textarea name="description" rows="8" cols="40">%s</textarea>',
-                (
-                    isset($_REQUEST['description'])
-                    && $_REQUEST['description'] != $this->obj->get('description') ?
-                    $_REQUEST['description'] :
-                    $this->obj->get('description')
-                )
-            ),
-            _('Operating System') => $OSs,
-            _('Image Path') => sprintf(
-                '%s/&nbsp;<input type="text" name="file" id="iFile" value="%s"/>',
-                $StorageNode->get('path'),
-                (
-                    isset($_REQUEST['file'])
-                    && $_REQUEST['file'] != $this->obj->get('path') ?
-                    $_REQUEST['file'] :
-                    $this->obj->get('path')
-                )
-            ),
-            _('Image Type') => $ImageTypes,
-            _('Partition') => $ImagePartitionTypes,
-            _('Compression') => sprintf(
-                '<div class="rangegen pigz"></div>'
-                . '<input type="text" readonly="true" name="compress" '
-                . 'class="imagespage showVal pigz" maxsize="2" '
-                . 'value="%s"/>',
-                $compression
-            ),
-            _('Protected') => sprintf(
-                '<input type="checkbox" name="protected_image" id="'
-                . 'protectimage" %s/>'
-                . '<label for="protectimage"></label>',
-                (
-                    $this->obj->get('protected') ?
-                    ' checked' :
-                    ''
-                )
-            ),
-            _('Image Enabled') => sprintf(
-                '<input type="checkbox" name="isEnabled" value="1" id="'
-                . 'isEn" %s/><label for="isEn"></label>',
-                (
-                    $this->obj->get('isEnabled') ?
-                    ' checked' :
-                    ''
-                )
-            ),
-            _('Replicate?') => sprintf(
-                '<input type="checkbox" name="toReplicate" value="1" id="'
-                . 'toRep" %s/><label for="toRep"></label>',
-                (
-                    $this->obj->get('toReplicate') ?
-                    ' checked' :
-                    ''
-                )
-            ),
-            _('Image Manager') => $format,
-            '&nbsp;' => sprintf(
-                '<input type="submit" name="update" value="%s"/>',
-                _('Update')
-            ),
+            '<label for="iName">'
+            . _('Image Name')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" name="name" id="iName" '
+            . 'value="'
+            . $name
+            . '"/>'
+            . '</div>',
+            '<label for="description">'
+            . _('Image Description')
+            . '</label>' => '<div class="input-group">'
+            . '<textarea name="description" class="form-control" id="description">'
+            . $desc
+            . '</textarea>',
+            '<label for="os">'
+            . _('Operating System')
+            . '</label>' => $OSs,
+            '<label for="iFile">'
+            . _('Image Path')
+            . '</label>' => '<div class="input-group">'
+            . '<span class="input-group-addon">'
+            . $StorageNode->get('path')
+            . '/'
+            . '</span>'
+            . '<input type="text" class="form-control" name="file" id="iFile" '
+            . 'value="'
+            . $file
+            . '"/>',
+            '<label for="imagetype">'
+            . _('Image Type')
+            . '</label>' => $ImageTypes,
+            '<label for="imagepartitiontype">'
+            . _('Partition')
+            . '</label>' => $ImagePartitionTypes,
+            '<label for="protectimage">'
+            . _('Protected')
+            . '</label>' => '<input type="checkbox" '
+            . 'name="protected_image" id="protectimage"'
+            . $toprot
+            . '/>',
+            '<label for="isEnabled">'
+            . _('Image Enabled')
+            . '</label>' => '<input type="checkbox" '
+            . 'name="isEnabled" id="isEnabled"'
+            . $isen
+            . '/>',
+            '<label for="toRep">'
+            . _('Replicate?')
+            . '</label>' => '<input type="checkbox" '
+            . 'name="toReplicate" id="toRep" '
+            . $torep
+            . '/>',
+            '<label for="pigzcomp">'
+            . _('Compression')
+            . '</label>' => '<div class="col-xs-8">'
+            . '<div class="rangegen pigz"></div>'
+            . '</div>'
+            . '<div class="col-xs-2">'
+            . '<div class="input-group">'
+            . '<input type="text" name="compress" class="form-control '
+            . 'showVal pigz" maxsize="2" value="'
+            . $compression
+            . '" id="pigzcomp" readonly/>'
+            . '</div>'
+            . '</div>',
+            '<label for="imagemanage">'
+            . _('Image Manager')
+            . '</label>' => $format,
+            '<label for="update">'
+            . _('Make Changes?')
+            . '</label>' => '<button class="btn btn-info btn-block" type="submit" '
+            . 'id="update" name="update">'
+            . _('Update')
+            . '</button>'
         );
         self::$HookManager
             ->processEvent(
@@ -913,18 +1003,68 @@ class ImageManagementPage extends FOGPage
                 )
             );
         echo '<!-- General -->';
-        echo '<div id="image-gen" class="tab-pane fade in active">';
+        echo '<div class="tab-pane fade in active" id="image-gen">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
-        echo _('Edit image definition');
+        echo _('Image General');
         echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '&tab=image-gen">';
-        $this->render();
-        unset($this->data);
+        $this->render(12);
         echo '</form>';
         echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        unset(
+            $this->data,
+            $this->form,
+            $this->templates,
+            $this->attributes,
+            $this->headerData
+        );
+    }
+    /**
+     * Display image storage groups.
+     *
+     * @return void
+     */
+    public function imageStoragegroups()
+    {
+        unset(
+            $this->data,
+            $this->form,
+            $this->templates,
+            $this->attributes,
+            $this->headerData
+        );
         echo '<!-- Storage Groups -->';
+        echo '<div class="tab-pane fade" id="image-storage">';
+        echo '</div>';
+        unset(
+            $this->data,
+            $this->form,
+            $this->templates,
+            $this->attributes,
+            $this->headerData
+        );
+    }
+    /**
+     * Edit this image
+     *
+     * @return void
+     */
+    public function edit()
+    {
+        echo '<div class="col-xs-9 tab-content">';
+        $this->imageGeneral();
+        $this->imageStoragegroups();
+        echo '</div>';
+        // Storage groups.
+        /*echo '<!-- Storage Groups -->';
         echo '<div id="image-storage" class="tab-pane fade">';
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkboxgroup1" '
@@ -1071,7 +1211,7 @@ class ImageManagementPage extends FOGPage
                 _('Delete Selected Group associations')
             );
         }
-        echo '</form></div></div>';
+        echo '</form></div></div>';*/
     }
     /**
      * Submit save/update the image.
@@ -1088,14 +1228,46 @@ class ImageManagementPage extends FOGPage
                 )
             );
         global $tab;
+        $name = trim(
+            filter_input(INPUT_POST, 'name')
+        );
+        $file = trim(
+            filter_input(INPUT_POST, 'file')
+        );
+        $desc = trim(
+            filter_input(INPUT_POST, 'description')
+        );
+        $os = (int)filter_input(INPUT_POST, 'os');
+        $imagetype = (int)filter_input(INPUT_POST, 'imagetype');
+        $imagepartitiontype = (int)filter_input(INPUT_POST, 'imagepartitiontype');
+        $imagemanage = (int)filter_input(INPUT_POST, 'imagemanage');
+        $protected = (int)isset($_POST['protected_image']);
+        $isEnabled = (int)isset($_POST['isEnabled']);
+        $toReplicate = (int)isset($_POST['toReplicate']);
+        $compress = (int)filter_input(INPUT_POST, 'compress');
+        $storagegroup = filter_input(
+            INPUT_POST,
+            'storagegroup',
+            FILTER_DEFAULT,
+            FILTER_REQUIRE_ARRAY
+        );
+        $storagegrouprm = filter_input(
+            INPUT_POST,
+            'storagegroup-rm',
+            FILTER_DEFAULT,
+            FILTER_REQUIRE_ARRAY
+        );
+        $primary = (int)filter_input(
+            INPUT_POST,
+            'primary'
+        );
         try {
             switch ($tab) {
             case 'image-gen':
-                $name = trim($_REQUEST['name']);
                 if (!$name) {
                     throw new Exception(_('An image name is required!'));
                 }
-                if ($this->obj->get('name') != $_REQUEST['name']
+                if ($this->obj->get('name') != $name
                     && self::getClass('ImageManager')->exists(
                         $name,
                         $this->obj->get('id')
@@ -1105,8 +1277,8 @@ class ImageManagementPage extends FOGPage
                         _('An image already exists with this name!')
                     );
                 }
-                if ($_REQUEST['file'] == 'postdownloadscripts'
-                    || $_REQUEST['file'] == 'dev'
+                if ($file == 'postdownloadscripts'
+                    || $file == 'dev'
                 ) {
                     throw new Exception(
                         sprintf(
@@ -1118,10 +1290,11 @@ class ImageManagementPage extends FOGPage
                 }
                 $exists = self::getClass('ImageManager')
                     ->exists(
-                        $_REQUEST['file'],
+                        $file,
+                        '',
                         'path'
                     );
-                if ($this->obj->get('path') != $_REQUEST['file']
+                if ($this->obj->get('path') != $file
                     && $exists
                 ) {
                     throw new Exception(
@@ -1132,18 +1305,16 @@ class ImageManagementPage extends FOGPage
                         )
                     );
                 }
-                if (empty($_REQUEST['file'])) {
+                if (empty($file)) {
                     throw new Exception(_('An image file name is required!'));
                 }
-                if (empty($_REQUEST['os'])) {
+                if (empty($os)) {
                     throw new Exception(_('An Operating System is required!'));
                 }
-                if (empty($_REQUEST['imagetype']) && $_REQUEST['imagetype'] != 0) {
+                if ($imagetype < 1) {
                     throw new Exception(_('An image type is required!'));
                 }
-                if (empty($_REQUEST['imagepartitiontype'])
-                    && $_REQUEST['imagepartitiontype'] != '0'
-                ) {
+                if ($imagepartitiontype < 0) {
                     throw new Exception(
                         _('An image partition type is required!')
                     );
@@ -1152,59 +1323,56 @@ class ImageManagementPage extends FOGPage
                     ->obj
                     ->set(
                         'name',
-                        $_REQUEST['name']
+                        $name
                     )
                     ->set(
                         'description',
-                        $_REQUEST['description']
+                        $desc
                     )
                     ->set(
                         'osID',
-                        $_REQUEST['os']
+                        $os
                     )
                     ->set(
                         'path',
-                        $_REQUEST['file']
+                        $file
                     )
                     ->set(
                         'imageTypeID',
-                        $_REQUEST['imagetype']
+                        $imagetype
                     )
                     ->set(
                         'imagePartitionTypeID',
-                        $_REQUEST['imagepartitiontype']
+                        $imagepartitiontype
                     )
                     ->set(
                         'format',
-                        (
-                            isset($_REQUEST['imagemanage']) ?
-                            $_REQUEST['imagemanage'] :
-                            $this->obj->get('format')
-                        )
+                        $imagemanage ?: $this->obj->get('format')
                     )
                     ->set(
                         'protected',
-                        isset($_REQUEST['protected_image'])
+                        $protected
                     )
                     ->set(
                         'compress',
-                        $_REQUEST['compress']
+                        $compress
                     )
                     ->set(
                         'isEnabled',
-                        isset($_REQUEST['isEnabled'])
+                        $isEnabled
                     )
                     ->set(
                         'toReplicate',
-                        isset($_REQUEST['toReplicate'])
+                        $toReplicate
                     );
                 break;
             case 'image-storage':
-                $this->obj->addGroup($_REQUEST['storagegroup']);
-                if (isset($_REQUEST['update'])) {
-                    $this->obj->setPrimaryGroup($_REQUEST['primary']);
-                } elseif (isset($_REQUEST['deleteGroup'])) {
-                    $groupdel = count($_REQUEST['storagegroup-rm']);
+                $this->obj->addGroup($storagegroup);
+                if (isset($_POST['update'])) {
+                    $this->obj->setPrimaryGroup($primary);
+                } elseif (isset($_POST['deleteGroup'])) {
+                    $
+                    $groupdel = count($storagegrouprm);
                     $ingroups = count($this->obj->get('storagegroups'));
                     if ($groupdel < 1) {
                         throw new Exception(
@@ -1219,7 +1387,7 @@ class ImageManagementPage extends FOGPage
                     $this
                         ->obj
                         ->removeGroup(
-                            $_REQUEST['storagegroup-rm']
+                            $groupdel
                         );
                 }
                 break;
@@ -1251,8 +1419,14 @@ class ImageManagementPage extends FOGPage
      */
     public function multicast()
     {
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
         $this->title = self::$foglang['Multicast'];
-        unset($this->headerData);
         $this->attributes = array(
             array('class' => 'col-xs-4'),
             array('class' => 'col-xs-8 form-group'),
@@ -1261,40 +1435,51 @@ class ImageManagementPage extends FOGPage
             '${field}',
             '${input}',
         );
+        $name = filter_input(INPUT_POST, 'name');
+        $count = (int)filter_input(INPUT_POST, 'count');
+        $timeout = (int)filter_input(INPUT_POST, 'timeout');
+        $image = (int)filter_input(INPUT_POST, 'image');
         $fields = array(
-            _('Session Name') => sprintf(
-                '<input type="text" name="name" id="iName" '
-                . 'autocomplete="off" value="%s"/>',
-                $_REQUEST['name']
-            ),
-            _('Client Count') => sprintf(
-                '<input type="text" name="count" id="iCount" '
-                . 'autocomplete="off" value="%s"/>',
-                $_REQUEST['count']
-            ),
-            sprintf(
-                '%s (%s)',
-                _('Timeout'),
-                _('minutes')
-            ) => sprintf(
-                '<input type="text" name="timeout" id="iTimeout" '
-                . 'autocomplete="off" value="%s"/>',
-                $_REQUEST['timeout']
-            ),
-            _('Select Image') => self::getClass('ImageManager')->buildSelectBox(
-                $_REQUEST['image'],
+            '<label for="iName">'
+            . _('Session Name')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" name="name" id="iName" '
+            . 'autocomplete="off" value="'
+            . $name
+            . '"/>'
+            . '</div>',
+            '<label for="iCount">'
+            . _('Client Count')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="number" name="count" id="iCount" '
+            . 'autocomplete="off" value="'
+            . $count
+            . '"/>'
+            . '</div>',
+            '<label for="iTimeout">'
+            . _('Timeout')
+            . ' ('
+            . _('minutes')
+            . ')'
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="number" name=timeout" '
+            . 'id="iTimeout" autocomplete="off" value="'
+            . $timeout
+            . '"/>'
+            . '</div>',
+            '<label for="image">'
+            . _('Select Image')
+            . '</label>' => self::getClass('ImageManager')->buildSelectBox(
+                $image,
                 '',
                 'name'
             ),
-            '&nbsp;' => sprintf(
-                '<input name="start" type="submit" value="%s"/>',
-                _('Start')
-            ),
-        );
-        printf(
-            '<h2>%s</h2><form method="post" action="%s">',
-            _('Start Multicast Session'),
-            $this->formAction
+            '<label for="start">'
+            . _('Start Session')
+            . '</label>' => '<button class="btn btn-info btn-block" type="submit" '
+            . 'name="start" id="start">'
+            . _('Start')
+            . '</button>'
         );
         array_walk(
             $fields,
@@ -1310,8 +1495,34 @@ class ImageManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        $this->render();
-        unset($this->data);
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Multicast Image');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Start Multicast Session');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        $this->render(12);
+        echo '</div>';
+        echo '</div>';
+        unset(
+            $this->form,
+            $this->data,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
         $this->headerData = array(
             _('Task Name'),
             _('Clients'),
@@ -1325,7 +1536,7 @@ class ImageManagementPage extends FOGPage
             array(),
             array(),
             array(),
-            array(),
+            array('class' => 'text-center'),
             array('class'=>'filter-false'),
         );
         $this->templates = array(
@@ -1333,41 +1544,44 @@ class ImageManagementPage extends FOGPage
             '${mc_count}',
             '<small>${mc_start}</small>',
             '${mc_percent}',
-            '${mc_state}',
-            sprintf(
-                '<a href="?node=%s&sub=stop&mcid=${mc_id}" '
-                . 'title="%s"><i class="fa fa-minus-circle" '
-                . 'alt="%s"></i></a>',
-                $this->node,
-                _('Remove'),
-                _('Kill')
-            ),
+            '<i class="fa fa-${mc_state}"></i>',
+            '<a href="?node='
+            . $this->node
+            . '&sub=stop&mcid=${mc_id}" '
+            . 'title="'
+            . _('Remove')
+            . '" data-toggle="tooltip" data-placement="top">'
+            . '<i class="fa fa-minus-circle"></i>'
+            . '</a>'
         );
         $find = array(
             'stateID' => self::fastmerge(
-                self::getQueuedStates(),
-                (array) self::getProgressState()
+                (array)self::getQueuedStates(),
+                (array)self::getProgressState()
             )
         );
-        foreach ((array)self::getClass('MulticastSessionManager')
-            ->find($find) as &$MulticastSession
-        ) {
-            $Image = $MulticastSession->getImage();
-            if (!$Image->isValid()) {
+        Route::active('multicastsession');
+        $MulticastSessions = json_decode(
+            Route::getData()
+        );
+        $MulticastSessions = $MulticastSessions->multicastsessions;
+        foreach ((array)$MulticastSessions as &$MulticastSession) {
+            $Image = $MulticastSession->image;
+            if (!$Image->id) {
                 continue;
             }
             $this->data[] = array(
-                'mc_name' => $MulticastSession->get('name'),
-                'mc_count' => $MulticastSession->get('sessclients'),
-                'image_name' => $Image->get('name'),
-                'os' => $Image->getOS()->get('name'),
+                'mc_name' => $MulticastSession->name,
+                'mc_count' => $MulticastSession->sessclients,
+                'image_name' => $Image->name,
+                'os' => $Image->os->name,
                 'mc_start' => self::formatTime(
-                    $MulticastSession->get('starttime'),
+                    $MulticastSession->starttime,
                     'Y-m-d H:i:s'
                 ),
-                'mc_percent' => $MulticastSession->get('percent'),
-                'mc_state' => $MulticastSession->getTaskState()->get('name'),
-                'mc_id' => $MulticastSession->get('id'),
+                'mc_percent' => $MulticastSession->percent,
+                'mc_state' => $MulticastSession->state->icon,
+                'mc_id' => $MulticastSession->id,
             );
             unset($MulticastSession);
         }
@@ -1375,14 +1589,26 @@ class ImageManagementPage extends FOGPage
             ->processEvent(
                 'IMAGE_MULTICAST_START',
                 array(
-                    'headerData' => &$this->headerData,
                     'data' => &$this->data,
+                    'headerData' => &$this->headerData,
                     'templates' => &$this->templates,
                     'attributes' => &$this->attributes
                 )
             );
-        $this->render();
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Current Sessions');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        $this->render(12);
+        echo '</div>';
+        echo '</div>';
         echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Submit the mutlicast form.
@@ -1392,11 +1618,16 @@ class ImageManagementPage extends FOGPage
     public function multicastPost()
     {
         try {
-            $name = trim($_REQUEST['name']);
+            $name = trim(
+                filter_input(INPUT_POST, 'name')
+            );
+            $image = (int)filter_input(INPUT_POST, 'image');
+            $timeout = (int)filter_input(INPUT_POST, 'timeout');
+            $count = (int)filter_input(INPUT_POST, 'count');
             if (!$name) {
                 throw new Exception(_('Please input a session name'));
             }
-            if (!$_REQUEST['image']) {
+            if (!$image) {
                 throw new Exception(_('Please choose an image'));
             }
             if (self::getClass('MulticastSessionManager')->exists($name)) {
@@ -1407,8 +1638,8 @@ class ImageManagementPage extends FOGPage
                     _('Session name cannot be the same as an existing hostname')
                 );
             }
-            if (is_numeric($_REQUEST['timeout']) && $_REQUEST['timeout'] > 0) {
-                self::setSetting('FOG_UDPCAST_MAXWAIT', $_REQUEST['timeout']);
+            if ($timeout > 0) {
+                self::setSetting('FOG_UDPCAST_MAXWAIT', $timeout);
             }
             $countmc = self::getClass('MulticastSessionManager')
                 ->count(
@@ -1420,7 +1651,7 @@ class ImageManagementPage extends FOGPage
                     )
                 );
             $countmctot = self::getSetting('FOG_MULTICAST_MAX_SESSIONS');
-            $Image = self::getClass('Image', $_REQUEST['image']);
+            $Image = new Image($image);
             $StorageGroup = $Image->getStorageGroup();
             $StorageNode = $StorageGroup->getMasterStorageNode();
             if ($countmc >= $countmctot) {
@@ -1441,7 +1672,7 @@ class ImageManagementPage extends FOGPage
                 ->set('port', self::getSetting('FOG_UDPCAST_STARTINGPORT'))
                 ->set('image', $Image->get('id'))
                 ->set('stateID', 0)
-                ->set('sessclients', $_REQUEST['count'])
+                ->set('sessclients', $count)
                 ->set('isDD', $Image->get('imageTypeID'))
                 ->set('starttime', self::formatTime('now', 'Y-m-d H:i:s'))
                 ->set('interface', $StorageNode->get('interface'))
@@ -1482,16 +1713,19 @@ class ImageManagementPage extends FOGPage
      */
     public function stop()
     {
-        if ($_REQUEST['mcid'] < 1) {
-            self::redirect(sprintf('?node=%s&sub=multicast', $this->node));
+        $mcid = (int)filter_input(INPUT_GET, 'mcid');
+        if ($mcid < 1) {
+            self::redirect(
+                sprintf('?node=%s&sub=multicast', $this->node)
+            );
         }
-        self::getClass('MulticastSessionManager')->cancel($_REQUEST['mcid']);
+        self::getClass('MulticastSessionManager')->cancel($mcid);
         self::setMessage(
             sprintf(
                 '%s%s',
                 _('Cancelled task'),
                 (
-                    count($_REQUEST['mcid']) !== 1 ?
+                    count($mcid) !== 1 ?
                     's' :
                     ''
                 )
