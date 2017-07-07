@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-07 14:29-0400\n"
+"POT-Creation-Date: 2017-07-07 14:56-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5595,7 +5595,7 @@ msgstr ""
 msgid "Snapin updated"
 msgstr ""
 
-#: /var/www/fog/lib/pages/processlogin.class.php:317
+#: /var/www/fog/lib/pages/processlogin.class.php:334
 msgid "FOG Project"
 msgstr ""
 
