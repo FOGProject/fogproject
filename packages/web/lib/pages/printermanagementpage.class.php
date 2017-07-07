@@ -255,13 +255,7 @@ class PrinterManagementPage extends FOGPage
             . '<textarea name="description" id="descnetwork" class="form-control">'
             . $desc
             . '</textarea>'
-            . '</div>',
-            '<label for="addprinternetwork">'
-            . _('Add New Printer')
-            . '</label>' => '<button type="submit" name="add" '
-            . 'id="addprinternetwork" '
-            . 'class="btn btn-info btn-block">'
-            . _('Add')
+            . '</div>'
         );
         array_walk($fields, $this->fieldsToData);
         self::$HookManager->processEvent(
@@ -310,12 +304,7 @@ class PrinterManagementPage extends FOGPage
             . $port
             . '" class="form-control printerport-input" autocomplete="off" '
             . 'required/>'
-            . '</div>',
-            '<label for="addprinteriprint">'
-            . _('Add New Printer')
-            . '</label>' => '<button type="submit" name="add" id="addprinteriprint" '
-            . 'class="btn btn-info btn-block">'
-            . _('Add')
+            . '</div>'
         );
         array_walk($fields, $this->fieldsToData);
         self::$HookManager->processEvent(
@@ -371,13 +360,7 @@ class PrinterManagementPage extends FOGPage
             . $ip
             . '" id="ipcups" class="printerip-input form-control" '
             . 'required/>'
-            . '</div>',
-            '<label for="addprintercups">'
-            . _('Add New Printer')
-            . '</label>' => '<button type="submit" name="add" id="addprintercups" '
-            . 'class="btn btn-info btn-block">'
-            . _('Add')
-            . '</button>'
+            . '</div>'
         );
         array_walk($fields, $this->fieldsToData);
         self::$HookManager->processEvent(
@@ -450,13 +433,7 @@ class PrinterManagementPage extends FOGPage
             . $model
             . '" id="modellocal" class="printermodel-input form-control" '
             . 'required/>'
-            . '</div>',
-            '<label for="addprinterlocal">'
-            . _('Add New Printer')
-            . '</label>' => '<button type="submit" name="add" id="addprinterlocal" '
-            . 'class="btn btn-info btn-block">'
-            . _('Add')
-            . '</button>'
+            . '</div>'
         );
         array_walk($fields, $this->fieldsToData);
         $printerLocal = '<div class="hiddeninitially" id="local">'
@@ -483,6 +460,18 @@ class PrinterManagementPage extends FOGPage
         echo $printeriPrint;
         echo $printerCups;
         echo $printerLocal;
+        echo '<div class="form-group">';
+        echo '<label for="addprinter" class="col-xs-4">'
+            . _('Add New Printer')
+            . '</label>';
+        echo '<div class="col-xs-8">';
+        echo '<button type="submit" name="add" '
+            . 'id="addprinter" '
+            . 'class="btn btn-info btn-block">'
+            . _('Add')
+            . '</button>';
+        echo '</div>';
+        echo '</div>';
         echo '</form>';
         echo '</div>';
         echo '</div>';
@@ -503,22 +492,24 @@ class PrinterManagementPage extends FOGPage
     public function addPost()
     {
         self::$HookManager->processEvent('PRINTER_ADD_POST');
+        $alias = filter_input(INPUT_POST, 'alias');
+        $port = filter_input(INPUT_POST, 'port');
+        $inf = filter_input(INPUT_POST, 'inf');
+        $model = filter_input(INPUT_POST, 'model');
+        $ip = filter_input(INPUT_POST, 'ip');
+        $configFile = filter_input(INPUT_POST, 'configFile');
+        $config = strtolower(
+            filter_input(INPUT_POST, 'printertype')
+        );
+        $desc = filter_input(INPUT_POST, 'description');
         try {
-            $_REQUEST['alias'] = trim($_REQUEST['alias']);
-            $_REQUEST['port'] = trim($_REQUEST['port']);
-            $_REQUEST['inf'] = trim($_REQUEST['inf']);
-            $_REQUEST['model'] = trim($_REQUEST['model']);
-            $_REQUEST['ip'] = trim($_REQUEST['ip']);
-            $_REQUEST['configFile'] = trim($_REQUEST['configFile']);
-            $_REQUEST['description'] = trim($_REQUEST['description']);
-            $_REQUEST['printertype'] = trim(strtolower($_REQUEST['printertype']));
-            if (empty($_REQUEST['alias'])) {
+            if (empty($alias)) {
                 throw new Exception(_('A name must be set'));
             }
-            if (self::getClass('PrinterManager')->exists($_REQUEST['alias'])) {
+            if (self::getClass('PrinterManager')->exist($alias)) {
                 throw new Exception(_('Printer name already exists'));
             }
-            switch ($_REQUEST['printertype']) {
+            switch ($config) {
             case 'local':
                 $printertype = 'Local';
                 break;
@@ -533,14 +524,14 @@ class PrinterManagementPage extends FOGPage
                 break;
             }
             $Printer = self::getClass('Printer')
-                ->set('description', $_REQUEST['description'])
-                ->set('name', $_REQUEST['alias'])
+                ->set('description', $desc)
+                ->set('name', $alias)
                 ->set('config', $printertype)
-                ->set('model', $_REQUEST['model'])
-                ->set('port', $_REQUEST['port'])
-                ->set('file', $_REQUEST['inf'])
-                ->set('configFile', $_REQUEST['configFile'])
-                ->set('ip', $_REQUEST['ip']);
+                ->set('model', $model)
+                ->set('port', $port)
+                ->set('file', $inf)
+                ->set('configFile', $configFile)
+                ->set('ip', $ip);
             if (!$Printer->save()) {
                 throw new Exception(_('Printer create/updated failed!'));
             }
@@ -569,6 +560,22 @@ class PrinterManagementPage extends FOGPage
      */
     public function printerGeneral()
     {
+        $name = filter_input(INPUT_POST, 'alias') ?:
+            $this->obj->get('name');
+        $desc = filter_input(INPUT_POST, 'description') ?:
+            $this->obj->get('description');
+        $port = filter_input(INPUT_POST, 'port') ?:
+            $this->obj->get('port');
+        $inf = filter_input(INPUT_POST, 'inf') ?:
+            $this->obj->get('file');
+        $ip = filter_input(INPUT_POST, 'ip') ?:
+            $this->obj->get('ip');
+        $config = filter_input(INPUT_POST, 'printertype') ?:
+            $this->obj->get('config');
+        $configFile = filter_input(INPUT_POST, 'configFile') ?:
+            $this->obj->get('configFile');
+        $model = filter_input(INPUT_POST, 'model') ?:
+            $this->obj->get('model');
         $this->attributes = array(
             array('class' => 'col-xs-4'),
             array('class' => 'col-xs-8 form-group'),
@@ -577,59 +584,257 @@ class PrinterManagementPage extends FOGPage
             '${field}',
             '${input}',
         );
-        if (!isset($_POST['printertype']) || empty($_POST['printertype'])) {
-            $_POST['printertype'] = $this->obj->get('config');
+        if (!$config) {
+            $config = 'Local';
         }
-        $alias = filter_input(
-            INPUT_POST, 'alias'
-        ) ?: $this->obj->get('name');
-        $desc = filter_input(
-            INPUT_POST, 'description'
-        ) ?: $this->obj->get('description');
+        $printerTypes = array(
+            'Local'=>_('TCP/IP Port Printer'),
+            'iPrint'=>_('iPrint Printer'),
+            'Network'=>_('Network Printer'),
+            'Cups'=>_('CUPS Printer'),
+        );
+        $printerSel = self::selectForm(
+            'printertype',
+            $printerTypes,
+            $config,
+            true
+        );
         $fields = array(
-            '<label for="printer-copy">'
-            . _('Copy from existing printer')
-            . '</label>' => '<div class="input-group">'
-            . self::getClass('PrinterManager')->buildSelectBox(
-                $this->obj->get('id'),
-                'printer-copy'
-            )
-            . '</div>',
+            '<label for="printer">'
+            . _('Copy from existing')
+            . '</label>' => self::getClass('PrinterManager')->buildSelectBox(
+                $this->obj->get('id')
+            ),
             '<label for="printertype">'
             . _('Printer Type')
-            . '</label>' => '<div class="input-group">'
-            . Printer::buildPrinterTypeSelector()
-            . '</div>',
-            '<label for="alias">'
-            . _('Printer Alias')
+            . '</label>' => $printerSel
+        );
+        array_walk($fields, $this->fieldsToData);
+        self::$HookManager->processEvent(
+            'PRINTER_COPY_DATA',
+            array(
+                'data' => &$this->data,
+                'headerData' => &$this->headerData,
+                'templates' => &$this->templates,
+                'attributes' => &$this->attributes
+            )
+        );
+        $printerCopy = '<div id="printer-copy">'
+            . $this->process(12)
+            . '</div>';
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $fields
+        );
+        // Network
+        $fields = array(
+            '<label for="namenetwork">'
+            . _('Printer Name/Alias')
+            . '</label>'
             . '<br/>'
-            . '<i>(e.g. \\\\printerserver\printername)</i>'
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" class="form-control" name="'
-            . 'alias" id="alias" value="'
-            . $alias
-            . '"/>'
+            . _('e.g.')
+            . ' \\\\printerserver\\printername' => '<div class="input-group">'
+            . '<input type="text" name="alias" id="namenetwork" value="'
+            . $name
+            . '" class="form-control printername-input" autocomplete="off" '
+            . 'required/>'
             . '</div>',
-            '<label for="description">'
+            '<label for="descnetwork">'
             . _('Printer Description')
             . '</label>' => '<div class="input-group">'
-            . '<textarea name="description" id="description" class="'
-            . 'form-control">'
+            . '<textarea name="description" id="descnetwork" class="form-control">'
+            . $desc
+            . '</textarea>'
+            . '</div>'
+        );
+        array_walk($fields, $this->fieldsToData);
+        self::$HookManager->processEvent(
+            'PRINTER_NETWORK',
+            array(
+                'data' => &$this->data,
+                'headerData' => &$this->headerData,
+                'templates' => &$this->templates,
+                'attributes' => &$this->attributes
+            )
+        );
+        $printerNetwork = '<div class="hiddeninitially" id="network">'
+            . $this->process(12)
+            . '</div>';
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $fields
+        );
+        // iPrint
+        $fields = array(
+            '<label for="nameiprint">'
+            . _('Printer Name/Alias')
+            . '</label>'
+            . '<br/>'
+            . _('e.g.')
+            . ' \\\\printerserver\\printername' => '<div class="input-group">'
+            . '<input type="text" name="alias" id="nameiprint" value="'
+            . $name
+            . '" class="form-control printername-input" autocomplete="off" '
+            . 'required/>'
+            . '</div>',
+            '<label for="desciprint">'
+            . _('Printer Description')
+            . '</label>' => '<div class="input-group">'
+            . '<textarea name="description" id="desciprint" class="form-control">'
             . $desc
             . '</textarea>'
             . '</div>',
-            '<label for="update">'
-            . _('Make Changes?')
-            . '</label>' => '<button type="submit" name="update" id="update" '
-            . 'class="btn btn-info btn-block">'
-            . _('Update')
-            . '</button>'
+            '<label for="portiprint">'
+            . _('Printer Port')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="number" name="port" id="portiprint" '
+            . 'value="'
+            . $port
+            . '" class="form-control printerport-input" autocomplete="off" '
+            . 'required/>'
+            . '</div>'
         );
+        array_walk($fields, $this->fieldsToData);
         self::$HookManager->processEvent(
-            'PRINTER_GENERAL_FIELDS',
+            'PRINTER_IPRINT',
             array(
-                'fields' => &$fields
+                'data' => &$this->data,
+                'headerData' => &$this->headerData,
+                'templates' => &$this->templates,
+                'attributes' => &$this->attributes
             )
+        );
+        $printeriPrint = '<div class="hiddeninitially" id="iprint">'
+            . $this->process(12)
+            . '</div>';
+        unset(
+            $fields,
+            $this->data,
+            $this->form,
+            $this->headerData
+        );
+        // CUPS
+        $fields = array(
+            '<label for="namecups">'
+            . _('Printer Name/Alias')
+            . '</label>'
+            . '<br/>'
+            . _('e.g.')
+            . ' \\\\printerserver\\printername' => '<div class="input-group">'
+            . '<input type="text" name="alias" id="namecups" value="'
+            . $name
+            . '" class="form-control printername-input" autocomplete="off" '
+            . 'required/>'
+            . '</div>',
+            '<label for="desccups">'
+            . _('Printer Description')
+            . '</label>' => '<div class="input-group">'
+            . '<textarea name="description" id="desccups" class="form-control">'
+            . $desc
+            . '</textarea>'
+            . '</div>',
+            '<label for="infcups">'
+            . _('Printer INF File')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="inf" value="'
+            . $inf
+            . '" id="infcups" class="printerinf-input form-control" '
+            . 'required/>'
+            . '</div>',
+            '<label for="ipcups">'
+            . _('Printer IP')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="ip" value="'
+            . $ip
+            . '" id="ipcups" class="printerip-input form-control" '
+            . 'required/>'
+            . '</div>'
+        );
+        array_walk($fields, $this->fieldsToData);
+        self::$HookManager->processEvent(
+            'PRINTER_CUPS',
+            array(
+                'data' => &$this->data,
+                'headerData' => &$this->headerData,
+                'templates' => &$this->templates,
+                'attributes' => &$this->attributes
+            )
+        );
+        $printerCups = '<div class="hiddeninitially" id="cups">'
+            . $this->process(12)
+            . '</div>';
+        unset(
+            $fields,
+            $this->data,
+            $this->form,
+            $this->headerData
+        );
+        // Local
+        $fields = array(
+            '<label for="namelocal">'
+            . _('Printer Name/Alias')
+            . '</label>'
+            . '<br/>'
+            . _('e.g.')
+            . ' \\\\printerserver\\printername' => '<div class="input-group">'
+            . '<input type="text" name="alias" id="namelocal" value="'
+            . $name
+            . '" class="form-control printername-input" autocomplete="off" '
+            . 'required/>'
+            . '</div>',
+            '<label for="desclocal">'
+            . _('Printer Description')
+            . '</label>' => '<div class="input-group">'
+            . '<textarea name="description" id="desclocal" class="form-control">'
+            . $desc
+            . '</textarea>'
+            . '</div>',
+            '<label for="portlocal">'
+            . _('Printer Port')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="number" name="port" id="portlocal" '
+            . 'value="'
+            . $port
+            . '" class="form-control printerport-input" autocomplete="off" '
+            . 'required/>'
+            . '</div>',
+            '<label for="inflocal">'
+            . _('Printer INF File')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="inf" value="'
+            . $inf
+            . '" id="inflocal" class="printerinf-input form-control" '
+            . 'required/>'
+            . '</div>',
+            '<label for="iplocal">'
+            . _('Printer IP')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="ip" value="'
+            . $ip
+            . '" id="iplocal" class="printerip-input form-control" '
+            . 'required/>'
+            . '</div>',
+            '<label for="modellocal">'
+            . _('Printer Model')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="model" value="'
+            . $model
+            . '" id="modellocal" class="printermodel-input form-control" '
+            . 'required/>'
+            . '</div>'
+        );
+        array_walk($fields, $this->fieldsToData);
+        $printerLocal = '<div class="hiddeninitially" id="local">'
+            . $this->process(12)
+            . '</div>';
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData
         );
         array_walk($fields, $this->fieldsToData);
         echo '<!-- General -->';
@@ -641,14 +846,37 @@ class PrinterManagementPage extends FOGPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method-"post" action="'
+        echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '&tab=printer-gen">';
-        $this->render(12);
+        echo $printerCopy;
+        echo $printerNetwork;
+        echo $printeriPrint;
+        echo $printerCups;
+        echo $printerLocal;
+        echo '<div class="form-group">';
+        echo '<label for="upprinter" class="col-xs-4">'
+            . _('Make Changes?')
+            . '</label>';
+        echo '<div class="col-xs-8">';
+        echo '<button type="submit" name="add" '
+            . 'id="upprinter" '
+            . 'class="btn btn-info btn-block">'
+            . _('Update')
+            . '</button>';
+        echo '</div>';
+        echo '</div>';
         echo '</form>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
     }
     /**
      * Edit printer object.
@@ -658,141 +886,9 @@ class PrinterManagementPage extends FOGPage
     public function edit()
     {
         $this->title = sprintf('%s: %s', _('Edit'), $this->obj->get('name'));
-        unset($this->headerData);
-        unset($this->data);
         echo '<div class="col-xs-9 tab-content">';
         $this->printerGeneral();
         echo '</div>';
-        /*echo '<div id="network" class="hiddeninitially">';
-        foreach ((array)$fields as $field => &$input) {
-            $this->data[] = array(
-                'field'=>$field,
-                'input'=>$input,
-            );
-        }
-        $this->render();
-        echo '</div>';
-        unset($this->data);
-        unset($fields['&nbsp;']);
-        $fields = self::fastmerge(
-            $fields,
-            array(
-                sprintf(
-                    '%s*',
-                    _('Printer Port')
-                ) => sprintf(
-                    '<input class="printerport-input" type='
-                    . '"text" name="port" value="%s"/>',
-                    $this->obj->get('port')
-                ),
-            )
-        );
-        echo '<div id="iprint" class="hiddeninitially">';
-        foreach ((array)$fields as $field => &$input) {
-            $this->data[] = array(
-                'field'=>$field,
-                'input'=>$input,
-            );
-        }
-        $this->render();
-        echo '</div>';
-        unset($this->data);
-        $fields = array(
-            _('Printer Description') => sprintf(
-                '<textarea name="description" rows="8" cols="40">%s</textarea>',
-                $this->obj->get('description')
-            ),
-            sprintf(
-                '%s*',
-                _('Printer Alias')
-            ) => sprintf(
-                '<input class="printername-input" type='
-                . '"text" name="alias" value="%s"/>',
-                $this->obj->get('name')
-            ),
-            sprintf(
-                '%s*',
-                _('Printer INF File')
-            ) => sprintf(
-                '<input class="printerinf-input" type='
-                . '"text" name="inf" value="%s"/>',
-                $this->obj->get('file')
-            ),
-            sprintf(
-                '%s*',
-                _('Printer IP')
-            ) => sprintf(
-                '<input class="printerip-input" type='
-                . '"text" name="ip" value="%s"/>',
-                $this->obj->get('ip')
-            ),
-        );
-        echo '<div id="cups" class="hiddeninitially">';
-        foreach ((array)$fields as $field => &$input) {
-            $this->data[] = array(
-                'field'=>$field,
-                'input'=>$input,
-            );
-        }
-        $this->render();
-        echo '</div>';
-        unset($this->data);
-        $fields = self::fastmerge(
-            $fields,
-            array(
-                _('Printer Port') => sprintf(
-                    '<input class="printerport-input" type='
-                    . '"text" name="port" value="%s"/>',
-                    $this->obj->get('port')
-                ),
-                _('Printer Model') => sprintf(
-                    '<input class="printermodel-input" type='
-                    . '"text" name="model" value="%s"/>',
-                    $this->obj->get('model')
-                ),
-                _('Printer Config File') => sprintf(
-                    '<input class="printerconfigFile-input" type='
-                    . '"text" name="configFile" value="%s"/>',
-                    $this->obj->get('configFile')
-                ),
-            )
-        );
-        echo '<div id="local" class="hiddeninitially">';
-        foreach ((array)$fields as $field => &$input) {
-            $this->data[] = array(
-                'field'=>$field,
-                'input'=>$input,
-            );
-        }
-        $this->render();
-        echo '</div>';
-        unset($this->data);
-        $fields = array(
-            '&nbsp;' => sprintf(
-                '<input class="c" name="updateprinter" type="submit" value="%s"/>',
-                _('Update Printer')
-            )
-        );
-        foreach ((array)$fields as $field => &$input) {
-            $this->data[] = array(
-                'field'=>$field,
-                'input'=>$input,
-            );
-            unset($input);
-        }
-        self::$HookManager
-            ->processEvent(
-                'PRINTER_EDIT',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        $this->render();
-        echo '</form></div></div>';
-        unset($this->data);*/
     }
     /**
      * Save the edits.
@@ -806,33 +902,24 @@ class PrinterManagementPage extends FOGPage
                 'PRINTER_EDIT_POST',
                 array('Printer' => &$this->obj)
             );
+        $alias = filter_input(INPUT_POST, 'alias');
+        $port = filter_input(INPUT_POST, 'port');
+        $inf = filter_input(INPUT_POST, 'inf');
+        $model = filter_input(INPUT_POST, 'model');
+        $ip = filter_input(INPUT_POST, 'ip');
+        $configFile = filter_input(INPUT_POST, 'configFile');
+        $config = strtolower(
+            filter_input(INPUT_POST, 'printertype')
+        );
+        $desc = filter_input(INPUT_POST, 'description');
+        global $tab;
         try {
-            switch ($_REQUEST['tab']) {
-            case 'printer-type':
-                self::setMessage(
-                    sprintf(
-                        '%s: %s',
-                        _('Printer type changed to'),
-                        $_REQUEST['printertype']
-                    )
-                );
-                self::redirect($this->formAction);
-                break;
+            switch ($tab) {
             case 'printer-gen':
-                $_REQUEST['alias'] = trim($_REQUEST['alias']);
-                $_REQUEST['port'] = trim($_REQUEST['port']);
-                $_REQUEST['inf'] = trim($_REQUEST['inf']);
-                $_REQUEST['model'] = trim($_REQUEST['model']);
-                $_REQUEST['ip'] = trim($_REQUEST['ip']);
-                $_REQUEST['configFile'] = trim($_REQUEST['configFile']);
-                $_REQUEST['description'] = trim($_REQUEST['description']);
-                $_REQUEST['printertype'] = trim(
-                    strtolower($_REQUEST['printertype'])
-                );
-                if (empty($_REQUEST['alias'])) {
+                if (empty($alias)) {
                     throw new Exception(_('A name must be set'));
                 }
-                switch ($_REQUEST['printertype']) {
+                switch ($config) {
                 case 'local':
                     $printertype = 'Local';
                     break;
@@ -846,20 +933,20 @@ class PrinterManagementPage extends FOGPage
                     $printertype = 'Network';
                     break;
                 }
-                if ($this->obj->get('name') != $_REQUEST['alias']
-                    && $this->obj->getManager()->exists($_REQUEST['alias'])
+                if ($this->obj->get('name') != $alias
+                    && $this->obj->getManager()->exists($alias)
                 ) {
                     throw new Exception(_('Printer name already exists'));
                 }
                 $this->obj
-                    ->set('description', $_REQUEST['description'])
-                    ->set('name', $_REQUEST['alias'])
+                    ->set('description', $desc)
+                    ->set('name', $alias)
                     ->set('config', $printertype)
-                    ->set('model', $_REQUEST['model'])
-                    ->set('port', $_REQUEST['port'])
-                    ->set('file', $_REQUEST['inf'])
-                    ->set('configFile', $_REQUEST['configFile'])
-                    ->set('ip', $_REQUEST['ip']);
+                    ->set('model', $model)
+                    ->set('port', $port)
+                    ->set('file', $inf)
+                    ->set('configFile', $configFile)
+                    ->set('ip', $ip);
                 break;
             }
             if (!$this->obj->save()) {

@@ -118,6 +118,7 @@ class Page extends FOGBase
             ->addCSS('css/bootstrap-theme.min.css')
             ->addCSS('css/theme.bootstrap_3.css')
             ->addCSS('css/theme.blue.css')
+            ->addCSS('css/bootstrap-dialog.min.css')
             ->addCSS($dispTheme);
         if (!isset($node)
             || !$node
@@ -284,6 +285,7 @@ class Page extends FOGBase
             'js/flot/jquery.flot.gantt.js',
             'js/jquery-ui-timepicker-addon.js',
             'js/bootstrap.min.js',
+            'js/bootstrap-dialog.min.js',
             'js/fog/fog.js',
             'js/fog/fog.main.js',
             'js/jscolor.min.js'
