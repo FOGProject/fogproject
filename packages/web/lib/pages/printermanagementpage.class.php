@@ -506,7 +506,7 @@ class PrinterManagementPage extends FOGPage
             if (empty($alias)) {
                 throw new Exception(_('A name must be set'));
             }
-            if (self::getClass('PrinterManager')->exist($alias)) {
+            if (self::getClass('PrinterManager')->exists($alias)) {
                 throw new Exception(_('Printer name already exists'));
             }
             switch ($config) {
