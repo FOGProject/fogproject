@@ -1,11 +1,11 @@
 $(function() {
-    $('#hostMeShow:checkbox').change(function(e) {
+    $('#hostMeShow:checkbox').on('change', function(e) {
         if ($(this).is(':checked')) $('#hostNotInMe').show();
         else $('#hostNotInMe').hide();
         e.preventDefault();
     });
     $('#hostMeShow:checkbox').trigger('change');
-    $('#hostNoShow:checkbox').change(function(e) {
+    $('#hostNoShow:checkbox').on('change', function(e) {
         if ($(this).is(':checked')) $('#hostNoPrinter').show();
         else $('#hostNoPrinter').hide();
         e.preventDefault();

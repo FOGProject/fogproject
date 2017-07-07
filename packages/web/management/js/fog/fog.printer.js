@@ -3,11 +3,29 @@ $(function() {
     validatorOpts = {
         submitHandler: function(form) {
             data = $(form).find(':visible').serialize();
+            url = $(form).prop('action');
+            method = $(form).prop('method').toUpperCase();
             $.ajax({
-                url: $(form).attr('action'),
+                url: url,
                 type: $(form).attr('method').toUpperCase(),
                 data: data,
-                dataType: 'json'
+                dataType: 'json',
+                success: function(data) {
+                    dialoginstance = new BootstrapDialog();
+                    if (data.error) {
+                        dialoginstance
+                        .setTitle('Printer Update Failed')
+                        .setMessage(data.error)
+                        .setType(BootstrapDialog.TYPE_WARNING)
+                        .open();
+                    } else {
+                        dialoginstance
+                        .setTitle('Printer Update Success')
+                        .setMessage(data.msg)
+                        .setType(BootstrapDialog.TYPE_SUCCESS)
+                        .open();
+                    }
+                }
             });
             return false;
         },
@@ -79,7 +97,7 @@ $(function() {
     $('.printername-input:not(:hidden),.printerinf-input:not(:hidden),.printerport-input:not(:hidden)').rules('add', {regex: /^[\w!@#$%^()\-'{}\\\.~ ]{1,255}$/});
     $('.printermodel-input:not(:hidden)').rules('add', {regex: /^.{1,255}$/});
     $('.printerip-input:not(:hidden)').rules('add', {regex: /^(([1-9]?\d|1\d\d|2[0-5][0-5]|2[0-4]\d)\.){3}([1-9]?\d|1\d\d|2[0-5][0-5]|2[0-4]\d)$/});
-    $('#printer-copy select[name="printer"]').change(function(e) {
+    $('#printer-copy select[name="printer"]').on('change', function(e) {
         e.preventDefault();
         $.ajax({
             url: '../management/index.php',

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-06 21:52-0400\n"
+"POT-Creation-Date: 2017-07-07 09:53-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -863,21 +863,25 @@ msgstr ""
 
 #: /var/www/fog/lib/fog/printer.class.php:219
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:199
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:591
 msgid "TCP/IP Port Printer"
 msgstr "TCP / IP端口打印机"
 
 #: /var/www/fog/lib/fog/printer.class.php:220
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:200
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:592
 msgid "iPrint Printer"
 msgstr "iPrint的打印机"
 
 #: /var/www/fog/lib/fog/printer.class.php:221
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:201
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:593
 msgid "Network Printer"
 msgstr "网络打印机"
 
 #: /var/www/fog/lib/fog/printer.class.php:222
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:202
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:594
 msgid "CUPS Printer"
 msgstr "CUPS打印机"
 
@@ -924,8 +928,8 @@ msgstr "无关联的节点"
 msgid "Adding FOGPage: %s, Node: %s"
 msgstr "添加FOGPage： %s ，节点： %s"
 
-#: /var/www/fog/lib/fog/page.class.php:495
-#: /var/www/fog/lib/fog/page.class.php:506
+#: /var/www/fog/lib/fog/page.class.php:497
+#: /var/www/fog/lib/fog/page.class.php:508
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2617
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2645
 #: /var/www/fog/lib/reports/user_tracking.report.php:288
@@ -933,7 +937,7 @@ msgstr "添加FOGPage： %s ，节点： %s"
 msgid "Logout"
 msgstr "登出"
 
-#: /var/www/fog/lib/fog/page.class.php:514
+#: /var/www/fog/lib/fog/page.class.php:516
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2634
 #: /var/www/fog/lib/reports/user_tracking.report.php:289
 #: /var/www/fog/commons/text.php:114
@@ -1234,7 +1238,7 @@ msgstr "保存更改"
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:273
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:352
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:571
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:625
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:865
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:497
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:585
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:876
@@ -1350,7 +1354,7 @@ msgstr "编辑图像"
 #: /var/www/fog/lib/fog/fogpage.class.php:1122
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:166
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:91
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:660
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:888
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:574
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:200
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:3006
@@ -1743,10 +1747,7 @@ msgstr ""
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:608
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:1135
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:494
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:264
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:318
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:379
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:458
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:471
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:236
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:906
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1042
@@ -2333,7 +2334,7 @@ msgstr "创建图像"
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:280
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:347
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:567
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:622
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:859
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:494
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:582
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1109
@@ -3992,7 +3993,7 @@ msgstr "打印机名称"
 
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:84
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:217
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:599
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:609
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:727
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1327
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1531
@@ -4016,113 +4017,113 @@ msgid "Config File"
 msgstr "打印机配置文件"
 
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:212
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:604
 #, fuzzy
 msgid "Copy from existing"
 msgstr "无法创建打印机"
 
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:242
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:288
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:342
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:404
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:282
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:331
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:387
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:634
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:674
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:723
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:779
 #, fuzzy
 msgid "Printer Name/Alias"
 msgstr "打印机别名"
 
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:245
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:291
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:345
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:407
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:285
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:334
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:390
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:637
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:677
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:726
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:782
 msgid "e.g."
 msgstr ""
 
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:253
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:299
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:353
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:415
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:614
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:293
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:342
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:398
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:645
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:685
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:734
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:790
 msgid "Printer Description"
 msgstr "打印机说明"
 
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:260
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:315
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:376
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:455
-#, fuzzy
-msgid "Add New Printer"
-msgstr "打印机"
-
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:306
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:422
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:300
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:405
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:692
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:797
 msgid "Printer Port"
 msgstr "打印机端口"
 
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:360
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:431
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:349
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:414
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:741
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:806
 msgid "Printer INF File"
 msgstr "打印机INF文件"
 
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:368
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:439
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:357
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:422
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:749
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:814
 msgid "Printer IP"
 msgstr "打印机IP"
 
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:447
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:430
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:822
 msgid "Printer Model"
 msgstr "打印机型号"
 
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:474
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:451
 #, fuzzy
 msgid "Create New Printer"
 msgstr "新建%s"
 
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:516
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:833
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:465
+#, fuzzy
+msgid "Add New Printer"
+msgstr "打印机"
+
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:507
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:920
 #, fuzzy
 msgid "A name must be set"
 msgstr "事件必须是字符串"
 
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:519
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:852
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:510
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:939
 #, fuzzy
 msgid "Printer name already exists"
 msgstr "打印机已经存在"
 
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:545
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:536
 #, fuzzy
 msgid "Printer create/updated failed!"
 msgstr "打印机更新失败！"
 
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:549
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:540
 #, fuzzy
 msgid "Printer added"
 msgstr "打印机名称"
 
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:591
-#, fuzzy
-msgid "Copy from existing printer"
-msgstr "无法创建打印机"
-
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:604
-#: /var/www/fog/lib/pages/groupmanagementpage.class.php:726
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1326
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1530
-msgid "Printer Alias"
-msgstr "打印机别名"
-
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:640
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:845
 #, fuzzy
 msgid "Printer General"
 msgstr "打印机型号"
 
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:815
-msgid "Printer type changed to"
-msgstr "打印机类型变更为"
-
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:866
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:953
 msgid "Printer update failed!"
 msgstr "打印机更新失败！"
 
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:870
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:957
 msgid "Printer updated!"
 msgstr "打印机更新！"
 
@@ -4217,6 +4218,12 @@ msgstr "用户管理"
 #, fuzzy
 msgid "Delete all PM tasks?"
 msgstr "删除所有选定%s小号"
+
+#: /var/www/fog/lib/pages/groupmanagementpage.class.php:726
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1326
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1530
+msgid "Printer Alias"
+msgstr "打印机别名"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:784
 #, fuzzy
@@ -10034,6 +10041,13 @@ msgstr "你好FOG客户端"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "有此服务器上没有的位置。"
+
+#, fuzzy
+#~ msgid "Copy from existing printer"
+#~ msgstr "无法创建打印机"
+
+#~ msgid "Printer type changed to"
+#~ msgstr "打印机类型变更为"
 
 #~ msgid "Printer Config File"
 #~ msgstr "打印机配置文件"
