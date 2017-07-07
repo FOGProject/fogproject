@@ -239,6 +239,63 @@ class AccessControlManagementPage extends FOGPage
             'export' => $this->menu['export'],
             'import' => $this->menu['import']
         );
+        switch (strtolower($this->childClass)) {
+        case 'accesscontrol':
+            $this->headerData = array(
+                '<input type="checkbox" name="toggle-checkbox" class='
+                . '"toggle-checkboxAction"/>',
+                _('Role Name'),
+                _('Role Description'),
+            );
+            $this->templates = array(
+                '<input type="checkbox" name="accesscontrol[]" value='
+                . '"${id}" class="toggle-action" checked/>',
+                '<a href="?node=accesscontrol&sub=edit'
+                . '&id=${id}" title="Edit">${name}</a>',
+                '${description}',
+            );
+            $this->attributes = array(
+                array(
+                    'class' => 'filter-false',
+                    'width' => 16
+                ),
+                array(),
+                array()
+            );
+            self::$HookManager
+                ->processEvent(
+                    'ACCESSCONTROL_DATA',
+                    array(
+                        'headerData' => &$this->headerData,
+                        'data' => &$this->data,
+                        'templates' => &$this->templates,
+                        'attributes' => &$this->attributes
+                    )
+                );
+            self::$returnData = function (&$AccessControl) {
+                $this->data[] = array(
+                    'id' => $AccessControl->id,
+                    'name' => $AccessControl->name,
+                    'description' => $AccessControl->description,
+                    'createdBy' => $AccessControl->createdBy,
+                    'createdTime' => $AccessControl->createdTime
+                );
+                unset($AccessControl);
+            };
+            break;
+        case 'accesscontrolrule':
+            self::$returnData = function (&$AccessControlRule) {
+                $this->data[] = array(
+                    'type' => $AccessControlRule->type,
+                    'id' => $AccessControlRule->id,
+                    'value' => $AccessControlRule->value,
+                    'parent' => $AccessControlRule->parent,
+                    'node' => $AccessControlRule->node
+                );
+                unset($AccessControlRule);
+            };
+            break;
+        }
     }
     /**
      * Search
@@ -268,62 +325,6 @@ class AccessControlManagementPage extends FOGPage
         $this->addPost();
     }
     /**
-     * Index.
-     *
-     * @return void
-     */
-    public function index()
-    {
-        $this->title = _('All Roles');
-        foreach ((array)self::getClass('AccessControlManager')
-            ->find() as &$AccessControl
-        ) {
-            $this->data[] = array(
-                'id' => $AccessControl->get('id'),
-                'name' => $AccessControl->get('name'),
-                'description' => $AccessControl->get('description'),
-                'createdBy' => $AccessControl->get('createdBy'),
-                'createdTime' => $AccessControl->get('createdTime'),
-
-            );
-            unset($AccessControl);
-        }
-        $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" class='
-            . '"toggle-checkboxAction"/>',
-            _('Role Name'),
-            _('Role Description'),
-        );
-        $this->templates = array(
-            '<input type="checkbox" name="accesscontrol[]" value='
-            . '"${id}" class="toggle-action" checked/>',
-            '<a href="?node=accesscontrol&sub=edit'
-            . '&id=${id}" title="Edit">${name}</a>',
-            '${description}',
-        );
-        $this->attributes = array(
-            array(
-                'class' => 'filter-false',
-                'width' => 16
-            ),
-            array(),
-            array()
-        );
-        self::$HookManager
-            ->processEvent(
-                'ACCESSCONTROL_DATA',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-
-        $this->render();
-        $this->data = array();
-    }
-    /**
      * Add.
      *
      * @return void
@@ -340,13 +341,22 @@ class AccessControlManagementPage extends FOGPage
             '${field}',
             '${input}',
         );
-
+        $name = filter_input(INPUT_POST, 'name');
+        $desc = filter_input(INPUT_POST, 'description');
         $fields = array(
-            _('Role Name') => '<input class="smaller" type="text" name="name"/>',
-            _('Role Description') => sprintf(
-                '<textarea name="description">%s</textarea>',
-                $_REQUEST['description']
-            ),
+            '<label for="name">'
+            . _('Role Name')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="name" id="name" class="form-control" value="'
+            . $name
+            . '"/>'
+            . '</div>',
+            '<label for="desc">'
+            . _('Role Description')
+            . '</label>' => '<textarea class="form-control" name="description" '
+            . 'id="desc">'
+            . $desc
+            . '</textarea>',
             '&nbsp;' => sprintf(
                 '<input name="add" class="smaller" type="submit" value="%s"/>',
                 _('Add')
@@ -522,19 +532,7 @@ class AccessControlManagementPage extends FOGPage
      */
     public function ruleList()
     {
-        $this->title = _('Rules');
-        foreach ((array)self::getClass('AccessControlRuleManager')
-            ->find() as &$AccessControlRule
-        ) {
-            $this->data[] = array(
-                'type' => $AccessControlRule->get('type'),
-                'id' => $AccessControlRule->get('id'),
-                'value' => $AccessControlRule->get('value'),
-                'parent' => $AccessControlRule->get('parent'),
-                'node' => $AccessControlRule->get('node'),
-            );
-            unset($AccessControlRule);
-        }
+        $this->title = _('Access Control Rules');
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class='
             . '"toggle-checkboxAction"/>',
@@ -567,6 +565,12 @@ class AccessControlManagementPage extends FOGPage
             array(),
             array()
         );
+        Route::listem('accesscontrolrule');
+        $AccessControlRules = json_decode(
+            Route::getData()
+        );
+        $AccessControlRules = $AccessControlRules->accesscontrolrules;
+        array_walk($AccessControlRules, static::$returnData);
         self::$HookManager
             ->processEvent(
                 'RULE_DATA',
@@ -577,8 +581,16 @@ class AccessControlManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        $this->render();
-        $this->data = array();
+        echo '<div class="col-xs-9">';
+        $this->indexDivDisplay(true);
+        echo '</div>';
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
     }
     /**
      * Add rule.

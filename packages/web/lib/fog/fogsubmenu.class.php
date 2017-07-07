@@ -306,10 +306,8 @@ class FOGSubMenu extends FOGBase
         if ($this->notes[$node]) {
             echo '<li class="dropdown">';
             echo '<a href="#" class="dropdown-toggle" data-toggle="dropdown">';
-            echo '<p>';
-            echo _('Notes');
+            echo _('Info');
             echo '<b class="caret"></b>';
-            echo '</p>';
             echo '</a>';
             echo '<ul class="dropdown-menu sidenotes">';
             echo implode($this->notes[$node]);
