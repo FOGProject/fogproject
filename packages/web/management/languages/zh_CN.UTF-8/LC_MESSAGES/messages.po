@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-07 16:25-0400\n"
+"POT-Creation-Date: 2017-07-07 19:49-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1259,7 +1259,7 @@ msgstr "保存更改"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2154
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2220
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2358
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1039
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1176
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:814
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:437
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:464
@@ -1362,7 +1362,7 @@ msgstr "编辑图像"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:200
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:3006
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:173
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:810
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:947
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:223
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:434
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:569
@@ -1922,7 +1922,7 @@ msgstr "导出CSV"
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3175
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:209
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:531
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:937
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1074
 msgid "Max Size"
 msgstr "最大尺寸"
 
@@ -2004,7 +2004,8 @@ msgstr "错误"
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:86
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:299
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:434
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:870
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:908
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1007
 #: /var/www/fog/commons/text.php:295
 msgid "Please select an option"
 msgstr "请选择一个选项"
@@ -2129,7 +2130,7 @@ msgstr "不受保护"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:330
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:946
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:963
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1100
 msgid "Protected"
 msgstr "受保护"
 
@@ -2237,7 +2238,7 @@ msgstr "图片启用"
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:585
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:958
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:583
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1000
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1137
 msgid "Replicate?"
 msgstr "复制？"
 
@@ -2359,8 +2360,8 @@ msgstr "更新打印机"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:1049
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:1154
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1078
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1139
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1215
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1276
 #: /var/www/fog/commons/text.php:370
 msgid "Storage Group Name"
 msgstr "存储组名称"
@@ -3890,7 +3891,7 @@ msgstr "一般信息"
 #: /var/www/fog/lib/pages/serverinfo.class.php:166
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2751
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:711
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1287
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1424
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:56
 #: /var/www/fog/lib/plugins/fileintegrity/pages/fileintegritymanagementpage.class.php:63
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:75
@@ -4340,7 +4341,8 @@ msgstr "删除选定snapins"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2894
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:158
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:443
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:874
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:914
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1011
 #: /var/www/fog/lib/reports/snapin_log.report.php:34
 #: /var/www/fog/lib/reports/snapin_log.report.php:64
 msgid "Snapin Name"
@@ -5775,114 +5777,115 @@ msgid "New Snapin"
 msgstr "添加新的管理单元"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:450
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:898
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:921
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1035
 #: /var/www/fog/lib/reports/snapin_log.report.php:65
 msgid "Snapin Description"
 msgstr "管理单元说明"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:461
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:879
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1016
 #, fuzzy
 msgid "Snapin Type"
 msgstr "模板管理单元"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:471
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:890
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1027
 #, fuzzy
 msgid "Normal Snapin"
 msgstr "无效的管理单元"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:480
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:896
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1033
 #, fuzzy
 msgid "Snapin Pack"
 msgstr "管理单元路径"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:485
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:906
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1043
 msgid "Snapin Template"
 msgstr "模板管理单元"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:490
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:907
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1044
 #, fuzzy
 msgid "Snapin Pack Template"
 msgstr "模板管理单元"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:500
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:917
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1054
 #: /var/www/fog/lib/reports/snapin_log.report.php:68
 msgid "Snapin Run With"
 msgstr "管理单元运行方式"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:505
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:918
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1055
 #, fuzzy
 msgid "Snapin Pack File"
 msgstr "文件管理单元"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:515
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:927
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1064
 msgid "Snapin Run With Argument"
 msgstr "管理单元运行带有参数"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:520
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:928
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1065
 #, fuzzy
 msgid "Snapin Pack Arguments"
 msgstr "管理单元参数"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:529
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:936
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1073
 #: /var/www/fog/lib/reports/snapin_log.report.php:66
 msgid "Snapin File"
 msgstr "文件管理单元"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:547
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:947
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1084
 msgid "Snapin File (exists)"
 msgstr "文件管理单元（存在）"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:557
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:956
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1093
 msgid "Snapin Arguments"
 msgstr "管理单元参数"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:568
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:990
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1127
 msgid "Snapin Enabled"
 msgstr "启用管理单元"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:572
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1009
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1146
 #, fuzzy
 msgid "Snapin Arguments Hidden"
 msgstr "管理单元参数"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:576
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1018
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1155
 #, fuzzy
 msgid "Snapin Timeout (seconds)"
 msgstr "菜单超时（以秒为单位）"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:587
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:972
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1109
 msgid "Reboot after install"
 msgstr "重启后安装"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:592
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:981
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1118
 msgid "Shutdown after install"
 msgstr "关机后安装"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:596
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1025
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1162
 msgid "Snapin Command"
 msgstr "管理单元命令"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:598
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1026
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1032
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1163
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1169
 msgid "read-only"
 msgstr ""
 
@@ -5920,7 +5923,7 @@ msgid "FTP Connection has failed"
 msgstr "FTP连接失败"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:722
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1296
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1433
 #, fuzzy
 msgid "Failed to add snapin"
 msgstr "无法添加/更新管理单元文件"
@@ -5931,7 +5934,7 @@ msgid "unable to locate snapin directory"
 msgstr "无法添加管理单元，无法定位管理单元的目录。"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:730
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1302
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1439
 msgid "Failed to add/update snapin file"
 msgstr "无法添加/更新管理单元文件"
 
@@ -5944,74 +5947,79 @@ msgstr "添加管理单元失败！"
 msgid "Snapin created"
 msgstr "更新管理单元"
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1030
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:814
+#, fuzzy
+msgid "Snapin General"
+msgstr "启用管理单元"
+
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1167
 #, fuzzy
 msgid "File Hash"
 msgstr "文件"
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1121
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1258
 msgid "Check here to see groups not assigned with this snapin"
 msgstr "请查看这里以与此管理单元分配的组"
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1123
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1260
 msgid "Modify group association for"
 msgstr "修改组关联"
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1125
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1262
 msgid "Add snapin to groups"
 msgstr "添加管理单元到组"
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1130
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1267
 msgid "Add Snapin to Group(s)"
 msgstr "添加到管理单元组（S）"
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1162
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1299
 msgid "Primary Group Selector"
 msgstr "小学组选择"
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1202
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1339
 msgid "Update Primary Group"
 msgstr "更新主要组"
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1203
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1340
 msgid "Deleted selected group associations"
 msgstr "删除选定的组关联"
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1227
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1364
 msgid "Please enter a name to give this Snapin"
 msgstr "请输入一个名字给这个管理单元"
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1233
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1370
 msgid "Snapin with that name already exists"
 msgstr "管理单元与该名称已经存在"
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1244
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1381
 #, fuzzy
 msgid "A file to use for the snapin"
 msgstr "无法找到该管理单元文件"
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1245
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1382
 msgid "must be either uploaded or chosen"
 msgstr ""
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1246
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1383
 #, fuzzy
 msgid "from the already present list"
 msgstr "打印机已经存在"
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1289
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1426
 msgid "FTP connection has failed"
 msgstr "FTP连接失败"
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1340
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1477
 msgid "Snapin must be assigned to one Storage Group"
 msgstr "管理单元必须分配给一个存储组"
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1348
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1485
 msgid "Snapin update failed"
 msgstr "管理单元更新失败"
 
-#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1357
+#: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1494
 msgid "Snapin updated"
 msgstr "更新管理单元"
 
