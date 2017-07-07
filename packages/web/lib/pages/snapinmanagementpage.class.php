@@ -798,6 +798,143 @@ class SnapinManagementPage extends FOGPage
         }
     }
     /**
+     * Display snapin general edit elements.
+     *
+     * @return void
+     */
+    public function snapinGeneral()
+    {
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->attributes,
+            $this->templates
+        );
+        $this->title = _('Snapin General');
+        $this->attributes = array(
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group')
+        );
+        $this->templates = array(
+            '${field}',
+            '${input}'
+        );
+        $snapinfileexists = basename(
+            filter_input(INPUT_POST, 'snapinfileexist')
+        );
+        if (!$snapinfileexists) {
+            $snapinfileexists = $this->obj->get('file');
+        }
+        $name = filter_input(INPUT_POST, 'name') ?:
+            $this->obj->get('name');
+        $desc = filter_input(INPUT_POST, 'description') ?:
+            $this->obj->get('description');
+        $packtype = (int)filter_input(INPUT_POST, 'packtype') ?:
+            (int)$this->obj->get('packtype');
+        $rw = filter_input(INPUT_POST, 'rw') ?:
+            $this->obj->get('runWith');
+        $rwa = filter_input(INPUT_POST, 'rwa') ?:
+            $this->obj->get('runWithArgs');
+        $protected = (int)isset($_POST['protected_snapin']) ?:
+            (int)$this->obj->get('protected');
+        $toReplicate = (int)isset($_POST['toReplicate']) ?:
+            (int)$this->obj->get('toReplicate');
+        $isEnabled = (int)isset($_POST['isEnabled']) ?:
+            (int)$this->obj->get('isEnabled');
+        $isprot = (
+            $protected > 0 ? ' checked' : ''
+        );
+        $isen = (
+            $isEnabled > 0 ? ' checked' : ''
+        );
+        $isrep = (
+            $toReplicate > 0 ? ' checked' : ''
+        );
+        self::$selected = $snapinfileexists;
+        $nodeIDs = array();
+        Route::listem(
+            'storagegroup',
+            'name',
+            false,
+            array('id' => $this->obj->get('storagegroups'))
+        );
+        $StorageGroups = json_decode(
+            Route::getData()
+        );
+        $StorageGroups = $StorageGroups->storagegroups;
+        foreach ((array)$StorageGroups as &$StorageGroup) {
+            $nodeIDs = self::fastmerge(
+                (array)$nodeIDs,
+                (array)$StorageGroup->enablednodes
+            );
+            unset($StorageGroup);
+        }
+        $nodeIDs = array_filter($nodeIDs);
+        unset($StorageGroups);
+        $filelist = array();
+        if (count($nodeIDs) > 0) {
+            Route::listem(
+                'storagenode',
+                'name',
+                false,
+                array('id' => $nodeIDs)
+            );
+            $StorageNodes = json_decode(
+                Route::getData()
+            );
+            foreach ((array)$StorageNodes as &$StorageNode) {
+                $filelist = self::fastmerge(
+                    (array)$filelist,
+                    (array)$StorageNode->snapinfiles
+                );
+                unset($StorageNode);
+            }
+        }
+        $filelist = array_values(
+            array_unique(
+                array_filter(
+                    $filelist
+                )
+            )
+        );
+        natcasesort($filelist);
+        ob_start();
+        array_map(self::$buildSelectBox, $filelist);
+        $selectFiles = '<select class='
+            . '"snapinfileexist-input cmdlet3 form-control" '
+            . 'name="snapinfileexist" id="snapinfileexist">'
+            . '<option value="">- '
+            . _('Please select an option')
+            . ' -</option>'
+            . ob_get_clean()
+            . '</select>';
+        $fields = array(
+            '<label for="name">'
+            . _('Snapin Name')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="name" id="name" value="'
+            . $name
+            . '" class="snapinname-input form-control"/>'
+            . '</div>',
+            '<label for="desc">'
+            . _('Snapin Description')
+            . '</label>' => '<div class="input-group">'
+            . '<textarea name="description" id="desc" class='
+            . '"form-control snapindescription-input">'
+            . $desc
+            . '</textarea>'
+            . '</div>',
+        );
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->attributes,
+            $this->templates
+        );
+    }
+    /**
      * Edit this image
      *
      * @return void

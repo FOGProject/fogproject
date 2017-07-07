@@ -1264,14 +1264,14 @@ class Route extends FOGBase
             $data = FOGCore::fastmerge(
                 $class->get(),
                 array(
-                    'logfiles' => $class->get('logfiles')
+                    'logfiles' => $class->get('logfiles'),
+                    'snapinfiles' => $class->get('snapinfiles')
                 )
             );
             if ($objget) {
                 $data['storagegroup'] = self::getter(
                     'storagegroup',
-                    $class->get('storagegroup'),
-                    false
+                    $class->get('storagegroup')
                 );
             }
             break;
