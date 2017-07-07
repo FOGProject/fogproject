@@ -186,7 +186,7 @@ class GroupManagementPage extends FOGPage
         $fields = array(
             '<label for="name">'
             . _('Group Name')
-            . '</label>' => '<div class="input-group has-error">'
+            . '</label>' => '<div class="input-group">'
             . '<input type="text" name="name" '
             . 'value="'
             . filter_input(INPUT_POST, 'name')

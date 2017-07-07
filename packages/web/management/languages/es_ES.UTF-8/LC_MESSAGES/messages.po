@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-06 15:27-0400\n"
+"POT-Creation-Date: 2017-07-06 21:52-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -733,7 +733,7 @@ msgstr "Evento debe ser una cadena"
 #: /var/www/fog/lib/fog/fogbase.class.php:2215
 #: /var/www/fog/lib/fog/fogftp.class.php:372
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3070
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:86
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:87
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2416
 #: /var/www/fog/lib/reports/virus_history.report.php:35
 #: /var/www/fog/lib/reports/virus_history.report.php:42
@@ -870,22 +870,22 @@ msgid "Need the table name to drop"
 msgstr ""
 
 #: /var/www/fog/lib/fog/printer.class.php:219
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:185
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:199
 msgid "TCP/IP Port Printer"
 msgstr "Impresora TCP / IP Port"
 
 #: /var/www/fog/lib/fog/printer.class.php:220
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:186
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:200
 msgid "iPrint Printer"
 msgstr "impresora iPrint"
 
 #: /var/www/fog/lib/fog/printer.class.php:221
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:187
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:201
 msgid "Network Printer"
 msgstr "impresora de red"
 
 #: /var/www/fog/lib/fog/printer.class.php:222
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:188
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:202
 msgid "CUPS Printer"
 msgstr "CUPS de la impresora"
 
@@ -1244,7 +1244,7 @@ msgstr "Guardar cambios"
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:273
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:352
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:571
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:506
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:625
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:497
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:585
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:876
@@ -1360,7 +1360,7 @@ msgstr "Editar imagen"
 #: /var/www/fog/lib/fog/fogpage.class.php:1122
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:166
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:91
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:541
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:660
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:574
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:200
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:3006
@@ -1754,6 +1754,10 @@ msgstr ""
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:608
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:1135
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:494
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:264
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:318
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:379
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:458
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:236
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:906
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1042
@@ -2343,7 +2347,7 @@ msgstr "imagen creada"
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:280
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:347
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:567
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:503
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:622
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:494
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:582
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1109
@@ -3923,7 +3927,7 @@ msgid "Storage Node"
 msgstr "nodo de almacenamiento"
 
 #: /var/www/fog/lib/pages/serverinfo.class.php:167
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:87
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:88
 #: /var/www/fog/commons/text.php:70
 msgid "IP"
 msgstr "IP"
@@ -4006,125 +4010,150 @@ msgid "Information"
 msgstr "Información"
 
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:49
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:127
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:133
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:764
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1364
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1572
 msgid "TCP/IP"
 msgstr "TCP / IP"
 
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:82
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:83
 msgid "Printer Name"
 msgstr "Nombre de la impresora"
 
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:83
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:84
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:217
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:480
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:599
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:727
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1327
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1531
 msgid "Printer Type"
 msgstr "Tipo de impresora"
 
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:84
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:85
 #: /var/www/fog/lib/hooks/addhostmodel.hook.php:118
 #: /var/www/fog/commons/text.php:24
 msgid "Model"
 msgstr "Modelo"
 
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:85
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:86
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:66
 msgid "Port"
 msgstr "Puerto"
 
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:88
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:89
 #, fuzzy
 msgid "Config File"
 msgstr "Archivo de configuración de la impresora"
 
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:210
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:472
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:212
+#, fuzzy
+msgid "Copy from existing"
+msgstr "No se pudo crear la impresora"
+
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:242
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:288
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:342
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:404
+#, fuzzy
+msgid "Printer Name/Alias"
+msgstr "impresora Alias"
+
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:245
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:291
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:345
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:407
+msgid "e.g."
+msgstr ""
+
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:253
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:299
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:353
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:415
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:614
+msgid "Printer Description"
+msgstr "Descripción de la impresora"
+
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:260
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:315
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:376
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:455
+#, fuzzy
+msgid "Add New Printer"
+msgstr "Impresora"
+
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:306
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:422
+msgid "Printer Port"
+msgstr "Puerto de impresora"
+
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:360
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:431
+msgid "Printer INF File"
+msgstr "INF archivo de impresora"
+
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:368
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:439
+msgid "Printer IP"
+msgstr "impresora IP"
+
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:447
+msgid "Printer Model"
+msgstr "Modelo de impresora"
+
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:474
+#, fuzzy
+msgid "Create New Printer"
+msgstr "Crear nuevo grupo"
+
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:516
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:833
+#, fuzzy
+msgid "A name must be set"
+msgstr "Evento debe ser una cadena"
+
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:519
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:852
+#, fuzzy
+msgid "Printer name already exists"
+msgstr "Impresora ya existe"
+
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:545
+#, fuzzy
+msgid "Printer create/updated failed!"
+msgstr "actualización de la impresora ha fallado!"
+
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:549
+#, fuzzy
+msgid "Printer added"
+msgstr "Nombre de la impresora"
+
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:591
 #, fuzzy
 msgid "Copy from existing printer"
 msgstr "No se pudo crear la impresora"
 
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:232
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:281
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:495
-msgid "Printer Description"
-msgstr "Descripción de la impresora"
-
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:238
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:288
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:485
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:604
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:726
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1326
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1530
 msgid "Printer Alias"
 msgstr "impresora Alias"
 
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:262
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:324
-msgid "Printer Port"
-msgstr "Puerto de impresora"
-
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:296
-msgid "Printer INF File"
-msgstr "INF archivo de impresora"
-
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:304
-msgid "Printer IP"
-msgstr "impresora IP"
-
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:329
-msgid "Printer Model"
-msgstr "Modelo de impresora"
-
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:334
-msgid "Printer Config File"
-msgstr "Archivo de configuración de la impresora"
-
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:355
-#, fuzzy
-msgid "Add Printer"
-msgstr "Impresora"
-
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:397
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:714
-#, fuzzy
-msgid "A name must be set"
-msgstr "Evento debe ser una cadena"
-
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:400
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:733
-#, fuzzy
-msgid "Printer name already exists"
-msgstr "Impresora ya existe"
-
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:426
-#, fuzzy
-msgid "Printer create/updated failed!"
-msgstr "actualización de la impresora ha fallado!"
-
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:430
-#, fuzzy
-msgid "Printer added"
-msgstr "Nombre de la impresora"
-
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:521
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:640
 #, fuzzy
 msgid "Printer General"
 msgstr "Modelo de impresora"
 
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:696
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:815
 msgid "Printer type changed to"
 msgstr "Tipo de impresora cambia a"
 
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:747
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:866
 msgid "Printer update failed!"
 msgstr "actualización de la impresora ha fallado!"
 
-#: /var/www/fog/lib/pages/printermanagementpage.class.php:751
+#: /var/www/fog/lib/pages/printermanagementpage.class.php:870
 msgid "Printer updated!"
 msgstr "Impresora actualiza!"
 
@@ -10289,6 +10318,9 @@ msgstr "Legado FOG Cliente"
 msgid "There are no locations on this server"
 msgstr "No hay grupos en este servidor."
 
+#~ msgid "Printer Config File"
+#~ msgstr "Archivo de configuración de la impresora"
+
 #~ msgid "Add new image definition"
 #~ msgstr "Añadir nueva definición de la imagen"
 
@@ -10523,10 +10555,6 @@ msgstr "No hay grupos en este servidor."
 #, fuzzy
 #~ msgid "Process changes?"
 #~ msgstr "Los cambios procesar Grupo"
-
-#, fuzzy
-#~ msgid "Create new user"
-#~ msgstr "Crear nuevo grupo"
 
 #~ msgid "Are you sure you wish to remove these items"
 #~ msgstr "¿Seguro que desea eliminar estos artículos"
