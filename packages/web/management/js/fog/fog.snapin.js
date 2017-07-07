@@ -29,7 +29,7 @@ $(function() {
     $('.cmdlet1,.cmdlet2,.cmdlet3,.cmdlet4').on('change, keyup',function(e) {
         updateCmdStore();
     });
-    $('.cmdlet3').change(function(e) {
+    $('.cmdlet3').on('change', function(e) {
         updateCmdStore();
     })
     $('.snapinpack-input').on('change blur',function(e) {

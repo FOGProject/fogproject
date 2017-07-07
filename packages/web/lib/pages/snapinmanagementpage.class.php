@@ -179,9 +179,14 @@ class SnapinManagementPage extends FOGPage
          * The attributes for the table items.
          */
         $this->attributes = array(
-            array('class'=>'filter-false','width'=>16),
+            array(
+                'class' => 'filter-false',
+                'width' => 16
+            ),
             array(),
-            array('width'=>50),
+            array(
+                'width' => 50
+            ),
             array()
         );
         /**
@@ -317,6 +322,13 @@ class SnapinManagementPage extends FOGPage
      */
     public function add()
     {
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->attributes,
+            $this->templates
+        );
         /**
          * Title of inital/general element.
          */
@@ -335,14 +347,21 @@ class SnapinManagementPage extends FOGPage
             '${field}',
             '${input}',
         );
+        $storagegroup = filter_input(INPUT_POST, 'storagegroup');
+        $snapinfileexist = basename(
+            filter_input(INPUT_POST, 'snapinfileexist')
+        );
+        $name = filter_input(INPUT_POST, 'name');
+        $desc = filter_input(INPUT_POST, 'description');
+        $packtype = (int)filter_input(INPUT_POST, 'packtype');
+        $rw = filter_input(INPUT_POST, 'rw');
+        $rwa = filter_input(INPUT_POST, 'rwa');
+        $args = filter_input(INPUT_POST, 'args');
         /**
          * Set the storage group to pre-select.
          */
-        if (isset($_REQUEST['storagegroup'])
-            && is_numeric($_REQUEST['storagegroup'])
-            && $_REQUEST['storagegroup'] > 0
-        ) {
-            $sgID = $_REQUEST['storagegroup'];
+        if ($storagegroup > 0) {
+            $sgID = $storagegroup;
         } else {
             $sgID = @min(self::getSubObjectIDs('StorageGroup'));
         }
@@ -368,9 +387,7 @@ class SnapinManagementPage extends FOGPage
          * If the snapin file exists, set selected item
          * to this value.
          */
-        if (isset($_REQUEST['snapinfileexist'])) {
-            self::$selected = basename($_REQUEST['snapinfileexist']);
-        }
+        self::$selected = $snapinfileexist;
         /**
          * Initialize the filelist.
          */
@@ -394,15 +411,11 @@ class SnapinManagementPage extends FOGPage
         /**
          * Filter the list.
          */
-        $filelist = array_filter($filelist);
-        /**
-         * Ensure we remove any duplicates.
-         */
-        $filelist = array_unique($filelist);
-        /**
-         * Re-order the array.
-         */
-        $filelist = array_values($filelist);
+        $filelist = array_values(
+            array_unique(
+                array_filter($filelist)
+            )
+        );
         /**
          * Buffer the select box.
          */
@@ -414,156 +427,186 @@ class SnapinManagementPage extends FOGPage
         /**
          * Create our listing and store in a variable.
          */
-        $selectFiles = sprintf(
-            '<select class="snapinfileexist-input cmdlet3" name='
-            . '"snapinfileexist"><span class="lightColor">'
-            . '<option value="">- %s -</option>%s</select>',
-            _('Please select an option'),
-            ob_get_clean()
-        );
+        $selectFiles = '<select class='
+            . '"snapinfileexist-input cmdlet3 form-control" '
+            . 'name="snapinfileexist" id="snapinfileexist">'
+            . '<option value="">- '
+            . _('Please select an option')
+            . ' -</option>'
+            . ob_get_clean()
+            . '</select>';
         /**
          * Setup the fields to be used to display.
          */
         $fields = array(
-            _('Snapin Name') => sprintf(
-                '<input class="snapinname-input" type='
-                . '"text" name="name" value="%s"/>',
-                $_REQUEST['name']
-            ),
-            _('Snapin Description') => sprintf(
-                '<textarea class="snapindescription-input" name='
-                . '"description" rows="8" cols="40">%s</textarea>',
-                $_REQUEST['description']
-            ),
-            _('Storage Group') => $StorageGroups,
-            _('Snapin Type') => sprintf(
-                '<select class="snapinpack-input" name='
-                . '"packtype" id="snapinpack"><option value='
-                . '"0"%s>%s</option><option value="1"%s>%s</option></select>',
-                (
-                    !$_REQUEST['packtype']
-                    || !isset($_REQUEST['packtype']) ?
-                    ' selected' :
-                    ''
-                ),
-                _('Normal Snapin'),
-                (
-                    isset($_REQUEST['packtype'])
-                    && $_REQUEST['packtype'] > 0 ?
-                    ' selected' :
-                    ''
-                ),
-                _('Snapin Pack')
-            ),
-            sprintf(
-                '<span class="packnotemplate">%s</span>'
-                . '<span class="packtemplate">%s</span>',
-                _('Snapin Template'),
-                _('Snapin Pack Template')
-            ) => sprintf(
-                '<span class="packnotemplate">%s</span>'
-                . '<span class="packtemplate">%s</span>',
-                self::$_template1,
-                self::$_template2
-            ),
-            sprintf(
-                '<span class="packnochangerw">%s</span>'
-                . '<span class="packchangerw">%s</span>',
-                _('Snapin Run With'),
-                _('Snapin Pack File')
-            ) => sprintf(
-                '<input class="snapinrw-input cmdlet1" type='
-                . '"text" name="rw" value="%s"/>',
-                $_REQUEST['rw']
-            ),
-            sprintf(
-                '<span class="packnochangerwa">%s</span>'
-                . '<span class="packchangerwa">%s</span>',
-                _('Snapin Run With Argument'),
-                _('Snapin Pack Arguments')
-            ) => sprintf(
-                '<input class="snapinrwa-input cmdlet2" type='
-                . '"text" name="rwa" value="%s"/>',
-                $_REQUEST['rwa']
-            ),
-            sprintf(
-                '%s <span class="lightColor">%s:%s</span>',
-                _('Snapin File'),
-                _('Max Size'),
-                ini_get('post_max_size')
-            ) => sprintf(
-                '<input class="snapinfile-input cmdlet3" name='
-                . '"snapin" value="%s" type="file"/>',
-                $_FILES['snapin']['name']
-            ),
+            '<label for="name">'
+            . _('Snapin Name')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="name" id="name" value="'
+            . $name
+            . '" class="snapinname-input form-control"/>'
+            . '</div>',
+            '<label for="desc">'
+            . _('Snapin Description')
+            . '</label>' => '<div class="input-group">'
+            . '<textarea name="description" id="desc" class='
+            . '"form-control snapindescription-input">'
+            . $desc
+            . '</textarea>'
+            . '</div>',
+            '<label for="storagegroup">'
+            . _('Storage Group')
+            . '</label>' => $StorageGroups,
+            '<label for="snapinpack">'
+            . _('Snapin Type')
+            . '</label>' => '<select class="snapinpack-input form-control" '
+            . 'name="packtype" id="snapinpack">'
+            . '<option value="0"'
+            . (
+                $packtype == 0 ?
+                ' selected' :
+                ''
+            )
+            . '>'
+            . _('Normal Snapin')
+            . '</option>'
+            . '<option value="1"'
+            . (
+                $packtype > 0 ?
+                ' selected' :
+                ''
+            )
+            . '>'
+            . _('Snapin Pack')
+            . '</option>'
+            . '</select>',
+            '<span class="hiddeninitially packnotemplate">'
+            . '<label for="argTypes">'
+            . _('Snapin Template')
+            . '</label>'
+            . '</span>'
+            . '<span class="hiddeninitially packtemplate">'
+            . '<label for="packTypes">'
+            . _('Snapin Pack Template')
+            . '</label>'
+            . '</span>' => '<span class="hiddeninitially packnotemplate">'
+            . self::$_template1
+            . '</span>'
+            . '<span class="hiddeninitially packtemplate">'
+            . self::$_template2
+            . '</span>',
+            '<span class="hiddeninitially packnochangerw">'
+            . '<label for="snaprw">'
+            . _('Snapin Run With')
+            . '</label>'
+            . '</span>'
+            . '<span class="hiddeninitially packchangerw">'
+            . '<label for="snaprw">'
+            . _('Snapin Pack File')
+            . '</label>'
+            . '</span>' => '<div class="input-group">'
+            . '<input type="text" class="snapinrw-input cmdlet1 form-control" '
+            . 'name="rw" id="snaprw" value="'
+            . $rw
+            . '"/>'
+            . '</div>',
+            '<span class="hiddeninitially packnochangerwa">'
+            . '<label for="snaprwa">'
+            . _('Snapin Run With Argument')
+            . '</label>'
+            . '</span>'
+            . '<span class="hiddeninitially packchangerwa">'
+            . '<label for="snaprwa">'
+            . _('Snapin Pack Arguments')
+            . '</label>'
+            . '</span>' => '<div class="input-group">'
+            . '<input type="text" class="snapinrwa-input cmdlet2 form-control" '
+            . 'name="rwa" id="snaprwa" value="'
+            . $rwa
+            . '"/>'
+            . '</div>',
+            '<label for="snapinfile">'
+            . _('Snapin File')
+            . '<br/>'
+            . _('Max Size')
+            . ': '
+            . ini_get('post_max_size')
+            . '</label>' => '<div class="input-group">'
+            . '<label class="input-group-btn">'
+            . '<span class="btn btn-info">'
+            . _('Browse')
+            . '<input type="file" class="hidden cmdlet3" name="snapin" '
+            . 'id="snapinfile"/>'
+            . '</span>'
+            . '</label>'
+            . '<input type="text" class="form-control filedisp cmdlet3" readonly/>'
+            . '</div>',
             (
                 count($filelist) > 0 ?
-                _('Snapin File (exists)') :
+                '<label for="snapinfileexist">'
+                . _('Snapin File (exists)')
+                . '</label>' :
                 ''
             ) => (
                 count($filelist) > 0 ?
                 $selectFiles :
                 ''
             ),
-            sprintf(
-                '<span class="packhide">%s</span>',
-                _('Snapin Arguments')
-            ) => sprintf(
-                '<span class="packhide"><input class='
-                . '"snapinargs-input cmdlet4" type="text" name='
-                . '"args" value="%s"/></span>',
-                $_REQUEST['args']
-            ),
-            _('Snapin Enabled') => sprintf(
-                '<input class="snapinenabled-input" type='
-                . '"checkbox" name='
-                . '"isEnabled" checked/>'
-            ),
-            _('Snapin Arguments Hidden') => sprintf(
-                '<input class="snapinhidden-input" type='
-                . '"checkbox" name="isHidden" value="1"/>'
-            ),
-            _('Snapin Timeout (seconds)') => sprintf(
-                '<input class="snapintimeout-input" type='
-                . '"text" name="timeout" value="0"/>'
-            ),
-            _('Replicate?') => sprintf(
-                '<input class='
-                . '"snapinreplicate-input" type="checkbox" name='
-                . '"toReplicate" value="1" id="toRep" checked/>'
-                . '<label for="toRep"></label>'
-            ),
-            _('Reboot after install') => sprintf(
-                '<input class="snapinreboot-input action" type='
-                . '"radio" name="action" value="reboot"/>'
-            ),
-            _('Shutdown after install') => sprintf(
-                '<input class="snapinshutdown-input action" type='
-                . '"radio" name="action" value="shutdown"/>'
-            ),
-            sprintf(
-                '%s<br/><small>%s</small>',
-                _('Snapin Command'),
-                _('read-only')
-            ) => '<textarea class="snapincmd" readonly></textarea>',
-            '&nbsp;' => sprintf(
-                '<input name="add" type="submit" value="%s"/>',
-                _('Add')
-            )
+            '<span class="hiddeninitially packhide">'
+            . '<label for="args">'
+            . _('Snapin Arguments')
+            . '</label>'
+            . '</span>' => '<span class="hiddeninitially packhide">'
+            . '<div class="input-group">'
+            . '<input type="text" name="args" id="args" class='
+            . '"snapinargs-input cmdlet4 form-control" value="'
+            . $args
+            . '"/>'
+            . '</div>'
+            . '</span>',
+            '<label for="isen">'
+            . _('Snapin Enabled')
+            . '</label>' => '<input type="checkbox" name="isEnabled" '
+            . 'class="snapinenabled-input" id="isen" checked/>',
+            '<label for="isHidden">'
+            . _('Snapin Arguments Hidden')
+            . '</label>' => '<input type="checkbox" name="isHidden" '
+            . 'class="snapinhidden-input" id="isHidden"/>',
+            '<label for="timeout">'
+            . _('Snapin Timeout (seconds)')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="number" class='
+            . '"snapintimeout-input form-control" name="timeout" '
+            . 'id="timeout" value="0"/>'
+            . '</div>',
+            '<label for="toRep">'
+            . _('Replicate?')
+            . '</label>' => '<input type="checkbox" name="toReplicate" '
+            . 'class="snapinreplicate-input" id="toRep" checked/>',
+            '<label for="reboot">'
+            . _('Reboot after install')
+            . '</label>' => '<input type="radio" name="action" '
+            . 'class="snapinreboot-input action" id="reboot" value="reboot" '
+            . 'checked/>',
+            '<label for="shutdown">'
+            . _('Shutdown after install')
+            . '</label>' => '<input type="radio" name="action" '
+            . 'class="snapinshutdown-input action" id="shutdown" value="shutdown"/>',
+            '<label for="cmdletin">'
+            . _('Snapin Command')
+            . '<br/>'
+            . _('read-only')
+            . '</label>' => '<div class="input-group">'
+            . '<textarea class="form-control snapincmd" name="snapincmd" '
+            . 'id="cmdletin" readonly></textarea>',
+            '<label for="add">'
+            . _('Create New Snapin')
+            . '</label>' => '<button type="submit" name="add" id="add" '
+            . 'class="btn btn-info btn-block">'
+            . _('Add')
+            . '</button>'
         );
-        unset($files, $selectFiles);
-        printf(
-            '<form method="post" action"%s" enctype="multipart/form-data">',
-            $this->formAction
-        );
-        foreach ((array)$fields as $field => &$input) {
-            $this->data[] = array(
-                'field' => $field,
-                'input' => $input,
-            );
-            unset($input);
-        }
-        unset($fields);
+        array_walk($fields, $this->fieldsToData);
         self::$HookManager
             ->processEvent(
                 'SNAPIN_ADD',
@@ -574,13 +617,20 @@ class SnapinManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        $this->render();
+        echo '<div class="col-xs-9">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
+        $this->indexDivDisplay();
         echo '</form>';
+        echo '</div>';
         unset(
+            $fields,
+            $this->data,
+            $this->form,
             $this->headerData,
-            $this->templates,
             $this->attributes,
-            $this->data
+            $this->templates
         );
     }
     /**
