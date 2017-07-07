@@ -138,7 +138,7 @@ abstract class FOGPage extends FOGBase
      *
      * @var string
      */
-    protected $formAction = '';
+    public $formAction = '';
     /**
      * The forms method/action
      *
@@ -4057,6 +4057,7 @@ abstract class FOGPage extends FOGBase
      */
     public function indexDivDisplay($delNeeded = false, $storage = false)
     {
+        ob_start();
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
@@ -4068,6 +4069,17 @@ abstract class FOGPage extends FOGBase
         echo '</div>';
         echo '</div>';
         if (!$delNeeded) {
+            $items = ob_get_clean();
+            self::$HookManager->processEvent(
+                'INDEX_DIV_DISPLAY_CHANGE',
+                array(
+                    'items' => &$items,
+                    'childClass' => &$this->childClass,
+                    'main' => &$this,
+                    'delNeeded' => &$delNeeded
+                )
+            );
+            echo $items;
             return;
         }
         echo '<div class="panel panel-warning">';
@@ -4109,5 +4121,16 @@ abstract class FOGPage extends FOGBase
         echo '</form>';
         echo '</div>';
         echo '</div>';
+        $items = ob_get_clean();
+        self::$HookManager->processEvent(
+            'INDEX_DIV_DISPLAY_CHANGE',
+            array(
+                'items' => &$items,
+                'childClass' => &$this->childClass,
+                'main' => &$this,
+                'delNeeded' => &$delNeeded
+            )
+        );
+        echo $items;
     }
 }
