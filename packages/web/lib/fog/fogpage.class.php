@@ -3917,7 +3917,7 @@ abstract class FOGPage extends FOGBase
                 ),
                 (
                     $useidsel ? (
-                        $id == (int)$selected ?
+                        $id == $selected ?
                         ' selected' :
                         ''
                     ) : (

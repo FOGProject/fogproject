@@ -20,7 +20,7 @@ $(function() {
         }
     };
     if ($_GET['sub'] == 'membership') return;
-    $('select[name="printertype"]').change(function(e) {
+    $('select[name="printertype"]').on('change', function(e) {
         e.preventDefault();
         printertype = this.value.toLowerCase();
         switch(printertype) {

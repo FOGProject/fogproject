@@ -195,7 +195,7 @@ class UserManagementPage extends FOGPage
             . '</div>',
             '<label for="password">'
             . _('User Password')
-            . '</label>' => '<div class="input-group has-error">'
+            . '</label>' => '<div class="input-group">'
             . '<input type="password" class="'
             . 'form-control password-input1" name="password" value='
             . '"" autocomplete='
@@ -203,7 +203,7 @@ class UserManagementPage extends FOGPage
             . '</div>',
             '<label for="password2">'
             . _('User Password (confirm)')
-            . '</label>' => '<div class="input-group has-error">'
+            . '</label>' => '<div class="input-group">'
             . '<input type="password" class="'
             . 'form-control password-input2" name="password_confirm" value='
             . '"" autocomplete="off" required/>'

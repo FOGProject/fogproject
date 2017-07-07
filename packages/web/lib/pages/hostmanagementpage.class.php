@@ -398,7 +398,7 @@ class HostManagementPage extends FOGPage
         $fields = array(
             '<label for="host">'
             . _('Host Name')
-            . '</label>' => '<div class="input-group has-error">'
+            . '</label>' => '<div class="input-group">'
             . '<input type="text" name="host" '
             . 'value="'
             . filter_input(INPUT_POST, 'host')
@@ -408,7 +408,7 @@ class HostManagementPage extends FOGPage
             . '</div>',
             '<label for="mac">'
             . _('Primary MAC')
-            . '</label>' => '<div class="input-group has-error">'
+            . '</label>' => '<div class="input-group">'
             . '<span class="mac-manufactor input-group-addon">'
             . '</span>'
             . '<input type="text" name="mac" class="macaddr form-control" '
