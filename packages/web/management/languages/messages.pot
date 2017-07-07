@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-07 13:53-0400\n"
+"POT-Creation-Date: 2017-07-07 14:29-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5654,23 +5654,6 @@ msgstr ""
 
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:1292
 msgid "Storage Group General"
-msgstr ""
-
-#: /var/www/fog/lib/pages/ipxemenu.class.php:196
-#: /var/www/fog/lib/pages/ipxemenu.class.php:210
-msgid "Escape"
-msgstr ""
-
-#: /var/www/fog/lib/pages/ipxemenu.class.php:217
-msgid "Booting"
-msgstr ""
-
-#: /var/www/fog/lib/pages/ipxemenu.class.php:218
-msgid "Press"
-msgstr ""
-
-#: /var/www/fog/lib/pages/ipxemenu.class.php:219
-msgid "to access the menu"
 msgstr ""
 
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:74
