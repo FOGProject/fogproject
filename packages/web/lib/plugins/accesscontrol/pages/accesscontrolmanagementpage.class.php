@@ -60,7 +60,7 @@ class AccessControlManagementPage extends FOGPage
             parent::__construct($this->name);
             if ($id) {
                 $this->subMenu = array(
-                    "$this->linkformat" => self::$foglang['General'],
+                    "$this->linkformat#role-general" => self::$foglang['General'],
                     $this->membership => self::$foglang['Members'],
                     sprintf(
                         '?node=%s&sub=%s&id=%s',
@@ -130,7 +130,7 @@ class AccessControlManagementPage extends FOGPage
             parent::__construct($this->name);
             if ($id) {
                 $this->subMenu = array(
-                    "$this->linkformat" => self::$foglang['General'],
+                    "$this->linkformat#role-general" => self::$foglang['General'],
                     $this->membership => self::$foglang['Members'],
                     sprintf(
                         '?node=%s&sub=%s&id=%s',
@@ -353,17 +353,20 @@ class AccessControlManagementPage extends FOGPage
             . '</div>',
             '<label for="desc">'
             . _('Role Description')
-            . '</label>' => '<textarea class="form-control" name="description" '
+            . '</label>' => '<div class="input-group">'
+            . '<textarea class="form-control" name="description" '
             . 'id="desc">'
             . $desc
-            . '</textarea>',
-            '&nbsp;' => sprintf(
-                '<input name="add" class="smaller" type="submit" value="%s"/>',
-                _('Add')
-            ),
+            . '</textarea>'
+            . '</div>',
+            '<label for="add">'
+            . _('Create New Access Control Role')
+            . '</label>' => '<button type="submit" name="add" id="add" '
+            . 'class="btn btn-info btn-block">'
+            . _('Add')
+            . '</button>'
         );
         array_walk($fields, $this->fieldsToData);
-        unset($fields);
         self::$HookManager
             ->processEvent(
                 'ACCESSCONTROL_ADD',
@@ -374,10 +377,14 @@ class AccessControlManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-
-        printf('<form method="post" action="%s">', $this->formAction);
-        $this->render();
+        unset($fields);
+        echo '<div class="col-xs-9">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
+        $this->indexDivDisplay();
         echo '</form>';
+        echo '</div>';
     }
     /**
      * Add post.
@@ -386,21 +393,20 @@ class AccessControlManagementPage extends FOGPage
      */
     public function addPost()
     {
+        $name = filter_input(INPUT_POST, 'name');
+        $desc = filter_input(INPUT_POST, 'description');
         try {
-            $name = trim($_REQUEST['name']);
             $exists = self::getClass('AccessControlManager')
-                ->exists(trim($name));
+                ->exists($name);
             if ($exists) {
                 throw new Exception(_('Role already Exists, please try again.'));
             }
             if (!$name) {
                 throw new Exception(_('Please enter a name for this role.'));
             }
-
-            $description = $_REQUEST['description'];
             $AccessControl = self::getClass('AccessControl')
                 ->set('name', $name)
-                ->set('description', $description);
+                ->set('description', $desc);
             if (!$AccessControl->save()) {
                 throw new Exception(_('Failed to create'));
             }
@@ -437,35 +443,34 @@ class AccessControlManagementPage extends FOGPage
             '${field}',
             '${input}',
         );
+        $name = filter_input(INPUT_POST, 'name') ?:
+            $this->obj->get('name');
+        $desc = filter_input(INPUT_POST, 'description') ?:
+            $this->obj->get('description');
         $fields = array(
-            _('Role Name') => sprintf(
-                '<input class="smaller" type="text" name="name" value="%s"/>',
-                (
-                    $_REQUEST['name'] ?
-                    $_REQUEST['name'] :
-                    $this->obj->get('name')
-                )
-            ),
-            _('Role Description') => '<textarea name="description">'
-            . (
-                $_REQUEST['description'] ?
-                $_REQUEST['description'] :
-                $this->obj->get('description')
-            )
-            . '</textarea>',
-            '&nbsp;' => sprintf(
-                '<input name="update" class="smaller" type="submit" value="%s"/>',
-                _('Update')
-            ),
+            '<label for="name">'
+            . _('Role Name')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="name" id="name" class="form-control" value="'
+            . $name
+            . '"/>'
+            . '</div>',
+            '<label for="desc">'
+            . _('Role Description')
+            . '</label>' => '<div class="input-group">'
+            . '<textarea class="form-control" name="description" '
+            . 'id="desc">'
+            . $desc
+            . '</textarea>'
+            . '</div>',
+            '<label for="update">'
+            . _('Make Changes?')
+            . '</label>' => '<button type="submit" name="update" id="update" '
+            . 'class="btn btn-info btn-block">'
+            . _('Update')
+            . '</button>'
         );
-        foreach ((array)$fields as $field => &$input) {
-            $this->data[] = array(
-                'field'=>$field,
-                'input'=>$input,
-            );
-            unset($input);
-        }
-        unset($fields);
+        array_walk($fields, $this->fieldsToData);
         self::$HookManager
             ->processEvent(
                 'ACCESSCONTROL_EDIT',
@@ -476,13 +481,24 @@ class AccessControlManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        printf(
-            '<form method="post" action="%s&id=%d">',
-            $this->formAction,
-            $this->obj->get('id')
-        );
-        $this->render();
+        echo '<div class="col-xs-9 tab-content">';
+        echo '<div class="tab-pane fade in active" id="role-general">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Access Control Role General');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
+        $this->render(12);
         echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Edit post.
@@ -498,17 +514,18 @@ class AccessControlManagementPage extends FOGPage
                     'AccessControl' => &$this->obj
                 )
             );
+        $name = filter_input(INPUT_POST, 'name');
+        $desc = filter_input(INPUT_POST, 'description');
         try {
-            if ($_REQUEST['name'] != $this->obj->get('name')
-                && $this->obj->getManager()->exists($_REQUEST['name'])
+            if ($name != $this->obj->get('name')
+                && $this->obj->getManager()->exists($name)
             ) {
                 throw new Exception(_('A role with that name already exists.'));
             }
-            if (isset($_REQUEST['update'])) {
-                $description = $_REQUEST['description'];
+            if (isset($_POST['update'])) {
                 $this->obj
-                    ->set('name', $_REQUEST['name'])
-                    ->set('description', $_REQUEST['description']);
+                    ->set('name', $name)
+                    ->set('description', $desc);
                 if (!$this->obj->save()) {
                     throw new Exception(_('Failed to update'));
                 }
