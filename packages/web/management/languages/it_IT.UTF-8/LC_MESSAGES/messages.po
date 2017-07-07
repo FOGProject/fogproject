@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-07 13:53-0400\n"
+"POT-Creation-Date: 2017-07-07 14:29-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -5909,23 +5909,6 @@ msgstr "gruppo di archiviazione"
 msgid "Storage Group General"
 msgstr "Nome gruppo di archiviazione"
 
-#: /var/www/fog/lib/pages/ipxemenu.class.php:196
-#: /var/www/fog/lib/pages/ipxemenu.class.php:210
-msgid "Escape"
-msgstr "Escape"
-
-#: /var/www/fog/lib/pages/ipxemenu.class.php:217
-msgid "Booting"
-msgstr "Avvio"
-
-#: /var/www/fog/lib/pages/ipxemenu.class.php:218
-msgid "Press"
-msgstr "Premi"
-
-#: /var/www/fog/lib/pages/ipxemenu.class.php:219
-msgid "to access the menu"
-msgstr "Per accedere al menu"
-
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:74
 msgid "Plugin Name"
 msgstr "Nome Plugin"
@@ -9656,6 +9639,18 @@ msgstr "Ciao FOG client"
 #: /var/www/fog/service/locationlisting.php:28
 msgid "There are no locations on this server"
 msgstr "Non ci sono posizioni su questo server"
+
+#~ msgid "Escape"
+#~ msgstr "Escape"
+
+#~ msgid "Booting"
+#~ msgstr "Avvio"
+
+#~ msgid "Press"
+#~ msgstr "Premi"
+
+#~ msgid "to access the menu"
+#~ msgstr "Per accedere al menu"
 
 #~ msgid "All Roles"
 #~ msgstr "tutti i ruoli"
