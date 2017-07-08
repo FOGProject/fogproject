@@ -533,11 +533,11 @@ class PrinterManagementPage extends FOGPage
                 ->set('configFile', $configFile)
                 ->set('ip', $ip);
             if (!$Printer->save()) {
-                throw new Exception(_('Printer create/updated failed!'));
+                throw new Exception(_('Add printer failed!'));
             }
             $hook = 'PRINTER_ADD_SUCCESS';
             $msg = json_encode(
-                array('msg' => _('Printer added'))
+                array('msg' => _('Printer added!'))
             );
         } catch (Exception $e) {
             $hook = 'PRINTER_ADD_FAIL';
@@ -891,6 +891,59 @@ class PrinterManagementPage extends FOGPage
         echo '</div>';
     }
     /**
+     * Printer General Post
+     *
+     * @return void
+     */
+    public function printerGeneralPost()
+    {
+        $alias = filter_input(INPUT_POST, 'alias');
+        $port = filter_input(INPUT_POST, 'port');
+        $inf = filter_input(INPUT_POST, 'inf');
+        $model = filter_input(INPUT_POST, 'model');
+        $ip = filter_input(INPUT_POST, 'ip');
+        $configFile = filter_input(INPUT_POST, 'configFile');
+        $config = strtolower(
+            filter_input(INPUT_POST, 'printertype')
+        );
+        $desc = filter_input(INPUT_POST, 'description');
+        if (!$alias) {
+            throw new Exception(
+                _('A printer name is required!')
+            );
+        }
+        switch ($config) {
+        case 'local':
+            $printertype = 'Local';
+            break;
+        case 'cups':
+            $printertype = 'Cups';
+            break;
+        case 'iprint':
+            $printertype = 'iPrint';
+            break;
+        case 'network':
+            $printertype = 'Network';
+            break;
+        }
+        if ($this->obj->get('name') != $alias
+            && self::getClass('PrinterManager')->exists($alias)
+        ) {
+            throw new Exception(
+                _('A printer already exists with this name!')
+            );
+        }
+        $this->obj
+            ->set('description', $desc)
+            ->set('name', $alias)
+            ->set('config', $printertype)
+            ->set('model', $model)
+            ->set('port', $port)
+            ->set('file', $inf)
+            ->set('configFile', $configFile)
+            ->set('ip', $ip);
+    }
+    /**
      * Save the edits.
      *
      * @return void
@@ -902,51 +955,11 @@ class PrinterManagementPage extends FOGPage
                 'PRINTER_EDIT_POST',
                 array('Printer' => &$this->obj)
             );
-        $alias = filter_input(INPUT_POST, 'alias');
-        $port = filter_input(INPUT_POST, 'port');
-        $inf = filter_input(INPUT_POST, 'inf');
-        $model = filter_input(INPUT_POST, 'model');
-        $ip = filter_input(INPUT_POST, 'ip');
-        $configFile = filter_input(INPUT_POST, 'configFile');
-        $config = strtolower(
-            filter_input(INPUT_POST, 'printertype')
-        );
-        $desc = filter_input(INPUT_POST, 'description');
         global $tab;
         try {
             switch ($tab) {
             case 'printer-gen':
-                if (empty($alias)) {
-                    throw new Exception(_('A name must be set'));
-                }
-                switch ($config) {
-                case 'local':
-                    $printertype = 'Local';
-                    break;
-                case 'cups':
-                    $printertype = 'Cups';
-                    break;
-                case 'iprint':
-                    $printertype = 'iPrint';
-                    break;
-                case 'network':
-                    $printertype = 'Network';
-                    break;
-                }
-                if ($this->obj->get('name') != $alias
-                    && $this->obj->getManager()->exists($alias)
-                ) {
-                    throw new Exception(_('Printer name already exists'));
-                }
-                $this->obj
-                    ->set('description', $desc)
-                    ->set('name', $alias)
-                    ->set('config', $printertype)
-                    ->set('model', $model)
-                    ->set('port', $port)
-                    ->set('file', $inf)
-                    ->set('configFile', $configFile)
-                    ->set('ip', $ip);
+                $this->printerGeneralPost();
                 break;
             }
             if (!$this->obj->save()) {
