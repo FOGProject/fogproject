@@ -325,15 +325,17 @@ class HostManagementPage extends FOGPage
         }
         $this->render();
         if (count($this->data) > 0) {
-            echo '<p class="c"><button name="approvependhost" type="submit" ';
-            printf(
-                'class="btn btn-info">%s</button>&nbsp;&nbsp;'
-                . '<button name="delpendhost" type="submit" '
-                . 'class="btn btn-danger">%s</button>'
-                . '</p></form>',
-                _('Approve selected hosts'),
-                _('Delete selected hosts')
-            );
+            echo '<button name="approvependhost" type="submit" id='
+                . '"approvependhost" class='
+                . '"btn btn-info">'
+                . _('Approve selected hosts')
+                . '</button>'
+                . '<button name="delpendhost" type="submit" id='
+                . '"delpendhost" class='
+                . '"btn btn-danger">'
+                . _('Delete selected hosts')
+                . '</button>';
+            echo '</form>';
         }
     }
     /**
@@ -537,28 +539,91 @@ class HostManagementPage extends FOGPage
      */
     public function addPost()
     {
-        self::$HookManager
-            ->processEvent('HOST_ADD_POST');
+        self::$HookManager->processEvent('HOST_ADD_POST');
+        $name = trim(
+            filter_input(INPUT_POST, 'host')
+        );
+        $mac = trim(
+            filter_input(INPUT_POST, 'mac')
+        );
+        $desc = trim(
+            filter_input(INPUT_POST, 'description')
+        );
+        $password = trim(
+            filter_input(INPUT_POST, 'domainpassword')
+        );
+        if ($password) {
+            $password = self::encryptpw($password);
+        }
+        $useAD = (int)isset($_POST['domain']);
+        $domain = trim(
+            filter_input(INPUT_POST, 'domainname')
+        );
+        $ou = trim(
+            filter_input(INPUT_POST, 'ou')
+        );
+        $user = trim(
+            filter_input(INPUT_POST, 'domainuser')
+        );
+        $pass = $password;
+        $passlegacy = trim(
+            filter_input(INPUT_POST, 'domainpasswordlegacy')
+        );
+        $key = trim(
+            filter_input(INPUT_POST, 'key')
+        );
+        $productKey = preg_replace(
+            '/([\w+]{5})/',
+            '$1-',
+            str_replace(
+                '-',
+                '',
+                strtoupper($key)
+            )
+        );
+        $productKey = substr($productKey, 0, 29);
+        $enforce = (int)isset($_POST['enforcesel']);
+        $image = (int)filter_input(INPUT_POST, 'image');
+        $kernel = trim(
+            filter_input(INPUT_POST, 'kern')
+        );
+        $kernelArgs = trim(
+            filter_input(INPUT_POST, 'args')
+        );
+        $kernelDevice = trim(
+            filter_input(INPUT_POST, 'dev')
+        );
+        $init = trim(
+            filter_input(INPUT_POST, 'init')
+        );
+        $bootTypeExit = trim(
+            filter_input(INPUT_POST, 'bootTypeExit')
+        );
+        $efiBootTypeExit = trim(
+            filter_input(INPUT_POST, 'efiBootTypeExit')
+        );
         try {
-            $hostName = trim($_REQUEST['host']);
-            if (empty($hostName)) {
-                throw new Exception(_('Please enter a hostname'));
+            if (!$name) {
+                throw new Exception(
+                    _('A host name is required!')
+                );
             }
-            if (!self::getClass('Host')->isHostnameSafe($hostName)) {
-                throw new Exception(_('Please enter a valid hostname'));
+            if (!$mac) {
+                throw new Exception(
+                    _('A mac address is required!')
+                );
             }
-            if (self::getClass('HostManager')->exists($hostName)) {
-                throw new Exception(_('Hostname Exists already'));
+            if (self::getClass('HostManager')->exists($name)) {
+                throw new Exception(
+                    _('A host already exists with this name!')
+                );
             }
-            if (empty($_REQUEST['mac'])) {
-                throw new Exception(_('MAC Address is required'));
-            }
-            $MAC = self::getClass('MACAddress', $_REQUEST['mac']);
+            $MAC = new MACAddress($mac);
             if (!$MAC->isValid()) {
                 throw new Exception(_('MAC Format is invalid'));
             }
             $Host = self::getClass('HostManager')->getHostByMacAddresses($MAC);
-            if ($Host && $Host->isValid()) {
+            if ($Host->isValid()) {
                 throw new Exception(
                     sprintf(
                         '%s: %s',
@@ -567,40 +632,20 @@ class HostManagementPage extends FOGPage
                     )
                 );
             }
-            $ModuleIDs = self::getSubObjectIDs('Module', array('isDefault' => 1));
-            $password = $_REQUEST['domainpassword'];
-            if ($_REQUEST['domainpassword']) {
-                $password = self::encryptpw($_REQUEST['domainpassword']);
-            }
-            $useAD = isset($_REQUEST['domain']);
-            $domain = trim($_REQUEST['domainname']);
-            $ou = trim($_REQUEST['ou']);
-            $user = trim($_REQUEST['domainuser']);
-            $pass = $password;
-            $passlegacy = trim($_REQUEST['domainpasswordlegacy']);
-            $productKey = preg_replace(
-                '/([\w+]{5})/',
-                '$1-',
-                str_replace(
-                    '-',
-                    '',
-                    strtoupper(
-                        trim($_REQUEST['key'])
-                    )
-                )
+            $ModuleIDs = self::getSubObjectIDs(
+                'Module',
+                array('isDefault' => 1)
             );
-            $productKey = substr($productKey, 0, 29);
-            $enforce = isset($_REQUEST['enforcesel']);
             $Host = self::getClass('Host')
-                ->set('name', $hostName)
-                ->set('description', $_REQUEST['description'])
-                ->set('imageID', $_REQUEST['image'])
-                ->set('kernel', $_REQUEST['kern'])
-                ->set('kernelArgs', $_REQUEST['args'])
-                ->set('kernelDevice', $_REQUEST['dev'])
-                ->set('init', $_REQUEST['init'])
-                ->set('biosexit', $_REQUEST['bootTypeExit'])
-                ->set('efiexit', $_REQUEST['efiBootTypeExit'])
+                ->set('name', $name)
+                ->set('description', $desc)
+                ->set('imageID', $image)
+                ->set('kernel', $kernel)
+                ->set('kernelArgs', $kernelArgs)
+                ->set('kernelDevice', $kernelDevice)
+                ->set('init', $init)
+                ->set('biosexit', $bootTypeExit)
+                ->set('efiexit', $efiBootTypeExit)
                 ->set('productKey', self::encryptpw($productKey))
                 ->addModule($ModuleIDs)
                 ->addPriMAC($MAC)
@@ -620,31 +665,23 @@ class HostManagementPage extends FOGPage
                 throw new Exception(_('Host create failed'));
             }
             $hook = 'HOST_ADD_SUCCESS';
-            $msg = _('Host added');
+            $msg = json_encode(
+                array('msg' => _('Host added'))
+            );
         } catch (Exception $e) {
             $hook = 'HOST_ADD_FAIL';
-            $msg = $e->getMessage();
+            $msg = json_encode(
+                array('error' => $e->getMessage())
+            );
         }
         self::$HookManager
             ->processEvent(
                 $hook,
                 array('Host' => &$Host)
             );
-        unset(
-            $Host,
-            $passlegacy,
-            $pass,
-            $user,
-            $ou,
-            $domain,
-            $useAD,
-            $password,
-            $ModuleIDs,
-            $MAC,
-            $hostName
-        );
-        self::setMessage($msg);
-        self::redirect($this->formAction);
+        unset($Host);
+        echo $msg;
+        exit;
     }
     /**
      * Generates the powermanagement display items.
@@ -1105,10 +1142,10 @@ class HostManagementPage extends FOGPage
             '<label for="efiBootTypeExit">'
             . _('Host EFI Exit Type')
             . '</label>' => $this->exitEfi,
-            '<label for="generalupdate">'
+            '<label for="updategen">'
             . _('Make Changes?')
            . '</label>' => '<button type="submit" class="btn btn-info btn-block" '
-           . 'id="generalupdate">'
+           . 'id="updategen">'
            . _('Update')
            . '</button>'
         );
@@ -1508,7 +1545,7 @@ class HostManagementPage extends FOGPage
             echo '</label>';
             echo '<div class="col-xs-8">';
             echo '<button type="submit" name="updateprinters" class='
-                . '"btn btn-info btn-block" id="updateprinters">'
+                . '"btn btn-info btn-block" id="updateprinters" value="1">'
                 . _('Add')
                 . '</button>';
             echo '</div>';
@@ -3494,15 +3531,11 @@ class HostManagementPage extends FOGPage
                 break;
             case 'host-login-history':
                 $dte = filter_input(INPUT_POST, 'dte');
-                self::setMessage(_('Date Changed'));
-                self::redirect(
-                    sprintf(
-                        '?node=host&sub=edit&id=%s&dte=%s#%s',
-                        $this->obj->get('id'),
-                        $dte,
-                        $tab
-                    )
+                $msg = json_encode(
+                    array('msg' => _('Date Changed!'))
                 );
+                echo $msg;
+                exit;
                 break;
             case 'host-virus-history':
                 $delvid = filter_input(INPUT_POST, 'delvid');
@@ -3525,13 +3558,11 @@ class HostManagementPage extends FOGPage
                             )
                         );
                 }
-                self::redirect(
-                    sprintf(
-                        '?node=host&sub=edit&id=%s#%s',
-                        $this->obj->get('id'),
-                        $tab
-                    )
+                $msg = json_encode(
+                    array('msg' => _('Virus items removed!'))
                 );
+                echo $msg;
+                exit;
             }
             if (!$this->obj->save()) {
                 throw new Exception(_('Host Update Failed'));
@@ -3554,18 +3585,22 @@ class HostManagementPage extends FOGPage
                 $this->obj->ignore($igimage, $igclient);
             }
             $hook = 'HOST_EDIT_SUCCESS';
-            $msg = _('Host updated');
+            $msg = json_encode(
+                array('msg' => _('Host updated!'))
+            );
         } catch (Exception $e) {
             $hook = 'HOST_EDIT_FAIL';
-            $msg = $e->getMessage();
+            $msg = json_encode(
+                array('error' => $e->getMessage())
+            );
         }
         self::$HookManager
             ->processEvent(
                 $hook,
                 array('Host' => &$this->obj)
             );
-        self::setMessage($msg);
-        self::redirect($this->formAction);
+        echo $msg;
+        exit;
     }
     /**
      * Saves host to a selected or new group depending on action.
@@ -3598,34 +3633,16 @@ class HostManagementPage extends FOGPage
             if (!$Group->save()) {
                 throw new Exception(_('Failed to create new Group'));
             }
-            echo '<div class="col-xs-9">';
-            echo '<div class="panel panel-success">';
-            echo '<div class="panel-heading text-center">';
-            echo '<h4 class="title">';
-            echo _('Group Association Success');
-            echo '</h4>';
-            echo '</div>';
-            echo '<div class="panel-body">';
-            echo _('Successfully added selected hosts to the group.');
-            echo '</div>';
-            echo '</div>';
-            echo '</div>';
+            $msg = json_encode(
+                array('msg' => _('Successfully added selected hosts to the group!'))
+            );
         } catch (Exception $e) {
-            echo '<div class="col-xs-9">';
-            echo '<div class="panel panel-warning">';
-            echo '<div class="panel-heading text-center">';
-            echo '<h4 class="title">';
-            echo _('Group Association Failed');
-            echo '</h4>';
-            echo '</div>';
-            echo '<div class="panel-body">';
-            echo _('Failed to add selected hosts to the group.');
-            echo '<br/>';
-            echo $e->getMessage();
-            echo '</div>';
-            echo '</div>';
-            echo '</div>';
+            $msg = json_encode(
+                array('error' => $e->getMessage())
+            );
         }
+        echo $msg;
+        exit;
     }
     /**
      * Gets the host user tracking info.
