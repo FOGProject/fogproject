@@ -838,7 +838,7 @@ class PrinterManagementPage extends FOGPage
         );
         array_walk($fields, $this->fieldsToData);
         echo '<!-- General -->';
-        echo '<div id="printer-gen" class="tab-pane fade in active">';
+        echo '<div class="tab-pane fade in active" id="printer-gen">';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
@@ -855,12 +855,12 @@ class PrinterManagementPage extends FOGPage
         echo $printerCups;
         echo $printerLocal;
         echo '<div class="form-group">';
-        echo '<label for="upprinter" class="col-xs-4">'
+        echo '<label for="printergen" class="col-xs-4">'
             . _('Make Changes?')
             . '</label>';
         echo '<div class="col-xs-8">';
         echo '<button type="submit" name="add" '
-            . 'id="upprinter" '
+            . 'id="printergen" '
             . 'class="btn btn-info btn-block">'
             . _('Update')
             . '</button>';

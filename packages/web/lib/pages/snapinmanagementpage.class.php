@@ -668,11 +668,7 @@ class SnapinManagementPage extends FOGPage
                     _('A snapin name is required!')
                 );
             }
-            if ($this->obj->get('name') != $name
-                && self::getClass('SnapinManager')->exists(
-                    $name
-                )
-            ) {
+            if (self::getClass('SnapinManager')->exists($name)) {
                 throw new Exception(
                     _('A snapin already exists with this name!')
                 );
@@ -1097,7 +1093,7 @@ class SnapinManagementPage extends FOGPage
             . 'id="cmdletin" readonly></textarea>',
             '<label for="update">'
             . _('Make Changes?')
-            . '</label>' => '<button type="submit" name="update" id="update" '
+            . '</label>' => '<button type="submit" name="update" id="updategen" '
             . 'class="btn btn-info btn-block">'
             . _('Update')
             . '</button>'

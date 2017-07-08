@@ -38,13 +38,28 @@ $(function() {
         }
     };
     if ($_GET['sub'] == 'membership') return;
-    form = $('.snapinname-input:not(:hidden)').parents('form');
+    form = $('#add, #updategen:not(:hidden), #primarysel:not(:hidden), #groupdel:not(:hidden)').parents('form');
     validator = form.validate(validatorOpts);
-    $('.snapinname-input:not(:hidden)').rules('add', {regex: /^[-\w!@#$%^()'{}\\\.~\+ ]{1,255}$/});
-    $('.snapinname-input:not(:hidden)').on('keyup change blur',function() {
+    $('.snapinname-input:not(:hidden)').rules(
+        'add',
+        {
+            regex: /^[-\w!@#$%^()'{}\\\.~\+ ]{1,255}$/
+        }
+    ).on('keyup change blur', function() {
         return validator.element(this);
+    }).trigger('change');
+    $('.nav-tabs a').on('shown.bs.tab', function(e) {
+        form = $('#add, #updategen:not(:hidden), #primarysel:not(:hidden), #groupdel:not(:hidden)').parents('form');
+        validator = form.validate(validatorOpts);
+        $('.snapinname-input:not(:hidden)').rules(
+            'add',
+            {
+                regex: /^[-\w!@#$%^()'{}\\\.~\+ ]{1,255}$/
+            }
+        ).on('keyup change blur', function() {
+            return validator.element(this);
+        }).trigger('change');
     });
-    $('.snapinname-input:not(:hidden)').trigger('change');
     $('#argTypes').on('change', function() {
         if ($('option:selected',this).attr('value')) $("input[name=rw]").val($('option:selected',this).attr('value'));
         $("input[name=rwa]").val($('option:selected',this).attr('rwargs'));

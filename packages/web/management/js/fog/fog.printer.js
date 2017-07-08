@@ -33,7 +33,8 @@ $(function() {
             alias: {
                 required: true,
                 minlength: 1,
-                maxlength: 255
+                maxlength: 255,
+                regex: /^[\w!@#$%^()\-'{}\\\.~ ]{1,255}$/
             }
         }
     };
@@ -52,7 +53,8 @@ $(function() {
                 validatorOpts['rules']['port'] = {
                     required: true,
                     minlength: 1,
-                    maxlength: 255
+                    maxlength: 255,
+                    regex: /^((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4}))$/
                 };
                 break;
             case 'cups':
@@ -61,10 +63,12 @@ $(function() {
                 validatorOpts['rules']['inf'] = {
                     required: true,
                     minlength: 1,
-                    maxlength: 255
+                    maxlength: 255,
+                    regex: /^[\w!@#$%^()\-'{}\\\.~ ]{1,255}$/
                 };
                 validatorOpts['rules']['ip'] = {
-                    required: true
+                    required: true,
+                    regex: /^(([1-9]?\d|1\d\d|2[0-5][0-5]|2[0-4]\d)\.){3}([1-9]?\d|1\d\d|2[0-5][0-5]|2[0-4]\d)$/
                 };
                 break;
             case 'local':
@@ -73,30 +77,28 @@ $(function() {
                 validatorOpts['rules']['inf'] = {
                     required: true,
                     minlength: 1,
-                    maxlength: 255
+                    maxlength: 255,
+                    regex: /^[\w!@#$%^()\-'{}\\\.~ ]{1,255}$/
                 };
                 validatorOpts['rules']['ip'] = {
-                    required: true
+                    required: true,
+                    regex: /^(([1-9]?\d|1\d\d|2[0-5][0-5]|2[0-4]\d)\.){3}([1-9]?\d|1\d\d|2[0-5][0-5]|2[0-4]\d)$/
                 };
                 validatorOpts['rules']['model'] = {
                     required: true,
                     minlength: 1,
-                    maxlength: 255
+                    maxlength: 255,
+                    regex: /^.{1,255}$/
                 };
                 validatorOpts['rules']['port'] = {
                     required: true,
                     minlength: 1,
-                    maxlength: 255
+                    maxlength: 5,
+                    regex: /^((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4}))$/
                 };
                 break;
         }
-    });
-    $('select[name="printertype"]').trigger('change');
-    form = $('.printername-input:not(:hidden)').parents('form');
-    validator = form.validate(validatorOpts);
-    $('.printername-input:not(:hidden),.printerinf-input:not(:hidden),.printerport-input:not(:hidden)').rules('add', {regex: /^[\w!@#$%^()\-'{}\\\.~ ]{1,255}$/});
-    $('.printermodel-input:not(:hidden)').rules('add', {regex: /^.{1,255}$/});
-    $('.printerip-input:not(:hidden)').rules('add', {regex: /^(([1-9]?\d|1\d\d|2[0-5][0-5]|2[0-4]\d)\.){3}([1-9]?\d|1\d\d|2[0-5][0-5]|2[0-4]\d)$/});
+    }).trigger('change');
     $('#printer-copy select[name="printer"]').on('change', function(e) {
         e.preventDefault();
         $.ajax({
@@ -116,8 +118,16 @@ $(function() {
             },
         });
     });
+    form = $('#add, #updategen:not(:hidden)').parents('form');
+    validator = form.validate(validatorOpts);
     $('.printername-input:not(:hidden),.printerinf-input:not(:hidden),.printerport-input:not(:hidden),.printerip-input:not(:hidden),.printermodel-input:not(:hidden),.printerconfigFile-input:not(:hidden)').on('keyup change blur',function() {
         return validator.element(this);
+    }).trigger('change');
+    $('.nav-tabs a').on('shown.bs.tab', function(e) {
+        form = $('#add, #updategen:not(:hidden)').parents('form');
+        validator = form.validate(validatorOpts);
+        $('.printername-input:not(:hidden),.printerinf-input:not(:hidden),.printerport-input:not(:hidden),.printerip-input:not(:hidden),.printermodel-input:not(:hidden),.printerconfigFile-input:not(:hidden)').on('keyup change blur',function() {
+            return validator.element(this);
+        }).trigger('change');
     });
-    $('.printername-input:not(:hidden),.printerinf-input:not(:hidden),.printerport-input:not(:hidden),.printerip-input:not(:hidden),.printermodel-input:not(:hidden),.printerconfigFile-input:not(:hidden)').trigger('change');
 });
