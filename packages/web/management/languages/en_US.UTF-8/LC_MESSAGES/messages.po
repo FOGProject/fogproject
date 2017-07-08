@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-08 13:44-0400\n"
+"POT-Creation-Date: 2017-07-08 13:57-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -5761,30 +5761,25 @@ msgstr "Host approved"
 msgid "All Pending MACs approved"
 msgstr "All Pending MACs approved."
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3535
-#, fuzzy
-msgid "Date Changed!"
-msgstr "Save Changes"
-
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3562
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3567
 #, fuzzy
 msgid "Virus items removed!"
 msgstr "Virus cleared"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3568
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3573
 msgid "Host Update Failed"
 msgstr "Host Update Failed"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3589
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3594
 #, fuzzy
 msgid "Host updated!"
 msgstr "User updated"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3634
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3639
 msgid "Failed to create new Group"
 msgstr "Failed to create new Group"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3637
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3642
 #, fuzzy
 msgid "Successfully added selected hosts to the group!"
 msgstr "Successfully associated Hosts with the Group "
@@ -10030,6 +10025,10 @@ msgstr "Hello FOG Client"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "There are no locations on this server."
+
+#, fuzzy
+#~ msgid "Date Changed!"
+#~ msgstr "Save Changes"
 
 #~ msgid "Hostname Exists already"
 #~ msgstr "Hostname Exists already"

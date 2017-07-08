@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-08 13:44-0400\n"
+"POT-Creation-Date: 2017-07-08 13:57-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -5744,30 +5744,25 @@ msgstr "主机批准"
 msgid "All Pending MACs approved"
 msgstr "所有待定的MAC批准。"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3535
-#, fuzzy
-msgid "Date Changed!"
-msgstr "保存更改"
-
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3562
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3567
 #, fuzzy
 msgid "Virus items removed!"
 msgstr "病毒清除"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3568
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3573
 msgid "Host Update Failed"
 msgstr "主机更新失败"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3589
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3594
 #, fuzzy
 msgid "Host updated!"
 msgstr "用户更新"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3634
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3639
 msgid "Failed to create new Group"
 msgstr "无法创建新的组"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3637
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3642
 #, fuzzy
 msgid "Successfully added selected hosts to the group!"
 msgstr "成功关联主机与本集团"
@@ -10008,6 +10003,10 @@ msgstr "你好FOG客户端"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "有此服务器上没有的位置。"
+
+#, fuzzy
+#~ msgid "Date Changed!"
+#~ msgstr "保存更改"
 
 #~ msgid "Hostname Exists already"
 #~ msgstr "主机名已经存在"
