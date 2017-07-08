@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-08 13:44-0400\n"
+"POT-Creation-Date: 2017-07-08 13:57-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5346,27 +5346,23 @@ msgstr ""
 msgid "All Pending MACs approved"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3535
-msgid "Date Changed!"
-msgstr ""
-
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3562
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3567
 msgid "Virus items removed!"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3568
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3573
 msgid "Host Update Failed"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3589
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3594
 msgid "Host updated!"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3634
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3639
 msgid "Failed to create new Group"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3637
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3642
 msgid "Successfully added selected hosts to the group!"
 msgstr ""
 

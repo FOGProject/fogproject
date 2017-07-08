@@ -2141,7 +2141,7 @@ class HostManagementPage extends FOGPage
             $this->data[] = array(
                 'input' => sprintf(
                     '<div class="input-group">'
-                    . '<input type="text" id="%s" name="%s" value="%s" '
+                    . '<input type="number" id="%s" name="%s" value="%s" '
                     . 'class="form-control"/>'
                     . '</div>',
                     $name,
@@ -2219,7 +2219,7 @@ class HostManagementPage extends FOGPage
             . _('Auto Log Out Time (in minutes)')
             . '</label>',
             'input' => '<div class="input-group">'
-            . '<input type="text" name="tme" value="${value}" class='
+            . '<input type="number" name="tme" value="${value}" class='
             . '"form-control" id="tme"/>'
             . '</div>',
             'desc' => '<div class="col-xs-2">'
@@ -3531,11 +3531,16 @@ class HostManagementPage extends FOGPage
                 break;
             case 'host-login-history':
                 $dte = filter_input(INPUT_POST, 'dte');
-                $msg = json_encode(
-                    array('msg' => _('Date Changed!'))
+                self::redirect(
+                    '?node='
+                    . $this->node
+                    . '&sub=edit&id='
+                    . $this->obj->get('id')
+                    . '&dte='
+                    . $dte
+                    . '#'
+                    . $tab
                 );
-                echo $msg;
-                exit;
                 break;
             case 'host-virus-history':
                 $delvid = filter_input(INPUT_POST, 'delvid');

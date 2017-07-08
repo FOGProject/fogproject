@@ -48,7 +48,7 @@ $(function() {
             }
         }
     };
-    $('#add, #pmupdate, #pmdelete, #updategen, #levelup, #updateprinters, #defaultsel, #printerdel, #updatesnapins, #snapdel, #updatestatus, #updatedisplay, #updatealo, #updateinv, #host-edit').on('click', function(e) {
+    $('#add, #all, #pmsubmit, #pmupdate, #pmdelete, #updategen, #levelup, #updateprinters, #defaultsel, #printdel, #updatesnapins, #snapdel, #updatestatus, #updatedisplay, #updatealo, #updateinv, #host-edit').on('click', function(e) {
         data = this.name;
         form = $(this).parents('form');
         validator = form.validate(validatorOpts);
