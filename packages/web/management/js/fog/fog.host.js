@@ -1,29 +1,74 @@
 var MACLookupTimer;
 var MACLookupTimeout = 1000;
 var length = 1;
-var macregex = /^(?:[0-9A-Fa-f]{2}([-:]))(?:[0-9A-Fa-f]{2}\1){4}[0-9A-Fa-f]{2}$|^(?:[0-9A-Fa-f]{12})$|^(?:[0-9A-Fa-f]{4}([.])){2}[0-9A-Fa-f]{4}$/;
+var data = '';
 $(function() {
     checkboxToggleSearchListPages();
-    checkboxAssociations('.toggle-checkboxgroup:checkbox','.toggle-group:checkbox');
-    MACUpdate();
-    ProductUpdate();
-    form = $('.hostname-input').parents('form');
-    validator = form.validate({
+    validatorOpts = {
+        submitHandler: function(form) {
+            data += '&'+$(form).find(':visible,[type="radio"]').serialize();
+            url = $(form).attr('action');
+            method = $(form).attr('method').toUpperCase();
+            $.ajax({
+                url: url,
+                type: method,
+                data: data,
+                dataType: 'json',
+                success: function(data) {
+                    dialoginstance = new BootstrapDialog();
+                    if (data.error) {
+                        dialoginstance
+                        .setTitle('Host Update Failed')
+                        .setMessage(data.error)
+                        .setType(BootstrapDialog.TYPE_WARNING)
+                        .open();
+                    } else {
+                        dialoginstance
+                        .setTitle('Host Update Success')
+                        .setMessage(data.msg)
+                        .setType(BootstrapDialog.TYPE_SUCCESS)
+                        .open();
+                    }
+                }
+            });
+            return false;
+        },
         rules: {
             host: {
                 required: true,
                 minlength: 1,
-                maxlength: 15
+                maxlength: 15,
+                regex: /^[\w!@#$%^()'{}\.~-]{1,15}$/
             },
             mac: {
                 required: true,
                 minlength: 12,
-                maxlength: 17
+                maxlength: 17,
+                regex: /^(?:[0-9A-Fa-f]{2}([-:]))(?:[0-9A-Fa-f]{2}\1){4}[0-9A-Fa-f]{2}$|^(?:[0-9A-Fa-f]{12})$|^(?:[0-9A-Fa-f]{4}([.])){2}[0-9A-Fa-f]{4}$/
             }
         }
+    };
+    $('#add, #pmupdate, #pmdelete, #updategen, #levelup, #updateprinters, #defaultsel, #printerdel, #updatesnapins, #snapdel, #updatestatus, #updatedisplay, #updatealo, #updateinv, #host-edit').on('click', function(e) {
+        data = this.name;
+        form = $(this).parents('form');
+        validator = form.validate(validatorOpts);
     });
-    $('.hostname-input').rules('add', {regex: /^[\w!@#$%^()\-'{}\.~]{1,15}$/});
-    $('.macaddr').rules('add', {regex: macregex});
+    $('.hostname-input:not(:hidden), .macaddr:not(:hidden)').on('keyup change blur click', function(e) {
+        return validator.element(this);
+    });
+    $('.nav-tabs a').on('shown.bs.tab', function(e) {
+        $('#add, #pmupdate, #pmdelete, #updategen, #levelup, #updateprinters, #defaultsel, #printerdel, #updatesnapins, #snapdel, #updatestatus, #updatedisplay, #updatealo, #updateinv, #host-edit').on('click', function(e) {
+            data = this.name;
+            form = $(this).parents('form');
+            validator = form.validate(validatorOpts);
+        });
+        $('.hostname-input:not(:hidden), .macaddr:not(:hidden)').on('keyup change blur click', function(e) {
+            return validator.element(this);
+        });
+    });
+    checkboxAssociations('.toggle-checkboxgroup:checkbox','.toggle-group:checkbox');
+    MACUpdate();
+    ProductUpdate();
     $('#process').on('click', function(e) {
         //e.preventDefault();
         checkedIDs = getChecked();
