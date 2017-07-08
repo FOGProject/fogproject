@@ -1,7 +1,34 @@
 $(function() {
     checkboxToggleSearchListPages();
-    form = $('.snapinname-input:not(:hidden)').parents('form');
-    validator = form.validate({
+    validatorOpts = {
+        submitHandler: function(form) {
+            data = $(form).find(':visible').serialize();
+            url = $(form).attr('action');
+            method = $(form).attr('method').toUpperCase();
+            $.ajax({
+                url: url,
+                type: method,
+                data: data,
+                dataType: 'json',
+                success: function(data) {
+                    dialoginstance = new BootstrapDialog();
+                    if (data.error) {
+                        dialoginstance
+                        .setTitle('Snapin Update Failed')
+                        .setMessage(data.error)
+                        .setType(BootstrapDialog.TYPE_WARNING)
+                        .open();
+                    } else {
+                        dialoginstance
+                        .setTitle('Snapin Update Success')
+                        .setMessage(data.msg)
+                        .setType(BootstrapDialog.TYPE_SUCCESS)
+                        .open();
+                    }
+                }
+            });
+            return false;
+        },
         rules: {
             name: {
                 required: true,
@@ -9,24 +36,27 @@ $(function() {
                 maxlength: 255
             }
         }
-    });
+    };
+    if ($_GET['sub'] == 'membership') return;
+    form = $('.snapinname-input:not(:hidden)').parents('form');
+    validator = form.validate(validatorOpts);
     $('.snapinname-input:not(:hidden)').rules('add', {regex: /^[-\w!@#$%^()'{}\\\.~\+ ]{1,255}$/});
     $('.snapinname-input:not(:hidden)').on('keyup change blur',function() {
         return validator.element(this);
     });
     $('.snapinname-input:not(:hidden)').trigger('change');
-    $('#argTypes').change(function() {
+    $('#argTypes').on('change', function() {
         if ($('option:selected',this).attr('value')) $("input[name=rw]").val($('option:selected',this).attr('value'));
         $("input[name=rwa]").val($('option:selected',this).attr('rwargs'));
         $("input[name=args]").val($('option:selected',this).attr('args'));
         updateCmdStore();
     });
-    $('#packTypes').change(function() {
+    $('#packTypes').on('change', function() {
         $("input[name=rw]").val($('option:selected',this).attr('file'));
         $("input[name=rwa]").val($('option:selected',this).attr('args'));
     });
     updateCmdStore();
-    $('.cmdlet1,.cmdlet2,.cmdlet3,.cmdlet4').on('change, keyup',function(e) {
+    $('.cmdlet1,.cmdlet2,.cmdlet3,.cmdlet4').on('change keyup',function(e) {
         updateCmdStore();
     });
     $('.cmdlet3').on('change', function(e) {

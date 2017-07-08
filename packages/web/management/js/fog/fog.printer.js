@@ -3,11 +3,11 @@ $(function() {
     validatorOpts = {
         submitHandler: function(form) {
             data = $(form).find(':visible').serialize();
-            url = $(form).prop('action');
-            method = $(form).prop('method').toUpperCase();
+            url = $(form).attr('action');
+            method = $(form).attr('method').toUpperCase();
             $.ajax({
                 url: url,
-                type: $(form).attr('method').toUpperCase(),
+                type: method,
                 data: data,
                 dataType: 'json',
                 success: function(data) {
