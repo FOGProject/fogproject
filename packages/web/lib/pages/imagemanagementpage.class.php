@@ -1391,7 +1391,7 @@ class ImageManagementPage extends FOGPage
             }
             if (!$this->obj->save()) {
                 throw new Exception(
-                    _('Image update failed')
+                    _('Image update failed!')
                 );
             }
             $hook = 'IMAGE_UPDATE_SUCCESS';
