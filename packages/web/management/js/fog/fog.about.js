@@ -1,5 +1,17 @@
 $(function() {
     var vers = $('.placehere').attr('vers');
+    validatorOpts = {
+        submitHandler: submithandlerfunc
+    };
+    setInterval(function() {
+        $('button[name="update"]').each(function(e) {
+            form = $(this).parents('form');
+            validator = form.validate(validatorOpts);
+            $(this).on('click', function(e) {
+                data = this.name;
+            });
+        });
+    }, 1000);
     $.ajax({
         url: '../status/mainversion.php',
         dataType: 'json',
