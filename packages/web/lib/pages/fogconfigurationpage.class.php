@@ -2654,123 +2654,147 @@ class FOGConfigurationPage extends FOGPage
             'FOG_PROXY_IP' => true,
         );
         unset($findWhere, $setWhere);
-        $items = array();
-        foreach ((array)self::getClass('ServiceManager')
-            ->find() as $index => &$Service
-        ) {
-            $key = $Service->get('id');
-            $val = trim($Service->get('value'));
-            $name = trim($Service->get('name'));
-            $set = trim($_REQUEST[$key]);
-            if (isset($needstobenumeric[$name])) {
-                if ($needstobenumeric[$name] === true
-                    && !is_numeric($set)
+        Route::listem(
+            'service',
+            'name',
+            false,
+            array('id' => array_keys($_POST))
+        );
+        $Services = json_decode(
+            Route::getData()
+        );
+        $Services = $Services->services;
+        try {
+            foreach ((array)$Services as $index => &$Service) {
+                $key = trim(
+                    $Service->id
+                );
+                $val = trim(
+                    $Service->value
+                );
+                $name = trim(
+                    $Service->name
+                );
+                $set = filter_var($_POST[$key]);
+                if (isset($needstobenumeric[$name])) {
+                    if ($needstobenumeric[$name] === true
+                        && !is_numeric($set)
+                    ) {
+                        $set = 0;
+                    }
+                    if ($needstobenumeric[$name] !== true
+                        && !in_array($set, $needstobenumeric[$name])
+                    ) {
+                        $set = 0;
+                    }
+                }
+                if (isset($needstobeip[$name])
+                    && !filter_var($set, FILTER_VALIDATE_IP)
                 ) {
-                    $set = 0;
-                }
-                if ($needstobenumeric[$name] !== true
-                    && !in_array($set, $needstobenumeric[$name])
-                ) {
-                    $set = 0;
-                }
-            }
-            if (isset($needstobeip[$name])
-                && !filter_var($set, FILTER_VALIDATE_IP)
-            ) {
-                $set = '';
-            }
-            switch ($name) {
-            case 'FOG_API_TOKEN':
-                $set = base64_decode($set);
-                break;
-            case 'FOG_MEMORY_LIMIT':
-                if ($set < 128) {
-                    $set = 128;
-                }
-                break;
-            case 'FOG_AD_DEFAULT_PASSWORD':
-                $set = self::encryptpw($set);
-                break;
-            case 'FOG_CLIENT_BANNER_SHA':
-                continue 2;
-            case 'FOG_CLIENT_BANNER_IMAGE':
-                $Service
-                    ->set('value', $_REQUEST['banner'])
-                    ->save();
-                if (!$_REQUEST['banner']) {
-                    self::setSetting('FOG_CLIENT_BANNER_SHA', '');
-                }
-                if (!($_FILES[$key]['name']
-                    && file_exists($_FILES[$key]['tmp_name']))
-                ) {
-                    continue 2;
-                }
-                $set = preg_replace(
-                    '/[^-\w\.]+/',
-                    '_',
-                    trim(basename($_FILES[$key]['name']))
-                );
-                $src = sprintf(
-                    '%s/%s',
-                    dirname($_FILES[$key]['tmp_name']),
-                    basename($_FILES[$key]['tmp_name'])
-                );
-                list(
-                    $width,
-                    $height,
-                    $type,
-                    $attr
-                ) = getimagesize($src);
-                if ($width != 650) {
-                    self::setMessage(
-                        _('Width must be 650 pixels.')
-                    );
-                    self::redirect($this->formAction);
-                }
-                if ($height != 120) {
-                    self::setMessage(
-                        _('Height must be 120 pixels.')
-                    );
-                    self::redirect($this->formAction);
-                }
-                $dest = sprintf(
-                    '%s%smanagement%sother%s%s',
-                    BASEPATH,
-                    DS,
-                    DS,
-                    DS,
-                    $set
-                );
-                $hash = hash_file(
-                    'sha512',
-                    $src
-                );
-                if (!move_uploaded_file($src, $dest)) {
-                    self::setSetting('FOG_CLIENT_BANNER_SHA', '');
                     $set = '';
-                } else {
-                    self::setSetting('FOG_CLIENT_BANNER_SHA', $hash);
                 }
-                break;
-            default:
-                break;
+                switch ($name) {
+                case 'FOG_API_TOKEN':
+                    $set = base64_decode($set);
+                    break;
+                case 'FOG_MEMORY_LIMIT':
+                    if ($set < 128) {
+                        $set = 128;
+                    }
+                    break;
+                case 'FOG_AD_DEFAULT_PASSWORD':
+                    $set = self::encryptpw($set);
+                    break;
+                case 'FOG_CLIENT_BANNER_SHA':
+                    continue 2;
+                case 'FOG_CLIENT_BANNER_IMAGE':
+                    $Service
+                        ->set('value', $_REQUEST['banner'])
+                        ->save();
+                    if (!$_REQUEST['banner']) {
+                        self::setSetting('FOG_CLIENT_BANNER_SHA', '');
+                    }
+                    if (!($_FILES[$key]['name']
+                        && file_exists($_FILES[$key]['tmp_name']))
+                    ) {
+                        continue 2;
+                    }
+                    $set = preg_replace(
+                        '/[^-\w\.]+/',
+                        '_',
+                        trim(basename($_FILES[$key]['name']))
+                    );
+                    $src = sprintf(
+                        '%s/%s',
+                        dirname($_FILES[$key]['tmp_name']),
+                        basename($_FILES[$key]['tmp_name'])
+                    );
+                    list(
+                        $width,
+                        $height,
+                        $type,
+                        $attr
+                    ) = getimagesize($src);
+                    if ($width != 650) {
+                        throw new Exception(
+                            _('Width must be 650 pixels.')
+                        );
+                    }
+                    if ($height != 120) {
+                        throw new Exception(
+                            _('Height must be 120 pixels.')
+                        );
+                    }
+                    $dest = sprintf(
+                        '%s%smanagement%sother%s%s',
+                        BASEPATH,
+                        DS,
+                        DS,
+                        DS,
+                        $set
+                    );
+                    $hash = hash_file(
+                        'sha512',
+                        $src
+                    );
+                    if (!move_uploaded_file($src, $dest)) {
+                        self::setSetting('FOG_CLIENT_BANNER_SHA', '');
+                        $set = '';
+                    } else {
+                        self::setSetting('FOG_CLIENT_BANNER_SHA', $hash);
+                    }
+                    break;
+                }
+                $items[] = array($key, $name, $set);
+                unset($Service, $index);
             }
-            $items[] = array($key, $name, $set);
-            unset($Service, $index);
+            if (count($items) > 0) {
+                self::getClass('ServiceManager')
+                    ->insertBatch(
+                        array(
+                            'id',
+                            'name',
+                            'value'
+                        ),
+                        $items
+                    );
+            }
+            $msg = json_encode(
+                array(
+                    'msg' => _('Settings successfully stored!'),
+                    'title' => _('Settings Update Success')
+                )
+            );
+        } catch (Exception $e) {
+            $msg = json_encode(
+                array(
+                    'error' => _('Settings update failed!'),
+                    'title' => _('Settings Update Fail')
+                )
+            );
         }
-        if (count($items) > 0) {
-            self::getClass('ServiceManager')
-                ->insertBatch(
-                    array(
-                        'id',
-                        'name',
-                        'value'
-                    ),
-                    $items
-                );
-        }
-        self::setMessage('Settings Successfully stored!');
-        self::redirect($this->formAction);
+        echo $msg;
+        exit;
     }
     /**
      * Gets and displays log files.

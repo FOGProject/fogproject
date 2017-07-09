@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-09 11:44-0400\n"
+"POT-Creation-Date: 2017-07-09 14:37-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -724,7 +724,7 @@ msgstr "事件必须是字符串"
 
 #: /var/www/fog/lib/fog/fogbase.class.php:2215
 #: /var/www/fog/lib/fog/fogftp.class.php:372
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3070
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3094
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:87
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2459
 #: /var/www/fog/lib/reports/virus_history.report.php:35
@@ -1896,7 +1896,7 @@ msgid "Export CSV"
 msgstr "导出CSV"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3518
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3149
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3173
 #: /var/www/fog/commons/text.php:98
 msgid "Export"
 msgstr "出口"
@@ -1904,7 +1904,7 @@ msgstr "出口"
 #: /var/www/fog/lib/fog/fogpage.class.php:3595
 #: /var/www/fog/lib/fog/fogpage.class.php:3639
 #: /var/www/fog/lib/fog/fogpage.class.php:3827
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3196
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3220
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:230
 msgid "Import"
 msgstr "进口"
@@ -1921,7 +1921,7 @@ msgstr "导出CSV"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3619
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1678
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3175
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3199
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:209
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:531
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1012
@@ -1931,7 +1931,7 @@ msgstr "最大尺寸"
 #: /var/www/fog/lib/fog/fogpage.class.php:3626
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1684
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2397
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3182
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3206
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:216
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:537
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1018
@@ -3359,138 +3359,158 @@ msgstr "访问令牌"
 msgid "No Image specified"
 msgstr "没有指定的Image"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2726
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2740
 msgid "Width must be 650 pixels."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2732
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2745
 msgid "Height must be 120 pixels."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2859
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2784
+#, fuzzy
+msgid "Settings successfully stored!"
+msgstr "已成功更新"
+
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2785
+#, fuzzy
+msgid "Settings Update Success"
+msgstr "安装/升级成功！"
+
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2791
+#, fuzzy
+msgid "Settings update failed!"
+msgstr "管理单元更新失败"
+
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2792
+#, fuzzy
+msgid "Settings Update Fail"
+msgstr "设置更新"
+
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2883
 msgid "Service Master"
 msgstr "服务主"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2868
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2892
 #: /var/www/fog/lib/service/taskscheduler.class.php:212
 #: /var/www/fog/commons/text.php:102
 msgid "Multicast"
 msgstr "组播"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2877
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2901
 msgid "Scheduler"
 msgstr "调度"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2886
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2910
 msgid "Image Replicator"
 msgstr "图像复制"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2895
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2919
 #, fuzzy
 msgid "Image Size"
 msgstr "图片名称"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2904
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2928
 msgid "Snapin Replicator"
 msgstr "管理单元复制"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2913
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2937
 #, fuzzy
 msgid "Snapin Hash"
 msgstr "管理单元路径"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2922
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2946
 msgid "Ping Hosts"
 msgstr "平主机"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2964
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2988
 msgid "Image Transfer Log"
 msgstr "图像传输日志"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2978
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3002
 msgid "Snapin Transfer Log"
 msgstr "管理单元传输日志"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3056
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3080
 msgid "FOG Log Viewer"
 msgstr "FOG日志查看器"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3078
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3102
 #, fuzzy
 msgid "Lines"
 msgstr "线"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3088
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3112
 msgid "Reverse the file: (newest on top)"
 msgstr "反转文件：（最新的在上面）"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3094
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3118
 #, fuzzy
 msgid "Pause"
 msgstr "用户"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3124
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3148
 #, fuzzy
 msgid "Configuration Import/Export"
 msgstr "组态"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3144
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3168
 #, fuzzy
 msgid "Export Database?"
 msgstr "日期"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3163
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3187
 #, fuzzy
 msgid "Export Database"
 msgstr "日期"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3173
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3192
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3197
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3216
 #, fuzzy
 msgid "Import Database?"
 msgstr "日期"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3205
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3229
 #, fuzzy
 msgid "Import Database"
 msgstr "日期"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3253
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3277
 #, fuzzy
 msgid "Import Successful"
 msgstr "成功"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3257
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3281
 #, fuzzy
 msgid "Database imported and added successfully!"
 msgstr "数据库导入并成功添加"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3268
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3292
 #, fuzzy
 msgid "Import Failed"
 msgstr "进口打印机"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3272
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3296
 #, fuzzy
 msgid "There were errors during import!"
 msgstr "进口过程中有错误"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3281
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3305
 #, fuzzy
 msgid "Database Reverted"
 msgstr "数据库恢复的变化"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3284
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3308
 #, fuzzy
 msgid "Database changes reverted!"
 msgstr "数据库恢复的变化"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3291
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3315
 #, fuzzy
 msgid "Database Failure"
 msgstr "数据库更新失败"
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3295
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3319
 #, fuzzy
 msgid "Errors on revert detected!"
 msgstr "在复归错误检测"
@@ -10441,9 +10461,6 @@ msgstr "有此服务器上没有的位置。"
 #, fuzzy
 #~ msgid "Remove selected associations"
 #~ msgstr "删除选定snapins"
-
-#~ msgid "Settings Updated"
-#~ msgstr "设置更新"
 
 #, fuzzy
 #~ msgid "OS"
