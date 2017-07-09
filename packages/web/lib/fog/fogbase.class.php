@@ -246,12 +246,6 @@ abstract class FOGBase
      */
     public static $httpreferer;
     /**
-     * Is this a mobile request?
-     *
-     * @var int|bool
-     */
-    protected static $isMobile;
-    /**
      * The current server's IP information.
      *
      * @var array
@@ -273,7 +267,7 @@ abstract class FOGBase
         'host',
         'group',
         'image',
-        'storage',
+        //'storage',
         'snapin',
         'printer',
         'task',
@@ -331,9 +325,6 @@ abstract class FOGBase
         self::$reqmethod = filter_input(INPUT_SERVER, 'REQUEST_METHOD');
         self::$remoteaddr = filter_input(INPUT_SERVER, 'REMOTE_ADDR');
         self::$httpreferer = filter_input(INPUT_SERVER, 'HTTP_REFERER');
-        if (false !== stripos(self::$scriptname, 'mobile')) {
-            self::$isMobile = true;
-        }
         if (false !== stripos(self::$scriptname, $scriptPattern)) {
             self::$service = true;
         } elseif (false !== stripos(self::$querystring, $queryPattern)) {
@@ -484,10 +475,23 @@ abstract class FOGBase
     ) {
         // Store the mac
         $mac = $_REQUEST['mac'];
+        $sysuuid = $_REQUEST['sysuuid'];
 
         // If encoded decode and store value
         if ($encoded === true) {
             $mac = base64_decode($mac);
+            $sysuuid = base64_decode($sysuuid);
+        }
+
+        // See if we can find the host by system uuid rather than by mac's first.
+        if ($sysuuid) {
+            $Inventory = self::getClass('Inventory')
+                ->set('sysuuid', $sysuuid)
+                ->load('sysuuid');
+            $Host = $Inventory->getHost();
+            if ($Host->isValid()) {
+                return $Host;
+            }
         }
 
         // Trim the mac list.

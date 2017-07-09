@@ -82,8 +82,14 @@ function UpdateLoginGraphPlot(data) {
     $.plot(LoginHistory, LoginHistoryData, LoginHistoryOpts);
 }
 $(function() {
+    LoginHistoryDate.on('change', function(e) {
+        this.form.submit();
+    });
+    $('a.loghist-date, .delvid').click(function(e) {
+        $(this).parents('form').submit();
+    });
     $('#resetSecData').val('Reset Encryption Data');
-    $('#resetSecData').click(function() {
+    $('#resetSecData').on('click', function() {
         $('#resetSecDataBox').html('Are you sure you wish to reset this hosts encryption data?');
         $('#resetSecDataBox').dialog({
             resizable: false,
@@ -100,7 +106,9 @@ $(function() {
             }
         });
     });
-    UpdateLoginGraph();
+    if (LoginHistory.length > 0) {
+        UpdateLoginGraph();
+    }
     $('input:not(:hidden):checkbox[name="default"]').change(function() {
         $(this).each(function(e) {
             if (this.checked) this.checked = false;
@@ -122,15 +130,21 @@ $(function() {
         e.preventDefault();
     });
     $('#groupMeShow:checkbox').trigger('change');
-    $('#hostPrinterShow:checkbox').change(function(e) {
-        if ($(this).is(':checked')) $('#printerNotInHost').show();
-        else $('#printerNotInHost').hide();
+    $('#hostPrinterShow:checkbox').on('change', function(e) {
+        if ($(this).is(':checked')) {
+            $('.printerNotInHost').show();
+        } else {
+            $('.printerNotInHost').hide();
+        }
         e.preventDefault();
     });
     $('#hostPrinterShow:checkbox').trigger('change');
     $('#hostSnapinShow:checkbox').change(function(e) {
-        if ($(this).is(':checked')) $('#snapinNotInHost').show();
-        else $('#snapinNotInHost').hide();
+        if ($(this).is(':checked')) {
+            $('.snapinNotInHost').show();
+        } else {
+            $('.snapinNotInHost').hide();
+        }
         e.preventDefault();
     });
     $('#hostSnapinShow:checkbox').trigger('change');
@@ -152,12 +166,12 @@ $(function() {
     });
     $("form.deploy-container").submit(function() {
         if ($('#scheduleOnDemand').is(':checked')) {
-            $("p#cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
+            $(".cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
                 $(this).val('').prop('disabled',true);
             });
             return true;
         } else {
-            $("p#cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
+            $(".cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
                 result = validateCronInputs($(this));
                 if (result === false) return false;
             });
@@ -169,11 +183,5 @@ $(function() {
         }).blur(function() {
             if (!validateCronInputs($(this))) $(this).addClass('error');
         });
-    });
-    $('select.loghist-date').change(function(e) {
-        this.form.submit();
-    });
-    $('a.loghist-date, .delvid').click(function(e) {
-        $(this).parents('form').submit();
     });
 });

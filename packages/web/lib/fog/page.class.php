@@ -99,43 +99,27 @@ class Page extends FOGBase
                 $this->theme = 'default/fog.css';
             }
             $dispTheme = "css/$this->theme";
-            $this->imagelink = sprintf(
-                'css/%simages/',
-                (
-                    !self::$isMobile ?
-                    sprintf(
-                        '%s/',
-                        dirname($this->theme)
-                    ) :
-                    ''
-                )
-            );
+            $this->imagelink = 'css/'
+                . dirname($this->theme)
+                . '/images/';
             if (!file_exists("../management/$dispTheme")) {
                 $dispTheme = 'css/default/fog.css';
             }
         }
-        if (!self::$isMobile) {
-            $this
-                ->addCSS('css/jquery-ui.css')
-                ->addCSS('css/jquery-ui.theme.css')
-                ->addCSS('css/jquery-ui.structure.css')
-                ->addCSS('css/jquery-ui-timepicker-addon.css')
-                ->addCSS('css/jquery.organicTabs.css')
-                ->addCSS('css/jquery.tipsy.css')
-                ->addCSS($dispTheme);
-        } else {
-            $this->addCSS('../mobile/css/main.css');
-            $this->title = sprintf(
-                'FOG :: %s :: %s %s',
-                _('Mobile Manager'),
-                _('Version'),
-                FOG_VERSION
-            );
-        }
         $this
+            ->addCSS('css/animate.min.css')
             ->addCSS('css/font-awesome.min.css')
+            ->addCSS('css/jquery-ui.css')
+            ->addCSS('css/jquery-ui.theme.css')
+            ->addCSS('css/jquery-ui.structure.css')
+            ->addCSS('css/jquery-ui-timepicker-addon.css')
             ->addCSS('css/select2.min.css')
-            ->addCSS('css/theme.blue.css');
+            ->addCSS('css/bootstrap.min.css')
+            ->addCSS('css/bootstrap-theme.min.css')
+            ->addCSS('css/theme.bootstrap_3.css')
+            ->addCSS('css/theme.blue.css')
+            ->addCSS('css/bootstrap-dialog.min.css')
+            ->addCSS($dispTheme);
         if (!isset($node)
             || !$node
         ) {
@@ -155,90 +139,65 @@ class Page extends FOGBase
         if (self::$FOGUser->isValid()
             && strtolower($node) != 'schema'
         ) {
-            if (!self::$isMobile) {
-                $this->main = array(
-                    'home' => array(
-                        self::$foglang['Home'],
-                        'fa fa-home fa-2x'
-                    ),
-                    'user' => array(
-                        self::$foglang['User Management'],
-                        'fa fa-users fa-2x'
-                    ),
-                    'host' => array(
-                        self::$foglang['Host Management'],
-                        'fa fa-desktop fa-2x'
-                    ),
-                    'group' => array(
-                        self::$foglang['Group Management'],
-                        'fa fa-sitemap fa-2x'
-                    ),
-                    'image' => array(
-                        self::$foglang['Image Management'],
-                        'fa fa-picture-o fa-2x'
-                    ),
-                    'storage' => array(
-                        self::$foglang['Storage Management'],
-                        'fa fa-archive fa-2x'
-                    ),
-                    'snapin' => array(
-                        self::$foglang['Snapin Management'],
-                        'fa fa-files-o fa-2x'
-                    ),
-                    'printer' => array(
-                        self::$foglang['Printer Management'],
-                        'fa fa-print fa-2x'
-                    ),
-                    'service' => array(
-                        self::$foglang['Service Configuration'],
-                        'fa fa-cogs fa-2x'
-                    ),
-                    'task' => array(
-                        self::$foglang['Task Management'],
-                        'fa fa-tasks fa-2x'
-                    ),
-                    'report' => array(
-                        self::$foglang['Report Management'],
-                        'fa fa-file-text fa-2x'
-                    ),
-                    'about' => array(
-                        self::$foglang['FOG Configuration'],
-                        'fa fa-wrench fa-2x'
-                    ),
-                    'logout' => array(
-                        self::$foglang['Logout'],
-                        'fa fa-sign-out fa-2x'
-                    ),
-                );
-                if (self::getSetting('FOG_PLUGINSYS_ENABLED')) {
-                    self::arrayInsertAfter(
-                        'about',
-                        $this->main,
-                        'plugin',
-                        array(
-                            self::$foglang['Plugin Management'],
-                            'fa fa-cog fa-2x'
-                        )
-                    );
-                }
-            } else {
-                $this->main = array(
-                    'home' => array(
-                        self::$foglang['Home'],
-                        'fa fa-home fa-2x'
-                    ),
-                    'host' => array(
-                        self::$foglang['Host Management'],
-                        'fa fa-desktop fa-2x'
-                    ),
-                    'task' => array(
-                        self::$foglang['Task Management'],
-                        'fa fa-tasks fa-2x'
-                    ),
-                    'logout' => array(
-                        self::$foglang['Logout'],
-                        'fa fa-sign-out fa-2x'
-                    ),
+            $this->main = array(
+                'home' => array(
+                    self::$foglang['Dashboard'],
+                    'fa fa-dashboard'
+                ),
+                'user' => array(
+                    self::$foglang['Users'],
+                    'fa fa-users'
+                ),
+                'host' => array(
+                    self::$foglang['Hosts'],
+                    'fa fa-desktop'
+                ),
+                'group' => array(
+                    self::$foglang['Groups'],
+                    'fa fa-sitemap'
+                ),
+                'image' => array(
+                    self::$foglang['Images'],
+                    'fa fa-picture-o'
+                ),
+                'storage' => array(
+                    self::$foglang['Storage'],
+                    'fa fa-archive'
+                ),
+                'snapin' => array(
+                    self::$foglang['Snapin'],
+                    'fa fa-files-o'
+                ),
+                'printer' => array(
+                    self::$foglang['Printer'],
+                    'fa fa-print'
+                ),
+                'service' => array(
+                    self::$foglang['ClientSettings'],
+                    'fa fa-cogs'
+                ),
+                'task' => array(
+                    self::$foglang['Tasks'],
+                    'fa fa-tasks'
+                ),
+                'report' => array(
+                    self::$foglang['Reports'],
+                    'fa fa-file-text'
+                ),
+                'about' => array(
+                    self::$foglang['FOG Configuration'],
+                    'fa fa-wrench'
+                )
+            );
+            if (self::getSetting('FOG_PLUGINSYS_ENABLED')) {
+                self::arrayInsertAfter(
+                    'about',
+                    $this->main,
+                    'plugin',
+                    array(
+                        self::$foglang['Plugins'],
+                        'fa fa-cog'
+                    )
                 );
             }
             $this->main = array_unique(
@@ -252,159 +211,146 @@ class Page extends FOGBase
                         'main' => &$this->main
                     )
                 );
-            $links = array();
             if (count($this->main) > 0) {
-                array_walk(
-                    $this->main,
-                    function (
-                        &$title,
-                        &$link
-                    ) use (&$links) {
-                        $links[] = $link;
-                        unset($title, $link);
-                    }
-                );
+                $links = array_keys($this->main);
             }
-            if (!self::$isMobile) {
-                $links = self::fastmerge(
-                    (array)$links,
-                    array(
-                        'hwinfo',
-                        'client',
-                        'schema',
-                        'ipxe'
-                    )
-                );
-            }
+            $links = self::fastmerge(
+                (array)$links,
+                array(
+                    'home',
+                    'logout',
+                    'hwinfo',
+                    'client',
+                    'schema',
+                    'ipxe'
+                )
+            );
             if ($node
                 && !in_array($node, $links)
             ) {
                 self::redirect('index.php');
             }
             ob_start();
-            echo '<nav class="menu"><ul class="nav-list">';
+            echo '<ul class="nav navbar-nav">';
+            $count = false;
             if (count($this->main) > 0) {
-                array_walk(
-                    $this->main,
-                    function (
-                        &$title,
-                        &$link
-                    ) use (&$node) {
-                        if (!$node
-                            && $link == 'home'
-                        ) {
-                            $node = $link;
-                        }
-                        $activelink = ($node == $link);
-                        printf(
-                            '<li class="nav-item"><a href="?node=%s" '
-                            . 'class="nav-link%s" title="%s"><i class="%s">'
-                            . '</i></a></li>',
-                            $link,
-                            (
-                                $activelink ?
-                                ' activelink' :
-                                ''
-                            ),
-                            array_shift($title),
-                            array_shift($title)
-                        );
-                        unset($title, $link);
+                foreach ($this->main as $link => &$title) {
+                    $links[] = $link;
+                    if (!$node && $link == 'home') {
+                        $node = $link;
                     }
-                );
-            }
-            echo '</ul></nav>';
-            $this->menu = ob_get_clean();
-        }
-        if (self::$FOGUser->isValid()
-            && !self::$isMobile
-        ) {
-            $files = array(
-                'js/jquery-latest.min.js',
-                'js/jquery.validate.min.js',
-                'js/additional-methods.min.js',
-                'js/jquery.tablesorter.combined.js',
-                'js/select2.min.js',
-                'js/jquery-migrate-latest.min.js',
-                'js/jquery.tipsy.js',
-                'js/jquery.progressbar.js',
-                'js/jquery.tmpl.js',
-                'js/jquery.organicTabs.js',
-                'js/jquery.placeholder.js',
-                'js/jquery-ui.min.js',
-                'js/flot/jquery.flot.js',
-                'js/flot/jquery.flot.time.js',
-                'js/flot/jquery.flot.pie.js',
-                'js/flot/jquery.flot.JUMlib.js',
-                'js/flot/jquery.flot.gantt.js',
-                'js/jquery-ui-timepicker-addon.js',
-                'js/fog/fog.js',
-                'js/fog/fog.main.js',
-                'js/jscolor.min.js'
-            );
-            $subset = $sub;
-            if ($sub == 'membership') {
-                $subset = 'edit';
-            }
-            $node = preg_replace('#_#', '-', $node);
-            $subset = preg_replace('#_#', '-', $subset);
-            $filepaths = array(
-                "js/fog/fog.{$node}.js",
-                "js/fog/fog.{$node}.{$subset}.js",
-            );
-            array_map(
-                function (&$jsFilepath) use (&$files) {
-                    if (file_exists($jsFilepath)) {
-                        array_push($files, $jsFilepath);
-                    }
-                    unset($jsFilepath);
-                },
-                (array)$filepaths
-            );
-            $pluginfilepaths = array(
-                "../lib/plugins/{$node}/js/fog.{$node}.js",
-                "../lib/plugins/{$node}/js/fog.{$node}.{$subset}.js",
-            );
-            array_map(
-                function (&$pluginfilepath) use (&$files) {
-                    if (file_exists($pluginfilepath)) {
-                        array_push($files, $pluginfilepath);
-                    }
-                    unset($pluginfilepath);
-                },
-                (array)$pluginfilepaths
-            );
-            if ($this->isHomepage
-                && ($node == 'home'
-                || !$node)
-            ) {
-                array_push($files, 'js/fog/fog.dashboard.js');
-                $test = preg_match(
-                    '#MSIE [6|7|8|9|10|11]#',
-                    self::$useragent
-                );
-                if ($test) {
-                    array_push(
-                        $files,
-                        'js/flot/excanvas.js'
-                    );
+                    $activelink = ($node == $link);
+                    echo '<li'
+                        . (
+                            $activelink ?
+                            ' class="active"' :
+                            ''
+                        )
+                        . '>';
+                    echo '<a href="?node='
+                        . $link
+                        . '" data-toggle="tooltip" title="'
+                        . $title[0]
+                        . '" data-placement="bottom">';
+                    echo '<i class="'
+                        . $title[1]
+                        . '"></i>';
+                    echo '<span class="collapsedmenu-text">';
+                    echo ' ';
+                    echo $title[0];
+                    echo '</span>';
+                    echo '</a>';
+                    echo '</li>';
+                    unset($title);
                 }
             }
-        } elseif (!self::$isMobile) {
-            $files = array(
-                'js/jquery-latest.min.js',
-                'js/jquery.tipsy.js',
-                'js/jquery.validate.min.js',
-                'js/additional-methods.min.js',
-                'js/jquery-migrate-latest.min.js',
-                'js/jquery.progressbar.js',
-                'js/fog/fog.js',
-                'js/fog/fog.login.js',
-                'js/jscolor.min.js'
+            echo '</ul>';
+            $this->menu = ob_get_clean();
+        }
+        $files = array(
+            'js/jquery-latest.min.js',
+            'js/jquery.validate.min.js',
+            'js/additional-methods.min.js',
+            'js/jquery.tablesorter.combined.js',
+            'js/select2.min.js',
+            'js/jquery-migrate-latest.min.js',
+            'js/jquery.progressbar.js',
+            'js/jquery.tmpl.js',
+            'js/jquery.placeholder.js',
+            'js/jquery-ui.min.js',
+            'js/flot/jquery.flot.js',
+            'js/flot/jquery.flot.time.js',
+            'js/flot/jquery.flot.pie.js',
+            'js/flot/jquery.flot.JUMlib.js',
+            'js/flot/jquery.flot.gantt.js',
+            'js/jquery-ui-timepicker-addon.js',
+            'js/bootstrap.min.js',
+            'js/bootstrap-dialog.min.js',
+            'js/fog/fog.js',
+            'js/fog/fog.main.js',
+            'js/jscolor.min.js'
+        );
+        if (!self::$FOGUser->isValid()) {
+            $files[] = 'js/fog/fog.login.js';
+        }
+        $subset = $sub;
+        if ($sub == 'membership') {
+            $subset = 'edit';
+        }
+        $node = preg_replace(
+            '#_#',
+            '-',
+            $node
+        );
+        $subset = preg_replace(
+            '#_#',
+            '-',
+            $subset
+        );
+        $filepaths = array(
+            "js/fog/fog.{$node}.js",
+            "js/fog/fog.{$node}.{$subset}.js",
+        );
+        array_map(
+            function (&$jsFilepath) use (&$files) {
+                if (file_exists($jsFilepath)) {
+                    array_push($files, $jsFilepath);
+                }
+                unset($jsFilepath);
+            },
+            (array)$filepaths
+        );
+        $pluginfilepaths = array(
+            "../lib/plugins/{$node}/js/fog.{$node}.js",
+            "../lib/plugins/{$node}/js/fog.{$node}.{$subset}.js",
+        );
+        array_map(
+            function (&$pluginfilepath) use (&$files) {
+                if (file_exists($pluginfilepath)) {
+                    array_push($files, $pluginfilepath);
+                }
+                unset($pluginfilepath);
+            },
+            (array)$pluginfilepaths
+        );
+        if ($this->isHomepage
+            && ($node == 'home'
+            || !$node)
+        ) {
+            array_push($files, 'js/fog/fog.dashboard.js');
+            $test = preg_match(
+                '#MSIE [6|7|8|9|10|11]#',
+                self::$useragent
             );
-            if ($node === 'schema') {
-                array_push($files, 'js/fog/fog.schema.js');
+            if ($test) {
+                array_push(
+                    $files,
+                    'js/flot/excanvas.js'
+                );
             }
+        }
+        if ($node === 'schema') {
+            array_push($files, 'js/fog/fog.schema.js');
         }
         $files = array_unique((array)$files);
         array_map(
@@ -490,21 +436,6 @@ class Page extends FOGBase
      */
     public function render()
     {
-        if (!self::$isMobile) {
-            $this->title = sprintf(
-                '%s%s &gt; FOG &gt; %s',
-                (
-                    $this->pageTitle ?
-                    sprintf(
-                        '%s &gt; ',
-                        $this->pageTitle
-                    ) :
-                    ''
-                ),
-                $this->sectionTitle,
-                self::$foglang['Slogan']
-            );
-        }
         if (true === self::$showhtml) {
             include '../management/other/index.php';
         } else {
@@ -515,5 +446,144 @@ class Page extends FOGBase
             unset($$var);
         }
         return $this;
+    }
+    /**
+     * Generate the search form.
+     *
+     * @return void
+     */
+    public static function getSearchForm()
+    {
+        global $node;
+        echo '<div class="col-md-2">';
+        if (in_array($node, self::$searchPages)) {
+            echo '<ul class="nav navbar-nav">';
+            echo '<li>';
+            echo '<form class="navbar-form navbar-left search-wrapper" role='
+                . '"search" method="post" action="'
+                . '../management/index.php?node='
+                . $node
+                . '&sub=search">';
+            echo '<div class="input-group">';
+            echo '<input type="text" class="'
+                . 'form-control search-input" placeholder="'
+                . self::$foglang['Search']
+                . '..." name="crit"/>';
+            echo '<span class="input-group-addon search-submit">';
+            echo '<i class="fogsearch fa fa-search">';
+            echo '<span class="sr-only">';
+            echo self::$foglang['Search'];
+            echo '</span>';
+            echo '</i>';
+            echo '</span>';
+            echo '</form>';
+            echo '</li>';
+            echo '</ul>';
+        }
+        echo '</div>';
+    }
+    /**
+     * Generate the logout element.
+     *
+     * @return void
+     */
+    public static function getLogout()
+    {
+        echo '<ul class="nav navbar-nav navbar-right">';
+        echo '<li>';
+        if (self::$FOGUser->isValid()) {
+            echo '<a href="../management/index.php?node=logout" '
+                . 'data-toggle="tooltip" data-placement="bottom" title="'
+                . _('Logout')
+                . ': '
+                . strtolower(
+                    trim(
+                        self::$FOGUser->get('name')
+                    )
+                )
+                . '">';
+            echo '<i class="fa fa-sign-out"></i>';
+            echo '<span class="collapsedmenu-text">';
+            echo ' ';
+            echo _('Logout');
+            echo '</span>';
+            echo '</a>';
+        } else {
+            echo '<a href="../management/index.php"';
+            echo '<i class="fa fa-sign-in"></i>';
+            echo '<span class="collapsedmenu-text">';
+            echo ' ';
+            echo _('Login');
+            echo '</span>';
+            echo '</a>';
+        }
+        echo '</li>';
+        echo '<li class="separator hidden-lg hidden-md"></li>';
+        echo '</ul>';
+    }
+    /**
+     * Get main side menu items.
+     *
+     * @return void
+     */
+    public static function getMainSideMenu()
+    {
+        global $node;
+        global $sub;
+        $class = self::$FOGPageManager->getFOGPageClass();
+        if (count($class->menu) < 1) {
+            return;
+        }
+        $FOGSub = new FOGSubMenu();
+        foreach ($class->menu as $l => &$t) {
+            $FOGSub->addMainItems(
+                $class->node,
+                array((string)$t => (string)$l),
+                '',
+                '',
+                'mainmenu'
+            );
+            unset($t);
+        }
+        unset($class);
+        echo $FOGSub->getMainItems($node);
+        unset($FOGSub);
+    }
+    /**
+     * Generates our main item, sub item, and notes tabs.
+     *
+     * @return void
+     */
+    public static function getMenuItems()
+    {
+        $class = self::$FOGPageManager->getFOGPageClass();
+        $FOGSub = new FOGSubMenu();
+        if (count($class->subMenu)) {
+            foreach ($class->subMenu as $l => &$t) {
+                $FOGSub->addItems(
+                    $class->node,
+                    array((string)$t => (string)$l),
+                    $class->id,
+                    sprintf(
+                        self::$foglang['SelMenu'],
+                        get_class($class->obj)
+                    ),
+                    'submenu'
+                );
+                unset($t);
+            }
+            unset($classSubMenu);
+        }
+        if (count($class->notes)) {
+            foreach ($class->notes as $l => &$t) {
+                $FOGSub->addNotes(
+                    $class->node,
+                    array((string)$t => (string)$l),
+                    $class->id
+                );
+                unset($t);
+            }
+        }
+        echo $FOGSub->get($class->node);
     }
 }

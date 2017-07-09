@@ -29,60 +29,118 @@ class Product_Keys extends ReportManagementPage
     public function file()
     {
         $this->title =_('Host Product Keys');
-        printf(
-            $this->reportString,
-            'Product_Keys',
-            _('Export CSV'),
-            _('Export CSV'),
-            self::$csvfile,
-            'Product_Keys',
-            _('Export PDF'),
-            _('Export PDF'),
-            self::$pdffile
+        $csvHead = array(
+            _('Host ID') => 'id',
+            _('Host Name') => 'name',
+            _('Host Desc') => 'description',
+            _('Host MAC') => 'mac',
+            _('Host Created') => 'createdType',
+            _('Host Product Key') => 'productKey',
+            _('Host AD Join') => 'useAD',
+            _('Host AD OU') => 'ADOU',
+            _('Host AD Domain') => 'ADDomain',
+            _('Host Kernel') => 'kernel',
+            _('Host HD Device') => 'kernelDevice',
+            _('Image ID') => 'id',
+            _('Image Name') => 'name',
+            _('Image Desc') => 'description',
+            _('OS Name') => 'name'
         );
-        $report = self::getClass('ReportMaker');
-        $report
-            ->appendHTML(
-                '<table cellpadding="0" cellspacing="0" border="0" width="100%">'
-            )->appendHTML(
-                '<tr bgcolor="#BDBDBD">'
-            )->appendHTML(
-                '<td><b>Hostname</b></td>'
-            )->appendHTML(
-                '<td><b>MAC</b></td><td>'
-            )->appendHTML(
-                '<b>Registered</b></td></tr>'
-            )->addCSVCell('Hostname')
-            ->addCSVCell('MAC')
-            ->addCSVCell('Registered')
-            ->addCSVCell('Product Key')
-            ->endCSVLine();
-        $cnt = 0;
-        foreach ((array)self::getClass('HostManager')
-            ->find('', '', '', '', '', 'name') as &$Host
-        ) {
-            $bg = ($cnt++ % 2 == 0 ? "#E7E7E7" : '');
-            $report->appendHTML(
-                sprintf(
-                    '<tr bgcolor="%s"><td>%s</td><td>%s</td><td>%s</td></tr>',
-                    $bg,
-                    $Host->get('name'),
-                    $Host->get('mac'),
-                    $Host->get('createdTime')
-                )
-            )->addCSVCell(
-                $Host->get('name')
-            )->addCSVCell(
-                $Host->get('mac')
-            )->addCSVCell(
-                $Host->get('createdTime')
-            )->addCSVCell(
-                self::aesdecrypt($Host->get('productKey'))
-            )->endCSVLine();
-            unset($Host);
+        foreach ((array)$csvHead as $csvHeader => &$classGet) {
+            $this->ReportMaker->addCSVCell($csvHeader);
+            unset($classGet);
         }
-        $report->appendHTML('</table>');
-        $report->outputReport(0);
-        $_SESSION['foglastreport'] = serialize($report);
+        $this->ReportMaker->endCSVLine();
+        $this->headerData = array(
+            _('Hostname'),
+            _('Host MAC'),
+            _('Host Product Key'),
+            _('Image Name')
+        );
+        $this->templates = array(
+            '${host_name}',
+            '${host_mac}',
+            '${host_productKey}',
+            '${image_name}'
+        );
+        Route::listem('host');
+        $Hosts = json_decode(
+            Route::getData()
+        );
+        $Hosts = $Hosts->hosts;
+        foreach ((array)$Hosts as &$Host) {
+            $productKey = self::aesdecrypt($Host->productKey);
+            $Image = $Host->image;
+            $imgID = $Image->id;
+            $imgName = $Image->name;
+            $imgDesc = $Image->description;
+            unset($Image);
+            $this->data[] = array(
+                'host_name' => $Host->name,
+                'host_mac' => $Host->macs[0],
+                'host_productKey' => $productKey,
+                'image_name' => $imgName
+            );
+            foreach ((array)$csvHead as $head => &$classGet) {
+                switch ($head) {
+                case _('Image ID'):
+                    $this->ReportMaker->addCSVCell($imgID);
+                    break;
+                case _('Image Name'):
+                    $this->ReportMaker->addCSVCell($imgName);
+                    break;
+                case _('Image Desc'):
+                    $this->ReportMaker->addCSVCell($imgDesc);
+                    break;
+                case _('Host AD Join'):
+                    $this->ReportMaker->addCSVCell(
+                        (
+                            $Host->useAD == 1 ?
+                            _('Yes') :
+                            _('No')
+                        )
+                    );
+                    break;
+                case _('Host Product Key'):
+                    $this->ReportMaker->addCSVCell($productKey);
+                    break;
+                default:
+                    $this->ReportMaker->addCSVCell($Host->$classGet);
+                    break;
+                }
+                unset($classGet);
+            }
+            unset($Host);
+            $this->ReportMaker->endCSVLine();
+        }
+        $this->ReportMaker->appendHTML($this->process(12));
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        if (count($this->data) > 0) {
+            echo '<div class="text-center">';
+            printf(
+                $this->reportString,
+                'Product_Keys',
+                _('Export CSV'),
+                _('Export CSV'),
+                self::$csvfile,
+                'Product_Keys',
+                _('Export PDF'),
+                _('Export PDF'),
+                self::$pdffile
+            );
+            echo '</div>';
+        }
+        $this->ReportMaker->outputReport(0);
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        $_SESSION['foglastreport'] = serialize($this->ReportMaker);
     }
 }

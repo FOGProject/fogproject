@@ -92,26 +92,26 @@ class SiteManagementPage extends FOGPage
         );
         $this->attributes = array(
             array(
-                'class' => 'l filter-false',
+                'class' => 'filter-false',
                 'width' => 16
             ),
-            array('class' => 'l'),
-            array('class' => 'l'),
-            array('class' => 'c filter-false'),
+            array(),
+            array(),
+            array('class' => 'filter-false'),
         );
+        /**
+         * Lambda function to return data either by list or search.
+         *
+         * @param object $Site the object to use
+         *
+         * @return void
+         */
         self::$returnData = function (&$Site) {
-            if (!$Site->isValid()) {
-                return;
-            }
-            $this->obj->loadHosts($Site->get('id'));
             $this->data[] = array(
-                'id' => $Site->get('id'),
-                'name' => $Site->get('name'),
-                'description' => $Site->get('description'),
-                'hosts' => sprintf(
-                    '%s',
-                    count($this->obj->get('hosts'))
-                )
+                'id' => $Site->id,
+                'name' => $Site->name,
+                'description' => $Site->description,
+                'hosts' => $Site->hostcount
             );
             unset($Site);
         };
@@ -126,8 +126,8 @@ class SiteManagementPage extends FOGPage
         $this->title = _('New Site');
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',
@@ -213,8 +213,8 @@ class SiteManagementPage extends FOGPage
         );
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',
@@ -338,7 +338,7 @@ class SiteManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'l filter-false',
+                'class' => 'filter-false',
             ),
             array()
         );
@@ -483,10 +483,9 @@ class SiteManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'l filter-false'
+                'class' => 'filter-false'
             ),
             array(
-                'class' => 'l'
             ),
             array()
         );

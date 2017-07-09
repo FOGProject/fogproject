@@ -209,24 +209,29 @@ class Image extends FOGController
         if ($this->get('protected')) {
             throw new Exception(self::$foglang['ProtectedImage']);
         }
-        foreach ((array)self::getClass('StorageNodeManager')
-            ->find(
-                array(
-                    'storagegroupID' => $this->get('storagegroups'),
-                    'isEnabled' => 1
-                )
-            ) as &$StorageNode
-        ) {
-            $ftppath = $StorageNode->get('ftppath');
-            $ftppath = trim($ftppath, '/');
+        Route::listem('storagenode');
+        $StorageNodes = json_decode(
+            Route::getData()
+        );
+        $StorageNodes = $StorageNodes->storagenodes;
+        foreach ($StorageNodes as &$StorageNode) {
+            if (!in_array($StorageNode->storagegroupID, $this->get('storagegroups'))
+                || $StorageNode->isEnabled
+            ) {
+                continue;
+            }
+            $ftppath = trim(
+                $StorageNode->ftppath,
+                '/'
+            );
             $deleteFile = sprintf(
                 '/%s/%s',
                 $ftppath,
                 $this->get('path')
             );
-            $ip = $StorageNode->get('ip');
-            $user = $StorageNode->get('user');
-            $pass = $StorageNode->get('pass');
+            $ip = $StorageNode->ip;
+            $user = $StorageNode->user;
+            $pass = $StorageNode->pass;
             self::$FOGFTP
                 ->set('host', $ip)
                 ->set('username', $user)

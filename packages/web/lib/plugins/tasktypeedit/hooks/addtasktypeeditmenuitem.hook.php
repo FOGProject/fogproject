@@ -100,8 +100,8 @@ class AddTasktypeeditMenuItem extends Hook
             $arguments['main'],
             $this->node,
             array(
-                _('Task Type Management'),
-                'fa fa-th-list fa-2x'
+                _('Task Types'),
+                'fa fa-th-list'
             )
         );
     }

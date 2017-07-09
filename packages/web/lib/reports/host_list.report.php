@@ -29,31 +29,20 @@ class Host_List extends ReportManagementPage
     public function file()
     {
         $this->title = _('Host Listing Export');
-        printf(
-            $this->reportString,
-            'HostList',
-            _('Export CSV'),
-            _('Export CSV'),
-            self::$csvfile,
-            'HostList',
-            _('Export PDF'),
-            _('Export PDF'),
-            self::$pdffile
-        );
         $csvHead = array(
             _('Host ID') => 'id',
             _('Host Name') => 'name',
             _('Host Desc') => 'description',
             _('Host MAC') => 'mac',
             _('Host Created') => 'createdTime',
+            _('Host AD Join') => 'useAD',
+            _('Host AD OU') => 'ADOU',
+            _('Host AD Domain') => 'ADDomain',
+            _('Host Kernel') => 'kernel',
+            _('Host HD Device') => 'kernelDevice',
             _('Image ID') => 'id',
             _('Image Name') => 'name',
             _('Image Desc') => 'description',
-            _('AD Join') => 'useAD',
-            _('AD OU') => 'ADOU',
-            _('AD Domain') => 'ADDomain',
-            _('Kernel') => 'kernel',
-            _('HD Device') => 'kernelDevice',
             _('OS Name') => 'name',
         );
         foreach ((array)$csvHead as $csvHeader => &$classGet) {
@@ -71,18 +60,21 @@ class Host_List extends ReportManagementPage
             '${host_mac}',
             '${image_name}',
         );
-        foreach ((array)self::getClass('HostManager')
-            ->find() as &$Host
-        ) {
-            $Image = $Host->getImage();
-            $imgID = $Image->get('id');
-            $imgName = $Image->get('name');
-            $imgDesc = $Image->get('description');
+        Route::listem('host');
+        $Hosts = json_decode(
+            Route::getData()
+        );
+        $Hosts = $Hosts->hosts;
+        foreach ((array)$Hosts as &$Host) {
+            $Image = $Host->image;
+            $imgID = $Image->id;
+            $imgName = $Image->name;
+            $imgDesc = $Image->description;
             unset($Image);
             $this->data[] = array(
-                'host_name'=>$Host->get('name'),
-                'host_mac'=>$Host->get('mac'),
-                'image_name'=>$imgName,
+                'host_name' => $Host->name,
+                'host_mac' => $Host->macs[0],
+                'image_name' => $imgName,
             );
             foreach ((array)$csvHead as $head => &$classGet) {
                 switch ($head) {
@@ -95,17 +87,17 @@ class Host_List extends ReportManagementPage
                 case _('Image Desc'):
                     $this->ReportMaker->addCSVCell($imgDesc);
                     break;
-                case _('AD Join'):
+                case _('Host AD Join'):
                     $this->ReportMaker->addCSVCell(
                         (
-                            $Host->get('useAD') == 1 ?
+                            $Host->useAD == 1 ?
                             _('Yes') :
                             _('No')
                         )
                     );
                     break;
                 default:
-                    $this->ReportMaker->addCSVCell($Host->get($classGet));
+                    $this->ReportMaker->addCSVCell($Host->$classGet);
                     break;
                 }
                 unset($classGet);
@@ -113,8 +105,34 @@ class Host_List extends ReportManagementPage
             unset($Host);
             $this->ReportMaker->endCSVLine();
         }
-        $this->ReportMaker->appendHTML($this->__toString());
+        $this->ReportMaker->appendHTML($this->process(12));
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        if (count($this->data) > 0) {
+            echo '<div class="text-center">';
+            printf(
+                $this->reportString,
+                'HostList',
+                _('Export CSV'),
+                _('Export CSV'),
+                self::$csvfile,
+                'HostList',
+                _('Export PDF'),
+                _('Export PDF'),
+                self::$pdffile
+            );
+            echo '</div>';
+        }
         $this->ReportMaker->outputReport(0);
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
         $_SESSION['foglastreport'] = serialize($this->ReportMaker);
     }
 }

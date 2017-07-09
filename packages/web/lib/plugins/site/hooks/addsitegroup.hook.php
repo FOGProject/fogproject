@@ -119,8 +119,8 @@ class AddSiteGroup extends Hook
         );
         unset($arguments['headerData']);
         $arguments['attributes'] = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $arguments['templates'] = array(
             '${field}',

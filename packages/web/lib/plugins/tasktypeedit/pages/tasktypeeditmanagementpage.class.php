@@ -49,7 +49,7 @@ class TasktypeeditManagementPage extends FOGPage
             $this->notes = array(
                 _('Name') => $this->obj->get('name'),
                 _('Icon') => sprintf(
-                    '<i class="fa fa-%s fa-2x"></i>',
+                    '<i class="fa fa-%s"></i>',
                     $this->obj->get('icon')
                 ),
                 _('Type') => $this->obj->get('type'),
@@ -76,22 +76,26 @@ class TasktypeeditManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'l filter-false'
+                'class' => 'filter-false'
             ),
-            array('class' => 'l'),
-            array('class' => 'c'),
-            array('class' => 'r'),
+            array(),
+            array(),
+            array()
         );
+        /**
+         * Lambda function to return data either by list or search.
+         *
+         * @param object $TaskType the object to use
+         *
+         * @return void
+         */
         self::$returnData = function (&$TaskType) {
-            if (!$TaskType->isValid()) {
-                return;
-            }
             $this->data[] = array(
-                'icon'=>$TaskType->get('icon'),
-                'id'=>$TaskType->get('id'),
-                'name'=>$TaskType->get('name'),
-                'access'=>$TaskType->get('access'),
-                'args'=>$TaskType->get('kernelArgs'),
+                'icon' => $TaskType->icon,
+                'id' => $TaskType->id,
+                'name' => $TaskType->name,
+                'access' => $TaskType->access,
+                'args' => $TaskType->kernelArgs,
             );
             unset($TaskType);
         };
@@ -106,8 +110,8 @@ class TasktypeeditManagementPage extends FOGPage
         $this->title = _('New Task Type');
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',
@@ -129,6 +133,9 @@ class TasktypeeditManagementPage extends FOGPage
             unset($type);
         }
         unset($accessTypes);
+        $initrd = (
+            filter_input(INPUT_POST, 'initrd') ?: ''
+        );
         $access_opt = ob_get_clean();
         $fields = array(
             _('Name') => sprintf(
@@ -148,6 +155,12 @@ class TasktypeeditManagementPage extends FOGPage
                 '<input type="text" name="kernelargs" class="smaller" value="%s"/>',
                 $_REQUEST['kernelargs']
             ),
+            '<label for="initrd">'
+            . _('Init')
+            . '</label>' => '<textarea name="initrd" class='
+            . '"form-control" id="initrd">'
+            . $initrd
+            . '</textarea>',
             _('Type') => sprintf(
                 '<input type="text" name="type" class="smaller" value="%s"/>',
                 $_REQUEST['type']
@@ -207,9 +220,11 @@ class TasktypeeditManagementPage extends FOGPage
             $icon = $_REQUEST['icon'];
             $kernel = $_REQUEST['kernel'];
             $kernelargs = $_REQUEST['kernelargs'];
+            $initrd = filter_input(INPUT_POST, 'initrd');
             $type = (string)$_REQUEST['type'];
             $advanced = (string)intval(isset($_REQUEST['advanced']));
             $access = $_REQUEST['access'];
+            $initrd = filter_input(INPUT_POST, 'initrd');
             if (!$name) {
                 throw new Exception(_('You must enter a name'));
             }
@@ -224,6 +239,7 @@ class TasktypeeditManagementPage extends FOGPage
                 ->set('icon', $icon)
                 ->set('kernel', $kernel)
                 ->set('kernelArgs', $kernelargs)
+                ->set('initrd', $initrd)
                 ->set('type', $type)
                 ->set('isAdvanced', $advanced)
                 ->set('access', $access);
@@ -253,8 +269,8 @@ class TasktypeeditManagementPage extends FOGPage
         $this->title = sprintf('%s: %s', _('Edit'), $this->obj->get('name'));
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',
@@ -276,6 +292,9 @@ class TasktypeeditManagementPage extends FOGPage
         }
         unset($accessTypes);
         $access_opt = ob_get_clean();
+        $initrd = (
+            filter_input(INPUT_POST, 'initrd') ?: $this->obj->get('initrd')
+        );
         $fields = array(
             _('Name') => sprintf(
                 '<input type="text" name="name" class="smaller" value="%s"/>',
@@ -299,6 +318,12 @@ class TasktypeeditManagementPage extends FOGPage
                 '<input type="text" name="kernelargs" class="smaller" value="%s"/>',
                 $this->obj->get('kernelArgs')
             ),
+            '<label for="initrd">'
+            . _('Init')
+            . '</label>' => '<textarea name="initrd" class='
+            . '"form-control" id="initrd">'
+            . $initrd
+            . '</textarea>',
             _('Type') => sprintf(
                 '<input type="text" name="type" class="smaller" value="%s"/>',
                 $this->obj->get('type')
@@ -366,6 +391,7 @@ class TasktypeeditManagementPage extends FOGPage
             $type = $_REQUEST['type'];
             $advanced = (string)intval(isset($_REQUEST['advanced']));
             $access = $_REQUEST['access'];
+            $initrd = filter_input(INPUT_POST, 'initrd');
             if (!$name) {
                 throw new Exception(_('You must enter a name'));
             }
@@ -382,6 +408,7 @@ class TasktypeeditManagementPage extends FOGPage
                 ->set('icon', $icon)
                 ->set('kernel', $kernel)
                 ->set('kernelArgs', $kernelargs)
+                ->set('initrd', $initrd)
                 ->set('type', $type)
                 ->set('isAdvanced', $advanced)
                 ->set('access', $access);

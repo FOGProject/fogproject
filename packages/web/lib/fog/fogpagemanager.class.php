@@ -76,6 +76,7 @@ class FOGPageManager extends FOGBase
         } else {
             $this->classValue = 'home';
         }
+        $this->loadPageClasses();
         $this->methodValue = $this->_replaceVariable($sub);
         self::$HookManager->processEvent(
             'SEARCH_PAGES',
@@ -123,44 +124,7 @@ class FOGPageManager extends FOGBase
         }
         $class = $this->getFOGPageClass();
         self::$FOGSubMenu = self::getClass('FOGSubMenu');
-        foreach ((array)$class->menu as $link => &$title) {
-            self::$FOGSubMenu
-                ->addItems(
-                    $this->classValue,
-                    array((string)$title => (string)$link)
-                );
-            unset($title, $link);
-        }
-        if (!is_object($class->obj)) {
-            return sprintf(
-                '<div class="sidebar">%s</div>',
-                self::$FOGSubMenu->get($this->classValue)
-            );
-        }
-        foreach ((array)$class->subMenu as $link => &$title) {
-            self::$FOGSubMenu->addItems(
-                $this->classValue,
-                array((string)$title => (string)$link),
-                $class->id,
-                sprintf(
-                    self::$foglang['SelMenu'],
-                    get_class($class->obj)
-                )
-            );
-            unset($title, $link);
-        }
-        foreach ((array)$class->notes as $link => &$title) {
-            self::$FOGSubMenu->addNotes(
-                $this->classValue,
-                array((string)$title => (string)$link),
-                $class->id
-            );
-            unset($title, $link);
-        }
-        return sprintf(
-            '<div class="sidebar">%s</div>',
-            self::$FOGSubMenu->get($this->classValue)
-        );
+        return self::$FOGSubMenu->get($this->classValue);
     }
     /**
      * Prints the data to the browser/screen
@@ -180,7 +144,6 @@ class FOGPageManager extends FOGBase
         ) {
             return;
         }
-        $this->_loadPageClasses();
         $method = $this->methodValue;
         try {
             $class = $this->getFOGPageClass();
@@ -196,10 +159,9 @@ class FOGPageManager extends FOGBase
             if (!array_key_exists($this->classValue, $this->_nodes)) {
                 throw new Exception(_('No FOGPage Class found for this node'));
             }
-            if (isset($_REQUEST[$class->id])
-                && $_REQUEST[$class->id]
-            ) {
-                $this->_arguments = array('id' => $_REQUEST[$class->id]);
+            $id = filter_input(INPUT_GET, $class->id);
+            if ($id) {
+                $this->_arguments = array('id' => $id);
             }
             if (self::$post) {
                 self::setRequest();
@@ -254,7 +216,9 @@ class FOGPageManager extends FOGBase
                 $class->attributes
             );
         }
-        $class->{$method}();
+        if (method_exists($class, $method)) {
+            $class->{$method}();
+        }
         self::resetRequest();
     }
     /**
@@ -301,7 +265,7 @@ class FOGPageManager extends FOGBase
      *
      * @return void
      */
-    private function _loadPageClasses()
+    public function loadPageClasses()
     {
         global $node;
         $regext = sprintf(
@@ -406,11 +370,6 @@ class FOGPageManager extends FOGBase
             }
             if (in_array($className, get_declared_classes())
                 || class_exists($className, false)
-            ) {
-                return;
-            }
-            if ((self::$isMobile && !preg_match('#mobile#i', $className))
-                || (!self::$isMobile && preg_match('#mobile#i', $className))
             ) {
                 return;
             }

@@ -3,9 +3,11 @@ echo " * Task Complete"
 [[ ! -z $1 ]] && mactosend="$1" || mactosend="$mac"
 count=0
 res=""
+sysuuid=$(dmidecode -s system-uuid)
+sysuuid=${sysuuid,,}
 dots "Updating Database"
 while [[ $res != "##" ]]; do
-    res=$(curl -ks --data "mac=$mactosend" http://${web}service/Post_Wipe.php 2>/dev/null)
+    res=$(curl -ks --data "sysuuid=${sysuuid}&mac=$mactosend" http://${web}service/Post_Wipe.php 2>/dev/null)
     if [[ $count -ge 10 ]]; then
         echo "Failed"
         debugPause

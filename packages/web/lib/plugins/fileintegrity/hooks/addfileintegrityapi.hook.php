@@ -141,5 +141,18 @@ class AddFileintegrityAPI extends Hook
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
+        switch ($arguments['classname']) {
+        case 'location':
+            $arguments['data'] = FOGCore::fastmerge(
+                $arguments['class']->get(),
+                array(
+                    'storagenode' => Route::getter(
+                        'storagenode',
+                        $arguments['class']->get('storagenode')
+                    )
+                )
+            );
+            break;
+        }
     }
 }

@@ -93,10 +93,11 @@ class PXEMenuOptionsManager extends FOGManagerController
      * The menu select list item.
      *
      * @param string $request Which item is currently selected.
+     * @param string $id      Should we send an id.
      *
      * @return string
      */
-    public function regSelect($request = '')
+    public function regSelect($request = '', $id = '')
     {
         self::$selected = $request;
         ob_start();
@@ -106,7 +107,15 @@ class PXEMenuOptionsManager extends FOGManagerController
             self::$buildSelectBox
         );
         return sprintf(
-            '<select name="menu_regmenu">%s</select>',
+            '<select name="menu_regmenu" class="form-control"'
+            . (
+                $id ?
+                ' id="'
+                . $id
+                . '"' :
+                ''
+            )
+            . '>%s</select>',
             ob_get_clean()
         );
     }

@@ -1,7 +1,8 @@
 $(function() {
     $('#resetSecData').val('Reset Encryption Data');
     $('#delAllPM').val('Delete all power management for group');
-    $('#resetSecData').click(function() {
+    $('#resetSecData').on('click', function(e) {
+        e.preventDefault();
         $('#resetSecDataBox').html('Are you sure you wish to reset this groups hosts encryption data?');
         $('#resetSecDataBox').dialog({
             resizable: false,
@@ -75,13 +76,12 @@ $(function() {
     });
     $("form.deploy-container").submit(function() {
         if ($('#scheduleOnDemand').is(':checked')) {
-            $("p#cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
+            $(".cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
                 $(this).val('').prop('disabled',true);
-                console.log('here');
             });
             return true;
         } else {
-            $("p#cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
+            $(".cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
                 result = validateCronInputs($(this));
                 if (result === false) return false;
             });

@@ -35,50 +35,57 @@ class Equipment_Loan extends ReportManagementPage
             '${input}',
         );
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
-        ob_start();
-        foreach ((array)self::getClass('InventoryManager')
-            ->find() as &$Inventory
-        ) {
-            if (!$Inventory->get('primaryUser')) {
+        Route::listem('inventory');
+        $Inventories = json_decode(
+            Route::getData()
+        );
+        $Inventories = $Inventories->inventorys;
+        $pusers = array();
+        $puser = filter_input(INPUT_POST, 'user');
+        foreach ((array)$Inventories as &$Inventory) {
+            if (!$Inventory->primaryUser) {
                 continue;
             }
-            printf(
-                '<option value="%s">%s</option>',
-                $Inventory->get('id'),
-                $Inventory->get('primaryUser')
-            );
+            $pusers[$Inventory->id] = $Inventory->primaryUser;
             unset($Inventory);
         }
+        $selUser = self::selectForm(
+            'user',
+            $pusers,
+            $puser,
+            true
+        );
         $fields = array(
-            _('Select User') => sprintf(
-                '<select name="user" size="1">'
-                . '<option value="">- %s -</option>'
-                . '%s'
-                . '</select>',
-                _('Please select an option'),
-                ob_get_clean()
-            ),
-            '&nbsp;' => sprintf(
-                '<input type="submit" value="%s"/>',
-                _('Create Report')
-            )
+            '<label for="user">'
+            . _('Select User')
+            . '</label>' => $selUser,
+            '<label for="createReport">'
+            . _('Create Report?')
+            . '</label>' => '<button class="btn btn-info btn-block" type="submit" '
+            . 'id="createReport">'
+            . _('Generate')
+            . '</button>'
         );
-        foreach ((array)$fields as $field => &$input) {
-            $this->data[] = array(
-                'field'=>$field,
-                'input'=>$input,
-            );
-        }
-        unset($input);
-        printf(
-            '<form method="post" action="%s">',
-            $this->formAction
-        );
-        $this->render();
+        array_walk($fields, $this->fieldsToData);
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
+        $this->render(12);
         echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Post page
@@ -94,17 +101,6 @@ class Equipment_Loan extends ReportManagementPage
             return;
         }
         $this->title = _('FOG Equipment Loan Form');
-        printf(
-            '<h2>'
-            . '<div id="exportDiv"></div>'
-            . '<a id="pdfsub" href="export.php?type='
-            . 'pdf&filename=%sEquipmentLoanForm" alt='
-            . '"%s" title="%s" target="_blank">%s</a></h2>',
-            $Inventory->get('primaryUser'),
-            _('Export PDF'),
-            _('Export PDF'),
-            self::$pdffile
-        );
         list(
             $coname,
             $subname,
@@ -241,7 +237,42 @@ class Equipment_Loan extends ReportManagementPage
                 str_repeat('_', 65)
             )
         );
-        printf('<p>%s</p>', _('Your form is ready.'));
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<div class="text-center">';
+        echo '<h4 class="title">';
+        echo '<div id="exportDiv"></div>';
+        echo '<a id="pdfsub" href="../management/export.php?type=pdf&filename='
+            . $Inventory->get('primaryUser')
+            . 'EquipmentLoadForm" alt="'
+            . _('Export PDF')
+            . '" title="'
+            . _('Export PDF')
+            . '" target="_blank" data-toggle="tooltip" data-placement="top">'
+            . self::$pdffile
+            . '</a>';
+        echo '</h4>';
+        echo '</div>';
+        echo _('Your form is ready');
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Form');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        $this->ReportMaker->outputReport(0);
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
         $_SESSION['foglastreport'] = serialize($this->ReportMaker);
     }
 }

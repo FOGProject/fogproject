@@ -95,8 +95,8 @@ class AddLocationMenuItem extends Hook
             $arguments['main'],
             $this->node,
             array(
-                _('Location Management'),
-                'fa fa-globe fa-2x'
+                _('Locations'),
+                'fa fa-globe'
             )
         );
         $Service = self::getClass('Service')

@@ -20,14 +20,14 @@
  * @link     https://fogproject.org
  */
 echo '<!DOCTYPE html>';
-echo '<html>';
+echo '<html lang="'
+    . ProcessLogin::getLocale()
+    . '">';
 echo '<head>';
-echo '<meta http-equiv="X-UA-Compatible" content="IE=Edge"/>';
-echo '<meta http-equiv="content-type" content="text/html; charset=utf-8"/>';
+echo '<meta charset="utf-8"/>';
+echo '<meta http-equiv="X-UA-Compatible" content="IE=edge"/>';
 echo '<meta name="viewport" content="width=device-width, initial-scale=1"/>';
-echo '<title>';
-echo $this->title;
-echo '</title>';
+echo '<title>' . $this->title . '</title>';
 self::$HookManager
     ->processEvent(
         'CSS',
@@ -36,95 +36,63 @@ self::$HookManager
         )
     );
 foreach ((array)$this->stylesheets as &$stylesheet) {
-    printf(
-        '<link href="%s?ver=%d" rel="stylesheet" type="text/css"/>',
-        $stylesheet,
-        FOG_BCACHE_VER
-    );
+    echo '<link href="'
+        . $stylesheet
+        . '?ver='
+        . FOG_BCACHE_VER
+        . '" rel="stylesheet" type="text/css"/>';
     unset($stylesheet);
 }
 unset($this->stylesheets);
 echo '<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon"/>';
 echo '</head>';
 echo '<body>';
-if (!self::$isMobile) {
-    printf(
-        '<div class="fog-variable" id="FOGPingActive">%s</div>',
-        (int)self::$fogpingactive
-    );
-    printf(
-        '<input type="hidden" class="fog-delete" id="FOGDeleteAuth" value="%s"/>',
-        (int)self::$fogdeleteactive
-    );
-    printf(
-        '<input type="hidden" class="fog-export" id="FOGExportAuth" value="%s"/>',
-        (int)self::$fogexportactive
-    );
-    printf(
-        '<div class="fog-variable" id="screenview" value="%s"></div>',
-        self::$defaultscreen
-    );
-    echo '<div id="loader-wrapper">';
-    echo '<div id="loader"></div>';
-    self::getMessages();
-    echo '<div id="progress"></div>';
-    echo '</div>';
-    echo '<header>';
-    printf(
-        '<div id="header"%s>',
-        (
-            !self::$FOGUser->isValid() ?
-            ' class="login"' :
-            ''
-        )
-    );
-    echo '<div id="logo">';
-    echo '<h1>';
-    printf(
-        '<a href="%s">',
-        self::$scriptname
-    );
-    printf(
-        '<img src="../favicon.ico" alt="%s" title="%s" class="logoimg"/>',
-        self::$foglang['Home'],
-        self::$foglang['Home']
-    );
+if (self::$FOGUser->isValid()) {
+    /**
+     * Navigation items
+     */
+    echo '<nav class="navbar navbar-inverse navbar-fixed-top">';
+    echo '<div class="container-fluid">';
+    echo '<div class="navbar-header">';
+    echo '<button type="button" class="navbar-toggle collapsed" data-toggle="'
+        . 'collapse" data-target=".navbar-collapse">';
+    echo '<span class="sr-only">'
+        . _('Toggle Navigation')
+        . '</span>';
+    echo '<span class="icon-bar"></span>';
+    echo '<span class="icon-bar"></span>';
+    echo '<span class="icon-bar"></span>';
+    echo '</button>';
+    echo '<a class="navbar-brand" href="../management/index.php?node=home">';
+    echo '<img src="../favicon.ico" alt="'
+        . self::$foglang['Slogan']
+        . '" data-toggle="tooltip" data-placement="bottom" title="'
+        . self::$foglang['Home']
+        . '" class="logoimg"/>';
     echo '</a>';
-    echo '</h1>';
+    echo '<span class="nav-text version-info pull-left">';
     printf(
-        '<h5>%s</h5>',
-        self::$foglang['Slogan']
-    );
-    echo '<div id="version">';
-    echo '<div id="showtime"></div>';
-    printf(
-        '%s %s<br/>%s: %d',
+        '%s %s<br/>%s: %d<br/>',
         _('Running Version'),
         FOG_VERSION,
         _('SVN Revision'),
         FOG_SVN_REVISION
     );
-    echo '</div>';
-    echo '</div>';
-    if (self::$FOGUser->isValid()) {
-        echo $this->menu;
-    }
-    echo '</div></header><hr/>';
-    echo '<div id="wrapper">';
-    if (self::$FOGUser->isValid()) {
-        if (!$this->isHomepage) {
-            echo self::$FOGPageManager->getSideMenu();
-        }
-    }
-    echo '<div class="clear"></div>';
-    printf(
-        '<div id="content"%s>',
-        (
-            $this->isHomepage ?
-            ' class="dashboard"' :
-            ''
+    echo '<span id="showtime">'
+        . FOGCore::formatTime(
+            'Now',
+            'M d, Y G:i a'
         )
-    );
+        . '</span>';
+    echo '</span>';
+    echo '</div>';
+    echo '<div class="collapse navbar-collapse">';
+    self::getSearchForm();
+    echo $this->menu;
+    self::getLogout();
+    echo '</div>';
+    echo '</div>';
+    echo '</nav>';
     self::$HookManager
         ->processEvent(
             'CONTENT_DISPLAY',
@@ -134,81 +102,117 @@ if (!self::$isMobile) {
                 'pageTitle' => &$this->pageTitle
             )
         );
-    echo '<div id="content-inner">';
-    printf(
-        '<h1>%s</h1>',
-        $this->sectionTitle
-    );
-    if (self::$FOGUser->isValid() && $this->pageTitle) {
-        printf(
-            '<h2 class="title">%s</h2>',
-            $this->pageTitle
-        );
+    /**
+     * Main Content
+     */
+    echo '<div class="container-fluid'
+        . (
+            $this->isHomepage ?
+            ' dashboard' :
+            ''
+        )
+        . '">';
+    echo '<div class="panel panel-primary">';
+    echo '<div class="panel-heading text-center">';
+    echo '<h4 class="title">'
+        . $this->sectionTitle
+        . '</h4>';
+    if (self::$FOGUser->isValid && $this->pageTitle) {
+        echo '<h5 class="title">'
+            . $this->pageTitle
+            . '</h5>';
     }
+    echo '</div>';
+    echo '<input type="hidden" class="fog-delete" id="FOGDeleteAuth" value="'
+        . (int)self::$fogdeleteactive
+        . '"/>';
+    echo '<input type="hidden" class="fog-export" id="FOGExportAuth" value="'
+        . (int)self::$fogexportactive
+        . '"/>';
+    echo '<input type="hidden" class="fog-variable" id="screenview" value="'
+        . self::$defaultscreen
+        . '"/>';
+    echo '<div class="panel-body">';
+    self::getMenuItems();
+    self::getMainSideMenu();
     echo $this->body;
     echo '</div>';
     echo '</div>';
     echo '</div>';
-    echo '<div id="footer">';
-    printf(
-        '<a href="http://fogproject.org/wiki/index.php?title=Credits">%s</a>',
-        _('Credits')
-    );
-    echo '&nbsp;&nbsp;';
-    printf(
-        '<a href="?node=client">%s</a>',
-        _('FOG Client')
-    );
-    echo '&nbsp;&nbsp;';
-    printf(
-        '<a href="https://www.paypal.com/cgi-bin/webscr?'
-        . 'item_name=Donation+to+FOG+-+A+Free+Cloning+Solution&cmd=_donations'
-        . '&business=fogproject.org@gmail.com">%s</a>',
-        _('Donate to FOG')
-    );
-    echo '</div>';
-    foreach ((array)$this->javascripts as &$javascript) {
-        printf(
-            '<script src="%s?ver=%d" type="text/javascript"></script>',
-            $javascript,
-            FOG_BCACHE_VER
-        );
-        unset($javascript);
-    }
-    unset($this->javascripts);
-    printf(
-        '<!-- <div id="footer">Memory Usage: %s</div> -->'
-        . '<!-- <div id="footer">Memory Peak: %s</div> -->',
-        self::formatByteSize(memory_get_usage(true)),
-        self::formatByteSize(memory_get_peak_usage())
-    );
 } else {
-    echo '<div id="header"></div>';
-    if (self::$FOGUser->isValid()) {
-        echo '<div id="mainContainer">';
-        echo '<div class="mainContent">';
-        printf(
-            '%s%s',
-            $this->menu,
-            (
-                $this->pageTitle ?
-                sprintf(
-                    '<h2>%s</h2>',
-                    $this->pageTitle
-                ) :
-                ''
-            )
-        );
-        echo '<div id="mobile_content">';
-        echo $this->body;
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-    } else {
-        echo '<div id="mobile_content">';
-        echo $this->body;
-        echo '</div>';
-    }
+    echo '<nav class="navbar navbar-inverse navbar-fixed-top">';
+    echo '<div class="container-fluid">';
+    echo '<div class="navbar-header">';
+    echo '<button type="button" class="navbar-toggle collapsed" data-toggle="'
+        . 'collapse" data-target=".navbar-collapse">';
+    echo '<span class="sr-only">'
+        . _('Toggle Navigation')
+        . '</span>';
+    echo '<span class="icon-bar"></span>';
+    echo '<span class="icon-bar"></span>';
+    echo '<span class="icon-bar"></span>';
+    echo '</button>';
+    echo '<a class="navbar-brand" href="../management/index.php?node=home">';
+    echo '<img src="../favicon.ico" alt="'
+        . self::$foglang['Slogan']
+        . '" data-toggle="tooltip" data-placement="bottom" title="'
+        . self::$foglang['Home']
+        . '" class="logoimg"/>';
+    echo '</a>';
+    echo '</div>';
+    echo '<div class="collapse navbar-collapse">';
+    self::getLogout();
+    echo '</div>';
+    echo '</div>';
+    echo '</nav>';
+    /**
+     * Main Content
+     */
+    echo '<div class="container-fluid'
+        . (
+            $this->isHomepage ?
+            ' dashboard' :
+            ''
+        )
+        . '">';
+    echo $this->body;
+    echo '</div>';
 }
+echo '<div class="collapse navbar-collapse">';
+echo '<footer class="footer">';
+echo '<nav class="navbar navbar-inverse navbar-fixed-bottom">';
+echo '<div class="container-fluid text-center">';
+echo '<ul class="nav navbar-nav">';
+echo '<li><a href="https://wiki.fogproject.org/wiki/index.php?title=Credits">'
+    . _('Credits')
+    . '</a></li>';
+echo '<li><a href="?node=client">'
+    . _('FOG Client')
+    . '</a></li>';
+echo '<li><a href="https://www.paypal.com/cgi-bin/webscr?item_name=Donation'
+    . '+to+FOG+-+A+Free+Cloning+Solution&cmd=_donations&business=fogproject.org'
+    . '@gmail.com">'
+    . _('Donate to FOG')
+    . '</a></li>';
+echo '</ul>';
+echo '</div>';
+echo '</nav>';
+echo '</footer>';
+echo '</div>';
+foreach ((array)$this->javascripts as &$javascript) {
+    echo '<script src="'
+        . $javascript
+        . '?ver='
+        . FOG_BCACHE_VER
+        . '" type="text/javascript"></script>';
+    unset($javascript);
+}
+unset($this->javascripts);
+echo '<!-- Memory Usage: ';
+echo self::formatByteSize(memory_get_usage(true));
+echo '-->';
+echo '<!-- Memory Peak: ';
+echo self::formatByteSize(memory_get_peak_usage());
+echo '-->';
 echo '</body>';
 echo '</html>';

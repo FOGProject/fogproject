@@ -1,9 +1,9 @@
 var JSONParseFunction = (typeof(JSON) != 'undefined' ? JSON.parse : eval)
 // Disk Usage Graph Stuff
-var GraphDiskUsage = $('#graph-diskusage','#content-inner');
+var GraphDiskUsage = $('#graph-diskusage');
 var GraphDiskUsageAJAX;
-var GraphDiskUsageNode = $('#diskusage-selector select','#content-inner');
-var ClientCountGroup = $('#graph-activity-selector select','#content-inner');
+var GraphDiskUsageNode = $('#diskusage-selector select');
+var ClientCountGroup = $('#graph-activity-selector select');
 var NodeID;
 var GroupID;
 var GraphDiskUsageData = [{label: 'Free',data:0},{label: 'Used',data:0}];
@@ -31,8 +31,8 @@ var GraphDiskUsageOpts = {
 };
 // Bandwidth Variable/Option settings.
 var GraphData = new Array();
-var GraphBandwidth = $('#graph-bandwidth','#content-inner');
-var GraphBandwidthFilterTransmit = $('#graph-bandwidth-filters-transmit','#graph-bandwidth-filters');
+var GraphBandwidth = $('#graph-bandwidth');
+var GraphBandwidthFilterTransmit = $('#graph-bandwidth-filters-transmit');
 var GraphBandwidthFilterTransmitActive = GraphBandwidthFilterTransmit.hasClass('active');
 var GraphBandwidthData = new Array();
 var GraphBandwidthdata = [];
@@ -56,10 +56,11 @@ var GraphBandwidthOpts = {
         labelFormatter: function(label, series) {return label;}
     }
 };
-var GraphBandwidthFilters = $('#graph-bandwidth-filters-transmit, #graph-bandwidth-filters-receive', '#graph-bandwidth-filters');
+var GraphBandwidthFilters = $('#graph-bandwidth-filters-transmit, #graph-bandwidth-filters-receive', '#graph-bandwidth-filters-type');
+var GraphBandwidthTimeFilters = $('.time-filters', '#graph-bandwidth-filters-time');
 var GraphBandwidthAJAX;
 // 30 Day Data
-var Graph30Day = $('#graph-30day', '#content-inner');
+var Graph30Day = $('#graph-30day');
 var Graph30DayData;
 var Graph30DayOpts = {
     colors: ['#7386ad'],
@@ -81,7 +82,7 @@ var Graph30DayOpts = {
     legend: {position: 'nw'}
 };
 // Client Count variables
-var GraphClient = $('#graph-activity','#content-inner');
+var GraphClient = $('#graph-activity');
 var UpdateClientCountData = [[0,0]];
 var clientcounttime = 5000;
 var UpdateClientCountOpts = {
@@ -112,6 +113,7 @@ $(function() {
     // Diskusage Graph - Node select - Hook select box to load new data via AJAX
     // Start counters
     GraphDiskUsageUpdate();
+    GraphBandwidthMaxDataPoints = $('.time-filters.active').prop('rel');
     UpdateBandwidth();
     UpdateClientCount();
     $('#diskusage-selector select').change(function(e) {
@@ -141,16 +143,14 @@ $(function() {
         // Prevent default action
         e.preventDefault();
     });
-    GraphBandwidthMaxDataPoints = $('#graph-bandwidth-filters div:eq(2) a.active').prop('rel');
-    // Bandwidth Graph - Time Filter
-    $('#graph-bandwidth-filters div:eq(2) a').click(function(e) {
-        // Blur -> add active class -> remove active class from old active item
+    GraphBandwidthTimeFilters.click(function(e) {
+        // Blur -> add active class -> remove active class from oold active item
         $(this).blur().addClass('active').siblings('a').removeClass('active');
         // Update title
-        $('#graph-bandwidth-title > span').eq(1).html($(this).html());
-        // Update max data points variable
+        $('#graph-bandwidth-time > span').eq(0).html($(this).html());
+        // Update max points.
         GraphBandwidthMaxDataPoints = this.rel;
-        // Prevent default action
+        // Prevent default action.
         e.preventDefault();
     });
     // Remove loading spinners
@@ -173,6 +173,7 @@ function Update30Day() {
                 }
             ];
             $.plot(Graph30Day, Graph30DayData, Graph30DayOpts);
+            setTimeout(Update30Day, bandwidthtime - ((new Date().getTime() - startTime) % bandwidthtime));
         }
     });
 }

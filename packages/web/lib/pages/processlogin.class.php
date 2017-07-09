@@ -58,6 +58,17 @@ class ProcessLogin extends FOGPage
         $this->_lang = self::$locale;
     }
     /**
+     * Index page.
+     *
+     * @return void
+     */
+    public function index()
+    {
+        if (self::$FOGUser->isValid()) {
+            self::redirect('?node=home');
+        }
+    }
+    /**
      * Gets the languages into a string.
      *
      * @return void
@@ -119,8 +130,9 @@ class ProcessLogin extends FOGPage
      */
     private function _specLang()
     {
-        if (isset($_REQUEST['ulang'])) {
-            self::$locale = $_REQUEST['ulang'];
+        $ulang = filter_input(INPUT_POST, 'ulang');
+        if (isset($ulang)) {
+            self::$locale = $ulang;
         } else {
             self::$locale = $this->_transLang();
         }
@@ -208,7 +220,7 @@ class ProcessLogin extends FOGPage
             unset($value);
         }
         if (count($http_query) < 1) {
-            unset($_REQUEST['login']);
+            unset($redirect['login']);
             self::redirect('index.php');
         }
         $query = trim(http_build_query($http_query));
@@ -227,22 +239,17 @@ class ProcessLogin extends FOGPage
     {
         global $currentUser;
         $this->setLang();
-        $this->_username = trim($_REQUEST['uname']);
-        $this->_password = trim($_REQUEST['upass']);
+        $uname = filter_input(INPUT_POST, 'uname');
+        $upass = filter_input(INPUT_POST, 'upass');
+        $this->_username = $uname;
+        $this->_password = $upass;
         $type = self::$FOGUser->get('type');
         self::$HookManager
             ->processEvent(
                 'USER_TYPE_HOOK',
                 array('type' => &$type)
             );
-        if (!self::$isMobile) {
-            if ($type) {
-                self::setMessage(self::$foglang['NotAllowedHere']);
-                unset($_REQUEST['login']);
-                self::$FOGUser->logout();
-            }
-        }
-        if (!isset($_REQUEST['login'])) {
+        if (!isset($_POST['login'])) {
             return;
         }
         if (!$this->_username) {
@@ -267,94 +274,125 @@ class ProcessLogin extends FOGPage
         $this->_setRedirMode();
     }
     /**
-     * Displays the main login form (non-mobile).
+     * Displays the main login form.
      *
      * @return void
      */
     public function mainLoginForm()
     {
         $this->setLang();
-        if (in_array($_REQUEST['node'], array('login', 'logout'))) {
+        global $node;
+        if (in_array($node, array('login', 'logout'))) {
             if (session_status() != PHP_SESSION_NONE) {
                 self::setMessage($_SESSION['FOG_MESSAGES']);
             }
-            unset($_REQUEST['login']);
+            unset($_GET['login']);
             self::redirect('index.php');
         }
         $this->_getLanguages();
         $logininfo = self::getSetting('FOG_LOGIN_INFO_DISPLAY');
         $extra = '';
         if ($logininfo) {
-            $extra = sprintf(
-                '<div id="login-form-info">'
-                . '<p>%s: <b><i class="icon fa fa-circle-o-notch fa-spin fa-fw">'
-                . '</i></b></p><p>%s: <b><i class="icon fa fa-circle-o-notch fa-'
-                . 'spin fa-fw"></i></b></p><p>%s: <b><i class="icon fa fa-circle-'
-                . 'o-notch fa-spin fa-fw"></i></b></p><p>%s: <b><i class="icon '
-                . 'fa fa-circle-o-notch fa-spin fa-fw"></i></b></p></div>',
-                self::$foglang['FOGSites'],
-                self::$foglang['LatestVer'],
-                self::$foglang['LatestDevVer'],
-                self::$foglang['LatestSvnVer']
-            );
+            $extra = '<div id="login-form-info">'
+                . '<p>'
+                . self::$foglang['FOGSites']
+                . ': <b>'
+                . '<i class="icon fa fa-circle-o-notch fa-spin fa-fw"></i>'
+                . '</b>'
+                . '</p>'
+                . '<p>'
+                . self::$foglang['LatestVer']
+                . ': <b>'
+                . '<i class="icon fa fa-circle-o-notch fa-spin fa-fw"></i>'
+                . '</b>'
+                . '</p>'
+                . '<p>'
+                . self::$foglang['LatestDevVer']
+                . ': <b>'
+                . '<i class="icon fa fa-circle-o-notch fa-spin fa-fw"></i>'
+                . '</b>'
+                . '</p>'
+                . '<p>'
+                . self::$foglang['LatestSvnVer']
+                . ': <b>'
+                . '<i class="icon fa fa-circle-o-notch fa-spin fa-fw"></i>'
+                . '</b>'
+                . '</p>'
+                . '</div>';
         }
-        printf(
-            '<div id="loginform">'
-            . '<form method="post" action="%s" id="login-form">'
-            . '<div class="input-field">'
-            . '<label for="username">%s</label>'
-            . '<input type="text" class="input" name="uname" id="username"/>'
-            . '</div><div class="input-field">'
-            . '<label for="password">%s</label>'
-            . '<input type="password" class="input" name="upass" id="password"/>'
-            . '</div><div class="input-field">'
-            . '<label for="language">%s</label>'
-            . '<select name="ulang" id="language">%s</select>'
-            . '</div><div class="input-field">'
-            . '<label for="login-form-submit">&nbsp;</label>'
-            . '<input type="submit" value="%s" id="login-form-submit" name="login"/>'
-            . '</div></form></div>%s',
-            $this->formAction,
-            self::$foglang['Username'],
-            self::$foglang['Password'],
-            self::$foglang['LanguagePhrase'],
-            $this->_langMenu,
-            self::$foglang['Login'],
-            $extra
-        );
+        // Login form
+        echo '<div class="form-signin">';
+        echo '<form class="form-horizontal" method="post" action="';
+        echo $this->formAction;
+        echo '">';
+        echo '<h3 class="form-signin-heading text-center">';
+        echo '<span class="col-xs-1">';
+        echo '<img src="../favicon.ico" class="logoimg" alt="'
+            . self::$foglang['Slogan']
+            . '"/>';
+        echo '</span>';
+        echo _('FOG Project');
+        echo '</h3>';
+        echo '<hr/>';
+        // Username
+        echo '<div class="form-group">';
+        echo '<label class="control-label col-md-2" for="uname">';
+        echo self::$foglang['Username'];
+        echo '</label>';
+        echo '<div class="col-md-10">';
+        echo '<input type="text" class="form-control" name="uname" '
+            . 'required="" autofocus="" id="uname"/>';
+        echo '</div>';
+        echo '</div>';
+        // Password
+        echo '<div class="form-group">';
+        echo '<label class="control-label col-md-2" for="upass">';
+        echo self::$foglang['Password'];
+        echo '</label>';
+        echo '<div class="col-md-10">';
+        echo '<input type="password" class="form-control" name="upass" '
+            . 'required="" id="upass"/>';
+        echo '</div>';
+        echo '</div>';
+        // Language
+        echo '<div class="form-group">';
+        echo '<label class="control-label col-md-2" for="ulang">';
+        echo self::$foglang['LanguagePhrase'];
+        echo '</label>';
+        echo '<div class="col-md-10">';
+        echo '<select class="form-control" name="ulang" id="ulang">';
+        echo $this->_langMenu;
+        echo '</select>';
+        echo '</div>';
+        echo '</div>';
+        // Submit button
+        echo '<div class="form-group">';
+        echo '<div class="col-md-offset-2 col-md-10">';
+        echo '<button class="btn btn-default btn-block" '
+            . 'type="submit" name="login">';
+        echo self::$foglang['Login'];
+        echo '</button>';
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
+        echo '<hr/>';
+        // Login information
+        echo '<div class="row">';
+        echo '<div class="form-group">';
+        echo $extra;
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
-     * Display the login form for the mobile page.
+     * Gets the locale.
      *
-     * @return void
+     * @return string
      */
-    public function mobileLoginForm()
+    public static function getLocale()
     {
-        $this->setLang();
-        if (in_array($_REQUEST['node'], array('login', 'logout'))) {
-            unset($_REQUEST['login']);
-            self::redirect('index.php');
-        }
-        $this->_getLanguages();
-        printf(
-            '<div class="c"><p>%s</p>'
-            . '<form method="post" action="">'
-            . '<br/><br/>'
-            . '<label for="username">%s: </label>'
-            . '<input type="text" name="uname" id="username"/><br/><br/>'
-            . '<label for="password">%s: </label>'
-            . '<input type="password" name="upass" id="password"/><br/><br/>'
-            . '<label for="language">%s: </label>'
-            . '<select name="ulang" id="language">%s</select>'
-            . '<br/><br/><label for="login-form-submit"> </label>'
-            . '<input type="submit" value="%s" id="login-form-submit" name="login"/>'
-            . '</form></div>',
-            self::$foglang['FOGMobile'],
-            self::$foglang['Username'],
-            self::$foglang['Password'],
-            self::$foglang['LanguagePhrase'],
-            $this->_langMenu,
-            self::$foglang['Login']
-        );
+        $lang = explode('_', self::$locale);
+        $lang = $lang[0];
+        return $lang;
     }
 }

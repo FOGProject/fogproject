@@ -103,7 +103,20 @@ class FOGSubMenu extends FOGBase
     public $defaultSubs = array(
         'host' => 'edit',
         'group' => 'edit',
+        'user' => 'edit',
     );
+    /**
+     * Stores items.
+     *
+     * @var array
+     */
+    public $items = array();
+    /**
+     * Stores main itesm.
+     *
+     * @var array
+     */
+    public $mainitems = array();
     /**
      * Add items into the side menu stuff.
      *
@@ -111,6 +124,69 @@ class FOGSubMenu extends FOGBase
      * @param array  $items           items to add
      * @param string $ifVariable      tester variable
      * @param string $ifVariableTitle tester variable title setter
+     * @param string $class           class to set with item.
+     *
+     * @throws exception
+     * @return void
+     */
+    public function addMainItems(
+        $node,
+        $items,
+        $ifVariable = '',
+        $ifVariableTitle = '',
+        $class = ''
+    ) {
+        if (!is_string($node)) {
+            throw new Exception(
+                _('Node must be a string')
+            );
+        }
+        if (!is_array($items)) {
+            throw new Exception(
+                _('Items must be an array')
+            );
+        }
+        if (!$ifVariable) {
+            $variableSetter = self::$foglang['MainMenu'];
+        } else {
+            $variableSetter = $ifVariableTitle;
+        }
+        if (isset($_REQUEST[$ifVariable])) {
+            global $$ifVariable;
+            foreach ((array) $items as $title => $link) {
+                global $$ifVariable;
+                if (!$this->isExternalLink($link)) {
+                    $link = sprintf(
+                        '%s&%s=%s',
+                        $link,
+                        $ifVariable,
+                        $$ifVariable
+                    );
+                }
+                unset($link, $title);
+            }
+        }
+        if (is_array($this->mainitems[$node][$variableSetter])) {
+            $this->mainitems[$node][$variableSetter] = self::fastmerge(
+                $this->mainitems[$node][$variableSetter],
+                $items
+            );
+        } else {
+            $this->mainitems[$node][$variableSetter] = $items;
+        }
+        if (isset($class)) {
+            $this->mainitems[$node][$variableSetter]['class'] = $class;
+        }
+        return $this->mainitems;
+    }
+    /**
+     * Add items into the side menu stuff.
+     *
+     * @param string $node            node to work on
+     * @param array  $items           items to add
+     * @param string $ifVariable      tester variable
+     * @param string $ifVariableTitle tester variable title setter
+     * @param string $class           class to set with item.
      *
      * @throws exception
      * @return void
@@ -119,7 +195,8 @@ class FOGSubMenu extends FOGBase
         $node,
         $items,
         $ifVariable = '',
-        $ifVariableTitle = ''
+        $ifVariableTitle = '',
+        $class = ''
     ) {
         if (!is_string($node)) {
             throw new Exception(
@@ -159,6 +236,9 @@ class FOGSubMenu extends FOGBase
         } else {
             $this->items[$node][$variableSetter] = $items;
         }
+        if (isset($class)) {
+            $this->items[$node][$variableSetter]['class'] = $class;
+        }
     }
     /**
      * Add nodes to the sub menu.
@@ -191,11 +271,15 @@ class FOGSubMenu extends FOGBase
         if (is_array($data)) {
             ob_start();
             foreach ((array) $data as $info => &$title) {
-                printf(
-                    '<h5>%s</h5><p>%s</p>',
-                    $this->fixTitle($title),
-                    $info
-                );
+                echo '<li>';
+                echo '<b>';
+                echo $this->fixTitle($title);
+                echo '</b>';
+                echo '<p>';
+                echo $info;
+                echo '</p>';
+                echo '</li>';
+                echo '<li class="divider"></li>';
                 unset($info, $title);
             }
         }
@@ -213,71 +297,247 @@ class FOGSubMenu extends FOGBase
     public function get($node)
     {
         ob_start();
+        if (count($this->notes[$node]) < 1
+            && count($this->items[$node]) < 1
+        ) {
+            return;
+        }
+        echo '<ul class="nav nav-tabs">';
+        if ($this->notes[$node]) {
+            echo '<li class="dropdown">';
+            echo '<a href="#" class="dropdown-toggle" data-toggle="dropdown">';
+            echo _('Info');
+            echo '<b class="caret"></b>';
+            echo '</a>';
+            echo '<ul class="dropdown-menu sidenotes">';
+            echo implode($this->notes[$node]);
+            echo '</ul>';
+            echo '</li>';
+        }
         if ($this->items[$node]) {
             foreach ((array) $this->items[$node] as $title => &$data) {
                 self::$_title = $this->fixTitle($title);
-                printf(
-                    '<div class="organic-tabs"><h5>%s</h5><ul>',
-                    self::$_title
-                );
                 foreach ((array) $data as $label => &$link) {
+                    $hash = '';
+                    if (!$this->isExternalLink($link)) {
+                        $hash = $this->getTarget($link);
+                        if ($hash) {
+                            $link = str_replace(
+                                "#$hash",
+                                '',
+                                $link
+                            );
+                        }
+                    }
+                    if ($label == 'class') {
+                        continue;
+                    }
                     $string = sprintf(
-                        '<li><a class="%s" href="${link}">%s</a></li>',
-                        $link,
+                        '<li><a class="%s" href="${link}${hash}"%s>%s</a></li>',
+                        $hash ?: $node.'-'.$sub,
+                        (
+                            !$this->isExternalLink($link)
+                            && !empty($hash) ?
+                            ' data-toggle="tab"' :
+                            ''
+                        ),
                         $label
                     );
                     if ($this->isExternalLink($link)) {
                         echo str_replace(
-                            '${link}',
-                            $link,
-                            $string
-                        );
-                    } elseif (!$link) {
-                        echo str_replace(
-                            '${link}',
-                            "?node=$node",
-                            $string
-                        );
-                    } else {
-                        global $sub;
-                        $string = str_replace(
-                            '${link}',
-                            "?node=$node&sub=\${link}",
-                            $string
-                        );
-                        if (!$sub || $title == self::$foglang['MainMenu']) {
-                            echo str_replace(
+                            '${hash}',
+                            (
+                                $hash ?
+                                "#$hash" :
+                                ''
+                            ),
+                            str_replace(
                                 '${link}',
                                 $link,
                                 $string
-                            );
-                        } elseif ($this->defaultSubs[$node]) {
-                            echo str_replace(
+                            )
+                        );
+                    } elseif (!$link) {
+                        echo str_replace(
+                            '${hash}',
+                            '',
+                            str_replace(
                                 '${link}',
-                                "{$this->defaultSubs[$node]}&tab=$link",
+                                "?node=$node",
                                 $string
+                            )
+                        );
+                    } else {
+                        global $sub;
+                        $components = parse_url($link);
+                        if (!isset($components['query'])) {
+                            $string = str_replace(
+                                '${link}',
+                                "?node=$node&"
+                                . 'sub=${link}',
+                                $string
+                            );
+                        }
+                        if (!$sub || $title == self::$foglang['MainMenu']) {
+                            echo str_replace(
+                                '${hash}',
+                                (
+                                    $hash ?
+                                    "#$hash" :
+                                    ''
+                                ),
+                                str_replace(
+                                    '${link}',
+                                    $link,
+                                    $string
+                                )
                             );
                         } else {
                             echo str_replace(
-                                '${link}',
-                                "$sub&tab=$link",
-                                $string
+                                '${hash}',
+                                (
+                                    $hash ?
+                                    "#$hash" :
+                                    ''
+                                ),
+                                str_replace(
+                                    '${link}',
+                                    $link,
+                                    $string
+                                )
                             );
                         }
                     }
                     unset($link, $label);
                 }
-                echo '</ul></div>';
                 unset($data, $title);
             }
         }
-        if ($this->notes[$node]) {
-            printf(
-                '<div class="sidenotes">%s</div>',
-                implode($this->notes[$node])
-            );
-        }
+        echo '</ul>';
 
+        return ob_get_clean();
+    }
+    /**
+     * Gets the data as setup.
+     *
+     * @param string $node The node to get menu for
+     *
+     * @throws Exception
+     *
+     * @return string
+     */
+    public function getMainItems($node)
+    {
+        ob_start();
+        if (count($this->mainitems[$node]) < 1) {
+            return;
+        }
+        echo '<div class="col-xs-3">';
+        if ($this->mainitems[$node]) {
+            foreach ((array)$this->mainitems[$node] as $title => &$data) {
+                echo '<div class="panel panel-info">';
+                self::$_title = $this->fixTitle($title);
+                echo '<div class="panel-heading">';
+                echo '<h4 class="category">';
+                echo self::$_title;
+                echo '</h4>';
+                echo '</div>';
+                echo '<div class="panel-body">';
+                echo '<ul class="nav nav-pills nav-stacked">';
+                foreach ((array) $data as $label => &$link) {
+                    $hash = '';
+                    if (!$this->isExternalLink($link)) {
+                        $hash = $this->getTarget($link);
+                        if ($hash) {
+                            $link = str_replace(
+                                "#$hash",
+                                '',
+                                $link
+                            );
+                        }
+                    }
+                    if ($label == 'class') {
+                        continue;
+                    }
+                    $string = sprintf(
+                        '<li><a class="%s" href="${link}${hash}">%s</a></li>',
+                        $hash ?: $node.'-'.$sub,
+                        $label
+                    );
+                    if ($this->isExternalLink($link)) {
+                        echo str_replace(
+                            '${hash}',
+                            (
+                                $hash ?
+                                "#$hash" :
+                                ''
+                            ),
+                            str_replace(
+                                '${link}',
+                                $link,
+                                $string
+                            )
+                        );
+                    } elseif (!$link) {
+                        echo str_replace(
+                            '${hash}',
+                            '',
+                            str_replace(
+                                '${link}',
+                                "?node=$node",
+                                $string
+                            )
+                        );
+                    } else {
+                        global $sub;
+                        $components = parse_url($link);
+                        if (!isset($components['query'])) {
+                            $string = str_replace(
+                                '${link}',
+                                "?node=$node&"
+                                . 'sub=${link}',
+                                $string
+                            );
+                        }
+                        if (!$sub || $title == self::$foglang['MainMenu']) {
+                            echo str_replace(
+                                '${hash}',
+                                (
+                                    $hash ?
+                                    "#$hash" :
+                                    ''
+                                ),
+                                str_replace(
+                                    '${link}',
+                                    $link,
+                                    $string
+                                )
+                            );
+                        } else {
+                            echo str_replace(
+                                '${hash}',
+                                (
+                                    $hash ?
+                                    "#$hash" :
+                                    ''
+                                ),
+                                str_replace(
+                                    '${link}',
+                                    $link,
+                                    $string
+                                )
+                            );
+                        }
+                    }
+                    unset($link, $label);
+                }
+                echo '</ul>';
+                echo '</div>';
+                unset($data, $title);
+            }
+            echo '</div>';
+        }
+        echo '</div>';
         return ob_get_clean();
     }
     /**
@@ -296,9 +556,22 @@ class FOGSubMenu extends FOGBase
         }
         $dash = strpos('-', $title) ? '-' : ' ';
         $e = preg_split('#[\s|-]#', $title, null, PREG_SPLIT_NO_EMPTY);
-        $e[0] = "<b>$e[0]</b>";
-
         return implode($dash, $e);
+    }
+    /**
+     * Gets the target element from url
+     *
+     * @param string $link The link to test against
+     *
+     * @return string
+     */
+    public function getTarget($link)
+    {
+        if (!is_string($link)) {
+            throw new Exception(_('Link must be a string'));
+        }
+        $components = parse_url($link);
+        return isset($components['fragment']) ? $components['fragment'] : '';
     }
     /**
      * Test if the link passed is for an external source.
@@ -314,10 +587,11 @@ class FOGSubMenu extends FOGBase
         if (!is_string($link)) {
             throw new Exception(_('Link must be a string'));
         }
-        $https = (bool) (substr($link, 0, 5) == 'https');
-        $http = (bool) (substr($link, 0, 4) == 'http');
-        $extlink = (bool) in_array($link{0}, array('/', '?', '#'));
-
-        return (bool) $https === true || $http === true || $extlink === true;
+        $components = parse_url($link);
+        return !empty($components['host'])
+            && strcasecmp(
+                $components['host'],
+                filter_input(INPUT_SERVER, 'HTTP_HOST')
+            );
     }
 }

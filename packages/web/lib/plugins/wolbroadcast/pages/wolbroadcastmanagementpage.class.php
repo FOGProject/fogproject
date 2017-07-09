@@ -67,20 +67,24 @@ class WOLBroadcastManagementPage extends FOGPage
         );
         $this->attributes = array(
             array(
-                'class' => 'l filter-false',
+                'class' => 'filter-false',
                 'width' => '16'
             ),
-            array('class' => 'l'),
-            array('class' => 'r'),
+            array(),
+            array(),
         );
+        /**
+         * Lambda function to return data either by list or search.
+         *
+         * @param object $WOLBroadcast the object to use
+         *
+         * @return void
+         */
         self::$returnData = function (&$WOLBroadcast) {
-            if (!$WOLBroadcast->isValid()) {
-                return;
-            }
             $this->data[] = array(
-                'id'    => $WOLBroadcast->get('id'),
-                'name'  => $WOLBroadcast->get('name'),
-                'wol_ip' => $WOLBroadcast->get('broadcast'),
+                'id'    => $WOLBroadcast->id,
+                'name'  => $WOLBroadcast->name,
+                'wol_ip' => $WOLBroadcast->broadcast,
             );
             unset($WOLBroadcast);
         };
@@ -95,8 +99,8 @@ class WOLBroadcastManagementPage extends FOGPage
         $this->title = _('New Broadcast Address');
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',
@@ -201,8 +205,8 @@ class WOLBroadcastManagementPage extends FOGPage
         );
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',

@@ -17,6 +17,8 @@ if [[ -z $1 ]]; then
     echo "$sysversion"
     dots "System Serial Number:"
     echo "$sysserial"
+    dots "System UUID:"
+    echo "$sysuuid"
     dots "Computer Form Factor:"
     echo "$systype"
     usleep 1000000

@@ -39,7 +39,6 @@ class TaskManagementPage extends FOGPage
         $this->name = 'Task Management';
         parent::__construct($this->name);
         $this->menu = array(
-            'search' => self::$foglang['NewSearch'],
             'active' => self::$foglang['ActiveTasks'],
             'listhosts' => sprintf(
                 self::$foglang['ListAll'],
@@ -101,45 +100,48 @@ class TaskManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'l filter-false',
+                'class' => 'filter-false',
                 'task-id' => '${id}'
             ),
             array(
                 'width' => 65,
-                'class' => 'l',
                 'id' => 'host-${host_id}'
             ),
             array(
                 'width' => 120,
-                'class' => 'l'
             ),
             array(
                 'width' => 70,
-                'class' => 'r'
             ),
             array(
                 'width' => 100,
-                'class' => 'r'
             ),
             array(
                 'width' => 70,
-                'class' => 'c'
             ),
             array(
                 'width' => 50,
-                'class' => 'r filter-false'
+                'class' => 'filter-false'
             ),
         );
+        /**
+         * Lamda function to return data either by list or search.
+         *
+         * @param object $Image the object to use.
+         *
+         * @return void
+         */
         self::$returnData = function (&$Task) {
-            if (!$Task->isValid()) {
-                return;
-            }
-            $Host = $Task->getHost();
-            if (!$Host->isValid()) {
-                return;
-            }
-            if ($Task->isSnapinTasking()) {
-                $SnapinJob = $Host->get('snapinjob');
+            $tmpTask = self::getClass(
+                'Task',
+                $Task->id
+            );
+            $SnapinTrue = $tmpTask->isSnapinTasking();
+            if ($SnapinTrue) {
+                $SnapinJob = self::getClass(
+                    'SnapinJob',
+                    $Task->host->snapinjob->id
+                );
                 if ($SnapinJob->isValid()) {
                     $STCount = self::getClass('SnapinTaskManager')
                         ->count(
@@ -152,13 +154,13 @@ class TaskManagementPage extends FOGPage
                             )
                         );
                     if ($STCount < 1) {
-                        $Task->cancel();
+                        $tmpTask->cancel();
                         return;
                     }
                 }
             }
-            if ($Task->get('typeID') < 3) {
-                if ($Task->get('isForced')) {
+            if ($Task->type->id < 3) {
+                if ($Task->isForced) {
                     $forcetask = sprintf(
                         '<i class="icon-forced" title="%s"></i>',
                         _('Task forced to start')
@@ -172,43 +174,43 @@ class TaskManagementPage extends FOGPage
                 }
             }
             $this->data[] = array(
-                'startedby' => $Task->get('createdBy'),
+                'startedby' => $Task->createdBy,
                 'details_taskforce' => $forcetask,
-                'id' => $Task->get('id'),
-                'name' => $Task->get('name'),
+                'id' => $Task->id,
+                'name' => $Task->name,
                 'time' => self::formatTime(
-                    $Task->get('createdTime'),
+                    $Task->createdTime,
                     'Y-m-d H:i:s'
                 ),
-                'state' => $Task->getTaskStateText(),
-                'forced' => $Task->get('isForced'),
-                'type' => $Task->getTaskTypeText(),
-                'width' => 600 * intval($Task->get('percent')) / 100,
-                'elapsed' => $Task->get('timeElapsed'),
-                'remains' => $Task->get('timeRemaining'),
-                'percent' => $Task->get('pct'),
-                'copied' => $Task->get('dataCopied'),
-                'total' => $Task->get('dataTotal'),
-                'bpm' => $Task->get('bpm'),
+                'state' => $Task->state->name,
+                'forced' => $Task->isForced,
+                'type' => $Task->type->name,
+                'width' => 600 * intval($Task->percent) / 100,
+                'elapsed' => $Task->timeElapsed,
+                'remains' => $Task->timeRemaining,
+                'percent' => $Task->pct,
+                'copied' => $Task->dataCopied,
+                'total' => $Task->dataTotal,
+                'bpm' => $Task->bpm,
                 'details_taskname' => (
-                    $Task->get('name') ?
+                    $Task->name ?
                     sprintf(
                         '<div class="task-name">%s</div>',
-                        $Task->get('name')
+                        $Task->name
                     ) :
                     ''
                 ),
-                'host_id' => $Task->get('hostID'),
-                'host_name' => $Host->get('name'),
-                'host_mac' => $Host->get('mac')->__toString(),
-                'icon_state' => $Task->getTaskState()->getIcon(),
-                'icon_type' => $Task->getIcon(),
-                'state_id' => $Task->getTaskState()->get('id'),
-                'image_name' => $Task->getImage()->get('name'),
-                'image_id' => $Task->getImage()->get('id'),
-                'node_name' => $Task->getStorageNode()->get('name')
+                'host_id' => $Task->host->id,
+                'host_name' => $Task->host->name,
+                'host_mac' => $Task->host->mac,
+                'icon_state' => $Task->state->icon,
+                'icon_type' => $Task->type->icon,
+                'state_id' => $Task->state->id,
+                'image_name' => $Task->image->name,
+                'image_id' => $Task->image->id,
+                'node_name' => $Task->storagenode->name
             );
-            unset($Task, $Host);
+            unset($tmpTask, $Task);
         };
     }
     /**
@@ -248,10 +250,14 @@ class TaskManagementPage extends FOGPage
                 (array) self::getProgressState()
             )
         );
-        $tasks = self::getClass('TaskManager')->find($find);
-        if (count($tasks) > 0) {
+        Route::active('task');
+        $items = json_decode(
+            json_encode(Route::$data)
+        );
+        $items = $items->tasks;
+        if (count($items) > 0) {
             array_walk(
-                $tasks,
+                $items,
                 static::$returnData
             );
         }
@@ -320,11 +326,10 @@ class TaskManagementPage extends FOGPage
             ),
             array(
                 'width' => 60,
-                'class' => 'c'
             ),
             array(
                 'width' => 60,
-                'class' => 'r filter-false'
+                'class' => 'filter-false'
             ),
         );
         foreach ((array)self::getClass('HostManager')
@@ -403,7 +408,7 @@ class TaskManagementPage extends FOGPage
             ),
             array(
                 'width' => 60,
-                'class' => 'r filter-false'
+                'class' => 'filter-false'
             ),
         );
         foreach ((array)self::getClass('GroupManager')
@@ -576,8 +581,8 @@ class TaskManagementPage extends FOGPage
             '${description}',
         );
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8'),
         );
         foreach ((array)self::getClass('TaskTypeManager')
             ->find(
@@ -716,24 +721,19 @@ class TaskManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'l filter-false',
+                'class' => 'filter-false',
                 'task-id' => '${id}'
             ),
             array(
-                'class' => 'c'
             ),
             array(
-                'class' => 'c'
             ),
             array(
-                'class' => 'c'
             ),
             array(
-                'class' => 'c'
             ),
             array(
-                'width' => 40,
-                'class' => 'c'
+                'width' => 40
             )
         );
         $find = array(
@@ -840,24 +840,20 @@ class TaskManagementPage extends FOGPage
         );
         $this->attributes = array(
             array(
-                'class' => 'l filter-false',
+                'class' => 'filter-false',
                 'width' => 16,
                 'task-id'=>'${id}'
             ),
             array(
-                'class' => 'l',
                 'width' => 50
             ),
             array(
-                'class' => 'l',
                 'width' => 50
             ),
             array(
-                'class' => 'l',
                 'width' => 50
             ),
             array(
-                'class' => 'r',
                 'width' => 40
             )
         );
@@ -1025,36 +1021,29 @@ class TaskManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'l filter-false',
+                'class' => 'filter-false',
                 'task-id' => '${id}'
             ),
             array(
                 'width' => 100,
-                'class' => 'l'
             ),
             array(
                 'width' => 25,
-                'class' => 'l'
             ),
             array(
                 'width' => 110,
-                'class' => 'l'
             ),
             array(
                 'width' => 80,
-                'class' => 'c'
             ),
             array(
                 'width' => 70,
-                'class' => 'c'
             ),
             array(
                 'width' => 30,
-                'class' => 'c'
             ),
             array(
                 'width' => 80,
-                'class' => 'c'
             ),
         );
         foreach ((array)self::getClass('ScheduledTaskManager')

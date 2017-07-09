@@ -912,15 +912,20 @@ abstract class FOGManagerController extends FOGBase
         if (empty($objOpts)) {
             return _('No items found');
         }
-        $tmpStr = sprintf(
-            '<select name="%s" autcomplete="off">'
-            .'<option value="">- %s -</option>'
-            .'%s</select>',
-            ($template ? '${selector_name}' : $elementName),
-            self::$foglang['PleaseSelect'],
-            $objOpts
-        );
-
+        $tmpStr .= '<select class="form-control input-group" name="'
+            . (
+                $template ?
+                '${select_name}' :
+                $elementName
+            )
+            . '" id="'
+            . $elementName
+            . '" autocomplete="off">';
+        $tmpStr .= '<option value="">- ';
+        $tmpStr .= self::$foglang['PleaseSelect'];
+        $tmpStr .= ' -</option>';
+        $tmpStr .= $objOpts;
+        $tmpStr .= '</select>';
         return $tmpStr;
     }
     /**
@@ -976,11 +981,7 @@ abstract class FOGManagerController extends FOGBase
     public function search($keyword = '', $returnObjects = false)
     {
         if (empty($keyword)) {
-            if (self::$isMobile) {
-                $keyword = trim($_REQUEST['host-search']);
-            } else {
-                $keyword = trim($_REQUEST['crit']);
-            }
+            $keyword = trim($_REQUEST['crit']);
         }
         $mac_keyword = str_replace(
             array('-', ':'),

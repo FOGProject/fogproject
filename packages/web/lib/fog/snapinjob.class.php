@@ -48,13 +48,44 @@ class SnapinJob extends FOGController
         'stateID',
     );
     /**
-     * Get's the host object.
+     * Additional fields
      *
-     * @return object
+     * @var array
      */
-    public function getHost()
+    protected $additionalFields = array(
+        'host',
+        'state',
+        'snapintasks'
+    );
+    /**
+     * Database -> Class field relationships
+     *
+     * @var array
+     */
+    protected $databaseFieldClassRelationships = array(
+        'Host' => array(
+            'id',
+            'hostID',
+            'host'
+        ),
+        'TaskState' => array(
+            'id',
+            'stateID',
+            'state'
+        )
+    );
+    /**
+     * Load tasks
+     *
+     * @return void
+     */
+    protected function loadSnapintasks()
     {
-        return new Host($this->get('hostID'));
+        $snapintasks = self::getSubObjectIDs(
+            'SnapinTask',
+            array('jobID' => $this->get('id'))
+        );
+        $this->set('snapintasks', $snapintasks);
     }
     /**
      * Cancel's the current job.
