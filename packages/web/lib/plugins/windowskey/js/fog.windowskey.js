@@ -2,7 +2,7 @@ $(function() {
     checkboxToggleSearchListPages();
     checkboxAssociations('.toggle-checkboxAction1:checkbox','.toggle-image1:checkbox');
     ProductUpdate();
-    $('#action-boxdel').submit(function() {
+    $('.action-boxes').submit(function() {
         var checked = $('input.toggle-image:checked');
         var windowskeyIDArray = new Array();
         for (var i = 0,len = checked.size();i < len;i++) {

@@ -435,22 +435,62 @@ class Route extends FOGBase
     /**
      * Presents the equivalent of a page's list all.
      *
-     * @param string $class The class to work with.
+     * @param string $class  The class to work with.
+     * @param string $sortby How to sort the data.
+     * @param bool   $bypass Allow showing hidden data.
+     * @param array  $find   Additional filter items.
      *
      * @return void
      */
-    public static function listem($class)
-    {
+    public static function listem(
+        $class,
+        $sortby = 'name',
+        $bypass = false,
+        $find = array()
+    ) {
         $classname = strtolower($class);
         $classman = self::getClass($class)->getManager();
         self::$data = array();
         self::$data['count'] = 0;
         self::$data[$classname.'s'] = array();
-        $find = self::getsearchbody($classname);
-        foreach ($classman->find($find) as &$class) {
-            self::$data[$classname.'s'][] = self::getter($classname, $class);
-            self::$data['count']++;
-            unset($class);
+        $find = self::fastmerge(
+            $find,
+            self::getsearchbody($classname)
+        );
+        switch ($classname) {
+        case 'plugin':
+            self::$data['count_active'] = 0;
+            self::$data['count_installed'] = 0;
+            self::$data['count_not_active'] = 0;
+            foreach (self::getClass('Plugin')->getPlugins() as $class) {
+                self::$data[$classname.'s'][] = self::getter($classname, $class);
+                if ($class->isActive() && !$class->isInstalled()) {
+                    self::$data['count_active']++;
+                }
+                if ($class->isActive() && $class->isInstalled()) {
+                    self::$data['count_installed']++;
+                }
+                if (!$class->isActive() && !$class->isInstalled()) {
+                    self::$data['count_not_active']++;
+                }
+                self::$data['count']++;
+                unset($class);
+            }
+            break;
+        default:
+            foreach ($classman->find($find, 'AND', $sortby) as &$class) {
+                $test = stripos(
+                    $class->get('name'),
+                    '_api_'
+                );
+                if (!$bypass && false != $test) {
+                    continue;
+                }
+                self::$data[$classname.'s'][] = self::getter($classname, $class);
+                self::$data['count']++;
+                unset($class);
+            }
+            break;
         }
         self::$HookManager
             ->processEvent(
@@ -479,6 +519,9 @@ class Route extends FOGBase
         self::$data['count'] = 0;
         self::$data[$classname.'s'] = array();
         foreach ($classman->search('', true) as &$class) {
+            if (false != stripos($class->get('name'), '_api_')) {
+                continue;
+            }
             self::$data[$classname.'s'][] = self::getter($classname, $class);
             self::$data['count']++;
             unset($class);
@@ -660,11 +703,6 @@ class Route extends FOGBase
                     ->addHost($vars->hosts);
             }
             break;
-        case 'user':
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_IMPLEMENTED
-            );
-            break;
         }
         // Store the data and recreate.
         // If failed present so.
@@ -841,11 +879,6 @@ class Route extends FOGBase
                     ->addHost($vars->hosts);
             }
             break;
-        case 'user':
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_IMPLEMENTED
-            );
-            break;
         }
         foreach ($classVars['databaseFieldsRequired'] as &$key) {
             $key = $class->key($key);
@@ -1002,13 +1035,6 @@ class Route extends FOGBase
     public static function delete($class, $id)
     {
         $classname = strtolower($class);
-        switch ($classname) {
-        case 'user':
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_IMPLEMENTED
-            );
-            break;
-        }
         $class = new $class($id);
         if (!$class->isValid()) {
             self::sendResponse(
@@ -1030,6 +1056,20 @@ class Route extends FOGBase
     {
         self::$data['error'] = $message;
         self::printer(self::$data, $code);
+    }
+    /**
+     * Gets json data
+     *
+     * @return string
+     */
+    public static function getData()
+    {
+        $message = json_encode(
+            self::$data,
+            JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
+        );
+        self::$data = '';
+        return $message;
     }
     /**
      * Generates a default means to print data to screen.
@@ -1062,17 +1102,13 @@ class Route extends FOGBase
      *
      * @param string $classname The name of the class.
      * @param object $class     The class to work with.
+     * @param bool   $objget    Should we send object, useful if internal getter.
      *
      * @return object|array
      */
-    public static function getter($classname, $class)
+    public static function getter($classname, $class, $objget = true)
     {
         switch ($classname) {
-        case 'user':
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_IMPLEMENTED
-            );
-            break;
         case 'host':
             $data = FOGCore::fastmerge(
                 $class->get(),
@@ -1097,9 +1133,76 @@ class Route extends FOGBase
                         'inventory',
                         $class->get('inventory')
                     ),
+                    'image' => self::getter('image', $class->get('imagename')),
                     'imagename' => $class->getImageName(),
+                    'macs' => $class->getMyMacs(),
+                    'modules' => array_map(
+                        'intval',
+                        $class->get('modules')
+                    ),
                     'pingstatus' => $class->getPingCodeStr(),
-                    'macs' => $class->getMyMacs()
+                    'snapinjob' => $class->get('snapinjob'),
+                    'snapins' => array_map(
+                        'intval',
+                        $class->get('snapins')
+                    ),
+                    'snapinsnotinme' => array_map(
+                        'intval',
+                        $class->get('snapinsnotinme')
+                    ),
+                    'printers' => array_map(
+                        'intval',
+                        $class->get('printers')
+                    ),
+                    'printersnotinme' => array_map(
+                        'intval',
+                        $class->get('printersnotinme')
+                    ),
+                    'groups' => array_map(
+                        'intval',
+                        $class->get('groups')
+                    ),
+                    'groupsnotinme' => array_map(
+                        'intval',
+                        $class->get('groupsnotinme')
+                    ),
+                    'users' => array_values(
+                        array_filter(
+                            array_unique(
+                                self::getSubObjectIDs(
+                                    'UserTracking',
+                                    array(
+                                        'id' => $class->get('users')
+                                    ),
+                                    'username'
+                                )
+                            )
+                        )
+                    )
+                )
+            );
+            break;
+        case 'inventory':
+            $data = FOGCore::fastmerge(
+                $class->get(),
+                array(
+                    'memory' => $class->getMem()
+                )
+            );
+            break;
+        case 'group':
+            $data = FOGCore::fastmerge(
+                $class->get(),
+                array(
+                    'hosts' => array_map(
+                        'intval',
+                        $class->get('hosts')
+                    ),
+                    'hostsnotinme' => array_map(
+                        'intval',
+                        $class->get('hostsnotinme')
+                    ),
+                    'hostcount' => $class->getHostCount()
                 )
             );
             break;
@@ -1126,6 +1229,10 @@ class Route extends FOGBase
                         'intval',
                         (array)$class->get('hosts')
                     ),
+                    'hostsnotinme' => array_map(
+                        'intval',
+                        (array)$class->get('hostsnotinme')
+                    ),
                     'storagegroups' => array_map(
                         'intval',
                         (array)$class->get('storagegroups')
@@ -1142,6 +1249,10 @@ class Route extends FOGBase
                         'intval',
                         (array)$class->get('hosts')
                     ),
+                    'hostsnotinme' => array_map(
+                        'intval',
+                        (array)$class->get('hostsnotinme')
+                    ),
                     'storagegroups' => array_map(
                         'intval',
                         (array)$class->get('storagegroups')
@@ -1153,12 +1264,35 @@ class Route extends FOGBase
             $data = FOGCore::fastmerge(
                 $class->get(),
                 array(
-                    'storagegroup' => self::getter(
-                        'storagegroup',
-                        $class->get('storagegroup')
-                    )
+                    'logfiles' => $class->get('logfiles'),
+                    'snapinfiles' => $class->get('snapinfiles')
                 )
             );
+            if ($objget) {
+                $data['storagegroup'] = self::getter(
+                    'storagegroup',
+                    $class->get('storagegroup')
+                );
+            }
+            break;
+        case 'storagegroup':
+            $data = FOGCore::fastmerge(
+                $class->get(),
+                array(
+                    'enablednodes' => array_map(
+                        'intval',
+                        $class->get('enablednodes')
+                    ),
+                    'totalsupportedclients' => $class->getTotalSupportedClients()
+                )
+            );
+            if ($objget) {
+                $data['masternode'] = self::getter(
+                    'storagenode',
+                    $class->getMasterStorageNode(),
+                    false
+                );
+            }
             break;
         case 'task':
             $data = FOGCore::fastmerge(
@@ -1178,6 +1312,113 @@ class Route extends FOGBase
                     ),
                 )
             );
+            break;
+        case 'module':
+            $data = FOGCore::fastmerge(
+                $class->get(),
+                array(
+                    'hosts' => array_map(
+                        'intval',
+                        (array)$class->get('hosts')
+                    ),
+                    'hostsnotinme' => array_map(
+                        'intval',
+                        $class->get('hostsnotinme')
+                    )
+                )
+            );
+            break;
+        case 'plugin':
+            $data = FOGCore::fastmerge(
+                $class->get(),
+                array(
+                    'location' => $class->getPath(),
+                    'description' => $class->get('description'),
+                    'icon' => $class->getIcon(),
+                    'runinclude' => $class->getRuninclude(md5($class->get('name'))),
+                    'hash' => md5($class->get('name'))
+                )
+            );
+            break;
+        case 'imaginglog':
+            $data = FOGCore::fastmerge(
+                $class->get(),
+                array(
+                    'host' => self::getter('host', $class->get('host')),
+                    'image' => (
+                        $class->get('images')->isValid() ?
+                        self::getter('image', $class->get('images')) :
+                        $class->get('image')
+                    )
+                )
+            );
+            unset($data['images']);
+            break;
+        case 'snapintask':
+            $data = FOGCore::fastmerge(
+                $class->get(),
+                array(
+                    'snapin' => self::getter(
+                        'snapin',
+                        $class->get('snapin')
+                    ),
+                    'snapinjob' => self::getter(
+                        'snapinjob',
+                        $class->get('snapinjob')
+                    ),
+                    'state' => self::getter(
+                        'taskstate',
+                        $class->get('state')
+                    )
+                )
+            );
+            break;
+        case 'snapinjob':
+            $data = FOGCore::fastmerge(
+                $class->get(),
+                array(
+                    'host' => self::getter(
+                        'host',
+                        $class->get('host')
+                    ),
+                    'state' => self::getter(
+                        'taskstate',
+                        $class->get('state')
+                    ),
+                    'snapintasks' => array_map(
+                        'intval',
+                        $class->get('snapintasks')
+                    )
+                )
+            );
+            break;
+        case 'usertracking':
+            $data = FOGCore::fastmerge(
+                $class->get(),
+                array(
+                    'host' => self::getter(
+                        'host',
+                        $class->get('host')
+                    )
+                )
+            );
+            break;
+        case 'multicastsession':
+            $data = FOGCore::fastmerge(
+                $class->get(),
+                array(
+                    'imageID' => $class->get('image'),
+                    'image' => self::getter(
+                        'image',
+                        $class->get('imagename')
+                    ),
+                    'state' => self::getter(
+                        'taskstate',
+                        $class->get('state')
+                    )
+                )
+            );
+            unset($data['imagename']);
             break;
         default:
             $data = $class->get();

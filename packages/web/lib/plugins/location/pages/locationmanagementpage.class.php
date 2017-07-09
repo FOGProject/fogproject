@@ -85,28 +85,28 @@ class LocationManagementPage extends FOGPage
         );
         $this->attributes = array(
             array(
-                'class' => 'l filter-false',
+                'class' => 'filter-false',
                 'width' => 16
             ),
-            array('class' => 'l'),
-            array('class' => 'l'),
-            array('class' => 'c'),
-            array('class' => 'r'),
+            array(),
+            array(),
+            array(),
+            array()
         );
+        /**
+         * Lambda function to return data either by list or search.
+         *
+         * @param object $Location the object to use
+         *
+         * @return void
+         */
         self::$returnData = function (&$Location) {
-            if (!$Location->isValid()) {
-                return;
-            }
             $this->data[] = array(
-                'id' => $Location->get('id'),
-                'name' => $Location->get('name'),
-                'storageGroup' => $Location->get('storagegroup')->get('name'),
-                'storageNode' => (
-                    $Location->get('storagenode')->isValid() ?
-                    $Location->get('storagenode')->get('name') :
-                    _('Not Set')
-                ),
-                'tftp' => $Location->get('tftp') ? _('Yes') : _('No'),
+                'id' => $Location->id,
+                'name' => $Location->name,
+                'storageGroup' => $Location->storagegroup->name,
+                'storageNode' => $Location->storagenode->name,
+                'tftp' => $Location->tftp ? _('Yes') : _('No'),
             );
             unset($Location);
         };
@@ -121,8 +121,8 @@ class LocationManagementPage extends FOGPage
         $this->title = _('New Location');
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',
@@ -225,8 +225,8 @@ class LocationManagementPage extends FOGPage
         );
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',

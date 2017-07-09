@@ -208,4 +208,46 @@ class Printer extends FOGController
         }
         return parent::isValid();
     }
+    /**
+     * Builds the printer type selector
+     *
+     * @return string
+     */
+    public static function buildPrinterTypeSelector()
+    {
+        $printerTypes = array(
+            'Local' => _('TCP/IP Port Printer'),
+            'iPrint' => _('iPrint Printer'),
+            'Network' => _('Network Printer'),
+            'Cups' => _('CUPS Printer'),
+        );
+        ob_start();
+        foreach ((array)$printerTypes as $short => &$long) {
+            printf(
+                '<option value="%s"%s>%s</option>',
+                $short,
+                (
+                    filter_input(INPUT_POST, 'printertype') === $short ?
+                    ' selected' :
+                    ''
+                ),
+                $long
+            );
+            unset($short, $long);
+        }
+        $optionPrinter = '<select class="form-control" name="printertype" '
+            . 'id="printertype">'
+            . '<option value="">- '
+            . self::$foglang['PleaseSelect']
+            . ' -</option>'
+            . ob_get_clean()
+            . '</select>';
+        self::$HookManager->processEvent(
+            'PRINTER_TYPE_SELECTOR',
+            array(
+                'optionPrinter' => &$optionPrinter
+            )
+        );
+        return $optionPrinter;
+    }
 }

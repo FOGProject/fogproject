@@ -127,8 +127,8 @@ class AddServiceConfiguration extends Hook
             $arguments['page']->data
         );
         $arguments['page']->attributes = array(
-            array(),
-            array('class' => 'r'),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group')
         );
         $arguments['page']->templates = array(
             '${field}',

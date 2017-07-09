@@ -35,14 +35,11 @@ $(function() {
                 }
                 var nodevers = data.shift();
                 $(this).text(data.join('\n'));
-                var h2 = $(this).prev();
-                var nodename = h2.text();
-                h2.text(nodename.replace(/\(.*\)/,'('+nodevers+')'));
+                var setter = $('.kernversionupdate');
+                var nodename = setter.text();
+                setter.text(nodename.replace(/\(.*\)/,'('+nodevers+')'));
             }
         });
-    });
-    $('#kernelsel').change(function(e) {
-        this.form.submit();
     });
     $('#bannerimg').click(function(e) {
         e.preventDefault();

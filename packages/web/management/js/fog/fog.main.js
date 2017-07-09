@@ -1,12 +1,49 @@
 $(function() {
+    // Special crons as possible.
+    $('.specialCrons').on('change focus focusout', function(e) {
+        e.preventDefault();
+        switch(this.value) {
+            case 'hourly':
+                $(this).parents('.cronOptions').next().find('.scheduleCronMin').focus().val('0');
+                $(this).parents('.cronOptions').next().find('.scheduleCronHour').focus().val('*');
+                $(this).parents('.cronOptions').next().find('.scheduleCronDOM').focus().val('*');
+                $(this).parents('.cronOptions').next().find('.scheduleCronMonth').focus().val('*');
+                $(this).parents('.cronOptions').next().find('.scheduleCronDOW').focus().val('*');
+                break;
+            case 'daily':
+                $(this).parents('.cronOptions').next().find('.scheduleCronMin').focus().val('0');
+                $(this).parents('.cronOptions').next().find('.scheduleCronHour').focus().val('0');
+                $(this).parents('.cronOptions').next().find('.scheduleCronDOM').focus().val('*');
+                $(this).parents('.cronOptions').next().find('.scheduleCronMonth').focus().val('*');
+                $(this).parents('.cronOptions').next().find('.scheduleCronDOW').focus().val('*');
+                break;
+            case 'weekly':
+                $(this).parents('.cronOptions').next().find('.scheduleCronMin').focus().val('0');
+                $(this).parents('.cronOptions').next().find('.scheduleCronHour').focus().val('0');
+                $(this).parents('.cronOptions').next().find('.scheduleCronDOM').focus().val('*');
+                $(this).parents('.cronOptions').next().find('.scheduleCronMonth').focus().val('*');
+                $(this).parents('.cronOptions').next().find('.scheduleCronDOW').focus().val('0');
+                break;
+            case 'monthly':
+                $(this).parents('.cronOptions').next().find('.scheduleCronMin').focus().val('0');
+                $(this).parents('.cronOptions').next().find('.scheduleCronHour').focus().val('0');
+                $(this).parents('.cronOptions').next().find('.scheduleCronDOM').focus().val('1');
+                $(this).parents('.cronOptions').next().find('.scheduleCronMonth').focus().val('*');
+                $(this).parents('.cronOptions').next().find('.scheduleCronDOW').focus().val('*');
+                break;
+            case 'yearly':
+                $(this).parents('.cronOptions').next().find('.scheduleCronMin').focus().val('0');
+                $(this).parents('.cronOptions').next().find('.scheduleCronHour').focus().val('0');
+                $(this).parents('.cronOptions').next().find('.scheduleCronDOM').focus().val('1');
+                $(this).parents('.cronOptions').next().find('.scheduleCronMonth').focus().val('1');
+                $(this).parents('.cronOptions').next().find('.scheduleCronDOW').focus().val('*');
+                break
+        }
+    });
     // Multi delete stuff
-    $('#action-box,#action-boxdel').submit(function() {
+    $('.action-boxes').submit(function() {
         var checked = getChecked()
         $('input[name="'+node+'IDArray"]').val(checked.join(','));
-    });
-    // Advanced Tasks stuff
-    $('.advanced-tasks-link').click(function(e) {
-        $('#advanced-tasks').toggle();
     });
     $('#FOG_QUICKREG_IMG_ID').change(function() {
         $.ajax({
@@ -22,14 +59,9 @@ $(function() {
             }
         });
     });
-    // Make button
-    $('#adClear').html('<br/><input type="button" id="clearAD" value="Clear Fields"></input>');
     // Clear fields
     $('#clearAD').on('click',function(event) {
-        clearDoms = ['#adOU[type="text"]','#adDomain','#adUsername','#adPassword','#adPasswordLegacy'];
-        $.each(clearDoms,function(index,value) {
-            $(value).val('');
-        });
+        clearDoms = $('#adOU[type="text"], #adDomain, #adUsername, #adPassword, #adPasswordLegacy').val('');
         $('#adEnabled').prop('checked',false);
     });
     // Bind to AD Settings checkbox
@@ -69,29 +101,30 @@ $(function() {
             var label = $('input[value='+$(this).val()+'].action');
             var element = label;
         }
-        $(this).bind('mousedown keydown', function(e) {setCurrent(e);});
-        label.bind('mousedown keydown', function(e) {
+        $(this).on('mousedown keydown', function(e) {setCurrent(e);});
+        label.on('mousedown keydown', function(e) {
             e.target = $(element);
             setCurrent(e);
         });
-        $(this).bind('click', function(e) {setCheck(e);});
+        $(this).on('click', function(e) {setCheck(e);});
     });
-    $('.trigger_expand').click(function() {
-        var all = $('.expand_trigger'),
-        active = all.filter('.active');
-        if (all.length && all.length === active.length) {
-            // All open; close them
-            all.removeClass('active').next().slideUp();
-            $('.trigger_expand').html('<a href="#" class="trigger_expand"><h3>Expand All</h3></a>');
+    $('.trigger_expand').on('click', function(e) {
+        e.preventDefault();
+        var all = $('.expand_trigger');
+        if (!$(this).hasClass('activeclicked')) {
+            $(this).addClass('activeclicked').html('<h4 class="title">Collapse All</h4>');
+            all = $('.expand_trigger').not('.activenow');
         } else {
-            all.not('.active').addClass('active').next().slideDown();
-            $('.trigger_expand').html('<a href="#" class="trigger_expand"><h3>Collapse All</h3></a>');
+            $(this).removeClass('activeclicked').html('<h4 class="title">Expand All</h4>');
+            all = $('.activenow');
         }
-        return false;
+        all.each(function() {
+            $(this).trigger('click');
+        });
     });
     // Assign DOM elements
-    if (typeof($(".pigz").slider) == typeof(Function)) {
-        $(".pigz").slider({
+    if (typeof($("div.pigz").slider) == typeof(Function)) {
+        $("div.pigz").slider({
             min: 0,
             max: 22,
             range: 'min',
@@ -101,8 +134,8 @@ $(function() {
             }
         });
     }
-    if (typeof($(".loglvl").slider) == typeof(Function)) {
-        $(".loglvl").slider({
+    if (typeof($("div.loglvl").slider) == typeof(Function)) {
+        $("div.loglvl").slider({
             min: 0,
             max: 7,
             range: 'min',
@@ -112,8 +145,8 @@ $(function() {
             }
         });
     }
-    if (typeof($(".inact").slider) == typeof(Function)) {
-        $(".inact").slider({
+    if (typeof($("div.inact").slider) == typeof(Function)) {
+        $("div.inact").slider({
             min: 1,
             max: 24,
             range: 'min',
@@ -123,8 +156,8 @@ $(function() {
             }
         });
     }
-    if (typeof($(".regen").slider) == typeof(Function)) {
-        $(".regen").slider({
+    if (typeof($("div.regen").slider) == typeof(Function)) {
+        $("div.regen").slider({
             step: 0.25,
             min: 0.25,
             max: 24,
@@ -136,13 +169,20 @@ $(function() {
         });
     }
     // Show Password information
-    $(':password').not('[name="fakepasswordremembered"]').after('&nbsp;<i class="fa fa-eye-slash fa-2x"></i>&nbsp;');
-    $(':password').next('i').mousedown(function() {
-        $(this).removeClass('fa-eye-slash').addClass('fa-eye');
-        $(this).prev('input').prop('type','text');
-    }).mouseup(function() {
-        $(this).removeClass('fa-eye').addClass('fa-eye-slash');
-        $(this).prev('input').prop('type','password');
+    $(':password')
+    .not('[name="fakepasswordremembered"],[name="upass"]')
+    .before('<span class="input-group-addon"><i class="fa fa-eye-slash fogpasswordeye"></i></span>');
+    $('.fogpasswordeye').click(function(e) {
+        e.preventDefault();
+        if (!$(this).hasClass('clicked')) {
+            $(this).addClass('clicked');
+            $(this).removeClass('fa-eye-slash').addClass('fa-eye');
+            $(this).closest('.input-group').find('input[type="password"]').prop('type','text');
+        } else {
+            $(this).removeClass('clicked');
+            $(this).removeClass('fa-eye').addClass('fa-eye-slash');
+            $(this).closest('.input-group').find('input[type="text"]').prop('type','password');
+        }
     });
     // Process FOG JS Variables
     $('.fog-variable').fogVariable();
@@ -150,21 +190,9 @@ $(function() {
     $('.fog-message-box').fogMessageBox();
     // Placeholder support
     $('input[placeholder]').placeholder();
-    // Nav Menu: Add hover label
-    $('.menu li a').each(function() {
-        $(this).tipsy({
-            gravity: $.fn.tipsy.autoNS
-        }).mouseenter(function() {
-            $('.tipsy').css({
-                'min-width': '35px'
-            });
-        });
-    });
-    // Tooltips
-    HookTooltips();
     // Search boxes
     $('.search-input').fogAjaxSearch();
-    $('#content-inner').fogTableInfo().trigger('updateAll');
+    $('.container-fluid').fogTableInfo().trigger('updateAll');
     $(Container).fogTableInfo().trigger('updateAll');
     function format(icon) {
         if (!icon.id) return icon.text;
@@ -195,21 +223,23 @@ $(function() {
         });
     });
     // Tabs
-    // Blackout - 9:14 AM 30/11/2011
-    $('.organic-tabs').organicTabs({targetID: '#tab-container'});
     // Hides all the divs in the Service menu
-    $('#tab-container-1 > div').hide();
     // Shows the div of the containing element.
-    $('#tab-container-1 > a').click(function() {
-        $('#tab-container-1 div#'+$(this).attr('id')).fadeToggle('slow','swing');
-        return false;
+    $('.expand_trigger').on('click', function(e) {
+        e.preventDefault();
+        if ($(this).hasClass('activenow')) {
+            $(this).removeClass('activenow');
+        } else {
+            $(this).addClass('activenow');
+        }
+        $('div#'+this.id).not('.panel-heading').fadeToggle('slow','swing');
     });
-    $('input[name=export]').click(function(e) {
+    $('[name=export]').click(function(e) {
         e.preventDefault();
         url = $(this).parents('form').attr('action');
         exportDialog(url);
     });
-    $('input[name=delete]').click(function(e) {
+    $('[name=delete]').click(function(e) {
         e.preventDefault();
         url = $(this).parents('form').attr('action');
         deleteDialog(url);
@@ -221,18 +251,6 @@ $(function() {
 });
 function debug(txt) {
     if (console) console.log(txt);
-}
-function HookTooltips() {
-    setTimeout(function() {
-        $('.tipsy').remove();
-        $('a[title],.remove-mac[title], .add-mac[title], .icon-help[title], .task-name[title], .icon[title], .icon-ping[title], .icon-ping-down[title], .icon-ping-up[title], img[title]', Content).tipsy({
-            gravity: $.fn.tipsy.autoNS
-        }).mouseenter(function() {
-            $('.tipsy').css({
-                'min-width': '35px'
-            });
-        });
-    }, 400);
 }
 function validateCronInputs(selector) {
     var funcs = {
@@ -256,76 +274,39 @@ function validateCronInputs(selector) {
 }
 function DeployStuff() {
     $('#checkDebug').change(function(e) {
-        $('.hideFromDebug,.hidden').each(function(e) {
-            if ($(this).prev('p').length > 0) $(this).prev('p').toggle();
-            else $(this).toggle();
+        $('.hideFromDebug,.hiddeninitially').each(function(e) {
+            $(this).toggle();
         });
         if (this.checked) {
             $('#scheduleInstant').prop('checked',true);
-            $('.hidden').parent().is(':visible').not(':hidden').hide();
+            $('.hiddeninitially').not(':hidden').hide();
         }
         e.preventDefault();
+    });
+    $('#isDebugTask').on('click, change', function() {
+        if (this.checked) {
+            $('.hideFromDebug, .hiddeninitially').not(':hidden').slideUp('fast');
+        } else {
+            $('.hideFromDebug').slideDown('fast');
+        }
     });
     // Bind radio buttons for 'Single' and 'Cron' scheduled task
-    $('input[name="scheduleType"]').click(function() {
-        var content = $(this).parents('p').parent().find('p').eq($(this).parent().index());
-        if (this.checked && !$('#isDebugTask').is(':checked')) {
-            content.slideDown('fast').siblings('.hidden').slideUp('fast');
-        } else if (!$('#isDebugTask').is(':checked')) {
-            content.slideDown('fast');
-            $('.calendar').remove();
-            $('.error').removeClass('error');
+    $('input[name="scheduleType"]').on('click, change', function() {
+        if (this.checked) {
+            var content = $(this).closest('div');
+            $('.hiddeninitially').not($(this)).slideUp('fast');
+            content.next('.form-group.hiddeninitially').slideDown('fast');
+            if ($(this).prop('id') == 'scheduleSingle') {
+                $('#scheduleSingleTime').focus();
+            }
         }
-    });
-    $('#specialCrons').change(function(e) {
-        e.preventDefault();
-        switch(this.value) {
-            case 'hourly':
-                $('#scheduleCronMin').focus().val('0');
-                $('#scheduleCronHour').focus().val('*');
-                $('#scheduleCronDOM').focus().val('*');
-                $('#scheduleCronMonth').focus().val('*');
-                $('#scheduleCronDOW').focus().val('*');
-                break;
-            case 'daily':
-                $('#scheduleCronMin').focus().val('0');
-                $('#scheduleCronHour').focus().val('0');
-                $('#scheduleCronDOM').focus().val('*');
-                $('#scheduleCronMonth').focus().val('*');
-                $('#scheduleCronDOW').focus().val('*');
-                break;
-            case 'weekly':
-                $('#scheduleCronMin').focus().val('0');
-                $('#scheduleCronHour').focus().val('0');
-                $('#scheduleCronDOM').focus().val('*');
-                $('#scheduleCronMonth').focus().val('*');
-                $('#scheduleCronDOW').focus().val('0');
-                break;
-            case 'monthly':
-                $('#scheduleCronMin').focus().val('0');
-                $('#scheduleCronHour').focus().val('0');
-                $('#scheduleCronDOM').focus().val('1');
-                $('#scheduleCronMonth').focus().val('*');
-                $('#scheduleCronDOW').focus().val('*');
-                break;
-            case 'yearly':
-                $('#scheduleCronMin').focus().val('0');
-                $('#scheduleCronHour').focus().val('0');
-                $('#scheduleCronDOM').focus().val('1');
-                $('#scheduleCronMonth').focus().val('1');
-                $('#scheduleCronDOW').focus().val('*');
-                break
-        }
-        $('.placeholder').each(function() {
-            $(this).focus().val('*');
-        });
     });
     // Basic validation on deployment page
     var scheduleType = $('input[name="scheduleType"]:checked').val();
     var result = true;
     $('input[name="scheduleType"]').change(function() {
         scheduleType = this.value;
-        $('form#deploy-container').submit(function() {
+        $('form.deploy-container').submit(function() {
             if (scheduleType == 'single') {
                 // Format check
                 validateInput = $('#'+scheduleType+'Options > input').removeClass('error');
@@ -334,7 +315,7 @@ function DeployStuff() {
                     validateInput.addClass('error');
                 }
             } else if (scheduleType == 'cron') {
-                $("p#cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
+                $(".cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
                     result = validateCronInputs($(this));
                     if (result === false) return false;
                 });
@@ -507,16 +488,23 @@ function ajaxRun(username,password,url,selector,formid,target,authneeded) {
     $('input[name="remitems[]"]').each(function() {
         ids[ids.length] = $(this).val();
     });
+    var data = {};
+    if (authneeded) {
+        $.extend(data, {fogguiuser: username, fogguipass: password});
+    };
+    if ($('#andFile').is(':checked')) {
+        $.extend(data, {andFile: $('#andFile').is(':checked')});
+    }
+    if (ids.length > 0) {
+        $.extend(data, {remitems: ids});
+    }
+    if ($('input[name="storagegroup"]').val()) {
+        $.extend(data, {storagegroup: $('input[name="storagegroup"]').val()});
+    }
     $.ajax({
         url: url,
         type: 'POST',
-        data: {
-            fogguiuser: username,
-            fogguipass: password,
-            andFile: $('#andFile').is(':checked'),
-            remitems: ids,
-            storagegroup: $('input[name="storagegroup"]').val()
-        },
+        data: data,
         dataType: 'json',
         beforeSend: function() {
             if (authneeded) {
@@ -532,9 +520,9 @@ function ajaxRun(username,password,url,selector,formid,target,authneeded) {
                     if (authneeded) {
                         $(selector).html('<form id="'+formid+'" method="post" action="'+url+'"><input type="hidden" name="fogguiuser" value="'+username+'"/><input type="hidden" name="fogguipass" value="'+password+'"/></form>').dialog('close');
                     } else {
-                        $(selector).append('<form id="'+formid+'" method="post" action="'+url+'"><input type="hidden" name="fogguiuser" value="'+username+'"/><input type="hidden" name="fogguipass" value="'+password+'"/></form>');
+                        $(selector).append('<form id="'+formid+'" method="post" action="'+url+'"></form>');
                     }
-                    $('#'+formid).submit();
+                    $('#'+formid).submit().remove();
                 }
             } else {
                 setTimeout(function() {

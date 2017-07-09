@@ -258,4 +258,41 @@ class FOGCron extends FOGBase
         $currTime = self::niceDate();
         return (bool)($time <= $currTime);
     }
+    /**
+     * Build special cron selector.
+     *
+     * @param string $id the id to give if wanted.
+     *
+     * @return string
+     */
+    public static function buildSpecialCron($id = '')
+    {
+        $specialCrons = array(
+            '' => _('Select a cron type'),
+            'yearly' => sprintf('%s/%s', _('Yearly'), _('Annually')),
+            'monthly' => _('Monthly'),
+            'weekly' => _('Weekly'),
+            'daily' => sprintf('%s/%s', _('Daily'), _('Midnight')),
+            'hourly' => _('Hourly')
+        );
+        ob_start();
+        foreach ($specialCrons as $val => &$name) {
+            echo '<option value="'
+                . $val
+                . '">'
+                . $name
+                . '</option>';
+            unset($name);
+        }
+        $cronOpts = ob_get_clean();
+        return '<select class="form-control specialCrons" name="specialCrons"'
+            . (
+                $id ?
+                ' id="'.$id.'"' :
+                ''
+            )
+            . '>'
+            . $cronOpts
+            . '</select>';
+    }
 }

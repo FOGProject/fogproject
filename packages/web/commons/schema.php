@@ -3764,3 +3764,11 @@ $this->schema[] = array(
     . "'If exporting, require authentication or not. (Defaults to on)',"
     . "'1','General Settings')"
 );
+// 261
+$this->schema[] = array(
+    "ALTER TABLE `inventory` ADD `iSystemUUID` VARCHAR(255) NOT NULL"
+);
+// 262
+$this->schema[] = array(
+    "ALTER TABLE `taskTypes` ADD `ttInitrd` LONGTEXT NOT NULL"
+);

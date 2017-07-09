@@ -61,7 +61,7 @@ class Host extends FOGController
         'pingstatus' => 'hostPingCode',
         'biosexit' => 'hostExitBios',
         'efiexit' => 'hostExitEfi',
-        'enforce' => 'hostEnforce',
+        'enforce' => 'hostEnforce'
     );
     /**
      * The required fields
@@ -69,7 +69,7 @@ class Host extends FOGController
      * @var array
      */
     protected $databaseFieldsRequired = array(
-        'name',
+        'name'
     );
     /**
      * Additional fields
@@ -97,7 +97,7 @@ class Host extends FOGController
         'snapinjob',
         'users',
         'fingerprint',
-        'powermanagementtasks',
+        'powermanagementtasks'
     );
     /**
      * Database -> Class field relationships
@@ -1528,11 +1528,14 @@ class Host extends FOGController
         if ($taskTypeID == 14) {
             $Task->destroy();
         }
-        return sprintf(
-            '<li>%s &ndash; %s</li>',
-            $this->get('name'),
-            $this->getImage()->get('name')
-        );
+        $str = '<li>';
+        $str .= '<a href="#">';
+        $str .= $this->get('name');
+        $str .= ' &ndash; ';
+        $str .= $this->getImage()->get('name');
+        $str .= '</a>';
+        $str .= '</li>';
+        return $str;
     }
     /**
      * Returns task if host image is valid
@@ -2024,11 +2027,11 @@ class Host extends FOGController
                 $mac = new MACAddress($mac);
             }
             if ($mac->isClientIgnored()) {
-                return 'checked';
+                return ' checked';
             }
             return '';
         }
-        return $this->get('mac')->isClientIgnored() ? 'checked' : '';
+        return $this->get('mac')->isClientIgnored() ? ' checked' : '';
     }
     /**
      * Tells if the mac is image ignored
@@ -2044,11 +2047,11 @@ class Host extends FOGController
                 $mac = new MACAddress($mac);
             }
             if ($mac->isImageIgnored()) {
-                return 'checked';
+                return ' checked';
             }
             return '';
         }
-        return $this->get('mac')->isImageIgnored() ? 'checked' : '';
+        return $this->get('mac')->isImageIgnored() ? ' checked' : '';
     }
     /**
      * Sets the host settings for AD (mainly)
@@ -2166,8 +2169,12 @@ class Host extends FOGController
     {
         $val =  (int)$this->get('pingstatus');
         $socketstr = socket_strerror($val);
-        $strtoupdate = "<i class=\"icon-ping-%s fa fa-exclamation-circle %s "
-            . "fa-1x\" title=\"$socketstr\"></i>";
+        $strtoupdate = '<i class="icon-ping-%s fa fa-exclamation-circle %s'
+            . '" data-toggle="tooltip" '
+            . 'data-placement="right" '
+            . 'title="'
+            . $socketstr
+            . '"></i>';
         ob_start();
         if ($val === 0) {
             printf($strtoupdate, 'up', 'green');

@@ -1,6 +1,54 @@
 $(function() {
     checkboxToggleSearchListPages();
-    $('.resettoken').click(function(e) {
+    validatorOpts = {
+        submitHandler: submithandlerfunc,
+        rules: {
+            name: {
+                required: true,
+                minlength: 3,
+                maxlength: 40,
+                regex: /^[\w][\w0-9]*[._-]?[\w0-9]*[.]?[\w0-9]+$/
+            },
+            password: {
+                required: true,
+                minlength: 4
+            },
+            password_confirm: {
+                equalTo: '#password'
+            }
+        },
+        messages: {
+            password_confirm: {
+                equalTo: 'Passwords do not match'
+            }
+        }
+    };
+    setInterval(function() {
+        $('#add, #updategen, #updatepw, #updateapi').each(function(e) {
+            if ($(this).is(':visible')) {
+                form = $(this).parents('form');
+                validator = form.validate(validatorOpts);
+            }
+            $(this).on('click', function(e) {
+                data = this.name;
+            });
+        });
+        $('.username-input, .password-input1, .password-input2').each(function(e) {
+            if ($(this).is(':visible')) {
+                if (!$(this).hasClass('isvisible')) {
+                    $(this).addClass('isvisible');
+                }
+                $(this).on('keyup change blur', function(e) {
+                    return validator.element(this);
+                }).trigger('change');
+            } else {
+                if ($(this).hasClass('isvisible')) {
+                    $(this).removeClass('isvisible');
+                }
+            }
+        });
+    }, 1000);
+    $('.resettoken').on('click', function(e) {
         e.preventDefault();
         $.ajax({
             url: '../status/newtoken.php',
@@ -9,39 +57,5 @@ $(function() {
                 $('.token').val(data);
             }
         });
-    });
-    form = $('.username-input').parents('form');
-    validator = form.validate({
-        name: {
-            required: true,
-            minlength: 1,
-            maxlength: 255
-        }
-    });
-    pwform = $('.password-input1').parents('form');
-    pwvalidator = pwform.validate({
-        rules: {
-            password: {
-                required: true,
-                minlength: 4
-            },
-            password_confirm: {
-                minlength: 4,
-                equalTo: '#password'
-            }
-        },
-        messages: {
-            password_confirm: {
-                minlength: 'Password must be at least 4 characters long',
-                equalTo: 'Passwords do not match',
-            }
-        }
-    });
-    $('.username-input').rules('add', {regex: /^[a-zA-Z0-9_-.]{3,40}$/});
-    $('.username-input').on('keyup change blur',function() {
-        return validator.element(this);
-    });
-    $('.password-input1,.password-input2').on('keyup change blur',function() {
-        return pwvalidator.element(this);
     });
 });

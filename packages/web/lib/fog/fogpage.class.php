@@ -24,18 +24,6 @@
 abstract class FOGPage extends FOGBase
 {
     /**
-     * Table cell wrapper
-     *
-     * @var string
-     */
-    private $_wrapper = 'td';
-    /**
-     * Header cell wrapper
-     *
-     * @var string
-     */
-    private $_headerWrap = 'th';
-    /**
      * Name of the page
      *
      * @var string
@@ -150,7 +138,7 @@ abstract class FOGPage extends FOGBase
      *
      * @var string
      */
-    protected $formAction = '';
+    public $formAction = '';
     /**
      * The forms method/action
      *
@@ -169,12 +157,6 @@ abstract class FOGPage extends FOGBase
      * @var string
      */
     protected $reportString = '';
-    /**
-     * The search form url
-     *
-     * @var string
-     */
-    protected $searchFormURL = '';
     /**
      * Is the title enabled
      *
@@ -261,7 +243,7 @@ abstract class FOGPage extends FOGBase
         $subs = array(
             'configure',
             'authorize',
-            'requestClientInfo',
+            'requestClientInfo'
         );
         if (in_array($sub, $subs)) {
             return $this->{$sub}();
@@ -350,11 +332,15 @@ abstract class FOGPage extends FOGBase
                 }
             }
         }
-        $this->reportString = '<h2><div id="exportDiv"></div><a id="csvsub" '
-            . 'href="../management/export.php?filename=%s&type=csv" alt="%s" '
-            . 'title="%s" target="_blank">%s</a> <a id="pdfsub" '
-            . 'href="../management/export.php?filename=%s&type=pdf" alt="%s" '
-            . 'title="%s" target="_blank">%s</a></h2>';
+        $this->reportString = '<h4 class="title">'
+            . '<div id="exportDiv"></div>'
+            . '<a id="csvsub" href="../management/export.php?filename=%s&type=csv" '
+            . 'alt="%s" title="%s" target="_blank" data-toggle="tooltip" '
+            . 'data-placement="top">%s</a> '
+            . '<a id="pdfsub" href="../management/export.php?filename=%s&type=pdf" '
+            . 'alt="%s" title="%s" target="_blank" data-toggle="tooltip" '
+            . 'data-placement="top">%s</a>'
+            . '</h4>';
         self::$pdffile = '<i class="fa fa-file-pdf-o fa-2x"></i>';
         self::$csvfile = '<i class="fa fa-file-excel-o fa-2x"></i>';
         self::$inventoryCsvHead = array(
@@ -394,7 +380,6 @@ abstract class FOGPage extends FOGBase
             _('Chassis Asset') => 'caseasset',
         );
         $this->menu = array(
-            'search' => self::$foglang['NewSearch'],
             'list' => sprintf(
                 self::$foglang['ListAll'],
                 _(
@@ -488,14 +473,12 @@ abstract class FOGPage extends FOGBase
         }
         $this->title = _('Search');
         if (in_array($this->node, self::$searchPages)) {
-            $this->searchFormURL = sprintf('?node=%s&sub=search', $this->node);
-        }
-        if (in_array($this->node, self::$searchPages)) {
             $this->title = sprintf(
                 '%s %s',
                 _('All'),
                 _("{$this->childClass}s")
             );
+            global $node;
             global $sub;
             $manager = sprintf(
                 '%sManager',
@@ -508,35 +491,10 @@ abstract class FOGPage extends FOGBase
                     'pending' => array(0, '')
                 );
             }
-            /**
-             * For use with API system.
-            $url = sprintf(
-                'http%s://%s/fog/%s',
-                filter_input(INPUT_SERVER, 'HTTPS') ? 's' : '',
-                filter_input(INPUT_SERVER, 'HTTP_HOST'),
-                strtolower($this->childClass)
-            );
-            self::$FOGURLRequests->headers = array(
-                'fog-api-token: '
-                . base64_encode(self::getSetting('FOG_API_TOKEN'))
-            );
-            $items = self::$FOGURLRequests
-                ->process(
-                    $url,
-                    'GET',
-                    null,
-                    false,
-                    self::$FOGUser->get('name')
-                    . ':'
-                    . self::$FOGUser->get('password')
-                );
-            $items = json_decode(
-                $items[0]
-            );
-            $type = $_REQUEST['node'].'s';
+            Route::listem($this->childClass);
+            $items = json_decode(Route::getData());
+            $type = $node.'s';
             $items = $items->$type;
-             */
-            $items = (array)self::getClass($manager)->find($find);
             if (count($items) > 0) {
                 array_walk($items, static::$returnData);
             }
@@ -563,7 +521,9 @@ abstract class FOGPage extends FOGBase
                     'headerData' => &$this->headerData
                 )
             );
-            $this->render();
+            echo '<div class="col-xs-9">';
+            $this->indexDivDisplay();
+            echo '</div>';
             unset(
                 $this->headerData,
                 $this->data,
@@ -634,18 +594,22 @@ abstract class FOGPage extends FOGBase
     /**
      * Print the information
      *
+     * @param int $colsize Col size
+     *
      * @return void
      */
-    public function render()
+    public function render($colsize = 9)
     {
-        echo $this->process();
+        echo $this->process($colsize);
     }
     /**
      * Process the information
      *
+     * @param int $colsize Col Size
+     *
      * @return string
      */
-    public function process()
+    public function process($colsize = 9)
     {
         try {
             unset($actionbox);
@@ -656,58 +620,136 @@ abstract class FOGPage extends FOGBase
                 'search',
                 'list'
             );
+            $actionbox = '';
             if (((!$sub
                 || in_array($sub, $defaultScreens)
                 || $sub === 'storageGroup')
                 && in_array($node, self::$searchPages)
                 && in_array($node, $this->PagesWithObjects))
-                && !self::$isMobile
             ) {
                 if ($node == 'host') {
-                    $actionbox = sprintf(
-                        '<form method="post" action="%s" id="action-box">'
-                        . '<input type="hidden" name="hostIDArray" value="" '
-                        . 'autocomplete="off"/><p><label for="group_new">%s'
-                        . '</label><input type="text" name="group_new" '
-                        . 'id="group_new" autocomplete="off"/></p><p class="c">'
-                        . 'OR</p><p><label for="group">%s</label>%s</p>'
-                        . '<p class="c"><input type="submit" id="processgroup" '
-                        . 'value="%s"/></p></form>',
-                        sprintf(
-                            '?node=%s&sub=saveGroup',
-                            $node
-                        ),
-                        _('Create new group'),
-                        _('Add to group'),
-                        self::getClass('GroupManager')->buildSelectBox(),
-                        _('Process Group Changes')
-                    );
+                    $actionbox .= '</div>';
+                    $actionbox .= '</div>';
+                    $actionbox .= '<div class='
+                        . '"action-boxes host '
+                        . 'hiddeninitially">';
+                    $actionbox .= '<div class="panel panel-info">';
+                    $actionbox .= '<div class="panel-heading text-center">';
+                    $actionbox .= '<h4 class="title">';
+                    $actionbox .= _('Group Associations');
+                    $actionbox .= '</h4>';
+                    $actionbox .= '</div>';
+                    $actionbox .= '<div class="panel-body">';
+                    $actionbox .= '<form class='
+                        . '"form-horizontal" '
+                        . 'method="post" '
+                        . 'action="'
+                        . '?node='
+                        . $node
+                        . '&sub=saveGroup">';
+                    $actionbox .= '<div class="form-group">';
+                    $actionbox .= '<label class="control-label col-xs-4" for=';
+                    $actionbox .= '"group_new">';
+                    $actionbox .= _('Create new group');
+                    $actionbox .= '</label>';
+                    $actionbox .= '<div class="col-xs-8">';
+                    $actionbox .= '<div class="input-group">';
+                    $actionbox .= '<input type="hidden" name="hostIDArray"/>';
+                    $actionbox .= '<input type="text" name="group_new" id='
+                        . '"group_new" class="form-control"/>';
+                    $actionbox .= '</div>';
+                    $actionbox .= '</div>';
+                    $actionbox .= '</div>';
+                    $actionbox .= '<div class="form-group">';
+                    $actionbox .= '<div class="text-center">';
+                    $actionbox .= '<label class="control-label">';
+                    $actionbox .= _('or');
+                    $actionbox .= '</label>';
+                    $actionbox .= '</div>';
+                    $actionbox .= '</div>';
+                    $actionbox .= '<div class="form-group">';
+                    $actionbox .= '<label class="control-label col-xs-4" for=';
+                    $actionbox .= '"group">';
+                    $actionbox .= _('Add to group');
+                    $actionbox .= '</label>';
+                    $actionbox .= '<div class="col-xs-8">';
+                    $actionbox .= self::getClass('GroupManager')->buildSelectBox();
+                    $actionbox .= '</div>';
+                    $actionbox .= '</div>';
+                    $actionbox .= '<div class="form-group">';
+                    $actionbox .= '<label class="control-label col-xs-4" for=';
+                    $actionbox .= '"process">';
+                    $actionbox .= _('Make changes?');
+                    $actionbox .= '</label>';
+                    $actionbox .= '<div class="col-xs-8">';
+                    $actionbox .= '<button type="submit" class='
+                        . '"btn btn-info btn-block" name="process" id="process">';
+                    $actionbox .= _('Update');
+                    $actionbox .= '</button>';
+                    $actionbox .= '</div>';
+                    $actionbox .= '</div>';
+                    $actionbox .= '</form>';
+                    $actionbox .= '</div>';
+                    $actionbox .= '</div>';
+                    $actionbox .= '</div>';
                 }
                 if ($node != 'task') {
+                    if (!$actionbox) {
+                        $actionbox .= '</div>';
+                        $actionbox .= '</div>';
+                    }
+                    $actionbox .= '<div class='
+                        . '"action-boxes del hiddeninitially">';
+                    $actionbox .= '<div class="panel panel-warning">';
+                    $actionbox .= '<div class="panel-heading text-center">';
+                    $actionbox .= '<h4 class="title">';
+                    $actionbox .= _('Delete Selected');
+                    $actionbox .= '</h4>';
+                    $actionbox .= '</div>';
+                    $actionbox .= '<div class="panel-body">';
+                    $actionbox .= '<form class='
+                        . '"form-horizontal" '
+                        . 'method="post" '
+                        . 'action="'
+                        . '?node='
+                        . $node
+                        . '&sub=deletemulti">';
+                    $actionbox .= '<div class="form-group">';
+                    $actionbox .= '<label class="control-label col-xs-4" for='
+                        . '"del-'
+                        . $node
+                        . '">';
                     $actionbox .= sprintf(
-                        '<form method="post" class="c" id="action-boxdel" '
-                        . 'action="%s"><p>%s</p><input type="hidden" '
-                        . 'name="%sIDArray" value="" autocomplete="off"/>'
-                        . '<input type="submit" value="%s?"/></form>',
-                        sprintf(
-                            '?node=%s&sub=deletemulti',
-                            $node
-                        ),
-                        _('Delete all selected items'),
-                        strtolower($node),
-                        sprintf(
-                            _('Delete all selected %ss'),
+                        '%s %ss',
+                        _('Delete selected'),
+                        (
+                            strtolower($node) !== 'storage' ?
+                            strtolower($node) :
                             (
-                                strtolower($node) !== 'storage' ?
-                                strtolower($node) :
-                                (
-                                    $sub === 'storageGroup' ?
-                                    strtolower($node).' group' :
-                                    strtolower($node).' node'
-                                )
+                                $sub === 'storageGroup' ?
+                                strtolower($node) . ' group' :
+                                strtolower($node) . ' node'
                             )
                         )
                     );
+                    $actionbox .= '</label>';
+                    $actionbox .= '<div class="col-xs-8">';
+                    $actionbox .= '<input type="hidden" name="'
+                        . strtolower($node)
+                        . 'IDArray"/>';
+                    $actionbox .= '<button type="submit" class='
+                        . '"btn btn-danger btn-block" id="'
+                        . 'del-'
+                        . $node
+                        . '">';
+                    $actionbox .= _('Delete');
+                    $actionbox .= '</button>';
+                    $actionbox .= '</div>';
+                    $actionbox .= '</div>';
+                    $actionbox .= '</form>';
+                    $actionbox .= '</div>';
+                    $actionbox .= '</div>';
+                    $actionbox .= '</div>';
                 }
             }
             self::$HookManager->processEvent(
@@ -723,7 +765,6 @@ abstract class FOGPage extends FOGBase
                         'title' => $this->title,
                         'attributes' => $this->attributes,
                         'form' => $this->form,
-                        'searchFormURL' => $this->searchFormURL,
                         'actionbox' => (
                             count($this->data) > 0 ?
                             $actionbox :
@@ -738,157 +779,92 @@ abstract class FOGPage extends FOGBase
                     _('Requires templates to process')
                 );
             }
-            ob_start();
-            $contentField = 'active-tasks';
-            if ($this->searchFormURL) {
-                printf(
-                    '<form method="post" action="%s" id="search-wrapper">'
-                    . '<input id="%s-search" class="search-input placeholder" '
-                    . 'type="text" value="" placeholder="%s" autocomplete="off" %s/>'
-                    . '<%s id="%s-search-submit" class="search-submit" type="%s" '
-                    . 'value="%s"></form>%s',
-                    $this->searchFormURL,
-                    (
-                        substr($this->node, -1) == 's' ?
-                        substr($this->node, 0, -1) :
-                        $this->node
-                    ),
-                    sprintf(
-                        '%s...',
-                        self::$foglang['Search']
-                    ),
-                    (
-                        self::$isMobile ?
-                        'name="host-search"' :
-                        ''
-                    ),
-                    (
-                        self::$isMobile ?
-                        'input' :
-                        'button'
-                    ),
-                    (
-                        substr($this->node, -1) == 's' ?
-                        substr($this->node, 0, -1) :
-                        $this->node
-                    ),
-                    (
-                        self::$isMobile ?
-                        'submit' :
-                        'button'
-                    ),
-                    (
-                        self::$isMobile ?
-                        self::$foglang['Search'] :
-                        ''
-                    ),
-                    (
-                        self::$isMobile ?
-                        '</input>' :
-                        '</button>'
-                    )
-                );
-                $contentField = 'search-content';
-            }
-            if (isset($this->form)) {
-                printf($this->form);
-            }
-            printf(
-                '<table cellpadding="0" cellspacing="0" '
-                . 'id="%s">%s<tbody>',
-                $contentField,
-                $this->buildHeaderRow()
-            );
-            $node = $_REQUEST['node'];
-            $sub = $_REQUEST['sub'];
-            if (in_array($this->node, array('task'))
+            if (in_array($node, array('task'))
                 && (!$sub || $sub == 'list')
             ) {
                 self::redirect(
                     sprintf(
                         '?node=%s&sub=active',
-                        $this->node
+                        $node
                     )
                 );
             }
-            if (!count($this->data)) {
-                $contentField = 'no-active-tasks';
-                printf(
-                    '<tr><td colspan="%s" class="%s">%s</td></tr></tbody></table>',
-                    count($this->templates),
-                    $contentField,
-                    (
-                        $this->data['error'] ?
-                        (
-                            is_array($this->data['error']) ?
-                            sprintf(
-                                '<p>%s</p>',
-                                implode(
-                                    '</p><p>',
-                                    $this->data['error']
-                                )
-                            ) :
-                            $this->data['error']
-                        ) :
-                        (
-                            $this->node != 'task' ?
-                            (
-                                !self::$isMobile ?
-                                self::$foglang['NoResults'] :
-                                ''
-                            ) :
-                            self::$foglang['NoResults']
-                        )
-                    )
-                );
-            } else {
-                if ((!$sub
-                    && $defaultScreen == 'list')
-                    || (in_array($sub, $defaultScreens)
-                    && in_array($node, self::$searchPages))
-                ) {
-                    if (!in_array($this->node, array('home', 'hwinfo'))) {
-                        self::setMessage(
-                            sprintf(
-                                '%s %s%s found',
-                                count($this->data),
-                                $this->childClass,
-                                (
-                                    count($this->data) != 1 ?
-                                    's' :
-                                    ''
-                                )
-                            )
-                        );
-                    }
-                }
-                $id_field = "{$node}_id";
-                foreach ((array)$this->data as &$rowData) {
-                    printf(
-                        '<tr id="%s-%s">%s</tr>',
-                        strtolower($this->childClass),
-                        (
-                            isset($rowData['id']) ?
-                            $rowData['id'] :
-                            (
-                                isset($rowData[$id_field]) ?
-                                $rowData[$id_field] :
-                                ''
-                            )
-                        ),
-                        $this->buildRow($rowData)
+            ob_start();
+            if (isset($this->form)) {
+                printf($this->form);
+            }
+            if ($node != 'home') {
+                echo '<div class="table-holder col-xs-'
+                    . $colsize
+                    . '">';
+            }
+            echo '<table class="table'
+                . (
+                    count($this->data) < 1 ?
+                    ' noresults' :
+                    ''
+                )
+                . '">';
+            if (count($this->data) < 1) {
+                echo '<thead><tr class="header"></tr></thead>';
+                echo '<tbody>';
+                $tablestr = '<tr><td colspan="'
+                    . count($this->templates)
+                    . '">';
+                if ($this->data['error']) {
+                    $tablestr .= (
+                        is_array($this->data['error']) ?
+                        '<p>'
+                        . implode('</p><p>', $this->data['error'])
+                        : $this->data['error']
                     );
+                } else {
+                    $tablestr .= self::$foglang['NoResults'];
+                }
+                $tablestr .= '</td></tr>';
+                echo $tablestr;
+                echo '</tbody>';
+            } else {
+                if (count($this->headerData) > 0) {
+                    echo '<thead>';
+                    echo $this->buildHeaderRow();
+                    echo '</thead>';
+                }
+                echo '<tbody>';
+                $tablestr = '';
+                foreach ($this->data as &$rowData) {
+                    $tablestr .= '<tr class="'
+                        . strtolower($node)
+                        . '" '
+                        . (
+                            isset($rowData['id']) || isset($rowData[$id_field]) ?
+                            'id="'
+                            . $node
+                            . '-'
+                            . (
+                                isset($rowData['id']) ?
+                                $rowData['id'] . '"' :
+                                $rowData[$id_field] . '"'
+                            ) :
+                            ''
+                        )
+                        . '>';
+                    $tablestr .= $this->buildRow($rowData);
+                    $tablestr .= '</tr>';
                     unset($rowData);
                 }
+                echo $tablestr;
+                echo '</tbody>';
             }
-            echo '</tbody></table>';
-            $text = ob_get_clean();
-            $text .= $actionbox;
-            return $text;
+            echo '</table>';
+            if ($node != 'home') {
+                echo '</div>';
+            }
         } catch (Exception $e) {
             return $e->getMessage();
         }
-        return $result;
+        return ob_get_clean()
+            . $actionbox;
     }
     /**
      * Sets the attributes
@@ -922,32 +898,34 @@ abstract class FOGPage extends FOGBase
     {
         unset($this->atts);
         $this->_setAtts();
-        if (!$this->headerData) {
+        if (count($this->headerData) < 1) {
             return;
         }
-        $setHeaderData = function (&$content, $index) {
-            printf(
-                '<%s%s data-column="%s">%s</%s>',
-                $this->_headerWrap,
-                ($this->atts[$index] ? $this->atts[$index] : ''),
-                $index,
-                $content,
-                $this->_headerWrap
-            );
-        };
         ob_start();
-        printf(
-            '<thead%s><tr class="header">',
-            (
+        echo '<tr class="header'
+            . (
                 count($this->data) < 1 ?
-                ' class="hidden"' :
+                ' hiddeninitially' :
                 ''
             )
-        );
-        if (count($this->headerData)) {
-            array_walk($this->headerData, $setHeaderData);
+            . '">';
+        foreach ($this->headerData as $index => &$content) {
+            echo '<th'
+                . (
+                    $this->atts[$index] ?
+                    ' '
+                    . $this->atts[$index]
+                    . ' ' :
+                    ' '
+                )
+                . 'data-column="'
+                . $index
+                . '">';
+            echo $content;
+            echo '</th>';
+            unset($content);
         }
-        echo '</tr></thead>';
+        echo '</tr>';
         return ob_get_clean();
     }
     /**
@@ -999,21 +977,19 @@ abstract class FOGPage extends FOGBase
         $this->_setAtts();
         ob_start();
         foreach ((array)$this->templates as $index => &$template) {
-            printf(
-                '<%s%s>%s</%s>',
-                $this->_wrapper,
-                (
+            echo '<td'
+                . (
                     $this->atts[$index] ?
-                    $this->atts[$index] :
+                    ' ' . $this->atts[$index] . ' ' :
                     ''
-                ),
-                str_replace(
-                    $this->dataFind,
-                    $this->dataReplace,
-                    $template
-                ),
-                $this->_wrapper
+                )
+                . '>';
+            echo str_replace(
+                $this->dataFind,
+                $this->dataReplace,
+                $template
             );
+            echo '</td>';
             unset($template);
         }
         return ob_get_clean();
@@ -1080,239 +1056,56 @@ abstract class FOGPage extends FOGBase
                 )
             );
         }
-        $this->title = sprintf(
-            '%s %s %s %s',
-            _('Create'),
-            $TaskType->get('name'),
-            _('task for'),
-            $this->obj->get('name')
-        );
-        printf(
-            '<p class="c"><b>%s</b></p>',
-            _('Are you sure you wish to task these machines')
-        );
-        printf(
-            '<form method="post" action="%s" id="deploy-container">',
-            $this->formAction
-        );
-        echo '<div class="confirm-message">';
-        if ($TaskType->get('id') == 13) {
-            printf(
-                '<p class="c"><p>%s</p>',
-                _('Please select the snapin you want to install')
-            );
-            if ($this->obj instanceof Host) {
-                ob_start();
-                foreach ((array)self::getClass('SnapinManager')
-                    ->find(
-                        array('id' => $this->obj->get('snapins'))
-                    ) as &$Snapin
-                ) {
-                    printf(
-                        '<option value="%d">%s - (%d)</option>',
-                        $Snapin->get('id'),
-                        $Snapin->get('name'),
-                        $Snapin->get('id')
-                    );
-                    unset($Snapin);
-                }
-                unset($Snapins);
-                $options = ob_get_clean();
-                $options ?
-                    printf(
-                        '<select name="snapin">%s</select></p>',
-                        $options
-                    ) :
-                    printf(
-                        '%s</p>',
-                        _('No snapins associated')
-                    );
-            } elseif ($this->obj instanceof Group) {
-                printf(
-                    '%s</p>',
-                    self::getClass('SnapinManager')
-                    ->buildSelectBox(
-                        '',
-                        'snapin'
-                    )
-                );
-            }
-        }
-        printf(
-            '<div class="advanced-settings"><h2>%s</h2>',
-            _('Advanced Settings')
-        );
-        if ($TaskType->isInitNeededTasking()
-            && !$TaskType->isDebug()
-        ) {
-            printf(
-                '<p class="hideFromDebug"><input type="checkbox" '
-                . 'name="shutdown" id="shutdown" '
-                . 'autocomplete="off"%s><label for="shutdown">'
-                . '%s <u>%s</u> %s</label></p>',
-                (
-                    self::getSetting('FOG_TASKING_ADV_SHUTDOWN_ENABLED') ?
-                    ' checked' :
-                    ''
-                ),
-                _('Schedule'),
-                _('Shutdown'),
-                _('after task completion')
-            );
-        }
-        if ($TaskType->get('id') != 14) {
-            printf(
-                '<p><input type="checkbox" name="wol" id="wol"%s/>'
-                . '<label for="wol">%s</label></p>',
-                (
-                    $TaskType->isSnapinTasking() ?
-                    '' :
-                    (
-                        self::getSetting('FOG_TASKING_ADV_WOL_ENABLED') ?
-                        ' checked' :
-                        ''
-                    )
-                ),
-                _('Wake on lan?')
-            );
-        }
-        if (!$TaskType->isDebug()
-            && $TaskType->get('id') != 11
-        ) {
-            if ($TaskType->isInitNeededTasking()
-                && !($this->obj instanceof Group)
-            ) {
-                printf(
-                    '<p><input type="checkbox" name="isDebugTask" '
-                    . 'id="checkDebug"%s/><label for="checkDebug">'
-                    . '%s</label></p>',
-                    (
-                        self::getSetting('FOG_TASKING_ADV_DEBUG_ENABLED') ?
-                        ' checked' :
-                        ''
-                    ),
-                    _('Schedule task as a debug task')
-                );
-            }
-            printf(
-                '<p><input type="radio" name="scheduleType" '
-                . 'id="scheduleInstant" value="instant" '
-                . 'autocomplete="off" checked/><label '
-                . 'for="scheduleInstant">%s <u>%s'
-                . '</u></label></p>',
-                _('Schedule'),
-                _('Instant')
-            );
-            printf(
-                '<p><input type="radio" name="scheduleType" '
-                . 'id="scheduleSingle" value="single" autocomplete="off"/>'
-                . '<label for="scheduleSingle">%s <u>%s</u></label></p>',
-                _('Schedule'),
-                _('Delayed')
-            );
-            echo '<p class="hidden hideFromDebug" id="singleOptions">'
-                . '<input type="text" name="scheduleSingleTime" '
-                . 'id="scheduleSingleTime" autocomplete="off"/></p>';
-            printf(
-                '<p><input type="radio" name="scheduleType" '
-                . 'id="scheduleCron" value="cron" autocomplete="off">'
-                . '<label for="scheduleCron">%s <u>%s</u></label></p>',
-                _('Schedule'),
-                _('Cron-style')
-            );
-            echo '<p class="hidden hideFromDebug" id="cronOptions">';
-            $specialCrons = array(
-                ''=>_('Select a cron type'),
-                'yearly'=>sprintf('%s/%s', _('Yearly'), _('Annually')),
-                'monthly'=>_('Monthly'),
-                'weekly'=>_('Weekly'),
-                'daily'=>sprintf('%s/%s', _('Daily'), _('Midnight')),
-                'hourly'=>_('Hourly'),
-            );
-            ob_start();
-            foreach ($specialCrons as $val => &$name) {
-                printf('<option value="%s">%s</option>', $val, $name);
-                unset($name, $val);
-            }
-            printf(
-                '<select id="specialCrons" name="specialCrons">'
-                . '%s</select><br/><br/>',
-                ob_get_clean()
-            );
-            echo '<input type="text" name="scheduleCronMin" '
-                . 'id="scheduleCronMin" placeholder="min" autocomplete="off"/>';
-            echo '<input type="text" name="scheduleCronHour" '
-                . 'id="scheduleCronHour" placeholder="hour" autocomplete="off"/>';
-            echo '<input type="text" name="scheduleCronDOM" '
-                . 'id="scheduleCronDOM" placeholder="dom" autocomplete="off"/>';
-            echo '<input type="text" name="scheduleCronMonth" '
-                . 'id="scheduleCronMonth" placeholder="month" autocomplete="off"/>';
-            echo '<input type="text" name="scheduleCronDOW" '
-                . 'id="scheduleCronDOW" placeholder="dow" autocomplete="off" /></p>';
-        } elseif ($TaskType->isDebug()
-            || $TaskType->get('id') == 11
-        ) {
-            printf(
-                '<p><input type="radio" name="scheduleType" id="scheduleInstant" '
-                . 'value="instant" autocomplete="off" checked/><label '
-                . 'for="scheduleInstant">%s <u>%s</u></label></p>',
-                _('Schedule'),
-                _('Instant')
-            );
-        }
-        if ($TaskType->get('id') == 11) {
-            printf(
-                "<p>%s</p>",
-                _('Which account would you like to reset the pasword for')
-            );
-            echo '<input type="text" name="account" value="Administrator"/>';
-        }
-        printf(
-            '</div></div><h2>%s</h2>',
-            _('Hosts in Task')
-        );
         unset($this->headerData);
         $this->attributes = array(
+            array(
+                'data-toggle' => 'tooltip',
+                'data-placement' => 'right',
+                'title' => '${host_title}'
+            ),
             array(),
-            array(),
-            array(),
+            array(
+                'data-toggle' => 'tooltip',
+                'data-placement' => 'right',
+                'title' => '${image_title}'
+            )
         );
         $this->templates = array(
-            '<a href="${host_link}" title="${host_title}">${host_name}</a>',
+            '<a href="${host_link}">${host_name}</a>',
             '${host_mac}',
-            '<a href="${image_link}" title="${image_title}">${image_name}</a>'
+            '<a href="${image_link}">${image_name}</a>'
             . '<input type="hidden" name="taskhosts[]" value="${host_id}"/>',
         );
         if ($this->obj instanceof Host) {
             $this->data[] = array(
-                'host_link'=>'?node=host&sub=edit&id=${host_id}',
-                'image_link'=>'?node=image&sub=edit&id=${image_id}',
-                'host_id'=>$this->obj->get('id'),
-                'image_id'=>$this->obj->getImage()->get('id'),
-                'host_name'=>$this->obj->get('name'),
-                'host_mac'=>$this->obj->get('mac'),
-                'image_name'=>$this->obj->getImage()->get('name'),
-                'host_title'=>_('Edit Host'),
-                'image_title'=>_('Edit Image'),
+                'host_link' => '?node=host&sub=edit&id=${host_id}',
+                'image_link' => '?node=image&sub=edit&id=${image_id}',
+                'host_id' => $this->obj->get('id'),
+                'image_id' => $this->obj->getImage()->get('id'),
+                'host_name' => $this->obj->get('name'),
+                'host_mac' => $this->obj->get('mac'),
+                'image_name' => $this->obj->getImage()->get('name'),
+                'host_title' => _('Edit Host'),
+                'image_title' => _('Edit Image'),
             );
-        }
-        if ($this->obj instanceof Group) {
-            foreach ((array)self::getClass('HostManager')
-                ->find(
-                    array('id' => $this->obj->get('hosts'))
-                ) as &$Host
-            ) {
+        } elseif ($this->obj instanceof Group) {
+            Route::listem('host');
+            $Hosts = json_decode(
+                Route::getData()
+            );
+            $Hosts = $Hosts->hosts;
+            foreach ((array)$Hosts as &$Host) {
+                if (!in_array($Host->id, $this->obj->get('hosts'))) {
+                    continue;
+                }
                 $imageID = $imageName = '';
                 if ($TaskType->isImagingTask()) {
-                    $Image = $Host->getImage();
-                    if (!$Image->isValid()) {
+                    $Image = $Host->image;
+                    if (!$Image->isEnabled) {
                         continue;
                     }
-                    if (!$Image->get('isEnabled')) {
-                        continue;
-                    }
-                    $imageID = $Image->get('id');
-                    $imageName = $Image->get('name');
+                    $imageID = $Image->id;
+                    $imageName = $Image->name;
                 }
                 $this->data[] = array(
                     'host_link' => '?node=host&sub=edit&id=${host_id}',
@@ -1320,9 +1113,9 @@ abstract class FOGPage extends FOGBase
                         '%s: ${host_name}',
                         _('Edit')
                     ),
-                    'host_id' => $Host->get('id'),
-                    'host_name' => $Host->get('name'),
-                    'host_mac' => $Host->get('mac')->__toString(),
+                    'host_id' => $Host->id,
+                    'host_name' => $Host->name,
+                    'host_mac' => $Host->macs[0],
                     'image_link' => '?node=image&sub=edit&id=${image_id}',
                     'image_title' => sprintf(
                         '%s: ${image_name}',
@@ -1350,14 +1143,244 @@ abstract class FOGPage extends FOGBase
                 'attributes' => &$this->attributes
             )
         );
-        if (count($this->data)) {
-            printf(
-                '<p class="c"><input type="submit" value="%s"/></p>',
-                $this->title
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Confirm tasking');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Advanced Settings');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        if ($TaskType->get('id') == 13) {
+            echo '<div class="form-group">';
+            echo '<label class="control-label" for="snapin">';
+            echo _('Please select the snapin you want to install');
+            echo '</label>';
+            echo '<div class="input-group">';
+            echo self::getClass('SnapinManager')->buildSelectBox(
+                '',
+                'snapin'
             );
+            echo '</div>';
+            echo '</div>';
         }
-        $this->render();
+        if ($TaskType->get('id') == 11) {
+            echo '<div class="form-group">';
+            echo '<label class="control-label" for="account">';
+            echo _('Account name to reset');
+            echo '</label>';
+            echo '<div class="input-group">';
+            echo '<input class="form-control" id="account" type="'
+                . 'text" name="account" value="Administrator"/>';
+            echo '</div>';
+            echo '</div>';
+        }
+        if ($TaskType->isInitNeededTasking()
+            && !$TaskType->isDebug()
+        ) {
+            echo '<div class="checkbox hideFromDebug">';
+            echo '<label for="shutdown">';
+            echo '<input type="checkbox" name='
+                . '"shutdown" id="shutdown"'
+                . (
+                    self::getSetting('FOG_TASKING_ADV_SHUTDOWN_ENABLED') ?
+                    ' checked' :
+                    ''
+                )
+                . '/>';
+            echo _('Schedule with shutdown');
+            echo '</label>';
+            echo '</div>';
+        }
+        if ($TaskType->get('id') != 14) {
+            echo '<div class="checkbox">';
+            echo '<label for="wol">';
+            echo '<input type="checkbox" name='
+                . '"wol" id="wol"'
+                . (
+                    $TaskType->isSnapinTasking() ?
+                    '' :
+                    (
+                        self::getSetting('FOG_TASKING_ADV_WOL_ENABLED') ?
+                        ' checked' :
+                        ''
+                    )
+                )
+                . '/>';
+            echo _('Wake on lan?');
+            echo '</label>';
+            echo '</div>';
+        }
+        if (!$TaskType->isDebug()
+            && $TaskType->get('id') != 11
+        ) {
+            if ($TaskType->isInitNeededTasking()
+                && !($this->obj instanceof Group)
+            ) {
+                echo '<div class="checkbox">';
+                echo '<label for="checkDebug">';
+                echo '<input type="checkbox" name='
+                    . '"isDebugTask" id="checkDebug"'
+                    . (
+                        self::getSetting('FOG_TASKING_ADV_DEBUG_ENABLED') ?
+                        ' checked' :
+                        ''
+                    )
+                    . '/>';
+                echo _('Schedule as debug task');
+                echo '</label>';
+                echo '</div>';
+            }
+        }
+        echo '<div class="radio">';
+        echo '<label for="scheduleInstant">';
+        echo '<input type="radio" name='
+            . '"scheduleType" id="scheduleInstant" value="instant"'
+            . 'checked/>';
+        echo _('Schedule instant');
+        echo '</label>';
+        echo '</div>';
+        if (!$TaskType->isDebug()
+            && $TaskType->get('id') != 11
+        ) {
+            // Delayed elements
+            echo '<div class="hideFromDebug">';
+            echo '<div class="radio">';
+            echo '<label for="scheduleSingle">';
+            echo '<input type="radio" name='
+                . '"scheduleType" id="scheduleSingle" value="single"/>';
+            echo _('Schedule delayed');
+            echo '</label>';
+            echo '</div>';
+            echo '<div class="form-group hiddeninitially">';
+            echo '<label for="scheduleSingleTime">';
+            echo _('Date and Time');
+            echo '</label>';
+            echo '<div class="input-group">';
+            echo '<input class="form-control" type="text" name='
+                . '"scheduleSingleTime" id='
+                . '"scheduleSingleTime">';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            // Cron elements
+            $specialCrons = array(
+                ''=>_('Select a cron type'),
+                'yearly'=>sprintf('%s/%s', _('Yearly'), _('Annually')),
+                'monthly'=>_('Monthly'),
+                'weekly'=>_('Weekly'),
+                'daily'=>sprintf('%s/%s', _('Daily'), _('Midnight')),
+                'hourly'=>_('Hourly'),
+            );
+            ob_start();
+            foreach ($specialCrons as $val => &$name) {
+                echo '<option value="'
+                    . $val
+                    . '">'
+                    . $name
+                    . '</option>';
+                unset($name);
+            }
+            $cronOpts = ob_get_clean();
+            echo '<div class="hideFromDebug">';
+            echo '<div class="radio">';
+            echo '<label for="scheduleCron">';
+            echo '<input type="radio" name='
+                . '"scheduleType" id="scheduleCron" value="cron"/>';
+            echo _('Schedule cron-style');
+            echo '</label>';
+            echo '</div>';
+            echo '<div class="form-group hiddeninitially">';
+            echo '<div class="cronOptions input-group">';
+            echo FOGCron::buildSpecialCron('specialCrons');
+            echo '</div>';
+            echo '<div class="col-xs-12">';
+            echo '<div class="cronInputs">';
+            echo '<div class="col-xs-2">';
+            echo '<div class="input-group">';
+            echo '<input type="text" name="scheduleCronMin" '
+                . 'placeholder="min" autocomplete="off" '
+                . 'class="form-control scheduleCronMin cronInput"/>';
+            echo '</div>';
+            echo '</div>';
+            echo '<div class="col-xs-2">';
+            echo '<div class="input-group">';
+            echo '<input type="text" name="scheduleCronHour" '
+                . 'placeholder="hour" autocomplete="off" '
+                . 'class="form-control scheduleCronHour cronInput"/>';
+            echo '</div>';
+            echo '</div>';
+            echo '<div class="col-xs-2">';
+            echo '<div class="input-group">';
+            echo '<input type="text" name="scheduleCronDOM" '
+                . 'placeholder="dom" autocomplete="off" '
+                . 'class="form-control scheduleCronDOM cronInput"/>';
+            echo '</div>';
+            echo '</div>';
+            echo '<div class="col-xs-2">';
+            echo '<div class="input-group">';
+            echo '<input type="text" name="scheduleCronMonth" '
+                . 'placeholder="month" autocomplete="off" '
+                . 'class="form-control scheduleCronMonth cronInput"/>';
+            echo '</div>';
+            echo '</div>';
+            echo '<div class="col-xs-2">';
+            echo '<div class="input-group">';
+            echo '<input type="text" name="scheduleCronDOW" '
+                . 'placeholder="dow" autocomplete="off" '
+                . 'class="form-control scheduleCronDOW cronInput"/>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+        }
+        if (count($this->data)) {
+            echo '<div class="col-xs-12">';
+            echo '<label class="control-label col-xs-4" for="taskingbtn">';
+            echo _('Create');
+            echo ' ';
+            echo $TaskType->get('name');
+            echo ' ';
+            echo _('Tasking');
+            echo '</label>';
+            echo '<div class="col-xs-8">';
+            echo '<button type="submit" class="btn btn-info btn-block" id='
+                . '"taskingbtn">';
+            echo _('Task');
+            echo '</button>';
+            echo '</div>';
+            echo '</div>';
+        }
+        echo '</div>';
+        echo '</div>';
+        if ($this->node != 'host') {
+            echo '<div class="panel panel-info">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Hosts in task');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body text-center">';
+            $this->render(12);
+            echo '</div>';
+            echo '</div>';
+        }
         echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Actually create the tasking
@@ -1385,16 +1408,11 @@ abstract class FOGPage extends FOGBase
             /**
              * Account Setup.
              */
-            if (!(isset($_REQUEST['account'])
-                && is_string($_REQUEST['account']))
-            ) {
-                $_REQUEST['account'] = '';
-            }
-            $passreset = $_REQUEST['account'];
+            $passreset = filter_input(INPUT_POST, 'account');
             /**
              * Snapin Setup.
              */
-            $enableSnapins = intval($_REQUEST['snapin']);
+            $enableSnapins = (int)filter_input(INPUT_POST, 'snapin');
             if (0 === $enableSnapins) {
                 $enableSnapins = -1;
             }
@@ -1407,7 +1425,7 @@ abstract class FOGPage extends FOGBase
              * Shutdown Setup.
              */
             $enableShutdown = false;
-            $shutdown = isset($_REQUEST['shutdown']);
+            $shutdown = isset($_POST['shutdown']);
             if ($shutdown) {
                 $enableShutdown = true;
             }
@@ -1415,8 +1433,8 @@ abstract class FOGPage extends FOGBase
              * Debug Setup.
              */
             $enableDebug = false;
-            $debug = isset($_REQUEST['debug']);
-            $isdebug = isset($_REQUEST['isDebugTask']);
+            $debug = isset($_POST['debug']);
+            $isdebug = isset($_POST['isDebugTask']);
             if ($debug || $isdebug) {
                 $enableDebug = true;
             }
@@ -1424,7 +1442,7 @@ abstract class FOGPage extends FOGBase
              * WOL Setup.
              */
             $wol = false;
-            $wolon = isset($_REQUEST['wol']);
+            $wolon = isset($_POST['wol']);
             if (14 == $type
                 || $wolon
             ) {
@@ -1439,7 +1457,7 @@ abstract class FOGPage extends FOGBase
              * Schedule Type Setup.
              */
             $scheduleType = strtolower(
-                $_REQUEST['scheduleType']
+                filter_input(INPUT_POST, 'scheduleType')
             );
             $scheduleTypes = array(
                 'cron',
@@ -1468,7 +1486,7 @@ abstract class FOGPage extends FOGBase
              * Schedule delayed/cron checks.
              */
             $scheduleDeployTime = self::niceDate(
-                $_REQUEST['scheduleSingleTime']
+                filter_input(INPUT_POST, 'scheduleSingleTime')
             );
             switch ($scheduleType) {
             case 'single':
@@ -1484,36 +1502,11 @@ abstract class FOGPage extends FOGBase
                 }
                 break;
             case 'cron':
-                if (!(isset($_REQUEST['scheduleCronMin'])
-                    && is_string($_REQUEST['scheduleCronMin']))
-                ) {
-                    $_REQUEST['scheduleCronMin'] = '';
-                }
-                if (!(isset($_REQUEST['scheduleCronHour'])
-                    && is_string($_REQUEST['scheduleCronHour']))
-                ) {
-                    $_REQUEST['scheduleCronHour'] = '';
-                }
-                if (!(isset($_REQUEST['scheduleCronDOM'])
-                    && is_string($_REQUEST['scheduleCronDOM']))
-                ) {
-                    $_REQUEST['scheduleCronDOM'] = '';
-                }
-                if (!(isset($_REQUEST['scheduleCronMonth'])
-                    && is_string($_REQUEST['scheduleCronMonth']))
-                ) {
-                    $_REQUEST['scheduleCronMonth'] = '';
-                }
-                if (!(isset($_REQUEST['scheduleCronDOW'])
-                    && is_string($_REQUEST['scheduleCronDOW']))
-                ) {
-                    $_REQUEST['scheduleCronDOW'] = '';
-                }
-                $min = strval($_REQUEST['scheduleCronMin']);
-                $hour = strval($_REQUEST['scheduleCronHour']);
-                $dom = strval($_REQUEST['scheduleCronDOM']);
-                $month = strval($_REQUEST['scheduleCronMonth']);
-                $dow = strval($_REQUEST['scheduleCronDOW']);
+                $min = strval(filter_input(INPUT_POST, 'scheduleCronMin'));
+                $hour = strval(filter_input(INPUT_POST, 'scheduleCronHour'));
+                $dom = strval(filter_input(INPUT_POST, 'scheduleCronDOM'));
+                $month = strval(filter_input(INPUT_POST, 'scheduleCronMonth'));
+                $dow = strval(filter_input(INPUT_POST, 'scheduleCronDOW'));
                 $valsToSet = array(
                     'minute' => $min,
                     'hour' => $hour,
@@ -1583,22 +1576,21 @@ abstract class FOGPage extends FOGBase
                 );
             }
             // Is host pending, don't send
-            if ($this->obj instanceof Host
-                && $this->obj->get('pending')
-            ) {
-                throw new Exception(
-                    _('Cannot set tasking to pending hosts')
-                );
+            if ($this->obj instanceof Host) {
+                if ($this->obj->get('pending')) {
+                    throw new Exception(
+                        _('Cannot set tasking to pending hosts')
+                    );
+                }
             } elseif ($this->obj instanceof Group) {
-                if (!(isset($_REQUEST['taskhosts'])
-                    && is_array($_REQUEST['taskhosts'])
-                    && count($_REQUEST['taskhosts']) > 0)
+                if (!(isset($_POST['taskhosts'])
+                    && count($_POST['taskhosts']) > 0)
                 ) {
                     throw new Exception(
                         _('There are no hosts to task in this group')
                     );
                 }
-                $this->obj->set('hosts', $_REQUEST['taskhosts']);
+                $this->obj->set('hosts', $_POST['taskhosts']);
             }
             if ($TaskType->isImagingTask()) {
                 if ($this->obj instanceof Host) {
@@ -1751,7 +1743,9 @@ abstract class FOGPage extends FOGBase
             if (count($error)) {
                 throw new Exception(
                     sprintf(
-                        '<ul><li>%s</li></ul>',
+                        '<ul class="nav nav-pills nav-stacked">'
+                        . '<li>%s</li>'
+                        . '</ul>',
                         implode(
                             '</li><li>',
                             $error
@@ -1761,7 +1755,14 @@ abstract class FOGPage extends FOGBase
             }
         } catch (Exception $e) {
             printf(
-                '<div class="task-start-failed"><p>%s</p><p>%s</p></div>',
+                '<div class="col-xs-9">'
+                . '<div class="panel panel-danger">'
+                . '<div class="panel-body text-center">'
+                . '<p>%s</p>'
+                . '<p>%s</p>'
+                . '</div>'
+                . '</div>'
+                . '</div>',
                 _('Failed to create tasking to some or all'),
                 $e->getMessage()
             );
@@ -1787,19 +1788,35 @@ abstract class FOGPage extends FOGBase
                 );
                 break;
             }
-            printf(
-                '<div class="task-start-ok"><p>%s: %s</p><p>%s%s</p></div>',
-                $TaskType->get('name'),
-                _('Successfully created tasks for'),
-                $time,
-                sprintf(
-                    '<ul>%s</ul>',
-                    implode(
-                        '</ul><ul>',
-                        (array)$success
-                    )
-                )
-            );
+            echo '<div class="col-xs-9">';
+            echo '<div class="panel panel-success">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Tasked Successfully');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body text-center">';
+            echo _('Task');
+            echo ' ';
+            echo $TaskType->get('name');
+            echo ' ';
+            echo _('Successfully created');
+            echo '!';
+            echo '</div>';
+            echo '</div>';
+            echo '<div class="panel panel-success">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Created Tasks For');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body text-center">';
+            echo '<ul class="nav nav-pills nav-stacked">';
+            echo implode((array)$success);
+            echo '</ul>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
         }
     }
     /**
@@ -1810,6 +1827,7 @@ abstract class FOGPage extends FOGBase
     public function deletemulti()
     {
         global $sub;
+        global $node;
         $this->title = sprintf(
             "%s's to remove",
             (
@@ -1826,82 +1844,100 @@ abstract class FOGPage extends FOGBase
                 )
             )
         );
-        unset($this->headerData);
-        $this->attributes = array(
-            array(),
+        if ('Storage' === $this->childClass) {
+            if ('storageGroup' === $sub) {
+                $this->childClass = 'StorageGroup';
+            } else {
+                $this->childClass = 'StorageNode';
+            }
+        }
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
         );
         $this->templates = array(
-            sprintf(
-                '<a href="?node=%s&sub=edit&id=${id}">${name}</a>',
-                $this->node
-            ),
-            '<input type="hidden" value="${id}" name="remitems[]"/>',
+            '${field}',
+            '${input}'
         );
-        $this->additional = array();
-        global $sub;
-        global $node;
-        $reqID = sprintf(
-            '%sIDArray',
-            $node
+        $this->attributes = array(
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group')
         );
-        $reqID = explode(',', $_REQUEST[$reqID]);
-        $reqID = array_unique($reqID);
-        $reqID = array_filter($reqID);
-        foreach ((array)self::getClass($this->childClass)
-            ->getManager()
-            ->find(
-                array('id' => $reqID)
-            ) as &$Object
-        ) {
-            if ($Object->get('protected')) {
+        $reqID = $node
+            . 'IDArray';
+        $items = filter_input(
+            INPUT_POST,
+            $reqID
+        );
+        $reqID = array_values(
+            array_filter(
+                array_unique(
+                    explode(',', $items)
+                )
+            )
+        );
+        Route::listem($this->childClass);
+        $items = json_decode(
+            Route::getData()
+        );
+        $getme = strtolower($this->childClass).'s';
+        $items = $items->$getme;
+        foreach ((array)$items as &$object) {
+            if (!in_array($object->id, $reqID)
+                || $object->protected
+            ) {
                 continue;
             }
             $this->data[] = array(
-                'id' => $Object->get('id'),
-                'name' => $Object->get('name'),
+                'field' => '<input type="hidden" value="'
+                . $object->id
+                . '" name="remitems[]"/>',
+                'input' => '<a href="?node='
+                . $node
+                . '&sub=edit&id='
+                . $object->id
+                . '">'
+                . $object->name
+                . '</a>'
             );
-            array_push(
-                $this->additional,
-                sprintf(
-                    '<p>%s</p>',
-                    $Object->get('name')
-                )
-            );
-            unset($Object);
+            unset($object);
         }
-        if (count($this->data)) {
-            printf(
-                '<div class="confirm-message"><p>%s:</p>'
-                . '<div id="deleteDiv"></div>',
-                $this->title
-            );
-            $this->render();
-            printf(
-                '<p class="c"><input type="hidden" name="storagegroup" '
-                . 'value="%d"/><input type="submit" name="delete" '
-                . 'value="%s?"/></p>',
-                (
-                    $this->childClass === 'StorageGroup' ?
-                    1 :
-                    0
-                ),
-                _('Are you sure you wish to remove these items')
-            );
-        } else {
-            self::setMessage(
-                sprintf(
-                    '%s<br/>%s',
-                    _('No items to delete'),
-                    _('None selected or item is protected')
-                )
-            );
-            self::redirect(
-                sprintf(
-                    '?node=%s',
-                    $this->node
-                )
-            );
+        if (count($this->data) < 1) {
+            self::redirect('?node=' . $node);
         }
+        $this->data[] = array(
+            'field' => '<label for="delete">'
+            . _('Remove these items?')
+            . '</label>',
+            'input' => '<button class="btn btn-danger btn-block" type="submit" '
+            . 'name="delete" id="delete">'
+            . _('Delete')
+            . '</button>',
+        );
+        echo '<!-- Delete Items -->';
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-warning">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<div id="deleteDiv"></div>';
+        $this->render(12);
+        echo '<input type="hidden" name="storagegroup" value="'
+            . (
+                $this->childClass === 'StorageGroup' ?
+                1 :
+                0
+            )
+            . '"/>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Actually performs the deletion actions
@@ -1956,81 +1992,59 @@ abstract class FOGPage extends FOGBase
     {
         unset($this->headerData);
         $this->templates = array(
-            sprintf(
-                '<a href="?node=${node}&sub=${sub}&id='
-                . '${%s_id}${task_type}"><i class="fa '
-                . 'fa-${task_icon} fa-3x"></i><br/>'
-                . '${task_name}</a>',
-                $this->node
-            ),
-            '${task_desc}',
+            '<a href="?node='
+            . $this->node
+            . '&sub=deploy&id=${'
+            . $this->node
+            . '_id}${task_id}"><i class="fa '
+            . 'fa-${task_icon} fa-3x"></i><br/>'
+            . '${task_name}</a>',
+            '${task_desc}'
         );
         $this->attributes = array(
-            array('class' => 'l'),
-            array('style' => 'padding-left: 20px'),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8')
         );
-        printf("<!-- Basic Tasks -->");
-        printf(
-            '<!-- Basic Tasks --><div id="%s-tasks"><h2>%s %s</h2>',
-            $this->node,
-            $this->childClass,
-            _('Tasks')
-        );
-        $taskTypeIterator = function (&$TaskType) {
-            if (!$TaskType->isValid()) {
+        $taskTypeIterator = function (&$TaskType) use (&$access, &$advanced) {
+            if (!in_array($TaskType->access, $access)) {
+                return;
+            }
+            if ($advanced != $TaskType->isAdvanced) {
                 return;
             }
             $this->data[] = array(
-                'node' => $this->node,
-                'sub'=> 'deploy',
-                sprintf(
-                    '%s_id',
-                    $this->node
-                ) =>
-                $this->obj->get('id'),
-                    'task_type' => sprintf(
-                        '&type=%s',
-                        $TaskType->get('id')
-                    ),
-                    'task_icon' => $TaskType->get('icon'),
-                    'task_name' => $TaskType->get('name'),
-                    'task_desc' => $TaskType->get('description'),
-                );
+                $this->node.'_id' => $this->obj->get('id'),
+                'task_id' => '&type='.$TaskType->id,
+                'task_icon' => $TaskType->icon,
+                'task_name' => $TaskType->name,
+                'task_desc' => $TaskType->description,
+            );
             unset($TaskType);
         };
-        $find = array(
-            'access' => array('both', $this->node),
-            'isAdvanced' => 0
+        Route::listem('tasktype', 'id');
+        $items = json_decode(Route::getData());
+        $items = $items->tasktypes;
+        $advanced = 0;
+        $access = array(
+            'both',
+            $this->node
         );
-        foreach ((array)self::getClass('TaskTypeManager')
-            ->find(
-                $find,
-                'AND',
-                'id'
-            ) as &$TaskType
-        ) {
+        foreach ((array)$items as $TaskType) {
             $taskTypeIterator($TaskType);
             unset($TaskType);
         }
         $this->data[] = array(
-            'node' => $this->node,
-            'sub' => 'edit',
-            sprintf(
-                '%s_id',
-                $this->node
-            ) => $this->obj->get('id'),
-                'task_type' => sprintf(
-                    '#%s-tasks" class="advanced-tasks-link',
-                    $this->node
-                ),
-                'task_icon' => 'bars',
-                'task_name' => _('Advanced'),
-                'task_desc' => sprintf(
-                    '%s %s',
-                    _('View advanced tasks for this'),
-                    $this->node
-                ),
-            );
+            $this->node.'_id' => $this->obj->get('id'),
+            'task_id' => '#'
+            . $this->node
+            . '-tasks" class="advanced-tasks-link',
+            'task_icon' => 'bars',
+            'task_name' => _('Advanced'),
+            'task_desc' => _('View advanced tasks for this')
+            . ' '
+            . $this->node
+            . '.'
+        );
         self::$HookManager->processEvent(
             sprintf(
                 '%s_EDIT_TASKS',
@@ -2043,24 +2057,32 @@ abstract class FOGPage extends FOGBase
                 'attributes' => &$this->attributes
             )
         );
-        $this->render();
+        echo '<!-- Taskings -->';
+        echo '<div class="tab-pane fade" id="'
+            . $this->node
+            . '-tasks">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->childClass;
+        echo ' ';
+        echo _('Tasks');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        $this->render(12);
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="panel panel-info advanced-tasks">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Advanced Actions');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
         unset($this->data);
-        printf(
-            '<div id="advanced-tasks" class="hidden"><h2>%s</h2>',
-            _('Advanced Actions')
-        );
-        unset($TaskTypes);
-        $find = array(
-            'access' => array('both', $this->node),
-            'isAdvanced' => 1
-        );
-        foreach ((array)self::getClass('TaskTypeManager')
-            ->find(
-                $find,
-                'AND',
-                'id'
-            ) as &$TaskType
-        ) {
+        $advanced = 1;
+        foreach ((array)$items as &$TaskType) {
             $taskTypeIterator($TaskType);
             unset($TaskType);
         }
@@ -2076,9 +2098,11 @@ abstract class FOGPage extends FOGBase
                 'attributes' => &$this->attributes
             )
         );
-        $this->render();
+        $this->render(12);
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
         unset($TaskTypes);
-        echo '</div></div>';
         unset($this->data);
     }
     /**
@@ -2091,6 +2115,8 @@ abstract class FOGPage extends FOGBase
      * @param string $ADPass       the password
      * @param string $ADPassLegacy the legacy password
      * @param mixed  $enforce      enforced selected
+     * @param mixed  $ownElement   do we need to be our own container
+     * @param mixed  $retFields    return just the fields?
      *
      * @return void
      */
@@ -2101,33 +2127,12 @@ abstract class FOGPage extends FOGBase
         $ADUser = '',
         $ADPass = '',
         $ADPassLegacy = '',
-        $enforce = ''
+        $enforce = '',
+        $ownElement = true,
+        $retFields = false
     ) {
-        unset(
-            $this->data,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
+        global $node;
         global $sub;
-        if (empty($useAD)) {
-            $useAD = $_REQUEST['domain'];
-        }
-        if (empty($ADDomain)) {
-            $ADDomain = $_REQUEST['domainname'];
-        }
-        if (empty($ADOU)) {
-            $ADOU = trim(str_replace(';', '', $_REQUEST['ou']));
-        }
-        if (empty($ADUser)) {
-            $ADUser = $_REQUEST['domainuser'];
-        }
-        if (empty($ADPass)) {
-            $ADPass = $_REQUEST['domainpassword'];
-        }
-        if (empty($ADPassLegacy)) {
-            $ADPassLegacy = $_REQUEST['domainpasswordlegacy'];
-        }
         if ($this->obj->isValid()) {
             if (empty($useAD)) {
                 $useAD = $this->obj->get('useAD');
@@ -2187,123 +2192,143 @@ abstract class FOGPage extends FOGBase
                 );
             }
             $OUOptions = sprintf(
-                '<select id="adOU" class="smaller" name="ou">%s</select>',
+                '<select id="adOU" class="form-control" name="ou">'
+                . '%s</select>',
                 ob_get_clean()
             );
         } else {
             $OUOptions = sprintf(
-                '<input id="adOU" class="smaller" type="text" name="ou" '
-                . 'value="%s" autocomplete="off"/>',
+                '<input id="adOU" class="form-control" type="text" name='
+                . '"ou" value="%s" autocomplete="off"/>',
                 $ADOU
             );
         }
-        echo '<!-- Active Directory -->';
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
-        $this->attributes = array(
-            array(),
-            array(),
-        );
         $fields = array(
-            '<input type="text" '
-            . 'name="fakeusernameremembered"/>' =>
-            '<input type="password" '
-            . 'name="fakepasswordremembered"/>',
-            _('Join Domain after image task') =>
+            '<label for="clearAD">'
+            . _('Clear all fields?')
+            . '</label>' => '<button class="btn btn-warning btn-block" '
+            . 'type="button" id="clearAD">'
+            . _('Clear Fields')
+            . '</button>',
             sprintf(
-                '<input id="adEnabled" type="checkbox" name="domain"%s/>'
-                . '<label for="adEnabled"></label>',
+                '<label for="adEnabled">%s</label>',
+                _('Join Domain after deploy')
+            ) => sprintf(
+                '<input id="adEnabled" type="checkbox" name="domain"%s/>',
                 (
                     $useAD ?
                     ' checked' :
                     ''
                 )
             ),
-            _('Domain name') =>
             sprintf(
-                '<input id="adDomain" class="smaller" type="text" '
-                . 'name="domainname" value="%s" autocomplete="off"/>',
+                '<label for="adDomain">%s</label>',
+                _('Domain name')
+            ) => sprintf(
+                '<div class="input-group">'
+                . '<input id="adDomain" class="form-control" type="text" '
+                . 'name="domainname" value="%s" autocomplete="off"/>'
+                . '</div>',
                 $ADDomain
             ),
             sprintf(
-                '%s<br/><span class="lightColor">(%s)</span>',
+                '<label for="adOU">%s'
+                . '<br/>(%s)'
+                . '</label>',
                 _('Organizational Unit'),
                 _('Blank for default')
             ) => $OUOptions,
-            _('Domain Username') =>
             sprintf(
-                '<input id="adUsername" class="smaller" type="text" '
-                . 'name="domainuser" value="%s" autocomplete="off"/>',
+                '<label for="adUsername">%s</label>',
+                _('Domain Username')
+            ) => sprintf(
+                '<div class="input-group">'
+                . '<input id="adUsername" class="form-control" type="text" '
+                . 'name="domainuser" value="%s" autocomplete="off"/>'
+                . '</div>',
                 $ADUser
             ),
             sprintf(
-                '%s<br/>(%s)',
+                '<label for="adPassword">%s'
+                . '<br/>(%s)'
+                . '</label>',
                 _('Domain Password'),
                 _('Will auto-encrypt plaintext')
-            ) =>
-            sprintf(
-                '<input id="adPassword" class="smaller" type="password" '
-                . 'name="domainpassword" value="%s" autocomplete="off"/>',
+            ) => sprintf(
+                '<div class="input-group">'
+                . '<input id="adPassword" class="form-control" type='
+                . '"password" '
+                . 'name="domainpassword" value="%s" autocomplete="off"/>'
+                . '</div>',
                 $ADPass
             ),
             sprintf(
-                '%s<br/>(%s)',
+                '<label for="adPasswordLegacy">%s'
+                . '<br/>(%s)'
+                . '</label>',
                 _('Domain Password Legacy'),
                 _('Must be encrypted')
-            ) =>
-            sprintf(
-                '<input id="adPasswordLegacy" class="smaller" '
+            ) => sprintf(
+                '<div class="input-group">'
+                . '<input id="adPasswordLegacy" class="form-control" '
                 . 'type="password" name="domainpasswordlegacy" '
-                . 'value="%s" autocomplete="off"/>',
+                . 'value="%s" autocomplete="off"/>'
+                . '</div>',
                 $ADPassLegacy
             ),
             sprintf(
-                '%s %s?',
-                _('Reboot host on hostname changes and'),
-                _('AD changes even if users are logged in')
+                '<label for="ensel">'
+                . '%s?'
+                . '</label>',
+                _('Name Change/AD Join Forced reboot')
             ) =>
             sprintf(
                 '<input name="enforcesel" type="checkbox" id="'
-                . 'ensel" autocomplete="off"%s/><label for="ensel">'
-                . '</label><input type="hidden" '
-                . 'name="enforce"/>',
+                . 'ensel" autocomplete="off"%s/>',
                 (
                     $enforce ?
                     ' checked' :
                     ''
                 )
             ),
-            '&nbsp;' =>
-            sprintf(
-                '<input name="updatead" type="submit" value="%s"/>',
-                (
-                    $sub == 'add' ?
-                    _('Add') :
-                    _('Update')
-                )
-            ),
+            '<label for="'
+            . $node
+            . '-'
+            . $sub
+            . '">'
+            . _('Make changes?')
+            . '</label>' => '<button class="'
+            . 'btn btn-info btn-block" type="submit" name='
+            . '"updatead" id="'
+            . $node
+            . '-'
+            . $sub
+            . '">'
+            . (
+                $sub == 'add' ?
+                _('Add') :
+                _('Update')
+            )
+            . '</button>'
         );
-        printf(
-            '<div id="%s-active-directory"><form method="post" '
-            . 'action="%s&tab=%s-active-directory"><h2>%s<div '
-            . 'id="adClear"></div></h2>',
-            $this->node,
-            $this->formAction,
-            $this->node,
-            _('Active Directory')
-        );
-        foreach ((array)$fields as $field => &$input) {
-            $this->data[] = array(
-                'field' => $field,
-                'input' => $input
-            );
-            unset(
-                $input,
-                $field
-            );
+        if ($retFields) {
+            return $fields;
         }
+        unset(
+            $this->data,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
+        $this->templates = array(
+            '${field}',
+            '${input}',
+        );
+        $this->attributes = array(
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8'),
+        );
+        array_walk($fields, $this->fieldsToData);
         self::$HookManager->processEvent(
             sprintf(
                 '%s_EDIT_AD',
@@ -2316,9 +2341,41 @@ abstract class FOGPage extends FOGBase
                 'templates' => &$this->templates
             )
         );
-        $this->render();
+        echo '<!-- Active Directory -->';
+        if ($ownElement) {
+            echo '<div id="'
+                . $node
+                . '-active-directory" class="tab-pane fade">';
+        }
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title text-center">';
+        echo _('Active Directory');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        if ($ownElement) {
+            echo '<form class="form-horizontal" method="post" action="'
+                . $this->formAction
+                . '&tab='
+                . $node
+                . '-active-directory'
+                . '">';
+        }
+        echo '<input type="text" name="fakeusernameremembered" class='
+            . '"fakes hidden"/>';
+        echo '<input type="password" name="fakepasswordremembered" class='
+            . '"fakes hidden"/>';
+        $this->render(12);
+        if ($ownElement) {
+            echo '</form>';
+        }
+        echo '</div>';
+        echo '</div>';
+        if ($ownElement) {
+            echo '</div>';
+        }
         unset($this->data);
-        echo '</form></div>';
     }
     /**
      * Get's the adinformation from ajax
@@ -2380,12 +2437,13 @@ abstract class FOGPage extends FOGBase
     public function kernelfetch()
     {
         try {
+            $msg = filter_input(INPUT_POST, 'msg');
             if ($_SESSION['allow_ajax_kdl']
                 && $_SESSION['dest-kernel-file']
                 && $_SESSION['tmp-kernel-file']
                 && $_SESSION['dl-kernel-file']
             ) {
-                if ($_REQUEST['msg'] == 'dl') {
+                if ($msg == 'dl') {
                     $fh = fopen(
                         $_SESSION['tmp-kernel-file'],
                         'wb'
@@ -2395,14 +2453,6 @@ abstract class FOGPage extends FOGBase
                             _('Error: Failed to open temp file')
                         );
                     }
-                    /*$test = self::$FOGURLRequests
-                        ->isAvailable($_SESSION['dl-kernel-file']);
-                    $test = array_shift($test);
-                    if (false === $test) {
-                        throw new Exception(
-                            _('Error: Failed to connect to server')
-                        );
-                    }*/
                     self::$FOGURLRequests->process(
                         $_SESSION['dl-kernel-file'],
                         'GET',
@@ -2433,7 +2483,7 @@ abstract class FOGPage extends FOGBase
                         );
                     }
                     die('##OK##');
-                } elseif ($_REQUEST['msg'] == 'tftp') {
+                } elseif ($msg == 'tftp') {
                     $destfile = $_SESSION['dest-kernel-file'];
                     $tmpfile = $_SESSION['tmp-kernel-file'];
                     unset(
@@ -2530,7 +2580,7 @@ abstract class FOGPage extends FOGBase
             if (!self::getMACLookupCount()) {
                 throw new Exception(
                     sprintf(
-                        '<a href="?node=about&sub=mac-list">%s</a>',
+                        '<a href="?node=about&sub=maclist">%s</a>',
                         _('Load MAC Vendors')
                     )
                 );
@@ -2566,51 +2616,47 @@ abstract class FOGPage extends FOGBase
         );
         unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',
             '${input}',
         );
-        $fields = array(
-            sprintf(
-                '%s <b>%s</b>',
-                _('Please confirm you want to delete'),
-                $this->obj->get('name')
-            ) =>
-            '&nbsp;',
-            (
-                $this->obj instanceof Group ?
-                _('Delete all hosts within group') :
-                null
-            ) =>
-            (
-                $this->obj instanceof Group ?
-                '<input type="checkbox" name="massDelHosts" value="1" id="'
+        if ($this->obj instanceof Group) {
+            $fieldsg = array(
+                '<label for="massDel">'
+                . _('Delete hosts within')
+                . '</label>' => '<div class="input-group checkbox">'
+                . '<input type="checkbox" name="massDelHosts" id="'
                 . 'massDel"/>'
-                . '<label for="massDel"></label>' :
-                null
-            ),
-            (
-                $this->obj instanceof Image
-                || $this->obj instanceof Snapin ?
-                _('Delete file data') :
-                null
-            ) =>
-            (
-                $this->obj instanceof Image
-                || $this->obj instanceof Snapin ?
-                '<input type="checkbox" name="andFile" id="andFile" value="1"/>'
-                . '<label for="andFile"></label>' :
-                null
-            ),
-            '&nbsp;' =>
-            sprintf(
-                '<input type="hidden" name="remitems[]" value="%s"/>'
-                . '<input type="submit" name="delete" value="${label}"/>',
-                $this->obj->get('id')
-            ),
+                . '</div>'
+            );
+        } elseif ($this->obj instanceof Image || $this->obj instanceof Snapin) {
+            $fieldsi = array(
+                '<label for="andFile">'
+                . _('Delete files')
+                . '</label>' => '<div class="input-group checkbox">'
+                . '<input type="checkbox" name="andFile" id="'
+                . 'andFile"/>'
+                . '</div>'
+            );
+        }
+        $fields = self::fastmerge(
+            (array)$fieldsg,
+            (array)$fieldsi,
+            array(
+                '<label for="delete">'
+                . $this->title
+                . '</label>' => '<input type="hidden" name="remitems[]" '
+                . 'value="'
+                . $this->obj->get('id')
+                . '"/>'
+                . '<button type="submit" name="delete" id="delete" '
+                . 'class="btn btn-danger btn-block">'
+                . _('Delete')
+                . '</button>'
+            )
         );
         $fields = array_filter($fields);
         self::$HookManager->processEvent(
@@ -2620,27 +2666,37 @@ abstract class FOGPage extends FOGBase
             ),
             array($this->childClass => &$this->obj)
         );
-        foreach ((array)$fields as $field => &$input) {
-            $this->data[] = array(
-                'field' => $field,
-                'input' => $input,
-                'label' => $this->title,
-            );
-            unset($input, $field);
-        }
+        array_walk($fields, $this->fieldsToData);
         self::$HookManager->processEvent(
             sprintf(
                 '%S_DEL',
                 strtoupper($this->childClass)
             ),
-            array($this->childClass => &$this->obj)
+            array(
+                'data' => &$this->data,
+                'headerData' => &$this->headerData,
+                'templates' => &$this->templates,
+                'attributes' => &$this->attributes,
+                $this->childClass => &$this->obj
+            )
         );
-        printf(
-            '<div id="deleteDiv"></div><form method="post" action="%s">',
-            $this->formAction
-        );
-        $this->render();
-        echo "</form>";
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-warning">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<div id="deleteDiv"></div>';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
+        $this->render(12);
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Sends the new client the configuration options
@@ -3045,19 +3101,14 @@ abstract class FOGPage extends FOGBase
                 );
             }
             if ($this->obj instanceof Group) {
-                if (isset($_REQUEST['delHostConfirm'])) {
+                if (isset($_POST['massDelHosts'])) {
                     self::getClass('HostManager')
                         ->destroy(
                             array('id' => $this->obj->get('hosts'))
                         );
                 }
-                if (isset($_REQUEST['massDelHosts'])) {
-                    self::redirect(
-                        "?node=group&sub=deletehosts&id={$this->obj->get(id)}"
-                    );
-                }
             }
-            if ($_REQUEST['andFile'] === "true") {
+            if (isset($_POST['andFile'])) {
                 $this->obj->deleteFile();
             }
             if (!$this->obj->destroy()) {
@@ -3110,10 +3161,10 @@ abstract class FOGPage extends FOGBase
         if ($this->childClass == 'Task') {
             $eventClass = 'host';
         }
-        $this->title = _('Search');
-        if (in_array($this->node, self::$searchPages)) {
-            $this->searchFormURL = sprintf('?node=%s&sub=search', $this->node);
-        }
+        $this->title = _('Search')
+            . ' '
+            . $this->node
+            . "s";
         self::$HookManager->processEvent(
             sprintf(
                 '%s_DATA',
@@ -3125,7 +3176,6 @@ abstract class FOGPage extends FOGBase
                 'headerData' => &$this->headerData,
                 'attributes' => &$this->attributes,
                 'title' => &$this->title,
-                'searchFormURL' => &$this->searchFormURL
             )
         );
         self::$HookManager->processEvent(
@@ -3135,7 +3185,16 @@ abstract class FOGPage extends FOGBase
             ),
             array('headerData' => &$this->headerData)
         );
-        $this->render();
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        $this->render(12);
+        echo '</div>';
     }
     /**
      * Search form submission
@@ -3149,36 +3208,14 @@ abstract class FOGPage extends FOGBase
             '%sManager',
             $this->childClass
         );
-        /**
-         * For use with api based system.
-        $url = sprintf(
-            'http%s://%s/fog/%s/search/%s',
-            filter_input(INPUT_SERVER, 'HTTPS') ? 's' : '',
-            filter_input(INPUT_SERVER, 'HTTP_HOST'),
-            strtolower($this->childClass),
-            $_REQUEST['crit']
+        Route::search(
+            $this->childClass,
+            filter_input(INPUT_POST, 'crit')
         );
-        self::$FOGURLRequests->headers = array(
-            'fog-api-token: '
-            . base64_encode(self::getSetting('FOG_API_TOKEN'))
-        );
-        $items = self::$FOGURLRequests
-            ->process(
-                $url,
-                'GET',
-                null,
-                false,
-                self::$FOGUser->get('name')
-                . ':'
-                . self::$FOGUser->get('password')
-            );
-        $items = json_decode(
-            $items[0]
-        );
-        $type = $_REQUEST['node'].'s';
+        $items = json_decode(Route::getData());
+        $type = $this->node
+            .'s';
         $search = $items->$type;
-         */
-        $search = self::getClass($manager)->search('', true);
         if (count($search) > 0) {
             array_walk($search, static::$returnData);
         }
@@ -3220,205 +3257,185 @@ abstract class FOGPage extends FOGBase
      */
     public function membership()
     {
-        $objType = $this->obj instanceof Host;
-        $this->data = array();
-        echo '<!-- Membership -->';
-        printf(
-            '<div id="%s-membership">',
-            $this->node
+        $objType = $this->obj instanceof Host ? 'group' : 'host';
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
         );
         $this->headerData = array(
-            sprintf(
-                '<input type="checkbox" name="toggle-checkbox%s1" '
-                . 'class="toggle-checkbox1" id="toggler"/>'
-                . '<label for="toggler"></label>',
-                $this->node
-            ),
-            sprintf(
-                '%s %s',
-                (
-                    $objType ?
-                    _('Group') :
-                    _('Host')
-                ),
-                _('Name')
-            ),
+            '<label for="toggler">'
+            . '<input type="checkbox" name="toggle-checkbox'
+            . $this->node
+            . '1" class="toggle-checkbox1" id="toggler"/>'
+            . '</label>',
+            _(ucfirst($objType) . ' Name')
         );
         $this->templates = array(
-            sprintf(
-                '<input type="checkbox" name="host[]" value="${host_id}" '
-                . 'class="toggle-%s${check_num}" id="host-${host_id}"/>'
-                . '<label for="host-${host_id}"></label>',
-                (
-                    $objType ?
-                    'group' :
-                    'host'
-                )
-            ),
-            sprintf(
-                '<a href="?node=%s&sub=edit&id=${host_id}" '
-                . 'title="Edit: ${host_name}">${host_name}</a>',
-                (
-                    $objType ?
-                    'group' :
-                    'host'
-                )
-            ),
+            '<label for="host-${host_id}">'
+            . '<input type="checkbox" name="host[]" class="toggle-'
+            . $objType
+            . '${check_num}" id="host-${host_id}" '
+            . 'value="${host_id}"/>'
+            . '</label>',
+            '<a href="?node='
+            . $objType
+            . '&sub=edit&id=${host_id}">${host_name}</a>'
         );
         $this->attributes = array(
-            array('width'=>16,'class'=>'l filter-false'),
-            array('width'=>150,'class'=>'l'),
-        );
-        $ClassCall = (
-            $objType ?
-            'Group' :
-            'Host'
-        );
-        extract(
-            self::getSubObjectIDs(
-                $ClassCall,
-                array(
-                    'id' => $this->obj->get(
-                        sprintf(
-                            '%ssnotinme',
-                            strtolower($ClassCall)
-                        )
-                    )
-                ),
-                array(
-                    'name',
-                    'id'
-                )
-            )
-        );
-        $itemParser = function (
-            &$nam,
-            &$index
-        ) use (&$id) {
-            $this->data[] = array(
-                'host_id'=>$id[$index],
-                'host_name'=>$nam,
-                'check_num'=>1,
-            );
-            unset(
-                $nam,
-                $id[$index],
-                $index
-            );
-        };
-        if (count($name) > 0) {
-            array_walk($name, $itemParser);
-        }
-        if (count($this->data) > 0) {
-            self::$HookManager->processEvent(
-                sprintf(
-                    'OBJ_%s_NOT_IN_ME',
-                    strtoupper($ClassCall)
-                ),
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-            printf(
-                '<form method="post" action="%s">'
-                . '<p class="c">%s %ss %s %s&nbsp;&nbsp;<input '
-                . 'type="checkbox" name="%sMeShow" id="%sMeShow"/>'
-                . '<label for="%sMeShow"></label></p>'
-                . '<div id="%sNotInMe"><h2>%s %s</h2>',
-                $this->formAction,
-                _('Check here to see'),
-                strtolower($ClassCall),
-                _('not within this'),
-                $this->node,
-                strtolower($ClassCall),
-                strtolower($ClassCall),
-                strtolower($ClassCall),
-                strtolower($ClassCall),
-                _('Modify Membership for'),
-                $this->obj->get('name')
-            );
-            $this->render();
-            printf(
-                '</div><br/><p class="c"><input type="submit" '
-                . 'value="%s %s(s) to %s" name="addHosts"/></p><br/>',
-                _('Add'),
-                (
-                    $objType ?
-                    _('Group') :
-                    _('Host')
-                ),
-                $this->node
-            );
-        }
-        unset($this->data);
-        $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" '
-            . 'class="toggle-checkboxAction" id="toggler1"/>'
-            . '<label for="toggler1"></label>',
-            sprintf(
-                '%s %s',
-                _($ClassCall),
-                _('Name')
+            array(
+                'width' => 16,
+                'class' => 'filter-false'
             ),
+            array()
+        );
+        Route::listem($objType);
+        $items = json_decode(
+            Route::getData()
+        );
+        $getType = $objType . 's';
+        $getter = $getType . 'notinme';
+        $items = $items->$getType;
+        $returnData = function (&$item) use (&$getter) {
+            if (!in_array($item->id, $this->obj->get($getter))) {
+                return;
+            }
+            $this->data[] = array(
+                'host_id' => $item->id,
+                'host_name' => $item->name,
+                'check_num' => 1,
+            );
+            unset($item);
+        };
+        array_walk($items, $returnData);
+        echo '<!-- Membership -->';
+        echo '<div class="col-xs-9">';
+        echo '<div class="tab-pane fade in active" id="'
+            . $this->node
+            . '-membership">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->childClass
+            . ' '
+            . _('Membership');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
+        if (count($this->data) > 0) {
+            $notInMe = $meShow = $objType;
+            $meShow .= 'MeShow';
+            $notInMe .= 'NotInMe';
+            echo '<div class="text-center">';
+            echo '<div class="checkbox">';
+            echo '<label for="'
+                . $meShow
+                . '">';
+            echo '<input type="checkbox" name="'
+                . $meShow
+                . '" id="'
+                . $meShow
+                . '"/>';
+            echo _("Check here to see what $getType can be added");
+            echo '</label>';
+            echo '</div>';
+            echo '</div>';
+            echo '<br/>';
+            echo '<div class="hiddeninitially panel panel-info" id="'
+                . $notInMe
+                . '">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Add')
+                . ' '
+                . ucfirst($getType);
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            $this->render(12);
+            echo '<div class="form-group">';
+            echo '<label for="update'
+                . $getType
+                . '" class="control-label col-xs-4">';
+            echo _("Add selected $getType");
+            echo '</label>';
+            echo '<div class="col-xs-8">';
+            echo '<button type="submit" name="addHosts" '
+                . 'id="update'
+                . $getType
+                . '" class="btn btn-info btn-block">'
+                . _('Add')
+                . '</button>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+        }
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
+        $this->headerData = array(
+            '<label for="toggler1">'
+            . '<input type="checkbox" name="toggle-checkbox" '
+            . 'class="toggle-checkboxAction" id="toggler1"/></label>',
+            _(ucfirst($objType) . ' Name')
         );
         $this->templates = array(
-            '<input type="checkbox" name="hostdel[]" '
+            '<label for="hostrm-${host_id}">'
+            . '<input type="checkbox" name="hostdel[]" '
             . 'value="${host_id}" class="toggle-action" id="'
-            . 'host1-${host_id}"/>'
-            . '<label for="host1-${host_id}"></label>',
-            sprintf(
-                '<a href="?node=%s&sub=edit&id=${host_id}" '
-                . 'title="Edit: ${host_name}">${host_name}</a>',
-                strtolower($ClassCall)
-            ),
+            . 'hostrm-${host_id}"/>'
+            . '</label>',
+            '<a href="?node='
+            . $objType
+            . '&sub=edit&id=${host_id}">${host_name}</a>'
         );
-        extract(
-            self::getSubObjectIDs(
-                $ClassCall,
-                array(
-                    'id' => $this->obj->get(
-                        sprintf(
-                            '%ss',
-                            strtolower($ClassCall)
-                        )
-                    )
-                ),
-                array(
-                    'name',
-                    'id'
-                )
-            )
-        );
-        if (count($name) > 0) {
-            array_walk($name, $itemParser);
-        }
-        self::$HookManager->processEvent(
-            'OBJ_MEMBERSHIP',
+        $this->attributes = array(
             array(
-                'headerData' => &$this->headerData,
-                'data' => &$this->data,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
-            )
+                'width' => 16,
+                'class' => 'filter-false'
+            ),
+            array()
         );
-        printf(
-            '<form method="post" action="%s">',
-            $this->formAction
-        );
-        $this->render();
-        if (count($this->data)) {
-            printf(
-                '<p class="c"><input type="submit" '
-                . 'value="%s %ss %s %s" name="remhosts"/></p>',
-                _('Delete Selected'),
-                $ClassCall,
-                _('From'),
-                $this->node
-            );
+        $getter = $getType;
+        array_walk($items, $returnData);
+        if (count($this->data) > 0) {
+            echo '<div class="panel panel-warning">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Remove ' . ucfirst($getType));
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            $this->render(12);
+            echo '<div class="form-group">';
+            echo '<label for="remhosts" class="control-label col-xs-4">';
+            echo _('Remove selected ' . $getType);
+            echo '</label>';
+            echo '<div class="col-xs-8">';
+            echo '<button type="submit" name="remhosts" class='
+                . '"btn btn-danger btn-block" id="remhosts">'
+                . _('Remove')
+                . '</button>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
         }
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Commonized membership actions
@@ -3430,20 +3447,26 @@ abstract class FOGPage extends FOGBase
         if (self::$ajax) {
             return;
         }
-        if (isset($_REQUEST['addHosts'])) {
-            $this->obj->addHost($_REQUEST['host']);
+        $reqitems = filter_input_array(
+            INPUT_POST,
+            array(
+                'host' => array(
+                    'flags' => FILTER_REQUIRE_ARRAY
+                ),
+                'hostdel' => array(
+                    'flags' => FILTER_REQUIRE_ARRAY
+                )
+            )
+        );
+        $host = $reqitems['host'];
+        $hostdel = $reqitems['hostdel'];
+        if (isset($_POST['addHosts'])) {
+            $this->obj->addHost($host);
         }
-        if (isset($_REQUEST['remhosts'])) {
-            $this->obj->removeHost($_REQUEST['hostdel']);
+        if (isset($_POST['remhosts'])) {
+            $this->obj->removeHost($hostdel);
         }
         if ($this->obj->save()) {
-            self::setMessage(
-                sprintf(
-                    '%s %s',
-                    $this->obj->get('name'),
-                    _('saved successfully')
-                )
-            );
             self::redirect($this->formAction);
         }
     }
@@ -3471,56 +3494,54 @@ abstract class FOGPage extends FOGBase
             'Export %s',
             $this->childClass
         );
-        unset($this->headerData);
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8'),
         );
         $this->templates = array(
             '${field}',
             '${input}',
         );
         $fields = array(
-            sprintf(
-                "%s %s's %s.",
-                _('Click the button to download the'),
-                strtolower($this->childClass),
-                _('table backup')
-            ) => sprintf(
-                '<div id="exportDiv"></div>'
-                . '<input name="export" type="submit" value="%s"/>',
-                _('Export')
-            ),
+            '<label for="exportbtn">'
+            . _('Export CSV')
+            . '</label>' => '<div id="exportDiv"></div>'
+            . '<button name="export" type="submit" class="'
+            . 'btn btn-info btn-block" id="exportbtn">'
+            . _('Export')
+            . '</button>'
         );
         $report = self::getClass('ReportMaker');
         self::arrayRemove('id', $this->databaseFields);
-        foreach ((array)self::getClass($this->childClass)
-            ->getManager()
-            ->find() as &$Item
-        ) {
-            if ($Item instanceof Host) {
-                $macs = $maccolumn = array();
-                $macs[] = $Item->get('mac');
-                $macs = self::fastmerge($macs, $Item->get('additionalMACs'));
-                $macs = self::parseMacList($macs);
-                foreach ((array)$macs as &$mac) {
-                    if (!$mac->isValid()) {
-                        continue;
-                    }
-                    $maccolumn[] = $mac->__toString();
-                    unset($mac);
-                }
-                $report->addCSVCell(
-                    implode(
-                        '|',
-                        $maccolumn
-                    )
+        if ($this->node == 'host') {
+            self::arrayRemove('pingstatus', $this->databaseFields);
+        }
+        Route::listem($this->node);
+        $Items = json_decode(
+            Route::getData()
+        );
+        $items = $this->node
+            . 's';
+        $Items = $Items->$items;
+        foreach ((array)$Items as &$Item) {
+            if ($this->node == 'host') {
+                $macs = implode(
+                    '|',
+                    $Item->macs
                 );
-                unset($maccolumn);
+                $report->addCSVCell($macs);
+                unset($macs);
             }
             $keys = array_keys((array)$this->databaseFields);
             foreach ((array)$keys as $ind => &$field) {
-                $report->addCSVCell($Item->get($field));
+                $report->addCSVCell($Item->$field);
                 unset($field);
             }
             self::$HookManager->processEvent(
@@ -3537,31 +3558,32 @@ abstract class FOGPage extends FOGBase
             unset($Item);
         }
         $_SESSION['foglastreport'] = serialize($report);
-        printf(
-            '<form method="post" action="export.php?type=%s">',
-            strtolower($this->childClass)
-        );
-        foreach ((array)$fields as $field => &$input) {
-            $this->data[] = array(
-                'field' => $field,
-                'input' => $input
-            );
-            unset($input);
-        }
+        array_walk($fields, $this->fieldsToData);
         self::$HookManager->processEvent(
-            sprintf(
-                '%s_EXPORT',
-                strtoupper($this->childClass)
-            ),
+            strtoupper($this->node) . '_EXPORT',
             array(
-                'headerData' => &$this->headerData,
                 'data' => &$this->data,
+                'headerData' => &$this->headerData,
                 'templates' => &$this->templates,
                 'attributes' => &$this->attributes
             )
         );
-        $this->render();
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';;
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="export.php?type='
+            . $this->node
+            . '">';
+        $this->render(12);
         echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Presents the importer elements
@@ -3570,66 +3592,86 @@ abstract class FOGPage extends FOGBase
      */
     public function import()
     {
-        $this->title = sprintf(
-            'Import %s List',
-            $this->childClass
+        $this->title = _('Import')
+            . ' '
+            . $this->childClass
+            . ' '
+            . _('List');
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
         );
-        unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8'),
         );
         $this->templates = array(
             '${field}',
             '${input}',
         );
-        printf(
-            '%s %s. %s %s. %s, %s, %s, %s, %s...',
-            _('This page allows you to upload a CSV'),
-            _('file into FOG to ease migration'),
-            _('It will operate based on the fields that'),
-            _('are normally required by each area'),
-            _('For example'),
-            _('Hosts will have macs'),
-            _('name'),
-            _('description'),
-            _('etc')
+        $this->data[] = array(
+            'field' => '<label for="import">'
+            . _('Import CSV')
+            . '<br/>'
+            . _('Max Size')
+            . ': '
+            . ini_get('post_max_size')
+            . '</label>',
+            'input' => '<div class="input-group">'
+            . '<label class="input-group-btn">'
+            . '<span class="btn btn-info">'
+            . _('Browse')
+            . '<input type="file" class="hidden" name="file" id="import"/>'
+            . '</span>'
+            . '</label>'
+            . '<input type="text" class="form-control filedisp" readonly/>'
+            . '</div>'
         );
-        printf(
-            '<form enctype="multipart/form-data" method="post" action="%s">',
-            $this->formAction
-        );
-        $fields = array(
-            _('CSV File') => '<input class="smaller" type="file" name="file" />',
-            '&nbsp;' => sprintf(
-                '<input class="smaller" type="submit" value="%s"/>',
-                _('Upload CSV')
-            ),
-        );
-        foreach ((array)$fields as $field => &$input) {
-            $this->data[] = array(
-                'field' => $field,
-                'input' => $input
-            );
-            unset($input);
-        }
-        $upper = strtoupper($this->childClass);
-        $event = sprintf(
-            '%s_IMPORT_OUT',
-            $upper
-        );
-        $arr = array(
-            'headerData' => &$this->headerData,
-            'data' => &$this->data,
-            'templates' => &$this->templates,
-            'attributes' => &$this->attributes
+        $this->data[] = array(
+            'field' => '<label for="importbtn">'
+            . _('Import CSV?')
+            . '</label>',
+            'input' => '<button type="submit" name="importbtn" class="'
+            . 'btn btn-info btn-block" id="importbtn">'
+            . _('Import')
+            . '</button>'
         );
         self::$HookManager->processEvent(
-            $event,
-            $arr
+            'IMPORT_CSV_'
+            . strtoupper($this->node),
+            array(
+                'data' => &$this->data,
+                'headerData' => &$this->headerData,
+                'templates' => &$this->templates,
+                'attributes' => &$this->attributes
+            )
         );
-        $this->render();
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '" enctype="multipart/form-data">';
+        echo _('This page allows you to upload a CSV file into FOG to ease')
+            . ' '
+            . _('migration or mass import new items')
+            . '. '
+            . _('It will operate based on the fields the area typically requires')
+            . '.';
+        echo '<hr/>';
+        $this->render(12);
         echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Perform the import based on the uploaded file
@@ -3836,28 +3878,269 @@ abstract class FOGPage extends FOGBase
     /**
      * Build select form in generic form.
      *
-     * @param string $name  The name of the select item.
-     * @param array  $items The items to generate.
+     * @param string $name     The name of the select item.
+     * @param array  $items    The items to generate.
+     * @param string $selected The item to select.
+     * @param bool   $useidsel Use id of array as selector/value.
+     * @param string $addClass Add additional Classes.
      *
      * @return string
      */
-    public static function selectForm($name, $items = array())
-    {
+    public static function selectForm(
+        $name,
+        $items = array(),
+        $selected = '',
+        $useidsel = false,
+        $addClass = ''
+    ) {
         ob_start();
         printf(
-            '<select name="%s"><option value="">- %s -</option>',
+            '<select class="form-control'
+            . (
+                $addClass ?
+                " $addClass" :
+                ''
+            )
+            . '" id="%s" name="%s">'
+            . '<option value="">- %s -</option>',
+            $name,
             $name,
             _('Please select an option')
         );
-        foreach ($items as &$item) {
+        foreach ($items as $id => &$item) {
             printf(
-                '<option value="%s">%s</option>',
-                $item,
+                '<option value="%s"%s>%s</option>',
+                (
+                    $useidsel ?
+                    $id :
+                    $item
+                ),
+                (
+                    $useidsel ? (
+                        $id == $selected ?
+                        ' selected' :
+                        ''
+                    ) : (
+                        $item == $selected ?
+                        ' selected' :
+                        ''
+                    )
+                ),
                 $item
             );
             unset($item);
         }
         echo '</select>';
         return ob_get_clean();
+    }
+    /**
+     * Displays "add" powermanagement item
+     *
+     * @return void
+     */
+    public function newPMDisplay()
+    {
+        // New data
+        unset(
+            $this->headerData,
+            $this->templates,
+            $this->attributes,
+            $this->data
+        );
+        $this->templates = array(
+            '${field}',
+            '${input}',
+        );
+        $this->attributes = array(
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8'),
+        );
+        $fields = array(
+            '<label for="specialCrons">'
+            . _('Schedule Power')
+            . '</label>' => '<div class="cronOptions input-group">'
+            . FOGCron::buildSpecialCron('specialCrons')
+            . '</div>'
+            . '<div class="col-xs-12">'
+            . '<div class="cronInputs">'
+            . '<div class="col-xs-2">'
+            . '<div class="input-group">'
+            . '<input type="text" name="scheduleCronMin" '
+            . 'placeholder="min" autocomplete="off" '
+            . 'class="form-control scheduleCronMin cronInput"/>'
+            . '</div>'
+            . '</div>'
+            . '<div class="col-xs-2">'
+            . '<div class="input-group">'
+            . '<input type="text" name="scheduleCronHour" '
+            . 'placeholder="hour" autocomplete="off" '
+            . 'class="form-control scheduleCronHour cronInput"/>'
+            . '</div>'
+            . '</div>'
+            . '<div class="col-xs-2">'
+            . '<div class="input-group">'
+            . '<input type="text" name="scheduleCronDOM" '
+            . 'placeholder="dom" autocomplete="off" '
+            . 'class="form-control scheduleCronDOM cronInput"/>'
+            . '</div>'
+            . '</div>'
+            . '<div class="col-xs-2">'
+            . '<div class="input-group">'
+            . '<input type="text" name="scheduleCronMonth" '
+            . 'placeholder="month" autocomplete="off" '
+            . 'class="form-control scheduleCronMonth cronInput"/>'
+            . '</div>'
+            . '</div>'
+            . '<div class="col-xs-2">'
+            . '<div class="input-group">'
+            . '<input type="text" name="scheduleCronDOW" '
+            . 'placeholder="dow" autocomplete="off" '
+            . 'class="form-control scheduleCronDOW cronInput"/>'
+            . '</div>'
+            . '</div>'
+            . '</div>'
+            . '</div>',
+            '<label for="scheduleOnDemand">'
+            . _('Perform Immediately?')
+            . '</label>' => '<input type="checkbox" name="onDemand" id='
+            . '"scheduleOnDemand"'
+            . (
+                isset($_POST['onDemand']) ?
+                ' checked' :
+                ''
+            )
+            . '/>',
+            '<label for="action">'
+            . _('Action')
+            . '</label>' => self::getClass(
+                'PowerManagementManager'
+            )->getActionSelect(
+                filter_input(INPUT_POST, 'action'),
+                false,
+                'action'
+            ),
+            '<label for="pmsubmit">'
+            . _('Create new PM Schedule')
+            . '</label>' => '<button type="submit" name="pmsubmit" id='
+            . '"pmsubmit" class="btn btn-info btn-block">'
+            . _('Add')
+            . '</button>'
+        );
+        array_walk($fields, $this->fieldsToData);
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('New power management task');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="deploy-container form-horizontal" '
+            . 'method="post" action="'
+            . $this->formAction
+            . '&tab='
+            . $this->node
+            . '-powermanagement">';
+        $this->render(12);
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Index page is already common, but other pages
+     * might want to do similar after minor changes. This allows
+     * it to happen.
+     *
+     * @param bool        $delNeeded If we need to be able to delete items.
+     * @param bool|string $storage   If storage, set node or group.
+     * @param bool        $actionbox If we need to label as action box.
+     *
+     * @return void
+     */
+    public function indexDivDisplay(
+        $delNeeded = false,
+        $storage = false,
+        $actionbox = false
+    ) {
+        ob_start();
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo $this->render(12);
+        echo '</div>';
+        echo '</div>';
+        if (!$delNeeded) {
+            $items = ob_get_clean();
+            self::$HookManager->processEvent(
+                'INDEX_DIV_DISPLAY_CHANGE',
+                array(
+                    'items' => &$items,
+                    'childClass' => &$this->childClass,
+                    'main' => &$this,
+                    'delNeeded' => &$delNeeded
+                )
+            );
+            echo $items;
+            return;
+        }
+        if ($actionbox) {
+            echo '<div class="action-boxes del hiddeninitially">';
+        }
+        echo '<div class="panel panel-warning">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Delete Selected');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '&sub=deletemulti">';
+        echo '<div class="form-group">';
+        echo '<label class="control-label col-xs-4" for="del-'
+            . $this->node
+            . '">';
+        echo _('Delete selected');
+        echo ' ';
+        echo (
+            $storage ?
+            $this->node . ' ' . $storage :
+            $this->node
+        );
+        echo 's';
+        echo '</label>';
+        echo '<div class="col-xs-8">';
+        echo '<input type="hidden" name="'
+            . $this->node
+            . 'IDArray"/>';
+        echo '<button type="submit" class='
+            . '"btn btn-danger btn-block" id="'
+            . 'del-'
+            . $this->node
+            . '">';
+        echo _('Delete');
+        echo '</button>';
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        if ($actionbox) {
+            echo '</div>';
+        }
+        $items = ob_get_clean();
+        self::$HookManager->processEvent(
+            'INDEX_DIV_DISPLAY_CHANGE',
+            array(
+                'items' => &$items,
+                'childClass' => &$this->childClass,
+                'main' => &$this,
+                'delNeeded' => &$delNeeded
+            )
+        );
+        echo $items;
     }
 }

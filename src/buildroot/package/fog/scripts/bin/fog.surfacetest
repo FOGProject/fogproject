@@ -17,8 +17,10 @@ debugPause
 dots "Attempting to checkin"
 res=""
 count=0
+sysuuid=$(dmidecode -s system-uuid)
+sysuuid=${sysuuid,,}
 while [[ $res != "##@GO" ]]; do
-    res=$(curl -ks --data "mac=$mac" http://${web}service/Pre_Stage1.php 2>/dev/null)
+    res=$(curl -ks --data "sysuuid=${sysuuid}&mac=$mac" http://${web}service/Pre_Stage1.php 2>/dev/null)
     if [[ $count -ge 10 ]]; then
         echo "Failed"
         debugPause

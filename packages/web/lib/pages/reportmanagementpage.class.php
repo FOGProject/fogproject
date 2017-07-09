@@ -155,7 +155,7 @@ class ReportManagementPage extends FOGPage
         }
         $this->menu = self::fastmerge(
             (array)$this->menu,
-            array('upload' => self::$foglang['UploadRprts'])
+            array('upload' => _('Import Reports'))
         );
         self::$HookManager
             ->processEvent(
@@ -186,26 +186,82 @@ class ReportManagementPage extends FOGPage
      */
     public function upload()
     {
-        $this->title = _('Upload FOG Reports');
-        printf(
-            '<div class="hostgroup">%s</div>'
-            . '<p class="titleBottomLeft">%s</p>'
-            . '<form method="post" action="%s" enctype="multipart/form-data">'
-            . '<input type="file" name="report"/>'
-            . '<span class="lightColor">%s: %s</span>'
-            . '<p><input type="submit" value="%s"/></p></form>',
-            _(
-                'This section allows you to upload user '
-                . 'defined reports that may not be part of '
-                . 'the base FOG package. The report files '
-                . 'should end in .php'
-            ),
-            _('Upload a FOG Report'),
-            $this->formAction,
-            _('Max Size'),
-            ini_get('post_max_size'),
-            _('Upload File')
+        $this->title = _('Import FOG Reports');
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
         );
+        $this->attributes = array(
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group')
+        );
+        $this->templates = array(
+            '${field}',
+            '${input}'
+        );
+        $this->data[] = array(
+            'field' => '<label for="import">'
+            . _('Import Report?')
+            . '<br/>'
+            . _('Max Size')
+            . ': '
+            . ini_get('post_max_size')
+            . '</label>',
+            'input' => '<div class="input-group">'
+            . '<label class="input-group-btn">'
+            . '<span class="btn btn-info">'
+            . _('Browse')
+            . '<input type="file" class="hidden" name='
+            . '"report" id="import"/>'
+            . '</span>'
+            . '</label>'
+            . '<input type="text" class="form-control filedisp" readonly/>'
+            . '</div>'
+        );
+        $this->data[] = array(
+            'field' => '<label for="importbtn">'
+            . _('Import Report?')
+            . '</label>',
+            'input' => '<button type="submit" name="importbtn" class="'
+            . 'btn btn-info btn-block" id="importbtn">'
+            . _('Import')
+            . '</button>'
+        );
+        self::$HookManager->processEvent(
+            'IMPORT_REPORT',
+            array(
+                'data' => &$this->data,
+                'headerData' => &$this->headerData,
+                'templates' => &$this->templates,
+                'attributes' => &$this->attributes
+            )
+        );
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo _('This section allows you to uploade user')
+            . ' '
+            . _('defined reports that may not be a part of')
+            . ' '
+            . _('the base FOG install')
+            . '.';
+        echo '<hr/>';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
+        $this->render(12);
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * The actual index presentation.
@@ -215,14 +271,22 @@ class ReportManagementPage extends FOGPage
     public function index()
     {
         $this->title = _('About FOG Reports');
-        printf(
-            '<p>%s</p>',
-            _(
-                'FOG Reports exist to give you information '
-                . 'about what is going on with your FOG System. '
-                . 'To view a report, select an item from the menu '
-                . 'on the left-hand side of this page.'
-            )
-        );
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo _('FOG Reports exist to give you information about what')
+            . ' '
+            . _('is going on with your FOG System')
+            . '. '
+            . _('To view a report, select an item from the menu')
+            . '.';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
 }

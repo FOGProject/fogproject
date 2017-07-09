@@ -154,6 +154,9 @@ $foglang['FOGWebPage'] = _('FOG Home Page');
 $foglang['NewSearch'] = _('New Search');
 $foglang['ListAll'] = _('List All %s');
 $foglang['CreateNew'] = _('Create New %s');
+$foglang['Tasks'] = _('Tasks');
+$foglang['ClientSettings'] = _('Client Settings');
+$foglang['Plugins'] = _('Plugins');
 $foglang['BasicTasks'] = _('Basic Tasks');
 $foglang['Membership'] = _('Membership');
 $foglang['ImageAssoc'] = _('Image Association');
@@ -237,7 +240,6 @@ $foglang['FOGSites'] = _('Estimated FOG Sites');
 $foglang['LatestVer'] = _('Latest Version');
 $foglang['LatestDevVer'] = _('Latest Development Version');
 $foglang['LatestSvnVer'] = _('Latest SVN Version');
-$foglang['FOGMobile'] = _('FOG Mobile Login');
 // Image class Translates
 $foglang['ProtectedImage'] = _('Image is protected and cannot be deleted');
 $foglang['ProtectedSnapin'] = _('Snapin is protected and cannot be deleted');
@@ -298,12 +300,6 @@ $foglang['ErrorMultipleHosts'] = sprintf(
 );
 // User class translates
 $foglang['SessionTimeout'] = _('Session timeout');
-// Host Mobile page translates
-$foglang['ID'] = _('ID');
-$foglang['QuickImageMenu'] = _('Quick Image Menu');
-$foglang['TaskStarted'] = _('Task Started');
-$foglang['ErrorImageAssoc'] = _('Error, Is an image associated with this host');
-$foglang['HostSearch'] = _('Host Search');
 // Storage Page translates
 $foglang['SN'] = _('Storage Node');
 $foglang['SG'] = _('Storage Group');

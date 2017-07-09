@@ -95,8 +95,8 @@ class AddWindowsKeyMenuItem extends Hook
             $arguments['main'],
             $this->node,
             array(
-                _('Windows Keys Management'),
-                'fa fa-windows fa-2x'
+                _('Windows Keys'),
+                'fa fa-windows'
             )
         );
     }

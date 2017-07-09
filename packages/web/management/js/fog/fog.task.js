@@ -14,7 +14,7 @@ $(function() {
     var cancelurl = (sub.indexOf('active') != -1 ? location.href : '');
     var Options = {
         URL: location.href,
-        Container: '#search-content,#active-tasks',
+        Container: '.table-holder',
         CancelURL:  cancelurl
     };
     Container = $(Options.Container);
@@ -22,8 +22,24 @@ $(function() {
     URL = Options.URL;
     CANCELURL = Options.CancelURL;
     if (typeof(sub) == 'undefined' || sub.indexOf('active') != -1) {
-        Container.before('<p class="c"><input type="button" id="taskpause" value="Pause auto update" class="active"/></p>');
-        Container.after('<p class="c"><input type="button" name="Cancel" id="taskcancel" value="Cancel selected tasks?"/><div id="canceltasks"></div></p>');
+        Container.before(
+            '<div class="col-xs-9 text-center">'
+            + '<div class="form-group">'
+            + '<button type="button" class="btn btn-default activebtn" id="taskpause">'
+            + '<i class="fa fa-pause"></i>'
+            + '</button>'
+            + '</div>'
+            + '</div>'
+        ).after(
+            '<div class="col-xs-9 text-center">'
+            + '<div class="form-group">'
+            + '<button type="button" class="btn btn-default" id="taskcancel">'
+            + 'Cancel selected tasks?'
+            + '</button>'
+            + '<div id="canceltasks"></div>'
+            + '</div>'
+            + '</div>'
+        );
         pauseButton = $('#taskpause');
         pauseUpdate = pauseButton.parent('p');
         cancelButton = $('#taskcancel');
@@ -31,16 +47,26 @@ $(function() {
         ActiveTasksUpdate();
         pauseButton.click(pauseButtonPressed);
         cancelButton.click(buttonPress);
+        $('.search-input').on('focus', function() {
+            if (AJAXTaskRunning) AJAXTaskRunning.abort();
+            clearTimeout(AJAXTaskUpdate);
+            pauseButton.removeClass('activebtn').find('i.fa-pause').removeClass('fa-pause').addClass('fa-play');
+        }).on('focusout', function() {
+            if (this.value.length < 1) {
+                pauseButton.addClass('activebtn').find('i.fa-play').removeClass('fa-play').addClass('fa-pause');
+                ActiveTasksUpdate();
+            }
+        });
     }
 });
 function pauseButtonPressed(e) {
-    if (!$(this).hasClass('active')) {
-        $(this).addClass('active').val('Pause auto update');
+    if (!$(this).hasClass('activebtn')) {
+        $(this).addClass('activebtn').find('i.fa-play').removeClass('fa-play').addClass('fa-pause');
         ActiveTasksUpdate();
     } else {
         if (AJAXTaskRunning) AJAXTaskRunning.abort();
         clearTimeout(AJAXTaskUpdate);
-        $(this).removeClass().val('Continue auto update');
+        $(this).removeClass('activebtn').find('i.fa-pause').removeClass('fa-pause').addClass('fa-play');
     }
     e.preventDefault();
 }
@@ -68,15 +94,11 @@ function ActiveTasksUpdate() {
     AJAXTaskRunning = $.ajax({
         url: URL,
         dataType: 'json',
-        beforeSend: function() {
-            Loader.addClass('loading').fogStatusUpdate(_L['ACTIVE_TASKS_LOADING']).find('i').removeClass().addClass('fa fa-refresh fa-spin fa-fw');
-        },
         success: function(response) {
             dataLength = response === null || response.data === null ? dataLength = 0 : response.data.length;
             thead = $('thead',Container);
             tbody = $('tbody',Container);
             LastCount = dataLength;
-            Loader.removeClass('loading').fogStatusUpdate(_L['ACTIVE_TASKS_FOUND'].replace(/%1/,LastCount).replace(/%2/,LastCount != 1 ? 's' : '')).find('i').removeClass().addClass('fa fa-exclamation-circle fa-fw');
             if (dataLength > 0) {
                 buildHeaderRow(response.headerData,response.attributes,'th');
                 thead = $('thead',Container);
@@ -84,9 +106,6 @@ function ActiveTasksUpdate() {
             }
             TableCheck();
             checkboxToggleSearchListPages();
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-            Loader.fogStatusUpdate(_L['ERROR_SEARCHING']+(errorThrown != '' ? errorThrown : '')).addClass('error').find('i').css({color:'red'});
         },
         complete: function() {
             AJAXTaskUpdate = setTimeout(ActiveTasksUpdate, ActiveTasksUpdateInterval - ((new Date().getTime() - startTime) % ActiveTasksUpdateInterval));

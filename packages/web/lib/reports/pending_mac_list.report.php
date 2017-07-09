@@ -28,7 +28,8 @@ class Pending_MAC_List extends ReportManagementPage
      */
     public function file()
     {
-        if ($_REQUEST['aprvall'] == 1) {
+        $aprvall = filter_input(INPUT_GET, 'aprvall');
+        if ($aprvall == 1) {
             self::getClass('MACAddressAssociationManager')
                 ->update(
                     '',
@@ -40,24 +41,6 @@ class Pending_MAC_List extends ReportManagementPage
             self::setMessage(_('All Pending MACs approved.'));
         }
         $this->title = _('Pending MAC Export');
-        printf(
-            $this->reportString,
-            'PendingMACsList',
-            _('Export CSV'),
-            _('Export CSV'),
-            self::$csvfile,
-            'PendingMACsList',
-            _('Export PDF'),
-            _('Export PDF'),
-            self::$pdffile
-        );
-        if (self::$pendingMACs > 0) {
-            printf(
-                '<p class="c"><a href="%s&aprvall=1">%s</a></p>',
-                $this->formAction,
-                _('Approve All Pending MACs for all hosts')
-            );
-        }
         echo '</h2>';
         $csvHead = array(
             _('Host ID'),
@@ -127,23 +110,78 @@ class Pending_MAC_List extends ReportManagementPage
             unset($hostID, $hostName, $hostMac, $hostDesc, $hostPend);
             unset($Host, $PendingMAC);
         }
+        $this->ReportMaker->appendHTML($this->process(12));
+        echo '<div class="col-xs-9">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
         if (count($this->data) > 0) {
+            echo '<div class="text-center">';
+            echo '<a href="'
+                . $this->formAction
+                . '&aprvall=1">'
+                . _('Approve All Pending MACs for All Hosts')
+                . '</a>';
+            echo '</div>';
+            echo '<div class="text-center">';
             printf(
-                '<form method="post" action="%s">',
-                $this->formAction
+                $this->reportString,
+                'PendingMACsList',
+                _('Export CSV'),
+                _('Export CSV'),
+                self::$csvfile,
+                'PendingMACsList',
+                _('Export PDF'),
+                _('Export PDF'),
+                self::$pdffile
             );
+            echo '</div>';
         }
-        $this->ReportMaker->appendHTML($this->__toString());
-        $this->ReportMaker->outputReport(false);
+        $this->ReportMaker->outputReport(0);
+        echo '</div>';
+        echo '</div>';
         if (count($this->data) > 0) {
-            printf(
-                '<p class="c"><input name="approvependmac" type='
-                . '"submit" value="%s"/>&nbsp;&nbsp;<input name='
-                . '"delpendmac" type="submit" value="%s"/></p></form>',
-                _('Approve selected pending macs'),
-                _('Delete selected pending macs')
-            );
+            echo '<div class="panel panel-info">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Pending MAC Actions');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            echo '<div class="form-group">';
+            echo '<label for="approvependmac" class="control-label col-xs-4">';
+            echo _('Approve Selected MACs');
+            echo '</label>';
+            echo '<div class="col-xs-8">';
+            echo '<button name="approvependmac" type="submit" class='
+                . '"btn btn-info btn-block" id="approvependmac">';
+            echo _('Approve');
+            echo '</button>';
+            echo '</div>';
+            echo '</div>';
+            echo '<div class="form-group">';
+            echo '<label for="delpendmac" class="control-label col-xs-4">';
+            echo _('Delete Selected MACs');
+            echo '</label>';
+            echo '<div class="col-xs-8">';
+            echo '<button name="delpendmac" type="submit" class='
+                . '"btn btn-danger btn-block" id="delpendmac">';
+            echo _('Delete');
+            echo '</button>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
         }
+        echo '</form>';
+        echo '</div>';
         $_SESSION['foglastreport'] = serialize($this->ReportMaker);
     }
     /**
@@ -153,30 +191,53 @@ class Pending_MAC_List extends ReportManagementPage
      */
     public function filePost()
     {
-        if (isset($_REQUEST['approvependmac'])) {
+        $pendmac = filter_input_array(
+            INPUT_POST,
+            array(
+                'pendmac' => array(
+                    'flags' => FILTER_REQUIRE_ARRAY
+                )
+            )
+        );
+        $pendmac = $pendmac['pendmac'];
+        $pendmacs = self::getSubObjectIDs(
+            'MACAddressAssociation',
+            array('id' => $pendmac),
+            'mac'
+        );
+        if (isset($_POST['approvependmac'])) {
             self::getClass('MACAddressAssociationManager')->update(
-                array('id' => $_REQUEST['pendmac']),
+                array('id' => $pendmac),
                 '',
                 array('pending' => 0)
             );
+            $msg = 'approved';
         }
-        if (isset($_REQUEST['delpendmac'])) {
+        if (isset($_POST['delpendmac'])) {
             self::getClass('MACAddressAssociationManager')->destroy(
-                array('id' => $_REQUEST['pendmac'])
+                array('id' => $pendmac)
             );
+            $msg = 'deleted';
         }
-        $appdel = (
-            isset($_REQUEST['approvependmac']) ?
-            _('approved') : _('deleted')
-        );
-        self::setMessage(
-            sprintf(
-                '%s %s %s',
-                _('All pending macs'),
-                $appdel,
-                _('successfully')
-            )
-        );
-        self::redirect("?node=$this->node");
+        unset($pendmac);
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-success">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _("MACs $msg successfully");
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body text-center">';
+        echo _("The follow MACs have been ${msg}.");
+        echo '<br/>';
+        echo '<ul class="nav nav-pills nav-stacked">';
+        echo '<li><a href="#">';
+        echo implode('</a></li><li><a href="#">', $pendmacs);
+        echo '</a></li>';
+        echo '</ul>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        //self::redirect("?node=$this->node");
     }
 }

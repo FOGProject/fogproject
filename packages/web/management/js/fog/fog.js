@@ -14,6 +14,15 @@ var $_GET = getQueryParams(document.location.search),
     sub = $_GET['sub'],
     tab = $_GET['tab'],
     _L = new Array(),
+    subs = [
+        'install',
+        'installed',
+        'list',
+        'search',
+        'storageGroup',
+        'listhosts',
+        'listgroups'
+    ],
     StatusAutoHideTimer,
     StatusAutoHideDelay = 30000,
     AJAXTaskUpdate,
@@ -22,11 +31,11 @@ var $_GET = getQueryParams(document.location.search),
     ActiveTasksUpdateInterval = 5000,
     ActionBox,
     ActionBoxDel,
-    Content,
     Container,
-    Loader,
     savedFilters,
-    checkedIDs;
+    checkedIDs,
+    data = '',
+    submithandlerfunc;
 // Searching
 _L['PERFORMING_SEARCH'] = 'Searching...';
 _L['ERROR_SEARCHING'] = 'Search failed';
@@ -37,6 +46,34 @@ _L['NO_ACTIVE_TASKS'] = "No results found";
 _L['UPDATING_ACTIVE_TASKS'] = "Fetching active tasks";
 _L['ACTIVE_TASKS_FOUND'] = '%1 active task%2 found';
 _L['ACTIVE_TASKS_LOADING'] = 'Loading...';
+submithandlerfunc = function(form) {
+    data += '&'+$(form).find(':visible,[type="radio"]').serialize();
+    url = $(form).attr('action');
+    method = $(form).attr('method');
+    $.ajax({
+        url: url,
+        type: method,
+        data: data,
+        dataType: 'json',
+        success: function(data) {
+            dialoginstance = new BootstrapDialog();
+            if (data.error) {
+                dialoginstance
+                .setTitle(data.title)
+                .setMessage(data.error)
+                .setType(BootstrapDialog.TYPE_WARNING)
+                .open();
+            } else {
+                dialoginstance
+                .setTitle(data.title)
+                .setMessage(data.msg)
+                .setType(BootstrapDialog.TYPE_SUCCESS)
+                .open();
+            }
+        }
+    });
+    return false;
+};
 function getChecked() {
     var val = [];
     $('.toggle-action:checkbox:checked').each(function(i) {
@@ -46,20 +83,20 @@ function getChecked() {
     });
     return val;
 }
-function setTipsyStuff() {
-    $('.box,.icon,.icon-ping-up,.icon-ping-down,#logo > h1 > a > img').tipsy({
-        gravity: $.fn.tipsy.autoNS
-    }).mouseenter(function() {
-        $('.tipsy').css({
-            'min-width': '35px',
-        });
-    });
-}
 function setEditFocus() {
-    $('input,select,textarea').not('[type="checkbox"],[name="groupsel"],[name="nodesel"],[name="ulang"]').change(function(e) {
+    $('input,select,textarea').not(
+        '[type="checkbox"],[name="groupsel"],[name="nodesel"],[name="ulang"],#uname,#upass,.system-search,.search-input,[type="radio"],[readonly]'
+    ).focus(function(e) {
         e.preventDefault();
         field = $(this);
-        field.not(':focus') ? field.next('i').hide() : field.append('<i class="fa fa-pencil fa-fw"></i>');
+        $(this).after(
+            '<span class="input-group-addon fogpencil"><i class='
+            + '"fa fa-pencil fa-fw fogpencil"></i></span>'
+        );
+    }).blur(function(e) {
+        e.preventDefault();
+        field = $(this);
+        $('.fogpencil').remove();
     });
 }
 function setChecked(ids) {
@@ -73,7 +110,9 @@ function setChecked(ids) {
 function getQueryParams(qs) {
     qs = qs.split("+").join(" ");
     var params = {},tokens,re = /[?&]?([^=]+)=([^&]*)/g;
-    while (tokens = re.exec(qs)) params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
+    while (tokens = re.exec(qs)) {
+        params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
+    }
     return params;
 }
 function AJAXServerTime() {
@@ -84,37 +123,136 @@ function AJAXServerTime() {
             $('#showtime').html(data);
         },
         complete : function() {
-            setTimeout(AJAXServerTime, 60000 - ((new Date().getTime() - startTime) % 60000));
+            setTimeout(
+                AJAXServerTime,
+                60000 - ((new Date().getTime() - startTime) % 60000)
+            );
         }
     });
 }
+function HookTooltip() {
+    $(document).on('mouseover', function() {
+        $('[data-toggle="tooltip"]').tooltip({container: 'body'});
+    });
+}
 (function($) {
+    /**
+     * Performs tests on direct targetting
+     * and displays for us the proper element.
+     */
+    $(document.body).css(
+        'padding-top',
+        $('.navbar-fixed-top').height() + 10
+    );
+    $(window).resize(function() {
+        $(document.body).css(
+            'padding-top',
+            $('.navbar-fixed-top').height() + 10
+        );
+    });
+    $(document).on('change', ':file', function() {
+        var input = $(this),
+            numFiles = input.get(0).files ? input.get(0).files.length : 1,
+            label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+        input.trigger('fileselect', [numFiles, label]);
+        if (numFiles == 1) {
+            $('.filedisp').val(label);
+        } else {
+            $('.filedisp').val(numFiles + ' files selected');
+        }
+    });
+    $('.advanced-tasks-link').on('click', function(e) {
+        e.preventDefault();
+        $('.advanced-tasks').toggle();
+    });
+    var url = window.location.toString();
+    if (url.match('#')) {
+        $('.nav-tabs a[href*="#'+url.split('#')[1]+'"]').tab('show');
+    }
+    $('.nav-tabs a').on('shown.bs.tab', function(e) {
+        if (history.pushState) {
+            history.pushState(null, null, e.target.hash);
+        } else {
+            window.location.hash = e.target.hash;
+        }
+        $(this).parent().addClass('active');
+    });
+    /**
+     * If we don't have a hash such as when initially entering
+     * an edit page, we need to display the first item.
+     */
+    if ($('.tab-content').length > 0) {
+        if (location.hash == "") {
+            firstid = $('.tab-content > div:first').prop('id');
+            $('.nav-tabs a[href*="#'+firstid+'"]').parent().addClass('active');
+        }
+    }
+    /**
+     * This allows us to move back and forth between pages.
+     */
+    if (location.hash) {
+        setTimeout(function() {
+            window.scrollTo(0, 0);
+        }, 1);
+    }
+    $('a[data-toggle="tab"]').on('click', function(e) {
+        var newLoadedHtml = $(this).prop('href');
+        var hash = newLoadedHtml.split('#');
+        var link = hash[0];
+        hash = hash[1];
+        if ($('#'+hash).length < 1) {
+            window.location.href = newLoadedHtml;
+        }
+    });
+    HookTooltip();
+    /**
+     * Ensure's bootstrap's tooltip feature is functioning
+     */
+    $.validator.setDefaults({
+        highlight: function(element) {
+            $(element).closest('.form-group').addClass('has-error');
+        },
+        unhighlight: function(element) {
+            $(element).closest('.form-group').removeClass('has-error');
+        },
+        errorElement: 'span',
+        errorClass: 'label label-danger',
+        errorPlacement: function(error, element) {
+            if (element.parent('.input-group').length) {
+                error.insertAfter(element.parent());
+            } else {
+                error.insertAfter(element);
+            }
+        }
+    });
     $.validator.addMethod(
-            'regex',
-            function(value, element,regexp) {
-                var re = new RegExp(regexp);
-                return this.optional(element) || re.test(value);
-            },
-            "Invalid Input"
-            );
+        'regex',
+        function(value, element,regexp) {
+            var re = new RegExp(regexp);
+            return this.optional(element) || re.test(value);
+        },
+        "Invalid Input"
+    );
     screenview = $('#screenview').attr('value');
-    setTipsyStuff();
     setEditFocus();
-    Content = $('#content');
-    Loader = $('#loader');
-    Loader.append('&nbsp;<i></i>&nbsp;');
-    i = Loader.find('i');
-    ActionBox = $('#action-box');
-    ActionBoxDel = $('#action-boxdel');
+    ActionBox = $('.action-boxes.host');
+    ActionBoxDel = $('.action-boxes.del');
     callme = 'hide';
-    if ((typeof(sub) == 'undefined' || $.inArray(sub,['list','search','storageGroup','listhosts','listgroups']) > -1) && $('.no-active-tasks').length < 1) callme = 'show';
+    if ((typeof(sub) == 'undefined' || $.inArray(sub,subs) > -1)
+        && !$('.table').hasClass('noresults')
+    ) {
+        callme = 'show';
+    }
+    if (sub == 'installed') {
+        callme = 'show';
+    }
     ActionBox[callme]();
     ActionBoxDel[callme]();
     setupParserInfo();
     setupFogTableInfoFunction();
     AJAXServerTime();
-    $('.list,.search,.storageGroup,.listhosts,.listgroups').click(function(e) {
-        if (sub && $.inArray(sub,['list','search','storageGroup','listhosts','listgroups']) < 0) {
+    $('.'+subs.join(',.')).click(function(e) {
+        if (sub && $.inArray(sub, subs) < 0) {
             return;
         }
         e.preventDefault();
@@ -124,12 +262,10 @@ function AJAXServerTime() {
             context: this,
             url: $(this).prop('href'),
             dataType: 'json',
-            beforeSend: function() {
-                Loader
-                    .addClass('loading')
-            },
             success: function(response) {
-                if (response === null || response.data === null) {
+                if (response === null
+                    || response.data === null
+                ) {
                     dataLength = 0;
                 } else {
                     dataLength = response.data.length;
@@ -138,18 +274,19 @@ function AJAXServerTime() {
                 thead = $('thead', Container);
                 tbody = $('tbody', Container);
                 LastCount = dataLength;
-                Loader.removeClass('loading')
-                    .fogStatusUpdate(_L['SEARCH_RESULTS_FOUND']
-                            .replace(/%1/,LastCount)
-                            .replace(/%2/,LastCount != 1 ? 's' : '')
-                            )
-                    .find('i')
-                    .removeClass()
-                    .addClass('fa fa-exclamation-circle fa-1x fa-fw');
                 if (dataLength > 0) {
-                    buildHeaderRow(response.headerData, response.attributes, 'th');
+                    buildHeaderRow(
+                        response.headerData,
+                        response.attributes,
+                        'th'
+                    );
                     thead = $('thead', Container);
-                    buildRow(response.data, response.templates, response.attributes, 'td');
+                    buildRow(
+                        response.data,
+                        response.templates,
+                        response.attributes,
+                        'td'
+                    );
                 }
                 TableCheck();
                 this.listAJAX = null;
@@ -166,43 +303,53 @@ function AJAXServerTime() {
     $('form').children().each(function() {
         this.value=$(this).val().trim();
     });
-    if ($.inArray(sub,['list','listhosts','listgroups','storageGroup']) < 0 && screenview == 'list') {
+    if ($.inArray(sub, subs) < 0 && screenview == 'list') {
         $('.list').trigger('click');
     }
 })(jQuery);
 function forceClick(e) {
-    $(this).unbind('click').click(function(evt) {evt.preventDefault();});
+    $(this).off('click', function(evt) {
+        evt.preventDefault();
+    });
     if (AJAXTaskForceRequest) AJAXTaskForceRequest.abort();
     AJAXTaskForceRequest = $.ajax({
         type: 'POST',
         url: $(this).attr('href'),
         beforeSend: function() {
-            $(this).unbind('click').removeClass().addClass('fa fa-refresh fa-spin fa-fw icon');
+            $(this).off('click').removeClass().addClass(
+                'fa fa-refresh fa-spin fa-fw icon'
+            );
         },
         success: function(data) {
             if (typeof(data) == 'undefined' || data === null) return;
-            $(this).unbind('click').removeClass().addClass('fa fa-angle-double-right fa-fw icon');
+            $(this).off('click').removeClass().addClass(
+                'fa fa-angle-double-right fa-fw icon'
+            );
         },
         error: function() {
-            $(this).bind('click').removeClass().addClass('fa fa-bolt fa-fw icon');
+            $(this).on('click').removeClass().addClass('fa fa-bolt fa-fw icon');
         }
     });
     e.preventDefault();
 }
-$.fn.exists = function() {return this.length > 0;}
-$.fn.isIE8 = function() {return $.browser.msie && parseInt($.browser.version, 10) <= 8;}
+$.fn.exists = function() {
+    return this.length > 0;
+};
+$.fn.isIE8 = function() {
+    return $.browser.msie && parseInt($.browser.version, 10) <= 8;
+};
 $.fn.fogVariable = function(opts) {
     if (this.length == 0) return this;
     return this.each(function() {
         window[$(this).prop('id').toString()] = $(this).html().toString();
         $(this).remove();
     });
-}
+};
 $.fn.fogAjaxSearch = function(opts) {
     if (this.length == 0) return this;
     var Defaults = {
-        URL: $('#search-wrapper').prop('action'),
-        Container: '#search-content,#active-tasks',
+        URL: $('.search-wrapper').prop('action'),
+        Container: '.table-holder',
         SearchDelay: 400,
         SearchMinLength: 1,
     };
@@ -213,19 +360,42 @@ $.fn.fogAjaxSearch = function(opts) {
     Container = $(Options.Container);
     if (!Container.length) return this;
     callme = 'hide';
-    if ($('tbody > tr', Container).filter('.no-active-tasks').length > 0
-        || $.inArray(sub,['list','listhosts','listgroups','storageGroup']) > -1) {
+    if (!$('.table').hasClass('noresults')) {
         callme = 'show';
     }
-    Container[callme]().fogTableInfo().trigger('updateAll');
+    Container.each(function(e) {
+        if ($(this).hasClass('.noresults')) {
+            $(this).hide();
+        } else {
+            $(this).show().fogTableInfo().trigger('updateAll');
+        }
+    });
     ActionBox[callme]();
     ActionBoxDel[callme]();
-    return this.each(function() {
+    return this.each(function(evt) {
         var searchElement = $(this);
-        var SubmitButton = $('#'+searchElement.prop('id')+'-submit');
-        SubmitButton.append('<i class="fa fa-play fa-1x icon"></i>');
+        var SubmitButton = $('.search-submit');
         searchElement.keyup(function() {
-            if (this.SearchTimer) clearTimeout(this.SearchTimer);
+            if (this.SearchTimer) {
+                clearTimeout(this.SearchTimer);
+            }
+            var newurl = window.location.protocol
+                + "//"
+                + window.location.host
+                + window.location.pathname
+                + "?node="
+                + node;
+            window.history.pushState({path:newurl}, '', newurl);
+            $('.nav.nav-tabs').remove();
+            Container.html(
+                '<div class="col-xs-12">'
+                + '<table class="table">'
+                + '<thead><tr class="header"></tr></thead>'
+                + '<tbody><tr></tr></tbody>'
+                + '</table>'
+                + '</div>'
+            );
+            Container.fogTableInfo().trigger('updateAll');
             this.SearchTimer = setTimeout(PerformSearch,Options.SearchDelay);
         }).focus(function() {
             var searchElement = $(this).removeClass('placeholder');
@@ -236,7 +406,6 @@ $.fn.fogAjaxSearch = function(opts) {
                 searchElement.addClass('placeholder').val(searchElement.prop('placeholder'));
                 if (this.SearchAJAX) this.SearchAJAX.abort();
                 if (this.SearchTimer) clearTimeout(this.SearchTimer);
-                Loader.fogStatusUpdate();
                 $('tbody',Container).empty().parents('table').hide();
             }
         }).each(function() {
@@ -253,38 +422,35 @@ $.fn.fogAjaxSearch = function(opts) {
                 Container.hide();
                 ActionBox.hide();
                 ActionBoxDel.hide();
-                Loader.hide();
                 return this;
             }
             if (this.SearchAJAX) this.SearchAJAX.abort();
             this.SearchAJAX = $.ajax({
-                type: $('#search-wrapper').prop('method'),
+                type: $('.search-wrapper').prop('method'),
                 cache: false,
-                url: $('#search-wrapper').prop('action'),
+                url: $('.search-wrapper').prop('action'),
                 dataType: 'json',
                 data: {crit: Query},
                 beforeSend: function() {
-                    Loader.fogStatusUpdate();
-                    SubmitButton.addClass('searching').find('i').removeClass().addClass('fa fa-spinner fa-pulse fa-fw');
+                    SubmitButton.addClass('searching').find('i').removeClass().addClass('fogsearch fa fa-spinner fa-pulse fa-fw');
                 },
                 success: function(response) {
                     dataLength = response === null || response.data === null ? dataLength = 0 : response.data.length;
-                    SubmitButton.removeClass('searching').find('i').removeClass().addClass('fa fa-play');
+                    SubmitButton.removeClass('searching').find('i').removeClass().addClass('fogsearch fa fa-search');
                     thead = $('thead',Container);
                     tbody = $('tbody',Container);
                     LastCount = dataLength;
-                    Loader.removeClass('loading').fogStatusUpdate(_L['SEARCH_RESULTS_FOUND'].replace(/%1/,LastCount).replace(/%2/,LastCount != 1 ? 's' : '')).find('i').removeClass().addClass('fa fa-exclamation-circle fa-1x fa-fw');
                     if (dataLength > 0) {
                         buildHeaderRow(response.headerData,response.attributes,'th');
                         thead = $('thead',Container);
                         buildRow(response.data,response.templates,response.attributes,'td');
                     }
                     TableCheck();
+                    Container.fogTableInfo().trigger('updateAll');
                     this.SearchAJAX = null;
                     checkboxToggleSearchListPages();
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
-                    Loader.fogStatusUpdate(_L['ERROR_SEARCHING']+(errorThrown != '' ? errorThrown : ''));
                     this.SearchAJAX = null;
                     this.SearchLastQuery = null;
                 }
@@ -299,7 +465,6 @@ $.fn.fogMessageBox = function() {
         var messageBox = $(this);
         Messages[Messages.length] = messageBox.html();
     });
-    if (Messages.length > 0) Loader.fogStatusUpdate(Messages.join('</p><p>')).hide().fadeIn();
     return this;
 }
 $.fn.fogStatusUpdate = function(txt, opts) {
@@ -309,9 +474,6 @@ $.fn.fogStatusUpdate = function(txt, opts) {
         Progress: null
     };
     var Options = $.extend({},Defaults,opts || {});
-    var Loader = $(this);
-    var i = Loader.find('i');
-    var p = Loader.find('p');
     var ProgressBar = $('#progress',this);
     if (Options.Progress) {
         ProgressBar.show().progressBar(Options.Progress);
@@ -324,10 +486,7 @@ $.fn.fogStatusUpdate = function(txt, opts) {
         i.addClass('fa fa-exclamation-circle fa-1x fa-fw');
         p.remove().end().append((Options.Raw ? txt : '<p>'+txt+'</p>')).show();
     }
-    Loader.removeClass();
-    if (Options.Class) Loader.addClass(Options.Class);
     if (StatusAutoHideTimer) clearTimeout(StatusAutoHideTimer);
-    if (Options.AutoHide) StatusAutoHideTimer = setTimeout(function() {Loader.fadeOut('fast');},Options.AutoHide);
     return this;
 }
 function showForceButton() {
@@ -348,12 +507,11 @@ function showProgressBar() {
 }
 function buildHeaderRow(data,attributes,wrapper) {
     if (!Container || typeof(Container) === null || typeof(Container) === 'undefined') {
-        Container = $('#search-content,#active-tasks');
+        Container = $('.table-holder .table');
     }
     savedFilters = Container.find('.tablesorter-filter').map(function(){
         return this.value || '';
     }).get();
-    thead.empty();
     var rows = [];
     $.each(data,function(index,value) {
         var attribs = [];
@@ -363,7 +521,7 @@ function buildHeaderRow(data,attributes,wrapper) {
         var row = '<'+wrapper+(attribs.length ? ' '+attribs.join(' ') : '')+' data-column="'+index+'">'+value+'</'+wrapper+'>';
         rows[rows.length] = row;
     });
-    thead.append('<tr class="header hand tablesorter-headerRow" role="row">'+rows.join()+'</tr>');
+    thead.html('<tr class="header" role="row">'+rows.join()+'</tr>');
     thead.hide();
 }
 function buildRow(data,templates,attributes,wrapper) {
@@ -402,7 +560,7 @@ function buildRow(data,templates,attributes,wrapper) {
                 percentRow += value.elapsed+'/'+value.remains+'</li>';
                 percentRow += '<li>'+parseInt(value.percent)+'%</li>';
                 percentRow += '<li>'+value.copied+' of '+value.total+' (';
-                percentRow += value.bpm+'/min)</li></ul></div></td></tr>';
+                        percentRow += value.bpm+'/min)</li></ul></div></td></tr>';
                 $('#'+node+'-'+value.id).addClass('with-progress').after(percentRow);
             }
         });
@@ -411,23 +569,36 @@ function buildRow(data,templates,attributes,wrapper) {
     }
     $('.toggle-action:checkbox,.toggle-checkboxAction:checkbox').change(function() {checkedIDs = getChecked();});
     setChecked(checkedIDs);
-    HookTooltips();
 }
 function TableCheck() {
-    if (!Container || typeof(Container) === null || typeof(Container) === 'undefined') {
-        Container = $('#search-content,#active-tasks');
+    if (!Container
+        || typeof(Container) === null
+        || typeof(Container) === 'undefined'
+    ) {
+        Container = $('.table-holder .table');
     }
     callme = 'hide';
-    if ($('.not-found').length === 0) Container.after('<p class="c not-found">'+_L['NO_ACTIVE_TASKS']+'</p>');
+    if ($('.not-found').length === 0) {
+        Container.after('<p class="c not-found">'+_L['NO_ACTIVE_TASKS']+'</p>');
+    }
     if (typeof(LastCount) != 'undefined' && LastCount > 0) {
         if ($('.not-found').length > 0) $('.not-found').remove();
         callme = 'show';
     }
-    Container[callme]().fogTableInfo().trigger('updateAll').find('.tablesorter-filter').each(function(i){
-        if (typeof savedFilters === null || typeof savedFilters === 'undefined') return;
-        if (typeof savedFilters[i] === null || typeof savedFilters === 'undefined') return;
-        $(this).val(savedFilters[i]);
-    }).trigger('search');
+    if ($('tbody > tr', Container).length < 1) {
+        callme = 'hide';
+    }
+    Container.each(function(e) {
+        if ($(this).hasClass('.noresults')) {
+            $(this).hide();
+        } else {
+            $(this).show().fogTableInfo().trigger('updateAll').find('.tablesorter-filter').each(function(i){
+                if (typeof savedFilters === null || typeof savedFilters === 'undefined') return;
+                if (typeof savedFilters[i] === null || typeof savedFilters === 'undefined') return;
+                $(this).val(savedFilters[i]);
+            }).trigger('search');
+        }
+    });
     ActionBox[callme]();
     ActionBoxDel[callme]();
     thead[callme]();
@@ -435,7 +606,7 @@ function TableCheck() {
         pauseUpdate[callme]();
         cancelTasks[callme]();
     }
-    HookTooltips();
+    HookTooltip();
 }
 function setupParserInfo() {
     if (typeof $.tablesorter == 'undefined') return;
@@ -544,9 +715,17 @@ function setupFogTableInfoFunction() {
         switch (node) {
             case 'task':
                 if (typeof(sub) == 'undefined' || sub.indexOf('list') > -1) {
-                    headParser = {5: {sorter: 'statusParser'}};
+                    headParser = {
+                        5: {
+                            sorter: 'statusParser'
+                        }
+                    };
                 } else {
-                    headParser = {5: {sorter: 'statusParser'}};
+                    headParser = {
+                        5: {
+                            sorter: 'statusParser'
+                        }
+                    };
                 }
                 break;
             case 'report':
@@ -564,24 +743,49 @@ function setupFogTableInfoFunction() {
                             break;
                         case 'imaging-log':
                             headParser = {
-                                2: {sorter: 'dateParser'},
-                                3: {sorter: 'dateParser'}
+                                2: {
+                                    sorter: 'dateParser'
+                                },
+                                3: {
+                                    sorter: 'dateParser'
+                                }
                             };
                             break;
                         default:
-                            headParser = {0: {sorter: 'checkboxParser'}};
+                            headParser = {
+                                0: {
+                                    sorter: 'checkboxParser'
+                                }
+                            };
                             break;
                     }
                 }
                 break;
             case 'host':
-                headParser = {0: {sorter: 'questionParser'},1: {sorter: 'checkboxParser'},2: {sorter: 'iParser'}};
+                headParser = {
+                    0: {
+                        sorter: 'questionParser'
+                    },
+                    1: {
+                        sorter: 'checkboxParser'
+                    },
+                    2: {
+                        sorter: 'iParser'
+                    }
+                };
                 break;
             case 'printer':
-                headParser = {0: {sorter: 'questionParser'},1: {sorter: 'checkboxParser'}};
+                headParser = {
+                    0: {
+                        sorter: 'questionParser'
+                    },
+                    1: {
+                        sorter: 'checkboxParser'
+                    }
+                };
                 break;
             case 'image':
-                headParser = 
+                headParser =
                 {
                     0: {
                         sorter: 'iParser'
@@ -593,7 +797,11 @@ function setupFogTableInfoFunction() {
                         sorter: 'sizeParser'
                     }
                 };
-                headExtra = {7: {sorter: 'sizeParser'}};
+                headExtra = {
+                    7: {
+                        sorter: 'sizeParser'
+                    }
+                };
                 if ($('th').length > 7) $.extend(headParser,headExtra);
                 break;
             case 'storage':
@@ -603,25 +811,53 @@ function setupFogTableInfoFunction() {
             case 'group':
             case 'snapin':
             default:
-                headParser = {0: {sorter: 'checkboxParser'}};
+                headParser = {
+                    0: {
+                        sorter: 'checkboxParser'
+                    }
+                };
                 break;
         }
-        table = $('table',this);
-        if (table.length == 0 || !table.has('thead')) return this;
+        table = $('.table-holder table.table');
+        if (table.length == 0 || !table.has('thead')) {
+            table.hide();
+        }
         table.find('thead > tr').addClass('hand');
+        if ($('tbody', table).length < 1) {
+            table.hide();
+        }
         table.tablesorter({
             headers: headParser,
-            theme: 'blue',
-            widgets: ["zebra","filter"],
+            theme: 'bootstrap',
+            widgets: [
+                "uitheme",
+                "filter",
+                "columns",
+                "zebra"
+            ],
             widgetOptions: {
+                zebra: [
+                    "even",
+                    "odd"
+                ],
+                columns: [
+                    "primary",
+                    "secondary",
+                    "tertiary"
+                ],
+                filter_reset: '.reset',
+                filter_cssFilter: "form-control",
                 filter_ignoreCase: true,
                 filter_hideFilters: false,
                 filter_hideEmpty: true,
                 filter_liveSearch: true,
-                filter_placeholder: {search: 'Search...'},
-                filter_reset: 'button.reset',
-            },
-        });
+                filter_placeholder: {
+                    search: 'Search...'
+                },
+                filter_reset: '.reset',
+            }
+        }).trigger('update').trigger('updateAll');
+        HookTooltip();
         return this;
     }
 }

@@ -61,20 +61,26 @@ class ServerInfo extends FOGPage
      */
     public function index()
     {
-        unset($this->headerData);
-        $this->attributes = array(
-            array(),
-            array(),
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
         );
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Server information');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
         if (!$this->obj->isValid()) {
-            printf(
-                '<p>%s</p>',
-                _('Invalid Server Information!')
-            );
+            echo _('Invalid Server Information!');
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
             return;
         }
         $url = sprintf(
@@ -83,13 +89,21 @@ class ServerInfo extends FOGPage
         );
         $ret = self::$FOGURLRequests->process($url);
         $ret = trim($ret[0]);
-        if (empty($ret) || !$ret) {
-            printf(
-                '<p>%s</p>',
-                _('Unable to pull server information!')
-            );
+        if (!$ret) {
+            echo _('Unable to get server infromation!');
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
             return;
         }
+        $this->attributes = array(
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8'),
+        );
+        $this->templates = array(
+            '${field}',
+            '${input}',
+        );
         $section = 0;
         $arGeneral = array();
         $arFS = array();
@@ -126,6 +140,13 @@ class ServerInfo extends FOGPage
             }
             unset($line);
         }
+        if (count($arGeneral) < 1) {
+            echo _('Unable to find basic information!');
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            return;
+        }
         foreach ((array)$arNIC as &$nic) {
             $nicparts = explode("$$", $nic);
             if (count($nicparts) == 5) {
@@ -140,14 +161,12 @@ class ServerInfo extends FOGPage
             }
             unset($nic);
         }
-        if (count($arGeneral) < 1) {
-            printf(_('Unable to find basic information'));
-            return;
-        }
+        $this->title = _('General Information');
         $fields = array(
-            sprintf('<b>%s</b>', _('General Information')) => '&nbsp;',
             _('Storage Node') => $this->obj->get('name'),
-            _('IP') => self::resolveHostname($this->obj->get('ip')),
+            _('IP') => self::resolveHostname(
+                $this->obj->get('ip')
+            ),
             _('Kernel') => $arGeneral[0],
             _('Hostname') => $arGeneral[1],
             _('Uptime') => $arGeneral[2],
@@ -158,27 +177,79 @@ class ServerInfo extends FOGPage
             _('CPU Cache') => $arGeneral[7],
             _('Total Memory') => $arGeneral[8],
             _('Used Memory') => $arGeneral[9],
-            _('Free Memory') => $arGeneral[10],
-            sprintf('<b>%s</b>', _('File System Information')) => '&nbsp;',
+            _('Free Memory') => $arGeneral[10]
+        );
+        array_walk($fields, $this->fieldsToData);
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        $this->render(12);
+        echo '</div>';
+        echo '</div>';
+        unset(
+            $fields,
+            $this->form,
+            $this->data
+        );
+        $this->title = _('File System Information');
+        $fields = array(
             _('Total Disk Space') => $arFS[0],
             _('Used Disk Space') => $arFS[1],
-            _('Free Disk Space') => $arFS[2],
-            sprintf('<b>%s</b>', _('Network Information')) => '&nbsp;',
+            _('Free Disk Space') => $arFS[2]
         );
+        array_walk($fields, $this->fieldsToData);
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        $this->render(12);
+        echo '</div>';
+        echo '</div>';
+        unset(
+            $fields,
+            $this->data
+        );
+        $this->title = _('Network Information');
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
         foreach ((array)$NICTrans as $index => &$txtran) {
+            unset(
+                $fields,
+                $this->data
+            );
             $ethName = explode(' ', $txtran);
-            $fields[
-                sprintf(
-                    '<b>%s %s</b>',
-                    $ethName[0],
-                    _('Information')
-                )
-            ] = '&nbsp;';
-            $fields[$NICTrans[$index]] = $NICTransSized[$index];
-            $fields[$NICRec[$index]] = $NICRecSized[$index];
-            $fields[$NICErr[$index]] = $NICErrInfo[$index];
-            $fields[$NICDro[$index]] = $NICDropInfo[$index];
-            unset($txtran, $index);
+            $fields = array(
+                $NICTrans[$index] => $NICTransSized[$index],
+                $NICRec[$index] => $NICRecSized[$index],
+                $NICErr[$index] => $NICErrInfo[$index],
+                $NICDro[$index] => $NICDropInfo[$index]
+            );
+            array_walk($fields, $this->fieldsToData);
+            echo '<div class="panel panel-info">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo $ethName[0];
+            echo ' ';
+            echo _('Information');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            $this->render(12);
+            echo '</div>';
+            echo '</div>';
+            unset($txtran);
         }
         unset(
             $arGeneral,
@@ -191,20 +262,16 @@ class ServerInfo extends FOGPage
             $NICTrans,
             $NICRec,
             $NICErr,
-            $NICDro
+            $NICDro,
+            $this->data,
+            $fields,
+            $this->attributes,
+            $this->templates
         );
-        $this->data = array();
-        array_walk($fields, $this->fieldsToData);
-        self::$HookManager
-            ->processEvent(
-                'SERVER_INFO_DISP',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        $this->render();
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
 }

@@ -42,6 +42,7 @@ class TaskType extends FOGController
         'type' => 'ttType',
         'isAdvanced' => 'ttIsAdvanced',
         'access' => 'ttIsAccess',
+        'initrd' => 'ttInitrd'
     );
     /**
      * The required fields.
