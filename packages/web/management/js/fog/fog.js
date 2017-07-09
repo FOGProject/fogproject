@@ -308,24 +308,26 @@ function HookTooltip() {
     }
 })(jQuery);
 function forceClick(e) {
-    $(this).unbind('click').click(function(evt) {evt.preventDefault();});
+    $(this).off('click', function(evt) {
+        evt.preventDefault();
+    });
     if (AJAXTaskForceRequest) AJAXTaskForceRequest.abort();
     AJAXTaskForceRequest = $.ajax({
         type: 'POST',
         url: $(this).attr('href'),
         beforeSend: function() {
-            $(this).unbind('click').removeClass().addClass(
+            $(this).off('click').removeClass().addClass(
                 'fa fa-refresh fa-spin fa-fw icon'
             );
         },
         success: function(data) {
             if (typeof(data) == 'undefined' || data === null) return;
-            $(this).unbind('click').removeClass().addClass(
+            $(this).off('click').removeClass().addClass(
                 'fa fa-angle-double-right fa-fw icon'
             );
         },
         error: function() {
-            $(this).bind('click').removeClass().addClass('fa fa-bolt fa-fw icon');
+            $(this).on('click').removeClass().addClass('fa fa-bolt fa-fw icon');
         }
     });
     e.preventDefault();

@@ -38,7 +38,7 @@ function download(data, strFileName, strMimeType) {
         b,
         ua,
         fr;
-    if(String(this)==="true"){ //reverse arguments, allowing download.bind(true, "text/xml", "export.xml") to act as a callback
+    if(String(this)==="true"){
         x=[x, m];
         m=x[0];
         x=x[1];
