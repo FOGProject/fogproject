@@ -330,12 +330,18 @@ class UserManagementPage extends FOGPage
             }
             $hook = 'USER_ADD_SUCCESS';
             $msg = json_encode(
-                array('msg' => _('User added!'))
+                array(
+                    'msg' => _('User added!'),
+                    'title' => _('User Create Success')
+                )
             );
         } catch (Exception $e) {
             $hook = 'USER_ADD_FAIL';
             $msg = json_encode(
-                array('error' => $e->getMessage())
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('User Create Fail')
+                )
             );
         }
         self::$HookManager
@@ -719,12 +725,18 @@ class UserManagementPage extends FOGPage
             }
             $hook = 'USER_UPDATE_SUCCESS';
             $msg = json_encode(
-                array('msg' => _('User updated!'))
+                array(
+                    'msg' => _('User updated!'),
+                    'title' => _('User Update Success')
+                )
             );
         } catch (Exception $e) {
             $hook = 'USER_UPDATE_FAIL';
             $msg = json_encode(
-                array('error' => $e->getMessage())
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('User Update Fail')
+                )
             );
         }
         self::$HookManager

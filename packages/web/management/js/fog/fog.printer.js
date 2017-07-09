@@ -1,40 +1,13 @@
 $(function() {
     checkboxToggleSearchListPages();
     validatorOpts = {
-        submitHandler: function(form) {
-            data = $(form).find(':visible').serialize();
-            url = $(form).attr('action');
-            method = $(form).attr('method').toUpperCase();
-            $.ajax({
-                url: url,
-                type: method,
-                data: data,
-                dataType: 'json',
-                success: function(data) {
-                    dialoginstance = new BootstrapDialog();
-                    if (data.error) {
-                        dialoginstance
-                        .setTitle('Printer Update Failed')
-                        .setMessage(data.error)
-                        .setType(BootstrapDialog.TYPE_WARNING)
-                        .open();
-                    } else {
-                        dialoginstance
-                        .setTitle('Printer Update Success')
-                        .setMessage(data.msg)
-                        .setType(BootstrapDialog.TYPE_SUCCESS)
-                        .open();
-                    }
-                }
-            });
-            return false;
-        },
+        submitHandler: submithandlerfunc,
         rules: {
             alias: {
                 required: true,
                 minlength: 1,
                 maxlength: 255,
-                regex: /^[\w!@#$%^()\-'{}\\\.~ ]{1,255}$/
+                regex: /^[-\w!@#$%^()'{}\\\.~ ]{1,255}$/
             }
         }
     };
@@ -64,7 +37,7 @@ $(function() {
                     required: true,
                     minlength: 1,
                     maxlength: 255,
-                    regex: /^[\w!@#$%^()\-'{}\\\.~ ]{1,255}$/
+                    regex: /^[-\w!@#$%^()'{}\\\.~ ]{1,255}$/
                 };
                 validatorOpts['rules']['ip'] = {
                     required: true,
@@ -78,7 +51,7 @@ $(function() {
                     required: true,
                     minlength: 1,
                     maxlength: 255,
-                    regex: /^[\w!@#$%^()\-'{}\\\.~ ]{1,255}$/
+                    regex: /^[-\w!@#$%^()'{}\\\.~ ]{1,255}$/
                 };
                 validatorOpts['rules']['ip'] = {
                     required: true,
@@ -118,16 +91,29 @@ $(function() {
             },
         });
     });
-    form = $('#add, #updategen:not(:hidden)').parents('form');
-    validator = form.validate(validatorOpts);
-    $('.printername-input:not(:hidden),.printerinf-input:not(:hidden),.printerport-input:not(:hidden),.printerip-input:not(:hidden),.printermodel-input:not(:hidden),.printerconfigFile-input:not(:hidden)').on('keyup change blur',function() {
-        return validator.element(this);
-    }).trigger('change');
-    $('.nav-tabs a').on('shown.bs.tab', function(e) {
-        form = $('#add, #updategen:not(:hidden)').parents('form');
-        validator = form.validate(validatorOpts);
-        $('.printername-input:not(:hidden),.printerinf-input:not(:hidden),.printerport-input:not(:hidden),.printerip-input:not(:hidden),.printermodel-input:not(:hidden),.printerconfigFile-input:not(:hidden)').on('keyup change blur',function() {
-            return validator.element(this);
-        }).trigger('change');
-    });
+    setInterval(function() {
+        $('#add, #updategen').each(function(e) {
+            if ($(this).is(':visible')) {
+                form = $(this).parents('form');
+                validator = form.validate(validatorOpts);
+            }
+            $(this).on('click', function(e) {
+                data = this.name;
+            });
+        });
+        $('printername-input, .printerinf-input, .printerport-input, .printerip-input, .printermodel-input, .printerconfigFile-input').each(function(e) {
+            if ($(this).is(':visible')) {
+                if (!$(this).hasClass('isvisible')) {
+                    $(this).addClass('isvisible');
+                }
+                $(this).on('keyup change blur', function(e) {
+                    return validator.element(this);
+                }).trigger('change');
+            } else {
+                if ($(this).hasClass('isvisible')) {
+                    $(this).removeClass('isvisible');
+                }
+            }
+        });
+    }, 1000);
 });

@@ -1,65 +1,42 @@
 $(function() {
     checkboxToggleSearchListPages();
     validatorOpts = {
-        submitHandler: function(form) {
-            data = $(form).find(':visible').serialize();
-            url = $(form).attr('action');
-            method = $(form).attr('method').toUpperCase();
-            $.ajax({
-                url: url,
-                type: method,
-                data: data,
-                dataType: 'json',
-                success: function(data) {
-                    dialoginstance = new BootstrapDialog();
-                    if (data.error) {
-                        dialoginstance
-                        .setTitle('Snapin Update Failed')
-                        .setMessage(data.error)
-                        .setType(BootstrapDialog.TYPE_WARNING)
-                        .open();
-                    } else {
-                        dialoginstance
-                        .setTitle('Snapin Update Success')
-                        .setMessage(data.msg)
-                        .setType(BootstrapDialog.TYPE_SUCCESS)
-                        .open();
-                    }
-                }
-            });
-            return false;
-        },
+        submitHandler: submithandlerfunc,
         rules: {
             name: {
                 required: true,
                 minlength: 1,
-                maxlength: 255
+                maxlength: 255,
+                regex: /^[-\w!@#$%^()'{}\\\.~ ]{1,255}$/
             }
         }
     };
     if ($_GET['sub'] == 'membership') return;
-    form = $('#add, #updategen:not(:hidden), #primarysel:not(:hidden), #groupdel:not(:hidden)').parents('form');
-    validator = form.validate(validatorOpts);
-    $('.snapinname-input:not(:hidden)').rules(
-        'add',
-        {
-            regex: /^[-\w!@#$%^()'{}\\\.~\+ ]{1,255}$/
-        }
-    ).on('keyup change blur', function() {
-        return validator.element(this);
-    }).trigger('change');
-    $('.nav-tabs a').on('shown.bs.tab', function(e) {
-        form = $('#add, #updategen:not(:hidden), #primarysel:not(:hidden), #groupdel:not(:hidden)').parents('form');
-        validator = form.validate(validatorOpts);
-        $('.snapinname-input:not(:hidden)').rules(
-            'add',
-            {
-                regex: /^[-\w!@#$%^()'{}\\\.~\+ ]{1,255}$/
+    setInterval(function() {
+        $('#add, #updategen, #updategroups, #primarysel, #groupdel').each(function(e) {
+            if ($(this).is(':visible')) {
+                form = $(this).parents('form');
+                validator = form.validate(validatorOpts);
             }
-        ).on('keyup change blur', function() {
-            return validator.element(this);
-        }).trigger('change');
-    });
+            $(this).on('click', function(e) {
+                data = this.name;
+            });
+        });
+        $('.snapinname-input').each(function(e) {
+            if ($(this).is(':visible')) {
+                if (!$(this).hasClass('isvisible')) {
+                    $(this).addClass('isvisible');
+                }
+                $(this).on('keyup change blur', function(e) {
+                    return validator.element(this);
+                }).trigger('change');
+            } else {
+                if ($(this).hasClass('isvisible')) {
+                    $(this).removeClass('isvisible');
+                }
+            }
+        });
+    }, 1000);
     $('#argTypes').on('change', function() {
         if ($('option:selected',this).attr('value')) $("input[name=rw]").val($('option:selected',this).attr('value'));
         $("input[name=rwa]").val($('option:selected',this).attr('rwargs'));

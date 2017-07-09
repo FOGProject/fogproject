@@ -1,5 +1,16 @@
 $(function() {
     checkboxToggleSearchListPages();
+    validatorOpts = {
+        submitHandler, submithandlerfunc,
+        rules: {
+            name: {
+                required: true,
+                minlength:1,
+                maxlength: 255
+                regex: /^[-\w!@#$%^()'{}\\\.~ ]{1,255}$/
+            }
+        }
+    };
     var iFileVal = $('#iFile').val();
     $('#iFile').on('change keyup',function(e) {
         var start = this.selectionStart,

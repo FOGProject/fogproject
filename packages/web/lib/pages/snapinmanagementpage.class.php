@@ -770,13 +770,19 @@ class SnapinManagementPage extends FOGPage
             $Snapin->setPrimaryGroup($storagegroup);
             $hook = 'SNAPIN_ADD_SUCCESS';
             $msg = json_encode(
-                array('msg' => _('Snapin added!'))
+                array(
+                    'msg' => _('Snapin added!'),
+                    'title' => _('Snapin Create Success')
+                )
             );
         } catch (Exception $e) {
             self::$FOGFTP->close();
             $hook = 'SNAPIN_ADD_FAIL';
             $msg = json_encode(
-                array('error' => $e->getMessage())
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('Snapin Create Fail')
+                )
             );
         }
         self::$HookManager
@@ -1598,13 +1604,19 @@ class SnapinManagementPage extends FOGPage
             }
             $hook = 'SNAPIN_UPDATE_SUCCESS';
             $msg = json_encode(
-                array('msg' => _('Snapin updated!'))
+                array(
+                    'msg' => _('Snapin updated!'),
+                    'title' => _('Snapin Update Success')
+                )
             );
         } catch (Exception $e) {
             self::$FOGFTP->close();
             $hook = 'SNAPIN_UPDATE_FAIL';
             $msg = json_encode(
-                array('error' => $e->getMessage())
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('Snapin Update Fail')
+                )
             );
         }
         self::$HookManager
