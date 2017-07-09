@@ -21,7 +21,7 @@ $(function() {
         }
     };
     setInterval(function() {
-        $('#add, #all, #pmsubmit, #pmupdate, #pmdelete, #updategen, #levelup, #updateprinters, #defaultsel, #printdel, #updatesnapins, #snapdel, #updatestatus, #updatedisplay, #updatealo, #updateinv, #host-edit').each(function(e) {
+        $('#host-add, #all, #pmsubmit, #pmupdate, #pmdelete, #updategen, #levelup, #updateprinters, #defaultsel, #printdel, #updatesnapins, #snapdel, #updatestatus, #updatedisplay, #updatealo, #updateinv, #host-edit').each(function(e) {
             if ($(this).is(':visible')) {
                 form = $(this).parents('form');
                 validator = form.validate(validatorOpts);
@@ -30,7 +30,7 @@ $(function() {
                 data = this.name;
             });
         });
-        $('.hostname-input:not(:hidden), .macaddr:not(:hidden)').each(function(e) {
+        $('.hostname-input, .macaddr').each(function(e) {
             if ($(this).is(':visible')) {
                 if (!$(this).hasClass('isvisible')) {
                     $(this).addClass('isvisible');
