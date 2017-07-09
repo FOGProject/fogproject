@@ -53,7 +53,6 @@ $(function() {
         $('#add, #updategen, #updategroups, #primarysel, #groupdel').each(function(e) {
             if ($(this).is(':visible')) {
                 form = $(this).parents('form');
-                console.log(form);
                 validator = form.validate(validatorOpts);
             }
             $(this).on('click', function(e) {

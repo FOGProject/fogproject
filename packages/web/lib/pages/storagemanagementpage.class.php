@@ -557,7 +557,7 @@ class StorageManagementPage extends FOGPage
                 ->set('pass', $pass)
                 ->set('bandwidth', $bandwidth);
             if (!$StorageNode->save()) {
-                throw new Exception(self::$foglang['DBupfailed']);
+                throw new Exception(_('Add storage node failed!'));
             }
             if ($StorageNode->get('isMaster')) {
                 $masternodes = self::getSubObjectIDs(
@@ -580,25 +580,29 @@ class StorageManagementPage extends FOGPage
                     );
             }
             $hook = 'STORAGE_NODE_ADD_SCCESS';
-            $msg = self::$foglang['SNCreated'];
-            $url = sprintf(
-                '?node=%s&sub=edit&%s=%s',
-                $this->node,
-                $this->id,
-                $StorageNode->get('id')
+            $msg = json_encode(
+                array(
+                    'msg' => _('Storage Node added!'),
+                    'title' => _('Storage Node Create Success')
+                )
             );
         } catch (Exception $e) {
             $hook = 'STORAGE_NODE_ADD_FAIL';
-            $msg = $e->getMessage();
-            $url = $this->formAction;
+            $msg = json_encode(
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('Storage Node Create Fail')
+                )
+            );
         }
         self::$HookManager
             ->processEvent(
                 $hook,
                 array('StorageNode' => &$StorageNode)
             );
-        self::setMessage($msg);
-        self::redirect($url);
+        unset($StorageNode);
+        echo $msg;
+        exit;
     }
     /**
      * Edit existing nodes.
@@ -903,9 +907,6 @@ class StorageManagementPage extends FOGPage
             if (!$pass) {
                 throw new Exception(self::$foglang['StoragePassRequired']);
             }
-            if (!$bandwidth) {
-                throw new Exception(_('Bandwidth should be greater than 0'));
-            }
             $this->obj
                 ->set('name', $name)
                 ->set('description', $desc)
@@ -926,7 +927,7 @@ class StorageManagementPage extends FOGPage
                 ->set('pass', $pass)
                 ->set('bandwidth', $bandwidth);
             if (!$this->obj->save()) {
-                throw new Exception(self::$foglang['DBupfailed']);
+                throw new Exception(_('Storage Node update failed!'));
             }
             if ($this->obj->get('isMaster')) {
                 $masternodes = self::getSubObjectIDs(
@@ -949,18 +950,28 @@ class StorageManagementPage extends FOGPage
                     );
             }
             $hook = 'STORAGE_NODE_EDIT_SUCCESS';
-            $msg = self::$foglang['SNUpdated'];
+            $msg = json_encode(
+                array(
+                    'msg' => _('Storage Node updated!'),
+                    'title' => _('Storage Node Update Success')
+                )
+            );
         } catch (Exception $e) {
             $hook = 'STORAGE_NODE_EDIT_FAIL';
-            $msg = $e->getMessage();
+            $msg = json_encode(
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('Storage Node Update Fail')
+                )
+            );
         }
         self::$HookManager
             ->processEvent(
                 $hook,
                 array('StorageNode' => &$this->obj)
             );
-        self::setMessage($msg);
-        self::redirect($this->formAction);
+        echo $msg;
+        exit;
     }
     /**
      * Displays form for deleting node.
@@ -1255,25 +1266,29 @@ class StorageManagementPage extends FOGPage
                 throw new Exception(self::$foglang['DBupfailed']);
             }
             $hook = 'STORAGE_GROUP_ADD_POST_SUCCESS';
-            $msg = self::$foglang['SGCreated'];
-            $url = sprintf(
-                '?node=%s&sub=editStorageGroup&%s=%s',
-                $this->node,
-                $this->id,
-                $StorageGroup->get('id')
+            $msg = json_encode(
+                array(
+                    'msg' => self::$foglang['SGCreated'],
+                    'title' => _('Storage Group Create Success')
+                )
             );
         } catch (Exception $e) {
             $hook = 'STORAGE_GROUP_ADD_POST_FAIL';
-            $msg = $e->getMessage();
-            $url = $this->formAction;
+            $msg = json_encode(
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('Storage Group Create Fail')
+                )
+            );
         }
         self::$HookManager
             ->processEvent(
                 $hook,
                 array('StorageGroup' => &$StorageGroup)
             );
-        self::setMessage($msg);
-        self::redirect($url);
+        unset($StorageGroup);
+        echo $msg;
+        exit;
     }
     /**
      * Edit a storage group.
@@ -1387,21 +1402,29 @@ class StorageManagementPage extends FOGPage
                 ->set('name', $name)
                 ->set('description', $desc);
             if (!$this->obj->save()) {
-                throw new Exception(self::$foglang['DBupfailed']);
+                throw new Exception(_('Storage Group update failed!'));
             }
             $hook = 'STORAGE_GROUP_EDIT_POST_SUCCESS';
-            $msg = self::$foglang['SGUpdated'];
+            $msg = json_encode(
+                array(
+                    'msg' => _('Storage Group updated!'),
+                    'title' => _('Storage Group Update Success')
+                )
+            );
         } catch (Exception $e) {
             $hook = 'STORAGE_GROUP_EDIT_POST_FAIL';
-            $msg = $e->getMessage();
+            $msg = array(
+                'error' => $e->getMessage(),
+                'title' => _('Storage Group Update Fail')
+            );
         }
         self::$HookManager
             ->processEvent(
                 $hook,
                 array('StorageGroup' => &$this->obj)
             );
-        self::setMessage($msg);
-        self::redirect($this->formAction);
+        echo $msg;
+        exit;
     }
     /**
      * Delete storage group.
