@@ -232,7 +232,7 @@ class GroupManagementPage extends FOGPage
             . _('Make changes?')
             . '</label>' => '<button class="'
             . 'btn btn-info btn-block" type="submit" name='
-            . '"addgroup" id="addgroup">'
+            . '"add" id="add">'
             . _('Add')
             . '</button>'
         );
@@ -260,7 +260,7 @@ class GroupManagementPage extends FOGPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="pst" action="'
+        echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '">';
         $this->render(12);
@@ -277,17 +277,31 @@ class GroupManagementPage extends FOGPage
     public function addPost()
     {
         self::$HookManager->processEvent('GROUP_ADD_POST');
-        $name = filter_input(INPUT_POST, 'name');
-        $desc = filter_input(INPUT_POST, 'description');
-        $kern = filter_input(INPUT_POST, 'kern');
-        $args = filter_input(INPUT_POST, 'args');
-        $dev = filter_input(INPUT_POST, 'dev');
+        $name = trim(
+            filter_input(INPUT_POST, 'name')
+        );
+        $desc = trim(
+            filter_input(INPUT_POST, 'description')
+        );
+        $kern = trim(
+            filter_input(INPUT_POST, 'kern')
+        );
+        $args = trim(
+            filter_input(INPUT_POST, 'args')
+        );
+        $dev = trim(
+            filter_input(INPUT_POST, 'dev')
+        );
         try {
             if (!$name) {
-                throw new Exception('Group Name is required');
+                throw new Exception(
+                    _('A group name is required!')
+                );
             }
             if (self::getClass('GroupManager')->exists($name)) {
-                throw new Exception('Group Name already exists');
+                throw new Exception(
+                    _('A group already exists with this name!')
+                );
             }
             $Group = self::getClass('Group')
                 ->set('name', $name)
@@ -296,21 +310,32 @@ class GroupManagementPage extends FOGPage
                 ->set('kernelArgs', $args)
                 ->set('kernelDevice', $dev);
             if (!$Group->save()) {
-                throw new Exception(_('Group create failed'));
+                throw new Exception(_('Add group failed!'));
             }
             $hook = 'GROUP_ADD_SUCCESS';
-            $msg = _('Group added');
+            $msg = json_encode(
+                array(
+                    'msg' => _('Group added!'),
+                    'title' => _('Group Create Success')
+                )
+            );
         } catch (Exception $e) {
             $hook = 'GROUP_ADD_FAIL';
-            $msg = $e->getMessage();
+            $msg = json_encode(
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('Group Create Fail')
+                )
+            );
         }
-        self::$HookManager->processEvent(
-            $hook,
-            array('Group' => &$Group)
-        );
+        self::$HookManager
+            ->processEvent(
+                $hook,
+                array('Group' => &$Group)
+            );
         unset($Group);
-        self::setMessage($msg);
-        self::redirect($this->formAction);
+        echo $msg;
+        exit;
     }
     /**
      * Get host common items
@@ -490,10 +515,10 @@ class GroupManagementPage extends FOGPage
             '<label for="efiBootTypeExit">'
             . _('Group EFI Exit Type')
             . '</label>' => $exitEfi,
-            '<label for="generalupdate">'
+            '<label for="updategen">'
             . _('Make Changes?')
             . '</label>' => '<button type="submit" class="btn btn-info btn-block" '
-            . 'id="generalupdate">'
+            . 'id="updategen">'
             . _('Update')
             . '</button>'
         );
@@ -1767,11 +1792,21 @@ class GroupManagementPage extends FOGPage
         try {
             global $tab;
             $hostids = $this->obj->get('hosts');
-            $name = filter_input(INPUT_POST, 'name');
-            $desc = filter_input(INPUT_POST, 'description');
-            $kern = filter_input(INPUT_POST, 'kern');
-            $args = filter_input(INPUT_POST, 'args');
-            $dev = filter_input(INPUT_POST, 'dev');
+            $name = trim(
+                filter_input(INPUT_POST, 'name')
+            );
+            $desc = trim(
+                filter_input(INPUT_POST, 'description')
+            );
+            $kern = trim(
+                filter_input(INPUT_POST, 'kern')
+            );
+            $args = trim(
+                filter_input(INPUT_POST, 'args')
+            );
+            $dev = trim(
+                filter_input(INPUT_POST, 'dev')
+            );
             $key = filter_input(INPUT_POST, 'key');
             $image = filter_input(INPUT_POST, 'image');
             $useAD = isset($_POST['domain']);
@@ -1813,8 +1848,12 @@ class GroupManagementPage extends FOGPage
             $action = filter_input(INPUT_POST, 'action');
             switch ($tab) {
             case 'group-general':
-                if (empty($name)) {
-                    throw new Exception(_('Group Name is required'));
+                if ($this->obj->get('name') != $name
+                    && self::getClass('GroupManager')->exists($name)
+                ) {
+                    throw new Exception(
+                        _('A group already exists with this name!')
+                    );
                 }
                 $this->obj
                     ->set('name', $name)
@@ -2008,20 +2047,30 @@ class GroupManagementPage extends FOGPage
                 break;
             }
             if (!$this->obj->save()) {
-                throw new Exception(_('Database update failed'));
+                throw new Exception(_('Group update failed!'));
             }
             $hook = 'GROUP_EDIT_SUCCESS';
-            $msg = _('Group information updated');
+            $msg = json_encode(
+                array(
+                    'msg' => _('Group updated!'),
+                    'title' => _('Group Update Success')
+                )
+            );
         } catch (Exception $e) {
             $hook = 'GROUP_EDIT_FAIL';
-            $msg = $e->getMessage();
+            $msg = json_encode(
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('Group Update Fail')
+                )
+            );
         }
         self::$HookManager
             ->processEvent(
                 $hook,
                 array('Group' => &$this->obj)
             );
-        self::setMessage($msg);
-        self::redirect($this->formAction);
+        echo $msg;
+        exit;
     }
 }
