@@ -4052,11 +4052,15 @@ abstract class FOGPage extends FOGBase
      *
      * @param bool        $delNeeded If we need to be able to delete items.
      * @param bool|string $storage   If storage, set node or group.
+     * @param bool        $actionbox If we need to label as action box.
      *
      * @return void
      */
-    public function indexDivDisplay($delNeeded = false, $storage = false)
-    {
+    public function indexDivDisplay(
+        $delNeeded = false,
+        $storage = false,
+        $actionbox = false
+    ) {
         ob_start();
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
@@ -4081,6 +4085,9 @@ abstract class FOGPage extends FOGBase
             );
             echo $items;
             return;
+        }
+        if ($actionbox) {
+            echo '<div class="action-boxes del hiddeninitially">';
         }
         echo '<div class="panel panel-warning">';
         echo '<div class="panel-heading text-center">';
@@ -4121,6 +4128,9 @@ abstract class FOGPage extends FOGBase
         echo '</form>';
         echo '</div>';
         echo '</div>';
+        if ($actionbox) {
+            echo '</div>';
+        }
         $items = ob_get_clean();
         self::$HookManager->processEvent(
             'INDEX_DIV_DISPLAY_CHANGE',
