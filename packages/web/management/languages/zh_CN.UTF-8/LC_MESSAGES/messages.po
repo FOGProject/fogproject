@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-09 11:15-0400\n"
+"POT-Creation-Date: 2017-07-09 11:44-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1262,8 +1262,8 @@ msgstr "保存更改"
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1104
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1344
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:818
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:437
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:464
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:447
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:474
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:270
 #: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:122
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:470
@@ -1279,7 +1279,7 @@ msgid "Update"
 msgstr "更新"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:706
-#: /var/www/fog/lib/fog/fogpage.class.php:4088
+#: /var/www/fog/lib/fog/fogpage.class.php:4095
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1068
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1262
 #: /var/www/fog/lib/plugins/accesscontrol/hooks/accesscontrolindexdiv.hook.php:98
@@ -1291,7 +1291,7 @@ msgid "Delete Selected"
 msgstr "删除所选"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:724
-#: /var/www/fog/lib/fog/fogpage.class.php:4099
+#: /var/www/fog/lib/fog/fogpage.class.php:4106
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:840
 #, fuzzy
 msgid "Delete selected"
@@ -1300,7 +1300,7 @@ msgstr "删除所选"
 #: /var/www/fog/lib/fog/fogpage.class.php:745
 #: /var/www/fog/lib/fog/fogpage.class.php:1917
 #: /var/www/fog/lib/fog/fogpage.class.php:2657
-#: /var/www/fog/lib/fog/fogpage.class.php:4117
+#: /var/www/fog/lib/fog/fogpage.class.php:4124
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1576
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1709
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:417
@@ -1309,7 +1309,7 @@ msgstr "删除所选"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2484
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:1006
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:1459
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:558
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:568
 #: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:54
 #: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:66
 #: /var/www/fog/lib/plugins/accesscontrol/hooks/accesscontrolindexdiv.hook.php:123
@@ -2071,7 +2071,7 @@ msgstr "主存储组"
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:544
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:901
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:74
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:482
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:492
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:334
 #: /var/www/fog/lib/reports/product_keys.report.php:45
 #: /var/www/fog/lib/reports/product_keys.report.php:58
@@ -2330,8 +2330,8 @@ msgstr "用户创建"
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1101
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:815
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:1336
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:434
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:461
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:444
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:471
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:467
 #, fuzzy
 msgid "Make Changes?"
@@ -2774,7 +2774,7 @@ msgid "Install Kernel"
 msgstr "主机内核"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:338
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:336
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:346
 #, fuzzy
 msgid "Install"
 msgstr "安装/更新失败！"
@@ -6240,16 +6240,16 @@ msgstr "激活插件"
 msgid "Install Plugins"
 msgstr "安装插件"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:247
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:252
 #: /var/www/fog/commons/text.php:173
 msgid "Installed Plugins"
 msgstr "已安装的插件"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:299
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:309
 msgid "Unable to determine plugin details."
 msgstr "无法确定插件的详细信息。"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:301
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:311
 #: /var/www/fog/lib/plugins/example/html/run.php:35
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:287
 #: /var/www/fog/lib/plugins/ldap/class/ldap.class.php:364
@@ -6265,131 +6265,131 @@ msgstr "无法确定插件的详细信息。"
 msgid "Plugin"
 msgstr "插入"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:320
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:330
 #: /var/www/fog/lib/plugins/example/html/run.php:40
 msgid "Plugin Description"
 msgstr "插件说明"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:326
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:336
 msgid "Plugin Installation"
 msgstr "插件安装"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:326
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:336
 #, fuzzy
 msgid "This plugin is not installed"
 msgstr "这个插件是当前未安装，你想现在安装？"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:328
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:338
 #, fuzzy
 msgid "would you ilke to install it now"
 msgstr "这个插件是当前未安装，你想现在安装？"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:333
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:343
 #, fuzzy
 msgid "Install Plugin"
 msgstr "安装插件"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:383
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:393
 msgid "Reboot after deploy"
 msgstr "部署后重新启动"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:384
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:394
 msgid "Shutdown after deploy"
 msgstr "部署后关机"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:393
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:403
 #, fuzzy
 msgid "Basic Settings"
 msgstr "设置"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:428
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:438
 msgid "DMI Field"
 msgstr "DMI场"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:431
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:441
 #, fuzzy
 msgid "After image Action"
 msgstr "集团定位"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:449
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:459
 #, fuzzy
 msgid "Image Associations"
 msgstr "图像协会"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:452
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:462
 msgid "Image Definition"
 msgstr "图像清晰度"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:455
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:465
 msgid "DMI Result"
 msgstr "DMI结果"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:476
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:486
 #, fuzzy
 msgid "Image to DMI Mappings"
 msgstr "添加图片到DMI协会"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:483
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:493
 #: /var/www/fog/lib/reports/product_keys.report.php:47
 #: /var/www/fog/lib/reports/host_list.report.php:46
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:46
 msgid "OS Name"
 msgstr "操作系统名称"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:484
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:494
 msgid "DMI Key"
 msgstr "DMI关键"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:531
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:541
 #, fuzzy
 msgid "Current Associations"
 msgstr "图像协会"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:555
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:565
 #, fuzzy
 msgid "Remove Selected?"
 msgstr "删除选定snapins"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:565
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:575
 #, fuzzy
 msgid "Remove Associations"
 msgstr "图像协会"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:619
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:629
 msgid "Invalid Plugin Passed"
 msgstr "无效的插件传递"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:625
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:635
 msgid "Failed to install plugin"
 msgstr "无法安装插件"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:636
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:646
 msgid "Failed to save plugin"
 msgstr "无法保存插件"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:645
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:655
 msgid "Plugin Installed!"
 msgstr "插件安装好了！"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:666
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:676
 #, fuzzy
 msgid "Must have an image associated"
 msgstr "必须有管理单元与组关联"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:674
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:684
 msgid "Failed to save assignment"
 msgstr "无法保存分配"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:676
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:686
 msgid "Assignment saved successfully"
 msgstr "转让成功保存"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:691
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:701
 #, fuzzy
 msgid "Destroyed assignments"
 msgstr "销毁作业"
 
-#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:693
+#: /var/www/fog/lib/pages/pluginmanagementpage.class.php:703
 msgid "Destroyed assignment"
 msgstr "销毁作业"
 

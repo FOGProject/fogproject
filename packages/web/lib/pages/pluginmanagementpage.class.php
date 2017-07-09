@@ -234,7 +234,12 @@ class PluginManagementPage extends FOGPage
                 unset($Plugin);
             }
         }
-        $this->indexDivDisplay(true);
+        $this->formAction = str_replace(
+            '&sub=install',
+            '',
+            $this->formAction
+        );
+        $this->indexDivDisplay(true, false, true);
         echo '</div>';
     }
     /**
@@ -282,7 +287,12 @@ class PluginManagementPage extends FOGPage
                 unset($Plugin);
             }
         }
-        $this->indexDivDisplay(true);
+        $this->formAction = str_replace(
+            '&sub=installed',
+            '',
+            $this->formAction
+        );
+        $this->indexDivDisplay(true, false, true);
         echo '</div>';
     }
     /**
