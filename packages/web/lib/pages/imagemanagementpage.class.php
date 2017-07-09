@@ -543,7 +543,8 @@ class ImageManagementPage extends FOGPage
             '<label for="iName">'
             . _('Image Name')
             . '</label>' => '<div class="input-group">'
-            . '<input class="form-control" type="text" name="name" id="iName" '
+            . '<input class="form-control imagename-input" type="text" '
+            . 'name="name" id="iName" '
             . 'value="'
             . $name
             . '"/>'
@@ -551,7 +552,8 @@ class ImageManagementPage extends FOGPage
             '<label for="description">'
             . _('Image Description')
             . '</label>' => '<div class="input-group">'
-            . '<textarea name="description" class="form-control" id="description">'
+            . '<textarea name="description" class="form-control imagedesc-input" '
+            . 'id="description">'
             . $description
             . '</textarea>',
             '<label for="storagegroup">'
@@ -567,7 +569,8 @@ class ImageManagementPage extends FOGPage
             . $StorageNode->get('path')
             . '/'
             . '</span>'
-            . '<input type="text" class="form-control" name="file" id="iFile" '
+            . '<input type="text" class="form-control imagefile-input" '
+            . 'name="file" id="iFile" '
             . 'value="'
             . $file
             . '"/>',
@@ -670,14 +673,8 @@ class ImageManagementPage extends FOGPage
         $isenabled = (int)isset($_POST['isEnabled']);
         $torep = (int)isset($_POST['toReplicate']);
         try {
-            if (!$name) {
-                throw new Exception(_('An image name is required!'));
-            }
             if (self::getClass('ImageManager')->exists($name)) {
                 throw new Exception(_('An image already exists with this name!'));
-            }
-            if (empty($file)) {
-                throw new Exception(_('An image file name is required!'));
             }
             if ($file == 'postdownloadscripts'
                 || $file == 'dev'
@@ -699,18 +696,6 @@ class ImageManagementPage extends FOGPage
                     )
                 );
             }
-            if (!$storagegroup) {
-                throw new Exception(_('A Storage Group is required!'));
-            }
-            if (!$os) {
-                throw new Exception(_('An Operating System is required!'));
-            }
-            if (!$imagetype) {
-                throw new Exception(_('An image type is required!'));
-            }
-            if (!$imagepartitiontype) {
-                throw new Exception(_('An image partition type is required!'));
-            }
             $Image = self::getClass('Image')
                 ->set('name', $name)
                 ->set('description', $desc)
@@ -724,7 +709,7 @@ class ImageManagementPage extends FOGPage
                 ->set('toReplicate', $torep)
                 ->addGroup($storagegroup);
             if (!$Image->save()) {
-                throw new Exception(_('Database update failed'));
+                throw new Exception(_('Add image failed!'));
             }
             /**
              * During image creation we only allow a single group anyway.
@@ -732,16 +717,20 @@ class ImageManagementPage extends FOGPage
              */
             $Image->setPrimaryGroup($storagegroup);
             $hook = 'IMAGE_ADD_SUCCESS';
-            $msg = _('Image created');
-            $url = sprintf(
-                '?node=%s&sub=edit&id=%s',
-                $this->node,
-                $Image->get('id')
+            $msg = json_encode(
+                array(
+                    'msg' => _('Image added!'),
+                    'title' => _('Image Create Success')
+                )
             );
         } catch (Exception $e) {
             $hook = 'IMAGE_ADD_FAIL';
-            $msg = $e->getMessage();
-            $url = $this->formAction;
+            $msg = json_encode(
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('Image Create Fail')
+                )
+            );
         }
         self::$HookManager
             ->processEvent(
@@ -749,8 +738,8 @@ class ImageManagementPage extends FOGPage
                 array('Image' => &$Image)
             );
         unset($Image);
-        self::setMessage($msg);
-        self::redirect($url);
+        echo $msg;
+        exit;
     }
     /**
      * Diplay image general information.
@@ -911,7 +900,8 @@ class ImageManagementPage extends FOGPage
             '<label for="iName">'
             . _('Image Name')
             . '</label>' => '<div class="input-group">'
-            . '<input class="form-control" type="text" name="name" id="iName" '
+            . '<input class="form-control imagename-input" type="text" '
+            . 'name="name" id="iName" '
             . 'value="'
             . $name
             . '"/>'
@@ -919,7 +909,8 @@ class ImageManagementPage extends FOGPage
             '<label for="description">'
             . _('Image Description')
             . '</label>' => '<div class="input-group">'
-            . '<textarea name="description" class="form-control" id="description">'
+            . '<textarea name="description" class="form-control imagedesc-input" '
+            . 'id="description">'
             . $desc
             . '</textarea>',
             '<label for="os">'
@@ -932,7 +923,8 @@ class ImageManagementPage extends FOGPage
             . $StorageNode->get('path')
             . '/'
             . '</span>'
-            . '<input type="text" class="form-control" name="file" id="iFile" '
+            . '<input type="text" class="form-control imagefile-input" '
+            . 'name="file" id="iFile" '
             . 'value="'
             . $file
             . '"/>',
@@ -976,10 +968,10 @@ class ImageManagementPage extends FOGPage
             '<label for="imagemanage">'
             . _('Image Manager')
             . '</label>' => $format,
-            '<label for="update">'
+            '<label for="updategen">'
             . _('Make Changes?')
             . '</label>' => '<button class="btn btn-info btn-block" type="submit" '
-            . 'id="update" name="update">'
+            . 'id="updategen" name="update">'
             . _('Update')
             . '</button>'
         );
@@ -1319,9 +1311,6 @@ class ImageManagementPage extends FOGPage
         try {
             switch ($tab) {
             case 'image-gen':
-                if (!$name) {
-                    throw new Exception(_('An image name is required!'));
-                }
                 if ($this->obj->get('name') != $name
                     && self::getClass('ImageManager')->exists(
                         $name,
@@ -1360,66 +1349,19 @@ class ImageManagementPage extends FOGPage
                         )
                     );
                 }
-                if (empty($file)) {
-                    throw new Exception(_('An image file name is required!'));
-                }
-                if (empty($os)) {
-                    throw new Exception(_('An Operating System is required!'));
-                }
-                if ($imagetype < 1) {
-                    throw new Exception(_('An image type is required!'));
-                }
-                if ($imagepartitiontype < 0) {
-                    throw new Exception(
-                        _('An image partition type is required!')
-                    );
-                }
                 $this
                     ->obj
-                    ->set(
-                        'name',
-                        $name
-                    )
-                    ->set(
-                        'description',
-                        $desc
-                    )
-                    ->set(
-                        'osID',
-                        $os
-                    )
-                    ->set(
-                        'path',
-                        $file
-                    )
-                    ->set(
-                        'imageTypeID',
-                        $imagetype
-                    )
-                    ->set(
-                        'imagePartitionTypeID',
-                        $imagepartitiontype
-                    )
-                    ->set(
-                        'format',
-                        $imagemanage ?: $this->obj->get('format')
-                    )
-                    ->set(
-                        'protected',
-                        $protected
-                    )
-                    ->set(
-                        'compress',
-                        $compress
-                    )
-                    ->set(
-                        'isEnabled',
-                        $isEnabled
-                    )
-                    ->set(
-                        'toReplicate',
-                        $toReplicate
-                    );
+                    ->set('name', $name)
+                    ->set('description', $desc)
+                    ->set('osID', $os)
+                    ->set('path', $file)
+                    ->set('imageTypeID', $imagetype)
+                    ->set('imagePartitionTypeID', $imagepartitiontype)
+                    ->set('format', $imagemanage ?: $this->obj->get('format'))
+                    ->set('protected', $protected)
+                    ->set('compress', $compress)
+                    ->set('isEnabled', $isEnabled)
+                    ->set('toReplicate', $toReplicate);
                 break;
             case 'image-storage':
                 if (isset($_POST['updategroups'])) {
@@ -1452,19 +1394,29 @@ class ImageManagementPage extends FOGPage
                     _('Image update failed')
                 );
             }
-            $hook = 'IMAGE_EDIT_SUCCESS';
-            $msg = _('Image updated');
+            $hook = 'IMAGE_UPDATE_SUCCESS';
+            $msg = json_encode(
+                array(
+                    'msg' => _('Image updated!'),
+                    'title' => _('Image Update Success')
+                )
+            );
         } catch (Exception $e) {
-            $hook = 'IMAGE_EDIT_FAIL';
-            $msg = $e->getMessage();
+            $hook = 'IMAGE_UPDATE_FAIL';
+            $msg = json_encode(
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('Image Update Fail')
+                )
+            );
         }
         self::$HookManager
             ->processEvent(
                 $hook,
                 array('Image' => &$this->obj)
             );
-        self::setMessage($msg);
-        self::redirect($this->formAction);
+        echo $msg;
+        exit;
     }
     /**
      * Presents the form to created named multicast
