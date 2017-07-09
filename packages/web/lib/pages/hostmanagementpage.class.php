@@ -662,16 +662,22 @@ class HostManagementPage extends FOGPage
                     $enforce
                 );
             if (!$Host->save()) {
-                throw new Exception(_('Host create failed'));
+                throw new Exception(_('Add host failed!'));
             }
             $hook = 'HOST_ADD_SUCCESS';
             $msg = json_encode(
-                array('msg' => _('Host added'))
+                array(
+                    'msg' => _('Host added!'),
+                    'title' => _('Host Create Success')
+                )
             );
         } catch (Exception $e) {
             $hook = 'HOST_ADD_FAIL';
             $msg = json_encode(
-                array('error' => $e->getMessage())
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('Host Create Fail')
+                )
             );
         }
         self::$HookManager
@@ -3591,12 +3597,18 @@ class HostManagementPage extends FOGPage
             }
             $hook = 'HOST_EDIT_SUCCESS';
             $msg = json_encode(
-                array('msg' => _('Host updated!'))
+                array(
+                    'msg' => _('Host updated!'),
+                    'title' => _('Host Update Success')
+                )
             );
         } catch (Exception $e) {
             $hook = 'HOST_EDIT_FAIL';
             $msg = json_encode(
-                array('error' => $e->getMessage())
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('Host Update Fail')
+                )
             );
         }
         self::$HookManager

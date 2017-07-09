@@ -533,16 +533,24 @@ class PrinterManagementPage extends FOGPage
                 ->set('configFile', $configFile)
                 ->set('ip', $ip);
             if (!$Printer->save()) {
-                throw new Exception(_('Add printer failed!'));
+                throw new Exception(
+                    _('Add printer failed!')
+                );
             }
             $hook = 'PRINTER_ADD_SUCCESS';
             $msg = json_encode(
-                array('msg' => _('Printer added!'))
+                array(
+                    'msg' => _('Printer added!'),
+                    'title' => _('Printer Create Success')
+                )
             );
         } catch (Exception $e) {
             $hook = 'PRINTER_ADD_FAIL';
             $msg = json_encode(
-                array('error' => $e->getMessage())
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('Printer Create Fail')
+                )
             );
         }
         self::$HookManager->processEvent(
@@ -967,12 +975,18 @@ class PrinterManagementPage extends FOGPage
             }
             $hook = 'PRINTER_UPDATE_SUCCESS';
             $msg = json_encode(
-                array('msg' => _('Printer updated!'))
+                array(
+                    'msg' => _('Printer updated!'),
+                    'title' => _('Printer Update Success')
+                )
             );
         } catch (Exception $e) {
             $hook = 'PRINTER_UPDATE_FAIL';
             $msg = json_encode(
-                array('error' => $e->getMessage())
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('Printer Update Fail')
+                )
             );
         }
         self::$HookManager

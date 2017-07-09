@@ -33,7 +33,9 @@ var $_GET = getQueryParams(document.location.search),
     ActionBoxDel,
     Container,
     savedFilters,
-    checkedIDs;
+    checkedIDs,
+    data = '',
+    submithandlerfunc;
 // Searching
 _L['PERFORMING_SEARCH'] = 'Searching...';
 _L['ERROR_SEARCHING'] = 'Search failed';
@@ -44,6 +46,34 @@ _L['NO_ACTIVE_TASKS'] = "No results found";
 _L['UPDATING_ACTIVE_TASKS'] = "Fetching active tasks";
 _L['ACTIVE_TASKS_FOUND'] = '%1 active task%2 found';
 _L['ACTIVE_TASKS_LOADING'] = 'Loading...';
+submithandlerfunc = function(form) {
+    data += '&'+$(form).find(':visible,[type="radio"]').serialize();
+    url = $(form).attr('action');
+    method = $(form).attr('method');
+    $.ajax({
+        url: url,
+        type: method,
+        data: data,
+        dataType: 'json',
+        success: function(data) {
+            dialoginstance = new BootstrapDialog();
+            if (data.error) {
+                dialoginstance
+                .setTitle(data.title)
+                .setMessage(data.error)
+                .setType(BootstrapDialog.TYPE_WARNING)
+                .open();
+            } else {
+                dialoginstance
+                .setTitle(data.title)
+                .setMessage(data.msg)
+                .setType(BootstrapDialog.TYPE_SUCCESS)
+                .open();
+            }
+        }
+    });
+    return false;
+};
 function getChecked() {
     var val = [];
     $('.toggle-action:checkbox:checked').each(function(i) {

@@ -1,38 +1,10 @@
 var MACLookupTimer;
 var MACLookupTimeout = 1000;
 var length = 1;
-var data = '';
 $(function() {
     checkboxToggleSearchListPages();
     validatorOpts = {
-        submitHandler: function(form) {
-            data += '&'+$(form).find(':visible,[type="radio"]').serialize();
-            url = $(form).attr('action');
-            method = $(form).attr('method').toUpperCase();
-            $.ajax({
-                url: url,
-                type: method,
-                data: data,
-                dataType: 'json',
-                success: function(data) {
-                    dialoginstance = new BootstrapDialog();
-                    if (data.error) {
-                        dialoginstance
-                        .setTitle('Host Update Failed')
-                        .setMessage(data.error)
-                        .setType(BootstrapDialog.TYPE_WARNING)
-                        .open();
-                    } else {
-                        dialoginstance
-                        .setTitle('Host Update Success')
-                        .setMessage(data.msg)
-                        .setType(BootstrapDialog.TYPE_SUCCESS)
-                        .open();
-                    }
-                }
-            });
-            return false;
-        },
+        submitHandler: submithandlerfunc,
         rules: {
             host: {
                 required: true,
@@ -48,24 +20,31 @@ $(function() {
             }
         }
     };
-    $('#add, #all, #pmsubmit, #pmupdate, #pmdelete, #updategen, #levelup, #updateprinters, #defaultsel, #printdel, #updatesnapins, #snapdel, #updatestatus, #updatedisplay, #updatealo, #updateinv, #host-edit').on('click', function(e) {
-        data = this.name;
-        form = $(this).parents('form');
-        validator = form.validate(validatorOpts);
-    });
-    $('.hostname-input:not(:hidden), .macaddr:not(:hidden)').on('keyup change blur click', function(e) {
-        return validator.element(this);
-    });
-    $('.nav-tabs a').on('shown.bs.tab', function(e) {
-        $('#add, #pmupdate, #pmdelete, #updategen, #levelup, #updateprinters, #defaultsel, #printerdel, #updatesnapins, #snapdel, #updatestatus, #updatedisplay, #updatealo, #updateinv, #host-edit').on('click', function(e) {
-            data = this.name;
-            form = $(this).parents('form');
-            validator = form.validate(validatorOpts);
+    setInterval(function() {
+        $('#add, #all, #pmsubmit, #pmupdate, #pmdelete, #updategen, #levelup, #updateprinters, #defaultsel, #printdel, #updatesnapins, #snapdel, #updatestatus, #updatedisplay, #updatealo, #updateinv, #host-edit').each(function(e) {
+            if ($(this).is(':visible')) {
+                form = $(this).parents('form');
+                validator = form.validate(validatorOpts);
+            }
+            $(this).on('click', function(e) {
+                data = this.name;
+            });
         });
-        $('.hostname-input:not(:hidden), .macaddr:not(:hidden)').on('keyup change blur click', function(e) {
-            return validator.element(this);
+        $('.hostname-input:not(:hidden), .macaddr:not(:hidden)').each(function(e) {
+            if ($(this).is(':visible')) {
+                if (!$(this).hasClass('isvisible')) {
+                    $(this).addClass('isvisible');
+                }
+                $(this).on('keyup change blur', function(e) {
+                    return validator.element(this);
+                });
+            } else {
+                if ($(this).hasClass('isvisible')) {
+                    $(this).removeClass('isvisible');
+                }
+            }
         });
-    });
+    }, 1000);
     checkboxAssociations('.toggle-checkboxgroup:checkbox','.toggle-group:checkbox');
     MACUpdate();
     ProductUpdate();
