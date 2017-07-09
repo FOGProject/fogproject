@@ -101,12 +101,12 @@ $(function() {
             var label = $('input[value='+$(this).val()+'].action');
             var element = label;
         }
-        $(this).bind('mousedown keydown', function(e) {setCurrent(e);});
-        label.bind('mousedown keydown', function(e) {
+        $(this).on('mousedown keydown', function(e) {setCurrent(e);});
+        label.on('mousedown keydown', function(e) {
             e.target = $(element);
             setCurrent(e);
         });
-        $(this).bind('click', function(e) {setCheck(e);});
+        $(this).on('click', function(e) {setCheck(e);});
     });
     $('.trigger_expand').on('click', function(e) {
         e.preventDefault();
