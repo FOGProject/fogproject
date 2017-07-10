@@ -4,7 +4,7 @@ $(function() {
         submitHandler: submithandlerfunc
     };
     setInterval(function() {
-        $('button[name="update"]').each(function(e) {
+        $('button[name="update"], #menuSet, #hideSet, #exitSet, #advSet').each(function(e) {
             form = $(this).parents('form');
             validator = form.validate(validatorOpts);
             $(this).on('click', function(e) {
