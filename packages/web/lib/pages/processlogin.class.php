@@ -391,7 +391,7 @@ class ProcessLogin extends FOGPage
      */
     public static function getLocale()
     {
-        $lang = explode('_', $this->_lang);
+        $lang = explode('_', self::$locale);
         $lang = $lang[0];
         return $lang;
     }
