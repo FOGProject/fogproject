@@ -1303,29 +1303,29 @@ class FOGConfigurationPage extends FOGPage
                     ->save();
             }
             unset($DefMenuIDs);
-            self::setMessage(
-                sprintf(
-                    '%s %s!',
-                    $menu_item,
-                    _('successfully updated')
+            $msg = json_encode(
+                array(
+                    'msg' => _("$menu_item successfully updated!"),
+                    'title' => _('iPXE Item Update Success')
                 )
             );
         }
-        $rmid = filter_input(
-            INPUT_POST,
-            'rmid'
-        );
         if (isset($_POST['delform'])) {
+            $rmid = filter_input(
+                INPUT_POST,
+                'rmid'
+            );
             $menuname = self::getClass(
                 'PXEMenuOptions',
                 $rmid
             );
             if ($menuname->destroy()) {
-                self::setMessage(
-                    sprintf(
-                        '%s %s!',
-                        $menuname->get('name'),
-                        _('successfully removed')
+                $msg = json_encode(
+                    array(
+                        'msg' => $menuname->get('name')
+                        . ' '
+                        . _('successfully removed!'),
+                        'title' => _('iPXE Item Remove Success')
                     )
                 );
             }
@@ -1343,7 +1343,8 @@ class FOGConfigurationPage extends FOGPage
                     ->save();
             }
         }
-        self::redirect($this->formAction);
+        echo $msg;
+        exit;
     }
     /**
      * Form presented to create a new menu.
@@ -1554,7 +1555,7 @@ class FOGConfigurationPage extends FOGPage
                 ->set('args', $menu_options)
                 ->set('default', $menu_default);
             if (!$Menu->save()) {
-                throw new Exception(_('Menu create failed'));
+                throw new Exception(_('iPXE Item create failed!'));
             }
             $countDefault = self::getClass('PXEMenuOptionsManager')
                 ->count(
@@ -1567,33 +1568,32 @@ class FOGConfigurationPage extends FOGPage
                     ->set('default', 1)
                     ->save();
             }
-            self::$HookManager
-                ->processEvent(
-                    'MENU_ADD_SUCCESS',
-                    array(
-                        'Menu' => &$Menu
-                    )
-                );
-            self::setMessage(_('Menu Added'));
-            self::redirect(
-                sprintf(
-                    '?node=%s&sub=edit&%s=%s',
-                    $this->node,
-                    $this->id,
-                    $Menu->get('id')
+            $hook = 'MENU_ADD_SUCCESS';
+            $msg = json_encode(
+                array(
+                    'msg' => _('iPXE Item added!'),
+                    'title' => _('iPXE Item Create Success')
                 )
             );
         } catch (Exception $e) {
-            self::$HookManager
-                ->processEvent(
-                    'MENU_ADD_FAIL',
-                    array(
-                        'Menu' => &$Menu
-                    )
-                );
-            self::setMessage($e->getMessage());
-            self::redirect($this->formAction);
+            $hook = 'MENU_ADD_FAIL';
+            $msg = json_encode(
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('iPXE Item Create Fail')
+                )
+            );
         }
+        self::$HookManager
+            ->processEvent(
+                $hook,
+                array(
+                    'Menu' => &$Menu
+                )
+            );
+        unset($Menu);
+        echo $msg;
+        exit;
     }
     /**
      * Client updater element from config page.
@@ -1653,16 +1653,8 @@ class FOGConfigurationPage extends FOGPage
                     'headerData' => &$this->headerData
                 )
             );
-        echo _('NOTICE');
-        echo ': ';
-        echo _('The below items are only used for the old client.');
-        echo ' ';
-        echo _('Old clients are the clients that came with FOG');
-        echo ' ';
-        echo _('Version 1.2.0 and earlier');
-        echo '<hr/>';
         if ($formNeeded) {
-            echo '<div class="col-xs-offset-3">';
+            echo '<div class="col-xs-9">';
             echo '<form class="form-horizontal" method="post" action="'
                 . $this->formAction
                 . '&tab=clientupdater" enctype="multipart/form-data">';
@@ -1674,6 +1666,14 @@ class FOGConfigurationPage extends FOGPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="panel-body">';
+        echo _('NOTICE');
+        echo ': ';
+        echo _('The below items are only used for the old client.');
+        echo ' ';
+        echo _('Old clients are the clients that came with FOG');
+        echo ' ';
+        echo _('Version 1.2.0 and earlier');
+        echo '<hr/>';
         echo _('This section allows you to update the modules and');
         echo ' ';
         echo _('config files that run on the client computers.');
@@ -1733,6 +1733,7 @@ class FOGConfigurationPage extends FOGPage
                 )
             );
         $this->render(12);
+        echo '<div class="form-group">';
         echo '<label class="control-label col-xs-4" for="deletecu">';
         echo _('Delete Selected Items');
         echo '</label>';
@@ -1742,6 +1743,8 @@ class FOGConfigurationPage extends FOGPage
         echo _('Delete');
         echo '</button>';
         echo '</div>';
+        echo '</div>';
+        echo '<div class="form-group">';
         echo '<label class="control-label col-xs-4" for="upload">';
         echo _('Make Changes');
         echo '</label>';
@@ -1750,6 +1753,7 @@ class FOGConfigurationPage extends FOGPage
             . 'name="upload">';
         echo _('Update');
         echo '</button>';
+        echo '</div>';
         echo '</div>';
         unset(
             $this->data,
@@ -1785,10 +1789,16 @@ class FOGConfigurationPage extends FOGPage
                 $delcus = $delcus['delcu'];
                 self::getClass('ClientUpdaterManager')
                     ->destroy(array('id' => $delcus));
-                throw new Exception(_('Item removed successfully'));
+                echo json_encode(
+                    array(
+                        'msg' => _('Item removed successfully!'),
+                        'title' => _('Client Modules Change Success')
+                    )
+                );
+                exit;
             }
             if (count($_FILES['module']['tmp_name']) < 1) {
-                throw new Exception(_('No file uploaded'));
+                throw new Exception(_('No file uploaded!'));
             }
             $error = $_FILES['module']['error'];
             foreach ((array)$error as &$err) {
@@ -1827,11 +1837,22 @@ class FOGConfigurationPage extends FOGPage
                     ->set('file', $content)
                     ->save();
             }
-            self::setMessage(_('Modules added/updated'));
+            $msg = json_encode(
+                array(
+                    'msg' => _('Modules added/updated successfully!'),
+                    'title' => _('Client Modules Change Success')
+                )
+            );
         } catch (Exception $e) {
-            self::setMessage($e->getMessage());
+            $msg = json_encode(
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('Client Modules Change Fail')
+                )
+            );
         }
-        self::redirect($this->formAction);
+        echo $msg;
+        exit;
     }
     /**
      * Presents mac listing information.
@@ -1869,14 +1890,18 @@ class FOGConfigurationPage extends FOGPage
         echo '<div class="row">';
         echo '<div id="delete"></div>';
         echo '<div id="update"></div>';
-        echo '<button class="macButtons btn btn-danger" type='
+        echo '<div class="form-group col-xs-offset-4 col-xs-2">';
+        echo '<button class="macButtons btn btn-danger btn-block" type='
             . '"button" id="macButtonDel">';
         echo _('Delete MACs');
         echo '</button>';
-        echo '<button class="macButtons btn btn-info" type='
+        echo '</div>';
+        echo '<div class="form-group col-xs-2">';
+        echo '<button class="macButtons btn btn-info btn-block" type='
             . '"button" id="macButtonUp">';
         echo _('Update MACs');
         echo '</button>';
+        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -1889,7 +1914,7 @@ class FOGConfigurationPage extends FOGPage
      */
     public function maclistPost()
     {
-        if ($_REQUEST['update']) {
+        if (isset($_GET['update'])) {
             self::clearMACLookupTable();
             $url = 'http://linuxnet.ca/ieee/oui.txt';
             if (($fh = fopen($url, 'rb')) === false) {
@@ -1945,15 +1970,8 @@ class FOGConfigurationPage extends FOGPage
                 unset($items);
             }
             unset($first_id);
-            self::setMessage(
-                sprintf(
-                    '%s %s',
-                    $imported,
-                    _(' mac addresses updated!')
-                )
-            );
         }
-        if ($_REQUEST['clear']) {
+        if (isset($_GET['clear'])) {
             self::clearMACLookupTable();
         }
         self::resetRequest();
@@ -3158,17 +3176,6 @@ class FOGConfigurationPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
-        /*printf(
-            '<select name="n" id="linesToView">%s</select>'
-            . '<br/><p class="c">%s : '
-            . '<input type="checkbox" name="reverse" id="reverse"/>'
-            . '<label for="reverse">'
-            . '</label></p><br/><p class="c">'
-            . '<input type="button" id="logpause"/></p></p>'
-            . '</form><br/><div id="logsGoHere" class="l"></div></p>',
-            ob_get_clean(),
-            _('Reverse the file: (newest on top)')
-        );*/
     }
     /**
      * Present the config screen.
