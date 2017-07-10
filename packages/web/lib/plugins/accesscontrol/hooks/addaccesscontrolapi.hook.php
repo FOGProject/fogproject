@@ -122,6 +122,9 @@ class AddAccessControlAPI extends Hook
                     ),
                     $class
                 );
+                $arguments['data']['count'] = count(
+                    $arguments['data'][$arguments['classname'].'s']
+                );
                 break;
             case 'accesscontrolassociation':
                 $arguments['data'][$arguments['classname'].'s'] = array();
@@ -130,6 +133,9 @@ class AddAccessControlAPI extends Hook
                         get_class($class)
                     ),
                     $class
+                );
+                $arguments['data']['count'] = count(
+                    $arguments['data'][$arguments['classname'].'s']
                 );
                 break;
             }
