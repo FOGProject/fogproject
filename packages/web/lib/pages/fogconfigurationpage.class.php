@@ -2096,29 +2096,32 @@ class FOGConfigurationPage extends FOGPage
             Route::getData()
         );
         $Services = $Services->services;
+        $divTab = false;
         foreach ((array)$Services as &$Service) {
             $curcat = $Service->category;
+            if (!$divTab) {
                 $divTab = preg_replace(
                     '#[^\w\-]#',
                     '_',
                     $Service->category
                 );
+            }
             if ($curcat != $catset) {
                 if ($catset !== false) {
                     $this->data[] = array(
                         'field' => '<label for='
                         . '"'
-                        . $catset
-                        . $curcat
-                        . 'save">'
+                        . $divTab
+                        . '">'
                         . _('Make Changes?')
                         . '</label>',
                         'input' => '<button class="'
                         . 'btn btn-info btn-block" type="submit" '
-                        . 'name="update" id="'
-                        . $catset
-                        . $curcat
-                        . 'save">'
+                        . 'name="'
+                        . $divTab
+                        . '" id="'
+                        . $divTab
+                        . '">'
                         . _('Update')
                         . '</button>',
                         'span' => ''
@@ -2127,6 +2130,11 @@ class FOGConfigurationPage extends FOGPage
                     unset($this->data);
                     echo '</div>';
                     echo '</div>';
+                    $divTab = preg_replace(
+                        '#[^\w\-]#',
+                        '_',
+                        $Service->category
+                    );
                 }
                 echo '<div class="panel panel-info">';
                 echo '<div class="panel-heading text-center expand_trigger '
@@ -2528,17 +2536,17 @@ class FOGConfigurationPage extends FOGPage
         $this->data[] = array(
             'field' => '<label for='
             . '"'
-            . $catset
-            . $curcat
-            . 'save">'
+            . $divTab
+            . '">'
             . _('Make Changes?')
             . '</label>',
             'input' => '<button class="'
             . 'btn btn-info btn-block" type="submit" '
-            . 'name="update" id="'
-            . $catset
-            . $curcat
-            . 'save">'
+            . 'name="'
+            . $divTab
+            . '" id="'
+            . $divTab
+            . '">'
             . _('Update')
             . '</button>',
             'span' => ''
@@ -2705,18 +2713,21 @@ class FOGConfigurationPage extends FOGPage
             'FOG_PROXY_IP' => true,
         );
         unset($findWhere, $setWhere);
-        Route::listem(
-            'service',
-            'name',
-            false,
-            array('id' => array_keys($_POST))
-        );
+        Route::listem('service');
         $Services = json_decode(
             Route::getData()
         );
         $Services = $Services->services;
         try {
             foreach ((array)$Services as $index => &$Service) {
+                $divTab = preg_replace(
+                    '#[^\w\-]#',
+                    '_',
+                    $Service->category
+                );
+                if (!isset($_POST[$divTab])) {
+                    continue;
+                }
                 $key = trim(
                     $Service->id
                 );
