@@ -47,7 +47,7 @@ $(function() {
                 }
                 var nodevers = data.shift();
                 $(this).text(data.join('\n'));
-                var setter = $('.kernversionupdate');
+                var setter = $(this).parents('div.hidefirst').prev('a').find('.kernversionupdate');
                 var nodename = setter.text();
                 setter.text(nodename.replace(/\(.*\)/,'('+nodevers+')'));
             }
