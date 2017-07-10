@@ -124,11 +124,6 @@ table td {
 .hand {
     cursor: pointer;
 }
-.container-fluid {
-    overflow-y: auto;
-    overflow-x: hidden;
-    max-height: 620px;
-}
 input[type=radio].default {
     border: 0;
     clip: rect(0 0 0 0);
