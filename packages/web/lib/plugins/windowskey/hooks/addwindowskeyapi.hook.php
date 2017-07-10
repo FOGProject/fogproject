@@ -129,11 +129,11 @@ class AddWindowskeyAPI extends Hook
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
-        $arguments['data'][$arguments['classname'].'s'] = array();
-        $arguments['data']['count'] = 0;
         $find = Route::getsearchbody($arguments['classname']);
         switch ($arguments['classname']) {
         case 'windowskey':
+            $arguments['data'][$arguments['classname'].'s'] = array();
+            $arguments['data']['count'] = 0;
             foreach ((array)$arguments['classman']->find($find) as &$windowskey) {
                 $arguments['data'][$arguments['classname'].'s'][] = Route::getter(
                     'windowskey',
@@ -144,6 +144,8 @@ class AddWindowskeyAPI extends Hook
             }
             break;
         case 'windowskeyassociation':
+            $arguments['data'][$arguments['classname'].'s'] = array();
+            $arguments['data']['count'] = 0;
             foreach ((array)$arguments['classman']
                 ->find($find) as &$windowskeyassoc
             ) {
