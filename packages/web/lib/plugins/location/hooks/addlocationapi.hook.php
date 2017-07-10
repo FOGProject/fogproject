@@ -134,6 +134,8 @@ class AddLocationAPI extends Hook
         $find = Route::getsearchbody($arguments['classname']);
         switch ($arguments['classname']) {
         case 'location':
+            $arguments['data'][$arguments['classname'].'s'] = array();
+            $arguments['data']['count'] = 0;
             foreach ((array)$arguments['classman']->find($find) as &$location) {
                 $arguments['data'][$arguments['classname'].'s'][] = Route::getter(
                     'location',
@@ -144,6 +146,8 @@ class AddLocationAPI extends Hook
             }
             break;
         case 'locationassociation':
+            $arguments['data'][$arguments['classname'].'s'] = array();
+            $arguments['data']['count'] = 0;
             foreach ((array)$arguments['classman']->find($find) as &$locationassoc) {
                 $arguments['data'][$arguments['classname'].'s'][] = Route::getter(
                     'locationassociation',

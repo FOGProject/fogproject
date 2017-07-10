@@ -112,17 +112,10 @@ class AddAccessControlAPI extends Hook
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
-        switch ($arguments['classname']) {
-        case 'accesscontrol':
-            $arguments['data'] = array();
-            break;
-        case 'accesscontrolassociation':
-            $arguments['data'] = array();
-            break;
-        }
         foreach ($arguments['classman']->find() as &$class) {
             switch ($arguments['classname']) {
             case 'accesscontrol':
+                $arguments['data'][$arguments['classname'].'s'] = array();
                 $arguments['data'][$arguments['classname'].'s'][] = Route::getter(
                     strtolower(
                         get_class($class)
@@ -131,6 +124,7 @@ class AddAccessControlAPI extends Hook
                 );
                 break;
             case 'accesscontrolassociation':
+                $arguments['data'][$arguments['classname'].'s'] = array();
                 $arguments['data'][$arguments['classname'].'s'][] = Route::getter(
                     strtolower(
                         get_class($class)
