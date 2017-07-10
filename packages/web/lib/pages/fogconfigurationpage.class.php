@@ -572,7 +572,7 @@ class FOGConfigurationPage extends FOGPage
             '<label for="menuSet">'
             . _('Make Changes?')
             . '</label>' => '<button type="submit" id="menuSet" class="'
-            . 'btn btn-info btn-block" name="update">'
+            . 'btn btn-info btn-block" name="updatemenuset">'
             . _('Update')
             . '</button>'
         );
@@ -592,6 +592,13 @@ class FOGConfigurationPage extends FOGPage
             )
         );
         echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('iPXE Menu Settings');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '">';
@@ -674,7 +681,7 @@ class FOGConfigurationPage extends FOGPage
             '<label for="hideSet">'
             . _('Make Changes?')
             . '</label>' => '<button type="submit" id="hideSet" class="'
-            . 'btn btn-info btn-block" name="update">'
+            . 'btn btn-info btn-block" name="updatehideset">'
             . _('Update')
             . '</button>'
         );
@@ -725,7 +732,7 @@ class FOGConfigurationPage extends FOGPage
             '<label for="exitSet">'
             . _('Make Changes?')
             . '</label>' => '<button type="submit" id="exitSet" class="'
-            . 'btn btn-info btn-block" name="update">'
+            . 'btn btn-info btn-block" name="updatebootexit">'
             . _('Update')
             . '</button>'
         );
@@ -798,7 +805,7 @@ class FOGConfigurationPage extends FOGPage
             '<label for="advSet">'
             . _('Make Changes?')
             . '</label>' => '<button type="submit" id="advSet" class="'
-            . 'btn btn-info btn-block" name="update">'
+            . 'btn btn-info btn-block" name="updateadvset">'
             . _('Update')
             . '</button>'
         );
@@ -830,6 +837,8 @@ class FOGConfigurationPage extends FOGPage
         echo '</div>';
         echo '</form>';
         echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Stores the changes made.
@@ -839,89 +848,102 @@ class FOGConfigurationPage extends FOGPage
     public function pxemenuPost()
     {
         try {
-            $timeout = trim(
-                filter_input(INPUT_POST, 'timeout')
-            );
-            $timeoutt = (is_numeric($timeout) &&  $timeout >= 0);
-            if (!$timeoutt) {
-                throw new Exception(_('Invalid Timeout Value'));
+            if (isset($_POST['updatemenuset'])) {
+                $mainColors = filter_input(
+                    INPUT_POST,
+                    'mainColors'
+                );
+                $hostValid = filter_input(
+                    INPUT_POST,
+                    'hostValid'
+                );
+                $hostInvalid = filter_input(
+                    INPUT_POST,
+                    'hostInvalid'
+                );
+                $mainCpairs = filter_input(
+                    INPUT_POST,
+                    'mainCpairs'
+                );
+                $mainFallback = filter_input(
+                    INPUT_POST,
+                    'mainFallback'
+                );
+                $hostCpairs = filter_input(
+                    INPUT_POST,
+                    'hostCpairs'
+                );
+                $timeout = trim(
+                    filter_input(INPUT_POST, 'timeout')
+                );
+                $timeoutt = (is_numeric($timeout) &&  $timeout >= 0);
+                if (!$timeoutt) {
+                    throw new Exception(_('Invalid Timeout Value'));
+                }
+                $bgfile = filter_input(
+                    INPUT_POST,
+                    'bgfile'
+                );
+                $ServicesToEdit = array(
+                    'FOG_IPXE_MAIN_COLOURS' => $mainColors,
+                    'FOG_IPXE_VALID_HOST_COLOURS' => $hostValid,
+                    'FOG_IPXE_INVALID_HOST_COLOURS' => $hostInvalid,
+                    'FOG_IPXE_MAIN_CPAIRS' => $mainCpairs,
+                    'FOG_IPXE_MAIN_FALLBACK_CPAIRS' => $mainFallback,
+                    'FOG_IPXE_HOST_CPAIRS' => $hostCpairs,
+                    'FOG_PXE_MENU_TIMEOUT' => $timeout,
+                    'FOG_IPXE_BG_FILE' => $bgfile
+                );
             }
-            $hidetimeout = trim($_REQUEST['hidetimeout']);
-            $hidetimeout = trim(
-                filter_input(INPUT_POST, 'hidetimeout')
-            );
-            $hidetimeoutt = (is_numeric($hidetimeout) && $hidetimeout >= 0);
-            if (!$hidetimeoutt) {
-                throw new Exception(_('Invalid Timeout Value'));
+            if (isset($_POST['updatehideset'])) {
+                $noMenu = (int)isset($_POST['nomenu']);
+                $hideMenu = (int)isset($_POST['hidemenu']);
+                $hidetimeout = trim(
+                    filter_input(INPUT_POST, 'hidetimeout')
+                );
+                $hidetimeoutt = (is_numeric($hidetimeout) && $hidetimeout >= 0);
+                if (!$hidetimeoutt) {
+                    throw new Exception(_('Invalid Timeout Value'));
+                }
+                $keysequence = filter_input(
+                    INPUT_POST,
+                    'keysequence'
+                );
+                $ServicesToEdit = array(
+                    'FOG_NO_MENU' => $noMenu,
+                    'FOG_PXE_MENU_HIDDEN' => $hideMenu,
+                    'FOG_PXE_HIDDENMENU_TIMEOUT' => $hidetimeout,
+                    'FOG_KEY_SEQUENCE' => $keysequence
+                );
             }
-            $advmenulogin = filter_input(
-                INPUT_POST,
-                'advmenulogin'
-            );
-            $bootTypeExit = filter_input(
-                INPUT_POST,
-                'bootTypeExit'
-            );
-            $efiBootTypeExit = filter_input(
-                INPUT_POST,
-                'efiBootTypeExit'
-            );
-            $bgfile = filter_input(
-                INPUT_POST,
-                'bgfile'
-            );
-            $hostCpairs = filter_input(
-                INPUT_POST,
-                'hostCpairs'
-            );
-            $hostValid = filter_input(
-                INPUT_POST,
-                'hostValid'
-            );
-            $hostInvalid = filter_input(
-                INPUT_POST,
-                'hostInvalid'
-            );
-            $mainColors = filter_input(
-                INPUT_POST,
-                'mainColors'
-            );
-            $mainCpairs = filter_input(
-                INPUT_POST,
-                'mainCpairs'
-            );
-            $mainFallback = filter_input(
-                INPUT_POST,
-                'mainFallback'
-            );
-            $keysequence = filter_input(
-                INPUT_POST,
-                'keysequence'
-            );
-            $adv = filter_input(
-                INPUT_POST,
-                'adv'
-            );
-            $noMenu = (int)isset($_POST['nomenu']);
-            $hideMenu = (int)isset($_POST['hidemenu']);
-            $ServicesToEdit = array(
-                'FOG_ADVANCED_MENU_LOGIN' => $advmenulogin,
-                'FOG_BOOT_EXIT_TYPE' => $bootTypeExit,
-                'FOG_EFI_BOOT_EXIT_TYPE' => $efiBootTypeExit,
-                'FOG_IPXE_BG_FILE' => $bgfile,
-                'FOG_IPXE_HOST_CPAIRS' => $hostCpairs,
-                'FOG_IPXE_INVALID_HOST_COLOURS' => $hostInvalid,
-                'FOG_IPXE_MAIN_COLOURS' => $mainColors,
-                'FOG_IPXE_MAIN_CPAIRS' => $mainCpairs,
-                'FOG_IPXE_MAIN_FALLBACK_CPAIRS' => $mainFallback,
-                'FOG_IPXE_VALID_HOST_COLOURS' => $hostValid,
-                'FOG_KEY_SEQUENCE' => $keysequence,
-                'FOG_NO_MENU' => $noMenu,
-                'FOG_PXE_ADVANCED' => $adv,
-                'FOG_PXE_HIDDENMENU_TIMEOUT' => $hidetimeout,
-                'FOG_PXE_MENU_HIDDEN' => $hideMenu,
-                'FOG_PXE_MENU_TIMEOUT' => $timeout,
-            );
+            if (isset($_POST['updatebootexit'])) {
+                $bootTypeExit = filter_input(
+                    INPUT_POST,
+                    'bootTypeExit'
+                );
+                $efiBootTypeExit = filter_input(
+                    INPUT_POST,
+                    'efiBootTypeExit'
+                );
+                $ServicesToEdit = array(
+                    'FOG_BOOT_EXIT_TYPE' => $bootTypeExit,
+                    'FOG_EFI_BOOT_EXIT_TYPE' => $efiBootTypeExit
+                );
+            }
+            if (isset($_POST['updateadvset'])) {
+                $advmenulogin = filter_input(
+                    INPUT_POST,
+                    'advmenulogin'
+                );
+                $adv = filter_input(
+                    INPUT_POST,
+                    'adv'
+                );
+                $ServicesToEdit = array(
+                    'FOG_ADVANCED_MENU_LOGIN' => $advmenulogin,
+                    'FOG_PXE_ADVANCED' => $adv,
+                );
+            }
             ksort($ServicesToEdit);
             $ids = self::getSubObjectIDs(
                 'Service',
@@ -947,11 +969,22 @@ class FOGConfigurationPage extends FOGPage
                         $items
                     );
             }
-            //throw new Exception(_('PXE Menu has been updated'));
+            $msg = json_encode(
+                array(
+                    'msg' => _('iPXE Settings updated successfully!'),
+                    'title' => _('iPXE Update Success')
+                )
+            );
         } catch (Exception $e) {
-            //self::setMessage($e->getMessage());
+            $msg = json_encode(
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('iPXE Update Fail')
+                )
+            );
         }
-        self::redirect($this->formAction);
+        echo $msg;
+        exit;
     }
     /**
      * Saves/updates the pxe customizations.
