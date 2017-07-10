@@ -21,7 +21,11 @@
  */
 class StorageManagementPage extends FOGPage
 {
-    // Base variables
+    /**
+     * Node this class works from.
+     *
+     * @var string
+     */
     public $node = 'storage';
     /**
      * Initializes the storage page.

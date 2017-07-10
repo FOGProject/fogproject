@@ -104,7 +104,7 @@ class ProcessLogin extends FOGPage
      */
     private function _transLang()
     {
-        switch (self::$locale) {
+        switch ($this->_lang) {
         case 'de_DE':
             return self::$foglang['Language']['de'];
         case 'en_US':
@@ -132,34 +132,34 @@ class ProcessLogin extends FOGPage
     {
         $ulang = filter_input(INPUT_POST, 'ulang');
         if (isset($ulang)) {
-            self::$locale = $ulang;
+            $this->_lang = self::$locale = $ulang;
         } else {
-            self::$locale = $this->_transLang();
+            $this->_lang = self::$locale = $this->_transLang();
         }
-        switch (self::$locale) {
+        switch ($this->_lang) {
         case self::$foglang['Language']['de']:
-            self::$locale = 'de_DE';
+            $this->_lang = self::$locale = 'de_DE';
             break;
         case self::$foglang['Language']['en']:
-            self::$locale = 'en_US';
+            $this->_lang = self::$locale = 'en_US';
             break;
         case self::$foglang['Language']['es']:
-            self::$locale = 'es_ES';
+            $this->_lang = self::$locale = 'es_ES';
             break;
         case self::$foglang['Language']['fr']:
-            self::$locale = 'fr_FR';
+            $this->_lang = self::$locale = 'fr_FR';
             break;
         case self::$foglang['Language']['it']:
-            self::$locale = 'it_IT';
+            $this->_lang = self::$locale = 'it_IT';
             break;
         case self::$foglang['Language']['pt']:
-            self::$locale = 'pt_BR';
+            $this->_lang = self::$locale = 'pt_BR';
             break;
         case self::$foglang['Language']['zh']:
-            self::$locale = 'zh_CN';
+            $this->_lang = self::$locale = 'zh_CN';
             break;
         default:
-            self::$locale = $this->_transLang();
+            $this->_lang = self::$locale = $this->_transLang();
         }
     }
     /**
@@ -183,7 +183,7 @@ class ProcessLogin extends FOGPage
             (int)LC_MESSAGES,
             sprintf(
                 '%s.UTF-8',
-                self::$locale
+                $this->_lang
             )
         );
         $domain = 'messages';
@@ -391,7 +391,7 @@ class ProcessLogin extends FOGPage
      */
     public static function getLocale()
     {
-        $lang = explode('_', self::$locale);
+        $lang = explode('_', $this->_lang);
         $lang = $lang[0];
         return $lang;
     }
