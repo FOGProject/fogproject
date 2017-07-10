@@ -48,6 +48,7 @@ _L['ACTIVE_TASKS_FOUND'] = '%1 active task%2 found';
 _L['ACTIVE_TASKS_LOADING'] = 'Loading...';
 submithandlerfunc = function(form) {
     data += '&'+$(form).find(':visible,[type="radio"]').serialize();
+    console.log(data);
     url = $(form).attr('action');
     method = $(form).attr('method');
     $.ajax({
