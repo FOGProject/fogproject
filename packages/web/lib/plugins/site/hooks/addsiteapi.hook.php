@@ -154,14 +154,8 @@ class AddSiteAPI extends Hook
             $arguments['data'] = FOGCore::fastmerge(
                 $arguments['class']->get(),
                 array(
-                    'site' => Route::getter(
-                        'site',
-                        $arguments['class']->get('site')
-                    ),
-                    'host' => Route::getter(
-                        'host',
-                        $arguments['class']->get('host')
-                    )
+                    'site' => $arguments['class']->get('site')->get(),
+                    'host' => $arguments['class']->get('host')->get()
                 )
             );
             break;

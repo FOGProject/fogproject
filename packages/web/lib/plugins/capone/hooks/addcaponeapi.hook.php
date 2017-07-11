@@ -126,14 +126,8 @@ class AddCaponeAPI extends Hook
             $arguments['data'] = FOGCore::fastmerge(
                 $arguments['class']->get(),
                 array(
-                    'image' => Route::getter(
-                        'image',
-                        $arguments['class']->get('image')
-                    ),
-                    'os' => Route::getter(
-                        'os',
-                        $arguments['class']->get('os')
-                    )
+                    'image' => $arguments['class']->get('image')->get(),
+                    'os' => $arguments['class']->get('os')->get()
                 )
             );
             break;

@@ -135,10 +135,7 @@ class AddLocationAPI extends Hook
             $arguments['data'][$arguments['classname'].'s'] = array();
             $arguments['data']['count'] = 0;
             foreach ((array)$arguments['classman']->find($find) as &$location) {
-                $arguments['data'][$arguments['classname'].'s'][] = Route::getter(
-                    'location',
-                    $location
-                );
+                $arguments['data'][$arguments['classname'].'s'][] = $location->get();
                 $arguments['data']['count']++;
                 unset($location);
             }
@@ -147,10 +144,8 @@ class AddLocationAPI extends Hook
             $arguments['data'][$arguments['classname'].'s'] = array();
             $arguments['data']['count'] = 0;
             foreach ((array)$arguments['classman']->find($find) as &$locationassoc) {
-                $arguments['data'][$arguments['classname'].'s'][] = Route::getter(
-                    'locationassociation',
-                    $locationassoc
-                );
+                $arguments['data'][$arguments['classname'].'s'][]
+                    = $locationassoc->get();
                 $arguments['data']['count']++;
                 unset($locationassoc);
             }
@@ -175,14 +170,10 @@ class AddLocationAPI extends Hook
                 $arguments['class']->get(),
                 array(
                     'hosts' => $arguments['class']->get('hosts'),
-                    'storagenode' => Route::getter(
-                        'storagenode',
-                        $arguments['class']->get('storagenode')
-                    ),
-                    'storagegroup' => Route::getter(
-                        'storagegroup',
-                        $arguments['class']->get('storagegroup')
-                    )
+                    'storagenode' => $arguments['class']->get('storagenode')->get(),
+                    'storagegroup' => $arguments['class']
+                    ->get('storagegroup')
+                    ->get()
                 )
             );
             break;
@@ -190,14 +181,8 @@ class AddLocationAPI extends Hook
             $arguments['data'] = FOGCore::fastmerge(
                 $arguments['class']->get(),
                 array(
-                    'host' => Route::getter(
-                        'host',
-                        $arguments['class']->get('host')
-                    ),
-                    'location' => Route::getter(
-                        'location',
-                        $arguments['class']->get('location')
-                    )
+                    'host' => $arguments['class']->get('host')->get(),
+                    'location' => $arguments['class']->get('location')->get()
                 )
             );
             break;

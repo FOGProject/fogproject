@@ -135,10 +135,8 @@ class AddWindowskeyAPI extends Hook
             $arguments['data'][$arguments['classname'].'s'] = array();
             $arguments['data']['count'] = 0;
             foreach ((array)$arguments['classman']->find($find) as &$windowskey) {
-                $arguments['data'][$arguments['classname'].'s'][] = Route::getter(
-                    'windowskey',
-                    $windowskey
-                );
+                $arguments['data'][$arguments['classname'].'s'][]
+                    = $windowskey->get();
                 $arguments['data']['count']++;
                 unset($windowskey);
             }
@@ -149,10 +147,8 @@ class AddWindowskeyAPI extends Hook
             foreach ((array)$arguments['classman']
                 ->find($find) as &$windowskeyassoc
             ) {
-                $arguments['data'][$arguments['classname'].'s'][] = Route::getter(
-                    'windowskeyassoc',
-                    $windowskeyassoc
-                );
+                $arguments['data'][$arguments['classname'].'s'][]
+                    = $windowskeyassoc->get();
                 $arguments['data']['count']++;
                 unset($windowskeyassoc);
             }
@@ -184,14 +180,8 @@ class AddWindowskeyAPI extends Hook
             $arguments['data'] = FOGCore::fastmerge(
                 $arguments['class']->get(),
                 array(
-                    'key' => Route::getter(
-                        'windowskey',
-                        $arguments['class']->get('key')
-                    ),
-                    'image' => Route::getter(
-                        'image',
-                        $arguments['class']->get('image')
-                    )
+                    'key' => $arguments['class']->get('key')->get(),
+                    'image' => $arguments['class']->get('image')->get()
                 )
             );
             break;
