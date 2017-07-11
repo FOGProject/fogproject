@@ -1122,22 +1122,10 @@ class Route extends FOGBase
                         $class->get('productKey')
                     ),
                     'primac' => $class->get('mac')->__toString(),
-                    'hostscreen' => self::getter(
-                        'hostscreensetting',
-                        $class->get('hostscreen')
-                    ),
-                    'hostalo' => self::getter(
-                        'hostautologout',
-                        $class->get('hostalo')
-                    ),
-                    'inventory' => self::getter(
-                        'inventory',
-                        $class->get('inventory')
-                    ),
-                    'image' => self::getter(
-                        'image',
-                        $class->get('imagename')
-                    ),
+                    'hostscreen' => $class->get('hostscreen')->get(),
+                    'hostalo' => $class->get('hostalo')->get(),
+                    'inventory' => $class->get('inventory')->get(),
+                    'image' => $class->get('imagename')->get(),
                     'imagename' => $class->getImageName(),
                     'macs' => $class->getMyMacs(),
                     'modules' => array_map(
@@ -1145,10 +1133,7 @@ class Route extends FOGBase
                         $class->get('modules')
                     ),
                     'pingstatus' => $class->getPingCodeStr(),
-                    'snapinjob' => self::getter(
-                        'snapinjob',
-                        $class->get('snapinjob')
-                    ),
+                    'snapinjob' => $class->get('snapinjob')->get(),
                     'snapins' => array_map(
                         'intval',
                         $class->get('snapins')
@@ -1217,15 +1202,9 @@ class Route extends FOGBase
             $data = FOGCore::fastmerge(
                 $class->get(),
                 array(
-                    'os' => self::getter('os', $class->get('os')),
-                    'imagepartitiontype' => self::getter(
-                        'imagepartitiontype',
-                        $class->get('imagepartitiontype')
-                    ),
-                    'imagetype' => self::getter(
-                        'imagetype',
-                        $class->get('imagetype')
-                    ),
+                    'os' => $class->get('os')->get(),
+                    'imagepartitiontype' => $class->get('imagepartitiontype')->get(),
+                    'imagetype' => $class->get('imagetype')->get(),
                     'imagetypename' => $class->getImageType()->get('name'),
                     'imageparttypename' => $class->getImagePartitionType()->get(
                         'name'
@@ -1273,10 +1252,7 @@ class Route extends FOGBase
                 array(
                     'logfiles' => $class->get('logfiles'),
                     'snapinfiles' => $class->get('snapinfiles'),
-                    'storagegroup' => self::getter(
-                        'storagegroup',
-                        $class->get('storagegroup')
-                    )
+                    'storagegroup' => $class->get('storagegroup')->get()
                 )
             );
             break;
@@ -1289,10 +1265,7 @@ class Route extends FOGBase
                         $class->get('enablednodes')
                     ),
                     'totalsupportedclients' => $class->getTotalSupportedClients(),
-                    'masternode' => self::getter(
-                        'storagenode',
-                        $class->getMasterStorageNode()
-                    )
+                    'masternode' => $class->getMasterStorageNode()->get()
                 )
             );
             break;
@@ -1300,18 +1273,12 @@ class Route extends FOGBase
             $data = FOGCore::fastmerge(
                 $class->get(),
                 array(
-                    'image' => self::getter('image', $class->get('image')),
-                    'host' => self::getter('host', $class->get('host')),
-                    'type' => self::getter('tasktype', $class->get('type')),
-                    'state' => self::getter('taskstate', $class->get('state')),
-                    'storagenode' => self::getter(
-                        'storagenode',
-                        $class->get('storagenode')
-                    ),
-                    'storagegroup' => self::getter(
-                        'storagegroup',
-                        $class->get('storagegroup')
-                    ),
+                    'image' => $class->get('image')->get(),
+                    'host' => $class->get('host')->get(),
+                    'type' => $class->get('type')->get(),
+                    'state' => $class->get('state')->get(),
+                    'storagenode' => $class->get('storagenode')->get(),
+                    'storagegroup' => $class->get('storagegroup')->get()
                 )
             );
             break;
@@ -1346,10 +1313,10 @@ class Route extends FOGBase
             $data = FOGCore::fastmerge(
                 $class->get(),
                 array(
-                    'host' => self::getter('host', $class->get('host')),
+                    'host' => $class->get('host')->get(),
                     'image' => (
                         $class->get('images')->isValid() ?
-                        self::getter('image', $class->get('images')) :
+                        $class->get('images')->get() :
                         $class->get('image')
                     )
                 )
@@ -1360,18 +1327,9 @@ class Route extends FOGBase
             $data = FOGCore::fastmerge(
                 $class->get(),
                 array(
-                    'snapin' => self::getter(
-                        'snapin',
-                        $class->get('snapin')
-                    ),
-                    'snapinjob' => self::getter(
-                        'snapinjob',
-                        $class->get('snapinjob')
-                    ),
-                    'state' => self::getter(
-                        'taskstate',
-                        $class->get('state')
-                    )
+                    'snapin' => $class->get('snapin')->get(),
+                    'snapinjob' => $class->get('snapinjob')->get(),
+                    'state' => $class->get('state')->get()
                 )
             );
             break;
@@ -1379,14 +1337,8 @@ class Route extends FOGBase
             $data = FOGCore::fastmerge(
                 $class->get(),
                 array(
-                    'host' => self::getter(
-                        'host',
-                        $class->get('host')
-                    ),
-                    'state' => self::getter(
-                        'taskstate',
-                        $class->get('state')
-                    ),
+                    'host' => $class->get('host')->get(),
+                    'state' => $class->get('state')->get(),
                     'snapintasks' => array_map(
                         'intval',
                         $class->get('snapintasks')
@@ -1398,10 +1350,7 @@ class Route extends FOGBase
             $data = FOGCore::fastmerge(
                 $class->get(),
                 array(
-                    'host' => self::getter(
-                        'host',
-                        $class->get('host')
-                    )
+                    'host' => $class->get('host')->get()
                 )
             );
             break;
@@ -1410,14 +1359,8 @@ class Route extends FOGBase
                 $class->get(),
                 array(
                     'imageID' => $class->get('image'),
-                    'image' => self::getter(
-                        'image',
-                        $class->get('imagename')
-                    ),
-                    'state' => self::getter(
-                        'taskstate',
-                        $class->get('state')
-                    )
+                    'image' => $class->get('imagename')->get(),
+                    'state' => $class->get('state')->get()
                 )
             );
             unset($data['imagename']);
