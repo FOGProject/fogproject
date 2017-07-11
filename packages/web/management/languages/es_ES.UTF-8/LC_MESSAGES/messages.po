@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-10 23:52-0400\n"
+"POT-Creation-Date: 2017-07-11 00:12-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -6548,13 +6548,13 @@ msgstr "Destruir fallado: %s"
 msgid "Destroyed assignment"
 msgstr "Destruir fallado: %s"
 
-#: /var/www/fog/lib/router/route.class.php:616
-#: /var/www/fog/lib/router/route.class.php:819
+#: /var/www/fog/lib/router/route.class.php:600
+#: /var/www/fog/lib/router/route.class.php:803
 #, fuzzy
 msgid "Already created"
 msgstr "creado por el usuario"
 
-#: /var/www/fog/lib/router/route.class.php:757
+#: /var/www/fog/lib/router/route.class.php:741
 #, fuzzy
 msgid "Invalid tasking type passed"
 msgstr "Tipo de objeto no válido pasó"
