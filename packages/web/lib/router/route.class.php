@@ -1102,12 +1102,14 @@ class Route extends FOGBase
      *
      * @param string $classname The name of the class.
      * @param object $class     The class to work with.
-     * @param bool   $objget    Should we send object, useful if internal getter.
      *
      * @return object|array
      */
-    public static function getter($classname, $class, $objget = true)
+    public static function getter($classname, $class)
     {
+        if (!$class instanceof $classname) {
+            return;
+        }
         switch ($classname) {
         case 'host':
             $data = FOGCore::fastmerge(
@@ -1120,7 +1122,6 @@ class Route extends FOGBase
                         $class->get('productKey')
                     ),
                     'primac' => $class->get('mac')->__toString(),
-                    'imagename' => $class->getImageName(),
                     'hostscreen' => self::getter(
                         'hostscreensetting',
                         $class->get('hostscreen')
@@ -1133,7 +1134,10 @@ class Route extends FOGBase
                         'inventory',
                         $class->get('inventory')
                     ),
-                    'image' => self::getter('image', $class->get('imagename')),
+                    'image' => self::getter(
+                        'image',
+                        $class->get('imagename')
+                    ),
                     'imagename' => $class->getImageName(),
                     'macs' => $class->getMyMacs(),
                     'modules' => array_map(
@@ -1141,7 +1145,10 @@ class Route extends FOGBase
                         $class->get('modules')
                     ),
                     'pingstatus' => $class->getPingCodeStr(),
-                    'snapinjob' => $class->get('snapinjob'),
+                    'snapinjob' => self::getter(
+                        'snapinjob',
+                        $class->get('snapinjob')
+                    ),
                     'snapins' => array_map(
                         'intval',
                         $class->get('snapins')
@@ -1265,15 +1272,13 @@ class Route extends FOGBase
                 $class->get(),
                 array(
                     'logfiles' => $class->get('logfiles'),
-                    'snapinfiles' => $class->get('snapinfiles')
+                    'snapinfiles' => $class->get('snapinfiles'),
+                    'storagegroup' => self::getter(
+                        'storagegroup',
+                        $class->get('storagegroup')
+                    )
                 )
             );
-            if ($objget) {
-                $data['storagegroup'] = self::getter(
-                    'storagegroup',
-                    $class->get('storagegroup')
-                );
-            }
             break;
         case 'storagegroup':
             $data = FOGCore::fastmerge(
@@ -1283,16 +1288,13 @@ class Route extends FOGBase
                         'intval',
                         $class->get('enablednodes')
                     ),
-                    'totalsupportedclients' => $class->getTotalSupportedClients()
+                    'totalsupportedclients' => $class->getTotalSupportedClients(),
+                    'masternode' => self::getter(
+                        'storagenode',
+                        $class->getMasterStorageNode()
+                    )
                 )
             );
-            if ($objget) {
-                $data['masternode'] = self::getter(
-                    'storagenode',
-                    $class->getMasterStorageNode(),
-                    false
-                );
-            }
             break;
         case 'task':
             $data = FOGCore::fastmerge(
