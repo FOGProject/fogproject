@@ -355,7 +355,9 @@ class Page extends FOGBase
         $files = array_unique((array)$files);
         array_map(
             function (&$path) {
-                $this->addJavascript($path);
+                if (file_exists($path)) {
+                    $this->addJavascript($path);
+                }
                 unset($path);
             },
             (array)$files
