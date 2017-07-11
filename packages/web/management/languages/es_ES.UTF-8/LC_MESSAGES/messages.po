@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-10 15:32-0400\n"
+"POT-Creation-Date: 2017-07-10 23:52-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -151,11 +151,11 @@ msgstr "No se pudo crear la impresora"
 #: /var/www/fog/lib/fog/fogpage.class.php:2477
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:198
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:231
-#: /var/www/fog/lib/db/pdodb.class.php:183
-#: /var/www/fog/lib/db/pdodb.class.php:224
-#: /var/www/fog/lib/db/pdodb.class.php:282
-#: /var/www/fog/lib/db/pdodb.class.php:340
-#: /var/www/fog/lib/db/pdodb.class.php:395
+#: /var/www/fog/lib/db/pdodb.class.php:186
+#: /var/www/fog/lib/db/pdodb.class.php:227
+#: /var/www/fog/lib/db/pdodb.class.php:285
+#: /var/www/fog/lib/db/pdodb.class.php:343
+#: /var/www/fog/lib/db/pdodb.class.php:399
 #: /var/www/fog/lib/db/mysql.class.php:72 /var/www/fog/commons/text.php:97
 msgid "Error"
 msgstr "Error"
@@ -6548,13 +6548,13 @@ msgstr "Destruir fallado: %s"
 msgid "Destroyed assignment"
 msgstr "Destruir fallado: %s"
 
-#: /var/www/fog/lib/router/route.class.php:600
-#: /var/www/fog/lib/router/route.class.php:803
+#: /var/www/fog/lib/router/route.class.php:616
+#: /var/www/fog/lib/router/route.class.php:819
 #, fuzzy
 msgid "Already created"
 msgstr "creado por el usuario"
 
-#: /var/www/fog/lib/router/route.class.php:741
+#: /var/www/fog/lib/router/route.class.php:757
 #, fuzzy
 msgid "Invalid tasking type passed"
 msgstr "Tipo de objeto no válido pasó"
@@ -7946,18 +7946,18 @@ msgstr "Editar anfitrión"
 msgid "Capone Deploy"
 msgstr "última Desplegado"
 
-#: /var/www/fog/lib/db/pdodb.class.php:102
+#: /var/www/fog/lib/db/pdodb.class.php:105
 #: /var/www/fog/lib/db/mysql.class.php:16
 #, fuzzy
 msgid "Failed to connect"
 msgstr "No se ha podido destruir"
 
-#: /var/www/fog/lib/db/pdodb.class.php:108
-#: /var/www/fog/lib/db/pdodb.class.php:181
-#: /var/www/fog/lib/db/pdodb.class.php:222
-#: /var/www/fog/lib/db/pdodb.class.php:280
-#: /var/www/fog/lib/db/pdodb.class.php:338
-#: /var/www/fog/lib/db/pdodb.class.php:393
+#: /var/www/fog/lib/db/pdodb.class.php:111
+#: /var/www/fog/lib/db/pdodb.class.php:184
+#: /var/www/fog/lib/db/pdodb.class.php:225
+#: /var/www/fog/lib/db/pdodb.class.php:283
+#: /var/www/fog/lib/db/pdodb.class.php:341
+#: /var/www/fog/lib/db/pdodb.class.php:397
 #: /var/www/fog/lib/db/mysql.class.php:19
 #: /var/www/fog/lib/db/mysql.class.php:42
 #: /var/www/fog/lib/db/mysql.class.php:81
@@ -7967,67 +7967,67 @@ msgstr "No se ha podido destruir"
 msgid "Failed to"
 msgstr "Ha fallado"
 
-#: /var/www/fog/lib/db/pdodb.class.php:111
+#: /var/www/fog/lib/db/pdodb.class.php:114
 #, fuzzy
 msgid "SQL Error"
 msgstr "Error"
 
-#: /var/www/fog/lib/db/pdodb.class.php:185
-#: /var/www/fog/lib/db/pdodb.class.php:226
-#: /var/www/fog/lib/db/pdodb.class.php:284
-#: /var/www/fog/lib/db/pdodb.class.php:342
-#: /var/www/fog/lib/db/pdodb.class.php:397
-#: /var/www/fog/lib/db/pdodb.class.php:424
+#: /var/www/fog/lib/db/pdodb.class.php:188
+#: /var/www/fog/lib/db/pdodb.class.php:229
+#: /var/www/fog/lib/db/pdodb.class.php:287
+#: /var/www/fog/lib/db/pdodb.class.php:345
+#: /var/www/fog/lib/db/pdodb.class.php:401
+#: /var/www/fog/lib/db/pdodb.class.php:428
 #, fuzzy
 msgid "Error Message"
 msgstr "Mensaje"
 
-#: /var/www/fog/lib/db/pdodb.class.php:205
+#: /var/www/fog/lib/db/pdodb.class.php:208
 #, fuzzy
 msgid "No link established to the database"
 msgstr "Haga clic en el botón para exportar la base de datos."
 
-#: /var/www/fog/lib/db/pdodb.class.php:261
+#: /var/www/fog/lib/db/pdodb.class.php:264
 #, fuzzy
 msgid "No query passed"
 msgstr "No hay valores pasados"
 
-#: /var/www/fog/lib/db/pdodb.class.php:273
+#: /var/www/fog/lib/db/pdodb.class.php:276
 #: /var/www/fog/lib/db/mysql.class.php:78
 #, fuzzy
 msgid "No database to work off"
 msgstr "No se obtuvieron datos"
 
-#: /var/www/fog/lib/db/pdodb.class.php:287
+#: /var/www/fog/lib/db/pdodb.class.php:290
 msgid "no database to"
 msgstr ""
 
-#: /var/www/fog/lib/db/pdodb.class.php:325
+#: /var/www/fog/lib/db/pdodb.class.php:328
 #: /var/www/fog/lib/db/mysql.class.php:98
 msgid "No query result, use query() first"
 msgstr ""
 
-#: /var/www/fog/lib/db/pdodb.class.php:362
+#: /var/www/fog/lib/db/pdodb.class.php:366
 #, fuzzy
 msgid "No connection to the database"
 msgstr "Haga clic en el botón para exportar la base de datos."
 
-#: /var/www/fog/lib/db/pdodb.class.php:367
+#: /var/www/fog/lib/db/pdodb.class.php:371
 #: /var/www/fog/lib/db/mysql.class.php:151
 #, fuzzy
 msgid "No data returned"
 msgstr "No se obtuvieron datos"
 
-#: /var/www/fog/lib/db/pdodb.class.php:422
+#: /var/www/fog/lib/db/pdodb.class.php:426
 #, fuzzy
 msgid "Error Code"
 msgstr "Error"
 
-#: /var/www/fog/lib/db/pdodb.class.php:426
+#: /var/www/fog/lib/db/pdodb.class.php:430
 msgid "Debug"
 msgstr ""
 
-#: /var/www/fog/lib/db/pdodb.class.php:431
+#: /var/www/fog/lib/db/pdodb.class.php:435
 msgid "Cannot connect to database"
 msgstr ""
 

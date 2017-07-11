@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-10 15:32-0400\n"
+"POT-Creation-Date: 2017-07-10 23:52-0400\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -149,11 +149,11 @@ msgstr "Drucker konnte nicht erstellt werden."
 #: /var/www/fog/lib/fog/fogpage.class.php:2477
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:198
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:231
-#: /var/www/fog/lib/db/pdodb.class.php:183
-#: /var/www/fog/lib/db/pdodb.class.php:224
-#: /var/www/fog/lib/db/pdodb.class.php:282
-#: /var/www/fog/lib/db/pdodb.class.php:340
-#: /var/www/fog/lib/db/pdodb.class.php:395
+#: /var/www/fog/lib/db/pdodb.class.php:186
+#: /var/www/fog/lib/db/pdodb.class.php:227
+#: /var/www/fog/lib/db/pdodb.class.php:285
+#: /var/www/fog/lib/db/pdodb.class.php:343
+#: /var/www/fog/lib/db/pdodb.class.php:399
 #: /var/www/fog/lib/db/mysql.class.php:72 /var/www/fog/commons/text.php:97
 msgid "Error"
 msgstr "Fehler"
@@ -6495,13 +6495,13 @@ msgstr "Zerstörte Zuordnung"
 msgid "Destroyed assignment"
 msgstr "Zerstörte Zuordnung"
 
-#: /var/www/fog/lib/router/route.class.php:600
-#: /var/www/fog/lib/router/route.class.php:803
+#: /var/www/fog/lib/router/route.class.php:616
+#: /var/www/fog/lib/router/route.class.php:819
 #, fuzzy
 msgid "Already created"
 msgstr "Bereits registriert als"
 
-#: /var/www/fog/lib/router/route.class.php:741
+#: /var/www/fog/lib/router/route.class.php:757
 #, fuzzy
 msgid "Invalid tasking type passed"
 msgstr "Ungültiges Objekttyp übergeben"
@@ -7890,17 +7890,17 @@ msgstr "Alle Sendungen"
 msgid "Capone Deploy"
 msgstr "Capone bereitstellen"
 
-#: /var/www/fog/lib/db/pdodb.class.php:102
+#: /var/www/fog/lib/db/pdodb.class.php:105
 #: /var/www/fog/lib/db/mysql.class.php:16
 msgid "Failed to connect"
 msgstr "Fehler beim verbinden"
 
-#: /var/www/fog/lib/db/pdodb.class.php:108
-#: /var/www/fog/lib/db/pdodb.class.php:181
-#: /var/www/fog/lib/db/pdodb.class.php:222
-#: /var/www/fog/lib/db/pdodb.class.php:280
-#: /var/www/fog/lib/db/pdodb.class.php:338
-#: /var/www/fog/lib/db/pdodb.class.php:393
+#: /var/www/fog/lib/db/pdodb.class.php:111
+#: /var/www/fog/lib/db/pdodb.class.php:184
+#: /var/www/fog/lib/db/pdodb.class.php:225
+#: /var/www/fog/lib/db/pdodb.class.php:283
+#: /var/www/fog/lib/db/pdodb.class.php:341
+#: /var/www/fog/lib/db/pdodb.class.php:397
 #: /var/www/fog/lib/db/mysql.class.php:19
 #: /var/www/fog/lib/db/mysql.class.php:42
 #: /var/www/fog/lib/db/mysql.class.php:81
@@ -7909,63 +7909,63 @@ msgstr "Fehler beim verbinden"
 msgid "Failed to"
 msgstr "Fehler beim"
 
-#: /var/www/fog/lib/db/pdodb.class.php:111
+#: /var/www/fog/lib/db/pdodb.class.php:114
 #, fuzzy
 msgid "SQL Error"
 msgstr "SQL-Fehler:"
 
-#: /var/www/fog/lib/db/pdodb.class.php:185
-#: /var/www/fog/lib/db/pdodb.class.php:226
-#: /var/www/fog/lib/db/pdodb.class.php:284
-#: /var/www/fog/lib/db/pdodb.class.php:342
-#: /var/www/fog/lib/db/pdodb.class.php:397
-#: /var/www/fog/lib/db/pdodb.class.php:424
+#: /var/www/fog/lib/db/pdodb.class.php:188
+#: /var/www/fog/lib/db/pdodb.class.php:229
+#: /var/www/fog/lib/db/pdodb.class.php:287
+#: /var/www/fog/lib/db/pdodb.class.php:345
+#: /var/www/fog/lib/db/pdodb.class.php:401
+#: /var/www/fog/lib/db/pdodb.class.php:428
 msgid "Error Message"
 msgstr "Fehlermeldung"
 
-#: /var/www/fog/lib/db/pdodb.class.php:205
+#: /var/www/fog/lib/db/pdodb.class.php:208
 #, fuzzy
 msgid "No link established to the database"
 msgstr "Keine Verbindung zur Datenbank"
 
-#: /var/www/fog/lib/db/pdodb.class.php:261
+#: /var/www/fog/lib/db/pdodb.class.php:264
 #, fuzzy
 msgid "No query passed"
 msgstr "Keine Abfrage gesendet"
 
-#: /var/www/fog/lib/db/pdodb.class.php:273
+#: /var/www/fog/lib/db/pdodb.class.php:276
 #: /var/www/fog/lib/db/mysql.class.php:78
 msgid "No database to work off"
 msgstr "Keine Datenbank zum Abreagieren"
 
-#: /var/www/fog/lib/db/pdodb.class.php:287
+#: /var/www/fog/lib/db/pdodb.class.php:290
 #, fuzzy
 msgid "no database to"
 msgstr "Keine Datenbank zum Abreagieren"
 
-#: /var/www/fog/lib/db/pdodb.class.php:325
+#: /var/www/fog/lib/db/pdodb.class.php:328
 #: /var/www/fog/lib/db/mysql.class.php:98
 msgid "No query result, use query() first"
 msgstr "Kein Ergebnis-Abfrage, query() zuerst verwenden"
 
-#: /var/www/fog/lib/db/pdodb.class.php:362
+#: /var/www/fog/lib/db/pdodb.class.php:366
 msgid "No connection to the database"
 msgstr "Keine Verbindung zur Datenbank"
 
-#: /var/www/fog/lib/db/pdodb.class.php:367
+#: /var/www/fog/lib/db/pdodb.class.php:371
 #: /var/www/fog/lib/db/mysql.class.php:151
 msgid "No data returned"
 msgstr "Keine Daten zurückgegeben"
 
-#: /var/www/fog/lib/db/pdodb.class.php:422
+#: /var/www/fog/lib/db/pdodb.class.php:426
 msgid "Error Code"
 msgstr "Fehlercode"
 
-#: /var/www/fog/lib/db/pdodb.class.php:426
+#: /var/www/fog/lib/db/pdodb.class.php:430
 msgid "Debug"
 msgstr "Debug"
 
-#: /var/www/fog/lib/db/pdodb.class.php:431
+#: /var/www/fog/lib/db/pdodb.class.php:435
 msgid "Cannot connect to database"
 msgstr "Kann keine Verbindung zur Datenbank hergestellt werden."
 
@@ -10301,6 +10301,10 @@ msgstr "Hallo Nebel Client"
 msgid "There are no locations on this server"
 msgstr "Es gibt keine Orte auf diesem Server."
 
+#, fuzzy
+#~ msgid "All done"
+#~ msgstr "Alle Hosts"
+
 #~ msgid "successfully updated"
 #~ msgstr "erfolgreich aktualisiert"
 
@@ -10966,10 +10970,6 @@ msgstr "Es gibt keine Orte auf diesem Server."
 #~ msgid "FOG User Login History Summary - Select Date Range"
 #~ msgstr ""
 #~ "Nebel Benutzer Login Geschichte Zusammenfassung - Datumsbereich auswählen"
-
-#, fuzzy
-#~ msgid "All done"
-#~ msgstr "Alle Hosts"
 
 #, fuzzy
 #~ msgid "Route"
