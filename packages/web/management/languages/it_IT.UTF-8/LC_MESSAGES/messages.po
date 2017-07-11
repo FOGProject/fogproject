@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-11 00:12-0400\n"
+"POT-Creation-Date: 2017-07-11 09:16-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -47,6 +47,11 @@ msgstr "Impossibile aprire il file per la lettura"
 #: /var/www/fog/status/logtoview.php:162
 msgid "IP Passed is incorrect"
 msgstr "IP Passato è corretto"
+
+#: /var/www/fog/status/injectHosts.php:75
+#, fuzzy
+msgid "All done"
+msgstr "tutti gli host"
 
 #: /var/www/fog/status/bandwidth.php:44
 msgid "Device must be a string"
@@ -9871,10 +9876,6 @@ msgstr "Ciao FOG client"
 #: /var/www/fog/service/locationlisting.php:28
 msgid "There are no locations on this server"
 msgstr "Non ci sono posizioni su questo server"
-
-#, fuzzy
-#~ msgid "All done"
-#~ msgstr "tutti gli host"
 
 #~ msgid "successfully updated"
 #~ msgstr "aggiornato con successo"
