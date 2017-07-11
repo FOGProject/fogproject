@@ -116,24 +116,14 @@ class AddAccessControlAPI extends Hook
             switch ($arguments['classname']) {
             case 'accesscontrol':
                 $arguments['data'][$arguments['classname'].'s'] = array();
-                $arguments['data'][$arguments['classname'].'s'][] = Route::getter(
-                    strtolower(
-                        get_class($class)
-                    ),
-                    $class
-                );
+                $arguments['data'][$arguments['classname'].'s'][] = $class->get();
                 $arguments['data']['count'] = count(
                     $arguments['data'][$arguments['classname'].'s']
                 );
                 break;
             case 'accesscontrolassociation':
                 $arguments['data'][$arguments['classname'].'s'] = array();
-                $arguments['data'][$arguments['classname'].'s'][] = Route::getter(
-                    strtolower(
-                        get_class($class)
-                    ),
-                    $class
-                );
+                $arguments['data'][$arguments['classname'].'s'][] = $class->get();
                 $arguments['data']['count'] = count(
                     $arguments['data'][$arguments['classname'].'s']
                 );

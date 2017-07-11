@@ -146,10 +146,7 @@ class AddFileintegrityAPI extends Hook
             $arguments['data'] = FOGCore::fastmerge(
                 $arguments['class']->get(),
                 array(
-                    'storagenode' => Route::getter(
-                        'storagenode',
-                        $arguments['class']->get('storagenode')
-                    )
+                    'storagenode' => $arguments['class']->get('storagenode')->get()
                 )
             );
             break;
