@@ -315,7 +315,7 @@ abstract class FOGManagerController extends FOGBase
         $knownEnable = array(
             'Image',
             'Snapin',
-            'StorageNode',
+            'StorageNode'
         );
         $nonEnable = !(in_array($this->childClass, $knownEnable));
         $isEnabled = array_key_exists(
@@ -391,7 +391,7 @@ abstract class FOGManagerController extends FOGBase
         $data = array();
         self::$DB->query($query, array(), $findVals);
         if ($idField) {
-            $data = (array) self::$DB
+            $data = (array)self::$DB
                 ->fetch('', 'fetch_all')
                 ->get($idField);
             if ($filter) {
