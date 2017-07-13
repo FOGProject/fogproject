@@ -22,27 +22,6 @@
 class StorageGroup extends FOGController
 {
     /**
-     * Stores the total count and returns if it is already
-     * set.
-     *
-     * @var array
-     */
-    private static $_tot = array();
-    /**
-     * Stores the queued count and returns if it is already
-     * set.
-     *
-     * @var array
-     */
-    private static $_queued = array();
-    /**
-     * Stores the used count and returns if it is already
-     * set.
-     *
-     * @var array
-     */
-    private static $_used = array();
-    /**
      * The table for the group info.
      *
      * @var string
@@ -160,10 +139,7 @@ class StorageGroup extends FOGController
      */
     public function getUsedSlots()
     {
-        if (isset(self::$_used['tot'])) {
-            return (int)self::$_used['tot'];
-        }
-        return (int)self::$_used['tot'] = self::getClass('TaskManager')
+        return self::getClass('TaskManager')
             ->count(
                 array(
                     'stateID' => self::getProgressState(),
@@ -179,10 +155,7 @@ class StorageGroup extends FOGController
      */
     public function getQueuedSlots()
     {
-        if (isset(self::$_queued['tot'])) {
-            return (int)self::$_queued['tot'];
-        }
-        return (int)self::$_queued['tot'] = self::getClass('TaskManager')
+        return self::getClass('TaskManager')
             ->count(
                 array(
                     'stateID' => self::getQueuedStates(),
@@ -198,10 +171,7 @@ class StorageGroup extends FOGController
      */
     public function getTotalSupportedClients()
     {
-        if (isset(self::$_tot['tot'])) {
-            return (int)self::$_tot['tot'];
-        }
-        return (int)self::$_tot['tot'] = self::getSubObjectIDs(
+        return self::getSubObjectIDs(
             'StorageNode',
             array('id' => $this->get('enablednodes')),
             'maxClients',
