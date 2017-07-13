@@ -48,7 +48,6 @@ _L['ACTIVE_TASKS_FOUND'] = '%1 active task%2 found';
 _L['ACTIVE_TASKS_LOADING'] = 'Loading...';
 submithandlerfunc = function(form) {
     data += '&'+$(form).find(':visible,[type="radio"]').serialize();
-    console.log(data);
     url = $(form).attr('action');
     method = $(form).attr('method');
     $.ajax({
@@ -57,20 +56,23 @@ submithandlerfunc = function(form) {
         data: data,
         dataType: 'json',
         success: function(data) {
-            dialoginstance = new BootstrapDialog();
+            title = data.title;
             if (data.error) {
-                dialoginstance
-                .setTitle(data.title)
-                .setMessage(data.error)
-                .setType(BootstrapDialog.TYPE_WARNING)
-                .open();
+                msg = data.error;
+                type = BootstrapDialog.TYPE_WARNING;
             } else {
-                dialoginstance
-                .setTitle(data.title)
-                .setMessage(data.msg)
-                .setType(BootstrapDialog.TYPE_SUCCESS)
-                .open();
+                msg = data.msg;
+                type = BootstrapDialog.TYPE_SUCCESS;
             }
+            dialoginstance = new BootstrapDialog();
+            dialoginstance
+                .setTitle(title)
+                .setMessage(msg)
+                .setType(type)
+                .open();
+            setTimeout(function() {
+                BootstrapDialog.closeAll();
+            }, 5000);
         }
     });
     return false;
