@@ -327,14 +327,14 @@ class ServiceConfigurationPage extends FOGPage
                 echo '</h4>';
                 echo '</div>';
                 echo '<div class="panel-body">';
+                echo '<input type="hidden" name="name" value='
+                    . '"FOG_CLIENT_AUTOLOGOFF_MIN"/>';
                 echo '<div class="form-group">';
                 echo '<label class="control-label col-xs-4" for="updatetme">';
                 echo _('Default log out time (in minutes)');
                 echo '</label>';
                 echo '<div class="col-xs-8">';
                 echo '<div class="input-group">';
-                echo '<input type="hidden" name="name" value='
-                    . '"FOG_CLIENT_AUTOLOGOFF_MIN"/>';
                 echo '<input type="text" name="tme" value='
                     . '"'
                     . self::getSetting('FOG_CLIENT_AUTOLOGOFF_MIN')
@@ -476,6 +476,8 @@ class ServiceConfigurationPage extends FOGPage
                     . 'type="text"/>';
                 echo '</div>';
                 echo '</div>';
+                echo '</div>';
+                echo '<div class="form-group">';
                 echo '<label class="control-label col-xs-4" for="deletedc">';
                 echo _('Delete directories');
                 echo '</label>';
@@ -485,6 +487,8 @@ class ServiceConfigurationPage extends FOGPage
                 echo _('Delete');
                 echo '</button>';
                 echo '</div>';
+                echo '</div>';
+                echo '<div class="form-group">';
                 echo '<label class="control-label col-xs-4" for="updatedc">';
                 echo _('Make Changes');
                 echo '</label>';
@@ -598,6 +602,62 @@ class ServiceConfigurationPage extends FOGPage
                     $this->templates,
                     $this->attributes
                 );
+                $this->headerData = array(
+                    _('Delete'),
+                    _('Time'),
+                    _('Action')
+                );
+                $this->attributes = array(
+                    array(
+                        'class' => 'filter-false',
+                        'width' => 16
+                    ),
+                    array(),
+                    array()
+                );
+                $this->templates = array(
+                    '<input type="checkbox" name="gfrem${gf_id}" value="${gf_id}"/>',
+                    '${gf_time}',
+                    '${gf_action}'
+                );
+                $actionSel = array(
+                    's' => _('Shutdown'),
+                    'r' => _('Reboot')
+                );
+                $selAction = filter_input(INPUT_POST, 'style');
+                $actSel = self::selectForm(
+                    'style',
+                    $actionSel,
+                    $selAction,
+                    true
+                );
+                Route::listem('greenfog');
+                $GreenFogs = json_encode(
+                    Route::getData()
+                );
+                $GreenFogs = $GreenFogs->greenfogs;
+                foreach ((array)$GreenFogs as &$GreenFog) {
+                    $gftime = self::niceDate(
+                        $GreenFog->hour
+                        . ':'
+                        . $GreenFog->min
+                    )->format('H:i');
+                    $this->data[] = array(
+                        'gf_time' => $gftime,
+                        'gf_action' => (
+                            $GreenFog->action == 'r' ?
+                            _('Reboot') :
+                            (
+                                $GreenFog->action == 's' ?
+                                _('Shutdown') :
+                                _('N/A')
+                            )
+                        ),
+                        'gf_id' => $GreenFog->id
+                    );
+                    unset($GreenFog);
+                }
+                unset($GreenFogs);
                 echo '<div class="panel panel-info">';
                 echo '<div class="panel-heading text-center">';
                 echo '<h4 class="title">';
@@ -605,6 +665,61 @@ class ServiceConfigurationPage extends FOGPage
                 echo '</h4>';
                 echo '</div>';
                 echo '<div class="panel-body">';
+                echo _('NOTICE')
+                    . ': ';
+                echo _('This module is only used on the old client.');
+                echo ' ';
+                echo _('The old client was distributed with FOG 1.2.0 and earlier.');
+                echo ' ';
+                echo _('This module has since been replaced with Power Management.');
+                echo '<hr/>';
+                $this->render(12);
+                echo '<div class="form-group">';
+                echo '<label class="col-xs-4 control-label">';
+                echo _('New Event');
+                echo '</label>';
+                echo '<div class="col-xs-2">';
+                echo '<div class="input-group">';
+                echo '<input type="number" class="form-control" name="h" '
+                    . 'maxlength="2" placeholder="HH"/>';
+                echo '</div>';
+                echo '</div>';
+                echo '<div class="col-xs-2">';
+                echo '<div class="input-group">';
+                echo '<input type="number" class="form-control" name="m" '
+                    . 'maxlength="2" placeholder="MM"/>';
+                echo '</div>';
+                echo '</div>';
+                echo '<div class="col-xs-4">';
+                echo '<div class="input-group">';
+                echo $actSel;
+                echo '</div>';
+                echo '</div>';
+                echo '</div>';
+                echo '<div class="form-group">';
+                echo '<label class="col-xs-4 control-label">';
+                echo _('Add Event');
+                echo '</label>';
+                echo '<div class="col-xs-8">';
+                echo '<button type="submit" class='
+                    . '"btn btn-info btn-block" name='
+                    . '"addevent" id="addevent">';
+                echo _('Add');
+                echo '</button>';
+                echo '</div>';
+                echo '</div>';
+                echo '<div class="form-group">';
+                echo '<label class="col-xs-4 control-label" for="deleteevent">';
+                echo _('Remove Selected Events');
+                echo '</label>';
+                echo '<div class="col-xs-8">';
+                echo '<button type="submit" class='
+                    . '"btn btn-danger btn-block" name='
+                    . '"deleteevent" id="deleteevent">';
+                echo _('Remove');
+                echo '</button>';
+                echo '</div>';
+                echo '</div>';
                 echo '</div>';
                 echo '</div>';
                 unset(
@@ -646,109 +761,6 @@ class ServiceConfigurationPage extends FOGPage
             echo '</div>';
             echo '</div>';
             /*printf(
-            case 'greenfog':
-                $extra = sprintf(
-                    '%s: %s',
-                    _('NOTICE'),
-                    sprintf(
-                        '%s. %s %s. %s %s %s. %s.',
-                        _('This module is only used on the old client'),
-                        _('The old client is what was distributed with'),
-                        _('FOG 1.2.0 and earlier'),
-                        _('This module has been replaced in the new client'),
-                        _('and the equivalent module for what Green FOG did'),
-                        _('is now called Power Management'),
-                        _('This is only here to maintain old client operations')
-                    )
-                );
-                $extra .= '<hr/>';
-                unset(
-                    $this->data,
-                    $this->headerData,
-                    $this->attributes,
-                    $this->templates
-                );
-                $this->headerData = array(
-                    _('Time'),
-                    _('Action'),
-                    _('Remove'),
-                );
-                $this->attributes = array(
-                    array(),
-                    array(),
-                    array('class'=>'filter-false'),
-                );
-                $this->templates = array(
-                    '${gf_time}',
-                    '${gf_action}',
-                    sprintf(
-                        '<input type="checkbox" id="gfrem${gf_id}" class='
-                        . '"delid" name="delid" onclick='
-                        . '"this.form.submit()" value='
-                        . '"${gf_id}"/><label for="gfrem${gf_id}" class='
-                        . '"icon fa fa-minus-circle hand" title="%s">'
-                        . '&nbsp;</label>',
-                        _('Delete')
-                    )
-                );
-                $extra .= sprintf(
-                    '<h2>%s</h2>'
-                    . '<form method="post" action="%s&sub=edit&tab=%s">'
-                    . '<p>%s <input class="short" type="text" name='
-                    . '"h" maxlength="2" value="HH" onFocus='
-                    . '"$(this).val(\'\');"/>:<input class="short" type='
-                    . '"text" name="m" maxlength="2" value="MM" onFocus='
-                    . '"$(this).val(\'\');"/><select name="style" size="1">'
-                    . '<option value="">- %s -</option>'
-                    . '<option value="s">%s</option>'
-                    . '<option value="r">%s</option>'
-                    . '</select></p><p>'
-                    . '<input type="hidden" name="name" value="%s"/>'
-                    . '<input type="submit" name="addevent" value="%s"/></p>',
-                    _('Shutdown/Reboot Schedule'),
-                    $this->formAction,
-                    $Module->shortName,
-                    _('Add Event (24 Hour Format)'),
-                    _('Please select an option'),
-                    _('Shutdown'),
-                    _('Reboot'),
-                    $modNames[$Module->shortName],
-                    _('Add Event')
-                );
-                Route::listem('greenfog');
-                $GreenFogs = json_decode(
-                    Route::getData()
-                );
-                $GreenFogs = $GreenFogs->greenfogs;
-                foreach ((array)$GreenFogs as &$GreenFog) {
-                    $gftime = self::niceDate(
-                        sprintf(
-                            '%s:%s',
-                            $GreenFog->hour,
-                            $GreenFog->min
-                        )
-                    )->format('H:i');
-                    $this->data[] = array(
-                        'gf_time' => $gftime,
-                        'gf_action' => (
-                            $GreenFog->action == 'r' ?
-                            _('Reboot') :
-                            (
-                                $GreenFog->action == 's' ?
-                                _('Shutdown') :
-                                _('N/A')
-                            )
-                        ),
-                        'gf_id' => $GreenFog->id,
-                    );
-                    unset($GreenFog);
-                }
-                unset($GreenFogs);
-                ob_start();
-                $this->render();
-                echo '</form>';
-                $extra = ob_get_clean();
-                break;
             case 'usercleanup':
                 $extra = sprintf(
                     '%s: %s',
