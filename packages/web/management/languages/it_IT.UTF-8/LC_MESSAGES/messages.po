@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-11 16:45-0400\n"
+"POT-Creation-Date: 2017-07-13 23:09-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -443,11 +443,15 @@ msgid "Window size must be greater than 1"
 msgstr "La finestra dati deve essere maggiore di 1"
 
 #: /var/www/fog/lib/fog/powermanagementmanager.class.php:110
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:624
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:652
 #: /var/www/fog/commons/text.php:77
 msgid "Shutdown"
 msgstr "Spegnimento"
 
 #: /var/www/fog/lib/fog/powermanagementmanager.class.php:111
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:625
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:649
 #: /var/www/fog/commons/text.php:78
 msgid "Reboot"
 msgstr "Riavvio"
@@ -1163,7 +1167,7 @@ msgstr "Salva i cambiamenti"
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2550
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:273
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:352
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:571
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:575
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:873
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:522
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:610
@@ -1230,7 +1234,8 @@ msgstr "Elimina selezionato"
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1609
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1743
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:417
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:485
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:487
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:606
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:701
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2484
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:1010
@@ -1657,7 +1662,8 @@ msgstr ""
 #: /var/www/fog/lib/fog/fogpage.class.php:4026
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:611
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:1127
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:494
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:498
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:707
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:471
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:236
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:931
@@ -1725,6 +1731,7 @@ msgstr "Non trovato"
 #: /var/www/fog/lib/fog/fogpage.class.php:3427
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:1231
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:1559
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:719
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:953
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1078
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:845
@@ -1926,6 +1933,7 @@ msgid "Perform Immediately?"
 msgstr "Esegui immediatamente?"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:4014
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:608
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:724
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2598
 #: /var/www/fog/lib/reports/user_tracking.report.php:235
@@ -2214,7 +2222,7 @@ msgstr "Utente creato"
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2541
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:280
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:347
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:567
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:571
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:867
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:519
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:607
@@ -2513,6 +2521,7 @@ msgid "Imaging Over the last 30 days"
 msgstr "Imaging Negli ultimi 30 giorni"
 
 #: /var/www/fog/lib/pages/dashboardpage.class.php:380
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:607
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2597
 #: /var/www/fog/lib/reports/user_tracking.report.php:238
 #: /var/www/fog/lib/reports/user_tracking.report.php:261
@@ -3136,6 +3145,7 @@ msgstr "Current Records"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1669
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:450
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:668
 msgid "NOTICE"
 msgstr "AVVISO"
 
@@ -3200,7 +3210,7 @@ msgid "Delete Selected Items"
 msgstr "Eliminare tutti gli elementi selezionati"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1749
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:489
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:493
 #, fuzzy
 msgid "Make Changes"
 msgstr "Salva i cambiamenti"
@@ -3530,14 +3540,14 @@ msgstr "Stato servizio"
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:326
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:393
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:446
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:578
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:604
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:629
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:582
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:664
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:744
 #, fuzzy
 msgid "Current settings"
 msgstr "impostazioni"
 
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:332
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:334
 msgid "Default log out time (in minutes)"
 msgstr "Predefinito disconnettersi tempo (in minuti)"
 
@@ -3547,6 +3557,7 @@ msgid "Path"
 msgstr "Percorso"
 
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:452
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:670
 #, fuzzy
 msgid "This module is only used on the old client."
 msgstr "Questo modulo viene utilizzato solo sul vecchio client"
@@ -3578,28 +3589,62 @@ msgstr "elenco"
 msgid "Add Directory"
 msgstr "Aggiungere Directory"
 
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:480
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:482
 #, fuzzy
 msgid "Delete directories"
 msgstr "Elimina selezionato"
 
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:543
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:547
 msgid "Default Width"
 msgstr "Larghezza predefinita"
 
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:551
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:555
 msgid "Default Height"
 msgstr "Altezza di default"
 
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:559
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:563
 msgid "Default Refresh Rate"
 msgstr "Predefinito: frequenza aggiornamento"
 
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:967
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:653
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2509
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2871
+#: /var/www/fog/lib/reports/user_tracking.report.php:294
+#: /var/www/fog/commons/text.php:110
+msgid "N/A"
+msgstr "N/D"
+
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:672
+#, fuzzy
+msgid "The old client was distributed with FOG 1.2.0 and earlier."
+msgstr ""
+"Il vecchio cliente è quello che è stato distribuito con FOG 1.2.0 e "
+"precedenti"
+
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:674
+#, fuzzy
+msgid "This module has since been replaced with Power Management."
+msgstr "Questo modulo è stato sostituito nel nuovo client"
+
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:679
+#, fuzzy
+msgid "New Event"
+msgstr "Evento"
+
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:701
+msgid "Add Event"
+msgstr "Aggiungi evento"
+
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:713
+#, fuzzy
+msgid "Remove Selected Events"
+msgstr "Rimuovi i selezionati"
+
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:979
 msgid "Service update failed"
 msgstr "aggiornamento del servizio non riuscito"
 
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:974
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:986
 msgid "Service Updated!"
 msgstr "Servizio aggiornato!"
 
@@ -5620,13 +5665,6 @@ msgstr "Quarantena"
 #: /var/www/fog/commons/text.php:112
 msgid "Report"
 msgstr "rapporto"
-
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2509
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2871
-#: /var/www/fog/lib/reports/user_tracking.report.php:294
-#: /var/www/fog/commons/text.php:110
-msgid "N/A"
-msgstr "N/D"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2540
 #, fuzzy
@@ -10350,9 +10388,6 @@ msgstr "Non ci sono posizioni su questo server"
 
 #~ msgid "Add Event (24 Hour Format)"
 #~ msgstr "Aggiungere Evento (formato 24 ore)"
-
-#~ msgid "Add Event"
-#~ msgstr "Aggiungi evento"
 
 #~ msgid "Add User"
 #~ msgstr "Aggiungi utente"

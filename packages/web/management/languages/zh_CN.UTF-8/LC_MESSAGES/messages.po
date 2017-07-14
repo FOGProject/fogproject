@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-11 16:45-0400\n"
+"POT-Creation-Date: 2017-07-13 23:09-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -478,11 +478,15 @@ msgid "Window size must be greater than 1"
 msgstr ""
 
 #: /var/www/fog/lib/fog/powermanagementmanager.class.php:110
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:624
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:652
 #: /var/www/fog/commons/text.php:77
 msgid "Shutdown"
 msgstr "关掉"
 
 #: /var/www/fog/lib/fog/powermanagementmanager.class.php:111
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:625
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:649
 #: /var/www/fog/commons/text.php:78
 msgid "Reboot"
 msgstr "重启"
@@ -1237,7 +1241,7 @@ msgstr "保存更改"
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2550
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:273
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:352
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:571
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:575
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:873
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:522
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:610
@@ -1304,7 +1308,8 @@ msgstr "删除所选"
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1609
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1743
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:417
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:485
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:487
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:606
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:701
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2484
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:1010
@@ -1749,7 +1754,8 @@ msgstr ""
 #: /var/www/fog/lib/fog/fogpage.class.php:4026
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:611
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:1127
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:494
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:498
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:707
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:471
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:236
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:931
@@ -1817,6 +1823,7 @@ msgstr "未找到"
 #: /var/www/fog/lib/fog/fogpage.class.php:3427
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:1231
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:1559
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:719
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:953
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1078
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:845
@@ -2022,6 +2029,7 @@ msgid "Perform Immediately?"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:4014
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:608
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:724
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2598
 #: /var/www/fog/lib/reports/user_tracking.report.php:235
@@ -2321,7 +2329,7 @@ msgstr "用户创建"
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2541
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:280
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:347
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:567
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:571
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:867
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:519
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:607
@@ -2625,6 +2633,7 @@ msgid "Imaging Over the last 30 days"
 msgstr "成像在过去30天"
 
 #: /var/www/fog/lib/pages/dashboardpage.class.php:380
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:607
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2597
 #: /var/www/fog/lib/reports/user_tracking.report.php:238
 #: /var/www/fog/lib/reports/user_tracking.report.php:261
@@ -3252,6 +3261,7 @@ msgstr "当前记录"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1669
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:450
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:668
 #, fuzzy
 msgid "NOTICE"
 msgstr "不"
@@ -3310,7 +3320,7 @@ msgid "Delete Selected Items"
 msgstr "删除所有选中的项目"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1749
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:489
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:493
 #, fuzzy
 msgid "Make Changes"
 msgstr "保存更改"
@@ -3632,14 +3642,14 @@ msgstr "服务状态"
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:326
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:393
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:446
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:578
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:604
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:629
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:582
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:664
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:744
 #, fuzzy
 msgid "Current settings"
 msgstr "设置"
 
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:332
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:334
 msgid "Default log out time (in minutes)"
 msgstr "默认注销时间（分钟）"
 
@@ -3649,6 +3659,7 @@ msgid "Path"
 msgstr "路径"
 
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:452
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:670
 #, fuzzy
 msgid "This module is only used on the old client."
 msgstr "此设置定义使用SSH客户端的用户名。"
@@ -3678,28 +3689,58 @@ msgstr "目录"
 msgid "Add Directory"
 msgstr "添加目录"
 
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:480
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:482
 #, fuzzy
 msgid "Delete directories"
 msgstr "删除所选"
 
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:543
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:547
 msgid "Default Width"
 msgstr "默认宽度"
 
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:551
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:555
 msgid "Default Height"
 msgstr "默认高度"
 
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:559
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:563
 msgid "Default Refresh Rate"
 msgstr "默认刷新频率"
 
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:967
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:653
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2509
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2871
+#: /var/www/fog/lib/reports/user_tracking.report.php:294
+#: /var/www/fog/commons/text.php:110
+msgid "N/A"
+msgstr "N / A"
+
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:672
+msgid "The old client was distributed with FOG 1.2.0 and earlier."
+msgstr ""
+
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:674
+msgid "This module has since been replaced with Power Management."
+msgstr ""
+
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:679
+#, fuzzy
+msgid "New Event"
+msgstr "添加事件"
+
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:701
+msgid "Add Event"
+msgstr "添加事件"
+
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:713
+#, fuzzy
+msgid "Remove Selected Events"
+msgstr "删除选定snapins"
+
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:979
 msgid "Service update failed"
 msgstr "服务更新失败"
 
-#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:974
+#: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:986
 msgid "Service Updated!"
 msgstr "服务更新！"
 
@@ -5749,13 +5790,6 @@ msgstr "隔离"
 #: /var/www/fog/commons/text.php:112
 msgid "Report"
 msgstr "报告"
-
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2509
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2871
-#: /var/www/fog/lib/reports/user_tracking.report.php:294
-#: /var/www/fog/commons/text.php:110
-msgid "N/A"
-msgstr "N / A"
 
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2540
 #, fuzzy
@@ -10657,9 +10691,6 @@ msgstr "有此服务器上没有的位置。"
 
 #~ msgid "Add Event (24 Hour Format)"
 #~ msgstr "添加事件（24小时格式）"
-
-#~ msgid "Add Event"
-#~ msgstr "添加事件"
 
 #~ msgid "Add User"
 #~ msgstr "添加用户"
