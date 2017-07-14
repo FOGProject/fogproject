@@ -226,14 +226,6 @@ class UserManagementPage extends FOGPage
             . _('Create')
             . '</button>'
         );
-        self::$HookManager
-            ->processEvent(
-                'USER_FIELDS',
-                array(
-                    'fields' => &$fields,
-                    'User' => &$this->obj
-                )
-            );
         array_walk($fields, $this->fieldsToData);
         self::$HookManager
             ->processEvent(
@@ -244,6 +236,7 @@ class UserManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
+        unset($fields);
         echo '<div class="col-xs-9">';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
@@ -629,7 +622,6 @@ class UserManagementPage extends FOGPage
                 ->set('token', self::createSecToken())
                 ->save();
         }
-        $this->title = sprintf('%s: %s', _('Edit'), $this->obj->get('name'));
         echo '<div class="col-xs-9 tab-content">';
         echo '<input type="text" name="fakeusernameremembered" class="fakes"/>';
         echo '<input type="password" name="fakepasswordremembered" class="fakes"/>';
