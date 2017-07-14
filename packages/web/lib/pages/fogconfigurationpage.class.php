@@ -168,7 +168,7 @@ class FOGConfigurationPage extends FOGPage
             . '.UTF-8/gpl-3.0.txt';
         $contents = file_get_contents($file);
         $contents = preg_replace('!\r?\n!', '<br/>', $contents);
-        echo '<div class="col-xs-offset-3">';
+        echo '<div class="col-xs-9">';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
@@ -3140,7 +3140,7 @@ class FOGConfigurationPage extends FOGPage
         unset($vals);
         $lineOpts = ob_get_clean();
         $this->title = _('FOG Log Viewer');
-        echo '<div class="col-xs-offset-3">';
+        echo '<div class="col-xs-9">';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
