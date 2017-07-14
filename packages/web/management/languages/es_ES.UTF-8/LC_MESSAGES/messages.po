@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-13 23:09-0400\n"
+"POT-Creation-Date: 2017-07-14 09:48-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1259,9 +1259,9 @@ msgstr "Guardar cambios"
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1312
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1454
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1524
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:402
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:491
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:583
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:395
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:484
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:576
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:194
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:227
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:834
@@ -1286,7 +1286,6 @@ msgstr "Guardar cambios"
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:594
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:236
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:241
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:226
 #: /var/www/fog/commons/text.php:40
 msgid "Update"
 msgstr "Actualizar"
@@ -1373,7 +1372,6 @@ msgstr "Editar imagen"
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:166
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:91
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:896
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:632
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:200
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:3049
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:173
@@ -1394,8 +1392,7 @@ msgstr "Editar imagen"
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:335
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:401
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:551
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:64
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:203
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:66
 #: /var/www/fog/commons/text.php:27
 msgid "Edit"
 msgstr "Editar"
@@ -1495,6 +1492,8 @@ msgstr "Programador"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1352
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:226
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:137
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:282
 msgid "Create"
 msgstr "Crear"
 
@@ -1790,7 +1789,6 @@ msgstr ""
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:382
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:531
 #: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:128
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:116
 #: /var/www/fog/commons/text.php:31
 msgid "Add"
 msgstr "Añadir"
@@ -2354,6 +2352,7 @@ msgstr "creado por el usuario"
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:444
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:471
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:467
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:279
 #, fuzzy
 msgid "Make Changes?"
 msgstr "Guardar cambios"
@@ -3432,7 +3431,7 @@ msgid "No image specified"
 msgstr "No hay imagen especificada"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2417
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:575
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:568
 msgid "Reset Token"
 msgstr ""
 
@@ -5002,7 +5001,7 @@ msgstr "Configuración Tecla"
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:60
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:88
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:188
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:390
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:383
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1142
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1216
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:468
@@ -5028,24 +5027,24 @@ msgid "New User"
 msgstr "Nuevo usuario"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:179
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:381
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:374
 #: /var/www/fog/lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:213
 #: /var/www/fog/lib/plugins/site/hooks/addsiteuser.hook.php:256
 msgid "User Name"
 msgstr "Nombre de usuario"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:197
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:473
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:466
 msgid "User Password"
 msgstr "Contraseña de usuario"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:205
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:481
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:474
 msgid "User Password (confirm)"
 msgstr "Contraseña de usuario (confirmar)"
 
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:212
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:553
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:546
 #, fuzzy
 msgid "User API Enabled"
 msgstr "habilitado"
@@ -5055,117 +5054,117 @@ msgstr "habilitado"
 msgid "Create user?"
 msgstr "Crear usuario"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:290
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:283
 #, fuzzy
 msgid "A user name is required!"
 msgstr "Se requiere un nombre de imagen!"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:301
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:294
 msgid "Username does not meet requirements"
 msgstr ""
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:302
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:295
 msgid "Username must start with a word character"
 msgstr ""
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:303
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:296
 msgid "Username must be at least 3 characters"
 msgstr ""
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:304
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:297
 msgid "Username must be less than 41 characters"
 msgstr ""
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:305
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:298
 msgid "Username cannot contain contiguous special characters"
 msgstr ""
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:311
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:304
 #, fuzzy
 msgid "A username already exists with this name!"
 msgstr "Una imagen ya existe con este nombre!"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:316
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:309
 #, fuzzy
 msgid "A password is required!"
 msgstr "%s se requiere"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:328
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:321
 #, fuzzy
 msgid "Add user failed!"
 msgstr "Añadir fallidos SNAPin!"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:334
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:327
 #, fuzzy
 msgid "User added!"
 msgstr "Nombre de la impresora"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:335
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:328
 #, fuzzy
 msgid "User Create Success"
 msgstr "creado por el usuario"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:343
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:336
 #, fuzzy
 msgid "User Create Fail"
 msgstr "creado por el usuario"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:370
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:363
 #, fuzzy
 msgid "User General"
 msgstr "Núcleo"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:399
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:392
 #, fuzzy
 msgid "Update General?"
 msgstr "Actualizar impresora"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:462
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:455
 #, fuzzy
 msgid "User Change Password"
 msgstr "La gestión de contraseñas"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:488
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:481
 #, fuzzy
 msgid "Update Password?"
 msgstr "Contraseña de usuario"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:542
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:535
 #, fuzzy
 msgid "User API Settings"
 msgstr "Configuración Tecla"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:564
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:557
 #, fuzzy
 msgid "User API Token"
 msgstr "Nombre de usuario"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:580
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:573
 #, fuzzy
 msgid "Update API?"
 msgstr "Actualizar los MAC"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:663
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:655
 #, fuzzy
 msgid "A user already exists with this name"
 msgstr "Una imagen ya existe con este nombre!"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:724
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:716
 #, fuzzy
 msgid "User update failed!"
 msgstr "actualización Valoración falló"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:729
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:721
 #, fuzzy
 msgid "User updated!"
 msgstr "el usuario actualiza"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:730
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:722
 #, fuzzy
 msgid "User Update Success"
 msgstr "Actualizar impresora"
 
-#: /var/www/fog/lib/pages/usermanagementpage.class.php:738
+#: /var/www/fog/lib/pages/usermanagementpage.class.php:730
 #, fuzzy
 msgid "User Update Fail"
 msgstr "actualización Valoración falló"
@@ -6707,7 +6706,6 @@ msgstr ""
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:186
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:188
 #: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:197
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:180
 #, fuzzy
 msgid "Failed to create"
 msgstr "No se pudo crear la tarea"
@@ -6856,7 +6854,6 @@ msgstr "Un grupo de almacenamiento es necesario!"
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:416
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:295
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:295
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:292
 #, fuzzy
 msgid "Failed to update"
 msgstr "No se ha podido descifrar datos"
@@ -7906,8 +7903,9 @@ msgid "Import WOLBroadcasts"
 msgstr "Importar"
 
 #: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:50
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:110
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:216
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:57
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:119
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:264
 #, fuzzy
 msgid "Broadcast Name"
 msgstr "Nombre de host"
@@ -7918,56 +7916,89 @@ msgstr "Nombre de host"
 msgid "IP Address"
 msgstr "Dirección IP ha cambiado"
 
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:99
-msgid "New Broadcast Address"
-msgstr ""
-
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:112
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:58
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:127
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:272
 msgid "Broadcast IP"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:156
-msgid "Broacast name already Exists, please try again."
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:107
+msgid "New Broadcast Address"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:161
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:134
 #, fuzzy
-msgid "Please enter a name for this address."
-msgstr "No hay ninguna tabla de base de datos definida para esta clase"
+msgid "Create WOL Broadcast?"
+msgstr "Editar anfitrión"
 
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:166
-msgid "Please enter the broadcast address."
-msgstr ""
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:186
+#, fuzzy
+msgid "A name is required!"
+msgstr "Se requiere un nombre de imagen!"
 
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:173
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:191
+#, fuzzy
+msgid "A broadcast already exists with this name!"
+msgstr "Una imagen ya existe con este nombre!"
+
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:196
+#, fuzzy
+msgid "A broadcast address is required"
+msgstr "Dirección MAC de lista de origen: "
+
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:201
 #, fuzzy
 msgid "Please enter a valid ip"
 msgstr "Seleccionar una imagen válida"
 
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:182
-msgid "Broadcast Added, editing!"
-msgstr ""
-
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:220
-msgid "Broadcast Address"
-msgstr ""
-
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:271
-msgid "You need to have a name for the broadcast address."
-msgstr ""
-
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:278
-msgid "Please enter a valid IP address"
-msgstr ""
-
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:285
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:208
 #, fuzzy
-msgid "A broadcast with that name already exists."
-msgstr "Sesión con ese nombre ya existe"
+msgid "Add broadcast failed!"
+msgstr "Añadir fallidos SNAPin!"
 
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:294
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:213
 #, fuzzy
-msgid "Broadcast Updated"
+msgid "Broadcast added!"
+msgstr "Nombre de host"
+
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:214
+#, fuzzy
+msgid "Broadcast Create Success"
+msgstr "Creado"
+
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:222
+#, fuzzy
+msgid "Broadcast Create Fail"
+msgstr "Grupo Error de creación"
+
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:253
+#, fuzzy
+msgid "WOL Broadcast General"
+msgstr "Editar anfitrión"
+
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:353
+#, fuzzy
+msgid "A broadcast already exists with this name"
+msgstr "Una imagen ya existe con este nombre!"
+
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:380
+#, fuzzy
+msgid "Broadcast update failed!"
+msgstr "Servicio de Actualización!"
+
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:385
+#, fuzzy
+msgid "Broadcast updated!"
+msgstr "Servicio de Actualización!"
+
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:386
+#, fuzzy
+msgid "Broadcast Update Success"
+msgstr "actualización Valoración falló"
+
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:394
+#, fuzzy
+msgid "Broadcast Update Fail"
 msgstr "Servicio de Actualización!"
 
 #: /var/www/fog/lib/plugins/wolbroadcast/hooks/addwolmenuitem.hook.php:96
@@ -10558,6 +10589,14 @@ msgstr "Legado FOG Cliente"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "No hay grupos en este servidor."
+
+#, fuzzy
+#~ msgid "Please enter a name for this address."
+#~ msgstr "No hay ninguna tabla de base de datos definida para esta clase"
+
+#, fuzzy
+#~ msgid "A broadcast with that name already exists."
+#~ msgstr "Sesión con ese nombre ya existe"
 
 #~ msgid "successfully updated"
 #~ msgstr "actualizado exitosamente"
