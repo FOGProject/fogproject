@@ -1797,45 +1797,47 @@ class FOGConfigurationPage extends FOGPage
                 );
                 exit;
             }
-            if (count($_FILES['module']['tmp_name']) < 1) {
-                throw new Exception(_('No file uploaded!'));
-            }
-            $error = $_FILES['module']['error'];
-            foreach ((array)$error as &$err) {
-                if ($err > 0) {
-                    throw new UploadException($err);
+            if (isset($_POST['upload'])) {
+                if (count($_FILES['module']['tmp_name']) < 1) {
+                    throw new Exception(_('No file uploaded!'));
                 }
-                unset($err);
-            }
-            $tmpfiles = $_FILES['module']['tmp_name'];
-            foreach ((array)$tmpfiles as $index => &$tmp_name) {
-                if (!file_exists($tmp_name)) {
-                    continue;
+                $error = $_FILES['module']['error'];
+                foreach ((array)$error as &$err) {
+                    if ($err > 0) {
+                        throw new UploadException($err);
+                    }
+                    unset($err);
                 }
-                if (!($md5 = md5_file($tmp_name))) {
-                    continue;
+                $tmpfiles = $_FILES['module']['tmp_name'];
+                foreach ((array)$tmpfiles as $index => &$tmp_name) {
+                    if (!file_exists($tmp_name)) {
+                        continue;
+                    }
+                    if (!($md5 = md5_file($tmp_name))) {
+                        continue;
+                    }
+                    $filename = basename(
+                        $_FILES['module']['name'][$index]
+                    );
+                    $fp = fopen(
+                        $tmp_name,
+                        'rb'
+                    );
+                    $content = fread(
+                        $fp,
+                        self::getFilesize($tmp_name)
+                    );
+                    fclose($fp);
+                    $finfo = new finfo(FILEINFO_MIME);
+                    $f = $finfo->file($tmp_name);
+                    self::getClass('ClientUpdater')
+                        ->set('name', $filename)
+                        ->load('name')
+                        ->set('md5', $md5)
+                        ->set('type', $f)
+                        ->set('file', $content)
+                        ->save();
                 }
-                $filename = basename(
-                    $_FILES['module']['name'][$index]
-                );
-                $fp = fopen(
-                    $tmp_name,
-                    'rb'
-                );
-                $content = fread(
-                    $fp,
-                    self::getFilesize($tmp_name)
-                );
-                fclose($fp);
-                $finfo = new finfo(FILEINFO_MIME);
-                $f = $finfo->file($tmp_name);
-                self::getClass('ClientUpdater')
-                    ->set('name', $filename)
-                    ->load('name')
-                    ->set('md5', $md5)
-                    ->set('type', $f)
-                    ->set('file', $content)
-                    ->save();
             }
             $msg = json_encode(
                 array(
