@@ -327,8 +327,6 @@ class ServiceConfigurationPage extends FOGPage
                 echo '</h4>';
                 echo '</div>';
                 echo '<div class="panel-body">';
-                echo '<input type="hidden" name="name" value='
-                    . '"FOG_CLIENT_AUTOLOGOFF_MIN"/>';
                 echo '<div class="form-group">';
                 echo '<label class="control-label col-xs-4" for="updatetme">';
                 echo _('Default log out time (in minutes)');
@@ -479,7 +477,7 @@ class ServiceConfigurationPage extends FOGPage
                 echo '</div>';
                 echo '<div class="form-group">';
                 echo '<label class="control-label col-xs-4" for="deletedc">';
-                echo _('Delete directories');
+                echo _('Delete Selected Items');
                 echo '</label>';
                 echo '<div class="col-xs-8">';
                 echo '<button class="btn btn-danger btn-block" name='
@@ -697,7 +695,19 @@ class ServiceConfigurationPage extends FOGPage
                 echo '</div>';
                 echo '</div>';
                 echo '<div class="form-group">';
-                echo '<label class="col-xs-4 control-label">';
+                echo '<label class="col-xs-4 control-label" for="deleteevent">';
+                echo _('Delete Selected Items');
+                echo '</label>';
+                echo '<div class="col-xs-8">';
+                echo '<button type="submit" class='
+                    . '"btn btn-danger btn-block" name='
+                    . '"deleteevent" id="deleteevent">';
+                echo _('Delete');
+                echo '</button>';
+                echo '</div>';
+                echo '</div>';
+                echo '<div class="form-group">';
+                echo '<label class="col-xs-4 control-label" for="addevent">';
                 echo _('Add Event');
                 echo '</label>';
                 echo '<div class="col-xs-8">';
@@ -705,18 +715,6 @@ class ServiceConfigurationPage extends FOGPage
                     . '"btn btn-info btn-block" name='
                     . '"addevent" id="addevent">';
                 echo _('Add');
-                echo '</button>';
-                echo '</div>';
-                echo '</div>';
-                echo '<div class="form-group">';
-                echo '<label class="col-xs-4 control-label" for="deleteevent">';
-                echo _('Remove Selected Events');
-                echo '</label>';
-                echo '<div class="col-xs-8">';
-                echo '<button type="submit" class='
-                    . '"btn btn-danger btn-block" name='
-                    . '"deleteevent" id="deleteevent">';
-                echo _('Remove');
                 echo '</button>';
                 echo '</div>';
                 echo '</div>';
@@ -738,6 +736,40 @@ class ServiceConfigurationPage extends FOGPage
                     $this->templates,
                     $this->attributes
                 );
+                $this->headerData = array(
+                    _('Delete'),
+                    _('User')
+                );
+                $this->attributes = array(
+                    array(
+                        'class' => 'filter-false',
+                        'width' => 16
+                    ),
+                    array()
+                );
+                $this->templates = array(
+                    '${input}',
+                    '${user_name}'
+                );
+                Route::listem('usercleanup');
+                $UserCleanups = json_decode(
+                    Route::getData()
+                );
+                $UserCleanups = $UserCleanups->usercleanups;
+                foreach ((array)$UserCleanups as &$UserCleanup) {
+                    $this->data[] = array(
+                        'user_name' => $UserCleanup->name,
+                        'input' => (
+                            $UserCleanup->id < 7 ?
+                            '' :
+                            '<input type="checkbox" name="delid[]" '
+                            . 'id="rmuser${user_id}" value="${user_id}"/>'
+                        ),
+                        'user_id' => $UserCleanup->id
+                    );
+                    unset($UserCleanup);
+                }
+                unset($UserCleanups);
                 echo '<div class="panel panel-info">';
                 echo '<div class="panel-heading text-center">';
                 echo '<h4 class="title">';
@@ -745,6 +777,48 @@ class ServiceConfigurationPage extends FOGPage
                 echo '</h4>';
                 echo '</div>';
                 echo '<div class="panel-body">';
+                echo _('NOTICE')
+                    . ': ';
+                echo _('This module is only used on the old client.');
+                echo ' ';
+                echo _('The old client was distributed with FOG 1.2.0 and earlier.');
+                echo ' ';
+                echo _('This module did not work past Windows XP due to UAC.');
+                echo '<hr/>';
+                $this->render(12);
+                echo '<div class="form-group">';
+                echo '<label class="control-label col-xs-4" for="adduser">';
+                echo _('Add User');
+                echo '</label>';
+                echo '<div class="col-xs-8">';
+                echo '<div class="input-group">';
+                echo '<input class="form-control" id="adduser" name="adduser" '
+                    . 'type="text"/>';
+                echo '</div>';
+                echo '</div>';
+                echo '</div>';
+                echo '<div class="form-group">';
+                echo '<label class="control-label col-xs-4" for="deleteuc">';
+                echo _('Delete Selected Items');
+                echo '</label>';
+                echo '<div class="col-xs-8">';
+                echo '<button class="btn btn-danger btn-block" name='
+                    . '"deleteuc" type="submit" id="deleteuc">';
+                echo _('Delete');
+                echo '</button>';
+                echo '</div>';
+                echo '</div>';
+                echo '<div class="form-group">';
+                echo '<label class="control-label col-xs-4" for="updateuc">';
+                echo _('Make Changes');
+                echo '</label>';
+                echo '<div class="col-xs-8">';
+                echo '<button class="btn btn-info btn-block" name='
+                    . '"adddc" type="submit" id="updateuc">';
+                echo _('Add');
+                echo '</button>';
+                echo '</div>';
+                echo '</div>';
                 echo '</div>';
                 echo '</div>';
                 unset(
@@ -760,111 +834,6 @@ class ServiceConfigurationPage extends FOGPage
             echo '</div>';
             echo '</div>';
             echo '</div>';
-            /*printf(
-            case 'usercleanup':
-                $extra = sprintf(
-                    '%s: %s',
-                    _('NOTICE'),
-                    sprintf(
-                        '%s. %s %s. %s %s.',
-                        _('This module is only used on the old client'),
-                        _('The old client is what was distributed with'),
-                        _('FOG 1.2.0 and earlier'),
-                        _('This module did not work past Windows XP'),
-                        _('due to UAC introduced in Vista and up.')
-                    )
-                );
-                $extra .= '<hr/>';
-                unset(
-                    $this->data,
-                    $this->headerData,
-                    $this->attributes,
-                    $this->templates
-                );
-                $this->attributes = array(
-                    array(),
-                    array(),
-                );
-                $this->templates = array(
-                    '${field}',
-                    '${input}',
-                );
-                $fields = array(
-                    _('Username') => '<input type="text" name="usr"/>',
-                    sprintf(
-                        '<input type="hidden" name="name" value="%s"/>',
-                        $modNames[$Module->shortName]
-                    ) => sprintf(
-                        '<input type="submit" name="adduser" value="%s"/>',
-                        _('Add User')
-                    )
-                );
-                $extra .= sprintf(
-                    '<h2>%s</h2><form method="post" action="%s&sub=edit&tab=%s">',
-                    _('Add Protected User'),
-                    $this->formAction,
-                    $Module->shortName
-                );
-                array_walk($fields, $this->fieldsToData);
-                ob_start();
-                $this->render(12);
-                $extra .= ob_get_clean();
-                unset(
-                    $this->data,
-                    $this->headerData,
-                    $this->attributes,
-                    $this->templates
-                );
-                $this->headerData = array(
-                    _('User'),
-                    _('Remove'),
-                );
-                $this->attributes = array(
-                    array(),
-                    array('class' => 'filter-false'),
-                );
-                $this->templates = array(
-                    '${user_name}',
-                    '${input}',
-                );
-                $extra .= sprintf(
-                    '<h2>%s</h2>',
-                    _('Current Protected User Accounts')
-                );
-                Route::listem('usercleanup');
-                $UserCleanups = json_decode(
-                    Route::getData()
-                );
-                $UserCleanups = $UserCleanups->usercleanups;
-                foreach ((array)$UserCleanups as &$UserCleanup) {
-                    $this->data[] = array(
-                        'user_name' => $UserCleanup->name,
-                        'input' => (
-                            $UserCleanup->id < 7 ?
-                            '' :
-                            sprintf(
-                                '<input type="checkbox" id='
-                                . '"rmuser${user_id}" class='
-                                . '"delid" name="delid" onclick='
-                                . '"this.form.submit()" value='
-                                . '"${user_id}"/>'
-                                . '<label for="rmuser${user_id}" class='
-                                . '"icon fa fa-minus-circle hand" title='
-                                . '"%s"> </label>',
-                                _('Delete')
-                            )
-                        ),
-                        'user_id' => $UserCleanup->id,
-                    );
-                    unset($UserCleanup);
-                }
-                unset($UserCleanups);
-                ob_start();
-                $this->render(12);
-                echo '</form>';
-                $extra .= ob_get_clean();
-                break;
-            }*/
             unset($Module);
         }
     }
@@ -876,8 +845,9 @@ class ServiceConfigurationPage extends FOGPage
     public function editPost()
     {
         global $tab;
+        $name = filter_input(INPUT_POST, 'name');
         $Service = self::getClass('Service')
-            ->set('name', filter_input(INPUT_POST, 'name'))
+            ->set('name', $name)
             ->load('name');
         $Module = self::getClass('Module')
             ->set('shortName', $tab)
@@ -901,14 +871,19 @@ class ServiceConfigurationPage extends FOGPage
             switch ($tab) {
             case 'autologout':
                 $tme = (int)filter_input(INPUT_POST, 'tme');
-                if (isset($_POST['updatedefaults'])
-                    && is_numeric($tme)
-                ) {
-                    $Service->set('value', $tme);
+                if (isset($_POST['updatedefaults'])) {
+                    self::getClass('Service')
+                        ->set('name', 'FOG_CLIENT_AUTOLOGOFF_MIN')
+                        ->load('name')
+                        ->set('value', $tme)
+                        ->save();
                 }
                 break;
             case 'snapinclient':
-                self::$HookManager->processEvent('SNAPIN_CLIENT_SERVICE_POST');
+                self::$HookManager
+                    ->processEvent(
+                        'SNAPIN_CLIENT_SERVICE_POST'
+                    );
                 break;
             case 'dircleanup':
                 if (isset($_POST['adddc'])) {
@@ -941,34 +916,60 @@ class ServiceConfigurationPage extends FOGPage
                 }
                 break;
             case 'greenfog':
-                if (isset($_REQUEST['addevent'])) {
-                    if ((is_numeric($_REQUEST['h'])
-                        && is_numeric($_REQUEST['m']))
-                        && ($_REQUEST['h'] >= 0
-                        && $_REQUEST['h'] <= 23)
-                        && ($_REQUEST['m'] >= 0
-                        && $_REQUEST['m'] <= 59)
-                        && ($_REQUEST['style'] == 'r'
-                        || $_REQUEST['style'] == 's')
-                    ) {
-                        $Service->setGreenFog(
-                            $_REQUEST['h'],
-                            $_REQUEST['m'],
-                            $_REQUEST['style']
+                if (isset($_POST['addevent'])) {
+                    $h = filter_input(INPUT_POST, 'h');
+                    $m = filter_input(INPUT_POST, 'm');
+                    $a = filter_input(INPUT_POST, 'style');
+                    if ($h < 0 || $h > 23) {
+                        throw new Exception(
+                            _('Must be 0 through 23 for hours in a day.')
                         );
                     }
+                    if ($m < 0 || $h > 59) {
+                        throw new Exception(
+                            _('Must be 0 through 59 for minutes in an hour.')
+                        );
+                    }
+                    if (!in_array($a, array('r', 's'))) {
+                        throw new Exception(
+                            _('Either reboot or shutdown action must be used.')
+                        );
+                    }
+                    $Service->setGreenFog(
+                        $h,
+                        $m,
+                        $a
+                    );
                 }
-                if (isset($_REQUEST['delid'])) {
-                    $Service->remGF($_REQUEST['delid']);
+                if (isset($_POST['delid'])) {
+                    $delid = filter_input_array(
+                        INPUT_POST,
+                        array(
+                            'delid' => array(
+                                'flags' => FILTER_REQUIRE_ARRAY
+                            )
+                        )
+                    );
+                    $delid = $delid['delid'];
+                    $Service->remGF($delid);
                 }
                 break;
             case 'usercleanup':
-                $addUser = trim($_REQUEST['usr']);
+                $addUser = filter_input(INPUT_POST, 'usr');
                 if (!empty($addUser)) {
                     $Service->addUser($addUser);
                 }
-                if (isset($_REQUEST['delid'])) {
-                    $Service->remUser($_REQUEST['delid']);
+                if (isset($_POST['delid'])) {
+                    $delid = filter_input_array(
+                        INPUT_POST,
+                        array(
+                            'delid' => array(
+                                'flags' => FILTER_REQUIRE_ARRAY
+                            )
+                        )
+                    );
+                    $delid = $delid['delid'];
+                    $Service->remUser($delid);
                 }
                 break;
             case 'clientupdater':
@@ -978,27 +979,30 @@ class ServiceConfigurationPage extends FOGPage
             if (!$Service->save()) {
                 throw new Exception(_('Service update failed'));
             }
-            self::$HookManager
-                ->processEvent(
-                    'SERVICE_EDIT_SUCCESS',
-                    array('Service' => &$Service)
-                );
-            self::setMessage(_('Service Updated!'));
+            $hook = 'SERVICE_EDIT_SUCCESS';
+            $msg = json_encode(
+                array(
+                    'msg' => _('Module updated!'),
+                    'title' => _('Module Update Success')
+                )
+            );
         } catch (Exception $e) {
-            self::$HookManager
-                ->processEvent(
-                    'SERVICE_EDIT_FAIL',
-                    array('Service' => &$Service)
-                );
-            self::setMessage($e->getMessage());
+            $hook = 'SERVICE_EDIT_FAIL';
+            $msg = json_encode(
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('Module Update Fail')
+                )
+            );
         }
-        self::redirect(
-            sprintf(
-                '?node=%s#%s',
-                $_REQUEST['node'],
-                $_REQUEST['tab']
-            )
-        );
+        self::$HookManager
+            ->processEvent(
+                $hook,
+                array('Service' => &$Service)
+            );
+        unset($Service);
+        echo $msg;
+        exit;
     }
     /**
      * Redirect search call to index.
