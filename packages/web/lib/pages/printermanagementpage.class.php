@@ -303,7 +303,7 @@ class PrinterManagementPage extends FOGPage
             . 'value="'
             . $port
             . '" class="form-control printerport-input" autocomplete="off" '
-            . 'required/>'
+            . '/>'
             . '</div>'
         );
         array_walk($fields, $this->fieldsToData);
@@ -351,7 +351,7 @@ class PrinterManagementPage extends FOGPage
             . '<input type="text" name="inf" value="'
             . $inf
             . '" id="infcups" class="printerinf-input form-control" '
-            . 'required/>'
+            . '/>'
             . '</div>',
             '<label for="ipcups">'
             . _('Printer IP')
@@ -359,7 +359,7 @@ class PrinterManagementPage extends FOGPage
             . '<input type="text" name="ip" value="'
             . $ip
             . '" id="ipcups" class="printerip-input form-control" '
-            . 'required/>'
+            . '/>'
             . '</div>'
         );
         array_walk($fields, $this->fieldsToData);
@@ -408,7 +408,7 @@ class PrinterManagementPage extends FOGPage
             . 'value="'
             . $port
             . '" class="form-control printerport-input" autocomplete="off" '
-            . 'required/>'
+            . '/>'
             . '</div>',
             '<label for="inflocal">'
             . _('Printer INF File')
@@ -416,7 +416,7 @@ class PrinterManagementPage extends FOGPage
             . '<input type="text" name="inf" value="'
             . $inf
             . '" id="inflocal" class="printerinf-input form-control" '
-            . 'required/>'
+            . '/>'
             . '</div>',
             '<label for="iplocal">'
             . _('Printer IP')
@@ -424,7 +424,7 @@ class PrinterManagementPage extends FOGPage
             . '<input type="text" name="ip" value="'
             . $ip
             . '" id="iplocal" class="printerip-input form-control" '
-            . 'required/>'
+            . '/>'
             . '</div>',
             '<label for="modellocal">'
             . _('Printer Model')
@@ -432,7 +432,7 @@ class PrinterManagementPage extends FOGPage
             . '<input type="text" name="model" value="'
             . $model
             . '" id="modellocal" class="printermodel-input form-control" '
-            . 'required/>'
+            . '/>'
             . '</div>'
         );
         array_walk($fields, $this->fieldsToData);
@@ -461,12 +461,12 @@ class PrinterManagementPage extends FOGPage
         echo $printerCups;
         echo $printerLocal;
         echo '<div class="form-group">';
-        echo '<label for="addprinter" class="col-xs-4">'
+        echo '<label for="add" class="col-xs-4">'
             . _('Add New Printer')
             . '</label>';
         echo '<div class="col-xs-8">';
         echo '<button type="submit" name="add" '
-            . 'id="addprinter" '
+            . 'id="add" '
             . 'class="btn btn-info btn-block">'
             . _('Add')
             . '</button>';
@@ -703,7 +703,7 @@ class PrinterManagementPage extends FOGPage
             . 'value="'
             . $port
             . '" class="form-control printerport-input" autocomplete="off" '
-            . 'required/>'
+            . '/>'
             . '</div>'
         );
         array_walk($fields, $this->fieldsToData);
@@ -751,7 +751,7 @@ class PrinterManagementPage extends FOGPage
             . '<input type="text" name="inf" value="'
             . $inf
             . '" id="infcups" class="printerinf-input form-control" '
-            . 'required/>'
+            . '/>'
             . '</div>',
             '<label for="ipcups">'
             . _('Printer IP')
@@ -759,7 +759,7 @@ class PrinterManagementPage extends FOGPage
             . '<input type="text" name="ip" value="'
             . $ip
             . '" id="ipcups" class="printerip-input form-control" '
-            . 'required/>'
+            . '/>'
             . '</div>'
         );
         array_walk($fields, $this->fieldsToData);
@@ -808,7 +808,7 @@ class PrinterManagementPage extends FOGPage
             . 'value="'
             . $port
             . '" class="form-control printerport-input" autocomplete="off" '
-            . 'required/>'
+            . '/>'
             . '</div>',
             '<label for="inflocal">'
             . _('Printer INF File')
@@ -816,7 +816,7 @@ class PrinterManagementPage extends FOGPage
             . '<input type="text" name="inf" value="'
             . $inf
             . '" id="inflocal" class="printerinf-input form-control" '
-            . 'required/>'
+            . '/>'
             . '</div>',
             '<label for="iplocal">'
             . _('Printer IP')
@@ -824,7 +824,7 @@ class PrinterManagementPage extends FOGPage
             . '<input type="text" name="ip" value="'
             . $ip
             . '" id="iplocal" class="printerip-input form-control" '
-            . 'required/>'
+            . '/>'
             . '</div>',
             '<label for="modellocal">'
             . _('Printer Model')
@@ -832,7 +832,7 @@ class PrinterManagementPage extends FOGPage
             . '<input type="text" name="model" value="'
             . $model
             . '" id="modellocal" class="printermodel-input form-control" '
-            . 'required/>'
+            . '/>'
             . '</div>'
         );
         array_walk($fields, $this->fieldsToData);
@@ -863,12 +863,12 @@ class PrinterManagementPage extends FOGPage
         echo $printerCups;
         echo $printerLocal;
         echo '<div class="form-group">';
-        echo '<label for="printergen" class="col-xs-4">'
+        echo '<label for="updategen" class="col-xs-4">'
             . _('Make Changes?')
             . '</label>';
         echo '<div class="col-xs-8">';
         echo '<button type="submit" name="add" '
-            . 'id="printergen" '
+            . 'id="updategen" '
             . 'class="btn btn-info btn-block">'
             . _('Update')
             . '</button>';
