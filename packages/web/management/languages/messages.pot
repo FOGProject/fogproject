@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-15 15:24-0400\n"
+"POT-Creation-Date: 2017-07-15 16:21-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -664,7 +664,7 @@ msgstr ""
 
 #: /var/www/fog/lib/fog/fogbase.class.php:2215
 #: /var/www/fog/lib/fog/fogftp.class.php:372
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3158
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3162
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:87
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2459
 #: /var/www/fog/lib/reports/virus_history.report.php:35
@@ -1155,8 +1155,8 @@ msgstr ""
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:736
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:809
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1754
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2127
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2552
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2131
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2556
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:273
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:350
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:573
@@ -1781,7 +1781,7 @@ msgid "Export CSV"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3518
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3226
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3230
 #: /var/www/fog/commons/text.php:98
 msgid "Export"
 msgstr ""
@@ -1789,7 +1789,7 @@ msgstr ""
 #: /var/www/fog/lib/fog/fogpage.class.php:3595
 #: /var/www/fog/lib/fog/fogpage.class.php:3639
 #: /var/www/fog/lib/fog/fogpage.class.php:3827
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3273
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3277
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:230
 msgid "Import"
 msgstr ""
@@ -1804,7 +1804,7 @@ msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3619
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1711
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3252
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3256
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:209
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:531
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1012
@@ -1813,8 +1813,8 @@ msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3626
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1717
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2458
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3259
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2462
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3263
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:216
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:537
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1018
@@ -2017,7 +2017,7 @@ msgstr ""
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:348
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:522
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:879
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2207
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2211
 msgid "Partclone Uncompressed"
 msgstr ""
 
@@ -2039,31 +2039,31 @@ msgstr ""
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:504
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:861
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2205
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2209
 msgid "Partclone Gzip"
 msgstr ""
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:516
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:873
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2206
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2210
 msgid "Partclone Gzip Split 200MiB"
 msgstr ""
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:528
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:885
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2208
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2212
 msgid "Partclone Uncompressed Split 200MiB"
 msgstr ""
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:534
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:891
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2209
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2213
 msgid "Partclone Zstd"
 msgstr ""
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:540
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:897
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2210
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2214
 msgid "Partclone Zstd Split 200MiB"
 msgstr ""
 
@@ -2174,8 +2174,8 @@ msgstr ""
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:806
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1146
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1462
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2118
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2543
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2122
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2547
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:280
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:345
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:569
@@ -3100,7 +3100,7 @@ msgid "Item removed successfully!"
 msgstr ""
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1795
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1845
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1849
 msgid "Client Modules Change Success"
 msgstr ""
 
@@ -3108,209 +3108,209 @@ msgstr ""
 msgid "No file uploaded!"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1844
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1848
 msgid "Modules added/updated successfully!"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1852
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1856
 msgid "Client Modules Change Fail"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1866
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1870
 msgid "MAC Address Manufacturer Listing"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1876
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1880
 msgid ""
 "This section allows you to import known mac address makers into the FOG "
 "database for easier identification"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1881
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1885
 msgid "Current Records"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1898
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1902
 msgid "Delete MACs"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1904
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1908
 msgid "Update MACs"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1923
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1927
 msgid "Could not read temp file"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2049
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2053
 msgid "FOG System Settings"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2068
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2072
 msgid "This section allows you to customize or alter"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2070
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2074
 msgid "the way in which FOG operates"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2072
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2076
 msgid "Please be very careful changing any of the following settings"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2074
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2078
 msgid "as they can cause issues that are difficult to troubleshoot"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2091
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2095
 msgid "Expand All"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2350
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2354
 msgid "No image specified"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2419
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2423
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:568
 msgid "Reset Token"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2574
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2578
 msgid "No Image specified"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2804
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2808
 msgid "Width must be 650 pixels."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2809
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2813
 msgid "Height must be 120 pixels."
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2848
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2852
 msgid "Settings successfully stored!"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2849
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2853
 msgid "Settings Update Success"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2855
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2859
 msgid "Settings update failed!"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2856
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2860
 msgid "Settings Update Fail"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2947
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2951
 msgid "Service Master"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2956
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2960
 #: /var/www/fog/lib/service/taskscheduler.class.php:212
 #: /var/www/fog/commons/text.php:102
 msgid "Multicast"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2965
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2969
 msgid "Scheduler"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2974
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2978
 msgid "Image Replicator"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2983
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2987
 msgid "Image Size"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2992
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2996
 msgid "Snapin Replicator"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3001
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3005
 msgid "Snapin Hash"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3010
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3014
 msgid "Ping Hosts"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3052
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3056
 msgid "Image Transfer Log"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3066
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3070
 msgid "Snapin Transfer Log"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3144
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3148
 msgid "FOG Log Viewer"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3166
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3170
 msgid "Lines"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3176
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3180
 msgid "Reverse the file: (newest on top)"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3182
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3186
 msgid "Pause"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3201
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3205
 msgid "Configuration Import/Export"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3221
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3225
 msgid "Export Database?"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3240
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3244
 msgid "Export Database"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3250
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3269
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3254
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3273
 msgid "Import Database?"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3282
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3286
 msgid "Import Database"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3330
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3334
 msgid "Import Successful"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3334
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3338
 msgid "Database imported and added successfully!"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3345
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3349
 msgid "Import Failed"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3349
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3353
 msgid "There were errors during import!"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3358
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3362
 msgid "Database Reverted"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3361
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3365
 msgid "Database changes reverted!"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3368
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3372
 msgid "Database Failure"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3372
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3376
 msgid "Errors on revert detected!"
 msgstr ""
 
