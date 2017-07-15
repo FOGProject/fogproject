@@ -3,14 +3,14 @@ $(function() {
         submitHandler: submithandlerfunc
     };
     setInterval(function() {
-        $('#deletedc, #updatedc, #updatescreen, #deleteevent, #addevent, #deleteuc, #updateuc, button[name="updatestatus"], button[name="updatedefaults"]').each(function(e) {
+        $('#deletedc, #updatedc, #updatescreen, #deleteevent, #addevent, #deletecu, button[name="updatestatus"], button[name="updatedefaults"]').each(function(e) {
             if ($(this).is(':visible')) {
-                form = $(this).parents('form');
-                validator = form.validate(validatorOpts);
+                $(this).on('click', function(e) {
+                    form = $(this).parents('form');
+                    validator = form.validate(validatorOpts);
+                    data = this.name;
+                });
             }
-            $(this).on('click', function(e) {
-                data = this.name;
-            });
         });
     }, 1000);
     $('input[name=delcu]:checkbox').click(function(e) {

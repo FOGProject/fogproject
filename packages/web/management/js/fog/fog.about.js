@@ -4,12 +4,14 @@ $(function() {
         submitHandler: submithandlerfunc
     };
     setInterval(function() {
-        $('button[name="update"], button[type="submit"]:not(#importbtn, #export), #menuSet, #hideSet, #exitSet, #advSet, button[name="saveform"], button[name="delform"], #deletecu, #upload').each(function(e) {
-            form = $(this).parents('form');
-            validator = form.validate(validatorOpts);
-            $(this).on('click', function(e) {
-                data = this.name;
-            });
+        $('button[name="update"], button[type="submit"]:not(#importbtn, #export, #upload), #menuSet, #hideSet, #exitSet, #advSet, button[name="saveform"], button[name="delform"], #deletecu').each(function(e) {
+            if ($(this).is(':visible')) {
+                $(this).on('click', function(e) {
+                    data = this.name;
+                    form = $(this).parents('form');
+                    validator = form.validate(validatorOpts);
+                });
+            }
         });
     }, 1000);
     $.ajax({

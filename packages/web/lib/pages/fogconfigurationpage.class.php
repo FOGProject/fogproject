@@ -1838,6 +1838,10 @@ class FOGConfigurationPage extends FOGPage
                         ->set('file', $content)
                         ->save();
                 }
+                global $tab;
+                self::redirect(
+                    $this->formAction
+                );
             }
             $msg = json_encode(
                 array(
