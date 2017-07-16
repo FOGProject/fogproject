@@ -2068,7 +2068,7 @@ class FOGConfigurationPage extends FOGPage
         echo '<div class="panel-body">';
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
-            . '">';
+            . '" enctype="multipart/form-data">';
         echo _('This section allows you to customize or alter')
             . ' '
             . _('the way in which FOG operates')
@@ -2460,12 +2460,14 @@ class FOGConfigurationPage extends FOGPage
                     . '<label class="input-group-btn">'
                     . '<span class="btn btn-info">'
                     . _('Browse')
-                    . '<input type="file" class="hidden newbanner" name='
+                    . '<input type="file" class="hidden" name='
                     . '"${service_id}" id="${service_name}"/>'
                     . '</span>'
                     . '</label>'
                     . '<input type="text" class="form-control filedisp" '
                     . 'value="${service_value}" readonly/>'
+                    . '<input type="hidden" class="filedisp" '
+                    . 'value="${service_value}" name="banner"/>'
                     . '</div>';
                 break;
             case 'FOG_CLIENT_BANNER_SHA':
@@ -2776,10 +2778,9 @@ class FOGConfigurationPage extends FOGPage
                 case 'FOG_CLIENT_BANNER_SHA':
                     continue 2;
                 case 'FOG_CLIENT_BANNER_IMAGE':
-                    $Service
-                        ->set('value', $_REQUEST['banner'])
-                        ->save();
-                    if (!$_REQUEST['banner']) {
+                    $banner = filter_input(INPUT_POST, 'banner');
+                    $set = $banner;
+                    if (!$banner) {
                         self::setSetting('FOG_CLIENT_BANNER_SHA', '');
                     }
                     if (!($_FILES[$key]['name']
@@ -2853,12 +2854,47 @@ class FOGConfigurationPage extends FOGPage
                     'title' => _('Settings Update Success')
                 )
             );
+            if (isset($_POST['Rebranding'])) {
+                echo '<div class="col-xs-9">';
+                echo '<div class="panel panel-success">';
+                echo '<div class="panel-heading text-center">';
+                echo '<h4 class="title">';
+                echo _('Service Setting Update Success');
+                echo '</h4>';
+                echo '</div>';
+                echo '<div class="panel-body">';
+                echo _('Rebranding element has been successfully updated!');
+                echo '</div>';
+                echo '</div>';
+                echo '</div>';
+                return;
+            }
         } catch (Exception $e) {
             $msg = json_encode(
                 array(
-                    'error' => _('Settings update failed!'),
+                    'error' => $e->getMessage(),
                     'title' => _('Settings Update Fail')
                 )
+            );
+            if (isset($_POST['Rebranding'])) {
+                echo '<div class="col-xs-9">';
+                echo '<div class="panel panel-warning">';
+                echo '<div class="panel-heading text-center">';
+                echo '<h4 class="title">';
+                echo _('Service Setting Update Failed');
+                echo '</h4>';
+                echo '</div>';
+                echo '<div class="panel-body">';
+                echo $e->getMessage();
+                echo '</div>';
+                echo '</div>';
+                echo '</div>';
+                return;
+            }
+        }
+        if (isset($_POST['Rebranding'])) {
+            self::redirect(
+                $this->formAction
             );
         }
         echo $msg;
