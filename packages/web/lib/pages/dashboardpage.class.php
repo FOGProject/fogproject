@@ -526,8 +526,18 @@ class DashboardPage extends FOGPage
         session_write_close();
         ignore_user_abort(true);
         set_time_limit(0);
-        $sent = $_REQUEST['url'];
-        $names = $_REQUEST['names'];
+        $sent = filter_input(
+            INPUT_GET,
+            'url',
+            FILTER_DEFAULT,
+            FILTER_REQUIRE_ARRAY
+        );
+        $names = filter_input(
+            INPUT_GET,
+            'names',
+            FILTER_DEFAULT,
+            FILTER_REQUIRE_ARRAY
+        );
         $urls = array();
         foreach ((array)$sent as &$url) {
             $urls[] = $url;

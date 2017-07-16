@@ -3144,7 +3144,7 @@ class FOGConfigurationPage extends FOGPage
                     self::aesencrypt($ip[$nodename]),
                     $file,
                     (
-                        $value == $_REQUEST['logtype'] ?
+                        $value == $_POST['logtype'] ?
                         ' selected' :
                         ''
                     ),
@@ -3171,7 +3171,7 @@ class FOGConfigurationPage extends FOGPage
                 '<option value="%s"%s>%s</option>',
                 $value,
                 (
-                    $value == $_REQUEST['n'] ?
+                    $value == $_POST['n'] ?
                     ' selected' :
                     ''
                 ),

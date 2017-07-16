@@ -456,7 +456,7 @@ class TaskManagementPage extends FOGPage
             if (!$$var->isValid()) {
                 throw new Exception(_(sprintf('Invalid %s', $var)));
             }
-            $TaskType = new TaskType($_REQUEST['type']);
+            $TaskType = new TaskType($_POST['type']);
             if (!$TaskType->isValid()) {
                 throw new Exception(_('Invalid Task Type'));
             }
@@ -647,7 +647,7 @@ class TaskManagementPage extends FOGPage
         if (!self::$ajax) {
             $this->_nonajax();
         }
-        self::getClass('TaskManager')->cancel($_REQUEST['task']);
+        self::getClass('TaskManager')->cancel($_POST['task']);
         exit;
     }
     /**
@@ -795,7 +795,7 @@ class TaskManagementPage extends FOGPage
         if (!self::$ajax) {
             $this->_nonajax();
         }
-        $MulticastSessionIDs = (array)$_REQUEST['task'];
+        $MulticastSessionIDs = (array)$_POST['task'];
         $TaskIDs = self::getSubObjectIDs(
             'MulticastSessionAssociation',
             array(
@@ -804,7 +804,7 @@ class TaskManagementPage extends FOGPage
             'taskID'
         );
         self::getClass('TaskManager')->cancel($TaskIDs);
-        self::getClass('MulticastSessionManager')->cancel($_REQUEST['task']);
+        self::getClass('MulticastSessionManager')->cancel($_POST['task']);
         unset($MulticastSessionIDs);
         exit;
     }
@@ -938,7 +938,7 @@ class TaskManagementPage extends FOGPage
         if (!self::$ajax) {
             $this->_nonajax();
         }
-        $SnapinTaskIDs = (array)$_REQUEST['task'];
+        $SnapinTaskIDs = (array)$_POST['task'];
         if (count($SnapinTaskIDs) > 0) {
             $SnapinJobIDs = self::getSubObjectIDs(
                 'SnapinTask',
@@ -1139,7 +1139,7 @@ class TaskManagementPage extends FOGPage
         }
         self::getClass('ScheduledTaskManager')
             ->destroy(
-                array('id' => $_REQUEST['task'])
+                array('id' => $_POST['task'])
             );
         exit;
     }
