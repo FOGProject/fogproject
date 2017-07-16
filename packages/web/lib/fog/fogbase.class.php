@@ -317,6 +317,7 @@ abstract class FOGBase
         self::$EventManager = &$EventManager;
         self::$HookManager = &$HookManager;
         self::$FOGUser = &$currentUser;
+        global $sub;
         $scriptPattern = 'service';
         $queryPattern = 'sub=requestClientInfo';
         self::$querystring = filter_input(INPUT_SERVER, 'QUERY_STRING');
@@ -332,11 +333,13 @@ abstract class FOGBase
         }
         self::$ajax = false !== stripos(self::$httpreqwith, 'xmlhttprequest');
         self::$post = false !== stripos(self::$reqmethod, 'post');
-        self::$newService = isset($_REQUEST['newService'])
-            || $_REQUEST['sub'] == 'requestClientInfo';
-        self::$json = isset($_REQUEST['json'])
+        self::$newService = isset($_POST['newService'])
+            || isset($_GET['newService'])
+            || $sub == 'requestClientInfo';
+        self::$json = isset($_POST['json'])
+            || isset($_GET['json'])
             || self::$newService
-            || $_REQUEST['sub'] == 'requestClientInfo';
+            || $sub == 'requestClientInfo';
         self::$FOGURLRequests = &$FOGURLRequests;
         self::$FOGPageManager = &$FOGPageManager;
         self::$TimeZone = &$TimeZone;
@@ -474,8 +477,14 @@ abstract class FOGBase
         $override = false
     ) {
         // Store the mac
-        $mac = $_REQUEST['mac'];
-        $sysuuid = $_REQUEST['sysuuid'];
+        $mac = filter_input(INPUT_POST, 'mac');
+        if (!$mac) {
+            $mac = filter_input(INPUT_GET, 'mac');
+        }
+        $sysuuid = filter_input(INPUT_POST, 'sysuuid');
+        if (!$sysuuid) {
+            $sysuuid = filter_input(INPUT_GET, 'sysuuid');
+        }
 
         // If encoded decode and store value
         if ($encoded === true) {
@@ -517,7 +526,7 @@ abstract class FOGBase
                 $msg = sprintf(
                     '%s %s',
                     self::$foglang['InvalidMAC'],
-                    $_REQUEST['mac']
+                    $mac
                 );
             }
             throw new Exception($msg);
@@ -928,7 +937,7 @@ abstract class FOGBase
         }
         $sesVars = $_SESSION['post_request_vals'];
         $setReq = function (&$val, &$key) {
-            $_REQUEST[$key] = $val;
+            $_POST[$key] = $val;
             unset($val, $key);
         };
         if (count($sesVars) > 0) {

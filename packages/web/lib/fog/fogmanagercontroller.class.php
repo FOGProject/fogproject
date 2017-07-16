@@ -981,7 +981,7 @@ abstract class FOGManagerController extends FOGBase
     public function search($keyword = '', $returnObjects = false)
     {
         if (empty($keyword)) {
-            $keyword = trim($_REQUEST['crit']);
+            $keyword = filter_input(INPUT_POST, 'crit');
         }
         $mac_keyword = str_replace(
             array('-', ':'),

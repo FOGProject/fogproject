@@ -1794,9 +1794,10 @@ class Config
      */
     public function __construct()
     {
+        global \$node;
         self::_dbSettings();
         self::_svcSetting();
-        if (\$_REQUEST['node'] == 'schema') {
+        if (\$node == 'schema') {
             self::_initSetting();
         }
     }

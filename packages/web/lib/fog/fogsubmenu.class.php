@@ -151,7 +151,9 @@ class FOGSubMenu extends FOGBase
         } else {
             $variableSetter = $ifVariableTitle;
         }
-        if (isset($_REQUEST[$ifVariable])) {
+        if (isset($_POST[$ifVariable])
+            || isset($_GET[$ifVariable])
+        ) {
             global $$ifVariable;
             foreach ((array) $items as $title => $link) {
                 global $$ifVariable;
@@ -213,7 +215,9 @@ class FOGSubMenu extends FOGBase
         } else {
             $variableSetter = $ifVariableTitle;
         }
-        if (isset($_REQUEST[$ifVariable])) {
+        if (isset($_POST[$ifVariable])
+            || isset($_GET[$ifVariable])
+        ) {
             global $$ifVariable;
             foreach ((array) $items as $title => $link) {
                 global $$ifVariable;

@@ -513,7 +513,7 @@ class Route extends FOGBase
     public static function search($class, $item)
     {
         $classname = strtolower($class);
-        $_REQUEST['crit'] = $item;
+        $_POST['crit'] = $item;
         $classman = self::getClass($class)->getManager();
         self::$data = array();
         self::$data['count'] = 0;
