@@ -345,34 +345,43 @@ class HostManagementPage extends FOGPage
      */
     public function pendingPost()
     {
-        if (isset($_REQUEST['approvependhost'])) {
+        $host = filter_input_array(
+            INPUT_POST,
+            array(
+                'host' => array(
+                    'flags' => FILTER_REQUIRE_ARRAY
+                )
+            )
+        );
+        $host = $host['host'];
+        if (isset($_POST['approvependhost'])) {
             self::getClass('HostManager')->update(
                 array(
-                    'id' => $_REQUEST['host']
+                    'id' => $host
                 ),
                 '',
                 array('pending' => 0)
             );
+            $title = _('Approve Success');
+            $msg = _('Selected hosts approved successfully');
         }
-        if (isset($_REQUEST['delpendhost'])) {
+        if (isset($_POST['delpendhost'])) {
             self::getClass('HostManager')->destroy(
                 array(
-                    'id' => $_REQUEST['host']
+                    'id' => $host
                 )
             );
+            $title = _('Deleted Success');
+            $msg = _('Selected hosts deleted successfully');
         }
-        if (isset($_REQUEST['approvependhost'])) {
-            $appdel = _('approved');
-        } else {
-            $appdel = _('deleted');
-        }
-        $msg = sprintf(
-            '%s %s %s',
-            _('All hosts'),
-            $appdel,
-            _('successfully')
+        $msg = json_encode(
+            array(
+                'msg' => $msg,
+                'title' => $title
+            )
         );
-        self::redirect("?node=$this->node");
+        echo $msg;
+        exit;
     }
     /**
      * Creates a new host entry manually.

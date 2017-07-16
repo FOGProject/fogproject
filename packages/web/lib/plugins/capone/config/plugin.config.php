@@ -22,9 +22,6 @@
 $fog_plugin = array();
 $fog_plugin['name'] = 'capone';
 $fog_plugin['description'] = 'Capone is a automation plugin for fog.';
-$fog_plugin['menuicon'] = sprintf(
-    'html/images/%s.jpg',
-    $fog_plugin['name']
-);
+$fog_plugin['menuicon'] = 'fa fa-barcode fa-fw';
 $fog_plugin['menuicon_hover'] = null;
 $fog_plugin['entrypoint'] = 'html/run.php';

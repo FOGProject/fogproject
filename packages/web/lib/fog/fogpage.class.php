@@ -1947,10 +1947,12 @@ abstract class FOGPage extends FOGBase
     public function deletemultiAjax()
     {
         if (self::getSetting('FOG_REAUTH_ON_DELETE')) {
+            $user = filter_input(INPUT_POST, 'fogguiuser');
+            $pass = filter_input(INPUT_POST, 'fogguipass');
             $validate = self::getClass('User')
                 ->passwordValidate(
-                    $_REQUEST['fogguiuser'],
-                    $_REQUEST['fogguipass'],
+                    $user,
+                    $pass,
                     true
                 );
             if (!$validate) {
@@ -1961,17 +1963,25 @@ abstract class FOGPage extends FOGBase
                 exit;
             }
         }
+        $remitems = filter_input_array(
+            INPUT_POST,
+            array(
+                'remitems' => array(
+                    'flags' => FILTER_REQUIRE_ARRAY
+                )
+            )
+        );
         self::$HookManager->processEvent(
             'MULTI_REMOVE',
-            array('removing' => &$_REQUEST['remitems'])
+            array('removing' => &$remitems)
         );
-        if ((int)$_REQUEST['storagegroup'] === 1) {
+        if ((int)$_POST['storagegroup'] === 1) {
             $this->childClass = 'StorageGroup';
         }
         self::getClass($this->childClass)
             ->getManager()
             ->destroy(
-                array('id' => $_REQUEST['remitems'])
+                array('id' => $remitems)
             );
         self::setMessage(
             _('All selected items have been deleted')
@@ -2585,7 +2595,8 @@ abstract class FOGPage extends FOGBase
                     )
                 );
             }
-            $MAC = self::getClass('MACAddress', $_REQUEST['prefix']);
+            $pref = filter_input(INPUT_POST, 'prefix');
+            $MAC = self::getClass('MACAddress', $pref);
             $prefix = $MAC->getMACPrefix();
             if (!$MAC->isValid() || !$prefix) {
                 throw new Exception(_('Unknown'));
@@ -2595,9 +2606,9 @@ abstract class FOGPage extends FOGBase
             if (!(($OUI instanceof OUI) && $OUI->isValid())) {
                 throw new Exception(_('Not found'));
             }
-            $Data = sprintf('<small>%s</small>', $OUI->get('name'));
+            $Data = sprintf('%s', $OUI->get('name'));
         } catch (Exception $e) {
-            $Data = sprintf('<small>%s</small>', $e->getMessage());
+            $Data = sprintf('%s', $e->getMessage());
         }
         echo $Data;
         exit;
@@ -2744,13 +2755,21 @@ abstract class FOGPage extends FOGBase
     {
         try {
             $Host = self::getHostItem(true);
+            $sym_key = filter_input(INPUT_POST, 'sym_key');
+            if (!$sym_key) {
+                $sym_key = filter_input(INPUT_GET, 'sym_key');
+            }
+            $token = filter_input(INPUT_POST, 'token');
+            if (!$token) {
+                $token = filter_input(INPUT_GET, 'token');
+            }
             $data = array_values(
                 array_map(
                     'bin2hex',
                     self::certDecrypt(
                         array(
-                            $_REQUEST['sym_key'],
-                            $_REQUEST['token']
+                            $sym_key,
+                            $token
                         )
                     )
                 )
@@ -2840,7 +2859,9 @@ abstract class FOGPage extends FOGBase
      */
     public function requestClientInfo()
     {
-        if (isset($_REQUEST['configure'])) {
+        if (isset($_POST['configure'])
+            || isset($_GET['configure'])
+        ) {
             list(
                 $bannerimg,
                 $bannersha,
@@ -2891,7 +2912,9 @@ abstract class FOGPage extends FOGBase
             echo json_encode($vals);
             exit;
         }
-        if (isset($_REQUEST['authorize'])) {
+        if (isset($_POST['authorize'])
+            || isset($_GET['authorize'])
+        ) {
             $this->authorize(true);
         }
         // Handles adding additional system macs for us.
@@ -3477,7 +3500,11 @@ abstract class FOGPage extends FOGBase
      */
     public function wakeEmUp()
     {
-        $macs = self::parseMacList($_REQUEST['mac']);
+        $mac = filter_input(INPUT_POST, 'mac');
+        if (!$mac) {
+            $mac = filter_input(INPUT_GET, 'mac');
+        }
+        $macs = self::parseMacList($mac);
         if (count($macs) < 1) {
             return;
         }

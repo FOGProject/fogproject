@@ -1035,7 +1035,10 @@ class Host extends FOGController
             'up',
             'down'
         );
-        $type = strtolower($_REQUEST['type']);
+        $type = filter_input(INPUT_POST, 'type');
+        if (!$type) {
+            $type = filter_input(INPUT_GET, 'type');
+        }
         $type = trim($type);
         if (in_array($type, $types)) {
             if ($type === 'up') {

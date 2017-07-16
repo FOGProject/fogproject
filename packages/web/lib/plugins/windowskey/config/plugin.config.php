@@ -35,6 +35,6 @@ $fog_plugin['description'] = sprintf(
     _('When the plugin is removed, the assigned key will remain'),
     _('with the host')
 );
-$fog_plugin['menuicon'] = 'fa fa-windows fa-3x fa-fw';
+$fog_plugin['menuicon'] = 'fa fa-windows fa-fw';
 $fog_plugin['menuicon_hover'] = null;
 $fog_plugin['entrypoint'] = 'html/run.php';

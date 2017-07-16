@@ -32,6 +32,6 @@ $fog_plugin['description'] = sprintf(
     _('sites with clients moving back and forth'),
     _('between different sites')
 );
-$fog_plugin['menuicon'] = 'fa fa-globe fa-3x fa-fw';
+$fog_plugin['menuicon'] = 'fa fa-globe fa-fw';
 $fog_plugin['menuicon_hover'] = null;
 $fog_plugin['entrypoint'] = 'html/run.php';
