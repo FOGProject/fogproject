@@ -4,7 +4,7 @@ $(function() {
         submitHandler: submithandlerfunc
     };
     setInterval(function() {
-        $('button[name="update"], button[type="submit"]:not(#importbtn, #export, #upload), #menuSet, #hideSet, #exitSet, #advSet, button[name="saveform"], button[name="delform"], #deletecu').each(function(e) {
+        $('button[name="update"], button[type="submit"]:not(#importbtn, #export, #upload, #Rebranding), #menuSet, #hideSet, #exitSet, #advSet, button[name="saveform"], button[name="delform"], #deletecu').each(function(e) {
             if ($(this).is(':visible')) {
                 $(this).on('click', function(e) {
                     data = this.name;
@@ -61,7 +61,7 @@ $(function() {
         name = $(this).attr('identi');
         $('#uploader').html('<input type="file" name="'+name+'" class="newbanner"/>').find('input').click();
     });
-    $(document).on('change', '.newbanner', function(e) {
+    $(document).on('change', '#FOG_CLIENT_BANNER_IMAGE', function(e) {
         filename = this.value;
         filename = filename.replace(/\\/g, '/').replace(/.*\//, "");
         $('input[name="banner"]').val(filename);
