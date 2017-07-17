@@ -45,7 +45,8 @@ class PushbulletManagementPage extends FOGPage
             ),
             'add' => _('Link Pushbullet Account'),
         );
-        if ($_REQUEST['id']) {
+        global $id;
+        if ($id) {
             unset($this->subMenu);
         }
         $this->headerData = array(
@@ -121,23 +122,24 @@ class PushbulletManagementPage extends FOGPage
             . $value
             . '"/>'
             . '</div>',
-            '<label for="addpb">'
+            '<label for="add">'
             . _('Add Pushbullet Account')
             . '</label>' => '<button type="submit" name="add" class="'
-            . 'btn btn-info btn-block" id="addpb">'
+            . 'btn btn-info btn-block" id="add">'
             . _('Add')
             . '</button>'
         );
         array_walk($fields, $this->fieldsToData);
-        self::$HookManager->processEvent(
-            'PUSHBULLET_ADD',
-            array(
-                'headerData' => &$this->headerData,
-                'data' => &$this->data,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
-            )
-        );
+        self::$HookManager
+            ->processEvent(
+                'PUSHBULLET_ADD',
+                array(
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes,
+                    'headerData' => &$this->headerData
+                )
+            );
         echo '<div class="col-xs-9">';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
@@ -172,7 +174,7 @@ class PushbulletManagementPage extends FOGPage
             $PushExists = self::getClass('PushbulletManager')
                 ->exists(
                     $token,
-                    0,
+                    '',
                     'token'
                 );
             if ($PushExists) {
@@ -194,7 +196,9 @@ class PushbulletManagementPage extends FOGPage
                 ->set('name', $userInfo->name)
                 ->set('email', $userInfo->email);
             if (!$Bullet->save()) {
-                throw new Exception(_('Failed to create'));
+                throw new Exception(
+                    _('Failed to create')
+                );
             }
             self::getClass(
                 'PushbulletHandler',
@@ -204,11 +208,22 @@ class PushbulletManagementPage extends FOGPage
                 'FOG',
                 'Account linked'
             );
-            self::setMessage(_('Account Added!'));
-            self::redirect('?node=pushbullet&sub=list');
+            $msg = json_encode(
+                array(
+                    'msg' => _('Account successfully added!'),
+                    'title' => _('Link Pushbullet Account Success')
+                )
+            );
         } catch (Exception $e) {
-            self::setMessage($e->getMessage());
-            self::redirect($this->formAction);
+            $msg = json_encode(
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('Link Pushbullet Account Fail')
+                )
+            );
         }
+        unset($Bullet);
+        echo $msg;
+        exit;
     }
 }

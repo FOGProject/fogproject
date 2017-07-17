@@ -61,16 +61,9 @@ $(function() {
         });
         $('.imagename-input, #storagegroup, #os, .imagefile-input, #imagetype').each(function(e) {
             if ($(this).is(':visible')) {
-                if (!$(this).hasClass('isvisible')) {
-                    $(this).addClass('isvisible');
-                }
                 $(this).on('keyup change blur', function(e) {
                     return validator.element(this);
                 }).trigger('change');
-            } else {
-                if ($(this).hasClass('isvisible')) {
-                    $(this).removeClass('isvisible');
-                }
             }
         });
     }, 1000);

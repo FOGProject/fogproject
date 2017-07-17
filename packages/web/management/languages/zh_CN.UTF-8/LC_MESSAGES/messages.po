@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-15 23:40-0400\n"
+"POT-Creation-Date: 2017-07-16 21:34-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -216,7 +216,7 @@ msgstr "未发现记录，错误： %s"
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:61
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:119
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:221
-#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:54
+#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:55
 #: /var/www/fog/lib/reports/equipment_loan.report.php:159
 #: /var/www/fog/lib/service/fogservice.class.php:391
 #: /var/www/fog/lib/service/fogservice.class.php:420
@@ -1212,7 +1212,7 @@ msgid "Create new group"
 msgstr "创建新组"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:666
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:180
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:213
 #: /var/www/fog/commons/text.php:94
 msgid "or"
 msgstr "要么"
@@ -1317,8 +1317,6 @@ msgstr "删除所选"
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:1010
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:1463
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:568
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:54
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:66
 #: /var/www/fog/lib/plugins/accesscontrol/hooks/accesscontrolindexdiv.hook.php:123
 #: /var/www/fog/lib/reports/virus_history.report.php:59
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:176
@@ -1769,7 +1767,7 @@ msgstr ""
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1251
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:457
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:1218
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:135
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:149
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:149
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:366
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1005
@@ -1782,7 +1780,7 @@ msgstr ""
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:145
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:382
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:531
-#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:128
+#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:129
 #: /var/www/fog/commons/text.php:31
 msgid "Add"
 msgstr "加"
@@ -6589,71 +6587,76 @@ msgstr ""
 msgid "Completed imaging"
 msgstr "完成"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:42
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:44
 #: /var/www/fog/lib/plugins/slack/hooks/addslackmenuitem.hook.php:87
 msgid "Slack Accounts"
 msgstr "斯莱克账户"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:43
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:46
 msgid "Link Slack Account"
 msgstr "链接松弛账户"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:51
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:55
 msgid "Team"
 msgstr "球队"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:52
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:56
 #: /var/www/fog/lib/reports/imaging_log.report.php:33
 #: /var/www/fog/lib/reports/imaging_log.report.php:51
 msgid "Created By"
 msgstr "由...制作"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:53
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:57
 msgid "User/Channel Name"
 msgstr "用户/通道名称"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:113
-#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:102
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:111
+#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:103
 msgid "Link New Account"
 msgstr "链接新帐号"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:124
-#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:117
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:130
+#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:118
 msgid "Access Token"
 msgstr "访问令牌"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:129
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:138
 msgid "User/Channel to post to"
 msgstr "用户/通道张贴到"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:179
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:146
+#, fuzzy
+msgid "Add Slack Account"
+msgstr "斯莱克账户"
+
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:212
 msgid "Must use an"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:181
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:214
 #, fuzzy
 msgid "to signify if this is a user or channel to send to"
 msgstr "必须使用@或＃来表示，如果这是一个用户或通道发送消息到！"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:187
-#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:185
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:220
+#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:187
 msgid "Please enter an access token"
 msgstr "请输入访问令牌"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:193
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:228
 msgid "Invalid token passed"
 msgstr "无效的令牌传递"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:203
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:240
 msgid "Invalid user and/or channel passed"
 msgstr "无效的用户和/或通道通过"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:214
-#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:180
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:253
+#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:182
 msgid "Account already linked"
 msgstr "帐户已链接"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:217
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:258
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:200
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:411
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:683
@@ -6662,18 +6665,29 @@ msgstr "帐户已链接"
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:247
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:186
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:188
-#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:197
+#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:200
 msgid "Failed to create"
 msgstr "无法创建"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:224
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:266
 msgid "Account linked to FOG GUI at"
 msgstr "帐户相关联的雾GUI"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:229
-#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:207
-msgid "Account Added!"
-msgstr "帐户添加！"
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:276
+#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:213
+#, fuzzy
+msgid "Account successfully added!"
+msgstr "成功更新"
+
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:277
+#, fuzzy
+msgid "Link Slack Account Success"
+msgstr "链接松弛账户"
+
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:284
+#, fuzzy
+msgid "Link Slack Account Fail"
+msgstr "链接松弛账户"
 
 #: /var/www/fog/lib/plugins/slack/hooks/removeslackitem.hook.php:92
 #: /var/www/fog/lib/plugins/slack/hooks/removeslackitem.hook.php:121
@@ -7850,14 +7864,24 @@ msgstr "Pushbullet账户"
 msgid "Link Pushbullet Account"
 msgstr "链接Pushbullet账户"
 
-#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:55
+#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:56
 msgid "Email"
 msgstr "电子邮件"
 
-#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:125
+#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:126
 #, fuzzy
 msgid "Add Pushbullet Account"
 msgstr "Pushbullet账户"
+
+#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:214
+#, fuzzy
+msgid "Link Pushbullet Account Success"
+msgstr "链接Pushbullet账户"
+
+#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:221
+#, fuzzy
+msgid "Link Pushbullet Account Fail"
+msgstr "链接Pushbullet账户"
 
 #: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:40
 #, fuzzy
@@ -10372,6 +10396,9 @@ msgstr "你好FOG客户端"
 msgid "There are no locations on this server"
 msgstr "有此服务器上没有的位置。"
 
+#~ msgid "Account Added!"
+#~ msgstr "帐户添加！"
+
 #, fuzzy
 #~ msgid "approved"
 #~ msgstr "主机批准"
@@ -10426,9 +10453,6 @@ msgstr "有此服务器上没有的位置。"
 #, fuzzy
 #~ msgid "All done"
 #~ msgstr "所有主机"
-
-#~ msgid "successfully updated"
-#~ msgstr "成功更新"
 
 #~ msgid "Menu Added"
 #~ msgstr "菜单中添加"

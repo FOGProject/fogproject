@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-15 23:40-0400\n"
+"POT-Creation-Date: 2017-07-16 21:34-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -219,7 +219,7 @@ msgstr "Registro no encontrado, error: %s"
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:61
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:119
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:221
-#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:54
+#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:55
 #: /var/www/fog/lib/reports/equipment_loan.report.php:159
 #: /var/www/fog/lib/service/fogservice.class.php:391
 #: /var/www/fog/lib/service/fogservice.class.php:420
@@ -1220,7 +1220,7 @@ msgid "Create new group"
 msgstr "Crear nuevo grupo"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:666
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:180
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:213
 #: /var/www/fog/commons/text.php:94
 #, fuzzy
 msgid "or"
@@ -1326,8 +1326,6 @@ msgstr "Eliminar seleccionado"
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:1010
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:1463
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:568
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:54
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:66
 #: /var/www/fog/lib/plugins/accesscontrol/hooks/accesscontrolindexdiv.hook.php:123
 #: /var/www/fog/lib/reports/virus_history.report.php:59
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:176
@@ -1779,7 +1777,7 @@ msgstr ""
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1251
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:457
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:1218
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:135
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:149
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:149
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:366
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1005
@@ -1792,7 +1790,7 @@ msgstr ""
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:145
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:382
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:531
-#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:128
+#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:129
 #: /var/www/fog/commons/text.php:31
 msgid "Add"
 msgstr "Añadir"
@@ -6678,75 +6676,80 @@ msgstr ""
 msgid "Completed imaging"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:42
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:44
 #: /var/www/fog/lib/plugins/slack/hooks/addslackmenuitem.hook.php:87
 msgid "Slack Accounts"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:43
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:46
 msgid "Link Slack Account"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:51
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:55
 msgid "Team"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:52
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:56
 #: /var/www/fog/lib/reports/imaging_log.report.php:33
 #: /var/www/fog/lib/reports/imaging_log.report.php:51
 #, fuzzy
 msgid "Created By"
 msgstr "Creado"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:53
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:57
 #, fuzzy
 msgid "User/Channel Name"
 msgstr "Nombre del núcleo"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:113
-#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:102
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:111
+#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:103
 msgid "Link New Account"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:124
-#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:117
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:130
+#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:118
 msgid "Access Token"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:129
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:138
 msgid "User/Channel to post to"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:179
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:146
+#, fuzzy
+msgid "Add Slack Account"
+msgstr "Añadir nueva cuenta de usuario"
+
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:212
 msgid "Must use an"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:181
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:214
 msgid "to signify if this is a user or channel to send to"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:187
-#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:185
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:220
+#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:187
 #, fuzzy
 msgid "Please enter an access token"
 msgstr "Por favor seleccione una opción"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:193
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:228
 #, fuzzy
 msgid "Invalid token passed"
 msgstr "unidad no válida pasó"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:203
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:240
 #, fuzzy
 msgid "Invalid user and/or channel passed"
 msgstr "Tipo de objeto no válido pasó"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:214
-#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:180
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:253
+#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:182
 msgid "Account already linked"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:217
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:258
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:200
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:411
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:683
@@ -6755,18 +6758,27 @@ msgstr ""
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:247
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:186
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:188
-#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:197
+#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:200
 #, fuzzy
 msgid "Failed to create"
 msgstr "No se pudo crear la tarea"
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:224
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:266
 msgid "Account linked to FOG GUI at"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:229
-#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:207
-msgid "Account Added!"
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:276
+#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:213
+#, fuzzy
+msgid "Account successfully added!"
+msgstr "actualizado exitosamente"
+
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:277
+msgid "Link Slack Account Success"
+msgstr ""
+
+#: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:284
+msgid "Link Slack Account Fail"
 msgstr ""
 
 #: /var/www/fog/lib/plugins/slack/hooks/removeslackitem.hook.php:92
@@ -7940,14 +7952,24 @@ msgstr ""
 msgid "Link Pushbullet Account"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:55
+#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:56
 #, fuzzy
 msgid "Email"
 msgstr "Diariamente"
 
-#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:125
+#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:126
 #, fuzzy
 msgid "Add Pushbullet Account"
+msgstr "Añadir nueva cuenta de usuario"
+
+#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:214
+#, fuzzy
+msgid "Link Pushbullet Account Success"
+msgstr "Añadir nueva cuenta de usuario"
+
+#: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:221
+#, fuzzy
+msgid "Link Pushbullet Account Fail"
 msgstr "Añadir nueva cuenta de usuario"
 
 #: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:40
@@ -10678,9 +10700,6 @@ msgstr "No hay grupos en este servidor."
 #, fuzzy
 #~ msgid "A broadcast with that name already exists."
 #~ msgstr "Sesión con ese nombre ya existe"
-
-#~ msgid "successfully updated"
-#~ msgstr "actualizado exitosamente"
 
 #~ msgid "Menu Added"
 #~ msgstr "menú Agregado"
