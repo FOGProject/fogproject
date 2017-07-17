@@ -200,7 +200,9 @@ abstract class FOGManagerController extends FOGBase
                 }
                 if (is_array($value) && count($value) > 0) {
                     foreach ($value as $i => &$val) {
-                        $val = trim($val);
+                        if (is_string($val)) {
+                            $val = trim($val);
+                        }
                         // Define the key
                         $k = sprintf(
                             '%s_%d',
