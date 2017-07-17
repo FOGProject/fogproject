@@ -104,7 +104,7 @@ backupSnapins() {
     echo "Done"
 }
 backupReports() {
-    reportLocation="$webdirdest/management/reports"
+    reportLocation="$webdirdest/lib/reports"
     [[ ! -d $reportLocation ]] && handleError "Reports location: $reportLocation does not exist on this server" 18
     cp -auv $reportLocation/ $backupDir/reports/ 2>>$backupDir/logs/error.log 1>>$backupDir/logs/progress.log 2>&1
     stat=$?
