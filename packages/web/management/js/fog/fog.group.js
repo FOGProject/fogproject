@@ -23,16 +23,9 @@ $(function() {
         });
         $('.groupname-input').each(function(e) {
             if ($(this).is(':visible')) {
-                if (!$(this).hasClass('isvisible')) {
-                    $(this).addClass('isvisible');
-                }
                 $(this).on('keyup change blur', function(e) {
                     return validator.element(this);
                 });
-            } else {
-                if ($(this).hasClass('isvisible')) {
-                    $(this).removeClass('isvisible');
-                }
             }
         });
     }, 1000);
