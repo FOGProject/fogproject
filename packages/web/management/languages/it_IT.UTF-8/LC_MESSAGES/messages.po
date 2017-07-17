@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-16 21:34-0400\n"
+"POT-Creation-Date: 2017-07-16 21:55-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -540,19 +540,19 @@ msgstr "Si è verificato errore di caricamento sconosciuto"
 msgid "Return code"
 msgstr "Codice di ritorno"
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:567
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:569
 msgid "No fields passed"
 msgstr "Nessun campo passato"
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:570
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:572
 msgid "No values passed"
 msgstr "Nessun valore passato"
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:607
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:609
 msgid "No data to insert"
 msgstr "Nessun dato da inserire"
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:913
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:915
 msgid "No items found"
 msgstr "Nessun elemento trovato"
 
