@@ -250,14 +250,9 @@ class TaskManagementPage extends FOGPage
                 (array) self::getProgressState()
             )
         );
-        Route::active(
-            'task',
-            'name',
-            false,
-            $find
-        );
+        Route::active('task');
         $items = json_decode(
-            json_encode(Route::$data)
+            Route::getData()
         );
         $items = $items->tasks;
         if (count($items) > 0) {
@@ -277,6 +272,9 @@ class TaskManagementPage extends FOGPage
                 )
             );
         unset($items);
+        if (self::$ajax) {
+            return $this->render();
+        }
         $this->displayActive();
         unset(
             $this->data,
@@ -524,7 +522,8 @@ class TaskManagementPage extends FOGPage
             if (!$$var->isValid()) {
                 throw new Exception(_(sprintf('Invalid %s', $var)));
             }
-            $TaskType = new TaskType($_POST['type']);
+            $typeID = filter_input(INPUT_GET, 'type');
+            $TaskType = new TaskType($typeID);
             if (!$TaskType->isValid()) {
                 throw new Exception(_('Invalid Task Type'));
             }
@@ -581,21 +580,31 @@ class TaskManagementPage extends FOGPage
                 false,
                 $TaskType->isInitNeededTasking() || $TaskType->get('id') == 14
             );
-            self::setMessage(
-                sprintf(
-                    '%s %s %s',
-                    _('Successfully created'),
-                    _($type),
-                    _('tasking')
-                )
-            );
-            self::redirect("?node=$this->node");
+            echo '<div class="col-xs-9">';
+            echo '<div class="panel panel-success">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Tasked Successfully');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            echo _('Tasked successfully, click active tasks to view in line.');
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
         } catch (Exception $e) {
-            printf(
-                '<div class="task-start-failed"><p>%s</p><p>%s</p></div>',
-                _('Failed to create task'),
-                $e->getMessage()
-            );
+            echo '<div class="col-xs-9">';
+            echo '<div class="panel panel-warning">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Failed to create task');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            echo $e->getMessage();
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
         }
     }
     /**
@@ -827,18 +836,7 @@ class TaskManagementPage extends FOGPage
                 'width' => 40
             )
         );
-        $find = array(
-            'stateID' => self::fastmerge(
-                (array) self::getQueuedStates(),
-                (array) self::getProgressState()
-            )
-        );
-        Route::listem(
-            'multicastsession',
-            'name',
-            false,
-            $find
-        );
+        Route::active('multicastsession');
         $Sessions = json_decode(
             Route::getData()
         );
@@ -879,6 +877,9 @@ class TaskManagementPage extends FOGPage
                 )
             );
         unset($Sessions);
+        if (self::$ajax) {
+            return $this->render();
+        }
         $this->displayActive();
         unset(
             $this->data,
@@ -967,16 +968,7 @@ class TaskManagementPage extends FOGPage
                 'width' => 40
             )
         );
-        $activestate = self::fastmerge(
-            (array) self::getQueuedStates(),
-            (array) self::getProgressState()
-        );
-        Route::listem(
-            'snapintask',
-            'name',
-            false,
-            $activestate
-        );
+        Route::active('snapintask');
         $SnapinTasks = json_decode(
             Route::getData()
         );
@@ -1030,6 +1022,9 @@ class TaskManagementPage extends FOGPage
                 )
             );
         unset($SnapinTasks);
+        if (self::$ajax) {
+            return $this->render();
+        }
         $this->displayActive();
         unset(
             $this->data,
@@ -1176,28 +1171,31 @@ class TaskManagementPage extends FOGPage
                 'width' => 80
             )
         );
-        foreach ((array)self::getClass('ScheduledTaskManager')
-            ->find() as &$ScheduledTask
-        ) {
-            $method = 'getHost';
-            if ($ScheduledTask->isGroupBased()) {
-                $method = 'getGroup';
+        Route::active('scheduledtask');
+        $ScheduledTasks = json_decode(
+            Route::getData()
+        );
+        $ScheduledTasks = $ScheduledTasks->scheduledtasks;
+        foreach ((array)$ScheduledTasks as &$ScheduledTask) {
+            $method = 'host';
+            if ($ScheduledTask->isGroupBased) {
+                $method = 'group';
             }
-            $ObjTest = $ScheduledTask->{$method}();
-            if (!$ObjTest->isValid()) {
+            $ObjTest = $ScheduledTask->{$method};
+            if (!$ObjTest->id) {
                 continue;
             }
-            $TaskType = $ScheduledTask->getTaskType();
-            if (!$TaskType->isValid()) {
+            $TaskType = $ScheduledTask->tasktype;
+            if (!$TaskType->id) {
                 continue;
             }
-            $sID = $ScheduledTask->get('other2');
-            if ($TaskType->isSnapinTasking()) {
-                if ($TaskType->get('id') == 12
-                    || $ScheduledTask->get('other2') == -1
+            $sID = $ScheduledTask->other2;
+            if ($TaskType->isSnapinTasking) {
+                if ($TaskType->id == 12
+                    || $ScheduledTask->other2 == -1
                 ) {
                     $hover = _('All snapins');
-                } elseif ($TaskType->get('id') == 13) {
+                } elseif ($TaskType->id == 13) {
                     $snapin = new Snapin($sID);
                     if (!$snapin->isValid()) {
                         $hover = _('Invalid snapin');
@@ -1209,37 +1207,37 @@ class TaskManagementPage extends FOGPage
                 }
             }
             $this->data[] = array(
-                'id' => $ScheduledTask->get('id'),
-                'start_time' => $ScheduledTask->getTime(),
+                'id' => $ScheduledTask->id,
+                'start_time' => $ScheduledTask->runtime,
                 'groupbased' => (
-                    $ScheduledTask->isGroupBased() ?
+                    $ScheduledTask->isGroupBased ?
                     _('Yes') :
                     _('No')
                 ),
                 'active' => (
-                    $ScheduledTask->isActive() ?
+                    $ScheduledTask->isActive ?
                     _('Yes') :
                     _('No')
                 ),
-                'type' => $ScheduledTask->getScheduledType(),
+                'type' => $ScheduledTask->type == 'C' ? _('Cron') : _('Delayed'),
                 'hostgroup' => (
-                    $ScheduledTask->isGroupBased() ?
+                    $ScheduledTask->isGroupBased ?
                     _('group') :
                     _('host')
                 ),
-                'hostgroupname' => $ObjTest->get('name'),
-                'hostgroupid' => $ObjTest->get('id'),
-                'details_taskname' => $ScheduledTask->get('name'),
-                'task_type' => $TaskType->get('name'),
+                'hostgroupname' => $ObjTest->name,
+                'hostgroupid' => $ObjTest->id,
+                'details_taskname' => $ScheduledTask->name,
+                'task_type' => $TaskType->name,
                 'extra' => (
-                    $ScheduledTask->isGroupBased() ?
+                    $ScheduledTask->isGroupBased ?
                     '' :
                     sprintf(
-                        '<br/><small>%s</small>',
-                        $ObjTest->get('mac')->__toString()
+                        '<br/>%s',
+                        $ObjTest->macs[0]
                     )
                 ),
-                'nametype' => get_class($ObjTest),
+                'nametype' => $method,
                 'hover' => $hover
             );
             unset($ScheduledTask, $ObjTest, $TaskType);
@@ -1254,6 +1252,9 @@ class TaskManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
+        if (self::$ajax) {
+            return $this->render();
+        }
         $this->displayActive();
         unset(
             $this->data,

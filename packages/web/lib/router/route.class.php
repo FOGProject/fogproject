@@ -1018,7 +1018,7 @@ class Route extends FOGBase
         self::$data = array();
         self::$data['count'] = 0;
         self::$data[$classname.'s'] = array();
-        foreach ($classman->find($find) as &$class) {
+        foreach ((array)$classman->find($find) as &$class) {
             self::$data[$classname.'s'][] = self::getter($classname, $class);
             self::$data['count']++;
             unset($class);
@@ -1364,6 +1364,32 @@ class Route extends FOGBase
                 )
             );
             unset($data['imagename']);
+            break;
+        case 'scheduledtask':
+            $data = FOGCore::fastmerge(
+                $class->get(),
+                array(
+                    (
+                        $class->isGroupBased() ?
+                        'group' :
+                        'host'
+                    ) => (
+                        $class->isGroupBased() ?
+                        self::getter('group', $class->getGroup()) :
+                        self::getter('host', $class->getHost())
+                    ),
+                    'tasktype' => self::getter('tasktype', $class->getTaskType()),
+                    'runtime' => $class->getTime()
+                )
+            );
+            break;
+        case 'tasktype':
+            $data = FOGCore::fastmerge(
+                $class->get(),
+                array(
+                    'isSnapinTasking' => $class->isSnapinTasking()
+                )
+            );
             break;
         default:
             $data = $class->get();
