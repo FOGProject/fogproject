@@ -23,7 +23,7 @@ $(function() {
     CANCELURL = Options.CancelURL;
     if (typeof(sub) == 'undefined' || sub.indexOf('active') != -1) {
         Container.before(
-            '<div class="col-xs-9 text-center">'
+            '<div class="text-center">'
             + '<div class="form-group">'
             + '<button type="button" class="btn btn-default activebtn" id="taskpause">'
             + '<i class="fa fa-pause"></i>'
@@ -31,7 +31,7 @@ $(function() {
             + '</div>'
             + '</div>'
         ).after(
-            '<div class="col-xs-9 text-center">'
+            '<div class="text-center">'
             + '<div class="form-group">'
             + '<button type="button" class="btn btn-default" id="taskcancel">'
             + 'Cancel selected tasks?'
