@@ -390,12 +390,16 @@ abstract class FOGManagerController extends FOGBase
             $groupBy,
             $orderBy
         );
-        $data = array();
-        self::$DB->query($query, array(), $findVals);
+        self::$DB->query(
+            $query,
+            array(),
+            $findVals
+        )->fetch(
+            '',
+            'fetch_all'
+        );
         if ($idField) {
-            $data = (array)self::$DB
-                ->fetch('', 'fetch_all')
-                ->get($idField);
+            $data = (array)self::$DB->get($idField);
             if ($filter) {
                 return @$filter($data);
             }
@@ -409,10 +413,7 @@ abstract class FOGManagerController extends FOGBase
                 return $data;
             }
         } else {
-            $vals = self::$DB
-                ->fetch('', 'fetch_all')
-                ->get();
-            foreach ((array) $vals as &$val) {
+            foreach ((array)self::$DB->get() as &$val) {
                 $class = self::getClass($this->childClass, $val);
                 if (!$class->isValid()) {
                     continue;
@@ -548,7 +549,7 @@ abstract class FOGManagerController extends FOGBase
             )
         );
 
-        return (int) self::$DB
+        return (int)self::$DB
             ->query($query, array(), $countVals)
             ->fetch()
             ->get('total');
@@ -622,7 +623,6 @@ abstract class FOGManagerController extends FOGBase
             $affectedRows += (int) self::$DB->affectedRows();
             unset($v, $vals, $insertVals);
         }
-
         return array(
             $insertID,
             $affectedRows,
@@ -967,7 +967,7 @@ abstract class FOGManagerController extends FOGBase
             ':id'
         );
 
-        return (bool) self::$DB
+        return (bool)self::$DB
             ->query($query, array(), $existVals)
             ->fetch()
             ->get('total') > 0;
@@ -982,8 +982,15 @@ abstract class FOGManagerController extends FOGBase
      */
     public function search($keyword = '', $returnObjects = false)
     {
-        if (empty($keyword)) {
+        $keyword = trim($keyword);
+        if (!$keyword) {
             $keyword = filter_input(INPUT_POST, 'crit');
+        }
+        if (!$keyword) {
+            $keyword = filter_input(INPUT_GET, 'crit');
+        }
+        if (!$keyword) {
+            throw new Exception(_('Nothing passed to search for'));
         }
         $mac_keyword = str_replace(
             array('-', ':'),
@@ -1417,7 +1424,7 @@ abstract class FOGManagerController extends FOGBase
             )
         );
 
-        return (int) self::$DB
+        return (int)self::$DB
             ->query($query, array(), $countVals)
             ->fetch()
             ->get('total');

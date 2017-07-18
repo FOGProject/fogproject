@@ -657,11 +657,13 @@ abstract class FOGController extends FOGBase
                 (array) $paramKey,
                 (array) $val
             );
-            $vals = array();
-            $vals = self::$DB->query($query, array(), $queryArray)
-                ->fetch('', 'fetch_assoc')
-                ->get();
-            $this->setQuery($vals);
+            $this->setQuery(
+                self::$DB->query(
+                    $query,
+                    array(),
+                    $queryArray
+                )->fetch()->get()
+            );
         } catch (Exception $e) {
             $str = sprintf(
                 '%s: %s: %s, %s: %s',
