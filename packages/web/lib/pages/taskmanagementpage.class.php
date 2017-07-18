@@ -242,7 +242,7 @@ class TaskManagementPage extends FOGPage
      */
     public function active()
     {
-        $this->title = 'Active Tasks';
+        $this->title = _('Active Tasks');
         $this->data = array();
         $find = array(
             'stateID' => self::fastmerge(
@@ -250,7 +250,12 @@ class TaskManagementPage extends FOGPage
                 (array) self::getProgressState()
             )
         );
-        Route::active('task');
+        Route::active(
+            'task',
+            'name',
+            false,
+            $find
+        );
         $items = json_decode(
             json_encode(Route::$data)
         );
@@ -271,8 +276,35 @@ class TaskManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        $this->render();
-        unset($this->data);
+        unset($items);
+        $this->displayActive();
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
+    }
+    /**
+     * Parse and process/return the active item.
+     *
+     * @return void
+     */
+    public function displayActive()
+    {
+        echo '<div class="tab-content col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        $this->render(12);
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * List all hosts.
@@ -281,7 +313,14 @@ class TaskManagementPage extends FOGPage
      */
     public function listhosts()
     {
-        $this->title = 'All Hosts';
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->attributes,
+            $this->templates
+        );
+        $this->title = _('All Hosts');
         $up = new TaskType(2);
         $down = new TaskType(1);
         $up = sprintf(
@@ -332,17 +371,22 @@ class TaskManagementPage extends FOGPage
                 'class' => 'filter-false'
             ),
         );
-        foreach ((array)self::getClass('HostManager')
-            ->find() as &$Host
-        ) {
-            if ($Host->get('pending')) {
-                continue;
-            }
+        Route::listem(
+            'host',
+            'name',
+            false,
+            array('pending' => array('0', '', null))
+        );
+        $Hosts = json_decode(
+            Route::getData()
+        );
+        $Hosts = $Hosts->hosts;
+        foreach ((array)$Hosts as &$Host) {
             $this->data[] = array(
-                'id' => $Host->get('id'),
-                'name' => $Host->get('name'),
-                'mac' => $Host->get('mac')->__toString(),
-                'imagename' => $Host->getImageName(),
+                'id' => $Host->id,
+                'name' => $Host->name,
+                'mac' => $Host->macs[0],
+                'imagename' => $Host->image->name,
             );
             unset($Host);
         }
@@ -356,8 +400,15 @@ class TaskManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        $this->render();
-        unset($this->data);
+        unset($Hosts);
+        $this->displayActive();
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->attributes,
+            $this->templates
+        );
     }
     /**
      * List all groups.
@@ -366,7 +417,14 @@ class TaskManagementPage extends FOGPage
      */
     public function listgroups()
     {
-        $this->title = 'All Groups';
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
+        $this->title = _('All Groups');
         $mc = new TaskType(8);
         $down = new TaskType(1);
         $mc = sprintf(
@@ -411,12 +469,15 @@ class TaskManagementPage extends FOGPage
                 'class' => 'filter-false'
             ),
         );
-        foreach ((array)self::getClass('GroupManager')
-            ->find() as &$Group
-        ) {
+        Route::listem('group');
+        $Groups = json_decode(
+            Route::getData()
+        );
+        $Groups = $Groups->groups;
+        foreach ((array)$Groups as &$Group) {
             $this->data[] = array(
-                'id' => $Group->get('id'),
-                'name' => $Group->get('name'),
+                'id' => $Group->id,
+                'name' => $Group->name,
             );
             unset($Group);
         }
@@ -430,8 +491,15 @@ class TaskManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        $this->render();
-        unset($this->data);
+        unset($Groups);
+        $this->displayActive();
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
     }
     /**
      * Gets the tasking of a particular item.
@@ -558,12 +626,20 @@ class TaskManagementPage extends FOGPage
      */
     private function _advanced($type)
     {
-        $this->title = sprintf(
-            '%s Advanced Actions',
-            ucfirst($type)
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
+        $this->title = _(
+            sprintf(
+                '%s Advanced Actions',
+                ucfirst($type)
+            )
         );
         global $id;
-        unset($this->headerData);
         $types = array(
             'host',
             'group'
@@ -582,27 +658,28 @@ class TaskManagementPage extends FOGPage
         );
         $this->attributes = array(
             array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8'),
+            array('class' => 'col-xs-8 form-group'),
         );
-        foreach ((array)self::getClass('TaskTypeManager')
-            ->find(
-                array(
-                    'access' => array(
-                        'both',
-                        $type
-                    ),
-                    'isAdvanced' => 1
-                ),
-                'AND',
-                'id'
-            ) as &$TaskType
-        ) {
+        Route::listem(
+            'tasktype',
+            'id',
+            false,
+            array(
+                'access' => array('both', $type),
+                'isAdvanced' => 1
+            )
+        );
+        $TaskTypes = json_decode(
+            Route::getData()
+        );
+        $TaskTypes = $TaskTypes->tasktypes;
+        foreach ((array)$TaskTypes as &$TaskType) {
             $this->data[] = array(
                 'id' => $id,
-                'type' => $TaskType->get('id'),
-                'icon' => $TaskType->get('icon'),
-                'name' => $TaskType->get('name'),
-                'description' => $TaskType->get('description'),
+                'type' => $TaskType->id,
+                'icon' => $TaskType->icon,
+                'name' => $TaskType->name,
+                'description' => $TaskType->description
             );
             unset($TaskType);
         }
@@ -616,8 +693,15 @@ class TaskManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        $this->render();
-        unset($this->data);
+        unset($TaskTypes);
+        $this->displayActive();
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
     }
     /**
      * Display host advanced.
@@ -697,7 +781,14 @@ class TaskManagementPage extends FOGPage
      */
     public function activemulticast()
     {
-        $this->title = 'Active Multi-cast Tasks';
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->attributes,
+            $this->templates
+        );
+        $this->title = _('Active Multi-cast Tasks');
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class='
             . '"toggle-checkboxAction" id="toggler1"/>'
@@ -742,34 +833,38 @@ class TaskManagementPage extends FOGPage
                 (array) self::getProgressState()
             )
         );
-        foreach ((array)self::getClass('MulticastSessionManager')
-            ->find($find) as &$MulticastSession
-        ) {
-            $TaskState = $MulticastSession->getTaskState();
-            if (!$TaskState->isValid()) {
+        Route::listem(
+            'multicastsession',
+            'name',
+            false,
+            $find
+        );
+        $Sessions = json_decode(
+            Route::getData()
+        );
+        $Sessions = $Sessions->multicastsessions;
+        foreach ((array)$Sessions as &$MulticastSession) {
+            $TaskState = $MulticastSession->state;
+            if (!$TaskState->id) {
                 continue;
             }
             $this->data[] = array(
-                'id' => $MulticastSession->get('id'),
+                'id' => $MulticastSession->id,
                 'name' => (
-                    $MulticastSession->get('name') ?
-                    $MulticastSession->get('name') :
-                    _('MulticastTask')
+                    $MulticastSession->name ?: _('MulticastTask')
                 ),
                 'count' => (
                     self::getClass('MulticastSessionAssociationManager')
-                    ->count(array('msID' => $MulticastSession->get('id')))
+                    ->count(array('msID' => $MulticastSession->id))
                 ),
                 'start_date' => self::formatTime(
-                    $MulticastSession->get('starttime'),
+                    $MulticastSession->starttime,
                     'Y-m-d H:i:s'
                 ),
                 'state' => (
-                    $TaskState->get('name') ?
-                    $TaskState->get('name') :
-                    ''
+                    $TaskState->name ?: ''
                 ),
-                'percent' => $MulticastSession->get('percent'),
+                'percent' => $MulticastSession->percent,
             );
             unset($TaskState, $MulticastSession);
         }
@@ -783,7 +878,15 @@ class TaskManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        $this->render();
+        unset($Sessions);
+        $this->displayActive();
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->attributes,
+            $this->templates
+        );
     }
     /**
      * Removes multicast sessions.
@@ -815,6 +918,13 @@ class TaskManagementPage extends FOGPage
      */
     public function activesnapins()
     {
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->attributes,
+            $this->templates
+        );
         $this->title = 'Active Snapins';
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class='
@@ -861,46 +971,52 @@ class TaskManagementPage extends FOGPage
             (array) self::getQueuedStates(),
             (array) self::getProgressState()
         );
-        foreach ((array)self::getClass('SnapinTaskManager')
-            ->find(
-                array('stateID' => $activestate)
-            ) as &$SnapinTask
-        ) {
-            $Snapin = $SnapinTask->getSnapin();
-            if (!$Snapin->isValid()) {
+        Route::listem(
+            'snapintask',
+            'name',
+            false,
+            $activestate
+        );
+        $SnapinTasks = json_decode(
+            Route::getData()
+        );
+        $SnapinTasks = $SnapinTasks->snapintasks;
+        foreach ((array)$SnapinTasks as &$SnapinTask) {
+            $Snapin = $SnapinTask->snapin;
+            if (!$Snapin->id) {
                 continue;
             }
-            $SnapinJob = $SnapinTask->getSnapinJob();
-            if (!$SnapinJob->isValid()) {
+            $SnapinJob = $SnapinTask->snapinjob;
+            if (!$SnapinJob->id) {
                 continue;
             }
-            $Host = $SnapinJob->getHost();
-            if (!$Host->isValid()) {
+            Route::indiv('host', $SnapinJob->hostID);
+            $Host = json_decode(
+                Route::getData()
+            );
+            if (!$Host->id) {
                 continue;
             }
-            if ($Host->get('snapinjob')->get('id') != $SnapinJob->get('id')) {
+            if ($Host->snapinjob->id != $SnapinJob->id) {
                 continue;
             }
-            $state = $SnapinJob->get('stateID');
+            $state = $SnapinJob->stateID;
             $inArr = in_array($state, $activestate);
             if (!$inArr) {
                 continue;
             }
             $this->data[] = array(
-                'id' => $SnapinTask->get('id'),
-                'name' => $Snapin->get('name'),
-                'host_id' => $Host->get('id'),
-                'host_name' => $Host->get('name'),
-                'host_mac' => $Host->get('mac')->__toString(),
+                'id' => $SnapinTask->id,
+                'name' => $Snapin->name,
+                'host_id' => $Host->id,
+                'host_name' => $Host->name,
+                'host_mac' => $Host->macs[0],
                 'startDate' => self::formatTime(
-                    $SnapinTask->get('checkin'),
+                    $SnapinTask->checkin,
                     'Y-m-d H:i:s'
                 ),
-                'state' => self::getClass(
-                    'TaskState',
-                    $SnapinTask->get('stateID')
-                )->get('name'),
-                );
+                'state' => $SnapinTask->state->name
+            );
             unset($SnapinTask, $Snapin, $SnapinJob, $Host);
         }
         self::$HookManager
@@ -913,8 +1029,15 @@ class TaskManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        $this->render();
-        unset($this->data);
+        unset($SnapinTasks);
+        $this->displayActive();
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->attributes,
+            $this->templates
+        );
     }
     /**
      * Redirect if item is not ajax called.
@@ -992,7 +1115,14 @@ class TaskManagementPage extends FOGPage
      */
     public function activescheduled()
     {
-        $this->title = 'Scheduled Tasks';
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->attributes,
+            $this->templates
+        );
+        $this->title = _('Scheduled Tasks');
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class='
             . '"toggle-checkboxAction" id="toggler3"/><label for="'
@@ -1025,26 +1155,26 @@ class TaskManagementPage extends FOGPage
                 'task-id' => '${id}'
             ),
             array(
-                'width' => 100,
+                'width' => 100
             ),
             array(
-                'width' => 25,
+                'width' => 25
             ),
             array(
-                'width' => 110,
+                'width' => 110
             ),
             array(
-                'width' => 80,
+                'width' => 80
             ),
             array(
-                'width' => 70,
+                'width' => 70
             ),
             array(
-                'width' => 30,
+                'width' => 30
             ),
             array(
-                'width' => 80,
-            ),
+                'width' => 80
+            )
         );
         foreach ((array)self::getClass('ScheduledTaskManager')
             ->find() as &$ScheduledTask
@@ -1124,8 +1254,14 @@ class TaskManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        $this->render();
-        unset($this->data);
+        $this->displayActive();
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->attributes,
+            $this->templates
+        );
     }
     /**
      * Canceled tasks for us.
