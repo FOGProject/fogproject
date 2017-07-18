@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-16 21:55-0400\n"
+"POT-Creation-Date: 2017-07-18 11:32-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -139,11 +139,11 @@ msgstr "无法创建打印机"
 #: /var/www/fog/lib/fog/fogcontroller.class.php:562
 #: /var/www/fog/lib/fog/fogcontroller.class.php:572
 #: /var/www/fog/lib/fog/fogcontroller.class.php:583
-#: /var/www/fog/lib/fog/fogcontroller.class.php:671
-#: /var/www/fog/lib/fog/fogcontroller.class.php:794
-#: /var/www/fog/lib/fog/fogcontroller.class.php:804
-#: /var/www/fog/lib/fog/fogcontroller.class.php:815
-#: /var/www/fog/lib/fog/fogcontroller.class.php:953
+#: /var/www/fog/lib/fog/fogcontroller.class.php:673
+#: /var/www/fog/lib/fog/fogcontroller.class.php:796
+#: /var/www/fog/lib/fog/fogcontroller.class.php:806
+#: /var/www/fog/lib/fog/fogcontroller.class.php:817
+#: /var/www/fog/lib/fog/fogcontroller.class.php:955
 #: /var/www/fog/lib/fog/foggetset.class.php:92
 #: /var/www/fog/lib/fog/fogpage.class.php:2487
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:198
@@ -203,8 +203,8 @@ msgstr "未发现记录，错误： %s"
 
 #: /var/www/fog/lib/fog/fogcontroller.class.php:174
 #: /var/www/fog/lib/fog/fogcontroller.class.php:559
-#: /var/www/fog/lib/fog/fogcontroller.class.php:768
-#: /var/www/fog/lib/fog/fogcontroller.class.php:791
+#: /var/www/fog/lib/fog/fogcontroller.class.php:770
+#: /var/www/fog/lib/fog/fogcontroller.class.php:793
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:99
 #: /var/www/fog/lib/plugins/fileintegrity/pages/fileintegritymanagementpage.class.php:53
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:429
@@ -262,9 +262,9 @@ msgstr "值"
 #: /var/www/fog/lib/fog/fogcontroller.class.php:327
 #: /var/www/fog/lib/fog/fogcontroller.class.php:391
 #: /var/www/fog/lib/fog/fogcontroller.class.php:609
-#: /var/www/fog/lib/fog/fogcontroller.class.php:726
-#: /var/www/fog/lib/fog/fogcontroller.class.php:854
-#: /var/www/fog/lib/fog/fogcontroller.class.php:889
+#: /var/www/fog/lib/fog/fogcontroller.class.php:728
+#: /var/www/fog/lib/fog/fogcontroller.class.php:856
+#: /var/www/fog/lib/fog/fogcontroller.class.php:891
 #: /var/www/fog/lib/fog/foggetset.class.php:55
 msgid "No key being requested"
 msgstr "没有要求的关键"
@@ -302,7 +302,7 @@ msgstr "服务更新失败"
 #: /var/www/fog/lib/fog/fogcontroller.class.php:302
 #: /var/www/fog/lib/fog/fogcontroller.class.php:366
 #: /var/www/fog/lib/fog/fogcontroller.class.php:436
-#: /var/www/fog/lib/fog/fogcontroller.class.php:669
+#: /var/www/fog/lib/fog/fogcontroller.class.php:671
 #: /var/www/fog/lib/fog/foggetset.class.php:90
 #, fuzzy
 msgid "Key"
@@ -355,11 +355,11 @@ msgstr "目的"
 #: /var/www/fog/lib/fog/fogcontroller.class.php:557
 #: /var/www/fog/lib/fog/fogcontroller.class.php:569
 #: /var/www/fog/lib/fog/fogcontroller.class.php:581
-#: /var/www/fog/lib/fog/fogcontroller.class.php:766
-#: /var/www/fog/lib/fog/fogcontroller.class.php:776
-#: /var/www/fog/lib/fog/fogcontroller.class.php:789
-#: /var/www/fog/lib/fog/fogcontroller.class.php:801
-#: /var/www/fog/lib/fog/fogcontroller.class.php:813
+#: /var/www/fog/lib/fog/fogcontroller.class.php:768
+#: /var/www/fog/lib/fog/fogcontroller.class.php:778
+#: /var/www/fog/lib/fog/fogcontroller.class.php:791
+#: /var/www/fog/lib/fog/fogcontroller.class.php:803
+#: /var/www/fog/lib/fog/fogcontroller.class.php:815
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:195
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:228
 #: /var/www/fog/lib/service/snapinhash.class.php:189
@@ -392,7 +392,7 @@ msgid "Key field must be a string"
 msgstr "事件必须是字符串"
 
 #: /var/www/fog/lib/fog/fogcontroller.class.php:620
-#: /var/www/fog/lib/fog/fogcontroller.class.php:737
+#: /var/www/fog/lib/fog/fogcontroller.class.php:739
 #, fuzzy
 msgid "Operation field not set"
 msgstr "操作字段没有设置： %s"
@@ -402,48 +402,48 @@ msgstr "操作字段没有设置： %s"
 msgid "Loading data to field"
 msgstr "加载数据到现场%s"
 
-#: /var/www/fog/lib/fog/fogcontroller.class.php:668
+#: /var/www/fog/lib/fog/fogcontroller.class.php:670
 #, fuzzy
 msgid "Load failed"
 msgstr "加载失败： %s"
 
-#: /var/www/fog/lib/fog/fogcontroller.class.php:730
+#: /var/www/fog/lib/fog/fogcontroller.class.php:732
 #, fuzzy
 msgid "Invalid key being destroyed"
 msgstr "关键无效被删除"
 
-#: /var/www/fog/lib/fog/fogcontroller.class.php:770
-#: /var/www/fog/lib/fog/fogcontroller.class.php:778
+#: /var/www/fog/lib/fog/fogcontroller.class.php:772
+#: /var/www/fog/lib/fog/fogcontroller.class.php:780
 #, fuzzy
 msgid "has been successfully destroyed"
 msgstr "已成功更新"
 
-#: /var/www/fog/lib/fog/fogcontroller.class.php:793
-#: /var/www/fog/lib/fog/fogcontroller.class.php:803
+#: /var/www/fog/lib/fog/fogcontroller.class.php:795
+#: /var/www/fog/lib/fog/fogcontroller.class.php:805
 #, fuzzy
 msgid "has failed to destroy"
 msgstr "未能被销毁"
 
-#: /var/www/fog/lib/fog/fogcontroller.class.php:812
+#: /var/www/fog/lib/fog/fogcontroller.class.php:814
 #, fuzzy
 msgid "Destroy failed"
 msgstr "摧毁失败： %s"
 
-#: /var/www/fog/lib/fog/fogcontroller.class.php:893
+#: /var/www/fog/lib/fog/fogcontroller.class.php:895
 #, fuzzy
 msgid "Invalid key being requested"
 msgstr "关键无效被删除"
 
-#: /var/www/fog/lib/fog/fogcontroller.class.php:897
+#: /var/www/fog/lib/fog/fogcontroller.class.php:899
 msgid "Invalid type, merge to add, diff to remove"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogcontroller.class.php:908
+#: /var/www/fog/lib/fog/fogcontroller.class.php:910
 #, fuzzy
 msgid "Array type"
 msgstr "数据数组"
 
-#: /var/www/fog/lib/fog/fogcontroller.class.php:909
+#: /var/www/fog/lib/fog/fogcontroller.class.php:911
 #: /var/www/fog/lib/fog/fogbase.class.php:2222
 #: /var/www/fog/lib/fog/fogftp.class.php:370
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1006
@@ -457,17 +457,17 @@ msgstr "数据数组"
 msgid "Type"
 msgstr "类型"
 
-#: /var/www/fog/lib/fog/fogcontroller.class.php:911
+#: /var/www/fog/lib/fog/fogcontroller.class.php:913
 #, fuzzy
 msgid "is not callable"
 msgstr "不可用"
 
-#: /var/www/fog/lib/fog/fogcontroller.class.php:944
+#: /var/www/fog/lib/fog/fogcontroller.class.php:946
 #, fuzzy
 msgid "Invalid ID passed"
 msgstr "无效的单元传递"
 
-#: /var/www/fog/lib/fog/fogcontroller.class.php:952
+#: /var/www/fog/lib/fog/fogcontroller.class.php:954
 #: /var/www/fog/lib/fog/fogpage.class.php:2489
 #: /var/www/fog/lib/fog/fogpage.class.php:3876 /var/www/fog/service/av.php:36
 msgid "Failed"
@@ -583,15 +583,15 @@ msgstr "发生未知上传错误。返回代码："
 msgid "Return code"
 msgstr "返回代码"
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:569
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:570
 msgid "No fields passed"
 msgstr "否字段通过"
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:572
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:573
 msgid "No values passed"
 msgstr "没有值传递"
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:609
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:610
 #, fuzzy
 msgid "No data to insert"
 msgstr "无数据返回"
@@ -600,6 +600,11 @@ msgstr "无数据返回"
 #, fuzzy
 msgid "No items found"
 msgstr "发现没有图标"
+
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:993
+#, fuzzy
+msgid "Nothing passed to search for"
+msgstr "输入用户名搜索"
 
 #: /var/www/fog/lib/fog/system.class.php:38
 #, fuzzy
