@@ -504,7 +504,7 @@ class Page extends FOGBase
                     )
                 )
                 . '">';
-            echo '<i class="fa fa-sign-out"></i>';
+            echo '<i class="fa fa-sign-out fa-2x"></i>';
             echo '<span class="collapsedmenu-text">';
             echo ' ';
             echo _('Logout');
@@ -512,7 +512,7 @@ class Page extends FOGBase
             echo '</a>';
         } else {
             echo '<a href="../management/index.php"';
-            echo '<i class="fa fa-sign-in"></i>';
+            echo '<i class="fa fa-sign-in fa-2x"></i>';
             echo '<span class="collapsedmenu-text">';
             echo ' ';
             echo _('Login');
