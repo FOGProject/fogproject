@@ -254,7 +254,7 @@ class Page extends FOGBase
                         . '" data-placement="bottom">';
                     echo '<i class="'
                         . $title[1]
-                        . '"></i>';
+                        . ' fa-2x"></i>';
                     echo '<span class="collapsedmenu-text">';
                     echo ' ';
                     echo $title[0];
