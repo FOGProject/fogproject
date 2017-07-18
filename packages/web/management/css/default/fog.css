@@ -193,3 +193,56 @@ footer {
         display: none;
     }
 }
+/**
+ * Task Progress/Active
+ */
+.with-progress td {
+    border: 0;
+}
+.task-progress-td {
+    color: black;
+    padding: 0;
+    font-size: 10px;
+    line-height: 17px;
+    text-align: center;
+    height: 25px;
+    background: #6f9dcf;
+}
+.task-progress-td .min {
+    height: 25px;
+}
+.task-progress-td .no-min {
+    height: 25px;
+}
+.task-progress-fill {
+    background: #5cdb64;
+    position: absolute;
+    z-index: 2;
+    width: 200px;
+    height: 25px;
+}
+.task-progress-fill.min {
+    height: 25px;
+}
+.task-progress {
+    height: 100%;
+}
+.task-progress ul {
+    margin: 5px;
+    padding: 0;
+    position: absolute;
+    z-index: 3;
+    width: 600px;
+    height: 17px;
+    display: block;
+    cursor: default;
+}
+.task-progress ul:hover {
+    display: block;
+}
+.task-progress ul li {
+    float: left;
+    width: 33%;
+    display: block;
+    height: 18px;
+}
