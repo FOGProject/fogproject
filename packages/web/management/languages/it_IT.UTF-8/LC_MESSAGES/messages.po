@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-18 16:40-0400\n"
+"POT-Creation-Date: 2017-07-18 17:59-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -413,7 +413,7 @@ msgstr "Tipo array"
 #: /var/www/fog/lib/fog/fogcontroller.class.php:911
 #: /var/www/fog/lib/fog/fogbase.class.php:2226
 #: /var/www/fog/lib/fog/fogftp.class.php:370
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1136
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1131
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2794
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:556
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:55
@@ -1278,7 +1278,7 @@ msgstr "Impossibile affidare attività se l'immagine non è abilitata"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1088
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:87
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:945
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:946
 msgid "Edit Host"
 msgstr "Modifica Host"
 
@@ -1418,8 +1418,8 @@ msgstr "Creare"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1356
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:101
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:348
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:451
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:346
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:449
 msgid "Tasking"
 msgstr "Attività"
 
@@ -1567,12 +1567,12 @@ msgid "Delayed Start"
 msgstr "Partenza ritardata"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1795
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:587
 #, fuzzy
 msgid "Tasked Successfully"
 msgstr "Salvato con successo"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1803
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:587
 msgid "Successfully created"
 msgstr "Creato con successo"
 
@@ -1591,8 +1591,8 @@ msgid "All selected items have been deleted"
 msgstr "Tutti gli articoli selezionati sono stati cancellati"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:2052
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:343
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:447
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:341
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:445
 #: /var/www/fog/commons/text.php:68
 msgid "Advanced"
 msgstr "Avanzate"
@@ -1956,10 +1956,12 @@ msgid "New power management task"
 msgstr "Gestione energetica"
 
 #: /var/www/fog/lib/fog/scheduledtask.class.php:130
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1222
 msgid "Cron"
 msgstr "cron"
 
 #: /var/www/fog/lib/fog/scheduledtask.class.php:130
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1222
 msgid "Delayed"
 msgstr "Ritardato"
 
@@ -2367,8 +2369,8 @@ msgid "Start Multicast Session"
 msgstr "Inizia sessione multicast"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:1534
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:796
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1132
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:805
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1127
 msgid "Task Name"
 msgstr "Nome attività"
 
@@ -2378,9 +2380,9 @@ msgstr "clienti"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:1536
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:75
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:798
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:935
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1134
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:807
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:936
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1129
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2947
 #: /var/www/fog/lib/reports/imaging_log.report.php:59
 msgid "Start Time"
@@ -2391,8 +2393,8 @@ msgid "Percent"
 msgstr "Per cento"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:1538
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:799
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:936
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:808
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:937
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2795
 #: /var/www/fog/lib/reports/snapin_log.report.php:35
 #: /var/www/fog/commons/text.php:106
@@ -4226,7 +4228,7 @@ msgstr "Nuovo gruppo"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:188
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:465
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:450
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:448
 msgid "Group Name"
 msgstr "Nome del gruppo"
 
@@ -4713,7 +4715,7 @@ msgid "Working with node"
 msgstr "Lavorare con il nodo"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:77
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:800
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:809
 #: /var/www/fog/commons/text.php:103
 msgid "Status"
 msgstr "Stato"
@@ -4731,13 +4733,13 @@ msgstr "Task da forzare a partire"
 msgid "Active Tasks"
 msgstr "Attività in corso"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:323
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:321
 #: /var/www/fog/commons/text.php:252
 msgid "All Hosts"
 msgstr "tutti gli host"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:346
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:933
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:344
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:934
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:411
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1026
 #: /var/www/fog/lib/reports/snapin_log.report.php:33
@@ -4751,29 +4753,29 @@ msgstr "tutti gli host"
 msgid "Host Name"
 msgstr "Nome Host"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:347
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:345
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:178
 msgid "Assigned Image"
 msgstr "Immagine assegnata"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:427
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:425
 msgid "All Groups"
 msgstr "tutti i gruppi"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:520
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:648
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:518
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:657
 msgid "Invalid object type passed"
 msgstr "tipo di oggetto non valido passato"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:529
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:528
 msgid "Invalid Task Type"
 msgstr "Non valido Tipo Task"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:534
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:533
 msgid "Invalid image assigned to host"
 msgstr "immagine non valido assegnato ad ospitare"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:542
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:541
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2793
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:418
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:428
@@ -4783,99 +4785,99 @@ msgstr "immagine non valido assegnato ad ospitare"
 msgid "Image"
 msgstr "Immagine"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:544
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:543
 msgid "is protected"
 msgstr "è protetta"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:550
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:549
 msgid "Quick"
 msgstr "Veloce"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:558
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:557
 msgid "Hosts do not have the same image assigned"
 msgstr "Host non hanno la stessa immagine assegnato"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:563
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:562
 msgid "Multicast Quick Deploy"
 msgstr "Multicast rapida Deploy"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:564
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:563
 msgid "Group Quick Deploy"
 msgstr "Rapida distribuzione di gruppo"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:589
-msgid "tasking"
-msgstr "attività"
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:591
+msgid "Tasked successfully, click active tasks to view in line."
+msgstr ""
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:596
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:600
 #: /var/www/fog/commons/text.php:265
 msgid "Failed to create task"
 msgstr "Impossibile creare un'attività"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:748
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:757
 msgid "Invalid task"
 msgstr "Attività non valida"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:791
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:800
 #, fuzzy
 msgid "Active Multi-cast Tasks"
 msgstr "Compiti multicast attivi"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:797
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:806
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:84
 #: /var/www/fog/commons/text.php:48 /var/www/fog/commons/text.php:105
 msgid "Hosts"
 msgstr "host"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:854
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:852
 msgid "MulticastTask"
 msgstr "Attività Multicast"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:934
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:935
 #: /var/www/fog/commons/text.php:34
 msgid "Snapin"
 msgstr "Snapin"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1050
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1045
 msgid "Cannot cancel tasks this way"
 msgstr "Impossibile annullare le attività in questo modo"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1125
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1120
 #: /var/www/fog/commons/text.php:172
 msgid "Scheduled Tasks"
 msgstr "Attività pianificate"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1130
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1125
 msgid "Host/Group Name"
 msgstr "Host / Nome gruppo"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1131
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1126
 msgid "Is Group"
 msgstr "Il gruppo è"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1133
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1128
 msgid "Task Type"
 msgstr "Tipo attività"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1135
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1130
 #: /var/www/fog/commons/text.php:122
 msgid "Active"
 msgstr "Attivo"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1199
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1197
 msgid "All snapins"
 msgstr "Tutti gli snap-in"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1203
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1201
 msgid "Invalid snapin"
 msgstr "Snapin non valido"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1205
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1203
 msgid "Snapin to be installed"
 msgstr "Snapin da installare"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1216
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1221
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1214
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1219
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:138
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:225
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:207
@@ -4890,8 +4892,8 @@ msgstr "Snapin da installare"
 msgid "Yes"
 msgstr "Sì"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1217
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1222
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1215
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1220
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:138
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:223
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:208
@@ -4906,12 +4908,12 @@ msgstr "Sì"
 msgid "No"
 msgstr "No"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1227
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1225
 #: /var/www/fog/lib/service/taskscheduler.class.php:193
 msgid "group"
 msgstr "gruppo"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1228
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1226
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:383
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:435
 #: /var/www/fog/lib/service/taskscheduler.class.php:196
@@ -10042,6 +10044,9 @@ msgstr "Ciao FOG client"
 #: /var/www/fog/service/locationlisting.php:28
 msgid "There are no locations on this server"
 msgstr "Non ci sono posizioni su questo server"
+
+#~ msgid "tasking"
+#~ msgstr "attività"
 
 #~ msgid "Account Added!"
 #~ msgstr "Conto Aggiunto!"
