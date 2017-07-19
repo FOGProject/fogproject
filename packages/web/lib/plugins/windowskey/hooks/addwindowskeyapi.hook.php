@@ -168,14 +168,6 @@ class AddWindowskeyAPI extends Hook
             return;
         }
         switch ($arguments['classname']) {
-        case 'windowskey':
-            $arguments['data'] = FOGCore::fastmerge(
-                $arguments['class']->get(),
-                array(
-                    'images' => $arguments['class']->get('images')
-                )
-            );
-            break;
         case 'windowskeyassoc':
             $arguments['data'] = FOGCore::fastmerge(
                 $arguments['class']->get(),
