@@ -620,7 +620,7 @@ class SnapinManagementPage extends FOGPage
         echo '<div class="col-xs-9">';
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
-            . '">';
+            . '" enctype="multipart/form-data">';
         $this->indexDivDisplay();
         echo '</form>';
         echo '</div>';
@@ -717,6 +717,10 @@ class SnapinManagementPage extends FOGPage
                 ),
                 $snapinfile
             );
+            self::$FOGFTP
+                ->set('host', $StorageNode->get('ip'))
+                ->set('username', $StorageNode->get('user'))
+                ->set('password', $StorageNode->get('pass'));
             if (!self::$FOGFTP->connect()) {
                 throw new Exception(
                     sprintf(
@@ -863,6 +867,8 @@ class SnapinManagementPage extends FOGPage
         $shutdown = (
             $action == 'shutdown' ? ' checked' : ''
         );
+        $args = filter_input(INPUT_POST, 'args') ?:
+            $this->obj->get('args');
         self::$selected = $snapinfileexists;
         $nodeIDs = array();
         Route::listem(
@@ -1220,7 +1226,7 @@ class SnapinManagementPage extends FOGPage
         echo '<div class="panel-body">';
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
-            . '&tab=snap-storage">';
+            . '&tab=snap-storage" enctype="multipart/form-data">';
         if (count($this->data)) {
             echo '<div class="text-center">';
             echo '<div class="checkbox">';
