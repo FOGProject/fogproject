@@ -1115,10 +1115,10 @@ class Route extends FOGBase
             $data = FOGCore::fastmerge(
                 $class->get(),
                 array(
-                    'ADPass' => (string)FOGCore::aesdecrypt(
+                    'ADPass' => FOGCore::aesdecrypt(
                         $class->get('ADPass')
                     ),
-                    'productKey' => (string)FOGCore::aesdecrypt(
+                    'productKey' => FOGCore::aesdecrypt(
                         $class->get('productKey')
                     ),
                     'hostscreen' => $class->get('hostscreen')->get(),

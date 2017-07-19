@@ -408,7 +408,7 @@ abstract class FOGManagerController extends FOGBase
             }
         } else {
             foreach ((array)self::$DB->get() as &$val) {
-                $data[] = self::getClass($this->childClass, $val);
+                $data[] = new $this->childClass($val);
                 unset($val);
             }
         }
