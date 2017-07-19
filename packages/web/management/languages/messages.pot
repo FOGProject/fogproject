@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-19 00:45-0400\n"
+"POT-Creation-Date: 2017-07-19 01:43-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -640,7 +640,7 @@ msgstr ""
 
 #: /var/www/fog/lib/fog/fogbase.class.php:2228
 #: /var/www/fog/lib/fog/fogftp.class.php:372
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3198
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3204
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:87
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2468
 #: /var/www/fog/lib/reports/virus_history.report.php:35
@@ -1767,7 +1767,7 @@ msgid "Export CSV"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3546
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3266
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3272
 #: /var/www/fog/commons/text.php:98
 msgid "Export"
 msgstr ""
@@ -1775,7 +1775,7 @@ msgstr ""
 #: /var/www/fog/lib/fog/fogpage.class.php:3623
 #: /var/www/fog/lib/fog/fogpage.class.php:3667
 #: /var/www/fog/lib/fog/fogpage.class.php:3855
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3313
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3319
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:230
 msgid "Import"
 msgstr ""
@@ -1790,7 +1790,7 @@ msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3647
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1711
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3292
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3298
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:209
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:531
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1012
@@ -1800,7 +1800,7 @@ msgstr ""
 #: /var/www/fog/lib/fog/fogpage.class.php:3654
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1717
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2462
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3299
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3305
 #: /var/www/fog/lib/pages/reportmanagementpage.class.php:216
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:537
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1018
@@ -3199,114 +3199,114 @@ msgstr ""
 msgid "Service Setting Update Failed"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2987
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2993
 msgid "Service Master"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2996
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3002
 #: /var/www/fog/lib/service/taskscheduler.class.php:212
 #: /var/www/fog/commons/text.php:102
 msgid "Multicast"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3005
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3011
 msgid "Scheduler"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3014
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3020
 msgid "Image Replicator"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3023
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3029
 msgid "Image Size"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3032
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3038
 msgid "Snapin Replicator"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3041
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3047
 msgid "Snapin Hash"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3050
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3056
 msgid "Ping Hosts"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3092
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3098
 msgid "Image Transfer Log"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3106
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3112
 msgid "Snapin Transfer Log"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3184
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3190
 msgid "FOG Log Viewer"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3206
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3212
 msgid "Lines"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3216
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3222
 msgid "Reverse the file: (newest on top)"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3222
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3228
 msgid "Pause"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3241
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3247
 msgid "Configuration Import/Export"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3261
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3267
 msgid "Export Database?"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3280
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3286
 msgid "Export Database"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3290
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3309
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3296
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3315
 msgid "Import Database?"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3322
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3328
 msgid "Import Database"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3370
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3376
 msgid "Import Successful"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3374
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3380
 msgid "Database imported and added successfully!"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3385
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3391
 msgid "Import Failed"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3389
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3395
 msgid "There were errors during import!"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3398
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3404
 msgid "Database Reverted"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3401
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3407
 msgid "Database changes reverted!"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3408
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3414
 msgid "Database Failure"
 msgstr ""
 
-#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3412
+#: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3418
 msgid "Errors on revert detected!"
 msgstr ""
 

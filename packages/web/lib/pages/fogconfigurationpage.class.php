@@ -2916,7 +2916,13 @@ class FOGConfigurationPage extends FOGPage
             if (count($StorageGroup->enablednodes) < 1) {
                 continue;
             }
-            $StorageNode = $StorageGroup->masternode;
+            Route::indiv(
+                'storagenode',
+                $StorageGroup->masternode->id
+            );
+            $StorageNode = json_decode(
+                Route::getData()
+            );
             if (!$StorageNode->isEnabled) {
                 continue;
             }
