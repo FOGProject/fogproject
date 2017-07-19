@@ -129,28 +129,6 @@ class AddLocationAPI extends Hook
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
-        $find = Route::getsearchbody($arguments['classname']);
-        switch ($arguments['classname']) {
-        case 'location':
-            $arguments['data'][$arguments['classname'].'s'] = array();
-            $arguments['data']['count'] = 0;
-            foreach ((array)$arguments['classman']->find($find) as &$location) {
-                $arguments['data'][$arguments['classname'].'s'][] = $location->get();
-                $arguments['data']['count']++;
-                unset($location);
-            }
-            break;
-        case 'locationassociation':
-            $arguments['data'][$arguments['classname'].'s'] = array();
-            $arguments['data']['count'] = 0;
-            foreach ((array)$arguments['classman']->find($find) as &$locationassoc) {
-                $arguments['data'][$arguments['classname'].'s'][]
-                    = $locationassoc->get();
-                $arguments['data']['count']++;
-                unset($locationassoc);
-            }
-            break;
-        }
     }
     /**
      * This function changes the getter to enact on this particular item.
@@ -169,7 +147,6 @@ class AddLocationAPI extends Hook
             $arguments['data'] = FOGCore::fastmerge(
                 $arguments['class']->get(),
                 array(
-                    'hosts' => $arguments['class']->get('hosts'),
                     'storagenode' => $arguments['class']->get('storagenode')->get(),
                     'storagegroup' => $arguments['class']
                     ->get('storagegroup')
