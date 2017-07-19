@@ -877,12 +877,9 @@ class Host extends FOGController
      */
     protected function loadGroupsnotinme()
     {
-        $find = array('id' => $this->get('groups'));
-        $groups = self::getSubObjectIDs(
-            'Group',
-            $find,
-            'id',
-            true
+        $groups = array_diff(
+            self::getSubObjectIDs('Group'),
+            $this->get('groups')
         );
         $this->set('groupsnotinme', $groups);
     }
@@ -911,15 +908,11 @@ class Host extends FOGController
      */
     protected function loadPrintersnotinme()
     {
-        $find = array('id' => $this->get('printers'));
-        $printers = self::getSubObjectIDs(
-            'Printer',
-            $find,
-            'id',
-            true
+        $printers = array_diff(
+            self::getSubObjectIDs('Printer'),
+            $this->get('printers')
         );
         $this->set('printersnotinme', $printers);
-        unset($find);
     }
     /**
      * Loads any snapins this host has
@@ -933,7 +926,7 @@ class Host extends FOGController
             array('hostID' => $this->get('id')),
             'snapinID'
         );
-        $groups = self::getSubObjectIDs(
+        $snapins = self::getSubObjectIDs(
             'Snapin',
             array('id' => $snapins)
         );
@@ -946,14 +939,11 @@ class Host extends FOGController
      */
     protected function loadSnapinsnotinme()
     {
-        $find = array('id' => $this->get('snapins'));
-        $groups = self::getSubObjectIDs(
-            'Snapin',
-            $find,
-            'id',
-            true
+        $snapins = array_diff(
+            self::getSubObjectIDs('Snapin'),
+            $this->get('snapins')
         );
-        $this->set('snapinsnotinme', $groups);
+        $this->set('snapinsnotinme', $snapins);
     }
     /**
      * Loads any modules this host has

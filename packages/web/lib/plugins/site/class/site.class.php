@@ -156,12 +156,9 @@ class Site extends FOGController
      */
     protected function loadUsersnotinme()
     {
-        $find = array('id' => $this->get('users'));
-        $userids = self::getSubObjectIDs(
-            'User',
-            $find,
-            'id',
-            true
+        $userids = array_diff(
+            self::getSubObjectIDs('User'),
+            $this->get('users')
         );
         $types = array();
         self::$HookManager->processEvent(
@@ -229,11 +226,9 @@ class Site extends FOGController
             'Host',
             array('id' => $associds)
         );
-        $hostids = self::getSubObjectIDs(
-            'Host',
-            array('id' => $hostids),
-            'id',
-            true
+        $hostids = array_diff(
+            self::getSubObjectIDs('Host'),
+            $hostids
         );
         $this->set('hostsnotinme', $hostids);
     }

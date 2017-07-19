@@ -961,16 +961,10 @@ class Group extends FOGController
      */
     protected function loadHostsnotinme()
     {
-        $find = array('id' => $this->get('hosts'));
-        $this->set(
-            'hostsnotinme',
-            self::getSubObjectIDs(
-                'Host',
-                $find,
-                'id',
-                true
-            )
+        $hosts = array_diff(
+            self::getSubObjectIDs('Host'),
+            $this->get('hosts')
         );
-        unset($find);
+        $this->set('hostsnotinme', $hosts);
     }
 }
