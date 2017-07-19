@@ -1115,7 +1115,7 @@ abstract class FOGPage extends FOGBase
                     ),
                     'host_id' => $Host->id,
                     'host_name' => $Host->name,
-                    'host_mac' => $Host->macs[0],
+                    'host_mac' => $Host->primac,
                     'image_link' => '?node=image&sub=edit&id=${image_id}',
                     'image_title' => sprintf(
                         '%s: ${image_name}',

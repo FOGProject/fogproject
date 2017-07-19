@@ -128,7 +128,7 @@ class Snapin_Log extends ReportManagementPage
             $this->ReportMaker
                 ->addCSVCell($Host->id)
                 ->addCSVCell($Host->name)
-                ->addCSVCell($Host->macs[0])
+                ->addCSVCell($Host->primac)
                 ->addCSVCell($Snapin->id)
                 ->addCSVCell($Snapin->name)
                 ->addCSVCell($Snapin->description)

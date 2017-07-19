@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-18 17:59-0400\n"
+"POT-Creation-Date: 2017-07-18 21:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -43,6 +43,10 @@ msgstr ""
 
 #: /var/www/fog/status/logtoview.php:162
 msgid "IP Passed is incorrect"
+msgstr ""
+
+#: /var/www/fog/status/injectHosts.php:75
+msgid "All done"
 msgstr ""
 
 #: /var/www/fog/status/bandwidth.php:44
@@ -536,23 +540,23 @@ msgstr ""
 msgid "Return code"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:570
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:559
 msgid "No fields passed"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:573
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:562
 msgid "No values passed"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:610
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:599
 msgid "No data to insert"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:915
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:904
 msgid "No items found"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:993
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:982
 msgid "Nothing passed to search for"
 msgstr ""
 

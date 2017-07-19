@@ -76,7 +76,7 @@ class Hosts_And_Users extends ReportManagementPage
             unset($Image);
             $this->data[] = array(
                 'host_name' => $Host->name,
-                'host_mac' => $Host->macs[0],
+                'host_mac' => $Host->primac,
                 'image_name' => $imgName,
                 'users' => implode('<br/>', $Host->users)
             );

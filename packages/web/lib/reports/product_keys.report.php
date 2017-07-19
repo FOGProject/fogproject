@@ -77,7 +77,7 @@ class Product_Keys extends ReportManagementPage
             unset($Image);
             $this->data[] = array(
                 'host_name' => $Host->name,
-                'host_mac' => $Host->macs[0],
+                'host_mac' => $Host->primac,
                 'host_productKey' => $productKey,
                 'image_name' => $imgName
             );

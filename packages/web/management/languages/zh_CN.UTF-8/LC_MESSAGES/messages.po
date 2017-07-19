@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-18 17:59-0400\n"
+"POT-Creation-Date: 2017-07-18 21:42-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -48,6 +48,11 @@ msgstr "无法打开文件进行读取"
 #: /var/www/fog/status/logtoview.php:162
 msgid "IP Passed is incorrect"
 msgstr "IP传递是不正确"
+
+#: /var/www/fog/status/injectHosts.php:75
+#, fuzzy
+msgid "All done"
+msgstr "所有主机"
 
 #: /var/www/fog/status/bandwidth.php:44
 #, fuzzy
@@ -583,25 +588,25 @@ msgstr "发生未知上传错误。返回代码："
 msgid "Return code"
 msgstr "返回代码"
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:570
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:559
 msgid "No fields passed"
 msgstr "否字段通过"
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:573
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:562
 msgid "No values passed"
 msgstr "没有值传递"
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:610
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:599
 #, fuzzy
 msgid "No data to insert"
 msgstr "无数据返回"
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:915
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:904
 #, fuzzy
 msgid "No items found"
 msgstr "发现没有图标"
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:993
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:982
 #, fuzzy
 msgid "Nothing passed to search for"
 msgstr "输入用户名搜索"
@@ -10471,10 +10476,6 @@ msgstr "有此服务器上没有的位置。"
 
 #~ msgid "A broadcast with that name already exists."
 #~ msgstr "具有该名称的广播已经存在。"
-
-#, fuzzy
-#~ msgid "All done"
-#~ msgstr "所有主机"
 
 #~ msgid "Menu Added"
 #~ msgstr "菜单中添加"

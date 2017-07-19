@@ -403,29 +403,18 @@ abstract class FOGManagerController extends FOGBase
             if ($filter) {
                 return @$filter($data);
             }
-            if (!is_array($data)) {
-                return $data;
-            }
             if (count($data) === 1) {
                 $data = array_shift($data);
             }
-            if (empty($filter)) {
-                return $data;
-            }
         } else {
             foreach ((array)self::$DB->get() as &$val) {
-                $class = self::getClass($this->childClass, $val);
-                if (!$class->isValid()) {
-                    continue;
-                }
-                $data[] = $class;
+                $data[] = self::getClass($this->childClass, $val);
                 unset($val);
             }
         }
         if ($filter) {
             return @$filter($data);
         }
-
         return $data;
     }
     /**
