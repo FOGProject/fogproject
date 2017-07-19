@@ -3320,9 +3320,10 @@ abstract class FOGPage extends FOGBase
         );
         $getType = $objType . 's';
         $getter = $getType . 'notinme';
-        $items = $items->$getType;
+        $items = $items->${getType};
         $returnData = function (&$item) use (&$getter) {
-            if (!in_array($item->id, $this->obj->get($getter))) {
+            $this->obj->get($getter);
+            if (!in_array($item->id, (array)$this->obj->get($getter))) {
                 return;
             }
             $this->data[] = array(

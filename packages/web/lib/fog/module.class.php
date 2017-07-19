@@ -91,14 +91,11 @@ class Module extends FOGController
      */
     protected function loadHostsnotinme()
     {
-        $find = array('id' => $this->get('hosts'));
-        $groups = self::getSubObjectIDs(
-            'Host',
-            $find,
-            'id',
-            true
+        $hosts = array_diff(
+            self::getSubObjectIDs('Host'),
+            $this->get('hosts')
         );
-        $this->set('hostsnotinme', $groups);
+        $this->set('hostsnotinme', $hosts);
     }
     /**
      * Loads any hosts this module has

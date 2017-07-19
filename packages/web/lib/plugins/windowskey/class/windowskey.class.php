@@ -146,17 +146,11 @@ class WindowsKey extends FOGController
      */
     protected function loadImagesnotinme()
     {
-        $find = array(
-            'id' => $this->get('images')
+        $images = array_diff(
+            self::getSubObjectIDs('Image'),
+            $this->get('images')
         );
-        $imageIDs = self::getSubObjectIDs(
-            'Image',
-            $find,
-            'id',
-            true
-        );
-        $this->set('imagesnotinme', $imageIDs);
-        unset($find);
+        $this->set('imagesnotinme', $images);
     }
     /**
      * Custom Set method.
