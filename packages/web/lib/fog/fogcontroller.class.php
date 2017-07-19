@@ -215,29 +215,13 @@ abstract class FOGController extends FOGBase
         if (!$this->isLoaded($key)) {
             $this->loadItem($key);
         }
-        if (is_object($this->data[$key])) {
-            $msg = sprintf(
-                '%s: %s, %s: %s',
-                _('Returning value of key'),
-                $key,
-                _('Object'),
-                $this->data[$key]->__toString()
-            );
-        } elseif (is_array($this->data[$key])) {
-            $msg = sprintf(
-                '%s: %s',
-                _('Returning array within key'),
-                $key
-            );
-        } else {
-            $msg = sprintf(
-                '%s: %s, %s: %s',
-                _('Returning value of key'),
-                $key,
-                _('Value'),
-                $this->data[$key]
-            );
-        }
+        $msg = sprintf(
+            '%s: %s, %s: %s',
+            _('Returning value of key'),
+            $key,
+            _('Value'),
+            print_r($this->data[$key], 1)
+        );
         self::info($msg);
 
         return $this->data[$key];
@@ -269,30 +253,13 @@ abstract class FOGController extends FOGBase
             if (is_numeric($value) && $value < ($key == 'id' ? 1 : -1)) {
                 throw new Exception(_('Invalid numeric entry'));
             }
-            if (is_object($value)) {
-                $msg = sprintf(
-                    '%s: %s, %s: %s',
-                    _('Setting Key'),
-                    $key,
-                    _('Object'),
-                    $value->__toString()
-                );
-            } elseif (is_array($value)) {
-                $msg = sprintf(
-                    '%s: %s %s',
-                    _('Setting Key'),
-                    $key,
-                    _('Array')
-                );
-            } else {
-                $msg = sprintf(
-                    '%s: %s, %s: %s',
-                    _('Setting Key'),
-                    $key,
-                    _('Value'),
-                    $value
-                );
-            }
+            $msg = sprintf(
+                '%s: %s, $s: %s',
+                _('Setting Key'),
+                $key,
+                _('Value'),
+                print_r($value, 1)
+            );
             self::info($msg);
             $this->data[$key] = $value;
         } catch (Exception $e) {
@@ -333,30 +300,13 @@ abstract class FOGController extends FOGBase
             if (!$this->isLoaded($key)) {
                 $this->loadItem($key);
             }
-            if (is_object($value)) {
-                $msg = sprintf(
-                    '%s: %s, %s: %s',
-                    _('Adding Key'),
-                    $key,
-                    _('Object'),
-                    $value->__toString()
-                );
-            } elseif (is_array($value)) {
-                $msg = sprintf(
-                    '%s: %s %s',
-                    _('Adding Key'),
-                    $key,
-                    _('Array')
-                );
-            } else {
-                $msg = sprintf(
-                    '%s: %s, %s: %s',
-                    _('Adding Key'),
-                    $key,
-                    _('Value'),
-                    $value
-                );
-            }
+            $msg = sprintf(
+                '%s: %s, %s: %s',
+                _('Adding Key'),
+                $key,
+                _('Value'),
+                print_r($value, 1)
+            );
             self::info($msg);
             $this->data[$key][] = $value;
         } catch (Exception $e) {
@@ -402,30 +352,13 @@ abstract class FOGController extends FOGBase
             }
             $this->data[$key] = array_unique($this->data[$key]);
             $index = array_search($value, $this->data[$key]);
-            if (is_object($this->data[$key][$index])) {
-                $msg = sprintf(
-                    '%s: %s, %s: %s',
-                    _('Removing Key'),
-                    $key,
-                    _('Object'),
-                    $this->data[$key][$index]->__toString()
-                );
-            } elseif (is_array($this->data[$key][$index])) {
-                $msg = sprintf(
-                    '%s: %s %s',
-                    _('Removing Key'),
-                    $key,
-                    _('Array')
-                );
-            } else {
-                $msg = sprintf(
-                    '%s: %s, %s: %s',
-                    _('Removing Key'),
-                    $key,
-                    _('Value'),
-                    $this->data[$key][$index]
-                );
-            }
+            $msg = sprintf(
+                '%s: %s, %s: %s',
+                _('Removing Key'),
+                $key,
+                _('Value'),
+                print_r($this->data[$key][$index], 1)
+            );
             self::info($msg);
             unset($this->data[$key][$index]);
             $this->data[$key] = array_values(array_filter($this->data[$key]));
@@ -657,13 +590,13 @@ abstract class FOGController extends FOGBase
                 (array) $paramKey,
                 (array) $val
             );
-            $this->setQuery(
-                self::$DB->query(
-                    $query,
-                    array(),
-                    $queryArray
-                )->fetch()->get()
+            self::$DB->query(
+                $query,
+                array(),
+                $queryArray
             );
+            $vals = self::$DB->fetch()->get();
+            $this->setQuery($vals);
         } catch (Exception $e) {
             $str = sprintf(
                 '%s: %s: %s, %s: %s',

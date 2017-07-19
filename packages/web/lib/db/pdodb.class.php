@@ -594,11 +594,7 @@ class PDODB extends DatabaseManager
      */
     private static function _all($type = PDO::FETCH_ASSOC)
     {
-        self::$_result = array();
-        while ($row = self::$_queryResult->fetch($type)) {
-            self::$_result[] = $row;
-        }
-        self::$_queryResult->closeCursor();
+        self::$_result = self::$_queryResult->fetchAll($type);
     }
     /**
      * Fetch single item
