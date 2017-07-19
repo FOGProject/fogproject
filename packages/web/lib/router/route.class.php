@@ -478,7 +478,7 @@ class Route extends FOGBase
             }
             break;
         default:
-            foreach ($classman->find($find, 'AND', $sortby) as &$class) {
+            foreach ((array)$classman->find($find, 'AND', $sortby) as &$class) {
                 $test = stripos(
                     $class->get('name'),
                     '_api_'
@@ -1186,7 +1186,8 @@ class Route extends FOGBase
                 $class->get(),
                 array(
                     'totalsupportedclients' => $class->getTotalSupportedClients(),
-                    'masternode' => $class->getMasterStorageNode()->get()
+                    'masternode' => $class->getMasterStorageNode()->get(),
+                    'enablednodes' => $class->get('enablednodes')
                 )
             );
             break;
