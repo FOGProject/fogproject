@@ -90,7 +90,7 @@ class Imaging_Log extends ReportManagementPage
             $end = self::niceDate($end);
             $hostname = $ImagingLog->host->name;
             $hostid = $ImagingLog->host->id;
-            $hostmac = $ImagingLog->host->macs[0];
+            $hostmac = $ImagingLog->host->primac;
             $hostdesc = $ImagingLog->host->description;
             $typename = $ImagingLog->type;
             if (in_array($typename, array_keys($imgTypes))) {

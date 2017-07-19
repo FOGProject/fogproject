@@ -1121,56 +1121,12 @@ class Route extends FOGBase
                     'productKey' => (string)FOGCore::aesdecrypt(
                         $class->get('productKey')
                     ),
-                    'primac' => $class->get('mac')->__toString(),
                     'hostscreen' => $class->get('hostscreen')->get(),
                     'hostalo' => $class->get('hostalo')->get(),
                     'inventory' => $class->get('inventory')->get(),
                     'image' => $class->get('imagename')->get(),
                     'imagename' => $class->getImageName(),
-                    'macs' => $class->getMyMacs(),
-                    'modules' => array_map(
-                        'intval',
-                        $class->get('modules')
-                    ),
-                    'pingstatus' => $class->getPingCodeStr(),
-                    'snapinjob' => $class->get('snapinjob')->get(),
-                    'snapins' => array_map(
-                        'intval',
-                        $class->get('snapins')
-                    ),
-                    'snapinsnotinme' => array_map(
-                        'intval',
-                        $class->get('snapinsnotinme')
-                    ),
-                    'printers' => array_map(
-                        'intval',
-                        $class->get('printers')
-                    ),
-                    'printersnotinme' => array_map(
-                        'intval',
-                        $class->get('printersnotinme')
-                    ),
-                    'groups' => array_map(
-                        'intval',
-                        $class->get('groups')
-                    ),
-                    'groupsnotinme' => array_map(
-                        'intval',
-                        $class->get('groupsnotinme')
-                    ),
-                    'users' => array_values(
-                        array_filter(
-                            array_unique(
-                                self::getSubObjectIDs(
-                                    'UserTracking',
-                                    array(
-                                        'id' => $class->get('users')
-                                    ),
-                                    'username'
-                                )
-                            )
-                        )
-                    )
+                    'primac' => $class->get('mac')->__toString()
                 )
             );
             break;
@@ -1186,14 +1142,6 @@ class Route extends FOGBase
             $data = FOGCore::fastmerge(
                 $class->get(),
                 array(
-                    'hosts' => array_map(
-                        'intval',
-                        $class->get('hosts')
-                    ),
-                    'hostsnotinme' => array_map(
-                        'intval',
-                        $class->get('hostsnotinme')
-                    ),
                     'hostcount' => $class->getHostCount()
                 )
             );
@@ -1210,19 +1158,7 @@ class Route extends FOGBase
                         'name'
                     ),
                     'osname' => $class->getOS()->get('name'),
-                    'storagegroupname' => $class->getStorageGroup()->get('name'),
-                    'hosts' => array_map(
-                        'intval',
-                        (array)$class->get('hosts')
-                    ),
-                    'hostsnotinme' => array_map(
-                        'intval',
-                        (array)$class->get('hostsnotinme')
-                    ),
-                    'storagegroups' => array_map(
-                        'intval',
-                        (array)$class->get('storagegroups')
-                    )
+                    'storagegroupname' => $class->getStorageGroup()->get('name')
                 )
             );
             break;
@@ -1230,19 +1166,7 @@ class Route extends FOGBase
             $data = FOGCore::fastmerge(
                 $class->get(),
                 array(
-                    'storagegroupname' => $class->getStorageGroup()->get('name'),
-                    'hosts' => array_map(
-                        'intval',
-                        (array)$class->get('hosts')
-                    ),
-                    'hostsnotinme' => array_map(
-                        'intval',
-                        (array)$class->get('hostsnotinme')
-                    ),
-                    'storagegroups' => array_map(
-                        'intval',
-                        (array)$class->get('storagegroups')
-                    )
+                    'storagegroupname' => $class->getStorageGroup()->get('name')
                 )
             );
             break;
@@ -1260,10 +1184,6 @@ class Route extends FOGBase
             $data = FOGCore::fastmerge(
                 $class->get(),
                 array(
-                    'enablednodes' => array_map(
-                        'intval',
-                        $class->get('enablednodes')
-                    ),
                     'totalsupportedclients' => $class->getTotalSupportedClients(),
                     'masternode' => $class->getMasterStorageNode()->get()
                 )
@@ -1279,21 +1199,6 @@ class Route extends FOGBase
                     'state' => $class->get('state')->get(),
                     'storagenode' => $class->get('storagenode')->get(),
                     'storagegroup' => $class->get('storagegroup')->get()
-                )
-            );
-            break;
-        case 'module':
-            $data = FOGCore::fastmerge(
-                $class->get(),
-                array(
-                    'hosts' => array_map(
-                        'intval',
-                        (array)$class->get('hosts')
-                    ),
-                    'hostsnotinme' => array_map(
-                        'intval',
-                        $class->get('hostsnotinme')
-                    )
                 )
             );
             break;
@@ -1338,11 +1243,7 @@ class Route extends FOGBase
                 $class->get(),
                 array(
                     'host' => $class->get('host')->get(),
-                    'state' => $class->get('state')->get(),
-                    'snapintasks' => array_map(
-                        'intval',
-                        $class->get('snapintasks')
-                    )
+                    'state' => $class->get('state')->get()
                 )
             );
             break;

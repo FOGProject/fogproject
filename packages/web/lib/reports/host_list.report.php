@@ -73,7 +73,7 @@ class Host_List extends ReportManagementPage
             unset($Image);
             $this->data[] = array(
                 'host_name' => $Host->name,
-                'host_mac' => $Host->macs[0],
+                'host_mac' => $Host->primac,
                 'image_name' => $imgName,
             );
             foreach ((array)$csvHead as $head => &$classGet) {

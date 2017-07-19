@@ -65,7 +65,7 @@ class Inventory_Report extends ReportManagementPage
             $Inventory = $Host->inventory;
             $this->data[] = array(
                 'host_name' => $Host->name,
-                'host_mac' => $Host->macs[0],
+                'host_mac' => $Host->primac,
                 'memory' => $Inventory->memory,
                 'sysprod' => $Inventory->sysproduct,
                 'sysser' => $Inventory->sysserial,
@@ -79,7 +79,7 @@ class Inventory_Report extends ReportManagementPage
                     $this->ReportMaker->addCSVCell($Host->name);
                     break;
                 case _('Host MAC'):
-                    $this->ReportMaker->addCSVCell($Host->macs[0]);
+                    $this->ReportMaker->addCSVCell($Host->primac);
                     break;
                 case _('Host Desc'):
                     $this->ReportMaker->addCSVCell($Host->description);

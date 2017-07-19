@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-18 17:59-0400\n"
+"POT-Creation-Date: 2017-07-18 21:42-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -48,6 +48,11 @@ msgstr "Unable to open file for reading"
 #: /var/www/fog/status/logtoview.php:162
 msgid "IP Passed is incorrect"
 msgstr "IP Passed is incorrect"
+
+#: /var/www/fog/status/injectHosts.php:75
+#, fuzzy
+msgid "All done"
+msgstr "All Hosts"
 
 #: /var/www/fog/status/bandwidth.php:44
 #, fuzzy
@@ -585,25 +590,25 @@ msgstr "Unknown upload error occurred.  Return code: "
 msgid "Return code"
 msgstr "Return Code"
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:570
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:559
 msgid "No fields passed"
 msgstr "No fields passed"
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:573
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:562
 msgid "No values passed"
 msgstr "No values passed"
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:610
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:599
 #, fuzzy
 msgid "No data to insert"
 msgstr "No data returned"
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:915
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:904
 #, fuzzy
 msgid "No items found"
 msgstr "No icons found"
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:993
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:982
 #, fuzzy
 msgid "Nothing passed to search for"
 msgstr "Enter a username to search for"
@@ -10493,10 +10498,6 @@ msgstr "There are no locations on this server."
 
 #~ msgid "A broadcast with that name already exists."
 #~ msgstr "A broadcast with that name already exists."
-
-#, fuzzy
-#~ msgid "All done"
-#~ msgstr "All Hosts"
 
 #~ msgid "Menu Added"
 #~ msgstr "Menu Added"

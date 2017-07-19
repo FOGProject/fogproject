@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-18 17:59-0400\n"
+"POT-Creation-Date: 2017-07-18 21:42-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -47,6 +47,11 @@ msgstr "Impossibile aprire il file per la lettura"
 #: /var/www/fog/status/logtoview.php:162
 msgid "IP Passed is incorrect"
 msgstr "IP Passato è corretto"
+
+#: /var/www/fog/status/injectHosts.php:75
+#, fuzzy
+msgid "All done"
+msgstr "tutti gli host"
 
 #: /var/www/fog/status/bandwidth.php:44
 msgid "Device must be a string"
@@ -540,23 +545,23 @@ msgstr "Si è verificato errore di caricamento sconosciuto"
 msgid "Return code"
 msgstr "Codice di ritorno"
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:570
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:559
 msgid "No fields passed"
 msgstr "Nessun campo passato"
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:573
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:562
 msgid "No values passed"
 msgstr "Nessun valore passato"
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:610
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:599
 msgid "No data to insert"
 msgstr "Nessun dato da inserire"
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:915
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:904
 msgid "No items found"
 msgstr "Nessun elemento trovato"
 
-#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:993
+#: /var/www/fog/lib/fog/fogmanagercontroller.class.php:982
 #, fuzzy
 msgid "Nothing passed to search for"
 msgstr "Inserisci un nome utente da cercare"
@@ -10098,10 +10103,6 @@ msgstr "Non ci sono posizioni su questo server"
 
 #~ msgid "A broadcast with that name already exists."
 #~ msgstr "Una trasmissione con questo nome esiste già."
-
-#, fuzzy
-#~ msgid "All done"
-#~ msgstr "tutti gli host"
 
 #~ msgid "Menu Added"
 #~ msgstr "Menu Aggiunto"

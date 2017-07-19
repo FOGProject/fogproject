@@ -383,7 +383,7 @@ class TaskManagementPage extends FOGPage
             $this->data[] = array(
                 'id' => $Host->id,
                 'name' => $Host->name,
-                'mac' => $Host->macs[0],
+                'mac' => $Host->primac,
                 'imagename' => $Host->image->name,
             );
             unset($Host);
@@ -1002,7 +1002,7 @@ class TaskManagementPage extends FOGPage
                 'name' => $Snapin->name,
                 'host_id' => $Host->id,
                 'host_name' => $Host->name,
-                'host_mac' => $Host->macs[0],
+                'host_mac' => $Host->primac,
                 'startDate' => self::formatTime(
                     $SnapinTask->checkin,
                     'Y-m-d H:i:s'
@@ -1234,7 +1234,7 @@ class TaskManagementPage extends FOGPage
                     '' :
                     sprintf(
                         '<br/>%s',
-                        $ObjTest->macs[0]
+                        $ObjTest->primac
                     )
                 ),
                 'nametype' => $method,

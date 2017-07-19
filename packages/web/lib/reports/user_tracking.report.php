@@ -297,7 +297,7 @@ class User_Tracking extends ReportManagementPage
             unset($actions);
             $username = $User->username;
             $hostname = $User->host->name;
-            $hostmac = $User->host->macs[0];
+            $hostmac = $User->host->primac;
             $hostdesc = $User->host->description;
             $date = $date->format('Y-m-d H:i:s');
             $desc = $User->description;
