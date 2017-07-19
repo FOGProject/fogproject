@@ -13,7 +13,7 @@ $(function() {
     };
     if ($_GET['sub'] == 'membership') return;
     setInterval(function() {
-        $('#add, #updategen, #updategroups, #primarysel, #groupdel').each(function(e) {
+        $('#updategroups, #primarysel, #groupdel').each(function(e) {
             if ($(this).is(':visible')) {
                 form = $(this).parents('form');
                 validator = form.validate(validatorOpts);
@@ -25,6 +25,16 @@ $(function() {
         $('.snapinname-input').each(function(e) {
             if ($(this).is(':visible')) {
                 $(this).on('keyup change blur', function(e) {
+                    validator = $(this).parents('form').validate({
+                        rules: {
+                            name: {
+                                required: true,
+                                minlength: 1,
+                                maxlength: 255,
+                                regex: /^[-\w!@#$%^()'{}\\\.~ ]{1,255}$/
+                            }
+                        }
+                    });
                     return validator.element(this);
                 }).trigger('change');
             }
