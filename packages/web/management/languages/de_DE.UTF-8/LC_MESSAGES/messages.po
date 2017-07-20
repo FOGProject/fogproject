@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-19 21:56-0400\n"
+"POT-Creation-Date: 2017-07-20 13:35-0400\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -48,11 +48,6 @@ msgstr "Nicht in der Lage, die Datei zum Lesen öffnen"
 #: /var/www/fog/status/logtoview.php:162
 msgid "IP Passed is incorrect"
 msgstr "Es ist falsch, IP übergeben"
-
-#: /var/www/fog/status/injectHosts.php:75
-#, fuzzy
-msgid "All done"
-msgstr "Alle Hosts"
 
 #: /var/www/fog/status/bandwidth.php:44
 #, fuzzy
@@ -6596,13 +6591,13 @@ msgstr "Zerstörte Zuordnung"
 msgid "Destroyed assignment"
 msgstr "Zerstörte Zuordnung"
 
-#: /var/www/fog/lib/router/route.class.php:600
-#: /var/www/fog/lib/router/route.class.php:803
+#: /var/www/fog/lib/router/route.class.php:612
+#: /var/www/fog/lib/router/route.class.php:815
 #, fuzzy
 msgid "Already created"
 msgstr "Bereits registriert als"
 
-#: /var/www/fog/lib/router/route.class.php:741
+#: /var/www/fog/lib/router/route.class.php:753
 #, fuzzy
 msgid "Invalid tasking type passed"
 msgstr "Ungültiges Objekttyp übergeben"
@@ -10454,6 +10449,10 @@ msgstr "Hallo Nebel Client"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "Es gibt keine Orte auf diesem Server."
+
+#, fuzzy
+#~ msgid "All done"
+#~ msgstr "Alle Hosts"
 
 #, fuzzy
 #~ msgid "tasking"

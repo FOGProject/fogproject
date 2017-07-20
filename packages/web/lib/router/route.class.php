@@ -463,7 +463,10 @@ class Route extends FOGBase
             self::$data['count_installed'] = 0;
             self::$data['count_not_active'] = 0;
             foreach (self::getClass('Plugin')->getPlugins() as $class) {
-                self::$data[$classname.'s'][] = self::getter($classname, $class);
+                self::$data[$classname.'s'][] = self::getter(
+                    $classname,
+                    $class
+                );
                 if ($class->isActive() && !$class->isInstalled()) {
                     self::$data['count_active']++;
                 }
@@ -486,7 +489,10 @@ class Route extends FOGBase
                 if (!$bypass && false != $test) {
                     continue;
                 }
-                self::$data[$classname.'s'][] = self::getter($classname, $class);
+                self::$data[$classname.'s'][] = self::getter(
+                    $classname,
+                    $class
+                );
                 self::$data['count']++;
                 unset($class);
             }
@@ -522,7 +528,10 @@ class Route extends FOGBase
             if (false != stripos($class->get('name'), '_api_')) {
                 continue;
             }
-            self::$data[$classname.'s'][] = self::getter($classname, $class);
+            self::$data[$classname.'s'][] = self::getter(
+                $classname,
+                $class
+            );
             self::$data['count']++;
             unset($class);
         }
@@ -554,7 +563,10 @@ class Route extends FOGBase
             );
         }
         self::$data = array();
-        self::$data = self::getter($classname, $class);
+        self::$data = self::getter(
+            $classname,
+            $class
+        );
         self::$HookManager
             ->processEvent(
                 'API_INDIVDATA_MAPPING',
@@ -1019,7 +1031,10 @@ class Route extends FOGBase
         self::$data['count'] = 0;
         self::$data[$classname.'s'] = array();
         foreach ((array)$classman->find($find) as &$class) {
-            self::$data[$classname.'s'][] = self::getter($classname, $class);
+            self::$data[$classname.'s'][] = self::getter(
+                $classname,
+                $class
+            );
             self::$data['count']++;
             unset($class);
         }
@@ -1196,7 +1211,10 @@ class Route extends FOGBase
                 $class->get(),
                 array(
                     'image' => $class->get('image')->get(),
-                    'host' => $class->get('host')->get(),
+                    'host' => self::getter(
+                        'host',
+                        $class->get('host')
+                    ),
                     'type' => $class->get('type')->get(),
                     'state' => $class->get('state')->get(),
                     'storagenode' => $class->get('storagenode')->get(),
@@ -1220,7 +1238,10 @@ class Route extends FOGBase
             $data = FOGCore::fastmerge(
                 $class->get(),
                 array(
-                    'host' => $class->get('host')->get(),
+                    'host' => self::getter(
+                        'host',
+                        $class->get('host')
+                    ),
                     'image' => (
                         $class->get('images')->isValid() ?
                         $class->get('images')->get() :
@@ -1244,7 +1265,10 @@ class Route extends FOGBase
             $data = FOGCore::fastmerge(
                 $class->get(),
                 array(
-                    'host' => $class->get('host')->get(),
+                    'host' => self::getter(
+                        'host',
+                        $class->get('host')->get()
+                    ),
                     'state' => $class->get('state')->get()
                 )
             );
@@ -1253,7 +1277,10 @@ class Route extends FOGBase
             $data = FOGCore::fastmerge(
                 $class->get(),
                 array(
-                    'host' => $class->get('host')->get()
+                    'host' => self::getter(
+                        'host',
+                        $class->get('host')->get()
+                    )
                 )
             );
             break;
@@ -1278,10 +1305,13 @@ class Route extends FOGBase
                         'host'
                     ) => (
                         $class->isGroupBased() ?
-                        self::getter('group', $class->getGroup()) :
-                        self::getter('host', $class->getHost())
+                        $class->getGroup()->get() :
+                        self::getter(
+                            'host',
+                            $class->getHost()
+                        )
                     ),
-                    'tasktype' => self::getter('tasktype', $class->getTaskType()),
+                    'tasktype' => $class->getTaskType()->get(),
                     'runtime' => $class->getTime()
                 )
             );
