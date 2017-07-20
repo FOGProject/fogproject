@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-19 21:56-0400\n"
+"POT-Creation-Date: 2017-07-20 13:43-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -43,10 +43,6 @@ msgstr ""
 
 #: /var/www/fog/status/logtoview.php:162
 msgid "IP Passed is incorrect"
-msgstr ""
-
-#: /var/www/fog/status/injectHosts.php:75
-msgid "All done"
 msgstr ""
 
 #: /var/www/fog/status/bandwidth.php:44
@@ -6044,12 +6040,12 @@ msgstr ""
 msgid "Destroyed assignment"
 msgstr ""
 
-#: /var/www/fog/lib/router/route.class.php:600
-#: /var/www/fog/lib/router/route.class.php:803
+#: /var/www/fog/lib/router/route.class.php:612
+#: /var/www/fog/lib/router/route.class.php:815
 msgid "Already created"
 msgstr ""
 
-#: /var/www/fog/lib/router/route.class.php:741
+#: /var/www/fog/lib/router/route.class.php:753
 msgid "Invalid tasking type passed"
 msgstr ""
 

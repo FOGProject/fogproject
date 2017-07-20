@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-19 21:56-0400\n"
+"POT-Creation-Date: 2017-07-20 13:35-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -47,11 +47,6 @@ msgstr "Impossibile aprire il file per la lettura"
 #: /var/www/fog/status/logtoview.php:162
 msgid "IP Passed is incorrect"
 msgstr "IP Passato è corretto"
-
-#: /var/www/fog/status/injectHosts.php:75
-#, fuzzy
-msgid "All done"
-msgstr "tutti gli host"
 
 #: /var/www/fog/status/bandwidth.php:44
 msgid "Device must be a string"
@@ -6417,12 +6412,12 @@ msgstr "Assegnamenti distrutti"
 msgid "Destroyed assignment"
 msgstr "Assegnazione distrutta"
 
-#: /var/www/fog/lib/router/route.class.php:600
-#: /var/www/fog/lib/router/route.class.php:803
+#: /var/www/fog/lib/router/route.class.php:612
+#: /var/www/fog/lib/router/route.class.php:815
 msgid "Already created"
 msgstr "Già creato"
 
-#: /var/www/fog/lib/router/route.class.php:741
+#: /var/www/fog/lib/router/route.class.php:753
 msgid "Invalid tasking type passed"
 msgstr "È passato il tipo di attività non valido"
 
@@ -10034,6 +10029,10 @@ msgstr "Ciao FOG client"
 #: /var/www/fog/service/locationlisting.php:28
 msgid "There are no locations on this server"
 msgstr "Non ci sono posizioni su questo server"
+
+#, fuzzy
+#~ msgid "All done"
+#~ msgstr "tutti gli host"
 
 #~ msgid "tasking"
 #~ msgstr "attività"
