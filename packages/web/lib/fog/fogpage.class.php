@@ -1971,6 +1971,7 @@ abstract class FOGPage extends FOGBase
                 )
             )
         );
+        $remitems = $remitems['remitems'];
         self::$HookManager->processEvent(
             'MULTI_REMOVE',
             array('removing' => &$remitems)
