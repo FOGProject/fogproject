@@ -2374,7 +2374,7 @@ class HostManagementPage extends FOGPage
             . _('Other Tag #2')
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control" type="text" value="'
-            . $other1
+            . $other2
             . '" name="other2" id="other2"/>'
             . '</div>',
             _('System Manufacturer') => $sysman,
