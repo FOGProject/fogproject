@@ -91,22 +91,5 @@ $(function() {
             },
         });
     });
-    setInterval(function() {
-        $('#add, #updategen').each(function(e) {
-            if ($(this).is(':visible')) {
-                form = $(this).parents('form');
-                validator = form.validate(validatorOpts);
-            }
-            $(this).on('click', function(e) {
-                data = this.name;
-            });
-        });
-        $('.printername-input, .printerinf-input, .printerport-input, .printerip-input, .printermodel-input, .printerconfigFile-input').each(function(e) {
-            if ($(this).is(':visible')) {
-                $(this).on('keyup change blur', function(e) {
-                    return validator.element(this);
-                }).trigger('change');
-            }
-        });
-    }, 1000);
+    setupTimeoutElement('#add, #updategen', '.printername-input, .printerinf-input, .printerport-input, .printerip-input, .printermodel-input, .printerconfigFile-input', 1000);
 });

@@ -35,24 +35,7 @@ $(function() {
             }
         }
     };
-    setInterval(function() {
-        $('#add, #update').each(function(e) {
-            if ($(this).is(':visible')) {
-                form = $(this).parents('form');
-                validator = form.validate(validatorOpts);
-            }
-            $(this).on('click', function(e) {
-                data = this.name;
-            });
-        });
-        $('#name, #storagegroup, #ip, #path, #ftppath, #snapinpath, #user, #pass').each(function(e) {
-            if ($(this).is(':visible')) {
-                $(this).on('keyup change blur', function(e) {
-                    return validator.element(this);
-                }).trigger('change');
-            }
-        });
-    }, 1000);
+    setupTimeoutElement('#add, #update', '#name, #storagegroup, #ip, #path, #ftppath, #snapinpath, #user, #pass', 1000);
     $('#del-storage').on('click', function(e) {
         var checked = getChecked();
         $('input[name="'+node+'IDArray"]').val(checked.join(','));

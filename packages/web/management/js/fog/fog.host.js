@@ -20,24 +20,7 @@ $(function() {
             }
         }
     };
-    setInterval(function() {
-        $('#host-add, #all, #pmsubmit, #pmupdate, #pmdelete, #updategen, #levelup, #updateprinters, #defaultsel, #printdel, #updatesnapins, #snapdel, #updatestatus, #updatedisplay, #updatealo, #updateinv, #host-edit').each(function(e) {
-            if ($(this).is(':visible')) {
-                form = $(this).parents('form');
-                validator = form.validate(validatorOpts);
-            }
-            $(this).on('click', function(e) {
-                data = this.name;
-            });
-        });
-        $('.hostname-input, .macaddr').each(function(e) {
-            if ($(this).is(':visible')) {
-                $(this).on('keyup change blur', function(e) {
-                    return validator.element(this);
-                });
-            }
-        });
-    }, 1000);
+    setupTimeoutElement('#host-add, #all, #pmsubmit, #pmupdate, #pmdelete, #updategen, #levelup, #updateprinters, #defaultsel, #printdel, #updatesnapins, #snapdel, #updatestatus, #updatedisplay, #updatealo, #updateinv, #host-edit', '.hostname-input, .macaddr', 1000);
     checkboxAssociations('.toggle-checkboxgroup:checkbox','.toggle-group:checkbox');
     MACUpdate();
     ProductUpdate();

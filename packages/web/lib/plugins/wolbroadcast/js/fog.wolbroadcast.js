@@ -14,31 +14,7 @@ $(function() {
             }
         }
     };
-    setInterval(function() {
-        $('#add, #updategen').each(function(e) {
-            if ($(this).is(':visible')) {
-                form = $(this).parents('form');
-                validator = form.validate(validatorOpts);
-            }
-            $(this).on('click', function(e) {
-                data = this.name;
-            });
-            $('.wolinput-name, .wolinput-ip').each(function(e) {
-                if ($(this).is(':visible')) {
-                    if (!$(this).hasClass('isvisible')) {
-                        $(this).addClass('isvisible');
-                    }
-                    $(this).on('keyup change blur', function(e) {
-                        return validator.element(this);
-                    }).trigger('change');
-                } else {
-                    if ($(this).hasClass('isvisible')) {
-                        $(this).removeClass('isvisible');
-                    }
-                }
-            });
-        });
-    }, 1000);
+    setupTimeoutElement('#add, #updategen', '.wolinput-name, .wolinput-ip', 1000);
     $('.action-boxes').submit(function() {
         var checked = $('input.toggle-action:checked');
         var wolbroadcastIDArray = new Array();
