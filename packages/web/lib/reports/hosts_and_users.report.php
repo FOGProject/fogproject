@@ -78,7 +78,14 @@ class Hosts_And_Users extends ReportManagementPage
                 'host_name' => $Host->name,
                 'host_mac' => $Host->primac,
                 'image_name' => $imgName,
-                'users' => implode('<br/>', $Host->users)
+                'users' => implode(
+                    '<br/>',
+                    self::getSubObjectIDs(
+                        'UserTracking',
+                        array('hostID' => $Host->id),
+                        'username'
+                    )
+                )
             );
             foreach ((array)$csvHead as $head => &$classGet) {
                 switch ($head) {
