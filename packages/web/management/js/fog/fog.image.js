@@ -28,44 +28,60 @@ $(function() {
         }
     };
     if ($_GET['sub'] == 'membership') return;
-    $('.imagefile-input').on('change keyup',function(e) {
+    $('.imagefile-input').on('keyup change blur focus focusout', function(e) {
         var start = this.selectionStart,
             end = this.selectionEnd;
         this.value = this.value.replace(/[^\w+\/\.-]/g,'');
         this.setSelectionRange(start,end);
         iFileVal = this.value;
         e.preventDefault();
+        form = $(this).parents('form');
+        validator = form.validate(validatorOpts);
+        return validator.element(this);
     });
-    $('.imagename-input').on('change keyup',function(e) {
+    $('.imagename-input').on('keyup change blur focus focusout', function(e) {
         var start = this.selectionStart,
             end = this.selectionEnd;
         if (typeof iFileVal === 'undefined') return;
         if (iFileVal.length == 0) $('.imagefile-input').val(this.value.replace(/[^\w+\/\.-]/g,''));
         this.setSelectionRange(start,end);
         e.preventDefault();
+        form = $(this).parents('form');
+        validator = form.validate(validatorOpts);
+        return validator.element(this);
     }).blur(function(e) {
         if (typeof iFileVal === 'undefined') return;
         if (iFileVal.length == 0) $('.imagefile-input').val(this.value.replace(/[^\w+\/.-]/g,''));
         iFileVal = $('.imagefile-input').val();
         e.preventDefault();
+        form = $(this).parents('form');
+        validator = form.validate(validatorOpts);
+        return validator.element(this);
     });
-    setInterval(function() {
-        $('#add, #updategen, #updategroups, #primarysel, #groupdel').each(function(e) {
-            if ($(this).is(':visible')) {
-                form = $(this).parents('form');
-                validator = form.validate(validatorOpts);
-            }
-            $(this).on('click', function(e) {
-                data = this.name;
-            });
-        });
-        $('.imagename-input, #storagegroup, #os, .imagefile-input, #imagetype').each(function(e) {
-            if ($(this).is(':visible')) {
-                $(this).on('keyup change blur', function(e) {
-                    return validator.element(this);
-                }).trigger('change');
-            }
-        });
-    }, 1000);
+    setTimeoutElement();
     var iFileVal = $('.imagefile-input').val();
 });
+function setTimeoutElement() {
+    if (TimeoutRunning) {
+        clearTimeout(TimeoutRunning);
+    }
+    $('#add, #updategen, #updategroups, #primarysel, #groupdel').each(function(e) {
+        if ($(this).is(':visible')) {
+            form = $(this).parents('form');
+            validator = form.validate(validatorOpts);
+        }
+        $(this).on('click', function(e) {
+            data = this.name;
+        });
+    });
+    $('#storagegroup, #os, #imagetype').each(function(e) {
+        if ($(this).is(':visible')) {
+            $(this).on('keyup change blur focus focusout', function(e) {
+                form = $(this).parents('form');
+                validator = form.validate(validatorOpts);
+                return validator.element(this);
+            }).trigger('change');
+        }
+    });
+    TimeoutRunning = setTimeout(setTimeoutElement, 1000);
+}

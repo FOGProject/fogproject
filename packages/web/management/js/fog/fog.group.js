@@ -11,23 +11,6 @@ $(function() {
             }
         }
     };
-    setInterval(function() {
-        $('#add, #updategen, #updateimage, #delAllPM, #levelup, #update, #remove, #addsnapins, #remsnapins, #updatestatus, #updatedisplay, #updatealo, #group-add, #group-edit').each(function(e) {
-            if ($(this).is(':visible')) {
-                form = $(this).parents('form');
-                validator = form.validate(validatorOpts);
-            }
-            $(this).on('click', function(e) {
-                data = this.name;
-            });
-        });
-        $('.groupname-input').each(function(e) {
-            if ($(this).is(':visible')) {
-                $(this).on('keyup change blur', function(e) {
-                    return validator.element(this);
-                });
-            }
-        });
-    }, 1000);
+    setupTimeoutElement('#add, #updategen, #updateimage, #delAllPM, #levelup, #update, #remove, #addsnapins, #remsnapins, #updatestatus, #updatedisplay, #updatealo, #group-add, #group-edit', '.groupname-input', 1000);
     ProductUpdate();
 });

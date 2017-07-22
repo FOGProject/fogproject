@@ -3,17 +3,7 @@ $(function() {
     validatorOpts = {
         submitHandler: submithandlerfunc
     };
-    setInterval(function() {
-        $('button[name="update"], button[type="submit"]:not(#importbtn, #export, #upload, #Rebranding), #menuSet, #hideSet, #exitSet, #advSet, button[name="saveform"], button[name="delform"], #deletecu').each(function(e) {
-            if ($(this).is(':visible')) {
-                $(this).on('click', function(e) {
-                    data = this.name;
-                    form = $(this).parents('form');
-                    validator = form.validate(validatorOpts);
-                });
-            }
-        });
-    }, 1000);
+    setTimeoutElement();
     $.ajax({
         url: '../status/mainversion.php',
         dataType: 'json',
@@ -77,3 +67,18 @@ $(function() {
         });
     });
 });
+function setTimeoutElement() {
+    if (TimeoutRunning) {
+        clearTimeout(TimeoutRunning);
+    }
+    $('button[name="update"], button[type="submit"]:not(#importbtn, #export, #upload, #Rebranding), #menuSet, #hideSet, #exitSet, #advSet, button[name="saveform"], button[name="delform"], #deletecu').each(function(e) {
+        if ($(this).is(':visible')) {
+            $(this).on('click', function(e) {
+                data = this.name;
+                form = $(this).parents('form');
+                validator = form.validate(validatorOpts);
+            });
+        }
+    });
+    TimeoutRunning = setTimeout(setTimeoutElement, 1000);
+}

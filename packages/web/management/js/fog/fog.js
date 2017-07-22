@@ -6,7 +6,7 @@
  *	Last Update:	$LastChangedDate: 2014-10-16 11:55:06 -0400 (Thu, 16 Oct 2014) $
  ***/
 var startTime = new Date().getTime();
-var validatoropts,
+var validatorOpts,
     screenview,
     callme;
 var $_GET = getQueryParams(document.location.search),
@@ -35,7 +35,10 @@ var $_GET = getQueryParams(document.location.search),
     savedFilters,
     checkedIDs,
     data = '',
+    form,
+    TimeoutRunning,
     submithandlerfunc;
+var validator;
 // Searching
 _L['PERFORMING_SEARCH'] = 'Searching...';
 _L['ERROR_SEARCHING'] = 'Search failed';
@@ -858,5 +861,30 @@ function setupFogTableInfoFunction() {
         }).trigger('update').trigger('updateAll');
         HookTooltip();
         return this;
+    }
+}
+function setupTimeoutElement(selectors1, selectors2, timeout) {
+    if (selectors1.length > 0) {
+        $(selectors1).each(function(e) {
+            if ($(this).is(':visible')) {
+                form = $(this).parents('form');
+                validator = form.validate(validatorOpts);
+            }
+            $(this).on('click', function(e) {
+                data = this.name;
+            });
+        });
+    }
+    if (selectors2.length > 0) {
+        $(selectors2).each(function(e) {
+            if ($(this).is(':visible')) {
+                $(this).on('keyup change blur focus focusout', function(e) {
+                    return validator.element(this);
+                });
+            }
+        });
+        setTimeout(function() {
+            setupTimeoutElement(selectors1, selectors2, timeout)
+        }, timeout);
     }
 }

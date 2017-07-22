@@ -23,24 +23,7 @@ $(function() {
             }
         }
     };
-    setInterval(function() {
-        $('#add, #updategen, #updatepw, #updateapi').each(function(e) {
-            if ($(this).is(':visible')) {
-                form = $(this).parents('form');
-                validator = form.validate(validatorOpts);
-            }
-            $(this).on('click', function(e) {
-                data = this.name;
-            });
-        });
-        $('.username-input, .password-input1, .password-input2').each(function(e) {
-            if ($(this).is(':visible')) {
-                $(this).on('keyup change blur', function(e) {
-                    return validator.element(this);
-                }).trigger('change');
-            }
-        });
-    }, 1000);
+    setupTimeoutElement('#add, #updategen, #updatepw, #updateapi', '.username-input, .password-input1, .password-input2', 1000);
     $('.resettoken').on('click', function(e) {
         e.preventDefault();
         $.ajax({
