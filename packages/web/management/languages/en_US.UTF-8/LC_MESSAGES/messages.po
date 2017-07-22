@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-20 13:35-0400\n"
+"POT-Creation-Date: 2017-07-22 13:11-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1880,8 +1880,8 @@ msgstr "Remove selected snapins"
 #: /var/www/fog/lib/reports/host_list.report.php:123
 #: /var/www/fog/lib/reports/virus_history.report.php:138
 #: /var/www/fog/lib/reports/virus_history.report.php:139
-#: /var/www/fog/lib/reports/hosts_and_users.report.php:131
-#: /var/www/fog/lib/reports/hosts_and_users.report.php:132
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:138
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:139
 #: /var/www/fog/lib/reports/user_tracking.report.php:345
 #: /var/www/fog/lib/reports/user_tracking.report.php:346
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:137
@@ -2081,7 +2081,7 @@ msgstr "Primary Storage Group"
 #: /var/www/fog/lib/reports/host_list.report.php:84
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:39
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:57
-#: /var/www/fog/lib/reports/hosts_and_users.report.php:88
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:95
 #: /var/www/fog/lib/reports/imaging_log.report.php:56
 msgid "Image Name"
 msgstr "Image Name"
@@ -4760,8 +4760,8 @@ msgstr "Group"
 #: /var/www/fog/lib/reports/equipment_loan.report.php:256
 #: /var/www/fog/lib/reports/virus_history.report.php:142
 #: /var/www/fog/lib/reports/virus_history.report.php:143
-#: /var/www/fog/lib/reports/hosts_and_users.report.php:135
-#: /var/www/fog/lib/reports/hosts_and_users.report.php:136
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:142
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:143
 #: /var/www/fog/lib/reports/user_tracking.report.php:349
 #: /var/www/fog/lib/reports/user_tracking.report.php:350
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:141
@@ -4996,7 +4996,7 @@ msgstr "Snapin Enabled"
 #: /var/www/fog/lib/plugins/site/hooks/addsiteuser.hook.php:219
 #: /var/www/fog/lib/reports/product_keys.report.php:99
 #: /var/www/fog/lib/reports/host_list.report.php:94
-#: /var/www/fog/lib/reports/hosts_and_users.report.php:98
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:105
 msgid "Yes"
 msgstr "Yes"
 
@@ -5012,7 +5012,7 @@ msgstr "Yes"
 #: /var/www/fog/lib/plugins/site/hooks/addsiteuser.hook.php:220
 #: /var/www/fog/lib/reports/product_keys.report.php:100
 #: /var/www/fog/lib/reports/host_list.report.php:95
-#: /var/www/fog/lib/reports/hosts_and_users.report.php:99
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:106
 msgid "No"
 msgstr "No"
 
@@ -8251,7 +8251,7 @@ msgstr "HD Device"
 #: /var/www/fog/lib/reports/host_list.report.php:43
 #: /var/www/fog/lib/reports/host_list.report.php:81
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:38
-#: /var/www/fog/lib/reports/hosts_and_users.report.php:85
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:92
 msgid "Image ID"
 msgstr "Image ID"
 
@@ -8260,7 +8260,7 @@ msgstr "Image ID"
 #: /var/www/fog/lib/reports/host_list.report.php:45
 #: /var/www/fog/lib/reports/host_list.report.php:87
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:40
-#: /var/www/fog/lib/reports/hosts_and_users.report.php:91
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:98
 msgid "Image Desc"
 msgstr "Image Desc"
 
@@ -8418,7 +8418,7 @@ msgid "FOG Hosts and Users Login"
 msgstr "FOG Hosts and Users Login"
 
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:41
-#: /var/www/fog/lib/reports/hosts_and_users.report.php:94
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:101
 msgid "AD Join"
 msgstr "AD Join"
 
@@ -8436,7 +8436,7 @@ msgstr "HD Device"
 
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:47
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:58
-#: /var/www/fog/lib/reports/hosts_and_users.report.php:103
+#: /var/www/fog/lib/reports/hosts_and_users.report.php:110
 #, fuzzy
 msgid "Login Users"
 msgstr "Login"
