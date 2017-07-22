@@ -1256,7 +1256,10 @@ class Route extends FOGBase
                 $class->get(),
                 array(
                     'snapin' => $class->get('snapin')->get(),
-                    'snapinjob' => $class->get('snapinjob')->get(),
+                    'snapinjob' => self::getter(
+                        'snapinjob',
+                        $class->get('snapinjob')
+                    ),
                     'state' => $class->get('state')->get()
                 )
             );
@@ -1267,7 +1270,7 @@ class Route extends FOGBase
                 array(
                     'host' => self::getter(
                         'host',
-                        $class->get('host')->get()
+                        $class->get('host')
                     ),
                     'state' => $class->get('state')->get()
                 )
@@ -1279,7 +1282,7 @@ class Route extends FOGBase
                 array(
                     'host' => self::getter(
                         'host',
-                        $class->get('host')->get()
+                        $class->get('host')
                     )
                 )
             );
