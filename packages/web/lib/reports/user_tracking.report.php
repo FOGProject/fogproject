@@ -154,7 +154,7 @@ class User_Tracking extends ReportManagementPage
                 $usersearch ? '&userID=${user_id}' : ''
             ),
             sprintf(
-                '<a href="%s%s${user_id}">${user_name}</a>',
+                '<a href="%s%s&userID=${user_id}">${user_name}</a>',
                 str_replace(
                     'sub=file',
                     'sub=filedisp',
