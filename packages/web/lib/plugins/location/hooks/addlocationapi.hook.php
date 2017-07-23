@@ -147,7 +147,9 @@ class AddLocationAPI extends Hook
             $arguments['data'] = FOGCore::fastmerge(
                 $arguments['class']->get(),
                 array(
-                    'storagenode' => $arguments['class']->get('storagenode')->get(),
+                    'storagenode' => $arguments['class']
+                    ->get('storagenode')
+                    ->get(),
                     'storagegroup' => $arguments['class']
                     ->get('storagegroup')
                     ->get()
@@ -158,8 +160,13 @@ class AddLocationAPI extends Hook
             $arguments['data'] = FOGCore::fastmerge(
                 $arguments['class']->get(),
                 array(
-                    'host' => $arguments['class']->get('host')->get(),
-                    'location' => $arguments['class']->get('location')->get()
+                    'host' => Route::getter(
+                        'host',
+                        $arguments['class']->get('host')
+                    ),
+                    'location' => $arguments['class']
+                    ->get('location')
+                    ->get()
                 )
             );
             break;

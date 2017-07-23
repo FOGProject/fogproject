@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-22 13:11-0400\n"
+"POT-Creation-Date: 2017-07-23 18:49-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -1184,7 +1184,7 @@ msgstr "Salva i cambiamenti"
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:822
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:447
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:474
-#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:270
+#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:351
 #: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:122
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:470
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:755
@@ -1280,7 +1280,6 @@ msgstr "Modifica immagine"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:200
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:3058
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:173
-#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:223
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:434
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:569
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:708
@@ -1666,7 +1665,7 @@ msgstr ""
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:457
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:1218
 #: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:149
-#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:149
+#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:182
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:366
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1005
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1205
@@ -1994,8 +1993,8 @@ msgstr "Nome immagine"
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:160
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:458
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:74
-#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:137
-#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:258
+#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:167
+#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:336
 #: /var/www/fog/commons/text.php:305
 msgid "Storage Group"
 msgstr "gruppo di archiviazione"
@@ -2223,6 +2222,7 @@ msgstr "Utente creato"
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:1340
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:444
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:471
+#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:348
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:467
 #: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:279
 #, fuzzy
@@ -3940,8 +3940,8 @@ msgstr "Informazione generale"
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:60
 #: /var/www/fog/lib/plugins/fileintegrity/pages/fileintegritymanagementpage.class.php:63
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:75
-#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:138
-#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:259
+#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:170
+#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:339
 #: /var/www/fog/lib/reg-task/taskingelement.class.php:234
 #: /var/www/fog/commons/text.php:304
 msgid "Storage Node"
@@ -6524,7 +6524,6 @@ msgid "Account already linked"
 msgstr "Account già collegato"
 
 #: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:258
-#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:200
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:411
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:683
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1111
@@ -6622,6 +6621,11 @@ msgstr "particolare nodo"
 msgid "Integrity Settings"
 msgstr "impostazioni API"
 
+#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:41
+#: /var/www/fog/commons/text.php:203
+msgid "Location Management"
+msgstr "Gestione della posizione"
+
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:42
 msgid "Export Locations"
 msgstr "Esporta luoghi"
@@ -6631,8 +6635,8 @@ msgid "Import Locations"
 msgstr "Importa luoghi"
 
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:73
-#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:134
-#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:254
+#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:158
+#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:327
 msgid "Location Name"
 msgstr "Nome del luogo"
 
@@ -6640,53 +6644,85 @@ msgstr "Nome del luogo"
 msgid "Kernels/Inits from location"
 msgstr "I kernel / INIT dalla posizione"
 
-#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:121
+#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:128
 msgid "New Location"
 msgstr "Nuova sede"
 
-#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:139
-#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:260
+#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:173
+#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:342
 msgid "Use inits and kernels from this node"
 msgstr "Utilizzare INIT e noccioli da questo nodo"
 
-#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:178
+#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:179
+#, fuzzy
+msgid "Create New Location"
+msgstr "Crea nuovo %s"
+
+#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:227
 msgid "Location already Exists, please try again."
 msgstr "Località esiste già, si prega di riprovare."
 
-#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:181
+#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:232
 msgid "Please enter a name for this location."
 msgstr "Si prega di inserire un nome per questa posizione."
 
-#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:185
+#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:237
 msgid "Please select the storage group this location relates to."
 msgstr ""
 "Si prega di selezionare il gruppo di archiviazione questa posizione si "
 "riferisce a."
 
-#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:202
-msgid "Location Added, editing!"
-msgstr "Località Aggiunto, l'editing!"
+#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:252
+#, fuzzy
+msgid "Add location failed!"
+msgstr "Aggiungi snapin non riuscito!"
 
-#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:317
+#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:258
+#, fuzzy
+msgid "Location added!"
+msgstr "Nome del luogo"
+
+#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:259
+#, fuzzy
+msgid "Location Create Success"
+msgstr "Snapin creato"
+
+#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:267
+#, fuzzy
+msgid "Location Create Fail"
+msgstr "Snapin creato"
+
+#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:294
+#, fuzzy
+msgid "Location General"
+msgstr "snap-Enabled"
+
+#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:416
 msgid "A location with that name already exists."
 msgstr "Una posizione con questo nome esiste già."
 
-#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:322
+#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:422
 msgid "A group is required for a location"
 msgstr "Un gruppo è necessario per un luogo"
 
-#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:337
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:530
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:808
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:304
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:416
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:295
-#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:295
-msgid "Failed to update"
-msgstr "Impossibile aggiornare"
+#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:437
+#, fuzzy
+msgid "Location update failed!"
+msgstr "aggiornamento Snapin fallita"
 
-#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:339
-msgid "Location Updated"
+#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:443
+#, fuzzy
+msgid "Location updated!"
+msgstr "Luogo aggiornato"
+
+#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:444
+#, fuzzy
+msgid "Location Update Success"
+msgstr "Installare / Aggiornamento di successo!"
+
+#: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:453
+#, fuzzy
+msgid "Location Update Fail"
 msgstr "Luogo aggiornato"
 
 #: /var/www/fog/lib/plugins/location/config/plugin.config.php:28
@@ -6872,6 +6908,15 @@ msgstr "Tutti i controlli di accesso"
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:523
 msgid "A role with that name already exists."
 msgstr "Esiste già un ruolo con quel nome."
+
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:530
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:808
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:304
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:416
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:295
+#: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:295
+msgid "Failed to update"
+msgstr "Impossibile aggiornare"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:532
 msgid "Role Updated"
@@ -9501,10 +9546,6 @@ msgstr "Gestione Snapin"
 msgid "Plugin Management"
 msgstr "Gestione Plugin"
 
-#: /var/www/fog/commons/text.php:203
-msgid "Location Management"
-msgstr "Gestione della posizione"
-
 #: /var/www/fog/commons/text.php:204
 msgid "Access Control Management"
 msgstr "Gestione Access Control"
@@ -10029,6 +10070,9 @@ msgstr "Ciao FOG client"
 #: /var/www/fog/service/locationlisting.php:28
 msgid "There are no locations on this server"
 msgstr "Non ci sono posizioni su questo server"
+
+#~ msgid "Location Added, editing!"
+#~ msgstr "Località Aggiunto, l'editing!"
 
 #, fuzzy
 #~ msgid "All done"
