@@ -1105,7 +1105,7 @@ class SnapinManagementPage extends FOGPage
             . 'id="cmdletin" readonly></textarea>',
             '<label for="update">'
             . _('Make Changes?')
-            . '</label>' => '<button type="submit" name="update" id="updategen" '
+            . '</label>' => '<button type="submit" name="update" id="update" '
             . 'class="btn btn-info btn-block">'
             . _('Update')
             . '</button>'
