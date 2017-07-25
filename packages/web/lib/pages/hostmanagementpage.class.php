@@ -3660,11 +3660,17 @@ class HostManagementPage extends FOGPage
                 throw new Exception(_('Failed to create new Group'));
             }
             $msg = json_encode(
-                array('msg' => _('Successfully added selected hosts to the group!'))
+                array(
+                    'msg' => _('Successfully added selected hosts to the group!'),
+                    'title' => _('Host Add to Group Success')
+                )
             );
         } catch (Exception $e) {
             $msg = json_encode(
-                array('error' => $e->getMessage())
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('Host Add to Group Fail')
+                )
             );
         }
         echo $msg;
