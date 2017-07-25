@@ -1081,30 +1081,22 @@ abstract class FOGController extends FOGBase
         $objstr = sprintf('%sID', $objtype);
         $assocstr = sprintf('%sID', $assoc);
         if (count($this->get($plural))) {
-            if ($assocItem === 'SnapinGroup') {
+            if (strtolower($alterItem) === 'storagegroup') {
                 $tmpAssoc = $assocItem;
-                $assocItem = 'StorageGroup';
+                $assocItem = $alterItem;
             }
-            $DBIDs = self::getSubObjectIDs(
-                $assocItem,
-                array('id' => $this->get($plural))
-            );
+            $AllIDs = self::getSubObjectIDs($assocItem);
+            $DBIDs = $this->get($plural);
             if ($tmpAssoc) {
                 $assocItem = $tmpAssoc;
                 unset($tmpAssoc);
             }
+            $RemIDs = array_diff(
+                (array)$AllIDs,
+                (array)$DBIDs
+            );
         } else {
             $RemIDs = self::getSubObjectIDs($assoc);
-        }
-        if (!isset($RemIDs)) {
-            $RemIDs = self::getSubObjectIDs(
-                $classCall,
-                array(
-                    $assocstr => $DBIDs,
-                ),
-                $assocstr,
-                true
-            );
         }
         $RemIDs = array_filter($RemIDs);
         if (count($RemIDs) > 0) {
