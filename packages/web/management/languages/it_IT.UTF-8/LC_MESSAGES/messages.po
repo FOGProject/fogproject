@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-23 18:49-0400\n"
+"POT-Creation-Date: 2017-07-25 19:07-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -5887,10 +5887,20 @@ msgstr "Aggiornamento Host riuscito"
 msgid "Failed to create new Group"
 msgstr "Impossibile creare un nuovo gruppo"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3663
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3664
 #, fuzzy
 msgid "Successfully added selected hosts to the group!"
 msgstr "Host con successo associati al gruppo "
+
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3665
+#, fuzzy
+msgid "Host Add to Group Success"
+msgstr "Installare / Aggiornamento di successo!"
+
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3672
+#, fuzzy
+msgid "Host Add to Group Fail"
+msgstr "Aggiungere al gruppo"
 
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:129
 msgid "Filesize"
