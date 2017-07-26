@@ -31,9 +31,9 @@ class MainMenuData extends Hook
     /**
      * Position of the new main menu entry.
      *
-     * @var int
+     * @var string
      */
-    public $position = 3;
+    public $insertAfter = 'task';
     /**
      * Name/link for the new menu entry.
      *
@@ -45,7 +45,7 @@ class MainMenuData extends Hook
      *
      * @var string
      */
-    public $menuitem = 'fa-paperclip';
+    public $icon = 'fa-paperclip';
     /**
      * Initializes object.
      *
@@ -73,11 +73,14 @@ class MainMenuData extends Hook
     public function addToMainMenu($arguments)
     {
 	$link = strtolower($this->menuitem);
-        $arguments['main'] = array_merge(
-            array_slice($arguments['main'], 0, $this->position),
-            array($link => array($this->menuitem, 'fa '.$this->icon.' fa-2x')),
-            array_slice($arguments['main'], $this->position)
+        self::arrayInsertAfter(
+            $this->insertAfter,
+            $arguments['main'],
+            $link,
+	    array(
+                _($this->menuitem),
+               'fa ' . $this->icon . ' fa-2x'
+            )
         );
-
     }
 }
