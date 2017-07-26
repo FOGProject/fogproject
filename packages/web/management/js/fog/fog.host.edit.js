@@ -20,7 +20,7 @@ function UpdateLoginGraph() {
     );
 }
 function UpdateLoginGraphPlot(gdata) {
-    gdata = $.parseJSON(data);
+    gdata = $.parseJSON(gdata);
     if (gdata === null) {
         return;
     }
