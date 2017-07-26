@@ -37,7 +37,8 @@ var $_GET = getQueryParams(document.location.search),
     data = '',
     form,
     TimeoutRunning,
-    submithandlerfunc;
+    submithandlerfunc,
+    files;
 var validator;
 // Searching
 _L['PERFORMING_SEARCH'] = 'Searching...';
@@ -50,7 +51,18 @@ _L['UPDATING_ACTIVE_TASKS'] = "Fetching active tasks";
 _L['ACTIVE_TASKS_FOUND'] = '%1 active task%2 found';
 _L['ACTIVE_TASKS_LOADING'] = 'Loading...';
 submithandlerfunc = function(form) {
-    data += '&'+$(form).find(':visible,[type="radio"],[type="hidden"]').serialize();
+    var data = new FormData(),
+        fields = $(form).find(':visible,[type="radio"],[type="hidden"]'),
+        serialdata = fields.serializeArray(),
+        files = $(form).find('[type="file"]')[0].files;
+    if (files.length > 0) {
+        $.each(files, function(i, file) {
+            data.append('snapin', file);
+        });
+    }
+    $.each(serialdata, function(i, val) {
+        data.append(val.name, val.value);
+    });
     url = $(form).attr('action');
     method = $(form).attr('method');
     $.ajax({
@@ -58,6 +70,10 @@ submithandlerfunc = function(form) {
         type: method,
         data: data,
         dataType: 'json',
+        mimeType: 'multipart/form-data',
+        processData: false,
+        contentType: false,
+        cache: false,
         success: function(data) {
             title = data.title;
             if (data.error) {
@@ -326,8 +342,8 @@ function forceClick(e) {
                 'fa fa-refresh fa-spin fa-fw icon'
             );
         },
-        success: function(data) {
-            if (typeof(data) == 'undefined' || data === null) return;
+        success: function(gdata) {
+            if (typeof(gdata) == 'undefined' || gdata === null) return;
             $(this).off('click').removeClass().addClass(
                 'fa fa-angle-double-right fa-fw icon'
             );
@@ -870,9 +886,6 @@ function setupTimeoutElement(selectors1, selectors2, timeout) {
                 form = $(this).parents('form');
                 validator = form.validate(validatorOpts);
             }
-            $(this).on('click', function(e) {
-                data = this.name;
-            });
         });
     }
     if (selectors2.length > 0) {

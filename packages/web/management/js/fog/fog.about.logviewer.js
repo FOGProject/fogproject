@@ -61,8 +61,8 @@ function LogGetData() {
         LogTimer = setTimeout(LogGetData,10000)
     });
 }
-function displayLog(data) {
+function displayLog(gdata) {
     logdata = '<pre>'
-        + data
+        + gdata
         + '</pre>';
 }

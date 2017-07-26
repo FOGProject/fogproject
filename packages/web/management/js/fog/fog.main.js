@@ -54,8 +54,8 @@ $(function() {
                 sub: 'getOSID',
                 image_id: $(this).val()
             },
-            success: function(data) {
-                $('#FOG_QUICKREG_OS_ID').html(data.replace(/\"/g,""));
+            success: function(idata) {
+                $('#FOG_QUICKREG_OS_ID').html(idata.replace(/\"/g,""));
             }
         });
     });
@@ -73,12 +73,12 @@ $(function() {
             timeout: 1000,
             data: {sub: 'adInfo'},
             dataType: 'json',
-            success: function(data) {
-                if (!$('#adDomain[type=text]').val()) $("#adDomain").val(data.domainname);
-                if (!$('#adOU[type=text]').val()) $("#adOU").val(data.ou);
-                if (!$('#adUsername[type=text]').val()) $("#adUsername").val(data.domainuser);
-                if (!$('#adPassword[type=text]').val()) $("#adPassword").val(data.domainpass);
-                if (!$('#adPasswordLegacy[type=text]').val()) $("#adPasswordLegacy").val(data.domainpasslegacy);
+            success: function(jdata) {
+                if (!$('#adDomain[type=text]').val()) $("#adDomain").val(jdata.domainname);
+                if (!$('#adOU[type=text]').val()) $("#adOU").val(jdata.ou);
+                if (!$('#adUsername[type=text]').val()) $("#adUsername").val(jdata.domainuser);
+                if (!$('#adPassword[type=text]').val()) $("#adPassword").val(jdata.domainpass);
+                if (!$('#adPasswordLegacy[type=text]').val()) $("#adPasswordLegacy").val(jdata.domainpasslegacy);
             }
         });
     });
@@ -488,32 +488,32 @@ function ajaxRun(username,password,url,selector,formid,target,authneeded) {
     $('input[name="remitems[]"]').each(function() {
         ids[ids.length] = $(this).val();
     });
-    var data = {};
+    var gdata = {};
     if (authneeded) {
-        $.extend(data, {fogguiuser: username, fogguipass: password});
+        $.extend(gdata, {fogguiuser: username, fogguipass: password});
     };
     if ($('#andFile').is(':checked')) {
-        $.extend(data, {andFile: $('#andFile').is(':checked')});
+        $.extend(gdata, {andFile: $('#andFile').is(':checked')});
     }
     if (ids.length > 0) {
-        $.extend(data, {remitems: ids});
+        $.extend(gdata, {remitems: ids});
     }
     if ($('input[name="storagegroup"]').val()) {
-        $.extend(data, {storagegroup: $('input[name="storagegroup"]').val()});
+        $.extend(gdata, {storagegroup: $('input[name="storagegroup"]').val()});
     }
     $.ajax({
         url: url,
         type: 'POST',
-        data: data,
+        data: gdata,
         dataType: 'json',
         beforeSend: function() {
             if (authneeded) {
                 $(selector).html('<p>Attempting to perform actions.</p>');
             }
         },
-        complete: function(data) {
+        complete: function(hdata) {
             str = new RegExp('^[#][#][#]');
-            if (!str.test(data.responseText)) {
+            if (!str.test(hdata.responseText)) {
                 if (ids.length > 0) {
                     location.href = '?node='+node;
                 } else {
@@ -528,7 +528,7 @@ function ajaxRun(username,password,url,selector,formid,target,authneeded) {
                 setTimeout(function() {
                     eval(target+'(url)');
                 },3000);
-                $(selector).html('<p>'+data.responseText.replace(/^[#][#][#]/g,'')+'</p>');
+                $(selector).html('<p>'+hdata.responseText.replace(/^[#][#][#]/g,'')+'</p>');
             }
         }
     });

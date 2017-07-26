@@ -165,11 +165,11 @@ function Update30Day() {
             sub: 'get30day'
         },
         dataType: 'json',
-        success: function(data) {
+        success: function(gdata) {
             Graph30DayData = [
                 {
                     label: 'Computers Imaged',
-                    data: data
+                    data: gdata
                 }
             ];
             $.plot(Graph30Day, Graph30DayData, Graph30DayOpts);
@@ -211,19 +211,19 @@ function GraphDiskUsageUpdate() {
             data: {
                 url: URL
             },
-            success: function(data) {
+            success: function(gdata) {
                 var sel = $(this);
                 var text = sel.text();
-                sel.text(text.replace(/\(.*\)/,'('+data+')'));
+                sel.text(text.replace(/\(.*\)/,'('+gdata+')'));
             }
         });
     });
 }
-function GraphDiskUsagePlots(data) {
-    if (data === null || typeof(data) === 'undefined') {
-        data = '';
-    } else if (typeof(data.error) != 'undefined') {
-        GraphDiskUsage.html((data.error ? data.error : 'No error, but no data was returned')).addClass('loaded');
+function GraphDiskUsagePlots(gdata) {
+    if (gdata === null || typeof(gdata) === 'undefined') {
+        gdata = '';
+    } else if (typeof(gdata.error) != 'undefined') {
+        GraphDiskUsage.html((gdata.error ? gdata.error : 'No error, but no data was returned')).addClass('loaded');
     };
     GraphDiskUsageData = [
         {
@@ -263,9 +263,9 @@ function UpdateBandwidth() {
         }
     });
 }
-function UpdateBandwidthGraph(data) {
-    if (data === null || typeof(data) === 'undefined') {
-        data = '';
+function UpdateBandwidthGraph(gdata) {
+    if (gdata === null || typeof(gdata) === 'undefined') {
+        gdata = '';
     }
     function retval(d) {
         if (parseInt(d) < 1) {
@@ -284,8 +284,8 @@ function UpdateBandwidthGraph(data) {
     var tx_old = new Array();
     var rx_old = new Array();
     Now = new Date().getTime() - (d.getTimezoneOffset() * 60000);
-    var nodes_count = data.length;
-    for (i in data) {
+    var nodes_count = gdata.length;
+    for (i in gdata) {
         // Setup all the values we may need.
         if (typeof(GraphBandwidthData[i]) == 'undefined') {
             GraphBandwidthData[i] = new Array();
@@ -303,11 +303,11 @@ function UpdateBandwidthGraph(data) {
             GraphBandwidthData[i].rx.shift();
             GraphBandwidthData[i].rxd.shift();
         }
-        if (data[i] === null) data[i] = {dev: 'Unknown',tx: 0,rx:0};
-        if (data[i].dev === 'Unknown'
+        if (gdata[i] === null) gdata[i] = {dev: 'Unknown',tx: 0,rx:0};
+        if (gdata[i].dev === 'Unknown'
             && GraphBandwidthData[i].dev !== 'Unknown'
         ) {
-            data[i].dev = GraphBandwidthData[i].dev;
+            gdata[i].dev = GraphBandwidthData[i].dev;
         }
         txlength = GraphBandwidthData[i].txd.length - 1;
         rxlength = GraphBandwidthData[i].rxd.length - 1;
@@ -316,17 +316,17 @@ function UpdateBandwidthGraph(data) {
         tx_rate = 0;
         rx_rate = 0;
         if (txlength > 0 && parseInt(lasttx) > 0) {
-            tx_rate = retval(data[i].tx - lasttx);
+            tx_rate = retval(gdata[i].tx - lasttx);
         }
         if (rxlength > 0 && parseInt(lastrx) > 0) {
-            rx_rate = retval(data[i].rx - lastrx);
+            rx_rate = retval(gdata[i].rx - lastrx);
         }
-        GraphBandwidthData[i].txd.push(data[i].tx);
-        GraphBandwidthData[i].rxd.push(data[i].rx);
+        GraphBandwidthData[i].txd.push(gdata[i].tx);
+        GraphBandwidthData[i].rxd.push(gdata[i].rx);
         GraphBandwidthData[i].tx.push([Now,tx_rate]);
         GraphBandwidthData[i].rx.push([Now,rx_rate]);
         // Reset the old and new values for the next iteration.
-        GraphBandwidthData[i].dev = data[i].dev;
+        GraphBandwidthData[i].dev = gdata[i].dev;
     }
     GraphData = new Array();
     for (i in GraphBandwidthData) GraphData.push({label: i+' ('+GraphBandwidthData[i].dev+')', data: (GraphBandwidthFilterTransmitActive ? GraphBandwidthData[i].tx : GraphBandwidthData[i].rx)});
@@ -350,14 +350,14 @@ function UpdateClientCount() {
         success: UpdateClientCountPlot
     });
 }
-function UpdateClientCountPlot(data) {
-    if (data === null || typeof(data) === 'undefined') {
-        data = '';
+function UpdateClientCountPlot(gdata) {
+    if (gdata === null || typeof(gdata) === 'undefined') {
+        gdata = '';
     }
     UpdateClientCountData = [
-        {label:'Active',data:parseInt(data.ActivityActive)},
-        {label:'Queued',data:parseInt(data.ActivityQueued)},
-        {label:'Free',data:parseInt(data.ActivitySlots)}
+        {label:'Active',data:parseInt(gdata.ActivityActive)},
+        {label:'Queued',data:parseInt(gdata.ActivityQueued)},
+        {label:'Free',data:parseInt(gdata.ActivitySlots)}
     ];
     $.plot(GraphClient,UpdateClientCountData,UpdateClientCountOpts);
     if (clientinterval) {

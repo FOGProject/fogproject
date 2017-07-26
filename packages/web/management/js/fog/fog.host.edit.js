@@ -19,9 +19,9 @@ function UpdateLoginGraph() {
         }
     );
 }
-function UpdateLoginGraphPlot(data) {
-    data = $.parseJSON(data);
-    if (data === null) {
+function UpdateLoginGraphPlot(gdata) {
+    gdata = $.parseJSON(data);
+    if (gdata === null) {
         return;
     }
     j = 0;
