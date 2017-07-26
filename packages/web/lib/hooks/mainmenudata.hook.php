@@ -27,7 +27,7 @@ class MainMenuData extends Hook
      *
      * @var bool
      */
-    public $active = true;
+    public $active = false;
     /**
      * Position of the new main menu entry.
      *
