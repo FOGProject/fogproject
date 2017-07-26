@@ -2721,7 +2721,7 @@ class FOGConfigurationPage extends FOGPage
             'FOG_PROXY_IP' => true,
         );
         unset($findWhere, $setWhere);
-        Route::listem('service');
+        Route::listem('service', 'id', true);
         $Services = json_decode(
             Route::getData()
         );

@@ -189,7 +189,11 @@ class StorageNode extends FOGController
             $url,
             urlencode(implode(':', $paths))
         );
-        $paths = self::$FOGURLRequests->process($url);
+        $test = self::$FOGURLRequests->isAvailable($url);
+        $test = array_shift($test);
+        if ($test) {
+            $paths = self::$FOGURLRequests->process($url);
+        }
         foreach ((array) $paths as $index => &$response) {
             $tmppath = self::fastmerge(
                 (array) $tmppath,
@@ -219,7 +223,9 @@ class StorageNode extends FOGController
             'snapinfiles' => urlencode($this->get('snapinpath'))
         );
         $urls = array();
+        $testurls = array();
         foreach ((array)$keys as $key => &$data) {
+            $testurls[] = $url;
             $urls[] = sprintf(
                 '%s?path=%s',
                 $url,
@@ -227,6 +233,11 @@ class StorageNode extends FOGController
             );
             unset($data);
         }
+        $test = self::$FOGURLRequests->isAvailable($testurls);
+        $urls = array_intersect_key(
+            (array)$urls,
+            (array)$test
+        );
         $paths = self::$FOGURLRequests->process($urls);
         $pat = '#dev|postdownloadscripts|ssl#';
         $values = array();
