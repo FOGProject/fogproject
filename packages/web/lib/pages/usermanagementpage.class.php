@@ -628,6 +628,18 @@ class UserManagementPage extends FOGPage
         $this->userGeneral();
         $this->userChangePW();
         $this->userAPI();
+        self::$HookManager->processEvent(
+            'USER_EDIT_EXTRA',
+            array(
+                'User' => &$this->obj,
+                'data' => &$this->data,
+                'headerData' => &$this->headerData,
+                'templates' => &$this->templates,
+                'attributes' => &$this->attributes,
+                'formAction' => &$this->formAction,
+                'render' => &$this
+            )
+        );
         echo '</div>';
     }
     /**

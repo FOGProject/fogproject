@@ -11,6 +11,6 @@ $(function() {
             }
         }
     };
-    setupTimeoutElement('#add, #updategen, #updateimage, #delAllPM, #levelup, #update, #remove, #addsnapins, #remsnapins, #updatestatus, #updatedisplay, #updatealo, #group-add, #group-edit', '.groupname-input', 1000);
+    setupTimeoutElement('button[type="submit"], #add, #updategen, #updateimage, #delAllPM, #levelup, #update, #remove, #addsnapins, #remsnapins, #updatestatus, #updatedisplay, #updatealo, #group-add, #group-edit', '.groupname-input', 1000);
     ProductUpdate();
 });
