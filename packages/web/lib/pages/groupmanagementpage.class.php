@@ -577,9 +577,11 @@ class GroupManagementPage extends FOGPage
     /**
      * Prints the group image element.
      *
+     * @param mixed $imageMatchID The matching id.
+     *
      * @return void
      */
-    public function groupImage()
+    public function groupImage($imageMatchID = 0)
     {
         // Group Images
         unset(
@@ -1610,7 +1612,7 @@ class GroupManagementPage extends FOGPage
         );
         echo '<div class="col-xs-9 tab-content">';
         $this->groupGeneral();
-        $this->groupImage();
+        $this->groupImage($imageMatchID);
         $this->basictasksOptions();
         $this->adFieldsToDisplay(
             $useAD,
@@ -1648,6 +1650,19 @@ class GroupManagementPage extends FOGPage
             $exitNorm,
             $exitEfi
         );
+        self::$HookManager->processEvent(
+            'GROUP_EDIT_EXTRA',
+            array(
+                'Group' => &$this->obj,
+                'data' => &$this->data,
+                'headerData' => &$this->headerData,
+                'templates' => &$this->templates,
+                'attributes' => &$this->attributes,
+                'formAction' => &$this->formAction,
+                'render' => &$this
+            )
+        );
+        echo '</div>';
     }
     /**
      * Display inventory page, separated as groups can contain

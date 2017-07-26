@@ -244,9 +244,13 @@ class AddLocationHost extends Hook
             $locID = array_shift($Locations);
         }
         self::arrayInsertAfter(
-            _('Host Product Key'),
+            '<label for="productKey">'
+            . _('Host Product Key')
+            . '</label>',
             $arguments['fields'],
-            _('Host Location'),
+            '<label for="location">'
+            . _('Host Location')
+            . '</label>',
             self::getClass('LocationManager')->buildSelectBox(
                 $locID
             )
@@ -261,12 +265,12 @@ class AddLocationHost extends Hook
      */
     public function hostAddLocation($arguments)
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         global $node;
         global $sub;
         global $tab;
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
+            return;
+        }
         $subs = array(
             'add',
             'edit',
@@ -287,18 +291,25 @@ class AddLocationHost extends Hook
                 'hostID' => $arguments['Host']->get('id')
             )
         );
-        $cnt = self::getClass('LocationManager')
-            ->count(
-                array('id' => $_REQUEST['location'])
+        $location = (int)filter_input(INPUT_POST, 'location');
+        if ($location) {
+            $insert_fields = array(
+                'locationID',
+                'hostID'
             );
-        if ($cnt !== 1) {
-            return;
+            $insert_values = array();
+            $insert_values[] = array(
+                $location,
+                $arguments['Host']->get('id')
+            );
+            if (count($insert_values)) {
+                self::getClass('LocationAssociationManager')
+                    ->insertBatch(
+                        $insert_fields,
+                        $insert_values
+                    );
+            }
         }
-        self::getClass('LocationAssociation')
-            ->set('hostID', $arguments['Host']->get('id'))
-            ->load('hostID')
-            ->set('locationID', $_REQUEST['location'])
-            ->save();
     }
     /**
      * Adds the location to import.

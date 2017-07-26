@@ -3171,6 +3171,18 @@ class HostManagementPage extends FOGPage
         $this->hostLoginHistory();
         $this->hostImageHistory();
         $this->hostSnapinHistory();
+        self::$HookManager->processEvent(
+            'HOST_EDIT_EXTRA',
+            array(
+                'Host' => &$this->obj,
+                'data' => &$this->data,
+                'headerData' => &$this->headerData,
+                'templates' => &$this->templates,
+                'attributes' => &$this->attributes,
+                'formAction' => &$this->formAction,
+                'render' => &$this
+            )
+        );
         echo '</div>';
     }
     /**
