@@ -15,7 +15,7 @@ $(function() {
     $('input[type=file]').on('change', function(event) {
         files = event.target.files;
     });
-    setupTimeoutElement('#update, #updategroups, #primarysel, #groupdel', '', 1000);
+    setupTimeoutElement('#add, #update, #updategroups, #primarysel, #groupdel', '', 1000);
     $('.snapinname-input').each(function(e) {
         if ($(this).is(':visible')) {
             $(this).on('keyup change blur', function(e) {
