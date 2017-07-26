@@ -13,21 +13,21 @@ $(function() {
     });
     $('.snapinpack-generate').click(function(e) {
         e.preventDefault();
-        var data = {
+        var gdata = {
             Name: $('#snapinpack-name').val(),
             Version: $('#snapinpack-version').val(),
             File: $('#snapinpack-file').val(),
             Args: $('#snapinpack-arguments').val()
         };
-        var output = JSON.stringify(data, null, 2);
+        var output = JSON.stringify(gdata, null, 2);
         download(output,'config.json','text/plain');
     });
 });
-function download(data, strFileName, strMimeType) {
+function download(gdata, strFileName, strMimeType) {
     var self = window, // this script is only for browsers anyway...
         u = "application/octet-stream", // this default mime also triggers iframe downloads
         m = strMimeType || u,
-        x = data,
+        x = gdata,
         D = document,
         a = D.createElement("a"),
         z = function(a){return String(a);},

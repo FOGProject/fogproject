@@ -14,9 +14,9 @@ $(function() {
     );
     $.post('?sub=kernelfetch',{msg: "dl"},dlComplete, "text");
 });
-function dlComplete(data, textStatus) {
+function dlComplete(gdata, textStatus) {
     if (textStatus == "success") {
-        if (data == "##OK##") {
+        if (gdata == "##OK##") {
             $('.kerninfo').html(
                 '<div class="panel panel-success">'
                 + '<div class="panel-heading text-center">'
@@ -39,7 +39,7 @@ function dlComplete(data, textStatus) {
                 + '</h4>'
                 + '</div>'
                 + '<div class="panel-body">'
-                + data
+                + gdata
                 + '</div>'
                 + '</div>'
             );
@@ -59,9 +59,9 @@ function dlComplete(data, textStatus) {
         );
     }
 }
-function mvComplete(data, textStatus) {
+function mvComplete(gdata, textStatus) {
     if (textStatus == 'success') {
-        if (data == "##OK##") {
+        if (gdata == "##OK##") {
             $('.kerninfo').html(
                 '<div class="panel panel-success">'
                 + '<div class="panel-heading text-center">'
@@ -83,7 +83,7 @@ function mvComplete(data, textStatus) {
                 + '</h4>'
                 + '</div>'
                 + '<div class="panel-body">'
-                + data
+                + gdata
                 + '</div>'
                 + '</div>'
             );

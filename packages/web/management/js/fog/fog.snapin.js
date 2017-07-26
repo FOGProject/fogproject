@@ -12,7 +12,10 @@ $(function() {
         }
     };
     if ($_GET['sub'] == 'membership') return;
-    setupTimeoutElement('#updategroups, #primarysel, #groupdel', '', 1000);
+    $('input[type=file]').on('change', function(event) {
+        files = event.target.files;
+    });
+    setupTimeoutElement('#update, #updategroups, #primarysel, #groupdel', '', 1000);
     $('.snapinname-input').each(function(e) {
         if ($(this).is(':visible')) {
             $(this).on('keyup change blur', function(e) {

@@ -70,9 +70,6 @@ function setTimeoutElement() {
             form = $(this).parents('form');
             validator = form.validate(validatorOpts);
         }
-        $(this).on('click', function(e) {
-            data = this.name;
-        });
     });
     $('#storagegroup, #os, #imagetype').each(function(e) {
         if ($(this).is(':visible')) {

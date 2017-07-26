@@ -25,7 +25,6 @@ function setTimeoutElement() {
             $(this).on('click', function(e) {
                 form = $(this).parents('form');
                 validator = form.validate(validatorOpts);
-                data = this.name;
             });
         }
     });

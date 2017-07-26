@@ -7,8 +7,8 @@ $(function() {
     $.ajax({
         url: '../status/mainversion.php',
         dataType: 'json',
-        success: function(data) {
-            $('.placehere').append(data);
+        success: function(gdata) {
+            $('.placehere').append(gdata);
         },
         error: function() {
             $('.placehere').append('Failed to get latest info');
@@ -26,19 +26,19 @@ $(function() {
             data: {
                 url: URL
             },
-            success: function(data) {
-                if (typeof(data) == null
-                    || typeof(data) == 'undefined'
+            success: function(gdata) {
+                if (typeof(gdata) == null
+                    || typeof(gdata) == 'undefined'
                 ) {
                     $(this).text('No data returned');
                 }
-                data = data.split('\n');
-                if (data.length < 2) {
+                gdata = gdata.split('\n');
+                if (gdata.length < 2) {
                     $(this).text('No data returned');
                     return;
                 }
-                var nodevers = data.shift();
-                $(this).text(data.join('\n'));
+                var nodevers = gdata.shift();
+                $(this).text(gdata.join('\n'));
                 var setter = $(this).parents('div.hidefirst').prev('a').find('.kernversionupdate');
                 var nodename = setter.text();
                 setter.text(nodename.replace(/\(.*\)/,'('+nodevers+')'));
@@ -61,8 +61,8 @@ $(function() {
         $.ajax({
             url: '../status/newtoken.php',
             dataType: 'json',
-            success: function(data) {
-                $('.token').val(data);
+            success: function(gdata) {
+                $('.token').val(gdata);
             }
         });
     });
@@ -74,7 +74,6 @@ function setTimeoutElement() {
     $('button[name="update"], button[type="submit"]:not(#importbtn, #export, #upload, #Rebranding), #menuSet, #hideSet, #exitSet, #advSet, button[name="saveform"], button[name="delform"], #deletecu').each(function(e) {
         if ($(this).is(':visible')) {
             $(this).on('click', function(e) {
-                data = this.name;
                 form = $(this).parents('form');
                 validator = form.validate(validatorOpts);
             });
