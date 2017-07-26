@@ -870,46 +870,11 @@ class SnapinManagementPage extends FOGPage
         $args = filter_input(INPUT_POST, 'args') ?:
             $this->obj->get('args');
         self::$selected = $snapinfileexists;
-        $nodeIDs = array();
-        Route::listem(
-            'storagegroup',
-            'name',
-            false,
-            array('id' => $this->obj->get('storagegroups'))
+        $filelist = self::getSubObjectIDs(
+            'Snapin',
+            '',
+            'file'
         );
-        $StorageGroups = json_decode(
-            Route::getData()
-        );
-        $StorageGroups = $StorageGroups->storagegroups;
-        foreach ((array)$StorageGroups as &$StorageGroup) {
-            $nodeIDs = self::fastmerge(
-                (array)$nodeIDs,
-                (array)$StorageGroup->enablednodes
-            );
-            unset($StorageGroup);
-        }
-        $nodeIDs = array_filter($nodeIDs);
-        unset($StorageGroups);
-        $filelist = array();
-        if (count($nodeIDs) > 0) {
-            Route::listem(
-                'storagenode',
-                'name',
-                false,
-                array('id' => $nodeIDs)
-            );
-            $StorageNodes = json_decode(
-                Route::getData()
-            );
-            $StorageNodes = $StorageNodes->storagenodes;
-            foreach ((array)$StorageNodes as &$StorageNode) {
-                $filelist = self::fastmerge(
-                    (array)$filelist,
-                    (array)$StorageNode->snapinfiles
-                );
-                unset($StorageNode);
-            }
-        }
         $filelist = array_values(
             array_unique(
                 array_filter(
@@ -919,7 +884,10 @@ class SnapinManagementPage extends FOGPage
         );
         natcasesort($filelist);
         ob_start();
-        array_map(self::$buildSelectBox, $filelist);
+        array_map(
+            self::$buildSelectBox,
+            $filelist
+        );
         $selectFiles = '<select class='
             . '"snapinfileexist-input cmdlet3 form-control" '
             . 'name="snapinfileexist" id="snapinfileexist">'
