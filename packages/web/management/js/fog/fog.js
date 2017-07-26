@@ -39,7 +39,8 @@ var $_GET = getQueryParams(document.location.search),
     TimeoutRunning,
     submithandlerfunc,
     files;
-var validator;
+var validator,
+    bootstrapdialogopen;
 // Searching
 _L['PERFORMING_SEARCH'] = 'Searching...';
 _L['ERROR_SEARCHING'] = 'Search failed';
@@ -84,15 +85,19 @@ submithandlerfunc = function(form) {
                 msg = data.msg;
                 type = BootstrapDialog.TYPE_SUCCESS;
             }
-            dialoginstance = new BootstrapDialog();
-            dialoginstance
-                .setTitle(title)
-                .setMessage(msg)
-                .setType(type)
-                .open();
-            setTimeout(function() {
-                BootstrapDialog.closeAll();
-            }, 5000);
+            BootstrapDialog.show({
+                title: title,
+                message: msg,
+                type: type,
+                onshown: function(dialogRef) {
+                    bootstrapdialogopen = setTimeout(function() {
+                        dialogRef.close();
+                    }, 5000);
+                },
+                onhidden: function(dialogRef) {
+                    clearTimeout(bootstrapdialogopen);
+                }
+            });
         }
     });
     return false;
