@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-26 16:55-0400\n"
+"POT-Creation-Date: 2017-07-26 18:34-0400\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -9330,25 +9330,14 @@ msgstr "Mit Bildgebung gemacht!"
 msgid "Done"
 msgstr "Fertig"
 
-#: /var/www/fog/lib/client/registerclient.class.php:88
+#: /var/www/fog/lib/client/registerclient.class.php:89
 msgid "Pending Registration created by FOG_CLIENT"
 msgstr "Ausstehende Eintragung erstellt von FOG_CLIENT"
 
-#: /var/www/fog/lib/client/registerclient.class.php:110
-#: /var/www/fog/lib/client/registerclient.class.php:178
+#: /var/www/fog/lib/client/registerclient.class.php:185
 #, fuzzy
 msgid "Too many MACs"
 msgstr "Primäre MAC Host"
-
-#: /var/www/fog/lib/client/registerclient.class.php:111
-#, fuzzy
-msgid "Only allowed to have"
-msgstr "Sie dürfen nur zuweisen"
-
-#: /var/www/fog/lib/client/registerclient.class.php:113
-#, fuzzy
-msgid "additional macs"
-msgstr "Weitere MACs"
 
 #: /var/www/fog/lib/client/fogclient.class.php:128
 #: /var/www/fog/commons/text.php:236
@@ -10495,6 +10484,14 @@ msgstr "Hallo Nebel Client"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "Es gibt keine Orte auf diesem Server."
+
+#, fuzzy
+#~ msgid "Only allowed to have"
+#~ msgstr "Sie dürfen nur zuweisen"
+
+#, fuzzy
+#~ msgid "additional macs"
+#~ msgstr "Weitere MACs"
 
 #, fuzzy
 #~ msgid "Location Association for"

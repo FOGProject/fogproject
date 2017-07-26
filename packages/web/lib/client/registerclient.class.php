@@ -78,7 +78,8 @@ class RegisterClient extends FOGClient implements FOGClientSend
                         echo '#!ih';
                         exit;
                     }
-                    return array('error' => 'ih');
+                    return;
+                    //return array('error' => 'ih');
                 }
                 $PriMAC = array_shift($MACs);
                 $this->Host = self::getClass('Host')
@@ -98,13 +99,16 @@ class RegisterClient extends FOGClient implements FOGClientSend
                     ->addPriMAC($PriMAC)
                     ->addAddMAC($MACs);
                 if (!$this->Host->save()) {
-                    return array('error' => 'db');
+                    return;
+                    //return array('error' => 'db');
                 }
-                return array('complete' => true);
+                return;
+                //return array('complete' => true);
             }
         }
         if (count($MACs) > $maxPending + 1) {
-            return array(
+            return;
+            /*return array(
                 'error' => sprintf(
                     '%s. %s %d %s.',
                     _('Too many MACs'),
@@ -112,7 +116,7 @@ class RegisterClient extends FOGClient implements FOGClientSend
                     $maxPending,
                     _('additional macs')
                 )
-            );
+            );*/
         }
         $MACs = self::parseMacList(
             $MACs,
@@ -136,11 +140,14 @@ class RegisterClient extends FOGClient implements FOGClientSend
         if (count($MACs)) {
             $this->Host->addPendMAC($MACs);
             if (!$this->Host->save()) {
-                return array('error' => 'db');
+                return;
+                //return array('error' => 'db');
             }
-            return array('complete' => true);
+            return;
+            //return array('complete' => true);
         }
-        return array('error' => 'ig');
+        return;
+        //return array('error' => 'ig');
     }
     /**
      * Creates the send string and stores to send variable
