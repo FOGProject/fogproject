@@ -234,9 +234,11 @@ class StorageNode extends FOGController
             unset($data);
         }
         $test = self::$FOGURLRequests->isAvailable($testurls);
+        $testurls = array_filter($test);
+        unset($test);
         $urls = array_intersect_key(
             (array)$urls,
-            (array)$test
+            (array)$testurls
         );
         $paths = self::$FOGURLRequests->process($urls);
         $pat = '#dev|postdownloadscripts|ssl#';

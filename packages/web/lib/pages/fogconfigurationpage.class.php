@@ -120,14 +120,20 @@ class FOGConfigurationPage extends FOGPage
             Route::getData()
         );
         $StorageNodes = $StorageNodes->storagenodes;
+        $urls = array();
         foreach ((array)$StorageNodes as &$StorageNode) {
-            $url = filter_var(
+            $urls[] = filter_var(
                 sprintf(
                     'http://%s/fog/status/kernelvers.php',
                     $StorageNode->ip
                 ),
                 FILTER_SANITIZE_URL
             );
+            $test = self::$FOGURLRequests->isAvailable($url);
+            $test = array_shift($test);
+            if (!$test) {
+                continue;
+            }
             echo '<a id="'
                 . $StorageNode->name
                 . '" class="expand_trigger btn btn-info btn-block"'

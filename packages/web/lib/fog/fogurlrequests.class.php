@@ -36,7 +36,7 @@ class FOGURLRequests extends FOGBase
      */
     private $_aconntimeout = 2000;
     /**
-     * The base conneciton timeout.
+     * The base connection timeout.
      *
      * Defaults to 15 seconds.
      *
