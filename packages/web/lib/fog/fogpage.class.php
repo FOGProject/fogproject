@@ -330,6 +330,10 @@ abstract class FOGPage extends FOGBase
                         )
                     );
                 }
+                $this->name .= ' '
+                    . _('Edit')
+                    . ': '
+                    . $this->obj->get('name');
             }
         }
         $this->reportString = '<h4 class="title">'
