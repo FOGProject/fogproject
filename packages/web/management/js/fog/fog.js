@@ -54,8 +54,9 @@ submithandlerfunc = function(form) {
     var data = new FormData(),
         fields = $(form).find(':visible,[type="radio"],[type="hidden"]'),
         serialdata = fields.serializeArray(),
-        files = $(form).find('[type="file"]')[0].files;
+        files = $(form).find('[type="file"]');
     if (files.length > 0) {
+        files = files[0].files;
         $.each(files, function(i, file) {
             data.append('snapin', file);
         });
