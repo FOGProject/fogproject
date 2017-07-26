@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-26 12:09-0400\n"
+"POT-Creation-Date: 2017-07-26 14:19-0400\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -9325,7 +9325,7 @@ msgstr "Mit Bildgebung gemacht!"
 
 #: /var/www/fog/lib/reg-task/registration.class.php:437
 #: /var/www/fog/lib/reg-task/registration.class.php:471
-#: /var/www/fog/service/inventory.php:86
+#: /var/www/fog/service/inventory.php:93
 msgid "Done"
 msgstr "Fertig"
 
@@ -10468,7 +10468,7 @@ msgstr "Akzeptiert"
 msgid "There are no snapins on this server"
 msgstr "Es gibt keine Snapins auf diesem Server."
 
-#: /var/www/fog/service/inventory.php:83
+#: /var/www/fog/service/inventory.php:90
 #, fuzzy
 msgid "Failed to create inventory for this host"
 msgstr "Fehler beim Erstellen von Inventar für diesen Host!"
