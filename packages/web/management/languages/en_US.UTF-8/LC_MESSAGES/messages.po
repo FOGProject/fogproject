@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-26 16:55-0400\n"
+"POT-Creation-Date: 2017-07-26 18:34-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -9307,25 +9307,14 @@ msgstr "Done, with imaging!"
 msgid "Done"
 msgstr "Done"
 
-#: /var/www/fog/lib/client/registerclient.class.php:88
+#: /var/www/fog/lib/client/registerclient.class.php:89
 msgid "Pending Registration created by FOG_CLIENT"
 msgstr "Pending Registration created by FOG_CLIENT"
 
-#: /var/www/fog/lib/client/registerclient.class.php:110
-#: /var/www/fog/lib/client/registerclient.class.php:178
+#: /var/www/fog/lib/client/registerclient.class.php:185
 #, fuzzy
 msgid "Too many MACs"
 msgstr "Host Primary MAC"
-
-#: /var/www/fog/lib/client/registerclient.class.php:111
-#, fuzzy
-msgid "Only allowed to have"
-msgstr "You are only allowed to assign"
-
-#: /var/www/fog/lib/client/registerclient.class.php:113
-#, fuzzy
-msgid "additional macs"
-msgstr "Additional MACs"
 
 #: /var/www/fog/lib/client/fogclient.class.php:128
 #: /var/www/fog/commons/text.php:236
@@ -10466,6 +10455,14 @@ msgstr "Hello FOG Client"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "There are no locations on this server."
+
+#, fuzzy
+#~ msgid "Only allowed to have"
+#~ msgstr "You are only allowed to assign"
+
+#, fuzzy
+#~ msgid "additional macs"
+#~ msgstr "Additional MACs"
 
 #, fuzzy
 #~ msgid "Location Association for"
