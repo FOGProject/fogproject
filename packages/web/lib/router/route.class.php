@@ -1192,6 +1192,7 @@ class Route extends FOGBase
                 array(
                     'logfiles' => $class->get('logfiles'),
                     'snapinfiles' => $class->get('snapinfiles'),
+                    'images' => $class->get('images'),
                     'storagegroup' => $class->get('storagegroup')->get()
                 )
             );
