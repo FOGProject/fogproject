@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-27 10:18-0400\n"
+"POT-Creation-Date: 2017-07-27 15:02-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -840,8 +840,8 @@ msgstr "Nessun nodo associato"
 msgid "Adding FOGPage: %s, Node: %s"
 msgstr "FOGPage Aggiunta: %s , nodo: %s"
 
-#: /var/www/fog/lib/fog/page.class.php:499
-#: /var/www/fog/lib/fog/page.class.php:510
+#: /var/www/fog/lib/fog/page.class.php:500
+#: /var/www/fog/lib/fog/page.class.php:511
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2669
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2697
 #: /var/www/fog/lib/reports/user_tracking.report.php:288
@@ -849,7 +849,7 @@ msgstr "FOGPage Aggiunta: %s , nodo: %s"
 msgid "Logout"
 msgstr "Disconnettersi"
 
-#: /var/www/fog/lib/fog/page.class.php:518
+#: /var/www/fog/lib/fog/page.class.php:519
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2686
 #: /var/www/fog/lib/reports/user_tracking.report.php:289
 #: /var/www/fog/commons/text.php:114
