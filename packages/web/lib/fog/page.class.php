@@ -457,7 +457,7 @@ class Page extends FOGBase
     public static function getSearchForm()
     {
         global $node;
-        echo '<div class="col-md-2">';
+        echo '<div class="col-md-3">';
         if (in_array($node, self::$searchPages)) {
             echo '<ul class="nav navbar-nav">';
             echo '<li>';
@@ -478,6 +478,7 @@ class Page extends FOGBase
             echo '</span>';
             echo '</i>';
             echo '</span>';
+            echo '</div>';
             echo '</form>';
             echo '</li>';
             echo '</ul>';

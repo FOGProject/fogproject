@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-27 10:18-0400\n"
+"POT-Creation-Date: 2017-07-27 15:02-0400\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -920,8 +920,8 @@ msgstr "Kein Knoten verbunden sind"
 msgid "Adding FOGPage: %s, Node: %s"
 msgstr "Hinzufügen von FOGPage: %s, Knoten: %s"
 
-#: /var/www/fog/lib/fog/page.class.php:499
-#: /var/www/fog/lib/fog/page.class.php:510
+#: /var/www/fog/lib/fog/page.class.php:500
+#: /var/www/fog/lib/fog/page.class.php:511
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2669
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2697
 #: /var/www/fog/lib/reports/user_tracking.report.php:288
@@ -929,7 +929,7 @@ msgstr "Hinzufügen von FOGPage: %s, Knoten: %s"
 msgid "Logout"
 msgstr "Logout"
 
-#: /var/www/fog/lib/fog/page.class.php:518
+#: /var/www/fog/lib/fog/page.class.php:519
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2686
 #: /var/www/fog/lib/reports/user_tracking.report.php:289
 #: /var/www/fog/commons/text.php:114
