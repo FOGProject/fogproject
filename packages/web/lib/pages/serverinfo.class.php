@@ -84,7 +84,8 @@ class ServerInfo extends FOGPage
             return;
         }
         $url = sprintf(
-            'http://%s/fog/status/hw.php',
+            '%s://%s/fog/status/hw.php',
+            self::$httpproto,
             $this->obj->get('ip')
         );
         $ret = self::$FOGURLRequests->process($url);

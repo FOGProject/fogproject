@@ -342,7 +342,7 @@ class AddLocationHost extends Hook
             return;
         }
         $find = array(
-            'hostID' => $arguments['Host']->get('id')
+            'hostID' => $arguments['Host']->id
         );
         $Locations = self::getSubObjectIDs(
             'LocationAssociation',
@@ -356,11 +356,19 @@ class AddLocationHost extends Hook
             $arguments['report']->addCSVCell('');
             return;
         }
-        foreach ((array)self::getClass('LocationManager')
-            ->find(array('id' => $Locations)) as &$Location
-        ) {
+        Route::listem(
+            'location',
+            'name',
+            false,
+            array('id' => $Locations)
+        );
+        $Locations = json_decode(
+            Route::getData()
+        );
+        $Locations = $Locations->locations;
+        foreach ((array)$Locations as &$Location) {
             $arguments['report']->addCSVCell(
-                $Location->get('id')
+                $Location->id
             );
             unset($Location);
         }

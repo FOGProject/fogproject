@@ -95,21 +95,29 @@ class DashboardPage extends FOGPage
             'isEnabled' => 1,
             'isGraphEnabled' => 1
         );
-        foreach ((array)self::getClass('StorageNodeManager')
-            ->find($find) as &$StorageNode
-        ) {
-            $ip = $StorageNode->get('ip');
+        Route::listem(
+            'storagenode',
+            'name',
+            false,
+            $find
+        );
+        $Nodes = json_decode(
+            Route::getData()
+        );
+        $Nodes = $Nodes->storagenodes;
+        foreach ((array)$Nodes as &$StorageNode) {
+            $ip = $StorageNode->ip;
             $url = sprintf(
                 '%s/%s/',
                 $ip,
-                $StorageNode->get('webroot')
+                $StorageNode->webroot
             );
             $url = preg_replace(
                 '#/+#',
                 '/',
                 $url
             );
-            $url = 'http://' . $url;
+            $url = self::$httpproto.'://' . $url;
             $testurls[] = sprintf(
                 '%smanagement/index.php',
                 $url
@@ -117,37 +125,42 @@ class DashboardPage extends FOGPage
             unset($ip);
             self::$_nodeOpts[] = sprintf(
                 '<option value="%s" urlcall="%s">%s%s ()</option>',
-                $StorageNode->get('id'),
+                $StorageNode->id,
                 sprintf(
                     '%sservice/getversion.php',
                     $url
                 ),
-                $StorageNode->get('name'),
+                $StorageNode->name,
                 (
-                    $StorageNode->get('isMaster') ?
+                    $StorageNode->isMaster ?
                     ' *' :
                     ''
                 )
             );
-            self::$_nodeNames[] = $StorageNode->get('name');
+            self::$_nodeNames[] = $StorageNode->name;
             self::$_nodeURLs[] = sprintf(
                 '%sstatus/bandwidth.php?dev=%s',
                 $url,
-                $StorageNode->get('interface')
+                $StorageNode->interface
             );
             unset($StorageNode);
         }
-        foreach ((array)self::getClass('StorageGroupManager')
-            ->find() as &$StorageGroup
-        ) {
+        Route::listem('storagegroup');
+        $Groups = json_decode(
+            Route::getData()
+        );
+        $Groups = $Groups->storagegroups;
+        foreach ((array)$Groups as &$StorageGroup) {
             self::$_groupOpts .= sprintf(
                 '<option value="%s">%s</option>',
-                $StorageGroup->get('id'),
-                $StorageGroup->get('name')
+                $StorageGroup->id,
+                $StorageGroup->name
             );
             unset($StorageGroup);
         }
-        $test = array_filter(self::$FOGURLRequests->isAvailable($testurls));
+        $test = array_filter(
+            self::$FOGURLRequests->isAvailable($testurls)
+        );
         self::$_nodeOpts = array_intersect_key((array)self::$_nodeOpts, $test);
         self::$_nodeNames = array_intersect_key((array)self::$_nodeNames, $test);
         self::$_nodeURLs = array_intersect_key((array)self::$_nodeURLs, $test);
@@ -455,7 +468,8 @@ class DashboardPage extends FOGPage
         ignore_user_abort(true);
         set_time_limit(0);
         $url = sprintf(
-            'http://%s/fog/status/freespace.php?path=%s',
+            '%s://%s/fog/status/freespace.php?path=%s',
+            self::$httpproto,
             $this->obj->get('ip'),
             base64_encode($this->obj->get('path'))
         );

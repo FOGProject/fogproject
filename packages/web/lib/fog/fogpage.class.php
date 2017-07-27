@@ -2575,8 +2575,8 @@ abstract class FOGPage extends FOGBase
     public function loginInfo()
     {
         $urls = array(
-            'http://fogproject.org/globalusers',
-            'http://fogproject.org/version/index.php?stable&dev&svn'
+            'https://fogproject.org/globalusers',
+            'https://fogproject.org/version/index.php?stable&dev&svn'
         );
         $resp = self::$FOGURLRequests->process($urls);
         $data['sites'] = $resp[0];

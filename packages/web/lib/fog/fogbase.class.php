@@ -291,6 +291,18 @@ abstract class FOGBase
      */
     public static $showhtml = true;
     /**
+     * HTTPS set or not store protocol to use.
+     *
+     * @var string
+     */
+    public static $httpproto = false;
+    /**
+     * HTTP_HOST variable.
+     *
+     * @var string
+     */
+    public static $httphost = '';
+    /**
      * Initializes the FOG System if needed.
      *
      * @return void
@@ -363,6 +375,16 @@ abstract class FOGBase
                 $option
             );
         };
+        /**
+         * Set proto and host.
+         */
+        self::$httpproto = 'http'
+            . (
+                filter_input(INPUT_SERVER, 'HTTPS') ?
+                's' :
+                ''
+            );
+        self::$httphost = filter_input(INPUT_SERVER, 'HTTP_HOST');
         self::$_initialized = true;
     }
     /**
@@ -2275,7 +2297,7 @@ abstract class FOGBase
         if (empty($macStr)) {
             return;
         }
-        $url = 'http://%s/fog/management/index.php?';
+        $url = '%s://%s/fog/management/index.php?';
         $url .= 'node=client&sub=wakeEmUp';
         $nodeURLs = array();
         $macCount = count($macs);
@@ -2290,6 +2312,7 @@ abstract class FOGBase
             $ip = $Node->get('ip');
             $nodeURLs[] = sprintf(
                 $url,
+                self::$httpproto,
                 $ip
             );
             unset($Node);
