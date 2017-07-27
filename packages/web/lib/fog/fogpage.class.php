@@ -1081,6 +1081,67 @@ abstract class FOGPage extends FOGBase
             . '<input type="hidden" name="taskhosts[]" value="${host_id}"/>',
         );
         if ($this->obj instanceof Host) {
+            ob_start();
+            echo '<select class="form-control input-group" name="snapin" id="'
+                . 'snapin" autocomplete="off">';
+            echo '<option value="">- ';
+            echo self::$foglang['PleaseSelect'];
+            echo ' -</option>';
+            echo '<option disabled>';
+            echo '---------- '
+                . _('Host Associated Snapins')
+                . ' ----------';
+            echo '</option>';
+            Route::listem(
+                'snapin',
+                'name',
+                false,
+                array('id' => $this->obj->get('snapins'))
+            );
+            $snapins = json_decode(
+                Route::getData()
+            );
+            $snapins = $snapins->snapins;
+            foreach ((array)$snapins as &$Snapin) {
+                echo '<option value="'
+                    . $Snapin->id
+                    . '">';
+                echo $Snapin->name;
+                echo ' - (';
+                echo $Snapin->id;
+                echo ')';
+                echo '</option>';
+                unset($Snapin);
+            }
+            unset($snapins);
+            echo '<option disabled>';
+            echo '---------- '
+                . _('Host Unassociated Snapins')
+                . ' ----------';
+            echo '</option>';
+            Route::listem(
+                'snapin',
+                'name',
+                false,
+                array('id' => $this->obj->get('snapinsnotinme'))
+            );
+            $snapins = json_decode(
+                Route::getData()
+            );
+            $snapins = $snapins->snapins;
+            foreach ((array)$snapins as &$Snapin) {
+                echo '<option value="'
+                    . $Snapin->id
+                    . '">';
+                echo $Snapin->name;
+                echo ' - (';
+                echo $Snapin->id;
+                echo ')';
+                echo '</option>';
+                unset($Snapin);
+            }
+            unset($snapins);
+            $snapselector = ob_get_clean();
             $this->data[] = array(
                 'host_link' => '?node=host&sub=edit&id=${host_id}',
                 'image_link' => '?node=image&sub=edit&id=${image_id}',
@@ -1093,6 +1154,7 @@ abstract class FOGPage extends FOGBase
                 'image_title' => _('Edit Image'),
             );
         } elseif ($this->obj instanceof Group) {
+            $snapselector = self::getClass('SnapinManager')->buildSelectBox();
             Route::listem('host');
             $Hosts = json_decode(
                 Route::getData()
@@ -1171,10 +1233,7 @@ abstract class FOGPage extends FOGBase
             echo _('Please select the snapin you want to install');
             echo '</label>';
             echo '<div class="input-group">';
-            echo self::getClass('SnapinManager')->buildSelectBox(
-                '',
-                'snapin'
-            );
+            echo $snapselector;
             echo '</div>';
             echo '</div>';
         }
