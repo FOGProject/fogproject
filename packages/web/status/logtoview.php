@@ -172,7 +172,8 @@ if (false !== strpos(filter_input(INPUT_SERVER, 'HTTP_HOST'), $ip)) {
     exit;
 }
 $url = sprintf(
-    'http://%s/fog/status/logtoview.php',
+    '%s://%s/fog/status/logtoview.php',
+    FOGCore::$httpproto,
     $ip
 );
 $process = array(

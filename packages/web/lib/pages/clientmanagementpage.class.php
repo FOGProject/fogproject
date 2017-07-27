@@ -66,7 +66,8 @@ class ClientManagementPage extends FOGPage
             'value'
         );
         $url = sprintf(
-            'http://%s/fog/client/download.php',
+            '%s://%s/fog/client/download.php',
+            self::$httpproto,
             $ip
         );
         $url = filter_var(

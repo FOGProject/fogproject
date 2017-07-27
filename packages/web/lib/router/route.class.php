@@ -34,18 +34,6 @@ class Route extends FOGBase
      */
     private static $_token = '';
     /**
-     * HTTPS set or not store protocol to use.
-     *
-     * @var string
-     */
-    public static $httpproto = false;
-    /**
-     * HTTP_HOST variable.
-     *
-     * @var string
-     */
-    public static $httphost = '';
-    /**
      * AltoRouter object container.
      *
      * @var AltoRouter
@@ -152,16 +140,6 @@ class Route extends FOGBase
      */
     public function __construct()
     {
-        /**
-         * Set proto and host.
-         */
-        self::$httpproto = 'http'
-            . (
-                filter_input(INPUT_SERVER, 'HTTPS') ?
-                's' :
-                ''
-            );
-        self::$httphost = filter_input(INPUT_SERVER, 'HTTP_HOST');
         list(
             self::$_enabled,
             self::$_token
@@ -1142,7 +1120,8 @@ class Route extends FOGBase
                     'image' => $class->get('imagename')->get(),
                     'imagename' => $class->getImageName(),
                     'pingstatus' => $class->getPingCodeStr(),
-                    'primac' => $class->get('mac')->__toString()
+                    'primac' => $class->get('mac')->__toString(),
+                    'macs' => $class->getMyMacs()
                 )
             );
             break;

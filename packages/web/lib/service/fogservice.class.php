@@ -515,7 +515,8 @@ abstract class FOGService extends FOGBase
                     continue;
                 }
                 $url = sprintf(
-                    'http://%s/fog/status/gethash.php',
+                    '%s://%s/fog/status/gethash.php',
+                    self::$httpproto,
                     $PotentialStorageNode->get('ip')
                 );
                 self::$FOGFTP

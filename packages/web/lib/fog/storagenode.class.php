@@ -171,7 +171,8 @@ class StorageNode extends FOGController
     public function getLogfiles()
     {
         $url = sprintf(
-            'http://%s/fog/status/getfiles.php?path=%s',
+            '%s://%s/fog/status/getfiles.php?path=%s',
+            self::$httpproto,
             $this->get('ip'),
             '%s'
         );
@@ -215,7 +216,8 @@ class StorageNode extends FOGController
     private function _getData()
     {
         $url = sprintf(
-            'http://%s/fog/status/getfiles.php',
+            '%s://%s/fog/status/getfiles.php',
+            self::$httpproto,
             $this->get('ip')
         );
         $keys = array(
