@@ -859,7 +859,14 @@ class SnapinManagementPage extends FOGPage
         );
         $action = filter_input(INPUT_POST, 'action');
         if (!$action) {
-            $action = (int)$this->obj->get('shutdown') ? 'shutdown' : 'reboot';
+            $action = (
+                $this->obj->get('shutdown') ?
+                'shutdown' : (
+                    $this->obj->get('reboot') ?
+                    'reboot' :
+                    ''
+                )
+            );
         }
         $reboot = (
             $action == 'reboot' ? ' checked' : ''
