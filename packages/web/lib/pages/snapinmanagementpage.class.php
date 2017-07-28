@@ -152,9 +152,12 @@ class SnapinManagementPage extends FOGPage
          * The header data for list/search.
          */
         $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" '
+            '',
+            '',
+            '<label for="toggler">'
+            . '<input type="checkbox" name="toggle-checkbox" '
             . 'class="toggle-checkboxAction" id="toggler"/>'
-            . '<label for="toggler"></label>',
+            . '</label>',
             _('Snapin Name'),
             _('Is Pack'),
             _('Storage Group'),
@@ -163,15 +166,19 @@ class SnapinManagementPage extends FOGPage
          * The template for the list/search elements.
          */
         $this->templates = array(
-            '<input type="checkbox" name="snapin[]" value="${id}" '
-            . 'class="toggle-action" id="snapin-${id}"/>'
-            . '<label for="snapin-${id}"></label>',
-            sprintf(
-                '<a href="?node=%s&sub=edit&%s=${id}" title="%s">${name}</a>',
-                $this->node,
-                $this->id,
-                _('Edit')
-            ),
+            '${protected}',
+            '${enabled}',
+            '<label for="toggler1">'
+            . '<input type="checkbox" name="snapin[]" '
+            . 'value="${id}" class="toggle-action" id="'
+            . 'toggler1"/></label>',
+            '<a href="?node='
+            . $this->node
+            . '&sub=edit&id=${id}" '
+            . 'data-toggle="tooltip" data-placement="right" '
+            . 'title="'
+            . _('Edit')
+            . ': ${name}">${name} - ${id}</a>',
             '${packtype}',
             '${storageGroup}',
         );
@@ -179,6 +186,14 @@ class SnapinManagementPage extends FOGPage
          * The attributes for the table items.
          */
         $this->attributes = array(
+            array(
+                'class' => 'filter-false',
+                'width' => 5
+            ),
+            array(
+                'class' => 'filter-false',
+                'width' => 5
+            ),
             array(
                 'class' => 'filter-false',
                 'width' => 16
@@ -229,6 +244,40 @@ class SnapinManagementPage extends FOGPage
              */
             $storageGroup = $Snapin->storagegroupname;
             /**
+             * If the snapin is not protected show
+             * the unlocked symbol and title of not protected
+             * otherwise set as is protected.
+             */
+            if ($Snapin->protected < 1) {
+                $protected = '<i class="fa fa-unlock fa-1x icon hand" '
+                    . 'data-toggle="tooltip" data-placement="right" '
+                    . 'title="'
+                    . _('Not protected')
+                    . '"></i>';
+            } else {
+                $protected = '<i class="fa fa-lock fa-1x icon hand" '
+                    . 'data-toggle="tooltip" data-placement="right" '
+                    . 'title="'
+                    . _('Protected')
+                    . '"></i>';
+            }
+            /**
+             * If the snapin is enabled or not.
+             */
+            if ($Snapin->isEnabled) {
+                $enabled = '<i class="fa fa-check-circle green" '
+                    . 'title="'
+                    . _('Enabled')
+                    . '" data-toggle="tooltip" data-placement="top">'
+                    . '</i>';
+            } else {
+                $enabled = '<i class="fa fa-times-circle red" '
+                    . 'title="'
+                    . _('Disabled')
+                    . '" data-toggle="tooltip" data-placement="top">'
+                    . '</i>';
+            }
+            /**
              * Store the data.
              */
             $this->data[] = array(
@@ -238,6 +287,8 @@ class SnapinManagementPage extends FOGPage
                 'file' => $file,
                 'packtype' => $packtype,
                 'storageGroup' => $storageGroup,
+                'protected' => $protected,
+                'enabled' => $enabled
             );
             /**
              * Cleanup.

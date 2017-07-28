@@ -124,6 +124,7 @@ class ImageManagementPage extends FOGPage
          */
         $this->headerData = array(
             '',
+            '',
             '<label for="toggler">'
             . '<input type="checkbox" name="toggle-checkbox" '
             . 'class="toggle-checkboxAction" id="toggler"/>'
@@ -154,6 +155,7 @@ class ImageManagementPage extends FOGPage
          */
         $this->templates = array(
             '${protected}',
+            '${enabled}',
             '<label for="toggler1">'
             . '<input type="checkbox" name="image[]" '
             . 'value="${id}" class="toggle-action" id="'
@@ -195,6 +197,10 @@ class ImageManagementPage extends FOGPage
          * The attributes for the table items.
          */
         $this->attributes = array(
+            array(
+                'width' => 5,
+                'class' => 'filter-false'
+            ),
             array(
                 'width' => 5,
                 'class' => 'filter-false'
@@ -331,6 +337,23 @@ class ImageManagementPage extends FOGPage
                 );
             }
             /**
+             * If the image is enabled or not.
+             */
+            if ($Image->isEnabled) {
+                $enabled = '<i class="fa fa-check-circle green" '
+                    . 'title="'
+                    . _('Enabled')
+                    . '" data-toggle="tooltip" data-placement="top">'
+                    . '</i>';
+            } else {
+                $enabled
+                    = '<i class="fa fa-times-circle red" '
+                    . 'title="'
+                    . _('Disabled')
+                    . '" data-toggle="tooltip" data-placement="top">'
+                    . '</i>';
+            }
+            /**
              * If the image format not one, we must
              * be using partclone otherwise partimage.
              */
@@ -372,7 +395,8 @@ class ImageManagementPage extends FOGPage
                 'image_type' => $imageType,
                 'image_partition_type' => $imagePartitionType,
                 'protected' => $protected,
-                'type' => $type
+                'type' => $type,
+                'enabled' => $enabled
             );
             /**
              * Cleanup.
