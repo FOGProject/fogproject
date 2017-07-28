@@ -63,6 +63,7 @@ class RegisterClient extends FOGClient implements FOGClientSend
             false,
             ''
         );
+	$pendingMACcount = count($this->Host->get('pendingMACs'));
         $hostname = trim($_REQUEST['hostname']);
         if (!$this->Host instanceof Host) {
             $this->Host = new Host(0);
@@ -103,7 +104,7 @@ class RegisterClient extends FOGClient implements FOGClientSend
                 return array('complete' => true);
             }
         }
-        if (count($MACs) > $maxPending + 1) {
+        if ($pendingMACcount > $maxPending) {
             return array(
                 'error' => sprintf(
                     '%s. %s %d %s.',
