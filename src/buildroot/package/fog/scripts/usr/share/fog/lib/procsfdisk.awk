@@ -431,9 +431,10 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
                 # Only set full size if needed.
                 if (full_size == 0) {
                     # Get our full size.
-                    full_size = p_start + p_size;
+                    full_size = p_start + p_size + int(MIN_START);
                 }
                 original_fixed += int(MIN_START);
+                full_size += int(MIN_START);
                 # Store, for now, the partition size as fixed.
                 continue;
             }
@@ -554,12 +555,7 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
             continue;
         }
         # Get's the percentage increase/decrease and makes adjustment.
-        if (full_size > 0) {
-            p_percent = p_orig_size / full_size;
-            p_size = int(diskSize) * p_percent;
-        } else {
-            p_size = new_variable * p_size / original_variable;
-        }
+        p_size = new_variable * p_size / original_variable;
         # If the new size is smaller than the minsize reset the size to at least equal the min size.
         if (p_size < p_minsize) {
             p_size = p_minsize;
@@ -614,10 +610,11 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
             # Otherwise increase it by the p_size.
             if (p_type == "5" || p_type == "f") {
                 curr_start += int(MIN_START);
+                partitions[pName, "start"] = curr_start;
                 continue;
             }
             if (p_number > 4) {
-                p_start += int(MIN_START);
+                continue;
             }
         }
         curr_start += p_size;
@@ -656,20 +653,17 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
                 p_size -= (p_size % int(SECTOR_SIZE));
                 new_extended = p_size;
                 partitions[pName, "size"] = p_size;
+                curr_start = p_start + extended_margin;
                 continue;
             }
             # Skip if not logical partition.
             if (p_number < 5) {
                 continue;
             }
-            if (match(fixedList, regex)) {
-                continue;
-            }
             p_percent = p_orig_size / orig_extended;
             p_size = new_extended * p_percent;
             p_size -= (p_size % int(SECTOR_SIZE));
             partitions[pName, "size"] = p_size;
-            curr_start = 0;
             for (p_name in partition_names) {
                 # Set temp type
                 p_type_tmp = partitions[p_name, "type"];
@@ -684,8 +678,9 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
                 if (p_type_tmp == 5 || p_type_tmp == "f" || p_number_tmp < 5) {
                     continue;
                 }
-                if (curr_start == 0) {
-                    curr_start = p_start_tmp;
+                if (match(fixedList, regex_tmp)) {
+                    partitions[p_name, "start"] = curr_start;
+                    continue;
                 }
                 partitions[p_name, "start"] = curr_start;
                 curr_start += p_size_tmp;

@@ -1817,18 +1817,23 @@ abstract class FOGPage extends FOGBase
                 );
             }
         } catch (Exception $e) {
-            printf(
-                '<div class="col-xs-9">'
-                . '<div class="panel panel-danger">'
-                . '<div class="panel-body text-center">'
-                . '<p>%s</p>'
-                . '<p>%s</p>'
-                . '</div>'
-                . '</div>'
-                . '</div>',
-                _('Failed to create tasking to some or all'),
-                $e->getMessage()
-            );
+            echo '<div class="col-xs-9">';
+            echo '<div class="panel panel-danger">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Tasking Failed');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body text-center">';
+            echo '<div class="row">';
+            echo _('Failed to create tasking');
+            echo '</div>';
+            echo '<div class="row">';
+            echo $e->getMessage();
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
         }
         if (false == empty($success)) {
             switch ($scheduleType) {
