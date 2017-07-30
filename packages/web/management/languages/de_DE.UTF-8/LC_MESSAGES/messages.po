@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-29 00:29-0400\n"
+"POT-Creation-Date: 2017-07-30 11:03-0400\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -1543,7 +1543,7 @@ msgid "Invalid scheduling type"
 msgstr "Ungültiger Typ"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1560
-#: /var/www/fog/commons/text.php:282
+#: /var/www/fog/commons/text.php:283
 msgid "Scheduled date is in the past"
 msgstr "Termin ist in der Vergangenheit"
 
@@ -2030,7 +2030,7 @@ msgstr "Fehler"
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:350
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:485
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:953
-#: /var/www/fog/commons/text.php:295
+#: /var/www/fog/commons/text.php:296
 msgid "Please select an option"
 msgstr "Bitte wählen Sie eine option"
 
@@ -2119,7 +2119,7 @@ msgstr "Image-Name"
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:74
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:167
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:336
-#: /var/www/fog/commons/text.php:305
+#: /var/www/fog/commons/text.php:306
 msgid "Storage Group"
 msgstr "Speichergruppe"
 
@@ -2256,7 +2256,7 @@ msgstr "Betriebssystem"
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:590
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:944
 #: /var/www/fog/lib/reports/imaging_log.report.php:57
-#: /var/www/fog/commons/text.php:313
+#: /var/www/fog/commons/text.php:314
 msgid "Image Path"
 msgstr "Bildpfad"
 
@@ -2390,7 +2390,7 @@ msgstr "Update-Drucker"
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:1170
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1197
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1302
-#: /var/www/fog/commons/text.php:370
+#: /var/www/fog/commons/text.php:371
 msgid "Storage Group Name"
 msgstr "Name der Speichergruppe"
 
@@ -4095,7 +4095,7 @@ msgstr "Allgemeine Informationen"
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:170
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:339
 #: /var/www/fog/lib/reg-task/taskingelement.class.php:234
-#: /var/www/fog/commons/text.php:304
+#: /var/www/fog/commons/text.php:305
 msgid "Storage Node"
 msgstr "Storage Node"
 
@@ -6329,7 +6329,7 @@ msgid "%s ID %s is not valid"
 msgstr "%s ID %s ist nicht gültig"
 
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:228
-#: /var/www/fog/commons/text.php:312
+#: /var/www/fog/commons/text.php:313
 msgid "Max Clients"
 msgstr "Max-Kunden"
 
@@ -8033,7 +8033,7 @@ msgid "Broadcast Name"
 msgstr "Titel der Liveübertragung"
 
 #: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:51
-#: /var/www/fog/commons/text.php:311
+#: /var/www/fog/commons/text.php:312
 msgid "IP Address"
 msgstr "IP-Adresse"
 
@@ -10178,279 +10178,284 @@ msgid "Host is not valid"
 msgstr "Host ist nicht gültig"
 
 #: /var/www/fog/commons/text.php:268
+#, fuzzy
+msgid "Group is not valid"
+msgstr "Gruppe ist ungültig"
+
+#: /var/www/fog/commons/text.php:269
 msgid "Task Type is not valid"
 msgstr "Aufgabentyp ist nicht gültig"
 
-#: /var/www/fog/commons/text.php:269
+#: /var/www/fog/commons/text.php:270
 msgid "Image is not valid"
 msgstr "Bild ist nicht gültig"
 
-#: /var/www/fog/commons/text.php:270
+#: /var/www/fog/commons/text.php:271
 msgid "The image storage group assigned is not valid"
 msgstr "Die Abbildgruppe Speicher zugewiesen ist nicht gültig"
 
-#: /var/www/fog/commons/text.php:271
+#: /var/www/fog/commons/text.php:272
 msgid "There are no snapins associated with this host"
 msgstr "Es gibt keine Verbindung mit diesem Host snapins"
 
-#: /var/www/fog/commons/text.php:272
+#: /var/www/fog/commons/text.php:273
 msgid "Snapins Are already deployed to this host"
 msgstr "SnapIns sind bereits auf diesem Host bereitgestellt"
 
-#: /var/www/fog/commons/text.php:275
+#: /var/www/fog/commons/text.php:276
 #, fuzzy
 msgid "Could not find a Storage Node is"
 msgstr "Temporäre Dateiname konnte nicht gefunden werden."
 
-#: /var/www/fog/commons/text.php:276
+#: /var/www/fog/commons/text.php:277
 #, fuzzy
 msgid "there one enabled within this Storage Group"
 msgstr ""
 "Nicht gefunden, ein Storage Node ist es ein in dieser Speichergruppe "
 "aktiviert"
 
-#: /var/www/fog/commons/text.php:280
+#: /var/www/fog/commons/text.php:281
 msgid "The storage groups associated storage node is not valid"
 msgstr "Der Lagerung Gruppen zugeordneten Storage Node ist nicht gültig"
 
-#: /var/www/fog/commons/text.php:285
+#: /var/www/fog/commons/text.php:286
 msgid "A task already exists for this host at the scheduled tasking"
 msgstr ""
 "Eine Aufgabe ist bereits für diesen Host an das geplante tasking vorhanden."
 
-#: /var/www/fog/commons/text.php:287
+#: /var/www/fog/commons/text.php:288
 msgid "Minute value is not valid"
 msgstr "Minutenwert ist nicht gültig"
 
-#: /var/www/fog/commons/text.php:288
+#: /var/www/fog/commons/text.php:289
 msgid "Hour value is not valid"
 msgstr "Stundenwert ist nicht gültig"
 
-#: /var/www/fog/commons/text.php:289
+#: /var/www/fog/commons/text.php:290
 msgid "Day of month value is not valid"
 msgstr "Tag des Monats-Wert ist nicht gültig"
 
-#: /var/www/fog/commons/text.php:290
+#: /var/www/fog/commons/text.php:291
 msgid "Month value is not valid"
 msgstr "Monats-Wert ist nicht gültig"
 
-#: /var/www/fog/commons/text.php:291
+#: /var/www/fog/commons/text.php:292
 msgid "Day of week value is not valid"
 msgstr "Tag der Woche Wert ist nicht gültig"
 
-#: /var/www/fog/commons/text.php:293
+#: /var/www/fog/commons/text.php:294
 msgid "No Host found for MAC Address"
 msgstr "Kein Host für MAC-Adresse gefunden"
 
-#: /var/www/fog/commons/text.php:299
+#: /var/www/fog/commons/text.php:300
 msgid "Error multiple hosts returned for list of mac addresses"
 msgstr "Fehler zurückgegeben mehrere Hosts für Liste der Mac-Adressen"
 
-#: /var/www/fog/commons/text.php:302
+#: /var/www/fog/commons/text.php:303
 msgid "Session timeout"
 msgstr "Session-timeout"
 
-#: /var/www/fog/commons/text.php:306
+#: /var/www/fog/commons/text.php:307
 msgid "Graph Enabled"
 msgstr "Diagramm aktiviert"
 
-#: /var/www/fog/commons/text.php:307
+#: /var/www/fog/commons/text.php:308
 msgid "Master Node"
 msgstr "Master-Knoten"
 
-#: /var/www/fog/commons/text.php:308
+#: /var/www/fog/commons/text.php:309
 msgid "Is Master Node"
 msgstr "Master-Knoten ist"
 
-#: /var/www/fog/commons/text.php:309 /var/www/fog/commons/text.php:341
+#: /var/www/fog/commons/text.php:310 /var/www/fog/commons/text.php:342
 msgid "Storage Node Name"
 msgstr "Storage Node Name"
 
-#: /var/www/fog/commons/text.php:310
+#: /var/www/fog/commons/text.php:311
 msgid "Storage Node Description"
 msgstr "Storage Node Beschreibung"
 
-#: /var/www/fog/commons/text.php:314
+#: /var/www/fog/commons/text.php:315
 msgid "FTP Path"
 msgstr "FTP-Pfad"
 
-#: /var/www/fog/commons/text.php:315
+#: /var/www/fog/commons/text.php:316
 msgid "Snapin Path"
 msgstr "Snap-in-Pfad"
 
-#: /var/www/fog/commons/text.php:316
+#: /var/www/fog/commons/text.php:317
 msgid "SSL Path"
 msgstr "SSL-Pfad"
 
-#: /var/www/fog/commons/text.php:317
+#: /var/www/fog/commons/text.php:318
 msgid "Interface"
 msgstr "Schnittstelle"
 
-#: /var/www/fog/commons/text.php:318
+#: /var/www/fog/commons/text.php:319
 msgid "Is Enabled"
 msgstr "Ist aktiviert"
 
-#: /var/www/fog/commons/text.php:319
+#: /var/www/fog/commons/text.php:320
 msgid "Is Graph Enabled"
 msgstr "Diagramm aktiviert ist"
 
-#: /var/www/fog/commons/text.php:320
+#: /var/www/fog/commons/text.php:321
 msgid "On Dashboard"
 msgstr "Auf Armaturenbrett"
 
-#: /var/www/fog/commons/text.php:321
+#: /var/www/fog/commons/text.php:322
 msgid "Management Username"
 msgstr "Management-Benutzernamen"
 
-#: /var/www/fog/commons/text.php:322
+#: /var/www/fog/commons/text.php:323
 msgid "Management Password"
 msgstr "Management-Passwort"
 
-#: /var/www/fog/commons/text.php:325
+#: /var/www/fog/commons/text.php:326
 msgid "Use extreme caution with this setting"
 msgstr ""
 
-#: /var/www/fog/commons/text.php:326
+#: /var/www/fog/commons/text.php:327
 #, fuzzy
 msgid "This setting"
 msgstr "Diese Einstellung definiert "
 
-#: /var/www/fog/commons/text.php:327
+#: /var/www/fog/commons/text.php:328
 msgid "if used incorrectly could potentially"
 msgstr ""
 
-#: /var/www/fog/commons/text.php:328
+#: /var/www/fog/commons/text.php:329
 msgid "wipe out all of your images stored on"
 msgstr ""
 
-#: /var/www/fog/commons/text.php:329
+#: /var/www/fog/commons/text.php:330
 #, fuzzy
 msgid "all current storage nodes"
 msgstr "Ungültige Speicherknoten"
 
-#: /var/www/fog/commons/text.php:330
+#: /var/www/fog/commons/text.php:331
 #, fuzzy
 msgid "The 'Is Master Node' setting defines which"
 msgstr "Diese Einstellung definiert "
 
-#: /var/www/fog/commons/text.php:331
+#: /var/www/fog/commons/text.php:332
 msgid "node is the distributor of the images"
 msgstr ""
 
-#: /var/www/fog/commons/text.php:332
+#: /var/www/fog/commons/text.php:333
 msgid "If you add a blank node"
 msgstr ""
 
-#: /var/www/fog/commons/text.php:333
+#: /var/www/fog/commons/text.php:334
 msgid "meaning a node that has no images on it"
 msgstr ""
 
-#: /var/www/fog/commons/text.php:334
+#: /var/www/fog/commons/text.php:335
 msgid "and set it to master"
 msgstr ""
 
-#: /var/www/fog/commons/text.php:335
+#: /var/www/fog/commons/text.php:336
 msgid "it will distribute its store"
 msgstr ""
 
-#: /var/www/fog/commons/text.php:336
+#: /var/www/fog/commons/text.php:337
 msgid "which is empty"
 msgstr ""
 
-#: /var/www/fog/commons/text.php:337
+#: /var/www/fog/commons/text.php:338
 #, fuzzy
 msgid "to all nodes in the group"
 msgstr "Löschen Sie alle Hosts innerhalb der Gruppe"
 
-#: /var/www/fog/commons/text.php:343
+#: /var/www/fog/commons/text.php:344
 msgid "Storage Node already exists"
 msgstr "Storage Node ist bereits vorhanden."
 
-#: /var/www/fog/commons/text.php:346
+#: /var/www/fog/commons/text.php:347
 msgid "Storage Node IP"
 msgstr "Storage Node IP"
 
-#: /var/www/fog/commons/text.php:350
+#: /var/www/fog/commons/text.php:351
 msgid "Storage Node Max Clients"
 msgstr "Storage Node Max Clients"
 
-#: /var/www/fog/commons/text.php:354
+#: /var/www/fog/commons/text.php:355
 msgid "Storage Node Interface"
 msgstr "Storage Node-Schnittstelle"
 
-#: /var/www/fog/commons/text.php:358
+#: /var/www/fog/commons/text.php:359
 msgid "Storage Node Username"
 msgstr "Storage Node Benutzername"
 
-#: /var/www/fog/commons/text.php:362
+#: /var/www/fog/commons/text.php:363
 msgid "Storage Node Password"
 msgstr "Storage Node Passwort"
 
-#: /var/www/fog/commons/text.php:364
+#: /var/www/fog/commons/text.php:365
 msgid "Storage Node Created"
 msgstr "Storage Node erstellt"
 
-#: /var/www/fog/commons/text.php:365
+#: /var/www/fog/commons/text.php:366
 msgid "Storage Node Updated"
 msgstr "Storage Node aktualisiert"
 
-#: /var/www/fog/commons/text.php:366
+#: /var/www/fog/commons/text.php:367
 msgid "Database Update Failed"
 msgstr "Datenbankupdate fehlgeschlagen"
 
-#: /var/www/fog/commons/text.php:367
+#: /var/www/fog/commons/text.php:368
 msgid "Please confirm you want to delete"
 msgstr "Bitte bestätigen Sie, dass Sie löschen möchten"
 
-#: /var/www/fog/commons/text.php:368
+#: /var/www/fog/commons/text.php:369
 msgid "Failed to destroy Storage Node"
 msgstr "Fehler beim Storage Node zu zerstören"
 
-#: /var/www/fog/commons/text.php:369
+#: /var/www/fog/commons/text.php:370
 msgid "Storage Node deleted"
 msgstr "Storage Node gelöscht"
 
-#: /var/www/fog/commons/text.php:371
+#: /var/www/fog/commons/text.php:372
 msgid "Storage Group Description"
 msgstr "Speichergruppe Beschreibung"
 
-#: /var/www/fog/commons/text.php:376
+#: /var/www/fog/commons/text.php:377
 msgid "Storage Group Already Exists"
 msgstr "Speichergruppe ist bereits vorhanden."
 
-#: /var/www/fog/commons/text.php:377
+#: /var/www/fog/commons/text.php:378
 msgid "Storage Group Created"
 msgstr "Speichergruppe erstellt"
 
-#: /var/www/fog/commons/text.php:378
+#: /var/www/fog/commons/text.php:379
 msgid "Storage Group Updated"
 msgstr "Speichergruppe aktualisiert"
 
-#: /var/www/fog/commons/text.php:379
+#: /var/www/fog/commons/text.php:380
 msgid "You must have at least one Storage Group"
 msgstr "Sie müssen mindestens eine Speichergruppe"
 
-#: /var/www/fog/commons/text.php:380
+#: /var/www/fog/commons/text.php:381
 msgid "Storage Group deleted"
 msgstr "Speichergruppe gelöscht"
 
-#: /var/www/fog/commons/text.php:381
+#: /var/www/fog/commons/text.php:382
 msgid "Failed to destroy Storage Group"
 msgstr "Fehler beim Speichergruppe zu zerstören"
 
-#: /var/www/fog/commons/text.php:382
+#: /var/www/fog/commons/text.php:383
 msgid "Invalid Class"
 msgstr "Ungültige Klasse"
 
-#: /var/www/fog/commons/text.php:383
+#: /var/www/fog/commons/text.php:384
 msgid "Class is not extended from FOGPage"
 msgstr "Klasse ist nicht von FOGPage erweitert."
 
-#: /var/www/fog/commons/text.php:384
+#: /var/www/fog/commons/text.php:385
 msgid "Do not list on menu"
 msgstr "Nicht im Menü aufgeführt"
 
-#: /var/www/fog/commons/text.php:386
+#: /var/www/fog/commons/text.php:387
 msgid "Language"
 msgstr "Sprache"
 
@@ -11870,9 +11875,6 @@ msgstr "Es gibt keine Orte auf diesem Server."
 
 #~ msgid "MAC Address is not valid"
 #~ msgstr "MAC-Adresse ist nicht gültig"
-
-#~ msgid "Group is Invalid"
-#~ msgstr "Gruppe ist ungültig"
 
 #~ msgid "Please select a storage group for this snapin to reside in"
 #~ msgstr ""

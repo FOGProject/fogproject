@@ -1903,7 +1903,7 @@ class GroupManagementPage extends FOGPage
                             'kernelArgs' => $args,
                             'kernelDevice' => $dev,
                             'efiexit' => $efibootexit,
-                            'biosexit' => $boottexit,
+                            'biosexit' => $bootexit,
                             'productKey' => self::encryptpw(
                                 trim(
                                     $productKey
