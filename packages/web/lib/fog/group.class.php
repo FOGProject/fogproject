@@ -455,19 +455,23 @@ class Group extends FOGController
         if (!$TaskType->isValid()) {
             throw new Exception(self::$foglang['TaskTypeNotValid']);
         }
-        $TaskCount = self::getClass('TaskManager')
-            ->count(
+        $hostids = array_diff(
+            $hostids,
+            self::getSubObjectIDs(
+                'Task',
                 array(
                     'hostID' => $hostids,
                     'stateID' => self::fastmerge(
                         self::getQueuedStates(),
-                        (array) self::getProgressState()
+                        (array)self::getProgressState()
                     ),
                     'typeID' => $TaskType->isInitNeededTasking(true)
-                )
-            );
-        if ($TaskCount > 0) {
-            throw new Exception(_('There is a host in a tasking'));
+                ),
+                'hostID'
+            )
+        );
+        if (count($hostids) < 1) {
+            throw new Exception(_('No hosts available to task'));
         }
         $imagingTypes = $TaskType->isImagingTask();
         $now = $this->niceDate();
@@ -476,7 +480,7 @@ class Group extends FOGController
                 self::getSubObjectIDs(
                     'Host',
                     array(
-                        'id' => $this->get('hosts'),
+                        'id' => $hostids,
                     ),
                     'imageID'
                 )
@@ -535,7 +539,7 @@ class Group extends FOGController
                     self::getClass('MulticastSessionAssociationManager')
                         ->destroy(
                             array(
-                                'hostID' => $this->get('hosts'),
+                                'hostID' => $hostids,
                             )
                         );
                     $randomnumber = mt_rand(24576, 32766) * 2;
@@ -544,7 +548,7 @@ class Group extends FOGController
                     }
                     self::setSetting('FOG_UDPCAST_STARTINGPORT', $randomnumber);
                 }
-                $hostIDs = $this->get('hosts');
+                $hostIDs = $hostids;
                 $batchFields = array(
                     'name',
                     'createdBy',
@@ -613,7 +617,7 @@ class Group extends FOGController
                 );
                 $this->_createSnapinTasking($now, -1);
             } elseif ($TaskType->isDeploy()) {
-                $hostIDs = $this->get('hosts');
+                $hostIDs = $hostids;
                 $imageIDs = self::getSubObjectIDs(
                     'Host',
                     array(
