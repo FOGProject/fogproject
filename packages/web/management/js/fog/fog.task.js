@@ -11,6 +11,10 @@ $(function() {
         window.location.replace(location.href+'&sub=active');
         sub = 'active';
     }
+    $('.search-input').on('keyup change focus', function(e) {
+        clearTimeout(AJAXTaskRunning);
+        $('#taskpause,#taskcancel').remove();
+    });
     var cancelurl = (sub.indexOf('active') != -1 ? location.href : '');
     var Options = {
         URL: location.href,
@@ -33,7 +37,7 @@ $(function() {
         }
         if (typeof(sub) == 'undefined' || sub.indexOf('active') != -1) {
             $(this).before(
-                '<div class="text-center">'
+                '<div class="taskbuttons text-center">'
                 + '<div class="col-xs-offset-4 col-xs-4">'
                 + '<div class="form-group">'
                 + '<button type="button" class="btn btn-info btn-block activebtn" id="taskpause">'
@@ -43,7 +47,7 @@ $(function() {
                 + '</div>'
                 + '</div>'
             ).after(
-                '<div class="text-center">'
+                '<div class="taskbuttons text-center">'
                 + '<div class="col-xs-offset-4 col-xs-4">'
                 + '<div class="form-group">'
                 + '<button type="button" class="btn btn-warning btn-block" id="taskcancel">'
@@ -130,7 +134,10 @@ function ActiveTasksUpdate() {
                     response.attributes,
                     'td'
                 );
+                tbody.show();
 
+            } else {
+                tbody.hide();
             }
             TableCheck();
             Container.fogTableInfo().trigger('updateAll');
