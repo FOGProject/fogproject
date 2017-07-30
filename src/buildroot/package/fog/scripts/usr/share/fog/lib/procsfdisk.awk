@@ -400,8 +400,6 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
     original_fixed = int(MIN_START);
     # full size initialize.
     full_size = 0;
-    # logical fixed initialize.
-    logical_fixed = 0;
     # Tell if we have extended.
     # Trim any beginning or trailling colons
     gsub(/^[:]+|[:]+$/, "", fixedList);
@@ -440,9 +438,6 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
             }
             if (p_number > 4) {
                 original_fixed += int(MIN_START);
-                if (match(fixedList, regex)) {
-                    logical_fixed += p_size;
-                }
             }
         }
         # Add 0 sized parts to fixed size.
@@ -544,11 +539,6 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
             if (p_type == "5" || p_type == "f") {
                 continue;
             }
-            if (p_number > 4) {
-                if (match(fixedList, regex)) {
-                    continue;
-                }
-            }
         }
         # If a fixed partition, go to next.
         if (match(fixedList, regex)) {
@@ -591,16 +581,6 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         if (p_size == 0) {
             continue;
         }
-        # If a fixed partition, go to next.
-        if (!match(fixedList, regex)) {
-            p_start = curr_start;
-        }
-        if (prior_size > 0 && p_start < (prior_size + prior_start)) {
-            p_start = prior_size + prior_start;
-        }
-        # p_start is adjusted to whatever curr_start is.
-        # Set the new start value.
-        partitions[pName, "start"] = p_start;
         # If we are not GPT test for logical/extended partitions
         # And ensure our current start is give just the chunk size
         # for an even balance.
@@ -609,14 +589,19 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
             # needs to be increased by the chunk size.
             # Otherwise increase it by the p_size.
             if (p_type == "5" || p_type == "f") {
-                curr_start += int(MIN_START);
+                curr_start += int(MIN_START) - extended_margin;
                 partitions[pName, "start"] = curr_start;
-                continue;
-            }
-            if (p_number > 4) {
+                curr_start += extended_margin;
                 continue;
             }
         }
+        p_start = curr_start;
+        if (prior_size > 0 && p_start < (prior_size + prior_start)) {
+            p_start = prior_size + prior_start;
+        }
+        # p_start is adjusted to whatever curr_start is.
+        # Set the new start value.
+        partitions[pName, "start"] = p_start;
         curr_start += p_size;
         # Set the partitions start to our adjusted start.
         partitions[pName, "start"] = p_start;
@@ -660,6 +645,9 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
             if (p_number < 5) {
                 continue;
             }
+            if (match(fixedList, regex)) {
+                continue;
+            }
             p_percent = p_orig_size / orig_extended;
             p_size = new_extended * p_percent;
             p_size -= (p_size % int(SECTOR_SIZE));
@@ -673,13 +661,8 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
                 p_size_tmp = int(partitions[p_name, "size"]);
                 # Set temp start
                 p_start_tmp = int(partitions[p_name, "start"]);
-                # Regex setter.
-                regex_tmp = "/^([:]+)?"p_number_tmp"([:]+)?$|([:]+)?"p_number_tmp"([:]+)?|([:]+)?"p_number_tmp"$/"
+                # Skip if not extended/logical partition.
                 if (p_type_tmp == 5 || p_type_tmp == "f" || p_number_tmp < 5) {
-                    continue;
-                }
-                if (match(fixedList, regex_tmp)) {
-                    partitions[p_name, "start"] = curr_start;
                     continue;
                 }
                 partitions[p_name, "start"] = curr_start;
