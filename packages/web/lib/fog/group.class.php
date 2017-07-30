@@ -605,7 +605,6 @@ class Group extends FOGController
                 }
                 unset(
                     $hostCount,
-                    $hostIDs,
                     $batchTask,
                     $first_id,
                     $affected_rows,
@@ -739,14 +738,12 @@ class Group extends FOGController
             'host',
             'name',
             false,
-            array('id' => $this->get('hosts'))
+            array('id' => $hostIDs)
         );
         $Hosts = json_decode(
             Route::getData()
         );
         $Hosts = $Hosts->hosts;
-        var_dump($Hosts);
-        exit;
         $str = '';
         foreach ((array)$Hosts as &$Host) {
             $str .= '<li>';
