@@ -187,8 +187,8 @@ class TaskType extends FOGController
 
         if ($nums) {
             return array_diff(
-                array(4, 12, 13, 14),
-                range(1, 24)
+                range(1, 24),
+                array(4, 12, 13, 14)
             );
         }
 

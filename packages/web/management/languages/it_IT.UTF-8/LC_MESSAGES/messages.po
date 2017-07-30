@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-30 11:03-0400\n"
+"POT-Creation-Date: 2017-07-30 18:12-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -450,7 +450,6 @@ msgid "Select a valid image"
 msgstr "Selezionare un'immagine valida"
 
 #: /var/www/fog/lib/fog/group.class.php:408
-#: /var/www/fog/lib/fog/group.class.php:470
 msgid "There is a host in a tasking"
 msgstr "C'è un host con un compito"
 
@@ -458,13 +457,18 @@ msgstr "C'è un host con un compito"
 msgid "No hosts to task"
 msgstr "Nessun host disponibile"
 
-#: /var/www/fog/lib/fog/group.class.php:489
+#: /var/www/fog/lib/fog/group.class.php:474
+#, fuzzy
+msgid "No hosts available to task"
+msgstr "Nessun host disponibile"
+
+#: /var/www/fog/lib/fog/group.class.php:493
 #: /var/www/fog/lib/fog/host.class.php:1362
 #: /var/www/fog/lib/fog/host.class.php:1546
 msgid "Image is not enabled"
 msgstr "L'immagine non è abilitato"
 
-#: /var/www/fog/lib/fog/group.class.php:497
+#: /var/www/fog/lib/fog/group.class.php:501
 msgid "Unable to find master Storage Node"
 msgstr "Impossibile trovare il Nodo Archiviazione master"
 
