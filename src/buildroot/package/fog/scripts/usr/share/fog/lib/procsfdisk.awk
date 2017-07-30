@@ -377,7 +377,6 @@ function move_partition(partition_names, partitions, args, pName, new_start, new
 # original_variable is locally scoped
 # original_fixed is locally scoped
 # new_variable is locally scoped
-# new_logical is locally scoped
 # extended_margin is locally scoped
 # pName is locally scoped
 # p_type is locally scoped
@@ -389,13 +388,11 @@ function move_partition(partition_names, partitions, args, pName, new_start, new
 # ordered_starts is locally scoped
 # old_sorted_in is locally scoped
 # curr_start is locally scoped
-function fill_disk(partition_names, partitions, args, n, fixed_partitions, original_variable, original_fixed, new_variable, new_logical, extended_margin, pName, p_type, p_number, p_size, p_minsize, i, partition_starts, ordered_starts, old_sorted_in, curr_start) {
+function fill_disk(partition_names, partitions, args, n, fixed_partitions, original_variable, original_fixed, new_variable, extended_margin, pName, p_type, p_number, p_size, p_minsize, i, partition_starts, ordered_starts, old_sorted_in, curr_start) {
     # Used for extended volumes (logical disks)
     extended_margin = 2;
     # Ensure we start at 0 for original sizes.
     original_variable = 0;
-    # Ensure we start at 0 for logical sizes.
-    new_logical = 0;
     # Fixed should be MIN_START.
     original_fixed = int(MIN_START);
     # full size initialize.
@@ -429,12 +426,12 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
                 # Only set full size if needed.
                 if (full_size == 0) {
                     # Get our full size.
-                    full_size = p_start + p_size + int(MIN_START);
+                    full_size = p_start + p_size;
                 }
                 original_fixed += int(MIN_START);
-                full_size += int(MIN_START);
-                # Store, for now, the partition size as fixed.
-                continue;
+                if (match(fixedList, regex)) {
+                    continue;
+                }
             }
             if (p_number > 4) {
                 original_fixed += int(MIN_START);
@@ -453,13 +450,13 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
             }
         }
         # If fixed, add the partition size.
-        if (match(fixedList, regex)) {
-            original_fixed += p_size;
-            partitions[pName, "orig_size"] = p_size;
+        if (!match(fixedList, regex)) {
+            # Increment the variable value.
+            original_variable += p_size;
             continue;
         }
-        # Increment the variable value.
-        original_variable += p_size;
+        original_fixed += p_size;
+        partitions[pName, "orig_size"] = p_size;
     }
     # This just finds and set's the original sizes.
     for (pName in partition_names) {
@@ -538,16 +535,17 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         }
         # Get's the percentage increase/decrease and makes adjustment.
         p_size = new_variable * p_size / original_variable;
-        if (full_size > 0) {
-            p_percent = p_orig_size / full_size;
-            p_size = int(diskSize) * p_percent;
-        }
         # If the new size is smaller than the minsize reset the size to at least equal the min size.
         if (p_size < p_minsize) {
             p_size = p_minsize;
         }
         # Ensure we're aligned.
         p_size -= (p_size % int(SECTOR_SIZE));
+        if (label != gpt) {
+            if (p_type == 5 || p_type == "f") {
+                p_size += extended_margin;
+            }
+        }
         # Ensure the partition size is setup.
         partitions[pName, "size"] = p_size;
     }
@@ -609,63 +607,6 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         }
         prior_size = p_size;
         prior_start = p_start;
-    }
-    # Sorted in setter.
-    PROCINFO["sorted_in"] = old_sorted_in;
-    if (label != "gpt") {
-        # Now that start points are modified setup extended sizes.
-        for (pName in partition_names) {
-            # Set p_type.
-            p_type = partitions[pName, "type"];
-            # Set p_number.
-            p_number = int(partitions[pName, "number"]);
-            # Set p_size.
-            p_size = int(partitions[pName, "size"]);
-            # Set p_start.
-            p_start = int(partitions[pName, "start"]);
-            # Set p_orig_size.
-            p_orig_size = int(partitions[pName, "orig_size"]);
-            # Regex setter.
-            regex = "/^([:]+)?"p_number"([:]+)?$|([:]+)?"p_number"([:]+)?|([:]+)?"p_number"$/"
-            # Set our extended partition size.
-            if (p_type == 5 || p_type == "f") {
-                orig_extended = p_size;
-                p_size = (diskSize - p_start);
-                p_size -= (p_size % int(SECTOR_SIZE));
-                new_extended = p_size;
-                partitions[pName, "size"] = p_size;
-                curr_start = p_start + extended_margin;
-                continue;
-            }
-            # Skip if not logical partition.
-            if (p_number < 5) {
-                continue;
-            }
-            if (match(fixedList, regex)) {
-                continue;
-            }
-            p_percent = p_orig_size / orig_extended;
-            p_size = new_extended * p_percent;
-            p_size -= (p_size % int(SECTOR_SIZE));
-            partitions[pName, "size"] = p_size;
-        }
-        # Adjust extended partition start locations.
-        for (p_name in partition_names) {
-            # Set temp type
-            p_type_tmp = partitions[p_name, "type"];
-            # Set temp number
-            p_number_tmp = int(partitions[p_name, "number"]);
-            # Set temp size
-            p_size_tmp = int(partitions[p_name, "size"]);
-            # Set temp start
-            p_start_tmp = int(partitions[p_name, "start"]);
-            # Skip if not extended/logical partition.
-            if (p_type_tmp == 5 || p_type_tmp == "f" || p_number_tmp < 5) {
-                continue;
-            }
-            partitions[p_name, "start"] = curr_start;
-            curr_start += p_size_tmp;
-        }
     }
     # Set our lastlba
     if (firstlba) {
