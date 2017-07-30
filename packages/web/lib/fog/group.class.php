@@ -664,7 +664,6 @@ class Group extends FOGController
                 }
                 unset(
                     $hostCount,
-                    $hostIDs,
                     $batchTask,
                     $first_id,
                     $affected_rows,
