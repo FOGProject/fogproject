@@ -265,6 +265,7 @@ $foglang['NoActSnapJobs'] = _('No Active Snapin Jobs Found For Host');
 $foglang['FailedTask'] = _('Failed to create task');
 $foglang['InTask'] = _('Host is already a member of an active task');
 $foglang['HostNotValid'] = _('Host is not valid');
+$foglang['GroupNotValid'] = _('Group is not valid');
 $foglang['TaskTypeNotValid'] = _('Task Type is not valid');
 $foglang['ImageNotValid'] = _('Image is not valid');
 $foglang['ImageGroupNotValid'] = _('The image storage group assigned is not valid');

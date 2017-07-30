@@ -735,8 +735,33 @@ class Group extends FOGController
             set_time_limit(0);
             $this->wakeOnLAN();
         }
-
-        return array('All hosts successfully tasked');
+        Route::listem(
+            'host',
+            'name',
+            false,
+            array('id' => $this->get('hosts'))
+        );
+        $Hosts = json_decode(
+            Route::getData()
+        );
+        $Hosts = $Hosts->hosts;
+        var_dump($Hosts);
+        exit;
+        $str = '';
+        foreach ((array)$Hosts as &$Host) {
+            $str .= '<li>';
+            $str .= '<a href="?node=host&sub=edit&id='
+                . $Host->id
+                . '">';
+            $str .= $Host->name;
+            $str .= ' &ndash; ';
+            $str .= $Host->imagename;
+            $str .= '</a>';
+            $str .= '</li>';
+            unset($Host);
+        }
+        unset($Hosts);
+        return $str;
     }
     /**
      * Perform wake on lan to all hosts in group.

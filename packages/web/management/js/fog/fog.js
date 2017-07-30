@@ -81,9 +81,11 @@ submithandlerfunc = function(form) {
             if (data.error) {
                 msg = data.error;
                 type = BootstrapDialog.TYPE_WARNING;
+                sleeptime = 5000;
             } else {
                 msg = data.msg;
                 type = BootstrapDialog.TYPE_SUCCESS;
+                sleeptime = 2000;
             }
             BootstrapDialog.show({
                 title: title,
@@ -92,7 +94,7 @@ submithandlerfunc = function(form) {
                 onshown: function(dialogRef) {
                     bootstrapdialogopen = setTimeout(function() {
                         dialogRef.close();
-                    }, 5000);
+                    }, sleeptime);
                 },
                 onhidden: function(dialogRef) {
                     clearTimeout(bootstrapdialogopen);
