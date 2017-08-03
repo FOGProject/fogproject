@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-30 18:12-0400\n"
+"POT-Creation-Date: 2017-08-02 21:05-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -199,8 +199,8 @@ msgstr "Record non trovato"
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:299
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:50
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:61
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:119
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:221
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:136
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:263
 #: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:55
 #: /var/www/fog/lib/reports/equipment_loan.report.php:159
 #: /var/www/fog/lib/service/fogservice.class.php:391
@@ -385,7 +385,7 @@ msgstr "Tipo array"
 #: /var/www/fog/lib/fog/fogcontroller.class.php:844
 #: /var/www/fog/lib/fog/fogbase.class.php:2248
 #: /var/www/fog/lib/fog/fogftp.class.php:370
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1131
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1137
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2794
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:556
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:55
@@ -937,7 +937,7 @@ msgstr "%s ID %d non valido"
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:269
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:372
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:71
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:209
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:251
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:211
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:335
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:401
@@ -1226,7 +1226,7 @@ msgstr "Salva i cambiamenti"
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:243
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:345
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:594
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:236
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:278
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:241
 #: /var/www/fog/commons/text.php:40
 msgid "Update"
@@ -1695,7 +1695,7 @@ msgstr ""
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:417
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:182
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:244
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:134
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:165
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:145
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:382
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:531
@@ -1962,12 +1962,12 @@ msgid "New power management task"
 msgstr "Gestione energetica"
 
 #: /var/www/fog/lib/fog/scheduledtask.class.php:130
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1222
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1228
 msgid "Cron"
 msgstr "cron"
 
 #: /var/www/fog/lib/fog/scheduledtask.class.php:130
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1222
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1228
 msgid "Delayed"
 msgstr "Ritardato"
 
@@ -2393,7 +2393,7 @@ msgstr "Inizia sessione multicast"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:1558
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:805
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1127
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1133
 msgid "Task Name"
 msgstr "Nome attività"
 
@@ -2405,7 +2405,7 @@ msgstr "clienti"
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:75
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:807
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:936
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1129
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1135
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2947
 #: /var/www/fog/lib/reports/imaging_log.report.php:59
 msgid "Start Time"
@@ -3051,8 +3051,8 @@ msgstr "Elemento del menu:"
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:145
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:145
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:303
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:123
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:225
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:144
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:267
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:69
 #: /var/www/fog/lib/reports/user_tracking.report.php:239
 #: /var/www/fog/lib/reports/user_tracking.report.php:262
@@ -4856,46 +4856,46 @@ msgstr "Attività Multicast"
 msgid "Snapin"
 msgstr "Snapin"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1045
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1051
 msgid "Cannot cancel tasks this way"
 msgstr "Impossibile annullare le attività in questo modo"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1120
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1126
 #: /var/www/fog/commons/text.php:172
 msgid "Scheduled Tasks"
 msgstr "Attività pianificate"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1125
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1131
 msgid "Host/Group Name"
 msgstr "Host / Nome gruppo"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1126
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1132
 msgid "Is Group"
 msgstr "Il gruppo è"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1128
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1134
 msgid "Task Type"
 msgstr "Tipo attività"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1130
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1136
 #: /var/www/fog/commons/text.php:122
 msgid "Active"
 msgstr "Attivo"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1197
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1203
 msgid "All snapins"
 msgstr "Tutti gli snap-in"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1201
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1207
 msgid "Invalid snapin"
 msgstr "Snapin non valido"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1203
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1209
 msgid "Snapin to be installed"
 msgstr "Snapin da installare"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1214
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1219
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1220
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1225
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:138
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:240
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:207
@@ -4910,8 +4910,8 @@ msgstr "Snapin da installare"
 msgid "Yes"
 msgstr "Sì"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1215
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1220
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1221
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1226
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:138
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:238
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:208
@@ -4926,12 +4926,12 @@ msgstr "Sì"
 msgid "No"
 msgstr "No"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1225
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1231
 #: /var/www/fog/lib/service/taskscheduler.class.php:193
 msgid "group"
 msgstr "gruppo"
 
-#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1226
+#: /var/www/fog/lib/pages/taskmanagementpage.class.php:1232
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:383
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:435
 #: /var/www/fog/lib/service/taskscheduler.class.php:196
@@ -6573,7 +6573,7 @@ msgstr "Account già collegato"
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1111
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:179
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:247
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:186
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:228
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:188
 #: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:200
 msgid "Failed to create"
@@ -6623,8 +6623,8 @@ msgstr "Checksums"
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:311
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:51
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:60
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:127
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:229
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:151
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:271
 msgid "Icon"
 msgstr "Icona"
 
@@ -6950,7 +6950,7 @@ msgstr "Esiste già un ruolo con quel nome."
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:808
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:304
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:416
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:295
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:337
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:295
 msgid "Failed to update"
 msgstr "Impossibile aggiornare"
@@ -7264,8 +7264,8 @@ msgstr "Si accede da"
 
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:229
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:396
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:174
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:281
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:216
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:323
 msgid "You must enter a name"
 msgstr "È necessario inserire un nome"
 
@@ -7565,17 +7565,22 @@ msgstr "Stato attività"
 msgid "New Task State"
 msgstr "Stato nuova attività"
 
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:128
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:230
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:154
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:272
 msgid "Additional Icon elements"
 msgstr "elementi di icone aggiuntive"
 
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:178
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:287
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:162
+#, fuzzy
+msgid "Create Task state"
+msgstr "Stato nuova attività"
+
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:220
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:329
 msgid "Task state already exists, please try again."
 msgstr "stato delle attività già esiste, si prega di riprovare."
 
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:189
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:231
 msgid "Task State added, editing"
 msgstr "Compito di Stato aggiunto, editing"
 

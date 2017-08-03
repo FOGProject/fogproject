@@ -98,7 +98,7 @@ class TaskType extends FOGController
         }
         ksort($icons);
         ob_start();
-        echo '<select name="icon" class="fa">';
+        echo '<select class="form-control fa" id="icon" name="icon">';
         foreach ((array) $icons as $name => &$unicode) {
             printf(
                 '<option value="%s"%s> %s</option>',
