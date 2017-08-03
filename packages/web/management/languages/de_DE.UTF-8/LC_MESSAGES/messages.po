@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-02 21:05-0400\n"
+"POT-Creation-Date: 2017-08-02 22:02-0400\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -924,8 +924,8 @@ msgstr "Kein Knoten verbunden sind"
 msgid "Adding FOGPage: %s, Node: %s"
 msgstr "Hinzufügen von FOGPage: %s, Knoten: %s"
 
-#: /var/www/fog/lib/fog/page.class.php:500
-#: /var/www/fog/lib/fog/page.class.php:511
+#: /var/www/fog/lib/fog/page.class.php:495
+#: /var/www/fog/lib/fog/page.class.php:506
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2669
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2697
 #: /var/www/fog/lib/reports/user_tracking.report.php:288
@@ -933,7 +933,7 @@ msgstr "Hinzufügen von FOGPage: %s, Knoten: %s"
 msgid "Logout"
 msgstr "Logout"
 
-#: /var/www/fog/lib/fog/page.class.php:519
+#: /var/www/fog/lib/fog/page.class.php:514
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2686
 #: /var/www/fog/lib/reports/user_tracking.report.php:289
 #: /var/www/fog/commons/text.php:114
@@ -2717,7 +2717,7 @@ msgid "FOG Forums"
 msgstr "Nebel-Foren"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:66
-#: /var/www/fog/management/other/index.php:195
+#: /var/www/fog/management/other/index.php:199
 msgid "Donate to FOG"
 msgstr "Spenden Sie für Nebel"
 
@@ -9526,7 +9526,7 @@ msgid "Example Bolded Header"
 msgstr "Beispiel Fett Header"
 
 #: /var/www/fog/management/other/index.php:60
-#: /var/www/fog/management/other/index.php:149
+#: /var/www/fog/management/other/index.php:151
 msgid "Toggle Navigation"
 msgstr ""
 
@@ -9539,12 +9539,12 @@ msgstr "Laufende Version"
 msgid "SVN Revision"
 msgstr "Version"
 
-#: /var/www/fog/management/other/index.php:187
+#: /var/www/fog/management/other/index.php:191
 #, fuzzy
 msgid "Credits"
 msgstr "Erstellen"
 
-#: /var/www/fog/management/other/index.php:190
+#: /var/www/fog/management/other/index.php:194
 #, fuzzy
 msgid "FOG Client"
 msgstr "Nebel-Client-Wiki"
