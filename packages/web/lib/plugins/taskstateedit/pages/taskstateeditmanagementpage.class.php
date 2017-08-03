@@ -42,8 +42,11 @@ class TaskstateeditManagementPage extends FOGPage
         parent::__construct($this->name);
         $this->menu['list'] = sprintf(self::$foglang['ListAll'], _('Task States'));
         $this->menu['add'] = sprintf(self::$foglang['CreateNew'], _('Task State'));
-        if ($_REQUEST['id']) {
+        global $id;
+        global $sub;
+        if ($id) {
             $this->subMenu = array(
+                "$this->linkformat#taskstate-gen" => self::$foglang['General'],
                 $this->delformat => self::$foglang['Delete'],
             );
             $this->notes = array(
@@ -208,38 +211,195 @@ class TaskstateeditManagementPage extends FOGPage
      */
     public function addPost()
     {
+        self::$HookManager->processEvent('TASK_STATE');
+        $name = filter_input(
+            INPUT_POST,
+            'name'
+        );
+        $description = filter_input(
+            INPUT_POST,
+            'description'
+        );
+        $icon = filter_input(
+            INPUT_POST,
+            'icon'
+        );
+        $additional = filter_input(
+            INPUT_POST,
+            'additional'
+        );
+        $iconval = $icon
+            . ' '
+            . $additional;
         try {
-            $name = $_REQUEST['name'];
-            $description = $_REQUEST['description'];
-            $icon = trim("{$_REQUEST['icon']} {$_REQUEST['additional']}");
-            if (!$name) {
-                throw new Exception(_('You must enter a name'));
-            }
             if (self::getClass('TaskStateManager')->exists($name)) {
                 throw new Exception(
-                    _('Task state already exists, please try again.')
+                    _('A task state already exists with this name!')
                 );
             }
             $TaskState = self::getClass('TaskState')
                 ->set('name', $name)
                 ->set('description', $description)
-                ->set('icon', $icon);
+                ->set('icon', $iconval);
             if (!$TaskState->save()) {
-                throw new Exception(_('Failed to create'));
+                throw new Exception(_('Add task state failed!'));
             }
-            $TaskState->set('order', $TaskState->get('id'))->save();
-            self::setMessage(_('Task State added, editing'));
-            self::redirect(
-                sprintf(
-                    '?node=%s&sub=edit&id=%s',
-                    $this->node,
-                    $TaskState->get('id')
+            $TaskState->set(
+                'order',
+                $TaskState->get('id')
+            )->save();
+            $hook = 'TASK_STATE_ADD_SUCCESS';
+            $msg = json_encode(
+                array(
+                    'msg' => _('Task State added!'),
+                    'title' => _('Task State Create Success')
                 )
             );
         } catch (Exception $e) {
-            self::setMessage($e->getMessage());
-            self::redirect($this->formAction);
+            $hook = 'TAKS_STATE_ADD_FAIL';
+            $msg = json_encode(
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('Task State Create Fail')
+                )
+            );
         }
+        self::$HookManager
+            ->processEvent(
+                $hook,
+                array('TaskState' => &$TaskState)
+            );
+        unset($TaskState);
+        echo $msg;
+        exit;
+    }
+    /**
+     * TaskState Edit General Information.
+     *
+     * @return void
+     */
+    public function taskStateGeneral()
+    {
+        unset(
+            $this->data,
+            $this->form,
+            $this->templates,
+            $this->attributes,
+            $this->headerData
+        );
+        $iconarr = explode(
+            ' ',
+            $this->obj->get('icon')
+        );
+        $name = (
+            filter_input(
+                INPUT_POST,
+                'name'
+            ) ?: $this->obj->get('name')
+        );
+        $description = (
+            filter_input(
+                INPUT_POST,
+                'description'
+            ) ?: $this->obj->get('description')
+        );
+        $icon = (
+            filter_input(
+                INPUT_POST,
+                'icon'
+            ) ?: array_shift($iconarr)
+        );
+        $additional = (
+            filter_input(
+                INPUT_POST,
+                'additiona'
+            ) ?: implode(' ', (array)$iconarr)
+        );
+        $this->attributes = array(
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group')
+        );
+        $this->templates = array(
+            '${field}',
+            '${input}'
+        );
+        $fields = array(
+            '<label for="name">'
+            . _('Name')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" name="name" id='
+            . '"name" value="'
+            . $name
+            . '" required/>'
+            . '</div>',
+            '<label for="desc">'
+            . _('Description')
+            . '</label>' => '<div class="input-group">'
+            . '<textarea name="description" class="form-control" id="desc">'
+            . $description
+            . '</textarea>'
+            . '</div>',
+            '<label for="icon">'
+            . _('Icon')
+            . '</label>' => self::getClass('TaskType')->iconlist($icon),
+            '<label for="additional">'
+            . _('Additional Icon elements')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" name="additional" id='
+            . '"additional" value="'
+            . $additional
+            . '"/>'
+            . '</div>',
+            '<label for="update">'
+            . _('Make Changes?')
+            . '</label>' => '<button class="btn btn-info btn-block" type="submit" '
+            . 'id="update" name="update">'
+            . _('Update')
+            . '</button>'
+        );
+        self::$HookManager
+            ->processEvent(
+                'TASKSTATE_FIELDS',
+                array(
+                    'fields' => &$fields,
+                    'TaskState' => self::getClass('TaskState')
+                )
+            );
+        array_walk($fields, $this->fieldsToData);
+        self::$HookManager
+            ->processEvent(
+                'TASKSTATE_EDIT',
+                array(
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes,
+                    'headerData' => &$this->headerData
+                )
+            );
+        echo '<!-- General -->';
+        echo '<div class="tab-pane fade in active" id="taskstate-gen">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Task State General');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '&tab="taskstate-gen">';
+        $this->render(12);
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        unset(
+            $this->data,
+            $this->form,
+            $this->templates,
+            $this->attributes,
+            $this->headerData
+        );
     }
     /**
      * Update a state.
@@ -248,60 +408,9 @@ class TaskstateeditManagementPage extends FOGPage
      */
     public function edit()
     {
-        $this->title = sprintf('%s: %s', _('Edit'), $this->obj->get('name'));
-        unset($this->headerData);
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
-        );
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
-        $icon = explode(' ', trim($this->obj->get('icon')));
-        $fields = array(
-            _('Name') => sprintf(
-                '<input type="text" name="name" class="smaller" value="%s"/>',
-                $this->obj->get('name')
-            ),
-            _('Description') => sprintf(
-                '<textarea name="description" rows="8" cols="40">%s</textarea>',
-                $this->obj->get('description')
-            ),
-            _('Icon') => self::getClass('TaskType')->iconlist(array_shift($icon)),
-            _('Additional Icon elements') => sprintf(
-                '<input type="text" value="%s" name="additional"/>',
-                implode(' ', (array)$icon)
-            ),
-            '&nbsp;' => sprintf(
-                '<input class="smaller" type="submit" value="%s"/>',
-                _('Update')
-            ),
-        );
-        foreach ((array)$fields as $field => &$input) {
-            $this->data[] = array(
-                'field'=>$field,
-                'input'=>$input,
-            );
-            unset($input);
-        }
-        unset($fields);
-        self::$HookManager
-            ->processEvent(
-                'TASKSTATE_EDIT',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        printf(
-            '<form method="post" action="%s">',
-            $this->formAction
-        );
-        $this->render();
-        echo '</form>';
+        echo '<div class="col-xs-9 tab-content">';
+        $this->taskStateGeneral();
+        echo '</div>';
     }
     /**
      * Actually store the update.

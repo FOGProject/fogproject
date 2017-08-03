@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-02 22:02-0400\n"
+"POT-Creation-Date: 2017-08-02 22:33-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -193,10 +193,10 @@ msgstr ""
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:61
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:141
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:299
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:50
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:61
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:136
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:263
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:53
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:64
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:139
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:328
 #: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:55
 #: /var/www/fog/lib/reports/equipment_loan.report.php:159
 #: /var/www/fog/lib/service/fogservice.class.php:391
@@ -928,8 +928,7 @@ msgstr ""
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:346
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:269
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:372
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:71
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:251
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:74
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:211
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:335
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:401
@@ -1216,7 +1215,7 @@ msgstr ""
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:243
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:345
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:594
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:278
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:357
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:241
 #: /var/www/fog/commons/text.php:40
 msgid "Update"
@@ -1663,7 +1662,7 @@ msgstr ""
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:417
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:182
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:244
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:165
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:168
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:145
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:382
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:531
@@ -2210,6 +2209,7 @@ msgstr ""
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:348
 #: /var/www/fog/lib/plugins/location/hooks/addlocationgroup.hook.php:151
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:467
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:354
 #: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:279
 msgid "Make Changes?"
 msgstr ""
@@ -2944,8 +2944,8 @@ msgstr ""
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:145
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:145
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:303
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:144
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:267
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:147
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:336
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:69
 #: /var/www/fog/lib/reports/user_tracking.report.php:239
 #: /var/www/fog/lib/reports/user_tracking.report.php:262
@@ -6192,7 +6192,6 @@ msgstr ""
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1111
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:179
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:247
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:228
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:188
 #: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:200
 msgid "Failed to create"
@@ -6237,10 +6236,10 @@ msgstr ""
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:149
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:307
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:311
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:51
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:60
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:151
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:271
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:54
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:63
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:154
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:343
 msgid "Icon"
 msgstr ""
 
@@ -6549,7 +6548,7 @@ msgstr ""
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:808
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:304
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:416
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:337
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:446
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:295
 msgid "Failed to update"
 msgstr ""
@@ -6857,8 +6856,7 @@ msgstr ""
 
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:229
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:396
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:216
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:323
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:432
 msgid "You must enter a name"
 msgstr ""
 
@@ -7153,26 +7151,45 @@ msgstr ""
 msgid "Task State"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:108
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:111
 msgid "New Task State"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:154
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:272
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:157
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:346
 msgid "Additional Icon elements"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:162
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:165
 msgid "Create Task state"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:220
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:329
-msgid "Task state already exists, please try again."
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:237
+msgid "A task state already exists with this name!"
 msgstr ""
 
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:231
-msgid "Task State added, editing"
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:245
+msgid "Add task state failed!"
+msgstr ""
+
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:254
+msgid "Task State added!"
+msgstr ""
+
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:255
+msgid "Task State Create Success"
+msgstr ""
+
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:263
+msgid "Task State Create Fail"
+msgstr ""
+
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:384
+msgid "Task State General"
+msgstr ""
+
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:438
+msgid "Task state already exists, please try again."
 msgstr ""
 
 #: /var/www/fog/lib/plugins/taskstateedit/config/plugin.config.php:25
