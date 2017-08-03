@@ -972,6 +972,10 @@ class TaskManagementPage extends FOGPage
         $SnapinTasks = json_decode(
             Route::getData()
         );
+        $activestate = self::fastmerge(
+            (array)self::getQueuedStates(),
+            (array)self::getProgressState()
+        );
         $SnapinTasks = $SnapinTasks->snapintasks;
         foreach ((array)$SnapinTasks as &$SnapinTask) {
             $Snapin = $SnapinTask->snapin;
@@ -987,9 +991,6 @@ class TaskManagementPage extends FOGPage
                 Route::getData()
             );
             if (!$Host->id) {
-                continue;
-            }
-            if ($Host->snapinjob->id != $SnapinJob->id) {
                 continue;
             }
             $state = $SnapinJob->stateID;
@@ -1009,7 +1010,12 @@ class TaskManagementPage extends FOGPage
                 ),
                 'state' => $SnapinTask->state->name
             );
-            unset($SnapinTask, $Snapin, $SnapinJob, $Host);
+            unset(
+                $SnapinTask,
+                $Snapin,
+                $SnapinJob,
+                $Host
+            );
         }
         self::$HookManager
             ->processEvent(

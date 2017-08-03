@@ -115,33 +115,65 @@ class TaskstateeditManagementPage extends FOGPage
             '${field}',
             '${input}',
         );
-        $fields = array(
-            _('Name') => sprintf(
-                '<input type="text" name="name" class="smaller" value="%s"/>',
-                $_REQUEST['name']
-            ),
-            _('Description') => sprintf(
-                '<textarea name="description" rows="8" cols="40">%s</textarea>',
-                $_REQUEST['description']
-            ),
-            _('Icon') => self::getClass('TaskType')->iconlist($_REQUEST['icon']),
-            _('Additional Icon elements') => sprintf(
-                '<input type="text" value="%s" name="additional"/>',
-                $_REQUEST['additional']
-            ),
-            '&nbsp;'=> sprintf(
-                '<input class="smaller" type="submit" value="%s"/>',
-                _('Add')
-            )
+        $name = filter_input(
+            INPUT_POST,
+            'name'
         );
-        foreach ((array)$fields as $field => &$input) {
-            $this->data[] = array(
-                'field'=>$field,
-                'input'=>$input,
+        $description = filter_input(
+            INPUT_POST,
+            'description'
+        );
+        $icon = filter_input(
+            INPUT_POST,
+            'icon'
+        );
+        $additional = filter_input(
+            INPUT_POST,
+            'additional'
+        );
+        $fields = array(
+            '<label for="name">'
+            . _('Name')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" name="name" id='
+            . '"name" value="'
+            . $name
+            . '" required/>'
+            . '</div>',
+            '<label for="desc">'
+            . _('Description')
+            . '</label>' => '<div class="input-group">'
+            . '<textarea name="description" class="form-control" id="desc">'
+            . $description
+            . '</textarea>'
+            . '</div>',
+            '<label for="icon">'
+            . _('Icon')
+            . '</label>' => self::getClass('TaskType')->iconlist($icon),
+            '<label for="additional">'
+            . _('Additional Icon elements')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" name="additional" id='
+            . '"additional" value="'
+            . $additional
+            . '"/>'
+            . '</div>',
+            '<label for="add">'
+            . _('Create Task state')
+            . '</label>' => '<button class="btn btn-info btn-block" type="submit" '
+            . 'id="add" name="add">'
+            . _('Add')
+            . '</button>'
+        );
+        self::$HookManager
+            ->processEvent(
+                'TASKSTATE_FIELDS',
+                array(
+                    'fields' => &$fields,
+                    'TaskState' => self::getClass('TaskState')
+                )
             );
-            unset($input);
-        }
-        unset($fields);
+        array_walk($fields, $this->fieldsToData);
         self::$HookManager
             ->processEvent(
                 'TASKSTATE_ADD',
@@ -152,12 +184,22 @@ class TaskstateeditManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        printf(
-            '<form method="post" action="%s">',
-            $this->formAction
-        );
-        $this->render();
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
+        $this->render(12);
         echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Create the item.
