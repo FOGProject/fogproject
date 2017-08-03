@@ -185,9 +185,6 @@ input[type=checkbox].delvid + label:before {
 input[type=checkbox].delvid:checked + label:before {
     content: "\f05d";
 }
-footer {
-    line-height: 5px;
-}
 @media (min-width: 768px) {
     .collapsedmenu-text {
         display: none;
@@ -245,4 +242,14 @@ footer {
     width: 33%;
     display: block;
     height: 18px;
+}
+@media (min-width: 768px) {
+    .navbar-nav {
+        width: 100%;
+        text-align: center;
+        > li {
+            float: none;
+            display: inline-block;
+        }
+    }
 }

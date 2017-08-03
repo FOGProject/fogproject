@@ -231,7 +231,6 @@ class Page extends FOGBase
                 self::redirect('index.php');
             }
             ob_start();
-            echo '<ul class="nav navbar-nav">';
             $count = false;
             if (count($this->main) > 0) {
                 foreach ($this->main as $link => &$title) {
@@ -264,7 +263,6 @@ class Page extends FOGBase
                     unset($title);
                 }
             }
-            echo '</ul>';
             $this->menu = ob_get_clean();
         }
         $files = array(
@@ -459,8 +457,7 @@ class Page extends FOGBase
         global $node;
         echo '<div class="col-md-3">';
         if (in_array($node, self::$searchPages)) {
-            echo '<ul class="nav navbar-nav">';
-            echo '<li>';
+            echo '<li class="pull-left">';
             echo '<form class="navbar-form navbar-left search-wrapper" role='
                 . '"search" method="post" action="'
                 . '../management/index.php?node='
@@ -481,7 +478,6 @@ class Page extends FOGBase
             echo '</div>';
             echo '</form>';
             echo '</li>';
-            echo '</ul>';
         }
         echo '</div>';
     }
@@ -492,8 +488,7 @@ class Page extends FOGBase
      */
     public static function getLogout()
     {
-        echo '<ul class="nav navbar-nav navbar-right">';
-        echo '<li>';
+        echo '<li class="pull-right">';
         if (self::$FOGUser->isValid()) {
             echo '<a href="../management/index.php?node=logout" '
                 . 'data-toggle="tooltip" data-placement="bottom" title="'
@@ -522,7 +517,6 @@ class Page extends FOGBase
         }
         echo '</li>';
         echo '<li class="separator hidden-lg hidden-md"></li>';
-        echo '</ul>';
     }
     /**
      * Get main side menu items.

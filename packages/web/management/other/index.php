@@ -87,9 +87,11 @@ if (self::$FOGUser->isValid()) {
     echo '</span>';
     echo '</div>';
     echo '<div class="collapse navbar-collapse">';
+    echo '<ul class="nav navbar-nav">';
     self::getSearchForm();
     echo $this->menu;
     self::getLogout();
+    echo '</ul>';
     echo '</div>';
     echo '</div>';
     echo '</nav>';
@@ -161,7 +163,9 @@ if (self::$FOGUser->isValid()) {
     echo '</a>';
     echo '</div>';
     echo '<div class="collapse navbar-collapse">';
+    echo '<ul class="nav navbar-nav">';
     self::getLogout();
+    echo '</ul>';
     echo '</div>';
     echo '</div>';
     echo '</nav>';
@@ -181,7 +185,7 @@ if (self::$FOGUser->isValid()) {
 echo '<div class="collapse navbar-collapse">';
 echo '<footer class="footer">';
 echo '<nav class="navbar navbar-inverse navbar-fixed-bottom">';
-echo '<div class="container-fluid text-center">';
+echo '<div class="container-fluid">';
 echo '<ul class="nav navbar-nav">';
 echo '<li><a href="https://wiki.fogproject.org/wiki/index.php?title=Credits">'
     . _('Credits')
