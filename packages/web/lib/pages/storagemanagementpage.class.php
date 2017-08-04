@@ -299,7 +299,7 @@ class StorageManagementPage extends FOGPage
         $webroot = filter_input(INPUT_POST, 'webroot') ?: '/fog';
         $maxClients = (int)filter_input(INPUT_POST, 'maxClients');
         $ismaster = isset($_POST['isMaster']) ? ' checked' : '';
-        $bandwidth = (int)filter_input(INPUT_POST, 'bandwidth');
+        $bandwidth = filter_input(INPUT_POST, 'bandwidth');
         $storagegroupID = (int)filter_input(INPUT_POST, 'storagegroupID');
         if (!$storagegroupID) {
             $storagegroupID = @min(
@@ -536,10 +536,12 @@ class StorageManagementPage extends FOGPage
             if (empty($pass)) {
                 throw new Exception(self::$foglang['StoragePassRequired']);
             }
-            if (!$bandwidth) {
+            if (is_numeric($bandwidth) && $bandwidth < 1) {
                 throw new Exception(
                     _('Bandwidth should be numeric and greater than 0')
                 );
+            } else {
+                $bandwidth = '';
             }
             $StorageNode = self::getClass('StorageNode')
                 ->set('name', $name)
@@ -632,7 +634,7 @@ class StorageManagementPage extends FOGPage
             $this->obj->get('webroot');
         $maxClients = (int)filter_input(INPUT_POST, 'maxClients') ?:
             $this->obj->get('maxClients');
-        $bandwidth = (int)filter_input(INPUT_POST, 'bandwidth') ?:
+        $bandwidth = filter_input(INPUT_POST, 'bandwidth') ?:
             $this->obj->get('bandwidth');
         $storagegroupID = (int)filter_input(INPUT_POST, 'storagegroupID') ?:
             $this->obj->get('storagegroupID');
@@ -910,6 +912,13 @@ class StorageManagementPage extends FOGPage
             }
             if (!$pass) {
                 throw new Exception(self::$foglang['StoragePassRequired']);
+            }
+            if (is_numeric($bandwidth) && $bandwidth < 1) {
+                throw new Exception(
+                    _('Bandwidth should be numeric and greater than 0')
+                );
+            } else {
+                $bandwidth = '';
             }
             $this->obj
                 ->set('name', $name)
