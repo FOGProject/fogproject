@@ -401,7 +401,7 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
     # Trim any beginning or trailling colons
     gsub(/^[:]+|[:]+$/, "", fixedList);
     if (firstlba && lastlba) {
-	    original_fixed += firstlba;
+        original_fixed += firstlba;
         full_size = int(lastlba);
     }
     # Iterate partitions and setup any unfound
@@ -602,11 +602,11 @@ function fill_disk(partition_names, partitions, args, n, fixed_partitions, origi
         partitions[pName, "start"] = p_start;
         # Set the last boundary properly
         if (p_start + p_size > int(diskSize)) {
-            p_size -= (p_start + p_size - int(diskSize) - firstlba);
+            p_size -= (p_start + p_size - int(diskSize));
             p_size -= (p_size % int(SECTOR_SIZE));
             partitions[pName, "size"] = p_size;
         }
-	prior_size = p_size;
+        prior_size = p_size;
         prior_start = p_start;
     }
     # Set our lastlba
