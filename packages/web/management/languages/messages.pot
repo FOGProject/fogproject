@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-02 22:33-0400\n"
+"POT-Creation-Date: 2017-08-04 16:21-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1204,7 +1204,7 @@ msgstr ""
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2410
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1136
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1376
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:822
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:824
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:447
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:474
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:351
@@ -1253,8 +1253,8 @@ msgstr ""
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:807
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:703
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2493
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1010
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1463
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1019
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1472
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:568
 #: /var/www/fog/lib/plugins/accesscontrol/hooks/accesscontrolindexdiv.hook.php:123
 #: /var/www/fog/lib/reports/virus_history.report.php:59
@@ -1652,7 +1652,7 @@ msgstr ""
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:657
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1283
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:457
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1218
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1227
 #: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:149
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:182
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:366
@@ -2202,8 +2202,8 @@ msgstr ""
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1161
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2407
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1133
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:819
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1340
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:821
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1349
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:444
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:471
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:348
@@ -5816,12 +5816,12 @@ msgid "Max Clients"
 msgstr ""
 
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:341
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:703
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:705
 msgid "Web root"
 msgstr ""
 
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:414
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:776
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:778
 msgid "Bitrate"
 msgstr ""
 
@@ -5834,82 +5834,83 @@ msgid "New Storage Node"
 msgstr ""
 
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:541
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:918
 msgid "Bandwidth should be numeric and greater than 0"
 msgstr ""
 
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:564
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:566
 msgid "Add storage node failed!"
 msgstr ""
 
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:589
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:591
 msgid "Storage Node added!"
 msgstr ""
 
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:590
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:592
 msgid "Storage Node Create Success"
 msgstr ""
 
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:598
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:600
 msgid "Storage Node Create Fail"
 msgstr ""
 
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:670
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:672
 msgid "Storage Node General"
 msgstr ""
 
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:934
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:943
 msgid "Storage Node update failed!"
 msgstr ""
 
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:959
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:968
 msgid "Storage Node updated!"
 msgstr ""
 
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:960
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:969
 msgid "Storage Node Update Success"
 msgstr ""
 
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:968
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:977
 msgid "Storage Node Update Fail"
 msgstr ""
 
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1134
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1143
 msgid "Max"
 msgstr ""
 
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1215
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1224
 msgid "Create Storage Group"
 msgstr ""
 
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1236
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1245
 msgid "New Storage Group"
 msgstr ""
 
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1276
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1285
 msgid "Storage Group Create Success"
 msgstr ""
 
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1284
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1293
 msgid "Storage Group Create Fail"
 msgstr ""
 
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1311
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1320
 msgid "Storage Group General"
 msgstr ""
 
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1409
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1418
 msgid "Storage Group update failed!"
 msgstr ""
 
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1414
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1423
 msgid "Storage Group updated!"
 msgstr ""
 
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1415
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1424
 msgid "Storage Group Update Success"
 msgstr ""
 
-#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1422
+#: /var/www/fog/lib/pages/storagemanagementpage.class.php:1431
 msgid "Storage Group Update Fail"
 msgstr ""
 
