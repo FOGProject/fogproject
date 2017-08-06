@@ -1,5 +1,4 @@
-$(function() {
-    checkboxToggleSearchListPages();
+(function($) {
     validatorOpts = {
         submitHandler: submithandlerfunc,
         rules: {
@@ -23,15 +22,10 @@ $(function() {
             }
         }
     };
-    setupTimeoutElement('#add, #updategen, #updatepw, #updateapi', '.username-input, .password-input1, .password-input2', 1000);
-    $('.resettoken').on('click', function(e) {
-        e.preventDefault();
-        $.ajax({
-            url: '../status/newtoken.php',
-            dataType: 'json',
-            success: function(data) {
-                $('.token').val(data);
-            }
-        });
-    });
-});
+    setupTimeoutElement(
+        '#add, #updategen, #updatepw, #updateapi',
+        '.username-input, .password-input1, .password-input2',
+        1000
+    );
+    tokenreset();
+})(jQuery);

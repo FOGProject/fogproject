@@ -106,7 +106,7 @@ var UpdateClientCountOpts = {
 var diskinterval = false;
 var bandinterval = false;
 var clientinterval = false;
-$(function() {
+(function($) {
     var now = new Date().getTime();
     // 30 Day History Graph
     Update30Day();
@@ -155,7 +155,7 @@ $(function() {
     });
     // Remove loading spinners
     $('.graph').not(GraphBandwidth,GraphDiskUsage).addClass('loaded');
-});
+})(jQuery);
 // 30 day function
 function Update30Day() {
     $.ajax({

@@ -1,4 +1,7 @@
-$(function() {
+(function($) {
+    setADFields();
+    clearADFields();
+    advancedTaskLink();
     checkboxToggleSearchListPages();
     validatorOpts = {
         submitHandler: submithandlerfunc,
@@ -13,4 +16,4 @@ $(function() {
     };
     setupTimeoutElement('button[type="submit"]:not(#updatehosts, #taskingbtn), #add, #updategen, #updateimage, #delAllPM, #levelup, #update, #remove, #addsnapins, #remsnapins, #updatestatus, #updatedisplay, #updatealo, #group-add, #group-edit', '.groupname-input', 1000);
     ProductUpdate();
-});
+})(jQuery)

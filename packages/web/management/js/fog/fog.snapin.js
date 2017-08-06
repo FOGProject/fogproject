@@ -1,4 +1,4 @@
-$(function() {
+(function($) {
     checkboxToggleSearchListPages();
     validatorOpts = {
         submitHandler: submithandlerfunc,
@@ -61,7 +61,7 @@ $(function() {
         updateCmdStore();
     });
     $('.snapinpack-input').trigger('change');
-});
+})(jQuery);
 function updateCmdStore() {
     if (typeof $('.cmdlet3').val() === 'undefined') return;
     cmd1 = $('.cmdlet1').val();

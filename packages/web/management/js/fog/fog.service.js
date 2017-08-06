@@ -1,4 +1,4 @@
-$(function() {
+(function($) {
     validatorOpts = {
         submitHandler: submithandlerfunc
     };
@@ -15,7 +15,7 @@ $(function() {
             },
         });
     });
-});
+})(jQuery);
 function setTimeoutElement() {
     if (TimeoutRunnning) {
         clearTimeout(TimeoutRunning);

@@ -1,4 +1,4 @@
-$(function() {
+(function($) {
     $('#macButtonDel').click(function(e) {
         e.preventDefault();
         clearMacs();
@@ -7,40 +7,52 @@ $(function() {
         e.preventDefault();
         updateMacs();
     });
-});
+})(jQuery);
+/**
+ * Clear macs function.
+ */
 function clearMacs() {
-    $('#delete').html('Are you sure you wish to clear all mac address listings?');
-    $('#delete').dialog({
-        resizable: false,
-        modal: true,
+    BootstrapDialog.show({
         title: 'Delete MACs',
-        buttons: {
-            'Yes': function() {
+        message: 'Are you sure you wish to clear all mac address listings?',
+        buttons: [{
+            label: 'Yes',
+            cssClass: 'btn-warning',
+            action: function(dialogItself) {
                 $('.macButtons').fadeOut('slow');
-                $(this).dialog('close');
+                dialogItself.close();
                 location.href = '?node=about&sub=maclistPost&clear=1';
-            },
-            'No': function() {
-                $(this).dialog('close');
             }
-        }
+        }, {
+            label: 'No',
+            cssClass: 'btn-info',
+            action: function(dialogItself) {
+                dialogItself.close();
+            }
+        }]
     });
 }
+/**
+ * Update Macs function.
+ */
 function updateMacs() {
-    $('#update').html('Are you sure you wish to update the mac address listings?');
-    $('#update').dialog({
-        resizable: false,
-        modal: true,
+    BootstrapDialog.show({
         title: 'Update MACs',
-        buttons: {
-            'Yes': function() {
+        message: 'Are you sure you wish to update the mac address listings?',
+        buttons: [{
+            label: 'Yes',
+            cssClass: 'btn-warning',
+            action: function(dialogItself) {
                 $('.macButtons').fadeOut('slow');
-                $(this).dialog('close');
+                dialogItself.close();
                 location.href = '?node=about&sub=maclistPost&update=1';
-            },
-            'No': function() {
-                $(this).dialog('close');
             }
-        }
+        }, {
+            label: 'No',
+            cssClass: 'btn-info',
+            action: function(dialogItself) {
+                dialogItself.close();
+            }
+        }]
     });
 }

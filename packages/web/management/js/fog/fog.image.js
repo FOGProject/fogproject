@@ -1,4 +1,4 @@
-$(function() {
+(function($) {
     checkboxToggleSearchListPages();
     validatorOpts = {
         submitHandler: submithandlerfunc,
@@ -27,7 +27,7 @@ $(function() {
             }
         }
     };
-    if ($_GET['sub'] == 'membership') return;
+    if (sub == 'membership') return;
     $('.imagefile-input').on('keyup change blur focus focusout', function(e) {
         var start = this.selectionStart,
             end = this.selectionEnd;
@@ -60,7 +60,7 @@ $(function() {
     });
     setTimeoutElement();
     var iFileVal = $('.imagefile-input').val();
-});
+})(jQuery);
 function setTimeoutElement() {
     if (TimeoutRunning) {
         clearTimeout(TimeoutRunning);

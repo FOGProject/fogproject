@@ -1,5 +1,5 @@
-$(function() {
-    $(".currentdlstate").text('Downloading file...');
+(function($) {
+    $('.currentdlstate').text('Downloading file...');
     $('.kerninfo').html(
         '<div class="panel panel-warning">'
         + '<div class="panel-heading text-center">'
@@ -12,8 +12,18 @@ $(function() {
         + '</div>'
         + '</div>'
     );
-    $.post('?sub=kernelfetch',{msg: "dl"},dlComplete, "text");
-});
+    $.post(
+        '../management/index.php?sub=kernelfetch',
+        {
+            msg: 'dl'
+        },
+        dlComplete,
+        'text'
+    );
+})(jQuery);
+/**
+ * Download complete message.
+ */
 function dlComplete(gdata, textStatus) {
     if (textStatus == "success") {
         if (gdata == "##OK##") {
@@ -59,6 +69,9 @@ function dlComplete(gdata, textStatus) {
         );
     }
 }
+/**
+ * Move complete message.
+ */
 function mvComplete(gdata, textStatus) {
     if (textStatus == 'success') {
         if (gdata == "##OK##") {
