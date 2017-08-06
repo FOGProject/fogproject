@@ -1,17 +1,12 @@
 (function($) {
-    $('#macButtonDel').click(function(e) {
-        e.preventDefault();
-        clearMacs();
-    });
-    $('#macButtonUp').click(function(e) {
-        e.preventDefault();
-        updateMacs();
-    });
+    $('#macButtonDel').on('click', clearMacs);
+    $('#macButtonUp').on('click', updateMacs);
 })(jQuery);
 /**
  * Clear macs function.
  */
-function clearMacs() {
+function clearMacs(e) {
+    e.preventDefault();
     BootstrapDialog.show({
         title: 'Delete MACs',
         message: 'Are you sure you wish to clear all mac address listings?',
@@ -35,7 +30,8 @@ function clearMacs() {
 /**
  * Update Macs function.
  */
-function updateMacs() {
+function updateMacs(e) {
+    e.preventDefault();
     BootstrapDialog.show({
         title: 'Update MACs',
         message: 'Are you sure you wish to update the mac address listings?',
