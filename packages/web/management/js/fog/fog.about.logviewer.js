@@ -2,11 +2,14 @@ var LogToView;
 var LinesToView;
 var LogTimer;
 var logdata;
-$(function() {
+/**
+ * Main Function.
+ */
+(function($) {
     LogToView = $('#logToView').val();
     LinesToView = $('#linesToView').val();
     LogGetData();
-    $("input[name='reverse']:checkbox").change(LogGetData);
+    $("input[name='reverse']:checkbox").on('change', LogGetData);
     $('#logpause').on('click', function(e) {
         if ($(this).hasClass('activenow')) {
             $(this).removeClass('activenow').text('Pause');
@@ -26,7 +29,10 @@ $(function() {
         LogGetData();
         e.preventDefault();
     });
-})
+})(jQuery);
+/**
+ * Log data getter.
+ */
 function LogGetData() {
     if ($('#logpause').hasClass('activenow')) {
         return;
@@ -61,6 +67,9 @@ function LogGetData() {
         LogTimer = setTimeout(LogGetData,10000)
     });
 }
+/**
+ * Display log data.
+ */
 function displayLog(gdata) {
     logdata = '<pre>'
         + gdata

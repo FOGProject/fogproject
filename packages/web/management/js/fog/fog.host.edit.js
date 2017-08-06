@@ -1,11 +1,11 @@
-var LoginHistory = $('#login-history');
-var LoginHistoryDate = $('.loghist-date');
-var LoginHistoryData = new Array();
-var Labels = new Array();
-var LabelData = new Array();
-var LoginData = new Array();
-var LoginDateMin = new Array();
-var LoginDateMax = new Array();
+var LoginHistory = $('#login-history'),
+    LoginHistoryDate = $('.loghist-date'),
+    LoginHistoryData = [],
+    Labels = [],
+    LabelData = [],
+    LoginData = [],
+    LoginDateMin = [],
+    LoginDateMax = [];
 function UpdateLoginGraph() {
     url = location.href.replace('edit','hostlogins');
     dte = LoginHistoryDate.val();
@@ -81,31 +81,15 @@ function UpdateLoginGraphPlot(gdata) {
     };
     $.plot(LoginHistory, LoginHistoryData, LoginHistoryOpts);
 }
-$(function() {
+(function($) {
     LoginHistoryDate.on('change', function(e) {
         this.form.submit();
     });
-    $('a.loghist-date, .delvid').click(function(e) {
+    $('a.loghist-date, .delvid').on('click', function(e) {
         $(this).parents('form').submit();
     });
     $('#resetSecData').val('Reset Encryption Data');
-    $('#resetSecData').on('click', function() {
-        $('#resetSecDataBox').html('Are you sure you wish to reset this hosts encryption data?');
-        $('#resetSecDataBox').dialog({
-            resizable: false,
-            modal: true,
-            title: 'Clear Encryption',
-            buttons: {
-                'Yes': function() {
-                    $.post('../management/index.php',{sub: 'clearAES',id:$_GET.id});
-                    $(this).dialog('close');
-                },
-                'No': function() {
-                    $(this).dialog('close');
-                }
-            }
-        });
-    });
+    resetEncData('hosts', 'host');
     if (LoginHistory.length > 0) {
         UpdateLoginGraph();
     }
@@ -124,7 +108,7 @@ $(function() {
     checkboxAssociations('.toggle-checkboxprint:checkbox','.toggle-print:checkbox');
     checkboxAssociations('.toggle-checkboxsnapin:checkbox','.toggle-snapin:checkbox');
     checkboxAssociations('#rempowerselectors:checkbox','.rempoweritems:checkbox');
-    $('#groupMeShow:checkbox').change(function(e) {
+    $('#groupMeShow:checkbox').on('change', function(e) {
         if ($(this).is(':checked')) $('#groupNotInMe').show();
         else $('#groupNotInMe').hide();
         e.preventDefault();
@@ -139,7 +123,7 @@ $(function() {
         e.preventDefault();
     });
     $('#hostPrinterShow:checkbox').trigger('change');
-    $('#hostSnapinShow:checkbox').change(function(e) {
+    $('#hostSnapinShow:checkbox').on('change', function(e) {
         if ($(this).is(':checked')) {
             $('.snapinNotInHost').show();
         } else {
@@ -149,7 +133,7 @@ $(function() {
     });
     $('#hostSnapinShow:checkbox').trigger('change');
     result = true;
-    $('#scheduleOnDemand').change(function() {
+    $('#scheduleOnDemand').on('change', function() {
         if ($(this).is(':checked') === true) {
             $(this).parents('form').each(function() {
                 $("input[name^='scheduleCron']",this).each(function() {
@@ -166,22 +150,23 @@ $(function() {
     });
     $("form.deploy-container").submit(function() {
         if ($('#scheduleOnDemand').is(':checked')) {
-            $(".cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
-                $(this).val('').prop('disabled',true);
+            $('.cronOptions > input[name^="scheduleCron"]', $(this)).each(function() {
+                $(this).val('').prop('disabled', true);
             });
             return true;
         } else {
-            $(".cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
+            $('.cronOptions > input[name^="scheduleCron"]', $(this)).each(function() {
                 result = validateCronInputs($(this));
                 if (result === false) return false;
             });
         }
         return result;
     }).each(function() {
-        $("input[name^='scheduleCron']",this).each(function(id,value) {
+        $('input[name^="scheduleCron"]', this).each(function(id,value) {
             if (!validateCronInputs($(this))) $(this).addClass('error');
         }).blur(function() {
             if (!validateCronInputs($(this))) $(this).addClass('error');
         });
     });
-});
+    specialCrons();
+})(jQuery);

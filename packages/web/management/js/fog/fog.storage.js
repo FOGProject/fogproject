@@ -1,4 +1,4 @@
-$(function() {
+(function($) {
     validatorOpts = {
         submitHandler: submithandlerfunc,
         rules: {
@@ -42,4 +42,4 @@ $(function() {
         this.form.submit();
     });
     checkboxAssociations('.toggle-checkboxAction:checkbox','.toggle-action:checkbox');
-});
+})(jQuery);

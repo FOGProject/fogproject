@@ -1,4 +1,4 @@
-$(function() {
+(function($) {
     checkboxToggleSearchListPages();
     validatorOpts = {
         submitHandler: submithandlerfunc,
@@ -11,7 +11,7 @@ $(function() {
             }
         }
     };
-    if ($_GET['sub'] == 'membership') return;
+    if (sub == 'membership') return;
     $('select[name="printertype"]').on('change', function(e) {
         e.preventDefault();
         printertype = this.value.toLowerCase();
@@ -90,4 +90,4 @@ $(function() {
         });
     });
     setupTimeoutElement('#add, #updategen', '.printername-input, .printerinf-input, .printerport-input, .printerip-input, .printermodel-input, .printerconfigFile-input', 1000);
-});
+})(jQuery);

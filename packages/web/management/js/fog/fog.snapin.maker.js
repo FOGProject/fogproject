@@ -1,4 +1,4 @@
-$(function() {
+(function($) {
     name = 'Name';
     version = 'v1.0.0';
     file = 'cmd.exe';
@@ -22,7 +22,7 @@ $(function() {
         var output = JSON.stringify(gdata, null, 2);
         download(output,'config.json','text/plain');
     });
-});
+})(jQuery);
 function download(gdata, strFileName, strMimeType) {
     var self = window, // this script is only for browsers anyway...
         u = "application/octet-stream", // this default mime also triggers iframe downloads

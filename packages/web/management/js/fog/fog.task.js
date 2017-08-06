@@ -5,35 +5,52 @@ var CANCELURL,
     cancelButton,
     cancelTasks,
     AJAXTaskUpdate,
-    AJAXTaskRunning;
-$(function() {
-    if (typeof(sub) == 'undefined') {
-        window.location.replace(location.href+'&sub=active');
+    AJAXTaskRunning,
+    ActiveTasksUpdateInterval = 5000;
+(function($) {
+    if (typeof sub == 'undefined') {
+        var newurl = location.protocol
+        + '//'
+        + location.host
+        + location.pathname
+        + '?node='
+        + node
+        + '&sub=active';
+        if (history.pushState) {
+            history.pushState(
+                {
+                    path: newurl
+                },
+                '',
+                newurl
+            );
+        }
+        location.replace(location.href+'&sub=active');
         sub = 'active';
     }
     $('.search-input').on('keyup change focus', function(e) {
         clearTimeout(AJAXTaskRunning);
         $('#taskpause,#taskcancel').remove();
     });
-    var cancelurl = (sub.indexOf('active') != -1 ? location.href : '');
-    var Options = {
-        URL: location.href,
-        Container: '.table-holder',
-        CancelURL:  cancelurl
-    };
-    Container = $(Options.Container);
+    var cancelurl = (sub.indexOf('active') != -1 ? location.href : ''),
+        Options = {
+            URL: location.href,
+            CancelURL:  cancelurl
+        };
     URL = Options.URL;
     CANCELURL = Options.CancelURL;
-    if (!Container.length) return this;
+    if (!Container.length) {
+        return this;
+    }
     callme = 'hide';
-    if (!$('.table').hasClass('noresults')) {
+    if (!$(Container).hasClass('noresults')) {
         callme = 'show';
     }
     Container.each(function(e) {
         if ($(this).hasClass('.noresults')) {
             $(this).hide();
         } else {
-            $(this).show().fogTableInfo().trigger('updateAll');
+            $(this).show().trigger('updateAll');
         }
         if (typeof(sub) == 'undefined' || sub.indexOf('active') != -1) {
             $(this).before(
@@ -76,8 +93,8 @@ $(function() {
                 }
             });
         }
-    });
-});
+    }).trigger('search', false);
+})(jQuery);
 function pauseButtonPressed(e) {
     if (!$(this).hasClass('activebtn')) {
         $(this).addClass('activebtn').find('i.fa-play').removeClass('fa-play').addClass('fa-pause');
@@ -140,7 +157,6 @@ function ActiveTasksUpdate() {
                 tbody.hide();
             }
             TableCheck();
-            Container.fogTableInfo().trigger('updateAll');
             AJAXTaskRunning = null;
             checkboxToggleSearchListPages();
         },
