@@ -32,7 +32,20 @@ var $_GET = getQueryParams(document.location.search),
     form,
     TimeoutRunning,
     submithandlerfunc,
-    files;
+    files,
+    allRadios = $('.primary, .default, .action'),
+    radioChecked,
+    setCurrent = function(e) {
+        var obj = e.target;
+        radioChecked = $(obj).is(':checked');
+    },
+    setCheck = function(e) {
+        if (e.type == 'keypress' && e.charCode != 32) {
+            return valse;
+        }
+        var obj = e.target;
+        $(obj).prop('checked', !radioChecked);
+    };
 /**
  * AJAX Search function.
  */
@@ -53,16 +66,10 @@ $.fn.fogAjaxSearch = function(opts) {
         return this;
     }
     callme = 'hide';
-    if (!$('.table').hasClass('noresults')) {
+    if (!Container.hasClass('noresults')) {
         callme = 'show';
     }
-    Container.each(function(e) {
-        if ($(this).hasClass('.noresults')) {
-            $(this).hide();
-        } else {
-            $(this).show();
-        }
-    });
+    Container[callme];
     ActionBox[callme];
     ActionBoxDel[callme];
     return this.each(function(evt) {
@@ -77,7 +84,8 @@ $.fn.fogAjaxSearch = function(opts) {
             + location.host
             + location.pathname
             + "?node="
-            + node;
+            + node
+            + '&sub=search';
             history.pushState(
                 {
                     path: newurl
@@ -86,9 +94,9 @@ $.fn.fogAjaxSearch = function(opts) {
                 newurl
             );
             $('.nav.nav-tabs').remove();
-            if ((sub != 'search' || sub != 'list') && typeof sub != 'undefined' && typeof sub != null) {
+            if ((sub != 'search' || sub != 'list') && typeof sub != 'undefined' && typeof sub != null && typeof sub != '') {
                 Container.html(
-                    '<div class="col-xs-12">'
+                    '<div class="table-holder col-xs-12">'
                     + '<table class="table">'
                     + '<thead><tr class="header"></tr></thead>'
                     + '<tbody><tr></tr></tbody>'
@@ -145,13 +153,19 @@ $.fn.fogAjaxSearch = function(opts) {
                 success: function(response) {
                     dataLength = response === null || response.data === null ? dataLength = 0 : response.data.length;
                     SubmitButton.removeClass('searching').find('i').removeClass().addClass('fogsearch fa fa-search');
-                    thead = $('thead',Container);
-                    tbody = $('tbody',Container);
+                    thead = $('thead', Container);
+                    tbody = $('tbody', Container);
                     LastCount = dataLength;
                     if (dataLength > 0) {
-                        buildHeaderRow(response.headerData,response.attributes,'th');
-                        thead = $('thead',Container);
-                        buildRow(response.data,response.templates,response.attributes,'td');
+                        buildHeaderRow(
+                            response.headerData,
+                            response.attributes
+                        );
+                        buildRow(
+                            response.data,
+                            response.templates,
+                            response.attributes
+                        );
                     }
                     TableCheck();
                     this.SearchAJAX = null;
@@ -191,6 +205,89 @@ $.fn.fogVariable = function(opts) {
  * Main function.
  */
 (function($) {
+    /**
+     * FOG Settings quick image os display.
+     */
+    $('#FOG_QUICKREG_IMG_ID').change(function() {
+        $.ajax({
+            url: '../management/index.php?node=about',
+            cache: false,
+            type: 'POST',
+            data: {
+                sub: 'getOSID',
+                image_id: $(this).val()
+            },
+            success: function(idata) {
+                $('#FOG_QUICKREG_OS_ID').html(idata.replace(/\"/g,""));
+            }
+        });
+    });
+    $.each(allRadios, function(i, val) {
+        if (this.id.length > 0) {
+            var label = $('label[for='+this.id+']');
+            var element = label.prev();
+        } else {
+            var label = $('input[value='+$(this).val()+'].action');
+            var element = label;
+        }
+        $(this).on('mousedown keydown', function(e) {
+            setCurrent(e);
+        }).on('click', function(e) {
+            setCheck(e);
+        });
+        label.on('mousedown keydown', function(e) {
+            e.target = $(element);
+            setCurrent(e);
+        });
+    });
+    /**
+     * Assign range sliders
+     */
+    if (typeof $('div.pigz').slider == typeof Function) {
+        $('div.pigz').slider({
+            min: 0,
+            max: 22,
+            range: 'min',
+            value: $('.showVal.pigz').val(),
+            slide: function(event, ui) {
+                $('.showVal.pigz').val(ui.value);
+            }
+        });
+    }
+    if (typeof $('div.loglvl').slider == typeof Function) {
+        $('div.loglvl').slider({
+            min: 0,
+            max: 7,
+            range: 'min',
+            value: $('.showVal.loglvl').val(),
+            slide: function(event, ui) {
+                $('.showVal.loglvl').val(ui.value);
+            }
+        });
+    }
+    if (typeof $('div.inact').slider == typeof Function) {
+        $('div.inact').slider({
+            min: 1,
+            max: 24,
+            range: 'min',
+            value: $('.showVal.inact').val(),
+            slide: function(event, ui) {
+                $('.showVal.inact').val(ui.value);
+            }
+        });
+    }
+    if (typeof $('div.regen').slider == typeof Function) {
+        $('div.regen').slider({
+            step: 0.25,
+            min: 0.25,
+            max: 24,
+            range: 'min',
+            value: $('.showVal.regen').val(),
+            slide: function(event, ui) {
+                $('.showVal.regen').val(ui.value);
+            }
+        });
+    }
     /**
      * Enable search to operate.
      */
@@ -426,6 +523,32 @@ $.fn.fogVariable = function(opts) {
         if ($('#'+hash).length < 1) {
             location.href = newLoadedHtml;
         }
+    });
+    function format(icon) {
+        if (!icon.id) {
+            return icon.text;
+        }
+        var _icon = $(
+            '<i class="fa fa-'+icon.element.value.toLowerCase()+' fa-fw">'
+            + text
+            + '</i>'
+        );
+        return _icon;
+    }
+    $('select').not('[name="nodesel"], [name="groupsel"]').select2();
+    $('[name="icon"]').select2({
+        templateResult: format,
+        templateSelection: format
+    });
+    $('#scheduledSingTime').datetimepicker({
+        dateFormat: 'yy/mm/dd',
+        timeFormat: 'HH:mm'
+    });
+    $('#checkAll').on('click', function(e) {
+        selectAll = this.checked;
+        $('.checkboxes').each(function(f) {
+            this.checked = selectAll;
+        });
     });
 })(jQuery);
 /**
@@ -919,6 +1042,7 @@ function buildHeaderRow(
     attributes
 ) {
     var rows = [];
+    savedFilters = $.tablesorter.getFilters(Container);
     $.each(data, function(index, value) {
         var attribs = [];
         $.each(attributes[index], function(ind, val) {
@@ -942,7 +1066,7 @@ function buildHeaderRow(
         + rows.join()
         + '</tr>'
     );
-    thead.hide();
+    thead = $('thead', Container);
 }
 /**
  * Build the main rows of the tables.
@@ -955,7 +1079,6 @@ function buildRow(
     var colspan = templates.length;
     var rows = [];
     checkedIDs = getChecked();
-    tbody.empty();
     $.each(data, function(index, value) {
         var row = '<tr id="'
         + node
@@ -986,7 +1109,7 @@ function buildRow(
         rows[rows.length] = row
             + '</tr>';
     });
-    tbody.append(rows.join());
+    tbody.html(rows.join());
     rows = [];
     if (node == 'task' && (typeof sub == 'undefined' || sub == 'active')) {
         $.each(data, function(index, value) {
@@ -1035,34 +1158,30 @@ function buildRow(
         checkedIDs = getChecked();
     });
     setChecked(checkedIDs);
+    tbody = $('tbody', Container);
+    Container.trigger('updateAll');
 }
 /**
  * Checks the table.
  */
 function TableCheck() {
-    var callme = 'hide';
+    callme = 'hide';
     if (typeof LastCount != 'undefined' && LastCount > 0) {
         callme = 'show';
     }
-    if ($('tbody > tr', Container).length < 1) {
+    if ($('tbody > tr', Container).length < 1
+        || Container.hasClass('noresults')
+    ) {
         callme = 'hide';
     }
-    Container.each(function(e) {
-        if ($(this).hasClass('.noresults')) {
-            $(this).hide();
-        } else {
-            $(this).show().trigger('updateAll');
-        }
-    });
+    $.tablesorter.setFilters(Container, savedFilters, true);
+    Container[callme];
     ActionBox[callme]();
     ActionBoxDel[callme]();
-    thead[callme]();
     if (node == 'task' && $.inArray(sub, ['search', 'listhosts', 'listgroups']) < 0) {
         pauseUpdate[callme]();
         cancelTasks[callme]();
     }
-    Container[callme];
-    Container.trigger('search', false);
 }
 /**
  * Token Reset function.
@@ -1320,14 +1439,16 @@ function setupFogTableInformation() {
             filter_cssFilter: "form-control",
             filter_ignoreCase: true,
             filter_hideFilters: false,
-            filter_hideEmpty: true,
+            filter_hideEmpty: false,
             filter_liveSearch: true,
+            filter_columnFilters: true,
             filter_placeholder: {
                 search: 'Search...'
             },
+            filter_childRows: false,
             filter_saveFilters: true
         }
-    });
+    }).trigger('filterResetSaved');
 }
 /**
  * Checkbox associations.

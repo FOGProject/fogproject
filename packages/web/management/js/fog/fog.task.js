@@ -43,57 +43,51 @@ var CANCELURL,
         return this;
     }
     callme = 'hide';
-    if (!$(Container).hasClass('noresults')) {
+    if (!Container.hasClass('noresults')) {
         callme = 'show';
     }
-    Container.each(function(e) {
-        if ($(this).hasClass('.noresults')) {
-            $(this).hide();
-        } else {
-            $(this).show().trigger('updateAll');
-        }
-        if (typeof(sub) == 'undefined' || sub.indexOf('active') != -1) {
-            $(this).before(
-                '<div class="taskbuttons text-center">'
-                + '<div class="col-xs-offset-4 col-xs-4">'
-                + '<div class="form-group">'
-                + '<button type="button" class="btn btn-info btn-block activebtn" id="taskpause">'
-                + '<i class="fa fa-pause"></i>'
-                + '</button>'
-                + '</div>'
-                + '</div>'
-                + '</div>'
-            ).after(
-                '<div class="taskbuttons text-center">'
-                + '<div class="col-xs-offset-4 col-xs-4">'
-                + '<div class="form-group">'
-                + '<button type="button" class="btn btn-warning btn-block" id="taskcancel">'
-                + 'Cancel selected tasks?'
-                + '</button>'
-                + '<div id="canceltasks"></div>'
-                + '</div>'
-                + '</div>'
-                + '</div>'
-            );
-            pauseButton = $('#taskpause');
-            pauseUpdate = pauseButton.parent('p');
-            cancelButton = $('#taskcancel');
-            cancelTasks = cancelButton.parent('p');
-            ActiveTasksUpdate();
-            pauseButton.click(pauseButtonPressed);
-            cancelButton.click(buttonPress);
-            $('.search-input').on('focus', function() {
-                if (AJAXTaskRunning) AJAXTaskRunning.abort();
-                clearTimeout(AJAXTaskUpdate);
-                pauseButton.removeClass('activebtn').find('i.fa-pause').removeClass('fa-pause').addClass('fa-play');
-            }).on('focusout', function() {
-                if (this.value.length < 1) {
-                    pauseButton.addClass('activebtn').find('i.fa-play').removeClass('fa-play').addClass('fa-pause');
-                    ActiveTasksUpdate();
-                }
-            });
-        }
-    }).trigger('search', false);
+    Container[callme];
+    if (typeof sub == 'undefined' || sub.indexOf('active') != -1) {
+        Container.before(
+            '<div class="taskbuttons text-center">'
+            + '<div class="col-xs-offset-4 col-xs-4">'
+            + '<div class="form-group">'
+            + '<button type="button" class="btn btn-info btn-block activebtn" id="taskpause">'
+            + '<i class="fa fa-pause"></i>'
+            + '</button>'
+            + '</div>'
+            + '</div>'
+            + '</div>'
+        ).after(
+            '<div class="taskbuttons text-center">'
+            + '<div class="col-xs-offset-4 col-xs-4">'
+            + '<div class="form-group">'
+            + '<button type="button" class="btn btn-warning btn-block" id="taskcancel">'
+            + 'Cancel selected tasks?'
+            + '</button>'
+            + '<div id="canceltasks"></div>'
+            + '</div>'
+            + '</div>'
+            + '</div>'
+        );
+        pauseButton = $('#taskpause');
+        pauseUpdate = pauseButton.parent('p');
+        cancelButton = $('#taskcancel');
+        cancelTasks = cancelButton.parent('p');
+        ActiveTasksUpdate();
+        pauseButton.on('click', pauseButtonPressed);
+        cancelButton.on('click', buttonPress);
+        $('.search-input').on('focus', function() {
+            if (AJAXTaskRunning) AJAXTaskRunning.abort();
+            clearTimeout(AJAXTaskUpdate);
+            pauseButton.removeClass('activebtn').find('i.fa-pause').removeClass('fa-pause').addClass('fa-play');
+        }).on('focusout', function() {
+            if (this.value.length < 1) {
+                pauseButton.addClass('activebtn').find('i.fa-play').removeClass('fa-play').addClass('fa-pause');
+                ActiveTasksUpdate();
+            }
+        });
+    }
 })(jQuery);
 function pauseButtonPressed(e) {
     if (!$(this).hasClass('activebtn')) {
@@ -106,24 +100,37 @@ function pauseButtonPressed(e) {
     }
     e.preventDefault();
 }
-function buttonPress() {
+function buttonPress(e) {
+    e.preventDefault();
     checkedIDs = getChecked();
-    if (checkedIDs.length < 1) return;
-    $('#canceltasks').html('Are you sure you wish to cancel these tasks?');
-    $('#canceltasks').dialog({
-        resizable: false,
-        modal: true,
-        title: 'Cancel tasks',
-        buttons: {
-            'Yes': function() {
-                $.post(CANCELURL,{task: checkedIDs},function(gdata) {ActiveTasksUpdate();});
-                $(this).dialog('close');
-            },
-            'No': function() {
-                ActiveTasksUpdate();
-                $(this).dialog('close');
+    if (checkedIDs.length < 1) {
+        return;
+    }
+    BootstrapDialog.show({
+        title: 'Cancel Tasks',
+        message: 'Are you sure you wish to cancel the selected tasks?',
+        buttons: [{
+            label: 'Yes',
+            cssClass: 'btn-warning',
+            action: function(dialogItself) {
+                $.post(
+                    CANCELURL,
+                    {
+                        task: checkedIDs
+                    },
+                    function(gdata) {
+                        ActiveTasksUpdate();
+                    }
+                );
+                dialogItself.close();
             }
-        }
+        }, {
+            label: 'No',
+            cssClass: 'btn-info',
+            action: function(dialogItself) {
+                dialogItself.close();
+            }
+        }]
     });
 }
 function ActiveTasksUpdate() {
@@ -141,20 +148,13 @@ function ActiveTasksUpdate() {
             if (dataLength > 0) {
                 buildHeaderRow(
                     response.headerData,
-                    response.attributes,
-                    'th'
+                    response.attributes
                 );
-                thead = $('thead', Container);
                 buildRow(
                     response.data,
                     response.templates,
-                    response.attributes,
-                    'td'
+                    response.attributes
                 );
-                tbody.show();
-
-            } else {
-                tbody.hide();
             }
             TableCheck();
             AJAXTaskRunning = null;
