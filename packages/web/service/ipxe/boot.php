@@ -41,7 +41,7 @@ $mac = implode(
         )
     )
 );
-$Host = FOGCore::getHostItem(
+FOGCore::getHostItem(
     false,
     false,
     true,
@@ -49,4 +49,4 @@ $Host = FOGCore::getHostItem(
     false,
     $mac
 );
-new BootMenu($Host);
+new BootMenu();

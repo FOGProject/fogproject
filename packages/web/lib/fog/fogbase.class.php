@@ -303,6 +303,14 @@ abstract class FOGBase
      */
     public static $httphost = '';
     /**
+     * Hosts are what we work with.
+     * To help simplify changing elements using hosts,
+     * store as a static variable.
+     *
+     * @var Host
+     */
+    public static $Host = null;
+    /**
      * Initializes the FOG System if needed.
      *
      * @return void
@@ -500,6 +508,7 @@ abstract class FOGBase
         $override = false,
         $mac = ''
     ) {
+        self::$Host = new Host(0);
         // Store the mac
         if (!$mac) {
             $mac = filter_input(INPUT_POST, 'mac');
@@ -511,30 +520,33 @@ abstract class FOGBase
         if (!$sysuuid) {
             $sysuuid = filter_input(INPUT_GET, 'sysuuid');
         }
-
         // If encoded decode and store value
         if ($encoded === true) {
             $mac = base64_decode($mac);
             $sysuuid = base64_decode($sysuuid);
         }
-
         // See if we can find the host by system uuid rather than by mac's first.
         if ($sysuuid) {
             $Inventory = self::getClass('Inventory')
                 ->set('sysuuid', $sysuuid)
                 ->load('sysuuid');
-            $Host = $Inventory->getHost();
-            if ($Host->isValid()) {
-                return $Host;
+            self::$Host = self::getClass('Inventory')
+                ->set('sysuuid', $sysuuid)
+                ->load('sysuuid')
+                ->getHost();
+            if (!$returnmacs) {
+                return;
             }
         }
-
         // Trim the mac list.
         $mac = trim($mac);
-
         // Parsing the macs
-        $MACs = self::parseMacList($mac, !$service, $service);
-
+        $MACs = self::parseMacList(
+            $mac,
+            !$service,
+            $service
+        );
+        $macs = array();
         foreach ((array) $MACs as &$mac) {
             if (!$mac->isValid()) {
                 continue;
@@ -542,7 +554,8 @@ abstract class FOGBase
             $macs[] = $mac->__toString();
             unset($mac);
         }
-
+        // Get the host element based on the mac address
+        self::getClass('HostManager')->getHostByMacAddresses($macs);
         // If no macs are returned and the host is not required,
         // throw message that it's an invalid mac.
         if (count($macs) < 1 && $hostnotrequired === false) {
@@ -567,13 +580,11 @@ abstract class FOGBase
             return $macs;
         }
 
-        // Get the host element based on the mac address
-        $Host = self::getClass('HostManager')->getHostByMacAddresses($macs);
         if ($hostnotrequired === false && $override === false) {
-            if ($Host->get('pending')) {
-                $Host = new Host(0);
+            if (self::$Host->get('pending')) {
+                self::$Host = new Host(0);
             }
-            if (!$Host->isValid()) {
+            if (!self::$Host->isValid()) {
                 if ($service) {
                     $msg = '#!ih';
                 } else {
@@ -582,8 +593,7 @@ abstract class FOGBase
                 throw new Exception($msg);
             }
         }
-
-        return $Host;
+        return;
     }
     /**
      * Get's blamed nodes for failures.

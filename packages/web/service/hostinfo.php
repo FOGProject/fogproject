@@ -22,8 +22,8 @@
 require '../commons/base.inc.php';
 header('Content-Type: text/plain');
 try {
-    $Host = FOGCore::getHostItem(false);
-    $Task = $Host->get('task');
+    FOGCore::getHostItem(false);
+    $Task = FOGCore::$Host->get('task');
     if (FOGCore::$useragent) {
         throw new Exception(_('Cannot view from browser'));
     }
@@ -52,7 +52,7 @@ try {
                 $Task
                     ->set('imageID', $mcImgID)
                     ->save();
-                $Host
+                FOGCore::$Host
                     ->set('imageID', $mcImgID);
                 $Image = new Image($mcImgID);
             }
@@ -62,7 +62,7 @@ try {
         $HookManager->processEvent(
             'BOOT_TASK_NEW_SETTINGS',
             array(
-                'Host' => &$Host,
+                'Host' => &FOGCore::$Host,
                 'StorageNode' => &$StorageNode,
                 'StorageGroup' => &$StorageGroup
             )
@@ -143,12 +143,12 @@ try {
                 ->get('passreset');
         }
     }
-    $fdrive = $Host
+    $fdrive = FOGCore::$Host
         ->get('kernelDevice');
-    $Inventory = $Host
+    $Inventory = FOGCore::$Host
         ->get('inventory');
     $mac = $_REQUEST['mac'];
-    $MACs = $Host
+    $MACs = FOGCore::$Host
         ->getMyMacs();
     $clientMacs = array_filter(
         (array)FOGCore::parseMacList(
@@ -183,17 +183,21 @@ try {
         // Implicit device to use
         'fdrive' => $fdrive,
         // Exposed other elements
-        'hostname' => $Host->get('name'),
-        'hostdesc' => $Host->get('description'),
-        'hostip' => $Host->get('ip'),
-        'hostimageid' => $Host->get('imageID'),
-        'hostbuilding' => $Host->get('building'),
-        'hostusead' => $Host->get('useAD'),
-        'hostaddomain' => $Host->get('ADDomain'),
-        'hostaduser' => $Host->get('ADUser'),
-        'hostadpass' => trim(FOGCore::aesdecrypt($Host->get('ADPass'))),
-        'hostadou' => str_replace(';', '', $Host->get('ADOU')),
-        'hostproductkey' => trim(FOGCore::aesdecrypt($Host->get('productKey'))),
+        'hostname' => FOGCore::$Host->get('name'),
+        'hostdesc' => FOGCore::$Host->get('description'),
+        'hostip' => FOGCore::$Host->get('ip'),
+        'hostimageid' => FOGCore::$Host->get('imageID'),
+        'hostbuilding' => FOGCore::$Host->get('building'),
+        'hostusead' => FOGCore::$Host->get('useAD'),
+        'hostaddomain' => FOGCore::$Host->get('ADDomain'),
+        'hostaduser' => FOGCore::$Host->get('ADUser'),
+        'hostadpass' => trim(FOGCore::aesdecrypt(FOGCore::$Host->get('ADPass'))),
+        'hostadou' => str_replace(';', '', FOGCore::$Host->get('ADOU')),
+        'hostproductkey' => trim(
+            FOGCore::aesdecrypt(
+                FOGCore::$Host->get('productKey')
+            )
+        ),
         'imagename' => $Image->get('name'),
         'imagedesc' => $Image->get('description'),
         'imageosid' => $osid,
@@ -231,7 +235,7 @@ try {
         'HOST_INFO_EXPOSE',
         array(
             'repFields' => &$repFields,
-            'Host'=>&$Host
+            'Host'=>&FOGCore::$Host
         )
     );
     foreach ((array)$repFields as $key => &$val) {
