@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-05 23:11-0400\n"
+"POT-Creation-Date: 2017-08-07 18:24-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -416,7 +416,7 @@ msgid "Array type"
 msgstr "Array of data"
 
 #: /var/www/fog/lib/fog/fogcontroller.class.php:844
-#: /var/www/fog/lib/fog/fogbase.class.php:2248
+#: /var/www/fog/lib/fog/fogbase.class.php:2258
 #: /var/www/fog/lib/fog/fogftp.class.php:370
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1137
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2799
@@ -606,112 +606,112 @@ msgstr "Version"
 msgid "is required"
 msgstr "%s is required"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:434
+#: /var/www/fog/lib/fog/fogbase.class.php:442
 #, fuzzy
 msgid "Class name must be a string"
 msgstr "Event must be a string"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:580
+#: /var/www/fog/lib/fog/fogbase.class.php:591
 msgid "Invalid Host"
 msgstr "Invalid Host"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:839
-#: /var/www/fog/lib/fog/fogbase.class.php:869
+#: /var/www/fog/lib/fog/fogbase.class.php:849
+#: /var/www/fog/lib/fog/fogbase.class.php:879
 #, fuzzy
 msgid "Key must be a string or index"
 msgstr "Event must be a string"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:893
+#: /var/www/fog/lib/fog/fogbase.class.php:903
 msgid "Key must be an array of keys or a string."
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1104
-#: /var/www/fog/lib/fog/fogbase.class.php:1117
+#: /var/www/fog/lib/fog/fogbase.class.php:1114
+#: /var/www/fog/lib/fog/fogbase.class.php:1127
 msgid "No Data"
 msgstr "No Data"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1114
+#: /var/www/fog/lib/fog/fogbase.class.php:1124
 msgid "Not a number"
 msgstr "Not a number"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1194
+#: /var/www/fog/lib/fog/fogbase.class.php:1204
 msgid "Space variable must be boolean"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1219
+#: /var/www/fog/lib/fog/fogbase.class.php:1229
 msgid "Ago must be boolean"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1312
+#: /var/www/fog/lib/fog/fogbase.class.php:1322
 msgid "Diff parameter must be numeric"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1315
+#: /var/www/fog/lib/fog/fogbase.class.php:1325
 #, fuzzy
 msgid "Unit of time must be a string"
 msgstr "Event must be a string"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1319
+#: /var/www/fog/lib/fog/fogbase.class.php:1329
 #, fuzzy
 msgid "In"
 msgstr "In "
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1322
+#: /var/www/fog/lib/fog/fogbase.class.php:1332
 #, fuzzy
 msgid "ago"
 msgstr " ago"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1350
+#: /var/www/fog/lib/fog/fogbase.class.php:1360
 #, fuzzy
 msgid "Old key must be a string"
 msgstr "Event must be a string"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1353
+#: /var/www/fog/lib/fog/fogbase.class.php:1363
 #, fuzzy
 msgid "New key must be a string"
 msgstr "Event must be a string"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1570
+#: /var/www/fog/lib/fog/fogbase.class.php:1580
 msgid "Private key path not found"
 msgstr "Private key path not found"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1586
+#: /var/www/fog/lib/fog/fogbase.class.php:1596
 msgid "Private key not found"
 msgstr "Private key not found"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1589
+#: /var/www/fog/lib/fog/fogbase.class.php:1599
 msgid "Private key not readable"
 msgstr "Private key not readable"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1594
+#: /var/www/fog/lib/fog/fogbase.class.php:1604
 msgid "Private key failed"
 msgstr "Private key failed"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1613
+#: /var/www/fog/lib/fog/fogbase.class.php:1623
 msgid "Failed to decrypt data"
 msgstr "Failed to decrypt data"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1849
+#: /var/www/fog/lib/fog/fogbase.class.php:1859
 #, fuzzy
 msgid "Txt must be a string"
 msgstr "Event must be a string"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1852
+#: /var/www/fog/lib/fog/fogbase.class.php:1862
 #, fuzzy
 msgid "Level must be an integer"
 msgstr "Event must be a string"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1880
+#: /var/www/fog/lib/fog/fogbase.class.php:1890
 #, fuzzy
 msgid "String must be a string"
 msgstr "Event must be a string"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2006
+#: /var/www/fog/lib/fog/fogbase.class.php:2016
 #, fuzzy
 msgid "Key must be a string"
 msgstr "Event must be a string"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2250
+#: /var/www/fog/lib/fog/fogbase.class.php:2260
 #: /var/www/fog/lib/fog/fogftp.class.php:372
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3211
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:87
@@ -724,12 +724,12 @@ msgstr "Event must be a string"
 msgid "File"
 msgstr "File"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2252
+#: /var/www/fog/lib/fog/fogbase.class.php:2262
 #: /var/www/fog/lib/fog/fogftp.class.php:374
 msgid "Line"
 msgstr "Line"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2254
+#: /var/www/fog/lib/fog/fogbase.class.php:2264
 #: /var/www/fog/lib/fog/fogftp.class.php:376
 #: /var/www/fog/lib/db/mysql.class.php:189
 msgid "Message"
@@ -979,7 +979,7 @@ msgstr "Failed"
 msgid "Returning array within key"
 msgstr "Returning array within key"
 
-#: /var/www/fog/lib/fog/bootmenu.class.php:1480
+#: /var/www/fog/lib/fog/bootmenu.class.php:1470
 #, fuzzy
 msgid "No valid storage nodes found"
 msgstr "Invalid storage node"
@@ -4088,7 +4088,7 @@ msgstr "General Information"
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:75
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:170
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:339
-#: /var/www/fog/lib/reg-task/taskingelement.class.php:234
+#: /var/www/fog/lib/reg-task/taskingelement.class.php:233
 #: /var/www/fog/commons/text.php:305
 msgid "Storage Node"
 msgstr "Storage Node"
@@ -9170,31 +9170,31 @@ msgstr ""
 msgid "second"
 msgstr "Icon"
 
-#: /var/www/fog/lib/reg-task/taskingelement.class.php:169
+#: /var/www/fog/lib/reg-task/taskingelement.class.php:168
 #: /var/www/fog/service/progress.php:31
 msgid "No Active Task found for Host"
 msgstr "No Active Task found for Host"
 
-#: /var/www/fog/lib/reg-task/taskingelement.class.php:189
+#: /var/www/fog/lib/reg-task/taskingelement.class.php:188
 #: /var/www/fog/lib/client/snapinclient.class.php:541
 msgid "Invalid Storage Group"
 msgstr "Invalid Storage Group"
 
-#: /var/www/fog/lib/reg-task/taskingelement.class.php:212
+#: /var/www/fog/lib/reg-task/taskingelement.class.php:211
 #, fuzzy
 msgid "Could not find a Storage Node in this group"
 msgstr "Could not find a Storage Node, is there one enabled within this group?"
 
-#: /var/www/fog/lib/reg-task/taskingelement.class.php:213
+#: /var/www/fog/lib/reg-task/taskingelement.class.php:212
 #, fuzzy
 msgid "is there one enabled"
 msgstr "Image is not enabled"
 
-#: /var/www/fog/lib/reg-task/taskingelement.class.php:239
+#: /var/www/fog/lib/reg-task/taskingelement.class.php:238
 msgid "is open"
 msgstr ""
 
-#: /var/www/fog/lib/reg-task/taskingelement.class.php:240
+#: /var/www/fog/lib/reg-task/taskingelement.class.php:239
 #, fuzzy
 msgid "but has recently failed for this host"
 msgstr "is open, but has recently failed for this Host"
@@ -9327,40 +9327,40 @@ msgstr "Failed to update task"
 msgid "Failed to update imaging log"
 msgstr "Failed to update/create image log"
 
-#: /var/www/fog/lib/reg-task/registration.class.php:100
+#: /var/www/fog/lib/reg-task/registration.class.php:89
 msgid "Created by FOG Reg on"
 msgstr "Created by FOG Reg on"
 
-#: /var/www/fog/lib/reg-task/registration.class.php:128
+#: /var/www/fog/lib/reg-task/registration.class.php:117
 msgid "Already registered as"
 msgstr "Already registered as"
 
-#: /var/www/fog/lib/reg-task/registration.class.php:256
-#: /var/www/fog/lib/reg-task/registration.class.php:410
-#: /var/www/fog/lib/reg-task/registration.class.php:467
+#: /var/www/fog/lib/reg-task/registration.class.php:245
+#: /var/www/fog/lib/reg-task/registration.class.php:399
+#: /var/www/fog/lib/reg-task/registration.class.php:456
 msgid "Failed to create Host"
 msgstr "Failed to create Host"
 
-#: /var/www/fog/lib/reg-task/registration.class.php:267
+#: /var/www/fog/lib/reg-task/registration.class.php:256
 msgid "Done, without imaging!"
 msgstr "Done, without imaging!"
 
-#: /var/www/fog/lib/reg-task/registration.class.php:272
+#: /var/www/fog/lib/reg-task/registration.class.php:261
 msgid "Done, No image assigned!"
 msgstr "Done, No image assigned!"
 
-#: /var/www/fog/lib/reg-task/registration.class.php:286
-#: /var/www/fog/lib/reg-task/registration.class.php:429
+#: /var/www/fog/lib/reg-task/registration.class.php:275
+#: /var/www/fog/lib/reg-task/registration.class.php:418
 msgid "Done, Failed to create tasking"
 msgstr "Done, Failed to create tasking"
 
-#: /var/www/fog/lib/reg-task/registration.class.php:290
-#: /var/www/fog/lib/reg-task/registration.class.php:433
+#: /var/www/fog/lib/reg-task/registration.class.php:279
+#: /var/www/fog/lib/reg-task/registration.class.php:422
 msgid "Done, with imaging!"
 msgstr "Done, with imaging!"
 
-#: /var/www/fog/lib/reg-task/registration.class.php:437
-#: /var/www/fog/lib/reg-task/registration.class.php:471
+#: /var/www/fog/lib/reg-task/registration.class.php:426
+#: /var/www/fog/lib/reg-task/registration.class.php:460
 #: /var/www/fog/service/inventory.php:93
 msgid "Done"
 msgstr "Done"
@@ -9386,7 +9386,7 @@ msgstr "You are only allowed to assign"
 msgid "additional macs"
 msgstr "Additional MACs"
 
-#: /var/www/fog/lib/client/fogclient.class.php:128
+#: /var/www/fog/lib/client/fogclient.class.php:122
 #: /var/www/fog/commons/text.php:236
 msgid "Not allowed here"
 msgstr "Not allowed here"

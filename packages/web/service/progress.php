@@ -21,16 +21,16 @@
  */
 require '../commons/base.inc.php';
 try {
-    $Host = FOGCore::getHostItem(false);
-    $Task = $Host->get('task');
+    FOGCore::getHostItem(false);
+    $Task = FOGCore::$Host->get('task');
     $TaskType = new TaskType($Task->get('typeID'));
     if (!$Task->isValid()) {
         throw new Exception(
             sprintf(
                 '%s: %s (%s)',
                 _('No Active Task found for Host'),
-                $Host->get('name'),
-                $Host->get('mac')->__toString()
+                FOGCore::$Host->get('name'),
+                FOGCore::$Host->get('mac')->__toString()
             )
         );
     }

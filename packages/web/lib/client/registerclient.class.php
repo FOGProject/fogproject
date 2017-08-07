@@ -64,16 +64,16 @@ class RegisterClient extends FOGClient implements FOGClientSend
             ''
         );
         $hostname = trim($_REQUEST['hostname']);
-        if (!$this->Host instanceof Host) {
-            $this->Host = new Host(0);
+        if (!self::$Host instanceof Host) {
+            self::$Host = new Host(0);
         }
-        $pendingMACcount = count($this->Host->get('pendingMACs'));
-        if (!$this->Host->isValid()) {
-            $this->Host = self::getClass(
+        $pendingMACcount = count(self::$Host->get('pendingMACs'));
+        if (!self::$Host->isValid()) {
+            self::$Host = self::getClass(
                 'Host',
                 array('name' => $hostname)
             )->load('name');
-            if (!($this->Host->isValid() && !$this->Host->get('pending'))) {
+            if (!(self::$Host->isValid() && !self::$Host->get('pending'))) {
                 if (!self::getClass('Host')->isHostnameSafe($hostname)) {
                     if (!self::$json) {
                         echo '#!ih';
@@ -82,7 +82,7 @@ class RegisterClient extends FOGClient implements FOGClientSend
                     return array('error' => 'ih');
                 }
                 $PriMAC = array_shift($MACs);
-                $this->Host = self::getClass('Host')
+                self::$Host = self::getClass('Host')
                     ->set('name', $hostname)
                     ->set(
                         'description',
@@ -98,7 +98,7 @@ class RegisterClient extends FOGClient implements FOGClientSend
                     )
                     ->addPriMAC($PriMAC)
                     ->addAddMAC($MACs);
-                if (!$this->Host->save()) {
+                if (!self::$Host->save()) {
                     return array('error' => 'db');
                 }
                 return array('complete' => true);
@@ -120,7 +120,7 @@ class RegisterClient extends FOGClient implements FOGClientSend
             false,
             true
         );
-        $KnownMACs = $this->Host->getMyMacs(false);
+        $KnownMACs = self::$Host->getMyMacs(false);
         $MACs = array_unique(
             array_diff(
                 (array)$MACs,
@@ -135,8 +135,8 @@ class RegisterClient extends FOGClient implements FOGClientSend
             $MACs
         );
         if (count($MACs)) {
-            $this->Host->addPendMAC($MACs);
-            if (!$this->Host->save()) {
+            self::$Host->addPendMAC($MACs);
+            if (!self::$Host->save()) {
                 return array('error' => 'db');
             }
             return array('complete' => true);
@@ -186,7 +186,7 @@ class RegisterClient extends FOGClient implements FOGClientSend
             false,
             true
         );
-        $KnownMACs = $this->Host->getMyMacs(false);
+        $KnownMACs = self::$Host->getMyMacs(false);
         $MACs = array_unique(
             array_diff(
                 (array)$MACs,
@@ -201,8 +201,8 @@ class RegisterClient extends FOGClient implements FOGClientSend
             $MACs
         );
         if (count($MACs)) {
-            $this->Host->addPendMAC($MACs);
-            if (!$this->Host->save()) {
+            self::$Host->addPendMAC($MACs);
+            if (!self::$Host->save()) {
                 throw new Exception('#!db');
             }
             throw new Exception('#!ok');

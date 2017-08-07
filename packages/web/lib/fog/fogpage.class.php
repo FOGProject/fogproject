@@ -2823,7 +2823,7 @@ abstract class FOGPage extends FOGBase
     public function authorize()
     {
         try {
-            $Host = self::getHostItem(true);
+            self::getHostItem(true);
             $sym_key = filter_input(INPUT_POST, 'sym_key');
             if (!$sym_key) {
                 $sym_key = filter_input(INPUT_GET, 'sym_key');
@@ -2845,26 +2845,26 @@ abstract class FOGPage extends FOGBase
             );
             $key = $data[0];
             $token = $data[1];
-            if ($Host->get('sec_tok')
-                && $token !== $Host->get('sec_tok')
+            if (self::$Host->get('sec_tok')
+                && $token !== self::$Host->get('sec_tok')
             ) {
-                $Host
+                self::$Host
                     ->set(
                         'pub_key',
                         null
                     )->save()->load();
                 throw new Exception('#!ist');
             }
-            if ($Host->get('sec_tok')
+            if (self::$Host->get('sec_tok')
                 && !$key
             ) {
                 throw new Exception('#!ihc');
             }
-            $expire = self::niceDate($Host->get('sec_time'));
+            $expire = self::niceDate(self::$Host->get('sec_time'));
             if (self::niceDate() > $expire
-                || !trim($Host->get('pub_key'))
+                || !trim(self::$Host->get('pub_key'))
             ) {
-                $Host
+                self::$Host
                     ->set(
                         'sec_time',
                         self::niceDate()
@@ -2876,16 +2876,16 @@ abstract class FOGPage extends FOGBase
                         self::createSecToken()
                     );
             }
-            $Host
+            self::$Host
                 ->set('pub_key', $key)
                 ->save();
-            $vals['token'] = $Host->get('sec_tok');
+            $vals['token'] = self::$Host->get('sec_tok');
             if (self::$json === true) {
                 printf(
                     '#!en=%s',
                     self::certEncrypt(
                         json_encode($vals),
-                        $Host
+                        self::$Host
                     )
                 );
                 exit;
@@ -2893,8 +2893,8 @@ abstract class FOGPage extends FOGBase
             printf(
                 '#!en=%s',
                 self::certEncrypt(
-                    "#!ok\n#token={$Host->get(sec_tok)}",
-                    $Host
+                    "#!ok\n#token=" . self::$Host->get('sec_tok'),
+                    self::$Host
                 )
             );
         } catch (Exception $e) {
@@ -3017,7 +3017,7 @@ abstract class FOGPage extends FOGBase
                 }
                 unset($key, $en);
             }
-            $this->Host = self::getHostItem(
+            self::getHostItem(
                 true,
                 false,
                 false,
@@ -3026,7 +3026,7 @@ abstract class FOGPage extends FOGBase
             );
             $hostModules = self::getSubObjectIDs(
                 'Module',
-                array('id' => $this->Host->get('modules')),
+                array('id' => self::$Host->get('modules')),
                 'shortName'
             );
             $hostEnabled = array_diff(

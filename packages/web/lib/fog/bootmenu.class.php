@@ -22,12 +22,6 @@
 class BootMenu extends FOGBase
 {
     /**
-     * The host storage
-     *
-     * @var object
-     */
-    private $_Host;
-    /**
      * The kernel string
      *
      * @var string
@@ -126,11 +120,9 @@ class BootMenu extends FOGBase
     /**
      * Initializes the boot menu class
      *
-     * @param Host $Host the host if set
-     *
      * @return void
      */
-    public function __construct($Host = null)
+    public function __construct()
     {
         parent::__construct();
         $grubChain = 'chain -ar ${boot-url}/service/ipxe/grub.exe '
@@ -195,11 +187,9 @@ class BootMenu extends FOGBase
             'set boot-url http://${fog-ip}/${fog-webroot}',
         );
         $this->_parseMe($Send);
-        $this->_Host = $Host;
-        if ($this->_Host->isValid()) {
-            if (!$this->_Host->get('inventory')->get('sysuuid')) {
-                $this
-                    ->_Host
+        if (self::$Host->isValid()) {
+            if (!self::$Host->get('inventory')->get('sysuuid')) {
+                self::$Host
                     ->get('inventory')
                     ->set('sysuuid', $_REQUEST['sysuuid'])
                     ->save();
@@ -284,17 +274,17 @@ class BootMenu extends FOGBase
             $imagefile = $init_32;
         }
         $kernel = $bzImage;
-        if ($this->_Host->get('kernel')) {
-            $bzImage = trim($this->_Host->get('kernel'));
+        if (self::$Host->get('kernel')) {
+            $bzImage = trim(self::$Host->get('kernel'));
         }
-        if ($this->_Host->get('init')) {
-            $imagefile = trim($this->_Host->get('init'));
+        if (self::$Host->get('init')) {
+            $imagefile = trim(self::$Host->get('init'));
         }
         $StorageGroup = $StorageNode->getStorageGroup();
         $exit = trim(
             (
-                $this->_Host->get($host_field_test) ?
-                $this->_Host->get($host_field_test) :
+                self::$Host->get($host_field_test) ?
+                self::$Host->get($host_field_test) :
                 self::getSetting($global_field_test)
             )
         );
@@ -302,11 +292,11 @@ class BootMenu extends FOGBase
             $exit = 'sanboot';
         }
         $initrd = $imagefile;
-        if ($this->_Host->isValid()) {
+        if (self::$Host->isValid()) {
             self::$HookManager->processEvent(
                 'BOOT_ITEM_NEW_SETTINGS',
                 array(
-                    'Host' => &$this->_Host,
+                    'Host' => &self::$Host,
                     'StorageGroup' => &$StorageGroup,
                     'StorageNode' => &$StorageNode,
                     'webserver' => &$webserver,
@@ -391,8 +381,8 @@ class BootMenu extends FOGBase
             $kernelDebug ? ' debug' : ' ',
             $kernelArgs ? sprintf(' %s', $kernelArgs) : '',
             (
-                $this->_Host->isValid() && $this->_Host->get('kernelArgs') ?
-                sprintf(' %s', $this->_Host->get('kernelArgs')) :
+                self::$Host->isValid() && self::$Host->get('kernelArgs') ?
+                sprintf(' %s', self::$Host->get('kernelArgs')) :
                 ''
             ),
             $this->_storage
@@ -421,7 +411,7 @@ class BootMenu extends FOGBase
             $this->_defaultChoice
         );
         $this->_ipxeLog();
-        if ($this->_Host->isValid() && $this->_Host->get('task')->isValid()) {
+        if (self::$Host->isValid() && self::$Host->get('task')->isValid()) {
             $this->getTasking();
             exit;
         }
@@ -438,7 +428,7 @@ class BootMenu extends FOGBase
             $this->sesscheck();
         } elseif ($_REQUEST['aprvconf']) {
             $this->_approveHost();
-        } elseif (!$this->_Host->isValid()) {
+        } elseif (!self::$Host->isValid()) {
             $this->printDefault();
         } else {
             $this->getTasking();
@@ -476,8 +466,8 @@ class BootMenu extends FOGBase
             'product' => sprintf('%s', $product ? $product : ''),
             'manufacturer' => sprintf('%s', $manufacturer ? $manufacturer : ''),
             'mac' => (
-                $this->_Host->isValid() ?
-                $this->_Host->get('mac')->__toString() :
+                self::$Host->isValid() ?
+                self::$Host->get('mac')->__toString() :
                 ''
             ),
         );
@@ -563,7 +553,7 @@ class BootMenu extends FOGBase
      */
     private function _delHost()
     {
-        if ($this->_Host->destroy()) {
+        if (self::$Host->destroy()) {
             $Send['delsuccess'] = array(
                 'echo Host deleted successfully',
                 'sleep 3'
@@ -598,7 +588,7 @@ class BootMenu extends FOGBase
      */
     private function _approveHost()
     {
-        if ($this->_Host->set('pending', null)->save()) {
+        if (self::$Host->set('pending', null)->save()) {
             $Send['approvesuccess'] = array(
                 'echo Host approved successfully',
                 'sleep 3'
@@ -611,7 +601,7 @@ class BootMenu extends FOGBase
                 '#isdebug=yes|mode=debug|mode=onlydebug#i',
                 $_REQUEST['extraargs']
             );
-            $this->_Host->createImagePackage(
+            self::$Host->createImagePackage(
                 10,
                 'Inventory',
                 $shutdown,
@@ -669,8 +659,8 @@ class BootMenu extends FOGBase
         $kernelArgs = array_values($kernelArgs);
         $kernelArgs = implode(' ', (array)$kernelArgs);
         $Send['task'][(
-            $this->_Host->isValid() ?
-            $this->_Host->get('task')->get('typeID') :
+            self::$Host->isValid() ?
+            self::$Host->get('task')->get('typeID') :
             1
         )] = array(
             "$this->_kernel $kernelArgs",
@@ -925,7 +915,7 @@ class BootMenu extends FOGBase
             ),
             array(
                 'value' => "capone=1",
-                'active' => !$this->_Host || !$this->_Host->isValid(),
+                'active' => !self::$Host || !self::$Host->isValid(),
             ),
             array(
                 'value' => "port=$port mc=yes",
@@ -962,12 +952,12 @@ class BootMenu extends FOGBase
          */
         $imgFind = array('isEnabled' => 1);
         if (!self::getSetting('FOG_IMAGE_LIST_MENU')) {
-            if (!$this->_Host->isValid()
-                || !$this->_Host->getImage()->isValid()
+            if (!self::$Host->isValid()
+                || !self::$Host->getImage()->isValid()
             ) {
                 $imgFind = false;
             } else {
-                $imgFind['id'] = $this->_Host->getImage()->get('id');
+                $imgFind['id'] = self::$Host->getImage()->get('id');
             }
         }
         if ($imgFind === false) {
@@ -998,13 +988,13 @@ class BootMenu extends FOGBase
                             $Image->get('id')
                         )
                     );
-                    if (!$this->_Host->isValid()) {
+                    if (!self::$Host->isValid()) {
                         return;
                     }
-                    if (!$this->_Host->getImage()->isValid()) {
+                    if (!self::$Host->getImage()->isValid()) {
                         return;
                     }
-                    if ($this->_Host->getImage()->get('id') === $Image->get('id')) {
+                    if (self::$Host->getImage()->get('id') === $Image->get('id')) {
                         $defItem = sprintf(
                             'choose --default %s --timeout %d target && '
                             . 'goto ${target}',
@@ -1087,14 +1077,14 @@ class BootMenu extends FOGBase
             return;
         }
         $msImage = $MultiSess->getImage()->get('id');
-        if ($this->_Host->isValid() && !$this->_Host->get('pending')) {
+        if (self::$Host->isValid() && !self::$Host->get('pending')) {
             $h_Image = 0;
-            $Image = $this->_Host->getImage();
+            $Image = self::$Host->getImage();
             if ($Image instanceof Image) {
-                $h_Image = $this->_Host->getImage()->get('id');
+                $h_Image = self::$Host->getImage()->get('id');
             }
             if ($msImage != $h_Image) {
-                $this->_Host
+                self::$Host
                     ->set('imagename', $MultiSess->getImage())
                     ->set('imageID', $msImage);
             }
@@ -1107,8 +1097,8 @@ class BootMenu extends FOGBase
             '#isdebug=yes|mode=debug|mode=onlydebug#i',
             $_REQUEST['extraargs']
         );
-        if ($this->_Host->isValid() && !$this->_Host->get('pending')) {
-            $this->_Host->createImagePackage(
+        if (self::$Host->isValid() && !self::$Host->get('pending')) {
+            self::$Host->createImagePackage(
                 8,
                 $MultiSess->get('name'),
                 $shutdown,
@@ -1132,11 +1122,11 @@ class BootMenu extends FOGBase
      */
     public function keyset()
     {
-        if (!$this->_Host->isValid()) {
+        if (!self::$Host->isValid()) {
             return;
         }
-        $this->_Host->set('productKey', self::encryptpw($_REQUEST['key']));
-        if (!$this->_Host->save()) {
+        self::$Host->set('productKey', self::encryptpw($_REQUEST['key']));
+        if (!self::$Host->save()) {
             return;
         }
         $Send['keychangesuccess'] = array(
@@ -1159,7 +1149,7 @@ class BootMenu extends FOGBase
             'IPXE_EDIT',
             array(
                 'ipxe' => &$Send,
-                'Host' => &$this->_Host,
+                'Host' => &self::$Host,
                 'kernel' => &$this->_kernel,
                 'initrd' => &$this->_initrd,
                 'booturl' => &$this->_booturl,
@@ -1296,20 +1286,20 @@ class BootMenu extends FOGBase
             $this->printImageList();
             return;
         }
-        if (!$this->_Host->isValid()) {
+        if (!self::$Host->isValid()) {
             $this->falseTasking('', self::getClass('Image', $imgID));
             return;
         }
-        if ($this->_Host->getImage()->get('id') != $imgID) {
-            $this->_Host
+        if (self::$Host->getImage()->get('id') != $imgID) {
+            self::$Host
                 ->set('imageID', $imgID)
                 ->set('imagename', new Image($imgID));
         }
-        if (!$this->_Host->getImage()->isValid()) {
+        if (!self::$Host->getImage()->isValid()) {
             return;
         }
         try {
-            $this->_Host->createImagePackage(
+            self::$Host->createImagePackage(
                 1,
                 'AutoRegTask',
                 $shutdown,
@@ -1348,11 +1338,11 @@ class BootMenu extends FOGBase
      */
     public function getTasking()
     {
-        $Task = $this->_Host->get('task');
+        $Task = self::$Host->get('task');
         if (!$Task->isValid() || $Task->isSnapinTasking()) {
             $this->printDefault();
         } else {
-            if ($this->_Host->get('mac')->isImageIgnored()) {
+            if (self::$Host->get('mac')->isImageIgnored()) {
                 $this->_printImageIgnored();
             }
             $this->_kernel = str_replace(
@@ -1374,7 +1364,7 @@ class BootMenu extends FOGBase
                 $MulticastSessionAssoc = new MulticastSessionAssociation($msaID);
                 $MulticastSession = $MulticastSessionAssoc->getMulticastSession();
                 if ($MulticastSession && $MulticastSession->isValid()) {
-                    $this->_Host->set('imageID', $MulticastSession->get('image'));
+                    self::$Host->set('imageID', $MulticastSession->get('image'));
                 }
             }
             if ($TaskType->isInitNeededTasking()) {
@@ -1384,7 +1374,7 @@ class BootMenu extends FOGBase
                 self::$HookManager->processEvent(
                     'BOOT_TASK_NEW_SETTINGS',
                     array(
-                        'Host' => &$this->_Host,
+                        'Host' => &self::$Host,
                         'StorageNode' => &$StorageNode,
                         'StorageGroup' => &$StorageGroup
                     )
@@ -1411,7 +1401,7 @@ class BootMenu extends FOGBase
                 self::$HookManager->processEvent(
                     'BOOT_TASK_NEW_SETTINGS',
                     array(
-                        'Host' => &$this->_Host,
+                        'Host' => &self::$Host,
                         'StorageNode' => &$StorageNode,
                         'StorageGroup' => &$StorageGroup
                     )
@@ -1534,8 +1524,8 @@ class BootMenu extends FOGBase
                     $storageip = $ip;
                 }
             }
-            if ($this->_Host && $this->_Host->isValid()) {
-                $mac = $this->_Host->get('mac');
+            if (self::$Host && self::$Host->isValid()) {
+                $mac = self::$Host->get('mac');
             } else {
                 $mac = $_REQUEST['mac'];
             }
@@ -1548,7 +1538,7 @@ class BootMenu extends FOGBase
                 );
             }
             $chkdsk = $chkdsk == 1 ? 0 : 1;
-            $MACs = $this->_Host->getMyMacs();
+            $MACs = self::$Host->getMyMacs();
             $clientMacs = array_filter(
                 (array)self::parseMacList(
                     implode(
@@ -1559,11 +1549,11 @@ class BootMenu extends FOGBase
                     true
                 )
             );
-            if ($this->_Host->get('useAD')) {
+            if (self::$Host->get('useAD')) {
                 $addomain = preg_replace(
                     '#\s#',
                     '+_+',
-                    $this->_Host->get('ADDomain')
+                    self::$Host->get('ADDomain')
                 );
                 $adou = str_replace(
                     ';',
@@ -1571,21 +1561,21 @@ class BootMenu extends FOGBase
                     preg_replace(
                         '#\s#',
                         '+_+',
-                        $this->_Host->get('ADOU')
+                        self::$Host->get('ADOU')
                     )
                 );
                 $aduser = preg_replace(
                     '#\s#',
                     '+_+',
-                    $this->_Host->get('ADUser')
+                    self::$Host->get('ADUser')
                 );
                 $adpass = preg_replace(
                     '#\s#',
                     '+_+',
-                    $this->_Host->get('ADPass')
+                    self::$Host->get('ADPass')
                 );
             }
-            $fdrive = $this->_Host->get('kernelDevice');
+            $fdrive = self::$Host->get('kernelDevice');
             $kernelArgsArray = array(
                 "mac=$mac",
                 "ftp=$ftp",
@@ -1598,7 +1588,7 @@ class BootMenu extends FOGBase
                     'active' => !empty($mcastrdv)
                 ),
                 array(
-                    'value' => "hostname={$this->_Host->get(name)}",
+                    'value' => "hostname=" . self::$Host->get('name'),
                     'active' => count($clientMacs) > 0,
                 ),
                 array(
@@ -1641,11 +1631,11 @@ class BootMenu extends FOGBase
                     'value' => "adon=1 addomain=\"$addomain\" "
                     . "adou=\"$adou\" aduser=\"$aduser\" "
                     . "adpass=\"$adpass\"",
-                    'active' => $this->_Host->get('useAD'),
+                    'active' => self::$Host->get('useAD'),
                 ),
                 array(
                     'value' => "fdrive=$fdrive",
-                    'active' => $this->_Host->get('kernelDevice'),
+                    'active' => self::$Host->get('kernelDevice'),
                 ),
                 array(
                     'value' => 'hostearly=1',
@@ -1712,7 +1702,7 @@ class BootMenu extends FOGBase
                 ),
                 $TaskType->get('kernelArgs'),
                 $kargs,
-                $this->_Host->get('kernelArgs'),
+                self::$Host->get('kernelArgs'),
             );
             if ($Task->get('typeID') == 4) {
                 $Send['memtest'] = array(
@@ -1835,7 +1825,7 @@ class BootMenu extends FOGBase
      */
     public function printDefault()
     {
-        if ($this->_Host->isValid()
+        if (self::$Host->isValid()
             && self::getSetting('FOG_NO_MENU')
         ) {
             $this->noMenu();
@@ -1901,13 +1891,13 @@ class BootMenu extends FOGBase
             )
         );
         $showDebug = isset($_REQUEST['debug']);
-        $hostRegColor = $this->_Host->isValid() ? $hostValid : $hostInvalid;
+        $hostRegColor = self::$Host->isValid() ? $hostValid : $hostInvalid;
         $reg_string = 'NOT registered!';
-        if ($this->_Host->isValid()) {
+        if (self::$Host->isValid()) {
             $reg_string = (
-                $this->_Host->get('pending') ?
+                self::$Host->get('pending') ?
                 'pending approval!' :
-                "registered as {$this->_Host->get(name)}!"
+                'registered as ' . self::$Host->get('name') . '!'
             );
         }
         $Send['menustart'] = self::fastmerge(
@@ -1924,9 +1914,9 @@ class BootMenu extends FOGBase
         );
         $RegArrayOfStuff = array(
             (
-                $this->_Host->isValid() ?
+                self::$Host->isValid() ?
                 (
-                    $this->_Host->get('pending') ?
+                    self::$Host->get('pending') ?
                     6 :
                     1
                 ) :

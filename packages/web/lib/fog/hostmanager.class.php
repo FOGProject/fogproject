@@ -179,7 +179,7 @@ class HostManager extends FOGManagerController
      *
      * @throws Exception
      *
-     * @return object
+     * @return void
      */
     public function getHostByMacAddresses($macs)
     {
@@ -192,7 +192,7 @@ class HostManager extends FOGManagerController
             'hostID'
         );
         if (count($MACHost) < 1) {
-            return new Host();
+            return;
         }
         if (count($MACHost) > 1) {
             $MACHost = self::getSubObjectIDs(
@@ -208,8 +208,8 @@ class HostManager extends FOGManagerController
                 throw new Exception(self::$foglang['ErrorMultipleHosts']);
             }
         }
-
-        return new Host(@max($MACHost));
+        self::$Host = new Host(@max($MACHost));
+        return;
     }
     /**
      * Removes fields.

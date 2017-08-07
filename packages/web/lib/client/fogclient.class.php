@@ -34,12 +34,6 @@ abstract class FOGClient extends FOGBase
      */
     protected $send;
     /**
-     * Stores the host item
-     *
-     * @var object
-     */
-    protected $Host;
-    /**
      * Initialize the client items
      *
      * @param bool $service         if the check is from service directory
@@ -62,15 +56,15 @@ abstract class FOGClient extends FOGBase
             global $sub;
             global $json;
             $method = 'send';
-            $this->Host = self::getHostItem(
+            self::getHostItem(
                 $service,
                 $encoded,
                 $hostnotrequired,
                 $returnmacs,
                 $override
             );
-            if (!$this->Host instanceof Host) {
-                $this->Host = new Host(0);
+            if (!self::$Host instanceof Host) {
+                self::$Host = new Host(0);
             }
             if (isset($_REQUEST['moduleid'])) {
                 $this->shortName = Initiator::sanitizeItems(
@@ -97,13 +91,13 @@ abstract class FOGClient extends FOGBase
             $hostModInfo = self::getSubObjectIDs(
                 'Module',
                 array(
-                    'id' => $this->Host->get('modules'),
+                    'id' => self::$Host->get('modules'),
                     'shortName' => $this->shortName
                 ),
                 'shortName'
             );
             if (!in_array($this->shortName, $hostModInfo)) {
-                if (!$this->Host->isValid()
+                if (!self::$Host->isValid()
                     && false === $hostnotrequired
                 ) {
                     throw new Exception('#!nh');
