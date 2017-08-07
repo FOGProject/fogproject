@@ -631,13 +631,13 @@ class HostManagementPage extends FOGPage
             if (!$MAC->isValid()) {
                 throw new Exception(_('MAC Format is invalid'));
             }
-            $Host = self::getClass('HostManager')->getHostByMacAddresses($MAC);
-            if ($Host->isValid()) {
+            self::getClass('HostManager')->getHostByMacAddresses($MAC);
+            if (self::$Host->isValid()) {
                 throw new Exception(
                     sprintf(
                         '%s: %s',
                         _('A host with this mac already exists with name'),
-                        $Host->get('name')
+                        self::$Host->get('name')
                     )
                 );
             }
@@ -670,7 +670,7 @@ class HostManagementPage extends FOGPage
                     $productKey,
                     $enforce
                 );
-            if (!$Host->save()) {
+            if (!self::$Host->save()) {
                 throw new Exception(_('Add host failed!'));
             }
             $hook = 'HOST_ADD_SUCCESS';

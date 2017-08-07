@@ -47,7 +47,7 @@ class PrinterClient extends FOGClient implements FOGClientSend
      */
     public function json()
     {
-        $level = $this->Host->get('printerLevel');
+        $level = self::$Host->get('printerLevel');
         if ($level === 0 || empty($level)) {
             $level = 0;
         }
@@ -59,7 +59,7 @@ class PrinterClient extends FOGClient implements FOGClientSend
             '',
             'name'
         );
-        $printerIDs = $this->Host->get('printers');
+        $printerIDs = self::$Host->get('printers');
         $printerCount = count($printerIDs);
         if ($printerCount < 1) {
             $data = array(
@@ -74,7 +74,7 @@ class PrinterClient extends FOGClient implements FOGClientSend
         $defaultID = self::getSubObjectIDs(
             'PrinterAssociation',
             array(
-                'hostID' => $this->Host->get('id'),
+                'hostID' => self::$Host->get('id'),
                 'isDefault' => 1,
             ),
             'printerID'
@@ -137,7 +137,7 @@ class PrinterClient extends FOGClient implements FOGClientSend
             $Printer->model,
             $Printer->name,
             $Printer->ip,
-            $this->Host->getDefault($Printer->id),
+            self::$Host->getDefault($Printer->id),
             $Printer->configFile
         );
     }
@@ -148,14 +148,14 @@ class PrinterClient extends FOGClient implements FOGClientSend
      */
     public function send()
     {
-        $level = $this->Host->get('printerLevel');
+        $level = self::$Host->get('printerLevel');
         if ($level === 0 || empty($level)) {
             $level = 0;
         }
         if (!in_array($level, array_keys(self::$_modes))) {
             $level = 0;
         }
-        $printerIDs = $this->Host->get('printers');
+        $printerIDs = self::$Host->get('printers');
         $printerCount = count($printerIDs);
         if ($printerCount < 1) {
             throw new Exception(

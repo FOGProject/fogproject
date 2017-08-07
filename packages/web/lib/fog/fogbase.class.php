@@ -627,8 +627,8 @@ abstract class FOGBase
             return $NodeFailure->get('id');
         };
         $find = array(
-            'taskID' => $Host->get('task')->get('id'),
-            'hostID' => $Host->get('id'),
+            'taskID' => self::$Host->get('task')->get('id'),
+            'hostID' => self::$Host->get('id'),
         );
         $nodeRet = array_map(
             $nodeFail,
@@ -1533,22 +1533,21 @@ abstract class FOGBase
      * Really just an alias to aesencrypt for now.
      *
      * @param mixed $data the data to encrypt
-     * @param Host  $Host the host item to use
      *
      * @throws Exception
      *
      * @return string
      */
-    protected static function certEncrypt($data, $Host)
+    protected static function certEncrypt($data)
     {
-        if (!$Host || !$Host->isValid()) {
+        if (!self::$Host->isValid()) {
             throw new Exception('#!ih');
         }
-        if (!$Host->get('pub_key')) {
+        if (!self::$Host->get('pub_key')) {
             throw new Exception('#!ihc');
         }
 
-        return self::aesencrypt($data, $Host->get('pub_key'));
+        return self::aesencrypt($data);
     }
     /**
      * Decrypts the information passed.
@@ -1767,17 +1766,14 @@ abstract class FOGBase
             return;
         }
         try {
-            if (!($this->Host instanceof Host)) {
-                throw new Exception($this->Host);
-            } else if (!($this->Host->isValid())) {
+            if (!self::$Host->isValid()) {
                 throw new Exception('#!ih');
             }
             $datatosend = trim($datatosend);
             $curdate = self::niceDate();
-            $secdate = self::niceDate($this->Host->get('sec_time'));
+            $secdate = self::niceDate(self::$Host->get('sec_time'));
             if ($curdate >= $secdate) {
-                $this
-                    ->Host
+                self::$Host
                     ->set('pub_key', '')
                     ->save()
                     ->load();
@@ -1788,7 +1784,7 @@ abstract class FOGBase
             if (self::$newService) {
                 printf(
                     '#!enkey=%s',
-                    self::certEncrypt($datatosend, $this->Host)
+                    self::certEncrypt($datatosend)
                 );
                 exit;
             } else {

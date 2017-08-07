@@ -22,7 +22,7 @@
 class GroupManagementPage extends FOGPage
 {
     /**
-     * Group->Host common items
+     * Group -> Host common items
      *
      * @var array
      */
@@ -349,7 +349,6 @@ class GroupManagementPage extends FOGPage
         }
         $HostCount = $this->obj->getHostCount();
         $hostids = $this->obj->get('hosts');
-        $Host = new Host(@max($hostids));
         $getItems = array(
             'imageID',
             'productKey',
@@ -403,12 +402,12 @@ class GroupManagementPage extends FOGPage
             $efiExit
         ) = self::$_common;
         $hostids = $this->obj->get('hosts');
-        $Host = new Host(@max($hostids));
+        self::$Host = new Host(@max($hostids));
         $exitNorm = Service::buildExitSelector(
             'bootTypeExit',
             (
                 $biosExit ?
-                $Host->get('biosexit') :
+                self::$Host->get('biosexit') :
                 filter_input(INPUT_POST, 'bootTypeExit')
             ),
             true,
@@ -418,7 +417,7 @@ class GroupManagementPage extends FOGPage
             'efiBootTypeExit',
             (
                 $efiExit ?
-                $Host->get('efiexit') :
+                self::$Host->get('efiexit') :
                 filter_input(INPUT_POST, 'efiBootTypeExit')
             ),
             true,
@@ -1562,52 +1561,51 @@ class GroupManagementPage extends FOGPage
             $efiExit
         ) = self::$_common;
         $hostids = $this->obj->get('hosts');
-        $Host = new Host(@max($hostids));
         // Set Field Information
         $printerLevel = (
             $printerLevel ?
-            $Host->get('printerLevel') :
+            self::$Host->get('printerLevel') :
             ''
         );
         $imageMatchID = (
             $imageIDs ?
-            $Host->get('imageID') :
+            self::$Host->get('imageID') :
             ''
         );
         $useAD = (
             $aduse ?
-            $Host->get('useAD') :
+            self::$Host->get('useAD') :
             ''
         );
         $enforce = (
             $enforcetest ?
-            $Host->get('enforce') :
+            self::$Host->get('enforce') :
             ''
         );
         $ADDomain = (
             $adDomain ?
-            $Host->get('ADDomain') :
+            self::$Host->get('ADDomain') :
             ''
         );
         $ADOU = (
             $adOU ?
-            $Host->get('ADOU') :
+            self::$Host->get('ADOU') :
             ''
         );
         $ADUser = (
             $adUser ?
-            $Host->get('ADUser') :
+            self::$Host->get('ADUser') :
             ''
         );
         $adPass = (
             $adPass ?
-            $Host->get('ADPass') :
+            self::$Host->get('ADPass') :
             ''
         );
-        $ADPass = self::encryptpw($Host->get('ADPass'));
+        $ADPass = self::encryptpw(self::$Host->get('ADPass'));
         $ADPassLegacy = (
             $adPassLegacy ?
-            $Host->get('ADPassLegacy') :
+            self::$Host->get('ADPassLegacy') :
             ''
         );
         echo '<div class="col-xs-9 tab-content">';
@@ -1729,52 +1727,58 @@ class GroupManagementPage extends FOGPage
             array(),
             array(),
         );
-        foreach ((array)self::getClass('HostManager')
-            ->find(
-                array('id' => $this->obj->get('hosts'))
-            ) as &$Host
-        ) {
-            if (!$Host->get('inventory')->isValid()) {
+        Route::listem(
+            'host',
+            'name',
+            false,
+            array('id' => $this->obj->get('hosts'))
+        );
+        $Hosts = json_decode(
+            Route::getData()
+        );
+        $Hosts = $Hosts->hosts;
+        foreach ((array)$Hosts as &$Host) {
+            if (!$Host->inventory->id) {
                 continue;
             }
-            $Image = $Host->getImage();
+            $Image = $Host->image;
             $this->data[] = array(
-                'host_name' => $Host->get('name'),
-                'host_mac' => $Host->get('mac'),
-                'memory' => $Host->get('inventory')->getMem(),
-                'sysprod' => $Host->get('inventory')->get('sysproduct'),
-                'sysser' => $Host->get('inventory')->get('sysserial'),
+                'host_name' => $Host->name,
+                'host_mac' => $Host->primac,
+                'memory' => $Host->inventory->mem,
+                'sysprod' => $Host->inventory->sysproduct,
+                'sysser' => $Host->inventory->sysserial,
             );
             foreach (self::$inventoryCsvHead as $csvHead => &$classGet) {
                 switch ($csvHead) {
                 case _('Host ID'):
                     $this->ReportMaker->addCSVCell(
-                        $Host->get('id')
+                        $Host->id
                     );
                     break;
                 case _('Host name'):
                     $this->ReportMaker->addCSVCell(
-                        $Host->get('name')
+                        $Host->name
                     );
                     break;
                 case _('Host MAC'):
                     $this->ReportMaker->addCSVCell(
-                        $Host->get('mac')
+                        $Host->mac
                     );
                     break;
                 case _('Host Desc'):
                     $this->ReportMaker->addCSVCell(
-                        $Host->get('description')
+                        $Host->description
                     );
                     break;
                 case _('Host Memory'):
                     $this->ReportMaker->addCSVCell(
-                        $Host->get('inventory')->getMem()
+                        $Host->inventory->mem
                     );
                     break;
                 default:
                     $this->ReportMaker->addCSVCell(
-                        $Host->get('inventory')->get($classGet)
+                        $Host->inventory->$classGet
                     );
                     break;
                 }

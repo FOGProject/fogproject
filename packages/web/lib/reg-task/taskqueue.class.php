@@ -69,8 +69,8 @@ class TaskQueue extends TaskingElement
                     if (!$MulticastSession->save()) {
                         throw new Exception(_('Failed to update Session'));
                     }
-                    if ($this->Host->isValid()) {
-                        $this->Host
+                    if (self::$Host->isValid()) {
+                        self::$Host
                             ->set(
                                 'imageID',
                                 $MulticastSession->get('image')
@@ -81,7 +81,7 @@ class TaskQueue extends TaskingElement
                         'TASK_GROUP',
                         array(
                             'StorageGroup' => &$this->StorageGroup,
-                            'Host' => &$this->Host
+                            'Host' => &self::$Host
                         )
                     );
                     $this->StorageNode = null;
@@ -89,7 +89,7 @@ class TaskQueue extends TaskingElement
                         'TASK_NODE',
                         array(
                             'StorageNode' => &$this->StorageNode,
-                            'Host' => &$this->Host
+                            'Host' => &self::$Host
                         )
                     );
                     $method = 'getOptimalStorageNode';
@@ -109,7 +109,7 @@ class TaskQueue extends TaskingElement
                             'StorageNode',
                             $this->Task->get('storagenodeID')
                         ),
-                        $this->Host->get('id')
+                        self::$Host->get('id')
                     );
                     $nodeTest = $this->StorageNode instanceof StorageNode &&
                         $this->StorageNode->isValid();
@@ -170,7 +170,7 @@ class TaskQueue extends TaskingElement
             self::$EventManager->notify(
                 'HOST_CHECKIN',
                 array(
-                    'Host' => &$this->Host
+                    'Host' => &self::$Host
                 )
             );
             echo '##@GO';
@@ -210,10 +210,10 @@ class TaskQueue extends TaskingElement
         if (!$emailAction || !$emailAddress) {
             return;
         }
-        if (!$this->Host->get('inventory')->isValid()) {
+        if (!self::$Host->get('inventory')->isValid()) {
             return;
         }
-        $SnapinJob = $this->Host->get('snapinjob');
+        $SnapinJob = self::$Host->get('snapinjob');
         $SnapinTasks = self::getSubObjectIDs(
             'SnapinTask',
             array(
@@ -262,15 +262,15 @@ class TaskQueue extends TaskingElement
             $this->Task->get('createdBy')
         );
         $primaryUser = ucwords(
-            $this->Host->get('inventory')->get('primaryUser')
+            self::$Host->get('inventory')->get('primaryUser')
         );
-        $Inventory = $this->Host->get('inventory');
-        $mac = $this->Host->get('mac')->__toString();
+        $Inventory = self::$Host->get('inventory');
+        $mac = self::$Host->get('mac')->__toString();
         $ImageName = $this->Task->getImage()->get('name');
         $Snapins = implode(',', (array)$SnapinNames);
         $email = array(
             sprintf("%s:-\n", _('Machine Details')) => '',
-            sprintf("\n%s: ", _('Host Name')) => $this->Host->get('name'),
+            sprintf("\n%s: ", _('Host Name')) => self::$Host->get('name'),
             sprintf("\n%s: ", _('Computer Model')) => $Inventory->get('sysproduct'),
             sprintf("\n%s: ", _('Serial Number')) => $Inventory->get('sysserial'),
             sprintf("\n%s: ", _('MAC Address')) => $mac,
@@ -285,7 +285,7 @@ class TaskQueue extends TaskingElement
             'EMAIL_ITEMS',
             array(
                 'email' => &$email,
-                'Host' => &$this->Host
+                'Host' => &self::$Host
             )
         );
         ob_start();
@@ -296,7 +296,7 @@ class TaskQueue extends TaskingElement
         $emailMe = ob_get_clean();
         $stat = sprintf(
             '%s - %s',
-            $this->Host->get('name'),
+            self::$Host->get('name'),
             _('Image Task Completed')
         );
         if ($Inventory->get('other1')) {
@@ -410,11 +410,11 @@ class TaskQueue extends TaskingElement
                     ->set('clients', $clients)
                     ->save();
             }
-            $this->Host
+            self::$Host
                 ->set('pub_key', '')
                 ->set('sec_tok', '');
             if ($this->Task->isDeploy()) {
-                $this->Host
+                self::$Host
                     ->set('deployed', self::niceDate()->format('Y-m-d H:i:s'));
                 $this->_email();
             } elseif ($this->Task->isCapture()) {
@@ -424,7 +424,7 @@ class TaskQueue extends TaskingElement
                 ->set('pct', 100)
                 ->set('percent', 100)
                 ->set('stateID', self::getCompleteState());
-            if (!$this->Host->save()) {
+            if (!self::$Host->save()) {
                 throw new Exception(_('Failed to update Host'));
             }
             if (!$this->Task->save()) {
@@ -434,7 +434,7 @@ class TaskQueue extends TaskingElement
                 ->processEvent(
                     'HOST_TASKING_COMPLETE',
                     array(
-                        'Host' => &$this->Host,
+                        'Host' => &self::$Host,
                         'Task' => &$this->Task
                     )
                 );
@@ -449,7 +449,7 @@ class TaskQueue extends TaskingElement
             self::$EventManager->notify(
                 'HOST_IMAGE_COMPLETE',
                 array(
-                    'HostName' => $this->Host->get('name')
+                    'HostName' => self::$Host->get('name')
                 )
             );
             echo '##';

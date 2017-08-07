@@ -402,8 +402,7 @@ class Registration extends FOGBase
                 && $performimg
                 && self::$Host->getImageMemberFromHostID()
             ) {
-                $imageTest = $this
-                    ->Host
+                $imageTest = self::$Host
                     ->createImagePackage(
                         1,
                         'AutoRegTask',

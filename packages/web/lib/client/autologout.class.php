@@ -40,7 +40,7 @@ class Autologout extends FOGClient implements FOGClientSend
      */
     public function json()
     {
-        $time = $this->Host->getAlo();
+        $time = self::$Host->getAlo();
         if ($time < 5) {
             return array('error' => 'time');
         }
@@ -53,7 +53,7 @@ class Autologout extends FOGClient implements FOGClientSend
      */
     public function send()
     {
-        $time = $this->Host->getAlo();
+        $time = self::$Host->getAlo();
         if (self::$newService) {
             if ($time < 5) {
                 throw new Exception('#!time');

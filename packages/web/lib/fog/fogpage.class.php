@@ -2884,8 +2884,7 @@ abstract class FOGPage extends FOGBase
                 printf(
                     '#!en=%s',
                     self::certEncrypt(
-                        json_encode($vals),
-                        self::$Host
+                        json_encode($vals)
                     )
                 );
                 exit;
@@ -2893,8 +2892,7 @@ abstract class FOGPage extends FOGBase
             printf(
                 '#!en=%s',
                 self::certEncrypt(
-                    "#!ok\n#token=" . self::$Host->get('sec_tok'),
-                    self::$Host
+                    "#!ok\n#token=" . self::$Host->get('sec_tok')
                 )
             );
         } catch (Exception $e) {
@@ -3841,11 +3839,10 @@ abstract class FOGPage extends FOGBase
                     $dbkeys = array_keys($this->databaseFields);
                     if ($Item instanceof Host) {
                         $macs = self::parseMacList($data[0]);
-                        $Host = self::getClass('HostManager')
+                        self::$Host = $Item;
+                        self::getClass('HostManager')
                             ->getHostByMacAddresses($macs);
-                        if ($Host
-                            && $Host->isValid()
-                        ) {
+                        if (self::$Host->isValid()) {
                             throw new Exception(
                                 _('One or more macs are associated with a host')
                             );

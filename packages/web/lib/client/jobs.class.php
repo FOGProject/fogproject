@@ -34,7 +34,7 @@ class Jobs extends FOGClient implements FOGClientSend
      */
     public function json()
     {
-        $Task = $this->Host->get('task');
+        $Task = self::$Host->get('task');
         $script = strtolower(self::$scriptname);
         $script = trim($script);
         $script = basename($script);
@@ -66,7 +66,7 @@ class Jobs extends FOGClient implements FOGClientSend
      */
     public function send()
     {
-        $Task = $this->Host->get('task');
+        $Task = self::$Host->get('task');
         if ($Task->isInitNeededTasking()) {
             $this->send = '#!ok';
         } else {

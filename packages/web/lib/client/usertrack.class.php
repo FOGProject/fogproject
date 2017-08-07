@@ -82,7 +82,7 @@ class UserTrack extends FOGClient implements FOGClientSend
         }
         $date = self::niceDate();
         self::getClass('UserTracking')
-            ->set('hostID', $this->Host->get('id'))
+            ->set('hostID', self::$Host->get('id'))
             ->set('username', $user)
             ->set('action', $this->actions[$action])
             ->set('datetime', $tmpDate->format('Y-m-d H:i:s'))
@@ -148,7 +148,7 @@ class UserTrack extends FOGClient implements FOGClientSend
             $user = '';
         }
         $UserTracking = self::getClass('UserTracking')
-            ->set('hostID', $this->Host->get('id'))
+            ->set('hostID', self::$Host->get('id'))
             ->set('username', $user)
             ->set('action', $this->actions[$action])
             ->set('datetime', $tmpDate->format('Y-m-d H:i:s'))

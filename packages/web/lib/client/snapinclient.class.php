@@ -35,9 +35,9 @@ class SnapinClient extends FOGClient implements FOGClientSend
     public function json()
     {
         $date = self::formatTime('', 'Y-m-d H:i:s');
-        $HostName = $this->Host->get('name');
-        $Task = $this->Host->get('task');
-        $SnapinJob = $this->Host->get('snapinjob');
+        $HostName = self::$Host->get('name');
+        $Task = self::$Host->get('task');
+        $SnapinJob = self::$Host->get('snapinjob');
         if ($Task->isValid() && !$Task->isSnapinTasking()) {
             return array(
                 'error' => 'it'
@@ -66,7 +66,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
             self::$EventManager->notify(
                 'HOST_SNAPIN_COMPLETE',
                 array(
-                    'Host' => &$this->Host,
+                    'Host' => &self::$Host,
                     'HostName' => &$HostName
                 )
             );
@@ -134,7 +134,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
                     self::$HookManager->processEvent(
                         'SNAPIN_GROUP',
                         array(
-                            'Host' => &$this->Host,
+                            'Host' => &self::$Host,
                             'Snapin' => &$Snapin,
                             'StorageGroup' => &$StorageGroup,
                         )
@@ -142,7 +142,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
                     self::$HookManager->processEvent(
                         'SNAPIN_NODE',
                         array(
-                            'Host' => &$this->Host,
+                            'Host' => &self::$Host,
                             'Snapin' => &$Snapin,
                             'StorageNode' => &$StorageNode,
                         )
@@ -218,9 +218,9 @@ class SnapinClient extends FOGClient implements FOGClientSend
     public function send()
     {
         $date = self::formatTime('', 'Y-m-d H:i:s');
-        $HostName = $this->Host->get('name');
-        $Task = $this->Host->get('task');
-        $SnapinJob = $this->Host->get('snapinjob');
+        $HostName = self::$Host->get('name');
+        $Task = self::$Host->get('task');
+        $SnapinJob = self::$Host->get('snapinjob');
         if ($Task->isValid() && !$Task->isSnapinTasking()) {
             throw new Exception('#!it');
         }
@@ -245,7 +245,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
             self::$EventManager->notify(
                 'HOST_SNAPIN_COMPLETE',
                 array(
-                    'Host' => &$this->Host,
+                    'Host' => &self::$Host,
                     'HostName' => &$HostName
                 )
             );
@@ -330,7 +330,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
                 self::$HookManager->processEvent(
                     'SNAPIN_GROUP',
                     array(
-                        'Host' => &$this->Host,
+                        'Host' => &self::$Host,
                         'Snapin' => &$Snapin,
                         'StorageGroup' => &$StorageGroup,
                     )
@@ -338,7 +338,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
                 self::$HookManager->processEvent(
                     'SNAPIN_NODE',
                     array(
-                        'Host' => &$this->Host,
+                        'Host' => &self::$Host,
                         'Snapin' => &$Snapin,
                         'StorageNode' => &$StorageNode,
                     )
@@ -448,7 +448,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
             array(
                 'Snapin' => &$Snapin,
                 'SnapinTask' => &$SnapinTask,
-                'Host' => &$this->Host,
+                'Host' => &self::$Host,
                 'HostName' => &$HostName
             )
         );
@@ -471,7 +471,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
                 'HOST_SNAPIN_COMPLETE',
                 array(
                     'HostName' => &$HostName,
-                    'Host' => &$this->Host
+                    'Host' => &self::$Host
                 )
             );
         }
@@ -516,7 +516,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
         self::$HookManager->processEvent(
             'SNAPIN_GROUP',
             array(
-                'Host' => &$this->Host,
+                'Host' => &self::$Host,
                 'Snapin' => &$Snapin,
                 'StorageGroup' => &$StorageGroup
             )
@@ -524,7 +524,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
         self::$HookManager->processEvent(
             'SNAPIN_NODE',
             array(
-                'Host' => &$this->Host,
+                'Host' => &self::$Host,
                 'Snapin' => &$Snapin,
                 'StorageNode' => &$StorageNode
             )
