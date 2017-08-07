@@ -1006,7 +1006,7 @@ function forceClick(e) {
  */
 function showForceButton() {
     $('.icon-forced').addClass('fa fa-angle-double-right fa-fw icon');
-    $('.icon-force').addClass('fa fa-bolt fa-fw hand').click(forceClick);
+    $('.icon-force').addClass('fa fa-bolt fa-fw hand').on('click', forceClick);
 }
 /**
  * Shows progress bars.
@@ -1631,7 +1631,7 @@ function DeployStuff() {
         });
     });
     // Auto open the calendar when chosen
-    $('#scheduleSingle').click(function() {
+    $('#scheduleSingle').on('click', function() {
         if (!this.checked) return this;
         $('#scheduleSingleTime').focus();
     });
@@ -1640,7 +1640,7 @@ function DeployStuff() {
  * Remove mac fields
  */
 function removeMACField() {
-    $('.remove-mac').click(function(e) {
+    $('.remove-mac').on('click', function(e) {
         e.preventDefault();
         remove = $(this).parents('.addrow');
         tr = remove.parents('tr');

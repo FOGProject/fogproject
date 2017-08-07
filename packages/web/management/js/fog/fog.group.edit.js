@@ -2,7 +2,7 @@
     $('#resetSecData').val('Reset Encryption Data');
     $('#delAllPM').val('Delete all power management for group');
     resetEncData('groups hosts', 'group');
-    $('#delAllPM').click(function() {
+    $('#delAllPM').on('click', function() {
         $('#delAllPMBox').html('Are you sure you wish to remove all power management tasks with this group?');
         $('#delAllPMBox').dialog({
             resizable: false,
