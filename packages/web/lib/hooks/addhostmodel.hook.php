@@ -89,16 +89,20 @@ class AddHostModel extends Hook
             $hostnames[] = $data['host_name'];
             unset($data);
         }
-        foreach ((array)self::getClass('HostManager')
-            ->find(
-                array(
-                    'name' => $hostnames
-                )
-            ) as $i => &$Host
-        ) {
-            $Inventory = $Host->get('inventory');
-            $arguments['data'][$i]['model'] = $Inventory
-                ->get('sysproduct');
+        Route::listem(
+            'host',
+            'name',
+            false,
+            array('name' => $hostnames)
+        );
+        $Hosts = json_decode(
+            Route::getData()
+        );
+        $Hosts = $Hosts->hosts;
+        foreach ((array)$Hosts as &$Host) {
+            $arguments['data'][$i]['model'] = $Host
+                ->inventory
+                ->sysproduct;
             unset($Host);
         }
     }

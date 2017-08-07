@@ -275,16 +275,19 @@ class BootMenu extends FOGBase
         }
         $kernel = $bzImage;
         if (self::$Host->get('kernel')) {
-            $bzImage = trim(self::$Host->get('kernel'));
+            $bzImage = trim(
+                self::$Host->get('kernel')
+            );
         }
         if (self::$Host->get('init')) {
-            $imagefile = trim(self::$Host->get('init'));
+            $imagefile = trim(
+                self::$Host->get('init')
+            );
         }
         $StorageGroup = $StorageNode->getStorageGroup();
         $exit = trim(
             (
-                self::$Host->get($host_field_test) ?
-                self::$Host->get($host_field_test) :
+                self::$Host->get($host_field_test) ?:
                 self::getSetting($global_field_test)
             )
         );
@@ -1524,7 +1527,7 @@ class BootMenu extends FOGBase
                     $storageip = $ip;
                 }
             }
-            if (self::$Host && self::$Host->isValid()) {
+            if (self::$Host->isValid()) {
                 $mac = self::$Host->get('mac');
             } else {
                 $mac = $_REQUEST['mac'];

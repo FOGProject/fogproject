@@ -37,7 +37,7 @@ class PM extends FOGClient
         $actions = self::getSubObjectIDs(
             'PowerManagement',
             array(
-                'id' => $this->Host->get('powermanagementtasks'),
+                'id' => self::$Host->get('powermanagementtasks'),
                 'onDemand' => '1'
             ),
             'action'
@@ -52,13 +52,13 @@ class PM extends FOGClient
             ->destroy(
                 array(
                     'onDemand' => '1',
-                    'hostID' => $this->Host->get('id')
+                    'hostID' => self::$Host->get('id')
                 )
             );
         $PMTasks = self::getClass('PowerManagementManager')
             ->find(
                 array(
-                    'hostID' => $this->Host->get('id'),
+                    'hostID' => self::$Host->get('id'),
                     'onDemand' => array(
                         '0',
                         0,

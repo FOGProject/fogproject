@@ -80,7 +80,7 @@ class ServiceModule extends FOGClient implements FOGClientSend
         }
         $hostModules = self::getSubObjectIDs(
             'Module',
-            array('id' => $this->Host->get('modules')),
+            array('id' => self::$Host->get('modules')),
             'shortName'
         );
         $hostEnabled = (
