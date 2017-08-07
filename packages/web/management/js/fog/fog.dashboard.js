@@ -133,7 +133,7 @@ var clientinterval = false;
     // Client Count starter.
     // Only start bandwidth once the page is fully loaded.
     // Bandwidth Graph - TX/RX Filter
-    GraphBandwidthFilters.click(function(e) {
+    GraphBandwidthFilters.on('click', function(e) {
         // Blur -> add active class -> remove active class from old active item
         $(this).blur().addClass('active').siblings('a').removeClass('active');
         // Update title
@@ -143,7 +143,7 @@ var clientinterval = false;
         // Prevent default action
         e.preventDefault();
     });
-    GraphBandwidthTimeFilters.click(function(e) {
+    GraphBandwidthTimeFilters.on('click', function(e) {
         // Blur -> add active class -> remove active class from oold active item
         $(this).blur().addClass('active').siblings('a').removeClass('active');
         // Update title

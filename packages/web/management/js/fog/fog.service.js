@@ -3,7 +3,7 @@
         submitHandler: submithandlerfunc
     };
     setTimeoutElement();
-    $('input[name=delcu]:checkbox').click(function(e) {
+    $('input[name=delcu]:checkbox').on('click', function(e) {
         e.preventDefault();
         urlForm = $(this).closest('form').attr('action');
         $(this).closest('tr').remove();

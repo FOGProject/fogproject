@@ -11,7 +11,7 @@
         $('#snapinpack-file').val($('option:selected',this).attr('file'));
         $('#snapinpack-arguments').val($('option:selected',this).attr('args'));
     });
-    $('.snapinpack-generate').click(function(e) {
+    $('.snapinpack-generate').on('click', function(e) {
         e.preventDefault();
         var gdata = {
             Name: $('#snapinpack-name').val(),
@@ -78,7 +78,7 @@ function download(gdata, strFileName, strMimeType) {
             a.innerHTML = "downloading...";
             D.body.appendChild(a);
             setTimeout(function() {
-                a.click();
+                a.trigger('click');
                 D.body.removeChild(a);
                 if(winMode===true){setTimeout(function(){ self.URL.revokeObjectURL(a.href);}, 250 );}
             }, 66);
