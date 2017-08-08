@@ -34,7 +34,6 @@ class SnapinClient extends FOGClient implements FOGClientSend
      */
     public function json()
     {
-        $date = self::formatTime('', 'Y-m-d H:i:s');
         $HostName = self::$Host->get('name');
         $Task = self::$Host->get('task');
         $SnapinJob = self::$Host->get('snapinjob');
@@ -75,7 +74,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
         if ($Task->isValid()) {
             $Task
                 ->set('stateID', self::getCheckedInState())
-                ->set('checkInTime', $date)
+                ->set('checkInTime', self::niceDate()->format('Y-m-d H:i:s'))
                 ->save();
         }
         $SnapinJob->set('stateID', self::getCheckedInState())->save();
@@ -175,7 +174,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
                     );
                     $hash = $Snapin->get('hash');
                     $SnapinTask
-                        ->set('checkin', $date)
+                        ->set('checkin', self::niceDate()->format('Y-m-d H:i:s'))
                         ->set('stateID', self::getCheckedInState())
                         ->save();
                     $action = '';
@@ -217,7 +216,6 @@ class SnapinClient extends FOGClient implements FOGClientSend
      */
     public function send()
     {
-        $date = self::formatTime('', 'Y-m-d H:i:s');
         $HostName = self::$Host->get('name');
         $Task = self::$Host->get('task');
         $SnapinJob = self::$Host->get('snapinjob');
@@ -254,7 +252,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
         if ($Task->isValid()) {
             $Task
                 ->set('stateID', self::getCheckedInState())
-                ->set('checkInTime', $date)
+                ->set('checkInTime', self::niceDate()->format('Y-m-d H:i:s'))
                 ->save();
         }
         $SnapinJob->set('stateID', self::getCheckedInState())->save();
@@ -441,7 +439,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
             ->set('stateID', self::getCompleteState())
             ->set('return', $_REQUEST['exitcode'])
             ->set('details', $_REQUEST['exitdesc'])
-            ->set('complete', $date)
+            ->set('complete', self::niceDate()->format('Y-m-d H:i:s'))
             ->save();
         self::$EventManager->notify(
             'HOST_SNAPINTASK_COMPLETE',
@@ -596,7 +594,7 @@ class SnapinClient extends FOGClient implements FOGClientSend
         if ($Task->isValid()) {
             $Task
                 ->set('stateID', self::getProgressState())
-                ->set('checkInTime', $date)
+                ->set('checkInTime', self::niceDate()->format('Y-m-d H:i:s'))
                 ->save();
         }
         $SnapinJob

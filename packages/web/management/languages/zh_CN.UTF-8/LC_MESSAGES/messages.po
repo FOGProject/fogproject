@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-08 16:55-0400\n"
+"POT-Creation-Date: 2017-08-08 17:04-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -9155,7 +9155,7 @@ msgid "No Active Task found for Host"
 msgstr "发现主机没有活动任务"
 
 #: /var/www/fog/lib/reg-task/taskingelement.class.php:188
-#: /var/www/fog/lib/client/snapinclient.class.php:541
+#: /var/www/fog/lib/client/snapinclient.class.php:539
 msgid "Invalid Storage Group"
 msgstr "无效的存储组"
 
@@ -9374,60 +9374,60 @@ msgstr "这里不允许"
 msgid "No directories defined to be cleaned up"
 msgstr ""
 
-#: /var/www/fog/lib/client/snapinclient.class.php:107
-#: /var/www/fog/lib/client/snapinclient.class.php:286
+#: /var/www/fog/lib/client/snapinclient.class.php:106
+#: /var/www/fog/lib/client/snapinclient.class.php:284
 #, fuzzy
 msgid "No valid tasks found"
 msgstr "发送无有效类"
 
-#: /var/www/fog/lib/client/snapinclient.class.php:303
+#: /var/www/fog/lib/client/snapinclient.class.php:301
 #, fuzzy
 msgid "Snapin is invalid"
 msgstr "管理单元无效"
 
-#: /var/www/fog/lib/client/snapinclient.class.php:325
+#: /var/www/fog/lib/client/snapinclient.class.php:323
 #, fuzzy
 msgid "Snapin Task is invalid"
 msgstr "管理单元无效"
 
-#: /var/www/fog/lib/client/snapinclient.class.php:408
+#: /var/www/fog/lib/client/snapinclient.class.php:406
 #, fuzzy
 msgid "Invalid task id sent"
 msgstr "任务无效"
 
-#: /var/www/fog/lib/client/snapinclient.class.php:426
+#: /var/www/fog/lib/client/snapinclient.class.php:424
 msgid "Invalid Snapin Tasking"
 msgstr "无效的管理单元任务处理"
 
-#: /var/www/fog/lib/client/snapinclient.class.php:436
-#: /var/www/fog/lib/client/snapinclient.class.php:513
+#: /var/www/fog/lib/client/snapinclient.class.php:434
+#: /var/www/fog/lib/client/snapinclient.class.php:511
 msgid "Invalid Snapin"
 msgstr "无效的管理单元"
 
-#: /var/www/fog/lib/client/snapinclient.class.php:497
+#: /var/www/fog/lib/client/snapinclient.class.php:495
 #, fuzzy
 msgid "Invalid task id"
 msgstr "任务无效"
 
-#: /var/www/fog/lib/client/snapinclient.class.php:507
+#: /var/www/fog/lib/client/snapinclient.class.php:505
 #, fuzzy
 msgid "Invalid Snapin Tasking object"
 msgstr "无效的管理单元任务处理"
 
-#: /var/www/fog/lib/client/snapinclient.class.php:557
+#: /var/www/fog/lib/client/snapinclient.class.php:555
 msgid "Invalid Storage Node"
 msgstr "无效的存储节点"
 
-#: /var/www/fog/lib/client/snapinclient.class.php:584
+#: /var/www/fog/lib/client/snapinclient.class.php:582
 #, fuzzy
 msgid "Cannot connect to ftp server"
 msgstr "无法连接到数据库"
 
-#: /var/www/fog/lib/client/snapinclient.class.php:608
+#: /var/www/fog/lib/client/snapinclient.class.php:606
 msgid "Pending..."
 msgstr "待..."
 
-#: /var/www/fog/lib/client/snapinclient.class.php:625
+#: /var/www/fog/lib/client/snapinclient.class.php:623
 #, fuzzy
 msgid "Could not read snapin file"
 msgstr "无法读取tmp文件。"

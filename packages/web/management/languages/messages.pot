@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-08 16:55-0400\n"
+"POT-Creation-Date: 2017-08-08 17:04-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -8369,7 +8369,7 @@ msgid "No Active Task found for Host"
 msgstr ""
 
 #: /var/www/fog/lib/reg-task/taskingelement.class.php:188
-#: /var/www/fog/lib/client/snapinclient.class.php:541
+#: /var/www/fog/lib/client/snapinclient.class.php:539
 msgid "Invalid Storage Group"
 msgstr ""
 
@@ -8568,53 +8568,53 @@ msgstr ""
 msgid "No directories defined to be cleaned up"
 msgstr ""
 
-#: /var/www/fog/lib/client/snapinclient.class.php:107
-#: /var/www/fog/lib/client/snapinclient.class.php:286
+#: /var/www/fog/lib/client/snapinclient.class.php:106
+#: /var/www/fog/lib/client/snapinclient.class.php:284
 msgid "No valid tasks found"
 msgstr ""
 
-#: /var/www/fog/lib/client/snapinclient.class.php:303
+#: /var/www/fog/lib/client/snapinclient.class.php:301
 msgid "Snapin is invalid"
 msgstr ""
 
-#: /var/www/fog/lib/client/snapinclient.class.php:325
+#: /var/www/fog/lib/client/snapinclient.class.php:323
 msgid "Snapin Task is invalid"
 msgstr ""
 
-#: /var/www/fog/lib/client/snapinclient.class.php:408
+#: /var/www/fog/lib/client/snapinclient.class.php:406
 msgid "Invalid task id sent"
 msgstr ""
 
-#: /var/www/fog/lib/client/snapinclient.class.php:426
+#: /var/www/fog/lib/client/snapinclient.class.php:424
 msgid "Invalid Snapin Tasking"
 msgstr ""
 
-#: /var/www/fog/lib/client/snapinclient.class.php:436
-#: /var/www/fog/lib/client/snapinclient.class.php:513
+#: /var/www/fog/lib/client/snapinclient.class.php:434
+#: /var/www/fog/lib/client/snapinclient.class.php:511
 msgid "Invalid Snapin"
 msgstr ""
 
-#: /var/www/fog/lib/client/snapinclient.class.php:497
+#: /var/www/fog/lib/client/snapinclient.class.php:495
 msgid "Invalid task id"
 msgstr ""
 
-#: /var/www/fog/lib/client/snapinclient.class.php:507
+#: /var/www/fog/lib/client/snapinclient.class.php:505
 msgid "Invalid Snapin Tasking object"
 msgstr ""
 
-#: /var/www/fog/lib/client/snapinclient.class.php:557
+#: /var/www/fog/lib/client/snapinclient.class.php:555
 msgid "Invalid Storage Node"
 msgstr ""
 
-#: /var/www/fog/lib/client/snapinclient.class.php:584
+#: /var/www/fog/lib/client/snapinclient.class.php:582
 msgid "Cannot connect to ftp server"
 msgstr ""
 
-#: /var/www/fog/lib/client/snapinclient.class.php:608
+#: /var/www/fog/lib/client/snapinclient.class.php:606
 msgid "Pending..."
 msgstr ""
 
-#: /var/www/fog/lib/client/snapinclient.class.php:625
+#: /var/www/fog/lib/client/snapinclient.class.php:623
 msgid "Could not read snapin file"
 msgstr ""
 
