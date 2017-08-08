@@ -1116,7 +1116,10 @@ class Route extends FOGBase
                     ),
                     'hostscreen' => $class->get('hostscreen')->get(),
                     'hostalo' => $class->get('hostalo')->get(),
-                    'inventory' => $class->get('inventory')->get(),
+                    'inventory' => self::getter(
+                        'inventory',
+                        $class->get('inventory')
+                    ),
                     'image' => $class->get('imagename')->get(),
                     'imagename' => $class->getImageName(),
                     'pingstatus' => $class->getPingCodeStr(),

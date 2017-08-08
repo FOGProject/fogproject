@@ -192,6 +192,7 @@ class BootMenu extends FOGBase
                 self::$Host
                     ->get('inventory')
                     ->set('sysuuid', $_REQUEST['sysuuid'])
+                    ->set('hostID', self::$Host->get('id'))
                     ->save();
             }
         }
