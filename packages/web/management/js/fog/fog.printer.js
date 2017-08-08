@@ -11,7 +11,9 @@
             }
         }
     };
-    if (sub == 'membership') return;
+    if (sub == 'membership') {
+        return;
+    }
     $('select[name="printertype"]').on('change', function(e) {
         e.preventDefault();
         printertype = this.value.toLowerCase();
@@ -25,8 +27,7 @@
                 $('#iprint').show();
                 validatorOpts['rules']['port'] = {
                     required: true,
-                    minlength: 1,
-                    maxlength: 255
+                    minlength: 1
                 };
                 break;
             case 'cups':
@@ -34,9 +35,7 @@
                 $('#cups').show();
                 validatorOpts['rules']['inf'] = {
                     required: true,
-                    minlength: 1,
-                    maxlength: 255,
-                    regex: /^[-\w!@#$%^()'{}\\\.~ ]{1,255}$/
+                    minlength: 1
                 };
                 validatorOpts['rules']['ip'] = {
                     required: true,
@@ -48,9 +47,7 @@
                 $('#local').show();
                 validatorOpts['rules']['inf'] = {
                     required: true,
-                    minlength: 1,
-                    maxlength: 255,
-                    regex: /^[-\w!@#$%^()'{}\\\.~ ]{1,255}$/
+                    minlength: 1
                 };
                 validatorOpts['rules']['ip'] = {
                     required: true,
@@ -58,14 +55,11 @@
                 };
                 validatorOpts['rules']['model'] = {
                     required: true,
-                    minlength: 1,
-                    maxlength: 255,
-                    regex: /^.{1,255}$/
+                    minlength: 1
                 };
                 validatorOpts['rules']['port'] = {
                     required: true,
-                    minlength: 1,
-                    maxlength: 5
+                    minlength: 1
                 };
                 break;
         }
