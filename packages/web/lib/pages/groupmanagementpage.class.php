@@ -402,7 +402,6 @@ class GroupManagementPage extends FOGPage
             $efiExit
         ) = self::$_common;
         $hostids = $this->obj->get('hosts');
-        self::$Host = new Host(@max($hostids));
         $exitNorm = Service::buildExitSelector(
             'bootTypeExit',
             (
@@ -1561,6 +1560,7 @@ class GroupManagementPage extends FOGPage
             $efiExit
         ) = self::$_common;
         $hostids = $this->obj->get('hosts');
+        self::$Host = new Host(@max($hostids));
         // Set Field Information
         $printerLevel = (
             $printerLevel ?
