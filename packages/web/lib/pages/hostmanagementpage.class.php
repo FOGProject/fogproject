@@ -2329,7 +2329,8 @@ class HostManagementPage extends FOGPage
                             )
                         )
                     )
-                );
+                )
+                ->set('hostID', $this->obj->get('id'));
             unset($x);
         }
         $Inv = $this->obj->get('inventory');
@@ -3560,6 +3561,7 @@ class HostManagementPage extends FOGPage
                         ->set('primaryUser', $pu)
                         ->set('other1', $other1)
                         ->set('other2', $other2)
+                        ->set('hostID', $this->obj->get('id'))
                         ->save();
                 }
                 break;
