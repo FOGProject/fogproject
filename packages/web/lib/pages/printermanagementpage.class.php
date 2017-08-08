@@ -299,7 +299,7 @@ class PrinterManagementPage extends FOGPage
             '<label for="portiprint">'
             . _('Printer Port')
             . '</label>' => '<div class="input-group">'
-            . '<input type="number" name="port" id="portiprint" '
+            . '<input type="text" name="port" id="portiprint" '
             . 'value="'
             . $port
             . '" class="form-control printerport-input" autocomplete="off" '
@@ -404,7 +404,7 @@ class PrinterManagementPage extends FOGPage
             '<label for="portlocal">'
             . _('Printer Port')
             . '</label>' => '<div class="input-group">'
-            . '<input type="number" name="port" id="portlocal" '
+            . '<input type="text" name="port" id="portlocal" '
             . 'value="'
             . $port
             . '" class="form-control printerport-input" autocomplete="off" '
@@ -699,7 +699,7 @@ class PrinterManagementPage extends FOGPage
             '<label for="portiprint">'
             . _('Printer Port')
             . '</label>' => '<div class="input-group">'
-            . '<input type="number" name="port" id="portiprint" '
+            . '<input type="text" name="port" id="portiprint" '
             . 'value="'
             . $port
             . '" class="form-control printerport-input" autocomplete="off" '
@@ -804,7 +804,7 @@ class PrinterManagementPage extends FOGPage
             '<label for="portlocal">'
             . _('Printer Port')
             . '</label>' => '<div class="input-group">'
-            . '<input type="number" name="port" id="portlocal" '
+            . '<input type="text" name="port" id="portlocal" '
             . 'value="'
             . $port
             . '" class="form-control printerport-input" autocomplete="off" '
