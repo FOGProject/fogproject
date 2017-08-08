@@ -489,7 +489,7 @@ $.fn.fogVariable = function(opts) {
      */
     var url = location.toString();
     if (url.match('#')) {
-        $('.nav-tabs a[href="#'+url.split('#')[1]+'"]').tab('show');
+        $('.nav-tabs a[href*="#'+url.split('#')[1]+'"]').tab('show');
     }
     /**
      * Set the url in the window appropriately.
@@ -696,7 +696,6 @@ function clearADFields() {
  */
 function setADFields() {
     $('#adEnabled').on('click', function(e) {
-        e.preventDefault();
         if (!this.checked) {
             return this;
         }
