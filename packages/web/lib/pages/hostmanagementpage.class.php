@@ -269,9 +269,6 @@ class HostManagementPage extends FOGPage
          * @return void
          */
         self::$returnData = function (&$Host) {
-            if ($Host->pending > 0) {
-                return;
-            }
             $this->data[] = array(
                 'id' => $Host->id,
                 'deployed' => self::formatTime(
@@ -297,11 +294,16 @@ class HostManagementPage extends FOGPage
     {
         $this->title = _('Pending Host List');
         $this->data = array();
-        $Hosts = self::getClass('HostManager')->find(
-            array(
-                'pending' => 1
-            )
+        Route::listem(
+            'host',
+            'name',
+            false,
+            array('pending' => 1)
         );
+        $Hosts = json_decode(
+            Route::getData()
+        );
+        $Hosts = $Hosts->hosts;
         array_map(self::$returnData, $Hosts);
         self::$HookManager->processEvent(
             'HOST_DATA',
