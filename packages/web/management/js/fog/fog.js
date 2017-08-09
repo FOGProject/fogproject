@@ -951,12 +951,11 @@ function ajaxRun(
                     location.href = '?node='+node;
                 } else {
                     if (authneeded) {
-                        $(selector).html('<form id="'+formid+'" method="post" action="'+url+'"><input type="hidden" name="fogguiuser" value="'+username+'"/><input type="hidden" name="fogguipass" value="'+password+'"/></form>');
+                        $('<form id="'+formid+'" method="post" action="'+url+'"><input type="hidden" name="fogguiuser" value="'+username+'"/><input type="hidden" name="fogguipass" value="'+password+'"/></form>').appendTo('body').submit().remove();
                         dialog.close();
                     } else {
-                        $(selector).append('<form id="'+formid+'" method="post" action="'+url+'"></form>');
+                        $('<form id="'+formid+'" method="post" action="'+url+'"></form>').appendTo('body').submit().remove();
                     }
-                    $('#'+formid).submit().remove();
                 }
             } else {
                 setTimeout(function() {
