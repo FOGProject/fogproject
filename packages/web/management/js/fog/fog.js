@@ -1175,6 +1175,9 @@ function buildRow(
 function TableCheck() {
     callme = 'hide';
     if (typeof LastCount != 'undefined' && LastCount > 0) {
+        if (Container.hasClass('noresults')) {
+            Container.removeClass('noresults');
+        }
         callme = 'show';
     }
     if ($('tbody > tr', Container).length < 1
