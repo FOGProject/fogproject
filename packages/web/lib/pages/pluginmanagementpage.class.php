@@ -234,11 +234,6 @@ class PluginManagementPage extends FOGPage
                 unset($Plugin);
             }
         }
-        $this->formAction = str_replace(
-            '&sub=install',
-            '',
-            $this->formAction
-        );
         $this->indexDivDisplay(true, false, true);
         echo '</div>';
     }
@@ -287,11 +282,6 @@ class PluginManagementPage extends FOGPage
                 unset($Plugin);
             }
         }
-        $this->formAction = str_replace(
-            '&sub=installed',
-            '',
-            $this->formAction
-        );
         $this->indexDivDisplay(true, false, true);
         echo '</div>';
     }
@@ -353,11 +343,11 @@ class PluginManagementPage extends FOGPage
                     . '&run='
                     . $plugin->hash
                     . '">';
-                $this->indexDivDisplay(true);
+                $this->indexDivDisplay(true, false, true);
                 echo '</form>';
             } else {
                 array_walk($fields, $this->fieldsToData);
-                $this->indexDivDisplay(true);
+                $this->indexDivDisplay(true, false, true);
                 $run = filter_input(INPUT_GET, 'run');
                 if ('capone' === $plugin->name && $run === $plugin->hash) {
                     echo '<form class="form-horizontal" method="post" action="'
