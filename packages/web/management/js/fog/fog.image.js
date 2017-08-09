@@ -62,9 +62,6 @@
     var iFileVal = $('.imagefile-input').val();
 })(jQuery);
 function setTimeoutElement() {
-    if (TimeoutRunning) {
-        clearTimeout(TimeoutRunning);
-    }
     $('#add, #updategen, #updategroups, #primarysel, #groupdel').each(function(e) {
         if ($(this).is(':visible')) {
             form = $(this).parents('form');
@@ -80,5 +77,5 @@ function setTimeoutElement() {
             }).trigger('change');
         }
     });
-    TimeoutRunning = setTimeout(setTimeoutElement, 1000);
+    setTimeout(setTimeoutElement, 1000);
 }

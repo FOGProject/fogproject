@@ -59,7 +59,7 @@
     tokenreset();
 })(jQuery);
 function setTimeoutElement() {
-    $('button[name="update"], button[type="submit"]:not(#importbtn, #export, #upload, #Rebranding), #menuSet, #hideSet, #exitSet, #advSet, button[name="saveform"], button[name="delform"], #deletecu').each(function(e) {
+    $('button[type="submit"]:not(#importbtn, #export, #upload, #Rebranding), #menuSet, #hideSet, #exitSet, #advSet, button[name="saveform"], button[name="delform"], #deletecu').each(function(e) {
         if ($(this).is(':visible')) {
             $(this).on('click', function(e) {
                 form = $(this).parents('form');
@@ -67,4 +67,5 @@ function setTimeoutElement() {
             });
         }
     });
+    setTimeout(setTimeoutElement, 1000);
 }
