@@ -851,10 +851,9 @@ abstract class FOGController extends FOGBase
             return $this;
         }
         $array = $array_type(
-            (array) $this->get($key),
-            (array) $array
+            (array)$this->get($key),
+            (array)$array
         );
-
         return $this->set($key, $array);
     }
     /**
@@ -1080,12 +1079,17 @@ abstract class FOGController extends FOGBase
         $objtype = strtolower($objType);
         $objstr = sprintf('%sID', $objtype);
         $assocstr = sprintf('%sID', $assoc);
+        $lalter = strtolower($alteritem);
+        $gitems = array(
+            'storagegroup',
+            'snapingroup'
+        );
         if (count($this->get($plural))) {
-            if (strtolower($alterItem) === 'storagegroup') {
+            if (in_array($lalter, $gitems)) {
                 $tmpAssoc = $assocItem;
                 $assocItem = $alterItem;
             }
-            $AllIDs = self::getSubObjectIDs($assocItem);
+            $AllIDs = self::getSubObjectIDs($alterItem);
             $DBIDs = $this->get($plural);
             if ($tmpAssoc) {
                 $assocItem = $tmpAssoc;
