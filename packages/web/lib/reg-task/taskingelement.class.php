@@ -22,12 +22,6 @@
 abstract class TaskingElement extends FOGBase
 {
     /**
-     * The host object.
-     *
-     * @var object
-     */
-    protected $Host;
-    /**
      * The task object.
      *
      * @var object

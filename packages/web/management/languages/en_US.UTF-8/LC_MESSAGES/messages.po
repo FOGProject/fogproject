@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-09 10:21-0400\n"
+"POT-Creation-Date: 2017-08-09 12:40-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4096,7 +4096,7 @@ msgstr "General Information"
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:75
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:170
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:339
-#: /var/www/fog/lib/reg-task/taskingelement.class.php:233
+#: /var/www/fog/lib/reg-task/taskingelement.class.php:227
 #: /var/www/fog/commons/text.php:305
 msgid "Storage Node"
 msgstr "Storage Node"
@@ -9178,31 +9178,31 @@ msgstr ""
 msgid "second"
 msgstr "Icon"
 
-#: /var/www/fog/lib/reg-task/taskingelement.class.php:168
+#: /var/www/fog/lib/reg-task/taskingelement.class.php:162
 #: /var/www/fog/service/progress.php:31
 msgid "No Active Task found for Host"
 msgstr "No Active Task found for Host"
 
-#: /var/www/fog/lib/reg-task/taskingelement.class.php:188
+#: /var/www/fog/lib/reg-task/taskingelement.class.php:182
 #: /var/www/fog/lib/client/snapinclient.class.php:539
 msgid "Invalid Storage Group"
 msgstr "Invalid Storage Group"
 
-#: /var/www/fog/lib/reg-task/taskingelement.class.php:211
+#: /var/www/fog/lib/reg-task/taskingelement.class.php:205
 #, fuzzy
 msgid "Could not find a Storage Node in this group"
 msgstr "Could not find a Storage Node, is there one enabled within this group?"
 
-#: /var/www/fog/lib/reg-task/taskingelement.class.php:212
+#: /var/www/fog/lib/reg-task/taskingelement.class.php:206
 #, fuzzy
 msgid "is there one enabled"
 msgstr "Image is not enabled"
 
-#: /var/www/fog/lib/reg-task/taskingelement.class.php:238
+#: /var/www/fog/lib/reg-task/taskingelement.class.php:232
 msgid "is open"
 msgstr ""
 
-#: /var/www/fog/lib/reg-task/taskingelement.class.php:239
+#: /var/www/fog/lib/reg-task/taskingelement.class.php:233
 #, fuzzy
 msgid "but has recently failed for this host"
 msgstr "is open, but has recently failed for this Host"
@@ -9369,7 +9369,7 @@ msgstr "Done, with imaging!"
 
 #: /var/www/fog/lib/reg-task/registration.class.php:425
 #: /var/www/fog/lib/reg-task/registration.class.php:459
-#: /var/www/fog/service/inventory.php:93
+#: /var/www/fog/service/inventory.php:92
 msgid "Done"
 msgstr "Done"
 
@@ -10508,7 +10508,7 @@ msgstr "Accepted"
 msgid "There are no snapins on this server"
 msgstr "There are no snapins on this server."
 
-#: /var/www/fog/service/inventory.php:90
+#: /var/www/fog/service/inventory.php:89
 #, fuzzy
 msgid "Failed to create inventory for this host"
 msgstr "Failed to create inventory for this host!"
