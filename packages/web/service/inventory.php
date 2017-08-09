@@ -27,7 +27,8 @@ try {
         false,
         false,
         false,
-        false
+        false,
+        $_REQUEST['mac']
     );
     $Inventory = FOGCore::$Host->get('inventory');
     if (!$Inventory instanceof Inventory

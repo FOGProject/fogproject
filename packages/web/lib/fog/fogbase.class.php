@@ -494,6 +494,7 @@ abstract class FOGBase
      * @param bool $hostnotrequired Is the host return needed
      * @param bool $returnmacs      Only return macs?
      * @param bool $override        Perform an override of the items?
+     * @param bool $mac             Mac Override?
      *
      * @throws Exception
      *
@@ -504,13 +505,16 @@ abstract class FOGBase
         $encoded = false,
         $hostnotrequired = false,
         $returnmacs = false,
-        $override = false
+        $override = false,
+        $mac = false
     ) {
         self::$Host = new Host(0);
         // Store the mac
-        $mac = filter_input(INPUT_POST, 'mac');
         if (!$mac) {
-            $mac = filter_input(INPUT_GET, 'mac');
+            $mac = filter_input(INPUT_POST, 'mac');
+            if (!$mac) {
+                $mac = filter_input(INPUT_GET, 'mac');
+            }
         }
         $sysuuid = filter_input(INPUT_POST, 'sysuuid');
         if (!$sysuuid) {
@@ -526,11 +530,12 @@ abstract class FOGBase
             $Inventory = self::getClass('Inventory')
                 ->set('sysuuid', $sysuuid)
                 ->load('sysuuid');
-            self::$Host = self::getClass('Inventory')
+            $Host = self::getClass('Inventory')
                 ->set('sysuuid', $sysuuid)
                 ->load('sysuuid')
                 ->getHost();
-            if (self::$Host->isValid() && !$returnmacs) {
+            if ($Host->isValid() && !$returnmacs) {
+                self::$Host = $Host;
                 return;
             }
         }
