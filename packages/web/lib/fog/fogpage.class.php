@@ -1718,23 +1718,24 @@ abstract class FOGPage extends FOGBase
                 }
             }
         } catch (Exception $e) {
-            self::setMessage($e->getMessage());
-            self::redirect(
-                sprintf(
-                    '?node=%s&sub=edit%s',
-                    $this->node,
-                    (
-                        is_numeric($id)
-                        &&  $id > 0 ?
-                        sprintf(
-                            '&%s=%s',
-                            $this->id,
-                            $id
-                        ) :
-                        ''
-                    )
-                )
-            );
+            echo '<div class="col-xs-9">';
+            echo '<div class="panel panel-danger">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Tasking Failed');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body text-center">';
+            echo '<div class="row">';
+            echo _('Failed to create tasking');
+            echo '</div>';
+            echo '<div class="row">';
+            echo $e->getMessage();
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            return;
         }
         try {
             try {
