@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-09 08:24-0400\n"
+"POT-Creation-Date: 2017-08-09 08:45-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -131,7 +131,7 @@ msgstr ""
 #: /var/www/fog/lib/fog/fogcontroller.class.php:729
 #: /var/www/fog/lib/fog/fogcontroller.class.php:739
 #: /var/www/fog/lib/fog/fogcontroller.class.php:750
-#: /var/www/fog/lib/fog/fogcontroller.class.php:888
+#: /var/www/fog/lib/fog/fogcontroller.class.php:887
 #: /var/www/fog/lib/fog/foggetset.class.php:92
 #: /var/www/fog/lib/fog/fogpage.class.php:2557
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:198
@@ -396,11 +396,11 @@ msgstr ""
 msgid "is not callable"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogcontroller.class.php:879
+#: /var/www/fog/lib/fog/fogcontroller.class.php:878
 msgid "Invalid ID passed"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogcontroller.class.php:887
+#: /var/www/fog/lib/fog/fogcontroller.class.php:886
 #: /var/www/fog/lib/fog/fogpage.class.php:2559
 #: /var/www/fog/lib/fog/fogpage.class.php:3944 /var/www/fog/service/av.php:36
 msgid "Failed"
