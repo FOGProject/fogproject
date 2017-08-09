@@ -2053,15 +2053,20 @@ abstract class FOGPage extends FOGBase
             ->destroy(
                 array('id' => $remitems)
             );
-        self::setMessage(
-            _('All selected items have been deleted')
-        );
-        self::redirect(
-            sprintf(
-                '?node=%s',
-                $this->node
-            )
-        );
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->childClass
+            . '\'s '
+            . _('Removed');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo _('All selected items removed successfully');
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Displays the basic tasks
@@ -4191,9 +4196,14 @@ abstract class FOGPage extends FOGBase
         echo '</h4>';
         echo '</div>';
         echo '<div class="panel-body">';
+        $formAction = $this->formAction;
+        $components = parse_url($formAction);
+        parse_str($components['query'], $vars);
+        $vars['sub'] = 'deletemulti';
+        $formAction = '?'.http_build_query($vars);
         echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '&sub=deletemulti">';
+            . $formAction
+            . '">';
         echo '<div class="form-group">';
         echo '<label class="control-label col-xs-4" for="del-'
             . $this->node

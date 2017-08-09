@@ -69,9 +69,9 @@ $.fn.fogAjaxSearch = function(opts) {
     if (!Container.hasClass('noresults')) {
         callme = 'show';
     }
-    Container[callme];
-    ActionBox[callme];
-    ActionBoxDel[callme];
+    Container[callme]();
+    ActionBox[callme]();
+    ActionBoxDel[callme]();
     return this.each(function(evt) {
         var searchElement = $(this),
             SubmitButton = $('.search-submit');
@@ -550,6 +550,15 @@ $.fn.fogVariable = function(opts) {
             this.checked = selectAll;
         });
     });
+    callme = 'hide';
+    if (!$('tbody > tr', Container).length < 1
+        || !Container.hasClass('noresults')
+    ) {
+        callme = 'show';
+    }
+    Container[callme]();
+    ActionBox[callme]();
+    ActionBoxDel[callme]();
 })(jQuery);
 /**
  * Gets the GET params from the URL.
@@ -1174,7 +1183,7 @@ function TableCheck() {
         callme = 'hide';
     }
     $.tablesorter.setFilters(Container, savedFilters, true);
-    Container[callme];
+    Container[callme]();
     ActionBox[callme]();
     ActionBoxDel[callme]();
     if (node == 'task' && $.inArray(sub, ['search', 'listhosts', 'listgroups']) < 0) {

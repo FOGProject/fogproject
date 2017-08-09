@@ -46,7 +46,7 @@ var CANCELURL,
     if (!Container.hasClass('noresults')) {
         callme = 'show';
     }
-    Container[callme];
+    Container[callme]();
     if (typeof sub == 'undefined' || sub.indexOf('active') != -1) {
         Container.before(
             '<div class="taskbuttons text-center">'
