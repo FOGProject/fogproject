@@ -17,9 +17,6 @@
     });
 })(jQuery);
 function setTimeoutElement() {
-    if (TimeoutRunnning) {
-        clearTimeout(TimeoutRunning);
-    }
     $('#deletedc, #updatedc, #updatescreen, #deleteevent, #addevent, #deletecu, button[name="updatestatus"], button[name="updatedefaults"]').each(function(e) {
         if ($(this).is(':visible')) {
             $(this).on('click', function(e) {
@@ -28,5 +25,5 @@ function setTimeoutElement() {
             });
         }
     });
-    TimeoutRunning = setTimeout(setTimeoutElement, 1000);
+    setTimeout(setTimeoutElement, 1000);
 }
