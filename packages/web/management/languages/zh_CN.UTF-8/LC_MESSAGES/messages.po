@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-09 10:21-0400\n"
+"POT-Creation-Date: 2017-08-09 12:40-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4082,7 +4082,7 @@ msgstr "一般信息"
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:75
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:170
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:339
-#: /var/www/fog/lib/reg-task/taskingelement.class.php:233
+#: /var/www/fog/lib/reg-task/taskingelement.class.php:227
 #: /var/www/fog/commons/text.php:305
 msgid "Storage Node"
 msgstr "存储节点"
@@ -9157,31 +9157,31 @@ msgstr ""
 msgid "second"
 msgstr "图标"
 
-#: /var/www/fog/lib/reg-task/taskingelement.class.php:168
+#: /var/www/fog/lib/reg-task/taskingelement.class.php:162
 #: /var/www/fog/service/progress.php:31
 msgid "No Active Task found for Host"
 msgstr "发现主机没有活动任务"
 
-#: /var/www/fog/lib/reg-task/taskingelement.class.php:188
+#: /var/www/fog/lib/reg-task/taskingelement.class.php:182
 #: /var/www/fog/lib/client/snapinclient.class.php:539
 msgid "Invalid Storage Group"
 msgstr "无效的存储组"
 
-#: /var/www/fog/lib/reg-task/taskingelement.class.php:211
+#: /var/www/fog/lib/reg-task/taskingelement.class.php:205
 #, fuzzy
 msgid "Could not find a Storage Node in this group"
 msgstr "找不到存储节点，有一个图像，此组内启用？"
 
-#: /var/www/fog/lib/reg-task/taskingelement.class.php:212
+#: /var/www/fog/lib/reg-task/taskingelement.class.php:206
 #, fuzzy
 msgid "is there one enabled"
 msgstr "图片未启用"
 
-#: /var/www/fog/lib/reg-task/taskingelement.class.php:238
+#: /var/www/fog/lib/reg-task/taskingelement.class.php:232
 msgid "is open"
 msgstr ""
 
-#: /var/www/fog/lib/reg-task/taskingelement.class.php:239
+#: /var/www/fog/lib/reg-task/taskingelement.class.php:233
 #, fuzzy
 msgid "but has recently failed for this host"
 msgstr "是开放的，但最近没有这个主机"
@@ -9348,7 +9348,7 @@ msgstr "完成后，随着影像！"
 
 #: /var/www/fog/lib/reg-task/registration.class.php:425
 #: /var/www/fog/lib/reg-task/registration.class.php:459
-#: /var/www/fog/service/inventory.php:93
+#: /var/www/fog/service/inventory.php:92
 msgid "Done"
 msgstr "做"
 
@@ -10486,7 +10486,7 @@ msgstr "公认"
 msgid "There are no snapins on this server"
 msgstr "有此服务器上没有snapins。"
 
-#: /var/www/fog/service/inventory.php:90
+#: /var/www/fog/service/inventory.php:89
 #, fuzzy
 msgid "Failed to create inventory for this host"
 msgstr "无法为这个主机创建库存！"
