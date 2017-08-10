@@ -1,14 +1,13 @@
 #!ipxe
-ifopen
-isset ${net0/mac} && dhcp net0 || goto dhcpnet1
+isset ${net0/mac} && ifopen net0 && dhcp net0 || goto dhcpnet1
 echo Received DHCP answer on interface net0 && goto proxycheck
 
 :dhcpnet1
-isset ${net1/mac} && dhcp net1 || goto dhcpnet2
+isset ${net1/mac} && ifopen net1 && dhcp net1 || goto dhcpnet2
 echo Received DHCP answer on interface net1 && goto proxycheck
 
 :dhcpnet2
-isset ${net2/mac} && dhcp net2 || goto dhcpall
+isset ${net2/mac} && ifopen net2 && dhcp net2 || goto dhcpall
 echo Received DHCP anser on infterface net2 && goto proxycheck
 
 :dhcpall
