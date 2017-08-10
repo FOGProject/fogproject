@@ -70,6 +70,10 @@ var CANCELURL,
             + '</div>'
             + '</div>'
         );
+        pauseButton = $('#taskpause');
+        pauseUpdate = pauseButton.parent('p');
+        cancelButton = $('#taskcancel');
+        cancelTasks = cancelButton.parent('p');
         ActiveTasksUpdate();
         pauseButton.on('click', pauseButtonPressed);
         cancelButton.on('click', buttonPress);
@@ -118,6 +122,8 @@ function buttonPress(e) {
                         ActiveTasksUpdate();
                     }
                 );
+                Container.find('input[value="'+checkedIDs.join('"], input[value="')+'"]').parents('tr').remove();
+                Container.trigger('updateAll');
                 dialogItself.close();
             }
         }, {
