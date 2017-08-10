@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-09 12:40-0400\n"
+"POT-Creation-Date: 2017-08-10 12:36-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -419,7 +419,7 @@ msgid "Array type"
 msgstr "Matriz de datos"
 
 #: /var/www/fog/lib/fog/fogcontroller.class.php:844
-#: /var/www/fog/lib/fog/fogbase.class.php:2249
+#: /var/www/fog/lib/fog/fogbase.class.php:2254
 #: /var/www/fog/lib/fog/fogftp.class.php:370
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1137
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2802
@@ -613,107 +613,107 @@ msgstr "%s se requiere"
 msgid "Class name must be a string"
 msgstr "Evento debe ser una cadena"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:587
+#: /var/www/fog/lib/fog/fogbase.class.php:592
 msgid "Invalid Host"
 msgstr "host no válido"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:845
-#: /var/www/fog/lib/fog/fogbase.class.php:875
+#: /var/www/fog/lib/fog/fogbase.class.php:850
+#: /var/www/fog/lib/fog/fogbase.class.php:880
 #, fuzzy
 msgid "Key must be a string or index"
 msgstr "Evento debe ser una cadena"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:899
+#: /var/www/fog/lib/fog/fogbase.class.php:904
 msgid "Key must be an array of keys or a string."
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1110
-#: /var/www/fog/lib/fog/fogbase.class.php:1123
+#: /var/www/fog/lib/fog/fogbase.class.php:1115
+#: /var/www/fog/lib/fog/fogbase.class.php:1128
 msgid "No Data"
 msgstr "Sin datos"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1120
+#: /var/www/fog/lib/fog/fogbase.class.php:1125
 msgid "Not a number"
 msgstr "No un número"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1200
+#: /var/www/fog/lib/fog/fogbase.class.php:1205
 msgid "Space variable must be boolean"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1225
+#: /var/www/fog/lib/fog/fogbase.class.php:1230
 msgid "Ago must be boolean"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1318
+#: /var/www/fog/lib/fog/fogbase.class.php:1323
 msgid "Diff parameter must be numeric"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1321
+#: /var/www/fog/lib/fog/fogbase.class.php:1326
 #, fuzzy
 msgid "Unit of time must be a string"
 msgstr "Evento debe ser una cadena"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1325
+#: /var/www/fog/lib/fog/fogbase.class.php:1330
 #, fuzzy
 msgid "In"
 msgstr "En "
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1328
+#: /var/www/fog/lib/fog/fogbase.class.php:1333
 #, fuzzy
 msgid "ago"
 msgstr " hace"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1356
+#: /var/www/fog/lib/fog/fogbase.class.php:1361
 #, fuzzy
 msgid "Old key must be a string"
 msgstr "Evento debe ser una cadena"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1359
+#: /var/www/fog/lib/fog/fogbase.class.php:1364
 #, fuzzy
 msgid "New key must be a string"
 msgstr "Evento debe ser una cadena"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1574
+#: /var/www/fog/lib/fog/fogbase.class.php:1579
 msgid "Private key path not found"
 msgstr "ruta de la clave privada no encontrado"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1590
+#: /var/www/fog/lib/fog/fogbase.class.php:1595
 msgid "Private key not found"
 msgstr "clave privada que no se encuentra"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1593
+#: /var/www/fog/lib/fog/fogbase.class.php:1598
 msgid "Private key not readable"
 msgstr "clave privada no se puede leer"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1598
+#: /var/www/fog/lib/fog/fogbase.class.php:1603
 msgid "Private key failed"
 msgstr "clave privada fracasó"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1617
+#: /var/www/fog/lib/fog/fogbase.class.php:1622
 msgid "Failed to decrypt data"
 msgstr "No se ha podido descifrar datos"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1850
+#: /var/www/fog/lib/fog/fogbase.class.php:1855
 #, fuzzy
 msgid "Txt must be a string"
 msgstr "Evento debe ser una cadena"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1853
+#: /var/www/fog/lib/fog/fogbase.class.php:1858
 #, fuzzy
 msgid "Level must be an integer"
 msgstr "Evento debe ser una cadena"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1881
+#: /var/www/fog/lib/fog/fogbase.class.php:1886
 #, fuzzy
 msgid "String must be a string"
 msgstr "Evento debe ser una cadena"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2007
+#: /var/www/fog/lib/fog/fogbase.class.php:2012
 #, fuzzy
 msgid "Key must be a string"
 msgstr "Evento debe ser una cadena"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2251
+#: /var/www/fog/lib/fog/fogbase.class.php:2256
 #: /var/www/fog/lib/fog/fogftp.class.php:372
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3211
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:87
@@ -726,12 +726,12 @@ msgstr "Evento debe ser una cadena"
 msgid "File"
 msgstr "Archivo"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2253
+#: /var/www/fog/lib/fog/fogbase.class.php:2258
 #: /var/www/fog/lib/fog/fogftp.class.php:374
 msgid "Line"
 msgstr "Línea"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2255
+#: /var/www/fog/lib/fog/fogbase.class.php:2260
 #: /var/www/fog/lib/fog/fogftp.class.php:376
 #: /var/www/fog/lib/db/mysql.class.php:189
 msgid "Message"
@@ -919,8 +919,8 @@ msgstr "No nodo asociado"
 msgid "Adding FOGPage: %s, Node: %s"
 msgstr "Adición de FOGPage: %s , Node: %s"
 
-#: /var/www/fog/lib/fog/page.class.php:495
-#: /var/www/fog/lib/fog/page.class.php:506
+#: /var/www/fog/lib/fog/page.class.php:496
+#: /var/www/fog/lib/fog/page.class.php:507
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2677
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2705
 #: /var/www/fog/lib/reports/user_tracking.report.php:288
@@ -928,7 +928,7 @@ msgstr "Adición de FOGPage: %s , Node: %s"
 msgid "Logout"
 msgstr ""
 
-#: /var/www/fog/lib/fog/page.class.php:514
+#: /var/www/fog/lib/fog/page.class.php:515
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2694
 #: /var/www/fog/lib/reports/user_tracking.report.php:289
 #: /var/www/fog/commons/text.php:114
@@ -9473,7 +9473,7 @@ msgstr ""
 
 #: /var/www/fog/lib/reg-task/registration.class.php:425
 #: /var/www/fog/lib/reg-task/registration.class.php:459
-#: /var/www/fog/service/inventory.php:92
+#: /var/www/fog/service/inventory.php:93
 msgid "Done"
 msgstr ""
 
@@ -10752,7 +10752,7 @@ msgstr ""
 msgid "There are no snapins on this server"
 msgstr "No hay grupos en este servidor."
 
-#: /var/www/fog/service/inventory.php:89
+#: /var/www/fog/service/inventory.php:90
 #, fuzzy
 msgid "Failed to create inventory for this host"
 msgstr "No se pudo crear la tarea"

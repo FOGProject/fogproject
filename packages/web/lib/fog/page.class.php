@@ -290,25 +290,26 @@ class Page extends FOGBase
         );
         if (!self::$FOGUser->isValid()) {
             $files[] = 'js/fog/fog.login.js';
+        } else {
+            $subset = $sub;
+            if ($sub == 'membership') {
+                $subset = 'edit';
+            }
+            $node = preg_replace(
+                '#_#',
+                '-',
+                $node
+            );
+            $subset = preg_replace(
+                '#_#',
+                '-',
+                $subset
+            );
+            $filepaths = array(
+                "js/fog/fog.{$node}.js",
+                "js/fog/fog.{$node}.{$subset}.js",
+            );
         }
-        $subset = $sub;
-        if ($sub == 'membership') {
-            $subset = 'edit';
-        }
-        $node = preg_replace(
-            '#_#',
-            '-',
-            $node
-        );
-        $subset = preg_replace(
-            '#_#',
-            '-',
-            $subset
-        );
-        $filepaths = array(
-            "js/fog/fog.{$node}.js",
-            "js/fog/fog.{$node}.{$subset}.js",
-        );
         array_map(
             function (&$jsFilepath) use (&$files) {
                 if (file_exists($jsFilepath)) {
