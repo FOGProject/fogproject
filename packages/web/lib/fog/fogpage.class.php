@@ -1215,6 +1215,14 @@ abstract class FOGPage extends FOGBase
         echo '<h4 class="title">';
         echo _('Confirm tasking');
         echo '</h4>';
+        if ($this->obj instanceof Host) {
+            if ($this->obj->getImage()->isValid()) {
+                echo '<h5 class="title">';
+                echo _('Image Associated: ');
+                echo $this->obj->getImage()->get('name');
+                echo '</h5>';
+            }
+        }
         echo '</div>';
         echo '<div class="panel-body">';
         echo '<form class="form-horizontal" method="post" action="'
