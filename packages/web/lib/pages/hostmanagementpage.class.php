@@ -3007,16 +3007,11 @@ class HostManagementPage extends FOGPage
             }
             $this->data[] = array(
                 'snapin_name' => $Snapin->name,
-                'snapin_start' => self::formatTime(
-                    $SnapinTask->checkin,
-                    'Y-m-d H:i:s'
-                ),
+                'snapin_start' => $start->format('Y-m-d H:i:s'),
                 'snapin_end' => sprintf(
-                    '<span class="icon" title="%s">%s</span>',
-                    self::formatTime(
-                        $SnapinTask->complete,
-                        'Y-m-d H:i:s'
-                    ),
+                    '<span data-toggle="tooltip" data-placement="left" '
+                    . 'class="icon" title="%s">%s</span>',
+                    $end->format('Y-m-d H:i:s'),
                     $SnapinTask->state->name
                 ),
                 'snapin_duration' => $diff,

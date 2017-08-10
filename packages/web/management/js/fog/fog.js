@@ -13,7 +13,9 @@ var startTime = new Date().getTime(),
     callme,
     lastsub,
     pauseUpdate,
-    cancelTasks;
+    cancelTasks,
+    pauseButton = $('#taskpause'),
+    cancelButton = $('#taskcancel');
 var $_GET = getQueryParams(document.location.search),
     node = $_GET['node'],
     sub = $_GET['sub'],
@@ -1119,7 +1121,7 @@ function buildRow(
         rows[rows.length] = row
             + '</tr>';
     });
-    tbody.html(rows.join());
+    tbody.empty().html(rows.join());
     rows = [];
     if (node == 'task' && (typeof sub == 'undefined' || sub == 'active')) {
         $.each(data, function(index, value) {
@@ -1186,9 +1188,7 @@ function TableCheck() {
     ActionBox[callme]();
     ActionBoxDel[callme]();
     if (node == 'task' && $.inArray(sub, ['search', 'listhosts', 'listgroups']) < 0) {
-        pauseButton = $('#taskpause');
         pauseUpdate = pauseButton.parent('p');
-        cancelButton = $('#taskcancel');
         cancelTasks = cancelButton.parent('p');
         pauseUpdate[callme]();
         cancelTasks[callme]();

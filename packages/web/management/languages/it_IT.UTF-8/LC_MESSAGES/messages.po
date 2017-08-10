@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-10 13:13-0400\n"
+"POT-Creation-Date: 2017-08-10 17:31-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -924,7 +924,7 @@ msgstr "%s ID %d non valido"
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:91
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:896
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:200
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3066
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3061
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:180
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:434
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:569
@@ -4707,7 +4707,7 @@ msgid "Host Memory"
 msgstr "Memoria Host"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:2028
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3274
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3269
 msgid "You must select an action to perform"
 msgstr "È necessario selezionare un'azione da eseguire"
 
@@ -4736,7 +4736,7 @@ msgid "Started By:"
 msgstr "Ordina per:"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:72
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3117
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3112
 #: /var/www/fog/commons/text.php:71
 msgid "MAC"
 msgstr "MAC"
@@ -5875,75 +5875,75 @@ msgstr "Il compito Snapin non è stato completato"
 msgid "No complete time recorded"
 msgstr "Nessun tempo completo registrato"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3041
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3036
 #, fuzzy
 msgid "Host Snapin History"
 msgstr "Storia Snapin"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3078
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3073
 msgid "Host approved"
 msgstr "Host approvato"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3080
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3075
 msgid "Host approval failed."
 msgstr "approvazione Host riuscita."
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3093
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3088
 #, fuzzy
 msgid "Approve Host"
 msgstr "Approvare questo host?"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3100
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3095
 msgid "Approve this host?"
 msgstr "Approvare questo host?"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3121
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3116
 msgid "Approved"
 msgstr "Approvato"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3148
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3143
 msgid "All Pending MACs approved"
 msgstr "Tutti i MAC in sospeso approvati"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3603
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3598
 #, fuzzy
 msgid "Virus items removed!"
 msgstr "Virus eliminato"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3609
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3604
 msgid "Host Update Failed"
 msgstr "Aggiornamento Host riuscito"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3631
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3626
 #, fuzzy
 msgid "Host updated!"
 msgstr "Host aggiornato"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3632
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3627
 #, fuzzy
 msgid "Host Update Success"
 msgstr "Installare / Aggiornamento di successo!"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3640
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3635
 #, fuzzy
 msgid "Host Update Fail"
 msgstr "Aggiornamento Host riuscito"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3681
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3676
 msgid "Failed to create new Group"
 msgstr "Impossibile creare un nuovo gruppo"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3685
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3680
 #, fuzzy
 msgid "Successfully added selected hosts to the group!"
 msgstr "Host con successo associati al gruppo "
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3686
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3681
 #, fuzzy
 msgid "Host Add to Group Success"
 msgstr "Installare / Aggiornamento di successo!"
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3693
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3688
 #, fuzzy
 msgid "Host Add to Group Fail"
 msgstr "Aggiungere al gruppo"
