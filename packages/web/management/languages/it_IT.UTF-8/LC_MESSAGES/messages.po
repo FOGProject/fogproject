@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-09 12:40-0400\n"
+"POT-Creation-Date: 2017-08-10 12:36-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -383,7 +383,7 @@ msgid "Array type"
 msgstr "Tipo array"
 
 #: /var/www/fog/lib/fog/fogcontroller.class.php:844
-#: /var/www/fog/lib/fog/fogbase.class.php:2249
+#: /var/www/fog/lib/fog/fogbase.class.php:2254
 #: /var/www/fog/lib/fog/fogftp.class.php:370
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1137
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2802
@@ -557,97 +557,97 @@ msgstr "è richiesto"
 msgid "Class name must be a string"
 msgstr "Il nome della Classe deve essere una stringa"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:587
+#: /var/www/fog/lib/fog/fogbase.class.php:592
 msgid "Invalid Host"
 msgstr "Host non valido"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:845
-#: /var/www/fog/lib/fog/fogbase.class.php:875
+#: /var/www/fog/lib/fog/fogbase.class.php:850
+#: /var/www/fog/lib/fog/fogbase.class.php:880
 msgid "Key must be a string or index"
 msgstr "Chiave deve essere una stringa o un indice"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:899
+#: /var/www/fog/lib/fog/fogbase.class.php:904
 msgid "Key must be an array of keys or a string."
 msgstr "Chiave deve essere un array o una stringa."
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1110
-#: /var/www/fog/lib/fog/fogbase.class.php:1123
+#: /var/www/fog/lib/fog/fogbase.class.php:1115
+#: /var/www/fog/lib/fog/fogbase.class.php:1128
 msgid "No Data"
 msgstr "Nessun dato"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1120
+#: /var/www/fog/lib/fog/fogbase.class.php:1125
 msgid "Not a number"
 msgstr "Non è un numero"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1200
+#: /var/www/fog/lib/fog/fogbase.class.php:1205
 msgid "Space variable must be boolean"
 msgstr "La variabile spazio deve essere boolean"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1225
+#: /var/www/fog/lib/fog/fogbase.class.php:1230
 msgid "Ago must be boolean"
 msgstr "Fa deve essere boolean"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1318
+#: /var/www/fog/lib/fog/fogbase.class.php:1323
 msgid "Diff parameter must be numeric"
 msgstr "Il parametro Diff deve essere numerico"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1321
+#: /var/www/fog/lib/fog/fogbase.class.php:1326
 msgid "Unit of time must be a string"
 msgstr "Unità di tempo deve essere una stringa"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1325
+#: /var/www/fog/lib/fog/fogbase.class.php:1330
 msgid "In"
 msgstr "In"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1328
+#: /var/www/fog/lib/fog/fogbase.class.php:1333
 msgid "ago"
 msgstr "fa"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1356
+#: /var/www/fog/lib/fog/fogbase.class.php:1361
 msgid "Old key must be a string"
 msgstr "Vecchia chiave deve essere una stringa"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1359
+#: /var/www/fog/lib/fog/fogbase.class.php:1364
 msgid "New key must be a string"
 msgstr "Nuova chiave deve essere una stringa"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1574
+#: /var/www/fog/lib/fog/fogbase.class.php:1579
 msgid "Private key path not found"
 msgstr "Percorso chiave privata non trovata"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1590
+#: /var/www/fog/lib/fog/fogbase.class.php:1595
 msgid "Private key not found"
 msgstr "Chiave privata non trovato"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1593
+#: /var/www/fog/lib/fog/fogbase.class.php:1598
 msgid "Private key not readable"
 msgstr "chiave privata non leggibile"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1598
+#: /var/www/fog/lib/fog/fogbase.class.php:1603
 msgid "Private key failed"
 msgstr "Chiave privata non è riuscita"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1617
+#: /var/www/fog/lib/fog/fogbase.class.php:1622
 msgid "Failed to decrypt data"
 msgstr "Impossibile decifrare i dati"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1850
+#: /var/www/fog/lib/fog/fogbase.class.php:1855
 msgid "Txt must be a string"
 msgstr "Txt deve essere una stringa"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1853
+#: /var/www/fog/lib/fog/fogbase.class.php:1858
 msgid "Level must be an integer"
 msgstr "Livello deve essere una stringa"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1881
+#: /var/www/fog/lib/fog/fogbase.class.php:1886
 msgid "String must be a string"
 msgstr "Stringa deve essere una stringa"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2007
+#: /var/www/fog/lib/fog/fogbase.class.php:2012
 msgid "Key must be a string"
 msgstr "Chiave deve essere una stringa"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2251
+#: /var/www/fog/lib/fog/fogbase.class.php:2256
 #: /var/www/fog/lib/fog/fogftp.class.php:372
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3211
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:87
@@ -660,12 +660,12 @@ msgstr "Chiave deve essere una stringa"
 msgid "File"
 msgstr "File"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2253
+#: /var/www/fog/lib/fog/fogbase.class.php:2258
 #: /var/www/fog/lib/fog/fogftp.class.php:374
 msgid "Line"
 msgstr "linea"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2255
+#: /var/www/fog/lib/fog/fogbase.class.php:2260
 #: /var/www/fog/lib/fog/fogftp.class.php:376
 #: /var/www/fog/lib/db/mysql.class.php:189
 msgid "Message"
@@ -844,8 +844,8 @@ msgstr "Nessun nodo associato"
 msgid "Adding FOGPage: %s, Node: %s"
 msgstr "FOGPage Aggiunta: %s , nodo: %s"
 
-#: /var/www/fog/lib/fog/page.class.php:495
-#: /var/www/fog/lib/fog/page.class.php:506
+#: /var/www/fog/lib/fog/page.class.php:496
+#: /var/www/fog/lib/fog/page.class.php:507
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2677
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2705
 #: /var/www/fog/lib/reports/user_tracking.report.php:288
@@ -853,7 +853,7 @@ msgstr "FOGPage Aggiunta: %s , nodo: %s"
 msgid "Logout"
 msgstr "Disconnettersi"
 
-#: /var/www/fog/lib/fog/page.class.php:514
+#: /var/www/fog/lib/fog/page.class.php:515
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2694
 #: /var/www/fog/lib/reports/user_tracking.report.php:289
 #: /var/www/fog/commons/text.php:114
@@ -9019,7 +9019,7 @@ msgstr "Fatto, con l'imaging!"
 
 #: /var/www/fog/lib/reg-task/registration.class.php:425
 #: /var/www/fog/lib/reg-task/registration.class.php:459
-#: /var/www/fog/service/inventory.php:92
+#: /var/www/fog/service/inventory.php:93
 msgid "Done"
 msgstr "Fatto"
 
@@ -10123,7 +10123,7 @@ msgstr "Accettato"
 msgid "There are no snapins on this server"
 msgstr "Non ci sono snapins su questo server"
 
-#: /var/www/fog/service/inventory.php:89
+#: /var/www/fog/service/inventory.php:90
 msgid "Failed to create inventory for this host"
 msgstr "Fallita la creazione dell'inventario per questo host"
 

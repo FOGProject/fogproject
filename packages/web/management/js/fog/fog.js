@@ -10,7 +10,10 @@
 var startTime = new Date().getTime(),
     validatorOpts,
     screenview,
-    callme;
+    callme,
+    lastsub,
+    pauseUpdate,
+    cancelTasks;
 var $_GET = getQueryParams(document.location.search),
     node = $_GET['node'],
     sub = $_GET['sub'],
@@ -1173,22 +1176,20 @@ function buildRow(
  */
 function TableCheck() {
     callme = 'hide';
-    if (typeof LastCount != 'undefined' && LastCount > 0) {
+    if ($('tbody > tr td', Container).length > 1) {
         if (Container.hasClass('noresults')) {
             Container.removeClass('noresults');
         }
         callme = 'show';
     }
-    if ($('tbody > tr', Container).length < 1
-        || Container.hasClass('noresults')
-    ) {
-        callme = 'hide';
-    }
-    $.tablesorter.setFilters(Container, savedFilters, true);
     Container[callme]();
     ActionBox[callme]();
     ActionBoxDel[callme]();
     if (node == 'task' && $.inArray(sub, ['search', 'listhosts', 'listgroups']) < 0) {
+        pauseButton = $('#taskpause');
+        pauseUpdate = pauseButton.parent('p');
+        cancelButton = $('#taskcancel');
+        cancelTasks = cancelButton.parent('p');
         pauseUpdate[callme]();
         cancelTasks[callme]();
     }
@@ -1416,6 +1417,11 @@ function setupParserInfo() {
             };
             break;
     }
+    if (lastsub == sub) {
+        Container.trigger('filterResetSaved');
+    }
+    lastsub = sub;
+    TableCheck();
 }
 /**
  * Table parsing information.
@@ -1456,9 +1462,10 @@ function setupFogTableInformation() {
                 search: 'Search...'
             },
             filter_childRows: false,
-            filter_saveFilters: true
+            filter_saveFilters: true // This is the magic that keeps it in place.
         }
-    }).trigger('filterResetSaved');
+    }).trigger('filterResetSaved'); // This is what resets it for page to page.
+    setTimeout(setupParserInfo, 1000);
 }
 /**
  * Checkbox associations.
