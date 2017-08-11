@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-10 17:31-0400\n"
+"POT-Creation-Date: 2017-08-11 13:27-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -1983,7 +1983,7 @@ msgstr "cron"
 msgid "Delayed"
 msgstr "Ritardato"
 
-#: /var/www/fog/lib/fog/service.class.php:220
+#: /var/www/fog/lib/fog/service.class.php:221
 msgid "Please Select an option"
 msgstr "Per favore selezionate un'opzione"
 

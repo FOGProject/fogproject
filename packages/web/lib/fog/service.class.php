@@ -181,8 +181,9 @@ class Service extends FOGController
      */
     public function remUser($id)
     {
-        self::getClass('UserCleanup', $id)
-            ->destroy();
+        self::getClass('UserCleanupManager')->destroy(
+            array('id' => $id)
+        );
     }
     /**
      * Builds the exit type selectors for us.
