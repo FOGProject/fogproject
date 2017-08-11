@@ -1,6 +1,34 @@
-diff -rupN partclone-0.2.89-original/src/progress.c partclone-0.2.89-new/src/progress.c
---- partclone-0.2.89-original/src/progress.c	2016-06-23 00:14:56.000000000 -0400
-+++ partclone-0.2.89-new/src/progress.c	2017-02-19 02:31:36.143084542 -0500
+diff -rupN partclone-0.2.89_orig/fail-mbr/compile-mbr.sh partclone-0.2.89_new/fail-mbr/compile-mbr.sh
+--- partclone-0.2.89_orig/fail-mbr/compile-mbr.sh	2017-08-10 20:20:27.659003090 -0400
++++ partclone-0.2.89_new/fail-mbr/compile-mbr.sh	2017-08-10 21:05:32.559055136 -0400
+@@ -2,10 +2,10 @@
+ if dpkg-architecture -e amd64 || dpkg-architecture -e i386; then
+    # compile the file fail-mbr.bin
+     echo -n "Compiling: fail-mbr.S -> fail-mbr.o -> "
+-    gcc -Wall -Werror -m32 -nostdlib -o fail-mbr.o fail-mbr.S
++    gcc -no-pie -Wall -Werror -m32 -nostdlib -o fail-mbr.o fail-mbr.S
+ 
+     echo -n "fail-mbr.image -> "
+-    gcc -Os -Wall -W -Wshadow -Wpointer-arith -Wmissing-prototypes -Wundef -Wstrict-prototypes -g -falign-jumps=1 -falign-loops=1 -falign-functions=1 -mno-mmx -mno-sse -mno-sse2 -mno-3dnow -fno-dwarf2-cfi-asm -fno-asynchronous-unwind-tables -m32 -fno-stack-protector -mno-stack-arg-probe -Werror -Wno-trampolines -DUSE_ASCII_FAILBACK=1 -DHAVE_UNIFONT_WIDTHSPEC=1  -mrtd -mregparm=3       -fno-builtin   -m32 -Wl,--build-id=none   -nostdlib -Wl,-N,-S -Wl,-N -Wl,-Ttext,0x7C00   -o fail-mbr.image fail-mbr.o
++    gcc -no-pie -Os -Wall -W -Wshadow -Wpointer-arith -Wmissing-prototypes -Wundef -Wstrict-prototypes -g -falign-jumps=1 -falign-loops=1 -falign-functions=1 -mno-mmx -mno-sse -mno-sse2 -mno-3dnow -fno-dwarf2-cfi-asm -fno-asynchronous-unwind-tables -m32 -fno-stack-protector -mno-stack-arg-probe -Werror -Wno-trampolines -DUSE_ASCII_FAILBACK=1 -DHAVE_UNIFONT_WIDTHSPEC=1  -mrtd -mregparm=3       -fno-builtin   -m32 -Wl,--build-id=none   -nostdlib -Wl,-N,-S -Wl,-N -Wl,-Ttext,0x7C00   -o fail-mbr.image fail-mbr.o
+ 
+     echo "fail-mbr.bin [Done]. "
+     objcopy  -O binary  --strip-unneeded -R .note -R .comment -R .note.gnu.build-id -R .reginfo -R .rel.dyn fail-mbr.image fail-mbr.bin
+diff -rupN partclone-0.2.89_orig/src/hfsplusclone.c partclone-0.2.89_new/src/hfsplusclone.c
+--- partclone-0.2.89_orig/src/hfsplusclone.c	2017-08-10 20:20:27.695004471 -0400
++++ partclone-0.2.89_new/src/hfsplusclone.c	2017-08-10 20:21:39.197749892 -0400
+@@ -130,7 +130,7 @@ extern void readbitmap(char* device, ima
+     UInt32 bused = 0, bfree = 0, mused = 0;
+     UInt32 block = 0, extent_block = 0, tb = 0;
+     int allocation_exten = 0;
+-    UInt32 allocation_start_block;
++    UInt64 allocation_start_block;
+     UInt32 allocation_block_size;
+     int start = 0;
+     int bit_size = 1;
+diff -rupN partclone-0.2.89_orig/src/progress.c partclone-0.2.89_new/src/progress.c
+--- partclone-0.2.89_orig/src/progress.c	2017-08-10 20:20:27.695004471 -0400
++++ partclone-0.2.89_new/src/progress.c	2017-08-10 20:32:48.839446103 -0400
 @@ -182,6 +182,47 @@ static void calculate_speed(struct progr
      strncpy(prog_stat->Rformated, Rformated, sizeof(prog_stat->Rformated));
  }
