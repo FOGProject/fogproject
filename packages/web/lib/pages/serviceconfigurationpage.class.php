@@ -955,7 +955,7 @@ class ServiceConfigurationPage extends FOGPage
                 }
                 break;
             case 'usercleanup':
-                $addUser = filter_input(INPUT_POST, 'usr');
+                $addUser = filter_input(INPUT_POST, 'adduser');
                 if (!empty($addUser)) {
                     $Service->addUser($addUser);
                 }

@@ -17,7 +17,7 @@
     });
 })(jQuery);
 function setTimeoutElement() {
-    $('#deletedc, #updatedc, #updatescreen, #deleteevent, #addevent, #deletecu, button[name="updatestatus"], button[name="updatedefaults"]').each(function(e) {
+    $('#updateuc, #deleteuc, #adddc, #deletedc, #updatedc, #updatescreen, #deleteevent, #addevent, #deletecu, button[name="updatestatus"], button[name="updatedefaults"]').each(function(e) {
         if ($(this).is(':visible')) {
             $(this).on('click', function(e) {
                 form = $(this).parents('form');
