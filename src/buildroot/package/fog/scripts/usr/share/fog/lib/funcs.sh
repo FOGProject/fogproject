@@ -25,7 +25,7 @@ clearScreen() {
 }
 # Displays the nice banner along with the running version
 displayBanner() {
-    version=$(curl -k http://${web}service/getversion.php 2>/dev/null)
+    version=$(curl -Lks http://${web}service/getversion.php 2>/dev/null)
     echo "   =================================="
     echo "   ===        ====    =====      ===="
     echo "   ===  =========  ==  ===   ==   ==="
