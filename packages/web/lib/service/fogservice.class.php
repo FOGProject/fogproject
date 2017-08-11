@@ -587,7 +587,8 @@ abstract class FOGService extends FOGBase
                     );
                 } elseif (is_dir($myAdd)) {
                     $remItem = "$removeDir$removeFile";
-                    $localfilescheck = glob("$myAdd/{,.}*[!.,!..]", GLOB_BRACE);
+                    $path = realpath($myAdd);
+                    $localfilescheck = self::glob_recursive("$path/**{,.}*[!.,!..]", GLOB_BRACE);
                     $remotefilescheck = self::$FOGFTP->rawlist("-a $remItem");
                     $remotefilescheck = array_filter(
                         array_map(
@@ -943,5 +944,28 @@ abstract class FOGService extends FOGBase
         }
         $ar = proc_get_status($procRef);
         return $ar['running'];
+    }
+    /**
+     * Local file glob recursive getter.
+     *
+     * @param $pattern a Pattern for globbing onto.
+     * @param $flags any required flags.
+     */
+    public static function glob_recursive(
+        $pattern,
+        $flags = 0
+    ) {
+        $files = glob($pattern, $flags);
+        foreach (glob(dirname($pattern).'/*', GLOB_ONLYDIR|GLOB_NOSORT) as &$dir) {
+            $files = array_merge(
+                (array)$files,
+                self::glob_recursive(
+                    $dir . '/' . basename($pattern),
+                    $flags
+                )
+            );
+            unset($file);
+        }
+        return $files;
     }
 }

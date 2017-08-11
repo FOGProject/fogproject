@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-11 13:27-0400\n"
+"POT-Creation-Date: 2017-08-11 15:11-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -8988,34 +8988,34 @@ msgstr "|文件或无法达成通道"
 msgid "Cannot connect to"
 msgstr "无法连接到节点。"
 
-#: /var/www/fog/lib/service/fogservice.class.php:669
+#: /var/www/fog/lib/service/fogservice.class.php:670
 msgid "Files do not match"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:675
+#: /var/www/fog/lib/service/fogservice.class.php:676
 #, fuzzy
 msgid "Deleting remote file"
 msgstr "菜单创建失败"
 
-#: /var/www/fog/lib/service/fogservice.class.php:686
+#: /var/www/fog/lib/service/fogservice.class.php:687
 msgid "No need to sync"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:688
+#: /var/www/fog/lib/service/fogservice.class.php:689
 #, fuzzy
 msgid "file to"
 msgstr "失败"
 
-#: /var/www/fog/lib/service/fogservice.class.php:719
+#: /var/www/fog/lib/service/fogservice.class.php:720
 #, fuzzy
 msgid "Starting Sync Actions"
 msgstr "*启动同步操作"
 
-#: /var/www/fog/lib/service/fogservice.class.php:778
+#: /var/www/fog/lib/service/fogservice.class.php:779
 msgid "Started sync for"
 msgstr "对于同步启动"
 
-#: /var/www/fog/lib/service/fogservice.class.php:810
+#: /var/www/fog/lib/service/fogservice.class.php:811
 #, fuzzy
 msgid "Task started"
 msgstr "任务开始"
