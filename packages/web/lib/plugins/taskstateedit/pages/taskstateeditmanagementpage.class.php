@@ -256,7 +256,7 @@ class TaskstateeditManagementPage extends FOGPage
                 )
             );
         } catch (Exception $e) {
-            $hook = 'TAKS_STATE_ADD_FAIL';
+            $hook = 'TASK_STATE_ADD_FAIL';
             $msg = json_encode(
                 array(
                     'error' => $e->getMessage(),
@@ -422,34 +422,66 @@ class TaskstateeditManagementPage extends FOGPage
         self::$HookManager
             ->processEvent(
                 'TASKSTATE_EDIT_POST',
-                array('TaskState' => &$this->obj)
+                array(
+                    'TaskState' => &$this->obj
+                )
             );
+        $name = filter_input(
+            INPUT_POST,
+            'name'
+        );
+        $description = filter_input(
+            INPUT_POST,
+            'description'
+        );
+        $icon = filter_input(
+            INPUT_POST,
+            'icon'
+        );
+        $additional = filter_input(
+            INPUT_POST,
+            'additional'
+        );
+        $iconval = $icon
+            . ' '
+            . $additional;
         try {
-            $name = $_REQUEST['name'];
-            $description = $_REQUEST['description'];
-            $icon = trim("{$_REQUEST['icon']} {$_REQUEST['additional']}");
-            if (!$name) {
-                throw new Exception(_('You must enter a name'));
-            }
             if ($this->obj->get('name') != $name
-                && self::getClass('TaskStateManager')->exists($name)
+                && elf::getClass('TaskStateManager')->exists($name)
             ) {
                 throw new Exception(
-                    _('Task state already exists, please try again.')
+                    _('A task state already exists with this name!')
                 );
             }
             $this->obj
                 ->set('name', $name)
                 ->set('description', $description)
-                ->set('icon', $icon);
+                ->set('icon', $iconval);
             if (!$this->obj->save()) {
-                throw new Exception(_('Failed to update'));
+                throw new Exception(_('Update task state failed!'));
             }
-            self::setMessage('Task State Updated');
-            self::redirect($this->formAction);
+            $hook = 'TASK_STATE_EDIT_SUCCESS';
+            $msg = json_encode(
+                array(
+                    'msg' => _('Task State Updated!'),
+                    'title' => _('Task State Update Success')
+                )
+            );
         } catch (Exception $e) {
-            self::setMessage($e->getMessage());
-            self::redirect($this->formAction);
+            $hook = 'TASK_STATE_EDIT_FAIL';
+            $msg = json_encode(
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('Task State Update Fail')
+                )
+            );
         }
+        self::$HookManager
+            ->processEvent(
+                $hook,
+                array('TaskState' => &$this->obj)
+            );
+        echo $msg;
+        exit;
     }
 }

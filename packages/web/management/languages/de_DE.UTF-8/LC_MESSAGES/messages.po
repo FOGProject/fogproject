@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-11 15:11-0400\n"
+"POT-Creation-Date: 2017-08-13 13:18-0400\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -209,10 +209,10 @@ msgstr "Datensatz wurde nicht gefunden, Fehler: %s"
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:99
 #: /var/www/fog/lib/plugins/fileintegrity/pages/fileintegritymanagementpage.class.php:53
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:429
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:50
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:61
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:141
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:299
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:53
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:64
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:174
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:450
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:53
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:64
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:139
@@ -422,9 +422,9 @@ msgstr "Array mit Daten"
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1137
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2802
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:556
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:55
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:164
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:327
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:58
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:216
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:492
 #: /var/www/fog/lib/reports/imaging_log.report.php:39
 #: /var/www/fog/commons/text.php:119
 msgid "Type"
@@ -1019,7 +1019,6 @@ msgstr "%s ID %s ist nicht gültig"
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1225
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:202
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:346
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:269
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:372
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:74
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:211
@@ -1308,7 +1307,7 @@ msgstr "Speichern Sie die Änderungen"
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:470
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:755
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:243
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:345
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:512
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:594
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:357
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:241
@@ -1807,7 +1806,7 @@ msgstr ""
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1205
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:131
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:417
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:182
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:236
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:244
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:168
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:145
@@ -2392,6 +2391,7 @@ msgstr "Benutzer erstellt"
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:348
 #: /var/www/fog/lib/plugins/location/hooks/addlocationgroup.hook.php:151
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:467
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:509
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:354
 #: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:279
 #, fuzzy
@@ -3187,8 +3187,8 @@ msgstr "Menüpunkt:"
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:75
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:75
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:145
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:145
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:303
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:182
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:458
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:147
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:336
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:69
@@ -4123,8 +4123,8 @@ msgid "IP"
 msgstr "IP"
 
 #: /var/www/fog/lib/pages/serverinfo.class.php:171
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:150
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:313
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:192
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:468
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:44
 #: /var/www/fog/commons/text.php:108
 msgid "Kernel"
@@ -5019,6 +5019,7 @@ msgid "Is Group"
 msgstr "Gruppe ist"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1134
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:44
 msgid "Task Type"
 msgstr "Aufgabentyp"
 
@@ -6770,7 +6771,6 @@ msgstr "Konto bereits verknüpft"
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:683
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1111
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:179
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:247
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:188
 #: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:200
 msgid "Failed to create"
@@ -6815,10 +6815,9 @@ msgid "Checksums"
 msgstr ""
 
 #: /var/www/fog/lib/plugins/fileintegrity/pages/fileintegritymanagementpage.class.php:54
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:51
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:149
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:307
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:311
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:54
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:189
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:465
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:54
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:63
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:154
@@ -7166,8 +7165,6 @@ msgstr "Ein Hostname mit diesem Namen ist bereits vorhanden."
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:530
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:808
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:304
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:416
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:446
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:295
 msgid "Failed to update"
 msgstr "Fehler beim Aktualisieren"
@@ -7482,58 +7479,95 @@ msgstr "Aufgabentypen"
 msgid "Task Types"
 msgstr "Aufgabentypen"
 
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:44
-#, fuzzy
-msgid "Task Typee"
-msgstr "Aufgabentyp"
-
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:62
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:65
 msgid "Access"
 msgstr "Zugang"
 
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:63
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:66
 msgid "Kernel Args"
 msgstr "Kernel Args"
 
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:110
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:113
 msgid "New Task Type"
 msgstr "Neue Task-Typ"
 
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:154
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:317
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:200
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:476
 msgid "Kernel Arguments"
 msgstr "Kernel-Argumente"
 
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:159
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:322
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:208
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:484
 #, fuzzy
 msgid "Init"
 msgstr "In "
 
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:168
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:331
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:224
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:500
 msgid "Is Advanced"
 msgstr "Ist fortgeschritten"
 
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:176
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:339
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:230
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:506
 msgid "Accessed By"
 msgstr "Zugriff durch"
 
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:229
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:396
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:432
-msgid "You must enter a name"
-msgstr "Sie müssen einen Namen eingeben."
-
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:233
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:402
-msgid "Task type already exists, please try again."
-msgstr "Task-Typ bereits vorhanden ist, versuchen Sie es bitte erneut."
+#, fuzzy
+msgid "Create Task type"
+msgstr "Neuen Task-Status"
 
-#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:249
-msgid "Task Type added, editing"
-msgstr "Task-Typ hinzugefügt, bearbeitet"
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:318
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:620
+#, fuzzy
+msgid "A task type already exists with this name!"
+msgstr "Ein Bild mit diesem Namen ist bereits vorhanden!"
+
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:332
+#, fuzzy
+msgid "Add task type failed!"
+msgstr "Fügen Sie Snap-in fehlgeschlagen!"
+
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:337
+#, fuzzy
+msgid "Task Type added!"
+msgstr "Aufgabenstatus hinzugefügt, bearbeitet"
+
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:338
+#, fuzzy
+msgid "Task Type Create Success"
+msgstr "Benutzer erstellt"
+
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:346
+#, fuzzy
+msgid "Task Type Create Fail"
+msgstr "Benutzer erstellt"
+
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:539
+#, fuzzy
+msgid "Task Type General"
+msgstr "Aufgabenstatus"
+
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:634
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:461
+#, fuzzy
+msgid "Update task state failed!"
+msgstr "Fügen Sie Snap-in fehlgeschlagen!"
+
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:639
+#, fuzzy
+msgid "Task Type Updated!"
+msgstr "Aufgabentyp"
+
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:640
+#, fuzzy
+msgid "Task Type Update Success"
+msgstr "Installation / Update erfolgreich!"
+
+#: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:648
+#, fuzzy
+msgid "Task Type Update Fail"
+msgstr "Benutzer-Update fehlgeschlagen"
 
 #: /var/www/fog/lib/plugins/tasktypeedit/config/plugin.config.php:25
 msgid "Allows editing/creating of Task Types fog currently has."
@@ -7864,6 +7898,7 @@ msgid "Create Task state"
 msgstr "Neuen Task-Status"
 
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:237
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:453
 #, fuzzy
 msgid "A task state already exists with this name!"
 msgstr "Ein Bild mit diesem Namen ist bereits vorhanden!"
@@ -7893,9 +7928,20 @@ msgstr "Benutzer erstellt"
 msgid "Task State General"
 msgstr "Aufgabenstatus"
 
-#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:438
-msgid "Task state already exists, please try again."
-msgstr "Aufgabenstatus bereits vorhanden ist, versuchen Sie es bitte erneut."
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:466
+#, fuzzy
+msgid "Task State Updated!"
+msgstr "Aufgabenstatus hinzugefügt, bearbeitet"
+
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:467
+#, fuzzy
+msgid "Task State Update Success"
+msgstr "Benutzer erstellt"
+
+#: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:475
+#, fuzzy
+msgid "Task State Update Fail"
+msgstr "Benutzer erstellt"
 
 #: /var/www/fog/lib/plugins/taskstateedit/config/plugin.config.php:25
 msgid "Allows editing/creating of Task States fog currently has."
@@ -10568,6 +10614,19 @@ msgstr "Hallo Nebel Client"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "Es gibt keine Orte auf diesem Server."
+
+#~ msgid "You must enter a name"
+#~ msgstr "Sie müssen einen Namen eingeben."
+
+#~ msgid "Task type already exists, please try again."
+#~ msgstr "Task-Typ bereits vorhanden ist, versuchen Sie es bitte erneut."
+
+#~ msgid "Task Type added, editing"
+#~ msgstr "Task-Typ hinzugefügt, bearbeitet"
+
+#~ msgid "Task state already exists, please try again."
+#~ msgstr ""
+#~ "Aufgabenstatus bereits vorhanden ist, versuchen Sie es bitte erneut."
 
 #~ msgid "All selected items have been deleted"
 #~ msgstr "Alle ausgewählten Elemente wurden gelöscht"

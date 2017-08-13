@@ -1,5 +1,15 @@
 $(function() {
     checkboxToggleSearchListPages();
+    validatorOpts = {
+        submitHandler: submithandlerfunc,
+        rules: {
+            name: {
+                required: true,
+                minlength: 1
+            }
+        }
+    };
+    setupTimeoutElement('#add, #update', 'input[name="name"]', 1000);
     $('.action-boxes').submit(function() {
         var checked = $('input.toggle-action:checked').parent().is(':visible');
         var taskstateeditIDArray = new Array();
