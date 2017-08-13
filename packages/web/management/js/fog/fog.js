@@ -535,7 +535,7 @@ $.fn.fogVariable = function(opts) {
         }
         var _icon = $(
             '<i class="fa fa-'+icon.element.value.toLowerCase()+' fa-fw">'
-            + text
+            + icon.text
             + '</i>'
         );
         return _icon;
