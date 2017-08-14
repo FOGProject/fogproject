@@ -644,6 +644,7 @@ class ImageManagementPage extends FOGPage
                 )
             );
         array_walk($fields, $this->fieldsToData);
+        unset($fields);
         self::$HookManager
             ->processEvent(
                 'IMAGE_ADD',

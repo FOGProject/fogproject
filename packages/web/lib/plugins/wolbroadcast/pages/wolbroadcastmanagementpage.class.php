@@ -279,7 +279,7 @@ class WOLBroadcastManagementPage extends FOGPage
             . _('Make Changes?')
             . '</label>' => '<button class="btn btn-info btn-block" name="'
             . 'updategen" id="updategen" type="submit">'
-            . _('Create')
+            . _('Update')
             . '</button>'
         );
         array_walk($fields, $this->fieldsToData);
