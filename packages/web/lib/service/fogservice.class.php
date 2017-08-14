@@ -733,7 +733,7 @@ abstract class FOGService extends FOGBase
                 );
                 $cmd = "lftp -e 'set xfer:log 1; set xfer:log-file $logname;";
                 $cmd .= "set ftp:list-options -a;set net:max-retries ";
-                $cmd .= "10;set net:timeout 30; $limit mirror -c --parallel=20";
+                $cmd .= "10;set net:timeout 30; $limit mirror -c --parallel=20 ";
                 $cmd .= "$opts ";
                 if (!empty($includeFile)) {
                     $includeFile = escapeshellarg($includeFile);
