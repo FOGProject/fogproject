@@ -1226,11 +1226,6 @@ class Host extends FOGController
         $Task = false
     ) {
         try {
-            if (count($this->get('snapins')) < 1) {
-                throw new Exception(
-                    _('No snapins associated with this host')
-                );
-            }
             $SnapinJob = $this->get('snapinjob');
             if (!$SnapinJob->isValid()) {
                 $SnapinJob

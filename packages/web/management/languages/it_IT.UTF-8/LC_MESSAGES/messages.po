@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-14 10:57-0400\n"
+"POT-Creation-Date: 2017-08-14 12:01-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -383,7 +383,7 @@ msgid "Array type"
 msgstr "Tipo array"
 
 #: /var/www/fog/lib/fog/fogcontroller.class.php:844
-#: /var/www/fog/lib/fog/fogbase.class.php:2254
+#: /var/www/fog/lib/fog/fogbase.class.php:2258
 #: /var/www/fog/lib/fog/fogftp.class.php:370
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1137
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2802
@@ -463,8 +463,8 @@ msgid "No hosts available to task"
 msgstr "Nessun host disponibile"
 
 #: /var/www/fog/lib/fog/group.class.php:493
-#: /var/www/fog/lib/fog/host.class.php:1362
-#: /var/www/fog/lib/fog/host.class.php:1546
+#: /var/www/fog/lib/fog/host.class.php:1357
+#: /var/www/fog/lib/fog/host.class.php:1541
 msgid "Image is not enabled"
 msgstr "L'immagine non è abilitato"
 
@@ -570,84 +570,84 @@ msgstr "Chiave deve essere una stringa o un indice"
 msgid "Key must be an array of keys or a string."
 msgstr "Chiave deve essere un array o una stringa."
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1115
-#: /var/www/fog/lib/fog/fogbase.class.php:1128
+#: /var/www/fog/lib/fog/fogbase.class.php:1119
+#: /var/www/fog/lib/fog/fogbase.class.php:1132
 msgid "No Data"
 msgstr "Nessun dato"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1125
+#: /var/www/fog/lib/fog/fogbase.class.php:1129
 msgid "Not a number"
 msgstr "Non è un numero"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1205
+#: /var/www/fog/lib/fog/fogbase.class.php:1209
 msgid "Space variable must be boolean"
 msgstr "La variabile spazio deve essere boolean"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1230
+#: /var/www/fog/lib/fog/fogbase.class.php:1234
 msgid "Ago must be boolean"
 msgstr "Fa deve essere boolean"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1323
+#: /var/www/fog/lib/fog/fogbase.class.php:1327
 msgid "Diff parameter must be numeric"
 msgstr "Il parametro Diff deve essere numerico"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1326
+#: /var/www/fog/lib/fog/fogbase.class.php:1330
 msgid "Unit of time must be a string"
 msgstr "Unità di tempo deve essere una stringa"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1330
+#: /var/www/fog/lib/fog/fogbase.class.php:1334
 msgid "In"
 msgstr "In"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1333
+#: /var/www/fog/lib/fog/fogbase.class.php:1337
 msgid "ago"
 msgstr "fa"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1361
+#: /var/www/fog/lib/fog/fogbase.class.php:1365
 msgid "Old key must be a string"
 msgstr "Vecchia chiave deve essere una stringa"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1364
+#: /var/www/fog/lib/fog/fogbase.class.php:1368
 msgid "New key must be a string"
 msgstr "Nuova chiave deve essere una stringa"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1579
+#: /var/www/fog/lib/fog/fogbase.class.php:1583
 msgid "Private key path not found"
 msgstr "Percorso chiave privata non trovata"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1595
+#: /var/www/fog/lib/fog/fogbase.class.php:1599
 msgid "Private key not found"
 msgstr "Chiave privata non trovato"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1598
+#: /var/www/fog/lib/fog/fogbase.class.php:1602
 msgid "Private key not readable"
 msgstr "chiave privata non leggibile"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1603
+#: /var/www/fog/lib/fog/fogbase.class.php:1607
 msgid "Private key failed"
 msgstr "Chiave privata non è riuscita"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1622
+#: /var/www/fog/lib/fog/fogbase.class.php:1626
 msgid "Failed to decrypt data"
 msgstr "Impossibile decifrare i dati"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1855
+#: /var/www/fog/lib/fog/fogbase.class.php:1859
 msgid "Txt must be a string"
 msgstr "Txt deve essere una stringa"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1858
+#: /var/www/fog/lib/fog/fogbase.class.php:1862
 msgid "Level must be an integer"
 msgstr "Livello deve essere una stringa"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1886
+#: /var/www/fog/lib/fog/fogbase.class.php:1890
 msgid "String must be a string"
 msgstr "Stringa deve essere una stringa"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2012
+#: /var/www/fog/lib/fog/fogbase.class.php:2016
 msgid "Key must be a string"
 msgstr "Chiave deve essere una stringa"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2256
+#: /var/www/fog/lib/fog/fogbase.class.php:2260
 #: /var/www/fog/lib/fog/fogftp.class.php:372
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3211
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:87
@@ -660,12 +660,12 @@ msgstr "Chiave deve essere una stringa"
 msgid "File"
 msgstr "File"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2258
+#: /var/www/fog/lib/fog/fogbase.class.php:2262
 #: /var/www/fog/lib/fog/fogftp.class.php:374
 msgid "Line"
 msgstr "linea"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2260
+#: /var/www/fog/lib/fog/fogbase.class.php:2264
 #: /var/www/fog/lib/fog/fogftp.class.php:376
 #: /var/www/fog/lib/db/mysql.class.php:189
 msgid "Message"
@@ -687,40 +687,36 @@ msgstr "Non è possibile aggiungere un MAC primario preesistente"
 msgid "Cancelled due to new tasking."
 msgstr "Annullato a causa della nuova tasking."
 
-#: /var/www/fog/lib/fog/host.class.php:1231
-msgid "No snapins associated with this host"
-msgstr "Non ci sono snapins associati con questo host"
-
-#: /var/www/fog/lib/fog/host.class.php:1245
+#: /var/www/fog/lib/fog/host.class.php:1240
 msgid "Failed to create Snapin Job"
 msgstr "Impossibile creare Snapin lavoro"
 
-#: /var/www/fog/lib/fog/host.class.php:1376
+#: /var/www/fog/lib/fog/host.class.php:1371
 msgid "Could not find any"
 msgstr "Impossibile trovare"
 
-#: /var/www/fog/lib/fog/host.class.php:1377
+#: /var/www/fog/lib/fog/host.class.php:1372
 msgid "nodes containing this image"
 msgstr "nodi che contengono questa immagine"
 
-#: /var/www/fog/lib/fog/host.class.php:1543
+#: /var/www/fog/lib/fog/host.class.php:1538
 msgid "No valid Image defined for this host"
 msgstr "Nessuna Imagine valida definita per questo host"
 
-#: /var/www/fog/lib/fog/host.class.php:1694
+#: /var/www/fog/lib/fog/host.class.php:1689
 msgid "No viable macs to use"
 msgstr "Nessun MAC valido da usare"
 
-#: /var/www/fog/lib/fog/host.class.php:1761
+#: /var/www/fog/lib/fog/host.class.php:1756
 #: /var/www/fog/lib/service/snapinhash.class.php:171
 msgid "snapin"
 msgstr "snapin"
 
-#: /var/www/fog/lib/fog/host.class.php:1763
+#: /var/www/fog/lib/fog/host.class.php:1758
 msgid "per host"
 msgstr "per host"
 
-#: /var/www/fog/lib/fog/host.class.php:1768
+#: /var/www/fog/lib/fog/host.class.php:1763
 msgid "You are only allowed to assign"
 msgstr "È consentito soltanto per assegnare"
 
@@ -10198,6 +10194,9 @@ msgstr "Ciao FOG client"
 #: /var/www/fog/service/locationlisting.php:28
 msgid "There are no locations on this server"
 msgstr "Non ci sono posizioni su questo server"
+
+#~ msgid "No snapins associated with this host"
+#~ msgstr "Non ci sono snapins associati con questo host"
 
 #~ msgid "You must enter a name"
 #~ msgstr "È necessario inserire un nome"

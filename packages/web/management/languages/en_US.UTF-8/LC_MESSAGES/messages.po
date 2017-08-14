@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-14 10:57-0400\n"
+"POT-Creation-Date: 2017-08-14 12:01-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -416,7 +416,7 @@ msgid "Array type"
 msgstr "Array of data"
 
 #: /var/www/fog/lib/fog/fogcontroller.class.php:844
-#: /var/www/fog/lib/fog/fogbase.class.php:2254
+#: /var/www/fog/lib/fog/fogbase.class.php:2258
 #: /var/www/fog/lib/fog/fogftp.class.php:370
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1137
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2802
@@ -500,8 +500,8 @@ msgid "No hosts available to task"
 msgstr "Hosts in Task"
 
 #: /var/www/fog/lib/fog/group.class.php:493
-#: /var/www/fog/lib/fog/host.class.php:1362
-#: /var/www/fog/lib/fog/host.class.php:1546
+#: /var/www/fog/lib/fog/host.class.php:1357
+#: /var/www/fog/lib/fog/host.class.php:1541
 msgid "Image is not enabled"
 msgstr "Image is not enabled"
 
@@ -625,93 +625,93 @@ msgstr "Event must be a string"
 msgid "Key must be an array of keys or a string."
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1115
-#: /var/www/fog/lib/fog/fogbase.class.php:1128
+#: /var/www/fog/lib/fog/fogbase.class.php:1119
+#: /var/www/fog/lib/fog/fogbase.class.php:1132
 msgid "No Data"
 msgstr "No Data"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1125
+#: /var/www/fog/lib/fog/fogbase.class.php:1129
 msgid "Not a number"
 msgstr "Not a number"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1205
+#: /var/www/fog/lib/fog/fogbase.class.php:1209
 msgid "Space variable must be boolean"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1230
+#: /var/www/fog/lib/fog/fogbase.class.php:1234
 msgid "Ago must be boolean"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1323
+#: /var/www/fog/lib/fog/fogbase.class.php:1327
 msgid "Diff parameter must be numeric"
 msgstr ""
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1326
+#: /var/www/fog/lib/fog/fogbase.class.php:1330
 #, fuzzy
 msgid "Unit of time must be a string"
 msgstr "Event must be a string"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1330
+#: /var/www/fog/lib/fog/fogbase.class.php:1334
 #, fuzzy
 msgid "In"
 msgstr "In "
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1333
+#: /var/www/fog/lib/fog/fogbase.class.php:1337
 #, fuzzy
 msgid "ago"
 msgstr " ago"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1361
+#: /var/www/fog/lib/fog/fogbase.class.php:1365
 #, fuzzy
 msgid "Old key must be a string"
 msgstr "Event must be a string"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1364
+#: /var/www/fog/lib/fog/fogbase.class.php:1368
 #, fuzzy
 msgid "New key must be a string"
 msgstr "Event must be a string"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1579
+#: /var/www/fog/lib/fog/fogbase.class.php:1583
 msgid "Private key path not found"
 msgstr "Private key path not found"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1595
+#: /var/www/fog/lib/fog/fogbase.class.php:1599
 msgid "Private key not found"
 msgstr "Private key not found"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1598
+#: /var/www/fog/lib/fog/fogbase.class.php:1602
 msgid "Private key not readable"
 msgstr "Private key not readable"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1603
+#: /var/www/fog/lib/fog/fogbase.class.php:1607
 msgid "Private key failed"
 msgstr "Private key failed"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1622
+#: /var/www/fog/lib/fog/fogbase.class.php:1626
 msgid "Failed to decrypt data"
 msgstr "Failed to decrypt data"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1855
+#: /var/www/fog/lib/fog/fogbase.class.php:1859
 #, fuzzy
 msgid "Txt must be a string"
 msgstr "Event must be a string"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1858
+#: /var/www/fog/lib/fog/fogbase.class.php:1862
 #, fuzzy
 msgid "Level must be an integer"
 msgstr "Event must be a string"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:1886
+#: /var/www/fog/lib/fog/fogbase.class.php:1890
 #, fuzzy
 msgid "String must be a string"
 msgstr "Event must be a string"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2012
+#: /var/www/fog/lib/fog/fogbase.class.php:2016
 #, fuzzy
 msgid "Key must be a string"
 msgstr "Event must be a string"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2256
+#: /var/www/fog/lib/fog/fogbase.class.php:2260
 #: /var/www/fog/lib/fog/fogftp.class.php:372
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3211
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:87
@@ -724,12 +724,12 @@ msgstr "Event must be a string"
 msgid "File"
 msgstr "File"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2258
+#: /var/www/fog/lib/fog/fogbase.class.php:2262
 #: /var/www/fog/lib/fog/fogftp.class.php:374
 msgid "Line"
 msgstr "Line"
 
-#: /var/www/fog/lib/fog/fogbase.class.php:2260
+#: /var/www/fog/lib/fog/fogbase.class.php:2264
 #: /var/www/fog/lib/fog/fogftp.class.php:376
 #: /var/www/fog/lib/db/mysql.class.php:189
 msgid "Message"
@@ -752,47 +752,42 @@ msgstr "Cannot add a pre-existing Primary MAC as a pending MAC"
 msgid "Cancelled due to new tasking."
 msgstr "Cancelled due to new tasking."
 
-#: /var/www/fog/lib/fog/host.class.php:1231
-#, fuzzy
-msgid "No snapins associated with this host"
-msgstr "There are no snapins associated with this host"
-
-#: /var/www/fog/lib/fog/host.class.php:1245
+#: /var/www/fog/lib/fog/host.class.php:1240
 msgid "Failed to create Snapin Job"
 msgstr "Failed to create Snapin Job"
 
-#: /var/www/fog/lib/fog/host.class.php:1376
+#: /var/www/fog/lib/fog/host.class.php:1371
 #, fuzzy
 msgid "Could not find any"
 msgstr "Could not find temp filename"
 
-#: /var/www/fog/lib/fog/host.class.php:1377
+#: /var/www/fog/lib/fog/host.class.php:1372
 #, fuzzy
 msgid "nodes containing this image"
 msgstr "Could not find any nodes containing this image"
 
-#: /var/www/fog/lib/fog/host.class.php:1543
+#: /var/www/fog/lib/fog/host.class.php:1538
 #, fuzzy
 msgid "No valid Image defined for this host"
 msgstr "No Image defined for this host"
 
-#: /var/www/fog/lib/fog/host.class.php:1694
+#: /var/www/fog/lib/fog/host.class.php:1689
 #, fuzzy
 msgid "No viable macs to use"
 msgstr "Not able to update"
 
-#: /var/www/fog/lib/fog/host.class.php:1761
+#: /var/www/fog/lib/fog/host.class.php:1756
 #: /var/www/fog/lib/service/snapinhash.class.php:171
 #, fuzzy
 msgid "snapin"
 msgstr "Snapin"
 
-#: /var/www/fog/lib/fog/host.class.php:1763
+#: /var/www/fog/lib/fog/host.class.php:1758
 #, fuzzy
 msgid "per host"
 msgstr "snapin per host"
 
-#: /var/www/fog/lib/fog/host.class.php:1768
+#: /var/www/fog/lib/fog/host.class.php:1763
 msgid "You are only allowed to assign"
 msgstr "You are only allowed to assign"
 
@@ -10585,6 +10580,10 @@ msgstr "Hello FOG Client"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "There are no locations on this server."
+
+#, fuzzy
+#~ msgid "No snapins associated with this host"
+#~ msgstr "There are no snapins associated with this host"
 
 #~ msgid "You must enter a name"
 #~ msgstr "You must enter a name"
