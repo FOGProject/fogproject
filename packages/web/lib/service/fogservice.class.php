@@ -588,24 +588,11 @@ abstract class FOGService extends FOGBase
                 } elseif (is_dir($myAdd)) {
                     $remItem = "$removeDir$removeFile";
                     $path = realpath($myAdd);
-                    $localfilescheck = self::glob_recursive("$path/**{,.}*[!.,!..]", GLOB_BRACE);
-                    $remotefilescheck = self::$FOGFTP->rawlist("-a $remItem");
-                    $remotefilescheck = array_filter(
-                        array_map(
-                            function ($item) use ($remItem) {
-                                $item = array_values(
-                                    array_filter(
-                                        preg_split("#[\s]#", $item)
-                                    )
-                                );
-                                if (in_array($item[8], array('.', '..'))) {
-                                    return false;
-                                }
-                                return "${remItem}/${item[8]}";
-                            },
-                            $remotefilescheck
-                        )
+                    $localfilescheck = self::globrecursive(
+                        "$path/**{,.}*[!.,!..]",
+                        GLOB_BRACE
                     );
+                    $remotefilescheck = self::$FOGFTP->listrecursive($remItem);
                     $opts = '-R';
                     $includeFile = '';
                     if (!$myAddItem) {
@@ -746,7 +733,7 @@ abstract class FOGService extends FOGBase
                 );
                 $cmd = "lftp -e 'set xfer:log 1; set xfer:log-file $logname;";
                 $cmd .= "set ftp:list-options -a;set net:max-retries ";
-                $cmd .= "10;set net:timeout 30; $limit mirror -c -r ";
+                $cmd .= "10;set net:timeout 30; $limit mirror -c --parallel=20";
                 $cmd .= "$opts ";
                 if (!empty($includeFile)) {
                     $includeFile = escapeshellarg($includeFile);
@@ -948,10 +935,12 @@ abstract class FOGService extends FOGBase
     /**
      * Local file glob recursive getter.
      *
-     * @param $pattern a Pattern for globbing onto.
-     * @param $flags any required flags.
+     * @param string $pattern a Pattern for globbing onto.
+     * @param mixed  $flags   any required flags.
+     *
+     * @return array
      */
-    public static function glob_recursive(
+    public static function globrecursive(
         $pattern,
         $flags = 0
     ) {
@@ -959,7 +948,7 @@ abstract class FOGService extends FOGBase
         foreach (glob(dirname($pattern).'/*', GLOB_ONLYDIR|GLOB_NOSORT) as &$dir) {
             $files = array_merge(
                 (array)$files,
-                self::glob_recursive(
+                self::globrecursive(
                     $dir . '/' . basename($pattern),
                     $flags
                 )
