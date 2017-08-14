@@ -623,7 +623,7 @@ abstract class FOGService extends FOGBase
                         $url,
                         'POST',
                         array(
-                            'file' => $file
+                            'file' => base64_encode($file)
                         )
                     );
                     $res = array_shift($res);
@@ -645,10 +645,10 @@ abstract class FOGService extends FOGBase
                         self::outall(
                             sprintf(
                                 ' | %s %s %s %s',
-                                $filesize_main,
-                                $filesize_rem,
-                                $localfile,
-                                $res
+                                trim($filesize_main),
+                                trim($filesize_rem),
+                                trim($localfile),
+                                trim($res)
                             )
                         );
                         self::outall(
