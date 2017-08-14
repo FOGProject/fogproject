@@ -630,7 +630,7 @@ class LDAPManagementPage extends FOGPage
             filter_input(
                 INPUT_POST,
                 'bindPwd'
-            ) ?: self::aesdecrypt($this->obj->get('bindPwd'))
+            ) ?: $this->obj->get('bindPwd')
         );
         $searchScopes = array(
             _('Base Only'),

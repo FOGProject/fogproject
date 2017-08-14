@@ -22,7 +22,7 @@ var $_GET = getQueryParams(document.location.search),
     id = $_GET['id'],
     tab = $_GET['tab'],
     AJAXTaskForceRequest,
-    Container = $('.table-holder .table'),
+    Container = $('.table-holder .table-responsive'),
     savedFilters,
     headParser = {
         0: {
@@ -1437,8 +1437,16 @@ function setupFogTableInformation() {
     if ($('tbody', Container).length < 1) {
         Container.hide();
     }
+    $.tablesorter.themes.bootstrap = {
+        table: 'table table-bordered table-striped table-responsive',
+        header: 'bootstrap-header',
+        iconSortNone: 'bootstrap-icon-unsorted',
+        iconSortAsc: 'fa fa-chevron-up',
+        iconSortDesc: 'fa fa-chevron-down'
+    };
     Container.tablesorter({
         headers: headParser,
+        headerTemplate: '{content} {icon}',
         theme: 'bootstrap',
         widgets: [
             "uitheme",
