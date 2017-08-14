@@ -69,7 +69,7 @@ class LocationManagementPage extends FOGPage
         }
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class='
-            . '"toggle-checkboxAction" checked/>',
+            . '"toggle-checkboxAction"/>',
             _('Location Name'),
             _('Storage Group'),
             _('Storage Node'),
@@ -78,7 +78,11 @@ class LocationManagementPage extends FOGPage
         $this->templates = array(
             '<input type="checkbox" name="location[]" value='
             . '"${id}" class="toggle-action" checked/>',
-            '<a href="?node=location&sub=edit&id=${id}" title="Edit">${name}</a>',
+            '<a href="?node=location&sub=edit&id=${id}" data-toggle="tooltip" '
+            . 'data-placement="right" title="'
+            . _('Edit')
+            . ' '
+            . '${name}">${name}</a>',
             '${storageGroup}',
             '${storageNode}',
             '${tftp}',

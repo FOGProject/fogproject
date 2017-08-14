@@ -42,14 +42,15 @@ class LDAPManagementPage extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'LDAP Management';
+        $this->name = _('LDAP Management');
         self::$foglang['ExportLdap'] = _('Export LDAPs');
         self::$foglang['ImportLdap'] = _('Import LDAPs');
         parent::__construct($name);
         global $id;
+        global $sub;
         if ($id) {
             $this->subMenu = array(
-                "$this->linkformat" => self::$foglang['General'],
+                "$this->linkformat#ldap-gen" => self::$foglang['General'],
                 "$this->delformat" => self::$foglang['Delete'],
             );
             $this->notes = array(
@@ -69,14 +70,21 @@ class LDAPManagementPage extends FOGPage
         $this->templates = array(
             '<input type="checkbox" name="ldap[]" value="${id}" '
             . 'class="toggle-action"/>',
-            '<a href="?node=ldap&sub=edit&id=${id}" title="Edit">${name}</a>',
+            '<a href="?node=ldap&sub=edit&id=${id}" data-toggle="tooltip" '
+            . 'data-placement="right" title="'
+            . _('Edit')
+            . ' '
+            . '${name}">${name}</a>',
             '${description}',
             '${address}',
             '${port}',
             '${adminGroup}',
         );
         $this->attributes = array(
-            array('class' => 'filter-false','width' => 16),
+            array(
+                'class' => 'filter-false',
+                'width' => 16
+            ),
             array(),
             array(),
             array(),
@@ -118,152 +126,254 @@ class LDAPManagementPage extends FOGPage
      */
     public function add()
     {
-        $this->title = _('New LDAP Server');
-        unset($this->headerData);
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->attributes,
+            $this->templates
         );
+        $this->title = _('New LDAP Server');
         $this->templates = array(
             '${field}',
             '${input}',
         );
+        $this->attributes = array(
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
+        );
+        $name = filter_input(
+            INPUT_POST,
+            'name'
+        );
+        $description = filter_input(
+            INPUT_POST,
+            'description'
+        );
+        $address = filter_input(
+            INPUT_POST,
+            'address'
+        );
+        $port = filter_input(
+            INPUT_POST,
+            'port'
+        );
+        $searchDN = filter_input(
+            INPUT_POST,
+            'searchDN'
+        );
+        $grpSearchDN = filter_input(
+            INPUT_POST,
+            'grpSearchDN'
+        );
+        $adminGroup = filter_input(
+            INPUT_POST,
+            'adminGroup'
+        );
+        $userGroup = filter_input(
+            INPUT_POST,
+            'userGroup'
+        );
+        $userNamAttr = filter_input(
+            INPUT_POST,
+            'userNamAttr'
+        );
+        $grpMemberAttr = filter_input(
+            INPUT_POST,
+            'grpMemberAttr'
+        );
+        $searchScope = filter_input(
+            INPUT_POST,
+            'searchScope'
+        );
+        $bindDN = filter_input(
+            INPUT_POST,
+            'bindDN'
+        );
+        $bindPwd = filter_input(
+            INPUT_POST,
+            'bindPwd'
+        );
+        $searchScopes = array(
+            _('Base Only'),
+            _('Subtree Only'),
+            _('Subree and Below')
+        );
+        $searchSel = self::selectForm(
+            'searchScope',
+            $searchScopes,
+            $searchScope,
+            true
+        );
+        $ports = array(389, 636);
+        $portssel = self::selectForm(
+            'port',
+            $ports,
+            $port
+        );
+        $useGroupMatch = isset($_POST['useGroupMatch']);
+        $useMatch = (
+            $useGroupMatch ?
+            ' checked' :
+            ''
+        );
         $fields = array(
-            _('LDAP Connection Name') => '<input class="smaller" type="text" '
-            . sprintf(
-                'id="name" name="name" value="%s"/>',
-                $_REQUEST['name']
-            ),
-            _('LDAP Server Description') => '<textarea name="description">'
-            . $_REQUEST['description'] . '</textarea>',
-            _('LDAP Server Address') => '<input class="smaller" type="text" '
-            . sprintf(
-                'id="address" name="address" value="%s"/>',
-                $_REQUEST['address']
-            ),
-            _('LDAP Server Port') => '<select id="port" name="port">'
-            . sprintf(
-                '<option value="">- %s -</option>',
-                self::$foglang['PleaseSelect']
-            )
-            . sprintf(
-                '<option value="389"%s>389</option>',
-                $_REQUEST['port'] == 389 ? ' selected' : ''
-            )
-            . sprintf(
-                '<option value="636"%s>636</option>',
-                $_REQUEST['port'] == 636 ? ' selected' : ''
-            )
+            '<label for="name">'
+            . _('LDAP Connection Name')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" id="name" name="name" '
+            . 'value="'
+            . $name
+            . '" required/>'
+            . '</div>',
+            '<label for="desc">'
+            . _('LDAP Server Description')
+            . '</label>' => '<div class="input-group">'
+            . '<textarea name="description" class="form-control" id="desc">'
+            . $description
+            . '</textarea>'
+            . '</div>',
+            '<label for="address">'
+            . _('LDAP Server Address')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" id="address" name="address" '
+            . 'value="'
+            . $address
+            . '" required/>'
+            . '</div>',
+            '<label for="port">'
+            . _('LDAP Server Port')
+            . '</label>' => $portssel,
+            '<label for="groupmatch">'
+            . _('Use Group Matching (recommended)')
+            . '</label>' => '<input type="checkbox" '
+            . 'name="useGroupMatch" id="groupmatch" checked/>',
+            '<label for="searchDN">'
+            . _('Search Base DN')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" id="searchDN" name='
+            . '"searchDN" value="'
+            . $searchDN
+            . '" required/>'
+            . '</div>',
+            '<label for="grpSearchDN">'
+            . _('Group Search DN')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" id="grpSearchDN" name='
+            . '"grpSearchDN" value="'
+            . $grpSearchDN
+            . '"/>'
+            . '</div>',
+            '<label for="adminGroup">'
+            . _('Admin Group')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" id="adminGroup" name='
+            . '"adminGroup" value="'
+            . $adminGroup
+            . '"/>'
+            . '</div>',
+            '<label for="userGroup">'
+            . _('Mobile Group')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" id="userGroup" name='
+            . '"userGroup" value="'
+            . $userGroup
+            . '"/>'
+            . '</div>',
+            '<label for="inittemplate">'
+            . _('Initial Template')
+            . '</label>' => '<select class="smaller" id="inittemplate">'
+            . '<option value="pick" selected>'
+            . _('Pick a template')
+            . '</option>'
+            . '<option value="msad">'
+            . _('Microsoft AD')
+            . '</option>'
+            . '<option value="open">'
+            . _('OpenLDAP')
+            . '</option>'
+            . '<option value="edir">'
+            . _('Generic LDAP')
+            . '</option>'
             . '</select>',
-            _('Use Group Matching (recommended)') => '<select id="useGroupMatch" '
-            . 'name="useGroupMatch">'
-            . sprintf(
-                '<option value="0"%s>%s</option>',
-                isset($_REQUEST['useGroupMatch'])
-                && $_REQUEST['useGroupMatch'] < 1 ? ' selected' : '',
-                _('No')
-            )
-            . sprintf(
-                '<option value="1"%s>%s</option>',
-                !isset($_REQUEST['useGroupMatch'])
-                || $_REQUEST['useGroupMatch'] > 0 ? ' selected' : '',
-                _('Yes')
-            )
-            . '</select>',
-            _('Search Base DN') => '<input class="smaller" type="text" '
-            . sprintf(
-                'id="searchDN" name="searchDN" value="%s"/>',
-                $_REQUEST['searchDN']
-            ),
-            _('Group Search DN') => '<input class="smaller" type="text" '
-            . sprintf(
-                'id="grpSearchDN" name="grpSearchDN" value="%s"/>',
-                $_REQUEST['grpSearchDN']
-            ),
-            _('Admin Group') => '<input class="smaller" type="text" '
-            . sprintf(
-                'id="adminGroup" name="adminGroup" value="%s"/>',
-                $_REQUEST['adminGroup']
-            ),
-            _('Mobile Group') => '<input class="smaller" type="text" '
-            . sprintf(
-                'id="userGroup" name="userGroup" value="%s"/>',
-                $_REQUEST['userGroup']
-            ),
-            _('Initial Template') => '<select class="smaller" '
-            . 'id="inittemplate">'
-            . '<option value="pick" selected >Pick a template</option>'
-            . '<option value="msad">Microsoft AD</option>'
-            . '<option value="open">OpenLDAP</option>'
-            . '<option value="edir">Generic LDAP</option>'
-            .  '</select>',
-            _('User Name Attribute') => '<input class="smaller" type="text" '
-            . sprintf(
-                'id="userNamAttr" name="userNamAttr" value="%s"/>',
-                $_REQUEST['userNameAttr']
-            ),
-            _('Group Member Attribute') => '<input class="smaller" type="text" '
-            . sprintf(
-                'id="grpMemberAttr" name="grpMemberAttr" value="%s"/>',
-                $_REQUEST['grpMemberAttr']
-            ),
-            _('Search Scope') => '<select id="searchScope" name="searchScope">'
-            . sprintf(
-                '<option value="">- %s -</option>',
-                self::$foglang['PleaseSelect']
-            )
-            . sprintf(
-                '<option value="0"%s>%s</option>',
-                isset($_REQUEST['searchScope'])
-                && $_REQUEST['searchScope'] == 0 ? ' selected' : '',
-                _('Base only')
-            )
-            . sprintf(
-                '<option value="1"%s>%s</option>',
-                $_REQUEST['searchScope'] == 1 ? ' selected' : '',
-                _('Subtree Only')
-            )
-            . sprintf(
-                '<option value="1"%s>%s</option>',
-                $_REQUEST['searchScope'] == 2 ? ' selected' : '',
-                _('Subtree and below')
-            )
-            . '</select>',
-            _('Bind DN') => '<input class="smaller" type="text" '
-            . sprintf(
-                'id="bindDN" name="bindDN" value="%s"/>',
-                $_REQUEST['bindDN']
-            ),
-            _('Bind Password') => '<input class="smaller" type="password" '
-            . sprintf(
-                'id="bindPwd" name="bindPwd" value="%s"/>',
-                $_REQUEST['bindPwd']
-            ),
-            '&nbsp;' => sprintf(
-                '<input class="smaller" name="add" type="submit" value="%s"/>',
-                _('Add')
-            ),
+            '<label for="userNamAttr">'
+            . _('User Name Attribute')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" id="userNamAttr" name='
+            . '"userNamAttr" value="'
+            . $userNamAttr
+            . '" required/>'
+            . '</div>',
+            '<label for="grpMemberAttr">'
+            . _('Group Member Attribute')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" id="grpMemberAttr" name='
+            . '"grpMemberAttr" value="'
+            . $grpMemberAttr
+            . '"/>'
+            . '</div>',
+            '<label for="searchScope">'
+            . _('Search Scope')
+            . '</label>' => $searchSel,
+            '<label for="bindDN">'
+            . _('Bind DN')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" id="bindDN" name="bindDN" '
+            . 'value="'
+            . $bindDN
+            . '"/>'
+            . '</div>',
+            '<label for="bindPwd">'
+            . _('Bind Password')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="password" id="bindPwd" name='
+            . '"bindPwd" value="'
+            . $bindPwd
+            . '"/>'
+            . '</div>',
+            '<label for="add">'
+            . _('Create New LDAP')
+            . '</label>' => '<button type="submit" name="add" id="add" '
+            . 'class="btn btn-info btn-block">'
+            . _('Create')
+            . '</button>'
         );
-        foreach ((array)$fields as $field => &$input) {
-            $this->data[] = array(
-                'field' => $field,
-                'input' => $input,
+        self::$HookManager
+            ->processEvent(
+                'LDAP_FIELDS',
+                array(
+                    'fields' => &$fields,
+                    'LDAP' => self::getClass('LDAP')
+                )
             );
-            unset($input);
-        }
+        array_walk($fields, $this->fieldsToData);
         unset($fields);
-        self::$HookManager->processEvent(
-            'LDAP_ADD',
-            array(
-                'headerData' => &$this->headerData,
-                'data' => &$this->data,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
-            )
-        );
-        printf('<form method="post" action="%s">', $this->formAction);
-        $this->render();
+        self::$HookManager
+            ->processEvent(
+                'LDAP_ADD',
+                array(
+                    'headerData' => &$this->headerData,
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes
+                )
+            );
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
+        $this->render(12);
         echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Create the new item
@@ -272,27 +382,67 @@ class LDAPManagementPage extends FOGPage
      */
     public function addPost()
     {
+        self::$HookManager->processEvent('LDAP_ADD');
+        $name = filter_input(
+            INPUT_POST,
+            'name'
+        );
+        $description = filter_input(
+            INPUT_POST,
+            'description'
+        );
+        $address = filter_input(
+            INPUT_POST,
+            'address'
+        );
+        $port = filter_input(
+            INPUT_POST,
+            'port'
+        );
+        $searchDN = filter_input(
+            INPUT_POST,
+            'searchDN'
+        );
+        $grpSearchDN = filter_input(
+            INPUT_POST,
+            'grpSearchDN'
+        );
+        $adminGroup = filter_input(
+            INPUT_POST,
+            'adminGroup'
+        );
+        $userGroup = filter_input(
+            INPUT_POST,
+            'userGroup'
+        );
+        $userNamAttr = filter_input(
+            INPUT_POST,
+            'userNamAttr'
+        );
+        $grpMemberAttr = filter_input(
+            INPUT_POST,
+            'grpMemberAttr'
+        );
+        $searchScope = filter_input(
+            INPUT_POST,
+            'searchScope'
+        );
+        $bindDN = filter_input(
+            INPUT_POST,
+            'bindDN'
+        );
+        $bindPwd = filter_input(
+            INPUT_POST,
+            'bindPwd'
+        );
+        $useGroupMatch = (int)isset($_POST['useGroupMatch']);
         try {
-            if (!isset($_REQUEST['add'])) {
+            if (!isset($_POST['add'])) {
                 throw new Exception(_('Not able to add'));
             }
-            $name = trim($_REQUEST['name']);
-            $address = trim($_REQUEST['address']);
-            $description = trim($_REQUEST['description']);
-            $searchDN = trim($_REQUEST['searchDN']);
-            $port = trim($_REQUEST['port']);
-            $userNamAttr = trim($_REQUEST['userNamAttr']);
-            $grpMemberAttr = trim($_REQUEST['grpMemberAttr']);
-            $adminGroup = trim($_REQUEST['adminGroup']);
-            $userGroup = trim($_REQUEST['userGroup']);
-            $searchScope = trim($_REQUEST['searchScope']);
             if (!is_numeric($searchScope)) {
                 $searchScope = 0;
             }
-            $bindDN = trim($_REQUEST['bindDN']);
-            $bindPwd = trim($_REQUEST['bindPwd']);
-            $grpSearchDN = trim($_REQUEST['grpSearchDN']);
-            $useGroupMatch = trim($_REQUEST['useGroupMatch']);
             if (empty($name)) {
                 throw new Exception(
                     _('Please enter a name for this LDAP server.')
@@ -331,6 +481,11 @@ class LDAPManagementPage extends FOGPage
             if (empty($grpMemberAttr)) {
                 throw new Exception(
                     _('Please enter a Group Member Attribute')
+                );
+            }
+            if (self::getClass('LDAPManager')->exists($name)) {
+                throw new Exception(
+                    _('A LDAP setup already exists with this name!')
                 );
             }
             $LDAP = self::getClass('LDAP')
@@ -348,19 +503,327 @@ class LDAPManagementPage extends FOGPage
                 ->set('bindPwd', self::encryptpw($bindPwd))
                 ->set('useGroupMatch', $useGroupMatch)
                 ->set('grpSearchDN', $grpSearchDN);
-            if ($LDAP->save()) {
-                self::setMessage(_('LDAP Server Added, editing!'));
-                self::redirect(
-                    sprintf(
-                        '?node=ldap&sub=edit&id=%s',
-                        $LDAP->get('id')
-                    )
-                );
+            if (!$LDAP->save()) {
+                throw new Exception(_('Add LDAP server failed!'));
             }
+            $hook = 'LDAP_ADD_SUCCESS';
+            $msg = json_encode(
+                array(
+                    'msg' => _('LDAP Server added!'),
+                    'title' => _('LDAP Create Success')
+                )
+            );
         } catch (Exception $e) {
-            self::setMessage($e->getMessage());
-            self::redirect($this->formAction);
+            $hook = 'LDAP_ADD_FAIL';
+            $msg = json_encode(
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('LDAP Create Fail')
+                )
+            );
         }
+        self::$HookManager
+            ->processEvent(
+                $hook,
+                array('LDAP' => &$LDAP)
+            );
+        unset($LDAP);
+        echo $msg;
+        exit;
+    }
+    /**
+     * Display ldap general information.
+     *
+     * @return void
+     */
+    public function ldapGeneral()
+    {
+        unset(
+            $this->data,
+            $this->form,
+            $this->templates,
+            $this->attributes,
+            $this->headerData
+        );
+        $this->title = _('LDAP General');
+        $this->attributes = array(
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group')
+        );
+        $this->templates = array(
+            '${field}',
+            '${input}'
+        );
+        $name = (
+            filter_input(
+                INPUT_POST,
+                'name'
+            ) ?: $this->obj->get('name')
+        );
+        $description = (
+            filter_input(
+                INPUT_POST,
+                'description'
+            ) ?: $this->obj->get('description')
+        );
+        $address = (
+            filter_input(
+                INPUT_POST,
+                'address'
+            ) ?: $this->obj->get('address')
+        );
+        $port = (
+            filter_input(
+                INPUT_POST,
+                'port'
+            ) ?: $this->obj->get('port')
+        );
+        $searchDN = (
+            filter_input(
+                INPUT_POST,
+                'searchDN'
+            ) ?: $this->obj->get('searchDN')
+        );
+        $grpSearchDN = (
+            filter_input(
+                INPUT_POST,
+                'grpSearchDN'
+            ) ?: $this->obj->get('grpSearchDN')
+        );
+        $adminGroup = (
+            filter_input(
+                INPUT_POST,
+                'adminGroup'
+            ) ?: $this->obj->get('adminGroup')
+        );
+        $userGroup = (
+            filter_input(
+                INPUT_POST,
+                'userGroup'
+            ) ?: $this->obj->get('userGroup')
+        );
+        $userNamAttr = (
+            filter_input(
+                INPUT_POST,
+                'userNamAttr'
+            ) ?: $this->obj->get('userNamAttr')
+        );
+        $grpMemberAttr = (
+            filter_input(
+                INPUT_POST,
+                'grpMemberAttr'
+            ) ?: $this->obj->get('grpMemberAttr')
+        );
+        $searchScope = (
+            filter_input(
+                INPUT_POST,
+                'searchScope'
+            ) ?: $this->obj->get('searchScope')
+        );
+        $bindDN = (
+            filter_input(
+                INPUT_POST,
+                'bindDN'
+            ) ?: $this->obj->get('bindDN')
+        );
+        $bindPwd = (
+            filter_input(
+                INPUT_POST,
+                'bindPwd'
+            ) ?: self::aesdecrypt($this->obj->get('bindPwd'))
+        );
+        $searchScopes = array(
+            _('Base Only'),
+            _('Subtree Only'),
+            _('Subree and Below')
+        );
+        $searchSel = self::selectForm(
+            'searchScope',
+            $searchScopes,
+            $searchScope,
+            true
+        );
+        $ports = array(389, 636);
+        $portssel = self::selectForm(
+            'port',
+            $ports,
+            $port
+        );
+        $useGroupMatch = (
+            isset($_POST['useGroupMatch']) ?: $this->obj->get('useGroupMatch')
+        );
+        $useMatch = (
+            $useGroupMatch ?
+            ' checked' :
+            ''
+        );
+        $fields = array(
+            '<label for="name">'
+            . _('LDAP Connection Name')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" id="name" name="name" '
+            . 'value="'
+            . $name
+            . '" required/>'
+            . '</div>',
+            '<label for="desc">'
+            . _('LDAP Server Description')
+            . '</label>' => '<div class="input-group">'
+            . '<textarea name="description" class="form-control" id="desc">'
+            . $description
+            . '</textarea>'
+            . '</div>',
+            '<label for="address">'
+            . _('LDAP Server Address')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" id="address" name="address" '
+            . 'value="'
+            . $address
+            . '" required/>'
+            . '</div>',
+            '<label for="port">'
+            . _('LDAP Server Port')
+            . '</label>' => $portssel,
+            '<label for="groupmatch">'
+            . _('Use Group Matching (recommended)')
+            . '</label>' => '<input type="checkbox" '
+            . 'name="useGroupMatch" id="groupmatch"'
+            . $useMatch
+            . '/>',
+            '<label for="searchDN">'
+            . _('Search Base DN')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" id="searchDN" name='
+            . '"searchDN" value="'
+            . $searchDN
+            . '" required/>'
+            . '</div>',
+            '<label for="grpSearchDN">'
+            . _('Group Search DN')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" id="grpSearchDN" name='
+            . '"grpSearchDN" value="'
+            . $grpSearchDN
+            . '"/>'
+            . '</div>',
+            '<label for="adminGroup">'
+            . _('Admin Group')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" id="adminGroup" name='
+            . '"adminGroup" value="'
+            . $adminGroup
+            . '"/>'
+            . '</div>',
+            '<label for="userGroup">'
+            . _('Mobile Group')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" id="userGroup" name='
+            . '"userGroup" value="'
+            . $userGroup
+            . '"/>'
+            . '</div>',
+            '<label for="inittemplate">'
+            . _('Initial Template')
+            . '</label>' => '<select class="smaller" id="inittemplate">'
+            . '<option value="pick" selected>'
+            . _('Pick a template')
+            . '</option>'
+            . '<option value="msad">'
+            . _('Microsoft AD')
+            . '</option>'
+            . '<option value="open">'
+            . _('OpenLDAP')
+            . '</option>'
+            . '<option value="edir">'
+            . _('Generic LDAP')
+            . '</option>'
+            . '</select>',
+            '<label for="userNamAttr">'
+            . _('User Name Attribute')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" id="userNamAttr" name='
+            . '"userNamAttr" value="'
+            . $userNamAttr
+            . '" required/>'
+            . '</div>',
+            '<label for="grpMemberAttr">'
+            . _('Group Member Attribute')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" id="grpMemberAttr" name='
+            . '"grpMemberAttr" value="'
+            . $grpMemberAttr
+            . '"/>'
+            . '</div>',
+            '<label for="searchScope">'
+            . _('Search Scope')
+            . '</label>' => $searchSel,
+            '<label for="bindDN">'
+            . _('Bind DN')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" id="bindDN" name="bindDN" '
+            . 'value="'
+            . $bindDN
+            . '"/>'
+            . '</div>',
+            '<label for="bindPwd">'
+            . _('Bind Password')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="password" id="bindPwd" name='
+            . '"bindPwd" value="'
+            . $bindPwd
+            . '"/>'
+            . '</div>',
+            '<label for="update">'
+            . _('Make Changes?')
+            . '</label>' => '<button type="submit" name="update" id="update" '
+            . 'class="btn btn-info btn-block">'
+            . _('Update')
+            . '</button>'
+        );
+        self::$HookManager
+            ->processEvent(
+                'LDAP_FIELDS',
+                array(
+                    'fields' => &$fields,
+                    'LDAP' => self::getClass('LDAP')
+                )
+            );
+        array_walk($fields, $this->fieldsToData);
+        unset($fields);
+        self::$HookManager
+            ->processEvent(
+                'LDAP_EDIT',
+                array(
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'headerData' => &$this->headerData,
+                    'attributes' => &$this->attributes
+                )
+            );
+        echo '<!-- General -->';
+        echo '<div class="tab-pane fade in active" id="ldap-gen">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '&tab=ldap-gen">';
+        $this->render(12);
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        unset(
+            $this->data,
+            $this->form,
+            $this->templates,
+            $this->attributes,
+            $this->headerData
+        );
     }
     /**
      * Presents the user with fields to edit
@@ -369,251 +832,9 @@ class LDAPManagementPage extends FOGPage
      */
     public function edit()
     {
-        $this->title = sprintf('%s: %s', _('Edit'), $this->obj->get('name'));
-        unset($this->headerData);
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
-        );
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
-        $fields = array(
-            _('LDAP Connection Name') => '<input class="smaller" type="text" '
-            . sprintf(
-                'id="name" name="name" value="%s"/>',
-                (
-                    $_REQUEST['name'] ?
-                    $_REQUEST['name'] :
-                    $this->obj->get('name')
-                )
-            ),
-            _('LDAP Server Description') => '<textarea name="description">'
-            . (
-                $_REQUEST['description'] ?
-                $_REQUEST['description'] :
-                $this->obj->get('description')
-            )
-            . '</textarea>',
-            _('LDAP Server Address') => '<input class="smaller" type="text" '
-            . sprintf(
-                'id="address" name="address" value="%s"/>',
-                (
-                    $_REQUEST['address'] ?
-                    $_REQUEST['address'] :
-                    $this->obj->get('address')
-                )
-            ),
-            _('LDAP Server Port') => '<select id="port" name="port">'
-            . sprintf(
-                '<option value="">- %s -</option>',
-                self::$foglang['PleaseSelect']
-            )
-            . sprintf(
-                '<option value="389"%s>389</option>',
-                (
-                    $_REQUEST['port'] == 389 ?
-                    ' selected' :
-                    (
-                        $this->obj->get('port') == 389 ?
-                        ' selected' :
-                        ''
-                    )
-                )
-            )
-            . sprintf(
-                '<option value="636"%s>636</option>',
-                (
-                    $_REQUEST['port'] == 636 ?
-                    ' selected' :
-                    (
-                        $this->obj->get('port') == 636 ?
-                        ' selected' :
-                        ''
-                    )
-                )
-            )
-            . '</select>',
-            _('Use Group Matching (recommended)') => '<select id="useGroupMatch" '
-            . 'name="useGroupMatch">'
-            . sprintf(
-                '<option value="0"%s>%s</option>',
-                (
-                    $_REQUEST['useGroupMatch'] < 1 ?
-                    ' selected' :
-                    (
-                        $this->obj->get('useGroupMatch') < 1 ?
-                        ' selected' :
-                        ''
-                    )
-                ),
-                _('No')
-            )
-            . sprintf(
-                '<option value="1"%s>%s</option>',
-                (
-                    $_REQUEST['useGroupMatch'] > 0 ?
-                    ' selected' :
-                    (
-                        $this->obj->get('useGroupMatch') > 0 ?
-                        ' selected' :
-                        ''
-                    )
-                ),
-                _('Yes')
-            )
-            . '</select>',
-            _('Search Base DN') => '<input class="smaller" type="text" '
-            . sprintf(
-                'id="searchDN" name="searchDN" value="%s"/>',
-                (
-                    $_REQUEST['searchDN'] ?
-                    $_REQUEST['searchDN'] :
-                    $this->obj->get('searchDN')
-                )
-            ),
-            _('Group Search DN') => '<input class="smaller" type="text" '
-            . sprintf(
-                'id="grpSearchDN" name="grpSearchDN" value="%s"/>',
-                (
-                    $_REQUEST['grpSearchDN'] ?
-                    $_REQUEST['grpSearchDN'] :
-                    $this->obj->get('grpSearchDN')
-                )
-            ),
-            _('Admin Group') => '<input class="smaller" type="text" '
-            . sprintf(
-                'id="adminGroup" name="adminGroup" value="%s"/>',
-                (
-                    $_REQUEST['adminGroup'] ?
-                    $_REQUEST['adminGroup'] :
-                    $this->obj->get('adminGroup')
-                )
-            ),
-            _('Mobile Group') => '<input class="smaller" type="text" '
-            . sprintf(
-                'id="userGroup" name="userGroup" value="%s"/>',
-                (
-                    $_REQUEST['userGroup'] ?
-                    $_REQUEST['userGroup'] :
-                    $this->obj->get('userGroup')
-                )
-            ),
-            _('Initial Template') => '<select class="smaller" '
-            . 'id="inittemplate">'
-            . '<option value="pick" selected >Pick a template</option>'
-            . '<option value="msad">Microsoft AD</option>'
-            . '<option value="open">OpenLDAP</option>'
-            . '<option value="edir">Generic LDAP</option>'
-            . '</select>',
-            _('User Name Attribute') => '<input class="smaller" type="text" '
-            . sprintf(
-                'id="userNamAttr" name="userNamAttr" value="%s"/>',
-                (
-                    $_REQUEST['userNamAttr'] ?
-                    $_REQUEST['userNamAttr'] :
-                    $this->obj->get('userNamAttr')
-                )
-            ),
-            _('Group Member Attribute') => '<input class="smaller" type="text" '
-            . sprintf(
-                'id="grpMemberAttr" name="grpMemberAttr" value="%s"/>',
-                (
-                    $_REQUEST['grpMemberAttr'] ?
-                    $_REQUEST['grpMemberAttr'] :
-                    $this->obj->get('grpMemberAttr')
-                )
-            ),
-            _('Search Scope') => '<select id="searchScope" name="searchScope">'
-            . sprintf(
-                '<option value="">- %s -</option>',
-                self::$foglang['PleaseSelect']
-            )
-            . sprintf(
-                '<option value="0"%s>%s</option>',
-                (
-                    isset($_REQUEST['searchScope'])
-                    && $_REQUEST['searchScope'] == 0 ?
-                    ' selected' :
-                    (
-                        $this->obj->get('searchScope') == 0 ?
-                        ' selected' :
-                        ''
-                    )
-                ),
-                _('Base only')
-            )
-            . sprintf(
-                '<option value="1"%s>%s</option>',
-                (
-                    $_REQUEST['searchScope'] == 1 ?
-                    ' selected' :
-                    (
-                        $this->obj->get('searchScope') == 1 ?
-                        ' selected' :
-                        ''
-                    )
-                ),
-                _('Base and subtree')
-            )
-            . sprintf(
-                '<option value="2"%s>%s</option>',
-                (
-                    $_REQUEST['searchScope'] == 2 ?
-                    ' selected' :
-                    (
-                        $this->obj->get('searchScope') == 2 ?
-                        ' selected' :
-                        ''
-                    )
-                ),
-                _('Subtree and below')
-            )
-            . '</select>',
-            _('Bind DN') => '<input class="smaller" type="text" '
-            . sprintf(
-                'id="bindDN" name="bindDN" value="%s"/>',
-                (
-                    $_REQUEST['bindDN'] ?
-                    $_REQUEST['bindDN'] :
-                    $this->obj->get('bindDN')
-                )
-            ),
-            _('Bind Password') => '<input class="smaller" type="password" '
-            . sprintf(
-                'id="bindPwd" name="bindPwd" value="%s"/>',
-                (
-                    $_REQUEST['bindPwd'] ?
-                    $_REQUEST['bindPwd'] :
-                    $this->obj->get('bindPwd')
-                )
-            ),
-            '&nbsp;' => sprintf(
-                '<input class="smaller" name="update" type="submit" value="%s"/>',
-                _('Update')
-            ),
-        );
-        foreach ((array)$fields as $field => &$input) {
-            $this->data[] = array(
-                'field' => $field,
-                'input' => $input,
-            );
-            unset($input);
-        }
-        unset($fields);
-        self::$HookManager->processEvent(
-            'LDAP_EDIT',
-            array(
-                'headerData' => &$this->headerData,
-                'data' => &$this->data,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
-            )
-        );
-        printf('<form method="post" action="%s">', $this->formAction);
-        $this->render();
-        echo '</form>';
+        echo '<div class="col-xs-9 tab-content">';
+        $this->ldapGeneral();
+        echo '</div>';
     }
     /**
      * Updates the current item
@@ -622,28 +843,68 @@ class LDAPManagementPage extends FOGPage
      */
     public function editPost()
     {
-        self::$HookManager->processEvent('LDAP_EDIT_POST', array('LDAP'=> &$LDAP));
+        self::$HookManager
+            ->processEvent(
+                'LDAP_EDIT_POST',
+                array('LDAP'=> &$this->obj)
+            );
+        $name = filter_input(
+            INPUT_POST,
+            'name'
+        );
+        $description = filter_input(
+            INPUT_POST,
+            'description'
+        );
+        $address = filter_input(
+            INPUT_POST,
+            'address'
+        );
+        $port = filter_input(
+            INPUT_POST,
+            'port'
+        );
+        $searchDN = filter_input(
+            INPUT_POST,
+            'searchDN'
+        );
+        $grpSearchDN = filter_input(
+            INPUT_POST,
+            'grpSearchDN'
+        );
+        $adminGroup = filter_input(
+            INPUT_POST,
+            'adminGroup'
+        );
+        $userGroup = filter_input(
+            INPUT_POST,
+            'userGroup'
+        );
+        $userNamAttr = filter_input(
+            INPUT_POST,
+            'userNamAttr'
+        );
+        $grpMemberAttr = filter_input(
+            INPUT_POST,
+            'grpMemberAttr'
+        );
+        $searchScope = filter_input(
+            INPUT_POST,
+            'searchScope'
+        );
+        $bindDN = filter_input(
+            INPUT_POST,
+            'bindDN'
+        );
+        $bindPwd = filter_input(
+            INPUT_POST,
+            'bindPwd'
+        );
+        $useGroupMatch = (int)isset($_POST['useGroupMatch']);
         try {
-            if (!isset($_REQUEST['update'])) {
-                throw new Exception(_('Not able to update'));
-            }
-            $name = trim($_REQUEST['name']);
-            $address = trim($_REQUEST['address']);
-            $description = trim($_REQUEST['description']);
-            $searchDN = trim($_REQUEST['searchDN']);
-            $port = trim($_REQUEST['port']);
-            $userNamAttr = trim($_REQUEST['userNamAttr']);
-            $grpMemberAttr = trim($_REQUEST['grpMemberAttr']);
-            $adminGroup = trim($_REQUEST['adminGroup']);
-            $userGroup = trim($_REQUEST['userGroup']);
-            $searchScope = trim($_REQUEST['searchScope']);
-            $grpSearchDN = trim($_REQUEST['grpSearchDN']);
-            $useGroupMatch = trim($_REQUEST['useGroupMatch']);
             if (!is_numeric($searchScope)) {
                 $searchScope = 0;
             }
-            $bindDN = trim($_REQUEST['bindDN']);
-            $bindPwd = trim($_REQUEST['bindPwd']);
             if (empty($name)) {
                 throw new Exception(
                     _('Please enter a name for this LDAP server.')
@@ -682,6 +943,13 @@ class LDAPManagementPage extends FOGPage
             if (empty($grpMemberAttr)) {
                 throw new Exception(
                     _('Please enter a Group Member Attribute')
+                );
+            }
+            if ($this->obj->get('name') != $name
+                && self::getClass('LDAPManager')->exists($name)
+            ) {
+                throw new Exception(
+                    _('A LDAP setup already exists with this name!')
                 );
             }
             $LDAP = $this->obj
@@ -700,20 +968,31 @@ class LDAPManagementPage extends FOGPage
                 ->set('useGroupMatch', $useGroupMatch)
                 ->set('grpSearchDN', $grpSearchDN);
             if (!$LDAP->save()) {
-                throw new Exception(_('Database update failed'));
+                throw new Exception(_('Update LDAP server failed!'));
             }
-            self::$HookManager->processEvent(
-                'LDAP_EDIT_SUCCESS',
-                array('LDAP' => &$this->obj)
+            $hook = 'LDAP_EDIT_POST_SUCCESS';
+            $msg = json_encode(
+                array(
+                    'msg' => _('LDAP Server updated!'),
+                    'title' => _('LDAP Update Success')
+                )
             );
             self::setMessage(_('LDAP information updated!'));
         } catch (Exception $e) {
-            self::$HookManager->processEvent(
-                'LDAP_EDIT_FAIL',
+            $hook = 'LDAP_EDIT_POST_FAIL';
+            $msg = json_encode(
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('LDAP Update Fail')
+                )
+            );
+        }
+        self::$HookManager
+            ->processEvent(
+                $hook,
                 array('LDAP' => &$this->obj)
             );
-            self::setMessage($e->getMessage());
-        }
-        self::redirect($this->formAction);
+        echo $msg;
+        exit;
     }
 }
