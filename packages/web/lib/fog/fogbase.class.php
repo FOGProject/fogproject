@@ -933,6 +933,10 @@ abstract class FOGBase
         array $haystack,
         $ignorecase = false
     ) {
+        $key = array_search($needle, $haystack);
+        if (false !== $key) {
+            return $key;
+        }
         $cmd = $ignorecase !== false ? 'stripos' : 'strpos';
         foreach ($haystack as $key => &$value) {
             if (false !== $cmd($value, $needle)) {
@@ -2389,8 +2393,8 @@ abstract class FOGBase
     public static function getHash($file)
     {
         usleep(50000);
-        $filesize = self::getFilesize($file);
         $file = escapeshellarg($file);
+        $filesize = self::getFilesize($file);
         if ($filesize <= 10485760) {
             return trim(
                 shell_exec("sha512sum $file | awk '{print $1}'")

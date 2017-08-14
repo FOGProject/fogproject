@@ -764,11 +764,18 @@ class FOGFTP extends FOGGetSet
     public function listrecursive($path)
     {
         $lines = $this->rawlist($path);
+        $rawlist = join("\n", $lines);
+        preg_match_all(
+            '/^([drwx+-]{10})\s+(\d+)\s+(\w+)\s+(\w+)\s+(\d+)\s+(.{12}) (.*)$/m',
+            $rawlist,
+            $matches,
+            PREG_SET_ORDER
+        );
         $result = array();
-        foreach ((array)$lines as $line) {
-            $tokens = preg_split("#[\s+]#", $line);
-            $name = $tokens[count($tokens) - 1];
-            $type = $tokens[0][0];
+        foreach ((array)$matches as $index => &$line) {
+            array_shift($line);
+            $name = $line[count($line) - 1];
+            $type = $line[0][0];
             $filepath = $path.'/'.$name;
             if ($type == 'd') {
                 if (in_array($name, array('.', '..'))) {
