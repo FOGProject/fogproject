@@ -802,7 +802,7 @@ abstract class FOGPage extends FOGBase
                     . $colsize
                     . '">';
             }
-            echo '<table class="table'
+            echo '<table class="table table-responsive'
                 . (
                     count($this->data) < 1 ?
                     ' noresults' :
