@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-14 16:46-0400\n"
+"POT-Creation-Date: 2017-08-15 16:39-0400\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -981,7 +981,7 @@ msgstr "Fehler beim"
 msgid "Returning array within key"
 msgstr "Array in Schlüssel Rückgabe"
 
-#: /var/www/fog/lib/fog/bootmenu.class.php:1474
+#: /var/www/fog/lib/fog/bootmenu.class.php:1477
 #, fuzzy
 msgid "No valid storage nodes found"
 msgstr "Ungültige Speicherknoten"
