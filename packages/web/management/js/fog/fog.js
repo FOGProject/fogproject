@@ -1668,6 +1668,7 @@ function DeployStuff() {
  */
 function removeMACField() {
     $('.remove-mac').on('click', function(e) {
+        $(e.target).tooltip('hide');
         e.preventDefault();
         remove = $(this).parents('.addrow');
         tr = remove.parents('tr');
