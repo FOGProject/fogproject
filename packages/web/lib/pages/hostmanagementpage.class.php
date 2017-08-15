@@ -892,6 +892,57 @@ class HostManagementPage extends FOGPage
             '${field}',
             '${input}',
         );
+        echo '<div class="addrowempty hiddeninitially">';
+        echo '<div class="col-xs-10">';
+        echo '<div class="input-group">';
+        echo '<span class="mac-manufactor input-group-addon"></span>';
+        echo '<input type="text" class="macaddr additionalMAC form-control" '
+            . 'name="additionalMACs[]" '
+            . 'value="'
+            . '" maxlength="17"/>';
+        echo '<span class="icon remove-mac fa fa-minus-circle hand '
+            . 'input-group-addon" '
+            . 'data-toggle="tooltip" data-placement="top" '
+            . 'title="'
+            . _('Remove MAC')
+            . '"></span>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="col-xs-1">';
+        echo '<div class="row">';
+        echo '<span data-toggle="tooltip" data-placement="top" '
+            . 'title="'
+            . _('Ignore MAC on Client')
+            . '" class="hand">'
+            . _('I.M.C.')
+            . '</span>';
+        echo '</div>';
+        echo '<div class="checkbox">';
+        echo '<label>';
+        echo '<input type="checkbox" name="igclient[]" value="'
+            . '"'
+            . '/>';
+        echo '</label>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="col-xs-1">';
+        echo '<div class="row">';
+        echo '<span data-toggle="tooltip" data-placement="top" '
+            . 'title="'
+            . _('Ignore MAC on Image')
+            . '" class="hand">'
+            . _('I.M.I.')
+            . '</span>';
+        echo '</div>';
+        echo '<div class="checkbox">';
+        echo '<label>';
+        echo '<input type="checkbox" name="igimage[]" value="'
+            . '"'
+            . '/>';
+        echo '</label>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
         ob_start();
         foreach ((array)$this->obj->get('additionalMACs') as $ind => &$MAC) {
             echo '<div class="addrow">';
@@ -947,7 +998,6 @@ class HostManagementPage extends FOGPage
                 . $this->obj->imageMacCheck($MAC)
                 . '/>';
             echo '</label>';
-            echo '</div>';
             echo '</div>';
             echo '</div>';
             echo '</div>';
@@ -1105,7 +1155,7 @@ class HostManagementPage extends FOGPage
             . '<label>'
             . _('Pending MACs')
             . '</label>'
-            . '</div>' => '<div class="additionalMACsCell">'
+            . '</div>' => '<div class="pendingMACsCell">'
             . $pending
             . '</div>',
             '<label for="description">'

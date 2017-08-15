@@ -14,6 +14,8 @@ var startTime = new Date().getTime(),
     lastsub,
     pauseUpdate,
     cancelTasks,
+    MACLookupTimer,
+    MACLookupTimeout = 1000,
     pauseButton = $('#taskpause'),
     cancelButton = $('#taskcancel');
 var $_GET = getQueryParams(document.location.search),
@@ -1682,6 +1684,7 @@ function removeMACField() {
         remove.remove();
         if ($('.addrow').length < 1) {
             tr.hide();
+            $('.additionalMACsRow').hide().parents('tr').hide();
         }
     });
 }
@@ -1698,80 +1701,41 @@ function MACChange(data) {
  * Update mac fields.
  */
 function MACUpdate() {
-    $('.mac-manufactor').each(function(evt) {
-        input = $(this).parent().find('input');
-        var mac = (
-            input.size() ?
-            input.val() :
-            $(this).parent().find('.mac').html()
-        );
-        $(this).load('../management/index.php?sub=getmacman&prefix='+mac);
-    });
+    setTimeout(function() {
+        $('.mac-manufactor').each(function(evt) {
+            input = $(this).parent().find('input');
+            var mac = (
+                input.size() ?
+                input.val() :
+                $(this).parent().find('.mac').html()
+            );
+            $(this).load('../management/index.php?sub=getmacman&prefix='+mac);
+        });
+    }, 1000);
     $('#mac, .additionalMAC').on('change keyup blur',function(e) {
+        e.preventDefault();
         MACChange($(this));
-        e.preventDefault();
     });
-    $('.add-mac').on('click', function(e) {
-        $('.additionalMACsRow').parents('tr').show();
-        $('.additionalMACsCell').append(
-            '<div class="addrow">'
-            + '<div class="col-xs-10">'
-            + '<div class="input-group">'
-            + '<span class="mac-manufactor input-group-addon"></span>'
-            + '<input type="text" class="macaddr additionalMAC form-control" '
-            + 'name="additionalMACs[]" maxlength="17"/>'
-            + '<span class="icon remove-mac fa fa-minus-circle hand '
-            + 'input-group-addon" data-toggle="tooltip" data-placement="top" '
-            + 'title="Remove MAC"></span>'
-            + '</div>'
-            + '</div>'
-            + '<div class="col-xs-1">'
-            + '<div class="row">'
-            + '<span data-toggle="tooltip" data-placement="top" '
-            + 'title="'
-            + 'Ignore MAC on Client'
-            + '" class="hand">'
-            + 'I.M.C.'
-            + '</span>'
-            + '</div>'
-            + '<div class="checkbox">'
-            + '<label>'
-            + '<input type="checkbox" name="igclient[]"/>'
-            + '</label>'
-            + '</div>'
-            + '</div>'
-            + '<div class="col-xs-1">'
-            + '<div class="row">'
-            + '<span data-toggle="tooltip" data-placement="top" '
-            + 'title="'
-            + 'Ignore MAC on Image'
-            + '" class="hand">'
-            + 'I.M.I.'
-            + '</span>'
-            + '</div>'
-            + '<div class="checkbox">'
-            + '<label>'
-            + '<input type="checkbox" name="igimage[]"/>'
-            + '</label>'
-            + '</div>'
-            + '</div>'
-            + '</div>'
-            + '</div>'
-        );
-        e.preventDefault();
-    });
+    setTimeout(function() {
+        $('.add-mac').on('click', function(e) {
+            var addrow = $('.addrowempty').clone().removeClass().addClass('addrow');
+            $('.additionalMACsRow').show().parents('tr').show();
+            $('.additionalMACsCell').append(addrow);
+            removeMACField();
+            e.preventDefault();
+        });
+    }, 1000);
     if ($('.additionalMAC').size() < 1) {
         $('.additionalMACsRow').hide().parents('tr').hide();
     } else {
         $('.additionalMACsRow').show();
     }
-    if ($('.pending-mac').size() < 1) {
+    if ($('.pendingMACsRow').find('.addrow').length < 1) {
         $('.pendingMACsRow').hide().parents('tr').hide();
     } else {
         $('.pendingMACsRow').show();
     }
     removeMACField();
-    setTimeout(MACUpdate, 1000);
 }
 /**
  * Validate cron inputs as appropriate.
