@@ -184,7 +184,9 @@ class BootMenu extends FOGBase
             '#!ipxe',
             "set fog-ip $webserver",
             sprintf('set fog-webroot %s', basename($curroot)),
-            'set boot-url http://${fog-ip}/${fog-webroot}',
+            'set boot-url '
+            . self::$httpproto
+            . '://${fog-ip}/${fog-webroot}',
         );
         $this->_parseMe($Send);
         if (self::$Host->isValid()) {
@@ -325,7 +327,8 @@ class BootMenu extends FOGBase
         $this->_bootexittype = self::$_exitTypes[$exit];
         $this->_loglevel = "loglevel=$loglevel";
         $this->_KS = self::getClass('KeySequence', $keySequence);
-        $this->_booturl = "http://{$webserver}/fog/service";
+        $this->_booturl = self::$httpproto
+            . "://{$webserver}/fog/service";
         $this->_memdisk = "kernel $memdisk initrd=$memtest";
         $this->_memtest = "initrd $memtest";
         $StorageNodes = (array)self::getClass('StorageNodeManager')
