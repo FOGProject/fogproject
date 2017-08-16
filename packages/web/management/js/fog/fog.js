@@ -1726,7 +1726,7 @@ function MACUpdate() {
             e.preventDefault();
         });
     }, 1000);
-    if ($('.additionalMAC').size() < 1) {
+    if ($('.additionalMACsCell').find('.addrow').size() < 1) {
         $('.additionalMACsRow').hide().parents('tr').hide();
     } else {
         $('.additionalMACsRow').show();
