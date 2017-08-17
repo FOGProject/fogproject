@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-16 14:04-0400\n"
+"POT-Creation-Date: 2017-08-17 13:35-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -222,9 +222,9 @@ msgstr "Tornando valore della chiave"
 #: /var/www/fog/lib/fog/fogcontroller.class.php:359
 #: /var/www/fog/lib/fog/foggetset.class.php:80
 #: /var/www/fog/lib/fog/foggetset.class.php:133
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:557
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:937
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1016
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:620
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1057
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1136
 msgid "Value"
 msgstr "Valore"
 
@@ -387,7 +387,7 @@ msgstr "Tipo array"
 #: /var/www/fog/lib/fog/fogftp.class.php:370
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1137
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2852
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:556
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:619
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:58
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:216
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:492
@@ -734,8 +734,8 @@ msgstr "Host"
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:90
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:87
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2666
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1141
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1215
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1261
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1335
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:467
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:541
 #: /var/www/fog/lib/reports/user_tracking.report.php:135
@@ -923,12 +923,12 @@ msgstr "%s ID %d non valido"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:3111
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:180
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:83
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:434
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:569
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:708
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:948
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1027
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1225
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:472
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:632
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:828
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1068
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1147
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1345
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:202
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:346
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:75
@@ -1216,8 +1216,8 @@ msgstr "Salva i cambiamenti"
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:355
 #: /var/www/fog/lib/plugins/location/hooks/addserviceconfiguration.hook.php:122
 #: /var/www/fog/lib/plugins/location/hooks/addlocationgroup.hook.php:154
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:470
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:755
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:507
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:875
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:243
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:512
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:780
@@ -1230,8 +1230,8 @@ msgstr "Aggiornare"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:710
 #: /var/www/fog/lib/fog/fogpage.class.php:4203
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1068
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1262
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1188
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1382
 #: /var/www/fog/lib/plugins/accesscontrol/hooks/accesscontrolindexdiv.hook.php:98
 #: /var/www/fog/lib/plugins/accesscontrol/hooks/accesscontrolindexdiv.hook.php:109
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:474
@@ -1412,6 +1412,7 @@ msgstr "Pianifica spegnimento"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1423
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:226
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:745
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:338
 #: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:137
 msgid "Create"
@@ -1697,9 +1698,9 @@ msgstr ""
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:1227
 #: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:149
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:186
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:366
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1005
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1205
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:363
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1125
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1325
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:131
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:417
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:236
@@ -1818,6 +1819,8 @@ msgstr "Rimuovi i selezionati"
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:139
 #: /var/www/fog/lib/reports/user_tracking.report.php:345
 #: /var/www/fog/lib/reports/user_tracking.report.php:346
+#: /var/www/fog/lib/reports/classname_of_report.report.php:67
+#: /var/www/fog/lib/reports/classname_of_report.report.php:68
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:137
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:138
 #: /var/www/fog/lib/reports/imaging_log.report.php:171
@@ -2269,7 +2272,7 @@ msgstr "Utente creato"
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:461
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:352
 #: /var/www/fog/lib/plugins/location/hooks/addlocationgroup.hook.php:151
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:467
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:504
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:509
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:777
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:354
@@ -3041,8 +3044,8 @@ msgid "see the forums or lookup the commands and scripts available"
 msgstr ""
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1033
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1070
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1264
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1190
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1384
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:436
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:590
 msgid "from"
@@ -4691,6 +4694,8 @@ msgstr "Gruppo"
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:143
 #: /var/www/fog/lib/reports/user_tracking.report.php:349
 #: /var/www/fog/lib/reports/user_tracking.report.php:350
+#: /var/www/fog/lib/reports/classname_of_report.report.php:71
+#: /var/www/fog/lib/reports/classname_of_report.report.php:72
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:141
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:142
 #: /var/www/fog/lib/reports/imaging_log.report.php:175
@@ -4964,8 +4969,8 @@ msgstr "impostazioni API"
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:88
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:188
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:383
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1142
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1216
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1262
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1336
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:468
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:542
 msgid "Friendly Name"
@@ -6582,9 +6587,8 @@ msgid "Account already linked"
 msgstr "Account già collegato"
 
 #: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:258
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:411
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:683
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1111
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:803
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1231
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:179
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:188
 #: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:200
@@ -6866,6 +6870,11 @@ msgstr "la posizione definita dall'host, se disponibile"
 msgid "Default is disabled"
 msgstr "Il valore predefinito è disabilitato"
 
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:37
+#: /var/www/fog/commons/text.php:204
+msgid "Access Control Management"
+msgstr "Gestione Access Control"
+
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:52
 #, fuzzy
 msgid "Export Accesscontrols"
@@ -6884,8 +6893,8 @@ msgstr "Regole di associazione"
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:74
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:144
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:247
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:348
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:452
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:345
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:489
 msgid "Role Name"
 msgstr "Nome regola"
 
@@ -6922,172 +6931,208 @@ msgid "Add new rule"
 msgstr "Aggiungi nuova regola"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:248
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:355
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:459
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:352
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:496
 msgid "Role Description"
 msgstr "Descrizione del ruolo"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:334
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:332
 msgid "New Role"
 msgstr "Nuovo ruolo"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:363
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:360
 #, fuzzy
 msgid "Create New Access Control Role"
 msgstr "Tutti i controlli di accesso"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:402
-msgid "Role already Exists, please try again."
-msgstr "Ruolo già esiste, riprova."
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:420
+#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:186
+#, fuzzy
+msgid "A name is required!"
+msgstr "È richiesto un nome di snapin!"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:405
-msgid "Please enter a name for this role."
-msgstr "Inserisci un nome per questo ruolo."
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:427
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:567
+#, fuzzy
+msgid "A role already exists with this name!"
+msgstr "Esiste già un snapin con questo nome!"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:413
-msgid "Role Added, editing!"
-msgstr "Ruolo Aggiunto, modifica!"
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:434
+#, fuzzy
+msgid "Add role failed!"
+msgstr "Aggiungi snapin non riuscito!"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:489
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:439
+#, fuzzy
+msgid "Role added!"
+msgstr "Stampante aggiunta"
+
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:440
+#, fuzzy
+msgid "Role Create Success"
+msgstr "Regola eliminazione del successo"
+
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:448
+#, fuzzy
+msgid "Role Create Fail"
+msgstr "Utente creato"
+
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:526
 #, fuzzy
 msgid "Access Control Role General"
 msgstr "Tutti i controlli di accesso"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:523
-msgid "A role with that name already exists."
-msgstr "Esiste già un ruolo con quel nome."
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:574
+#, fuzzy
+msgid "Role update failed!"
+msgstr "aggiornamento utente non riuscita"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:530
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:808
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:579
+#, fuzzy
+msgid "Role updated!"
+msgstr "Ruolo aggiornato"
+
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:580
+#, fuzzy
+msgid "Role Update Success"
+msgstr "Regola eliminazione del successo"
+
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:589
+#, fuzzy
+msgid "Role Update Fail"
+msgstr "Gruppo Creare fallita"
+
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:615
+#, fuzzy
+msgid "Access Control Rules"
+msgstr "Tutti i controlli di accesso"
+
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:621
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:718
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:849
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1058
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1137
+msgid "Parent"
+msgstr "Superiore"
+
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:622
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:857
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1059
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1138
+#: /var/www/fog/commons/text.php:43
+msgid "Node"
+msgstr "Nodo"
+
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:682
+msgid "New Rule"
+msgstr "Nuova regola"
+
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:710
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:841
+msgid "Rule Type"
+msgstr "Tipo regola"
+
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:726
+#, fuzzy
+msgid "Node Parent"
+msgstr "Superiore"
+
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:734
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:865
+msgid "Rule Value"
+msgstr "Valore regola"
+
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:742
+#, fuzzy
+msgid "Create Rule?"
+msgstr "Crea utente"
+
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:789
+msgid "Rule already Exists, please try again."
+msgstr "La regola esiste già, riprova."
+
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:792
+msgid "Please enter a value for this rule."
+msgstr "Inserisci un valore per questa regola."
+
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:805
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1238
+msgid "Rule Added, editing!"
+msgstr "Regola Aggiunta, modifica!"
+
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:928
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:304
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:295
 msgid "Failed to update"
 msgstr "Impossibile aggiornare"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:532
-msgid "Role Updated"
-msgstr "Ruolo aggiornato"
-
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:552
-#, fuzzy
-msgid "Access Control Rules"
-msgstr "Tutti i controlli di accesso"
-
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:558
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:632
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:729
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:938
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1017
-msgid "Parent"
-msgstr "Superiore"
-
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:559
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:633
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:737
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:939
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1018
-#: /var/www/fog/commons/text.php:43
-msgid "Node"
-msgstr "Nodo"
-
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:619
-msgid "New Rule"
-msgstr "Nuova regola"
-
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:631
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:721
-msgid "Rule Type"
-msgstr "Tipo regola"
-
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:634
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:745
-msgid "Rule Value"
-msgstr "Valore regola"
-
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:637
-msgid "Add Rule"
-msgstr "Aggiungi regola"
-
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:669
-msgid "Rule already Exists, please try again."
-msgstr "La regola esiste già, riprova."
-
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:672
-msgid "Please enter a value for this rule."
-msgstr "Inserisci un valore per questa regola."
-
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:685
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1118
-msgid "Rule Added, editing!"
-msgstr "Regola Aggiunta, modifica!"
-
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:810
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:930
 msgid "Rule Updated"
 msgstr "Regola aggiornata"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:893
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1013
 msgid "Fail to delete rule"
 msgstr "Impossibile eliminare la regola"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:898
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1018
 msgid "Rule Delete Success"
 msgstr "Regola eliminazione del successo"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:936
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1056
 msgid "Rule name"
 msgstr "Nome regola"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:996
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1116
 msgid "Check here to see rules not within this"
 msgstr "Controlla qui per vedere le regole non all'interno di questo"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:998
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1118
 msgid "Modify Rule Membership for"
 msgstr "Modificare l'appartenenza alle regole per"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1006
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1069
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1126
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1189
 msgid "rule"
 msgstr "regola"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1007
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1207
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1127
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1327
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:384
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:533
 msgid "to"
 msgstr "a"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1015
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1135
 msgid "Rule Name"
 msgstr "Nome regola"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1094
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1214
 msgid "Not role selected"
 msgstr "Nessun ruolo selezionato"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1097
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1217
 msgid "Not rule selected"
 msgstr "Nessuna regola selezionata"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1196
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1316
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:522
 msgid "Check here to see users not within this"
 msgstr "Controlla qui per vedere gli utenti non all'interno di questo"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1198
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1318
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:410
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:524
 msgid "Modify Membership for"
 msgstr "Modificare l'appartenenza per"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1206
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1263
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1326
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1383
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:532
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:589
 msgid "user"
 msgstr "utente"
 
-#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1294
+#: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1414
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:502
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:620
 msgid "saved successfully"
@@ -7935,11 +7980,6 @@ msgstr "Nuova trasmissione Indirizzo"
 msgid "Create WOL Broadcast?"
 msgstr "tutte le trasmissioni"
 
-#: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:186
-#, fuzzy
-msgid "A name is required!"
-msgstr "È richiesto un nome di snapin!"
-
 #: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:191
 #, fuzzy
 msgid "A broadcast already exists with this name!"
@@ -8438,6 +8478,22 @@ msgstr "FOG Cronologia di monitoraggio degli utenti"
 #: /var/www/fog/lib/reports/user_tracking.report.php:290
 msgid "Service Start"
 msgstr "Servizio avviato"
+
+#: /var/www/fog/lib/reports/classname_of_report.report.php:31
+msgid "Hello World"
+msgstr ""
+
+#: /var/www/fog/lib/reports/classname_of_report.report.php:33
+#: /var/www/fog/lib/reports/classname_of_report.report.php:42
+#: /var/www/fog/lib/reports/classname_of_report.report.php:50
+msgid "Hello"
+msgstr ""
+
+#: /var/www/fog/lib/reports/classname_of_report.report.php:34
+#: /var/www/fog/lib/reports/classname_of_report.report.php:43
+#: /var/www/fog/lib/reports/classname_of_report.report.php:51
+msgid "World"
+msgstr ""
 
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:41
 msgid "All Pending MACs approved."
@@ -9736,10 +9792,6 @@ msgstr "Gestione Snapin"
 msgid "Plugin Management"
 msgstr "Gestione Plugin"
 
-#: /var/www/fog/commons/text.php:204
-msgid "Access Control Management"
-msgstr "Gestione Access Control"
-
 #: /var/www/fog/commons/text.php:206
 msgid "FOG General Help"
 msgstr "FOG Guida generale"
@@ -10265,6 +10317,21 @@ msgstr "Ciao FOG client"
 #: /var/www/fog/service/locationlisting.php:28
 msgid "There are no locations on this server"
 msgstr "Non ci sono posizioni su questo server"
+
+#~ msgid "Role already Exists, please try again."
+#~ msgstr "Ruolo già esiste, riprova."
+
+#~ msgid "Please enter a name for this role."
+#~ msgstr "Inserisci un nome per questo ruolo."
+
+#~ msgid "Role Added, editing!"
+#~ msgstr "Ruolo Aggiunto, modifica!"
+
+#~ msgid "A role with that name already exists."
+#~ msgstr "Esiste già un ruolo con quel nome."
+
+#~ msgid "Add Rule"
+#~ msgstr "Aggiungi regola"
 
 #~ msgid "LDAP Server Added, editing!"
 #~ msgstr "LDAP Server aggiunto, modifica!"
