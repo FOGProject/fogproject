@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-17 13:49-0400\n"
+"POT-Creation-Date: 2017-08-17 13:52-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -8353,35 +8353,35 @@ msgstr ""
 msgid "File or path cannot be reached"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:553
+#: /var/www/fog/lib/service/fogservice.class.php:554
 msgid "Cannot connect to"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:673
+#: /var/www/fog/lib/service/fogservice.class.php:674
 msgid "Files do not match"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:679
+#: /var/www/fog/lib/service/fogservice.class.php:680
 msgid "Deleting remote file"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:690
+#: /var/www/fog/lib/service/fogservice.class.php:691
 msgid "No need to sync"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:692
+#: /var/www/fog/lib/service/fogservice.class.php:693
 msgid "file to"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:723
+#: /var/www/fog/lib/service/fogservice.class.php:724
 msgid "Starting Sync Actions"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:782
+#: /var/www/fog/lib/service/fogservice.class.php:783
 msgid "Started sync for"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:814
+#: /var/www/fog/lib/service/fogservice.class.php:815
 msgid "Task started"
 msgstr ""
 
