@@ -546,6 +546,7 @@ abstract class FOGService extends FOGBase
                     );
                     continue;
                 }
+                fclose($socket);
                 if (!self::$FOGFTP->connect()) {
                     self::outall(
                         sprintf(
