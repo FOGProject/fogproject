@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-17 13:35-0400\n"
+"POT-Creation-Date: 2017-08-17 13:49-0400\n"
 "PO-Revision-Date: 2017-05-02 15:48+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -8868,35 +8868,35 @@ msgstr "Replica già in esecuzione con PID"
 msgid "File or path cannot be reached"
 msgstr "Impossibile raggiungere il file o il percorso"
 
-#: /var/www/fog/lib/service/fogservice.class.php:537
+#: /var/www/fog/lib/service/fogservice.class.php:553
 msgid "Cannot connect to"
 msgstr "Impossibile connettersi"
 
-#: /var/www/fog/lib/service/fogservice.class.php:657
+#: /var/www/fog/lib/service/fogservice.class.php:673
 msgid "Files do not match"
 msgstr "I file non corrispondono"
 
-#: /var/www/fog/lib/service/fogservice.class.php:663
+#: /var/www/fog/lib/service/fogservice.class.php:679
 msgid "Deleting remote file"
 msgstr "Eliminazione di file remoti"
 
-#: /var/www/fog/lib/service/fogservice.class.php:674
+#: /var/www/fog/lib/service/fogservice.class.php:690
 msgid "No need to sync"
 msgstr "Non è necessario sincronizzare"
 
-#: /var/www/fog/lib/service/fogservice.class.php:676
+#: /var/www/fog/lib/service/fogservice.class.php:692
 msgid "file to"
 msgstr "File con"
 
-#: /var/www/fog/lib/service/fogservice.class.php:707
+#: /var/www/fog/lib/service/fogservice.class.php:723
 msgid "Starting Sync Actions"
 msgstr "Avviare le azioni di sincronizzazione"
 
-#: /var/www/fog/lib/service/fogservice.class.php:766
+#: /var/www/fog/lib/service/fogservice.class.php:782
 msgid "Started sync for"
 msgstr "Sincronizzazione iniziata per"
 
-#: /var/www/fog/lib/service/fogservice.class.php:798
+#: /var/www/fog/lib/service/fogservice.class.php:814
 msgid "Task started"
 msgstr "Attività iniziata"
 
