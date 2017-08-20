@@ -2033,9 +2033,10 @@ abstract class FOGPage extends FOGBase
                     true
                 );
             if (!$validate) {
-                printf(
-                    '###%s',
-                    self::$foglang['InvalidLogin']
+                echo json_encode(
+                    array(
+                        'error' => self::$foglang['InvalidLogin']
+                    )
                 );
                 exit;
             }
@@ -3180,9 +3181,10 @@ abstract class FOGPage extends FOGBase
                     true
                 );
             if (!$validate) {
-                printf(
-                    '###%s',
-                    self::$foglang['InvalidLogin']
+                echo json_encode(
+                    array(
+                        'error' => self::$foglang['InvalidLogin']
+                    )
                 );
                 exit;
             }
@@ -3227,21 +3229,19 @@ abstract class FOGPage extends FOGBase
                 ),
                 array($this->childClass => &$this->obj)
             );
-            self::setMessage(
-                sprintf(
-                    '%s %s: %s',
-                    $this->childClass,
-                    _('deleted'),
-                    $this->obj->get('name')
-                )
-            );
             self::resetRequest();
-            self::redirect(
-                sprintf(
-                    '?node=%s',
-                    $this->node
+            echo json_encode(
+                array(
+                    'msg' => sprintf(
+                        '%s %s: %s',
+                        $this->childClass,
+                        _('deleted'),
+                        $this->obj->get('name')
+                    ),
+                    'title' => _('Delete Success')
                 )
             );
+            exit;
         } catch (Exception $e) {
             self::$HookManager->processEvent(
                 sprintf(
@@ -3250,8 +3250,13 @@ abstract class FOGPage extends FOGBase
                 ),
                 array($this->childClass => &$this->obj)
             );
-            self::setMessage($e->getMessage());
-            self::redirect($this->formAction);
+            echo json_encode(
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('Delete Fail')
+                )
+            );
+            exit;
         }
     }
     /**
