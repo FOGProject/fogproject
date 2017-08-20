@@ -347,7 +347,7 @@ $.fn.fogVariable = function(opts) {
          * Bootstrap style file input text updater.
          */
         var input = $(this),
-            numFiles = input.get(0).files ? input.get(0).files : 1,
+            numFiles = input.get(0).files ? input.get(0).files.length : 1,
             label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
         /**
          * Triggers the fileselect event.
@@ -849,15 +849,43 @@ function loginDialog(
             }]
         });
     } else {
-        ajaxRun(
-            '',
-            '',
-            url,
-            selector,
-            formid,
-            target,
-            authneeded
-        );
+        sleeptime = 3000;
+        BootstrapDialog.show({
+            title: title,
+            message: 'Preparing Actions',
+            buttons: [{
+                label: label,
+                cssClass: css,
+                action: function(dialogItself) {
+                    ajaxRun(
+                        '',
+                        '',
+                        url,
+                        selector,
+                        formid,
+                        target,
+                        authneeded,
+                        dialogItself
+                    );
+                }
+            }, {
+                label: close,
+                action: function(dialogItself) {
+                    dialogItself.close();
+                }
+            }],
+            onshown: function(dialogRef) {
+                bootstrapdialogopen = setTimeout(function() {
+                    dialogRef.close();
+                }, sleeptime);
+            },
+            onhidden: function(dialogRef) {
+                clearTimeout(bootstrapdialogopen);
+            }
+        });
+        setTimeout(function() {
+            $('.modal-footer button:first').trigger('click');
+        }, 1000);
     }
 }
 /**
@@ -951,24 +979,33 @@ function ajaxRun(
                 dialog.setMessage('Attempting to perform actions.');
             }
         },
-        complete: function(hdata) {
-            str = new RegExp('^[#][#][#]');
-            if (!str.test(hdata.responseText)) {
-                if (ids.length > 0) {
-                    location.href = '?node='+node;
-                } else {
-                    if (authneeded) {
-                        $('<form id="'+formid+'" method="post" action="'+url+'"><input type="hidden" name="fogguiuser" value="'+username+'"/><input type="hidden" name="fogguipass" value="'+password+'"/></form>').appendTo('body').submit().remove();
-                        dialog.close();
-                    } else {
-                        $('<form id="'+formid+'" method="post" action="'+url+'"></form>').appendTo('body').submit().remove();
-                    }
+        success: function(data) {
+            if (data.error) {
+                msg = data.error;
+                type = BootstrapDialog.TYPE_WARNING;
+                sleeptime = 5000;
+            } else {
+                msg = data.msg;
+                type = BootstrapDialog.TYPE_SUCCESS;
+                sleeptime = 2000;
+            }
+            dialog
+                .setTitle(title)
+                .setMessage(msg)
+                .setType(type);
+            if (data.error) {
+                if (authneeded) {
+                    setTimeout(function() {
+                        eval(target+'(url, dialog)');
+                    }, 3000);
                 }
             } else {
-                setTimeout(function() {
-                    eval(target+'(url, dialog)');
-                }, 3000);
-                dialog.setMessage(hdata.responseText.replace(/^[#][#][#]/g, ''));
+                if (authneeded) {
+                    dialog.close();
+                    $('<form id="'+formid+'" method="post" action="'+url+'"><input type="hidden" name="fogguiuser" value="'+username+'"/><input type="hidden" name="fogguipass" value="'+password+'"/></form>').appendTo('body').submit().remove();
+                } else {
+                    $('<form id="'+formid+'" method="post" action="'+url+'"></form>').appendTo('body').submit().remove();
+                }
             }
         }
     });
