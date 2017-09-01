@@ -42,9 +42,6 @@ class HostManagementPage extends FOGPage
     {
         $this->name = 'Host Management';
         parent::__construct($this->name);
-        if (!self::$Host instanceof Host) {
-            self::$Host = new Host();
-        }
         if (self::$pendingHosts > 0) {
             $this->menu['pending'] = self::$foglang['PendingHosts'];
         }
@@ -650,7 +647,7 @@ class HostManagementPage extends FOGPage
                 'Module',
                 array('isDefault' => 1)
             );
-            $Host = self::getClass('Host')
+            self::$Host
                 ->set('name', $name)
                 ->set('description', $desc)
                 ->set('imageID', $image)
@@ -699,7 +696,6 @@ class HostManagementPage extends FOGPage
                 $hook,
                 array('Host' => &$Host)
             );
-        unset($Host);
         echo $msg;
         exit;
     }

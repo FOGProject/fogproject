@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-01 18:00-0400\n"
+"POT-Creation-Date: 2017-09-01 18:06-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -382,7 +382,7 @@ msgstr ""
 #: /var/www/fog/lib/fog/fogbase.class.php:2258
 #: /var/www/fog/lib/fog/fogftp.class.php:370
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1137
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2855
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2851
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:619
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:58
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:216
@@ -645,7 +645,7 @@ msgstr ""
 #: /var/www/fog/lib/fog/fogftp.class.php:372
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:3211
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:87
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2529
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2525
 #: /var/www/fog/lib/reports/virus_history.report.php:35
 #: /var/www/fog/lib/reports/virus_history.report.php:42
 #: /var/www/fog/lib/service/fogservice.class.php:419
@@ -715,7 +715,7 @@ msgid "You are only allowed to assign"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogftp.class.php:378
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:178
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:175
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:326
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:392
 #: /var/www/fog/lib/reports/imaging_log.report.php:34
@@ -727,7 +727,7 @@ msgstr ""
 #: /var/www/fog/lib/pages/dashboardpage.class.php:225
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:90
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:87
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2669
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2665
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1261
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1335
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:467
@@ -836,15 +836,15 @@ msgstr ""
 
 #: /var/www/fog/lib/fog/page.class.php:496
 #: /var/www/fog/lib/fog/page.class.php:507
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2730
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2758
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2726
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2754
 #: /var/www/fog/lib/reports/user_tracking.report.php:288
 #: /var/www/fog/commons/text.php:46
 msgid "Logout"
 msgstr ""
 
 #: /var/www/fog/lib/fog/page.class.php:515
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2747
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2743
 #: /var/www/fog/lib/reports/user_tracking.report.php:289
 #: /var/www/fog/commons/text.php:114
 msgid "Login"
@@ -911,8 +911,8 @@ msgstr ""
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:168
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:91
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:896
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:203
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3114
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:200
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3110
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:180
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:83
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:472
@@ -993,7 +993,7 @@ msgid "Inventory Desc"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:357
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2421
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2417
 msgid "Primary User"
 msgstr ""
 
@@ -1006,19 +1006,19 @@ msgid "Other Tag 2"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:360
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2441
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2437
 msgid "System Manufacturer"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:361
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1715
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2442
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2438
 #: /var/www/fog/lib/reports/inventory_report.report.php:43
 msgid "System Product"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:362
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2443
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2439
 msgid "System Version"
 msgstr ""
 
@@ -1029,22 +1029,22 @@ msgid "System Serial"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:364
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2446
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2442
 msgid "System Type"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:365
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2448
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2444
 msgid "BIOS Version"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:366
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2447
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2443
 msgid "BIOS Vendor"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:367
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2449
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2445
 msgid "BIOS Date"
 msgstr ""
 
@@ -1069,12 +1069,12 @@ msgid "MB Asset"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:373
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2455
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2451
 msgid "CPU Manufacturer"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:374
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2456
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2452
 msgid "CPU Version"
 msgstr ""
 
@@ -1084,13 +1084,13 @@ msgid "CPU Speed"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:376
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2458
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2454
 msgid "CPU Max Speed"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:377
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1714
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2459
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2455
 #: /var/www/fog/lib/reports/inventory_report.report.php:42
 #: /var/www/fog/lib/reports/inventory_report.report.php:87
 msgid "Memory"
@@ -1109,22 +1109,22 @@ msgid "HD Serial"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:381
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2463
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2459
 msgid "Chassis Manufacturer"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:382
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2464
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2460
 msgid "Chassis Version"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:383
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2465
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2461
 msgid "Chassis Serial"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:384
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2466
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2462
 msgid "Chassis Asset"
 msgstr ""
 
@@ -1190,14 +1190,14 @@ msgstr ""
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:576
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:194
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:227
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:853
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1173
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1582
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1716
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2150
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2266
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2332
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2471
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:849
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1169
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1578
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1712
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2146
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2262
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2328
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2467
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1136
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1376
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:824
@@ -1232,7 +1232,7 @@ msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:728
 #: /var/www/fog/lib/fog/fogpage.class.php:4224
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:859
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:855
 msgid "Delete selected"
 msgstr ""
 
@@ -1249,7 +1249,7 @@ msgstr ""
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:740
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:807
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:701
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2554
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2550
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:1019
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:1473
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:558
@@ -1405,7 +1405,7 @@ msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1432
 #: /var/www/fog/lib/fog/fogpage.class.php:1876
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:180
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:177
 #: /var/www/fog/lib/service/multicastmanager.class.php:253
 #: /var/www/fog/lib/service/multicastmanager.class.php:294
 #: /var/www/fog/lib/service/multicastmanager.class.php:315
@@ -1441,7 +1441,7 @@ msgid "Scheduled date is in the past"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1569
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2531
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2527
 #: /var/www/fog/lib/reports/equipment_loan.report.php:227
 #: /var/www/fog/lib/reports/equipment_loan.report.php:236
 #: /var/www/fog/lib/reports/virus_history.report.php:37
@@ -1541,7 +1541,7 @@ msgid "Failed to start tasking type"
 msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1852
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:737
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:733
 msgid "Cron Schedule"
 msgstr ""
 
@@ -1656,8 +1656,8 @@ msgstr ""
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:236
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:931
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1067
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1624
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1849
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1620
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1845
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:657
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1283
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:457
@@ -1719,9 +1719,9 @@ msgstr ""
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:1584
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:953
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1078
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:864
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1727
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1925
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:860
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1723
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1921
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1387
 #: /var/www/fog/commons/text.php:36
 msgid "Remove"
@@ -1916,8 +1916,8 @@ msgstr ""
 
 #: /var/www/fog/lib/fog/fogpage.class.php:4127
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:606
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:738
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2668
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:734
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2664
 #: /var/www/fog/lib/reports/user_tracking.report.php:235
 #: /var/www/fog/lib/reports/user_tracking.report.php:256
 #: /var/www/fog/commons/text.php:80
@@ -1982,7 +1982,7 @@ msgstr ""
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:133
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:584
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2863
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2859
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:163
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:509
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:74
@@ -2215,8 +2215,8 @@ msgstr ""
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:867
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:517
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:607
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1170
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2468
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1166
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2464
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1133
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:821
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:1350
@@ -2329,7 +2329,7 @@ msgid "Start Session"
 msgstr ""
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:1513
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2851
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2847
 #: /var/www/fog/lib/reports/imaging_log.report.php:35
 msgid "Start"
 msgstr ""
@@ -2357,7 +2357,7 @@ msgstr ""
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:807
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:936
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:1135
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3008
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3004
 #: /var/www/fog/lib/reports/imaging_log.report.php:59
 msgid "Start Time"
 msgstr ""
@@ -2369,7 +2369,7 @@ msgstr ""
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:1563
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:808
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:937
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2856
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2852
 #: /var/www/fog/lib/reports/snapin_log.report.php:35
 #: /var/www/fog/commons/text.php:106
 msgid "State"
@@ -2499,7 +2499,7 @@ msgstr ""
 
 #: /var/www/fog/lib/pages/dashboardpage.class.php:393
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:605
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2667
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2663
 #: /var/www/fog/lib/reports/user_tracking.report.php:238
 #: /var/www/fog/lib/reports/user_tracking.report.php:261
 #: /var/www/fog/commons/text.php:79
@@ -2956,7 +2956,7 @@ msgstr ""
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1076
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1412
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2670
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2666
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:75
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:75
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:145
@@ -3482,8 +3482,8 @@ msgid "Default Refresh Rate"
 msgstr ""
 
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:651
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2579
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2941
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2575
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2937
 #: /var/www/fog/lib/reports/user_tracking.report.php:294
 #: /var/www/fog/commons/text.php:110
 msgid "N/A"
@@ -3789,7 +3789,7 @@ msgid "General Information"
 msgstr ""
 
 #: /var/www/fog/lib/pages/serverinfo.class.php:167
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2864
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2860
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:779
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1522
 #: /var/www/fog/lib/pages/storagemanagementpage.class.php:60
@@ -3887,8 +3887,8 @@ msgstr ""
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:49
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:133
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:789
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1476
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1684
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1472
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1680
 msgid "TCP/IP"
 msgstr ""
 
@@ -3900,8 +3900,8 @@ msgstr ""
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:217
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:617
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:752
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1439
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1643
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1435
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1639
 msgid "Printer Type"
 msgstr ""
 
@@ -4117,7 +4117,7 @@ msgid "Group EFI Exit Type"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:546
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1203
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1199
 msgid "Reset Encryption Data"
 msgstr ""
 
@@ -4134,7 +4134,7 @@ msgid "Group image association"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:676
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:718
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:714
 #: /var/www/fog/commons/text.php:82
 msgid "Power Management"
 msgstr ""
@@ -4148,8 +4148,8 @@ msgid "Delete all PM tasks?"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:751
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1438
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1642
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1434
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1638
 msgid "Printer Alias"
 msgstr ""
 
@@ -4166,22 +4166,22 @@ msgid "Select management level for these hosts"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:830
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1508
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1504
 msgid "This setting turns off all FOG Printer Management"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:832
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1510
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1506
 msgid "Although there are multiple levels already"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:834
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1512
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1508
 msgid "between host and global settings"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:836
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1514
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1510
 msgid "this is just another to ensure safety"
 msgstr ""
 
@@ -4190,7 +4190,7 @@ msgid "No Printer Management"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:852
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1531
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1527
 msgid ""
 "This setting only adds and removes printers that are managed by FOG. If the "
 "printer exists in printer management but is not assigned to a host, it will "
@@ -4199,12 +4199,12 @@ msgid ""
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:869
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1549
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1545
 msgid "FOG Managed Printers"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:876
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1556
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1552
 msgid ""
 "This setting will only allow FOG Assigned printers to be added to the host. "
 "Any printer that is not assigned will be removed including non-FOG managed "
@@ -4212,12 +4212,12 @@ msgid ""
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:889
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1570
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1566
 msgid "Only Assigned Printers"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:896
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1577
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1573
 msgid "Update printer configuration"
 msgstr ""
 
@@ -4230,7 +4230,7 @@ msgid "Make Printer Changes"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:926
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1612
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1608
 msgid "Add Printers"
 msgstr ""
 
@@ -4239,14 +4239,14 @@ msgid "Update Default Printer"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:948
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1722
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1718
 msgid "Remove selected printers"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:990
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1764
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1867
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3007
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1760
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1863
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3003
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:161
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:494
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:959
@@ -4256,8 +4256,8 @@ msgid "Snapin Name"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:991
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1765
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1868
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1761
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1864
 msgid "Snapin Created"
 msgstr ""
 
@@ -4274,100 +4274,100 @@ msgid "Make Snapin Changes"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1062
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1844
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1840
 msgid "Add selected snapins"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1073
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1920
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1916
 msgid "Remove selected snapins"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1112
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1119
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1129
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1961
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1968
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1978
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1957
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1964
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1974
 msgid "This module is only used on the old client"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1113
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1962
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1958
 msgid "The old client is what was distributed with FOG 1.2.0 and earlier"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1114
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1963
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1959
 msgid "This module did not work past Windows XP due to"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1115
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1964
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1960
 msgid "UAC introduced in Vista and up"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1120
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1130
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1969
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1979
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1965
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1975
 msgid "The old client is what was distributed with"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1121
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1131
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1970
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1980
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1966
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1976
 msgid "FOG 1.2.0 and earlier"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1122
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1971
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1967
 msgid "This module has been replaced in the new client"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1123
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1972
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1968
 msgid "and the equivalent module for what Green"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1124
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1973
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1969
 msgid "FOG did is now called Power Management"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1125
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1974
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1970
 msgid "This is only here to maintain old client operations"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1132
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1981
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1977
 msgid "This module did not work past Windows XP due"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1133
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1982
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1978
 msgid "to UAC introduced in Vista and up"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1137
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1986
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1982
 msgid "This module is only used"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1138
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1987
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1983
 msgid "with modules and config"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1139
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1988
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1984
 msgid "on the old client"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1153
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2002
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1998
 msgid "Select/Deselect All"
 msgstr ""
 
@@ -4380,22 +4380,22 @@ msgid "Group module settings"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1307
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2145
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2141
 msgid "Update module configurations"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1379
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2202
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2198
 msgid "Screen Width (in pixels)"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1384
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2207
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2203
 msgid "Screen Height (in pixels)"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1389
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2212
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2208
 msgid "Screen Refresh Rate (in Hz)"
 msgstr ""
 
@@ -4404,12 +4404,12 @@ msgid "Group Screen Resolution"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1449
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2261
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2257
 msgid "Update display resolution"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1486
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2294
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2290
 msgid "Auto Log Out Time (in minutes)"
 msgstr ""
 
@@ -4418,7 +4418,7 @@ msgid "Group Auto Logout"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1519
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2327
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2323
 msgid "Update auto-logout time"
 msgstr ""
 
@@ -4463,7 +4463,7 @@ msgid "Host Memory"
 msgstr ""
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:2028
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3322
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3318
 msgid "You must select an action to perform"
 msgstr ""
 
@@ -4488,7 +4488,7 @@ msgid "Started By:"
 msgstr ""
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:72
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3165
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3161
 #: /var/www/fog/commons/text.php:71
 msgid "MAC"
 msgstr ""
@@ -4523,8 +4523,8 @@ msgstr ""
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:344
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:934
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:416
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1035
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:413
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1031
 #: /var/www/fog/lib/reports/snapin_log.report.php:33
 #: /var/www/fog/lib/reports/snapin_log.report.php:61
 #: /var/www/fog/lib/reports/product_keys.report.php:34
@@ -4537,7 +4537,7 @@ msgid "Host Name"
 msgstr ""
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:345
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:181
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:178
 msgid "Assigned Image"
 msgstr ""
 
@@ -4559,7 +4559,7 @@ msgid "Invalid image assigned to host"
 msgstr ""
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:541
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2854
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2850
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:418
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:428
 #: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:439
@@ -5080,58 +5080,58 @@ msgstr ""
 msgid "To view a report, select an item from the menu"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:179
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:176
 msgid "Imaged"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:226
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:223
 msgid "Goto task list"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:298
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:295
 msgid "Pending Host List"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:336
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:333
 msgid "Approve selected hosts"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:341
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:338
 msgid "Delete selected hosts"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:370
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:367
 msgid "Approve Success"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:371
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:368
 msgid "Selected hosts approved successfully"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:379
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:376
 msgid "Deleted Success"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:380
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:377
 msgid "Selected hosts deleted successfully"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:398
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:395
 msgid "New Host"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:426
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1043
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:423
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1039
 msgid "Primary MAC"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:436
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:433
 #: /var/www/fog/lib/reports/user_tracking.report.php:260
 msgid "Host Description"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:444
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1122
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:441
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1118
 #: /var/www/fog/lib/plugins/location/hooks/addlocationhost.hook.php:248
 #: /var/www/fog/lib/plugins/site/hooks/addsitehost.hook.php:223
 #: /var/www/fog/lib/reports/product_keys.report.php:38
@@ -5140,305 +5140,305 @@ msgstr ""
 msgid "Host Product Key"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:452
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1129
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:449
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1125
 msgid "Host Image"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:461
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1132
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:458
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1128
 #: /var/www/fog/lib/reports/product_keys.report.php:42
 #: /var/www/fog/lib/reports/host_list.report.php:41
 msgid "Host Kernel"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:469
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1140
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:466
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1136
 msgid "Host Kernel Arguments"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:476
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1148
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:473
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1144
 msgid "Host Init"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:482
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1156
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:479
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1152
 msgid "Host Primary Disk"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:489
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1164
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:486
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1160
 msgid "Host Bios Exit Type"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:494
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1167
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:491
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1163
 msgid "Host EFI Exit Type"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:622
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:619
 msgid "A host name is required!"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:627
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:624
 msgid "A mac address is required!"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:632
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:629
 msgid "A host already exists with this name!"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:637
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:634
 msgid "MAC Format is invalid"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:644
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:641
 msgid "A host with this mac already exists with name"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:679
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:676
 msgid "Add host failed!"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:684
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:681
 msgid "Host added!"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:685
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:682
 msgid "Host Create Success"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:693
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:690
 msgid "Host Create Fail"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:837
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:833
 msgid "Current Power Management settings"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:848
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:844
 msgid "Update PM Values"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:913
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1222
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:909
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1218
 msgid "Remove MAC"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:921
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1064
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1230
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:917
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1060
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1226
 msgid "Ignore MAC on Client"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:923
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1066
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1232
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:919
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1062
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1228
 msgid "I.M.C."
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:940
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1083
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1247
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:936
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1079
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1243
 msgid "Ignore MAC on Image"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:942
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1085
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1249
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:938
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1081
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1245
 msgid "I.M.I."
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:975
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:971
 msgid "Approve MAC"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:988
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:984
 msgid "Approve all pending? "
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:994
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:990
 msgid "Approve all pending macs"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1056
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1052
 msgid "Add MAC"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1101
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1097
 msgid "Additional MACs"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1108
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1104
 #: /var/www/fog/commons/text.php:229
 msgid "Pending MACs"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1114
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1110
 msgid "Host description"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1264
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1260
 msgid "Host general"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1339
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1335
 msgid "Please enter a hostname"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1344
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1340
 msgid "Please enter a valid hostname"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1347
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1343
 msgid "Please use another hostname"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1351
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1347
 msgid "Please enter a mac address"
 msgstr ""
 
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1351
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1355
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1359
 msgid "Please enter a valid mac address"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1365
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1361
 msgid "Cannot change image when in tasking"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1487
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1483
 msgid "Host Printers"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1497
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1493
 msgid "Host printer configuration"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1502
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1498
 msgid "Select management level for this host"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1524
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1520
 msgid "No Printer Manaagement"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1604
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1600
 msgid "Check here to see what printers can be added"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1619
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1615
 msgid "Add selected printers"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1641
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1637
 msgid "Default"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1704
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1700
 msgid "Update/Remove printers"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1711
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1707
 msgid "Update default printer"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1806
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1802
 msgid "Host Snapins"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1829
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1825
 msgid "Check here to see what snapins can be added"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1837
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1833
 msgid "Add Snapins"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1913
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:1909
 msgid "Remove snapins"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2129
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2125
 msgid "Host FOG Client Module configuration"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2139
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2135
 msgid "Host module settings"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2255
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2251
 msgid "Host Screen Resolution"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2321
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2317
 msgid "Host Auto Logout"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2428
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2424
 msgid "Other Tag #1"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2435
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2431
 msgid "Other Tag #2"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2444
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2440
 msgid "System Serial Number"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2445
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2441
 msgid "System UUID"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2450
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2446
 msgid "Motherboard Manufacturer"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2451
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2447
 msgid "Motherboard Product Name"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2452
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2448
 msgid "Motherboard Version"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2453
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2449
 msgid "Motherboard Serial Number"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2454
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2450
 msgid "Motherboard Asset Tag"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2457
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2453
 msgid "CPU Normal Speed"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2460
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2456
 msgid "Hard Disk Model"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2461
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2457
 msgid "Hard Disk Firmware"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2462
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2458
 msgid "Hard Disk Serial Number"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2474
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2470
 msgid "Host Hardware Inventory"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2528
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2524
 #: /var/www/fog/lib/reports/virus_history.report.php:34
 #: /var/www/fog/lib/reports/virus_history.report.php:41
 msgid "Virus Name"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2530
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2526
 #: /var/www/fog/lib/reports/virus_history.report.php:36
 #: /var/www/fog/lib/reports/virus_history.report.php:43
 #: /var/www/fog/lib/reports/virus_history.report.php:113
@@ -5446,174 +5446,174 @@ msgstr ""
 msgid "Mode"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2532
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2528
 #: /var/www/fog/lib/reports/virus_history.report.php:45
 #: /var/www/fog/commons/text.php:90
 msgid "Clear"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2573
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2569
 #: /var/www/fog/lib/reports/virus_history.report.php:93
 msgid "Quarantine"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2576
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2572
 #: /var/www/fog/lib/reports/virus_history.report.php:94
 #: /var/www/fog/commons/text.php:112
 msgid "Report"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2610
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2606
 msgid "Host Virus History"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2623
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2619
 msgid "Clear all history"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2633
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2629
 msgid "Virus Report"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2737
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2733
 msgid "Logout not found"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2739
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2735
 msgid "Setting logout to one second prior to next login"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2786
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2782
 msgid "Host Login History"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2796
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2792
 msgid "View History For"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2806
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2802
 msgid "Selected Logins"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2816
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2812
 msgid "History Graph"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2849
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2845
 msgid "Engineer"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2850
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2846
 msgid "Imaged From"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2852
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2848
 #: /var/www/fog/lib/reports/imaging_log.report.php:36
 msgid "End"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2853
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3010
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2849
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3006
 #: /var/www/fog/lib/reports/imaging_log.report.php:37
 #: /var/www/fog/lib/reports/imaging_log.report.php:62
 msgid "Duration"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2894
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2890
 #: /var/www/fog/lib/reports/imaging_log.report.php:66
 #: /var/www/fog/commons/text.php:101
 msgid "Capture"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2895
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2891
 #: /var/www/fog/lib/reports/imaging_log.report.php:67
 #: /var/www/fog/commons/text.php:100
 msgid "Deploy"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2976
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:2972
 msgid "Host Imaging History"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3009
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3005
 #: /var/www/fog/commons/text.php:116
 msgid "Complete"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3011
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3007
 #: /var/www/fog/lib/reports/snapin_log.report.php:36
 msgid "Return Code"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3055
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3051
 msgid "Snapin task not completed"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3057
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3053
 msgid "No complete time recorded"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3089
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3085
 msgid "Host Snapin History"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3126
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3122
 msgid "Host approved"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3128
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3124
 msgid "Host approval failed."
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3141
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3137
 msgid "Approve Host"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3148
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3144
 msgid "Approve this host?"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3169
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3165
 msgid "Approved"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3196
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3192
 msgid "All Pending MACs approved"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3651
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3647
 msgid "Virus items removed!"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3657
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3653
 msgid "Host Update Failed"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3679
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3675
 msgid "Host updated!"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3680
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3676
 msgid "Host Update Success"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3688
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3684
 msgid "Host Update Fail"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3729
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3725
 msgid "Failed to create new Group"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3733
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3729
 msgid "Successfully added selected hosts to the group!"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3734
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3730
 msgid "Host Add to Group Success"
 msgstr ""
 
-#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3741
+#: /var/www/fog/lib/pages/hostmanagementpage.class.php:3737
 msgid "Host Add to Group Fail"
 msgstr ""
 
