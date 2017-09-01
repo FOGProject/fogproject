@@ -42,6 +42,9 @@ class HostManagementPage extends FOGPage
     {
         $this->name = 'Host Management';
         parent::__construct($this->name);
+        if (!self::$Host instanceof Host) {
+            self::$Host = new Host();
+        }
         if (self::$pendingHosts > 0) {
             $this->menu['pending'] = self::$foglang['PendingHosts'];
         }
