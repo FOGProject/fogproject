@@ -1807,9 +1807,9 @@ function resetEncData(type, typeID) {
             sub: 'clearAES'
         };
         if (typeID == 'host') {
-            $.extend(postdata, {id: id});
+            postdata = {id: id};
         } else {
-            $.extend(postdata, {groupID: id});
+            postdata = {groupid: id};
         }
         BootstrapDialog.show({
             title: 'Clear Encryption',
@@ -1819,7 +1819,7 @@ function resetEncData(type, typeID) {
                 cssClass: 'btn-warning',
                 action: function(dialogItself) {
                     $.post(
-                        '../management/index.php',
+                        '../management/index.php?sub=clearAES',
                         postdata
                     );
                     dialogItself.close();
