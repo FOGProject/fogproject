@@ -855,7 +855,7 @@ function loginDialog(
             message: 'Preparing Actions',
             buttons: [{
                 label: label,
-                cssClass: css,
+                cssClass: css + ' ' + label.toLowerCase(),
                 action: function(dialogItself) {
                     ajaxRun(
                         '',
@@ -884,7 +884,7 @@ function loginDialog(
             }
         });
         setTimeout(function() {
-            $('.modal-footer button:first').trigger('click');
+            $('.'+label.toLowerCase()).trigger('click');
         }, 1000);
     }
 }
@@ -1000,11 +1000,11 @@ function ajaxRun(
                     }, 3000);
                 }
             } else {
+                dialog.close();
                 if (authneeded) {
-                    dialog.close();
-                    $('<form id="'+formid+'" method="post" action="'+url+'"><input type="hidden" name="fogguiuser" value="'+username+'"/><input type="hidden" name="fogguipass" value="'+password+'"/></form>').appendTo('body').submit().remove();
+                    $('<form id="'+formid+'" method="post" action="'+url+'"><input type="hidden" name="fogguiuser" value="'+username+'"/><input type="hidden" name="fogguipass" value="'+password+'"/><input type="hidden" name="nojson"/></form>').appendTo('body').submit().remove();
                 } else {
-                    $('<form id="'+formid+'" method="post" action="'+url+'"></form>').appendTo('body').submit().remove();
+                    $('<form id="'+formid+'" method="post" action="'+url+'"><input type="hidden" name="nojson"/></form>').appendTo('body').submit().remove();
                 }
             }
         }
