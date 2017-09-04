@@ -146,7 +146,7 @@ class Virus_History extends ReportManagementPage
             );
             echo '</div>';
         }
-        $this->ReportMaker->outputReport(0);
+        $this->ReportMaker->outputReport(0, true);
         echo '</div>';
         echo '</div>';
         echo '</div>';

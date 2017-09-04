@@ -144,7 +144,7 @@ class Pending_MAC_List extends ReportManagementPage
             );
             echo '</div>';
         }
-        $this->ReportMaker->outputReport(0);
+        $this->ReportMaker->outputReport(0, true);
         echo '</div>';
         echo '</div>';
         if (count($this->data) > 0) {

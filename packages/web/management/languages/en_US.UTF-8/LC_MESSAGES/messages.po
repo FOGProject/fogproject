@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-04 17:51-0400\n"
+"POT-Creation-Date: 2017-09-04 18:05-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -182,12 +182,12 @@ msgstr ""
 msgid "Could not notify"
 msgstr "Could not read tmp file."
 
-#: /var/www/fog/lib/fog/reportmaker.class.php:156
+#: /var/www/fog/lib/fog/reportmaker.class.php:157
 #, fuzzy
 msgid "Invalid Type"
 msgstr "Invalid type"
 
-#: /var/www/fog/lib/fog/reportmaker.class.php:332
+#: /var/www/fog/lib/fog/reportmaker.class.php:333
 #, fuzzy
 msgid "Export Complete"
 msgstr "Complete"

@@ -136,11 +136,12 @@ class ReportMaker extends FOGBase
     /**
      * Output the report.
      *
-     * @param int $intType the type of report
+     * @param int  $intType the type of report
+     * @param bool $nojson  bypass to display.
      *
      * @return void
      */
-    public function outputReport($intType = 0)
+    public function outputReport($intType = 0, $nojson = false)
     {
         $keys = array_keys($this->types);
         $type = filter_input(INPUT_GET, 'type');
@@ -181,7 +182,7 @@ class ReportMaker extends FOGBase
             ) :
             0
         );
-        if (isset($_POST['nojson'])) {
+        if (isset($_POST['nojson']) || true === $nojson) {
             switch ($intType) {
             case 0:
                 echo implode("\n", (array)$this->_strHTML);
