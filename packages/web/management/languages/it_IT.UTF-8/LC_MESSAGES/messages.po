@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-04 17:51-0400\n"
+"POT-Creation-Date: 2017-09-04 18:05-0400\n"
 "PO-Revision-Date: 2017-08-30 10:07+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -169,12 +169,12 @@ msgstr "Event e data non sono impostati"
 msgid "Could not notify"
 msgstr "Non posso notificare"
 
-#: /var/www/fog/lib/fog/reportmaker.class.php:156
+#: /var/www/fog/lib/fog/reportmaker.class.php:157
 #, fuzzy
 msgid "Invalid Type"
 msgstr "tipo non valido"
 
-#: /var/www/fog/lib/fog/reportmaker.class.php:332
+#: /var/www/fog/lib/fog/reportmaker.class.php:333
 #, fuzzy
 msgid "Export Complete"
 msgstr "Completare"
