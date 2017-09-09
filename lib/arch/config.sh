@@ -13,7 +13,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-[[ -z $packages ]] && packages="apache bc curl dhcp gcc gzip lftp m4 make mariadb mod_fastcgi net-tools nfs-utils openssh openssl perl perl-crypt-passwdmd5 php php-apache php-fpm php-gd php-mcrypt tar tftp-hpa vsftpd wget xinetd"
+[[ -z $packages ]] && packages="apache bc cdrtools curl dhcp gcc gzip lftp m4 make mariadb mod_fastcgi net-tools nfs-utils openssh openssl perl perl-crypt-passwdmd5 php php-apache php-fpm php-gd php-mcrypt syslinux tar tftp-hpa vsftpd wget xinetd xz"
 [[ -z $packageinstaller ]] && packageinstaller="pacman -Sy --noconfirm"
 [[ -z $packagelist ]] && packagelist="pacman -Si"
 [[ -z $packageupdater ]] && packageupdater="pacman -Syu --noconfirm"
