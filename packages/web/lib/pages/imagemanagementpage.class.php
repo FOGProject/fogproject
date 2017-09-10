@@ -855,7 +855,7 @@ class ImageManagementPage extends FOGPage
         }
         $toprot = (int)isset($_POST['protected_image']);
         if (!$toprot) {
-            $toprot = $this->obj->get('protect');
+            $toprot = $this->obj->get('protected');
         }
         if ($toprot) {
             $toprot = ' checked';

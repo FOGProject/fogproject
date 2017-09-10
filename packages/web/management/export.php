@@ -25,7 +25,12 @@ if (FOGCore::getSetting('FOG_REAUTH_ON_EXPORT')) {
     $pass = $_POST['fogguipass'];
     $tmpUser = FOGCore::getClass('User')->passwordValidate($user, $pass);
     if (!$tmpUser) {
-        die('###'.$foglang['InvalidLogin']);
+        echo json_encode(
+            array(
+                'error' => self::$foglang['InvalidLogin']
+            )
+        );
+        exit;
     }
 }
 $report = unserialize($_SESSION['foglastreport']);

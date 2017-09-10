@@ -1064,9 +1064,10 @@ class StorageManagementPage extends FOGPage
                     true
                 );
             if ($validate) {
-                printf(
-                    '###%s',
-                    self::$foglang['InvalidLogin']
+                echo json_encode(
+                    array(
+                        'error' => self::$foglang['InvalidLogin']
+                    )
                 );
                 exit;
             }
@@ -1518,9 +1519,10 @@ class StorageManagementPage extends FOGPage
                     true
                 );
             if ($validate) {
-                printf(
-                    '###%s',
-                    self::$foglang['InvalidLogin']
+                echo json_encode(
+                    array(
+                        'error' => self::$foglang['InvalidLogin']
+                    )
                 );
                 exit;
             }

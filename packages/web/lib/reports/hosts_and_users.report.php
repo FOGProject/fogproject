@@ -145,7 +145,7 @@ class Hosts_And_Users extends ReportManagementPage
             );
             echo '</div>';
         }
-        $this->ReportMaker->outputReport(0);
+        $this->ReportMaker->outputReport(0, true);
         echo '</div>';
         echo '</div>';
         echo '</div>';
