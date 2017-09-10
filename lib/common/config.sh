@@ -77,5 +77,3 @@ else
     esac
 fi
 serviceList="$initdMCfullname $initdIRfullname $initdSRfullname $initdSDfullname $initdPHfullname $initdSHfullname $initdISfullname"
-httpproto="http"
-[[ $forcehttps == yes ]] && httpproto="https"

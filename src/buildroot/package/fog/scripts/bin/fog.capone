@@ -23,7 +23,7 @@ dots "Looking for images"
 count=0
 imgret=""
 while [[ -z $imgret ]]; do
-    imgret=$(curl -Lks --data "action=imagelookup&key=${dmi64}" http://${web}service/capone.php 2>/dev/null)
+    imgret=$(curl -Lks --data "action=imagelookup&key=${dmi64}" ${web}service/capone.php 2>/dev/null)
     [[ -n $imgret ]] && continue
     if [[ $count -ge 10 ]]; then
         echo "Failed"

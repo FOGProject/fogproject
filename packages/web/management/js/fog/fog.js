@@ -14,6 +14,8 @@ var startTime = new Date().getTime(),
     lastsub,
     pauseUpdate,
     cancelTasks,
+    MACLookupTimer,
+    MACLookupTimeout = 1000,
     pauseButton = $('#taskpause'),
     cancelButton = $('#taskcancel');
 var $_GET = getQueryParams(document.location.search),
@@ -345,7 +347,7 @@ $.fn.fogVariable = function(opts) {
          * Bootstrap style file input text updater.
          */
         var input = $(this),
-            numFiles = input.get(0).files ? input.get(0).files : 1,
+            numFiles = input.get(0).files ? input.get(0).files.length : 1,
             label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
         /**
          * Triggers the fileselect event.
@@ -847,15 +849,43 @@ function loginDialog(
             }]
         });
     } else {
-        ajaxRun(
-            '',
-            '',
-            url,
-            selector,
-            formid,
-            target,
-            authneeded
-        );
+        sleeptime = 3000;
+        BootstrapDialog.show({
+            title: title,
+            message: 'Preparing Actions',
+            buttons: [{
+                label: label,
+                cssClass: css + ' ' + label.toLowerCase(),
+                action: function(dialogItself) {
+                    ajaxRun(
+                        '',
+                        '',
+                        url,
+                        selector,
+                        formid,
+                        target,
+                        authneeded,
+                        dialogItself
+                    );
+                }
+            }, {
+                label: close,
+                action: function(dialogItself) {
+                    dialogItself.close();
+                }
+            }],
+            onshown: function(dialogRef) {
+                bootstrapdialogopen = setTimeout(function() {
+                    dialogRef.close();
+                }, sleeptime);
+            },
+            onhidden: function(dialogRef) {
+                clearTimeout(bootstrapdialogopen);
+            }
+        });
+        setTimeout(function() {
+            $('.'+label.toLowerCase()).trigger('click');
+        }, 1000);
     }
 }
 /**
@@ -949,24 +979,33 @@ function ajaxRun(
                 dialog.setMessage('Attempting to perform actions.');
             }
         },
-        complete: function(hdata) {
-            str = new RegExp('^[#][#][#]');
-            if (!str.test(hdata.responseText)) {
-                if (ids.length > 0) {
-                    location.href = '?node='+node;
-                } else {
-                    if (authneeded) {
-                        $('<form id="'+formid+'" method="post" action="'+url+'"><input type="hidden" name="fogguiuser" value="'+username+'"/><input type="hidden" name="fogguipass" value="'+password+'"/></form>').appendTo('body').submit().remove();
-                        dialog.close();
-                    } else {
-                        $('<form id="'+formid+'" method="post" action="'+url+'"></form>').appendTo('body').submit().remove();
-                    }
+        success: function(data) {
+            if (data.error) {
+                msg = data.error;
+                type = BootstrapDialog.TYPE_WARNING;
+                sleeptime = 5000;
+            } else {
+                msg = data.msg;
+                type = BootstrapDialog.TYPE_SUCCESS;
+                sleeptime = 2000;
+            }
+            dialog
+                .setTitle(title)
+                .setMessage(msg)
+                .setType(type);
+            if (data.error) {
+                if (authneeded) {
+                    setTimeout(function() {
+                        eval(target+'(url, dialog)');
+                    }, 3000);
                 }
             } else {
-                setTimeout(function() {
-                    eval(target+'(url, dialog)');
-                }, 3000);
-                dialog.setMessage(hdata.responseText.replace(/^[#][#][#]/g, ''));
+                dialog.close();
+                if (authneeded) {
+                    $('<form id="'+formid+'" method="post" action="'+url+'"><input type="hidden" name="fogguiuser" value="'+username+'"/><input type="hidden" name="fogguipass" value="'+password+'"/><input type="hidden" name="nojson"/></form>').appendTo('body').submit().remove();
+                } else {
+                    $('<form id="'+formid+'" method="post" action="'+url+'"><input type="hidden" name="nojson"/></form>').appendTo('body').submit().remove();
+                }
             }
         }
     });
@@ -1666,6 +1705,7 @@ function DeployStuff() {
  */
 function removeMACField() {
     $('.remove-mac').on('click', function(e) {
+        $(e.target).tooltip('hide');
         e.preventDefault();
         remove = $(this).parents('.addrow');
         tr = remove.parents('tr');
@@ -1682,6 +1722,7 @@ function removeMACField() {
         remove.remove();
         if ($('.addrow').length < 1) {
             tr.hide();
+            $('.additionalMACsRow').hide().parents('tr').hide();
         }
     });
 }
@@ -1698,80 +1739,41 @@ function MACChange(data) {
  * Update mac fields.
  */
 function MACUpdate() {
-    $('.mac-manufactor').each(function(evt) {
-        input = $(this).parent().find('input');
-        var mac = (
-            input.size() ?
-            input.val() :
-            $(this).parent().find('.mac').html()
-        );
-        $(this).load('../management/index.php?sub=getmacman&prefix='+mac);
-    });
+    setTimeout(function() {
+        $('.mac-manufactor').each(function(evt) {
+            input = $(this).parent().find('input');
+            var mac = (
+                input.size() ?
+                input.val() :
+                $(this).parent().find('.mac').html()
+            );
+            $(this).load('../management/index.php?sub=getmacman&prefix='+mac);
+        });
+    }, 1000);
     $('#mac, .additionalMAC').on('change keyup blur',function(e) {
+        e.preventDefault();
         MACChange($(this));
-        e.preventDefault();
     });
-    $('.add-mac').on('click', function(e) {
-        $('.additionalMACsRow').parents('tr').show();
-        $('.additionalMACsCell').append(
-            '<div class="addrow">'
-            + '<div class="col-xs-10">'
-            + '<div class="input-group">'
-            + '<span class="mac-manufactor input-group-addon"></span>'
-            + '<input type="text" class="macaddr additionalMAC form-control" '
-            + 'name="additionalMACs[]" maxlength="17"/>'
-            + '<span class="icon remove-mac fa fa-minus-circle hand '
-            + 'input-group-addon" data-toggle="tooltip" data-placement="top" '
-            + 'title="Remove MAC"></span>'
-            + '</div>'
-            + '</div>'
-            + '<div class="col-xs-1">'
-            + '<div class="row">'
-            + '<span data-toggle="tooltip" data-placement="top" '
-            + 'title="'
-            + 'Ignore MAC on Client'
-            + '" class="hand">'
-            + 'I.M.C.'
-            + '</span>'
-            + '</div>'
-            + '<div class="checkbox">'
-            + '<label>'
-            + '<input type="checkbox" name="igclient[]"/>'
-            + '</label>'
-            + '</div>'
-            + '</div>'
-            + '<div class="col-xs-1">'
-            + '<div class="row">'
-            + '<span data-toggle="tooltip" data-placement="top" '
-            + 'title="'
-            + 'Ignore MAC on Image'
-            + '" class="hand">'
-            + 'I.M.I.'
-            + '</span>'
-            + '</div>'
-            + '<div class="checkbox">'
-            + '<label>'
-            + '<input type="checkbox" name="igimage[]"/>'
-            + '</label>'
-            + '</div>'
-            + '</div>'
-            + '</div>'
-            + '</div>'
-        );
-        e.preventDefault();
-    });
-    if ($('.additionalMAC').size() < 1) {
+    setTimeout(function() {
+        $('.add-mac').on('click', function(e) {
+            var addrow = $('.addrowempty').clone().removeClass().addClass('addrow');
+            $('.additionalMACsRow').show().parents('tr').show();
+            $('.additionalMACsCell').append(addrow);
+            removeMACField();
+            e.preventDefault();
+        });
+    }, 1000);
+    if ($('.additionalMACsCell').find('.addrow').size() < 1) {
         $('.additionalMACsRow').hide().parents('tr').hide();
     } else {
         $('.additionalMACsRow').show();
     }
-    if ($('.pending-mac').size() < 1) {
+    if ($('.pendingMACsRow').find('.addrow').length < 1) {
         $('.pendingMACsRow').hide().parents('tr').hide();
     } else {
         $('.pendingMACsRow').show();
     }
     removeMACField();
-    setTimeout(MACUpdate, 1000);
 }
 /**
  * Validate cron inputs as appropriate.
@@ -1805,9 +1807,9 @@ function resetEncData(type, typeID) {
             sub: 'clearAES'
         };
         if (typeID == 'host') {
-            $.extend(postdata, {id: id});
+            postdata = {id: id};
         } else {
-            $.extend(postdata, {groupID: id});
+            postdata = {groupid: id};
         }
         BootstrapDialog.show({
             title: 'Clear Encryption',
@@ -1817,7 +1819,7 @@ function resetEncData(type, typeID) {
                 cssClass: 'btn-warning',
                 action: function(dialogItself) {
                     $.post(
-                        '../management/index.php',
+                        '../management/index.php?sub=clearAES',
                         postdata
                     );
                     dialogItself.close();

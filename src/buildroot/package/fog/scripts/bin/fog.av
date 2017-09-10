@@ -167,7 +167,7 @@ for disk in $disks; do
             let cnt+=1
             echo " * File id: $cnt"
             dots "Sending file id"
-            curl -Lks --data "sysuuid=${sysuuid}&mac=$mac&string=$b64&mode=$avmode" http://${web}service/av.php 2>/dev/null
+            curl -Lks --data "sysuuid=${sysuuid}&mac=$mac&string=$b64&mode=$avmode" ${web}service/av.php 2>/dev/null
             case $? in
                 0)
                     echo "Done"

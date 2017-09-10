@@ -1126,6 +1126,7 @@ writeUpdateFile() {
     escdocroot=$(echo $docroot | sed -e $replace)
     escwebroot=$(echo $webroot | sed -e $replace)
     esccaCreated=$(echo $caCreated | sed -e $replace)
+    eschttpproto=$(echo $httpproto | sed -e $replace)
     escstartrange=$(echo $startrange | sed -e $replace)
     escendrange=$(echo $endrange | sed -e $replace)
     escbootfilename=$(echo $bootfilename | sed -e $replace)
@@ -1223,6 +1224,9 @@ writeUpdateFile() {
             grep -q "caCreated=" $fogprogramdir/.fogsettings && \
                 sed -i "s/caCreated=.*/caCreated='$esccaCreated'/g" $fogprogramdir/.fogsettings || \
                 echo "caCreated='$caCreated'" >> $fogprogramdir/.fogsettings
+            grep -q "httpproto=" $fogprogramdir/.fogsettings && \
+                sed -i "s/httpproto=.*/httpproto='$eschttpproto'/g" $fogprogramdir/.fogsettings || \
+                echo "httpproto='$httpproto'" >> $fogprogramdir/.fogsettings
             grep -q "startrange=" $fogprogramdir/.fogsettings && \
                 sed -i "s/startrange=.*/startrange='$escstartrange'/g" $fogprogramdir/.fogsettings || \
                 echo "startrange='$startrange'" >> $fogprogramdir/.fogsettings
@@ -1288,6 +1292,7 @@ writeUpdateFile() {
             echo "docroot='$docroot'" >> "$fogprogramdir/.fogsettings"
             echo "webroot='$webroot'" >> "$fogprogramdir/.fogsettings"
             echo "caCreated='$caCreated'" >> "$fogprogramdir/.fogsettings"
+            echo "httpproto='$httpproto'" >> "$fogprogramdir/.fogsettings"
             echo "startrange='$startrange'" >> "$fogprogramdir/.fogsettings"
             echo "endrange='$endrange'" >> "$fogprogramdir/.fogsettings"
             echo "bootfilename='$bootfilename'" >> "$fogprogramdir/.fogsettings"
@@ -1333,6 +1338,7 @@ writeUpdateFile() {
         echo "docroot='$docroot'" >> "$fogprogramdir/.fogsettings"
         echo "webroot='$webroot'" >> "$fogprogramdir/.fogsettings"
         echo "caCreated='$caCreated'" >> "$fogprogramdir/.fogsettings"
+        echo "httpproto='$httpproto'" >> "$fogprogramdir/.fogsettings"
         echo "startrange='$startrange'" >> "$fogprogramdir/.fogsettings"
         echo "endrange='$endrange'" >> "$fogprogramdir/.fogsettings"
         echo "bootfilename='$bootfilename'" >> "$fogprogramdir/.fogsettings"
@@ -1422,14 +1428,15 @@ EOF
     dots "Resetting SSL Permissions"
     chown -R $apacheuser:$apacheuser $webdirdest/management/other >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     errorStat $?
-    dots "Setting up SSL FOG Server"
+    [[ $httpproto == https ]] && sslenabled=" (SSL)" || sslenabled=" (no SSL)"
+    dots "Setting up Apache virtual host${sslenabled}"
     case $novhost in
         [Yy]|[Yy][Ee][Ss])
             echo "Skipped"
             ;;
         *)
             if [[ $recreateCA == yes || $recreateKeys == yes || ! -f $etcconf ]]; then
-                if [[ $forcehttps == yes ]]; then
+                if [[ $httpproto == https ]]; then
                     echo "NameVirtualHost *:80" > "$etcconf"
                     echo "NameVirtualHost *:443" >> "$etcconf"
                     echo "<VirtualHost *:80>" >> "$etcconf"
@@ -1484,7 +1491,7 @@ EOF
                     a2ensite "001-fog" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 fi
             else
-                echo "Done"
+                echo "Skipped"
             fi
             ;;
     esac

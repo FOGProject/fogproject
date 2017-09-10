@@ -647,7 +647,7 @@ class HostManagementPage extends FOGPage
                 'Module',
                 array('isDefault' => 1)
             );
-            $Host = self::getClass('Host')
+            self::$Host
                 ->set('name', $name)
                 ->set('description', $desc)
                 ->set('imageID', $image)
@@ -696,7 +696,6 @@ class HostManagementPage extends FOGPage
                 $hook,
                 array('Host' => &$Host)
             );
-        unset($Host);
         echo $msg;
         exit;
     }
@@ -950,7 +949,6 @@ class HostManagementPage extends FOGPage
             echo '</div>';
             echo '</div>';
             echo '</div>';
-            echo '</div>';
         }
         $addMACs = ob_get_clean();
         ob_start();
@@ -1105,7 +1103,7 @@ class HostManagementPage extends FOGPage
             . '<label>'
             . _('Pending MACs')
             . '</label>'
-            . '</div>' => '<div class="additionalMACsCell">'
+            . '</div>' => '<div class="pendingMACsCell">'
             . $pending
             . '</div>',
             '<label for="description">'
@@ -1205,6 +1203,57 @@ class HostManagementPage extends FOGPage
         echo '<!-- General -->';
         echo '<div id="host-general" class="'
             . 'tab-pane fade in active">';
+        echo '<div class="addrowempty hiddeninitially">';
+        echo '<div class="col-xs-10">';
+        echo '<div class="input-group">';
+        echo '<span class="mac-manufactor input-group-addon"></span>';
+        echo '<input type="text" class="macaddr additionalMAC form-control" '
+            . 'name="additionalMACs[]" '
+            . 'value="'
+            . '" maxlength="17"/>';
+        echo '<span class="icon remove-mac fa fa-minus-circle hand '
+            . 'input-group-addon" '
+            . 'data-toggle="tooltip" data-placement="top" '
+            . 'title="'
+            . _('Remove MAC')
+            . '"></span>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="col-xs-1">';
+        echo '<div class="row">';
+        echo '<span data-toggle="tooltip" data-placement="top" '
+            . 'title="'
+            . _('Ignore MAC on Client')
+            . '" class="hand">'
+            . _('I.M.C.')
+            . '</span>';
+        echo '</div>';
+        echo '<div class="checkbox">';
+        echo '<label>';
+        echo '<input type="checkbox" name="igclient[]" value="'
+            . '"'
+            . '/>';
+        echo '</label>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="col-xs-1">';
+        echo '<div class="row">';
+        echo '<span data-toggle="tooltip" data-placement="top" '
+            . 'title="'
+            . _('Ignore MAC on Image')
+            . '" class="hand">'
+            . _('I.M.I.')
+            . '</span>';
+        echo '</div>';
+        echo '<div class="checkbox">';
+        echo '<label>';
+        echo '<input type="checkbox" name="igimage[]" value="'
+            . '"'
+            . '/>';
+        echo '</label>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';

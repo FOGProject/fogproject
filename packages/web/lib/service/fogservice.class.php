@@ -530,6 +530,23 @@ abstract class FOGService extends FOGBase
                         'host',
                         $PotentialStorageNode->get('ip')
                     );
+                $socket = @fsockopen(
+                    $pip,
+                    self::$FOGFTP->get('port'),
+                    $errno,
+                    $errstr,
+                    30
+                );
+                if (!$socket) {
+                    self::outall(
+                        sprintf(
+                            '%s Server does not appear to be online.',
+                            $PotentialStorageNode->get('name')
+                        )
+                    );
+                    continue;
+                }
+                fclose($socket);
                 if (!self::$FOGFTP->connect()) {
                     self::outall(
                         sprintf(

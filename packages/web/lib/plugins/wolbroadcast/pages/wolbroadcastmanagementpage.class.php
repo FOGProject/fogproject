@@ -218,7 +218,7 @@ class WOLBroadcastManagementPage extends FOGPage
             $hook = 'BROADCAST_ADD_FAIL';
             $msg = json_encode(
                 array(
-                    'msg' => $e->getMessage(),
+                    'error' => $e->getMessage(),
                     'title' => _('Broadcast Create Fail')
                 )
             );
