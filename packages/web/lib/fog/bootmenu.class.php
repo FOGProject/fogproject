@@ -179,7 +179,7 @@ class BootMenu extends FOGBase
             '/%s',
             (strlen($curroot) > 1 ? sprintf('%s/', $curroot) : '')
         );
-        $this->_web = sprintf('%s%s', $webserver, $webroot);
+        $this->_web = sprintf('%s://%s%s', self::$httpproto, $webserver, $webroot);
         $Send['booturl'] = array(
             '#!ipxe',
             "set fog-ip $webserver",
