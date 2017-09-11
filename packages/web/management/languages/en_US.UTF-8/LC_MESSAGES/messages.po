@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-04 18:05-0400\n"
+"POT-Creation-Date: 2017-09-11 16:04-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -213,7 +213,7 @@ msgstr "Record not found, Error: %s"
 #: /var/www/fog/lib/fog/fogcontroller.class.php:726
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:99
 #: /var/www/fog/lib/plugins/fileintegrity/pages/fileintegritymanagementpage.class.php:53
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:429
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:572
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:53
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:64
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:174
@@ -1012,8 +1012,8 @@ msgstr "%s ID %s is not valid"
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1068
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1147
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1345
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:202
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:346
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:84
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:489
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:75
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:74
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:211
@@ -1301,7 +1301,7 @@ msgstr "Save Changes"
 #: /var/www/fog/lib/plugins/location/hooks/addlocationgroup.hook.php:154
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:507
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:875
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:243
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:339
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:512
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:780
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:357
@@ -1317,7 +1317,7 @@ msgstr "Update"
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1382
 #: /var/www/fog/lib/plugins/accesscontrol/hooks/accesscontrolindexdiv.hook.php:98
 #: /var/www/fog/lib/plugins/accesscontrol/hooks/accesscontrolindexdiv.hook.php:109
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:474
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:617
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:434
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:588
 msgid "Delete Selected"
@@ -1500,6 +1500,7 @@ msgstr "Scheduler"
 #: /var/www/fog/lib/fog/fogpage.class.php:1423
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:226
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:745
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:167
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:338
 #: /var/www/fog/lib/plugins/wolbroadcast/pages/wolbroadcastmanagementpage.class.php:137
 msgid "Create"
@@ -1800,8 +1801,7 @@ msgstr ""
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:363
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1125
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1325
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:131
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:417
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:560
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:236
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:168
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:145
@@ -2116,7 +2116,7 @@ msgstr "Primary Storage Group"
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:926
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:74
 #: /var/www/fog/lib/pages/pluginmanagementpage.class.php:482
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:334
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:477
 #: /var/www/fog/lib/reports/product_keys.report.php:45
 #: /var/www/fog/lib/reports/product_keys.report.php:58
 #: /var/www/fog/lib/reports/product_keys.report.php:89
@@ -2394,6 +2394,7 @@ msgstr "User created"
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:352
 #: /var/www/fog/lib/plugins/location/hooks/addlocationgroup.hook.php:151
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:504
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:336
 #: /var/www/fog/lib/plugins/tasktypeedit/pages/tasktypeeditmanagementpage.class.php:509
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:777
 #: /var/www/fog/lib/plugins/taskstateedit/pages/taskstateeditmanagementpage.class.php:354
@@ -4939,9 +4940,9 @@ msgstr "Invalid image assigned to host"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:541
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2850
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:418
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:428
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:439
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:561
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:571
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:582
 #: /var/www/fog/lib/reports/imaging_log.report.php:38
 #: /var/www/fog/commons/text.php:41
 msgid "Image"
@@ -6768,7 +6769,6 @@ msgstr "Account already linked"
 #: /var/www/fog/lib/plugins/slack/pages/slackmanagementpage.class.php:258
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:803
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1231
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:179
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:188
 #: /var/www/fog/lib/plugins/pushbullet/pages/pushbulletmanagementpage.class.php:200
 msgid "Failed to create"
@@ -7261,7 +7261,6 @@ msgid "Rule Added, editing!"
 msgstr "Location Added, editing!"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:928
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:304
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:295
 msgid "Failed to update"
 msgstr "Failed to update"
@@ -7331,7 +7330,7 @@ msgid "Check here to see users not within this"
 msgstr "Check here to see groups not assigned this image"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1318
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:410
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:553
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:524
 msgid "Modify Membership for"
 msgstr "Modify Membership for"
@@ -7345,7 +7344,7 @@ msgid "user"
 msgstr "User"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:1414
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:502
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:645
 #: /var/www/fog/lib/plugins/site/pages/sitemanagementpage.class.php:620
 msgid "saved successfully"
 msgstr "saved successfully"
@@ -7381,71 +7380,104 @@ msgstr "Windows 8"
 msgid "Key Name"
 msgstr "Kernel Name"
 
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:105
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:118
 #, fuzzy
 msgid "New Windows Key"
 msgstr "Windows 8"
 
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:116
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:216
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:141
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:313
 #, fuzzy
 msgid "Windows Key Name"
 msgstr "User Management"
 
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:120
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:224
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:149
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:321
 #, fuzzy
 msgid "Windows Key Description"
 msgstr "Host Description"
 
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:125
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:233
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:156
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:328
 #, fuzzy
 msgid "Windows Key"
 msgstr "Windows 8"
 
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:165
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:290
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:164
 #, fuzzy
-msgid "Windows key already Exists, please try again."
-msgstr "Location already Exists, please try again."
+msgid "Create New Key"
+msgstr "Create New %s"
 
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:169
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:294
-#, fuzzy
-msgid "Please enter a name for this key."
-msgstr "Please enter a name for this address."
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:229
+#: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:441
+msgid "Not able to add"
+msgstr "Not able to add"
 
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:172
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:297
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:235
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:431
 #, fuzzy
-msgid "Please enter a product key."
-msgstr "Please enter a hostname"
+msgid "A Windows Key already exists with this name!"
+msgstr "An image already exists with this name!"
 
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:181
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:243
 #, fuzzy
-msgid "Key Added, editing!"
-msgstr "Location Added, editing!"
+msgid "Add Windows Key failed!"
+msgstr "Add snapin failed!"
 
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:306
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:248
 #, fuzzy
-msgid "Windows Key Updated"
+msgid "Windows Key added!"
 msgstr "User Management"
 
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:403
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:249
+#, fuzzy
+msgid "Windows Key Create Success"
+msgstr "User created"
+
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:257
+#, fuzzy
+msgid "Windows Key Create Fail"
+msgstr "User created"
+
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:284
+#, fuzzy
+msgid "Windows Key General"
+msgstr "User Management"
+
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:439
+#, fuzzy
+msgid "Update Windows Key failed!"
+msgstr "Add snapin failed!"
+
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:444
+#, fuzzy
+msgid "Windows Key updated!"
+msgstr "User Management"
+
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:445
+#, fuzzy
+msgid "Windows Key Update Success"
+msgstr "User Management"
+
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:454
+#, fuzzy
+msgid "Windows Key Update Fail"
+msgstr "User Management"
+
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:546
 msgid "Check here to see"
 msgstr "Check here to see"
 
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:405
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:548
 msgid "not within this"
 msgstr "not within this"
 
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:475
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:618
 #: /var/www/fog/commons/text.php:42
 msgid "Images"
 msgstr "Images"
 
-#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:476
+#: /var/www/fog/lib/plugins/windowskey/pages/windowskeymanagementpage.class.php:619
 msgid "From"
 msgstr "From"
 
@@ -7849,10 +7881,6 @@ msgstr "Domain Password"
 msgid "Create New LDAP"
 msgstr "Create New %s"
 
-#: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:441
-msgid "Not able to add"
-msgstr "Not able to add"
-
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:448
 #: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:910
 msgid "Please enter a name for this LDAP server."
@@ -7945,11 +7973,7 @@ msgstr "LDAP Server Name"
 msgid "LDAP Update Success"
 msgstr "Install / Update Successful!"
 
-#: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:980
-msgid "LDAP information updated!"
-msgstr "LDAP information updated!"
-
-#: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:986
+#: /var/www/fog/lib/plugins/ldap/pages/ldapmanagementpage.class.php:985
 #, fuzzy
 msgid "LDAP Update Fail"
 msgstr "Snapin update failed"
@@ -10691,6 +10715,25 @@ msgstr "Hello FOG Client"
 #, fuzzy
 msgid "There are no locations on this server"
 msgstr "There are no locations on this server."
+
+#, fuzzy
+#~ msgid "Windows key already Exists, please try again."
+#~ msgstr "Location already Exists, please try again."
+
+#, fuzzy
+#~ msgid "Please enter a name for this key."
+#~ msgstr "Please enter a name for this address."
+
+#, fuzzy
+#~ msgid "Please enter a product key."
+#~ msgstr "Please enter a hostname"
+
+#, fuzzy
+#~ msgid "Key Added, editing!"
+#~ msgstr "Location Added, editing!"
+
+#~ msgid "LDAP information updated!"
+#~ msgstr "LDAP information updated!"
 
 #, fuzzy
 #~ msgid "Role already Exists, please try again."
