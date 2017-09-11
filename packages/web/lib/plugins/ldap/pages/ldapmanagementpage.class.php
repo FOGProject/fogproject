@@ -977,7 +977,6 @@ class LDAPManagementPage extends FOGPage
                     'title' => _('LDAP Update Success')
                 )
             );
-            self::setMessage(_('LDAP information updated!'));
         } catch (Exception $e) {
             $hook = 'LDAP_EDIT_POST_FAIL';
             $msg = json_encode(

@@ -58,27 +58,33 @@ class WindowsKeyManagementPage extends FOGPage
         parent::__construct($this->name);
         if ($id) {
             $this->subMenu = array(
-                "$this->linkformat" => self::$foglang['General'],
+                "$this->linkformat#windowskey-gen" => self::$foglang['General'],
                 $this->membership => self::$foglang['Membership'],
                 "$this->delformat" => self::$foglang['Delete'],
             );
         }
         $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" class='
-            . '"toggle-checkboxAction" checked/>',
+            '<input type="checkbox" name="toggle-checkbox" '
+            . 'class="toggle-checkboxAction"/>',
             _('Key Name')
         );
         $this->templates = array(
-            '<input type="checkbox" name="windowskey[]" value='
-            . '"${id}" class="toggle-action" checked/>',
-            '<a href="?node=windowskey&sub=edit&id=${id}" title="Edit">${name}</a>'
+            '<input type="checkbox" name="windowskey[]" value="${id}" '
+            . 'class="toggle-action"/>',
+            '<a href="?node=windowskey&sub=edit&id=${id}">${name}</a>'
         );
         $this->attributes = array(
             array(
                 'class' => 'filter-false',
                 'width' => 16
             ),
-            array()
+            array(
+                'data-toggle' => 'tooltip',
+                'data-placement' => 'bottom',
+                'title' => _('Edit')
+                . ' '
+                . '${name}'
+            )
         );
         /**
          * Lambda function to return data either by list or search.
@@ -102,35 +108,73 @@ class WindowsKeyManagementPage extends FOGPage
      */
     public function add()
     {
-        $this->title = _('New Windows Key');
-        unset($this->headerData);
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->attributes,
+            $this->templates
         );
+        $this->title = _('New Windows Key');
         $this->templates = array(
             '${field}',
-            '${input}',
+            '${input}'
+        );
+        $this->attributes = array(
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group')
+        );
+        $name = filter_input(
+            INPUT_POST,
+            'name'
+        );
+        $description = filter_input(
+            INPUT_POST,
+            'description'
+        );
+        $key = filter_input(
+            INPUT_POST,
+            'key'
         );
         $fields = array(
-            _('Windows Key Name') => sprintf(
-                '<input class="smaller" type="text" name="name" value="%s"/>',
-                $_REQUEST['name']
-            ),
-            _('Windows Key Description') => sprintf(
-                '<textarea name="description" '
-                . 'rows="8" cols="40">%s</textarea>',
-                $_REQUEST['description']
-            ),
-            _('Windows Key') => sprintf(
-                '<input id="productKey" type="text" name="key" value="%s"/>',
-                $_REQUEST['key']
-            ),
-            '&nbsp;' => sprintf(
-                '<input name="add" class="smaller" type="submit" value="%s"/>',
-                _('Add')
-            ),
+            '<label for="name">'
+            . _('Windows Key Name')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" id="name" name="name" '
+            . 'value="'
+            . $name
+            . '" required/>'
+            . '</div>',
+            '<label for="desc">'
+            . _('Windows Key Description')
+            . '</label>' => '<div class="input-group">'
+            . '<textarea name="description" class="form-control" id="desc">'
+            . $description
+            . '</textarea>'
+            . '</div>',
+            '<label for="productKey">'
+            . _('Windows Key')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" id="productKey" name="key" '
+            . 'value="'
+            . $key
+            . '" required/>'
+            . '</div>',
+            '<label for="add">'
+            . _('Create New Key')
+            . '</label>' => '<button type="submit" name="add" id="add" '
+            . 'class="btn btn-info btn-block">'
+            . _('Create')
+            . '</button>'
         );
+        self::$HookManager
+            ->processEvent(
+                'WINDOWS_KEY_FIELDS',
+                array(
+                    'fields' => &$fields,
+                    'WindowsKey' => self::getClass('WindowsKey')
+                )
+            );
         array_walk($fields, $this->fieldsToData);
         unset($fields);
         self::$HookManager
@@ -143,9 +187,22 @@ class WindowsKeyManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        printf('<form method="post" action="%s">', $this->formAction);
-        $this->render();
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
+        $this->render(12);
         echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Actually create the windows key.
@@ -154,41 +211,178 @@ class WindowsKeyManagementPage extends FOGPage
      */
     public function addPost()
     {
+        self::$HookManager->processEvent('WINDOWS_KEY_ADD');
+        $name = filter_input(
+            INPUT_POST,
+            'name'
+        );
+        $description = filter_input(
+            INPUT_POST,
+            'description'
+        );
+        $key = filter_input(
+            INPUT_POST,
+            'key'
+        );
         try {
-            $name = trim($_REQUEST['name']);
-            $key = trim($_REQUEST['key']);
-            $description = trim($_REQUEST['description']);
+            if (!isset($_POST['add'])) {
+                throw new Exception(_('Not able to add'));
+            }
             $exists = self::getClass('WindowsKeyManager')
                 ->exists($name);
             if ($exists) {
                 throw new Exception(
-                    _('Windows key already Exists, please try again.')
+                    _('A Windows Key already exists with this name!')
                 );
-            }
-            if (empty($name)) {
-                throw new Exception(_('Please enter a name for this key.'));
-            }
-            if (empty($key)) {
-                throw new Exception(_('Please enter a product key.'));
             }
             $WindowsKey = self::getClass('WindowsKey')
                 ->set('name', $name)
                 ->set('description', $description)
                 ->set('key', $key);
             if (!$WindowsKey->save()) {
-                throw new Exception(_('Failed to create'));
+                throw new Exception(_('Add Windows Key failed!'));
             }
-            self::setMessage(_('Key Added, editing!'));
-            self::redirect(
-                sprintf(
-                    '?node=windowskey&sub=edit&id=%s',
-                    $WindowsKey->get('id')
+            $hook = 'WINDOWS_KEY_ADD_SUCCESS';
+            $msg = json_encode(
+                array(
+                    'msg' => _('Windows Key added!'),
+                    'title' => _('Windows Key Create Success')
                 )
             );
         } catch (Exception $e) {
-            self::setMessage($e->getMessage());
-            self::redirect($this->formAction);
+            $hook = 'WINDOWS_KEY_ADD_FAIL';
+            $msg = json_encode(
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('Windows Key Create Fail')
+                )
+            );
         }
+        self::$HookManager
+            ->processEvent(
+                $hook,
+                array('WindowsKey' => &$WindowsKey)
+            );
+        unset($WindowsKey);
+        echo $msg;
+        exit;
+    }
+    /**
+     * Display Windows Key General information.
+     *
+     * @return void
+     */
+    public function windowsKeyGeneral()
+    {
+        unset(
+            $this->data,
+            $this->form,
+            $this->templates,
+            $this->attributes,
+            $this->headerData
+        );
+        $this->title = _('Windows Key General');
+        $this->attributes = array(
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group')
+        );
+        $this->templates = array(
+            '${field}',
+            '${input}'
+        );
+        $name = (
+            filter_input(
+                INPUT_POST,
+                'name'
+            ) ?: $this->obj->get('name')
+        );
+        $description = (
+            filter_input(
+                INPUT_POST,
+                'description'
+            ) ?: $this->obj->get('description')
+        );
+        $key = (
+            filter_input(
+                INPUT_POST,
+                'key'
+            ) ?: self::aesdecrypt($this->obj->get('key'))
+        );
+        $fields = array(
+            '<label for="name">'
+            . _('Windows Key Name')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" id="name" name="name" '
+            . 'value="'
+            . $name
+            . '" required/>'
+            . '</div>',
+            '<label for="desc">'
+            . _('Windows Key Description')
+            . '</label>' => '<div class="input-group">'
+            . '<textarea name="description" class="form-control" id="desc">'
+            . $description
+            . '</textarea>'
+            . '</div>',
+            '<label for="productKey">'
+            . _('Windows Key')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" id="productKey" name="key" '
+            . 'value="'
+            . $key
+            . '" required/>'
+            . '</div>',
+            '<label for="update">'
+            . _('Make Changes?')
+            . '</label>' => '<button type="submit" name="update" id="update" '
+            . 'class="btn btn-info btn-block">'
+            . _('Update')
+            . '</button>'
+        );
+        self::$HookManager
+            ->processEvent(
+                'WINDOWS_KEY_FIELDS',
+                array(
+                    'fields' => &$fields,
+                    'WindowsKey' => &$this->obj
+                )
+            );
+        array_walk($fields, $this->fieldsToData);
+        unset($fields);
+        self::$HookManager
+            ->processEvent(
+                'WINDOWS_KEY_EDIT',
+                array(
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'headerData' => &$this->headerData,
+                    'attributes' => &$this->attributes
+                )
+            );
+        echo '<!-- General -->';
+        echo '<div class="tab-pane fade in active" id="windowskey-gen">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '&tab=windowskey-gen">';
+        $this->render(12);
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        unset(
+            $this->data,
+            $this->form,
+            $this->templates,
+            $this->attributes,
+            $this->headerData
+        );
     }
     /**
      * Present the windows key to edit the page.
@@ -197,71 +391,9 @@ class WindowsKeyManagementPage extends FOGPage
      */
     public function edit()
     {
-        $this->title = sprintf(
-            '%s: %s',
-            _('Edit'),
-            $this->obj->get('name')
-        );
-        unset($this->headerData);
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
-        );
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
-        $decrypt = self::aesdecrypt($this->obj->get('key'));
-        $fields = array(
-            _('Windows Key Name') => sprintf(
-                '<input class="smaller" type="text" name="name" value="%s"/>',
-                (
-                    $_REQUEST['name'] ?
-                    $_REQUEST['name'] :
-                    $this->obj->get('name')
-                )
-            ),
-            _('Windows Key Description') => sprintf(
-                '<textarea name="description" '
-                . 'rows="8" cols="40">%s</textarea>',
-                (
-                    $_REQUEST['description'] ?
-                    $_REQUEST['description'] :
-                    $this->obj->get('description')
-                )
-            ),
-            _('Windows Key') => sprintf(
-                '<input id="productKey" type="text" name="key" value="%s"/>',
-                (
-                    $_REQUEST['key'] ?
-                    $_REQUEST['key'] :
-                    $decrypt
-                )
-            ),
-            '&nbsp;' => sprintf(
-                '<input type="submit" class="smaller" name="update" value="%s"/>',
-                _('Update')
-            ),
-        );
-        array_walk($fields, $this->fieldsToData);
-        unset($fields);
-        self::$HookManager
-            ->processEvent(
-                'WINDOWS_KEY_EDIT',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        printf(
-            '<form method="post" action="%s&id=%d">',
-            $this->formAction,
-            $this->obj->get('id')
-        );
-        $this->render();
-        echo '</form>';
+        echo '<div class="col-xs-9 tab-content">';
+        $this->windowsKeyGeneral();
+        echo '</div>';
     }
     /**
      * Actually update the windows key.
@@ -277,43 +409,54 @@ class WindowsKeyManagementPage extends FOGPage
                     'WindowsKey' => &$this->obj
                 )
             );
+        $name = filter_input(
+            INPUT_POST,
+            'name'
+        );
+        $description = filter_input(
+            INPUT_POST,
+            'description'
+        );
+        $key = filter_input(
+            INPUT_POST,
+            'key'
+        );
         try {
-            $name = trim($_REQUEST['name']);
-            $key = trim($_REQUEST['key']);
-            $description = trim($_REQUEST['description']);
             $exists = self::getClass('WindowsKeyManager')
                 ->exists($name);
             if ($name != $this->obj->get('name')
                 && $exists
             ) {
                 throw new Exception(
-                    _('Windows key already Exists, please try again.')
+                    _('A Windows Key already exists with this name!')
                 );
-            }
-            if (empty($name)) {
-                throw new Exception(_('Please enter a name for this key.'));
-            }
-            if (empty($key)) {
-                throw new Exception(_('Please enter a product key.'));
             }
             $this->obj
                 ->set('name', $name)
                 ->set('description', $description)
                 ->set('key', $key);
             if (!$this->obj->save()) {
-                throw new Exception(_('Failed to update'));
+                throw new Exception(_('Update Windows Key failed!'));
             }
-            self::setMessage(_('Windows Key Updated'));
-            self::redirect(
-                sprintf(
-                    '?node=windowskey&sub=edit&id=%d',
-                    $this->obj->get('id')
+            $hook = 'WINDOWS_KEY_EDIT_POST_SUCCESS';
+            $msg = json_encode(
+                array(
+                    'msg' => _('Windows Key updated!'),
+                    'title' => _('Windows Key Update Success')
                 )
             );
+
         } catch (Exception $e) {
-            self::setMessage($e->getMessage());
-            self::redirect($this->formAction);
+            $hook = 'WINDOWS_KEY_EDIT_POST_FAIL';
+            $msg = json_encode(
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('Windows Key Update Fail')
+                )
+            );
         }
+        echo $msg;
+        exit;
     }
     /**
      * Presents the membership information
