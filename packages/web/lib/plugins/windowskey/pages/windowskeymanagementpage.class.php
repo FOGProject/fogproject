@@ -465,29 +465,28 @@ class WindowsKeyManagementPage extends FOGPage
      */
     public function membership()
     {
-        $this->data = array();
-        echo '<!-- Membership -->';
-        echo '<div id="windowskey-membership">';
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
         $this->headerData = array(
-            sprintf(
-                '<input type="checkbox" name="toggle-checkbox%s" '
-                . 'class="toggle-checkboxAction1"',
-                $this->node
-            ),
+            '<label for="toggler">'
+            . '<input type="checkbox" name="toggle-checkbox'
+            . $this->node
+            . '1" class="toggle-checkboxAction1" id="toggler"/>'
+            . '</label>',
             _('Image Name')
         );
         $this->templates = array(
-            sprintf(
-                '<input type="checkbox" name="image[]" value="${image_id}" '
-                . 'class="toggle-%s1"/>',
-                'image'
-            ),
-            sprintf(
-                '<a href="?node=%s&sub=edit&id=${image_id}" '
-                . 'title="%s: ${image_name}">${image_name}</a>',
-                'image',
-                _('Edit')
-            )
+            '<label for="image-${image_id}">'
+            . '<input type="checkbox" name="image[]" class="toggle-'
+            . 'image${check_num" id="image-${image_id}" '
+            . 'value="${image_id}"/>'
+            . '</label>',
+            '<a href="?node=image&sub=edit&id=${image_id}">${image_name}</a>'
         );
         $this->attributes = array(
             array(
@@ -495,131 +494,143 @@ class WindowsKeyManagementPage extends FOGPage
                 'class' => 'filter-false'
             ),
             array(
-                'width' => 150
+                'data-toggle' => 'tooltip',
+                'data-placement' => 'bottom',
+                'title' => _('Edit')
+                . ' '
+                . '${image_name}'
             )
         );
-        extract(
-            self::getSubObjectIDs(
-                'Image',
-                array(
-                    'id' => $this->obj->get('imagesnotinme')
-                ),
-                array(
-                    'name',
-                    'id'
-                )
-            )
+        Route::listem('image');
+        $items = json_decode(
+            Route::getData()
         );
-        $itemParser = function (
-            &$nam,
-            &$index
-        ) use (&$id) {
+        $items = $items->images;
+        $getter = 'imagesnotinme';
+        $returnData = function (&$item) use (&$getter) {
+            $images = $this->obj->get($getter);
+            if (!in_array($item->id, (array)$images)) {
+                return;
+            }
             $this->data[] = array(
-                'image_id' => $id[$index],
-                'image_name' => $nam,
+                'image_id' => $item->id,
+                'image_name' => $item->name,
+                'check_num' => 1
             );
-            unset(
-                $nam,
-                $id[$index],
-                $index
-            );
+            unset($item);
         };
-        array_walk($name, $itemParser);
-        if (count($this->data) > 0) {
-            self::$HookManager
-                ->processEvent(
-                    'IMAGE_NOT_IN_ME',
-                    array(
-                        'headerData' => &$this->headerData,
-                        'data' => &$this->data,
-                        'templates' => &$this->templates,
-                        'attributes' => &$this->attributes
-                    )
-                );
-            printf(
-                '<form method="post" action="%s"><label for="%sMeShow">'
-                . '<p class="c">%s %ss %s %s&nbsp;&nbsp;<input '
-                . 'type="checkbox" name="%sMeShow" id="%sMeShow"/>'
-                . '</p></label><div id="%sNotInMe"><h2>%s %s</h2>',
-                $this->formAction,
-                'image',
-                _('Check here to see'),
-                'image',
-                _('not within this'),
-                $this->node,
-                'image',
-                'image',
-                'image',
-                _('Modify Membership for'),
-                $this->obj->get('name')
-            );
-            $this->render();
-            printf(
-                '</div><br/><p class="c"><input type='
-                . '"submit" value="%s %s(s) to %s" name="addImages"/></p><br/>',
-                _('Add'),
-                _('Image'),
-                $this->node
-            );
+        array_walk($items, $returnData);
+        echo '<!-- Membership -->';
+        echo '<div class="col-xs-9">';
+        echo '<div class="tab-pane fade in active" id="'
+            . $this->node
+            . '-membership">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Image Membership');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
+        if (count($this->data)  > 0) {
+            $notInMe = $meShow = 'image';
+            $meShow .= 'MeShow';
+            $notInMe .= 'NotInMe';
+            echo '<div class="text-center">';
+            echo '<div class="checkbox">';
+            echo '<label for="'
+                . $meShow
+                . '"/>';
+            echo '<input type="checkbox" name="'
+                . $meShow
+                . '" id="'
+                . $meShow
+                . '"/>';
+            echo _('Check here to see what images can be added');
+            echo '</label>';
+            echo '</div>';
+            echo '</div>';
+            echo '<br/>';
+            echo '<div class="hiddeninitially panel panel-info" id="'
+                . $notInMe
+                . '">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Add')
+                . ' '
+                . _('Images');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            $this->render(12);
+            echo '<div class="form-group">';
+            echo '<label for="updateimages" class="control-label col-xs-4">';
+            echo _('Add selected images');
+            echo '</label>';
+            echo '<div class="col-xs-8">';
+            echo '<button type="submit" name="addImages" '
+                . 'id="updateimages" class="btn btn-info btn-block">'
+                . _('Add')
+                . '</button>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
         }
-        unset($this->data);
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates
+        );
         $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" '
-            . 'class="toggle-checkboxAction"/>',
-            sprintf(
-                '%s %s',
-                _('Image'),
-                _('Name')
-            ),
+            '<label for="toggler1">'
+            . '<input type="checkbox" name="toggle-checkbox" '
+            . 'class="toggle-checkboxAction" id="toggler1"/>'
+            . '</label>',
+            _('Image Name')
         );
         $this->templates = array(
-            '<input type="checkbox" name="imagedel[]" '
-            . 'value="${image_id}" class="toggle-action"/>',
-            sprintf(
-                '<a href="?node=%s&sub=edit&id=${image_id}" '
-                . 'title="%s: ${image_name}">${image_name}</a>',
-                $this->node,
-                _('Image')
-            ),
+            '<label for="imagerm-${image_id}">'
+            . '<input type="checkbox" name="imagedel[]" '
+            . 'value="${image_id}" class="toggle-action" id="'
+            . 'imagerm-${image_id}"/>'
+            . '</label>',
+            '<a href="?node=image&sub=edit&id=${image_id}">${image_name}</a>'
         );
-        extract(
-            self::getSubObjectIDs(
-                'Image',
-                array(
-                    'id' => $this->obj->get('images')
-                ),
-                array(
-                    'name',
-                    'id'
-                )
-            )
-        );
-        array_walk($name, $itemParser);
-        self::$HookManager
-            ->processEvent(
-                'IMAGE_MEMBERSHIP',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        printf(
-            '<form method="post" action="%s">',
-            $this->formAction
-        );
-        $this->render();
-        if (count($this->data)) {
-            printf(
-                '<p class="c"><input type="submit" '
-                . 'value="%s %ss %s %s" name="remimages"/></p>',
-                _('Delete Selected'),
-                _('Images'),
-                _('From'),
-                $this->node
-            );
+        $getter = 'images';
+        array_walk($items, $returnData);
+        if (count($this->data) > 0) {
+            echo '<div class="panel panel-warning">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Remove Images');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            $this->render(12);
+            echo '<div class="form-group">';
+            echo '<label for="remimages" class="control-label col-xs-4">';
+            echo _('Remove selected images');
+            echo '</label>';
+            echo '<div class="col-xs-8">';
+            echo '<button type="submit" name="remimages" class='
+                . '"btn btn-danger btn-block" id="remimages">'
+                . _('Remove')
+                . '</button>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
         }
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Commonized membership actions
@@ -631,20 +642,26 @@ class WindowsKeyManagementPage extends FOGPage
         if (self::$ajax) {
             return;
         }
-        if (isset($_REQUEST['addImages'])) {
-            $this->obj->addImage($_REQUEST['image']);
+        $reqitems = filter_input_array(
+            INPUT_POST,
+            array(
+                'image' => array(
+                    'flags' => FILTER_REQUIRE_ARRAY
+                ),
+                'imagedel' => array(
+                    'flags' => FILTER_REQUIRE_ARRAY
+                )
+            )
+        );
+        $image = $reqitems['image'];
+        $imagedel = $reqitems['imagedel'];
+        if (isset($_POST['addImages'])) {
+            $this->obj->addImage($image);
         }
-        if (isset($_REQUEST['remimages'])) {
-            $this->obj->removeImage($_REQUEST['imagedel']);
+        if (isset($_POST['remimages'])) {
+            $this->obj->removeImage($imagedel);
         }
         if ($this->obj->save()) {
-            self::setMessage(
-                sprintf(
-                    '%s %s',
-                    $this->obj->get('name'),
-                    _('saved successfully')
-                )
-            );
             self::redirect($this->formAction);
         }
     }
