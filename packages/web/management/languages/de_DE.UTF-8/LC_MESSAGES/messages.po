@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-15 12:59-0400\n"
+"POT-Creation-Date: 2017-09-15 13:22-0400\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -4927,7 +4927,7 @@ msgstr "Alle Hosts"
 #: /var/www/fog/lib/reports/virus_history.report.php:33
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:34
 #: /var/www/fog/lib/reports/imaging_log.report.php:53
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:273
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:274
 msgid "Host Name"
 msgstr "Host-Name"
 
@@ -8667,7 +8667,7 @@ msgid "Computer Information"
 msgstr "Computer-Informationen"
 
 #: /var/www/fog/lib/reports/equipment_loan.report.php:175
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:275
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:276
 msgid "Serial Number"
 msgstr "Seriennummer"
 
@@ -9425,130 +9425,130 @@ msgstr ""
 msgid "but has recently failed for this host"
 msgstr "ist offen, aber ist vor kurzem für diesen Host fehlgeschlagen"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:38
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:39
 msgid "Failed to update task"
 msgstr "Fehler beim Aktualisieren der Aufgabe"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:59
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:60
 #, fuzzy
 msgid "Invalid Multicast Session"
 msgstr "Multicast-Sitzung starten"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:70
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:71
 msgid "Failed to update Session"
 msgstr "Fehler beim Aktualisieren der Sitzung"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:120
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:121
 msgid "The node trying to be used is currently"
 msgstr ""
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:121
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:122
 #, fuzzy
 msgid "unavailable"
 msgstr "Nicht verfügbar"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:122
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:123
 msgid "On reboot we will try to find a new node"
 msgstr ""
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:123
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:124
 msgid "automatically"
 msgstr ""
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:134
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:135
 msgid "No open slots"
 msgstr "Keine freie Steckplätze"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:135
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:136
 msgid "There are"
 msgstr "Es gibt"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:137
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:138
 msgid "before me"
 msgstr "vor mir"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:144
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:145
 #, fuzzy
 msgid "There are open slots"
 msgstr "Es gibt offene Schlitze, aber"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:145
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:146
 msgid "but"
 msgstr ""
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:147
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:148
 msgid "before me on this node"
 msgstr ""
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:158
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:159
 msgid "Failed to update/create image log"
 msgstr "Fehler beim Update/Bild Protokoll erstellen"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:165
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:431
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:166
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:433
 msgid "Failed to update Task"
 msgstr "Fehler beim Aktualisieren der Aufgabe"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:168
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:169
 msgid "Failed to update/create task log"
 msgstr "Fehler beim Update/Task-Protokoll erstellen"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:272
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:273
 #, fuzzy
 msgid "Machine Details"
 msgstr "Snap-in-Rückkehr-Detail"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:274
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:275
 #, fuzzy
 msgid "Computer Model"
 msgstr "Druckermodell"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:276
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:277
 #, fuzzy
 msgid "MAC Address"
 msgstr "Liste der MAC-Adresse"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:278
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:279
 #, fuzzy
 msgid "Image Used"
 msgstr "Abgebildet"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:279
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:280
 #, fuzzy
 msgid "Snapin Used"
 msgstr "SnapIns"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:281
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:282
 #, fuzzy
 msgid "Imaged By"
 msgstr "Abgebildet"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:282
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:314
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:283
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:315
 #, fuzzy
 msgid "Imaged For"
 msgstr "Abgebildet"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:300
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:301
 #, fuzzy
 msgid "Image Task Completed"
 msgstr "nach Erledigung der Aufgabe"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:315
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:316
 msgid "Call"
 msgstr ""
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:428
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:430
 #, fuzzy
 msgid "Failed to update Host"
 msgstr "Fehler beim Aktualisieren"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:442
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:444
 #, fuzzy
 msgid "Failed to update task log"
 msgstr "Fehler beim Aktualisieren der Aufgabe"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:446
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:448
 #, fuzzy
 msgid "Failed to update imaging log"
 msgstr "Fehler beim Update/Bild Protokoll erstellen"

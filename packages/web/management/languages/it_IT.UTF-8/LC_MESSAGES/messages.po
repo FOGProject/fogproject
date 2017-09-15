@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-15 12:59-0400\n"
+"POT-Creation-Date: 2017-09-15 13:22-0400\n"
 "PO-Revision-Date: 2017-08-30 10:07+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -4573,7 +4573,7 @@ msgstr "tutti gli host"
 #: /var/www/fog/lib/reports/virus_history.report.php:33
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:34
 #: /var/www/fog/lib/reports/imaging_log.report.php:53
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:273
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:274
 msgid "Host Name"
 msgstr "Nome Host"
 
@@ -7936,7 +7936,7 @@ msgid "Computer Information"
 msgstr "Informazioni sul computer"
 
 #: /var/www/fog/lib/reports/equipment_loan.report.php:175
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:275
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:276
 msgid "Serial Number"
 msgstr "Numero di serie"
 
@@ -8611,117 +8611,117 @@ msgstr "è aperto"
 msgid "but has recently failed for this host"
 msgstr "ma è fallito di recente per questo host"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:38
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:39
 msgid "Failed to update task"
 msgstr "Impossibile aggiornare compito"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:59
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:60
 msgid "Invalid Multicast Session"
 msgstr "Sessione multicast non valida"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:70
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:71
 msgid "Failed to update Session"
 msgstr "Impossibile aggiornare Session"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:120
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:121
 msgid "The node trying to be used is currently"
 msgstr "Il nodo che si sta cercando di essere utilizzato è attualmente"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:121
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:122
 msgid "unavailable"
 msgstr "non disponibile"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:122
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:123
 msgid "On reboot we will try to find a new node"
 msgstr "Al riavvio cercheremo di trovare un nuovo nodo"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:123
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:124
 msgid "automatically"
 msgstr "automaticamente"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:134
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:135
 msgid "No open slots"
 msgstr "Nessuno slot aperti"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:135
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:136
 msgid "There are"
 msgstr "Ci sono"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:137
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:138
 msgid "before me"
 msgstr "prima di me"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:144
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:145
 msgid "There are open slots"
 msgstr "Ci sono slot aperti"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:145
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:146
 msgid "but"
 msgstr "ma"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:147
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:148
 msgid "before me on this node"
 msgstr "prima di me su questo nodo"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:158
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:159
 msgid "Failed to update/create image log"
 msgstr "Impossibile aggiornare / creare log immagine"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:165
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:431
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:166
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:433
 msgid "Failed to update Task"
 msgstr "Impossibile aggiornare Task"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:168
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:169
 msgid "Failed to update/create task log"
 msgstr "Impossibile aggiornare / creare registro dell'attività"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:272
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:273
 msgid "Machine Details"
 msgstr "Dettagli della macchina"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:274
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:275
 msgid "Computer Model"
 msgstr "Modello di computer"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:276
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:277
 msgid "MAC Address"
 msgstr "Indirizzo MAC"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:278
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:279
 msgid "Image Used"
 msgstr "Immagine utilizzata"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:279
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:280
 msgid "Snapin Used"
 msgstr "Usato Snapin"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:281
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:282
 msgid "Imaged By"
 msgstr "Imaged by"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:282
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:314
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:283
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:315
 msgid "Imaged For"
 msgstr "Immagini per"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:300
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:301
 msgid "Image Task Completed"
 msgstr "Attività di immagine completata"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:315
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:316
 msgid "Call"
 msgstr "Chiamata"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:428
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:430
 msgid "Failed to update Host"
 msgstr "Impossibile aggiornare l'host"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:442
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:444
 msgid "Failed to update task log"
 msgstr "Impossibile aggiornare il registro attività"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:446
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:448
 msgid "Failed to update imaging log"
 msgstr "Impossibile aggiornare il registro di imaging"
 

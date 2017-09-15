@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-15 12:59-0400\n"
+"POT-Creation-Date: 2017-09-15 13:22-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4921,7 +4921,7 @@ msgstr "Todos os hosts"
 #: /var/www/fog/lib/reports/virus_history.report.php:33
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:34
 #: /var/www/fog/lib/reports/imaging_log.report.php:53
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:273
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:274
 msgid "Host Name"
 msgstr "Nome do host"
 
@@ -8650,7 +8650,7 @@ msgid "Computer Information"
 msgstr "Informações sobre o computador"
 
 #: /var/www/fog/lib/reports/equipment_loan.report.php:175
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:275
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:276
 msgid "Serial Number"
 msgstr "Número de série"
 
@@ -9408,130 +9408,130 @@ msgstr ""
 msgid "but has recently failed for this host"
 msgstr "está aberto, mas recentemente falhou para este alojamento"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:38
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:39
 msgid "Failed to update task"
 msgstr "Falha ao atualizar tarefa"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:59
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:60
 #, fuzzy
 msgid "Invalid Multicast Session"
 msgstr "Iniciar Sessão Multicast"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:70
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:71
 msgid "Failed to update Session"
 msgstr "Falha ao atualizar Session"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:120
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:121
 msgid "The node trying to be used is currently"
 msgstr ""
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:121
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:122
 #, fuzzy
 msgid "unavailable"
 msgstr "Não disponível"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:122
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:123
 msgid "On reboot we will try to find a new node"
 msgstr ""
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:123
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:124
 msgid "automatically"
 msgstr ""
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:134
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:135
 msgid "No open slots"
 msgstr "Não há vagas abertas"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:135
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:136
 msgid "There are"
 msgstr "tem"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:137
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:138
 msgid "before me"
 msgstr "antes de mim"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:144
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:145
 #, fuzzy
 msgid "There are open slots"
 msgstr "Há slots abertos, mas"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:145
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:146
 msgid "but"
 msgstr ""
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:147
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:148
 msgid "before me on this node"
 msgstr ""
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:158
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:159
 msgid "Failed to update/create image log"
 msgstr "Falha ao atualizar / criar o registo de imagem"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:165
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:431
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:166
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:433
 msgid "Failed to update Task"
 msgstr "Falha ao atualizar Task"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:168
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:169
 msgid "Failed to update/create task log"
 msgstr "Falha ao atualizar / criar log tarefa"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:272
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:273
 #, fuzzy
 msgid "Machine Details"
 msgstr "Detalhe Snapin Retorno"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:274
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:275
 #, fuzzy
 msgid "Computer Model"
 msgstr "Modelo de impressora"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:276
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:277
 #, fuzzy
 msgid "MAC Address"
 msgstr "Lista de endereços MAC"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:278
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:279
 #, fuzzy
 msgid "Image Used"
 msgstr "fotografada"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:279
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:280
 #, fuzzy
 msgid "Snapin Used"
 msgstr "snapins"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:281
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:282
 #, fuzzy
 msgid "Imaged By"
 msgstr "fotografada"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:282
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:314
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:283
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:315
 #, fuzzy
 msgid "Imaged For"
 msgstr "fotografada"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:300
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:301
 #, fuzzy
 msgid "Image Task Completed"
 msgstr "após a conclusão da tarefa"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:315
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:316
 msgid "Call"
 msgstr ""
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:428
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:430
 #, fuzzy
 msgid "Failed to update Host"
 msgstr "Falha ao atualizar"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:442
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:444
 #, fuzzy
 msgid "Failed to update task log"
 msgstr "Falha ao atualizar tarefa"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:446
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:448
 #, fuzzy
 msgid "Failed to update imaging log"
 msgstr "Falha ao atualizar / criar o registo de imagem"
