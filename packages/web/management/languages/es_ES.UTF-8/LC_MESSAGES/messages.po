@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-15 12:59-0400\n"
+"POT-Creation-Date: 2017-09-15 13:22-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4928,7 +4928,7 @@ msgstr "Hospedadores"
 #: /var/www/fog/lib/reports/virus_history.report.php:33
 #: /var/www/fog/lib/reports/hosts_and_users.report.php:34
 #: /var/www/fog/lib/reports/imaging_log.report.php:53
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:273
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:274
 msgid "Host Name"
 msgstr "Nombre de host"
 
@@ -8756,7 +8756,7 @@ msgid "Computer Information"
 msgstr "Información general"
 
 #: /var/www/fog/lib/reports/equipment_loan.report.php:175
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:275
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:276
 msgid "Serial Number"
 msgstr ""
 
@@ -9506,135 +9506,135 @@ msgstr ""
 msgid "but has recently failed for this host"
 msgstr "No se ha definido de este alojamiento imagen"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:38
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:39
 #, fuzzy
 msgid "Failed to update task"
 msgstr "No se pudo crear la tarea"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:59
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:60
 #, fuzzy
 msgid "Invalid Multicast Session"
 msgstr "Iniciar la sesión de multidifusión"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:70
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:71
 #, fuzzy
 msgid "Failed to update Session"
 msgstr "No se pudo crear Sesión"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:120
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:121
 msgid "The node trying to be used is currently"
 msgstr ""
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:121
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:122
 #, fuzzy
 msgid "unavailable"
 msgstr "No se dispone de hash"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:122
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:123
 msgid "On reboot we will try to find a new node"
 msgstr ""
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:123
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:124
 msgid "automatically"
 msgstr ""
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:134
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:135
 msgid "No open slots"
 msgstr ""
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:135
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:136
 #, fuzzy
 msgid "There are"
 msgstr "Existen"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:137
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:138
 #, fuzzy
 msgid "before me"
 msgstr "Nombre del núcleo"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:144
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:145
 #, fuzzy
 msgid "There are open slots"
 msgstr "Existen"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:145
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:146
 msgid "but"
 msgstr ""
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:147
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:148
 msgid "before me on this node"
 msgstr ""
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:158
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:159
 #, fuzzy
 msgid "Failed to update/create image log"
 msgstr "No se pudo crear Complemento de empleo"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:165
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:431
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:166
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:433
 #, fuzzy
 msgid "Failed to update Task"
 msgstr "No se pudo crear la tarea"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:168
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:169
 #, fuzzy
 msgid "Failed to update/create task log"
 msgstr "No se pudo crear la tarea"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:272
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:273
 msgid "Machine Details"
 msgstr ""
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:274
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:275
 #, fuzzy
 msgid "Computer Model"
 msgstr "Modelo de impresora"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:276
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:277
 msgid "MAC Address"
 msgstr ""
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:278
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:279
 #, fuzzy
 msgid "Image Used"
 msgstr "Nombre de la imagen"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:279
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:280
 #, fuzzy
 msgid "Snapin Used"
 msgstr "snapins"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:281
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:282
 #, fuzzy
 msgid "Imaged By"
 msgstr "Tipo de imagen"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:282
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:314
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:283
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:315
 #, fuzzy
 msgid "Imaged For"
 msgstr "Imagen"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:300
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:301
 #, fuzzy
 msgid "Image Task Completed"
 msgstr "después de la realización de tareas"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:315
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:316
 msgid "Call"
 msgstr ""
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:428
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:430
 #, fuzzy
 msgid "Failed to update Host"
 msgstr "No se ha podido destruir"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:442
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:444
 #, fuzzy
 msgid "Failed to update task log"
 msgstr "No se pudo crear la tarea"
 
-#: /var/www/fog/lib/reg-task/taskqueue.class.php:446
+#: /var/www/fog/lib/reg-task/taskqueue.class.php:448
 #, fuzzy
 msgid "Failed to update imaging log"
 msgstr "No se pudo crear Complemento de empleo"

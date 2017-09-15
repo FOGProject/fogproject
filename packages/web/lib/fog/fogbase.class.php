@@ -2494,4 +2494,18 @@ abstract class FOGBase
         $IPs = array_values($IPs);
         return $IPs;
     }
+    /**
+     * Wait a random interval between 1/2 second to 2 seconds.
+     *
+     * @return void
+     */
+    public static function randWait()
+    {
+        usleep(
+            rand(
+                5000,
+                2000000
+            )
+        );
+    }
 }
