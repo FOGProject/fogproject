@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-12 10:15-0400\n"
+"POT-Creation-Date: 2017-09-15 12:59-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -9194,39 +9194,39 @@ msgstr "Replication Bandwidth"
 msgid "File or path cannot be reached"
 msgstr " | File or path cannot be reached"
 
-#: /var/www/fog/lib/service/fogservice.class.php:554
+#: /var/www/fog/lib/service/fogservice.class.php:557
 #, fuzzy
 msgid "Cannot connect to"
 msgstr "Cannot connect to node."
 
-#: /var/www/fog/lib/service/fogservice.class.php:674
+#: /var/www/fog/lib/service/fogservice.class.php:676
 msgid "Files do not match"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:680
+#: /var/www/fog/lib/service/fogservice.class.php:682
 #, fuzzy
 msgid "Deleting remote file"
 msgstr "Menu create failed"
 
-#: /var/www/fog/lib/service/fogservice.class.php:691
+#: /var/www/fog/lib/service/fogservice.class.php:693
 msgid "No need to sync"
 msgstr ""
 
-#: /var/www/fog/lib/service/fogservice.class.php:693
+#: /var/www/fog/lib/service/fogservice.class.php:695
 #, fuzzy
 msgid "file to"
 msgstr "Failed to"
 
-#: /var/www/fog/lib/service/fogservice.class.php:724
+#: /var/www/fog/lib/service/fogservice.class.php:726
 #, fuzzy
 msgid "Starting Sync Actions"
 msgstr " * Starting Sync Actions"
 
-#: /var/www/fog/lib/service/fogservice.class.php:783
+#: /var/www/fog/lib/service/fogservice.class.php:785
 msgid "Started sync for"
 msgstr "Started sync for"
 
-#: /var/www/fog/lib/service/fogservice.class.php:815
+#: /var/www/fog/lib/service/fogservice.class.php:817
 #, fuzzy
 msgid "Task started"
 msgstr "Task Started"
