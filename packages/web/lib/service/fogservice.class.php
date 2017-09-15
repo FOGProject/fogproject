@@ -530,8 +530,11 @@ abstract class FOGService extends FOGBase
                         'host',
                         $PotentialStorageNode->get('ip')
                     );
+                $ip = self::resolveHostname(
+                    self::$FOGFTP->get('host')
+                );
                 $socket = @fsockopen(
-                    $pip,
+                    $ip,
                     self::$FOGFTP->get('port'),
                     $errno,
                     $errstr,
@@ -561,7 +564,6 @@ abstract class FOGService extends FOGBase
                 $username = self::$FOGFTP->get('username');
                 $password = self::$FOGFTP->get('password');
                 $encpassword = urlencode($password);
-                $ip = self::$FOGFTP->get('host');
                 $removeDir = sprintf(
                     '/%s/',
                     trim(
