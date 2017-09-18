@@ -206,9 +206,9 @@ class HostManagementPage extends FOGPage
             . '<small>${host_mac}</small>',
             '<small>${deployed}</small>',
             sprintf(
-                '<a href="?node=host&sub=deploy&sub=deploy&type=1&id=${id}">'
+                '<a href="?node=host&sub=deploy&type=1&id=${id}">'
                 . '<i class="icon fa fa-%s" title="%s"></i></a> '
-                . '<a href="?node=host&sub=deploy&sub=deploy&type=2&id=${id}">'
+                . '<a href="?node=host&sub=deploy&type=2&id=${id}">'
                 . '<i class="icon fa fa-%s" title="%s"></i></a> '
                 . '<a href="?node=host&sub=deploy&type=8&id=${id}">'
                 . '<i class="icon fa fa-%s" title="%s"></i></a> '
