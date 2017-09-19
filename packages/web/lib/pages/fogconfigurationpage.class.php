@@ -2042,6 +2042,7 @@ class FOGConfigurationPage extends FOGPage
             'SNAPINREPLICATORGLOBALENABLED',
             'SNAPINHASHGLOBALENABLED',
             'FOG_QUICKREG_IMG_WHEN_REG',
+            'FOG_QUICKREG_PROD_KEY_BIOS',
             'FOG_TASKING_ADV_SHUTDOWN_ENABLED',
             'FOG_TASKING_ADV_WOL_ENABLED',
             'FOG_TASKING_ADV_DEBUG_ENABLED',
@@ -2635,6 +2636,7 @@ class FOGConfigurationPage extends FOGPage
                 (array)0,
                 self::getSubObjectIDs('Group')
             ),
+            'FOG_QUICKREG_PROD_KEY_BIOS' => $checkbox,
             // FOG Service
             'FOG_CLIENT_CHECKIN_TIME' => true,
             'FOG_CLIENT_MAXSIZE' => true,
