@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-15 13:22-0400\n"
+"POT-Creation-Date: 2017-09-19 08:40-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -8669,8 +8669,8 @@ msgid "Already registered as"
 msgstr ""
 
 #: /var/www/fog/lib/reg-task/registration.class.php:245
-#: /var/www/fog/lib/reg-task/registration.class.php:399
-#: /var/www/fog/lib/reg-task/registration.class.php:455
+#: /var/www/fog/lib/reg-task/registration.class.php:412
+#: /var/www/fog/lib/reg-task/registration.class.php:468
 msgid "Failed to create Host"
 msgstr ""
 
@@ -8683,17 +8683,17 @@ msgid "Done, No image assigned!"
 msgstr ""
 
 #: /var/www/fog/lib/reg-task/registration.class.php:275
-#: /var/www/fog/lib/reg-task/registration.class.php:417
+#: /var/www/fog/lib/reg-task/registration.class.php:430
 msgid "Done, Failed to create tasking"
 msgstr ""
 
 #: /var/www/fog/lib/reg-task/registration.class.php:279
-#: /var/www/fog/lib/reg-task/registration.class.php:421
+#: /var/www/fog/lib/reg-task/registration.class.php:434
 msgid "Done, with imaging!"
 msgstr ""
 
-#: /var/www/fog/lib/reg-task/registration.class.php:425
-#: /var/www/fog/lib/reg-task/registration.class.php:459
+#: /var/www/fog/lib/reg-task/registration.class.php:438
+#: /var/www/fog/lib/reg-task/registration.class.php:472
 #: /var/www/fog/service/inventory.php:93
 msgid "Done"
 msgstr ""
