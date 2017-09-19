@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-19 10:03-0400\n"
+"POT-Creation-Date: 2017-09-19 10:38-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -9519,8 +9519,8 @@ msgid "Already registered as"
 msgstr "已注册为"
 
 #: /var/www/fog/lib/reg-task/registration.class.php:245
-#: /var/www/fog/lib/reg-task/registration.class.php:403
-#: /var/www/fog/lib/reg-task/registration.class.php:463
+#: /var/www/fog/lib/reg-task/registration.class.php:405
+#: /var/www/fog/lib/reg-task/registration.class.php:467
 msgid "Failed to create Host"
 msgstr "无法创建主机"
 
@@ -9533,17 +9533,17 @@ msgid "Done, No image assigned!"
 msgstr "完成后，没有图像分配！"
 
 #: /var/www/fog/lib/reg-task/registration.class.php:275
-#: /var/www/fog/lib/reg-task/registration.class.php:421
+#: /var/www/fog/lib/reg-task/registration.class.php:423
 msgid "Done, Failed to create tasking"
 msgstr "完成后，无法创建任务"
 
 #: /var/www/fog/lib/reg-task/registration.class.php:279
-#: /var/www/fog/lib/reg-task/registration.class.php:425
+#: /var/www/fog/lib/reg-task/registration.class.php:427
 msgid "Done, with imaging!"
 msgstr "完成后，随着影像！"
 
-#: /var/www/fog/lib/reg-task/registration.class.php:429
-#: /var/www/fog/lib/reg-task/registration.class.php:467
+#: /var/www/fog/lib/reg-task/registration.class.php:431
+#: /var/www/fog/lib/reg-task/registration.class.php:471
 #: /var/www/fog/service/inventory.php:93
 msgid "Done"
 msgstr "做"
