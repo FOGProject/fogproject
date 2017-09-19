@@ -325,6 +325,7 @@ class Registration extends FOGBase
                 false,
                 ''
             );
+            $productKey = $_REQUEST['productKey'];
             $autoRegSysName = trim($autoRegSysName);
             if (strtoupper($autoRegSysName) == 'MAC') {
                 $hostname = $this->macsimple;
@@ -389,6 +390,18 @@ class Registration extends FOGBase
                 ->addModule($this->modulesToJoin)
                 ->addGroup($groupsToJoin)
                 ->addPriMAC($this->PriMAC)
+                ->setAD(
+                    $useAD,
+                    $ADDomain,
+                    $ADOU,
+                    $ADUser,
+                    $ADPass,
+                    false,
+                    true,
+                    $ADPassLegacy,
+                    $productKey,
+                    $enforce
+                )
                 ->addAddMAC($this->MACs);
             self::$HookManager
                 ->processEvent(
