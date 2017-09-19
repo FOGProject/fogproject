@@ -2004,6 +2004,9 @@ abstract class FOGPage extends FOGBase
         echo '</div>';
         echo '<div class="panel-body">';
         echo '<div id="deleteDiv"></div>';
+        echo '<form class="form-horizontal" action="'
+            . $this->formAction
+            . '">';
         $this->render(12);
         echo '<input type="hidden" name="storagegroup" value="'
             . (
@@ -2012,6 +2015,7 @@ abstract class FOGPage extends FOGBase
                 0
             )
             . '"/>';
+        echo '</form>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -2035,7 +2039,8 @@ abstract class FOGPage extends FOGBase
             if (!$validate) {
                 echo json_encode(
                     array(
-                        'error' => self::$foglang['InvalidLogin']
+                        'error' => self::$foglang['InvalidLogin'],
+                        'title' => _('Unable to Authenticate')
                     )
                 );
                 exit;
@@ -2062,20 +2067,13 @@ abstract class FOGPage extends FOGBase
             ->destroy(
                 array('id' => $remitems)
             );
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo $this->childClass
-            . '\'s '
-            . _('Removed');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo _('All selected items removed successfully');
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
+        echo json_encode(
+            array(
+                'msg' => _('Successfully deleted'),
+                'title' => _('Delete Success')
+            )
+        );
+        exit;
     }
     /**
      * Displays the basic tasks
