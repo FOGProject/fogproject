@@ -606,11 +606,24 @@ class FOGURLRequests extends FOGBase
     public function isAvailable($urls)
     {
         $this->__destruct();
+        $output = array();
         foreach ((array) $urls as &$url) {
-            $this->get($url);
+            $socket = @fsockopen(
+                $url,
+                self::$FOGFTP->get('port'),
+                $errno,
+                $errstr,
+                30
+            );
+            if (!$socket) {
+                $output[] = false;
+                continue;
+            }
+            $output[] = true;
+            fclose($socket);
             unset($url);
         }
 
-        return $this->execute('', true);
+        return $output;
     }
 }

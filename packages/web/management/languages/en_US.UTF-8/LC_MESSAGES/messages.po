@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-19 10:38-0400\n"
+"POT-Creation-Date: 2017-09-19 11:46-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -806,7 +806,7 @@ msgid "Host"
 msgstr "Host"
 
 #: /var/www/fog/lib/fog/fogftp.class.php:380
-#: /var/www/fog/lib/pages/dashboardpage.class.php:225
+#: /var/www/fog/lib/pages/dashboardpage.class.php:222
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:90
 #: /var/www/fog/lib/pages/usermanagementpage.class.php:87
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2665
@@ -2625,75 +2625,75 @@ msgstr "has been started on port"
 msgid "Cancelled task"
 msgstr "Cancelled task"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:193
+#: /var/www/fog/lib/pages/dashboardpage.class.php:190
 msgid "Pending hosts"
 msgstr "Pending hosts"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:194
-#: /var/www/fog/lib/pages/dashboardpage.class.php:203
+#: /var/www/fog/lib/pages/dashboardpage.class.php:191
+#: /var/www/fog/lib/pages/dashboardpage.class.php:200
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:268
 msgid "Click"
 msgstr "Click"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:197
-#: /var/www/fog/lib/pages/dashboardpage.class.php:206
+#: /var/www/fog/lib/pages/dashboardpage.class.php:194
+#: /var/www/fog/lib/pages/dashboardpage.class.php:203
 #: /var/www/fog/lib/pages/schemaupdaterpage.class.php:269
 #: /var/www/fog/commons/text.php:92
 msgid "here"
 msgstr "here"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:198
-#: /var/www/fog/lib/pages/dashboardpage.class.php:207
+#: /var/www/fog/lib/pages/dashboardpage.class.php:195
+#: /var/www/fog/lib/pages/dashboardpage.class.php:204
 msgid "to review."
 msgstr "to review."
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:202
+#: /var/www/fog/lib/pages/dashboardpage.class.php:199
 msgid "Pending macs"
 msgstr "Pending macs"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:226
+#: /var/www/fog/lib/pages/dashboardpage.class.php:223
 msgid "Web Server"
 msgstr "Web Server"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:230
+#: /var/www/fog/lib/pages/dashboardpage.class.php:227
 msgid "Load Average"
 msgstr "Load Average"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:231
+#: /var/www/fog/lib/pages/dashboardpage.class.php:228
 msgid "System Uptime"
 msgstr "System Uptime"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:258
+#: /var/www/fog/lib/pages/dashboardpage.class.php:255
 msgid "System Overview"
 msgstr "System Overview"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:261
+#: /var/www/fog/lib/pages/dashboardpage.class.php:258
 #, fuzzy
 msgid "Server information at a glance."
 msgstr "LDAP information updated!"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:282
+#: /var/www/fog/lib/pages/dashboardpage.class.php:279
 msgid "Storage Group Activity"
 msgstr "Storage Group Activity"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:285
+#: /var/www/fog/lib/pages/dashboardpage.class.php:282
 msgid "Selected groups's current activity"
 msgstr ""
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:307
+#: /var/www/fog/lib/pages/dashboardpage.class.php:304
 msgid "Storage Node Disk Usage"
 msgstr "Storage Node Disk Usage"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:310
+#: /var/www/fog/lib/pages/dashboardpage.class.php:307
 #, fuzzy
 msgid "Selected node's disk usage"
 msgstr "The selected node's image storage disk usage"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:334
+#: /var/www/fog/lib/pages/dashboardpage.class.php:331
 msgid "Imaging Over the last 30 days"
 msgstr "Imaging Over the last 30 days"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:393
+#: /var/www/fog/lib/pages/dashboardpage.class.php:390
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:605
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2663
 #: /var/www/fog/lib/reports/user_tracking.report.php:238
@@ -2702,20 +2702,20 @@ msgstr "Imaging Over the last 30 days"
 msgid "Time"
 msgstr "Time"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:396
-#: /var/www/fog/lib/pages/dashboardpage.class.php:404
+#: /var/www/fog/lib/pages/dashboardpage.class.php:393
+#: /var/www/fog/lib/pages/dashboardpage.class.php:401
 msgid "2 Minutes"
 msgstr "2 Minutes"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:409
+#: /var/www/fog/lib/pages/dashboardpage.class.php:406
 msgid "10 Minutes"
 msgstr "10 Minutes"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:414
+#: /var/www/fog/lib/pages/dashboardpage.class.php:411
 msgid "30 Minutes"
 msgstr "30 Minutes"
 
-#: /var/www/fog/lib/pages/dashboardpage.class.php:419
+#: /var/www/fog/lib/pages/dashboardpage.class.php:416
 #, fuzzy
 msgid "1 Hour"
 msgstr "1 hour"
