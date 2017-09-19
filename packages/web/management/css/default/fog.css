@@ -12,7 +12,8 @@ body {
 .fogdashbox {
     min-width: 200px;
     max-width: 90%;
-    height: 125px;
+    min-height: 125px;
+    max-height: 300px;
     margin: auto;
     margin-bottom: 10px;
 }
