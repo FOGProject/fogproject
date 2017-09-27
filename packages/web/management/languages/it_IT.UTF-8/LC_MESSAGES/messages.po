@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-09-04 18:05-0400\n"
-"PO-Revision-Date: 2017-08-30 10:07+0200\n"
+"PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -172,14 +172,12 @@ msgid "Could not notify"
 msgstr "Non posso notificare"
 
 #: /var/www/fog/lib/fog/reportmaker.class.php:157
-#, fuzzy
 msgid "Invalid Type"
-msgstr "tipo non valido"
+msgstr "Tipo non valido"
 
 #: /var/www/fog/lib/fog/reportmaker.class.php:333
-#, fuzzy
 msgid "Export Complete"
-msgstr "Completare"
+msgstr "Esportazione Completata"
 
 #: /var/www/fog/lib/fog/fogcontroller.class.php:129
 msgid "Table not defined for this class"
@@ -1245,10 +1243,10 @@ msgstr "Elimina selezionato"
 #: /var/www/fog/lib/fog/fogpage.class.php:4224
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:855
 msgid "Delete selected"
-msgstr "Elimina selezionato"
+msgstr "Cancella selezionato"
 
 msgid "Delete selected"
-msgstr "Elimina selezionato"
+msgstr "Cancella selezionato"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:749
 #: /var/www/fog/lib/fog/fogpage.class.php:1994
@@ -1490,8 +1488,7 @@ msgstr "Tipo di attività non è valido"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1646
 msgid "Password reset requires a user account to reset"
-msgstr ""
-"reimpostazione della password richiede un account utente per ripristinare"
+msgstr "reimpostazione della password richiede un account utente per ripristinare"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1661
 msgid "There are no hosts to task in this group"
@@ -1515,8 +1512,7 @@ msgstr "e non può essere catturato"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1691
 msgid "Groups are not allowed to schedule upload tasks"
-msgstr ""
-"I gruppi non sono autorizzati alla programmazione di attività di upload"
+msgstr "I gruppi non sono autorizzati alla programmazione di attività di upload"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:1698
 msgid "Multicast tasks from groups"
@@ -1770,7 +1766,6 @@ msgid "deleted"
 msgstr "eliminata"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3241
-#, fuzzy
 msgid "Delete Success"
 msgstr "Eliminato con successo"
 
@@ -1867,11 +1862,10 @@ msgstr "Importa CSV?"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3777
 msgid "This page allows you to upload a CSV file into FOG to ease"
-msgstr ""
-"Questa pagina ti consente di caricare un file CSV in FOG per facilitare"
+msgstr "Questa pagina ti consente di caricare un file CSV in FOG per facilitare"
+
 msgid "This page allows you to upload a CSV file into FOG to ease"
-msgstr ""
-"Questa pagina ti consente di caricare un file CSV in FOG per facilitare"
+msgstr "Questa pagina ti consente di caricare un file CSV in FOG per facilitare"
 
 #: /var/www/fog/lib/fog/fogpage.class.php:3779
 msgid "migration or mass import new items"
@@ -2281,9 +2275,7 @@ msgstr "Groppo di archiviazione immagini"
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:1131
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1262
 msgid "Check here to see what storage groups can be added"
-msgstr ""
-"Controlla qui per vedere quali gruppi di archiviazione possono essere "
-"aggiunti"
+msgstr "Controlla qui per vedere quali gruppi di archiviazione possono essere aggiunti"
 
 #: /var/www/fog/lib/pages/imagemanagementpage.class.php:1140
 #: /var/www/fog/lib/pages/snapinmanagementpage.class.php:1271
@@ -2685,9 +2677,7 @@ msgstr "Colori principali"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:472
 msgid "Option specifies the color settings of the main menu items"
-msgstr ""
-"Opzione consente di specificare le impostazioni di colore degli elementi "
-"principali"
+msgstr "Opzione consente di specificare le impostazioni di colore degli elementi principali"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:476
 msgid "Valid Host Colors"
@@ -2876,8 +2866,7 @@ msgstr "Uscita Tipo disco rigido (EFI)"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:736
 msgid "Option specifies the efi boot exit method ipxe will use"
-msgstr ""
-"L'opzione specifica il metodo di uscite di boot di efi che utilizzerà ipxe"
+msgstr "L'opzione specifica il metodo di uscite di boot di efi che utilizzerà ipxe"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:765
 msgid "Boot Exit settings"
@@ -2970,8 +2959,7 @@ msgstr "La sintassi di iPXE è molto finicky quando si tratta di modifica"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1029
 msgid "If you need help understanding what items are needed please"
-msgstr ""
-"Se hai bisogno di aiuto per capire quali elementi sono necessari, per favore"
+msgstr "Se hai bisogno di aiuto per capire quali elementi sono necessari, per favore"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1031
 msgid "see the forums or lookup the commands and scripts available"
@@ -3114,8 +3102,7 @@ msgstr "AVVISO"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1678
 msgid "The below items are only used for the old client."
-msgstr ""
-"Gli elementi riportati di seguito sono utilizzati solo per il vecchio client."
+msgstr "Gli elementi riportati di seguito sono utilizzati solo per il vecchio client."
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1680
 msgid "Old clients are the clients that came with FOG"
@@ -3196,12 +3183,8 @@ msgid "MAC Address Manufacturer Listing"
 msgstr "MAC Listing Indirizzo Produttore"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1887
-msgid ""
-"This section allows you to import known mac address makers into the FOG "
-"database for easier identification"
-msgstr ""
-"Questa sezione ti consente di importare produttori di indirizzi MAC "
-"conosciuti nel database FOG per facilitare l'identificazione"
+msgid "This section allows you to import known mac address makers into the FOG database for easier identification"
+msgstr "Questa sezione ti consente di importare produttori di indirizzi MAC conosciuti nel database FOG per facilitare l'identificazione"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:1892
 msgid "Current Records"
@@ -3233,8 +3216,7 @@ msgstr "il modo in cui funziona FOG"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2083
 msgid "Please be very careful changing any of the following settings"
-msgstr ""
-"Si prega di essere molto attenti a modificare una delle seguenti impostazioni"
+msgstr "Si prega di essere molto attenti a modificare una delle seguenti impostazioni"
 
 #: /var/www/fog/lib/pages/fogconfigurationpage.class.php:2085
 msgid "as they can cause issues that are difficult to troubleshoot"
@@ -3414,9 +3396,7 @@ msgstr "funziona sui computer client."
 
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:139
 msgid "The settings tend to be global which affects all hosts."
-msgstr ""
-"Le impostazioni tendono ad essere le impostazioni globali che influenzano "
-"tutti gli host"
+msgstr "Le impostazioni tendono ad essere le impostazioni globali che influenzano tutti gli host"
 
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:140
 msgid "If you are looking to configure settings for a specific host"
@@ -3555,8 +3535,7 @@ msgstr "Utente"
 
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:786
 msgid "This module did not work past Windows XP due to UAC."
-msgstr ""
-"Questo modulo non funziona successivamente a Windows XP a causa di UAC."
+msgstr "Questo modulo non funziona successivamente a Windows XP a causa di UAC."
 
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:791
 msgid "Add User"
@@ -3725,9 +3704,7 @@ msgstr "può vedere il problema e aiutare e / o utilizzare le soluzioni"
 
 #: /var/www/fog/lib/pages/clientmanagementpage.class.php:174
 msgid "Chat is also available on the forums for more realtime help"
-msgstr ""
-"La chat è anche disponibile all'interno del forum per una maggiore "
-"assistenza in tempo reale"
+msgstr "La chat è anche disponibile all'interno del forum per una maggiore assistenza in tempo reale"
 
 #: /var/www/fog/lib/pages/clientmanagementpage.class.php:185
 msgid "Legacy Client and Utilities"
@@ -4236,16 +4213,8 @@ msgstr "No Printer Management"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:852
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1527
-msgid ""
-"This setting only adds and removes printers that are managed by FOG. If the "
-"printer exists in printer management but is not assigned to a host, it will "
-"remove the printer if it exists on the unassigned host. It will add printers "
-"to the host that are assigned."
-msgstr ""
-"Questa impostazione aggiunge e rimuove solo le stampanti gestite da FOG. Se "
-"la stampante esiste nella gestione della stampante, ma non viene assegnata "
-"ad un host, rimuoverà la stampante se esiste nell'host non firmato. "
-"Aggiungerà le stampanti all'host assegnato."
+msgid "This setting only adds and removes printers that are managed by FOG. If the printer exists in printer management but is not assigned to a host, it will remove the printer if it exists on the unassigned host. It will add printers to the host that are assigned."
+msgstr "Questa impostazione aggiunge e rimuove solo le stampanti gestite da FOG. Se la stampante esiste nella gestione della stampante, ma non viene assegnata ad un host, rimuoverà la stampante se esiste nell'host non firmato. Aggiungerà le stampanti all'host assegnato."
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:869
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1545
@@ -4254,14 +4223,8 @@ msgstr "Gestione Stampanti FOG"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:876
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1552
-msgid ""
-"This setting will only allow FOG Assigned printers to be added to the host. "
-"Any printer that is not assigned will be removed including non-FOG managed "
-"printers."
-msgstr ""
-"Questa impostazione consentirà solo che le stampanti FOG assegnate siano "
-"aggiunte all'host. Qualsiasi stampante non assegnata verrà rimossa, incluse "
-"le stampanti non gestite da FOG."
+msgid "This setting will only allow FOG Assigned printers to be added to the host. Any printer that is not assigned will be removed including non-FOG managed printers."
+msgstr "Questa impostazione consentirà solo che le stampanti FOG assegnate siano aggiunte all'host. Qualsiasi stampante non assegnata verrà rimossa, incluse le stampanti non gestite da FOG."
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:889
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1566
@@ -4347,9 +4310,7 @@ msgstr "Questo modulo viene utilizzato solo sul vecchio client"
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1113
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1958
 msgid "The old client is what was distributed with FOG 1.2.0 and earlier"
-msgstr ""
-"Il vecchio cliente è quello che è stato distribuito con FOG 1.2.0 e "
-"precedenti"
+msgstr "Il vecchio cliente è quello che è stato distribuito con FOG 1.2.0 e precedenti"
 
 #: /var/www/fog/lib/pages/groupmanagementpage.class.php:1114
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:1959
@@ -4644,9 +4605,7 @@ msgstr "Rapida distribuzione di gruppo"
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:591
 msgid "Tasked successfully, click active tasks to view in line."
-msgstr ""
-"Assegnato con successo, fare clic su attività attive per visualizzare in "
-"linea."
+msgstr "Assegnato con successo, fare clic su attività attive per visualizzare in linea."
 
 #: /var/www/fog/lib/pages/taskmanagementpage.class.php:600
 #: /var/www/fog/commons/text.php:265
@@ -6399,9 +6358,7 @@ msgstr "Si prega di inserire un nome per questa posizione."
 
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:241
 msgid "Please select the storage group this location relates to."
-msgstr ""
-"Si prega di selezionare il gruppo di archiviazione questa posizione si "
-"riferisce a."
+msgstr "Si prega di selezionare il gruppo di archiviazione questa posizione si riferisce a."
 
 #: /var/www/fog/lib/plugins/location/pages/locationmanagementpage.class.php:256
 msgid "Add location failed!"
@@ -6612,53 +6569,44 @@ msgstr "È richiesto un nome!"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:427
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:567
-#, fuzzy
 msgid "A role already exists with this name!"
-msgstr "Esiste già un gruppo con questo nome!"
+msgstr "Esiste già un ruolo con questo nome!"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:434
-#, fuzzy
 msgid "Add role failed!"
-msgstr "Aggiunta gruppo non riuscito!"
+msgstr "Aggiunta ruolo non riuscita!"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:439
-#, fuzzy
 msgid "Role added!"
-msgstr "Utente aggiunto!"
+msgstr "Ruolo aggiunto!"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:440
-#, fuzzy
 msgid "Role Create Success"
-msgstr "Creazione utente riuscita"
+msgstr "Creazione ruolo riuscita"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:448
-#, fuzzy
 msgid "Role Create Fail"
-msgstr "Creazione utente fallita"
+msgstr "Creazione ruolo fallita"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:526
 msgid "Access Control Role General"
 msgstr "Ruolo controllo accessi Generale"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:574
-#, fuzzy
 msgid "Role update failed!"
-msgstr "Aggiornamento utente non riuscita"
+msgstr "Aggiornamento ruolo non riuscito"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:579
-#, fuzzy
 msgid "Role updated!"
-msgstr "Ruolo aggiornato"
+msgstr "Ruolo aggiornato!"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:580
-#, fuzzy
 msgid "Role Update Success"
-msgstr "Aggiornamento del modulo completato"
+msgstr "Aggiornamento ruolo completato"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:589
-#, fuzzy
 msgid "Role Update Fail"
-msgstr "Aggiornamento modulo non riuscito"
+msgstr "Aggiornamento ruolo non riuscito"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:615
 msgid "Access Control Rules"
@@ -6690,9 +6638,8 @@ msgid "Rule Type"
 msgstr "Tipo regola"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:726
-#, fuzzy
 msgid "Node Parent"
-msgstr "Superiore"
+msgstr "Nodo Superiore"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:734
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:865
@@ -6700,9 +6647,8 @@ msgid "Rule Value"
 msgstr "Valore regola"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:742
-#, fuzzy
 msgid "Create Rule?"
-msgstr "Crea utente?"
+msgstr "Crea ruolo?"
 
 #: /var/www/fog/lib/plugins/accesscontrol/pages/accesscontrolmanagementpage.class.php:789
 msgid "Rule already Exists, please try again."
@@ -8949,13 +8895,11 @@ msgstr "Larghezza di banda replica"
 
 #: /var/www/fog/commons/text.php:53
 msgid "This setting limits the bandwidth for replication between nodes"
-msgstr ""
-"Questa impostazione limita la larghezza di banda per la replica tra i nodi"
+msgstr "Questa impostazione limita la larghezza di banda per la replica tra i nodi"
 
 #: /var/www/fog/commons/text.php:54
 msgid "It operates by getting the max bandwidth setting of the node"
-msgstr ""
-"funziona ottenendo l'impostazione massima della larghezza di banda del nodo"
+msgstr "funziona ottenendo l'impostazione massima della larghezza di banda del nodo"
 
 #: /var/www/fog/commons/text.php:55
 msgid "it's transmitting to"
@@ -9556,8 +9500,7 @@ msgstr "c'è uno abilitato all'interno di questo gruppo di archiviazione"
 
 #: /var/www/fog/commons/text.php:281
 msgid "The storage groups associated storage node is not valid"
-msgstr ""
-"Il nodo di archiviazione gruppi di archiviazione associato non è valido"
+msgstr "Il nodo di archiviazione gruppi di archiviazione associato non è valido"
 
 #: /var/www/fog/commons/text.php:286
 msgid "A task already exists for this host at the scheduled tasking"
