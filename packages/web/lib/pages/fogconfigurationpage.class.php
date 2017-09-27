@@ -130,7 +130,7 @@ class FOGConfigurationPage extends FOGPage
                 ),
                 FILTER_SANITIZE_URL
             );
-            $test = self::$FOGURLRequests->isAvailable($url);
+            $test = self::$FOGURLRequests->isAvailable($StorageNode->ip);
             $test = array_shift($test);
             if (!$test) {
                 continue;
@@ -205,11 +205,6 @@ class FOGConfigurationPage extends FOGPage
     public function kernelUpdate()
     {
         $url = 'https://fogproject.org/kernels/kernelupdate_bootstrap.php';
-        $test = self::$FOGURLRequests->isAvailable($url);
-        $test = array_shift($test);
-        if (false === $test) {
-            return print _('Unable to contact server');
-        }
         $htmlData = self::$FOGURLRequests->process($url);
         echo '<div class="col-xs-9">';
         echo '<div class="panel panel-info">';

@@ -190,15 +190,15 @@ class StorageNode extends FOGController
             $url,
             urlencode(implode(':', $paths))
         );
-        $test = self::$FOGURLRequests->isAvailable($url);
+        $test = self::$FOGURLRequests->isAvailable($this->get('ip'));
         $test = array_shift($test);
         if ($test) {
             $paths = self::$FOGURLRequests->process($url);
         }
-        foreach ((array) $paths as $index => &$response) {
+        foreach ((array)$paths as $index => &$response) {
             $tmppath = self::fastmerge(
-                (array) $tmppath,
-                (array) json_decode($response, true)
+                (array)$tmppath,
+                (array)json_decode($response, true)
             );
             unset($response);
         }
@@ -215,6 +215,11 @@ class StorageNode extends FOGController
      */
     private function _getData()
     {
+        $test = self::$FOGURLRequests->isAvailable($this->get('ip'));
+        $test = array_shift($test);
+        if (!$test) {
+            return;
+        }
         $url = sprintf(
             '%s://%s/fog/status/getfiles.php',
             self::$httpproto,
@@ -225,9 +230,7 @@ class StorageNode extends FOGController
             'snapinfiles' => urlencode($this->get('snapinpath'))
         );
         $urls = array();
-        $testurls = array();
         foreach ((array)$keys as $key => &$data) {
-            $testurls[] = $url;
             $urls[] = sprintf(
                 '%s?path=%s',
                 $url,
@@ -235,13 +238,6 @@ class StorageNode extends FOGController
             );
             unset($data);
         }
-        $test = self::$FOGURLRequests->isAvailable($testurls);
-        $testurls = array_filter($test);
-        unset($test);
-        $urls = array_intersect_key(
-            (array)$urls,
-            (array)$testurls
-        );
         $paths = self::$FOGURLRequests->process($urls);
         $pat = '#dev|postdownloadscripts|ssl#';
         $values = array();
