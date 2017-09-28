@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-26 22:01-0400\n"
+"POT-Creation-Date: 2017-09-28 06:57-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -10705,21 +10705,8 @@ msgid "There are no locations on this server"
 msgstr "有此服务器上没有的位置。"
 
 #, fuzzy
-#~ msgid "Unable to contact server"
-#~ msgstr "服务器连接出错"
-
-#, fuzzy
 #~ msgid "All selected items removed successfully"
 #~ msgstr "保存成功"
-
-#~ msgid "Check here to see"
-#~ msgstr "请查看这里以"
-
-#~ msgid "not within this"
-#~ msgstr "不在此"
-
-#~ msgid "From"
-#~ msgstr "从"
 
 #, fuzzy
 #~ msgid "Windows key already Exists, please try again."
@@ -10736,6 +10723,15 @@ msgstr "有此服务器上没有的位置。"
 #, fuzzy
 #~ msgid "Key Added, editing!"
 #~ msgstr "位置添加，编辑！"
+
+#~ msgid "Check here to see"
+#~ msgstr "请查看这里以"
+
+#~ msgid "not within this"
+#~ msgstr "不在此"
+
+#~ msgid "From"
+#~ msgstr "从"
 
 #~ msgid "LDAP information updated!"
 #~ msgstr "LDAP信息更新！"

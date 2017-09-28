@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-26 22:01-0400\n"
+"POT-Creation-Date: 2017-09-28 06:57-0400\n"
 "PO-Revision-Date: 2016-05-23 07:36-0400\n"
 "Last-Translator: vspushbullet <vspushbullet@gmail.com>\n"
 "Language-Team: German\n"
@@ -10756,21 +10756,8 @@ msgid "There are no locations on this server"
 msgstr "Es gibt keine Orte auf diesem Server."
 
 #, fuzzy
-#~ msgid "Unable to contact server"
-#~ msgstr "Kontaktaufnahme mit Server Fehler"
-
-#, fuzzy
 #~ msgid "All selected items removed successfully"
 #~ msgstr "erfolgreich gespeichert"
-
-#~ msgid "Check here to see"
-#~ msgstr "Prüfen Sie hier, um zu sehen"
-
-#~ msgid "not within this"
-#~ msgstr "nicht innerhalb dieser"
-
-#~ msgid "From"
-#~ msgstr "Von"
 
 #, fuzzy
 #~ msgid "Windows key already Exists, please try again."
@@ -10787,6 +10774,15 @@ msgstr "Es gibt keine Orte auf diesem Server."
 #, fuzzy
 #~ msgid "Key Added, editing!"
 #~ msgstr "Standort hinzugefügt, bearbeitet!"
+
+#~ msgid "Check here to see"
+#~ msgstr "Prüfen Sie hier, um zu sehen"
+
+#~ msgid "not within this"
+#~ msgstr "nicht innerhalb dieser"
+
+#~ msgid "From"
+#~ msgstr "Von"
 
 #~ msgid "LDAP information updated!"
 #~ msgstr "LDAP-Informationen aktualisiert!"
