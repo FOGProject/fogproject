@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-26 22:01-0400\n"
+"POT-Creation-Date: 2017-09-28 06:57-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -10735,21 +10735,8 @@ msgid "There are no locations on this server"
 msgstr "Não há locais neste servidor."
 
 #, fuzzy
-#~ msgid "Unable to contact server"
-#~ msgstr "servidor entrar em contato com erro"
-
-#, fuzzy
 #~ msgid "All selected items removed successfully"
 #~ msgstr "Salvo com sucesso"
-
-#~ msgid "Check here to see"
-#~ msgstr "Verifique aqui para ver"
-
-#~ msgid "not within this"
-#~ msgstr "não dentro desta"
-
-#~ msgid "From"
-#~ msgstr "A partir de"
 
 #, fuzzy
 #~ msgid "Windows key already Exists, please try again."
@@ -10766,6 +10753,15 @@ msgstr "Não há locais neste servidor."
 #, fuzzy
 #~ msgid "Key Added, editing!"
 #~ msgstr "Localização Added, edição!"
+
+#~ msgid "Check here to see"
+#~ msgstr "Verifique aqui para ver"
+
+#~ msgid "not within this"
+#~ msgstr "não dentro desta"
+
+#~ msgid "From"
+#~ msgstr "A partir de"
 
 #~ msgid "LDAP information updated!"
 #~ msgstr "informações LDAP atualizado!"
