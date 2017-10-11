@@ -1184,7 +1184,7 @@ class TaskManagementPage extends FOGPage
         $ScheduledTasks = $ScheduledTasks->scheduledtasks;
         foreach ((array)$ScheduledTasks as &$ScheduledTask) {
             $method = 'host';
-            if ($ScheduledTask->isGroupBased) {
+            if ($ScheduledTask->isGroupTask) {
                 $method = 'group';
             }
             $ObjTest = $ScheduledTask->{$method};
@@ -1216,7 +1216,7 @@ class TaskManagementPage extends FOGPage
                 'id' => $ScheduledTask->id,
                 'start_time' => $ScheduledTask->runtime,
                 'groupbased' => (
-                    $ScheduledTask->isGroupBased ?
+                    $ScheduledTask->isGroupTask ?
                     _('Yes') :
                     _('No')
                 ),
@@ -1227,7 +1227,7 @@ class TaskManagementPage extends FOGPage
                 ),
                 'type' => $ScheduledTask->type == 'C' ? _('Cron') : _('Delayed'),
                 'hostgroup' => (
-                    $ScheduledTask->isGroupBased ?
+                    $ScheduledTask->isGroupTask ?
                     _('group') :
                     _('host')
                 ),
@@ -1236,7 +1236,7 @@ class TaskManagementPage extends FOGPage
                 'details_taskname' => $ScheduledTask->name,
                 'task_type' => $TaskType->name,
                 'extra' => (
-                    $ScheduledTask->isGroupBased ?
+                    $ScheduledTask->isGroupTask ?
                     '' :
                     sprintf(
                         '<br/>%s',
