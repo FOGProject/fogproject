@@ -1291,7 +1291,10 @@ class Route extends FOGBase
                         'host'
                     ) => (
                         $class->isGroupBased() ?
-                        $class->getGroup()->get() :
+                        self::getter(
+                            'group',
+                            $class->getGroup()
+                        ) :
                         self::getter(
                             'host',
                             $class->getHost()
