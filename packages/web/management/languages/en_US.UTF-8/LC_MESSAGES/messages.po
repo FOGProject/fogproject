@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-28 06:57-0400\n"
+"POT-Creation-Date: 2017-10-12 03:54-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1934,6 +1934,8 @@ msgstr "Remove selected snapins"
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:138
 #: /var/www/fog/lib/reports/imaging_log.report.php:171
 #: /var/www/fog/lib/reports/imaging_log.report.php:172
+#: /var/www/fog/lib/reports/history_report.report.php:103
+#: /var/www/fog/lib/reports/history_report.report.php:104
 #: /var/www/fog/lib/reports/inventory_report.report.php:113
 #: /var/www/fog/lib/reports/inventory_report.report.php:114
 msgid "Export CSV"
@@ -2698,6 +2700,7 @@ msgstr "Imaging Over the last 30 days"
 #: /var/www/fog/lib/pages/hostmanagementpage.class.php:2663
 #: /var/www/fog/lib/reports/user_tracking.report.php:238
 #: /var/www/fog/lib/reports/user_tracking.report.php:261
+#: /var/www/fog/lib/reports/history_report.report.php:43
 #: /var/www/fog/commons/text.php:79
 msgid "Time"
 msgstr "Time"
@@ -3801,6 +3804,7 @@ msgid "Add Event"
 msgstr "Add Event"
 
 #: /var/www/fog/lib/pages/serviceconfigurationpage.class.php:741
+#: /var/www/fog/lib/reports/history_report.report.php:41
 #: /var/www/fog/commons/text.php:64
 msgid "User"
 msgstr "User"
@@ -4121,6 +4125,7 @@ msgstr "Storage Node"
 
 #: /var/www/fog/lib/pages/serverinfo.class.php:168
 #: /var/www/fog/lib/pages/printermanagementpage.class.php:88
+#: /var/www/fog/lib/reports/history_report.report.php:44
 #: /var/www/fog/commons/text.php:70
 msgid "IP"
 msgstr "IP"
@@ -4199,6 +4204,7 @@ msgid "Network Information"
 msgstr "Network Information"
 
 #: /var/www/fog/lib/pages/serverinfo.class.php:246
+#: /var/www/fog/lib/reports/history_report.report.php:42
 msgid "Information"
 msgstr "Information"
 
@@ -4826,6 +4832,8 @@ msgstr "Group"
 #: /var/www/fog/lib/reports/pending_mac_list.report.php:142
 #: /var/www/fog/lib/reports/imaging_log.report.php:175
 #: /var/www/fog/lib/reports/imaging_log.report.php:176
+#: /var/www/fog/lib/reports/history_report.report.php:107
+#: /var/www/fog/lib/reports/history_report.report.php:108
 #: /var/www/fog/lib/reports/inventory_report.report.php:117
 #: /var/www/fog/lib/reports/inventory_report.report.php:118
 msgid "Export PDF"
@@ -8848,6 +8856,36 @@ msgstr "Deploy"
 #, fuzzy
 msgid "Not Valid"
 msgstr "Invalid data"
+
+#: /var/www/fog/lib/reports/history_report.report.php:31
+#, fuzzy
+msgid "Full History Export"
+msgstr "Full Inventory Export"
+
+#: /var/www/fog/lib/reports/history_report.report.php:64
+#, fuzzy
+msgid "History ID"
+msgstr "Host ID"
+
+#: /var/www/fog/lib/reports/history_report.report.php:65
+#, fuzzy
+msgid "History Info"
+msgstr "View History for"
+
+#: /var/www/fog/lib/reports/history_report.report.php:66
+#, fuzzy
+msgid "History User"
+msgstr "View History for"
+
+#: /var/www/fog/lib/reports/history_report.report.php:67
+#, fuzzy
+msgid "History Time"
+msgstr "View History for"
+
+#: /var/www/fog/lib/reports/history_report.report.php:68
+#, fuzzy
+msgid "History IP"
+msgstr "View History for"
 
 #: /var/www/fog/lib/reports/inventory_report.report.php:31
 msgid "Full Inventory Export"
