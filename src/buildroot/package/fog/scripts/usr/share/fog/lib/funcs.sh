@@ -462,7 +462,7 @@ shrinkPartition() {
                 debugPause
                 return
             fi
-            if [[ $label =~ [Rr][Ee][Ss][Ee][Rr][Vv][Ee][Dd] ]]; then
+            if [[ $label =~ [Rr][Ee][Ss][Ee][Rr][Vv][Ee][Dd] || $label =~ [Rr][Éé][Ss][Éé][Rr][Vv][Éé] ]]; then
                 echo "$(cat "$imagePath/d1.fixed_size_partitions" | tr -d \\0):${part_number}" > "$imagePath/d1.fixed_size_partitions"
                 echo " * Not shrinking ($part) reserved partitions"
                 debugPause
