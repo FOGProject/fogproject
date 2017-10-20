@@ -516,17 +516,21 @@ abstract class FOGBase
                 $mac = filter_input(INPUT_GET, 'mac');
             }
         }
-        $sysuuid = filter_input(INPUT_POST, 'sysuuid');
+// disabling sysuuid detection code for now as it is causing
+// trouble with machines having the same UUID like we've seen
+// on some MSI motherboards having FFFFFFFF-FFFF-FFFF-FFFF...
+/*        $sysuuid = filter_input(INPUT_POST, 'sysuuid');
         if (!$sysuuid) {
             $sysuuid = filter_input(INPUT_GET, 'sysuuid');
         }
+*/
         // If encoded decode and store value
         if ($encoded === true) {
             $mac = base64_decode($mac);
-            $sysuuid = base64_decode($sysuuid);
+//            $sysuuid = base64_decode($sysuuid);
         }
         // See if we can find the host by system uuid rather than by mac's first.
-        if ($sysuuid) {
+/*        if ($sysuuid) {
             $Inventory = self::getClass('Inventory')
                 ->set('sysuuid', $sysuuid)
                 ->load('sysuuid');
@@ -539,6 +543,7 @@ abstract class FOGBase
                 return;
             }
         }
+*/
         // Trim the mac list.
         $mac = trim($mac);
         // Parsing the macs
