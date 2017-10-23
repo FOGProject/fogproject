@@ -1,5 +1,9 @@
-$(function() {
-    $('input[name=delcu]:checkbox').click(function(e) {
+(function($) {
+    validatorOpts = {
+        submitHandler: submithandlerfunc
+    };
+    setTimeoutElement();
+    $('input[name=delcu]:checkbox').on('click', function(e) {
         e.preventDefault();
         urlForm = $(this).closest('form').attr('action');
         $(this).closest('tr').remove();
@@ -11,4 +15,15 @@ $(function() {
             },
         });
     });
-});
+})(jQuery);
+function setTimeoutElement() {
+    $('#updateuc, #deleteuc, #adddc, #deletedc, #updatedc, #updatescreen, #deleteevent, #addevent, #deletecu, button[name="updatestatus"], button[name="updatedefaults"]').each(function(e) {
+        if ($(this).is(':visible')) {
+            $(this).on('click', function(e) {
+                form = $(this).parents('form');
+                validator = form.validate(validatorOpts);
+            });
+        }
+    });
+    setTimeout(setTimeoutElement, 1000);
+}

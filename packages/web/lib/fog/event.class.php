@@ -120,7 +120,10 @@ abstract class Event extends FOGBase
             self::niceDate()->format('Y-m-d H:i:s'),
             $txt
         );
-        $msg = '%s<div class="debug debug-hook">%s</div>%s';
+        $msg = '%s<div class='
+            . '"alert alert-info alert-dismissable fade in">'
+            . '<a href="#" class="close" data-dismiss="alert">&times;</a>'
+            . '%s</div>%s';
         if (!self::$post && $logbrow) {
             if ($curlog >= $level) {
                 printf(

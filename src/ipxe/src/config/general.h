@@ -55,9 +55,9 @@ FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
 #define	DOWNLOAD_PROTO_TFTP	/* Trivial File Transfer Protocol */
 #define	DOWNLOAD_PROTO_HTTP	/* Hypertext Transfer Protocol */
 #define	DOWNLOAD_PROTO_HTTPS	/* Secure Hypertext Transfer Protocol */
-#define	DOWNLOAD_PROTO_FTP	/* File Transfer Protocol */
+#undef	DOWNLOAD_PROTO_FTP	/* File Transfer Protocol */
 #undef	DOWNLOAD_PROTO_SLAM	/* Scalable Local Area Multicast */
-#define	DOWNLOAD_PROTO_NFS	/* Network File System Protocol */
+#undef	DOWNLOAD_PROTO_NFS	/* Network File System Protocol */
 //#undef DOWNLOAD_PROTO_FILE	/* Local filesystem access */
 
 /*
@@ -134,6 +134,7 @@ FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
 #define MENU_CMD		/* Menu commands */
 #define LOGIN_CMD		/* Login command */
 #define SYNC_CMD		/* Sync command */
+#define SHELL_CMD		/* Shell command */
 #define NSLOOKUP_CMD		/* DNS resolving command */
 #define TIME_CMD		/* Time commands */
 #define DIGEST_CMD		/* Image crypto digest commands */
@@ -150,8 +151,8 @@ FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
 #define CONSOLE_CMD		/* Console command */
 #define IPSTAT_CMD		/* IP statistics commands */
 //#define PROFSTAT_CMD		/* Profiling commands */
-//#define NTP_CMD		/* NTP commands */
-//#define CERT_CMD		/* Certificate management commands */
+#define NTP_CMD		/* NTP commands */
+#define CERT_CMD		/* Certificate management commands */
 
 /*
  * ROM-specific options

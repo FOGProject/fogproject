@@ -21,11 +21,11 @@
  */
 require '../commons/base.inc.php';
 try {
-    $Host = FOGCore::getHostItem(false);
-    if (!$Host->isValid()) {
+    FOGCore::getHostItem(false);
+    if (!FOGCore::$Host->isValid()) {
         throw new Exception('#!ih');
     }
-    $SnapinJob = $Host
+    $SnapinJob = FOGCore::$Host
         ->get('snapinjob');
     if (!$SnapinJob->isValid()) {
         throw new Exception(0);

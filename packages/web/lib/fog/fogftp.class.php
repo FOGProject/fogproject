@@ -755,6 +755,44 @@ class FOGFTP extends FOGGetSet
         );
     }
     /**
+     * List files recursive
+     *
+     * @param string $path The path to list recursive.
+     *
+     * @return array;
+     */
+    public function listrecursive($path)
+    {
+        $lines = $this->rawlist($path);
+        $rawlist = join("\n", $lines);
+        preg_match_all(
+            '/^([drwx+-]{10})\s+(\d+)\s+(\w+)\s+(\w+)\s+(\d+)\s+(.{12}) (.*)$/m',
+            $rawlist,
+            $matches,
+            PREG_SET_ORDER
+        );
+        $result = array();
+        foreach ((array)$matches as $index => &$line) {
+            array_shift($line);
+            $name = $line[count($line) - 1];
+            $type = $line[0][0];
+            $filepath = $path.'/'.$name;
+            if ($type == 'd') {
+                if (in_array($name, array('.', '..'))) {
+                    continue;
+                }
+                $result = array_merge(
+                    $result,
+                    $this->listrecursive($filepath)
+                );
+            } else {
+                $result[] = $filepath;
+            }
+        }
+        return $result;
+    }
+
+    /**
      * Rename function
      *
      * @param string $oldname the old name

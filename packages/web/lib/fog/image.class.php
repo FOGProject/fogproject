@@ -209,24 +209,29 @@ class Image extends FOGController
         if ($this->get('protected')) {
             throw new Exception(self::$foglang['ProtectedImage']);
         }
-        foreach ((array)self::getClass('StorageNodeManager')
-            ->find(
-                array(
-                    'storagegroupID' => $this->get('storagegroups'),
-                    'isEnabled' => 1
-                )
-            ) as &$StorageNode
-        ) {
-            $ftppath = $StorageNode->get('ftppath');
-            $ftppath = trim($ftppath, '/');
+        Route::listem('storagenode');
+        $StorageNodes = json_decode(
+            Route::getData()
+        );
+        $StorageNodes = $StorageNodes->storagenodes;
+        foreach ($StorageNodes as &$StorageNode) {
+            if (!in_array($StorageNode->storagegroupID, $this->get('storagegroups'))
+                || $StorageNode->isEnabled
+            ) {
+                continue;
+            }
+            $ftppath = trim(
+                $StorageNode->ftppath,
+                '/'
+            );
             $deleteFile = sprintf(
                 '/%s/%s',
                 $ftppath,
                 $this->get('path')
             );
-            $ip = $StorageNode->get('ip');
-            $user = $StorageNode->get('user');
-            $pass = $StorageNode->get('pass');
+            $ip = $StorageNode->ip;
+            $user = $StorageNode->user;
+            $pass = $StorageNode->pass;
             self::$FOGFTP
                 ->set('host', $ip)
                 ->set('username', $user)
@@ -290,14 +295,11 @@ class Image extends FOGController
      */
     protected function loadHostsnotinme()
     {
-        $find = array('id'=>$this->get('hosts'));
-        $hostids = self::getSubObjectIDs(
-            'Host',
-            $find,
-            'id',
-            true
+        $hosts = array_diff(
+            self::getSubObjectIDs('Host'),
+            $this->get('hosts')
         );
-        $this->set('hostsnotinme', $hostids);
+        $this->set('hostsnotinme', $hosts);
     }
     /**
      * Loads storage groups with this object
@@ -360,13 +362,11 @@ class Image extends FOGController
     protected function loadStoragegroupsnotinme()
     {
         $find = array('id' => $this->get('storagegroups'));
-        $groupids = self::getSubObjectIDs(
-            'StorageGroup',
-            $find,
-            'id',
-            true
+        $storagegroups = array_diff(
+            self::getSubObjectIDs('StorageGroup'),
+            $this->get('storagegroups')
         );
-        $this->set('storagegroupsnotinme', $groupids);
+        $this->set('storagegroupsnotinme', $storagegroups);
     }
     /**
      * Gets the storage group

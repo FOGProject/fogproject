@@ -1,8 +1,32 @@
 $(function() {
     checkboxToggleSearchListPages();
-    $('#action-boxdel').submit(function() {
+    validatorOpts = {
+        submitHandler: submithandlerfunc,
+        rules: {
+            name: {
+                required: true
+            },
+            address: {
+                required: true
+            },
+            searchDN: {
+                required: true
+            },
+            port: {
+                required: true
+            },
+            userNamAttr: {
+                required: true
+            },
+            grpMemberAttr: {
+                required: true
+            }
+        }
+    };
+    setupTimeoutElement('#add, #update', '[name="name"], [name="address"], [name="searchDN"], [name="port"], [name="userNamAttr"], [name="grpMemberAttr"]', 1000);
+    $('.action-boxes').submit(function() {
         var checked = $('input.toggle-action:checked');
-        var ldapIDArray = new Array();
+        var ldapIDArray = [];
         for (var i = 0,len = checked.size();i < len;i++) {
             ldapIDArray[ldapIDArray.length] = checked.eq(i).attr('value');
         }

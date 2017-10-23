@@ -39,119 +39,143 @@ class SlackManagementPage extends FOGPage
         $this->name = 'Slack Management';
         parent::__construct($this->name);
         $this->menu = array(
-            'list' => sprintf(self::$foglang['ListAll'], _('Slack Accounts')),
+            'list' => sprintf(
+                self::$foglang['ListAll'],
+                _('Slack Accounts')
+            ),
             'add' => _('Link Slack Account'),
         );
-        if ($_REQUEST['id']) {
+        global $id;
+        if ($id) {
             unset($this->subMenu);
         }
         $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" class='
-            . '"toggle-checkboxAction"/>',
+            '<input type="checkbox" name="toggle-checkbox" '
+            . 'class="toggle-checkboxAction"/>',
             _('Team'),
             _('Created By'),
-            _('User/Channel Name'),
-            _('Delete'),
+            _('User/Channel Name')
         );
         $this->templates = array(
-            '<input type="checkbox" name="slack[]" value='
-            . '"${id}" class="toggle-action"/>',
+            '<input type="checkbox" name="slack[]" '
+            . 'value="${id}" class="toggle-action"/>',
             '${team}',
             '${createdBy}',
-            '${name}',
-            sprintf(
-                '<a href="?node=%s&sub=delete&id=${id}" title="%s">'
-                . '<i class="fa fa-minus-circle fa-1x icon hand"></i></a>',
-                $this->node,
-                _('Delete')
-            ),
+            '${name}'
         );
         $this->attributes = array(
-            array('class' => 'l filter-false','width' => 16),
-            array('class' => 'l','width'=> 50),
-            array('class' => 'l','width'=> 80),
-            array('class' => 'l','width'=> 80),
-            array('class' => 'r filter-false','width' => 16),
+            array(
+                'class' => 'filter-false',
+                'width' => 16
+            ),
+            array(),
+            array(),
+            array()
         );
+        /**
+         * Lambda function to return data either by list or search.
+         *
+         * @param object $Slack the object to use
+         *
+         * @return void
+         */
         self::$returnData = function (&$Slack) {
-            if (!$Slack->isValid()) {
-                return;
-            }
-            $team_name = $Slack->call('auth.test');
+            $team_name = self::getClass(
+                'Slack',
+                $Slack->id
+            )->call('auth.test');
             $this->data[] = array(
-                'id' => $Slack->get('id'),
+                'id' => $Slack->id,
                 'team' => $team_name['team'],
                 'createdBy' => $team_name['user'],
-                'name' => $Slack->get('name'),
+                'name' => $Slack->name,
             );
             unset($Slack);
         };
     }
     /**
-     * Search redirect to list.
-     *
-     * @return void
-     */
-    public function search()
-    {
-        $this->index();
-    }
-    /**
-     * Create new entry.
+     * Presents for creating a new link
      *
      * @return void
      */
     public function add()
     {
+        unset(
+            $this->data,
+            $this->form,
+            $this->span,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
         $this->title = _('Link New Account');
-        unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',
             '${input}',
         );
-        $fields = array(
-            _('Access Token') => sprintf(
-                '<input class="smaller" type="text" name='
-                . '"apiToken" value="%s"/>',
-                $_REQUEST['apiToken']
-            ),
-            _('User/Channel to post to') => sprintf(
-                '<input class="smaller" type="text" name="user" value="%s"/>',
-                $_REQUEST['user']
-            ),
-            '&nbsp;' => sprintf(
-                '<input name="add" class="smaller" type="submit" value="%s"/>',
-                _('Add')
-            ),
+        $value = filter_input(
+            INPUT_POST,
+            'apiToken'
         );
-        foreach ((array)$fields as $field => &$input) {
-            $this->data[] = array(
-                'field' => $field,
-                'input' => $input,
-            );
-            unset($input);
-        }
-        unset($fields);
+        $user = filter_input(
+            INPUT_POST,
+            'user'
+        );
+        $fields = array(
+            '<label for="apiToken">'
+            . _('Access Token')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" '
+            . 'name="apiToken" id="apiToken" value="'
+            . $value
+            . '" required/>'
+            . '</div>',
+            '<label for="user">'
+            . _('User/Channel to post to')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" '
+            . 'name="user" id="user" value="'
+            . $user
+            . '" required/>'
+            . '</div>',
+            '<label for="add">'
+            . _('Add Slack Account')
+            . '</label>' => '<button type="submit" name="add" class="'
+            . 'btn btn-info btn-block" id="add">'
+            . _('Add')
+            . '</button>'
+        );
+        array_walk($fields, $this->fieldsToData);
         self::$HookManager
             ->processEvent(
                 'SLACK_ADD',
                 array(
-                    'headerData' => &$this->headerData,
                     'data' => &$this->data,
                     'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
+                    'attributes' => &$this->attributes,
+                    'headerData' => &$this->headerData
                 )
             );
-        printf(
-            '<form method="post" action="%s">',
-            $this->formAction
-        );
-        $this->render();
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
+        $this->render(12);
         echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Actually create the entry.
@@ -161,10 +185,26 @@ class SlackManagementPage extends FOGPage
     public function addPost()
     {
         try {
-            $token = trim($_REQUEST['apiToken']);
-            $usertype = preg_match('/^[@]/', trim($_REQUEST['user']));
-            $channeltype = preg_match('/^[#]/', trim($_REQUEST['user']));
-            $usersend = trim($_REQUEST['user']);
+            $token = trim(
+                filter_input(
+                    INPUT_POST,
+                    'apiToken'
+                )
+            );
+            $user = trim(
+                filter_input(
+                    INPUT_POST,
+                    'user'
+                )
+            );
+            $usertype = preg_match(
+                '/^[@]/',
+                $user
+            );
+            $channeltype = preg_match(
+                '/^[#]/',
+                $user
+            );
             if (!$usertype && !$channeltype) {
                 throw new Exception(
                     sprintf(
@@ -175,15 +215,18 @@ class SlackManagementPage extends FOGPage
                     )
                 );
             }
-            $user = preg_replace('/^[#]|^[@]/', '', trim($_REQUEST['user']));
             if (!$token) {
-                throw new Exception(_('Please enter an access token'));
+                throw new Exception(
+                    _('Please enter an access token')
+                );
             }
             $Slack = self::getClass('Slack')
                 ->set('token', $token)
-                ->set('name', $usersend);
+                ->set('name', $user);
             if (!$Slack->verifyToken()) {
-                throw new Exception(_('Invalid token passed'));
+                throw new Exception(
+                    _('Invalid token passed')
+                );
             }
             $search = array_search(
                 $user,
@@ -193,7 +236,9 @@ class SlackManagementPage extends FOGPage
                 )
             );
             if ($search === false) {
-                throw new Exception(_('Invalid user and/or channel passed'));
+                throw new Exception(
+                    _('Invalid user and/or channel passed')
+                );
             }
             $exists = self::getClass('SlackManager')
                 ->exists(
@@ -203,11 +248,15 @@ class SlackManagementPage extends FOGPage
                 );
             $exists2 = self::getClass('SlackManager')
                 ->exists($usersend);
-            if ($exists && $exists2) {
-                throw new Exception(_('Account already linked'));
+            if ($exists || $exists2) {
+                throw new Exception(
+                    _('Account already linked')
+                );
             }
             if (!$Slack->save()) {
-                throw new Exception(_('Failed to create'));
+                throw new Exception(
+                    _('Failed to create')
+                );
             }
             $args = array(
                 'channel' => $Slack->get('name'),
@@ -218,12 +267,26 @@ class SlackManagementPage extends FOGPage
                     self::getSetting('FOG_WEB_HOST')
                 )
             );
-            $Slack->call('chat.postMessage', $args);
-            self::setMessage(_('Account Added!'));
-            self::redirect('?node=slack&sub=list');
+            $Slack->call(
+                'chat.postMessage',
+                $args
+            );
+            $msg = json_encode(
+                array(
+                    'msg' => _('Account successfully added!'),
+                    'title' => _('Link Slack Account Success')
+                )
+            );
         } catch (Exception $e) {
-            self::setMessage($e->getMessage());
-            self::redirect($this->formAction);
+            $msg = json_encode(
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('Link Slack Account Fail')
+                )
+            );
         }
+        unset($Slack);
+        echo $msg;
+        exit;
     }
 }

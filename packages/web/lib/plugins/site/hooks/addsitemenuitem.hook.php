@@ -93,8 +93,8 @@ class AddSiteMenuItem extends Hook
             $arguments['main'],
             $this->node,
             array(
-                _('Site Manager'),
-                'fa fa-building fa-2x'
+                _('Sites'),
+                'fa fa-building'
             )
         );
     }

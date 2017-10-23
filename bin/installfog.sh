@@ -32,7 +32,7 @@ help() {
     echo -e "\t-d    --no-defaults\t\tDon't guess defaults"
     echo -e "\t-U    --no-upgrade\t\tDon't attempt to upgrade"
     echo -e "\t-H    --no-htmldoc\t\tNo htmldoc, means no PDFs"
-    echo -e "\t-S    --force-https\t\tForce HTTPS redirect"
+    echo -e "\t-S    --force-https\t\tForce HTTPS for all comunication"
     echo -e "\t-C    --recreate-CA\t\tRecreate the CA Keys"
     echo -e "\t-K    --recreate-keys\t\tRecreate the SSL Keys"
     echo -e "\t-Y -y --autoaccept\t\tAuto accept defaults and install"
@@ -88,7 +88,7 @@ while getopts "$optspec" o; do
                     signorehtmldoc=1
                     ;;
                 force-https)
-                    sforcehttps="yes"
+                    shttpproto="https"
                     ;;
                 recreate-keys)
                     srecreateKeys="yes"
@@ -199,7 +199,7 @@ while getopts "$optspec" o; do
             signorehtmldoc=1
             ;;
         S)
-            sforcehttps="yes"
+            shttpproto="https"
             ;;
         K)
             srecreateKeys="yes"
@@ -356,7 +356,7 @@ echo "Done"
 [[ -z $guessdefaults ]] && guessdefaults=1
 [[ -z $doupdate ]] && doupdate=1
 [[ -z $ignorehtmldoc ]] && ignorehtmldoc=0
-[[ -z $forcehttps ]] && forcehttps="#"
+[[ -z $httpproto ]] && httpproto="http"
 [[ -z $fogpriorconfig ]] && fogpriorconfig="$fogprogramdir/.fogsettings"
 #clearScreen
 if [[ -z $* || $* != +(-h|-?|--help|--uninstall) ]]; then
@@ -383,7 +383,6 @@ case $doupdate in
             [[ -n $sdocroot ]] && docroot=$sdocroot
             [[ -n $srecreateCA ]] && recreateCA=$srecreateCA
             [[ -n $srecreateKeys ]] && recreateKeys=$srecreateKeys
-            [[ -n $sforcehttps ]] && forcehttps=$sforcehttps
             [[ -n $signorehtmldoc ]] && ignorehtmldoc=$signorehtmldoc
             [[ -n $ssslpath ]] && sslpath=$ssslpath
             [[ -n $scopybackold ]] && copybackold=$scopybackold
@@ -393,6 +392,9 @@ case $doupdate in
         echo -e "\n * FOG Installer will NOT attempt to upgrade from\n    previous version of FOG."
         ;;
 esac
+# evaluation of command line options
+[[ -n $shttpproto ]] && httpproto=$shttpproto
+
 [[ -f $fogpriorconfig ]] && grep -l webroot $fogpriorconfig >>$workingdir/error_logs/fog_error_${version}.log 2>&1
 case $? in
     0)
@@ -414,7 +416,7 @@ if [[ -z $backupPath ]]; then
 fi
 [[ -z $bootfilename ]] && bootfilename="undionly.kpxe"
 [[ ! $doupdate -eq 1 || ! $fogupdateloaded -eq 1 ]] && . ../lib/common/input.sh
-fullrelease="1.4.4"
+fullrelease="0"
 echo
 echo "   ######################################################################"
 echo "   #     FOG now has everything it needs for this setup, but please     #"
@@ -571,7 +573,7 @@ while [[ -z $blGo ]]; do
                         echo " | below."
                         echo
                         echo " * Management Server URL:"
-                        echo "   http://fog-server${webroot}"
+                        echo "   ${httpproto}://fog-server${webroot}"
                         echo
                         echo "   You will need this, write this down!"
                         echo "   Username:  $username"
@@ -609,7 +611,7 @@ while [[ -z $blGo ]]; do
                     echo
                     echo "   This can be done by opening a web browser and going to:"
                     echo
-                    echo "   http://${ipaddress}${webroot}management"
+                    echo "   ${httpproto}://${ipaddress}${webroot}management"
                     echo
                     echo "   Default User Information"
                     echo "   Username: fog"

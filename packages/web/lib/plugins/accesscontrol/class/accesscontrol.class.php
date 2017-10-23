@@ -172,11 +172,9 @@ class AccessControl extends FOGController
     protected function loadUsersnotinme()
     {
         $find = array('id' => $this->get('users'));
-        $userids = self::getSubObjectIDs(
-            'User',
-            $find,
-            'id',
-            true
+        $userids = array_diff(
+            self::getSubObjectIDs('User'),
+            $this->get('users')
         );
         $types = array();
         self::$HookManager->processEvent(
@@ -195,6 +193,7 @@ class AccessControl extends FOGController
         }
         unset($userids, $types);
         $this->set('usersnotinme', $users);
+        unset($users);
     }
     /**
      * Load rules
@@ -221,13 +220,10 @@ class AccessControl extends FOGController
      */
     protected function loadAccesscontrolrulesnotinme()
     {
-        $find = array('id' => $this->get('accesscontrolrules'));
-        $ruleids = self::getSubObjectIDs(
-            'AccessControlRule',
-            $find,
-            'id',
-            true
+        $rules = array_diff(
+            self::getSubObjectIDs('AccessControlRule'),
+            $this->get('accesscontrolrules')
         );
-        $this->set('accesscontrolrulesnotinme', $ruleids);
+        $this->set('accesscontrolrulesnotinme', $rules);
     }
 }

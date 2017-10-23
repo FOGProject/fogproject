@@ -44,6 +44,7 @@ class Inventory extends FOGController
         'sysproduct' => 'iSysproduct',
         'sysversion' => 'iSysversion',
         'sysserial' => 'iSysserial',
+        'sysuuid' => 'iSystemUUID',
         'systype' => 'iSystype',
         'biosversion' => 'iBiosversion',
         'biosvendor' => 'iBiosvendor',
@@ -75,13 +76,24 @@ class Inventory extends FOGController
         'hostID',
     );
     /**
+     * Additional fields
+     *
+     * @var array
+     */
+    protected $additionalFields = array(
+        'host'
+    );
+    /**
      * Return the associated host object.
      *
      * @return object
      */
     public function getHost()
     {
-        return new Host($this->get('hostID'));
+        if (!$this->isLoaded('host')) {
+            $this->set('host', new Host($this->get('hostID')));
+        }
+        return $this->get('host');
     }
     /**
      * Cleanly represent the memory.

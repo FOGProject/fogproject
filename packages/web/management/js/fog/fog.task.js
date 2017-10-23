@@ -5,91 +5,175 @@ var CANCELURL,
     cancelButton,
     cancelTasks,
     AJAXTaskUpdate,
-    AJAXTaskRunning;
-$(function() {
-    if (typeof(sub) == 'undefined') {
-        window.location.replace(location.href+'&sub=active');
+    AJAXTaskRunning,
+    ActiveTasksUpdateInterval = 5000;
+(function($) {
+    if (typeof sub == 'undefined') {
+        var newurl = location.protocol
+        + '//'
+        + location.host
+        + location.pathname
+        + '?node='
+        + node
+        + '&sub=active';
+        if (history.pushState) {
+            history.pushState(
+                {
+                    path: newurl
+                },
+                '',
+                newurl
+            );
+        }
+        location.replace(location.href+'&sub=active');
         sub = 'active';
     }
-    var cancelurl = (sub.indexOf('active') != -1 ? location.href : '');
-    var Options = {
-        URL: location.href,
-        Container: '#search-content,#active-tasks',
-        CancelURL:  cancelurl
-    };
-    Container = $(Options.Container);
-    if (!Container.length) alert('No Container element found: '+Options.Container);
+    $('.search-input').on('keyup change focus', function(e) {
+        clearTimeout(AJAXTaskRunning);
+        $('#taskpause,#taskcancel').remove();
+    });
+    var cancelurl = (sub.indexOf('active') != -1 ? location.href : ''),
+        Options = {
+            URL: location.href,
+            CancelURL:  cancelurl
+        };
     URL = Options.URL;
     CANCELURL = Options.CancelURL;
-    if (typeof(sub) == 'undefined' || sub.indexOf('active') != -1) {
-        Container.before('<p class="c"><input type="button" id="taskpause" value="Pause auto update" class="active"/></p>');
-        Container.after('<p class="c"><input type="button" name="Cancel" id="taskcancel" value="Cancel selected tasks?"/><div id="canceltasks"></div></p>');
+    if (!Container.length) {
+        return this;
+    }
+    callme = 'hide';
+    if (!Container.hasClass('noresults')) {
+        callme = 'show';
+    }
+    Container[callme]();
+    if (typeof sub == 'undefined' || sub.indexOf('active') != -1) {
+        Container.before(
+            '<div class="taskbuttons text-center">'
+            + '<div class="col-xs-offset-4 col-xs-4">'
+            + '<div class="form-group">'
+            + '<button type="button" class="btn btn-info btn-block activebtn" id="taskpause">'
+            + '<i class="fa fa-pause"></i>'
+            + '</button>'
+            + '</div>'
+            + '</div>'
+            + '</div>'
+        ).after(
+            '<div class="taskbuttons text-center">'
+            + '<div class="col-xs-offset-4 col-xs-4">'
+            + '<div class="form-group">'
+            + '<button type="button" class="btn btn-warning btn-block" id="taskcancel">'
+            + 'Cancel selected tasks?'
+            + '</button>'
+            + '<div id="canceltasks"></div>'
+            + '</div>'
+            + '</div>'
+            + '</div>'
+        );
         pauseButton = $('#taskpause');
         pauseUpdate = pauseButton.parent('p');
         cancelButton = $('#taskcancel');
         cancelTasks = cancelButton.parent('p');
         ActiveTasksUpdate();
-        pauseButton.click(pauseButtonPressed);
-        cancelButton.click(buttonPress);
+        pauseButton.on('click', pauseButtonPressed);
+        cancelButton.on('click', buttonPress);
+        $('.search-input').on('focus', function() {
+            if (AJAXTaskRunning) AJAXTaskRunning.abort();
+            clearTimeout(AJAXTaskUpdate);
+            pauseButton.removeClass('activebtn').find('i.fa-pause').removeClass('fa-pause').addClass('fa-play');
+        }).on('focusout', function() {
+            if (this.value.length < 1) {
+                pauseButton.addClass('activebtn').find('i.fa-play').removeClass('fa-play').addClass('fa-pause');
+                ActiveTasksUpdate();
+            }
+        });
     }
-});
+})(jQuery);
 function pauseButtonPressed(e) {
-    if (!$(this).hasClass('active')) {
-        $(this).addClass('active').val('Pause auto update');
+    if (!$(this).hasClass('activebtn')) {
+        $(this).addClass('activebtn').find('i.fa-play').removeClass('fa-play').addClass('fa-pause');
         ActiveTasksUpdate();
     } else {
         if (AJAXTaskRunning) AJAXTaskRunning.abort();
         clearTimeout(AJAXTaskUpdate);
-        $(this).removeClass().val('Continue auto update');
+        $(this).removeClass('activebtn').find('i.fa-pause').removeClass('fa-pause').addClass('fa-play');
     }
     e.preventDefault();
 }
-function buttonPress() {
+function buttonPress(e) {
+    e.preventDefault();
     checkedIDs = getChecked();
-    if (checkedIDs.length < 1) return;
-    $('#canceltasks').html('Are you sure you wish to cancel these tasks?');
-    $('#canceltasks').dialog({
-        resizable: false,
-        modal: true,
-        title: 'Cancel tasks',
-        buttons: {
-            'Yes': function() {
-                $.post(CANCELURL,{task: checkedIDs},function(data) {ActiveTasksUpdate();});
-                $(this).dialog('close');
-            },
-            'No': function() {
-                ActiveTasksUpdate();
-                $(this).dialog('close');
+    if (checkedIDs.length < 1) {
+        return;
+    }
+    BootstrapDialog.show({
+        title: 'Cancel Tasks',
+        message: 'Are you sure you wish to cancel the selected tasks?',
+        buttons: [{
+            label: 'Yes',
+            cssClass: 'btn-warning',
+            action: function(dialogItself) {
+                $.post(
+                    CANCELURL,
+                    {
+                        task: checkedIDs
+                    },
+                    function(gdata) {
+                        ActiveTasksUpdate();
+                    }
+                );
+                Container.find('input[value="'+checkedIDs.join('"], input[value="')+'"]').parents('tr').remove();
+                Container.trigger('updateAll');
+                dialogItself.close();
             }
-        }
+        }, {
+            label: 'No',
+            cssClass: 'btn-info',
+            action: function(dialogItself) {
+                dialogItself.close();
+            }
+        }]
     });
 }
 function ActiveTasksUpdate() {
+    if (AJAXTaskRunning) AJAXTaskRunning.abort();
     AJAXTaskRunning = $.ajax({
+        type: 'GET',
+        cache: false,
         url: URL,
         dataType: 'json',
-        beforeSend: function() {
-            Loader.addClass('loading').fogStatusUpdate(_L['ACTIVE_TASKS_LOADING']).find('i').removeClass().addClass('fa fa-refresh fa-spin fa-fw');
-        },
         success: function(response) {
             dataLength = response === null || response.data === null ? dataLength = 0 : response.data.length;
-            thead = $('thead',Container);
-            tbody = $('tbody',Container);
+            thead = $('thead', Container);
+            tbody = $('tbody', Container);
             LastCount = dataLength;
-            Loader.removeClass('loading').fogStatusUpdate(_L['ACTIVE_TASKS_FOUND'].replace(/%1/,LastCount).replace(/%2/,LastCount != 1 ? 's' : '')).find('i').removeClass().addClass('fa fa-exclamation-circle fa-fw');
             if (dataLength > 0) {
-                buildHeaderRow(response.headerData,response.attributes,'th');
-                thead = $('thead',Container);
-                buildRow(response.data,response.templates,response.attributes,'td');
+                buildHeaderRow(
+                    response.headerData,
+                    response.attributes
+                );
+                buildRow(
+                    response.data,
+                    response.templates,
+                    response.attributes
+                );
             }
             TableCheck();
+            AJAXTaskRunning = null;
             checkboxToggleSearchListPages();
         },
         error: function(jqXHR, textStatus, errorThrown) {
-            Loader.fogStatusUpdate(_L['ERROR_SEARCHING']+(errorThrown != '' ? errorThrown : '')).addClass('error').find('i').css({color:'red'});
+            AJAXTaskRunning = null;
         },
         complete: function() {
-            AJAXTaskUpdate = setTimeout(ActiveTasksUpdate, ActiveTasksUpdateInterval - ((new Date().getTime() - startTime) % ActiveTasksUpdateInterval));
+            AJAXTaskUpdate = setTimeout(
+                ActiveTasksUpdate,
+                ActiveTasksUpdateInterval - (
+                    (
+                        new Date().getTime() - startTime
+                    ) % ActiveTasksUpdateInterval
+                )
+            );
         }
     });
 }

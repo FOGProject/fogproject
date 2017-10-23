@@ -47,7 +47,7 @@ class PrinterClient extends FOGClient implements FOGClientSend
      */
     public function json()
     {
-        $level = $this->Host->get('printerLevel');
+        $level = self::$Host->get('printerLevel');
         if ($level === 0 || empty($level)) {
             $level = 0;
         }
@@ -59,7 +59,7 @@ class PrinterClient extends FOGClient implements FOGClientSend
             '',
             'name'
         );
-        $printerIDs = $this->Host->get('printers');
+        $printerIDs = self::$Host->get('printers');
         $printerCount = count($printerIDs);
         if ($printerCount < 1) {
             $data = array(
@@ -74,7 +74,7 @@ class PrinterClient extends FOGClient implements FOGClientSend
         $defaultID = self::getSubObjectIDs(
             'PrinterAssociation',
             array(
-                'hostID' => $this->Host->get('id'),
+                'hostID' => self::$Host->get('id'),
                 'isDefault' => 1,
             ),
             'printerID'
@@ -89,21 +89,29 @@ class PrinterClient extends FOGClient implements FOGClientSend
         } else {
             $default = array_shift($defaultName);
         }
-        $printers = array();
-        foreach ((array)self::getClass('PrinterManager')
-            ->find(array('id' => $printerIDs)) as &$Printer
-        ) {
+        Route::listem(
+            'printer',
+            'name',
+            false,
+            array('id' => $printerIDs)
+        );
+        $Printers = json_decode(
+            Route::getData()
+        );
+        $Printers = $Printers->printers;
+        foreach ((array)$Printers as &$Printer) {
             $printers[] = array(
-                'type' => $Printer->get('config'),
-                'port' => $Printer->get('port'),
-                'file' => $Printer->get('file'),
-                'model' => $Printer->get('model'),
-                'name' => $Printer->get('name'),
-                'ip' => $Printer->get('ip'),
-                'configFile' => $Printer->get('configFile'),
+                'type' => $Printer->config,
+                'port' => $Printer->port,
+                'file' => $Printer->file,
+                'model' => $Printer->model,
+                'name' => $Printer->name,
+                'ip' => $Printer->ip,
+                'configFile' => $Printer->configFile,
             );
             unset($Printer);
         }
+        unset($Printers);
         $data = array(
             'mode' => self::$_modes[$level],
             'allPrinters' => $allPrinters,
@@ -124,13 +132,13 @@ class PrinterClient extends FOGClient implements FOGClientSend
     {
         return sprintf(
             $stringsend,
-            $Printer->get('port'),
-            $Printer->get('file'),
-            $Printer->get('model'),
-            $Printer->get('name'),
-            $Printer->get('ip'),
-            $this->Host->getDefault($Printer->get('id')),
-            $Printer->get('configFile')
+            $Printer->port,
+            $Printer->file,
+            $Printer->model,
+            $Printer->name,
+            $Printer->ip,
+            self::$Host->getDefault($Printer->id),
+            $Printer->configFile
         );
     }
     /**
@@ -140,14 +148,14 @@ class PrinterClient extends FOGClient implements FOGClientSend
      */
     public function send()
     {
-        $level = $this->Host->get('printerLevel');
+        $level = self::$Host->get('printerLevel');
         if ($level === 0 || empty($level)) {
             $level = 0;
         }
         if (!in_array($level, array_keys(self::$_modes))) {
             $level = 0;
         }
-        $printerIDs = $this->Host->get('printers');
+        $printerIDs = self::$Host->get('printers');
         $printerCount = count($printerIDs);
         if ($printerCount < 1) {
             throw new Exception(
@@ -160,9 +168,17 @@ class PrinterClient extends FOGClient implements FOGClientSend
         $this->send = base64_encode(sprintf("#!mg=%s\n", self::$_modes[$level]));
         $this->send .= "\n";
         $strtosend = "%s|%s|%s|%s|%s|%s";
-        foreach ((array)self::getClass('PrinterManager')
-            ->find(array('id' => $printerIDs)) as &$Printer
-        ) {
+        Route::listem(
+            'printer',
+            'name',
+            false,
+            array('id' => $printerIDs)
+        );
+        $printers = json_decode(
+            Route::getData()
+        );
+        $printers = $printers->printers;
+        foreach ((array)$printers as &$Printer) {
             $printerStr = $this->_getString($strtosend, $Printer);
             $printerStrEncoded = base64_encode($printerStr);
             $this->send .= sprintf(

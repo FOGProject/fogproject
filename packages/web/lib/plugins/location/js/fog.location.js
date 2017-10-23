@@ -1,6 +1,20 @@
 $(function() {
     checkboxToggleSearchListPages();
-    $('#action-boxdel').submit(function() {
+    validatorOpts = {
+        submitHandler: submithandlerfunc,
+        rules: {
+            name: {
+                required: true,
+                minlength: 1,
+                maxlength: 255
+            },
+            storagegroup: {
+                required: true
+            }
+        }
+    };
+    setupTimeoutElement('#add, #update', '.locationname-input, #storagegroup', 1000);
+    $('.action-boxes').submit(function() {
         var checked = $('input.toggle-action:checked');
         var locationIDArray = new Array();
         for (var i = 0,len = checked.size();i < len;i++) {

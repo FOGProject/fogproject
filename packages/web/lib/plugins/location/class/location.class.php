@@ -189,16 +189,10 @@ class Location extends FOGController
      */
     protected function loadHostsnotinme()
     {
-        $find = array(
-            'id' => $this->get('hosts')
+        $hosts = array_diff(
+            self::getSubObjectIDs('Host'),
+            $this->get('hosts')
         );
-        $hostIDs = self::getSubObjectIDs(
-            'Host',
-            $find,
-            'id',
-            true
-        );
-        $this->set('hostsnotinme', $hostIDs);
-        unset($find);
+        $this->set('hostsnotinme', $hosts);
     }
 }

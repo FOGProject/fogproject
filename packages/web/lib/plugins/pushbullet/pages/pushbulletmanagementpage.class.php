@@ -45,7 +45,8 @@ class PushbulletManagementPage extends FOGPage
             ),
             'add' => _('Link Pushbullet Account'),
         );
-        if ($_REQUEST['id']) {
+        global $id;
+        if ($id) {
             unset($this->subMenu);
         }
         $this->headerData = array(
@@ -61,19 +62,25 @@ class PushbulletManagementPage extends FOGPage
             '${email}',
         );
         $this->attributes = array(
-            array('class' => 'l filter-false','width' => 16),
-            array('class' => 'l'),
-            array('class' => 'l'),
-            array('class' => 'r'),
+            array(
+                'class' => 'filter-false',
+                'width' => 16
+            ),
+            array(),
+            array()
         );
+        /**
+         * Lambda function to return data either by list or search.
+         *
+         * @param object $PushBullet the object to use
+         *
+         * @return void
+         */
         self::$returnData = function (&$PushBullet) {
-            if (!$PushBullet->isValid()) {
-                return;
-            }
             $this->data[] = array(
-                'name'    => $PushBullet->get('name'),
-                'email'   => $PushBullet->get('email'),
-                'id'      => $PushBullet->get('id'),
+                'name'    => $PushBullet->name,
+                'email'   => $PushBullet->email,
+                'id'      => $PushBullet->id,
             );
             unset($PushBullet);
         };
@@ -85,46 +92,70 @@ class PushbulletManagementPage extends FOGPage
      */
     public function add()
     {
+        unset(
+            $this->data,
+            $this->form,
+            $this->span,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
         $this->title = _('Link New Account');
-        unset($this->headerData);
         $this->attributes = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $this->templates = array(
             '${field}',
             '${input}',
         );
+        $value = filter_input(
+            INPUT_POST,
+            'apiToken'
+        );
         $fields = array(
-            _('Access Token') => '<input class="smaller" type="text" '
-            . 'name="apiToken" />',
-            '' => sprintf(
-                '<input name="add" class="smaller" type="submit" value="%s"/>',
-                _('Add')
-            ),
+            '<label for="apiToken">'
+            . _('Access Token')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control" type="text" '
+            . 'name="apiToken" id="apiToken" value="'
+            . $value
+            . '"/>'
+            . '</div>',
+            '<label for="add">'
+            . _('Add Pushbullet Account')
+            . '</label>' => '<button type="submit" name="add" class="'
+            . 'btn btn-info btn-block" id="add">'
+            . _('Add')
+            . '</button>'
         );
-        foreach ((array)$fields as $field => &$input) {
-            $this->data[] = array(
-                'field' => $field,
-                'input' => $input,
+        array_walk($fields, $this->fieldsToData);
+        self::$HookManager
+            ->processEvent(
+                'PUSHBULLET_ADD',
+                array(
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes,
+                    'headerData' => &$this->headerData
+                )
             );
-            unset($input);
-        }
-        self::$HookManager->processEvent(
-            'PUSHBULLET_ADD',
-            array(
-                'headerData' => &$this->headerData,
-                'data' => &$this->data,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
-            )
-        );
-        printf(
-            '<form method="post" action="%s">',
-            $this->formAction
-        );
-        $this->render();
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
+        $this->render(12);
         echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Actually insert the new object
@@ -134,11 +165,16 @@ class PushbulletManagementPage extends FOGPage
     public function addPost()
     {
         try {
-            $token = trim($_REQUEST['apiToken']);
+            $token = trim(
+                filter_input(
+                    INPUT_POST,
+                    'apiToken'
+                )
+            );
             $PushExists = self::getClass('PushbulletManager')
                 ->exists(
                     $token,
-                    0,
+                    '',
                     'token'
                 );
             if ($PushExists) {
@@ -160,7 +196,9 @@ class PushbulletManagementPage extends FOGPage
                 ->set('name', $userInfo->name)
                 ->set('email', $userInfo->email);
             if (!$Bullet->save()) {
-                throw new Exception(_('Failed to create'));
+                throw new Exception(
+                    _('Failed to create')
+                );
             }
             self::getClass(
                 'PushbulletHandler',
@@ -170,11 +208,22 @@ class PushbulletManagementPage extends FOGPage
                 'FOG',
                 'Account linked'
             );
-            self::setMessage(_('Account Added!'));
-            self::redirect('?node=pushbullet&sub=list');
+            $msg = json_encode(
+                array(
+                    'msg' => _('Account successfully added!'),
+                    'title' => _('Link Pushbullet Account Success')
+                )
+            );
         } catch (Exception $e) {
-            self::setMessage($e->getMessage());
-            self::redirect($this->formAction);
+            $msg = json_encode(
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('Link Pushbullet Account Fail')
+                )
+            );
         }
+        unset($Bullet);
+        echo $msg;
+        exit;
     }
 }

@@ -22,12 +22,6 @@
 class Registration extends FOGBase
 {
     /**
-     * The host object. Only if exists already.
-     *
-     * @var object
-     */
-    protected $Host;
-    /**
      * The MACs to register with.
      *
      * @var array
@@ -77,11 +71,6 @@ class Registration extends FOGBase
                 true,
                 true
             );
-            $this->Host = self::getHostItem(
-                false,
-                true,
-                true
-            );
             $this->regExists($check);
             $this->PriMAC = array_shift($this->MACs);
             $this->macsimple = strtolower(
@@ -121,12 +110,12 @@ class Registration extends FOGBase
     public function regExists($check = false)
     {
         try {
-            if ($this->Host->isValid()) {
+            if (self::$Host->isValid()) {
                 throw new Exception(
                     sprintf(
                         '%s %s',
                         _('Already registered as'),
-                        $this->Host->get('name')
+                        self::$Host->get('name')
                     )
                 );
             }
@@ -147,7 +136,7 @@ class Registration extends FOGBase
     private function _fullReg()
     {
         try {
-            if ($this->Host->isValid()) {
+            if (self::$Host->isValid()) {
                 return;
             }
             self::stripAndDecode($_REQUEST);
@@ -230,7 +219,7 @@ class Registration extends FOGBase
                 ',',
                 $_REQUEST['snapinid']
             );
-            $this->Host = self::getClass('Host')
+            self::$Host = self::getClass('Host')
                 ->set('name', $host)
                 ->set('description', $this->description)
                 ->set('imageID', $imageid)
@@ -251,7 +240,7 @@ class Registration extends FOGBase
                     $productKey,
                     $enforce
                 );
-            if (!$this->Host->save()) {
+            if (!self::$Host->save()) {
                 throw new Exception(
                     _('Failed to create Host')
                 );
@@ -259,7 +248,7 @@ class Registration extends FOGBase
             self::$HookManager
                 ->processEvent(
                     'HOST_REGISTER',
-                    array('Host' => &$this->Host)
+                    array('Host' => &self::$Host)
                 );
             try {
                 if (!$doimage) {
@@ -267,12 +256,12 @@ class Registration extends FOGBase
                         _('Done, without imaging!')
                     );
                 }
-                if (!$this->Host->getImageMemberFromHostID()) {
+                if (!self::$Host->getImageMemberFromHostID()) {
                     throw new Exception(
                         _('Done, No image assigned!')
                     );
                 }
-                $task = $this->Host->createImagePackage(
+                $task = self::$Host->createImagePackage(
                     1,
                     'AutoRegTask',
                     false,
@@ -293,7 +282,7 @@ class Registration extends FOGBase
                 echo $e->getMessage();
             }
             self::getClass('Inventory')
-                ->set('hostID', $this->Host->get('id'))
+                ->set('hostID', self::$Host->get('id'))
                 ->set('primaryUser', $primaryuser)
                 ->set('other1', $other1)
                 ->set('other2', $other2)
@@ -310,7 +299,7 @@ class Registration extends FOGBase
     private function _quickRegAuto()
     {
         try {
-            if ($this->Host->isValid()) {
+            if (self::$Host->isValid()) {
                 return;
             }
             $serviceNames = array(
@@ -393,7 +382,7 @@ class Registration extends FOGBase
                 $hostname = $this->macsimple;
             }
             self::setSetting('FOG_QUICKREG_SYS_NUMBER', ++$autoRegSysNumber);
-            $this->Host = self::getClass('Host')
+            self::$Host = self::getClass('Host')
                 ->set('name', $hostname)
                 ->set('description', $this->description)
                 ->set('imageID', $imageid)
@@ -401,20 +390,25 @@ class Registration extends FOGBase
                 ->addGroup($groupsToJoin)
                 ->addPriMAC($this->PriMAC)
                 ->addAddMAC($this->MACs);
+            if (self::getSetting('FOG_QUICKREG_PROD_KEY_BIOS') > 0) {
+                $productKey = self::encryptpw(
+                    base64_decode($_REQUEST['productKey'])
+                );
+                self::$Host->set('productKey', $productKey);
+            }
             self::$HookManager
                 ->processEvent(
                     'HOST_REGISTER',
-                    array('Host' => &$this->Host)
+                    array('Host' => &self::$Host)
                 );
-            if (!$this->Host->save()) {
+            if (!self::$Host->save()) {
                 throw new Exception(_('Failed to create Host'));
             }
             if ($imageid
                 && $performimg
-                && $this->Host->getImageMemberFromHostID()
+                && self::$Host->getImageMemberFromHostID()
             ) {
-                $imageTest = $this
-                    ->Host
+                $imageTest = self::$Host
                     ->createImagePackage(
                         1,
                         'AutoRegTask',
@@ -448,21 +442,27 @@ class Registration extends FOGBase
     private function _quickReg()
     {
         try {
-            if ($this->Host->isValid()) {
+            if (self::$Host->isValid()) {
                 return;
             }
-            $this->Host = self::getClass('Host')
+            self::$Host = self::getClass('Host')
                 ->set('name', $this->macsimple)
                 ->set('description', $this->description)
                 ->addModule($this->modulesToJoin)
                 ->addPriMAC($this->PriMAC)
                 ->addAddMAC($this->MACs);
+            if (self::getSetting('FOG_QUICKREG_PROD_KEY_BIOS') > 0) {
+                $productKey = self::encryptpw(
+                    base64_decode($_REQUEST['productKey'])
+                );
+                self::$Host->set('productKey', $productKey);
+            }
             self::$HookManager
                 ->processEvent(
                     'HOST_REGISTER',
-                    array('Host' => &$this->Host)
+                    array('Host' => &self::$Host)
                 );
-            if (!$this->Host->save()) {
+            if (!self::$Host->save()) {
                 throw new Exception(
                     _('Failed to create Host')
                 );

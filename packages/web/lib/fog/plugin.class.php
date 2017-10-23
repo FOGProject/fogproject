@@ -217,7 +217,7 @@ class Plugin extends FOGController
             );
             if ($matchIcon != false) {
                 $Plugin->_strIcon = sprintf(
-                    '<i class="%s" width="%d" height="%d" alt="%s"></i>',
+                    '<i class="%s fa-2x" width="%d" height="%d" alt="%s"></i>',
                     $fog_plugin['menuicon'],
                     66,
                     66,
@@ -307,7 +307,7 @@ class Plugin extends FOGController
             '%sManager',
             $this->get('name')
         );
-        if (!class_exists($classManager, false)) {
+        if (!class_exists($classManager)) {
             return parent::getManager();
         }
 

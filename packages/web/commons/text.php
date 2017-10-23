@@ -133,7 +133,7 @@ $foglang['Locations'] = _('Locations');
 $foglang['Location'] = _('Location');
 $foglang['License'] = _('License');
 $foglang['KernelUpdate'] = _('Kernel Update');
-$foglang['PXEBootMenu'] = _('iPXE Boot Menu');
+$foglang['PXEBootMenu'] = _('iPXE General Configuration');
 $foglang['ClientUpdater'] = _('Client Updater');
 $foglang['HostnameChanger'] = _('Hostname Changer');
 $foglang['HostRegistration'] = _('Host Registration');
@@ -154,6 +154,9 @@ $foglang['FOGWebPage'] = _('FOG Home Page');
 $foglang['NewSearch'] = _('New Search');
 $foglang['ListAll'] = _('List All %s');
 $foglang['CreateNew'] = _('Create New %s');
+$foglang['Tasks'] = _('Tasks');
+$foglang['ClientSettings'] = _('Client Settings');
+$foglang['Plugins'] = _('Plugins');
 $foglang['BasicTasks'] = _('Basic Tasks');
 $foglang['Membership'] = _('Membership');
 $foglang['ImageAssoc'] = _('Image Association');
@@ -174,7 +177,7 @@ $foglang['ExportConfig'] = _('Export Configuration');
 $foglang['ImportConfig'] = _('Import Configuration');
 $foglang['Slogan'] = _('Open Source Computer Cloning Solution');
 $foglang['InvalidMAC'] = _('Invalid MAC Address!');
-$foglang['PXEConfiguration'] = _('iPXE Menu Configuration');
+$foglang['PXEConfiguration'] = _('iPXE Menu Item Settings');
 $foglang['PXEMenuCustomization'] = _('iPXE Menu Customization');
 $foglang['NewMenu'] = _('iPXE New Menu Entry');
 $foglang['Submit'] = _('Save Changes');
@@ -237,7 +240,6 @@ $foglang['FOGSites'] = _('Estimated FOG Sites');
 $foglang['LatestVer'] = _('Latest Version');
 $foglang['LatestDevVer'] = _('Latest Development Version');
 $foglang['LatestSvnVer'] = _('Latest SVN Version');
-$foglang['FOGMobile'] = _('FOG Mobile Login');
 // Image class Translates
 $foglang['ProtectedImage'] = _('Image is protected and cannot be deleted');
 $foglang['ProtectedSnapin'] = _('Snapin is protected and cannot be deleted');
@@ -263,6 +265,7 @@ $foglang['NoActSnapJobs'] = _('No Active Snapin Jobs Found For Host');
 $foglang['FailedTask'] = _('Failed to create task');
 $foglang['InTask'] = _('Host is already a member of an active task');
 $foglang['HostNotValid'] = _('Host is not valid');
+$foglang['GroupNotValid'] = _('Group is not valid');
 $foglang['TaskTypeNotValid'] = _('Task Type is not valid');
 $foglang['ImageNotValid'] = _('Image is not valid');
 $foglang['ImageGroupNotValid'] = _('The image storage group assigned is not valid');
@@ -298,12 +301,6 @@ $foglang['ErrorMultipleHosts'] = sprintf(
 );
 // User class translates
 $foglang['SessionTimeout'] = _('Session timeout');
-// Host Mobile page translates
-$foglang['ID'] = _('ID');
-$foglang['QuickImageMenu'] = _('Quick Image Menu');
-$foglang['TaskStarted'] = _('Task Started');
-$foglang['ErrorImageAssoc'] = _('Error, Is an image associated with this host');
-$foglang['HostSearch'] = _('Host Search');
 // Storage Page translates
 $foglang['SN'] = _('Storage Node');
 $foglang['SG'] = _('Storage Group');

@@ -115,12 +115,18 @@ class AddAccessControlAPI extends Hook
         foreach ($arguments['classman']->find() as &$class) {
             switch ($arguments['classname']) {
             case 'accesscontrol':
-                $arguments['data'] = array();
+                $arguments['data'][$arguments['classname'].'s'] = array();
                 $arguments['data'][$arguments['classname'].'s'][] = $class->get();
+                $arguments['data']['count'] = count(
+                    $arguments['data'][$arguments['classname'].'s']
+                );
                 break;
             case 'accesscontrolassociation':
-                $arguments['data'] = array();
+                $arguments['data'][$arguments['classname'].'s'] = array();
                 $arguments['data'][$arguments['classname'].'s'][] = $class->get();
+                $arguments['data']['count'] = count(
+                    $arguments['data'][$arguments['classname'].'s']
+                );
                 break;
             }
         }

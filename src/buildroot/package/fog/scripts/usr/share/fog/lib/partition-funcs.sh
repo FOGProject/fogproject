@@ -78,7 +78,7 @@ restoreUUIDInformation() {
     echo $diskuuid
     debugPause
     [[ -n $diskuuid ]] && sgdisk -U $diskuuid $disk >/dev/null 2>&1
-    [[ ! $? -eq 0 ]] && handleError "Failed to set disk guid (sgdisk -U) (${FUNCNAME[0]})\n   Args Passed: $*"
+    [[ ! $? -eq 0 ]] && handleWarning "Failed to set disk guid (sgdisk -U) (${FUNCNAME[0]})\n   Args Passed: $*"
     getPartitions "$disk"
     for part in $parts; do
         partitionIsSwap "$part"
@@ -91,12 +91,12 @@ restoreUUIDInformation() {
         echo $parttype
         debugPause
         [[ -n $parttype ]] && sgdisk -t $parttype $disk >/dev/null 2>&1 || true
-        [[ ! $? -eq 0 ]] && handleError " Failed to set partition type (sgdisk -t) (${FUNCNAME[0]})\n   Args Passed: $*"
+        [[ ! $? -eq 0 ]] && handleWarning " Failed to set partition type (sgdisk -t) (${FUNCNAME[0]})\n   Args Passed: $*"
         dots "Partition uuid being set to"
         echo $partuuid
         debugPause
         [[ -n $partuuid ]] && sgdisk -u $partuuid $disk >/dev/null 2>&1 || true
-        [[ ! $? -eq 0 ]] && handleError "Failed to set partition guid (sgdisk -u) (${FUNCNAME[0]})\n   Args Passed: $*"
+        [[ ! $? -eq 0 ]] && handleWarning "Failed to set partition guid (sgdisk -u) (${FUNCNAME[0]})\n   Args Passed: $*"
     done
 }
 # $1 is the name of the disk drive

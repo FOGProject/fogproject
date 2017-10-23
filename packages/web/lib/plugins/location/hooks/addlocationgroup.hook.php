@@ -57,7 +57,7 @@ class AddLocationGroup extends Hook
         parent::__construct();
         self::$HookManager
             ->register(
-                'GROUP_GENERAL_EXTRA',
+                'GROUP_EDIT_EXTRA',
                 array(
                     $this,
                     'groupFields'
@@ -132,34 +132,53 @@ class AddLocationGroup extends Hook
             $locID = array_shift($Locations);
         }
         unset($Locations);
-        echo '<!-- Location --><div id="group-location">';
-        printf(
-            '<h2>%s: %s</h2>',
-            _('Location Association for'),
-            $arguments['Group']->get('name')
-        );
-        printf(
-            '<form method="post" action="%s&tab=group-location">',
-            $arguments['formAction']
-        );
         unset($arguments['headerData']);
         $arguments['attributes'] = array(
-            array(),
-            array(),
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
         $arguments['templates'] = array(
             '${field}',
             '${input}',
         );
-        $arguments['data'][] = array(
-            'field' => self::getClass('LocationManager')->buildSelectBox($locID),
-            'input' => sprintf(
-                '<input type="submit" value="%s"/>',
-                _('Update Locations')
-            )
+        $fields = array(
+            '<label for="location">'
+            . _('Location')
+            . '</label>' => self::getClass('LocationManager')->buildSelectBox(
+                $locID
+            ),
+            '<label for="updateloc">'
+            . _('Make Changes?')
+            . '</label>' => '<button type="submit" class="btn btn-info btn-block" '
+            . 'id="updateloc">'
+            . _('Update')
+            . '</button>'
         );
-        $arguments['render']->render();
-        echo '</form></div>';
+        foreach ((array)$fields as $field => &$input) {
+            $arguments['data'][] = array(
+                'field' => $field,
+                'input' => $input
+            );
+            unset($input);
+        }
+        unset($fields);
+        echo '<!-- Location -->';
+        echo '<div id="group-location" class="tab-pane fade">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Location Association');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $arguments['formAction']
+            . '&tab=group-location">';
+        $arguments['render']->render(12);
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * The group location selector.
@@ -186,14 +205,18 @@ class AddLocationGroup extends Hook
                 'hostID' => $arguments['Group']->get('hosts')
             )
         );
-        if ($_REQUEST['location']
-            && is_numeric($_REQUEST['location'])
-            && $_REQUEST['location'] > 0
-        ) {
-            $insert_fields = array('locationID','hostID');
+        $location = (int)filter_input(INPUT_POST, 'location');
+        if ($location) {
+            $insert_fields = array(
+                'locationID',
+                'hostID'
+            );
             $insert_values = array();
             foreach ((array)$arguments['Group']->get('hosts') as &$hostID) {
-                $insert_values[] = array($_REQUEST['location'], $hostID);
+                $insert_values[] = array(
+                    $location,
+                    $hostID
+                );
                 unset($hostID);
             }
             if (count($insert_values) > 0) {

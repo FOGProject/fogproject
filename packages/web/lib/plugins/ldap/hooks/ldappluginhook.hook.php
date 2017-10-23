@@ -50,12 +50,6 @@ class LDAPPluginHook extends Hook
      */
     public $node = 'ldap';
     /**
-     * Allow hook/event to operate on mobile page.
-     *
-     * @var bool
-     */
-    public $mobile = true;
-    /**
      * Initialize object.
      *
      * @return void

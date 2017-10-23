@@ -76,7 +76,8 @@ class PDODB extends DatabaseManager
         PDO::ATTR_PERSISTENT => false,
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES => true
+        PDO::ATTR_EMULATE_PREPARES => true,
+        PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => false
     );
     /**
      * Initializes the PDODB class
@@ -88,6 +89,8 @@ class PDODB extends DatabaseManager
      */
     public function __construct($options = array())
     {
+        ignore_user_abort(true);
+        set_time_limit(0);
         if (self::$_link) {
             return $this;
         }
@@ -344,6 +347,7 @@ class PDODB extends DatabaseManager
             );
             self::$_result = false;
         }
+        self::$_queryResult = null;
         return $this;
     }
     /**

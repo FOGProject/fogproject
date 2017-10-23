@@ -61,7 +61,7 @@ class Host extends FOGController
         'pingstatus' => 'hostPingCode',
         'biosexit' => 'hostExitBios',
         'efiexit' => 'hostExitEfi',
-        'enforce' => 'hostEnforce',
+        'enforce' => 'hostEnforce'
     );
     /**
      * The required fields
@@ -69,7 +69,7 @@ class Host extends FOGController
      * @var array
      */
     protected $databaseFieldsRequired = array(
-        'name',
+        'name'
     );
     /**
      * Additional fields
@@ -97,7 +97,7 @@ class Host extends FOGController
         'snapinjob',
         'users',
         'fingerprint',
-        'powermanagementtasks',
+        'powermanagementtasks'
     );
     /**
      * Database -> Class field relationships
@@ -877,12 +877,9 @@ class Host extends FOGController
      */
     protected function loadGroupsnotinme()
     {
-        $find = array('id' => $this->get('groups'));
-        $groups = self::getSubObjectIDs(
-            'Group',
-            $find,
-            'id',
-            true
+        $groups = array_diff(
+            self::getSubObjectIDs('Group'),
+            $this->get('groups')
         );
         $this->set('groupsnotinme', $groups);
     }
@@ -911,15 +908,11 @@ class Host extends FOGController
      */
     protected function loadPrintersnotinme()
     {
-        $find = array('id' => $this->get('printers'));
-        $printers = self::getSubObjectIDs(
-            'Printer',
-            $find,
-            'id',
-            true
+        $printers = array_diff(
+            self::getSubObjectIDs('Printer'),
+            $this->get('printers')
         );
         $this->set('printersnotinme', $printers);
-        unset($find);
     }
     /**
      * Loads any snapins this host has
@@ -933,7 +926,7 @@ class Host extends FOGController
             array('hostID' => $this->get('id')),
             'snapinID'
         );
-        $groups = self::getSubObjectIDs(
+        $snapins = self::getSubObjectIDs(
             'Snapin',
             array('id' => $snapins)
         );
@@ -946,14 +939,11 @@ class Host extends FOGController
      */
     protected function loadSnapinsnotinme()
     {
-        $find = array('id' => $this->get('snapins'));
-        $groups = self::getSubObjectIDs(
-            'Snapin',
-            $find,
-            'id',
-            true
+        $snapins = array_diff(
+            self::getSubObjectIDs('Snapin'),
+            $this->get('snapins')
         );
-        $this->set('snapinsnotinme', $groups);
+        $this->set('snapinsnotinme', $snapins);
     }
     /**
      * Loads any modules this host has
@@ -1035,7 +1025,10 @@ class Host extends FOGController
             'up',
             'down'
         );
-        $type = strtolower($_REQUEST['type']);
+        $type = filter_input(INPUT_POST, 'type');
+        if (!$type) {
+            $type = filter_input(INPUT_GET, 'type');
+        }
         $type = trim($type);
         if (in_array($type, $types)) {
             if ($type === 'up') {
@@ -1233,11 +1226,6 @@ class Host extends FOGController
         $Task = false
     ) {
         try {
-            if (count($this->get('snapins')) < 1) {
-                throw new Exception(
-                    _('No snapins associated with this host')
-                );
-            }
             $SnapinJob = $this->get('snapinjob');
             if (!$SnapinJob->isValid()) {
                 $SnapinJob
@@ -1528,11 +1516,14 @@ class Host extends FOGController
         if ($taskTypeID == 14) {
             $Task->destroy();
         }
-        return sprintf(
-            '<li>%s &ndash; %s</li>',
-            $this->get('name'),
-            $this->getImage()->get('name')
-        );
+        $str = '<li>';
+        $str .= '<a href="#">';
+        $str .= $this->get('name');
+        $str .= ' &ndash; ';
+        $str .= $this->getImage()->get('name');
+        $str .= '</a>';
+        $str .= '</li>';
+        return $str;
     }
     /**
      * Returns task if host image is valid
@@ -2024,11 +2015,11 @@ class Host extends FOGController
                 $mac = new MACAddress($mac);
             }
             if ($mac->isClientIgnored()) {
-                return 'checked';
+                return ' checked';
             }
             return '';
         }
-        return $this->get('mac')->isClientIgnored() ? 'checked' : '';
+        return $this->get('mac')->isClientIgnored() ? ' checked' : '';
     }
     /**
      * Tells if the mac is image ignored
@@ -2044,11 +2035,11 @@ class Host extends FOGController
                 $mac = new MACAddress($mac);
             }
             if ($mac->isImageIgnored()) {
-                return 'checked';
+                return ' checked';
             }
             return '';
         }
-        return $this->get('mac')->isImageIgnored() ? 'checked' : '';
+        return $this->get('mac')->isImageIgnored() ? ' checked' : '';
     }
     /**
      * Sets the host settings for AD (mainly)
@@ -2166,8 +2157,12 @@ class Host extends FOGController
     {
         $val =  (int)$this->get('pingstatus');
         $socketstr = socket_strerror($val);
-        $strtoupdate = "<i class=\"icon-ping-%s fa fa-exclamation-circle %s "
-            . "fa-1x\" title=\"$socketstr\"></i>";
+        $strtoupdate = '<i class="icon-ping-%s fa fa-exclamation-circle %s'
+            . '" data-toggle="tooltip" '
+            . 'data-placement="right" '
+            . 'title="'
+            . $socketstr
+            . '"></i>';
         ob_start();
         if ($val === 0) {
             printf($strtoupdate, 'up', 'green');

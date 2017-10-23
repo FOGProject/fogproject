@@ -515,7 +515,8 @@ abstract class FOGService extends FOGBase
                     continue;
                 }
                 $url = sprintf(
-                    'http://%s/fog/status/gethash.php',
+                    '%s://%s/fog/status/gethash.php',
+                    self::$httpproto,
                     $PotentialStorageNode->get('ip')
                 );
                 self::$FOGFTP
@@ -529,6 +530,26 @@ abstract class FOGService extends FOGBase
                         'host',
                         $PotentialStorageNode->get('ip')
                     );
+                $ip = self::resolveHostname(
+                    self::$FOGFTP->get('host')
+                );
+                $socket = @fsockopen(
+                    $ip,
+                    self::$FOGFTP->get('port'),
+                    $errno,
+                    $errstr,
+                    30
+                );
+                if (!$socket) {
+                    self::outall(
+                        sprintf(
+                            '%s Server does not appear to be online.',
+                            $PotentialStorageNode->get('name')
+                        )
+                    );
+                    continue;
+                }
+                fclose($socket);
                 if (!self::$FOGFTP->connect()) {
                     self::outall(
                         sprintf(
@@ -543,7 +564,6 @@ abstract class FOGService extends FOGBase
                 $username = self::$FOGFTP->get('username');
                 $password = self::$FOGFTP->get('password');
                 $encpassword = urlencode($password);
-                $ip = self::$FOGFTP->get('host');
                 $removeDir = sprintf(
                     '/%s/',
                     trim(
@@ -586,24 +606,12 @@ abstract class FOGService extends FOGBase
                     );
                 } elseif (is_dir($myAdd)) {
                     $remItem = "$removeDir$removeFile";
-                    $localfilescheck = glob("$myAdd/{,.}*[!.,!..]", GLOB_BRACE);
-                    $remotefilescheck = self::$FOGFTP->rawlist("-a $remItem");
-                    $remotefilescheck = array_filter(
-                        array_map(
-                            function ($item) use ($remItem) {
-                                $item = array_values(
-                                    array_filter(
-                                        preg_split("#[\s]#", $item)
-                                    )
-                                );
-                                if (in_array($item[8], array('.', '..'))) {
-                                    return false;
-                                }
-                                return "${remItem}/${item[8]}";
-                            },
-                            $remotefilescheck
-                        )
+                    $path = realpath($myAdd);
+                    $localfilescheck = self::globrecursive(
+                        "$path/**{,.}*[!.,!..]",
+                        GLOB_BRACE
                     );
+                    $remotefilescheck = self::$FOGFTP->listrecursive($remItem);
                     $opts = '-R';
                     $includeFile = '';
                     if (!$myAddItem) {
@@ -634,7 +642,7 @@ abstract class FOGService extends FOGBase
                         $url,
                         'POST',
                         array(
-                            'file' => $file
+                            'file' => base64_encode($file)
                         )
                     );
                     $res = array_shift($res);
@@ -656,10 +664,10 @@ abstract class FOGService extends FOGBase
                         self::outall(
                             sprintf(
                                 ' | %s %s %s %s',
-                                $filesize_main,
-                                $filesize_rem,
-                                $localfile,
-                                $res
+                                trim($filesize_main),
+                                trim($filesize_rem),
+                                trim($localfile),
+                                trim($res)
                             )
                         );
                         self::outall(
@@ -744,7 +752,7 @@ abstract class FOGService extends FOGBase
                 );
                 $cmd = "lftp -e 'set xfer:log 1; set xfer:log-file $logname;";
                 $cmd .= "set ftp:list-options -a;set net:max-retries ";
-                $cmd .= "10;set net:timeout 30; $limit mirror -c -r ";
+                $cmd .= "10;set net:timeout 30; $limit mirror -c --parallel=20 ";
                 $cmd .= "$opts ";
                 if (!empty($includeFile)) {
                     $includeFile = escapeshellarg($includeFile);
@@ -942,5 +950,30 @@ abstract class FOGService extends FOGBase
         }
         $ar = proc_get_status($procRef);
         return $ar['running'];
+    }
+    /**
+     * Local file glob recursive getter.
+     *
+     * @param string $pattern a Pattern for globbing onto.
+     * @param mixed  $flags   any required flags.
+     *
+     * @return array
+     */
+    public static function globrecursive(
+        $pattern,
+        $flags = 0
+    ) {
+        $files = glob($pattern, $flags);
+        foreach (glob(dirname($pattern).'/*', GLOB_ONLYDIR|GLOB_NOSORT) as &$dir) {
+            $files = array_merge(
+                (array)$files,
+                self::globrecursive(
+                    $dir . '/' . basename($pattern),
+                    $flags
+                )
+            );
+            unset($file);
+        }
+        return $files;
     }
 }

@@ -171,7 +171,8 @@ class StorageNode extends FOGController
     public function getLogfiles()
     {
         $url = sprintf(
-            'http://%s/fog/status/getfiles.php?path=%s',
+            '%s://%s/fog/status/getfiles.php?path=%s',
+            self::$httpproto,
             $this->get('ip'),
             '%s'
         );
@@ -189,11 +190,15 @@ class StorageNode extends FOGController
             $url,
             urlencode(implode(':', $paths))
         );
-        $paths = self::$FOGURLRequests->process($url);
-        foreach ((array) $paths as $index => &$response) {
+        $test = self::$FOGURLRequests->isAvailable($this->get('ip'));
+        $test = array_shift($test);
+        if ($test) {
+            $paths = self::$FOGURLRequests->process($url);
+        }
+        foreach ((array)$paths as $index => &$response) {
             $tmppath = self::fastmerge(
-                (array) $tmppath,
-                (array) json_decode($response, true)
+                (array)$tmppath,
+                (array)json_decode($response, true)
             );
             unset($response);
         }
@@ -210,8 +215,14 @@ class StorageNode extends FOGController
      */
     private function _getData()
     {
+        $test = self::$FOGURLRequests->isAvailable($this->get('ip'));
+        $test = array_shift($test);
+        if (!$test) {
+            return;
+        }
         $url = sprintf(
-            'http://%s/fog/status/getfiles.php',
+            '%s://%s/fog/status/getfiles.php',
+            self::$httpproto,
             $this->get('ip')
         );
         $keys = array(

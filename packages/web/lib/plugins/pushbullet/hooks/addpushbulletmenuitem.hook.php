@@ -95,8 +95,8 @@ class AddPushbulletMenuItem extends Hook
             $arguments['main'],
             $this->node,
             array(
-                _('Pushbullet Management'),
-                'fa fa-bell fa-2x'
+                _('Pushbullet Accounts'),
+                'fa fa-bell'
             )
         );
     }

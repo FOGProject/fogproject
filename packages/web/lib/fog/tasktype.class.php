@@ -42,6 +42,7 @@ class TaskType extends FOGController
         'type' => 'ttType',
         'isAdvanced' => 'ttIsAdvanced',
         'access' => 'ttIsAccess',
+        'initrd' => 'ttInitrd'
     );
     /**
      * The required fields.
@@ -97,7 +98,7 @@ class TaskType extends FOGController
         }
         ksort($icons);
         ob_start();
-        echo '<select name="icon" class="fa">';
+        echo '<select class="form-control fa" id="icon" name="icon">';
         foreach ((array) $icons as $name => &$unicode) {
             printf(
                 '<option value="%s"%s> %s</option>',
@@ -186,8 +187,8 @@ class TaskType extends FOGController
 
         if ($nums) {
             return array_diff(
-                array(4, 12, 13, 14),
-                range(1, 24)
+                range(1, 24),
+                array(4, 12, 13, 14)
             );
         }
 

@@ -123,7 +123,10 @@ class PowerManagement extends FOGController
      */
     public function getActionSelect()
     {
-        return $this->getManager()->getActionSelect($this->get('action'), true);
+        return $this->getManager()->getActionSelect(
+            $this->get('action'),
+            true
+        );
     }
     /**
      * Gets the current timer for this pm task

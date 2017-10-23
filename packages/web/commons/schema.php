@@ -3764,3 +3764,20 @@ $this->schema[] = array(
     . "'If exporting, require authentication or not. (Defaults to on)',"
     . "'1','General Settings')"
 );
+// 261
+$this->schema[] = array(
+    "ALTER TABLE `inventory` ADD `iSystemUUID` VARCHAR(255) NOT NULL"
+);
+// 262
+$this->schema[] = array(
+    "ALTER TABLE `taskTypes` ADD `ttInitrd` LONGTEXT NOT NULL"
+);
+// 263
+$this->schema[] = array(
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_QUICKREG_PROD_KEY_BIOS','Try pulling systems SLIC product key."
+    . " Values are 0 or 1, default is 0.'"
+    . " ,'0', 'FOG Quick Registration')"
+);

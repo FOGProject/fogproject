@@ -49,6 +49,15 @@ class Module extends FOGController
         'shortName',
     );
     /**
+     * Additional fields
+     *
+     * @var array
+     */
+    protected $additionalFields = array(
+        'hosts',
+        'hostsnotinme'
+    );
+    /**
      * Alters valid method.
      *
      * @return bool
@@ -74,5 +83,36 @@ class Module extends FOGController
                 )
             );
         return parent::destroy($key);
+    }
+    /**
+     * Loads any hosts this module is not associated with.
+     *
+     * @return void
+     */
+    protected function loadHostsnotinme()
+    {
+        $hosts = array_diff(
+            self::getSubObjectIDs('Host'),
+            $this->get('hosts')
+        );
+        $this->set('hostsnotinme', $hosts);
+    }
+    /**
+     * Loads any hosts this module has
+     *
+     * @return void
+     */
+    protected function loadHosts()
+    {
+        $hosts = self::getSubObjectIDs(
+            'ModuleAssociation',
+            array('moduleID' => $this->get('id')),
+            'hostID'
+        );
+        $hosts = self::getSubObjectIDs(
+            'Host',
+            array('id' => $hosts)
+        );
+        $this->set('hosts', $hosts);
     }
 }

@@ -1,10 +1,14 @@
-$(function() {
+(function($) {
     var vers = $('.placehere').attr('vers');
+    validatorOpts = {
+        submitHandler: submithandlerfunc
+    };
+    setTimeoutElement();
     $.ajax({
         url: '../status/mainversion.php',
         dataType: 'json',
-        success: function(data) {
-            $('.placehere').append(data);
+        success: function(gdata) {
+            $('.placehere').append(gdata);
         },
         error: function() {
             $('.placehere').append('Failed to get latest info');
@@ -22,47 +26,46 @@ $(function() {
             data: {
                 url: URL
             },
-            success: function(data) {
-                if (typeof(data) == null
-                    || typeof(data) == 'undefined'
+            success: function(gdata) {
+                if (typeof(gdata) == null
+                    || typeof(gdata) == 'undefined'
                 ) {
                     $(this).text('No data returned');
                 }
-                data = data.split('\n');
-                if (data.length < 2) {
+                gdata = gdata.split('\n');
+                if (gdata.length < 2) {
                     $(this).text('No data returned');
                     return;
                 }
-                var nodevers = data.shift();
-                $(this).text(data.join('\n'));
-                var h2 = $(this).prev();
-                var nodename = h2.text();
-                h2.text(nodename.replace(/\(.*\)/,'('+nodevers+')'));
+                var nodevers = gdata.shift();
+                $(this).text(gdata.join('\n'));
+                var setter = $(this).parents('div.hidefirst').prev('a').find('.kernversionupdate');
+                var nodename = setter.text();
+                setter.text(nodename.replace(/\(.*\)/,'('+nodevers+')'));
             }
         });
     });
-    $('#kernelsel').change(function(e) {
-        this.form.submit();
-    });
-    $('#bannerimg').click(function(e) {
+    $('#bannerimg').on('click', function(e) {
         e.preventDefault();
         $('input[name="banner"]').val('');
         name = $(this).attr('identi');
-        $('#uploader').html('<input type="file" name="'+name+'" class="newbanner"/>').find('input').click();
+        $('#uploader').html('<input type="file" name="'+name+'" class="newbanner"/>').find('input').trigger('click');
     });
-    $(document).on('change', '.newbanner', function(e) {
+    $(document).on('change', '#FOG_CLIENT_BANNER_IMAGE', function(e) {
         filename = this.value;
         filename = filename.replace(/\\/g, '/').replace(/.*\//, "");
         $('input[name="banner"]').val(filename);
     });
-    $('.resettoken').click(function(e) {
-        e.preventDefault();
-        $.ajax({
-            url: '../status/newtoken.php',
-            dataType: 'json',
-            success: function(data) {
-                $('.token').val(data);
-            }
-        });
+    tokenreset();
+})(jQuery);
+function setTimeoutElement() {
+    $('button[type="submit"]:not(#importbtn, #export, #upload, #Rebranding, #install), #menuSet, #hideSet, #exitSet, #advSet, button[name="saveform"], button[name="delform"], #deletecu').each(function(e) {
+        if ($(this).is(':visible')) {
+            $(this).on('click', function(e) {
+                form = $(this).parents('form');
+                validator = form.validate(validatorOpts);
+            });
+        }
     });
-});
+    setTimeout(setTimeoutElement, 1000);
+}

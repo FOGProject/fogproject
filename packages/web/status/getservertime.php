@@ -25,6 +25,6 @@ ignore_user_abort(true);
 set_time_limit(0);
 echo FOGCore::formatTime(
     'Now',
-    'D M d, Y G:i a'
+    'M d, Y G:i a'
 );
 exit;

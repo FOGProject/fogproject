@@ -21,15 +21,32 @@
  */
 require '../../commons/base.inc.php';
 header("Content-type: text/plain");
-$mac = FOGCore::fastmerge(
-    explode('|', $_REQUEST['mac']),
-    explode('|', $_REQUEST['mac0']),
-    explode('|', $_REQUEST['mac1']),
-    explode('|', $_REQUEST['mac2'])
+$items = array(
+    'mac' => filter_input(INPUT_POST, 'mac'),
+    'mac0' => filter_input(INPUT_POST, 'mac0'),
+    'mac1' => filter_input(INPUT_POST, 'mac1'),
+    'mac2' => filter_input(INPUT_POST, 'mac2')
 );
-$mac = array_filter($mac);
-$mac = array_unique($mac);
-$mac = array_values($mac);
-$_REQUEST['mac'] = implode('|', (array)$mac);
-$Host = FOGCore::getHostItem(false, false, true);
-new BootMenu($Host);
+$mac = FOGCore::fastmerge(
+    explode('|', $items['mac']),
+    explode('|', $items['mac0']),
+    explode('|', $items['mac1']),
+    explode('|', $items['mac2'])
+);
+$mac = implode(
+    '|',
+    array_values(
+        array_unique(
+            array_filter($mac)
+        )
+    )
+);
+FOGCore::getHostItem(
+    false,
+    false,
+    true,
+    false,
+    false,
+    $mac
+);
+new BootMenu();

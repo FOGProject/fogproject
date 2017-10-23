@@ -455,19 +455,23 @@ class Group extends FOGController
         if (!$TaskType->isValid()) {
             throw new Exception(self::$foglang['TaskTypeNotValid']);
         }
-        $TaskCount = self::getClass('TaskManager')
-            ->count(
+        $hostids = array_diff(
+            $hostids,
+            self::getSubObjectIDs(
+                'Task',
                 array(
                     'hostID' => $hostids,
                     'stateID' => self::fastmerge(
                         self::getQueuedStates(),
-                        (array) self::getProgressState()
+                        (array)self::getProgressState()
                     ),
                     'typeID' => $TaskType->isInitNeededTasking(true)
-                )
-            );
-        if ($TaskCount > 0) {
-            throw new Exception(_('There is a host in a tasking'));
+                ),
+                'hostID'
+            )
+        );
+        if (count($hostids) < 1) {
+            throw new Exception(_('No hosts available to task'));
         }
         $imagingTypes = $TaskType->isImagingTask();
         $now = $this->niceDate();
@@ -476,7 +480,7 @@ class Group extends FOGController
                 self::getSubObjectIDs(
                     'Host',
                     array(
-                        'id' => $this->get('hosts'),
+                        'id' => $hostids,
                     ),
                     'imageID'
                 )
@@ -535,7 +539,7 @@ class Group extends FOGController
                     self::getClass('MulticastSessionAssociationManager')
                         ->destroy(
                             array(
-                                'hostID' => $this->get('hosts'),
+                                'hostID' => $hostids,
                             )
                         );
                     $randomnumber = mt_rand(24576, 32766) * 2;
@@ -544,7 +548,7 @@ class Group extends FOGController
                     }
                     self::setSetting('FOG_UDPCAST_STARTINGPORT', $randomnumber);
                 }
-                $hostIDs = $this->get('hosts');
+                $hostIDs = $hostids;
                 $batchFields = array(
                     'name',
                     'createdBy',
@@ -605,7 +609,6 @@ class Group extends FOGController
                 }
                 unset(
                     $hostCount,
-                    $hostIDs,
                     $batchTask,
                     $first_id,
                     $affected_rows,
@@ -614,7 +617,7 @@ class Group extends FOGController
                 );
                 $this->_createSnapinTasking($now, -1);
             } elseif ($TaskType->isDeploy()) {
-                $hostIDs = $this->get('hosts');
+                $hostIDs = $hostids;
                 $imageIDs = self::getSubObjectIDs(
                     'Host',
                     array(
@@ -665,7 +668,6 @@ class Group extends FOGController
                 }
                 unset(
                     $hostCount,
-                    $hostIDs,
                     $batchTask,
                     $first_id,
                     $affected_rows,
@@ -735,8 +737,31 @@ class Group extends FOGController
             set_time_limit(0);
             $this->wakeOnLAN();
         }
-
-        return array('All hosts successfully tasked');
+        Route::listem(
+            'host',
+            'name',
+            false,
+            array('id' => $hostIDs)
+        );
+        $Hosts = json_decode(
+            Route::getData()
+        );
+        $Hosts = $Hosts->hosts;
+        $str = '';
+        foreach ((array)$Hosts as &$Host) {
+            $str .= '<li>';
+            $str .= '<a href="?node=host&sub=edit&id='
+                . $Host->id
+                . '">';
+            $str .= $Host->name;
+            $str .= ' &ndash; ';
+            $str .= $Host->imagename;
+            $str .= '</a>';
+            $str .= '</li>';
+            unset($Host);
+        }
+        unset($Hosts);
+        return $str;
     }
     /**
      * Perform wake on lan to all hosts in group.
@@ -961,16 +986,10 @@ class Group extends FOGController
      */
     protected function loadHostsnotinme()
     {
-        $find = array('id' => $this->get('hosts'));
-        $this->set(
-            'hostsnotinme',
-            self::getSubObjectIDs(
-                'Host',
-                $find,
-                'id',
-                true
-            )
+        $hosts = array_diff(
+            self::getSubObjectIDs('Host'),
+            $this->get('hosts')
         );
-        unset($find);
+        $this->set('hostsnotinme', $hosts);
     }
 }

@@ -1,10 +1,10 @@
 var runInterval;
-$(function() {
+(function($) {
     runDBCheck();
     $('form').submit(function(e) {
         clearInterval(runInterval);
     });
-});
+})(jQuery);
 function runDBCheck() {
     $.ajax({
         url: '../status/dbrunning.php',

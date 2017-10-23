@@ -22,13 +22,20 @@
 require '../commons/base.inc.php';
 FOGCore::stripAndDecode($_REQUEST);
 try {
-    $Host = FOGCore::getHostItem(false, false);
-    $Inventory = $Host->get('inventory');
+    FOGCore::getHostItem(
+        false,
+        false,
+        false,
+        false,
+        false,
+        $_REQUEST['mac']
+    );
+    $Inventory = FOGCore::$Host->get('inventory');
     if (!$Inventory instanceof Inventory
         || !$Inventory->isValid()
     ) {
         $Inventory = FOGCore::getClass('Inventory')
-            ->set('hostID', $Host->get('id'));
+            ->set('hostID', FOGCore::$Host->get('id'));
     }
     foreach ($_REQUEST as $var => &$val) {
         if ($var == 'hdinfo') {

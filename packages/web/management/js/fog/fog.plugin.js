@@ -1,0 +1,3 @@
+(function($) {
+    checkboxToggleSearchListPages();
+})(jQuery);

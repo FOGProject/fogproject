@@ -1,25 +1,8 @@
-$(function() {
+(function($) {
     $('#resetSecData').val('Reset Encryption Data');
     $('#delAllPM').val('Delete all power management for group');
-    $('#resetSecData').click(function() {
-        $('#resetSecDataBox').html('Are you sure you wish to reset this groups hosts encryption data?');
-        $('#resetSecDataBox').dialog({
-            resizable: false,
-            modal: true,
-            title: 'Clear Encryption',
-            buttons: {
-                'Yes': function() {
-                    $.post('../management/index.php',{sub: 'clearAES',groupid: $_GET.id});
-                    $('#resetSecData').hide();
-                    $(this).dialog('close');
-                },
-                'No': function() {
-                    $(this).dialog('close');
-                }
-            }
-        });
-    });
-    $('#delAllPM').click(function() {
+    resetEncData('groups hosts', 'group');
+    $('#delAllPM').on('click', function() {
         $('#delAllPMBox').html('Are you sure you wish to remove all power management tasks with this group?');
         $('#delAllPMBox').dialog({
             resizable: false,
@@ -75,13 +58,12 @@ $(function() {
     });
     $("form.deploy-container").submit(function() {
         if ($('#scheduleOnDemand').is(':checked')) {
-            $("p#cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
+            $(".cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
                 $(this).val('').prop('disabled',true);
-                console.log('here');
             });
             return true;
         } else {
-            $("p#cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
+            $(".cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
                 result = validateCronInputs($(this));
                 if (result === false) return false;
             });
@@ -94,4 +76,5 @@ $(function() {
             if (!validateCronInputs($(this))) $(this).addClass('error');
         });
     });
-});
+    specialCrons();
+})(jQuery)

@@ -190,15 +190,6 @@ class SnapinHash extends FOGService
                             $Snapin->get('id')
                         )
                     );
-                    if (strlen($Snapin->get('hash')) > 10) {
-                        self::outall(
-                            sprintf(
-                                ' | %s',
-                                _('Snapin hash already set')
-                            )
-                        );
-                        continue;
-                    }
                     $path = sprintf(
                         '/%s',
                         trim($StorageNode->get('snapinpath'), '/')

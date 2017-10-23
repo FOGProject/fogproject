@@ -1,13 +1,10 @@
-$(function() {
+(function($) {
     // Process FOG JS Variables
-    $('.fog-variable').fogVariable();
-    // Process FOG Message Boxes
-    $('.fog-message-box').fogMessageBox();
-    var ReturnIndexes = new Array('sites', 'version');
+    var ReturnIndexes = ['sites', 'version'];
     var ResultContainers = $('#login-form-info b');
     $.ajax({
         url: '../management/index.php',
-        type: 'POST',
+        type: 'post',
         data: {
             node: 'client',
             sub: 'loginInfo'
@@ -57,4 +54,4 @@ $(function() {
         }
     });
     $('#username').select().focus();
-})
+})(jQuery);

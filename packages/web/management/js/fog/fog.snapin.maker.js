@@ -1,4 +1,4 @@
-$(function() {
+(function($) {
     name = 'Name';
     version = 'v1.0.0';
     file = 'cmd.exe';
@@ -11,23 +11,23 @@ $(function() {
         $('#snapinpack-file').val($('option:selected',this).attr('file'));
         $('#snapinpack-arguments').val($('option:selected',this).attr('args'));
     });
-    $('.snapinpack-generate').click(function(e) {
+    $('.snapinpack-generate').on('click', function(e) {
         e.preventDefault();
-        var data = {
+        var gdata = {
             Name: $('#snapinpack-name').val(),
             Version: $('#snapinpack-version').val(),
             File: $('#snapinpack-file').val(),
             Args: $('#snapinpack-arguments').val()
         };
-        var output = JSON.stringify(data, null, 2);
+        var output = JSON.stringify(gdata, null, 2);
         download(output,'config.json','text/plain');
     });
-});
-function download(data, strFileName, strMimeType) {
+})(jQuery);
+function download(gdata, strFileName, strMimeType) {
     var self = window, // this script is only for browsers anyway...
         u = "application/octet-stream", // this default mime also triggers iframe downloads
         m = strMimeType || u,
-        x = data,
+        x = gdata,
         D = document,
         a = D.createElement("a"),
         z = function(a){return String(a);},
@@ -38,7 +38,7 @@ function download(data, strFileName, strMimeType) {
         b,
         ua,
         fr;
-    if(String(this)==="true"){ //reverse arguments, allowing download.bind(true, "text/xml", "export.xml") to act as a callback
+    if(String(this)==="true"){
         x=[x, m];
         m=x[0];
         x=x[1];
@@ -78,7 +78,7 @@ function download(data, strFileName, strMimeType) {
             a.innerHTML = "downloading...";
             D.body.appendChild(a);
             setTimeout(function() {
-                a.click();
+                a.trigger('click');
                 D.body.removeChild(a);
                 if(winMode===true){setTimeout(function(){ self.URL.revokeObjectURL(a.href);}, 250 );}
             }, 66);

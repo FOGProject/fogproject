@@ -1,35 +1,53 @@
-$(function() {
+(function($) {
     checkboxToggleSearchListPages();
-    form = $('.snapinname-input:not(:hidden)').parents('form');
-    validator = form.validate({
+    validatorOpts = {
+        submitHandler: submithandlerfunc,
         rules: {
             name: {
                 required: true,
                 minlength: 1,
-                maxlength: 255
+                maxlength: 255,
+                regex: /^[-\w!@#$%^()'{}\\\.~ ]{1,255}$/
             }
         }
+    };
+    if ($_GET['sub'] == 'membership') return;
+    $('input[type=file]').on('change', function(event) {
+        files = event.target.files;
     });
-    $('.snapinname-input:not(:hidden)').rules('add', {regex: /^[-\w!@#$%^()'{}\\\.~\+ ]{1,255}$/});
-    $('.snapinname-input:not(:hidden)').on('keyup change blur',function() {
-        return validator.element(this);
+    setupTimeoutElement('#add, #update, #updategroups, #primarysel, #groupdel', '', 1000);
+    $('.snapinname-input').each(function(e) {
+        if ($(this).is(':visible')) {
+            $(this).on('keyup change blur', function(e) {
+                validator = $(this).parents('form').validate({
+                    rules: {
+                        name: {
+                            required: true,
+                            minlength: 1,
+                            maxlength: 255,
+                            regex: /^[-\w!@#$%^()'{}\\\.~ ]{1,255}$/
+                        }
+                    }
+                });
+                return validator.element(this);
+            }).trigger('change');
+        }
     });
-    $('.snapinname-input:not(:hidden)').trigger('change');
-    $('#argTypes').change(function() {
+    $('#argTypes').on('change', function() {
         if ($('option:selected',this).attr('value')) $("input[name=rw]").val($('option:selected',this).attr('value'));
         $("input[name=rwa]").val($('option:selected',this).attr('rwargs'));
         $("input[name=args]").val($('option:selected',this).attr('args'));
         updateCmdStore();
     });
-    $('#packTypes').change(function() {
+    $('#packTypes').on('change', function() {
         $("input[name=rw]").val($('option:selected',this).attr('file'));
         $("input[name=rwa]").val($('option:selected',this).attr('args'));
     });
     updateCmdStore();
-    $('.cmdlet1,.cmdlet2,.cmdlet3,.cmdlet4').on('change, keyup',function(e) {
+    $('.cmdlet1,.cmdlet2,.cmdlet3,.cmdlet4').on('change keyup',function(e) {
         updateCmdStore();
     });
-    $('.cmdlet3').change(function(e) {
+    $('.cmdlet3').on('change', function(e) {
         updateCmdStore();
     })
     $('.snapinpack-input').on('change blur',function(e) {
@@ -43,7 +61,7 @@ $(function() {
         updateCmdStore();
     });
     $('.snapinpack-input').trigger('change');
-});
+})(jQuery);
 function updateCmdStore() {
     if (typeof $('.cmdlet3').val() === 'undefined') return;
     cmd1 = $('.cmdlet1').val();

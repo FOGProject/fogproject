@@ -44,7 +44,8 @@ class ServiceConfigurationPage extends FOGPage
             '?node=%s',
             $this->node
         );
-        $this->menu = array(
+        $this->menu = array();
+        $this->subMenu = array(
             sprintf(
                 '?node=%s#home',
                 $this->node
@@ -103,7 +104,7 @@ class ServiceConfigurationPage extends FOGPage
         $this->attributes = array(
             array(),
             array(
-                'class' => 'c filter-false',
+                'class' => 'filter-false',
                 'width' => 55
             )
         );
@@ -124,28 +125,45 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function home()
     {
-        printf(
-            '<h2>%s</h2><p>%s</p><a href="?node=client">%s</a><h2>%s</h2><p>%s</p>',
-            _('FOG Client Download'),
-            sprintf(
-                '%s. %s, %s, %s.',
-                _('Use the following link to go to the client page'),
-                _('There you can download utilities such as FOG Prep'),
-                _('FOG Crypt'),
-                _('and both the legacy and new FOG clients')
-            ),
-            _('Click Here'),
-            _('FOG Service Configuration Information'),
-            sprintf(
-                '%s %s. %s. %s, %s. %s.',
-                _('This will allow you to configure how services'),
-                _('function on client computers'),
-                _('The settings tend to be global settings which affect all hosts'),
-                _('If you are looking to configure settings for a specific host'),
-                _('please see the hosts service setttings section'),
-                _('To get started please select an item from the left hand menu')
-            )
-        );
+        echo '<div class="tab-pane fade in active" id="home">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Service general');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo _('This will allow you to configure how services');
+        echo ' ';
+        echo _('function on client computers.');
+        echo _('The settings tend to be global which affects all hosts.');
+        echo _('If you are looking to configure settings for a specific host');
+        echo ', ';
+        echo _('please see the hosts service settings section.');
+        echo _('To get started please select an item from the menu.');
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('FOG Client Download');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo _('Use the following link to go to the client page.');
+        echo ' ';
+        echo _('There you can download utilities such as FOG Prep');
+        echo ', ';
+        echo _('FOG Crypt');
+        echo ', ';
+        echo _('and both the legacy and new FOG clients.');
+        echo '<br/>';
+        echo '<a href="?node=client">';
+        echo _('Click Here');
+        echo '</a>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Display the edit page.
@@ -154,30 +172,32 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function edit()
     {
-        echo '<div id="tab-container"><div id="home">';
+        echo '<div class="tab-content">';
         $this->home();
-        echo '</div>';
         $moduleName = self::getGlobalModuleStatus();
         $modNames = self::getGlobalModuleStatus(true);
-        foreach ((array)self::getClass('ModuleManager')
-            ->find() as &$Module
-        ) {
+        Route::listem('module');
+        $Modules = json_decode(
+            Route::getData()
+        );
+        $Modules = $Modules->modules;
+        foreach ((array)$Modules as &$Module) {
             unset(
                 $this->data,
+                $this->span,
                 $this->headerData,
                 $this->attributes,
                 $this->templates
             );
             $this->attributes = array(
                 array(
-                    'width' => 270,
-                    'class' => 'l'
+                    'class' => 'col-xs-4'
                 ),
                 array(
-                    'class' => 'c'
+                    'class' => 'col-xs-4'
                 ),
                 array(
-                    'class' => 'r'
+                    'class' => 'col-xs-4'
                 )
             );
             $this->templates = array(
@@ -187,27 +207,31 @@ class ServiceConfigurationPage extends FOGPage
             );
             $fields = array(
                 sprintf(
-                    '%s %s?',
-                    $Module->get('name'),
+                    '<label for="'
+                    . $Module->shortName
+                    . 'main">%s %s?</label>',
+                    $Module->name,
                     _('Enabled')
                 ) => sprintf(
-                    '<input type="checkbox" name="en" id="%s"%s/>'
-                    . '<label for="%s"></label>',
-                    $Module->get('shortName'),
+                    '<input type="checkbox" name="en" id="%smain"%s/>',
+                    $Module->shortName,
                     (
-                        $moduleName[$Module->get('shortName')] ?
+                        $moduleName[$Module->shortName] ?
                         ' checked' :
                         ''
                     ),
-                    $Module->get('shortName')
+                    $Module->shortName
                 ),
                 sprintf(
-                    '%s',
+                    '<label for="'
+                    . $Module->shortName
+                    . 'def'
+                    . '">%s</label>',
                     (
-                        $moduleName[$Module->get('shortName')] ?
+                        $moduleName[$Module->shortName] ?
                         sprintf(
                             '%s %s?',
-                            $Module->get('name'),
+                            $Module->name,
                             _('Enabled as default')
                         ) :
                         ''
@@ -215,17 +239,16 @@ class ServiceConfigurationPage extends FOGPage
                 ) => sprintf(
                     '%s',
                     (
-                        $moduleName[$Module->get('shortName')] ?
+                        $moduleName[$Module->shortName] ?
                         sprintf(
-                            '<input type="checkbox" name="defen" id="%sdef"%s/>'
-                            . '<label for="%sdef"></label>',
-                            $Module->get('shortName'),
+                            '<input type="checkbox" name="defen" id="%sdef"%s/>',
+                            $Module->shortName,
                             (
-                                $Module->get('isDefault') ?
+                                $Module->isDefault ?
                                 ' checked' :
                                 ''
                             ),
-                            $Module->get('shortName')
+                            $Module->shortName
                         ) :
                         ''
                     )
@@ -234,158 +257,273 @@ class ServiceConfigurationPage extends FOGPage
             $this->span = array(
                 'span',
                 sprintf(
-                    '<i class="icon fa fa-question hand" title="%s"></i>',
-                    $Module->get('description')
+                    '<i class="icon fa fa-question hand" '
+                    . 'data-toggle="tooltip" data-placement="right" '
+                    . 'title="%s"></i>',
+                    $Module->description
                 )
             );
             array_walk($fields, $this->fieldsToData);
             $this->span = array(
                 'span',
-                sprintf(
-                    '<input type="submit" name="updatestatus" value="%s"/>',
-                    _('Update')
-                )
+                '<button type="submit" name="updatestatus" class='
+                . '"btn btn-info btn-block" id="update'
+                . $Module->shortName
+                . '"/>'
+                . _('Update')
+                . '</button>'
             );
             $fields = array(
-                sprintf(
-                    '<input type="hidden" name="name" value="%s"/>',
-                    $modNames[$Module->get('shortName')]
-                ) => '&nbsp;'
+                '<label for="update'
+                . $Module->shortName
+                . '"/>'
+                . _('Make Changes?')
+                . '</label>' => '<input type="hidden" name="name" value="'
+                . $modNames[$Module->shortName]
+                . '"/>'
             );
             array_walk($fields, $this->fieldsToData);
-            unset($this->span);
-            printf(
-                '<!-- %s --><div id="%s"><h2>%s</h2>'
-                . '<form method="post" action="?node=service&sub=edit&tab=%s">'
-                . '<p>%s</p><h2>%s</h2>',
-                $Module->get('name'),
-                $Module->get('shortName'),
-                $Module->get('name'),
-                $Module->get('shortName'),
-                $Module->get('description'),
-                _('Service Status')
-            );
-            $this->render();
-            echo '</form>';
-            switch ($Module->get('shortName')) {
+            echo '<!-- '
+                . $Module->name
+                . ' -->';
+            echo '<div class="tab-pane fade" id="'
+                . $Module->shortName
+                . '">';
+            echo '<div class="panel panel-info">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo $Module->name;
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            echo '<form class="form-horizontal" method="post" action="'
+                . '?node=service&sub=edit&tab='
+                . $Module->shortName
+                . '" enctype="multipart/form-data">';
+            echo '<div class="panel panel-info">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Service Status');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            echo $Module->description;
+            $this->render(12);
+            echo '</div>';
+            echo '</div>';
+            switch ($Module->shortName) {
             case 'autologout':
-                printf(
-                    '<h2>%s</h2>'
-                    . '<form method="post" action="?node=service&sub=edit&tab=%s">'
-                    . '<p>%s: <input type="text" name="tme" value="%s"/></p>'
-                    . '<p><input type="hidden" name='
-                    . '"name" value="FOG_CLIENT_AUTOLOGOFF_MIN"/>'
-                    . '<input name="updatedefaults" type="submit" value="%s"/>'
-                    . '</p></form>',
-                    _('Default Setting'),
-                    $Module->get('shortName'),
-                    _('Default log out time (in minutes)'),
-                    self::getSetting('FOG_CLIENT_AUTOLOGOFF_MIN'),
-                    _('Update Defaults')
+                unset(
+                    $this->data,
+                    $this->form,
+                    $this->headerData,
+                    $this->templates,
+                    $this->attributes
                 );
+                echo '<div class="panel panel-info">';
+                echo '<div class="panel-heading text-center">';
+                echo '<h4 class="title">';
+                echo _('Current settings');
+                echo '</h4>';
+                echo '</div>';
+                echo '<div class="panel-body">';
+                echo '<div class="form-group">';
+                echo '<label class="control-label col-xs-4" for="updatetme">';
+                echo _('Default log out time (in minutes)');
+                echo '</label>';
+                echo '<div class="col-xs-8">';
+                echo '<div class="input-group">';
+                echo '<input type="text" name="tme" value='
+                    . '"'
+                    . self::getSetting('FOG_CLIENT_AUTOLOGOFF_MIN')
+                    . '" class="form-control" id="updatetme"/>';
+                echo '</div>';
+                echo '</div>';
+                echo '</div>';
+                echo '<div class="form-group">';
+                echo '<label class="control-label col-xs-4" for="updatedefaults">';
+                echo _('Make Changes?');
+                echo '</label>';
+                echo '<div class="col-xs-8">';
+                echo '<button name="updatedefaults" id="updatedefaults" class='
+                    . '"btn btn-info btn-block" type="submit">';
+                echo _('Update');
+                echo '</button>';
+                echo '</div>';
+                echo '</div>';
+                echo '</div>';
+                echo '</div>';
                 break;
+                unset(
+                    $this->data,
+                    $this->form,
+                    $this->headerData,
+                    $this->templates,
+                    $this->attributes
+                );
             case 'snapinclient':
                 self::$HookManager
                     ->processEvent(
                         'SNAPIN_CLIENT_SERVICE',
-                        array('page' => &$this)
+                        array(
+                            'page' => &$this
+                        )
                     );
+                unset(
+                    $this->data,
+                    $this->form,
+                    $this->headerData,
+                    $this->templates,
+                    $this->attributes
+                );
                 break;
             case 'clientupdater':
                 unset(
                     $this->data,
+                    $this->form,
                     $this->headerData,
-                    $this->attributes,
-                    $this->templates
+                    $this->templates,
+                    $this->attributes
                 );
-                self::getClass('FOGConfigurationPage')
-                    ->clientupdater();
-                break;
-            case 'dircleanup':
-                printf(
-                    '%s: %s',
-                    _('NOTICE'),
-                    sprintf(
-                        '%s. %s %s. %s %s.',
-                        _('This module is only used on the old client'),
-                        _('The old client is what was distributed with'),
-                        _('FOG 1.2.0 and earlier'),
-                        _('This module did not work past Windows XP'),
-                        _('due to UAC introduced in Vista and up')
-                    )
-                );
-                echo '<hr/>';
+                echo '<div class="panel panel-info">';
+                echo '<div class="panel-heading text-center">';
+                echo '<h4 class="title">';
+                echo _('Current settings');
+                echo '</h4>';
+                echo '</div>';
+                echo '<div class="panel-body">';
+                self::getClass('FOGConfigurationPage')->clientupdater(false);
+                echo '</div>';
+                echo '</div>';
                 unset(
                     $this->data,
+                    $this->form,
                     $this->headerData,
-                    $this->attributes,
-                    $this->templates
+                    $this->templates,
+                    $this->attributes
+                );
+                break;
+            case 'dircleanup':
+                unset(
+                    $this->data,
+                    $this->form,
+                    $this->headerData,
+                    $this->templates,
+                    $this->attributes
                 );
                 $this->headerData = array(
-                    _('Path'),
-                    _('Remove'),
+                    _('Delete'),
+                    _('Path')
                 );
                 $this->attributes = array(
                     array(
-                        'class' => 'l'
-                    ),
-                    array(
+                        'width' => 16,
                         'class' => 'filter-false'
                     ),
+                    array()
                 );
                 $this->templates = array(
-                    '${dir_path}',
-                    sprintf(
-                        '<input type"checkbox" id="rmdir${dir_id}" class='
-                        . '"delid" name="delid" onclick='
-                        . '"this.form.submit()" value='
-                        . '"${dir_id}"/><label for='
-                        . '"rmdir${dir_id}" class="icon fa fa-minus-'
-                        . 'circle hand" title="%s">&nbsp;</label>',
-                        _('Delete')
-                    )
+                    '<input type="checkbox" name="delid[]" value="${dir_id}"/>',
+                    '${dir_path}'
                 );
-                printf(
-                    '<h2>%s</h2>'
-                    . '<form method="post" action="%s&sub=edit&tab=%s">'
-                    . '<p>%s: <input type="text" name="adddir"/></p>'
-                    . '<p><input type="hidden" name="name" value="%s"/>'
-                    . '<input type="submit" value="%s"/></p><h2>%s</h2>',
-                    _('Add Directory'),
-                    $this->formAction,
-                    $Module->get('shortName'),
-                    _('Directory Path'),
-                    $modNames[$Module->get('shortName')],
-                    _('Add Directory'),
-                    _('Directories Cleaned')
+                Route::listem('dircleaner');
+                $dircleanups = json_decode(
+                    Route::getData()
                 );
-                foreach ((array)self::getClass('DirCleanerManager')
-                    ->find() as &$DirCleaner
-                ) {
+                $dircleanups = $dircleanups->dircleaners;
+                foreach ((array)$dircleanups as &$DirCleanup) {
                     $this->data[] = array(
-                        'dir_path'=>$DirCleaner->get('path'),
-                        'dir_id'=>$DirCleaner->get('id'),
+                        'dir_id' => $DirCleanup->id,
+                        'dir_path' => $DirCleanup->path
                     );
-                    unset($DirCleaner);
+                    unset($DirCleanup);
                 }
-                unset($DirCleaners);
-                $this->render();
-                echo '</form>';
+                echo '<div class="panel panel-info">';
+                echo '<div class="panel-heading text-center">';
+                echo '<h4 class="title">';
+                echo _('Current settings');
+                echo '</h4>';
+                echo '</div>';
+                echo '<div class="panel-body">';
+                echo _('NOTICE');
+                echo ': ';
+                echo _('This module is only used on the old client.');
+                echo _('The old client iswhat was distributed with');
+                echo ' ';
+                echo _('FOG 1.2.0 and earlier.');
+                echo ' ';
+                echo _('This module did not work past Windows XP');
+                echo ' ';
+                echo _('due to UAC introduced in Vista and up.');
+                echo '<hr/>';
+                echo '<div class="panel panel-info">';
+                echo '<div class="panel-heading text-center">';
+                echo '<h4 class="title">';
+                echo _('Directories');
+                echo '</h4>';
+                echo '</div>';
+                echo '<div class="panel-body">';
+                $this->render(12);
+                echo '<div class="form-group">';
+                echo '<label class="control-label col-xs-4" for="adddir">';
+                echo _('Add Directory');
+                echo '</label>';
+                echo '<div class="col-xs-8">';
+                echo '<div class="input-group">';
+                echo '<input class="form-control" id="adddir" name="adddir" '
+                    . 'type="text"/>';
+                echo '</div>';
+                echo '</div>';
+                echo '</div>';
+                echo '<div class="form-group">';
+                echo '<label class="control-label col-xs-4" for="deletedc">';
+                echo _('Delete Selected Items');
+                echo '</label>';
+                echo '<div class="col-xs-8">';
+                echo '<button class="btn btn-danger btn-block" name='
+                    . '"deletedc" type="submit" id="deletedc">';
+                echo _('Delete');
+                echo '</button>';
+                echo '</div>';
+                echo '</div>';
+                echo '<div class="form-group">';
+                echo '<label class="control-label col-xs-4" for="updatedc">';
+                echo _('Make Changes');
+                echo '</label>';
+                echo '<div class="col-xs-8">';
+                echo '<button class="btn btn-info btn-block" name='
+                    . '"adddc" type="submit" id="updatedc">';
+                echo _('Add');
+                echo '</button>';
+                echo '</div>';
+                echo '</div>';
+                echo '</div>';
+                echo '</div>';
+                echo '</div>';
+                echo '</div>';
+                unset(
+                    $this->data,
+                    $this->form,
+                    $this->headerData,
+                    $this->templates,
+                    $this->attributes
+                );
                 break;
             case 'displaymanager':
                 unset(
                     $this->data,
+                    $this->form,
                     $this->headerData,
-                    $this->attributes,
-                    $this->templates
+                    $this->templates,
+                    $this->attributes
                 );
                 $this->attributes = array(
-                    array(),
-                    array(),
+                    array('class' => 'col-xs-4'),
+                    array('class' => 'col-xs-8 form-group')
                 );
                 $this->templates = array(
                     '${field}',
-                    '${input}',
+                    '${input}'
                 );
                 $disps = array(
                     'FOG_CLIENT_DISPLAYMANAGER_R',
@@ -399,244 +537,305 @@ class ServiceConfigurationPage extends FOGPage
                 ) = self::getSubObjectIDs(
                     'Service',
                     array('name' => $disps),
-                    'value',
-                    false,
-                    'AND',
-                    'name',
-                    false,
-                    ''
+                    'value'
                 );
                 unset($disps);
                 $fields = array(
-                    _('Default Width') => sprintf(
-                        '<input type="text" name="width" value="%s"/>',
-                        $x
-                    ),
-                    _('Default Height') => sprintf(
-                        '<input type="text" name="height" value="%s"/>',
-                        $y
-                    ),
-                    _('Default Refresh Rate') => sprintf(
-                        '<input type="text" name="refresh" value="%s"/>',
-                        $r
-                    ),
-                    sprintf(
-                        '<input type="hidden" name="name" value="%s"/>',
-                        $modNames[$Module->get('shortName')]
-                    ) => sprintf(
-                        '<input name="updatedefaults" type="submit" value="%s"/>',
-                        _('Update Defaults')
-                    ),
-                );
-                printf(
-                    '<h2>%s</h2><form method="post" action="%s&sub=edit&tab=%s">',
-                    _('Default Setting'),
-                    $this->formAction,
-                    $Module->get('shortName')
+                    '<label for="width">'
+                    . _('Default Width')
+                    . '</label>' => '<div class="input-group">'
+                    . '<input type="text" class="form-control" name="width" '
+                    . 'value="'
+                    . $x
+                    . '" id="width"/>'
+                    . '</div>',
+                    '<label for="height">'
+                    . _('Default Height')
+                    . '</label>' => '<div class="input-group">'
+                    . '<input type="text" class="form-control" name="height" '
+                    . 'value="'
+                    . $y
+                    . '" id="height"/>'
+                    . '</div>',
+                    '<label for="refresh">'
+                    . _('Default Refresh Rate')
+                    . '</label>' => '<div class="input-group">'
+                    . '<input type="text" class="form-control" name="refresh" '
+                    . 'value="'
+                    . $r
+                    . '" id="refresh"/>'
+                    . '</div>',
+                    '<label for="updatescreen">'
+                    . _('Make Changes?')
+                    . '</label>' => '<button type="submit" class='
+                    . '"btn btn-info btn-block" name='
+                    . '"updatescreen" id="updatescreen">'
+                    . _('Update')
+                    . '</button>'
                 );
                 array_walk($fields, $this->fieldsToData);
-                $this->render();
-                echo '</form>';
-                break;
-            case 'greenfog':
-                printf(
-                    '%s: %s',
-                    _('NOTICE'),
-                    sprintf(
-                        '%s. %s %s. %s %s %s. %s.',
-                        _('This module is only used on the old client'),
-                        _('The old client is what was distributed with'),
-                        _('FOG 1.2.0 and earlier'),
-                        _('This module has been replaced in the new client'),
-                        _('and the equivalent module for what Green FOG did'),
-                        _('is now called Power Management'),
-                        _('This is only here to maintain old client operations')
-                    )
-                );
-                echo '<hr/>';
+                echo '<div class="panel panel-info">';
+                echo '<div class="panel-heading text-center">';
+                echo '<h4 class="title">';
+                echo _('Current settings');
+                echo '</h4>';
+                echo '</div>';
+                echo '<div class="panel-body">';
+                $this->render(12);
+                echo '</div>';
+                echo '</div>';
                 unset(
                     $this->data,
+                    $this->form,
                     $this->headerData,
-                    $this->attributes,
-                    $this->templates
+                    $this->templates,
+                    $this->attributes
+                );
+                break;
+            case 'greenfog':
+                unset(
+                    $this->data,
+                    $this->form,
+                    $this->headerData,
+                    $this->templates,
+                    $this->attributes
                 );
                 $this->headerData = array(
+                    _('Delete'),
                     _('Time'),
-                    _('Action'),
-                    _('Remove'),
+                    _('Action')
                 );
                 $this->attributes = array(
+                    array(
+                        'class' => 'filter-false',
+                        'width' => 16
+                    ),
                     array(),
-                    array(),
-                    array('class'=>'filter-false'),
+                    array()
                 );
                 $this->templates = array(
+                    '<input type="checkbox" name="gfrem${gf_id}" value="${gf_id}"/>',
                     '${gf_time}',
-                    '${gf_action}',
-                    sprintf(
-                        '<input type="checkbox" id="gfrem${gf_id}" class='
-                        . '"delid" name="delid" onclick='
-                        . '"this.form.submit()" value='
-                        . '"${gf_id}"/><label for="gfrem${gf_id}" class='
-                        . '"icon fa fa-minus-circle hand" title="%s">'
-                        . '&nbsp;</label>',
-                        _('Delete')
-                    )
+                    '${gf_action}'
                 );
-                printf(
-                    '<h2>%s</h2>'
-                    . '<form method="post" action="%s&sub=edit&tab=%s">'
-                    . '<p>%s <input class="short" type="text" name='
-                    . '"h" maxlength="2" value="HH" onFocus='
-                    . '"$(this).val(\'\');"/>:<input class="short" type='
-                    . '"text" name="m" maxlength="2" value="MM" onFocus='
-                    . '"$(this).val(\'\');"/><select name="style" size="1">'
-                    . '<option value="">- %s -</option>'
-                    . '<option value="s">%s</option>'
-                    . '<option value="r">%s</option>'
-                    . '</select></p><p>'
-                    . '<input type="hidden" name="name" value="%s"/>'
-                    . '<input type="submit" name="addevent" value="%s"/></p>',
-                    _('Shutdown/Reboot Schedule'),
-                    $this->formAction,
-                    $Module->get('shortName'),
-                    _('Add Event (24 Hour Format)'),
-                    _('Please select an option'),
-                    _('Shutdown'),
-                    _('Reboot'),
-                    $modNames[$Module->get('shortName')],
-                    _('Add Event')
+                $actionSel = array(
+                    's' => _('Shutdown'),
+                    'r' => _('Reboot')
                 );
-                foreach ((array)self::getClass('GreenFogManager')
-                    ->find() as &$GreenFog
-                ) {
+                $selAction = filter_input(INPUT_POST, 'style');
+                $actSel = self::selectForm(
+                    'style',
+                    $actionSel,
+                    $selAction,
+                    true
+                );
+                Route::listem('greenfog');
+                $GreenFogs = json_encode(
+                    Route::getData()
+                );
+                $GreenFogs = $GreenFogs->greenfogs;
+                foreach ((array)$GreenFogs as &$GreenFog) {
                     $gftime = self::niceDate(
-                        sprintf(
-                            '%s:%s',
-                            $GreenFog->get('hour'),
-                            $GreenFog->get('min')
-                        )
+                        $GreenFog->hour
+                        . ':'
+                        . $GreenFog->min
                     )->format('H:i');
                     $this->data[] = array(
                         'gf_time' => $gftime,
                         'gf_action' => (
-                            $GreenFog->get('action') == 'r' ?
+                            $GreenFog->action == 'r' ?
                             _('Reboot') :
                             (
-                                $GreenFog->get('action') == 's' ?
+                                $GreenFog->action == 's' ?
                                 _('Shutdown') :
                                 _('N/A')
                             )
                         ),
-                        'gf_id' => $GreenFog->get('id'),
+                        'gf_id' => $GreenFog->id
                     );
                     unset($GreenFog);
                 }
                 unset($GreenFogs);
-                $this->render();
-                echo '</form>';
+                echo '<div class="panel panel-info">';
+                echo '<div class="panel-heading text-center">';
+                echo '<h4 class="title">';
+                echo _('Current settings');
+                echo '</h4>';
+                echo '</div>';
+                echo '<div class="panel-body">';
+                echo _('NOTICE')
+                    . ': ';
+                echo _('This module is only used on the old client.');
+                echo ' ';
+                echo _('The old client was distributed with FOG 1.2.0 and earlier.');
+                echo ' ';
+                echo _('This module has since been replaced with Power Management.');
+                echo '<hr/>';
+                $this->render(12);
+                echo '<div class="form-group">';
+                echo '<label class="col-xs-4 control-label">';
+                echo _('New Event');
+                echo '</label>';
+                echo '<div class="col-xs-2">';
+                echo '<div class="input-group">';
+                echo '<input type="number" class="form-control" name="h" '
+                    . 'maxlength="2" placeholder="HH"/>';
+                echo '</div>';
+                echo '</div>';
+                echo '<div class="col-xs-2">';
+                echo '<div class="input-group">';
+                echo '<input type="number" class="form-control" name="m" '
+                    . 'maxlength="2" placeholder="MM"/>';
+                echo '</div>';
+                echo '</div>';
+                echo '<div class="col-xs-4">';
+                echo '<div class="input-group">';
+                echo $actSel;
+                echo '</div>';
+                echo '</div>';
+                echo '</div>';
+                echo '<div class="form-group">';
+                echo '<label class="col-xs-4 control-label" for="deleteevent">';
+                echo _('Delete Selected Items');
+                echo '</label>';
+                echo '<div class="col-xs-8">';
+                echo '<button type="submit" class='
+                    . '"btn btn-danger btn-block" name='
+                    . '"deleteevent" id="deleteevent">';
+                echo _('Delete');
+                echo '</button>';
+                echo '</div>';
+                echo '</div>';
+                echo '<div class="form-group">';
+                echo '<label class="col-xs-4 control-label" for="addevent">';
+                echo _('Add Event');
+                echo '</label>';
+                echo '<div class="col-xs-8">';
+                echo '<button type="submit" class='
+                    . '"btn btn-info btn-block" name='
+                    . '"addevent" id="addevent">';
+                echo _('Add');
+                echo '</button>';
+                echo '</div>';
+                echo '</div>';
+                echo '</div>';
+                echo '</div>';
+                unset(
+                    $this->data,
+                    $this->form,
+                    $this->headerData,
+                    $this->templates,
+                    $this->attributes
+                );
                 break;
             case 'usercleanup':
-                printf(
-                    '%s: %s',
-                    _('NOTICE'),
-                    sprintf(
-                        '%s. %s %s. %s %s.',
-                        _('This module is only used on the old client'),
-                        _('The old client is what was distributed with'),
-                        _('FOG 1.2.0 and earlier'),
-                        _('This module did not work past Windows XP'),
-                        _('due to UAC introduced in Vista and up.')
-                    )
-                );
-                echo '<hr/>';
                 unset(
                     $this->data,
+                    $this->form,
                     $this->headerData,
-                    $this->attributes,
-                    $this->templates
-                );
-                $this->attributes = array(
-                    array(),
-                    array(),
-                );
-                $this->templates = array(
-                    '${field}',
-                    '${input}',
-                );
-                $fields = array(
-                    _('Username') => '<input type="text" name="usr"/>',
-                    sprintf(
-                        '<input type="hidden" name="name" value="%s"/>',
-                        $modNames[$Module->get('shortName')]
-                    ) => sprintf(
-                        '<input type="submit" name="adduser" value="%s"/>',
-                        _('Add User')
-                    )
-                );
-                printf(
-                    '<h2>%s</h2><form method="post" action="%s&sub=edit&tab=%s">',
-                    _('Add Protected User'),
-                    $this->formAction,
-                    $Module->get('shortName')
-                );
-                array_walk($fields, $this->fieldsToData);
-                $this->render();
-                unset(
-                    $this->data,
-                    $this->headerData,
-                    $this->attributes,
-                    $this->templates
+                    $this->templates,
+                    $this->attributes
                 );
                 $this->headerData = array(
-                    _('User'),
-                    _('Remove'),
+                    _('Delete'),
+                    _('User')
                 );
                 $this->attributes = array(
-                    array(),
-                    array('class' => 'filter-false'),
+                    array(
+                        'class' => 'filter-false',
+                        'width' => 16
+                    ),
+                    array()
                 );
                 $this->templates = array(
-                    '${user_name}',
                     '${input}',
+                    '${user_name}'
                 );
-                printf(
-                    '<h2>%s</h2>',
-                    _('Current Protected User Accounts')
+                Route::listem('usercleanup');
+                $UserCleanups = json_decode(
+                    Route::getData()
                 );
-                foreach ((array)self::getClass('UserCleanupManager')
-                    ->find() as &$UserCleanup
-                ) {
+                $UserCleanups = $UserCleanups->usercleanups;
+                foreach ((array)$UserCleanups as &$UserCleanup) {
                     $this->data[] = array(
-                        'user_name' => $UserCleanup->get('name'),
+                        'user_name' => $UserCleanup->name,
                         'input' => (
-                            $UserCleanup->get('id') < 7 ?
+                            $UserCleanup->id < 7 ?
                             '' :
-                            sprintf(
-                                '<input type="checkbox" id='
-                                . '"rmuser${user_id}" class='
-                                . '"delid" name="delid" onclick='
-                                . '"this.form.submit()" value='
-                                . '"${user_id}"/>'
-                                . '<label for="rmuser${user_id}" class='
-                                . '"icon fa fa-minus-circle hand" title='
-                                . '"%s"> </label>',
-                                _('Delete')
-                            )
+                            '<input type="checkbox" name="delid[]" '
+                            . 'id="rmuser${user_id}" value="${user_id}"/>'
                         ),
-                        'user_id' => $UserCleanup->get('id'),
+                        'user_id' => $UserCleanup->id
                     );
                     unset($UserCleanup);
                 }
                 unset($UserCleanups);
-                $this->render();
-                echo '</form>';
+                echo '<div class="panel panel-info">';
+                echo '<div class="panel-heading text-center">';
+                echo '<h4 class="title">';
+                echo _('Current settings');
+                echo '</h4>';
+                echo '</div>';
+                echo '<div class="panel-body">';
+                echo _('NOTICE')
+                    . ': ';
+                echo _('This module is only used on the old client.');
+                echo ' ';
+                echo _('The old client was distributed with FOG 1.2.0 and earlier.');
+                echo ' ';
+                echo _('This module did not work past Windows XP due to UAC.');
+                echo '<hr/>';
+                $this->render(12);
+                echo '<div class="form-group">';
+                echo '<label class="control-label col-xs-4" for="adduser">';
+                echo _('Add User');
+                echo '</label>';
+                echo '<div class="col-xs-8">';
+                echo '<div class="input-group">';
+                echo '<input class="form-control" id="adduser" name="adduser" '
+                    . 'type="text"/>';
+                echo '</div>';
+                echo '</div>';
+                echo '</div>';
+                echo '<div class="form-group">';
+                echo '<label class="control-label col-xs-4" for="deleteuc">';
+                echo _('Delete Selected Items');
+                echo '</label>';
+                echo '<div class="col-xs-8">';
+                echo '<button class="btn btn-danger btn-block" name='
+                    . '"deleteuc" type="submit" id="deleteuc">';
+                echo _('Delete');
+                echo '</button>';
+                echo '</div>';
+                echo '</div>';
+                echo '<div class="form-group">';
+                echo '<label class="control-label col-xs-4" for="updateuc">';
+                echo _('Make Changes');
+                echo '</label>';
+                echo '<div class="col-xs-8">';
+                echo '<button class="btn btn-info btn-block" name='
+                    . '"adddc" type="submit" id="updateuc">';
+                echo _('Add');
+                echo '</button>';
+                echo '</div>';
+                echo '</div>';
+                echo '</div>';
+                echo '</div>';
+                unset(
+                    $this->data,
+                    $this->form,
+                    $this->headerData,
+                    $this->templates,
+                    $this->attributes
+                );
                 break;
             }
+            echo '</form>';
+            echo '</div>';
+            echo '</div>';
             echo '</div>';
             unset($Module);
         }
-        echo '</div>';
     }
     /**
      * Actually change the items.
@@ -645,21 +844,23 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function editPost()
     {
+        global $tab;
+        $name = filter_input(INPUT_POST, 'name');
         $Service = self::getClass('Service')
-            ->set('name', $_REQUEST['name'])
+            ->set('name', $name)
             ->load('name');
         $Module = self::getClass('Module')
-            ->set('shortName', $_REQUEST['tab'])
+            ->set('shortName', $tab)
             ->load('shortName');
         self::$HookManager
             ->processEvent(
                 'SERVICE_EDIT_POST',
                 array('Service' => &$Service)
             );
-        $onoff = isset($_REQUEST['en']);
-        $defen = isset($_REQUEST['defen']);
+        $onoff = isset($_POST['en']);
+        $defen = isset($_POST['defen']);
         try {
-            if (isset($_REQUEST['updatestatus'])) {
+            if (isset($_POST['updatestatus'])) {
                 if ($Service) {
                     $Service->set('value', $onoff)->save();
                 }
@@ -667,67 +868,108 @@ class ServiceConfigurationPage extends FOGPage
                     $Module->set('isDefault', $defen)->save();
                 }
             }
-            switch ($_REQUEST['tab']) {
+            switch ($tab) {
             case 'autologout':
-                if (isset($_REQUEST['updatedefaults'])
-                    && is_numeric($_REQUEST['tme'])
-                ) {
-                    $Service->set('value', $_REQUEST['tme']);
+                $tme = (int)filter_input(INPUT_POST, 'tme');
+                if (isset($_POST['updatedefaults'])) {
+                    self::getClass('Service')
+                        ->set('name', 'FOG_CLIENT_AUTOLOGOFF_MIN')
+                        ->load('name')
+                        ->set('value', $tme)
+                        ->save();
                 }
                 break;
             case 'snapinclient':
-                self::$HookManager->processEvent('SNAPIN_CLIENT_SERVICE_POST');
+                self::$HookManager
+                    ->processEvent(
+                        'SNAPIN_CLIENT_SERVICE_POST'
+                    );
                 break;
             case 'dircleanup':
-                if (trim($_REQUEST['adddir'])) {
-                    $Service->addDir($_REQUEST['adddir']);
+                if (isset($_POST['adddc'])) {
+                    $adddir = filter_input(INPUT_POST, 'adddir');
+                    $Service->addDir($adddir);
                 }
-                if (isset($_REQUEST['delid'])) {
-                    $Service->remDir($_REQUEST['delid']);
+                if (isset($_POST['deletedc'])) {
+                    $dcids = filter_input_array(
+                        INPUT_POST,
+                        array(
+                            'delid' => array(
+                                'flags' => FILTER_REQUIRE_ARRAY
+                            )
+                        )
+                    );
+                    $dcids = $dcids['delid'];
+                    $Service->remDir($dcids);
                 }
                 break;
             case 'displaymanager':
-                if (isset($_REQUEST['updatedefaults'])
-                    && (is_numeric($_REQUEST['height'])
-                    && is_numeric($_REQUEST['width'])
-                    && is_numeric($_REQUEST['refresh']))
-                ) {
+                if (isset($_POST['updatescreen'])) {
+                    $r = (int)filter_input(INPUT_POST, 'refresh');
+                    $x = (int)filter_input(INPUT_POST, 'width');
+                    $y = (int)filter_input(INPUT_POST, 'height');
                     $Service->setDisplay(
-                        $_REQUEST['width'],
-                        $_REQUEST['height'],
-                        $_REQUEST['refresh']
+                        $x,
+                        $y,
+                        $r
                     );
                 }
                 break;
             case 'greenfog':
-                if (isset($_REQUEST['addevent'])) {
-                    if ((is_numeric($_REQUEST['h'])
-                        && is_numeric($_REQUEST['m']))
-                        && ($_REQUEST['h'] >= 0
-                        && $_REQUEST['h'] <= 23)
-                        && ($_REQUEST['m'] >= 0
-                        && $_REQUEST['m'] <= 59)
-                        && ($_REQUEST['style'] == 'r'
-                        || $_REQUEST['style'] == 's')
-                    ) {
-                        $Service->setGreenFog(
-                            $_REQUEST['h'],
-                            $_REQUEST['m'],
-                            $_REQUEST['style']
+                if (isset($_POST['addevent'])) {
+                    $h = filter_input(INPUT_POST, 'h');
+                    $m = filter_input(INPUT_POST, 'm');
+                    $a = filter_input(INPUT_POST, 'style');
+                    if ($h < 0 || $h > 23) {
+                        throw new Exception(
+                            _('Must be 0 through 23 for hours in a day.')
                         );
                     }
+                    if ($m < 0 || $h > 59) {
+                        throw new Exception(
+                            _('Must be 0 through 59 for minutes in an hour.')
+                        );
+                    }
+                    if (!in_array($a, array('r', 's'))) {
+                        throw new Exception(
+                            _('Either reboot or shutdown action must be used.')
+                        );
+                    }
+                    $Service->setGreenFog(
+                        $h,
+                        $m,
+                        $a
+                    );
                 }
-                if (isset($_REQUEST['delid'])) {
-                    $Service->remGF($_REQUEST['delid']);
+                if (isset($_POST['delid'])) {
+                    $delid = filter_input_array(
+                        INPUT_POST,
+                        array(
+                            'delid' => array(
+                                'flags' => FILTER_REQUIRE_ARRAY
+                            )
+                        )
+                    );
+                    $delid = $delid['delid'];
+                    $Service->remGF($delid);
                 }
                 break;
             case 'usercleanup':
-                $addUser = trim($_REQUEST['usr']);
+                $addUser = filter_input(INPUT_POST, 'adduser');
                 if (!empty($addUser)) {
                     $Service->addUser($addUser);
                 }
-                if (isset($_REQUEST['delid'])) {
-                    $Service->remUser($_REQUEST['delid']);
+                if (isset($_POST['delid'])) {
+                    $delid = filter_input_array(
+                        INPUT_POST,
+                        array(
+                            'delid' => array(
+                                'flags' => FILTER_REQUIRE_ARRAY
+                            )
+                        )
+                    );
+                    $delid = $delid['delid'];
+                    $Service->remUser($delid);
                 }
                 break;
             case 'clientupdater':
@@ -737,27 +979,30 @@ class ServiceConfigurationPage extends FOGPage
             if (!$Service->save()) {
                 throw new Exception(_('Service update failed'));
             }
-            self::$HookManager
-                ->processEvent(
-                    'SERVICE_EDIT_SUCCESS',
-                    array('Service' => &$Service)
-                );
-            self::setMessage(_('Service Updated!'));
+            $hook = 'SERVICE_EDIT_SUCCESS';
+            $msg = json_encode(
+                array(
+                    'msg' => _('Module updated!'),
+                    'title' => _('Module Update Success')
+                )
+            );
         } catch (Exception $e) {
-            self::$HookManager
-                ->processEvent(
-                    'SERVICE_EDIT_FAIL',
-                    array('Service' => &$Service)
-                );
-            self::setMessage($e->getMessage());
+            $hook = 'SERVICE_EDIT_FAIL';
+            $msg = json_encode(
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('Module Update Fail')
+                )
+            );
         }
-        self::redirect(
-            sprintf(
-                '?node=%s#%s',
-                $_REQUEST['node'],
-                $_REQUEST['tab']
-            )
-        );
+        self::$HookManager
+            ->processEvent(
+                $hook,
+                array('Service' => &$Service)
+            );
+        unset($Service);
+        echo $msg;
+        exit;
     }
     /**
      * Redirect search call to index.

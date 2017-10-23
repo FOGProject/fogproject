@@ -74,6 +74,7 @@ class DashboardPage extends FOGPage
     {
         $this->name = self::$foglang['Dashboard'];
         parent::__construct($this->name);
+        $this->menu = array();
         global $sub;
         global $id;
         $objName = 'StorageNode';
@@ -94,59 +95,69 @@ class DashboardPage extends FOGPage
             'isEnabled' => 1,
             'isGraphEnabled' => 1
         );
-        foreach ((array)self::getClass('StorageNodeManager')
-            ->find($find) as &$StorageNode
-        ) {
-            $ip = $StorageNode->get('ip');
+        Route::listem(
+            'storagenode',
+            'name',
+            false,
+            $find
+        );
+        $Nodes = json_decode(
+            Route::getData()
+        );
+        $Nodes = $Nodes->storagenodes;
+        foreach ((array)$Nodes as &$StorageNode) {
+            $ip = $StorageNode->ip;
             $url = sprintf(
                 '%s/%s/',
                 $ip,
-                $StorageNode->get('webroot')
+                $StorageNode->webroot
             );
             $url = preg_replace(
                 '#/+#',
                 '/',
                 $url
             );
-            $url = 'http://' . $url;
-            $testurls[] = sprintf(
-                '%smanagement/index.php',
-                $url
-            );
+            $url = self::$httpproto.'://' . $url;
+            $testurls[] = $ip;
             unset($ip);
             self::$_nodeOpts[] = sprintf(
                 '<option value="%s" urlcall="%s">%s%s ()</option>',
-                $StorageNode->get('id'),
+                $StorageNode->id,
                 sprintf(
                     '%sservice/getversion.php',
                     $url
                 ),
-                $StorageNode->get('name'),
+                $StorageNode->name,
                 (
-                    $StorageNode->get('isMaster') ?
+                    $StorageNode->isMaster ?
                     ' *' :
                     ''
                 )
             );
-            self::$_nodeNames[] = $StorageNode->get('name');
+            self::$_nodeNames[] = $StorageNode->name;
             self::$_nodeURLs[] = sprintf(
                 '%sstatus/bandwidth.php?dev=%s',
                 $url,
-                $StorageNode->get('interface')
+                $StorageNode->interface
             );
             unset($StorageNode);
         }
-        foreach ((array)self::getClass('StorageGroupManager')
-            ->find() as &$StorageGroup
-        ) {
+        Route::listem('storagegroup');
+        $Groups = json_decode(
+            Route::getData()
+        );
+        $Groups = $Groups->storagegroups;
+        foreach ((array)$Groups as &$StorageGroup) {
             self::$_groupOpts .= sprintf(
                 '<option value="%s">%s</option>',
-                $StorageGroup->get('id'),
-                $StorageGroup->get('name')
+                $StorageGroup->id,
+                $StorageGroup->name
             );
             unset($StorageGroup);
         }
-        $test = array_filter(self::$FOGURLRequests->isAvailable($testurls));
+        $test = array_filter(
+            self::$FOGURLRequests->isAvailable($testurls)
+        );
         self::$_nodeOpts = array_intersect_key((array)self::$_nodeOpts, $test);
         self::$_nodeNames = array_intersect_key((array)self::$_nodeNames, $test);
         self::$_nodeURLs = array_intersect_key((array)self::$_nodeURLs, $test);
@@ -213,7 +224,6 @@ class DashboardPage extends FOGPage
                 INPUT_SERVER,
                 'SERVER_ADDR'
             ),
-            _('TFTP Server') => self::$_tftp,
             _('Load Average') => $SystemUptime['load'],
             _('System Uptime') => $SystemUptime['uptime']
         );
@@ -222,13 +232,8 @@ class DashboardPage extends FOGPage
             '${input}'
         );
         $this->attributes = array(
-            array(),
-            array()
-        );
-        // Overview
-        printf(
-            '<ul class="dashboard-boxes"><li class="system-overview"><h5>%s</h5>',
-            _('System Overview')
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8')
         );
         array_walk($fields, $this->fieldsToData);
         self::$HookManager
@@ -240,8 +245,23 @@ class DashboardPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
+        // Dashboard boxes row.
+        echo '<div class="row">';
+        // Overview
+        echo '<div class="col-md-4">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('System Overview');
+        echo '</h4>';
+        echo '<p class="category">';
+        echo _('Server information at a glance.');
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="panel-body">';
         $this->render();
-        echo '</li>';
+        echo '</div>';
+        echo '</div>';
         unset(
             $this->data,
             $this->templates,
@@ -250,44 +270,75 @@ class DashboardPage extends FOGPage
             $SystemUptime,
             $tftp
         );
-        // Client Count/Activity
+        echo '</div>';
+        // Activity
+        echo '<div class="col-md-4">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Storage Group Activity');
+        echo '</h4>';
+        echo '<p class="category">';
+        echo _('Selected groups\'s current activity');
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<div class="graph pie-graph fogdashbox" id="graph-activity"></div>';
+        echo '<div class="graph-selectors" id="graph-activity-selector">';
         printf(
-            '<li><h5 class="box" title="%s">%s</h5>'
-            . '<div class="graph pie-graph" id="graph-activity">'
-            . '</div><div class="graph-selectors" id="graph-activity-selector">',
-            _('The selected node\'s storage group slot usage'),
-            _('Storage Group Activity')
-        );
-        printf(
-            '<select name="groupsel">%s</select>'
-            . '<div class="fog-variable" id="ActivityActive"></div>'
-            . '<div class="fog-variable" id="ActivityQueued"></div>'
-            . '<div class="fog-variable" id="ActivitySlots"></div>'
-            . '</div></li>',
+            '<select name="groupsel">%s</select>',
             self::$_groupOpts
         );
-        // Disk Usage
+        echo '<div id="ActivityActive"></div>';
+        echo '<div id="ActivityQueued"></div>';
+        echo '<div id="ActivitySlots"></div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        // Disk usage
+        echo '<div class="col-md-4">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Storage Node Disk Usage');
+        echo '</h4>';
+        echo '<p class="category">';
+        echo _('Selected node\'s disk usage');
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<a href="?node=hwinfo">';
+        echo '<div class="graph pie-graph fogdashbox" id="graph-diskusage"></div>';
+        echo '</a>';
+        echo '<div class="graph-selectors" id="diskusage-selector">';
         printf(
-            '<li><h5 class="box" title="%s">%s</h5>'
-            . '<a href="?node=hwinfo"><div class="graph pie-graph" '
-            . 'id="graph-diskusage"></div></a><div id="diskusage-selector" class="'
-            . 'graph-selectors">',
-            _('The selected node\'s image storage usage'),
-            _('Storage Node Disk Usage')
-        );
-        printf(
-            '<select name="nodesel">%s</select>'
-            . '</div></li>',
+            '<select name="nodesel">%s</select>',
             self::$_nodeOpts
         );
-        echo '</ul>';
-        // 30 day history
-        printf(
-            '<h3>%s</h3>'
-            . '<div id="graph-30day" class="graph"></div>',
-            _('Imaging Over the last 30 days')
-        );
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        // 30 day row.
+        echo '<div class="row">';
+        echo '<div class="col-xs-12">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading">';
+        echo '<div class="row text-center">';
+        echo '<h4 class="title">';
+        echo _('Imaging Over the last 30 days');
+        echo '</h4>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<div id="graph-30day" class="graph fogdashbox"></div>';
         echo '<div class="fog-variable" id="Graph30dayData"></div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
         // Bandwidth display
         $bandwidthtime = self::$_bandwidthtime;
         $datapointshour = (3600 / $bandwidthtime);
@@ -295,45 +346,85 @@ class DashboardPage extends FOGPage
         $datapointshalf = ($datapointshour / 2);
         $datapointsten = ($datapointshour / 6);
         $datapointstwo = ($datapointshour / 30);
+        // 30 day row.
+        echo '<div class="row">';
+        echo '<div class="col-xs-12">';
         printf(
             '<input type="hidden" id="bandwidthtime" value="%d"/>'
-            . '<input id="bandwidthUrls" type="hidden" value="%s"/>'
-            . '<input id="nodeNames" type="hidden" value="%s"/>',
+            . '<input type="hidden" id="bandwidthUrls" type="hidden" value="%s"/>'
+            . '<input type="hidden" id="nodeNames" type="hidden" value="%s"/>',
             $bandwidthtime,
             implode(',', self::$_nodeURLs),
             implode(',', self::$_nodeNames)
         );
-        printf(
-            '<h3 id="graph-bandwidth-title">%s - <span>%s</span></h3>'
-            . '<div id="graph-bandwidth-filters">'
-            . '<div>'
-            . '<a href="#" id="graph-bandwidth-filters-transmit" '
-            . 'class="l active">%s</a>'
-            . '<a href="#" id="graph-bandwidth-filters-receive" '
-            . 'class="l">%s</a>'
-            . '</div>'
-            . '<div class="spacer"></div>'
-            . '<div>'
-            . '<a href="#" rel="%s" class="r">%s</a>'
-            . '<a href="#" rel="%s" class="r">%s</a>'
-            . '<a href="#" rel="%s" class="r">%s</a>'
-            . '<a href="#" rel="%s" class="r active">%s</a>'
-            . '</div>'
-            . '</div>'
-            . '<div id="graph-bandwidth" class="graph"></div>',
-            self::$foglang['Bandwidth'],
-            self::$foglang['Transmit'],
-            self::$foglang['Transmit'],
-            self::$foglang['Receive'],
-            $datapointshour,
-            _('1 hour'),
-            $datapointshalf,
-            _('30 Minutes'),
-            $datapointsten,
-            _('10 Minutes'),
-            $datapointstwo,
-            _('2 Minutes')
-        );
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading">';
+        echo '<h4 class="title">';
+        echo self::$foglang['Bandwidth'];
+        echo '</h4>';
+        echo '<div id="graph-bandwidth-filters-type">';
+        echo '<div class="col-xs-2">';
+        echo '<p class="category" id="graph-bandwidth-title">';
+        echo self::$foglang['Bandwidth'];
+        echo ' - ';
+        echo '<span>';
+        echo self::$foglang['Transmit'];
+        echo '</span>';
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="col-xs-2">';
+        echo '<a href="#" id="graph-bandwidth-filters-transmit" '
+            . 'class="type-filters graph-filters active">';
+        echo self::$foglang['Transmit'];
+        echo '</a>';
+        echo '<a href="#" id="graph-bandwidth-filters-receive" class='
+            . '"type-filters graph-filters">';
+        echo self::$foglang['Receive'];
+        echo '</a>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="row">';
+        echo '<div id="graph-bandwidth-filters-time">';
+        echo '<div class="col-xs-2">';
+        echo '<p class="category" id="graph-bandwidth-time">';
+        echo _('Time');
+        echo ' - ';
+        echo '<span>';
+        echo _('2 Minutes');
+        echo '</span>';
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="col-xs-4">';
+        echo '<a href="#" rel="'
+            . $datapointstwo
+            . '" class="time-filters graph-filters active">';
+        echo _('2 Minutes');
+        echo '</a>';
+        echo '<a href="#" rel="'
+            . $datapointsten
+            . '" class="time-filters graph-filters">';
+        echo _('10 Minutes');
+        echo '</a>';
+        echo '<a href="#" rel="'
+            . $datapointshalf
+            . '" class="time-filters graph-filters">';
+        echo _('30 Minutes');
+        echo '</a>';
+        echo '<a href="#" rel="'
+            . $datapointshour
+            . '" class="time-filters graph-filters">';
+        echo _('1 Hour');
+        echo '</a>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<div id="graph-bandwidth" class="graph fogdashbox"></div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Gets the client count active/used/queued
@@ -374,7 +465,8 @@ class DashboardPage extends FOGPage
         ignore_user_abort(true);
         set_time_limit(0);
         $url = sprintf(
-            'http://%s/fog/status/freespace.php?path=%s',
+            '%s://%s/fog/status/freespace.php?path=%s',
+            self::$httpproto,
             $this->obj->get('ip'),
             base64_encode($this->obj->get('path'))
         );
@@ -445,8 +537,18 @@ class DashboardPage extends FOGPage
         session_write_close();
         ignore_user_abort(true);
         set_time_limit(0);
-        $sent = $_REQUEST['url'];
-        $names = $_REQUEST['names'];
+        $sent = filter_input(
+            INPUT_GET,
+            'url',
+            FILTER_DEFAULT,
+            FILTER_REQUIRE_ARRAY
+        );
+        $names = filter_input(
+            INPUT_GET,
+            'names',
+            FILTER_DEFAULT,
+            FILTER_REQUIRE_ARRAY
+        );
         $urls = array();
         foreach ((array)$sent as &$url) {
             $urls[] = $url;

@@ -25,10 +25,11 @@ require '../commons/base.inc.php';
 session_write_close();
 ignore_user_abort(true);
 set_time_limit(0);
-if (!is_string($_POST['file'])) {
-    return '';
-}
-$file = Initiator::sanitizeItems($_POST['file']);
+$file = filter_input(
+    INPUT_POST,
+    'file'
+);
+$file = base64_decode($file);
 if (!file_exists($file)) {
     return '';
 }

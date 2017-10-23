@@ -22,12 +22,6 @@
 abstract class TaskingElement extends FOGBase
 {
     /**
-     * The host object.
-     *
-     * @var object
-     */
-    protected $Host;
-    /**
      * The task object.
      *
      * @var object
@@ -72,14 +66,13 @@ abstract class TaskingElement extends FOGBase
     {
         parent::__construct();
         try {
-            $this->Host = self::getHostItem(false);
-            $this->Task = $this
-                ->Host
+            self::getHostItem(false);
+            $this->Task = self::$Host
                 ->get('task');
             self::checkTasking(
                 $this->Task,
-                $this->Host->get('name'),
-                $this->Host->get('mac')
+                self::$Host->get('name'),
+                self::$Host->get('mac')
             );
             $this->imagingTask = $this
                 ->Task
@@ -88,7 +81,7 @@ abstract class TaskingElement extends FOGBase
             self::$HookManager->processEvent(
                 'HOST_NEW_SETTINGS',
                 array(
-                    'Host' => &$this->Host,
+                    'Host' => &self::$Host,
                     'StorageNode' => &$this->StorageNode,
                     'StorageGroup' => &$this->StorageGroup
                 )
@@ -270,12 +263,12 @@ abstract class TaskingElement extends FOGBase
             self::getClass('ImagingLogManager')
                 ->destroy(
                     array(
-                        'hostID' => $this->Host->get('id'),
+                        'hostID' => self::$Host->get('id'),
                         'finish' => '0000-00-00 00:00:00'
                     )
                 );
             return self::getClass('ImagingLog')
-                ->set('hostID', $this->Host->get('id'))
+                ->set('hostID', self::$Host->get('id'))
                 ->set('start', self::formatTime('', 'Y-m-d H:i:s'))
                 ->set('image', $this->Image->get('name'))
                 ->set('type', $_REQUEST['type'])
@@ -285,7 +278,7 @@ abstract class TaskingElement extends FOGBase
         $ilID = self::getSubObjectIDs(
             'ImagingLog',
             array(
-                'hostID' => $this->Host->get('id'),
+                'hostID' => self::$Host->get('id'),
                 'finish' => '0000-00-00 00:00:00',
                 'image' => $this->Image->get('name'),
             )

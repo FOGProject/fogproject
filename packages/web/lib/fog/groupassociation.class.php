@@ -1,6 +1,6 @@
 <?php
 /**
- * Group association between host->group links.
+ * Group association between host -> group links.
  *
  * PHP version 5
  *
@@ -11,7 +11,7 @@
  * @link     https://fogproject.org
  */
 /**
- * Group association between host->group links.
+ * Group association between host -> group links.
  *
  * @category GroupAssociation
  * @package  FOGProject

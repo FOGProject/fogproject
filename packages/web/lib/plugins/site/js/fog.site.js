@@ -1,6 +1,6 @@
 $(function() {
     checkboxToggleSearchListPages();
-    $('#action-boxdel').submit(function() {
+    $('.action-boxes.del').submit(function() {
         var checked = $('input.toggle-action:checked');
         var accesscontrolIDArray = new Array();
         for (var i = 0,len = checked.size();i < len;i++) {
@@ -8,7 +8,7 @@ $(function() {
         }
         $('input[name="accesscontrolIDArray"]').val(accesscontrolIDArray.join(','));
     });
-    $('#action-box').submit(function() {
+    $('.action-boxes.host').submit(function() {
         var checked = $('input.toggle-action:checked');
         var accesscontrolruleIDArray = new Array();
         for (var i = 0,len = checked.size();i < len;i++) {

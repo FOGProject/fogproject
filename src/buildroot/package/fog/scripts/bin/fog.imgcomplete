@@ -1,13 +1,15 @@
 #!/bin/bash
 echo " * Task Complete"
+sysuuid=$(dmidecode -s system-uuid)
+sysuuid=${sysuuid,,}
 case $type in
     [Dd][Oo][Ww][Nn])
         php_post="Post_Stage3.php"
-        poststring="mac=$mac&type=$type"
+        poststring="sysuuid=${sysuuid}&mac=$mac&type=$type"
         ;;
     [Uu][Pp])
         php_post="Post_Stage2.php"
-        poststring="mac=$mac&type=$type&osid=$osid"
+        poststring="sysuuid=${sysuuid}&mac=$mac&type=$type&osid=$osid"
         ;;
     *)
         handleError "Wrong type for this completion script ($0)\n   Args Passed: $*"
@@ -17,7 +19,7 @@ count=0
 res=""
 dots "Updating Database"
 while [[ $res != "##" ]]; do
-    res=$(curl -ks --data "$poststring" http://${web}service/$php_post 2>/dev/null)
+    res=$(curl -Lks --data "$poststring" ${web}service/$php_post 2>/dev/null)
     if [[ $res != "##" && $count -lt 10 ]]; then
         echo "Failed"
         debugPause

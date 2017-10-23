@@ -23,6 +23,6 @@ $fog_plugin = array();
 $fog_plugin['name'] = 'accesscontrol';
 $fog_plugin['description'] = 'The access control can restrict using'
     . ' different roles and rules.';
-$fog_plugin['menuicon'] = 'fa fa-user-secret fa-3x fa-fw';
+$fog_plugin['menuicon'] = 'fa fa-user-secret fa-fw';
 $fog_plugin['menuicon_hover'] = null;
 $fog_plugin['entrypoint'] = 'html/run.php';

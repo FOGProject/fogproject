@@ -109,24 +109,6 @@ class AddSiteAPI extends Hook
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
-        switch ($arguments['classname']) {
-        case 'site':
-            $arguments['data'][$arguments['classname'].'s'] = array();
-            $arguments['data']['count'] = 0;
-            $find = Route::getsearchbody($arguments['classname']);
-            foreach ((array)$arguments['classman']->find($find) as &$Site) {
-                $arguments['data'][$arguments['classname'].'s'][] = self::fastmerge(
-                    $Site->get(),
-                    array(
-                        'hosts' => array_map('intval', $Site->get('hosts')),
-                        'users' => array_map('intval', $Site->get('users'))
-                    )
-                );
-                $arguments['data']['count']++;
-                unset($Site);
-            }
-            break;
-        }
     }
     /**
      * This function changes the getter to enact on this particular item.
@@ -145,14 +127,8 @@ class AddSiteAPI extends Hook
             $arguments['data'] = FOGCore::fastmerge(
                 $arguments['class']->get(),
                 array(
-                    'site' => Route::getter(
-                        'site',
-                        $arguments['class']->get('site')
-                    ),
-                    'host' => Route::getter(
-                        'host',
-                        $arguments['class']->get('host')
-                    )
+                    'site' => $arguments['class']->get('site')->get(),
+                    'host' => $arguments['class']->get('host')->get()
                 )
             );
             break;

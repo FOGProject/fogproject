@@ -1,46 +1,54 @@
-$(function() {
-    $('#macButtonDel').click(function(e) {
-        e.preventDefault();
-        clearMacs();
-    });
-    $('#macButtonUp').click(function(e) {
-        e.preventDefault();
-        updateMacs();
-    });
-});
-function clearMacs() {
-    $('#delete').html('Are you sure you wish to clear all mac address listings?');
-    $('#delete').dialog({
-        resizable: false,
-        modal: true,
+(function($) {
+    $('#macButtonDel').on('click', clearMacs);
+    $('#macButtonUp').on('click', updateMacs);
+})(jQuery);
+/**
+ * Clear macs function.
+ */
+function clearMacs(e) {
+    e.preventDefault();
+    BootstrapDialog.show({
         title: 'Delete MACs',
-        buttons: {
-            'Yes': function() {
+        message: 'Are you sure you wish to clear all mac address listings?',
+        buttons: [{
+            label: 'Yes',
+            cssClass: 'btn-warning',
+            action: function(dialogItself) {
                 $('.macButtons').fadeOut('slow');
-                $(this).dialog('close');
+                dialogItself.close();
                 location.href = '?node=about&sub=maclistPost&clear=1';
-            },
-            'No': function() {
-                $(this).dialog('close');
             }
-        }
+        }, {
+            label: 'No',
+            cssClass: 'btn-info',
+            action: function(dialogItself) {
+                dialogItself.close();
+            }
+        }]
     });
 }
-function updateMacs() {
-    $('#update').html('Are you sure you wish to update the mac address listings?');
-    $('#update').dialog({
-        resizable: false,
-        modal: true,
+/**
+ * Update Macs function.
+ */
+function updateMacs(e) {
+    e.preventDefault();
+    BootstrapDialog.show({
         title: 'Update MACs',
-        buttons: {
-            'Yes': function() {
+        message: 'Are you sure you wish to update the mac address listings?',
+        buttons: [{
+            label: 'Yes',
+            cssClass: 'btn-warning',
+            action: function(dialogItself) {
                 $('.macButtons').fadeOut('slow');
-                $(this).dialog('close');
+                dialogItself.close();
                 location.href = '?node=about&sub=maclistPost&update=1';
-            },
-            'No': function() {
-                $(this).dialog('close');
             }
-        }
+        }, {
+            label: 'No',
+            cssClass: 'btn-info',
+            action: function(dialogItself) {
+                dialogItself.close();
+            }
+        }]
     });
 }

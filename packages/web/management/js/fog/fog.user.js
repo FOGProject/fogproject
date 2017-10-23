@@ -1,47 +1,31 @@
-$(function() {
-    checkboxToggleSearchListPages();
-    $('.resettoken').click(function(e) {
-        e.preventDefault();
-        $.ajax({
-            url: '../status/newtoken.php',
-            dataType: 'json',
-            success: function(data) {
-                $('.token').val(data);
-            }
-        });
-    });
-    form = $('.username-input').parents('form');
-    validator = form.validate({
-        name: {
-            required: true,
-            minlength: 1,
-            maxlength: 255
-        }
-    });
-    pwform = $('.password-input1').parents('form');
-    pwvalidator = pwform.validate({
+(function($) {
+    validatorOpts = {
+        submitHandler: submithandlerfunc,
         rules: {
+            name: {
+                required: true,
+                minlength: 3,
+                maxlength: 40,
+                regex: /^[\w][\w0-9]*[._-]?[\w0-9]*[.]?[\w0-9]+$/
+            },
             password: {
                 required: true,
                 minlength: 4
             },
             password_confirm: {
-                minlength: 4,
                 equalTo: '#password'
             }
         },
         messages: {
             password_confirm: {
-                minlength: 'Password must be at least 4 characters long',
-                equalTo: 'Passwords do not match',
+                equalTo: 'Passwords do not match'
             }
         }
-    });
-    $('.username-input').rules('add', {regex: /^[a-zA-Z0-9_-.]{3,40}$/});
-    $('.username-input').on('keyup change blur',function() {
-        return validator.element(this);
-    });
-    $('.password-input1,.password-input2').on('keyup change blur',function() {
-        return pwvalidator.element(this);
-    });
-});
+    };
+    setupTimeoutElement(
+        '#add, #updategen, #updatepw, #updateapi',
+        '.username-input, .password-input1, .password-input2',
+        1000
+    );
+    tokenreset();
+})(jQuery);

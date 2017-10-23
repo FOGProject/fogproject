@@ -246,12 +246,6 @@ abstract class FOGBase
      */
     public static $httpreferer;
     /**
-     * Is this a mobile request?
-     *
-     * @var int|bool
-     */
-    protected static $isMobile;
-    /**
      * The current server's IP information.
      *
      * @var array
@@ -273,7 +267,7 @@ abstract class FOGBase
         'host',
         'group',
         'image',
-        'storage',
+        //'storage',
         'snapin',
         'printer',
         'task',
@@ -296,6 +290,26 @@ abstract class FOGBase
      * @var bool
      */
     public static $showhtml = true;
+    /**
+     * HTTPS set or not store protocol to use.
+     *
+     * @var string
+     */
+    public static $httpproto = false;
+    /**
+     * HTTP_HOST variable.
+     *
+     * @var string
+     */
+    public static $httphost = '';
+    /**
+     * Hosts are what we work with.
+     * To help simplify changing elements using hosts,
+     * store as a static variable.
+     *
+     * @var Host
+     */
+    public static $Host = null;
     /**
      * Initializes the FOG System if needed.
      *
@@ -323,6 +337,7 @@ abstract class FOGBase
         self::$EventManager = &$EventManager;
         self::$HookManager = &$HookManager;
         self::$FOGUser = &$currentUser;
+        global $sub;
         $scriptPattern = 'service';
         $queryPattern = 'sub=requestClientInfo';
         self::$querystring = filter_input(INPUT_SERVER, 'QUERY_STRING');
@@ -331,9 +346,6 @@ abstract class FOGBase
         self::$reqmethod = filter_input(INPUT_SERVER, 'REQUEST_METHOD');
         self::$remoteaddr = filter_input(INPUT_SERVER, 'REMOTE_ADDR');
         self::$httpreferer = filter_input(INPUT_SERVER, 'HTTP_REFERER');
-        if (false !== stripos(self::$scriptname, 'mobile')) {
-            self::$isMobile = true;
-        }
         if (false !== stripos(self::$scriptname, $scriptPattern)) {
             self::$service = true;
         } elseif (false !== stripos(self::$querystring, $queryPattern)) {
@@ -341,11 +353,13 @@ abstract class FOGBase
         }
         self::$ajax = false !== stripos(self::$httpreqwith, 'xmlhttprequest');
         self::$post = false !== stripos(self::$reqmethod, 'post');
-        self::$newService = isset($_REQUEST['newService'])
-            || $_REQUEST['sub'] == 'requestClientInfo';
-        self::$json = isset($_REQUEST['json'])
+        self::$newService = isset($_POST['newService'])
+            || isset($_GET['newService'])
+            || $sub == 'requestClientInfo';
+        self::$json = isset($_POST['json'])
+            || isset($_GET['json'])
             || self::$newService
-            || $_REQUEST['sub'] == 'requestClientInfo';
+            || $sub == 'requestClientInfo';
         self::$FOGURLRequests = &$FOGURLRequests;
         self::$FOGPageManager = &$FOGPageManager;
         self::$TimeZone = &$TimeZone;
@@ -369,6 +383,16 @@ abstract class FOGBase
                 $option
             );
         };
+        /**
+         * Set proto and host.
+         */
+        self::$httpproto = 'http'
+            . (
+                filter_input(INPUT_SERVER, 'HTTPS') ?
+                's' :
+                ''
+            );
+        self::$httphost = filter_input(INPUT_SERVER, 'HTTP_HOST');
         self::$_initialized = true;
     }
     /**
@@ -470,6 +494,7 @@ abstract class FOGBase
      * @param bool $hostnotrequired Is the host return needed
      * @param bool $returnmacs      Only return macs?
      * @param bool $override        Perform an override of the items?
+     * @param bool $mac             Mac Override?
      *
      * @throws Exception
      *
@@ -480,22 +505,49 @@ abstract class FOGBase
         $encoded = false,
         $hostnotrequired = false,
         $returnmacs = false,
-        $override = false
+        $override = false,
+        $mac = false
     ) {
+        self::$Host = new Host(0);
         // Store the mac
-        $mac = $_REQUEST['mac'];
-
+        if (!$mac) {
+            $mac = filter_input(INPUT_POST, 'mac');
+            if (!$mac) {
+                $mac = filter_input(INPUT_GET, 'mac');
+            }
+        }
+        $sysuuid = filter_input(INPUT_POST, 'sysuuid');
+        if (!$sysuuid) {
+            $sysuuid = filter_input(INPUT_GET, 'sysuuid');
+        }
         // If encoded decode and store value
         if ($encoded === true) {
             $mac = base64_decode($mac);
+            $sysuuid = base64_decode($sysuuid);
         }
-
+        // See if we can find the host by system uuid rather than by mac's first.
+        if ($sysuuid) {
+            $Inventory = self::getClass('Inventory')
+                ->set('sysuuid', $sysuuid)
+                ->load('sysuuid');
+            $Host = self::getClass('Inventory')
+                ->set('sysuuid', $sysuuid)
+                ->load('sysuuid')
+                ->getHost();
+            if ($Host->isValid() && !$returnmacs) {
+                self::$Host = $Host;
+                return;
+            }
+        }
         // Trim the mac list.
         $mac = trim($mac);
-
         // Parsing the macs
-        $MACs = self::parseMacList($mac, !$service, $service);
-
+        $MACs = self::parseMacList(
+            $mac,
+            !$service,
+            $service
+        );
+        $macs = array();
         foreach ((array) $MACs as &$mac) {
             if (!$mac->isValid()) {
                 continue;
@@ -503,7 +555,8 @@ abstract class FOGBase
             $macs[] = $mac->__toString();
             unset($mac);
         }
-
+        // Get the host element based on the mac address
+        self::getClass('HostManager')->getHostByMacAddresses($macs);
         // If no macs are returned and the host is not required,
         // throw message that it's an invalid mac.
         if (count($macs) < 1 && $hostnotrequired === false) {
@@ -513,7 +566,7 @@ abstract class FOGBase
                 $msg = sprintf(
                     '%s %s',
                     self::$foglang['InvalidMAC'],
-                    $_REQUEST['mac']
+                    $mac
                 );
             }
             throw new Exception($msg);
@@ -528,13 +581,11 @@ abstract class FOGBase
             return $macs;
         }
 
-        // Get the host element based on the mac address
-        $Host = self::getClass('HostManager')->getHostByMacAddresses($macs);
         if ($hostnotrequired === false && $override === false) {
-            if ($Host->get('pending')) {
-                $Host = new Host(0);
+            if (self::$Host->get('pending')) {
+                self::$Host = new Host(0);
             }
-            if (!$Host->isValid()) {
+            if (!self::$Host->isValid()) {
                 if ($service) {
                     $msg = '#!ih';
                 } else {
@@ -543,8 +594,7 @@ abstract class FOGBase
                 throw new Exception($msg);
             }
         }
-
-        return $Host;
+        return;
     }
     /**
      * Get's blamed nodes for failures.
@@ -578,8 +628,8 @@ abstract class FOGBase
             return $NodeFailure->get('id');
         };
         $find = array(
-            'taskID' => $Host->get('task')->get('id'),
-            'hostID' => $Host->get('id'),
+            'taskID' => self::$Host->get('task')->get('id'),
+            'hostID' => self::$Host->get('id'),
         );
         $nodeRet = array_map(
             $nodeFail,
@@ -883,6 +933,10 @@ abstract class FOGBase
         array $haystack,
         $ignorecase = false
     ) {
+        $key = array_search($needle, $haystack);
+        if (false !== $key) {
+            return $key;
+        }
         $cmd = $ignorecase !== false ? 'stripos' : 'strpos';
         foreach ($haystack as $key => &$value) {
             if (false !== $cmd($value, $needle)) {
@@ -924,7 +978,7 @@ abstract class FOGBase
         }
         $sesVars = $_SESSION['post_request_vals'];
         $setReq = function (&$val, &$key) {
-            $_REQUEST[$key] = $val;
+            $_POST[$key] = $val;
             unset($val, $key);
         };
         if (count($sesVars) > 0) {
@@ -1484,22 +1538,20 @@ abstract class FOGBase
      * Really just an alias to aesencrypt for now.
      *
      * @param mixed $data the data to encrypt
-     * @param Host  $Host the host item to use
      *
      * @throws Exception
      *
      * @return string
      */
-    protected static function certEncrypt($data, $Host)
+    protected static function certEncrypt($data)
     {
-        if (!$Host || !$Host->isValid()) {
+        if (!self::$Host->isValid()) {
             throw new Exception('#!ih');
         }
-        if (!$Host->get('pub_key')) {
+        if (!self::$Host->get('pub_key')) {
             throw new Exception('#!ihc');
         }
-
-        return self::aesencrypt($data, $Host->get('pub_key'));
+        return self::aesencrypt($data, self::$Host->get('pub_key'));
     }
     /**
      * Decrypts the information passed.
@@ -1718,17 +1770,14 @@ abstract class FOGBase
             return;
         }
         try {
-            if (!($this->Host instanceof Host)) {
-                throw new Exception($this->Host);
-            } else if (!($this->Host->isValid())) {
+            if (!self::$Host->isValid()) {
                 throw new Exception('#!ih');
             }
             $datatosend = trim($datatosend);
             $curdate = self::niceDate();
-            $secdate = self::niceDate($this->Host->get('sec_time'));
+            $secdate = self::niceDate(self::$Host->get('sec_time'));
             if ($curdate >= $secdate) {
-                $this
-                    ->Host
+                self::$Host
                     ->set('pub_key', '')
                     ->save()
                     ->load();
@@ -1739,7 +1788,7 @@ abstract class FOGBase
             if (self::$newService) {
                 printf(
                     '#!enkey=%s',
-                    self::certEncrypt($datatosend, $this->Host)
+                    self::certEncrypt($datatosend)
                 );
                 exit;
             } else {
@@ -2258,7 +2307,7 @@ abstract class FOGBase
         if (empty($macStr)) {
             return;
         }
-        $url = 'http://%s/fog/management/index.php?';
+        $url = '%s://%s/fog/management/index.php?';
         $url .= 'node=client&sub=wakeEmUp';
         $nodeURLs = array();
         $macCount = count($macs);
@@ -2273,6 +2322,7 @@ abstract class FOGBase
             $ip = $Node->get('ip');
             $nodeURLs[] = sprintf(
                 $url,
+                self::$httpproto,
                 $ip
             );
             unset($Node);
@@ -2343,8 +2393,8 @@ abstract class FOGBase
     public static function getHash($file)
     {
         usleep(50000);
-        $filesize = self::getFilesize($file);
         $file = escapeshellarg($file);
+        $filesize = self::getFilesize($file);
         if ($filesize <= 10485760) {
             return trim(
                 shell_exec("sha512sum $file | awk '{print $1}'")
@@ -2443,5 +2493,19 @@ abstract class FOGBase
         $IPs = array_filter($IPs);
         $IPs = array_values($IPs);
         return $IPs;
+    }
+    /**
+     * Wait a random interval between 1/2 second to 2 seconds.
+     *
+     * @return void
+     */
+    public static function randWait()
+    {
+        usleep(
+            rand(
+                5000,
+                2000000
+            )
+        );
     }
 }

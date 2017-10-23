@@ -36,9 +36,15 @@ class HostnameChanger extends FOGClient implements FOGClientSend
      */
     public function json()
     {
-        $password = self::aesdecrypt($this->Host->get('ADPass'));
-        $productKey = self::aesdecrypt($this->Host->get('productKey'));
-        $username = trim($this->Host->get('ADUser'));
+        $password = self::aesdecrypt(
+            self::$Host->get('ADPass')
+        );
+        $productKey = self::aesdecrypt(
+            self::$Host->get('productKey')
+        );
+        $username = trim(
+            self::$Host->get('ADUser')
+        );
         if (strpos($username, chr(92))
             || strpos($username, chr(64))
         ) {
@@ -46,30 +52,30 @@ class HostnameChanger extends FOGClient implements FOGClientSend
         } elseif ($username) {
             $adUser = sprintf(
                 '%s\%s',
-                $this->Host->get('ADDomain'),
+                self::$Host->get('ADDomain'),
                 $username
             );
         } else {
             $adUser = '';
         }
-        $AD = (bool)$this->Host->get('useAD');
-        $enforce = (bool)$this->Host->get('enforce');
-        $hostname = $this->Host->get('name');
+        $AD = (bool)self::$Host->get('useAD');
+        $enforce = (bool)self::$Host->get('enforce');
+        $hostname = self::$Host->get('name');
         $ADDom = '';
         $ADOU = '';
         $ADUser = '';
         $ADPass = '';
         if ($AD === true) {
-            $ADDom = $this->Host->get('ADDomain');
+            $ADDom = self::$Host->get('ADDomain');
             $ADOU = str_replace(
                 ';',
                 '',
-                $this->Host->get('ADOU')
+                self::$Host->get('ADOU')
             );
             $ADUser = $adUser;
             $ADPass = $password;
         }
-        $this->Host->setAD();
+        self::$Host->setAD();
         $val = array(
             'enforce' => (bool)$enforce,
             'hostname' => $hostname,
@@ -93,13 +99,15 @@ class HostnameChanger extends FOGClient implements FOGClientSend
     {
         ob_start();
         echo '#!ok';
-        $password = $this->Host->get('ADPassLegacy');
+        $password = self::$Host->get('ADPassLegacy');
         printf(
             "=%s\n",
-            $this->Host->get('name')
+            self::$Host->get('name')
         );
-        $this->Host->setAD();
-        $username = trim($this->Host->get('ADUser'));
+        self::$Host->setAD();
+        $username = trim(
+            self::$Host->get('ADUser')
+        );
         if (strpos($username, chr(92))
             || strpos($username, chr(64))
         ) {
@@ -107,30 +115,30 @@ class HostnameChanger extends FOGClient implements FOGClientSend
         } elseif ($username) {
             $adUser = sprintf(
                 '%s\%s',
-                $this->Host->get('ADDomain'),
+                self::$Host->get('ADDomain'),
                 $username
             );
         } else {
             $adUser = '';
         }
-        $AD = (bool)$this->Host->get('useAD');
-        $hostname = $this->Host->get('name');
+        $AD = (bool)self::$Host->get('useAD');
+        $hostname = self::$Host->get('name');
         $ADDom = '';
         $ADOU = '';
         $ADUser = '';
         $ADPass = '';
         if ($AD === true) {
             $AD = 1;
-            $ADDom = $this->Host->get('ADDomain');
+            $ADDom = self::$Host->get('ADDomain');
             $ADOU = str_replace(
                 ';',
                 '',
-                $this->Host->get('ADOU')
+                self::$Host->get('ADOU')
             );
             $ADUser = $adUser;
             $ADPass = $password;
         }
-        $this->Host->setAD();
+        self::$Host->setAD();
         printf(
             "#AD=%s\n#ADDom=%s\n#ADOU=%s\n#ADUser=%s\n#ADPass=%s",
             $AD,

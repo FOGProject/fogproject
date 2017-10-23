@@ -52,6 +52,32 @@ class MulticastSession extends FOGController
         'anon5' => 'msAnon5',
     );
     /**
+     * Additional Fields
+     *
+     * @var array
+     */
+    protected $additionalFields = array(
+        'imagename',
+        'state'
+    );
+    /**
+     * Database -> Class field relationships
+     *
+     * @var array
+     */
+    protected $databaseFieldClassRelationships = array(
+        'Image' => array(
+            'id',
+            'image',
+            'imagename'
+        ),
+        'TaskState' => array(
+            'id',
+            'stateID',
+            'state'
+        )
+    );
+    /**
      * Get's the session's associated image object.
      *
      * @return object

@@ -181,8 +181,9 @@ class Service extends FOGController
      */
     public function remUser($id)
     {
-        self::getClass('UserCleanup', $id)
-            ->destroy();
+        self::getClass('UserCleanupManager')->destroy(
+            array('id' => $id)
+        );
     }
     /**
      * Builds the exit type selectors for us.
@@ -190,13 +191,15 @@ class Service extends FOGController
      * @param string $name      What to call the form selector (name=)
      * @param string $selected  Which is the selected item.
      * @param bool   $nullField Is there going to be a null starter.
+     * @param string $id        ID name to give.
      *
      * @return string
      */
     public static function buildExitSelector(
         $name = '',
         $selected = '',
-        $nullField = false
+        $nullField = false,
+        $id = ''
     ) {
         if (empty($name)) {
             $name = $this->get('name');
@@ -220,8 +223,14 @@ class Service extends FOGController
             );
         }
         $options = sprintf(
-            '<select name="%s" autocomplete="off">',
-            $name
+            '<select name="%s" autocomplete="off" class="form-control"%s>',
+            $name,
+            (
+                $id ? ' id="'
+                . $id
+                . '"' :
+                ''
+            )
         );
         foreach ($types as $i => &$viewop) {
             $show = strtoupper($viewop);

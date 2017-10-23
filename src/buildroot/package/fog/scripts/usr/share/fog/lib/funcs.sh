@@ -25,7 +25,7 @@ clearScreen() {
 }
 # Displays the nice banner along with the running version
 displayBanner() {
-    version=$(curl -k http://${web}service/getversion.php 2>/dev/null)
+    version=$(curl -Lks ${web}service/getversion.php 2>/dev/null)
     echo "   =================================="
     echo "   ===        ====    =====      ===="
     echo "   ===  =========  ==  ===   ==   ==="
@@ -74,6 +74,8 @@ doInventory() {
     sysproduct=$(dmidecode -s system-product-name)
     sysversion=$(dmidecode -s system-version)
     sysserial=$(dmidecode -s system-serial-number)
+    sysuuid=$(dmidecode -s system-uuid)
+    sysuuid=${sysuuid,,}
     systype=$(dmidecode -t 3 | grep Type:)
     biosversion=$(dmidecode -s bios-version)
     biosvendor=$(dmidecode -s bios-vendor)
@@ -97,6 +99,7 @@ doInventory() {
     sysproduct64=$(echo $sysproduct | base64)
     sysversion64=$(echo $sysversion | base64)
     sysserial64=$(echo $sysserial | base64)
+    sysuuid64=$(echo $sysuuid | base64)
     systype64=$(echo $systype | base64)
     biosversion64=$(echo $biosversion | base64)
     biosvendor64=$(echo $biosvendor | base64)
@@ -208,9 +211,12 @@ expandPartition() {
                 0)
                     ;;
                 *)
-                    echo "Failed"
-                    debugPause
-                    handleError "Could not check before resize (${FUNCNAME[0]})\n   Info: $(cat /tmp/e2fsck.txt)\n   Args Passed: $*"
+                    e2fsck -fy $part >>/tmp/e2fsck.txt 2>&1
+                    if [[ $? -gt 0 ]]; then
+                        echo "Failed"
+                        debugPause
+                        handleError "Could not check before resize (${FUNCNAME[0]})\n   Info: $(cat /tmp/e2fsck.txt)\n   Args Passed: $*"
+                    fi
                     ;;
             esac
             resize2fs $part >/tmp/resize2fs.txt 2>&1
@@ -229,9 +235,13 @@ expandPartition() {
                     echo "Done"
                     ;;
                 *)
-                    echo "Failed"
-                    debugPause
-                    handleError "Could not check after resize (${FUNCNAME[0]})\n   Info: $(cat /tmp/e2fsck.txt)\n   Args Passed: $*"
+                    e2fsck -fy $part >>/tmp/e2fsck.txt 2>&1
+                    if [[ $? -gt 0 ]]; then
+                        echo "Failed"
+                        debugPause
+                        handleError "Could not check after resize (${FUNCNAME[0]})\n   Info: $(cat /tmp/e2fsck.txt)\n   Args Passed: $*"
+                    fi
+                    echo "Done"
                     ;;
             esac
             ;;
@@ -452,7 +462,7 @@ shrinkPartition() {
                 debugPause
                 return
             fi
-            if [[ $label =~ [Rr][Ee][Ss][Ee][Rr][Vv][Ee][Dd] ]]; then
+            if [[ $label =~ [Rr][Ee][Ss][Ee][Rr][Vv][Ee][Dd] || $label =~ [Rr][Éé][Ss][Éé][Rr][Vv][Éé] ]]; then
                 echo "$(cat "$imagePath/d1.fixed_size_partitions" | tr -d \\0):${part_number}" > "$imagePath/d1.fixed_size_partitions"
                 echo " * Not shrinking ($part) reserved partitions"
                 debugPause
@@ -576,26 +586,19 @@ shrinkPartition() {
             resizePartition "$part" "$sizeextresize" "$imagePath"
             echo "Done"
             debugPause
-            #dots "Resizing $fstype volume ($part)"
-            #resize2fs $part >/tmp/resize2fs.txt 2>&1
-            #case $? in
-            #    0)
-            #        ;;
-            #    *)
-            #        echo "Failed"
-            #        debugPause
-            #        handleError "Could not resize $fstype volume ($part) (${FUNCNAME[0]})\n   Info: $(cat /tmp/resize2fs.txt)\n   Args Passed: $*"
-            #        ;;
-            #esac
             e2fsck -fp $part >/tmp/e2fsck.txt 2>&1
             case $? in
                 0)
                     echo "Done"
                     ;;
                 *)
-                    echo "Failed"
-                    debugPause
-                    handleError "Could not check expanded volume ($part) (${FUNCNAME[0]})\n   Info: $(cat /tmp/e2fsck.txt)\n   Args Passed: $*"
+                    e2fsck -fy $part >>/tmp/e2fsck.txt 2>&1
+                    if [[ $? -gt 0 ]]; then
+                        echo "Failed"
+                        debugPause
+                        handleError "Could not check expanded volume ($part) (${FUNCNAME[0]})\n   Info: $(cat /tmp/e2fsck.txt)\n   Args Passed: $*"
+                    fi
+                    echo "Done"
                     ;;
             esac
             ;;
