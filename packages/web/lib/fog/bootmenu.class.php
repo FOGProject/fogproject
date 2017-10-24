@@ -1808,10 +1808,10 @@ class BootMenu extends FOGBase
                 }
             }
             $params = trim(implode("\n", (array)$params));
-            $params .= '\nisset ${uuid} && param sysuuid ${uuid}'
-                . '\nisset ${asset} && param asset ${asset}'
-                . '\nisset ${board-serial} && param mbserial ${board-serial}'
-                . '\nisset ${serial} && param sysserial ${serial}';
+            $params .= "\nisset \${uuid} && param sysuuid \${uuid}"
+                     . "\nisset \${asset} && param asset \${asset}"
+                     . "\nisset \${board-serial} && param mbserial \${board-serial}"
+                     . "\nisset \${serial} && param sysserial \${serial}";
 
             $Send = self::fastmerge($Send, array($params));
         }
