@@ -512,7 +512,7 @@ class BootMenu extends FOGBase
                 'isset ${uuid} && param sysuuid ${uuid}',
                 'isset ${asset} && param asset ${asset}',
                 'isset ${board-serial} && param mbserial ${board-serial}',
-                'isset ${serial} && param sysserial ${serial},
+                'isset ${serial} && param sysserial ${serial}',
                 'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
                 'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
                 ':bootme',
@@ -550,7 +550,7 @@ class BootMenu extends FOGBase
                 'isset ${uuid} && param sysuuid ${uuid}',
                 'isset ${asset} && param asset ${asset}',
                 'isset ${board-serial} && param mbserial ${board-serial}',
-                'isset ${serial} && param sysserial ${serial},
+                'isset ${serial} && param sysserial ${serial}',
                 'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
                 'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
                 ':bootme',
@@ -700,7 +700,7 @@ class BootMenu extends FOGBase
             'isset ${uuid} && param sysuuid ${uuid}',
             'isset ${asset} && param asset ${asset}',
             'isset ${board-serial} && param mbserial ${board-serial}',
-            'isset ${serial} && param sysserial ${serial},
+            'isset ${serial} && param sysserial ${serial}',
             'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
             'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
             ':bootme',
@@ -726,7 +726,7 @@ class BootMenu extends FOGBase
             'isset ${uuid} && param sysuuid ${uuid}',
             'isset ${asset} && param asset ${asset}',
             'isset ${board-serial} && param mbserial ${board-serial}',
-            'isset ${serial} && param sysserial ${serial},
+            'isset ${serial} && param sysserial ${serial}',
             'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
             'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
             ':bootme',
@@ -753,7 +753,7 @@ class BootMenu extends FOGBase
             'isset ${uuid} && param sysuuid ${uuid}',
             'isset ${asset} && param asset ${asset}',
             'isset ${board-serial} && param mbserial ${board-serial}',
-            'isset ${serial} && param sysserial ${serial},
+            'isset ${serial} && param sysserial ${serial}',
             'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
             'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
             ':bootme',
@@ -805,7 +805,7 @@ class BootMenu extends FOGBase
                 'isset ${uuid} && param sysuuid ${uuid}',
                 'isset ${asset} && param asset ${asset}',
                 'isset ${board-serial} && param mbserial ${board-serial}',
-                'isset ${serial} && param sysserial ${serial},
+                'isset ${serial} && param sysserial ${serial}',
                 'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
                 'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
                 ':bootme',
@@ -835,7 +835,7 @@ class BootMenu extends FOGBase
             'isset ${uuid} && param sysuuid ${uuid}',
             'isset ${asset} && param asset ${asset}',
             'isset ${board-serial} && param mbserial ${board-serial}',
-            'isset ${serial} && param sysserial ${serial},
+            'isset ${serial} && param sysserial ${serial}',
             'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
             'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
             ':bootme',
@@ -1069,7 +1069,7 @@ class BootMenu extends FOGBase
                         'isset ${uuid} && param sysuuid ${uuid}',
                         'isset ${asset} && param asset ${asset}',
                         'isset ${board-serial} && param mbserial ${board-serial}',
-                        'isset ${serial} && param sysserial ${serial},
+                        'isset ${serial} && param sysserial ${serial}',
                         'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
                         'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
                     );
@@ -1085,7 +1085,7 @@ class BootMenu extends FOGBase
                 'isset ${uuid} && param sysuuid ${uuid}',
                 'isset ${asset} && param asset ${asset}',
                 'isset ${board-serial} && param mbserial ${board-serial}',
-                'isset ${serial} && param sysserial ${serial},
+                'isset ${serial} && param sysserial ${serial}',
                 'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
                 'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
             );
@@ -1811,7 +1811,7 @@ class BootMenu extends FOGBase
             $params .= '\nisset ${uuid} && param sysuuid ${uuid}'
                 . '\nisset ${asset} && param asset ${asset}'
                 . '\nisset ${board-serial} && param mbserial ${board-serial}'
-                . '\nisset ${serial} && param sysserial ${serial};
+                . '\nisset ${serial} && param sysserial ${serial}';
 
             $Send = self::fastmerge($Send, array($params));
         }
