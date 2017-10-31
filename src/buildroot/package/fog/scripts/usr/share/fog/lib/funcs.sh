@@ -275,7 +275,7 @@ isBitlockedPartition() {
 fsTypeSetting() {
     local part="$1"
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})\n   Args Passed: $*"
-    isBitlockedPartition
+    isBitlockedPartition $part
     local blk_fs=$(blkid -po udev $part | awk -F= /FS_TYPE=/'{print $2}')
     case $blk_fs in
         btrfs)
