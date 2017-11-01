@@ -264,7 +264,7 @@ expandPartition() {
 isBitlockedPartition() {
     local part="$1"
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})\n   Args Passed: $*"
-    local is_bitlocked=$(dd if=$part bs=512 count=1 2>&1 | grep -i '-FVE-FS-')
+    local is_bitlocked=$(dd if=$part bs=512 count=1 2>&1 | grep -ie '-FVE-FS-')
     if [[ -n $is_bitlocked ]]; then
         handleError "Found bitlocker signature in partition $part header. Please disable BITLOCKER before capturing an image. (${FUNCNAME[0]})\n   Args Passed: $*"
     fi
