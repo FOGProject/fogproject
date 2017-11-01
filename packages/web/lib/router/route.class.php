@@ -413,10 +413,11 @@ class Route extends FOGBase
     /**
      * Presents the equivalent of a page's list all.
      *
-     * @param string $class  The class to work with.
-     * @param string $sortby How to sort the data.
-     * @param bool   $bypass Allow showing hidden data.
-     * @param array  $find   Additional filter items.
+     * @param string $class    The class to work with.
+     * @param string $sortby   How to sort the data.
+     * @param bool   $bypass   Allow showing hidden data.
+     * @param array  $find     Additional filter items.
+     * @param string $operator SQL query operator
      *
      * @return void
      */
@@ -424,7 +425,8 @@ class Route extends FOGBase
         $class,
         $sortby = 'name',
         $bypass = false,
-        $find = array()
+        $find = array(),
+        $operator = 'AND'
     ) {
         $classname = strtolower($class);
         $classman = self::getClass($class)->getManager();
@@ -459,7 +461,7 @@ class Route extends FOGBase
             }
             break;
         default:
-            foreach ((array)$classman->find($find, 'AND', $sortby) as &$class) {
+            foreach ((array)$classman->find($find, $operator, $sortby) as &$class) {
                 $test = stripos(
                     $class->get('name'),
                     '_api_'

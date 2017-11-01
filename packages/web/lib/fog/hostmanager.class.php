@@ -173,7 +173,7 @@ class HostManager extends FOGManagerController
         );
     }
     /**
-     * Try to find a unique host object based on MAC addresses.
+     * Returns a single host object based on the passed MACs.
      *
      * @param array $macs the macs to search for the host
      *
@@ -252,7 +252,8 @@ class HostManager extends FOGManagerController
         Route::listem('inventory',
             'sysuuid',
             false,
-            array('sysuuid' => $sysuuid, 'sysserial' => $sysserial, 'mbserial' => $mbserial)
+            array('sysuuid' => $sysuuid, 'sysserial' => $sysserial, 'mbserial' => $mbserial),
+            'OR'
         );
         $Inventories = json_decode(Route::getData());
         throw new Exception($Inventories);
