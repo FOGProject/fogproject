@@ -4,8 +4,15 @@
 if [[ $boottype == usb && ! -z $web ]]; then
     sysuuid=$(dmidecode -s system-uuid)
     sysuuid=${sysuuid,,}
-    mac=$(getMACAddresses)
-    curl -Lks -o /tmp/hinfo.txt --data "sysuuid=${sysuuid}&mac=$mac" "${web}service/hostinfo.php" -A ''
+    sysuuid=$(echo $sysuuid | base64)
+    mbserial=$(dmidecode -s baseboard-serial-number)
+    mbserial=${mbserial,,}
+    mbserial=$(echo $mbserial | base64)
+    sysserial=$(dmidecode -s system-serial-number)
+    sysserial=${sysserial,,}
+    sysserial=$(echo $sysserial | base64)
+    mac=$(getMACAddresses | base64)
+    curl -Lks -o /tmp/hinfo.txt --data "sysuuid=${sysuuid}&mbserial=${mbserial}&sysserial=${sysserial}&mac=${mac}" "${web}service/hostinfo.php" -A ''
     [[ -f /tmp/hinfo.txt ]] && . /tmp/hinfo.txt
 fi
 dots "Running post init scripts"

@@ -95,12 +95,19 @@ case $mc in
 esac
 sysuuid=$(dmidecode -s system-uuid)
 sysuuid=${sysuuid,,}
+sysuuid=$(echo $sysuuid | base64)
+mbserial=$(dmidecode -s baseboard-serial-number)
+mbserial=${mbserial,,}
+mbserial=$(echo $mbserial | base64)
+sysserial=$(dmidecode -s system-serial-number)
+sysserial=${sysserial,,}
+sysserial=$(echo $sysserial | base64)
 case $mode in
     clamav)
-        poststring="sysuuid=${sysuuid}&mac=$mac&avmode=$avmode"
+        poststring="sysuuid=${sysuuid}&mbserial=${mbserial}&sysserial=${sysserial}&mac=${mac}&avmode=${avmode}"
         ;;
     ""|*)
-        poststring="sysuuid=${sysuuid}&mac=$mac&type=$type"
+        poststring="sysuuid=${sysuuid}&mbserial=${mbserial}&sysserial=${sysserial}&mac=${mac}&type=${type}"
         ;;
 esac
 [[ ! $capone -eq 1 ]] && checkin "$poststring" "$php_post"

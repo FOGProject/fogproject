@@ -61,13 +61,19 @@ mac=$(getMACAddresses | base64)
 sysuuid=$(dmidecode -s system-uuid)
 sysuuid=${sysuuid,,}
 sysuuid=$(echo $sysuuid | base64)
+mbserial=$(dmidecode -s baseboard-serial-number)
+mbserial=${mbserial,,}
+mbserial=$(echo $mbserial | base64)
+sysserial=$(dmidecode -s system-serial-number)
+sysserial=${sysserial,,}
+sysserial=$(echo $sysserial | base64)
 dots "Attempting to register host"
 count=0
 res=""
 productKey=""
 productKey=$(tail -c+57 /sys/firmware/acpi/tables/MSDM | base64)
 while [[ -z $res ]]; do
-    res=$(curl -Lks --data "sysuuid=${sysuuid}&mac=$mac&productKey=${productKey}" ${web}service/auto.register.php 2>/dev/null)
+    res=$(curl -Lks --data "sysuuid=${sysuuid}&mbserial=${mbserial}&sysserial=${sysserial}&mac=$mac&productKey=${productKey}" ${web}service/auto.register.php 2>/dev/null)
     case $count in
         [0-8])
             let count+=1

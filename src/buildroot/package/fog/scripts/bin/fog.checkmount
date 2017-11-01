@@ -1,11 +1,18 @@
 #!/bin/bash
 sysuuid=$(dmidecode -s system-uuid)
 sysuuid=${sysuuid,,}
+sysuuid=$(echo $sysuuid | base64)
+mbserial=$(dmidecode -s baseboard-serial-number)
+mbserial=${mbserial,,}
+mbserial=$(echo $mbserial | base64)
+sysserial=$(dmidecode -s system-serial-number)
+sysserial=${sysserial,,}
+sysserial=$(echo $sysserial | base64)
 dots "Checking Mounted File System"
 if [[ ! -f /images/.mntcheck ]]; then
     count=0
     while [[ $blame != '##' ]]; do
-        blame=$(curl -Lks --data "sysuuid=${sysuuid}&mac=$mac&type=$type" ${web}service/blame.php 2>/dev/null)
+        blame=$(curl -Lks --data "sysuuid=${sysuuid}&mbserial=${mbserial}&sysserial=${sysserial}&mac=${mac}&type=${type}" ${web}service/blame.php 2>/dev/null)
         case $count in
             [0-8])
                 let count+=1

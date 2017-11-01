@@ -1,7 +1,13 @@
 #!/bin/bash
 sysuuid=$(dmidecode -s system-uuid)
 sysuuid=${sysuuid,,}
-oIFS=$IFS
+sysuuid=$(echo $sysuuid | base64)
+mbserial=$(dmidecode -s baseboard-serial-number)
+mbserial=${mbserial,,}
+mbserial=$(echo $mbserial | base64)
+sysserial=$(dmidecode -s system-serial-number)
+sysserial=${sysserial,,}
+sysserial=$(echo $sysserial | base64)
 IFS=$'\n'
 mac="$1"
 web="$2"
@@ -12,7 +18,7 @@ while :; do
     cat /dev/null > $tmpfile 2>/dev/null
     [[ -z $mac ]] && continue
     status=$(echo $status | base64)
-    res=$(curl -Lks --data "sysuuid=${sysuuid}&mac=$mac&status=$status" ${web}service/progress.php 2>/dev/null)
+    res=$(curl -Lks --data "sysuuid=${sysuuid}&mbserial=${mbserial}&sysserial=${sysserial}&mac=${mac}&status=${status}" ${web}service/progress.php 2>/dev/null)
     usleep 3000000
 done
 IFS=$oIFS

@@ -5,9 +5,15 @@ count=0
 res=""
 sysuuid=$(dmidecode -s system-uuid)
 sysuuid=${sysuuid,,}
-dots "Updating Database"
+sysuuid=$(echo $sysuuid | base64)
+mbserial=$(dmidecode -s baseboard-serial-number)
+mbserial=${mbserial,,}
+mbserial=$(echo $mbserial | base64)
+sysserial=$(dmidecode -s system-serial-number)
+sysserial=${sysserial,,}
+sysserial=$(echo $sysserial | base64)
 while [[ $res != "##" ]]; do
-    res=$(curl -Lks --data "sysuuid=${sysuuid}&mac=$mactosend" ${web}service/Post_Wipe.php 2>/dev/null)
+    res=$(curl -Lks --data "sysuuid=${sysuuid}&mbserial=${mbserial}&sysserial=${sysserial}&mac=${mactosend}" ${web}service/Post_Wipe.php 2>/dev/null)
     if [[ $count -ge 10 ]]; then
         echo "Failed"
         debugPause
