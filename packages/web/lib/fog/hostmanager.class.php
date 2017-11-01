@@ -173,7 +173,7 @@ class HostManager extends FOGManagerController
         );
     }
     /**
-     * Returns a single host object based on the passed MACs.
+     * Try to find a unique host object based on MAC addresses.
      *
      * @param array $macs the macs to search for the host
      *
@@ -210,6 +210,149 @@ class HostManager extends FOGManagerController
             }
         }
         self::$Host = new Host(@max($MACHost));
+        return;
+    }
+    /**
+     * Try to find a unique host object based on UUID, system serial and mainboard serial.
+     *
+     * @param string $sysuuid
+     * @param string $sysserial
+     * @param string $mbserial
+     *
+     * @throws Exception
+     *
+     * @return void
+     */
+    public static function getHostByUuidAndSerial($sysuuid, $sysserial, $mbserial)
+    {
+        self::$Host = new Host();
+/* Can probably be removed but will keep this list for now in case we need it.
+        $invalidUuids = array(
+            '00020003-0004-0005-0006-000700080009',
+            '00000000-0000-0000-0000-000000000000',
+//            '00000000-0000-0000-0000-*',
+            '12345678-1234-5678-90AB-CDDEEFAABBCC',
+            'FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF',
+            'FFFFFF00-FFFF-FFFF-FFFF-FFFFFFFFFFFF',
+            'Not Present',
+            'Not Settable'
+        );
+        $invalidMbSerial = array(
+            'Type2 - Board Serial Number',
+            'To be filled by O.E.M.',
+            'Not Applicable',
+            'Default string',
+            'Base Board Serial Number',
+            '.PCIE2' // Acer Phonix BIOS, https://www.driverscloud.com/en/configuration/90329-1/summary
+        );
+        $invalidSysSerial = array(
+            '123456789'
+        );
+*/
+        Route::listem('inventory',
+            'sysuuid',
+            false,
+            array('sysuuid' => $sysuuid, 'sysserial' => $sysserial, 'mbserial' => $mbserial)
+        );
+        $Inventories = json_decode(Route::getData());
+        throw new Exception($Inventories);
+        $Inventories = $Inventories->inventorys;
+        if (count($Inventories) == 1) {
+            self::$Host = new Host($Inventories->hostID);
+            return;
+        }
+        Route::listem('inventory',
+            'sysuuid',
+            false,
+            array('sysuuid' => $sysuuid, 'sysserial' => $sysserial)
+        );
+        $Inventories = json_decode(Route::getData());
+        $Inventories = $Inventories->inventorys;
+        if (count($Inventories) == 1) {
+            self::$Host = new Host($Inventories->hostID);
+            return;
+        }
+        Route::listem('inventory',
+            'sysuuid',
+            false,
+            array('sysuuid' => $sysuuid, 'mbserial' => $mbserial)
+        );
+        $Inventories = json_decode(Route::getData());
+        $Inventories = $Inventories->inventorys;
+        if (count($Inventories) == 1) {
+            self::$Host = new Host($Inventories->hostID);
+            return;
+        }
+        Route::listem('inventory',
+            'sysserial',
+            false,
+            array('sysserial' => $sysserial, 'mbserial' => $mbserial)
+        );
+        $Inventories = json_decode(Route::getData());
+        $Inventories = $Inventories->inventorys;
+        if (count($Inventories) == 1) {
+            self::$Host = new Host($Inventories->hostID);
+            return;
+        }
+        Route::listem('inventory',
+            'sysuuid',
+            false,
+            array('sysuuid' => $sysuuid)
+        );
+        $Inventories = json_decode(Route::getData());
+        $Inventories = $Inventories->inventorys;
+        if (count($Inventories) == 1) {
+            self::$Host = new Host($Inventories->hostID);
+            return;
+        }
+        Route::listem('inventory',
+            'sysserial',
+            false,
+            array('sysserial' => $sysserial)
+        ); 
+        $Inventories = json_decode(Route::getData());
+        $Inventories = $Inventories->inventorys;
+        if (count($Inventories) == 1) {
+            self::$Host = new Host($Inventories->hostID);
+            return;
+        }
+        Route::listem('inventory',
+            'mbserial',
+            false,
+            array('mbserial' => $mbserial)
+        ); 
+        $Inventories = json_decode(Route::getData());
+        $Inventories = $Inventories->inventorys;
+        if (count($Inventories) == 1) {
+            self::$Host = new Host($Inventories->hostID);
+            return;
+        }
+        return;
+    }
+    /**
+     * Try to find a unique host object based on system serial.
+     *
+     * @param string $sysserial
+     *
+     * @throws Exception
+     *
+     * @return void
+     */
+    public static function getHostBySystemSerial($sysserial)
+    {
+        return;
+    }
+    /**
+     * Try to find a unique host object based on mainboard serial.
+     *
+     * @param string $mbserial
+     *
+     * @throws Exception
+     *
+     * @return void
+     */
+    public static function getHostByMainboardserial($mbserial)
+    {
         return;
     }
     /**
