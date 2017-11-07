@@ -1975,6 +1975,7 @@ restorePartitionTablesAndBootLoaders() {
     if [[ $table_type == GPT ]]; then
         dots "Restoring Partition Tables (GPT)"
         restoreGRUB "$disk" "$disk_number" "$imagePath" "true"
+        sgdisk -z $disk >/dev/null 2>&1
         sgdisk -gl $tmpMBR $disk >/dev/null 2>&1
         sgdiskexit="$?"
         if [[ ! $sgdiskexit -eq 0 ]]; then
@@ -2127,7 +2128,7 @@ restorePartition() {
                 [1-2])
                     [[ -f $imagePath ]] && imgpart="$imagePath" || imgpart="$imagePath/d${disk_number}p${part_number}.img*"
                     ;;
-                4|8|50|51)
+                4|8|50|51|99)
                     imgpart="$imagePath/d${disk_number}p${part_number}.img*"
                     ;;
                 [5-7]|9)
