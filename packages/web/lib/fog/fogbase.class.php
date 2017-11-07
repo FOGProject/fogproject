@@ -520,24 +520,25 @@ abstract class FOGBase
         if (!$sysuuid) {
             $sysuuid = filter_input(INPUT_GET, 'sysuuid');
         }
+        $mbserial = filter_input(INPUT_POST, 'mbserial');
+        if (!$mbserial) {
+            $mbserial = filter_input(INPUT_GET, 'mbserial');
+        }
+        $sysserial = filter_input(INPUT_POST, 'sysserial');
+        if (!$sysserial) {
+            $sysserial = filter_input(INPUT_GET, 'sysserial');
+        }
         // If encoded decode and store value
         if ($encoded === true) {
             $mac = base64_decode($mac);
             $sysuuid = base64_decode($sysuuid);
+            $mbserial = base64_decode($mbserial);
+            $sysserial = base64_decode($sysserial);
         }
         // See if we can find the host by system uuid rather than by mac's first.
-        if ($sysuuid) {
-            $Inventory = self::getClass('Inventory')
-                ->set('sysuuid', $sysuuid)
-                ->load('sysuuid');
-            $Host = self::getClass('Inventory')
-                ->set('sysuuid', $sysuuid)
-                ->load('sysuuid')
-                ->getHost();
-            if ($Host->isValid() && !$returnmacs) {
-                self::$Host = $Host;
-                return;
-            }
+        self::getClass('HostManager')->getHostByUuidAndSerial($sysuuid, $mbserial, $sysserial);
+        if (self::$Host->isValid() && !$returnmacs) {
+            return;
         }
         // Trim the mac list.
         $mac = trim($mac);

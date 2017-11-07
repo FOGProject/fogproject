@@ -213,6 +213,90 @@ class HostManager extends FOGManagerController
         return;
     }
     /**
+     * Try to find a unique host object based on UUID, system serial and mainboard serial.
+     *
+     * @param string $sysuuid
+     * @param string $sysserial
+     * @param string $mbserial
+     *
+     * @throws Exception
+     *
+     * @return void
+     */
+    public static function getHostByUuidAndSerial($sysuuid, $mbserial, $sysserial)
+    {
+        self::$Host = new Host();
+/* Can probably be removed but will keep this list for now in case we need it.
+        $invalidUuids = array(
+            '00020003-0004-0005-0006-000700080009',
+            '00000000-0000-0000-0000-000000000000',
+//            '00000000-0000-0000-0000-*',
+            '12345678-1234-5678-90AB-CDDEEFAABBCC',
+            'FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF',
+            'FFFFFF00-FFFF-FFFF-FFFF-FFFFFFFFFFFF',
+            'Not Present',
+            'Not Settable'
+        );
+        $invalidMbSerial = array(
+            'Type2 - Board Serial Number',
+            'To be filled by O.E.M.',
+            'Not Applicable',
+            'Default string',
+            'Base Board Serial Number',
+            '.PCIE2' // Acer Phonix BIOS, https://www.driverscloud.com/en/configuration/90329-1/summary
+        );
+        $invalidSysSerial = array(
+            '123456789'
+        );
+*/
+
+        $filter = array();
+        if (strlen($sysuuid) != 0) {
+            $filter['sysuuid'] = $sysuuid;
+        }
+        if (strlen($mbserial) != 0) {
+            $filter['mbserial'] = $mbserial;
+        }
+        if (strlen($sysserial) != 0) {
+            $filter['sysserial'] = $sysserial;
+        }
+        if (empty($filter)) {
+            return;
+        }
+        Route::listem('inventory', 'id', false, $filter, 'OR');
+        $Inventories = json_decode(Route::getData());
+        $Inventories = $Inventories->inventorys;
+        if (count($Inventories) < 1) {
+            return;
+        }
+        if (count($Inventories) == 1) {
+            self::$Host = new Host($Inventories[0]->hostID);
+            return;
+        }
+        $highestScore = 0;
+        foreach ($Inventories as &$Inventory) {
+            $inventoryCompare = array();
+            if (strlen($Inventory->sysuuid) != 0) {
+                $inventoryCompare['sysuuid'] = $Inventory->sysuuid;
+            }
+            if (strlen($Inventory->mbserial) != 0) {
+                $inventoryCompare['mbserial'] = $Inventory->mbserial;
+            }
+            if (strlen($Inventory->sysserial) != 0) {
+                $inventoryCompare['sysserial'] = $Inventory->sysserial;
+            }
+            $score = count(array_intersect($inventoryCompare, $filter));
+            if ($score > $highestScore) {
+                $highestScore = $score;
+                $hostID = $Inventory->hostID;
+            }
+        }
+        if (is_numeric($hostID)) {
+            self::$Host = new Host($hostID);
+        }
+        return;
+    }
+    /**
      * Removes fields.
      *
      * Customized for hosts
