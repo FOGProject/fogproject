@@ -130,7 +130,7 @@ class FOGConfigurationPage extends FOGPage
                 ),
                 FILTER_SANITIZE_URL
             );
-            $test = self::$FOGURLRequests->isAvailable($url);
+            $test = self::$FOGURLRequests->isAvailable($StorageNode->ip);
             $test = array_shift($test);
             if (!$test) {
                 continue;
@@ -205,11 +205,6 @@ class FOGConfigurationPage extends FOGPage
     public function kernelUpdate()
     {
         $url = 'https://fogproject.org/kernels/kernelupdate_bootstrap.php';
-        $test = self::$FOGURLRequests->isAvailable($url);
-        $test = array_shift($test);
-        if (false === $test) {
-            return print _('Unable to contact server');
-        }
         $htmlData = self::$FOGURLRequests->process($url);
         echo '<div class="col-xs-9">';
         echo '<div class="panel panel-info">';
@@ -2042,6 +2037,7 @@ class FOGConfigurationPage extends FOGPage
             'SNAPINREPLICATORGLOBALENABLED',
             'SNAPINHASHGLOBALENABLED',
             'FOG_QUICKREG_IMG_WHEN_REG',
+            'FOG_QUICKREG_PROD_KEY_BIOS',
             'FOG_TASKING_ADV_SHUTDOWN_ENABLED',
             'FOG_TASKING_ADV_WOL_ENABLED',
             'FOG_TASKING_ADV_DEBUG_ENABLED',
@@ -2635,6 +2631,7 @@ class FOGConfigurationPage extends FOGPage
                 (array)0,
                 self::getSubObjectIDs('Group')
             ),
+            'FOG_QUICKREG_PROD_KEY_BIOS' => $checkbox,
             // FOG Service
             'FOG_CLIENT_CHECKIN_TIME' => true,
             'FOG_CLIENT_MAXSIZE' => true,

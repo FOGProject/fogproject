@@ -30,6 +30,7 @@ class TaskQueue extends TaskingElement
     public function checkIn()
     {
         try {
+            self::randWait();
             $this->Task
                 ->set('stateID', self::getCheckedInState())
                 ->set('checkinTime', self::formatTime('now', 'Y-m-d H:i:s'))
@@ -390,6 +391,7 @@ class TaskQueue extends TaskingElement
      */
     public function checkout()
     {
+        self::randWait();
         if ($this->Task->isSnapinTasking()) {
             die('##');
         }

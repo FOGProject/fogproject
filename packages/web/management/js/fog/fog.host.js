@@ -60,5 +60,5 @@
             }
         }
     };
-    setupTimeoutElement('#delete, #process, #host-add, #all, #pmsubmit, #pmupdate, #pmdelete, #updategen, #levelup, #updateprinters, #defaultsel, #printdel, #updatesnapins, #snapdel, #updatestatus, #updatedisplay, #updatealo, #updateinv, #host-edit', '.hostname-input, .macaddr', 1000);
+    setupTimeoutElement('#approvependhost, #delete, #process, #host-add, #all, #pmsubmit, #pmupdate, #pmdelete, #updategen, #levelup, #updateprinters, #defaultsel, #printdel, #updatesnapins, #snapdel, #updatestatus, #updatedisplay, #updatealo, #updateinv, #host-edit', '.hostname-input, .macaddr', 1000);
 })(jQuery);

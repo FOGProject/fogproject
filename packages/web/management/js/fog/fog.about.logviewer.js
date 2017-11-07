@@ -37,6 +37,8 @@ function LogGetData() {
     if ($('#logpause').hasClass('activenow')) {
         return;
     }
+    LogToView = $('#logToView').val();
+    LinesToView = $('#linesToView').val();
     splitUs = LogToView.split('||');
     ip = splitUs[0];
     file = splitUs[1];

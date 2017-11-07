@@ -118,10 +118,7 @@ class DashboardPage extends FOGPage
                 $url
             );
             $url = self::$httpproto.'://' . $url;
-            $testurls[] = sprintf(
-                '%smanagement/index.php',
-                $url
-            );
+            $testurls[] = $ip;
             unset($ip);
             self::$_nodeOpts[] = sprintf(
                 '<option value="%s" urlcall="%s">%s%s ()</option>',

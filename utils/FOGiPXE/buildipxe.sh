@@ -4,7 +4,7 @@ IPXEGIT="https://git.ipxe.org/ipxe.git"
 
 # Change directory to base ipxe files
 SCRIPT=$(readlink -f "$BASH_SOURCE")
-BASE=$(dirname $(dirname $(dirname "$SCRIPT") ) )
+BASE=$(dirname $(dirname $(dirname $(dirname "$SCRIPT") ) ) )
 
 if [[ -d ${BASE}/ipxe ]]; then
   cd ${BASE}/ipxe
