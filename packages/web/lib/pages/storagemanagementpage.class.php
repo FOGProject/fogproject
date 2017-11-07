@@ -536,10 +536,12 @@ class StorageManagementPage extends FOGPage
             if (empty($pass)) {
                 throw new Exception(self::$foglang['StoragePassRequired']);
             }
-            if (is_numeric($bandwidth) && $bandwidth < 1) {
-                throw new Exception(
-                    _('Bandwidth should be numeric and greater than 0')
-                );
+            if (is_numeric($bandwidth)) {
+                if ($bandwidth < 0) {
+                    throw new Exception(
+                        _('Bandwidth should be numeric and greater than 0')
+                    );
+                }
             } else {
                 $bandwidth = '';
             }
@@ -913,10 +915,12 @@ class StorageManagementPage extends FOGPage
             if (!$pass) {
                 throw new Exception(self::$foglang['StoragePassRequired']);
             }
-            if (is_numeric($bandwidth) && $bandwidth < 1) {
-                throw new Exception(
-                    _('Bandwidth should be numeric and greater than 0')
-                );
+            if (is_numeric($bandwidth)) {
+                if ($bandwidth < 0) {
+                    throw new Exception(
+                        _('Bandwidth should be numeric and greater than 0')
+                    );
+                }
             } else {
                 $bandwidth = '';
             }

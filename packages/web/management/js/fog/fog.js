@@ -547,10 +547,11 @@ $.fn.fogVariable = function(opts) {
         templateResult: format,
         templateSelection: format
     });
-    $('#scheduledSingTime').datetimepicker({
+    $('#scheduleSingleTime').datetimepicker({
         dateFormat: 'yy/mm/dd',
         timeFormat: 'HH:mm'
     });
+    specialCrons();
     $('#checkAll').on('click', function(e) {
         selectAll = this.checked;
         $('.checkboxes').each(function(f) {

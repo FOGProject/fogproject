@@ -253,12 +253,29 @@ expandPartition() {
     debugPause
     runPartprobe "$disk"
 }
+# Check if partition is bitlocked
+#
+# Bitlocker To Go GUIDs (we probably never need those but as I spend time
+# to understand those are in RAW mode I'll leave them in the code for now):
+# 3bd66749292ed84a8399f6a339e3d001 - INFORMATION_OFFSET_GUID
+# 3b4da89280dd0e4d9e4eb1e3284eaed8 - EOW_INFORMATION_OFFSET_GUID
+#
+# $1 is the partition
+isBitlockedPartition() {
+    local part="$1"
+    [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    local is_bitlocked=$(dd if=$part bs=512 count=1 2>&1 | grep -ie '-FVE-FS-')
+    if [[ -n $is_bitlocked ]]; then
+        handleError "Found bitlocker signature in partition $part header. Please disable BITLOCKER before capturing an image. (${FUNCNAME[0]})\n   Args Passed: $*"
+    fi
+}
 # Gets the filesystem type of the partition passed
 #
 # $1 is the partition
 fsTypeSetting() {
     local part="$1"
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})\n   Args Passed: $*"
+    isBitlockedPartition $part
     local blk_fs=$(blkid -po udev $part | awk -F= /FS_TYPE=/'{print $2}')
     case $blk_fs in
         btrfs)
@@ -462,7 +479,7 @@ shrinkPartition() {
                 debugPause
                 return
             fi
-            if [[ $label =~ [Rr][Ee][Ss][Ee][Rr][Vv][Ee][Dd] ]]; then
+            if [[ $label =~ [Rr][Ee][Ss][Ee][Rr][Vv][Ee][Dd] || $label =~ [Rr][Éé][Ss][Éé][Rr][Vv][Éé] ]]; then
                 echo "$(cat "$imagePath/d1.fixed_size_partitions" | tr -d \\0):${part_number}" > "$imagePath/d1.fixed_size_partitions"
                 echo " * Not shrinking ($part) reserved partitions"
                 debugPause
@@ -1643,7 +1660,7 @@ saveGRUB() {
     fi
     # Ensure that no more than 1MiB of data is copied (already have this size used elsewhere)
     [[ $count -gt 2048 ]] && count=2048
-    [[ $count -eq 63 ]] && count=1
+    [[ $count -eq 8 || $count -eq 63 ]] && count=1
     local mbrfilename=""
     MBRFileName "$imagePath" "$disk_number" "mbrfilename" "$sgdisk"
     dd if=$disk of=$mbrfilename count=$count bs=512 >/dev/null 2>&1
@@ -1692,7 +1709,8 @@ restoreGRUB() {
     local tmpMBR=""
     MBRFileName "$imagePath" "$disk_number" "tmpMBR" "$sgdisk"
     local count=$(du -B 512 $tmpMBR | awk '{print $1}')
-    [[ $count -eq 8 ]] && count=1
+    [[ $count -eq 8 || $count -eq 63 ]] && count=1
+    sgdisk -z $disk >/dev/null 2>&1
     dd if=$tmpMBR of=$disk bs=512 count=$count >/dev/null 2>&1
     runPartprobe "$disk"
 }
@@ -2110,7 +2128,7 @@ restorePartition() {
                 [1-2])
                     [[ -f $imagePath ]] && imgpart="$imagePath" || imgpart="$imagePath/d${disk_number}p${part_number}.img*"
                     ;;
-                4|8|50|51)
+                4|8|50|51|99)
                     imgpart="$imagePath/d${disk_number}p${part_number}.img*"
                     ;;
                 [5-7]|9)
