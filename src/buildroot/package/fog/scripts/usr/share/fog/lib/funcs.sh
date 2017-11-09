@@ -1710,7 +1710,6 @@ restoreGRUB() {
     MBRFileName "$imagePath" "$disk_number" "tmpMBR" "$sgdisk"
     local count=$(du -B 512 $tmpMBR | awk '{print $1}')
     [[ $count -eq 8 || $count -eq 63 ]] && count=1
-    sgdisk -z $disk >/dev/null 2>&1
     dd if=$tmpMBR of=$disk bs=512 count=$count >/dev/null 2>&1
     runPartprobe "$disk"
 }
@@ -1976,6 +1975,7 @@ restorePartitionTablesAndBootLoaders() {
     if [[ $table_type == GPT ]]; then
         dots "Restoring Partition Tables (GPT)"
         restoreGRUB "$disk" "$disk_number" "$imagePath" "true"
+        sgdisk -z $disk >/dev/null 2>&1
         sgdisk -gl $tmpMBR $disk >/dev/null 2>&1
         sgdiskexit="$?"
         if [[ ! $sgdiskexit -eq 0 ]]; then
