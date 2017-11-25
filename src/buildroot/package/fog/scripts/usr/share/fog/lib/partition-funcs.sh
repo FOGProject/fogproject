@@ -358,7 +358,7 @@ makeSwapSystem() {
     hasGPT "$disk"
     case $hasgpt in
         1)
-            parttype=82
+            [[ -n $uuid ]] && parttype=82
             ;;
         0)
             parttype=$(sfdisk -d $disk 2>/dev/null | awk -F[,=] "/^$escape_part/{print \$6}")
