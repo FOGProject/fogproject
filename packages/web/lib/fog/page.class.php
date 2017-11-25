@@ -110,11 +110,11 @@ class Page extends FOGBase
             ->addCSS('bower_components/bootstrap/dist/css/bootstrap.min.css')
             ->addCSS('bower_components/font-awesome/css/font-awesome.min.css')
             ->addCSS('bower_components/Ionicons/css/ionicons.min.css')
-            ->addCSS('dist/css/AdminLTE.min.css')
             ->addCSS('plugins/iCheck/square/blue.css')
             ->addCSS('bower_components/select2/dist/css/select2.min.css')
             ->addCSS('dist/css/AdminLTE.min.css')
-            ->addCSS('dist/css/skins/skin-blue.min.css');
+            ->addCSS('dist/css/skins/_all-skins.min.css')
+            ->addCSS('dist/css/font.css');            
         if (!isset($node)
             || !$node
         ) {
@@ -234,26 +234,53 @@ class Page extends FOGBase
                         $node = $link;
                     }
                     $activelink = ($node == $link);
-                    echo '<li'
-                        . (
-                            $activelink ?
-                            ' class="active"' :
-                            ''
-                        )
-                        . '>';
-                    echo '<a href="?node='
-                        . $link
-                        . '" data-toggle="tooltip" title="'
-                        . $title[0]
-                        . '" data-placement="bottom">';
-                    echo '<i class="'
-                        . $title[1]
-                        . ' fa-2x fa-fw"></i>';
-                    echo '<span class="collapsedmenu-text">';
-                    echo ' ';
-                    echo $title[0];
+                    $oldNode = $node;
+                    global $node;
+                    $node = $link;
+                    $subItems = array_filter(
+                        FOGPage::buildSubMenuItems($link)
+                    );
+                    $node = $oldNode;
+                    echo '<li class="';
+                    echo (
+                        count($subItems) > 0 ?
+                        'treeview ' :
+                        ''
+                    );
+                    echo (
+                        $activelink ?
+                        'active' :
+                        ''
+                    );
+                    echo '">';
+                    echo '  <a href="';
+                    echo (
+                        count($subItems) > 0 ?
+                        '#' :
+                        '?node=' . $link
+                    );
+                    echo '">';
+                    echo '      <i class="' . $title[1] . '"></i> ';
+                    echo '<span>' . $title[0] . '</span>';
+                    echo '<span class="pull-right-container">';
+                    echo '    <i class="fa fa-angle-left pull-right"></i>';
                     echo '</span>';
                     echo '</a>';
+                    if (count($subItems) > 0) {
+                        echo '<ul class="treeview-menu">';
+                        foreach ($subItems as $sub => $text) {
+                            echo '<li><a href="../management/index.php?node=';
+                            echo $link;
+                            echo '&sub=';
+                            echo $sub;
+                            echo '">';
+                            echo '<i class="fa fa-circle-o"></i>';
+                            echo $text;
+                            echo '</a>';
+                            echo '</li>';
+                        }
+                        echo '</ul>';
+                    }
                     echo '</li>';
                     unset($title);
                 }
@@ -262,7 +289,7 @@ class Page extends FOGBase
         }
         $files = array(
             'bower_components/jquery/dist/jquery.min.js',
-            'js/bower_components/bootstrap/dist/js/bootstrap.min.js',
+            'bower_components/bootstrap/dist/js/bootstrap.min.js',
             'plugins/iCheck/icheck.min.js',
             'bower_components/select2/dist/js/select2.full.min.js',
             'plugins/input-mask/jquery.inputmask.js',
@@ -301,8 +328,8 @@ class Page extends FOGBase
                 }
                 unset($jsFilepath);
             },
-            (array)$filepaths
-        );
+                (array)$filepaths
+            );
         $pluginfilepaths = array(
             "../lib/plugins/{$node}/js/fog.{$node}.js",
             "../lib/plugins/{$node}/js/fog.{$node}.{$subset}.js",
@@ -314,8 +341,8 @@ class Page extends FOGBase
                 }
                 unset($pluginfilepath);
             },
-            (array)$pluginfilepaths
-        );
+                (array)$pluginfilepaths
+            );
         if ($this->isHomepage
             && ($node == 'home'
             || !$node)
@@ -343,8 +370,8 @@ class Page extends FOGBase
                 }
                 unset($path);
             },
-            (array)$files
-        );
+                (array)$files
+            );
     }
     /**
      * Sets the title
@@ -506,13 +533,19 @@ class Page extends FOGBase
     /**
      * Get main side menu items.
      *
+     * @param string $node Override main side menu
+     * @param string $sub Override main sub side menu
+     *
      * @return void
      */
-    public static function getMainSideMenu()
+    public static function getMainSideMenu($node = 'home', $sub = '')
     {
-        global $node;
-        global $sub;
-        $class = self::$FOGPageManager->getFOGPageClass();
+        echo '<!-- ' . $node . 'Woot -->';
+        if (empty($node)) {
+            $node = 'home';
+        }
+        $class = self::$FOGPageManager->getFOGPageClass($node);
+        echo '<!-- ' . $class->menu . ' -->';
         if (count($class->menu) < 1) {
             return;
         }

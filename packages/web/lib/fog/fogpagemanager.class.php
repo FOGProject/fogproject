@@ -86,11 +86,16 @@ class FOGPageManager extends FOGBase
     /**
      * Gets the page class
      *
+     * @param string $override The sting to use in case.
+     *
      * @return object
      */
-    public function getFOGPageClass()
+    public function getFOGPageClass($override = '')
     {
-        return $this->_nodes[$this->classValue];
+	if (empty($override)) {
+		$override = $this->classValue;
+	}
+        return $this->_nodes[$override];
     }
     /**
      * Gets the name of the page

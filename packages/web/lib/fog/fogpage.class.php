@@ -94,7 +94,7 @@ abstract class FOGPage extends FOGBase
      *
      * @var array
      */
-    protected $PagesWithObjects = array(
+    public static $PagesWithObjects = array(
         'user',
         'host',
         'image',
@@ -383,25 +383,42 @@ abstract class FOGPage extends FOGBase
             _('Chassis Serial') => 'caseser',
             _('Chassis Asset') => 'caseasset',
         );
-        $this->menu = array(
+        self::$HookManager->processEvent(
+            'SEARCH_PAGES',
+            array('searchPages' => &self::$searchPages)
+        );
+        //$this->menu = self::buildSubMenuItems($node);
+    }
+    /**
+     * Creates the sub menu items.
+     *
+     * @param string $node The node to "append"
+     *
+     * @return array
+     */
+    public static function buildSubMenuItems($refNode = '')
+    {
+        $refNode = ucfirst($refNode);
+        $refNode = _($refNode);
+        $menu = array(
             'list' => sprintf(
                 self::$foglang['ListAll'],
                 _(
                     sprintf(
                         '%ss',
-                        $this->childClass
+                        $refNode
                     )
                 )
             ),
             'add' => sprintf(
                 self::$foglang['CreateNew'],
-                _($this->childClass)
+                $refNode
             ),
             'export' => sprintf(
                 self::$foglang[
                     sprintf(
                         'Export%s',
-                        $this->childClass
+                        $refNode
                     )
                 ]
             ),
@@ -409,12 +426,12 @@ abstract class FOGPage extends FOGBase
                 self::$foglang[
                     sprintf(
                         'Import%s',
-                        $this->childClass
+                        $refNode
                     )
                 ]
             ),
         );
-        $this->fieldsToData = function (&$input, &$field) {
+        /*$this->fieldsToData = function (&$input, &$field) {
             $this->data[] = array(
                 'field' => $field,
                 'input' => $input,
@@ -450,20 +467,16 @@ abstract class FOGPage extends FOGBase
         if ($tabstr) {
             $formstr .= $tabstr;
         }
-        $this->formAction = $formstr;
-        self::$HookManager->processEvent(
-            'SEARCH_PAGES',
-            array('searchPages' => &self::$searchPages)
-        );
+        $this->formAction = $formstr;*/
+        //var_dump($menu);
         self::$HookManager->processEvent(
             'SUB_MENULINK_DATA',
             array(
-                'menu' => &$this->menu,
-                'submenu' => &$this->subMenu,
-                'id' => &$this->id,
-                'notes' => &$this->notes
+                'menu' => &$menu
             )
         );
+        //var_dump($menu);
+        return $menu;
     }
     /**
      * Page default index

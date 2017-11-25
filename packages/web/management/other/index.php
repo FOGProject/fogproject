@@ -28,13 +28,6 @@ echo '<meta charset="utf-8"/>';
 echo '<meta http-equiv="X-UA-Compatible" content="IE=edge"/>';
 echo '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport"/>';
 echo '<title>' . $this->title . '</title>';
-echo '<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->';
-echo '<!--[if lt IE 9]>';
-echo '<script src="dist/js/html5shiv.min.js"></script>';
-echo '<script src="dist/js/respond.min.js"></script>';
-echo '<![endif]-->';
-echo '<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">';
-
 
 self::$HookManager
     ->processEvent(
@@ -51,107 +44,96 @@ foreach ((array)$this->stylesheets as &$stylesheet) {
         . '" rel="stylesheet" type="text/css"/>';
     unset($stylesheet);
 }
+
+echo '<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->';
+echo '<!--[if lt IE 9]>';
+echo '<script src="dist/js/html5shiv.min.js"></script>';
+echo '<script src="dist/js/respond.min.js"></script>';
+echo '<![endif]-->';
+
 unset($this->stylesheets);
 echo '</head>';
 echo '<body class="';
 if (!self::$FOGUser->isValid())
     echo 'hold-transition login-page';
+else
+echo 'hold-transition skin-blue sidebar-mini';
 echo '">';
 
 if (self::$FOGUser->isValid()) {
-    /**
-     * Navigation items
-     */
-    echo '<nav class="navbar navbar-inverse navbar-fixed-top">';
-    echo '<div class="container-fluid">';
-    echo '<div class="navbar-header">';
-    echo '<button type="button" class="navbar-toggle collapsed" data-toggle="'
-        . 'collapse" data-target=".navbar-collapse">';
-    echo '<span class="sr-only">'
-        . _('Toggle Navigation')
-        . '</span>';
-    echo '<span class="icon-bar"></span>';
-    echo '<span class="icon-bar"></span>';
-    echo '<span class="icon-bar"></span>';
-    echo '</button>';
-    echo '<a class="navbar-brand" href="../management/index.php?node=home">';
-    echo '<img src="../favicon.ico" alt="'
-        . self::$foglang['Slogan']
-        . '" data-toggle="tooltip" data-placement="bottom" title="'
-        . self::$foglang['Home']
-        . '" class="logoimg"/>';
-    echo '</a>';
-    echo '<span class="nav-text version-info pull-left">';
-    printf(
-        '%s %s<br/>%s: %d<br/>',
-        _('Running Version'),
-        FOG_VERSION,
-        _('SVN Revision'),
-        FOG_SVN_REVISION
-    );
-    echo '<span id="showtime">'
-        . FOGCore::formatTime(
-            'Now',
-            'M d, Y G:i a'
-        )
-        . '</span>';
-    echo '</span>';
-    echo '</div>';
-    echo '<div class="collapse navbar-collapse">';
-    echo '<ul class="nav navbar-nav">';
-    self::getSearchForm();
+
+    echo '<div class="wrapper">';
+    
+    // HEADER
+    echo '  <header class="main-header">';
+    echo '      <a href="./index.php" class="logo">';
+    echo '          <span class="logo-mini"><b>FOG</b></span>';
+    echo '          <span class="logo-lg"><b>FOG</b> Project</span>';
+    echo '      </a>';
+    echo '      <nav class="navbar navbar-static-top">';
+    echo '          <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">';
+    echo '              <span class="sr-only">Toggle navigation</span>';
+    echo '              <span class="icon-bar"></span>';
+    echo '              <span class="icon-bar"></span>';
+    echo '              <span class="icon-bar"></span>';
+    echo '          </a>';
+    echo '          <div class="navbar-custom-menu">';
+    echo '              <ul class="nav navbar-nav">';
+    echo '                  <li>';
+    echo '                       <a href="../management/index.php?node=logout"><i class="fa fa-sign-out"></i> Logout</a>';
+    echo '                  </li>';
+    echo '              </ul>';
+    echo '          </div>';
+    echo '      </nav>';
+    echo '  </header>';
+
+    // NAVBAR
+    echo '  <aside class="main-sidebar">';
+    echo '      <section class="sidebar">';
+    echo '          <div class="user-panel">';
+    echo '              <div class="pull-left image">';
+    echo '                  <img src="dist/img/user2-160x160.jpg" class="img-circle" alt="User Image">';
+    echo '              </div>';
+    echo '              <div class="pull-left info">';
+    echo '                  <p>' . trim(self::$FOGUser->get('name')) . '</p>';
+    echo '                  <a href="#"><i class="fa fa-circle text-success"></i> Online</a>';
+    echo '              </div>';
+    echo '          </div>';
+    echo '          <ul class="sidebar-menu" data-widget="tree">';
+    echo '              <li class="header">MAIN NAVIGATION</li>';
     echo $this->menu;
-    self::getLogout();
-    echo '</ul>';
-    echo '</div>';
-    echo '</div>';
-    echo '</nav>';
-    self::$HookManager
-        ->processEvent(
-            'CONTENT_DISPLAY',
-            array(
-                'content' => &$this->body,
-                'sectionTitle' => &$this->sectionTitle,
-                'pageTitle' => &$this->pageTitle
-            )
-        );
-    /**
-     * Main Content
-     */
-    echo '<div class="container-fluid'
-        . (
-            $this->isHomepage ?
-            ' dashboard' :
-            ''
-        )
-        . '">';
-    echo '<div class="panel panel-primary">';
-    echo '<div class="panel-heading text-center">';
-    echo '<h4 class="title">'
-        . $this->sectionTitle
-        . '</h4>';
-    if (self::$FOGUser->isValid && $this->pageTitle) {
-        echo '<h5 class="title">'
-            . $this->pageTitle
-            . '</h5>';
-    }
-    echo '</div>';
-    echo '<input type="hidden" class="fog-delete" id="FOGDeleteAuth" value="'
-        . (int)self::$fogdeleteactive
-        . '"/>';
-    echo '<input type="hidden" class="fog-export" id="FOGExportAuth" value="'
-        . (int)self::$fogexportactive
-        . '"/>';
-    echo '<input type="hidden" class="fog-variable" id="screenview" value="'
-        . self::$defaultscreen
-        . '"/>';
-    echo '<div class="panel-body">';
-    self::getMenuItems();
-    self::getMainSideMenu();
+    echo '              <li class="header">RESOURCES</li>';
+    echo '              <li><a href="https://sourceforge.net/donate/index.php?group_id=201099"><i class="fa fa-money"></i> <span>Donate</span></a></li>';    
+    echo '              <li><a href="https://news.fogproject.org"><i class="fa fa-bullhorn"></i> <span>News</span></a></li>';
+    echo '              <li><a href="https://forums.fogproject.org"><i class="fa fa-users"></i> <span>Forums</span></a></li>';
+    echo '              <li><a href="https://wiki.fogproject.org"><i class="fa fa-book"></i> <span>Wiki</span></a></li>';
+    echo '          </ul>';
+    echo '      </section>';
+    echo '  </aside>';
+
+    // BODY
+    echo '  <div class="content-wrapper">';
+    echo '      <section class="content-header">';
+    echo '          <h1>';
+    echo $this->sectionTitle;
+
+    echo '              <small>' . $this->pageTitle . '</small>';
+    echo '          </h1>';
+    echo '      </section>';
+    echo '      <section class="content">';
     echo $this->body;
+    echo '      </section>';
+    echo '  </div>';
+
+    // FOOTER
+    echo '  <footer class="main-footer">';
+    echo '      <div class="pull-right hidden-xs">';
+    echo '          <b>Version</b> ' . FOG_VERSION;
+    echo '      </div>';
+    echo '      <strong>Copyright &copy; 2012-2017 <a href="https://fogproject.org">FOG Project</a>.</strong> All rights reserved.';
+    echo '  </footer>';
     echo '</div>';
-    echo '</div>';
-    echo '</div>';
+    
 } else {
     echo $this->body;
 }
