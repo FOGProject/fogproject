@@ -76,6 +76,13 @@ class AddPushbulletMenuItem extends Hook
                     $this,
                     'addPageWithObject'
                 )
+            )
+            ->register(
+                'SUB_MENULINK_DATA',
+                array(
+                    $this,
+                    'alterSubMenu'
+                )
             );
     }
     /**
@@ -100,6 +107,22 @@ class AddPushbulletMenuItem extends Hook
             )
         );
     }
+
+    public function alterSubMenu($arguments)
+    {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
+            return;
+        }
+        $arguments['menu'] = array(
+            'list' => sprintf(
+                self::$foglang['ListAll'],
+                 _('Pushbullet Accounts')
+            ),
+            'add' => _('Link Pushbullet Account'),
+
+        );
+    }
+
     /**
      * Inserts the pages with objects element
      *
