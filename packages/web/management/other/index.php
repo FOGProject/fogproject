@@ -26,8 +26,16 @@ echo '<html lang="'
 echo '<head>';
 echo '<meta charset="utf-8"/>';
 echo '<meta http-equiv="X-UA-Compatible" content="IE=edge"/>';
-echo '<meta name="viewport" content="width=device-width, initial-scale=1"/>';
+echo '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport"/>';
 echo '<title>' . $this->title . '</title>';
+echo '<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->';
+echo '<!--[if lt IE 9]>';
+echo '<script src="dist/js/html5shiv.min.js"></script>';
+echo '<script src="dist/js/respond.min.js"></script>';
+echo '<![endif]-->';
+echo '<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">';
+
+
 self::$HookManager
     ->processEvent(
         'CSS',
@@ -44,9 +52,12 @@ foreach ((array)$this->stylesheets as &$stylesheet) {
     unset($stylesheet);
 }
 unset($this->stylesheets);
-echo '<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon"/>';
 echo '</head>';
-echo '<body>';
+echo '<body class="';
+if (!self::$FOGUser->isValid())
+    echo 'hold-transition login-page';
+echo '">';
+
 if (self::$FOGUser->isValid()) {
     /**
      * Navigation items
@@ -142,67 +153,9 @@ if (self::$FOGUser->isValid()) {
     echo '</div>';
     echo '</div>';
 } else {
-    echo '<nav class="navbar navbar-inverse navbar-fixed-top">';
-    echo '<div class="container-fluid">';
-    echo '<div class="navbar-header">';
-    echo '<button type="button" class="navbar-toggle collapsed" data-toggle="'
-        . 'collapse" data-target=".navbar-collapse">';
-    echo '<span class="sr-only">'
-        . _('Toggle Navigation')
-        . '</span>';
-    echo '<span class="icon-bar"></span>';
-    echo '<span class="icon-bar"></span>';
-    echo '<span class="icon-bar"></span>';
-    echo '</button>';
-    echo '<a class="navbar-brand" href="../management/index.php?node=home">';
-    echo '<img src="../favicon.ico" alt="'
-        . self::$foglang['Slogan']
-        . '" data-toggle="tooltip" data-placement="bottom" title="'
-        . self::$foglang['Home']
-        . '" class="logoimg"/>';
-    echo '</a>';
-    echo '</div>';
-    echo '<div class="collapse navbar-collapse">';
-    echo '<ul class="nav navbar-nav">';
-    self::getLogout();
-    echo '</ul>';
-    echo '</div>';
-    echo '</div>';
-    echo '</nav>';
-    /**
-     * Main Content
-     */
-    echo '<div class="container-fluid'
-        . (
-            $this->isHomepage ?
-            ' dashboard' :
-            ''
-        )
-        . '">';
     echo $this->body;
-    echo '</div>';
 }
-echo '<div class="collapse navbar-collapse">';
-echo '<footer class="footer">';
-echo '<nav class="navbar navbar-inverse navbar-fixed-bottom">';
-echo '<div class="container-fluid">';
-echo '<ul class="nav navbar-nav">';
-echo '<li><a href="https://wiki.fogproject.org/wiki/index.php?title=Credits">'
-    . _('Credits')
-    . '</a></li>';
-echo '<li><a href="?node=client">'
-    . _('FOG Client')
-    . '</a></li>';
-echo '<li><a href="https://www.paypal.com/cgi-bin/webscr?item_name=Donation'
-    . '+to+FOG+-+A+Free+Cloning+Solution&cmd=_donations&business=fogproject.org'
-    . '@gmail.com">'
-    . _('Donate to FOG')
-    . '</a></li>';
-echo '</ul>';
-echo '</div>';
-echo '</nav>';
-echo '</footer>';
-echo '</div>';
+
 foreach ((array)$this->javascripts as &$javascript) {
     echo '<script src="'
         . $javascript

@@ -107,19 +107,14 @@ class Page extends FOGBase
             }
         }
         $this
-            ->addCSS('css/animate.min.css')
-            ->addCSS('css/font-awesome.min.css')
-            ->addCSS('css/jquery-ui.css')
-            ->addCSS('css/jquery-ui.theme.css')
-            ->addCSS('css/jquery-ui.structure.css')
-            ->addCSS('css/jquery-ui-timepicker-addon.css')
-            ->addCSS('css/select2.min.css')
-            ->addCSS('css/bootstrap.min.css')
-            ->addCSS('css/bootstrap-theme.min.css')
-            ->addCSS('css/theme.bootstrap_3.css')
-            ->addCSS('css/theme.blue.css')
-            ->addCSS('css/bootstrap-dialog.min.css')
-            ->addCSS($dispTheme);
+            ->addCSS('bower_components/bootstrap/dist/css/bootstrap.min.css')
+            ->addCSS('bower_components/font-awesome/css/font-awesome.min.css')
+            ->addCSS('bower_components/Ionicons/css/ionicons.min.css')
+            ->addCSS('dist/css/AdminLTE.min.css')
+            ->addCSS('plugins/iCheck/square/blue.css')
+            ->addCSS('bower_components/select2/dist/css/select2.min.css')
+            ->addCSS('dist/css/AdminLTE.min.css')
+            ->addCSS('dist/css/skins/skin-blue.min.css');
         if (!isset($node)
             || !$node
         ) {
@@ -266,27 +261,16 @@ class Page extends FOGBase
             $this->menu = ob_get_clean();
         }
         $files = array(
-            'js/jquery-latest.min.js',
-            'js/jquery.validate.min.js',
-            'js/additional-methods.min.js',
-            'js/jquery.tablesorter.combined.js',
-            'js/select2.min.js',
-            'js/jquery-migrate-latest.min.js',
-            'js/jquery.progressbar.js',
-            'js/jquery.tmpl.js',
-            'js/jquery.placeholder.js',
-            'js/jquery-ui.min.js',
-            'js/flot/jquery.flot.js',
-            'js/flot/jquery.flot.time.js',
-            'js/flot/jquery.flot.pie.js',
-            'js/flot/jquery.flot.JUMlib.js',
-            'js/flot/jquery.flot.gantt.js',
-            'js/jquery-ui-timepicker-addon.js',
-            'js/bootstrap.min.js',
-            'js/bootstrap-dialog.min.js',
-            'js/fog/fog.js',
-            'js/fog/fog.main.js',
-            'js/jscolor.min.js'
+            'bower_components/jquery/dist/jquery.min.js',
+            'js/bower_components/bootstrap/dist/js/bootstrap.min.js',
+            'plugins/iCheck/icheck.min.js',
+            'bower_components/select2/dist/js/select2.full.min.js',
+            'plugins/input-mask/jquery.inputmask.js',
+            'plugins/input-mask/jquery.inputmask.date.extensions.js',
+            'plugins/input-mask/jquery.inputmask.extensions.js',
+            'bower_components/jquery-slimscroll/jquery.slimscroll.min.js',
+            'bower_components/fastclick/lib/fastclick.js',
+            'dist/js/adminlte.min.js',
         );
         if (!self::$FOGUser->isValid()) {
             $files[] = 'js/fog/fog.login.js';
