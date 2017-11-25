@@ -113,6 +113,9 @@ class AddPushbulletMenuItem extends Hook
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
+        if (strtolower($arguments['node']) != strtolower($this->node)) {
+            return;
+        }
         $arguments['menu'] = array(
             'list' => sprintf(
                 self::$foglang['ListAll'],

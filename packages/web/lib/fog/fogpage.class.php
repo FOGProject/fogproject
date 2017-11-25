@@ -431,48 +431,11 @@ abstract class FOGPage extends FOGBase
                 ]
             ),
         );
-        /*$this->fieldsToData = function (&$input, &$field) {
-            $this->data[] = array(
-                'field' => $field,
-                'input' => $input,
-            );
-            if (is_array($this->span) && count($this->span) === 2) {
-                $this->data[count($this->data)-1][$this->span[0]] = $this->span[1];
-            }
-            unset($input);
-        };
-        $nodestr = $substr = $idstr = $typestr = $tabstr = false;
-        $formstr = '?';
-        if ($node) {
-            $data['node'] = $node;
-        }
-        if ($sub) {
-            $data['sub'] = $sub;
-        }
-        if ($id) {
-            $data['id'] = $id;
-        }
-        if ($type) {
-            $data['type'] = $type;
-        }
-        if ($f) {
-            $data['f'] = $f;
-        }
-        if ($tab) {
-            $tabstr = "#$tab";
-        }
-        if (count($data) > 0) {
-            $formstr .= http_build_query($data);
-        }
-        if ($tabstr) {
-            $formstr .= $tabstr;
-        }
-        $this->formAction = $formstr;*/
-        //var_dump($menu);
         self::$HookManager->processEvent(
             'SUB_MENULINK_DATA',
             array(
-                'menu' => &$menu
+                'menu' => &$menu,
+                'node' => &$refNode
             )
         );
         //var_dump($menu);
