@@ -235,12 +235,12 @@ class Page extends FOGBase
                     }
                     $activelink = ($node == $link);
                     $oldNode = $node;
-                    global $node;
-                    $node = $link;
+                    //global $node;
+                    //$node = $link;
                     $subItems = array_filter(
                         FOGPage::buildSubMenuItems($link)
                     );
-                    $node = $oldNode;
+                    //$node = $oldNode;
                     echo '<li class="';
                     echo (
                         count($subItems) > 0 ?
