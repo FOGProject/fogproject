@@ -142,7 +142,10 @@ class GroupManagementPage extends FOGPage
             array('class' => 'text-center'),
             array()
         );
-        $this->_getHostCommon();
+	global $id;
+	if ($id > 0) {
+	    $this->_getHostCommon();
+	}
         /**
          * Lamda function to return data either by list or search.
          *
