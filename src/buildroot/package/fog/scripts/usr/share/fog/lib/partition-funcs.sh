@@ -345,20 +345,19 @@ makeSwapSystem() {
     local part="$2"
     [[ -z $part ]] && handleError "No partition passed (${FUNCNAME[0]})\n   Args Passed: $*"
     [[ -z $file ]] && handleError "No file passed (${FUNCNAME[0]})\n   Args Passed: $*"
-    local uuid=""
     local option=""
     local disk=""
     getDiskFromPartition "$part"
     local parttype=0
-    local hasgpt=""
     local part_number=""
     local escape_part=$(escapeItem $part)
     getPartitionNumber "$part"
-    hasGPT "$disk"
     local pat="/^\/dev\/[A-Za-z0-9]+([Pp]|)[$part_number]\ /"
+    local uuid=$(awk "$pat{print \$2}" $file)
+    local hasgpt=0
+    hasGPT "$disk"
     case $hasgpt in
         1)
-            uuid=$(awk "$pat{print \$2}" $file)
             [[ -n $uuid ]] && parttype=82
             ;;
         0)
