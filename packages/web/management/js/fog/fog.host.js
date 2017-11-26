@@ -1,11 +1,22 @@
 (function($) {
-    setADFields();
-    clearADFields();
-    advancedTaskLink();
-    checkboxToggleSearchListPages();
-    checkboxAssociations('.toggle-checkboxgroup:checkbox', '.toggle-group:checkbox');
-    MACUpdate();
-    ProductUpdate();
+    //setADFields();
+    //clearADFields();
+    //advancedTaskLink();
+    //checkboxToggleSearchListPages();
+    //checkboxAssociations('.toggle-checkboxgroup:checkbox', '.toggle-group:checkbox');
+    //MACUpdate();
+    //ProductUpdate();
+
+    $('#dataTable').DataTable({
+        'paging'      : true,
+        'lengthChange': false,
+        'searching'   : true,
+        'ordering'    : true,
+        'info'        : true,
+        'autoWidth'   : false
+      })
+
+    /*
     $('#process').on('click', function(e) {
         checkedIDs = getChecked();
         group_new = $('#group_new').val().trim();
@@ -61,4 +72,5 @@
         }
     };
     setupTimeoutElement('#approvependhost, #delete, #process, #host-add, #all, #pmsubmit, #pmupdate, #pmdelete, #updategen, #levelup, #updateprinters, #defaultsel, #printdel, #updatesnapins, #snapdel, #updatestatus, #updatedisplay, #updatealo, #updateinv, #host-edit', '.hostname-input, .macaddr', 1000);
+    */
 })(jQuery);
