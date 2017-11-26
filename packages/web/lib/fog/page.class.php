@@ -112,6 +112,7 @@ class Page extends FOGBase
             ->addCSS('bower_components/Ionicons/css/ionicons.min.css')
             ->addCSS('plugins/iCheck/square/blue.css')
             ->addCSS('bower_components/select2/dist/css/select2.min.css')
+            ->addCSS('bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css')
             ->addCSS('dist/css/AdminLTE.min.css')
             ->addCSS('dist/css/skins/_all-skins.min.css')
             ->addCSS('dist/css/font.css');            
@@ -270,11 +271,15 @@ class Page extends FOGBase
                     echo '</a>';
                     if (count($subItems) > 0) {
                         echo '<ul class="treeview-menu">';
-                        foreach ($subItems as $sub => $text) {
-                            echo '<li><a href="../management/index.php?node=';
+                        foreach ($subItems as $subItem => $text) {
+                            echo '<li class="';
+                            if ($sub == $subItem) {
+                                echo 'active';
+                            }
+                            echo '"><a href="../management/index.php?node=';
                             echo $link;
                             echo '&sub=';
-                            echo $sub;
+                            echo $subItem;
                             echo '">';
                             echo '<i class="fa fa-circle-o"></i>';
                             echo $text;
@@ -292,6 +297,7 @@ class Page extends FOGBase
         $files = array(
             'bower_components/jquery/dist/jquery.min.js',
             'bower_components/bootstrap/dist/js/bootstrap.min.js',
+            'bower_components/datatables.net/js/jquery.dataTables.min.js',
             'plugins/iCheck/icheck.min.js',
             'bower_components/select2/dist/js/select2.full.min.js',
             'plugins/input-mask/jquery.inputmask.js',

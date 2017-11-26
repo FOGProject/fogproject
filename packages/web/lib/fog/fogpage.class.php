@@ -501,9 +501,9 @@ abstract class FOGPage extends FOGBase
                     'headerData' => &$this->headerData
                 )
             );
-            echo '<div class="col-xs-9">';
+            //echo '<div class="col-xs-9">';
             $this->indexDivDisplay();
-            echo '</div>';
+            //echo '</div>';
             unset(
                 $this->headerData,
                 $this->data,
@@ -774,11 +774,12 @@ abstract class FOGPage extends FOGBase
                 printf($this->form);
             }
             if ($node != 'home') {
-                echo '<div class="table-holder col-xs-'
-                    . $colsize
-                    . '">';
+                // echo '<div class="table-holder col-xs-'
+                //     . $colsize
+                //     . '">';
             }
-            echo '<table class="table table-responsive'
+            // TODO: Generalize to support multiple tables on the same page (passable ids)
+            echo '<table id="dataTable" class="table table-bordered table-striped'
                 . (
                     count($this->data) < 1 ?
                     ' noresults' :
@@ -838,7 +839,7 @@ abstract class FOGPage extends FOGBase
             }
             echo '</table>';
             if ($node != 'home') {
-                echo '</div>';
+           //     echo '</div>';
             }
         } catch (Exception $e) {
             return $e->getMessage();
@@ -2129,7 +2130,7 @@ abstract class FOGPage extends FOGBase
         echo '<div class="tab-pane fade" id="'
             . $this->node
             . '-tasks">';
-        echo '<div class="panel panel-info">';
+        echo '<div class="panel panel-infpanelo">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
         echo $this->childClass;
@@ -3654,22 +3655,22 @@ abstract class FOGPage extends FOGBase
                 'attributes' => &$this->attributes
             )
         );
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';;
+        //echo '<div class="col-xs-9">';
+        echo '  <div class="box box-primary">';
+        echo '      <div class="box-header">';
+        echo '          <h3 class="box-title">';
         echo $this->title;
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="export.php?type='
+        echo '          </h3>';
+        echo '      </div>';
+        echo '      <div class="box-body">';
+        echo '          <form class="form-horizontal" method="post" action="export.php?type='
             . $this->node
             . '">';
         $this->render(12);
-        echo '</form>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
+        echo '          </form>';
+        echo '      </div>';
+        echo '  </div>';
+        //echo '</div>';
     }
     /**
      * Presents the importer elements
@@ -3702,9 +3703,9 @@ abstract class FOGPage extends FOGBase
             'field' => '<label for="import">'
             . _('Import CSV')
             . '<br/>'
-            . _('Max Size')
+            . '<small>' . _('Max Size')
             . ': '
-            . ini_get('post_max_size')
+            . ini_get('post_max_size') . '</small>'
             . '</label>',
             'input' => '<div class="input-group">'
             . '<label class="input-group-btn">'
@@ -3725,39 +3726,59 @@ abstract class FOGPage extends FOGBase
             . _('Import')
             . '</button>'
         );
-        self::$HookManager->processEvent(
-            'IMPORT_CSV_'
-            . strtoupper($this->node),
-            array(
-                'data' => &$this->data,
-                'headerData' => &$this->headerData,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
-            )
-        );
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
+        // self::$HookManager->processEvent(
+        //     'IMPORT_CSV_'
+        //     . strtoupper($this->node),
+        //     array(
+        //         'data' => &$this->data,
+        //         'headerData' => &$this->headerData,
+        //         'templates' => &$this->templates,
+        //         'attributes' => &$this->attributes
+        //     )
+        // );
+        //echo '<div class="col-xs-9">';
+        echo '  <div class="box box-primary">';
+        echo '      <div class="box-header with-border">';
+        echo '          <h3 class="box-title">';
         echo $this->title;
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
+        echo '          </h3>';
+        echo '          </br>';
+        echo '          <div>';
+        echo '<p class="help-block">';
+        echo _('This page allows you to upload a CSV file into FOG to ease')
+        . ' '
+        . _('migration or mass import new items')
+        . '. '
+        . _('It will operate based on the fields the area typically requires')
+        . '.';
+        echo '</p>';
+        echo '          </div>';
+        echo '      </div>';
+        echo '      <form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '" enctype="multipart/form-data">';
-        echo _('This page allows you to upload a CSV file into FOG to ease')
-            . ' '
-            . _('migration or mass import new items')
-            . '. '
-            . _('It will operate based on the fields the area typically requires')
-            . '.';
-        echo '<hr/>';
-        $this->render(12);
-        echo '</form>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
+        echo '          <div class="box-body">';
+            
+            
+
+       // echo '              <div class="form-group">';
+        echo '                  <label for="import">' . _('Import CSV') . '</label>';
+        echo '                  <input type="file" id="import">';
+        echo '<p class="help-block">';
+        echo _('Max Size') . ' ' . ini_get('post_max_size');
+        echo '</p>';
+        //echo '              </div>';
+        echo '          </div>';
+        echo '           <div class="box-footer">';
+        echo '               <button type="submit" class="btn btn-primary" name="importbtn" id="importbtn">';
+        echo _('Import');
+        echo '               </button>';
+        echo '           </div>';
+
+        //$this->render(12);
+        echo '      </form>';
+        echo '  </div>';
+        //echo '</div>';
     }
     /**
      * Perform the import based on the uploaded file
@@ -4147,13 +4168,13 @@ abstract class FOGPage extends FOGBase
         $actionbox = false
     ) {
         ob_start();
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
+        echo '<div class="box">';
+        echo '<div class="box-header">';
+        echo '<h3 class="box-title">';
         echo $this->title;
-        echo '</h4>';
+        echo '</h3>';
         echo '</div>';
-        echo '<div class="panel-body">';
+        echo '<div class="box-body">';
         echo $this->render(12);
         echo '</div>';
         echo '</div>';
