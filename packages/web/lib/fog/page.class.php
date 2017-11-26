@@ -262,9 +262,11 @@ class Page extends FOGBase
                     echo '">';
                     echo '      <i class="' . $title[1] . '"></i> ';
                     echo '<span>' . $title[0] . '</span>';
-                    echo '<span class="pull-right-container">';
-                    echo '    <i class="fa fa-angle-left pull-right"></i>';
-                    echo '</span>';
+                    if (count($subItems) > 0) {
+                        echo '<span class="pull-right-container">';
+                        echo '    <i class="fa fa-angle-left pull-right"></i>';
+                        echo '</span>';
+                    }
                     echo '</a>';
                     if (count($subItems) > 0) {
                         echo '<ul class="treeview-menu">';
