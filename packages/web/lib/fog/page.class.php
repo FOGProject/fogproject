@@ -298,6 +298,7 @@ class Page extends FOGBase
             'bower_components/jquery/dist/jquery.min.js',
             'bower_components/bootstrap/dist/js/bootstrap.min.js',
             'bower_components/datatables.net/js/jquery.dataTables.min.js',
+            'bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js',
             'plugins/iCheck/icheck.min.js',
             'bower_components/select2/dist/js/select2.full.min.js',
             'plugins/input-mask/jquery.inputmask.js',
