@@ -94,7 +94,7 @@ abstract class FOGPage extends FOGBase
      *
      * @var array
      */
-    public static $PagesWithObjects = array(
+    public $PagesWithObjects = array(
         'user',
         'host',
         'image',

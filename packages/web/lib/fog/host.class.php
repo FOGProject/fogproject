@@ -2148,6 +2148,7 @@ class Host extends FOGController
     {
         return $this->get('snapinjob');
     }
+
     /**
      * Translates the ping status code to string
      *
@@ -2157,18 +2158,21 @@ class Host extends FOGController
     {
         $val =  (int)$this->get('pingstatus');
         $socketstr = socket_strerror($val);
-        $strtoupdate = '<i class="icon-ping-%s fa fa-exclamation-circle %s'
-            . '" data-toggle="tooltip" '
-            . 'data-placement="right" '
-            . 'title="'
+        $labelType = 'danger';
+
+        // Ping succeeded
+        if ($val == 0)
+            $labelType = 'success';
+        // No such device or address
+        else if ($val == 6)
+            $labelType = 'warning';
+
+        $strtoupdate = '<span class="label label-'
+            . $labelType
+            . '">' 
             . $socketstr
-            . '"></i>';
-        ob_start();
-        if ($val === 0) {
-            printf($strtoupdate, 'up', 'green');
-        } else {
-            printf($strtoupdate, 'down', 'red');
-        }
-        return ob_get_clean();
+            . '</span>';
+
+        return $strtoupdate;
     }
 }
