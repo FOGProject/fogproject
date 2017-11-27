@@ -163,26 +163,22 @@ class HostManagementPage extends FOGPage
             )
         );
         $this->headerData = array(
-            '',
-            '<label for="toggler">'
-            . '<input type="checkbox" name="toggle-checkbox" '
-            . 'class="toggle-checkboxAction" id="toggler"/>'
-            . '</label>',
+            'Selected',
         );
-        self::$fogpingactive ? array_push($this->headerData, '') : null;
+        self::$fogpingactive ? array_push($this->headerData, 'Ping Status') : null;
         array_push(
             $this->headerData,
             _('Host'),
             _('Imaged'),
             _('Task'),
-            _('Assigned Image')
+            _('Assigned Image'),
+            'Description'
         );
         $this->templates = array(
-            '<i class="icon fa fa-question hand"></i>',
             '<label for="host-${id}">'
             . '<input type="checkbox" name="host[]" '
-            . 'value="${id}" class="toggle-action" id="host-${id}"/>'
-            . '</label>',
+            . 'value="${id}" class="icheck" id="host-${id}"/>'
+            . '</label>',       
         );
         if (self::$fogpingactive) {
             array_push(
@@ -223,20 +219,19 @@ class HostManagementPage extends FOGPage
                 _('Goto task list')
             ),
             '<small><a href="?node=image&sub=edit&id=${image_id}">'
-            . '${image_name}</a></small>'
+            . '${image_name}</a></small>',
+            '${host_desc}'
         );
         unset($up, $down, $mc);
         $this->attributes = array(
             array(
-                'width' => 16,
+                'width' => 2,
                 'id' => 'host-${host_name}',
                 'class' => 'filter-false',
-                'title' => '${host_desc}',
-                'data-toggle' => 'tooltip',
                 'data-placement' => 'right'
             ),
             array(
-                'class' => 'l filter-false form-group',
+                'class' => '',
                 'width' => 16
             ),
         );

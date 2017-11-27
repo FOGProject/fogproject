@@ -235,13 +235,9 @@ class Page extends FOGBase
                         $node = $link;
                     }
                     $activelink = ($node == $link);
-                    $oldNode = $node;
-                    //global $node;
-                    //$node = $link;
                     $subItems = array_filter(
                         FOGPage::buildSubMenuItems($link)
                     );
-                    //$node = $oldNode;
                     echo '<li class="';
                     echo (
                         count($subItems) > 0 ?
@@ -273,7 +269,7 @@ class Page extends FOGBase
                         echo '<ul class="treeview-menu">';
                         foreach ($subItems as $subItem => $text) {
                             echo '<li class="';
-                            if ($sub == $subItem) {
+                            if ($activelink && $sub == $subItem) {
                                 echo 'active';
                             }
                             echo '"><a href="../management/index.php?node=';

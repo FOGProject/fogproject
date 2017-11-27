@@ -7,15 +7,22 @@
     //MACUpdate();
     //ProductUpdate();
 
+    // Process the checkboxes first before the datatable hides them
+    
+    $('input').iCheck({
+        checkboxClass: 'icheckbox_square-blue',
+        radioClass: 'iradio_square-blue',
+        increaseArea: '20%' // optional
+      });
     $('#dataTable').DataTable({
         'paging'      : true,
-        'lengthChange': false,
+        'lengthChange': true,
         'searching'   : true,
         'ordering'    : true,
         'info'        : true,
         'autoWidth'   : false
-      })
-
+      });
+      
     /*
     $('#process').on('click', function(e) {
         checkedIDs = getChecked();
