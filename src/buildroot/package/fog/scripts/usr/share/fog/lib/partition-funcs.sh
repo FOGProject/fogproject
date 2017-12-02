@@ -77,8 +77,10 @@ restoreUUIDInformation() {
     dots "Disk UUID being set to"
     echo $diskuuid
     debugPause
-    [[ -n $diskuuid ]] && sgdisk -U $diskuuid $disk >/dev/null 2>&1
-    [[ ! $? -eq 0 ]] && handleWarning "Failed to set disk guid (sgdisk -U) (${FUNCNAME[0]})\n   Args Passed: $*"
+    if [[ -n $diskuuid ]]; then
+        sgdisk -U $diskuuid $disk >/dev/null 2>&1
+        [[ ! $? -eq 0 ]] && handleWarning "Failed to set disk guid (sgdisk -U) (${FUNCNAME[0]})\n   Args Passed: $*"
+    fi
     getPartitions "$disk"
     for part in $parts; do
         partitionIsSwap "$part"
