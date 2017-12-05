@@ -111,8 +111,10 @@ class Page extends FOGBase
             ->addCSS('bower_components/font-awesome/css/font-awesome.min.css')
             ->addCSS('bower_components/Ionicons/css/ionicons.min.css')
             ->addCSS('plugins/iCheck/square/blue.css')
+            ->addCSS('plugins/animate/animate.css')    
+            ->addCSS('plugins/pnotify/pnotify.min.css')                        
             ->addCSS('bower_components/select2/dist/css/select2.min.css')
-            ->addCSS('bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css')
+            ->addCSS('plugins/datatables/datatables.min.css')
             ->addCSS('dist/css/AdminLTE.min.css')
             ->addCSS('dist/css/skins/_all-skins.min.css')
             ->addCSS('dist/css/font.css');            
@@ -293,11 +295,12 @@ class Page extends FOGBase
         $files = array(
             'bower_components/jquery/dist/jquery.min.js',
             'bower_components/bootstrap/dist/js/bootstrap.min.js',
-            'bower_components/datatables.net/js/jquery.dataTables.min.js',
-            'bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js',
+            'plugins/datatables/datatables.min.js',
             'plugins/iCheck/icheck.min.js',
+            'plugins/bootbox/bootbox.min.js',            
             'bower_components/select2/dist/js/select2.full.min.js',
             'plugins/input-mask/jquery.inputmask.js',
+            'plugins/pnotify/pnotify.min.js',
             'plugins/input-mask/jquery.inputmask.date.extensions.js',
             'plugins/input-mask/jquery.inputmask.extensions.js',
             'bower_components/jquery-slimscroll/jquery.slimscroll.min.js',

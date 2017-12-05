@@ -162,30 +162,26 @@ class HostManagementPage extends FOGPage
                 'membership' => &$this->membership
             )
         );
-        $this->headerData = array(
-            'Selected',
-        );
+        // $this->headerData = array(
+        //     'Selected',
+        // );
+        array_push($this->headerData,_('Host'));
+
         self::$fogpingactive ? array_push($this->headerData, 'Ping Status') : null;
         array_push(
             $this->headerData,
-            _('Host'),
             _('Imaged'),
             _('Task'),
             _('Assigned Image'),
             'Description'
         );
         $this->templates = array(
-            '<label for="host-${id}">'
-            . '<input type="checkbox" name="host[]" '
-            . 'value="${id}" class="icheck" id="host-${id}"/>'
-            . '</label>',       
+            // '<label for="host-${id}">'
+            // . '<input type="checkbox" name="host[]" '
+            // . 'value="${id}" class="icheck" id="host-${id}"/>'
+            // . '</label>',       
         );
-        if (self::$fogpingactive) {
-            array_push(
-                $this->templates,
-                '${pingstatus}'
-            );
-        }
+
         $up = new TaskType(2);
         $down = new TaskType(1);
         $mc = new TaskType(8);
@@ -199,7 +195,15 @@ class HostManagementPage extends FOGPage
             . '${host_name}'
             . '</a>'
             . '<br/>'
-            . '<small>${host_mac}</small>',
+            . '<small>${host_mac}</small>');
+            if (self::$fogpingactive) {
+                array_push(
+                    $this->templates,
+                    '${pingstatus}'
+                );
+            }
+        array_push(
+            $this->templates,
             '<small>${deployed}</small>',
             sprintf(
                 '<a href="?node=host&sub=deploy&type=1&id=${id}">'

@@ -1,27 +1,106 @@
 (function($) {
-    //setADFields();
-    //clearADFields();
-    //advancedTaskLink();
-    //checkboxToggleSearchListPages();
-    //checkboxAssociations('.toggle-checkboxgroup:checkbox', '.toggle-group:checkbox');
-    //MACUpdate();
-    //ProductUpdate();
+    var table = $('#dataTable').DataTable({
+        paging: true,
+        lengthChange: true,
+        searching: true,
+        ordering: true,
+        info: true,
+        autoWidth: false,
+        dom: 'Bfrtip',
+        buttons: [
+            'selected',
+            'selectAll',
+            'selectNone'
+        ],
+        select: true,
+    });
+    var getSelectedIds = function() {
+        var rawIds = table.rows( { selected: true } ).ids();
+        var cleanIds = [];
+        for(var i = 0; i < rawIds.length; i++) {
+            cleanIds.push(rawIds[i].replace('host-', '')); 
+        }
+        console.log(cleanIds);
+        return cleanIds;
+    };
+    var massDelete = function(password) {
+        var opts = {
+            fogguipass: null, 
+            fogguipass: password,
+            remitems: getSelectedIds()
+        };
+        $.ajax('', {
+            type: "POST",
+            url: "?node=host&sub=deletemulti",
+            async:true,
+            data: opts,
+            success: function(res) {
+                console.log(res);
+                table.rows( { selected: true } ).remove();
+                table.draw();        
+                table.button(1,1).enable(true);                    
+            },
+            error: function(res) {
+                if (res.status == 401) {
+                    bootbox.prompt({
+                        title: 'Please re-enter your password',
+                        inputType: 'password',
+                        callback: function(result) {
+                            if (result === null) {
+                                table.button(1,1).enable(true);          
+                            } else {
+                                massDelete(result);
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    }
+    new $.fn.dataTable.Buttons( table, {
+        buttons: [
+            {
+                text: 'Add selected to group',
+             //   className: 'btn-primary',
+                action: function(e, dt, node, config) {
+                    alert("Deleted!");
+                },
+                enabled: false,
+                init: function(api, node, config) {
+                    $(node).attr('data-toggle','modal');
+                    $(node).attr('data-target','#modal-group');
+                }
+            },
+            {
+                text: 'Delete selected',
+                className: 'btn-danger',
+                action: function(e, dt, node, config) {
+                    table.button(1,1).enable(false);
+                    massDelete();
+                },
+                enabled: false,
+                init: function(api, node, config) {
+                    $(node).removeClass('btn-default');
+                }
+            }
+        ]
+    } );
 
-    // Process the checkboxes first before the datatable hides them
+    table.buttons( 1, null ).container().appendTo(
+        table.table().container()
+    );
     
-    $('input').iCheck({
-        checkboxClass: 'icheckbox_square-blue',
-        radioClass: 'iradio_square-blue',
-        increaseArea: '20%' // optional
-      });
-    $('#dataTable').DataTable({
-        'paging'      : true,
-        'lengthChange': true,
-        'searching'   : true,
-        'ordering'    : true,
-        'info'        : true,
-        'autoWidth'   : false
-      });
+    table.on('select', function() {
+        var selectedRows = table.rows( { selected: true } ).count();
+        table.button(1,0).enable( selectedRows > 0 );
+        table.button(1,1).enable( selectedRows > 0 );
+        
+    });
+    table.on('deselect', function() {
+        var selectedRows = table.rows( { selected: true } ).count();
+        table.button(1,0).enable( selectedRows > 0 ); 
+        table.button(1,1).enable( selectedRows > 0 ); 
+    });
       
     /*
     $('#process').on('click', function(e) {
