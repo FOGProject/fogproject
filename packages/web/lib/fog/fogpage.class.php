@@ -608,128 +608,128 @@ abstract class FOGPage extends FOGBase
                 && in_array($node, $this->PagesWithObjects))
             ) {
                 if ($node == 'host') {
-                    $actionbox .= '</div>';
-                    $actionbox .= '</div>';
-                    $actionbox .= '<div class='
-                        . '"action-boxes host '
-                        . 'hiddeninitially">';
-                    $actionbox .= '<div class="panel panel-info">';
-                    $actionbox .= '<div class="panel-heading text-center">';
-                    $actionbox .= '<h4 class="title">';
-                    $actionbox .= _('Group Associations');
-                    $actionbox .= '</h4>';
-                    $actionbox .= '</div>';
-                    $actionbox .= '<div class="panel-body">';
-                    $actionbox .= '<form class='
-                        . '"form-horizontal" '
-                        . 'method="post" '
-                        . 'action="'
-                        . '?node='
-                        . $node
-                        . '&sub=saveGroup">';
-                    $actionbox .= '<div class="form-group">';
-                    $actionbox .= '<label class="control-label col-xs-4" for=';
-                    $actionbox .= '"group_new">';
-                    $actionbox .= _('Create new group');
-                    $actionbox .= '</label>';
-                    $actionbox .= '<div class="col-xs-8">';
-                    $actionbox .= '<div class="input-group">';
-                    $actionbox .= '<input type="hidden" name="hostIDArray"/>';
-                    $actionbox .= '<input type="text" name="group_new" id='
-                        . '"group_new" class="form-control"/>';
-                    $actionbox .= '</div>';
-                    $actionbox .= '</div>';
-                    $actionbox .= '</div>';
-                    $actionbox .= '<div class="form-group">';
-                    $actionbox .= '<div class="text-center">';
-                    $actionbox .= '<label class="control-label">';
-                    $actionbox .= _('or');
-                    $actionbox .= '</label>';
-                    $actionbox .= '</div>';
-                    $actionbox .= '</div>';
-                    $actionbox .= '<div class="form-group">';
-                    $actionbox .= '<label class="control-label col-xs-4" for=';
-                    $actionbox .= '"group">';
-                    $actionbox .= _('Add to group');
-                    $actionbox .= '</label>';
-                    $actionbox .= '<div class="col-xs-8">';
-                    $actionbox .= self::getClass('GroupManager')->buildSelectBox();
-                    $actionbox .= '</div>';
-                    $actionbox .= '</div>';
-                    $actionbox .= '<div class="form-group">';
-                    $actionbox .= '<label class="control-label col-xs-4" for=';
-                    $actionbox .= '"process">';
-                    $actionbox .= _('Make changes?');
-                    $actionbox .= '</label>';
-                    $actionbox .= '<div class="col-xs-8">';
-                    $actionbox .= '<button type="submit" class='
-                        . '"btn btn-info btn-block" name="process" id="process">';
-                    $actionbox .= _('Update');
-                    $actionbox .= '</button>';
-                    $actionbox .= '</div>';
-                    $actionbox .= '</div>';
-                    $actionbox .= '</form>';
-                    $actionbox .= '</div>';
-                    $actionbox .= '</div>';
-                    $actionbox .= '</div>';
+                    // $actionbox .= '</div>';
+                    // $actionbox .= '</div>';
+                    // $actionbox .= '<div class='
+                    //     . '"action-boxes host '
+                    //     . 'hiddeninitially">';
+                    // $actionbox .= '<div class="panel panel-info">';
+                    // $actionbox .= '<div class="panel-heading text-center">';
+                    // $actionbox .= '<h4 class="title">';
+                    // $actionbox .= _('Group Associations');
+                    // $actionbox .= '</h4>';
+                    // $actionbox .= '</div>';
+                    // $actionbox .= '<div class="panel-body">';
+                    // $actionbox .= '<form class='
+                    //     . '"form-horizontal" '
+                    //     . 'method="post" '
+                    //     . 'action="'
+                    //     . '?node='
+                    //     . $node
+                    //     . '&sub=saveGroup">';
+                    // $actionbox .= '<div class="form-group">';
+                    // $actionbox .= '<label class="control-label col-xs-4" for=';
+                    // $actionbox .= '"group_new">';
+                    // $actionbox .= _('Create new group');
+                    // $actionbox .= '</label>';
+                    // $actionbox .= '<div class="col-xs-8">';
+                    // $actionbox .= '<div class="input-group">';
+                    // $actionbox .= '<input type="hidden" name="hostIDArray"/>';
+                    // $actionbox .= '<input type="text" name="group_new" id='
+                    //     . '"group_new" class="form-control"/>';
+                    // $actionbox .= '</div>';
+                    // $actionbox .= '</div>';
+                    // $actionbox .= '</div>';
+                    // $actionbox .= '<div class="form-group">';
+                    // $actionbox .= '<div class="text-center">';
+                    // $actionbox .= '<label class="control-label">';
+                    // $actionbox .= _('or');
+                    // $actionbox .= '</label>';
+                    // $actionbox .= '</div>';
+                    // $actionbox .= '</div>';
+                    // $actionbox .= '<div class="form-group">';
+                    // $actionbox .= '<label class="control-label col-xs-4" for=';
+                    // $actionbox .= '"group">';
+                    // $actionbox .= _('Add to group');
+                    // $actionbox .= '</label>';
+                    // $actionbox .= '<div class="col-xs-8">';
+                    // $actionbox .= self::getClass('GroupManager')->buildSelectBox();
+                    // $actionbox .= '</div>';
+                    // $actionbox .= '</div>';
+                    // $actionbox .= '<div class="form-group">';
+                    // $actionbox .= '<label class="control-label col-xs-4" for=';
+                    // $actionbox .= '"process">';
+                    // $actionbox .= _('Make changes?');
+                    // $actionbox .= '</label>';
+                    // $actionbox .= '<div class="col-xs-8">';
+                    // $actionbox .= '<button type="submit" class='
+                    //     . '"btn btn-info btn-block" name="process" id="process">';
+                    // $actionbox .= _('Update');
+                    // $actionbox .= '</button>';
+                    // $actionbox .= '</div>';
+                    // $actionbox .= '</div>';
+                    // $actionbox .= '</form>';
+                    // $actionbox .= '</div>';
+                    // $actionbox .= '</div>';
+                    // $actionbox .= '</div>';
                 }
                 if ($node != 'task') {
-                    if (!$actionbox) {
-                        $actionbox .= '</div>';
-                        $actionbox .= '</div>';
-                    }
-                    $actionbox .= '<div class='
-                        . '"action-boxes del hiddeninitially">';
-                    $actionbox .= '<div class="panel panel-warning">';
-                    $actionbox .= '<div class="panel-heading text-center">';
-                    $actionbox .= '<h4 class="title">';
-                    $actionbox .= _('Delete Selected');
-                    $actionbox .= '</h4>';
-                    $actionbox .= '</div>';
-                    $actionbox .= '<div class="panel-body">';
-                    $actionbox .= '<form class='
-                        . '"form-horizontal" '
-                        . 'method="post" '
-                        . 'action="'
-                        . '?node='
-                        . $node
-                        . '&sub=deletemulti">';
-                    $actionbox .= '<div class="form-group">';
-                    $actionbox .= '<label class="control-label col-xs-4" for='
-                        . '"del-'
-                        . $node
-                        . '">';
-                    $actionbox .= sprintf(
-                        '%s %ss',
-                        _('Delete selected'),
-                        (
-                            strtolower($node) !== 'storage' ?
-                            strtolower($node) :
-                            (
-                                $sub === 'storageGroup' ?
-                                strtolower($node) . ' group' :
-                                strtolower($node) . ' node'
-                            )
-                        )
-                    );
-                    $actionbox .= '</label>';
-                    $actionbox .= '<div class="col-xs-8">';
-                    $actionbox .= '<input type="hidden" name="'
-                        . strtolower($node)
-                        . 'IDArray"/>';
-                    $actionbox .= '<button type="submit" class='
-                        . '"btn btn-danger btn-block" id="'
-                        . 'del-'
-                        . $node
-                        . '">';
-                    $actionbox .= _('Delete');
-                    $actionbox .= '</button>';
-                    $actionbox .= '</div>';
-                    $actionbox .= '</div>';
-                    $actionbox .= '</form>';
-                    $actionbox .= '</div>';
-                    $actionbox .= '</div>';
-                    $actionbox .= '</div>';
+                    // if (!$actionbox) {
+                    //     $actionbox .= '</div>';
+                    //     $actionbox .= '</div>';
+                    // }
+                    // $actionbox .= '<div class='
+                    //     . '"action-boxes del hiddeninitially">';
+                    // $actionbox .= '<div class="panel panel-warning">';
+                    // $actionbox .= '<div class="panel-heading text-center">';
+                    // $actionbox .= '<h4 class="title">';
+                    // $actionbox .= _('Delete Selected');
+                    // $actionbox .= '</h4>';
+                    // $actionbox .= '</div>';
+                    // $actionbox .= '<div class="panel-body">';
+                    // $actionbox .= '<form class='
+                    //     . '"form-horizontal" '
+                    //     . 'method="post" '
+                    //     . 'action="'
+                    //     . '?node='
+                    //     . $node
+                    //     . '&sub=deletemulti">';
+                    // $actionbox .= '<div class="form-group">';
+                    // $actionbox .= '<label class="control-label col-xs-4" for='
+                    //     . '"del-'
+                    //     . $node
+                    //     . '">';
+                    // $actionbox .= sprintf(
+                    //     '%s %ss',
+                    //     _('Delete selected'),
+                    //     (
+                    //         strtolower($node) !== 'storage' ?
+                    //         strtolower($node) :
+                    //         (
+                    //             $sub === 'storageGroup' ?
+                    //             strtolower($node) . ' group' :
+                    //             strtolower($node) . ' node'
+                    //         )
+                    //     )
+                    // );
+                    // $actionbox .= '</label>';
+                    // $actionbox .= '<div class="col-xs-8">';
+                    // $actionbox .= '<input type="hidden" name="'
+                    //     . strtolower($node)
+                    //     . 'IDArray"/>';
+                    // $actionbox .= '<button type="submit" class='
+                    //     . '"btn btn-danger btn-block" id="'
+                    //     . 'del-'
+                    //     . $node
+                    //     . '">';
+                    // $actionbox .= _('Delete');
+                    // $actionbox .= '</button>';
+                    // $actionbox .= '</div>';
+                    // $actionbox .= '</div>';
+                    // $actionbox .= '</form>';
+                    // $actionbox .= '</div>';
+                    // $actionbox .= '</div>';
+                    // $actionbox .= '</div>';
                 }
             }
             self::$HookManager->processEvent(
@@ -2005,8 +2005,14 @@ abstract class FOGPage extends FOGBase
     public function deletemultiAjax()
     {
         if (self::getSetting('FOG_REAUTH_ON_DELETE')) {
+            
             $user = filter_input(INPUT_POST, 'fogguiuser');
+
+            if (empty($user)) {
+                $user = self::$FOGUser->get('name');
+            }
             $pass = filter_input(INPUT_POST, 'fogguipass');
+
             $validate = self::getClass('User')
                 ->passwordValidate(
                     $user,
@@ -2020,6 +2026,7 @@ abstract class FOGPage extends FOGBase
                         'title' => _('Unable to Authenticate')
                     )
                 );
+                http_response_code(401);     
                 exit;
             }
         }
@@ -2050,6 +2057,7 @@ abstract class FOGPage extends FOGBase
                 'title' => _('Delete Success')
             )
         );
+        http_response_code(200);
         exit;
     }
     /**
