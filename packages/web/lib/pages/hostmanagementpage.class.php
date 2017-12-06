@@ -882,14 +882,15 @@ class HostManagementPage extends FOGPage
             $this->attributes,
             $this->templates
         );
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
-        );
+        // $this->attributes = array(
+        //     array('class' => 'col-xs-4'),
+        //     array('class' => 'col-xs-8 form-group'),
+        // );
         $this->templates = array(
             '${field}',
             '${input}',
         );
+        /*
         ob_start();
         foreach ((array)$this->obj->get('additionalMACs') as $ind => &$MAC) {
             echo '<div class="addrow">';
@@ -993,6 +994,7 @@ class HostManagementPage extends FOGPage
                 . '</div>'
                 . '</div>';
         }
+        */
         $imageSelect = self::getClass('ImageManager')
             ->buildSelectBox(
                 filter_input(INPUT_POST, 'image') ?: $this->obj->get('imageID')
@@ -1025,15 +1027,78 @@ class HostManagementPage extends FOGPage
         $dev = (
             filter_input(INPUT_POST, 'dev') ?: $this->obj->get('kernelDevice')
         );
+
+
+        $formData = array();
+        // Name
+        array_push($formData, 
+            array(
+                'field' => '<label for="name" class="col-sm-2 control-label">' . _('Host Name') . '</label>',
+                'value' => '<input id="name" class="form-control" placeholder="' . _('Host Name') .'" type="text" value="' . $name . '" required>'
+            ),
+            array(
+                'field' => '<label for="mac" class="col-sm-2 control-label">' . _('Primary MAC') . '</label>',
+                'value' => '<input id="mac" class="form-control" value="' . $mac . '" required>'
+            ),
+            array(
+                'field' => '<label for="description" class="col-sm-2 control-label">' . _('Host description') . '</label>',
+                'value' => '<textarea style="resize:vertical;min-height:50px;" id="description" class="form-control">' . $desc . '</textarea>'
+            ),
+            array(
+                'field' => '<label for="productKey" class="col-sm-2 control-label">' . _('Host Product Key') . '</label>',
+                'value' => '<input id="productKey" class="form-control" value="' . $productKey . '">'
+            ),
+            array(
+                'field' => '<label for="kern" class="col-sm-2 control-label">' . _('Host Kernel') . '</label>',
+                'value' => '<input id="kern" class="form-control" placeholder="" type="text" value="' . $kern . '">'
+            ),
+            array(
+                'field' => '<label for="args" class="col-sm-2 control-label">' . _('Host Kernel Arguments') . '</label>',
+                'value' => '<input id="args" class="form-control" placeholder="" type="text" value="' . $args . '">'
+            ),
+            array(
+                'field' => '<label for="init" class="col-sm-2 control-label">' . _('Host Init') . '</label>',
+                'value' => '<input id="init" class="form-control" placeholder="" type="text" value="' . $init . '">'
+            ),
+            array(
+                'field' => '<label for="dev" class="col-sm-2 control-label">' . _('Host Primary Disk') . '</label>',
+                'value' => '<input id="dev" class="form-control" placeholder="" type="text" value="' . $dev . '">'
+            ),
+            array(
+                'field' => '<label for="bootTypeExit" class="col-sm-2 control-label">' . _('Host Bios Exit Type') . '</label>',
+                'value' => $this->exitNorm
+            ),
+            array(
+                'field' => '<label for="efiBootTypeExit" class="col-sm-2 control-label">' . _('Host EFI Exit Type') . '</label>',
+                'value' => $this->exitEfi
+            )            
+        );
+
+        echo '<div class="box box-solid">';
+        //echo '  <div class="box-header">';
+        //echo '      <h3 class="box-title">' . $this->obj->get('name') .'</h3>';
+        //echo '  </div>';
+        echo '  <div class="box-body">';
+        foreach ($formData as &$entry) {
+            $field = $entry['field'];
+            $value = $entry['value'];
+
+            echo '<div>';
+            echo '<div class="form-group">';
+            echo $field;
+            echo '  <div class="col-sm-10">' . $value . '</div>';
+            echo '</div>';
+            echo '</div>';
+        }
+        echo '  </div>';
+        echo '  <div class="box-footer">';
+        echo '      <button class="btn btn-primary" type="submit">' . _('Update') . '</button>';
+        echo '      <button class="btn btn-danger pull-right">' . _('Delete') . '</button>';                
+        echo '  </div>';            
+        echo '</div>';
+        return;
+
         $fields = array(
-            '<label for="name">'
-            . _('Host Name')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="host" value="'
-            . $name
-            . '" maxlength="15" class="hostname-input form-control" '
-            . 'id="name" required/>'
-            . '</div>',
             '<label for="mac">'
             . _('Primary MAC')
             . '</label>' => '<div class="col-xs-10">'
@@ -1106,67 +1171,6 @@ class HostManagementPage extends FOGPage
             . $pending
             . '</div>',
             '<label for="description">'
-            . _('Host description')
-            . '</label>' => '<div class="input-group">'
-            . '<textarea class="form-control" id="description" '
-            . 'name="description">'
-            . $desc
-            . '</textarea>'
-            . '</div>',
-            '<label for="productKey">'
-            . _('Host Product Key')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="key" value="'
-            . $productKey
-            . '" id="productKey" class="form-control"/>'
-            . '</div>',
-            '<label for="image">'
-            . _('Host Image')
-            . '</label>' => $imageSelect,
-            '<label for="kern">'
-            . _('Host Kernel')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="kern" id="kern" '
-            . 'class="form-control" value="'
-            . $kern
-            . '"/>'
-            . '</div>',
-            '<label for="args">'
-            . _('Host Kernel Arguments')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="args" id="args" '
-            . 'class="form-control" value="'
-            . $args
-            . '"/>'
-            . '</div>',
-            '<label for="init">'
-            . _('Host Init')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="init" id="init" '
-            . 'class="form-control" value="'
-            . $init
-            . '"/>'
-            . '</div>',
-            '<label for="dev">'
-            . _('Host Primary Disk')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="dev" id="dev" '
-            . 'class="form-control" value="'
-            . $dev
-            . '"/>'
-            . '</div>',
-            '<label for="bootTypeExit">'
-            . _('Host Bios Exit Type')
-            . '</label>' => $this->exitNorm,
-            '<label for="efiBootTypeExit">'
-            . _('Host EFI Exit Type')
-            . '</label>' => $this->exitEfi,
-            '<label for="updategen">'
-            . _('Make Changes?')
-           . '</label>' => '<button type="submit" class="btn btn-info btn-block" '
-           . 'id="updategen">'
-           . _('Update')
-           . '</button>'
         );
         self::$HookManager
             ->processEvent(
@@ -1253,13 +1257,13 @@ class HostManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
+        echo '<div class="box box-info">';
+        echo '<div class="box-header text-center">';
         echo '<h4 class="title">';
         echo _('Host general');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="panel-body">';
+        echo '<div class="box-body">';
         echo '<form class="form-horizontal" method="post" '
             . 'action="'
             . $this->formAction
@@ -3109,6 +3113,7 @@ class HostManagementPage extends FOGPage
             _('Edit'),
             $this->obj->get('name')
         );
+
         $approve = filter_input(INPUT_GET, 'approveHost');
         if ($approve) {
             $this
@@ -3199,20 +3204,83 @@ class HostManagementPage extends FOGPage
                 )
             );
         }
-        echo '<div class="col-xs-9 tab-content">';
-        $this->hostGeneral();
+
+        $tabData = array();
+
+        array_push($tabData, 
+            array(
+                "name" =>  _('General'),
+                "id" => "host-general",
+                "generator" => function() {$this->hostGeneral();}
+            )          
+        );
+        if (!$this->obj->get('pending')) {
+            array_push($tabData, 
+                array(
+                    "name" =>  _('Tasks'),
+                    "id" => "host-tasks",
+                    "generator" => function() {$this->basictasksOptions();}
+                )          
+            );
+        }
+        array_push($tabData, 
+            array(
+                "name" =>  _('Active Directory'),
+                "id" => "host-active-directory",
+                "generator" => function() {
+                    $this->adFieldsToDisplay(
+                        $this->obj->get('useAD'),
+                        $this->obj->get('ADDomain'),
+                        $this->obj->get('ADOU'),
+                        $this->obj->get('ADUser'),
+                        $this->obj->get('ADPass'),
+                        $this->obj->get('ADPassLegacy'),
+                        $this->obj->get('enforce')
+                    );
+                }
+            )          
+        );
+        
+        
+        $activeId = '';
+
+        echo '<div class="nav-tabs-custom">';
+        echo '  <ul class="nav nav-tabs">';      
+        foreach ($tabData as &$entry) {
+            $name = $entry['name'];
+            $id = $entry['id'];
+            if(empty($activeId)) {
+                $activeId = $id;
+            }
+            $isActive = ($activeId === $id);
+
+            
+            echo '<li class="' . ($isActive ? 'active' : '') . '">'; 
+            echo '  <a href="#' . $id . '" data-toggle="tab" aria-expanded="true">' . $name . '</a>';         
+            echo '</li>';       
+        }
+        echo '  </ul>';
+        echo '  <div class="tab-content">';
+
+        foreach ($tabData as &$entry) {
+            $generator = $entry['generator'];
+            $id = $entry['id'];
+            $isActive = ($activeId === $id);
+            echo '<div id="' . $id . '" class="tab-pane ' . ($isActive ? 'active' : '') . '">';
+            $generator();
+            echo '</div>';   
+        }
+        echo '  </div>';      
+        echo '</div>';
+
+
+        return;
+        echo '<div class="">';
+        
         if (!$this->obj->get('pending')) {
             $this->basictasksOptions();
         }
-        $this->adFieldsToDisplay(
-            $this->obj->get('useAD'),
-            $this->obj->get('ADDomain'),
-            $this->obj->get('ADOU'),
-            $this->obj->get('ADUser'),
-            $this->obj->get('ADPass'),
-            $this->obj->get('ADPassLegacy'),
-            $this->obj->get('enforce')
-        );
+
         $this->hostPrinters();
         $this->hostSnapins();
         $this->hostService();

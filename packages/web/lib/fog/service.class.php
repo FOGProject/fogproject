@@ -223,7 +223,7 @@ class Service extends FOGController
             );
         }
         $options = sprintf(
-            '<select name="%s" autocomplete="off" class="form-control"%s>',
+            '<select name="%s" autocomplete="off" class="form-control select2"%s>',
             $name,
             (
                 $id ? ' id="'

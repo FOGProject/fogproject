@@ -2068,19 +2068,18 @@ abstract class FOGPage extends FOGBase
     public function basictasksOptions()
     {
         unset($this->headerData);
+
         $this->templates = array(
             '<a href="?node='
             . $this->node
             . '&sub=deploy&id=${'
             . $this->node
             . '_id}${task_id}"><i class="fa '
-            . 'fa-${task_icon} fa-3x"></i><br/>'
+            . 'fa-${task_icon} fa-2x"></i><br/>'
             . '${task_name}</a>',
             '${task_desc}'
         );
         $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8')
         );
         $taskTypeIterator = function (&$TaskType) use (&$access, &$advanced) {
             if (!in_array($TaskType->access, $access)) {
@@ -2110,18 +2109,6 @@ abstract class FOGPage extends FOGBase
             $taskTypeIterator($TaskType);
             unset($TaskType);
         }
-        $this->data[] = array(
-            $this->node.'_id' => $this->obj->get('id'),
-            'task_id' => '#'
-            . $this->node
-            . '-tasks" class="advanced-tasks-link',
-            'task_icon' => 'bars',
-            'task_name' => _('Advanced'),
-            'task_desc' => _('View advanced tasks for this')
-            . ' '
-            . $this->node
-            . '.'
-        );
         self::$HookManager->processEvent(
             sprintf(
                 '%s_EDIT_TASKS',
@@ -2134,29 +2121,28 @@ abstract class FOGPage extends FOGBase
                 'attributes' => &$this->attributes
             )
         );
-        echo '<!-- Taskings -->';
-        echo '<div class="tab-pane fade" id="'
-            . $this->node
-            . '-tasks">';
-        echo '<div class="panel panel-infpanelo">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo $this->childClass;
-        echo ' ';
-        echo _('Tasks');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
+        echo '<div class="box box-solid" id="' . $this->node . '-tasks">';
+        echo '  <div class="box-body">';
+        echo '      <div id="taskAccordian" class="box-group">';        
+        echo '          <div class="panel box box-primary">';
+        echo '              <div class="box-header with-border">';
+        echo '                  <h4 class="box-title"><a class="" data-toggle="collapse" data-parent="#taskAccordian" href="#tasksBasic">';
+        echo _('Basic Tasks') . '</a></h4>';
+        echo '              </div>';
+        echo '              <div id="tasksBasic" class="panel-collapse collapse in">';
+        echo '                  <div class="box-body">';
         $this->render(12);
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="panel panel-info advanced-tasks">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Advanced Actions');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
+        echo '                  </div>';
+        echo '              </div>';
+        echo '          </div>';
+        echo '          <div class="panel box box-warning">';
+        echo '              <div class="box-header with-border">';
+        echo '                  <h4 class="box-title"><a class="" data-toggle="collapse" data-parent="#taskAccordian" href="#tasksAdvance">';
+        echo _('Advanced Actions') . '</a></h4>';
+        echo '              </div>';
+        echo '              <div id="tasksAdvance" class="panel-collapse collapse">';
+        echo '                  <div class="box-body">';
+        
         unset($this->data);
         $advanced = 1;
         foreach ((array)$items as &$TaskType) {
@@ -2176,8 +2162,11 @@ abstract class FOGPage extends FOGBase
             )
         );
         $this->render(12);
-        echo '</div>';
-        echo '</div>';
+        echo '                  </div>';                
+        echo '              </div>';        
+        echo '          </div>';
+        echo '      </div>';
+        echo '  </div>';
         echo '</div>';
         unset($TaskTypes);
         unset($this->data);
@@ -2422,17 +2411,12 @@ abstract class FOGPage extends FOGBase
         if ($ownElement) {
             echo '<div id="'
                 . $node
-                . '-active-directory" class="tab-pane fade">';
+                . '-active-directory" class="">';
         }
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title text-center">';
-        echo _('Active Directory');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
+        echo '<div class="box box-solid">';
+        echo '  <div class="box-body">';
         if ($ownElement) {
-            echo '<form class="form-horizontal" method="post" action="'
+            echo '<form role="form" method="post" action="'
                 . $this->formAction
                 . '&tab='
                 . $node
@@ -2444,10 +2428,15 @@ abstract class FOGPage extends FOGBase
         echo '<input type="password" name="fakepasswordremembered" class='
             . '"fakes hidden"/>';
         $this->render(12);
+        echo '  </div>';
+        echo '  <div class="box-footer">';
+        echo '      <button class="btn btn-primary" type="submit">' . _('Update') . '</button>';
+        echo '      <button class="btn btn-danger pull-right">' . _('Clear Fields') . '</button>';
+        echo '  </div>';
+        
         if ($ownElement) {
             echo '</form>';
         }
-        echo '</div>';
         echo '</div>';
         if ($ownElement) {
             echo '</div>';
