@@ -299,10 +299,12 @@ class Page extends FOGBase
             'plugins/iCheck/icheck.min.js',
             'plugins/bootbox/bootbox.min.js',            
             'bower_components/select2/dist/js/select2.full.min.js',
+            'plugins/pnotify/pnotify.min.js',            
             'plugins/input-mask/jquery.inputmask.js',
-            'plugins/pnotify/pnotify.min.js',
-            'plugins/input-mask/jquery.inputmask.date.extensions.js',
             'plugins/input-mask/jquery.inputmask.extensions.js',
+            'plugins/input-mask/jquery.inputmask.regex.extensions.js',     
+            'plugins/input-mask/jquery.inputmask.numeric.extensions.js',                 
+            'plugins/input-mask/jquery.inputmask.date.extensions.js',
             'bower_components/jquery-slimscroll/jquery.slimscroll.min.js',
             'bower_components/fastclick/lib/fastclick.js',
             'dist/js/adminlte.min.js',
@@ -324,10 +326,12 @@ class Page extends FOGBase
                 '-',
                 $subset
             );
-            $filepaths = array(
-                "js/fog/fog.{$node}.js",
-                "js/fog/fog.{$node}.{$subset}.js",
-            );
+            $filepaths = array();
+            if (empty($subset)) {
+                $filepaths = array("js/fog/fog.{$node}.js");                
+            } else {
+                $filepaths = array("js/fog/fog.{$node}.{$subset}.js");                
+            }
         }
         array_map(
             function (&$jsFilepath) use (&$files) {
