@@ -219,7 +219,6 @@ class DashboardPage extends FOGPage
         }
         $SystemUptime = self::$FOGCore->systemUptime();
         $fields = array(
-            _('Username') => self::$FOGUser->get('name'),
             _('Web Server') => filter_input(
                 INPUT_SERVER,
                 'SERVER_ADDR'
@@ -246,45 +245,60 @@ class DashboardPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        // Dashboard boxes row.
-        echo '<div class="row">';
-        // Overview
+        echo '<!-- FOG Overview Boxes -->';
+        // Server info basic.
         echo '<div class="col-md-4">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
+        echo '<div class="box box-info">';
+        echo '<div class="box-header with-border">';
+        echo '<h3 class="box-title">';
         echo _('System Overview');
-        echo '</h4>';
-        echo '<p class="category">';
-        echo _('Server information at a glance.');
-        echo '</p>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        $this->render();
+        echo '</h3>';
+        echo '<div class="box-tools pull-right">';
+        echo self::$FOGCollapseBox;
+        echo self::$FOGCloseBox;
         echo '</div>';
         echo '</div>';
-        unset(
-            $this->data,
-            $this->templates,
-            $this->attributes,
-            $fields,
-            $SystemUptime,
-            $tftp
-        );
+        echo '<div class="box-body">';
+        echo '<div class="row">';
+        foreach ($fields as $field => &$input) {
+            echo '<div class="col-xs-5">'
+                . '<b>'
+                . $field
+                . '</b>'
+                . ': '
+                . '</div>'
+                . '<div class="col-xs-7 pull-right">'
+                . $input
+                . '</div>';
+            unset($input);
+        }
         echo '</div>';
-        // Activity
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        // Group Activity
         echo '<div class="col-md-4">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
+        echo '<div class="box box-info">';
+        echo '<div class="box-header with-border">';
+        echo '<h3 class="box-title">';
         echo _('Storage Group Activity');
-        echo '</h4>';
-        echo '<p class="category">';
-        echo _('Selected groups\'s current activity');
-        echo '</p>';
+        echo '</h3>';
+        echo '<div class="box-tools pull-right">';
+        echo self::$FOGCollapseBox;
+        echo self::$FOGCloseBox;
         echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<div class="graph pie-graph fogdashbox" id="graph-activity"></div>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo '<div class="row">';
+        echo '<div class="col-md-8">';
+        echo '<div class="chart-responsive">';
+        echo '<canvas id="graph-activity"/>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="col-md-4">';
+        echo '</div>';
+        echo '</div>';
+        //echo '<div class="graph pie-graph fogdashbox" id="graph-activity"></div>';
         echo '<div class="graph-selectors" id="graph-activity-selector">';
         printf(
             '<select name="groupsel">%s</select>',
@@ -297,46 +311,77 @@ class DashboardPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
-        // Disk usage
-        echo '<div class="col-md-4">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Storage Node Disk Usage');
-        echo '</h4>';
-        echo '<p class="category">';
-        echo _('Selected node\'s disk usage');
-        echo '</p>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<a href="?node=hwinfo">';
-        echo '<div class="graph pie-graph fogdashbox" id="graph-diskusage"></div>';
-        echo '</a>';
-        echo '<div class="graph-selectors" id="diskusage-selector">';
-        printf(
-            '<select name="nodesel">%s</select>',
-            self::$_nodeOpts
+        unset(
+            $this->data,
+            $this->templates,
+            $this->attributes,
+            $fields,
+            $SystemUptime,
+            $tftp
         );
+        // Storage Usage
+        echo '<div class="col-md-4">';
+        echo '<div class="box box-info">';
+        echo '<div class="box-header with-border">';
+        echo '<h3 class="box-title">';
+        echo _('Storage Node Disk Usage');
+        echo '</h3>';
+        echo '<div class="box-tools pull-right">';
+        echo self::$FOGCollapseBox;
+        echo self::$FOGCloseBox;
         echo '</div>';
         echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        // 30 day row.
+        echo '<div class="box-body">';
         echo '<div class="row">';
+        echo '<div class="col-md-8">';
+        echo '<a href="?node=hwinfo">';
+        echo '<div class="chart-responsive">';
+        echo '<canvas id="graph-activity"/>';
+        echo '</div>';
+        echo '</a>';
+        echo '</div>';
+        echo '<div class="col-md-4">';
+        echo '</div>';
+        echo '</div>';
+        //echo '<div class="graph pie-graph fogdashbox" id="graph-diskusage"></div>';
+        echo '<div class="graph-selectors" id="diskusage-selector">';
+        if (!empty(self::$_nodeOpts) && count(self::$_nodeOpts) > 0) {
+            printf(
+                '<select name="nodesel">%s</select>',
+                self::$_nodeOpts
+            );
+        } else {
+                echo _('No nodes available at this time');
+        }
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        unset(
+            $this->data,
+            $this->templates,
+            $this->attributes,
+            $fields,
+            $SystemUptime,
+            $tftp
+        );
+        // 30 day row.
         echo '<div class="col-xs-12">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading">';
-        echo '<div class="row text-center">';
-        echo '<h4 class="title">';
+        echo '<div class="box box-info">';
+        echo '<div class="box-header with-border">';
+        echo '<h3 class="box-title">';
         echo _('Imaging Over the last 30 days');
-        echo '</h4>';
+        echo '</h3>';
+        echo '<div class="box-tools pull-right">';
+        echo self::$FOGCollapseBox;
+        echo self::$FOGCloseBox;
         echo '</div>';
         echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<div id="graph-30day" class="graph fogdashbox"></div>';
+        echo '<div class="box-body">';
+        echo '<div id="graph-30day" class="graph fogdashbox">';
+        echo '<canvas class="flot-base"/>';
+        echo '</div>';
         echo '<div class="fog-variable" id="Graph30dayData"></div>';
-        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -347,8 +392,6 @@ class DashboardPage extends FOGPage
         $datapointshalf = ($datapointshour / 2);
         $datapointsten = ($datapointshour / 6);
         $datapointstwo = ($datapointshour / 30);
-        // 30 day row.
-        echo '<div class="row">';
         echo '<div class="col-xs-12">';
         printf(
             '<input type="hidden" id="bandwidthtime" value="%d"/>'
@@ -358,13 +401,14 @@ class DashboardPage extends FOGPage
             implode(',', self::$_nodeURLs),
             implode(',', self::$_nodeNames)
         );
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading">';
-        echo '<h4 class="title">';
+        echo '<div class="box box-info">';
+        echo '<div class="box-header with-border">';
+        echo '<h3 class="box-title">';
         echo self::$foglang['Bandwidth'];
-        echo '</h4>';
+        echo '</h3>';
+        echo '<div class="row">';
         echo '<div id="graph-bandwidth-filters-type">';
-        echo '<div class="col-xs-2">';
+        echo '<div class="col-md-2">';
         echo '<p class="category" id="graph-bandwidth-title">';
         echo self::$foglang['Bandwidth'];
         echo ' - ';
@@ -373,17 +417,45 @@ class DashboardPage extends FOGPage
         echo '</span>';
         echo '</p>';
         echo '</div>';
-        echo '<div class="col-xs-2">';
+        echo '<div id="graph-bandwidth-filters-time"></div>';
+        echo '<div class="col-md-2">';
+        echo '<p class="category" id="graph-bandwidth-time">';
+        echo _('Time');
+        echo ' - ';
+        echo '<span>';
+        echo _('2 Minutes');
+        echo '</span>';
+        echo '</p>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="row">';
+        echo '<div class="col-md-2">';
         echo '<a href="#" id="graph-bandwidth-filters-transmit" '
             . 'class="type-filters graph-filters active">';
         echo self::$foglang['Transmit'];
-        echo '</a>';
+        echo '</a>&nbsp;&nbsp;';
         echo '<a href="#" id="graph-bandwidth-filters-receive" class='
             . '"type-filters graph-filters">';
         echo self::$foglang['Receive'];
         echo '</a>';
         echo '</div>';
         echo '</div>';
+        echo '<div class="box-tools pull-right">';
+        echo self::$FOGCollapseBox;
+        echo self::$FOGCloseBox;
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo '<div id="graph-30day" class="graph fogdashbox">';
+        echo '<canvas class="flot-base"/>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        /**
+         * REMOVE WHEN DONE CONVERTING
+         *
         echo '<div class="row">';
         echo '<div id="graph-bandwidth-filters-time">';
         echo '<div class="col-xs-2">';
@@ -426,6 +498,7 @@ class DashboardPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
+         */
     }
     /**
      * Gets the client count active/used/queued
