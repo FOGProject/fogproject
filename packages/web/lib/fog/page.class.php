@@ -111,13 +111,13 @@ class Page extends FOGBase
             ->addCSS('bower_components/font-awesome/css/font-awesome.min.css')
             ->addCSS('bower_components/Ionicons/css/ionicons.min.css')
             ->addCSS('plugins/iCheck/square/blue.css')
-            ->addCSS('plugins/animate/animate.css')    
-            ->addCSS('plugins/pnotify/pnotify.min.css')                        
+            ->addCSS('plugins/animate/animate.css')
+            ->addCSS('plugins/pnotify/pnotify.min.css')
             ->addCSS('bower_components/select2/dist/css/select2.min.css')
             ->addCSS('plugins/datatables/datatables.min.css')
             ->addCSS('dist/css/AdminLTE.min.css')
-            ->addCSS('dist/css/skins/_all-skins.min.css')
-            ->addCSS('dist/css/font.css');            
+            ->addCSS('dist/css/skins/_all-skins.min.css');
+            //->addCSS('dist/css/font.css');
         if (!isset($node)
             || !$node
         ) {
@@ -134,176 +134,19 @@ class Page extends FOGBase
         );
         $this->isHomepage = in_array($node, $homepages)
             || !self::$FOGUser->isValid();
-        if (self::$FOGUser->isValid()
-            && strtolower($node) != 'schema'
-        ) {
-            $this->main = array(
-                'home' => array(
-                    self::$foglang['Dashboard'],
-                    'fa fa-dashboard'
-                ),
-                'user' => array(
-                    self::$foglang['Users'],
-                    'fa fa-users'
-                ),
-                'host' => array(
-                    self::$foglang['Hosts'],
-                    'fa fa-desktop'
-                ),
-                'group' => array(
-                    self::$foglang['Groups'],
-                    'fa fa-sitemap'
-                ),
-                'image' => array(
-                    self::$foglang['Images'],
-                    'fa fa-picture-o'
-                ),
-                'storage' => array(
-                    self::$foglang['Storage'],
-                    'fa fa-archive'
-                ),
-                'snapin' => array(
-                    self::$foglang['Snapin'],
-                    'fa fa-files-o'
-                ),
-                'printer' => array(
-                    self::$foglang['Printer'],
-                    'fa fa-print'
-                ),
-                'service' => array(
-                    self::$foglang['ClientSettings'],
-                    'fa fa-cogs'
-                ),
-                'task' => array(
-                    self::$foglang['Tasks'],
-                    'fa fa-tasks'
-                ),
-                'report' => array(
-                    self::$foglang['Reports'],
-                    'fa fa-file-text'
-                ),
-                'about' => array(
-                    self::$foglang['FOG Configuration'],
-                    'fa fa-wrench'
-                )
-            );
-            if (self::getSetting('FOG_PLUGINSYS_ENABLED')) {
-                self::arrayInsertAfter(
-                    'about',
-                    $this->main,
-                    'plugin',
-                    array(
-                        self::$foglang['Plugins'],
-                        'fa fa-cog'
-                    )
-                );
-            }
-            $this->main = array_unique(
-                array_filter($this->main),
-                SORT_REGULAR
-            );
-            self::$HookManager
-                ->processEvent(
-                    'MAIN_MENU_DATA',
-                    array(
-                        'main' => &$this->main
-                    )
-                );
-            if (count($this->main) > 0) {
-                $links = array_keys($this->main);
-            }
-            $links = self::fastmerge(
-                (array)$links,
-                array(
-                    'home',
-                    'logout',
-                    'hwinfo',
-                    'client',
-                    'schema',
-                    'ipxe'
-                )
-            );
-            if ($node
-                && !in_array($node, $links)
-            ) {
-                self::redirect('index.php');
-            }
-            ob_start();
-            $count = false;
-            if (count($this->main) > 0) {
-                foreach ($this->main as $link => &$title) {
-                    $links[] = $link;
-                    if (!$node && $link == 'home') {
-                        $node = $link;
-                    }
-                    $activelink = ($node == $link);
-                    $subItems = array_filter(
-                        FOGPage::buildSubMenuItems($link)
-                    );
-                    echo '<li class="';
-                    echo (
-                        count($subItems) > 0 ?
-                        'treeview ' :
-                        ''
-                    );
-                    echo (
-                        $activelink ?
-                        'active' :
-                        ''
-                    );
-                    echo '">';
-                    echo '  <a href="';
-                    echo (
-                        count($subItems) > 0 ?
-                        '#' :
-                        '?node=' . $link
-                    );
-                    echo '">';
-                    echo '      <i class="' . $title[1] . '"></i> ';
-                    echo '<span>' . $title[0] . '</span>';
-                    if (count($subItems) > 0) {
-                        echo '<span class="pull-right-container">';
-                        echo '    <i class="fa fa-angle-left pull-right"></i>';
-                        echo '</span>';
-                    }
-                    echo '</a>';
-                    if (count($subItems) > 0) {
-                        echo '<ul class="treeview-menu">';
-                        foreach ($subItems as $subItem => $text) {
-                            echo '<li class="';
-                            if ($activelink && $sub == $subItem) {
-                                echo 'active';
-                            }
-                            echo '"><a href="../management/index.php?node=';
-                            echo $link;
-                            echo '&sub=';
-                            echo $subItem;
-                            echo '">';
-                            echo '<i class="fa fa-circle-o"></i>';
-                            echo $text;
-                            echo '</a>';
-                            echo '</li>';
-                        }
-                        echo '</ul>';
-                    }
-                    echo '</li>';
-                    unset($title);
-                }
-            }
-            $this->menu = ob_get_clean();
-        }
+        FOGPage::buildMainMenuItems($this->menu);
         $files = array(
             'bower_components/jquery/dist/jquery.min.js',
             'bower_components/bootstrap/dist/js/bootstrap.min.js',
             'plugins/datatables/datatables.min.js',
             'plugins/iCheck/icheck.min.js',
-            'plugins/bootbox/bootbox.min.js',            
+            'plugins/bootbox/bootbox.min.js',
             'bower_components/select2/dist/js/select2.full.min.js',
-            'plugins/pnotify/pnotify.min.js',            
+            'plugins/pnotify/pnotify.min.js',
             'plugins/input-mask/jquery.inputmask.js',
             'plugins/input-mask/jquery.inputmask.extensions.js',
-            'plugins/input-mask/jquery.inputmask.regex.extensions.js',     
-            'plugins/input-mask/jquery.inputmask.numeric.extensions.js',                 
+            'plugins/input-mask/jquery.inputmask.regex.extensions.js',
+            'plugins/input-mask/jquery.inputmask.numeric.extensions.js',
             'plugins/input-mask/jquery.inputmask.date.extensions.js',
             'bower_components/jquery-slimscroll/jquery.slimscroll.min.js',
             'bower_components/fastclick/lib/fastclick.js',
@@ -328,9 +171,9 @@ class Page extends FOGBase
             );
             $filepaths = array();
             if (empty($subset)) {
-                $filepaths = array("js/fog/fog.{$node}.js");                
+                $filepaths = array("js/fog/fog.{$node}.js");
             } else {
-                $filepaths = array("js/fog/fog.{$node}.{$subset}.js");                
+                $filepaths = array("js/fog/fog.{$node}.{$subset}.js");
             }
         }
         array_map(

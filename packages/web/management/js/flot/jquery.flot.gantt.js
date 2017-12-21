@@ -47,7 +47,7 @@ THE SOFTWARE.
                 findMode: "circle",
                 drawHover: null
             }
-        }   
+
     };
     function drawStepDefault(ctx,series,data,x,y,x2,color, isHighlight){
         if(isHighlight === false){
@@ -83,12 +83,12 @@ THE SOFTWARE.
                 s.nearBy.findItem = findNearbyItemGantt;
                 s.nearBy.drawHover = drawHoverGantt;
             }
-        }		
+
         function draw(plot, ctx){
             var serie;
             canvas = plot.getCanvas();
             target = $(canvas).parent();
-            axes = plot.getAxes();           
+
             offset = plot.getPlotOffset();
             data = plot.getData();
             for (var i = 0; i < data.length; i++){
@@ -122,7 +122,7 @@ THE SOFTWARE.
                         var x = offset.left + axes.xaxis.p2c(series.data[i][2]),
                             y = offset.top + axes.yaxis.p2c(series.data[i][1]),
                             y2 = offset.top + axes.yaxis.p2c(series.data[j][1]);
-                        drawConnection(ctx,x,y,y2,series.gantt.connectSteps.lineWidth,series.gantt.connectSteps.color);		   
+
                     }
                 }
             }
@@ -140,9 +140,9 @@ THE SOFTWARE.
             if(opt.series.justEditing){
                 if(opt.series.justEditing[1].seriesIndex === i){item = findNearbyItemEdit(mouseX,mouseY,i,serie);}
             }
-            else{ 
+
                 if(opt.grid.editable){ item = findNearbyItemForEdit(mouseX,mouseY,i,serie);}
-                else{ item = findNearbyItem(mouseX,mouseY,i,serie);}        
+
             }
             return item;
             function findNearbyItem(mouseX,mouseY,i,serie){
@@ -168,8 +168,8 @@ THE SOFTWARE.
                             if(between(mouseX,dx,dx2)){ item = [i,j]; serie.editMode = 'y'; serie.nearBy.findMode = 'vertical';serie.nearBy.width = dataitem[2]-dataitem[0];}
                             if(between(mouseX,dx,dx + serie.nearBy.distance)) { item = [i,[j,1]];serie.editMode = 'x'; serie.nearBy.findMode = 'horizontal'; }
                             if(between(mouseX,dx2,dx2 + serie.nearBy.distance)) { item = [i,[j,2]];serie.editMode = 'x'; serie.nearBy.findMode = 'horizontal'; }
-                        } 
-                    } 
+
+
                 }
                 return item;
             }
@@ -178,7 +178,7 @@ THE SOFTWARE.
                 var j = opt.series.justEditing[1].dataIndex;
                 var dataitem = serie.data[j];
                 if(j.length){item = [i,j];}else{item = [i,j];}
-                return item;		   
+
             }
         }
         function drawHoverGantt(octx,serie,dataIndex){

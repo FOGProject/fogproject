@@ -18,14 +18,14 @@
         var rawIds = table.rows( { selected: true } ).ids();
         var cleanIds = [];
         for(var i = 0; i < rawIds.length; i++) {
-            cleanIds.push(rawIds[i].replace('host-', '')); 
+
         }
         console.log(cleanIds);
         return cleanIds;
     };
     var massDelete = function(password) {
         var opts = {
-            fogguipass: null, 
+
             fogguipass: password,
             remitems: getSelectedIds()
         };
@@ -37,8 +37,8 @@
             success: function(res) {
                 console.log(res);
                 table.rows( { selected: true } ).remove();
-                table.draw();        
-                table.button(1,1).enable(true);                    
+
+
             },
             error: function(res) {
                 if (res.status == 401) {
@@ -47,7 +47,7 @@
                         inputType: 'password',
                         callback: function(result) {
                             if (result === null) {
-                                table.button(1,1).enable(true);          
+
                             } else {
                                 massDelete(result);
                             }
@@ -89,19 +89,19 @@
     table.buttons( 1, null ).container().appendTo(
         table.table().container()
     );
-    
+
     table.on('select', function() {
         var selectedRows = table.rows( { selected: true } ).count();
         table.button(1,0).enable( selectedRows > 0 );
         table.button(1,1).enable( selectedRows > 0 );
-        
+
     });
     table.on('deselect', function() {
         var selectedRows = table.rows( { selected: true } ).count();
-        table.button(1,0).enable( selectedRows > 0 ); 
-        table.button(1,1).enable( selectedRows > 0 ); 
+
+
     });
-      
+
     /*
     $('#process').on('click', function(e) {
         checkedIDs = getChecked();
