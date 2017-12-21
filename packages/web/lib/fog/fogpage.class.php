@@ -390,9 +390,178 @@ abstract class FOGPage extends FOGBase
         //$this->menu = self::buildSubMenuItems($node);
     }
     /**
+     * Creates the main menu items.
+     *
+     * @param array $main Items to set.
+     *
+     * @return string
+     */
+    public static function buildMainMenuItems(&$main = '')
+    {
+        global $node;
+        if (!self::$FOGUser->isValid() || strtolower($node) == 'schema') {
+            return;
+        }
+        $menu = array(
+            'home' => array(
+                self::$foglang['Dashboard'],
+                'fa fa-dashboard'
+            ),
+            'user' => array(
+                self::$foglang['Users'],
+                'fa fa-users'
+            ),
+            'host' => array(
+                self::$foglang['Hosts'],
+                'fa fa-desktop'
+            ),
+            'group' => array(
+                self::$foglang['Groups'],
+                'fa fa-sitemap'
+            ),
+            'image' => array(
+                self::$foglang['Images'],
+                'fa fa-picture-o'
+            ),
+            'storage' => array(
+                self::$foglang['Storage'],
+                'fa fa-archive'
+            ),
+            'snapin' => array(
+                self::$foglang['Snapin'],
+                'fa fa-files-o'
+            ),
+            'printer' => array(
+                self::$foglang['Printer'],
+                'fa fa-print'
+            ),
+            'service' => array(
+                self::$foglang['ClientSettings'],
+                'fa fa-cogs'
+            ),
+            'task' => array(
+                self::$foglang['Tasks'],
+                'fa fa-tasks'
+            ),
+            'report' => array(
+                self::$foglang['Reports'],
+                'fa fa-file-text'
+            ),
+            'about' => array(
+                self::$foglang['FOG Configuration'],
+                'fa fa-wrench'
+            )
+        );
+        if (self::getSetting('FOG_PLUGINSYS_ENABLED')) {
+            self::arrayInsertAfter(
+                'about',
+                $menu,
+                'plugin',
+                array(
+                    self::$foglang['Plugins'],
+                    'fa fa-cog'
+                )
+            );
+        }
+        $menu = array_unique(
+            array_filter($menu),
+            SORT_REGULAR
+        );
+        self::$HookManager
+            ->processEvent(
+                'MAIN_MENU_DATA',
+                array(
+                    'main' => &$menu
+                )
+            );
+        if (count($menu) > 0) {
+            $links = array_keys($menu);
+        }
+        $links = self::fastmerge(
+            (array)$links,
+            array(
+                'home',
+                'logout',
+                'hwinfo',
+                'client',
+                'schema',
+                'ipxe'
+            )
+        );
+        if ($node
+            && !in_array($node, $links)
+        ) {
+            self::redirect('index.php');
+        }
+        ob_start();
+        $count = false;
+        if (count($menu) > 0) {
+            foreach ($menu as $link => &$title) {
+                $links[] = $link;
+                if (!$node && $link == 'home') {
+                    $node = $link;
+                }
+                $activelink = ($node == $link);
+                $subItems = array_filter(
+                    FOGPage::buildSubMenuItems($link)
+                );
+                echo '<li class="';
+                echo (
+                    count($subItems) > 0 ?
+                    'treeview ' :
+                    ''
+                );
+                echo (
+                    $activelink ?
+                    'active' :
+                    ''
+                );
+                echo '">';
+                echo '  <a href="';
+                echo (
+                    count($subItems) > 0 ?
+                    '#' :
+                    '?node=' . $link
+                );
+                echo '">';
+                echo '      <i class="' . $title[1] . '"></i> ';
+                echo '<span>' . $title[0] . '</span>';
+                if (count($subItems) > 0) {
+                    echo '<span class="pull-right-container">';
+                    echo '    <i class="fa fa-angle-left pull-right"></i>';
+                    echo '</span>';
+                }
+                echo '</a>';
+                if (count($subItems) > 0) {
+                    echo '<ul class="treeview-menu">';
+                    foreach ($subItems as $subItem => $text) {
+                        echo '<li class="';
+                        if ($activelink && $sub == $subItem) {
+                            echo 'active';
+                        }
+                        echo '"><a href="../management/index.php?node=';
+                        echo $link;
+                        echo '&sub=';
+                        echo $subItem;
+                        echo '">';
+                        echo '<i class="fa fa-circle-o"></i>';
+                        echo $text;
+                        echo '</a>';
+                        echo '</li>';
+                    }
+                    echo '</ul>';
+                }
+                echo '</li>';
+                unset($title);
+            }
+        }
+        $main = ob_get_clean();
+        unset($main);
+    }
+    /**
      * Creates the sub menu items.
      *
-     * @param string $node The node to "append"
+     * @param string $refNode The node to "append"
      *
      * @return array
      */

@@ -45,13 +45,13 @@ THE SOFTWARE.
         if (item) {
             var data = item.series.data[item.dataIndex];
             if(createText){ txt = createText(data);}
-            else { 
+
                 txt = "X:" + data[0] + "<br>Y:" + data[1];
                 if(data.length > 2) { for(var i = 2; i < data.length; i++){ txt += "<br>" + data[i]; } }
             }
             showTooltip(pos.pageX, pos.pageY,txt);
         }
-        else { 
+
             if(showAlways === true){
                 txt = pos.x1 + " / " + pos.y1;
                 showTooltip(pos.pageX,pos.pageY,txt);
@@ -76,7 +76,7 @@ THE SOFTWARE.
             $.getScript(path).done(loaded).fail(errorFound);
             return dfd.promise();
             function loaded(){ loadedScripts[name] = true;dfd.resolve();}
-            function errorFound(e,f,g){console.log(path,e); loadedScripts[name] = false;dfd.reject();}    
+
         }
     }
     function loadJSON(scripts,maxWait,callback){
@@ -94,7 +94,7 @@ THE SOFTWARE.
             function errorFound(e,f,g){ loadedJSON[name] = {name:name,loaded:false};dfd.reject();}
         }
     }
-    
+
     function createQuartile(data, index, indexName){
         var q0 = [], q1 = [],q2 = [],q3 = [],q4 = [], v = [], i1, i2, i3, i4, p;
         i1 = (0.25 * data.length).toFixed(0); i2 = (0.5 * data.length).toFixed(0);
@@ -169,8 +169,8 @@ THE SOFTWARE.
             if(dx[i][2]){
                 if(typeof dx[i][1] === "undefined") { d1.push([i,p]); }
                 else { d1.push([i,dx[i][1]]); p = dx[i][1]; }
-            } 
-            else{ 
+
+
                 if(dx[i][1] > 0) { d4.push([i,- dx[i][1]]);p = p + dx[i][1];d2.push([i,p]);d3.push([i,0]);}
                 else {d3.push([i,- dx[i][1]]);p = p + dx[i][1];d2.push([i,p]);}
             }
@@ -178,7 +178,7 @@ THE SOFTWARE.
         }
         var ticks = [];
         for(i = 0; i < data.length; i++){ ticks.push([i,data[i][0]]);}
-        var dr = { 
+
             data: [
             { data: d1, color: colors.fixed },
             { data: d2, bars: { show: false }, lines: { show: false } },
@@ -239,7 +239,7 @@ THE SOFTWARE.
         var d = [];
         for(var i = 0; i < data.length; i++){ d.push(data[i]);}
         if(sortfnc){ d.sort(sortfnc); }
-        else{ 
+
             if (sortOrder === "a"){ d.sort(mysorta); } else { d.sort(mysortd); }
         }
         return d;
@@ -268,7 +268,7 @@ THE SOFTWARE.
             var datasum = 0, datar = 0, datao = 0,j;
             for(i = 0; i < d.length;i++){ datasum += d[i][1];}
             datasum = datasum * topPercent / 100;
-            for(i = 0; i < d.length; i++){ 
+
                 if (datar < datasum) {
                     dn.push(d[i]);
                     datar += d[i][1];
@@ -282,7 +282,7 @@ THE SOFTWARE.
         }
         for(i = 0; i < d.length; i++){d[i][0] = i; }
         return { data:d, ticks:getTicks(d) };
-    }    
+
     function getTicks(d){
         var t = [];
         for(var i = 0; i < d.length; i++){
@@ -310,7 +310,7 @@ THE SOFTWARE.
             r.push(s);
         }
         return r;
-    }  
+
 
     function createFont(placeholder){
         var f = {
@@ -345,14 +345,14 @@ THE SOFTWARE.
         var c;
         if(typeof colorData === "object"){
             if(typeof colorData.dataIndex !== "undefined"){
-                if(typeof colorData.serie.data[colorData.dataIndex].color !== "undefined"){ 
+
                     c = getColorL(colorData.serie.data[colorData.dataIndex].color);
                 }
                 else{ c = colorData.colors[colorData.dataIndex]; }
             }
             else{
                 if(typeof colorData.serieIndex !== "undefined"){
-                    if(typeof colorData.serie.color !== "undefined"){ c = getColorL(colorData.serie.color);} 
+
                     else{ c = colorData.colors[colorData.serieIndex];}
                 }
                 else{
@@ -364,15 +364,15 @@ THE SOFTWARE.
         else{ c = getColorL(colorData); }
         return c;
         function getColorL(color){
-            var c; 
-            if(typeof color === "object"){ 
+
+
                 if(typeof color.image !== "undefined"){
                     c = colorData.ctx.createPattern(color.image,color.repeat);
                 }
                 else{
                     if(colorData.radius){
                         c = colorData.ctx.createRadialGradient(colorData.left,colorData.top,0,
-                            colorData.left,colorData.top,colorData.radius);  
+
                     }
                     else { c = colorData.ctx.createLinearGradient(0,0,colorData.width,colorData.height);}
                     for(var i = 0; i < color.colors.length; i++){
@@ -385,7 +385,7 @@ THE SOFTWARE.
                         }
                         c.addColorStop(i / (color.colors.length - 1),cl);
                     }
-                }    
+
             }
             else{ if(typeof color === "string"){ c = color; } else { c = colorData.colors[color]; } }
             return c;
@@ -402,9 +402,9 @@ THE SOFTWARE.
             $('<img />').attr('src',url).load(loaded).error(errorFound);
             return dfd.promise();
             function loaded(){ loadedImg[img.name] = this;dfd.resolve();}
-            function errorFound(e,f,g){console.log(url,e); loadedImg[img.name] = null;dfd.reject();}    
+
         }
-    } 
+
     function getCanvases(placeholder){
         var canvases = {
             background:$(placeholder).children(".flot-background"),
@@ -419,11 +419,11 @@ THE SOFTWARE.
             else{
                 if(typeof ext[i] === "object"){
                     extendEmpty(org[i],ext[i]);
-                }   
+
             }
         }
     }
-    
+
     function drawLines(plot,lines){
         var offset,series,ctx;
         offset = plot.getPlotOffset();
@@ -437,10 +437,10 @@ THE SOFTWARE.
             if(!fl.dataFieldY){ fl.dataFieldY = 1;}
             if(!tl.dataFieldX){ tl.dataFieldX = 0;}
             if(!tl.dataFieldY){ tl.dataFieldY = 1;}
-            var fromPos = {xaxis:from.xaxis, yaxis:from.yaxis, x:from.data[fl.dataIndex][fl.dataFieldX], y:from.data[fl.dataIndex][fl.dataFieldY]}, 
+
                 toPos = {xaxis:to.xaxis, yaxis:to.yaxis, x:to.data[tl.dataIndex][tl.dataFieldX], y:to.data[tl.dataIndex][tl.dataFieldY]},
                 lineStyle = {strokeStyle:"red", lineWidth:5};
-            drawLine(plot,ctx,fromPos,toPos,lineStyle);     
+
         }
     }
     function drawLine(plot,ctx,fromPos,toPos,lineStyle){
@@ -467,8 +467,8 @@ THE SOFTWARE.
             default: drawColor(plot,ctx,boxC,boxStyle);
         }
         function drawImage(plot,ctx,boxC,boxStyle){
-            var image = boxStyle.image;        
-            if(typeof image !== "undefined"){ctx.drawImage(image,boxC.x,boxC.y,boxC.width(),boxC.height());} 
+
+
         }
         function drawColor(plot,ctx,boxC,boxStyle){
             color = getColor({ctx:ctx,color:boxStyle.color,left:boxC.x,top:boxC.y,height:boxC.height,width:boxC.width});

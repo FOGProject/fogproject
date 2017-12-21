@@ -6,14 +6,14 @@
  return this.each(function()
 	 {
 	 var $this = $(this);
-	 
+
 	 $this	.addClass('placeholder')
 	 .data('placeholder', $this.attr('placeholder'))
 	 .val($this.attr('placeholder'))
 	 .focus(function()
 		 {
 		 var $this = $(this);
-		 
+
 		 if ($this.val() == $this.data('placeholder') || $this.val() == '')
 		 {
 		 $(this).removeClass('placeholder').val('');
@@ -22,7 +22,7 @@
 	 .blur(function()
 		 {
 		 var $this = $(this);
-		 
+
 		 if ($this.val() == '')
 		 {
 		 $(this).addClass('placeholder').val($this.data('placeholder'));
@@ -32,13 +32,13 @@
 		 .submit(function()
 				 {
 				 $(this).find('.placeholder').val('');
-				 
+
 				 return true;
 				 });
 	 });
  }
  };
- 
+
 	 $.fn.placeholder = function(method)
 	 {
 		 if (methods[method])
@@ -54,5 +54,5 @@
 			 $.error('Method ' + method + ' does not exist on jQuery.placeholder');
 		 }
 	 };
- 
+
 })(jQuery);
