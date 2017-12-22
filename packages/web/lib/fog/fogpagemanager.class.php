@@ -92,9 +92,9 @@ class FOGPageManager extends FOGBase
      */
     public function getFOGPageClass($override = '')
     {
-	if (empty($override)) {
-		$override = $this->classValue;
-	}
+        if (empty($override)) {
+            $override = $this->classValue;
+        }
         return $this->_nodes[$override];
     }
     /**
@@ -373,9 +373,7 @@ class FOGPageManager extends FOGBase
             if (!$className || !isset($className)) {
                 return;
             }
-            if (in_array($className, get_declared_classes())
-                || class_exists($className, false)
-            ) {
+            if (in_array($className, get_declared_classes())) {
                 return;
             }
             $vals = get_class_vars($className);

@@ -200,6 +200,18 @@ abstract class FOGPage extends FOGBase
      */
     protected static $returnData;
     /**
+     * Collapse box display.
+     *
+     * @var string
+     */
+    protected static $FOGCollapseBox;
+    /**
+     * Close box display.
+     *
+     * @var string
+     */
+    protected static $FOGCloseBox;
+    /**
      * Initializes the page class
      *
      * @param mixed $name name of the page to initialize
@@ -209,6 +221,14 @@ abstract class FOGPage extends FOGBase
     public function __construct($name = '')
     {
         parent::__construct();
+        self::$FOGCollapseBox = '<button type="button" class="btn '
+            . 'btn-box-tool" data-widget="collapse">'
+            . '<i class="fa fa-minus"></i>'
+            . '</button>';
+        self::$FOGCloseBox = '<button type="button" class="btn '
+            . 'btn-box-tool" data-widget="remove">'
+            . '<i class="fa fa-times"></i>'
+            . '</button>';
         if (self::$ajax) {
             session_write_close();
             ignore_user_abort(true);
@@ -556,7 +576,7 @@ abstract class FOGPage extends FOGBase
             }
         }
         $main = ob_get_clean();
-        unset($main);
+        return $main;
     }
     /**
      * Creates the sub menu items.

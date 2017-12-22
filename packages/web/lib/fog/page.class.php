@@ -117,7 +117,7 @@ class Page extends FOGBase
             ->addCSS('plugins/datatables/datatables.min.css')
             ->addCSS('dist/css/AdminLTE.min.css')
             ->addCSS('dist/css/skins/_all-skins.min.css')
-            ->addCSS('dist/css/font.css');
+            ->addCSS('css/font.css');
         if (!isset($node)
             || !$node
         ) {
