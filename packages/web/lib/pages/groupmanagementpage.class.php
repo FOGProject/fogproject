@@ -93,9 +93,6 @@ class GroupManagementPage extends FOGPage
             )
         );
         $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" '
-            . 'class="toggle-checkboxAction" id="toggler"/>'
-            . '<label for="toggler"></label>',
             _('Name'),
             _('Members'),
             _('Tasking'),
@@ -103,9 +100,6 @@ class GroupManagementPage extends FOGPage
         $down = self::getClass('TaskType', 1);
         $mc = self::getClass('TaskType', 8);
         $this->templates = array(
-            '<input type="checkbox" name="group[]" '
-            . 'value="${id}" class="toggle-action" id="group-${id}"/>'
-            . '<label for="group-${id}"></label>',
             sprintf(
                 '<a href="?node=group&sub=edit&%s=${id}" '
                 . 'title="Edit">${name}</a>',
@@ -135,17 +129,14 @@ class GroupManagementPage extends FOGPage
             ),
         );
         $this->attributes = array(
-            array(
-                'width' => 16,
-                'class' => 'filter-false'),
             array(),
             array('class' => 'text-center'),
             array()
         );
-	global $id;
-	if ($id > 0) {
-	    $this->_getHostCommon();
-	}
+        global $id;
+        if ($id > 0) {
+            $this->_getHostCommon();
+        }
         /**
          * Lamda function to return data either by list or search.
          *

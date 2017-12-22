@@ -171,9 +171,9 @@ class Page extends FOGBase
             );
             $filepaths = array();
             if (empty($subset)) {
-                $filepaths = array("js/fog/fog.{$node}.js");
+                $filepaths = array("js/fog/{$node}/fog.{$node}.js");
             } else {
-                $filepaths = array("js/fog/fog.{$node}.{$subset}.js");
+                $filepaths = array("js/fog/{$node}/fog.{$node}.{$subset}.js");
             }
         }
         array_map(
@@ -202,7 +202,7 @@ class Page extends FOGBase
             && ($node == 'home'
             || !$node)
         ) {
-            array_push($files, 'js/fog/fog.dashboard.js');
+            array_push($files, 'js/fog/dashboard/fog.dashboard.js');
             $test = preg_match(
                 '#MSIE [6|7|8|9|10|11]#',
                 self::$useragent
@@ -215,7 +215,7 @@ class Page extends FOGBase
             }
         }
         if ($node === 'schema') {
-            array_push($files, 'js/fog/fog.schema.js');
+            array_push($files, 'js/fog/schema/fog.schema.js');
         }
         $files = array_unique((array)$files);
         array_map(

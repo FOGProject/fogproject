@@ -125,10 +125,6 @@ class ImageManagementPage extends FOGPage
         $this->headerData = array(
             '',
             '',
-            '<label for="toggler">'
-            . '<input type="checkbox" name="toggle-checkbox" '
-            . 'class="toggle-checkboxAction" id="toggler"/>'
-            . '</label>',
             _('Image Name'),
             _('Storage Group'),
             _('Image Size: ON CLIENT'),
@@ -156,10 +152,6 @@ class ImageManagementPage extends FOGPage
         $this->templates = array(
             '${protected}',
             '${enabled}',
-            '<label for="toggler1">'
-            . '<input type="checkbox" name="image[]" '
-            . 'value="${id}" class="toggle-action" id="'
-            . 'toggler1"/></label>',
             '<a href="?node='
             . $this->node
             . '&sub=edit&id=${id}" '
@@ -203,10 +195,6 @@ class ImageManagementPage extends FOGPage
             ),
             array(
                 'width' => 5,
-                'class' => 'filter-false'
-            ),
-            array(
-                'width' => 16,
                 'class' => 'filter-false'
             ),
             array(),
