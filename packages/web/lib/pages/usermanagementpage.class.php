@@ -71,7 +71,6 @@ class UserManagementPage extends FOGPage
                 array(
                     'menu' => &$this->menu,
                     'submenu' => &$this->subMenu,
-                    'id' => &$this->id,
                     'notes' => &$this->notes,
                     'object'=> &$this->obj,
                     'linkformat' => &$this->linkformat,
@@ -79,41 +78,26 @@ class UserManagementPage extends FOGPage
                 )
             );
         $this->headerData = array(
-            '<label for="toggler">'
-            . '<input type="checkbox" name="toggle-checkbox" class='
-            . '"toggle-checkboxAction" id="toggler"/>'
-            . '</label>',
-            _('API?'),
             _('Username'),
-            _('Friendly Name')
+            _('Friendly Name'),
+            _('API?')
         );
         $this->templates = array(
-            '<label for="user-${id}">'
-            . '<input type="checkbox" name="user[]" value='
-            . '"${id}" class="toggle-action" id="user-${id}"/>'
-            . '</label>',
-            '${apiYes}',
             sprintf(
                 '<a href="?node=%s&sub=edit&%s=${id}" title="%s">${name}</a>',
                 $this->node,
                 $this->id,
                 _('Edit User')
             ),
-            '${friendly}'
+            '${friendly}',
+            '${apiYes}',
         );
         $this->attributes = array(
-            array(
-                'class' => 'filter-false form-group',
-                'width' => 16
-            ),
-            array(
-                'width' => 22
-            ),
-            array(
-                'width' => 22
-            ),
             array(),
-            array()
+            array(),
+            array(
+                'width' => 22
+            )
         );
         $types = array();
         self::$HookManager->processEvent(
