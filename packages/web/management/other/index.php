@@ -61,7 +61,6 @@ echo 'hold-transition skin-blue sidebar-mini';
 echo '">';
 
 if (self::$FOGUser->isValid()) {
-
     echo '<div class="wrapper">';
     
     // HEADER
