@@ -154,10 +154,6 @@ class SnapinManagementPage extends FOGPage
         $this->headerData = array(
             '',
             '',
-            '<label for="toggler">'
-            . '<input type="checkbox" name="toggle-checkbox" '
-            . 'class="toggle-checkboxAction" id="toggler"/>'
-            . '</label>',
             _('Snapin Name'),
             _('Is Pack'),
             _('Storage Group'),
@@ -168,10 +164,6 @@ class SnapinManagementPage extends FOGPage
         $this->templates = array(
             '${protected}',
             '${enabled}',
-            '<label for="toggler1">'
-            . '<input type="checkbox" name="snapin[]" '
-            . 'value="${id}" class="toggle-action" id="'
-            . 'toggler1"/></label>',
             '<a href="?node='
             . $this->node
             . '&sub=edit&id=${id}" '
@@ -193,10 +185,6 @@ class SnapinManagementPage extends FOGPage
             array(
                 'class' => 'filter-false',
                 'width' => 5
-            ),
-            array(
-                'class' => 'filter-false',
-                'width' => 16
             ),
             array(),
             array(

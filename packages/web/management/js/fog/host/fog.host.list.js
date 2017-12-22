@@ -15,30 +15,31 @@
         select: true,
     });
     var getSelectedIds = function() {
-        var rawIds = table.rows( { selected: true } ).ids();
+        var itemIds = table.rows({
+            selected: true
+        }).ids();
         var cleanIds = [];
-        for(var i = 0; i < rawIds.length; i++) {
-
-        }
+        $.each(itemIds, function(i,v) {
+            cleanIds[i] = v.replace('host-', '');
+        });
         console.log(cleanIds);
         return cleanIds;
     };
     var massDelete = function(password) {
         var opts = {
-
             fogguipass: password,
             remitems: getSelectedIds()
         };
         $.ajax('', {
-            type: "POST",
-            url: "?node=host&sub=deletemulti",
+            type: 'POST',
+            url: "../management/index.php?node=host&sub=deletemulti",
             async:true,
             data: opts,
             success: function(res) {
                 console.log(res);
-                table.rows( { selected: true } ).remove();
-
-
+                table.rows({
+                    selected: true
+                }).remove();
             },
             error: function(res) {
                 if (res.status == 401) {
@@ -46,9 +47,7 @@
                         title: 'Please re-enter your password',
                         inputType: 'password',
                         callback: function(result) {
-                            if (result === null) {
-
-                            } else {
+                            if (result !== null) {
                                 massDelete(result);
                             }
                         }
@@ -58,48 +57,40 @@
         });
     }
     new $.fn.dataTable.Buttons( table, {
-        buttons: [
-            {
-                text: 'Add selected to group',
-             //   className: 'btn-primary',
-                action: function(e, dt, node, config) {
-                    alert("Deleted!");
-                },
-                enabled: false,
-                init: function(api, node, config) {
-                    $(node).attr('data-toggle','modal');
-                    $(node).attr('data-target','#modal-group');
-                }
+        buttons: [{
+            text: 'Add selected to group',
+            action: function(e, dt, node, config) {
+                alert("Added selected hosts to group!");
             },
-            {
-                text: 'Delete selected',
-                className: 'btn-danger',
-                action: function(e, dt, node, config) {
-                    table.button(1,1).enable(false);
-                    massDelete();
-                },
-                enabled: false,
-                init: function(api, node, config) {
-                    $(node).removeClass('btn-default');
-                }
+            enabled: false,
+            init: function(api, node, config) {
+                $(node).attr('data-toggle','modal');
+                $(node).attr('data-target','#modal-group');
             }
-        ]
-    } );
-
+        },
+        {
+            text: 'Delete selected',
+            className: 'btn-danger',
+            action: function(e, dt, node, config) {
+                table.button(1,1).enable(false);
+                massDelete();
+            },
+            enabled: false,
+            init: function(api, node, config) {
+                $(node).removeClass('btn-default');
+            }
+        }]
+    });
     table.buttons( 1, null ).container().appendTo(
         table.table().container()
     );
-
     table.on('select', function() {
         var selectedRows = table.rows( { selected: true } ).count();
         table.button(1,0).enable( selectedRows > 0 );
         table.button(1,1).enable( selectedRows > 0 );
 
-    });
-    table.on('deselect', function() {
+    }).on('deselect', function() {
         var selectedRows = table.rows( { selected: true } ).count();
-
-
     });
 
     /*
