@@ -14,11 +14,12 @@
         select: true,
     });
     var getSelectedIds = function() {
-        var rawIds = table.rows({
+        var itemIds = table.rows({
             selected: true
         }).ids();
-        var cleanIds = rawIds.each(function(id) {
-            return id.replace('user-','');
+        var cleanIds = [];
+        $.each(itemIds, function(i,v) {
+            cleanIds[i] = v.replace('user-', '');
         });
         console.log(cleanIds);
         return cleanIds;
