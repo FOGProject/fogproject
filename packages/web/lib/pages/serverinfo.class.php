@@ -321,6 +321,7 @@ class ServerInfo extends FOGPage
             echo '</div>';
             unset($txtran, $rendered);
         }
+        echo '</div>';
         unset(
             $arGeneral,
             $arNIC,
@@ -338,10 +339,6 @@ class ServerInfo extends FOGPage
             $this->attributes,
             $this->templates
         );
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
         echo '</div>';
     }
 }
