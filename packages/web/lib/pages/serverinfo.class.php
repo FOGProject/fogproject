@@ -68,15 +68,20 @@ class ServerInfo extends FOGPage
             $this->templates,
             $this->attributes
         );
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Server information');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
+        $this->title = _('Server Information');
         if (!$this->obj->isValid()) {
+            echo '<div class="col-md-12">';
+            echo '<div class="box box-warning">';
+            echo '<div class="box-header with-border">';
+            echo '<h3 class="box-title">';
+            echo $this->title;
+            echo '</h3>';
+            echo '<div class="box-tools pull-right">';
+            echo self::$FOGCollapseBox;
+            echo self::$FOGCloseBox;
+            echo '</div>';
+            echo '</div>';
+            echo '<div class="box-body">';
             echo _('Invalid Server Information!');
             echo '</div>';
             echo '</div>';
@@ -91,16 +96,24 @@ class ServerInfo extends FOGPage
         $ret = self::$FOGURLRequests->process($url);
         $ret = trim($ret[0]);
         if (!$ret) {
+            echo '<div class="col-md-12">';
+            echo '<div class="box box-warning">';
+            echo '<div class="box-header with-border">';
+            echo '<h3 class="box-title">';
+            echo $this->title;
+            echo '</h3>';
+            echo '<div class="box-tools pull-right">';
+            echo self::$FOGCollapseBox;
+            echo self::$FOGCloseBox;
+            echo '</div>';
+            echo '</div>';
+            echo '<div class="box-body">';
             echo _('Unable to get server infromation!');
             echo '</div>';
             echo '</div>';
             echo '</div>';
             return;
         }
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8'),
-        );
         $this->templates = array(
             '${field}',
             '${input}',
@@ -142,6 +155,18 @@ class ServerInfo extends FOGPage
             unset($line);
         }
         if (count($arGeneral) < 1) {
+            echo '<div class="col-md-12">';
+            echo '<div class="box box-warning">';
+            echo '<div class="box-header with-border">';
+            echo '<h3 class="box-title">';
+            echo _('General Information');
+            echo '</h3>';
+            echo '<div class="box-tools pull-right">';
+            echo self::$FOGCollapseBox;
+            echo self::$FOGCloseBox;
+            echo '</div>';
+            echo '</div>';
+            echo '<div class="box-body">';
             echo _('Unable to find basic information!');
             echo '</div>';
             echo '</div>';
@@ -162,7 +187,7 @@ class ServerInfo extends FOGPage
             }
             unset($nic);
         }
-        $this->title = _('General Information');
+        // General Info
         $fields = array(
             _('Storage Node') => $this->obj->get('name'),
             _('IP') => self::resolveHostname(
@@ -180,51 +205,85 @@ class ServerInfo extends FOGPage
             _('Used Memory') => $arGeneral[9],
             _('Free Memory') => $arGeneral[10]
         );
-        array_walk($fields, $this->fieldsToData);
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo $this->title;
-        echo '</h4>';
+        ob_start();
+        foreach ($fields as $field => &$input) {
+            echo '<div class="col-md-4 pull-left">';
+            echo $field;
+            echo '</div>';
+            echo '<div class="col-md-8 pull-right">';
+            echo $input;
+            echo '</div>';
+            unset($field, $input);
+        }
+        $rendered = ob_get_clean();
+        echo '<div class="box box-info">';
+        echo '<div class="box-header with-border">';
+        echo '<h3 class="box-title">';
+        echo _('General Information');
+        echo '</h3>';
+        echo '<div class="box-tools pull-right">';
+        echo self::$FOGCollapseBox;
+        echo self::$FOGCloseBox;
         echo '</div>';
-        echo '<div class="panel-body">';
-        $this->render(12);
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo $rendered;
         echo '</div>';
         echo '</div>';
         unset(
             $fields,
+            $rendered,
             $this->form,
             $this->data
         );
-        $this->title = _('File System Information');
+        // File System Info
         $fields = array(
             _('Total Disk Space') => $arFS[0],
             _('Used Disk Space') => $arFS[1],
             _('Free Disk Space') => $arFS[2]
         );
-        array_walk($fields, $this->fieldsToData);
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo $this->title;
-        echo '</h4>';
+        ob_start();
+        foreach ($fields as $field => &$input) {
+            echo '<div class="col-md-4 pull-left">';
+            echo $field;
+            echo '</div>';
+            echo '<div class="col-md-8 pull-right">';
+            echo $input;
+            echo '</div>';
+            unset($field, $input);
+        }
+        $rendered = ob_get_clean();
+        echo '<div class="box box-info">';
+        echo '<div class="box-header with-border">';
+        echo '<h3 class="box-title">';
+        echo _('File System Information');
+        echo '</h3>';
+        echo '<div class="box-tools pull-right">';
+        echo self::$FOGCollapseBox;
+        echo self::$FOGCloseBox;
         echo '</div>';
-        echo '<div class="panel-body">';
-        $this->render(12);
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo $rendered;
         echo '</div>';
         echo '</div>';
         unset(
             $fields,
+            $rendered,
             $this->data
         );
-        $this->title = _('Network Information');
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo $this->title;
-        echo '</h4>';
+        // Network Information.
+        echo '<div class="box box-info">';
+        echo '<div class="box-header with-border">';
+        echo '<h3 class="box-title">';
+        echo _('Network Information');
+        echo '</h3>';
+        echo '<div class="box-tools pull-right">';
+        echo self::$FOGCollapseBox;
+        echo self::$FOGCloseBox;
         echo '</div>';
-        echo '<div class="panel-body">';
+        echo '</div>';
+        echo '<div class="box-body">';
         foreach ((array)$NICTrans as $index => &$txtran) {
             unset(
                 $fields,
@@ -237,20 +296,30 @@ class ServerInfo extends FOGPage
                 $NICErr[$index] => $NICErrInfo[$index],
                 $NICDro[$index] => $NICDropInfo[$index]
             );
-            array_walk($fields, $this->fieldsToData);
-            echo '<div class="panel panel-info">';
-            echo '<div class="panel-heading text-center">';
-            echo '<h4 class="title">';
+            ob_start();
+            foreach ($fields as $field => &$input) {
+                echo '<div class="col-md-4 pull-left">';
+                echo $field;
+                echo '</div>';
+                echo '<div class="col-md-8 pull-right">';
+                echo $input;
+                echo '</div>';
+                unset($field, $input);
+            }
+            $rendered = ob_get_clean();
+            echo '<div class="box box-info">';
+            echo '<div class="box-header with-border">';
+            echo '<h3 class="box-title">';
             echo $ethName[0];
             echo ' ';
             echo _('Information');
-            echo '</h4>';
+            echo '</h3>';
             echo '</div>';
-            echo '<div class="panel-body">';
-            $this->render(12);
+            echo '<div class="box-body">';
+            echo $rendered;
             echo '</div>';
             echo '</div>';
-            unset($txtran);
+            unset($txtran, $rendered);
         }
         unset(
             $arGeneral,
