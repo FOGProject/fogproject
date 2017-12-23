@@ -63,8 +63,6 @@ class TaskManagementPage extends FOGPage
                 )
             );
         $this->headerData = array(
-            '<input type="checkbox" class="toggle-checkboxAction" id="toggler"/>'
-            . '<label for="toggler"></label>',
             _('Started By:'),
             sprintf(
                 '%s<br/><small>%s</small>',
@@ -77,9 +75,6 @@ class TaskManagementPage extends FOGPage
             _('Status')
         );
         $this->templates = array(
-            '<input type="checkbox" class="toggle-action" name='
-            . '"task[]" value="${id}" id="tasker-${id}"/><label for="'
-            . 'tasker-${id}"></label>',
             '${startedby}',
             sprintf(
                 '<p><a href="?node=host&sub=edit&id=${host_id}" title='
@@ -98,11 +93,6 @@ class TaskManagementPage extends FOGPage
             . '</i> <i class="fa fa-${icon_type} fa-1x icon" title="${type}"></i>',
         );
         $this->attributes = array(
-            array(
-                'width' => 16,
-                'class' => 'filter-false',
-                'task-id' => '${id}'
-            ),
             array(
                 'width' => 65,
                 'id' => 'host-${host_id}'
