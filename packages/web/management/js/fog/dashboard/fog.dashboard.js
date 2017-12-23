@@ -191,7 +191,12 @@ var clientinterval = false;
         height: '150px'
     });
     GraphClient.css({
-        height: '150px'
+        height: '150px',
+        color: '#3f3f3f'
+    });
+    $('a #graph-diskusage').css({
+        color: '#3f3f3f',
+        'text-decoration': 'none'
     });
     Update30Day();
     // Diskusage Graph - Node select - Hook select box to load new data via AJAX
