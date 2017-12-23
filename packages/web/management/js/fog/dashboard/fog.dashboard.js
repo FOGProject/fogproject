@@ -1,3 +1,22 @@
+var GraphDiskUsage = $('#graph-diskusage'),
+    GraphDiskUsageAJAX,
+    GraphDiskUsageNode = $('#diskusage-selector select'),
+    ClientCountGroup = $('#graph-activity-selector select'),
+    NodeID,
+    GroupID,
+    GraphDiskUsageData = [{
+        label: 'Free',
+        data: 0
+    },
+    {
+        label: 'Used',
+        data: 0
+    }],
+    diskusagetime = 30000,
+    bytes,
+    units,
+    Graph30Day = $('#graph-30day'),
+    Graph30DayData;
 //var JSONParseFunction = (typeof(JSON) != 'undefined' ? JSON.parse : eval)
 // Disk Usage Graph Stuff
 // var GraphDiskUsage = $('#graph-diskusage');

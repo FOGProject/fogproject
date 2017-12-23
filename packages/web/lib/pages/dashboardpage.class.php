@@ -379,7 +379,6 @@ class DashboardPage extends FOGPage
         echo '</div>';
         echo '<div class="box-body">';
         echo '<div id="graph-30day" class="graph fogdashbox">';
-        echo '<canvas class="flot-base"/>';
         echo '</div>';
         echo '<div class="fog-variable" id="Graph30dayData"></div>';
         echo '</div>';
@@ -442,6 +441,18 @@ class DashboardPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '<div class="box-tools pull-right">';
+        echo _('Real Time');
+        echo ' ';
+        echo '<div class="btn-group" id="realtime" data-toggle="btn-toggle">';
+        echo '<button type="button" class="btn btn-default btn-xs active" '
+            . 'data-toggle="on">'
+            . _('On')
+            . '</button>';
+        echo '<button type="button" class="btn btn-default btn-xs" '
+            . 'data-toggle="off">'
+            . _('Off')
+            . '</button>';
+        echo '</div>';
         echo self::$FOGCollapseBox;
         echo self::$FOGCloseBox;
         echo '</div>';

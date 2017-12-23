@@ -1,646 +1,227 @@
 <?php
 /**
- * Presents the home/dashboard page.
+ * Client Management Page
  *
  * PHP version 5
  *
- * @category DashboardPage
+ * Presents the client page where users can download the FOG Client and
+ * related utilities as needed.
+ *
+ * @category ClientManagementPage
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
 /**
- * Presents the home/dashboard page.
+ * Client Management Page
  *
- * @category DashboardPage
+ * Presents the client page where users can download the FOG Client and
+ * related utilities as needed.
+ *
+ * @category ClientManagementPage
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class DashboardPage extends FOGPage
+class ClientManagementPage extends FOGPage
 {
     /**
-     * The tftp variable.
+     * The node that's related to this class
      *
      * @var string
      */
-    private static $_tftp = '';
+    public $node = 'client';
     /**
-     * The bandwidth time variable.
+     * Initializes the page
      *
-     * @var int
-     */
-    private static $_bandwidthtime = 1;
-    /**
-     * The node urls
-     *
-     * @var array
-     */
-    private static $_nodeURLs = array();
-    /**
-     * The node names
-     *
-     * @var array
-     */
-    private static $_nodeNames = array();
-    /**
-     * The node options
-     *
-     * @var mixed
-     */
-    private static $_nodeOpts;
-    /**
-     * The group options
-     *
-     * @var string
-     */
-    private static $_groupOpts;
-    /**
-     * The node to display page for.
-     *
-     * @var string
-     */
-    public $node = 'home';
-    /**
-     * Initialize the dashboard page
-     *
-     * @param string $name the name to initialize with.
+     * @param string $name the name to initialize with
      *
      * @return void
      */
     public function __construct($name = '')
     {
-        $this->name = self::$foglang['Dashboard'];
+        $this->name = 'Client Management';
         parent::__construct($this->name);
         $this->menu = array();
-        global $sub;
-        global $id;
-        $objName = 'StorageNode';
-        switch ($sub) {
-        case 'clientcount':
-            $this->obj = new StorageGroup($id);
-            break;
-        case 'diskusage':
-            $this->obj = new StorageNode($id);
-            break;
-        default:
-            $this->obj = new StorageNode();
-        }
-        if (self::$ajax) {
-            return;
-        }
-        $find = array(
-            'isEnabled' => 1,
-            'isGraphEnabled' => 1
-        );
-        Route::listem(
-            'storagenode',
-            'name',
-            false,
-            $find
-        );
-        $Nodes = json_decode(
-            Route::getData()
-        );
-        $Nodes = $Nodes->storagenodes;
-        foreach ((array)$Nodes as &$StorageNode) {
-            $ip = $StorageNode->ip;
-            $url = sprintf(
-                '%s/%s/',
-                $ip,
-                $StorageNode->webroot
-            );
-            $url = preg_replace(
-                '#/+#',
-                '/',
-                $url
-            );
-            $url = self::$httpproto.'://' . $url;
-            $testurls[] = $ip;
-            unset($ip);
-            self::$_nodeOpts[] = sprintf(
-                '<option value="%s" urlcall="%s">%s%s ()</option>',
-                $StorageNode->id,
-                sprintf(
-                    '%sservice/getversion.php',
-                    $url
-                ),
-                $StorageNode->name,
-                (
-                    $StorageNode->isMaster ?
-                    ' *' :
-                    ''
-                )
-            );
-            self::$_nodeNames[] = $StorageNode->name;
-            self::$_nodeURLs[] = sprintf(
-                '%sstatus/bandwidth.php?dev=%s',
-                $url,
-                $StorageNode->interface
-            );
-            unset($StorageNode);
-        }
-        Route::listem('storagegroup');
-        $Groups = json_decode(
-            Route::getData()
-        );
-        $Groups = $Groups->storagegroups;
-        foreach ((array)$Groups as &$StorageGroup) {
-            self::$_groupOpts .= sprintf(
-                '<option value="%s">%s</option>',
-                $StorageGroup->id,
-                $StorageGroup->name
-            );
-            unset($StorageGroup);
-        }
-        $test = array_filter(
-            self::$FOGURLRequests->isAvailable($testurls)
-        );
-        self::$_nodeOpts = array_intersect_key((array)self::$_nodeOpts, $test);
-        self::$_nodeNames = array_intersect_key((array)self::$_nodeNames, $test);
-        self::$_nodeURLs = array_intersect_key((array)self::$_nodeURLs, $test);
-        self::$_nodeOpts = implode((array)self::$_nodeOpts);
-        list(
-            self::$_bandwidthtime,
-            self::$_tftp
-        ) = self::getSubObjectIDs(
-            'Service',
-            array(
-                'name' => array(
-                    'FOG_BANDWIDTH_TIME',
-                    'FOG_TFTP_HOST'
-                )
-            ),
-            'value'
-        );
     }
     /**
-     * The index to display.
+     * This is the default method called.  Displays what we want on the
+     * "home" of the relevant page.
      *
      * @return void
      */
     public function index()
     {
-        $pendingInfo = '<i></i>'
-            . '&nbsp;%s&nbsp;%s <a href="?node=%s&sub=%s"><b>%s</b></a> %s';
-        $hostPend = sprintf(
-            $pendingInfo,
-            _('Pending hosts'),
-            _('Click'),
-            'host',
-            'pending',
-            _('here'),
-            _('to review.')
-        );
-        $macPend = sprintf(
-            $pendingInfo,
-            _('Pending macs'),
-            _('Click'),
-            'report',
-            'file&f=cGVuZGluZyBtYWMgbGlzdA==',
-            _('here'),
-            _('to review.')
-        );
-        $setMesg = '';
-        if (self::$pendingHosts > 0) {
-            $setMesg = $hostPend;
-        }
-        if (self::$pendingMACs > 0) {
-            if (empty($setMesg)) {
-                $setMesg = $macPend;
-            } else {
-                $setMesg .= "<br/>$macPend";
-            }
-        }
-        if (!empty($setMesg)) {
-            self::setMessage($setMesg);
-        }
-        $SystemUptime = self::$FOGCore->systemUptime();
-        $fields = array(
-            _('Web Server') => filter_input(
-                INPUT_SERVER,
-                'SERVER_ADDR'
-            ),
-            _('Load Average') => $SystemUptime['load'],
-            _('System Uptime') => $SystemUptime['uptime']
-        );
-        $this->templates = array(
-            '${field}',
-            '${input}'
-        );
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8')
-        );
-        $fields = (array)$fields;
-        array_walk($fields, $this->fieldsToData);
-        self::$HookManager
-            ->processEvent(
-                'DashboardData',
-                array(
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        echo '<!-- FOG Overview Boxes -->';
-        // Server info basic.
-        echo '<div class="col-md-4">';
-        echo '<div class="box box-info">';
-        echo '<div class="box-header with-border">';
-        echo '<h3 class="box-title">';
-        echo _('System Overview');
-        echo '</h3>';
-        echo '<div class="box-tools pull-right">';
-        echo self::$FOGCollapseBox;
-        echo self::$FOGCloseBox;
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        echo '<div class="row">';
-        foreach ($fields as $field => &$input) {
-            echo '<div class="col-xs-5">'
-                . '<b>'
-                . $field
-                . '</b>'
-                . ': '
-                . '</div>'
-                . '<div class="col-xs-7 pull-right">'
-                . $input
-                . '</div>';
-            unset($input);
-        }
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        // Group Activity
-        echo '<div class="col-md-4">';
-        echo '<div class="box box-info">';
-        echo '<div class="box-header with-border">';
-        echo '<h3 class="box-title">';
-        echo _('Storage Group Activity');
-        echo '</h3>';
-        echo '<div class="box-tools pull-right">';
-        echo self::$FOGCollapseBox;
-        echo self::$FOGCloseBox;
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        echo '<div class="row">';
-        echo '<div class="col-md-8">';
-        echo '<div class="chart-responsive">';
-        echo '<canvas id="graph-activity"/>';
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="col-md-4">';
-        echo '</div>';
-        echo '</div>';
-        //echo '<div class="graph pie-graph fogdashbox" id="graph-activity"></div>';
-        echo '<div class="graph-selectors" id="graph-activity-selector">';
-        printf(
-            '<select name="groupsel">%s</select>',
-            self::$_groupOpts
-        );
-        echo '<div id="ActivityActive"></div>';
-        echo '<div id="ActivityQueued"></div>';
-        echo '<div id="ActivitySlots"></div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        unset(
-            $this->data,
-            $this->templates,
-            $this->attributes,
-            $fields,
-            $SystemUptime,
-            $tftp
-        );
-        // Storage Usage
-        echo '<div class="col-md-4">';
-        echo '<div class="box box-info">';
-        echo '<div class="box-header with-border">';
-        echo '<h3 class="box-title">';
-        echo _('Storage Node Disk Usage');
-        echo '</h3>';
-        echo '<div class="box-tools pull-right">';
-        echo self::$FOGCollapseBox;
-        echo self::$FOGCloseBox;
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        echo '<div class="row">';
-        echo '<div class="col-md-8">';
-        echo '<a href="?node=hwinfo">';
-        echo '<div class="chart-responsive">';
-        echo '<canvas id="graph-activity"/>';
-        echo '</div>';
-        echo '</a>';
-        echo '</div>';
-        echo '<div class="col-md-4">';
-        echo '</div>';
-        echo '</div>';
-        //echo '<div class="graph pie-graph fogdashbox" id="graph-diskusage"></div>';
-        echo '<div class="graph-selectors" id="diskusage-selector">';
-        if (!empty(self::$_nodeOpts) && count(self::$_nodeOpts) > 0) {
-            printf(
-                '<select name="nodesel">%s</select>',
-                self::$_nodeOpts
-            );
-        } else {
-                echo _('No nodes available at this time');
-        }
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        unset(
-            $this->data,
-            $this->templates,
-            $this->attributes,
-            $fields,
-            $SystemUptime,
-            $tftp
-        );
-        // 30 day row.
-        echo '<div class="col-xs-12">';
-        echo '<div class="box box-info">';
-        echo '<div class="box-header with-border">';
-        echo '<h3 class="box-title">';
-        echo _('Imaging Over the last 30 days');
-        echo '</h3>';
-        echo '<div class="box-tools pull-right">';
-        echo self::$FOGCollapseBox;
-        echo self::$FOGCloseBox;
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        echo '<div id="graph-30day" class="graph fogdashbox">';
-        echo '<canvas class="flot-base"/>';
-        echo '</div>';
-        echo '<div class="fog-variable" id="Graph30dayData"></div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        // Bandwidth display
-        $bandwidthtime = self::$_bandwidthtime;
-        $datapointshour = (3600 / $bandwidthtime);
-        $bandwidthtime *= 1000;
-        $datapointshalf = ($datapointshour / 2);
-        $datapointsten = ($datapointshour / 6);
-        $datapointstwo = ($datapointshour / 30);
-        echo '<div class="col-xs-12">';
-        printf(
-            '<input type="hidden" id="bandwidthtime" value="%d"/>'
-            . '<input type="hidden" id="bandwidthUrls" type="hidden" value="%s"/>'
-            . '<input type="hidden" id="nodeNames" type="hidden" value="%s"/>',
-            $bandwidthtime,
-            implode(',', self::$_nodeURLs),
-            implode(',', self::$_nodeNames)
-        );
-        echo '<div class="box box-info">';
-        echo '<div class="box-header with-border">';
-        echo '<h3 class="box-title">';
-        echo self::$foglang['Bandwidth'];
-        echo '</h3>';
-        echo '<div class="row">';
-        echo '<div id="graph-bandwidth-filters-type">';
-        echo '<div class="col-md-2">';
-        echo '<p class="category" id="graph-bandwidth-title">';
-        echo self::$foglang['Bandwidth'];
-        echo ' - ';
-        echo '<span>';
-        echo self::$foglang['Transmit'];
-        echo '</span>';
-        echo '</p>';
-        echo '</div>';
-        echo '<div id="graph-bandwidth-filters-time"></div>';
-        echo '<div class="col-md-2">';
-        echo '<p class="category" id="graph-bandwidth-time">';
-        echo _('Time');
-        echo ' - ';
-        echo '<span>';
-        echo _('2 Minutes');
-        echo '</span>';
-        echo '</p>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="row">';
-        echo '<div class="col-md-2">';
-        echo '<a href="#" id="graph-bandwidth-filters-transmit" '
-            . 'class="type-filters graph-filters active">';
-        echo self::$foglang['Transmit'];
-        echo '</a>&nbsp;&nbsp;';
-        echo '<a href="#" id="graph-bandwidth-filters-receive" class='
-            . '"type-filters graph-filters">';
-        echo self::$foglang['Receive'];
-        echo '</a>';
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="box-tools pull-right">';
-        echo self::$FOGCollapseBox;
-        echo self::$FOGCloseBox;
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        echo '<div id="graph-30day" class="graph fogdashbox">';
-        echo '<canvas class="flot-base"/>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        /**
-         * REMOVE WHEN DONE CONVERTING
-         *
-        echo '<div class="row">';
-        echo '<div id="graph-bandwidth-filters-time">';
-        echo '<div class="col-xs-2">';
-        echo '<p class="category" id="graph-bandwidth-time">';
-        echo _('Time');
-        echo ' - ';
-        echo '<span>';
-        echo _('2 Minutes');
-        echo '</span>';
-        echo '</p>';
-        echo '</div>';
-        echo '<div class="col-xs-4">';
-        echo '<a href="#" rel="'
-            . $datapointstwo
-            . '" class="time-filters graph-filters active">';
-        echo _('2 Minutes');
-        echo '</a>';
-        echo '<a href="#" rel="'
-            . $datapointsten
-            . '" class="time-filters graph-filters">';
-        echo _('10 Minutes');
-        echo '</a>';
-        echo '<a href="#" rel="'
-            . $datapointshalf
-            . '" class="time-filters graph-filters">';
-        echo _('30 Minutes');
-        echo '</a>';
-        echo '<a href="#" rel="'
-            . $datapointshour
-            . '" class="time-filters graph-filters">';
-        echo _('1 Hour');
-        echo '</a>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<div id="graph-bandwidth" class="graph fogdashbox"></div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-         */
-    }
-    /**
-     * Gets the client count active/used/queued
-     *
-     * @return void
-     */
-    public function clientcount()
-    {
-        session_write_close();
-        ignore_user_abort(true);
-        set_time_limit(0);
-        $ActivityActive = $ActivityQueued = $ActivityTotalClients = 0;
-        $ActivityTotalClients = $this->obj->getTotalAvailableSlots();
-        $ActivityQueued = $this->obj->getQueuedSlots();
-        $ActivityActive = $this->obj->getUsedSlots();
-        $data = array(
-            'ActivityActive' => &$ActivityActive,
-            'ActivityQueued' => &$ActivityQueued,
-            'ActivitySlots' => &$ActivityTotalClients
-        );
-        unset(
-            $ActivityActive,
-            $ActivityQueued,
-            $ActivityTotalClients
-        );
-        echo json_encode($data);
-        unset($data);
-        exit;
-    }
-    /**
-     * Gets the disk usage of the selected node.
-     *
-     * @return void
-     */
-    public function diskusage()
-    {
-        session_write_close();
-        ignore_user_abort(true);
-        set_time_limit(0);
-        $url = sprintf(
-            '%s://%s/fog/status/freespace.php?path=%s',
-            self::$httpproto,
-            $this->obj->get('ip'),
-            base64_encode($this->obj->get('path'))
-        );
-        $data = self::$FOGURLRequests
-            ->process($url);
-        $data = json_decode(
-            array_shift($data),
-            true
-        );
-        $data = array(
-            'free' => $data['free'],
-            'used' => $data['used']
-        );
-        unset($url);
-        echo json_encode((array)$data);
-        unset($data);
-        exit;
-    }
-    /**
-     * Gets the 30 day graph.
-     *
-     * @return void
-     */
-    public function get30day()
-    {
-        session_write_close();
-        ignore_user_abort(true);
-        set_time_limit(0);
-        $start = self::niceDate()
-            ->setTime(00, 00, 00)
-            ->modify('-30 days');
-        $end = self::niceDate()
-            ->setTime(23, 59, 59);
-        $int = new DateInterval('P1D');
-        $period = new DatePeriod($start, $int, $end);
-        $dates = iterator_to_array($period);
-        unset(
-            $start,
-            $end,
-            $int,
-            $period
-        );
-        foreach ((array)$dates as $index => &$date) {
-            $count = self::getClass('ImagingLogManager')
-                ->count(
-                    array(
-                        'start' => $date->format('Y-m-d%'),
-                        'finish' => $date->format('Y-m-d%')
-                    ),
-                    'OR'
-                );
-            $data[] = array(
-                ($date->getTimestamp() * 1000),
-                $count
-            );
-            unset($date);
-        }
-        echo json_encode($data);
-        exit;
-    }
-    /**
-     * Gets the bandwidth of the nodes
-     *
-     * @return void
-     */
-    public function bandwidth()
-    {
-        session_write_close();
-        ignore_user_abort(true);
-        set_time_limit(0);
-        $sent = filter_input(
-            INPUT_GET,
-            'url',
-            FILTER_DEFAULT,
-            FILTER_REQUIRE_ARRAY
-        );
-        $names = filter_input(
-            INPUT_GET,
-            'names',
-            FILTER_DEFAULT,
-            FILTER_REQUIRE_ARRAY
-        );
-        $urls = array();
-        foreach ((array)$sent as &$url) {
-            $urls[] = $url;
-            unset($url);
-        }
-        $datas = self::$FOGURLRequests
-            ->process($urls);
-        $dataSet = array();
-        foreach ((array)$datas as &$data) {
-            $dataSet[] = json_decode($data, true);
-            unset($data);
-        }
-        echo json_encode(
-            array_combine(
-                $names,
-                $dataSet
+        $this->title = _('FOG Client Installer');
+        $webArr = array(
+            'name' => array(
+                'FOG_WEB_HOST'
             )
         );
-        exit;
+        list($ip) = self::getSubObjectIDs(
+            'Service',
+            $webArr,
+            'value'
+        );
+        $url = sprintf(
+            '%s://%s/fog/client/download.php',
+            self::$httpproto,
+            $ip
+        );
+        $url = filter_var(
+            $url,
+            FILTER_SANITIZE_URL
+        );
+        // Dash boxes row.
+        echo '<div class="row">';
+        // New Client and utilties
+        echo '<div class="col-xs-4">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('New Client and Utilities');
+        echo '</h4>';
+        echo '<p class="category">';
+        echo _('The installers for the fog client');
+        echo '<br/>';
+        echo _('Client Version');
+        echo ': ';
+        echo FOG_CLIENT_VERSION;
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        printf(
+            '%s, %s, %s, %s. ',
+            _('Cross platform'),
+            _('more secure'),
+            _('faster'),
+            _('and much easier on the server')
+        );
+        printf(
+            '%s.',
+            _('Especially when your organization has many hosts')
+        );
+        echo '<br/>';
+        echo '<a href="'
+            . $url
+            . '?newclient" data-toggle="tooltip" data-placement="right" ';
+        printf(
+            'title="%s. %s. %s.">',
+            _('Use this for network installs'),
+            _('For example, a GPO policy to push'),
+            _('This file will only work on Windows')
+        );
+        echo '<br/>';
+        echo _('MSI');
+        echo ' -- ';
+        echo _('Network Installer');
+        echo '<br/>';
+        printf(
+            '<a href="%s?%s" data-toggle="tooltip" data-placement="right" '
+            . 'title="%s. %s, %s, %s.">%s (%s)</a>',
+            $url,
+            'smartinstaller',
+            _('This is the recommended installer to use now'),
+            _('It can be used on Windows'),
+            _('Linux'),
+            _('and Mac OS X'),
+            _('Smart Installer'),
+            _('Recommended')
+        );
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        // Help and guide box
+        echo '<div class="col-xs-4">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Help and Guide');
+        echo '</h4>';
+        echo '<p class="category">';
+        echo _('Where to get help');
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        printf(
+            '%s. %s: %s %s.<br/><br/>',
+            _('Use the links below if you need assistance'),
+            _('NOTE'),
+            _('Forums are the most common and fastest method of getting'),
+            _('help with any aspect of FOG')
+        );
+        echo '<br/>';
+        printf(
+            '<a href="'
+            . 'https://wiki.fogproject.org/wiki/index.php?title=FOG_client'
+            . '" data-toggle="tooltip" data-placement="right" '
+            . 'title="%s. %s">%s</a><br/>',
+            _('Detailed documentation'),
+            _('It is primarily geared for the smart installer methodology now'),
+            _('FOG Client Wiki')
+        );
+        printf(
+            '<a href="'
+            . 'https://forums.fogproject.org'
+            . '" data-toggle="tooltip" data-placement="right" '
+            . 'title="%s? %s. %s %s. %s.">%s</a>',
+            _('Need more support'),
+            _('Somebody will be able to help in some form'),
+            _('Use the forums to post issues so others'),
+            _('may see the issue and help and/or use the solutions'),
+            _('Chat is also available on the forums for more realtime help'),
+            _('FOG Forums')
+        );
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        // Help and guide box
+        echo '<div class="col-xs-4">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Legacy Client and Utilities');
+        echo '</h4>';
+        echo '<p class="category">';
+        echo _('The old client and fogcrypt, deprecated');
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        printf(
+            '%s %s. %s %s.<br/>',
+            _('The legacy client and fog crypt utility for those'),
+            _('that are not yet using the new client'),
+            _('We highly recommend you make the switch for more'),
+            _('security and faster client communication and management')
+        );
+        printf(
+            '<a href="'
+            . $url
+            . '?legclient" data-toggle="tooltip" data-placement="right" '
+            . 'title="%s. %s %s. %s %s, %s, %s.">%s</a><br/>',
+            _('This is the file to install the legacy client'),
+            _('It is recommended to not use this file but'),
+            _('you may do as you please'),
+            _('This client is not being developed any further so any issues'),
+            _('you may find'),
+            _('or features you may request'),
+            _('will not be added to this client'),
+            _('Legacy FOG Client')
+        );
+        printf(
+            '<a href="'
+            . $url
+            . '?fogcrypt" data-toggle="tooltip" data-placement="right" '
+            . 'title="%s. %s">%s</a>',
+            _('This file is used to encrypt the AD Password'),
+            _('DO NOT USE THIS IF YOU ARE USING THE NEW CLIENT'),
+            _('FOG Crypt')
+        );
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
 }
