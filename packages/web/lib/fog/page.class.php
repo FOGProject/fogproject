@@ -151,6 +151,10 @@ class Page extends FOGBase
             'bower_components/jquery-slimscroll/jquery.slimscroll.min.js',
             'bower_components/fastclick/lib/fastclick.js',
             'dist/js/adminlte.min.js',
+            'bower_components/Flot/jquery.flot.js',
+            'bower_components/Flot/jquery.flot.resize.js',
+            'bower_components/Flot/jquery.flot.pie.js',
+            'bower_components/Flot/jquery.flot.time.js',
         );
         if (!self::$FOGUser->isValid()) {
             $files[] = 'js/fog/fog.login.js';
@@ -183,8 +187,8 @@ class Page extends FOGBase
                 }
                 unset($jsFilepath);
             },
-                (array)$filepaths
-            );
+            (array)$filepaths
+        );
         $pluginfilepaths = array(
             "../lib/plugins/{$node}/js/fog.{$node}.js",
             "../lib/plugins/{$node}/js/fog.{$node}.{$subset}.js",
@@ -196,8 +200,8 @@ class Page extends FOGBase
                 }
                 unset($pluginfilepath);
             },
-                (array)$pluginfilepaths
-            );
+            (array)$pluginfilepaths
+        );
         if ($this->isHomepage
             && ($node == 'home'
             || !$node)
@@ -225,8 +229,8 @@ class Page extends FOGBase
                 }
                 unset($path);
             },
-                (array)$files
-            );
+            (array)$files
+        );
     }
     /**
      * Sets the title
