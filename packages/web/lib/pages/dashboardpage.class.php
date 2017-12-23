@@ -289,24 +289,15 @@ class DashboardPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '<div class="box-body">';
-        echo '<div class="row">';
-        echo '<div class="col-md-8">';
-        echo '<div class="chart-responsive">';
-        echo '<canvas id="graph-activity"/>';
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="col-md-4">';
-        echo '</div>';
-        echo '</div>';
-        //echo '<div class="graph pie-graph fogdashbox" id="graph-activity"></div>';
+        echo '<div id="graph-activity"></div>';
+        echo '<div id="ActivityActive"></div>';
+        echo '<div id="ActivityQueued"></div>';
+        echo '<div id="ActivitySlots"></div>';
         echo '<div class="graph-selectors" id="graph-activity-selector">';
         printf(
             '<select name="groupsel">%s</select>',
             self::$_groupOpts
         );
-        echo '<div id="ActivityActive"></div>';
-        echo '<div id="ActivityQueued"></div>';
-        echo '<div id="ActivitySlots"></div>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -332,18 +323,9 @@ class DashboardPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '<div class="box-body">';
-        echo '<div class="row">';
-        echo '<div class="col-md-8">';
         echo '<a href="?node=hwinfo">';
-        echo '<div class="chart-responsive">';
-        echo '<canvas id="graph-activity"/>';
-        echo '</div>';
+        echo '<div id="graph-diskusage"></div>';
         echo '</a>';
-        echo '</div>';
-        echo '<div class="col-md-4">';
-        echo '</div>';
-        echo '</div>';
-        //echo '<div class="graph pie-graph fogdashbox" id="graph-diskusage"></div>';
         echo '<div class="graph-selectors" id="diskusage-selector">';
         if (!empty(self::$_nodeOpts) && count(self::$_nodeOpts) > 0) {
             printf(
@@ -378,8 +360,7 @@ class DashboardPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '<div class="box-body">';
-        echo '<div id="graph-30day" class="graph fogdashbox">';
-        echo '</div>';
+        echo '<div id="graph-30day"></div>';
         echo '<div class="fog-variable" id="Graph30dayData"></div>';
         echo '</div>';
         echo '</div>';
@@ -408,23 +389,23 @@ class DashboardPage extends FOGPage
         echo '<div class="row">';
         echo '<div id="graph-bandwidth-filters-type">';
         echo '<div class="col-md-2">';
-        echo '<p class="category" id="graph-bandwidth-title">';
+        echo '<div id="graph-bandwidth-title">';
         echo self::$foglang['Bandwidth'];
         echo ' - ';
         echo '<span>';
         echo self::$foglang['Transmit'];
         echo '</span>';
-        echo '</p>';
+        echo '</div>';
         echo '</div>';
         echo '<div id="graph-bandwidth-filters-time"></div>';
         echo '<div class="col-md-2">';
-        echo '<p class="category" id="graph-bandwidth-time">';
+        echo '<div class="category" id="graph-bandwidth-time">';
         echo _('Time');
         echo ' - ';
         echo '<span>';
         echo _('2 Minutes');
         echo '</span>';
-        echo '</p>';
+        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -441,75 +422,15 @@ class DashboardPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '<div class="box-tools pull-right">';
-        echo _('Real Time');
-        echo ' ';
-        echo '<div class="btn-group" id="realtime" data-toggle="btn-toggle">';
-        echo '<button type="button" class="btn btn-default btn-xs active" '
-            . 'data-toggle="on">'
-            . _('On')
-            . '</button>';
-        echo '<button type="button" class="btn btn-default btn-xs" '
-            . 'data-toggle="off">'
-            . _('Off')
-            . '</button>';
-        echo '</div>';
         echo self::$FOGCollapseBox;
         echo self::$FOGCloseBox;
         echo '</div>';
         echo '</div>';
         echo '<div class="box-body">';
-        echo '<div id="graph-30day" class="graph fogdashbox">';
-        echo '<canvas class="flot-base"/>';
+        echo '<div id="graph-bandwidth"></div>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
-        echo '</div>';
-        /**
-         * REMOVE WHEN DONE CONVERTING
-         *
-        echo '<div class="row">';
-        echo '<div id="graph-bandwidth-filters-time">';
-        echo '<div class="col-xs-2">';
-        echo '<p class="category" id="graph-bandwidth-time">';
-        echo _('Time');
-        echo ' - ';
-        echo '<span>';
-        echo _('2 Minutes');
-        echo '</span>';
-        echo '</p>';
-        echo '</div>';
-        echo '<div class="col-xs-4">';
-        echo '<a href="#" rel="'
-            . $datapointstwo
-            . '" class="time-filters graph-filters active">';
-        echo _('2 Minutes');
-        echo '</a>';
-        echo '<a href="#" rel="'
-            . $datapointsten
-            . '" class="time-filters graph-filters">';
-        echo _('10 Minutes');
-        echo '</a>';
-        echo '<a href="#" rel="'
-            . $datapointshalf
-            . '" class="time-filters graph-filters">';
-        echo _('30 Minutes');
-        echo '</a>';
-        echo '<a href="#" rel="'
-            . $datapointshour
-            . '" class="time-filters graph-filters">';
-        echo _('1 Hour');
-        echo '</a>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<div id="graph-bandwidth" class="graph fogdashbox"></div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-         */
     }
     /**
      * Gets the client count active/used/queued
