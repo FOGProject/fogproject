@@ -10,17 +10,17 @@ var GroupID;
 var GraphDiskUsageData = [{
     label: 'Free',
     data: 0,
-    color: '#cb4b4b'
+    color: '#3c8dbc'
 },
     {
         label: 'Used',
         data: 0,
-        color: '#45a73c'
+        color: '#00c0ef'
     }];
 var diskusagetime = 120000;
 var bytes, units;
 var GraphDiskUsageOpts = {
-    colors: ['#45a73c', '#cb4b4b'],
+    colors: ['#3c8dbc', '#00c0ef'],
     series: {
         pie: {
             show: true,
@@ -30,18 +30,24 @@ var GraphDiskUsageOpts = {
                 show: true,
                 radius: 2/3,
                 formatter: function(label, series) {
-                    units = [' iB',' KiB',' MiB',' GiB',' TiB', 'PiB', ' EiB', ' ZiB', ' YiB'];
-                    for (i = 0; series.data[0][1] >= 1024 && i < units.length - 1; i++) {
-                        series.data[0][1] /= 1024;
-                    }
-                    return '<div>' + series.data[0][1].toFixed(2)+units[i] + ' ' + label + '<br/>' + Math.round(series.percent) + '%</div>';
+                    return '<div>' + Math.round(series.percent) + '%</div>';
                 },
                 threshold: 0.1
             }
         }
     },
     legend: {
-        show: false,
+        show: true,
+        align: 'right',
+        position: 'se',
+        labelColor: '#666666',
+        labelFormatter: function(label, series) {
+            units = [' iB',' KiB',' MiB',' GiB',' TiB', 'PiB', ' EiB', ' ZiB', ' YiB'];
+            for (i = 0; series.data[0][1] >= 1024 && i < units.length - 1; i++) {
+                series.data[0][1] /= 1024;
+            }
+            return '<div class="graph-legend">'+label+': '+series.data[0][1].toFixed(2)+units[i]+'</div>';
+        }
     }
 };
 // Bandwidth Variable/Option settings.
@@ -55,7 +61,7 @@ var GraphBandwidthMaxDataPoints;
 var bandwidthtime = $('#bandwidthtime').val();
 var UpdateTimeout;
 var GraphBandwidthOpts = {
-    colors: ['#cb4b4b','#7386ad','#45a73c'],
+    colors: ['#3c8dbc', '#0073b7'],
     grid: {
         borderColor: '#f3f3f3',
         borderWidth: 1,
@@ -82,10 +88,9 @@ var GraphBandwidthOpts = {
     },
     legend: {
         show: true,
-        position: 'nw',
         noColumns: 5,
         labelFormatter: function(label, series) {
-            return label;
+            return label.replace('()', '');
         }
     }
 };
@@ -96,11 +101,11 @@ var GraphBandwidthAJAX;
 var Graph30Day = $('#graph-30day');
 var Graph30DayData;
 var Graph30DayOpts = {
-    colors: ['#7386ad'],
+    colors: ['#3c8dbc', '#0073b7'],
     grid: {
         hoverable: true,
         borderColor: '#f3f3f3',
-        borderWidth: 1,
+        borderWidth: 1
     },
     xaxis: {
         mode: 'time',
@@ -115,8 +120,7 @@ var Graph30DayOpts = {
         show: true
     },
     lines: {
-        fill: false,
-        color: ['#3c8dbc', '#f56954']
+        fill: false
     },
     series: {
         shadowSize: 0,
@@ -128,7 +132,7 @@ var Graph30DayOpts = {
         }
     },
     legend: {
-        position: 'nw'
+        show: false
     }
 };
 // Client Count variables
@@ -136,7 +140,7 @@ var GraphClient = $('#graph-activity');
 var UpdateClientCountData = [[0,0]];
 var clientcounttime = 5000;
 var UpdateClientCountOpts = {
-    colors: ['#cb4b4b','#7386ad','#45a73c'],
+    colors: ['#00c0ef','#3c8dbc','#0073b7'],
     series: {
         pie: {
             show: true,
@@ -146,14 +150,20 @@ var UpdateClientCountOpts = {
                 show: true,
                 radius: 2/3,
                 formatter: function(label, series) {
-                    return '<div>' + series.data[0][1] + ' ' + label + '<br/>' + Math.round(series.percent) + '%</div>';
+                    return '<div>' + series.percent + '%</div>';
                 },
                 threshold: 0.1
             }
         }
     },
     legend: {
-        show: false
+        show: true,
+        align: 'right',
+        position: 'se',
+        labelColor: '#666666',
+        labelFormatter: function(label, series) {
+            return '<div class="graph-legend">'+label+': '+series.datapoints.points[1]+'</div>';
+        }
     }
 };
 var diskinterval = false;
@@ -192,11 +202,14 @@ var clientinterval = false;
     });
     GraphClient.css({
         height: '150px',
-        color: '#3f3f3f'
-    });
-    $('a #graph-diskusage').css({
         color: '#3f3f3f',
-        'text-decoration': 'none'
+        'text-decoration': 'none',
+        'font-weight': 'bold'
+    });
+    $(GraphDiskUsage, 'a').css({
+        color: '#3f3f3f',
+        'text-decoration': 'none',
+        'font-weight': 'bold'
     });
     Update30Day();
     // Diskusage Graph - Node select - Hook select box to load new data via AJAX
@@ -317,13 +330,11 @@ function GraphDiskUsagePlots(gdata) {
     GraphDiskUsageData = [
         {
             label: 'Free',
-            data: parseInt(gdata.free,10),
-            color: '#45a73c'
+            data: parseInt(gdata.free,10)
         },
         {
             label: 'Used',
             data: parseInt(gdata.used,10),
-            color: '#cb4b4b'
         }
     ];
     $.plot(GraphDiskUsage,GraphDiskUsageData,GraphDiskUsageOpts);
