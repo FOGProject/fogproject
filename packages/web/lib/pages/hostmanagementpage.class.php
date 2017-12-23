@@ -999,7 +999,6 @@ class HostManagementPage extends FOGPage
             ->buildSelectBox(
                 filter_input(INPUT_POST, 'image') ?: $this->obj->get('imageID')
             );
-
         // Either use the passed in or get the objects info.
         $name = (
             filter_input(INPUT_POST, 'name') ?: $this->obj->get('name')
@@ -1027,14 +1026,18 @@ class HostManagementPage extends FOGPage
         $dev = (
             filter_input(INPUT_POST, 'dev') ?: $this->obj->get('kernelDevice')
         );
-
-
         $formData = array();
         // Name
         array_push($formData, 
             array(
-                'field' => '<label for="name" class="col-sm-2 control-label">' . _('Host Name') . '</label>',
-                'value' => '<input id="name" class="form-control" placeholder="' . _('Host Name') .'" type="text" value="' . $name . '" required>'
+                'field' => '<label for="name" class="col-sm-2 control-label">'
+                . _('Host Name')
+                . '</label>',
+                'value' => '<input id="name" class="form-control" placeholder="'
+                . _('Host Name')
+                . '" type="text" value="'
+                . $name
+                . '" required>'
             ),
             array(
                 'field' => '<label for="mac" class="col-sm-2 control-label">' . _('Primary MAC') . '</label>',
@@ -1053,7 +1056,7 @@ class HostManagementPage extends FOGPage
                 'value' => '<input id="kern" class="form-control" placeholder="" type="text" value="' . $kern . '">'
             ),
             array(
-                'field' => '<label for="args" class="col-sm-2 control-label">' . _('Host Kernel Arguments') . '</label>',
+                'field' => '<label for="args" class="col-sm-2 control-label">' . _('Host Arguments') . '</label>',
                 'value' => '<input id="args" class="form-control" placeholder="" type="text" value="' . $args . '">'
             ),
             array(
@@ -3204,9 +3207,7 @@ class HostManagementPage extends FOGPage
                 )
             );
         }
-
         $tabData = array();
-
         array_push($tabData, 
             array(
                 "name" =>  _('General'),
@@ -3240,10 +3241,7 @@ class HostManagementPage extends FOGPage
                 }
             )          
         );
-        
-        
         $activeId = '';
-
         echo '<div class="nav-tabs-custom">';
         echo '  <ul class="nav nav-tabs">';      
         foreach ($tabData as &$entry) {
@@ -3253,15 +3251,16 @@ class HostManagementPage extends FOGPage
                 $activeId = $id;
             }
             $isActive = ($activeId === $id);
-
-            
             echo '<li class="' . ($isActive ? 'active' : '') . '">'; 
-            echo '  <a href="#' . $id . '" data-toggle="tab" aria-expanded="true">' . $name . '</a>';         
+            echo '  <a href="#'
+                . $id
+                . '" data-toggle="tab" aria-expanded="true">'
+                . $name
+                . '</a>';         
             echo '</li>';       
         }
         echo '  </ul>';
         echo '  <div class="tab-content">';
-
         foreach ($tabData as &$entry) {
             $generator = $entry['generator'];
             $id = $entry['id'];
@@ -3272,15 +3271,11 @@ class HostManagementPage extends FOGPage
         }
         echo '  </div>';      
         echo '</div>';
-
-
         return;
         echo '<div class="">';
-        
         if (!$this->obj->get('pending')) {
             $this->basictasksOptions();
         }
-
         $this->hostPrinters();
         $this->hostSnapins();
         $this->hostService();

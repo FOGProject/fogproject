@@ -373,7 +373,9 @@ class FOGPageManager extends FOGBase
             if (!$className || !isset($className)) {
                 return;
             }
-            if (in_array($className, get_declared_classes())) {
+            if (in_array($className, get_declared_classes())
+                || class_exists($className, false)
+            ) {
                 return;
             }
             $vals = get_class_vars($className);
