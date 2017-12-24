@@ -391,7 +391,7 @@ class HostManagementPage extends FOGPage
      */
     public function add()
     {
-        $this->title = _('New Host');
+        $this->title = _('Create New Host');
         unset(
             $this->data,
             $this->form,
@@ -399,25 +399,24 @@ class HostManagementPage extends FOGPage
             $this->templates,
             $this->attributes
         );
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
-        );
+        $host = filter_input(INPUT_POST, 'host');
+        $mac = filter_input(INPUT_POST, 'mac');
+        $description = filter_input(INPUT_POST, 'description');
+        $key = filter_input(INPUT_POST, 'key');
+        $image = filter_input(INPUT_POST, 'image');
+        $kern = filter_input(INPUT_POST, 'kern');
+        $args = filter_input(INPUT_POST, 'args');
+        $init = filter_input(INPUT_POST, 'init');
+        $dev = filter_input(INPUT_POST, 'dev');
         $fields = array(
             '<label for="host">'
             . _('Host Name')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="host" '
+            . '</label>' => '<input type="text" name="host" '
             . 'value="'
-            . filter_input(INPUT_POST, 'host')
+            . $host
             . '" maxlength="15" '
             . 'class="hostname-input form-control" '
-            . 'id="host" required/>'
-            . '</div>',
+            . 'id="host" required/>',
             '<label for="mac">'
             . _('Primary MAC')
             . '</label>' => '<div class="input-group">'
@@ -425,100 +424,72 @@ class HostManagementPage extends FOGPage
             . '</span>'
             . '<input type="text" name="mac" class="macaddr form-control" '
             . 'id="mac" value="'
-            . filter_input(INPUT_POST, 'mac')
+            . $mac
             . '" maxlength="17" required/>'
             . '</div>',
             '<label for="description">'
             . _('Host Description')
-            . '</label>' => '<div class="input-group">'
-            . '<textarea class="form-control" '
+            . '</label>' => '<textarea class="form-control" '
             . 'id="description" name="description">'
-            . filter_input(INPUT_POST, 'description')
-            . '</textarea>'
-            . '</div>',
+            . $description
+            . '</textarea>',
             '<label for="productKey">'
             . _('Host Product Key')
-            . '</label>' => '<div class="input-group">'
-            . '<input id="productKey" type="text" '
+            . '</label>' => '<input id="productKey" type="text" '
             . 'name="key" value="'
-            . filter_input(INPUT_POST, 'key')
-            . '" class="form-control"/>'
-            . '</div>',
+            . $key
+            . '" class="form-control"/>',
             '<label for="image">'
             . _('Host Image')
-            . '</label>' => '<div class="input-group">'
-            . self::getClass('ImageManager')->buildSelectBox(
-                filter_input(INPUT_POST, 'image'),
+            . '</label>' => self::getClass('ImageManager')->buildSelectBox(
+                $image,
                 '',
                 'id'
-            )
-            . '</div>',
+            ),
             '<label for="kern">'
             . _('Host Kernel')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="kern" '
+            . '</label>' => '<input type="text" name="kern" '
             . 'value="'
-            . filter_input(INPUT_POST, 'kern')
-            . '" class="form-control" id="kern"/>'
-            . '</div>',
+            . $kern
+            . '" class="form-control" id="kern"/>',
             '<label for="args">'
             . _('Host Kernel Arguments')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="args" id="args" value="'
-            . filter_input(INPUT_POST, 'args')
-            . '" class="form-control"/>'
-            . '</div>',
+            . '</label>' => '<input type="text" name="args" id="args" value="'
+            . $args
+            . '" class="form-control"/>',
             '<label for="init">'
             . _('Host Init')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="init" value="'
-            . filter_input(INPUT_POST, 'init')
+            . '</label>' => '<input type="text" name="init" value="'
+            . $init
             . '" id="init" class="form-control"/>',
             '<label for="dev">'
             . _('Host Primary Disk')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="dev" value="'
-            . filter_input(INPUT_POST, 'dev')
-            . '" id="dev" class="form-control"/>'
-            . '</div>',
+            . '</label>' => '<input type="text" name="dev" value="'
+            . $dev
+            . '" id="dev" class="form-control"/>',
             '<label for="bootTypeExit">'
             . _('Host Bios Exit Type')
-            . '</label>' => '<div class="input-group">'
-            . $this->exitNorm
-            . '</div>',
+            . '</label>' => $this->exitNorm,
             '<label for="efiBootTypeExit">'
             . _('Host EFI Exit Type')
-            . '</label>' => '<div class="input-group">'
-            . $this->exitEfi
-            . '</div>',
+            . '</label>' => $this->exitEfi,
         );
         self::$HookManager
             ->processEvent(
-                'HOST_FIELDS',
+                'HOST_ADD_FIELDS',
                 array(
                     'fields' => &$fields,
                     'Host' => self::getClass('Host')
                 )
             );
-        array_walk($fields, $this->fieldsToData);
-        self::$HookManager
-            ->processEvent(
-                'HOST_ADD_GEN',
-                array(
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes,
-                    'headerData' => &$this->headerData
-                )
-            );
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
+        $rendered = self::formFields($fields);
+        echo '<div class="box box-info">';
+        echo '<div class="box-header with-border">';
+        echo '<h3 class="box-title">';
         echo $this->title;
-        echo '</h4>';
+        echo '</h3>';
         echo '</div>';
-        echo '<div class="panel-body">';
+        echo '<div class="box-body">';
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '">';
@@ -526,9 +497,18 @@ class HostManagementPage extends FOGPage
             $_POST['enforcesel'] = self::getSetting('FOG_ENFORCE_HOST_CHANGES');
         }
         echo '<!-- Host General -->';
-        $this->render(12);
+        echo $rendered;
         echo '</div>';
         echo '</div>';
+        $domain = filter_input(INPUT_POST, 'domain');
+        $domainname = filter_input(INPUT_POST, 'domainname');
+        $ou = filter_input(INPUT_POST, 'ou');
+        $domainuser = filter_input(INPUT_POST, 'domainuser');
+        $domainpassword = filter_input(INPUT_POST, 'domainpassword');
+        $domainpasswordlegacy = filter_input(
+            INPUT_POST,
+            'domainpasswordlegacy'
+        );
         $this->adFieldsToDisplay(
             filter_input(INPUT_POST, 'domain'),
             filter_input(INPUT_POST, 'domainname'),
