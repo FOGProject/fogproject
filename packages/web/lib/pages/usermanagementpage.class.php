@@ -140,16 +140,7 @@ class UserManagementPage extends FOGPage
             $this->attributes,
             $this->templates
         );
-        $this->title = _('New User');
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
-        );
-        $this->data = array();
+        $this->title = _('Create New User');
         $name = filter_input(
             INPUT_POST,
             'name'
@@ -161,37 +152,29 @@ class UserManagementPage extends FOGPage
         $fields = array(
             '<label for="name">'
             . _('User Name')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" class="'
+            . '</label>' => '<input type="text" class="'
             . 'form-control username-input" name='
             . '"name" value="'
             . $name
-            . '" autocomplete="off" id="name" required/>'
-            . '</div>',
+            . '" autocomplete="off" id="name" required/>',
             '<label for="display">'
             . _('Friendly Name')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" class="'
+            . '</label>' => '<input type="text" class="'
             . 'form-control friendlyname-input" name="'
             . 'display" value="'
             . $display
-            . '" autocomplete="off" id="display"/>'
-            . '</div>',
+            . '" autocomplete="off" id="display"/>',
             '<label for="password">'
             . _('User Password')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="password" class="'
+            . '</label>' => '<input type="password" class="'
             . 'form-control password-input1" name="password" value='
             . '"" autocomplete='
-            . '"off" id="password" required/>'
-            . '</div>',
+            . '"off" id="password" required/>',
             '<label for="password2">'
             . _('User Password (confirm)')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="password" class="'
+            . '</label>' => '<input type="password" class="'
             . 'form-control password-input2" name="password_confirm" value='
-            . '"" autocomplete="off" required/>'
-            . '</div>',
+            . '"" autocomplete="off" id="password2" required/>',
             '<label for="apion">'
             . _('User API Enabled')
             . '</label>' => '<input type="checkbox" class="'
@@ -210,33 +193,30 @@ class UserManagementPage extends FOGPage
             . _('Create')
             . '</button>'
         );
-        array_walk($fields, $this->fieldsToData);
         self::$HookManager
             ->processEvent(
-                'USER_ADD',
+                'USER_ADD_FIELDS',
                 array(
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
+                    'fields' => &$fields
                 )
             );
+        $rendered = self::formFields($fields);
         unset($fields);
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo $this->title;
-        echo '</h4>';
+        echo '<div class="box box-info">';
+        echo '<div class="box-header with-border">';
+        echo '<h3 class="box-title">';
+        echo _('Create New User');
+        echo '</h3>';
         echo '</div>';
-        echo '<div class="panel-body">';
+        echo '<div class="box-body">';
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '">';
-        echo '<input type="text" name="fakeusernameremembered" class="fakes"/>';
-        echo '<input type="password" name="fakepasswordremembered" class="fakes"/>';
-        $this->render(12);
-        echo '</form>';
-        echo '</div>';
+        echo '<input type="text" name="fakeusernameremembered" class="fakes" '
+            . 'style="display: none;"/>';
+        echo '<input type="password" name="fakepasswordremembered" class="fakes" '
+            . 'style="display: none;"/>';
+        echo $rendered;
         echo '</div>';
         echo '</div>';
     }

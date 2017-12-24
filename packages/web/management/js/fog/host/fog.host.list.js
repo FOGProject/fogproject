@@ -18,12 +18,11 @@
         var itemIds = table.rows({
             selected: true
         }).ids();
-        var cleanIds = [];
         $.each(itemIds, function(i,v) {
-            cleanIds[i] = v.replace('host-', '');
+            itemIds[i] = v.replace('host-', '');
         });
-        console.log(cleanIds);
-        return cleanIds;
+        console.log(itemIds);
+        return itemIds;
     };
     var massDelete = function(password) {
         var opts = {
@@ -40,6 +39,8 @@
                 table.rows({
                     selected: true
                 }).remove();
+                table.draw();
+                table.button(1,1).enable(true);
             },
             error: function(res) {
                 if (res.status == 401) {
@@ -88,9 +89,10 @@
         var selectedRows = table.rows( { selected: true } ).count();
         table.button(1,0).enable( selectedRows > 0 );
         table.button(1,1).enable( selectedRows > 0 );
-
     }).on('deselect', function() {
         var selectedRows = table.rows( { selected: true } ).count();
+        table.button(1,0).enable( selectedRows > 0 );
+        table.button(1,1).enable( selectedRows > 0 );
     });
 
     /*

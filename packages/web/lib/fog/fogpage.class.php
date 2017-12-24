@@ -4440,4 +4440,24 @@ abstract class FOGPage extends FOGBase
         );
         echo $items;
     }
+    /**
+     * Build our form elements.
+     *
+     * @return string
+     */
+    public static function formFields($fields) {
+        ob_start();
+        foreach ($fields as $field => &$input) {
+            echo '<div class="form-group">';
+            echo '<div class="col-md-4 pull-left">';
+            echo $field;
+            echo '</div>';
+            echo '<div class="col-md-8 pull-right">';
+            echo $input;
+            echo '</div>';
+            echo '</div>';
+            unset($field, $input);
+        }
+        return ob_get_clean();
+    }
 }
