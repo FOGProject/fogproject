@@ -1009,8 +1009,6 @@ abstract class FOGPage extends FOGBase
                         . (
                             isset($rowData['id']) || isset($rowData[$id_field]) ?
                             'id="'
-                            . $node
-                            . '-'
                             . (
                                 isset($rowData['id']) ?
                                 $rowData['id'] . '"' :
@@ -2194,7 +2192,7 @@ abstract class FOGPage extends FOGBase
     public function deletemultiAjax()
     {
         if (self::getSetting('FOG_REAUTH_ON_DELETE')) {
-            
+
             $user = filter_input(INPUT_POST, 'fogguiuser');
 
             if (empty($user)) {
@@ -2215,7 +2213,7 @@ abstract class FOGPage extends FOGBase
                         'title' => _('Unable to Authenticate')
                     )
                 );
-                http_response_code(401);     
+                http_response_code(401);
                 exit;
             }
         }
@@ -2257,7 +2255,6 @@ abstract class FOGPage extends FOGBase
     public function basictasksOptions()
     {
         unset($this->headerData);
-
         $this->templates = array(
             '<a href="?node='
             . $this->node
@@ -2268,22 +2265,26 @@ abstract class FOGPage extends FOGBase
             . '${task_name}</a>',
             '${task_desc}'
         );
-        $this->attributes = array(
-        );
-        $taskTypeIterator = function (&$TaskType) use (&$access, &$advanced) {
+        global $id;
+        $taskTypeIterator = function (&$TaskType) use (&$access, &$advanced, $id) {
             if (!in_array($TaskType->access, $access)) {
                 return;
             }
             if ($advanced != $TaskType->isAdvanced) {
                 return;
             }
-            $this->data[] = array(
-                $this->node.'_id' => $this->obj->get('id'),
-                'task_id' => '&type='.$TaskType->id,
-                'task_icon' => $TaskType->icon,
-                'task_name' => $TaskType->name,
-                'task_desc' => $TaskType->description,
-            );
+            $this->data[
+                '<a href="?node='
+                . $this->node
+                . '&sub=deploy&id='
+                . $id
+                . '"><i class="fa '
+                . 'fa-'
+                . $TaskType->icon
+                . ' fa-2x"></i><br/>'
+                . $TaskType->name
+                . '</a>'
+            ] = $TaskType->description;
             unset($TaskType);
         };
         Route::listem('tasktype', 'id');
@@ -2310,9 +2311,12 @@ abstract class FOGPage extends FOGBase
                 'attributes' => &$this->attributes
             )
         );
-        echo '<div class="box box-solid" id="' . $this->node . '-tasks">';
+        $rendered = self::formFields($this->data);
+        echo '<div class="box box-solid" id="'
+            . $this->node
+            . '-tasks">';
         echo '  <div class="box-body">';
-        echo '      <div id="taskAccordian" class="box-group">';        
+        echo '      <div id="taskAccordian" class="box-group">';
         echo '          <div class="panel box box-primary">';
         echo '              <div class="box-header with-border">';
         echo '                  <h4 class="box-title"><a class="" data-toggle="collapse" data-parent="#taskAccordian" href="#tasksBasic">';
@@ -2320,7 +2324,7 @@ abstract class FOGPage extends FOGBase
         echo '              </div>';
         echo '              <div id="tasksBasic" class="panel-collapse collapse in">';
         echo '                  <div class="box-body">';
-        $this->render(12);
+        echo $rendered;
         echo '                  </div>';
         echo '              </div>';
         echo '          </div>';
@@ -2331,7 +2335,6 @@ abstract class FOGPage extends FOGBase
         echo '              </div>';
         echo '              <div id="tasksAdvance" class="panel-collapse collapse">';
         echo '                  <div class="box-body">';
-        
         unset($this->data);
         $advanced = 1;
         foreach ((array)$items as &$TaskType) {
@@ -2350,9 +2353,9 @@ abstract class FOGPage extends FOGBase
                 'attributes' => &$this->attributes
             )
         );
-        $this->render(12);
-        echo '                  </div>';                
-        echo '              </div>';        
+        echo self::formFields($this->data);
+        echo '                  </div>';
+        echo '              </div>';
         echo '          </div>';
         echo '      </div>';
         echo '  </div>';
@@ -2459,12 +2462,6 @@ abstract class FOGPage extends FOGBase
             );
         }
         $fields = array(
-            '<label for="clearAD">'
-            . _('Clear all fields?')
-            . '</label>' => '<button class="btn btn-warning btn-block" '
-            . 'type="button" id="clearAD">'
-            . _('Clear Fields')
-            . '</button>',
             sprintf(
                 '<label for="adEnabled">%s</label>',
                 _('Join Domain after deploy')
@@ -2480,10 +2477,8 @@ abstract class FOGPage extends FOGBase
                 '<label for="adDomain">%s</label>',
                 _('Domain name')
             ) => sprintf(
-                '<div class="input-group">'
-                . '<input id="adDomain" class="form-control" type="text" '
-                . 'name="domainname" value="%s" autocomplete="off"/>'
-                . '</div>',
+                '<input id="adDomain" class="form-control" type="text" '
+                . 'name="domainname" value="%s" autocomplete="off"/>',
                 $ADDomain
             ),
             sprintf(
@@ -2497,10 +2492,8 @@ abstract class FOGPage extends FOGBase
                 '<label for="adUsername">%s</label>',
                 _('Domain Username')
             ) => sprintf(
-                '<div class="input-group">'
-                . '<input id="adUsername" class="form-control" type="text" '
-                . 'name="domainuser" value="%s" autocomplete="off"/>'
-                . '</div>',
+                '<input id="adUsername" class="form-control" type="text" '
+                . 'name="domainuser" value="%s" autocomplete="off"/>',
                 $ADUser
             ),
             sprintf(
@@ -2510,11 +2503,9 @@ abstract class FOGPage extends FOGBase
                 _('Domain Password'),
                 _('Will auto-encrypt plaintext')
             ) => sprintf(
-                '<div class="input-group">'
-                . '<input id="adPassword" class="form-control" type='
+                '<input id="adPassword" class="form-control" type='
                 . '"password" '
-                . 'name="domainpassword" value="%s" autocomplete="off"/>'
-                . '</div>',
+                . 'name="domainpassword" value="%s" autocomplete="off"/>',
                 $ADPass
             ),
             sprintf(
@@ -2524,11 +2515,9 @@ abstract class FOGPage extends FOGBase
                 _('Domain Password Legacy'),
                 _('Must be encrypted')
             ) => sprintf(
-                '<div class="input-group">'
-                . '<input id="adPasswordLegacy" class="form-control" '
+                '<input id="adPasswordLegacy" class="form-control" '
                 . 'type="password" name="domainpasswordlegacy" '
-                . 'value="%s" autocomplete="off"/>'
-                . '</div>',
+                . 'value="%s" autocomplete="off"/>',
                 $ADPassLegacy
             ),
             sprintf(
@@ -2546,25 +2535,6 @@ abstract class FOGPage extends FOGBase
                     ''
                 )
             ),
-            '<label for="'
-            . $node
-            . '-'
-            . $sub
-            . '">'
-            . _('Make changes?')
-            . '</label>' => '<button class="'
-            . 'btn btn-info btn-block" type="submit" name='
-            . '"updatead" id="'
-            . $node
-            . '-'
-            . $sub
-            . '">'
-            . (
-                $sub == 'add' ?
-                _('Add') :
-                _('Update')
-            )
-            . '</button>'
         );
         if ($retFields) {
             return $fields;
@@ -2575,35 +2545,17 @@ abstract class FOGPage extends FOGBase
             $this->templates,
             $this->attributes
         );
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8'),
-        );
-        array_walk($fields, $this->fieldsToData);
         self::$HookManager->processEvent(
             sprintf(
-                '%s_EDIT_AD',
+                '%s_EDIT_AD_FIELDS',
                 strtoupper($this->childClass)
             ),
             array(
-                'headerData' => &$this->headerData,
-                'data' => &$this->data,
-                'attributes' => &$this->attributes,
-                'templates' => &$this->templates
+                'fields' => &$fields
             )
         );
+        $rendered = self::formFields($fields);
         echo '<!-- Active Directory -->';
-        if ($ownElement) {
-            echo '<div id="'
-                . $node
-                . '-active-directory" class="">';
-        }
-        echo '<div class="box box-solid">';
-        echo '  <div class="box-body">';
         if ($ownElement) {
             echo '<form role="form" method="post" action="'
                 . $this->formAction
@@ -2611,26 +2563,28 @@ abstract class FOGPage extends FOGBase
                 . $node
                 . '-active-directory'
                 . '">';
+            echo '<div id="'
+                . $node
+                . '-active-directory" class="">';
         }
+        echo '<div class="box box-solid">';
+        echo '  <div class="box-body">';
         echo '<input type="text" name="fakeusernameremembered" class='
             . '"fakes hidden"/>';
         echo '<input type="password" name="fakepasswordremembered" class='
             . '"fakes hidden"/>';
-        $this->render(12);
+        echo $rendered;
         echo '  </div>';
         echo '  <div class="box-footer">';
         echo '      <button class="btn btn-primary" type="submit">' . _('Update') . '</button>';
         echo '      <button class="btn btn-danger pull-right">' . _('Clear Fields') . '</button>';
         echo '  </div>';
-        
-        if ($ownElement) {
-            echo '</form>';
-        }
+
         echo '</div>';
         if ($ownElement) {
+            echo '</form>';
             echo '</div>';
         }
-        unset($this->data);
     }
     /**
      * Get's the adinformation from ajax
@@ -3841,7 +3795,6 @@ abstract class FOGPage extends FOGBase
                 'attributes' => &$this->attributes
             )
         );
-        //echo '<div class="col-xs-9">';
         echo '  <div class="box box-primary">';
         echo '      <div class="box-header">';
         echo '          <h3 class="box-title">';
@@ -3856,7 +3809,6 @@ abstract class FOGPage extends FOGBase
         echo '          </form>';
         echo '      </div>';
         echo '  </div>';
-        //echo '</div>';
     }
     /**
      * Presents the importer elements
@@ -3912,17 +3864,6 @@ abstract class FOGPage extends FOGBase
             . _('Import')
             . '</button>'
         );
-        // self::$HookManager->processEvent(
-        //     'IMPORT_CSV_'
-        //     . strtoupper($this->node),
-        //     array(
-        //         'data' => &$this->data,
-        //         'headerData' => &$this->headerData,
-        //         'templates' => &$this->templates,
-        //         'attributes' => &$this->attributes
-        //     )
-        // );
-        //echo '<div class="col-xs-9">';
         echo '  <div class="box box-primary">';
         echo '      <div class="box-header with-border">';
         echo '          <h3 class="box-title">';
@@ -3944,27 +3885,19 @@ abstract class FOGPage extends FOGBase
             . $this->formAction
             . '" enctype="multipart/form-data">';
         echo '          <div class="box-body">';
-            
-            
-
-       // echo '              <div class="form-group">';
         echo '                  <label for="import">' . _('Import CSV') . '</label>';
         echo '                  <input type="file" id="import">';
         echo '<p class="help-block">';
         echo _('Max Size') . ' ' . ini_get('post_max_size');
         echo '</p>';
-        //echo '              </div>';
         echo '          </div>';
         echo '           <div class="box-footer">';
         echo '               <button type="submit" class="btn btn-primary" name="importbtn" id="importbtn">';
         echo _('Import');
         echo '               </button>';
         echo '           </div>';
-
-        //$this->render(12);
         echo '      </form>';
         echo '  </div>';
-        //echo '</div>';
     }
     /**
      * Perform the import based on the uploaded file
@@ -4449,13 +4382,16 @@ abstract class FOGPage extends FOGBase
         ob_start();
         foreach ($fields as $field => &$input) {
             echo '<div class="form-group">';
-            echo '<div class="col-md-4 pull-left">';
+            echo '<div class="col-md-3">';
             echo $field;
             echo '</div>';
-            echo '<div class="col-md-8 pull-right">';
+            echo '<div class="col-md-9">';
             echo $input;
             echo '</div>';
             echo '</div>';
+            echo '<br/>';
+            echo '<br/>';
+            echo '<br/>';
             unset($field, $input);
         }
         return ob_get_clean();

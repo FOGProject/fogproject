@@ -30,7 +30,7 @@ var GraphDiskUsageOpts = {
                 show: true,
                 radius: 2/3,
                 formatter: function(label, series) {
-                    return '<div>' + Math.round(series.percent) + '%</div>';
+                    return '<div style="color: #f3f3f3">' + Math.round(series.percent) + '%</div>';
                 },
                 threshold: 0.1
             }
@@ -150,7 +150,7 @@ var UpdateClientCountOpts = {
                 show: true,
                 radius: 2/3,
                 formatter: function(label, series) {
-                    return '<div>' + series.percent + '%</div>';
+                    return '<div style="color: #f3f3f3">' + series.percent + '%</div>';
                 },
                 threshold: 0.1
             }

@@ -248,7 +248,7 @@ class DashboardPage extends FOGPage
         echo '<!-- FOG Overview Boxes -->';
         // Server info basic.
         echo '<div class="col-md-4">';
-        echo '<div class="box box-info">';
+        echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h3 class="box-title">';
         echo _('System Overview');
@@ -278,7 +278,7 @@ class DashboardPage extends FOGPage
         echo '</div>';
         // Group Activity
         echo '<div class="col-md-4">';
-        echo '<div class="box box-info">';
+        echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h3 class="box-title">';
         echo _('Storage Group Activity');
@@ -312,7 +312,7 @@ class DashboardPage extends FOGPage
         );
         // Storage Usage
         echo '<div class="col-md-4">';
-        echo '<div class="box box-info">';
+        echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h3 class="box-title">';
         echo _('Storage Node Disk Usage');
@@ -349,7 +349,7 @@ class DashboardPage extends FOGPage
         );
         // 30 day row.
         echo '<div class="col-xs-12">';
-        echo '<div class="box box-info">';
+        echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h3 class="box-title">';
         echo _('Imaging Over the last 30 days');
@@ -381,7 +381,7 @@ class DashboardPage extends FOGPage
             implode(',', self::$_nodeURLs),
             implode(',', self::$_nodeNames)
         );
-        echo '<div class="box box-info">';
+        echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h3 class="box-title">';
         echo self::$foglang['Bandwidth'];
