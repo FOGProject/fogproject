@@ -155,6 +155,7 @@ class Page extends FOGBase
             'bower_components/Flot/jquery.flot.resize.js',
             'bower_components/Flot/jquery.flot.pie.js',
             'bower_components/Flot/jquery.flot.time.js',
+            'js/fog/fog.common.js',
         );
         if (!self::$FOGUser->isValid()) {
             $files[] = 'js/fog/fog.login.js';

@@ -216,7 +216,7 @@ class ServerInfo extends FOGPage
             unset($field, $input);
         }
         $rendered = ob_get_clean();
-        echo '<div class="box box-info">';
+        echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h3 class="box-title">';
         echo _('General Information');
@@ -253,7 +253,7 @@ class ServerInfo extends FOGPage
             unset($field, $input);
         }
         $rendered = ob_get_clean();
-        echo '<div class="box box-info">';
+        echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h3 class="box-title">';
         echo _('File System Information');
@@ -273,7 +273,7 @@ class ServerInfo extends FOGPage
             $this->data
         );
         // Network Information.
-        echo '<div class="box box-info">';
+        echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h3 class="box-title">';
         echo _('Network Information');
@@ -296,17 +296,7 @@ class ServerInfo extends FOGPage
                 $NICErr[$index] => $NICErrInfo[$index],
                 $NICDro[$index] => $NICDropInfo[$index]
             );
-            ob_start();
-            foreach ($fields as $field => &$input) {
-                echo '<div class="col-md-4 pull-left">';
-                echo $field;
-                echo '</div>';
-                echo '<div class="col-md-8 pull-right">';
-                echo $input;
-                echo '</div>';
-                unset($field, $input);
-            }
-            $rendered = ob_get_clean();
+            $rendered = self::formFields($fields);
             echo '<div class="box box-info">';
             echo '<div class="box-header with-border">';
             echo '<h3 class="box-title">';

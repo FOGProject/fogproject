@@ -185,13 +185,7 @@ class UserManagementPage extends FOGPage
                 ' checked' :
                 ''
             )
-            . '/>',
-            '<label for="add">'
-            . _('Create user?')
-            . '</label> ' => '<button class="btn btn-info btn-block" name="'
-            . 'add" id="add" type="submit">'
-            . _('Create')
-            . '</button>'
+            . '/>'
         );
         self::$HookManager
             ->processEvent(
@@ -202,23 +196,29 @@ class UserManagementPage extends FOGPage
             );
         $rendered = self::formFields($fields);
         unset($fields);
-        echo '<div class="box box-info">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
+        echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h3 class="box-title">';
         echo _('Create New User');
         echo '</h3>';
         echo '</div>';
         echo '<div class="box-body">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '">';
         echo '<input type="text" name="fakeusernameremembered" class="fakes" '
             . 'style="display: none;"/>';
         echo '<input type="password" name="fakepasswordremembered" class="fakes" '
             . 'style="display: none;"/>';
         echo $rendered;
         echo '</div>';
+        echo '<div class="box-footer">';
+        echo '<button class="btn btn-primary" type="submit">'
+            . _('Create')
+            . '</button>';
         echo '</div>';
+        echo '</div>';
+        echo '</form>';
     }
     /**
      * Actually create the new user.
