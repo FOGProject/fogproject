@@ -22,7 +22,7 @@ var table = $('#dataTable')
     getSelectedIds,
     massDelete;
 (function($) {
-    if (typeof table != 'undefined' && table.length > 0) {
+    if (sub == 'list' || !sub || typeof sub == 'undefined') {
         getSelectedIds = function() {
             var itemIds = table.rows({
                 selected: true
