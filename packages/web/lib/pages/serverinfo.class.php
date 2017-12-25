@@ -284,6 +284,7 @@ class ServerInfo extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '<div class="box-body">';
+        echo '<div class="box-group" id="accordion">';
         foreach ((array)$NICTrans as $index => &$txtran) {
             unset(
                 $fields,
@@ -296,21 +297,40 @@ class ServerInfo extends FOGPage
                 $NICErr[$index] => $NICErrInfo[$index],
                 $NICDro[$index] => $NICDropInfo[$index]
             );
-            $rendered = self::formFields($fields);
-            echo '<div class="box box-info">';
+            ob_start();
+            foreach ($fields as $field => &$input) {
+                echo '<div class="col-md-3 pull-left">';
+                echo $field;
+                echo '</div>';
+                echo '<div class="col-md-9 pull-right">';
+                echo $input;
+                echo '</div>';
+                unset($field, $input);
+            }
+            $rendered = ob_get_clean();
+            echo '<div class="panel box box-primary">';
             echo '<div class="box-header with-border">';
-            echo '<h3 class="box-title">';
+            echo '<h4 class="box-title">';
+            echo '<a data-toggle="collapse" data-parent="#accordion" href="#'
+                . $ethName[0]
+                . '">';
             echo $ethName[0];
             echo ' ';
             echo _('Information');
-            echo '</h3>';
+            echo '</a>';
+            echo '</h4>';
             echo '</div>';
+            echo '<div id="'
+                . $ethName[0]
+                . '" class="panel-collapse collapse">';
             echo '<div class="box-body">';
             echo $rendered;
             echo '</div>';
             echo '</div>';
+            echo '</div>';
             unset($txtran, $rendered);
         }
+        echo '</div>';
         echo '</div>';
         unset(
             $arGeneral,
