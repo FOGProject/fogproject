@@ -2033,9 +2033,17 @@ downloadfiles() {
     echo "Done"
 }
 configureDHCP() {
-    dots "Setting up and starting DHCP Server"
     case $bldhcp in
         1)
+            case $linuxReleaseName in
+                *[Dd][Ee][Bb][Ii][Aa][Nn]*)
+                    dots "Setting up and starting DHCP Server (incl. debian 9 fix)"
+                    sed -i.fog "s/INTERFACESv4=\"\"/INTERFACESv4=\"$interface\"/g" /etc/default/isc-dhcp-server
+                    ;;
+                *)
+                    dots "Setting up and starting DHCP Server"
+                    ;;
+            esac
             [[ -f $dhcpconfig ]] && cp -f $dhcpconfig ${dhcpconfig}.fogbackup
             serverip=$(ip -4 -o addr show $interface | awk -F'([ /])+' '/global/ {print $4}')
             [[ -z $serverip ]] && serverip=$(/sbin/ifconfig $interface | grep -oE 'inet[:]? addr[:]?([0-9]{1,3}\.){3}[0-9]{1,3}' | awk -F'(inet[:]? ?addr[:]?)' '{print $2}')
