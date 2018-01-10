@@ -137,7 +137,7 @@ var $_GET = getQueryParams(document.location.search),
             remIds = [Common.id];
         } else {
             rows = table.rows({selected: true});
-            remIds = Common.getSelectedIds(rows);
+            remIds = rows.ids().toArray();
         }
         
         var opts = {
@@ -209,16 +209,15 @@ var $_GET = getQueryParams(document.location.search),
         var table = e.DataTable(opts);
 
         if (onSelect && typeof(onSelect) === 'function') {
-            table.on('select', function( e, dt, type, indexes) {        
-                onSelect(dt.rows({selected: true}));
-            }).on('deselect', function( e, dt, type, indexes) {
+            table.on('select deselect', function( e, dt, type, indexes) {        
                 onSelect(dt.rows({selected: true}));
             });
         }
 
         return table;
     };
-    Common.getSelectedIds = function(rows) {
+    Common.getSelectedIds = function(table) {
+        var rows = table.rows({selected: true});
         return rows.ids().toArray();
     }
 

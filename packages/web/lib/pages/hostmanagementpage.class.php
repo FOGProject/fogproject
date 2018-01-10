@@ -1250,9 +1250,9 @@ class HostManagementPage extends FOGPage
         );
         $this->templates = array(
             '<div class="radio">'
-            . '<input type="radio" class="default" '
+            . '<input belongsto="defaultPrinters" type="radio" class="default" '
             . 'name="default" id="printer${printer_id}" '
-            . 'value="${printer_id}" ${is_default}/>'
+            . 'value="${printer_id}" ${is_default} wasoriginaldefault="${is_default}"/>'
             . '</div>',
             '<a href="?node=printer&sub=edit&id=${printer_id}">${printer_name}</a>',
             '${printer_type}'
