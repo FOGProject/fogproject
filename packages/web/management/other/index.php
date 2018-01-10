@@ -27,7 +27,7 @@ echo '<head>';
 echo '<meta charset="utf-8"/>';
 echo '<meta http-equiv="X-UA-Compatible" content="IE=edge"/>';
 echo '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport"/>';
-echo '<title>' . $this->title . '</title>';
+echo '<title>' . $this->pageTitle . '</title>';
 
 self::$HookManager
     ->processEvent(
@@ -90,12 +90,12 @@ if (self::$FOGUser->isValid()) {
     echo '  <aside class="main-sidebar">';
     echo '      <section class="sidebar">';
     echo '          <div class="user-panel">';
-    echo '              <div class="pull-left image">';
-    echo '                  <img src="dist/img/user2-160x160.jpg" class="img-circle" alt="User Image">';
-    echo '              </div>';
-    echo '              <div class="pull-left info">';
-    echo '                  <p>' . trim(self::$FOGUser->get('name')) . '</p>';
-    echo '                  <a href="#"><i class="fa fa-circle text-success"></i> Online</a>';
+    //echo '              <div class="pull-left image">';
+    //echo '                  <img src="dist/img/user2-160x160.jpg" class="img-circle" alt="User Image">';
+    //echo '              </div>';
+    echo '              <div class="">';
+    echo '                  <center><a class="">' . trim(self::$FOGUser->get('name')) . '</a></center>';
+   // echo '                  <a href="#"><i class="fa fa-circle text-success"></i> Online</a>';
     echo '              </div>';
     echo '          </div>';
     echo '          <ul class="sidebar-menu" data-widget="tree">';
@@ -113,10 +113,10 @@ if (self::$FOGUser->isValid()) {
     // BODY
     echo '  <div class="content-wrapper">';
     echo '      <section class="content-header">';
-    echo '          <h1>';
+    echo '          <h1 id="sectionTitle">';
     echo $this->sectionTitle;
 
-    echo '              <small>' . $this->pageTitle . '</small>';
+    echo '              <small id="pageTitle">' . $this->pageTitle . '</small>';
     echo '          </h1>';
     echo '      </section>';
     echo '      <section class="content">';
@@ -129,7 +129,7 @@ if (self::$FOGUser->isValid()) {
     echo '      <div class="pull-right hidden-xs">';
     echo '          <b>Version</b> ' . FOG_VERSION;
     echo '      </div>';
-    echo '      <strong>Copyright &copy; 2012-2017 <a href="https://fogproject.org">FOG Project</a>.</strong> All rights reserved.';
+    echo '      <strong>Copyright &copy; 2012-2018 <a href="https://fogproject.org">FOG Project</a>.</strong> All rights reserved.';
     echo '  </footer>';
     echo '</div>';
     
@@ -146,11 +146,11 @@ foreach ((array)$this->javascripts as &$javascript) {
     unset($javascript);
 }
 unset($this->javascripts);
-echo '<!-- Memory Usage: ';
-echo self::formatByteSize(memory_get_usage(true));
-echo '-->';
-echo '<!-- Memory Peak: ';
-echo self::formatByteSize(memory_get_peak_usage());
-echo '-->';
+// echo '<!-- Memory Usage: ';
+// echo self::formatByteSize(memory_get_usage(true));
+// echo '-->';
+// echo '<!-- Memory Peak: ';
+// echo self::formatByteSize(memory_get_peak_usage());
+// echo '-->';
 echo '</body>';
 echo '</html>';
