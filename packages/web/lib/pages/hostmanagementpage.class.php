@@ -1444,7 +1444,7 @@ class HostManagementPage extends FOGPage
         }
 
         $buttons = self::makeButton('snapins-remove', _('Remove selected'), 'btn btn-danger', $props);
-        echo '<div class="box box-warning">';
+        echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
         echo _('Remove Snapins');
@@ -1508,7 +1508,7 @@ class HostManagementPage extends FOGPage
             unset($Snapin);
         }
         $buttons = self::makeButton('snapins-add', _('Add selected'), 'btn btn-default', $props);
-        echo '<div class="box box-primary">';
+        echo '<div class="box box-warning">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
         echo _('Add Snapins');
