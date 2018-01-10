@@ -1399,6 +1399,10 @@ class HostManagementPage extends FOGPage
      */
     public function hostSnapins()
     {
+        $props = ' method="post" action="'
+        . $this->formAction
+        . '&tab=host-snapins" ';
+
         unset(
             $this->headerData,
             $this->templates,
@@ -1406,6 +1410,7 @@ class HostManagementPage extends FOGPage
             $this->form,
             $this->data
         );
+
         $this->headerData = array(
             _('Snapin Name'),
             _('Snapin Created')
@@ -1423,11 +1428,12 @@ class HostManagementPage extends FOGPage
             Route::getData()
         );
         $Snapins = $Snapins->snapins;
-        foreach ((array)$Snapins as &$Snapin) {
-            if (!in_array($Snapin->id, $this->obj->get('snapinsnotinme'))) {
+        foreach ((array)$Snapins as $Snapin) {
+            if (!in_array($Snapin->id, $this->obj->get('snapins'))) {
                 continue;
             }
             $this->data[] = array(
+                'id' => $Snapin->id,
                 'snapin_id' => $Snapin->id,
                 'snapin_name' => $Snapin->name,
                 'snapin_created' => self::niceDate(
@@ -1436,55 +1442,36 @@ class HostManagementPage extends FOGPage
             );
             unset($Snapin);
         }
-        echo '<!-- Snapins -->';
-        echo '<div class="box box-primary">';
+
+        $buttons = self::makeButton('snapins-remove', _('Remove selected'), 'btn btn-danger', $props);
+        echo '<div class="box box-warning">';
         echo '<div class="box-header with-border">';
-        echo '<h3 class="box-title">';
-        echo _('Host Snapins');
-        echo '</h3>';
+        echo '<h4 class="box-title">';
+        echo _('Remove Snapins');
+        echo '</h4>';
         echo '<div class="box-tools pull-right">';
         echo self::$FOGCollapseBox;
-        echo self::$FOGCloseBox;
         echo '</div>';
         echo '</div>';
+        echo '<div id="addsnapins" class="">';
+        self::$HookManager
+        ->processEvent(
+            'HOST_EDIT_SNAPIN',
+            array(
+                'headerData' => &$this->headerData,
+                'data' => &$this->data,
+                'templates' => &$this->templates,
+                'attributes' => &$this->attributes
+            )
+        );
         echo '<div class="box-body">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '&tab=host-snapins">';
-        echo '<div class="box-group" id="snapins">';
-        if (count($this->data) > 0) {
-            self::$HookManager
-                ->processEvent(
-                    'HOST_ADD_SNAPIN',
-                    array(
-                        'headerData' => &$this->headerData,
-                        'data' => &$this->data,
-                        'templates' => &$this->templates,
-                        'attributes' => &$this->attributes
-                    )
-                );
-            echo '<div class="panel box box-primary">';
-            echo '<div class="box-header with-border">';
-            echo '<h4 class="box-title">';
-            echo '<a data-toggle="collapse" data-parent="#snapins" href="#'
-                . 'addsnapins">';
-            echo _('Add Snapins');
-            echo '</a>';
-            echo '</h4>';
-            echo '</div>';
-            echo '<div id="addsnapins" class="panel-collapse collapse">';
-            echo '<div class="box-body">';
-            $this->render(12);
-            echo '</div>';
-            echo '<div class="box-footer">';
-            echo '<button type="submit" name="updatesnapins" class='
-                . '"btn btn-primary" id="updatesnapins" value="1">'
-                . _('Add')
-                . '</button>';
-            echo '</div>';
-            echo '</div>';
-            echo '</div>';
-        }
+        $this->render(12, 'snapins-to-remove-table', $buttons);
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+
         unset(
             $this->headerData,
             $this->templates,
@@ -1492,6 +1479,7 @@ class HostManagementPage extends FOGPage
             $this->form,
             $this->data
         );
+
         $this->headerData = array(
             _('Snapin Name'),
             _('Snapin Created')
@@ -1504,11 +1492,13 @@ class HostManagementPage extends FOGPage
             array(),
             array()
         );
-        foreach ((array)$Snapins as $Snapin) {
-            if (!in_array($Snapin->id, $this->obj->get('snapins'))) {
+
+        foreach ((array)$Snapins as &$Snapin) {
+            if (!in_array($Snapin->id, $this->obj->get('snapinsnotinme'))) {
                 continue;
             }
             $this->data[] = array(
+                'id' => $Snapin->id,
                 'snapin_id' => $Snapin->id,
                 'snapin_name' => $Snapin->name,
                 'snapin_created' => self::niceDate(
@@ -1517,44 +1507,35 @@ class HostManagementPage extends FOGPage
             );
             unset($Snapin);
         }
-        if (count($this->data) > 0) {
-            self::$HookManager
-                ->processEvent(
-                    'HOST_EDIT_SNAPIN',
-                    array(
-                        'headerData' => &$this->headerData,
-                        'data' => &$this->data,
-                        'templates' => &$this->templates,
-                        'attributes' => &$this->attributes
-                    )
-                );
-            echo '<div class="panel box box-primary">';
-            echo '<div class="box-header with-border">';
-            echo '<h4 class="box-title">';
-            echo '<a data-toggle="collapse" data-parent="#snapins" href="#'
-                . 'removesnapins">';
-            echo _('Remove Snapins');
-            echo '</a>';
-            echo '</h4>';
-            echo '</div>';
-            echo '<div id="removesnapins" class="panel-collapse collapse">';
-            echo '<div class="box-body">';
-            $this->render(12);
-            echo '</div>';
-            echo '</div>';
-            echo '<div class="box-footer">';
-            echo '<button type="submit" name="snapindel" class='
-                . '"btn btn-danger" id="snapindel">'
-                . _('Remove')
-                . '</button>';
-            echo '</div>';
-            echo '</div>';
-            echo '</div>';
-        }
-        echo '</form>';
+        $buttons = self::makeButton('snapins-add', _('Add selected'), 'btn btn-default', $props);
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Add Snapins');
+        echo '</h4>';
+        echo '<div class="box-tools pull-right">';
+        echo self::$FOGCollapseBox;
+        echo '</div>';
+        echo '</div>';
+        echo '<div id="addsnapins" class="">';
+        self::$HookManager
+        ->processEvent(
+            'HOST_ADD_SNAPIN',
+            array(
+                'headerData' => &$this->headerData,
+                'data' => &$this->data,
+                'templates' => &$this->templates,
+                'attributes' => &$this->attributes
+            )
+        );
+        echo '<div class="box-body">';
+        $this->render(12, 'snapins-to-add-table', $buttons);
+        echo '</div>';
+        echo '<div class="box-footer">';
         echo '</div>';
         echo '</div>';
         echo '</div>';
+        
         unset(
             $this->headerData,
             $this->templates,

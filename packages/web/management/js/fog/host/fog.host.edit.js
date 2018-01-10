@@ -256,7 +256,91 @@
         );
     });
 
+    // ---------------------------------------------------------------
+    // SNAPINS TAB
+    var snapinsAddBtn = $("#snapins-add");
+    var snapinsRemovebtn = $("#snapins-remove");
 
+    snapinsAddBtn.prop("disabled", true);
+    snapinsRemovebtn.prop("disabled", true);
+
+
+    function onSnapinsRemoveSelect (selected) {
+        var disabled = selected.count() == 0;
+        snapinsRemovebtn.prop("disabled", disabled);
+    }
+    function onSnapinsAddSelect (selected) {
+        var disabled = selected.count() == 0;
+        snapinsAddBtn.prop("disabled", disabled);
+    }
+
+    var snapinsAddTable = Common.registerTable($("#snapins-to-add-table"), onSnapinsAddSelect);
+    var snapinsRemoveTable = Common.registerTable($("#snapins-to-remove-table"), onSnapinsRemoveSelect);
+
+    snapinsAddBtn.click(function() {
+        snapinsAddBtn.prop("disabled", true);
+
+        var rows = snapinsAddTable.rows({selected: true});
+        var toAdd = Common.getSelectedIds(snapinsAddTable);
+        var opts = {
+            'updatesnapins': '1',
+            'snapin': toAdd
+        };
+        Common.apiCall(snapinsAddBtn.attr('method'), snapinsAddBtn.attr('action'), opts, 
+            function(err) {
+                if (!err) {
+                    rows.every(function (idx, tableLoop, rowLoop) {
+                        var data = this.data();
+                        var id = this.id();
+                        snapinsRemoveTable.row.add({
+                            0: data[0],
+                            1: data[1]
+                        });
+                    });
+                    snapinsRemoveTable.draw(false);
+                    snapinsAddTable.rows({
+                        selected: true
+                    }).remove().draw(false);
+                    snapinsAddTable.rows({selected: true}).deselect();
+                } else {
+                    snapinsAddBtn.prop("disabled", false);
+                }
+            }
+        );
+    });
+
+    snapinsRemovebtn.click(function() {
+        snapinsRemovebtn.prop("disabled", true);
+
+        var rows = snapinsRemoveTable.rows({selected: true});
+        var toRemove = Common.getSelectedIds(snapinsRemoveTable);
+        var opts = {
+            'snapdel': '1',
+            'snapinRemove': toRemove
+        }; 
+
+        Common.apiCall(snapinsRemovebtn.attr('method'), snapinsRemovebtn.attr('action'), opts, 
+            function(err) {
+                if (!err) {
+                    rows.every(function (idx, tableLoop, rowLoop) {
+                        var data = this.data();
+                        snapinsAddTable.row.add({
+                            0: data[0],
+                            1: data[1]
+                        });
+                    });
+                    snapinsAddTable.draw(false);
+
+                    snapinsRemoveTable.rows({
+                        selected: true
+                    }).remove().draw(false);
+                    snapinsRemoveTable.rows({selected: true}).deselect();
+                } else {
+                    snapinsRemovebtn.prop("disabled", false);
+                }
+            }
+        );
+    });
 
 })(jQuery);
 
