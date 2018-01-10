@@ -110,13 +110,11 @@ var $_GET = getQueryParams(document.location.search),
             async: true,
             data: opts,
             success: function(res) {
-                console.log(res);
                 Common.notifyFromAPI(res, false);
                 if (cb && typeof(cb) === 'function')
                     cb();
             },
             error: function(res) {
-                console.log(res.responseText);
                 Common.notifyFromAPI(res.responseJSON, true);
                 if (cb && typeof(cb) === 'function')
                     cb(res);
@@ -133,9 +131,18 @@ var $_GET = getQueryParams(document.location.search),
         Common.apiCall(form.attr('method'), form.attr('action'), opts, cb);
     };
     Common.massDelete = function(password, cb, table) {
+        var remIds = [];
+        var rows = undefined;
+        if (table === undefined) {
+            remIds = [Common.id];
+        } else {
+            rows = table.rows({selected: true});
+            remIds = Common.getSelectedIds(rows);
+        }
+        
         var opts = {
             fogguipass: password,
-            remitems: (table === undefined) ? [Common.id] : Common.getSelectedIds(table)
+            remitems: remIds
         };
         $.ajax('', {
             type: 'POST',
@@ -144,9 +151,7 @@ var $_GET = getQueryParams(document.location.search),
             data: opts,
             success: function(res) {
                 if(table !== undefined) {
-                    table.rows({
-                        selected: true
-                    }).remove().draw(false);
+                    rows.remove().draw(false);
                     table.rows({selected: true}).deselect();
                 }
                 Common.notifyFromAPI(res, false);
@@ -213,11 +218,8 @@ var $_GET = getQueryParams(document.location.search),
 
         return table;
     };
-    Common.getSelectedIds = function(table) {
-        var itemIds = table.rows({
-            selected: true
-        }).ids().toArray();
-        return itemIds;
+    Common.getSelectedIds = function(rows) {
+        return rows.ids().toArray();
     }
 
     //Initialize Select2 Elements

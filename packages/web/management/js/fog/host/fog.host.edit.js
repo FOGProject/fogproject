@@ -154,7 +154,6 @@
 
         var rows = printersToAddTable.rows({selected: true});
         var toAdd = Common.getSelectedIds(printersToAddTable);
-        console.log(toAdd);
         var opts = {
             'updateprinters': '1',
             'printer': toAdd
@@ -198,6 +197,8 @@
 
         Common.apiCall(printerRemoveBtn.attr('method'), printerRemoveBtn.attr('action'), opts, 
             function(err) {
+                printerDefaultBtn.prop("disabled", false);
+
                 if (!err) {
                     rows.every(function (idx, tableLoop, rowLoop) {
                         var data = this.data();
@@ -214,7 +215,6 @@
                     printersTable.rows({selected: true}).deselect();
                 } else {
                     printerRemoveBtn.prop("disabled", false);
-                    printerDefaultBtn.prop("disabled", false);
                 }
             }
         );
