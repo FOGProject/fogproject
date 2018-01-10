@@ -108,6 +108,7 @@
     var printerAddBtn = $("#printer-add");
     var printerDefaultBtn = $("#printer-default");
     var printerRemoveBtn = $("#printer-remove");
+    var DEFAULT_PRINTER_ID = -1;
 
     printerAddBtn.prop("disabled", true);
     printerRemoveBtn.prop("disabled", true);
@@ -127,12 +128,45 @@
 
     printersTable.on('draw', function() {
         Common.iCheck("input");
+        $('input').on('ifClicked', onRadioSelect);
+        
     });
-    printerDefaultBtn.prop("disabled", printersTable.rows().count() == 0);
+    printerDefaultBtn.prop("disabled", true);
+
+    var onRadioSelect = function(event) {
+        if($(this).attr("belongsto") === 'defaultPrinters') {
+            var id = parseInt($(this).attr("value"));
+            if(DEFAULT_PRINTER_ID === -1 && $(this).attr("wasoriginaldefault") === 'checked') {
+                DEFAULT_PRINTER_ID = id;
+            }
+
+            if (id === DEFAULT_PRINTER_ID) {
+                $(this).iCheck('uncheck');
+                DEFAULT_PRINTER_ID = 0;
+            } else {
+                DEFAULT_PRINTER_ID = id;
+            }
+            printerDefaultBtn.prop("disabled", false);
+        }
+    }
+
+    // Setup default printer watcher
+    $('input').on('ifClicked', onRadioSelect);
 
     printerDefaultBtn.click(function() {
-        printerDefaultBtn.prop("disabled", true);
+        printerRemoveBtn.prop("disabled", true);
 
+        var opts = {
+            'defaultsel': '1',
+            'default': DEFAULT_PRINTER_ID
+        }
+
+        Common.apiCall(printerDefaultBtn.attr('method'), printerDefaultBtn.attr('action'), opts, 
+            function(err) {
+                printerDefaultBtn.prop("disabled", !err);
+                onPrintersSelect(printersTable.rows({selected: true}));
+            }
+        );
     });
 
     printerConfigForm.serialize2 = printerConfigForm.serialize;
@@ -164,8 +198,11 @@
                 if (!err) {
                     rows.every(function (idx, tableLoop, rowLoop) {
                         var data = this.data();
+                        var id = this.id();
                         printersTable.row.add({
-                            0:'<div class="radio"><input type="radio" class="default" name="default" value="0"/></div>',
+                            0:'<div class="radio"><input id="printers' +
+                                id + '"belongsto="defaultPrinters" type="radio" class="default" name="default" value="'+ 
+                                id +'" wasoriginaldefault="" /></div>',
                             1: data[0],
                             2: data[1]
                         });
@@ -189,7 +226,6 @@
 
         var rows = printersTable.rows({selected: true});
         var toRemove = Common.getSelectedIds(printersTable);
-        console.log(toRemove);
         var opts = {
             'printdel': '1',
             'printerRemove': toRemove
