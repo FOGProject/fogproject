@@ -144,10 +144,10 @@ var $_GET = getQueryParams(document.location.search),
             data: opts,
             success: function(res) {
                 if(table !== undefined) {
-                    table.rows({selected: true}).deselect();
                     table.rows({
                         selected: true
                     }).remove().draw(false);
+                    table.rows({selected: true}).deselect();
                 }
                 Common.notifyFromAPI(res, false);
                 if (cb && typeof(cb) === 'function')
