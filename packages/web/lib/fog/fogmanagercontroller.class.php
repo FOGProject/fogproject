@@ -903,7 +903,7 @@ abstract class FOGManagerController extends FOGBase
         if (empty($objOpts)) {
             return _('No items found');
         }
-        $tmpStr .= '<select class="form-control input-group" name="'
+        $tmpStr .= '<select class="form-control input-group select2" name="'
             . (
                 $template ?
                 '${select_name}' :

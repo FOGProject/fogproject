@@ -183,11 +183,10 @@ class DashboardPage extends FOGPage
      */
     public function index()
     {
-        $pendingInfo = '<i></i>'
-            . '&nbsp;%s&nbsp;%s <a href="?node=%s&sub=%s"><b>%s</b></a> %s';
+        
+        $pendingInfo = '%s <a href="?node=%s&sub=%s"><b>%s</b></a> %s';
         $hostPend = sprintf(
             $pendingInfo,
-            _('Pending hosts'),
             _('Click'),
             'host',
             'pending',
@@ -196,7 +195,6 @@ class DashboardPage extends FOGPage
         );
         $macPend = sprintf(
             $pendingInfo,
-            _('Pending macs'),
             _('Click'),
             'report',
             'file&f=cGVuZGluZyBtYWMgbGlzdA==',
@@ -205,17 +203,12 @@ class DashboardPage extends FOGPage
         );
         $setMesg = '';
         if (self::$pendingHosts > 0) {
-            $setMesg = $hostPend;
+            $title = self::$pendingHosts . ' ' . _('Pending hosts');
+            self::displayAlert($title, $hostPend, 'warning', true, true);
         }
         if (self::$pendingMACs > 0) {
-            if (empty($setMesg)) {
-                $setMesg = $macPend;
-            } else {
-                $setMesg .= "<br/>$macPend";
-            }
-        }
-        if (!empty($setMesg)) {
-            self::setMessage($setMesg);
+            $title = self::$pendingMACs . ' ' . _('Pending macs');
+            self::displayAlert($title, $macPend, 'warning', true, true);
         }
         $SystemUptime = self::$FOGCore->systemUptime();
         $fields = array(
@@ -245,6 +238,7 @@ class DashboardPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
+
         echo '<!-- FOG Overview Boxes -->';
         // Server info basic.
         echo '<div class="col-md-4">';
@@ -255,21 +249,13 @@ class DashboardPage extends FOGPage
         echo '</h3>';
         echo '<div class="box-tools pull-right">';
         echo self::$FOGCollapseBox;
-        echo self::$FOGCloseBox;
         echo '</div>';
         echo '</div>';
         echo '<div class="box-body">';
-        echo '<div class="row">';
+        echo '<div class="dl-horizontal">';
         foreach ($fields as $field => &$input) {
-            echo '<div class="col-xs-5">'
-                . '<b>'
-                . $field
-                . '</b>'
-                . ': '
-                . '</div>'
-                . '<div class="col-xs-7 pull-right">'
-                . $input
-                . '</div>';
+            echo '<dt>' . $field . '</dt>'
+                . '<dd>' . $input . '</dd>';
             unset($input);
         }
         echo '</div>';
@@ -285,7 +271,6 @@ class DashboardPage extends FOGPage
         echo '</h3>';
         echo '<div class="box-tools pull-right">';
         echo self::$FOGCollapseBox;
-        echo self::$FOGCloseBox;
         echo '</div>';
         echo '</div>';
         echo '<div class="box-body">';
@@ -319,7 +304,6 @@ class DashboardPage extends FOGPage
         echo '</h3>';
         echo '<div class="box-tools pull-right">';
         echo self::$FOGCollapseBox;
-        echo self::$FOGCloseBox;
         echo '</div>';
         echo '</div>';
         echo '<div class="box-body">';
@@ -356,7 +340,6 @@ class DashboardPage extends FOGPage
         echo '</h3>';
         echo '<div class="box-tools pull-right">';
         echo self::$FOGCollapseBox;
-        echo self::$FOGCloseBox;
         echo '</div>';
         echo '</div>';
         echo '<div class="box-body">';
@@ -423,7 +406,6 @@ class DashboardPage extends FOGPage
         echo '</div>';
         echo '<div class="box-tools pull-right">';
         echo self::$FOGCollapseBox;
-        echo self::$FOGCloseBox;
         echo '</div>';
         echo '</div>';
         echo '<div class="box-body">';

@@ -1,10 +1,227 @@
 
 (function($) {
-    $('.select2').select2({
-        width: '100%'
+    // ---------------------------------------------------------------
+    // GENERAL TAB
+    var originalName = $("#name").val();
+
+    var updateName = function(newName) {
+        var e = $("#pageTitle");
+        var text = e.text();
+        text = text.replace(": " + originalName, ": " + newName);
+        e.text(text);
+    };
+
+    $("#name").inputmask({"mask": Common.masks.hostname, "repeat": 15 });
+    $("#mac").inputmask({"mask": Common.masks.mac});
+    $("#productKey").inputmask({"mask": Common.masks.productKey});
+
+    var generalForm = $("#host-general-form");
+    var generalFormBtn = $("#general-send");
+    var generalDeleteBtn = $("#general-delete");
+
+    generalForm.submit(function(e) {
+        e.preventDefault();   
     });
-    $("#mac").inputmask({"mask": "##:##:##:##:##:##"});
-    $("#productKey").inputmask({"mask": "*****-*****-*****-*****-*****"});
+    generalFormBtn.click(function() {
+        generalFormBtn.prop("disabled", true);
+        generalDeleteBtn.prop("disabled", true);
+        Common.processForm(generalForm, function(err) {
+            generalFormBtn.prop("disabled", false);
+            generalDeleteBtn.prop("disabled", false);
+            if (err)
+                return;
+            updateName($("#name").val())
+            originalName = $("#name").val();
+        });
+    });
+    generalDeleteBtn.click(function() {
+        generalFormBtn.prop("disabled", true);
+        generalDeleteBtn.prop("disabled", true);
+        Common.massDelete(
+            null, 
+            function(err) {
+                if (err) {
+                    generalDeleteBtn.prop("disabled", false);
+                    generalFormBtn.prop("disabled", false);
+                    return;
+                }
+                window.location = '../management/index.php?node='+Common.node+'&sub=list';
+            });
+    });
+    
+    // ---------------------------------------------------------------
+    // ACTIVE DIRECTORY TAB
+    var ADForm = $("#active-directory-form");
+    var ADFormBtn = $("#ad-send");
+    var ADClearBtn = $("#ad-clear");
+
+    ADForm.submit(function(e) {
+        e.preventDefault();   
+    });
+    ADFormBtn.click(function() {
+        ADFormBtn.prop("disabled", true);
+        ADClearBtn.prop("disabled", true);
+        Common.processForm(ADForm, function(err) {
+            ADFormBtn.prop("disabled", false);
+            ADClearBtn.prop("disabled", false);
+        });
+    });
+    ADClearBtn.click(function() {
+        ADClearBtn.prop("disabled", true);
+        ADFormBtn.prop("disabled", true);
+        
+        var restoreMap = [];
+        ADForm.find("input[type=text], input[type=password], textarea").each(function(i, e) {
+            restoreMap.push({checkbox: false, e: e, val: $(e).val()});
+            $(e).val("");
+            $(e).prop("disabled", true);
+        });
+        ADForm.find("input[type=checkbox]").each(function(i, e) {
+            restoreMap.push({checkbox: true, e: e, val: $(e).iCheck('update')[0].checked});
+            $(e).iCheck("uncheck");
+            $(e).iCheck("disable");
+        });
+
+        ADForm.find("input[type=text], input[type=password], textarea").val("");
+        ADForm.find("input[type=checkbox]").iCheck('uncheck');
+
+        Common.processForm(ADForm, function(err) {
+            for (var i = 0; i < restoreMap.length; i++) {
+                field = restoreMap[i];
+                if (field.checkbox) {
+                    if (err) $(field.e).iCheck((field.val ? "check" : "uncheck"));
+                    $(field.e).iCheck("enable");
+                } else {
+                    if (err) $(field.e).val(field.val);
+                    $(field.e).prop("disabled", false);
+                }
+            }
+            ADClearBtn.prop("disabled", false);
+            ADFormBtn.prop("disabled", false);
+        });
+    });
+
+    // ---------------------------------------------------------------
+    // PRINTER TAB
+    var printerConfigForm = $("#printer-config-form");
+    var printerConfigBtn = $("#printer-config-send");
+    var printerAddBtn = $("#printer-add");
+    var printerDefaultBtn = $("#printer-default");
+    var printerRemoveBtn = $("#printer-remove");
+
+    printerAddBtn.prop("disabled", true);
+    printerRemoveBtn.prop("disabled", true);
+
+
+    function onPrintersToAddTableSelect (selected) {
+        var disabled = selected.count() == 0;
+        printerAddBtn.prop("disabled", disabled);
+    }
+    function onPrintersSelect (selected) {
+        var disabled = selected.count() == 0;
+        printerRemoveBtn.prop("disabled", disabled);
+    }
+
+    var printersToAddTable = Common.registerTable($("#printers-to-add-table"), onPrintersToAddTableSelect);
+    var printersTable = Common.registerTable($("#host-printers-table"), onPrintersSelect);
+
+    printersTable.on('draw', function() {
+        Common.iCheck("input");
+    });
+    printerDefaultBtn.prop("disabled", printersTable.rows().count() == 0);
+
+    printerDefaultBtn.click(function() {
+        printerDefaultBtn.prop("disabled", true);
+
+    });
+
+    printerConfigForm.serialize2 = printerConfigForm.serialize;
+    printerConfigForm.serialize = function() {
+        return printerConfigForm.serialize2() + '&levelup';
+    }
+    printerConfigForm.submit(function(e) {
+        e.preventDefault();   
+    });
+    printerConfigBtn.click(function() {
+        printerConfigBtn.prop("disabled", true);
+        Common.processForm(printerConfigForm, function(err) {
+            printerConfigBtn.prop("disabled", false);
+        });
+        
+    });
+    printerAddBtn.click(function() {
+        printerAddBtn.prop("disabled", true);
+
+        var rows = printersToAddTable.rows({selected: true});
+        var toAdd = Common.getSelectedIds(printersToAddTable);
+        console.log(toAdd);
+        var opts = {
+            'updateprinters': '1',
+            'printer': toAdd
+        };
+
+        Common.apiCall(printerAddBtn.attr('method'), printerAddBtn.attr('action'), opts, 
+            function(err) {
+                if (!err) {
+                    rows.every(function (idx, tableLoop, rowLoop) {
+                        var data = this.data();
+                        printersTable.row.add({
+                            0:'<div class="radio"><input type="radio" class="default" name="default" value="0"/></div>',
+                            1: data[0],
+                            2: data[1]
+                        });
+                    });
+                    printersTable.draw(false);
+                    printersToAddTable.rows({
+                        selected: true
+                    }).remove().draw(false);
+                    printersToAddTable.rows({selected: true}).deselect();
+                } else {
+                    printerAddBtn.prop("disabled", false);
+                }
+            }
+        );
+    });
+
+
+    printerRemoveBtn.click(function() {
+        printerRemoveBtn.prop("disabled", true);
+        printerDefaultBtn.prop("disabled", true);
+
+        var rows = printersTable.rows({selected: true});
+        var toRemove = Common.getSelectedIds(printersTable);
+        console.log(toRemove);
+        var opts = {
+            'printdel': '1',
+            'printerRemove': toRemove
+        }; 
+
+        Common.apiCall(printerRemoveBtn.attr('method'), printerRemoveBtn.attr('action'), opts, 
+            function(err) {
+                if (!err) {
+                    rows.every(function (idx, tableLoop, rowLoop) {
+                        var data = this.data();
+                        printersToAddTable.row.add({
+                            0: data[1],
+                            1: data[2]
+                        });
+                    });
+                    printersToAddTable.draw(false);
+
+                    printersTable.rows({
+                        selected: true
+                    }).remove().draw(false);
+                    printersTable.rows({selected: true}).deselect();
+                } else {
+                    printerRemoveBtn.prop("disabled", false);
+                    printerDefaultBtn.prop("disabled", false);
+                }
+            }
+        );
+    });
+
+
+
 })(jQuery);
 
 

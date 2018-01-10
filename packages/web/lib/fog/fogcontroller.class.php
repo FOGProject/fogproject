@@ -850,9 +850,11 @@ abstract class FOGController extends FOGBase
         if (count($array) < 1) {
             return $this;
         }
-        $array = $array_type(
-            (array)$this->get($key),
-            (array)$array
+        $array = array_values(
+            $array_type(
+                (array)$this->get($key),
+                (array)$array
+            )
         );
         return $this->set($key, $array);
     }
@@ -1056,7 +1058,7 @@ abstract class FOGController extends FOGBase
     public function assocSetter($assocItem, $alterItem = '', $implicitCall = false)
     {
         if (empty($alterItem)) {
-            $assoc = strtolower($assocItem);
+            $alterItem = $assoc = strtolower($assocItem);
         } else {
             $assoc = $alterItem;
         }
@@ -1102,7 +1104,9 @@ abstract class FOGController extends FOGBase
         } else {
             $RemIDs = self::getSubObjectIDs($assoc);
         }
-        $RemIDs = array_filter($RemIDs);
+        $RemIDs = array_values(
+            array_filter($RemIDs)
+        );
         if (count($RemIDs) > 0) {
             self::getClass(sprintf('%sManager', $classCall))
                 ->destroy(

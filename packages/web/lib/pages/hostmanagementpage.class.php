@@ -179,7 +179,7 @@ class HostManagementPage extends FOGPage
             // '<label for="host-${id}">'
             // . '<input type="checkbox" name="host[]" '
             // . 'value="${id}" class="icheck" id="host-${id}"/>'
-            // . '</label>',       
+            // . '</label>',
         );
 
         $up = new TaskType(2);
@@ -409,7 +409,7 @@ class HostManagementPage extends FOGPage
         $init = filter_input(INPUT_POST, 'init');
         $dev = filter_input(INPUT_POST, 'dev');
         $fields = array(
-            '<label for="host">'
+            '<label class="col-sm-2 control-label" for="host">'
             . _('Host Name')
             . '</label>' => '<input type="text" name="host" '
             . 'value="'
@@ -417,60 +417,57 @@ class HostManagementPage extends FOGPage
             . '" maxlength="15" '
             . 'class="hostname-input form-control" '
             . 'id="host" required/>',
-            '<label for="mac">'
+            '<label class="col-sm-2 control-label" for="mac">'
             . _('Primary MAC')
-            . '</label>' => '<div class="input-group">'
-            . '<span class="mac-manufactor input-group-addon">'
-            . '</span>'
-            . '<input type="text" name="mac" class="macaddr form-control" '
+            . '</label>' => '<input type="text" name="mac" class="macaddr form-control" '
             . 'id="mac" value="'
             . $mac
-            . '" maxlength="17" required/>'
-            . '</div>',
-            '<label for="description">'
+            . '" maxlength="17" exactlength="12" required/>',
+            '<label class="col-sm-2 control-label" for="description">'
             . _('Host Description')
-            . '</label>' => '<textarea class="form-control" '
+            . '</label>' => '<textarea class="form-control" style="resize:vertical;'
+            . 'min-height:50px;" '
             . 'id="description" name="description">'
             . $description
             . '</textarea>',
-            '<label for="productKey">'
+            '<label class="col-sm-2 control-label" for="productKey">'
             . _('Host Product Key')
             . '</label>' => '<input id="productKey" type="text" '
             . 'name="key" value="'
             . $key
-            . '" class="form-control"/>',
-            '<label for="image">'
+            . '" class="form-control" maxlength="29" exactlength="25"/>',
+            '<label class="col-sm-2 control-label" for="image">'
             . _('Host Image')
             . '</label>' => self::getClass('ImageManager')->buildSelectBox(
                 $image,
                 '',
                 'id'
             ),
-            '<label for="kern">'
+            '<label class="col-sm-2 control-label" for="kern">'
             . _('Host Kernel')
             . '</label>' => '<input type="text" name="kern" '
             . 'value="'
             . $kern
             . '" class="form-control" id="kern"/>',
-            '<label for="args">'
+            '<label class="col-sm-2 control-label" for="args">'
             . _('Host Kernel Arguments')
             . '</label>' => '<input type="text" name="args" id="args" value="'
             . $args
             . '" class="form-control"/>',
-            '<label for="init">'
+            '<label class="col-sm-2 control-label" for="init">'
             . _('Host Init')
             . '</label>' => '<input type="text" name="init" value="'
             . $init
             . '" id="init" class="form-control"/>',
-            '<label for="dev">'
+            '<label class="col-sm-2 control-label" for="dev">'
             . _('Host Primary Disk')
             . '</label>' => '<input type="text" name="dev" value="'
             . $dev
             . '" id="dev" class="form-control"/>',
-            '<label for="bootTypeExit">'
+            '<label class="col-sm-2 control-label" for="bootTypeExit">'
             . _('Host Bios Exit Type')
             . '</label>' => $this->exitNorm,
-            '<label for="efiBootTypeExit">'
+            '<label class="col-sm-2 control-label" for="efiBootTypeExit">'
             . _('Host EFI Exit Type')
             . '</label>' => $this->exitEfi,
         );
@@ -489,17 +486,16 @@ class HostManagementPage extends FOGPage
         echo $this->title;
         echo '</h3>';
         echo '</div>';
-        echo '<div class="box-body">';
-        echo '<form class="form-horizontal" method="post" action="'
+        echo '<form id="host-create-form" class="form-horizontal" method="post" action="'
             . $this->formAction
-            . '">';
+            . '" novalidate>';
+        echo '<div class="box-body">';
         if (!isset($_POST['enforcesel'])) {
             $_POST['enforcesel'] = self::getSetting('FOG_ENFORCE_HOST_CHANGES');
         }
         echo '<!-- Host General -->';
         echo $rendered;
-        echo '</div>';
-        echo '</div>';
+
         $domain = filter_input(INPUT_POST, 'domain');
         $domainname = filter_input(INPUT_POST, 'domainname');
         $ou = filter_input(INPUT_POST, 'ou');
@@ -510,6 +506,8 @@ class HostManagementPage extends FOGPage
             'domainpasswordlegacy'
         );
         $enforcesel = isset($_POST['enforcesel']);
+        echo '</br>';
+        echo '<h5><b><center>' . _('Active Directory') . '</center></b></h5>';
         $this->adFieldsToDisplay(
             $domain,
             $domainname,
@@ -520,7 +518,13 @@ class HostManagementPage extends FOGPage
             $enforcesel,
             false
         );
+        echo '  </div>';
+        echo '  <div class="box-footer">';
+        echo '      <button class="btn btn-primary" id="send">' . _('Create') . '</button>';
+        echo '  </div>';
+        echo '</div>';
         echo '</form>';
+        echo '</div>';
         echo '</div>';
     }
     /**
@@ -530,6 +534,7 @@ class HostManagementPage extends FOGPage
      */
     public function addPost()
     {
+        header('Content-type: application/json');
         self::$HookManager->processEvent('HOST_ADD_POST');
         $name = trim(
             filter_input(INPUT_POST, 'host')
@@ -593,6 +598,7 @@ class HostManagementPage extends FOGPage
         $efiBootTypeExit = trim(
             filter_input(INPUT_POST, 'efiBootTypeExit')
         );
+        $serverFault = false;
         try {
             if (!$name) {
                 throw new Exception(
@@ -653,6 +659,7 @@ class HostManagementPage extends FOGPage
                     $enforce
                 );
             if (!self::$Host->save()) {
+                $serverFault = true;
                 throw new Exception(_('Add host failed!'));
             }
             $hook = 'HOST_ADD_SUCCESS';
@@ -663,6 +670,7 @@ class HostManagementPage extends FOGPage
                 )
             );
         } catch (Exception $e) {
+            http_response_code(($serverFault) ? 500 : 400);
             $hook = 'HOST_ADD_FAIL';
             $msg = json_encode(
                 array(
@@ -894,58 +902,61 @@ class HostManagementPage extends FOGPage
             filter_input(INPUT_POST, 'dev') ?: $this->obj->get('kernelDevice')
         );
         $fields = array(
-            '<label for="name" class="control-label">'
+            '<label for="name" class="col-sm-2 control-label">'
             . _('Host Name')
             . '</label>' => '<input id="name" class="form-control" placeholder="'
             . _('Host Name')
             . '" type="text" value="'
             . $name
-            . '" required>',
-            '<label for="mac" class="control-label">'
+            . '" maxlength="15" name="host" required>',
+            '<label for="mac" class="col-sm-2 control-label">'
             . _('Primary MAC')
-            . '</label>' => '<input id="mac" class="form-control" value="'
+            . '</label>' => '<input name="mac" id="mac" class="form-control" value="'
             . $mac
-            . '" required>',
-            '<label for="description" class="control-label">'
+            . '" maxlength="17" exactlength="12" required>',
+            '<label for="description" class="col-sm-2 control-label">'
             . _('Host description')
             . '</label>' => '<textarea style="resize:vertical;'
-            . 'min-height:50px;" id="description" class="form-control">'
+            . 'min-height:50px;" id="description" name="description" class="form-control">'
             . $desc
             . '</textarea>',
-            '<label for="productKey" class="control-label">'
+            '<label for="productKey" class="col-sm-2 control-label">'
             . _('Host Product Key')
-            . '</label>' => '<input id="productKey" class="form-control" '
+            . '</label>' => '<input id="productKey" name="key" class="form-control" '
             . 'value="'
             . $productKey
-            . '">',
-            '<label for="kern" class="control-label">'
+            . '" maxlength="29" exactlength="25">',
+            '<label class="col-sm-2 control-label" for="image">'
+            . _('Host Image')
+            . '</label>' => $imageSelect,
+            '<label for="kern" class="col-sm-2 control-label">'
             . _('Host Kernel')
-            . '</label>' => '<input id="kern" class="form-control" '
+            . '</label>' => '<input id="kern" name="kern" class="form-control" '
             . 'placeholder="" type="text" value="'
             . $kern
             . '">',
-            '<label for="args" class="control-label">'
+            '<label for="args" class="col-sm-2 control-label">'
             . _('Host Kernel Arguments')
-            . '</label>' => '<input id="args" class="form-control" '
+            . '</label>' => '<input id="args" name="args" class="form-control" '
             . 'placeholder="" type="text" value="'
             . $args
             . '">',
-            '<label for="init" class="control-label">'
+            '<label for="init" class="col-sm-2 control-label">'
             . _('Host Init')
-            . '</label>' => '<input id="init" class="form-control" '
+            . '</label>' => '<input id="init" name="init" class="form-control" '
             . 'placeholder="" type="text" value="'
             . $init
             . '">',
-            '<label for="dev" class="control-label">'
+            '<label for="dev" class="col-sm-2 control-label">'
             . _('Host Primary Disk')
-            . '</label>' => '<input id="dev" class="form-control" '
+            . '</label>' => '<input id="dev" name="dev" class="form-control" '
             . 'placeholder="" type="text" value="'
             . $dev
             . '">',
-            '<label for="bootTypeExit" class="control-label">'
+            '<label for="bootTypeExit" class="col-sm-2 control-label">'
             . _('Host Bios Exit Type')
             . '</label>' => $this->exitNorm,
-            '<label for="efiBootTypeExit" class="control-label">'
+            '<label for="efiBootTypeExit" class="col-sm-2 control-label">'
             . _('Host EFI Exit Type')
             . '</label>' => $this->exitEfi
         );
@@ -957,13 +968,17 @@ class HostManagementPage extends FOGPage
         );
         $rendered = self::formFields($fields);
         echo '<div class="box box-solid">';
+        echo '<form id="host-general-form" class="form-horizontal" method="post" action="'
+        . self::makeTabUpdateURL('host-general', $this->obj->get('id'))
+        . '" novalidate>';
         echo '  <div class="box-body">';
         echo $rendered;
         echo '  </div>';
         echo '  <div class="box-footer">';
-        echo '      <button class="btn btn-primary" type="submit">' . _('Update') . '</button>';
-        echo '      <button class="btn btn-danger pull-right">' . _('Delete') . '</button>';                
-        echo '  </div>';            
+        echo '      <button class="btn btn-primary" id="general-send">' . _('Update') . '</button>';
+        echo '      <button class="btn btn-danger pull-right" id="general-delete">' . _('Delete') . '</button>';
+        echo '  </div>';
+        echo '</form>';
         echo '</div>';
         unset(
             $this->data,
@@ -1115,84 +1130,27 @@ class HostManagementPage extends FOGPage
      */
     public function hostPrinters()
     {
-        unset(
-            $this->headerData,
-            $this->templates,
-            $this->attributes,
-            $this->form,
-            $this->data
-        );
-        $this->headerData = array(
-            '<label for="toggler1">'
-            . '<input type="checkbox" name="toggle-checkboxprint" class='
-            . '"toggle-checkboxprint" id="toggler1"/></label>',
-            _('Printer Alias'),
-            _('Printer Type')
-        );
-        $this->templates = array(
-            '<label for="printer-${printer_id}">'
-            . '<input type="checkbox" name="printer[]" class='
-            . '"toggle-print"${is_default} id="printer-${printer_id}" '
-            . 'value="${printer_id}"/></label>',
-            '<a href="?node=printer&sub=edit&id=${printer_id}">${printer_name}</a>',
-            '${printer_type}'
-        );
-        $this->attributes = array(
-            array(
-                'width' => 16,
-                'class' => 'filter-false'
-            ),
-            array(),
-            array()
-        );
-        Route::listem('printer');
-        $Printers = json_decode(
-            Route::getData()
-        );
-        $Printers = $Printers->printers;
-        foreach ((array)$Printers as &$Printer) {
-            if (!in_array($Printer->id, $this->obj->get('printersnotinme'))) {
-                continue;
-            }
-            $this->data[] = array(
-                'printer_id' => $Printer->id,
-                'is_default' => (
-                    $this->obj->getDefault($Printer->id) ?
-                    ' checked' :
-                    ''
-                ),
-                'printer_name' => $Printer->name,
-                'printer_type' => (
-                    stripos($Printer->config, 'local') !== false ?
-                    _('TCP/IP') :
-                    $Printer->config
-                )
-            );
-            unset($Printer);
-        }
+        $props = ' method="post" action="'
+        . $this->formAction
+        . '&tab=host-printers" ';
+
+        // =========================================================
+        // Printer Configuration
         echo '<!-- Printers -->';
-        echo '<div class="tab-pane fade" id="host-printers">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Host Printers');
+        echo '<div class="box-group" id="printers">';
+        echo '<div class="box box-info">';
+        echo '<div class="box-header with-border">';
+        echo '<div class="box-tools pull-right">';
+        echo self::$FOGCollapseBox;
+        echo '</div>';
+        echo '<h4 class="box-title">';
+        echo _('Host Printer Configuration');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '&tab=host-printers">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Host printer configuration');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<h5 class="title text-center">';
-        echo _('Select management level for this host');
-        echo '</h5>';
-        echo '<div class="col-xs-offset-4">';
+        echo '<div id="printerconf" class="">';
+        echo '<form id="printer-config-form" class="form-horizontal"' . $props . '>';
+
+        echo '<div class="box-body">';
         echo '<div class="radio">';
         echo '<label for="nolevel" data-toggle="tooltip" data-placement="left" '
             . 'title="'
@@ -1211,8 +1169,8 @@ class HostManagementPage extends FOGPage
                 ' checked' :
                 ''
             )
-            . '/>';
-        echo _('No Printer Manaagement');
+            . '/> ';
+        echo _('No Printer Management');
         echo '</label>';
         echo '</div>';
         echo '<div class="radio">';
@@ -1236,7 +1194,7 @@ class HostManagementPage extends FOGPage
                 ' checked' :
                 ''
             )
-            . '/>';
+            . '/> ';
         echo _('FOG Managed Printers');
         echo '</label>';
         echo '</div>';
@@ -1257,112 +1215,66 @@ class HostManagementPage extends FOGPage
                 ' checked' :
                 ''
             )
-            . '/>';
+            . '/> ';
         echo _('Only Assigned Printers');
         echo '</label>';
         echo '</div>';
         echo '</div>';
-        echo '<br/>';
-        echo '<div class="form-group">';
-        echo '<label for="levelup" class="control-label col-xs-4">';
-        echo _('Update printer configuration');
-        echo '</label>';
-        echo '<div class="col-xs-8">';
+        echo '<div class="box-footer">';
         echo '<button type="submit" name="levelup" class='
-            . '"btn btn-info btn-block" id="levelup">'
+            . '"btn btn-primary" id="printer-config-send">'
             . _('Update')
             . '</button>';
         echo '</div>';
+        echo '</form>';
         echo '</div>';
         echo '</div>';
-        echo '</div>';
-        if (count($this->data) > 0) {
-            self::$HookManager
-                ->processEvent(
-                    'HOST_ADD_PRINTER',
-                    array(
-                        'headerData' => &$this->headerData,
-                        'data' => &$this->data,
-                        'templates' => &$this->templates,
-                        'attributes' => &$this->attributes
-                    )
-                );
-            echo '<div class="text-center">';
-            echo '<div class="checkbox">';
-            echo '<label for="hostPrinterShow">';
-            echo '<input type="checkbox" name="hostPrinterShow" '
-                . 'id="hostPrinterShow"/>';
-            echo _('Check here to see what printers can be added');
-            echo '</label>';
-            echo '</div>';
-            echo '</div>';
-            echo '<br/>';
-            echo '<div class="hiddeninitially printerNotInHost panel panel-info">';
-            echo '<div class="panel-heading text-center">';
-            echo '<h4 class="title">';
-            echo _('Add Printers');
-            echo '</h4>';
-            echo '</div>';
-            echo '<div class="panel-body">';
-            $this->render(12);
-            echo '<div class="form-group">';
-            echo '<label for="updateprinters" class="control-label col-xs-4">';
-            echo _('Add selected printers');
-            echo '</label>';
-            echo '<div class="col-xs-8">';
-            echo '<button type="submit" name="updateprinters" class='
-                . '"btn btn-info btn-block" id="updateprinters" value="1">'
-                . _('Add')
-                . '</button>';
-            echo '</div>';
-            echo '</div>';
-            echo '</div>';
-            echo '</div>';
-        }
+
+        // =========================================================
+        // Associated Printers
         unset(
-            $this->data,
             $this->headerData,
             $this->templates,
-            $this->attributes
+            $this->attributes,
+            $this->form,
+            $this->data
         );
+
+        $buttons = self::makeButton('printer-default', _('Update default'), 'btn btn-primary', $props);
+        $buttons = $buttons . self::makeButton('printer-remove', _('Remove selected'), 'btn btn-danger', $props);
+        
         $this->headerData = array(
-            '<label for="toggler2">'
-            . '<input type="checkbox" name="toggle-checkbox" class='
-            . '"toggle-checkboxAction" id="toggler2"/></label>',
             _('Default'),
             _('Printer Alias'),
             _('Printer Type')
         );
         $this->templates = array(
-            '<label for="printerrm-${printer_id}">'
-            . '<input type="checkbox" name="printerRemove[]" class='
-            . '"toggle-action" id="printerrm-${printer_id}" '
-            . 'value="${printer_id}"/></label>',
             '<div class="radio">'
             . '<input type="radio" class="default" '
             . 'name="default" id="printer${printer_id}" '
             . 'value="${printer_id}" ${is_default}/>'
-            . '<label for="printer${printer_id}">'
-            . '</label>'
             . '</div>',
             '<a href="?node=printer&sub=edit&id=${printer_id}">${printer_name}</a>',
             '${printer_type}'
         );
         $this->attributes = array(
             array(
-                'class' => 'filter-false col-xs-1'
-            ),
-            array(
-                'class' => 'filter-false col-xs-1'
+                'class' => 'col-md-1'
             ),
             array(),
             array()
         );
+        Route::listem('printer');
+        $Printers = json_decode(
+            Route::getData()
+        );
+        $Printers = $Printers->printers;
         foreach ((array)$Printers as $Printer) {
             if (!in_array($Printer->id, $this->obj->get('printers'))) {
                 continue;
             }
             $this->data[] = array(
+                'id' => $Printer->id,
                 'printer_id' => $Printer->id,
                 'is_default' => (
                     $this->obj->getDefault($Printer->id) ?
@@ -1378,54 +1290,37 @@ class HostManagementPage extends FOGPage
             );
             unset($Printer);
         }
-        if (count($this->data) > 0) {
-            self::$HookManager
-                ->processEvent(
-                    'HOST_EDIT_PRINTER',
-                    array(
-                        'headerData' => &$this->headerData,
-                        'data' => &$this->data,
-                        'templates' => &$this->templates,
-                        'attributes' => &$this->attributes
-                    )
-                );
-            echo '<div class="panel panel-info">';
-            echo '<div class="panel-heading text-center">';
-            echo '<h4 class="title">';
-            echo _('Update/Remove printers');
-            echo '</h4>';
-            echo '</div>';
-            echo '<div class="panel-body">';
-            $this->render(12);
-            echo '<div class="form-group">';
-            echo '<label for="defaultsel" class="control-label col-xs-4">';
-            echo _('Update default printer');
-            echo '</label>';
-            echo '<div class="col-xs-8">';
-            echo '<button type="submit" name="defaultsel" class='
-                . '"btn btn-info btn-block" id="defaultsel">'
-                . _('Update')
-                . '</button>';
-            echo '</div>';
-            echo '</div>';
-            echo '<div class="form-group">';
-            echo '<label for="printdel" class="control-label col-xs-4">';
-            echo _('Remove selected printers');
-            echo '</label>';
-            echo '<div class="col-xs-8">';
-            echo '<button type="submit" name="printdel" class='
-                . '"btn btn-danger btn-block" id="printdel">'
-                . _('Remove')
-                . '</button>';
-            echo '</div>';
-            echo '</div>';
-            echo '</div>';
-            echo '</div>';
-        }
-        echo '</form>';
+        self::$HookManager
+            ->processEvent(
+                'HOST_EDIT_PRINTER',
+                array(
+                    'headerData' => &$this->headerData,
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes
+                )
+            );
+
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<div class="box-tools pull-right">';
+        echo self::$FOGCollapseBox;
+        echo '</div>';
+        echo '<h4 class="box-title">';
+        echo _('Update/Remove printers');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div id="updateprinters" class="">';
+        echo '<div class="box-body">';
+        $this->render(12, 'host-printers-table', $buttons);
         echo '</div>';
         echo '</div>';
         echo '</div>';
+        echo '</div>';
+
+
+        // =========================================================
+        // Add Printers
         unset(
             $this->headerData,
             $this->templates,
@@ -1433,6 +1328,69 @@ class HostManagementPage extends FOGPage
             $this->form,
             $this->data
         );
+
+        $this->headerData = array(
+            _('Printer Alias'),
+            _('Printer Type')
+        );
+        $this->templates = array(
+            '<a href="?node=printer&sub=edit&id=${printer_id}">${printer_name}</a>',
+            '${printer_type}'
+        );
+        $this->attributes = array(
+            array(),
+            array()
+        );
+        foreach ((array)$Printers as &$Printer) {
+            if (!in_array($Printer->id, $this->obj->get('printersnotinme'))) {
+                continue;
+            }
+            $this->data[] = array(
+                'id' => $Printer->id,
+                'printer_id' => $Printer->id,
+                'is_default' => (
+                    $this->obj->getDefault($Printer->id) ?
+                    ' checked' :
+                    ''
+                ),
+                'printer_name' => $Printer->name,
+                'printer_type' => (
+                    stripos($Printer->config, 'local') !== false ?
+                    _('TCP/IP') :
+                    $Printer->config
+                )
+            );
+            unset($Printer);
+        }
+
+        $buttons = self::makeButton('printer-add', _('Add selected'), 'btn btn-default', $props);
+        self::$HookManager
+            ->processEvent(
+                'HOST_ADD_PRINTER',
+                array(
+                    'headerData' => &$this->headerData,
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes
+                )
+            );
+        echo '<div class="box box-warning collapsed-box">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Add Printers');
+        echo '</h4>';
+        echo '<div class="box-tools pull-right">';
+        echo self::$FOGExpandBox;
+        echo '</div>';
+        echo '</div>';
+        echo '<div id="addprinters" class="">';
+        echo '<div class="box-body">';
+        $this->render(12, 'printers-to-add-table', $buttons);
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Host snapins.
@@ -1449,25 +1407,14 @@ class HostManagementPage extends FOGPage
             $this->data
         );
         $this->headerData = array(
-            '<label for="toggler3">'
-            . '<input type="checkbox" name="toggle-checkboxsnapin" class='
-            . '"toggle-checkboxsnapin" id="toggler3"/></label>',
             _('Snapin Name'),
             _('Snapin Created')
         );
         $this->templates = array(
-            '<label for="snapin-${snapin_id}">'
-            . '<input type="checkbox" name="snapin[]" class='
-            . '"toggle-snapin" id="snapin-${snapin_id}" '
-            . 'value="${snapin_id}"/></label>',
             '<a href="?node=snapin&sub=edit&id=${snapin_id}">${snapin_name}</a>',
             '${snapin_created}'
         );
         $this->attributes = array(
-            array(
-                'width' => 16,
-                'class' => 'filter-false'
-            ),
             array(),
             array()
         );
@@ -1490,17 +1437,21 @@ class HostManagementPage extends FOGPage
             unset($Snapin);
         }
         echo '<!-- Snapins -->';
-        echo '<div id="host-snapins" class="tab-pane fade">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h3 class="box-title">';
         echo _('Host Snapins');
-        echo '</h4>';
+        echo '</h3>';
+        echo '<div class="box-tools pull-right">';
+        echo self::$FOGCollapseBox;
+        echo self::$FOGCloseBox;
         echo '</div>';
-        echo '<div class="panel-body">';
+        echo '</div>';
+        echo '<div class="box-body">';
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '&tab=host-snapins">';
+        echo '<div class="box-group" id="snapins">';
         if (count($this->data) > 0) {
             self::$HookManager
                 ->processEvent(
@@ -1512,34 +1463,24 @@ class HostManagementPage extends FOGPage
                         'attributes' => &$this->attributes
                     )
                 );
-            echo '<div class="text-center">';
-            echo '<div class="checkbox">';
-            echo '<label for="hostSnapinShow">';
-            echo '<input type="checkbox" name="hostSnapinShow" '
-                . 'id="hostSnapinShow"/>';
-            echo _('Check here to see what snapins can be added');
-            echo '</label>';
-            echo '</div>';
-            echo '</div>';
-            echo '<br/>';
-            echo '<div class="hiddeninitially snapinNotInHost panel panel-info">';
-            echo '<div class="panel-heading text-center">';
-            echo '<h4 class="title">';
+            echo '<div class="panel box box-primary">';
+            echo '<div class="box-header with-border">';
+            echo '<h4 class="box-title">';
+            echo '<a data-toggle="collapse" data-parent="#snapins" href="#'
+                . 'addsnapins">';
             echo _('Add Snapins');
+            echo '</a>';
             echo '</h4>';
             echo '</div>';
-            echo '<div class="panel-body">';
+            echo '<div id="addsnapins" class="panel-collapse collapse">';
+            echo '<div class="box-body">';
             $this->render(12);
-            echo '<div class="form-group">';
-            echo '<label for="updatesnapins" class="control-label col-xs-4">';
-            echo _('Add selected snapins');
-            echo '</label>';
-            echo '<div class="col-xs-8">';
+            echo '</div>';
+            echo '<div class="box-footer">';
             echo '<button type="submit" name="updatesnapins" class='
-                . '"btn btn-info btn-block" id="updatesnapins">'
+                . '"btn btn-primary" id="updatesnapins" value="1">'
                 . _('Add')
                 . '</button>';
-            echo '</div>';
             echo '</div>';
             echo '</div>';
             echo '</div>';
@@ -1552,25 +1493,14 @@ class HostManagementPage extends FOGPage
             $this->data
         );
         $this->headerData = array(
-            '<label for="toggler4">'
-            . '<input type="checkbox" name="toggle-checkbox" class='
-            . '"toggle-checkboxAction" id="toggler4"/></label>',
             _('Snapin Name'),
             _('Snapin Created')
         );
         $this->templates = array(
-            '<label for="snapinrm-${snapin_id}">'
-            . '<input type="checkbox" name="snapinRemove[]" class='
-            . '"toggle-action" id="snapinrm-${snapin_id}" '
-            . 'value="${snapin_id}"/></label>',
             '<a href="?node=snapin&sub=edit&id=${snapin_id}">${snapin_name}</a>',
             '${snapin_created}'
         );
         $this->attributes = array(
-            array(
-                'width' => 16,
-                'class' => 'filter-false'
-            ),
             array(),
             array()
         );
@@ -1598,24 +1528,25 @@ class HostManagementPage extends FOGPage
                         'attributes' => &$this->attributes
                     )
                 );
-            echo '<div class="panel panel-info">';
-            echo '<div class="panel-heading text-center">';
-            echo '<h4 class="title">';
-            echo _('Remove snapins');
+            echo '<div class="panel box box-primary">';
+            echo '<div class="box-header with-border">';
+            echo '<h4 class="box-title">';
+            echo '<a data-toggle="collapse" data-parent="#snapins" href="#'
+                . 'removesnapins">';
+            echo _('Remove Snapins');
+            echo '</a>';
             echo '</h4>';
             echo '</div>';
-            echo '<div class="panel-body">';
+            echo '<div id="removesnapins" class="panel-collapse collapse">';
+            echo '<div class="box-body">';
             $this->render(12);
-            echo '<div class="form-group">';
-            echo '<label for="snapdel" class="control-label col-xs-4">';
-            echo _('Remove selected snapins');
-            echo '</label>';
-            echo '<div class="col-xs-8">';
-            echo '<button type="submit" name="snapdel" class='
-                . '"btn btn-danger btn-block" id="snapdel">'
+            echo '</div>';
+            echo '</div>';
+            echo '<div class="box-footer">';
+            echo '<button type="submit" name="snapindel" class='
+                . '"btn btn-danger" id="snapindel">'
                 . _('Remove')
                 . '</button>';
-            echo '</div>';
             echo '</div>';
             echo '</div>';
             echo '</div>';
@@ -2896,62 +2827,59 @@ class HostManagementPage extends FOGPage
             );
         }
         $tabData = array();
-        array_push(
-            $tabData,
-            array(
-                'name' => _('General'),
-                'id' => 'host-general',
-                'generator' => function() {
-                    $this->hostGeneral();
-                }
-            )
+        // General
+        $tabData[] = array(
+            'name' => _('General'),
+            'id' => 'host-general',
+            'generator' => function() {
+                $this->hostGeneral();
+            }
         );
+        // Active Directory
+        $tabData[] = array(
+            'name' =>  _('Active Directory'),
+            'id' => 'host-active-directory',
+            'generator' => function() {
+                $this->adFieldsToDisplay(
+                    $this->obj->get('useAD'),
+                    $this->obj->get('ADDomain'),
+                    $this->obj->get('ADOU'),
+                    $this->obj->get('ADUser'),
+                    $this->obj->get('ADPass'),
+                    $this->obj->get('ADPassLegacy'),
+                    $this->obj->get('enforce')
+                );
+            }
+        );
+        // Tasks
         if (!$this->obj->get('pending')) {
-            array_push(
-                $tabData, 
-                array(
+                $tabData[] = array(
                     'name' =>  _('Tasks'),
                     'id' => 'host-tasks',
                     'generator' => function() {
                         $this->basictasksOptions();
                     }
-                )          
-            );
+                );
         }
-        array_push(
-            $tabData, 
-            array(
-                'name' =>  _('Active Directory'),
-                'id' => 'host-active-directory',
-                'generator' => function() {
-                    $this->adFieldsToDisplay(
-                        $this->obj->get('useAD'),
-                        $this->obj->get('ADDomain'),
-                        $this->obj->get('ADOU'),
-                        $this->obj->get('ADUser'),
-                        $this->obj->get('ADPass'),
-                        $this->obj->get('ADPassLegacy'),
-                        $this->obj->get('enforce')
-                    );
-                }
-            )          
-            );
-        /*
-        array_push(
-            $tabData,
-            array(
-                'name' => _('Host Printers'),
-                'id' => 'host-printers',
-                'generator' => function() {
-                    $this->hostPrinters();
-                }
-            )
-            );*/
-        //$this->hostPrinters();
+        // Printers
+        $tabData[] = array(
+            'name' => _('Printers'),
+            'id' => 'host-printers',
+            'generator' => function() {
+                $this->hostPrinters();
+            }
+        );
+        // Snapins
+        $tabData[] = array(
+            'name' => _('Snapins'),
+            'id' => 'host-snapins',
+            'generator' => function() {
+                $this->hostSnapins();
+            }
+        );
         /**
          * These need to be worked yet.
          *
-        $this->hostSnapins();
         $this->hostService();
         $this->hostPMDisplay();
         $this->hostInventory();
@@ -2960,68 +2888,7 @@ class HostManagementPage extends FOGPage
         $this->hostImageHistory();
         $this->hostSnapinHistory();
          */
-        $activeId = '';
-        echo '<div class="nav-tabs-custom">';
-        echo '  <ul class="nav nav-tabs">';      
-        foreach ($tabData as &$entry) {
-            $name = $entry['name'];
-            $id = $entry['id'];
-            if(empty($activeId)) {
-                $activeId = $id;
-            }
-            $isActive = ($activeId === $id);
-            echo '<li class="'
-                . (
-                    $isActive ?
-                    'active' :
-                    ''
-                )
-                . '">'; 
-            echo '  <a href="#'
-                . $id
-                . '" data-toggle="tab" aria-expanded="true">'
-                . $name
-                . '</a>';         
-            echo '</li>';       
-        }
-        echo '  </ul>';
-        echo '  <div class="tab-content">';
-        foreach ($tabData as &$entry) {
-            $generator = $entry['generator'];
-            $id = $entry['id'];
-            $isActive = ($activeId === $id);
-            echo '<div id="'
-                . $id
-                . '" class="tab-pane '
-                . (
-                    $isActive ?
-                    'active' :
-                    ''
-                )
-                . '">';
-            $generator();
-            echo '</div>';   
-        }
-        echo '  </div>';      
-        echo '</div>';
-        return;
-        echo '<div class="">';
-        if (!$this->obj->get('pending')) {
-            $this->basictasksOptions();
-        }
-        self::$HookManager->processEvent(
-            'HOST_EDIT_EXTRA',
-            array(
-                'Host' => &$this->obj,
-                'data' => &$this->data,
-                'headerData' => &$this->headerData,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes,
-                'formAction' => &$this->formAction,
-                'render' => &$this
-            )
-        );
-        echo '</div>';
+        echo self::tabFields($tabData);
     }
     /**
      * Host active directory post element.
@@ -3356,6 +3223,8 @@ class HostManagementPage extends FOGPage
      */
     public function editPost()
     {
+        header('Content-type: application/json');
+
         self::$HookManager->processEvent(
             'HOST_EDIT_POST',
             array('Host' => &$this->obj)
@@ -3463,6 +3332,7 @@ class HostManagementPage extends FOGPage
                 )
             );
         } catch (Exception $e) {
+            http_response_code(400);
             $hook = 'HOST_EDIT_FAIL';
             $msg = json_encode(
                 array(

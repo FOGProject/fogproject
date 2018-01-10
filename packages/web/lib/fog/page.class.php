@@ -424,6 +424,7 @@ class Page extends FOGBase
         echo $FOGSub->getMainItems($node);
         unset($FOGSub);
     }
+
     /**
      * Generates our main item, sub item, and notes tabs.
      *

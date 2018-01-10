@@ -206,6 +206,12 @@ abstract class FOGPage extends FOGBase
      */
     protected static $FOGCollapseBox;
     /**
+     * Expand box display.
+     *
+     * @var string
+     */
+    protected static $FOGExpandBox;
+    /**
      * Close box display.
      *
      * @var string
@@ -224,6 +230,10 @@ abstract class FOGPage extends FOGBase
         self::$FOGCollapseBox = '<button type="button" class="btn '
             . 'btn-box-tool" data-widget="collapse">'
             . '<i class="fa fa-minus"></i>'
+            . '</button>';
+        self::$FOGExpandBox = '<button type="button" class="btn '
+            . 'btn-box-tool" data-widget="collapse">'
+            . '<i class="fa fa-plus"></i>'
             . '</button>';
         self::$FOGCloseBox = '<button type="button" class="btn '
             . 'btn-box-tool" data-widget="remove">'
@@ -350,10 +360,10 @@ abstract class FOGPage extends FOGBase
                         )
                     );
                 }
-                $this->name .= ' '
-                    . _('Edit')
-                    . ': '
-                    . $this->obj->get('name');
+                // $this->name .= ' '
+                //     . _('Edit')
+                //     . ': '
+                //     . $this->obj->get('name');
             }
         }
         $this->reportString = '<h4 class="title">'
@@ -407,7 +417,37 @@ abstract class FOGPage extends FOGBase
             'SEARCH_PAGES',
             array('searchPages' => &self::$searchPages)
         );
-        //$this->menu = self::buildSubMenuItems($node);
+        /**
+         * This builds our form action dynamically.
+         */
+        $data = [];
+        $nodestr = $substr = $idstr = $typestr = $tabstr = false;
+        $formstr = '../management/index.php?';
+        if ($node) {
+            $data['node'] = $node;
+        }
+        if ($sub) {
+            $data['sub'] = $sub;
+        }
+        if ($id) {
+            $data['id'] = $id;
+        }
+        if ($type) {
+            $data['type'] = $type;
+        }
+        if ($f) {
+            $data['f'] = $f;
+        }
+        if ($tab) {
+            $tabstr = "#$tab";
+        }
+        if (count($data) > 0) {
+            $formstr .= http_build_query($data);
+        }
+        if ($tabstr) {
+            $formstr .= $tabstr;
+        }
+        $this->formAction = $formstr;
     }
     /**
      * Creates the main menu items.
@@ -641,6 +681,7 @@ abstract class FOGPage extends FOGBase
             return;
         }
         $this->title = _('Search');
+        // This is where list/search kind of happens.
         if (in_array($this->node, self::$searchPages)) {
             $this->title = sprintf(
                 '%s %s',
@@ -767,10 +808,52 @@ abstract class FOGPage extends FOGBase
      *
      * @return void
      */
-    public function render($colsize = 9)
+    public function render($colsize = 9, $tableId = 'dataTable', $buttons = '')
     {
-        echo $this->process($colsize);
+        echo $this->process($colsize, $tableId, $buttons);
     }
+
+    public function makeTabUpdateURL($tab, $id) {
+        global $node;
+        return '../management/index.php?node='.$node.'&sub=edit&id='.$id.'&tab='.$tab;
+    }
+
+    public function displayAlert($title, $body, $type, $dismissable=true, $isCallout=false) {
+        echo '<div class="box-body">';
+        echo '<div class="';
+        echo ($isCallout) ? 'callout callout-' : 'alert alert-';
+        echo $type;
+        if ($dismissable) echo ' alert-dismissible';
+        echo '">';
+        if ($dismissable) echo '<button class="close" type="button" data-dismiss="alert" aria-hidden-"true">x</button>';
+        echo '<h4>' . $title . '</h4>';
+        echo $body;
+        echo '</div>';
+        echo '</div>';
+    }
+
+    public function makeButton($id, $text, $class, $props = '') {
+        ob_start();
+        echo '<button';
+        if ($id) {
+            echo ' id="'
+                . $id
+                . '"';
+        }
+        if ($class) {
+            echo ' class="'
+                . $class
+                . '"';
+        }
+        if ($props) {
+            echo " $props";
+        }
+        echo '>';
+        echo $text;
+        echo '</button>';
+        return ob_get_clean();
+    }
+
     /**
      * Process the information
      *
@@ -778,7 +861,7 @@ abstract class FOGPage extends FOGBase
      *
      * @return string
      */
-    public function process($colsize = 9)
+    public function process($colsize = 9, $tableId = 'dataTable', $buttons = '')
     {
         try {
             unset($actionbox);
@@ -789,142 +872,24 @@ abstract class FOGPage extends FOGBase
                 'search',
                 'list'
             );
+            // This would be where you could build your buttons, I'm guessing this is
+            // heavily deleted from older code.
             $actionbox = '';
-            if (((!$sub
-                || in_array($sub, $defaultScreens)
-                || $sub === 'storageGroup')
-                && in_array($node, self::$searchPages)
-                && in_array($node, $this->PagesWithObjects))
-            ) {
+            if ($sub == 'list') {
                 if ($node == 'host') {
-                    // $actionbox .= '</div>';
-                    // $actionbox .= '</div>';
-                    // $actionbox .= '<div class='
-                    //     . '"action-boxes host '
-                    //     . 'hiddeninitially">';
-                    // $actionbox .= '<div class="panel panel-info">';
-                    // $actionbox .= '<div class="panel-heading text-center">';
-                    // $actionbox .= '<h4 class="title">';
-                    // $actionbox .= _('Group Associations');
-                    // $actionbox .= '</h4>';
-                    // $actionbox .= '</div>';
-                    // $actionbox .= '<div class="panel-body">';
-                    // $actionbox .= '<form class='
-                    //     . '"form-horizontal" '
-                    //     . 'method="post" '
-                    //     . 'action="'
-                    //     . '?node='
-                    //     . $node
-                    //     . '&sub=saveGroup">';
-                    // $actionbox .= '<div class="form-group">';
-                    // $actionbox .= '<label class="control-label col-xs-4" for=';
-                    // $actionbox .= '"group_new">';
-                    // $actionbox .= _('Create new group');
-                    // $actionbox .= '</label>';
-                    // $actionbox .= '<div class="col-xs-8">';
-                    // $actionbox .= '<div class="input-group">';
-                    // $actionbox .= '<input type="hidden" name="hostIDArray"/>';
-                    // $actionbox .= '<input type="text" name="group_new" id='
-                    //     . '"group_new" class="form-control"/>';
-                    // $actionbox .= '</div>';
-                    // $actionbox .= '</div>';
-                    // $actionbox .= '</div>';
-                    // $actionbox .= '<div class="form-group">';
-                    // $actionbox .= '<div class="text-center">';
-                    // $actionbox .= '<label class="control-label">';
-                    // $actionbox .= _('or');
-                    // $actionbox .= '</label>';
-                    // $actionbox .= '</div>';
-                    // $actionbox .= '</div>';
-                    // $actionbox .= '<div class="form-group">';
-                    // $actionbox .= '<label class="control-label col-xs-4" for=';
-                    // $actionbox .= '"group">';
-                    // $actionbox .= _('Add to group');
-                    // $actionbox .= '</label>';
-                    // $actionbox .= '<div class="col-xs-8">';
-                    // $actionbox .= self::getClass('GroupManager')->buildSelectBox();
-                    // $actionbox .= '</div>';
-                    // $actionbox .= '</div>';
-                    // $actionbox .= '<div class="form-group">';
-                    // $actionbox .= '<label class="control-label col-xs-4" for=';
-                    // $actionbox .= '"process">';
-                    // $actionbox .= _('Make changes?');
-                    // $actionbox .= '</label>';
-                    // $actionbox .= '<div class="col-xs-8">';
-                    // $actionbox .= '<button type="submit" class='
-                    //     . '"btn btn-info btn-block" name="process" id="process">';
-                    // $actionbox .= _('Update');
-                    // $actionbox .= '</button>';
-                    // $actionbox .= '</div>';
-                    // $actionbox .= '</div>';
-                    // $actionbox .= '</form>';
-                    // $actionbox .= '</div>';
-                    // $actionbox .= '</div>';
-                    // $actionbox .= '</div>';
+                    $actionbox = $actionbox . self::makeButton('addSelectedToGroup', _('Add selected to group'), 'btn btn-default');
                 }
-                if ($node != 'task') {
-                    // if (!$actionbox) {
-                    //     $actionbox .= '</div>';
-                    //     $actionbox .= '</div>';
-                    // }
-                    // $actionbox .= '<div class='
-                    //     . '"action-boxes del hiddeninitially">';
-                    // $actionbox .= '<div class="panel panel-warning">';
-                    // $actionbox .= '<div class="panel-heading text-center">';
-                    // $actionbox .= '<h4 class="title">';
-                    // $actionbox .= _('Delete Selected');
-                    // $actionbox .= '</h4>';
-                    // $actionbox .= '</div>';
-                    // $actionbox .= '<div class="panel-body">';
-                    // $actionbox .= '<form class='
-                    //     . '"form-horizontal" '
-                    //     . 'method="post" '
-                    //     . 'action="'
-                    //     . '?node='
-                    //     . $node
-                    //     . '&sub=deletemulti">';
-                    // $actionbox .= '<div class="form-group">';
-                    // $actionbox .= '<label class="control-label col-xs-4" for='
-                    //     . '"del-'
-                    //     . $node
-                    //     . '">';
-                    // $actionbox .= sprintf(
-                    //     '%s %ss',
-                    //     _('Delete selected'),
-                    //     (
-                    //         strtolower($node) !== 'storage' ?
-                    //         strtolower($node) :
-                    //         (
-                    //             $sub === 'storageGroup' ?
-                    //             strtolower($node) . ' group' :
-                    //             strtolower($node) . ' node'
-                    //         )
-                    //     )
-                    // );
-                    // $actionbox .= '</label>';
-                    // $actionbox .= '<div class="col-xs-8">';
-                    // $actionbox .= '<input type="hidden" name="'
-                    //     . strtolower($node)
-                    //     . 'IDArray"/>';
-                    // $actionbox .= '<button type="submit" class='
-                    //     . '"btn btn-danger btn-block" id="'
-                    //     . 'del-'
-                    //     . $node
-                    //     . '">';
-                    // $actionbox .= _('Delete');
-                    // $actionbox .= '</button>';
-                    // $actionbox .= '</div>';
-                    // $actionbox .= '</div>';
-                    // $actionbox .= '</form>';
-                    // $actionbox .= '</div>';
-                    // $actionbox .= '</div>';
-                    // $actionbox .= '</div>';
-                }
+                $actionbox = $actionbox . self::makeButton('deleteSelected', _('Delete selected'), 'btn btn-danger');
             }
+            $actionbox = $actionbox . $buttons;
             self::$HookManager->processEvent(
                 'ACTIONBOX',
                 array('actionbox' => &$actionbox)
             );
+            if (strlen($actionbox) > 0) {
+                $actionbox = '<div class="btn-group">' . $actionbox . '</div>';
+            }
+
             if (self::$ajax) {
                 echo json_encode(
                     array(
@@ -962,38 +927,35 @@ abstract class FOGPage extends FOGBase
             if (isset($this->form)) {
                 printf($this->form);
             }
-            if ($node != 'home') {
-                // echo '<div class="table-holder col-xs-'
-                //     . $colsize
-                //     . '">';
-            }
-            // TODO: Generalize to support multiple tables on the same page (passable ids)
-            echo '<table id="dataTable" class="table table-bordered table-striped'
-                . (
-                    count($this->data) < 1 ?
-                    ' noresults' :
-                    ''
-                )
-                . '">';
+            echo '<table id="' . $tableId  . '" class="display table table-bordered table-striped">';
             if (count($this->data) < 1) {
-                echo '<thead><tr class="header"></tr></thead>';
-                echo '<tbody>';
-                $tablestr = '<tr><td colspan="'
-                    . count($this->templates)
-                    . '">';
                 if ($this->data['error']) {
+                    echo '<thead><tr class="header"></tr></thead>';
+                    echo '<tbody>';
+                    $tablestr = '<tr><td colspan="'
+                        . count($this->templates)
+                        . '">';
                     $tablestr .= (
                         is_array($this->data['error']) ?
                         '<p>'
                         . implode('</p><p>', $this->data['error'])
                         : $this->data['error']
                     );
+                    $tablestr .= '</td></tr>';
+                    echo $tablestr;
+                    echo '</tbody>';
                 } else {
-                    $tablestr .= self::$foglang['NoResults'];
+                    if (count($this->headerData) > 0) {
+                        echo '<thead>';
+                        echo $this->buildHeaderRow();
+                        echo '</thead>';
+                    } else {
+                        echo '<thead>';
+                        echo '</thead>';
+                    }
+                    echo '<tbody></tbody>';
                 }
-                $tablestr .= '</td></tr>';
-                echo $tablestr;
-                echo '</tbody>';
+
             } else {
                 if (count($this->headerData) > 0) {
                     echo '<thead>';
@@ -2191,6 +2153,7 @@ abstract class FOGPage extends FOGBase
      */
     public function deletemultiAjax()
     {
+        header('Content-type: application/json');
         if (self::getSetting('FOG_REAUTH_ON_DELETE')) {
 
             $user = filter_input(INPUT_POST, 'fogguiuser');
@@ -2311,7 +2274,7 @@ abstract class FOGPage extends FOGBase
                 'attributes' => &$this->attributes
             )
         );
-        $rendered = self::formFields($this->data);
+        
         echo '<div class="box box-solid" id="'
             . $this->node
             . '-tasks">';
@@ -2324,7 +2287,11 @@ abstract class FOGPage extends FOGBase
         echo '              </div>';
         echo '              <div id="tasksBasic" class="panel-collapse collapse in">';
         echo '                  <div class="box-body">';
-        echo $rendered;
+        echo '                      <table class="table table-striped">';
+        echo '                          <tbody>';
+        echo self::stripedTable($this->data);
+        echo '                          </tbody>';
+        echo '                      </table>';
         echo '                  </div>';
         echo '              </div>';
         echo '          </div>';
@@ -2335,6 +2302,8 @@ abstract class FOGPage extends FOGBase
         echo '              </div>';
         echo '              <div id="tasksAdvance" class="panel-collapse collapse">';
         echo '                  <div class="box-body">';
+        echo '                      <table class="table table-striped">';
+        echo '                          <tbody>';
         unset($this->data);
         $advanced = 1;
         foreach ((array)$items as &$TaskType) {
@@ -2353,7 +2322,9 @@ abstract class FOGPage extends FOGBase
                 'attributes' => &$this->attributes
             )
         );
-        echo self::formFields($this->data);
+        echo self::stripedTable($this->data);
+        echo '                          </tbody>';
+        echo '                      </table>';
         echo '                  </div>';
         echo '              </div>';
         echo '          </div>';
@@ -2463,7 +2434,7 @@ abstract class FOGPage extends FOGBase
         }
         $fields = array(
             sprintf(
-                '<label for="adEnabled">%s</label>',
+                '<label class="col-sm-2 control-label" for="adEnabled">%s</label>',
                 _('Join Domain after deploy')
             ) => sprintf(
                 '<input id="adEnabled" type="checkbox" name="domain"%s/>',
@@ -2474,7 +2445,7 @@ abstract class FOGPage extends FOGBase
                 )
             ),
             sprintf(
-                '<label for="adDomain">%s</label>',
+                '<label class="col-sm-2 control-label" for="adDomain">%s</label>',
                 _('Domain name')
             ) => sprintf(
                 '<input id="adDomain" class="form-control" type="text" '
@@ -2482,14 +2453,14 @@ abstract class FOGPage extends FOGBase
                 $ADDomain
             ),
             sprintf(
-                '<label for="adOU">%s'
+                '<label class="col-sm-2 control-label" for="adOU">%s'
                 . '<br/>(%s)'
                 . '</label>',
                 _('Organizational Unit'),
                 _('Blank for default')
             ) => $OUOptions,
             sprintf(
-                '<label for="adUsername">%s</label>',
+                '<label class="col-sm-2 control-label" for="adUsername">%s</label>',
                 _('Domain Username')
             ) => sprintf(
                 '<input id="adUsername" class="form-control" type="text" '
@@ -2497,7 +2468,7 @@ abstract class FOGPage extends FOGBase
                 $ADUser
             ),
             sprintf(
-                '<label for="adPassword">%s'
+                '<label class="col-sm-2 control-label" for="adPassword">%s'
                 . '<br/>(%s)'
                 . '</label>',
                 _('Domain Password'),
@@ -2509,7 +2480,7 @@ abstract class FOGPage extends FOGBase
                 $ADPass
             ),
             sprintf(
-                '<label for="adPasswordLegacy">%s'
+                '<label class="col-sm-2 control-label" for="adPasswordLegacy">%s'
                 . '<br/>(%s)'
                 . '</label>',
                 _('Domain Password Legacy'),
@@ -2521,7 +2492,7 @@ abstract class FOGPage extends FOGBase
                 $ADPassLegacy
             ),
             sprintf(
-                '<label for="ensel">'
+                '<label class="col-sm-2 control-label" for="ensel">'
                 . '%s?'
                 . '</label>',
                 _('Name Change/AD Join Forced reboot')
@@ -2557,32 +2528,32 @@ abstract class FOGPage extends FOGBase
         $rendered = self::formFields($fields);
         echo '<!-- Active Directory -->';
         if ($ownElement) {
-            echo '<form role="form" method="post" action="'
+            echo '<div class="box box-solid">';
+            echo '<form id="active-directory-form" class="form-horizontal" method="post" action="'
                 . $this->formAction
                 . '&tab='
                 . $node
                 . '-active-directory'
-                . '">';
+                . '" novalidate>';
             echo '<div id="'
                 . $node
                 . '-active-directory" class="">';
+        
+            echo '  <div class="box-body">';
         }
-        echo '<div class="box box-solid">';
-        echo '  <div class="box-body">';
         echo '<input type="text" name="fakeusernameremembered" class='
             . '"fakes hidden"/>';
         echo '<input type="password" name="fakepasswordremembered" class='
             . '"fakes hidden"/>';
         echo $rendered;
-        echo '  </div>';
-        echo '  <div class="box-footer">';
-        echo '      <button class="btn btn-primary" type="submit">' . _('Update') . '</button>';
-        echo '      <button class="btn btn-danger pull-right">' . _('Clear Fields') . '</button>';
-        echo '  </div>';
-
-        echo '</div>';
         if ($ownElement) {
+            echo '  </div>';
+            echo '  <div class="box-footer">';
+            echo '      <button class="btn btn-primary" id="ad-send">' . _('Update') . '</button>';
+            echo '      <button class="btn btn-danger pull-right" id="ad-clear">' . _('Clear Fields') . '</button>';
+            echo '  </div>';
             echo '</form>';
+            echo '</div>';
             echo '</div>';
         }
     }
@@ -4286,6 +4257,8 @@ abstract class FOGPage extends FOGBase
         $storage = false,
         $actionbox = false
     ) {
+        global $node;
+        global $sub;
         ob_start();
         echo '<div class="box">';
         echo '<div class="box-header">';
@@ -4294,74 +4267,33 @@ abstract class FOGPage extends FOGBase
         echo '</h3>';
         echo '</div>';
         echo '<div class="box-body">';
-        echo $this->render(12);
+        // Render does not need echo, it's rendering.
+        $this->render(12);
         echo '</div>';
-        echo '</div>';
-        if (!$delNeeded) {
-            $items = ob_get_clean();
-            self::$HookManager->processEvent(
-                'INDEX_DIV_DISPLAY_CHANGE',
-                array(
-                    'items' => &$items,
-                    'childClass' => &$this->childClass,
-                    'main' => &$this,
-                    'delNeeded' => &$delNeeded
-                )
-            );
-            echo $items;
-            return;
-        }
-        if ($actionbox) {
-            echo '<div class="action-boxes del hiddeninitially">';
-        }
-        echo '<div class="panel panel-warning">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Delete Selected');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        $formAction = $this->formAction;
-        $components = parse_url($formAction);
-        parse_str($components['query'], $vars);
-        $vars['sub'] = 'deletemulti';
-        $formAction = '?'.http_build_query($vars);
-        echo '<form class="form-horizontal" method="post" action="'
-            . $formAction
-            . '">';
-        echo '<div class="form-group">';
-        echo '<label class="control-label col-xs-4" for="del-'
-            . $this->node
-            . '">';
-        echo _('Delete selected');
-        echo ' ';
-        echo (
-            $storage ?
-            $this->node . ' ' . $storage :
-            $this->node
-        );
-        echo 's';
-        echo '</label>';
-        echo '<div class="col-xs-8">';
-        echo '<input type="hidden" name="'
-            . $this->node
-            . 'IDArray"/>';
-        echo '<button type="submit" class='
-            . '"btn btn-danger btn-block" id="'
-            . 'del-'
-            . $this->node
-            . '">';
-        echo _('Delete');
-        echo '</button>';
-        echo '</div>';
-        echo '</div>';
-        echo '</form>';
-        echo '</div>';
-        echo '</div>';
-        if ($actionbox) {
+        if ($sub == 'list' || !trim($sub)) {
+            // Maybe we should make this part a variable and call a method.
+            // That method would allow plugins and hooks to generate/remove buttons
+            // where/as necessary. As well as simplify our coding needs.
+            // I forgot we have no need for "search" anymore?
+            echo '<div class="box-footer">';
+            if ($node == 'host') {
+                // Some generalized button generator code here.
+            } else {
+                // Some generalized button generator code here.
+            }
+            // Hook -> process event.
             echo '</div>';
         }
+        echo '</div>';
+        if ($delNeeded) {
+            echo _('Delete selected');
+        }
         $items = ob_get_clean();
+
+        // This is where the index div displays, as you know.
+        //
+        // From the point where list/search table displays comes from the render(12)
+        // buttons are built into the "process" which render calls and echos.
         self::$HookManager->processEvent(
             'INDEX_DIV_DISPLAY_CHANGE',
             array(
@@ -4376,24 +4308,121 @@ abstract class FOGPage extends FOGBase
     /**
      * Build our form elements.
      *
+     * @param mixed $fields The fields to use to generate our forms.
+     *
      * @return string
      */
     public static function formFields($fields) {
         ob_start();
         foreach ($fields as $field => &$input) {
             echo '<div class="form-group">';
-            echo '<div class="col-md-3">';
+            //echo '<div class="col-sm-2 control-label">';
             echo $field;
-            echo '</div>';
-            echo '<div class="col-md-9">';
+            //echo '</div>';
+            echo '<div class="col-sm-10">';
             echo $input;
             echo '</div>';
             echo '</div>';
-            echo '<br/>';
-            echo '<br/>';
-            echo '<br/>';
+            //echo '<br/>';
+            //echo '<br/>';
+            //echo '<br/>';
             unset($field, $input);
         }
         return ob_get_clean();
+    }
+
+    public static function stripedTable($fields) {
+        ob_start();
+        foreach ($fields as $field => &$input) {
+            echo '<tr>';
+            echo '<th><center>';
+            echo $field;
+            echo '</center></th>';
+            echo '<th>';
+            echo $input;
+            echo '</th>';
+            echo '</tr>';
+            unset($field, $input);
+        }
+        return ob_get_clean();
+    }
+    /**
+     * Build our nav-tabs elements.
+     *
+     * @param mixed $tabData The tabs we are going to build out.
+     *
+     * @return string
+     */
+    public static function tabFields($tabData) {
+        ob_start();
+        $activeId = '';
+        echo '<div class="nav-tabs-custom">';
+        echo '<ul class="nav nav-tabs">';
+        foreach ($tabData as &$entry) {
+            $name = $entry['name'];
+            $id = $entry['id'];
+            if (empty($activeId)) {
+                $activeId = $id;
+            }
+            $isActive = ($activeId === $id);
+            echo '<li class="'
+                . (
+                    $isActive ?
+                    'active' :
+                    ''
+                )
+                . '">';
+            echo '<a href="#'
+                . $id
+                . '" data-toggle="tab" ariaexpanded="true">'
+                . $name
+                . '</a>';
+            echo '</li>';
+            unset($entry);
+        }
+        echo '</ul>';
+        echo '<div class="tab-content">';
+        foreach ($tabData as &$entry) {
+            $generator = $entry['generator'];
+            $name = $entry['name'];
+            $id = $entry['id'];
+            $isActive = ($activeId === $id);
+            echo '<div id="'
+                . $id
+                . '" class="tab-pane '
+                . (
+                    $isActive ?
+                    'active' :
+                    ''
+                )
+                . '">';
+            $generator();
+            echo '</div>';
+            unset($entry);
+        }
+        echo '</div>';
+        echo '</div>';
+        return ob_get_clean();
+    }
+    /**
+     * Generalized method to build buttons.
+     *
+     * @param string|array $id    The id to give.
+     * @param string|array $text  The text for the button.
+     * @param string|array $name  The name to give the button
+     * @param string|array $class The class to associate to the button. (CSS)
+     * @param bool|array   $size  To make block or not.
+     *
+     * @return string
+     */
+    public static function btnGenerator(
+        $id,
+        $text,
+        $name = '',
+        $class = '',
+        $size = false
+    ) {
+        // TODO: Make this check array elements and make sure array elements "line up".
+        // TODO: Make $name = $id field if name is blank.
     }
 }
