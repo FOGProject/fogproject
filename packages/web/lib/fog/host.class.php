@@ -132,6 +132,25 @@ class Host extends FOGController
             'inventory'
         )
     );
+
+    protected $sqlQueryStr = "SELECT `images`.`imageName` `imagename`,`hostMAC`.`hmMAC` AS `primac`,`%s`
+        FROM `%s`
+        LEFT OUTER JOIN `images`
+        ON `images`.`imageID` = `hosts`.`hostImage`
+        LEFT OUTER JOIN `hostMAC`
+        ON `hostMAC`.`hmHostID` = `hosts`.`hostID`
+        AND `hostMAC`.`hmPrimary` = '1'
+        %s
+        %s
+        %s";
+    protected $sqlFilterStr = "SELECT COUNT(`%s`),`images`.`imageName`,`hostMAC`.`hmMAC` AS `primac`
+        FROM `%s`
+        LEFT OUTER JOIN `images`
+        ON `images`.`imageID` = `hosts`.`hostImage`
+        LEFT OUTER JOIN `hostMAC`
+        ON `hostMAC`.`hmHostID` = `hosts`.`hostID`
+        AND `hostMAC`.`hmPrimary` = '1'
+        %s";
     /**
      * Display val storage
      *
@@ -2147,32 +2166,5 @@ class Host extends FOGController
     public function getActiveSnapinJob()
     {
         return $this->get('snapinjob');
-    }
-
-    /**
-     * Translates the ping status code to string
-     *
-     * @return string
-     */
-    public function getPingCodeStr()
-    {
-        $val =  (int)$this->get('pingstatus');
-        $socketstr = socket_strerror($val);
-        $labelType = 'danger';
-
-        // Ping succeeded
-        if ($val == 0)
-            $labelType = 'success';
-        // No such device or address
-        else if ($val == 6)
-            $labelType = 'warning';
-
-        $strtoupdate = '<span class="label label-'
-            . $labelType
-            . '">' 
-            . $socketstr
-            . '</span>';
-
-        return $strtoupdate;
     }
 }

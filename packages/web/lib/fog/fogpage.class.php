@@ -677,19 +677,34 @@ abstract class FOGPage extends FOGBase
      */
     public function index()
     {
+        global $node;
+        global $sub;
         if (false === self::$showhtml) {
             return;
         }
         $this->title = _('Search');
         // This is where list/search kind of happens.
         if (in_array($this->node, self::$searchPages)) {
+            if (self::$ajax) {
+                header('Content-Type: application/json');
+                Route::listem($this->childClass);
+                echo Route::getData();
+                exit;
+                /*$newitems = array();
+                $type = $node.'s';
+                $items = json_decode(Route::getData());
+                $newitems['draw'] = $items->draw;
+                $newitems['recordsFiltered'] =
+                $newitems['recordsTotal'] = $items->recordsTotal;
+                $items = $items->$type;
+                $newitems['data'] = $items;
+                echo json_encode($newitems);*/
+            }
             $this->title = sprintf(
                 '%s %s',
                 _('All'),
                 _("{$this->childClass}s")
             );
-            global $node;
-            global $sub;
             $manager = sprintf(
                 '%sManager',
                 $this->childClass
@@ -757,10 +772,10 @@ abstract class FOGPage extends FOGBase
                 (
                     count($args) ?
                     sprintf(
-                        ', Arguments = %s',
-                        implode(
-                            ', ',
-                            $args
+', Arguments = %s',
+implode(
+', ',
+$args
                         )
                     ) :
                     ''
@@ -808,9 +823,9 @@ abstract class FOGPage extends FOGBase
      *
      * @return void
      */
-    public function render($colsize = 9, $tableId = 'dataTable', $buttons = '')
+    public function render($colsize = 9, $tableId = 'dataTable', $buttons = '', $tableClass = 'display table table-bordered table-striped')
     {
-        echo $this->process($colsize, $tableId, $buttons);
+        echo $this->process($colsize, $tableId, $buttons, $tableClass);
     }
 
     public function makeTabUpdateURL($tab, $id) {
@@ -854,6 +869,43 @@ abstract class FOGPage extends FOGBase
         return ob_get_clean();
     }
 
+    public function makeModal(
+        $id,
+        $header,
+        $body,
+        $footer,
+        $class = '',
+        $type = 'default'
+    ) {
+        ob_start();
+        echo '<div class="modal modal-'
+            . $type
+            . ' fade'
+            . (
+                $class ?
+                ' '. $class :
+                ''
+            )
+            . '" style="display: none;" id="'
+            . $id
+            . '">';
+        echo '  <div class="modal-dialog">';
+        echo '    <div class="modal-content">';
+        echo '      <div class="modal-header">';
+        echo $header;
+        echo '      </div>';
+        echo '      <div class="modal-body">';
+        echo $body;
+        echo '      </div>';
+        echo '      <div class="modal-footer">';
+        echo $footer;
+        echo '      </div>';
+        echo '    </div>';
+        echo '  </div>';
+        echo '</div>';
+        return ob_get_clean();
+    }
+
     /**
      * Process the information
      *
@@ -861,7 +913,7 @@ abstract class FOGPage extends FOGBase
      *
      * @return string
      */
-    public function process($colsize = 9, $tableId = 'dataTable', $buttons = '')
+    public function process($colsize = 9, $tableId = 'dataTable', $buttons = '', $tableClass = '')
     {
         try {
             unset($actionbox);
@@ -872,14 +924,24 @@ abstract class FOGPage extends FOGBase
                 'search',
                 'list'
             );
-            // This would be where you could build your buttons, I'm guessing this is
-            // heavily deleted from older code.
             $actionbox = '';
+            $modals = '';
             if ($sub == 'list') {
                 if ($node == 'host') {
                     $actionbox = $actionbox . self::makeButton('addSelectedToGroup', _('Add selected to group'), 'btn btn-default');
                 }
                 $actionbox = $actionbox . self::makeButton('deleteSelected', _('Delete selected'), 'btn btn-danger');
+                $modals = $modals . self::makeModal('deleteModal',
+                    _('Confirm password'),
+                    '<input id="deletePassword" class="form-control" placeholder="' . _('Password') . '" autocomplete="off" type="password">',
+                    self::makeButton('closeDeleteModal', 
+                        _('Cancel'), 
+                        'btn btn-outline pull-left', 
+                        'data-dismiss="modal"') . 
+                    self::makeButton('confirmDeleteModal', 
+                        _('Delete') . ' {0} ' . _('hosts'), 
+                        'btn btn-outline'),
+                    '','danger');
             }
             $actionbox = $actionbox . $buttons;
             self::$HookManager->processEvent(
@@ -927,74 +989,70 @@ abstract class FOGPage extends FOGBase
             if (isset($this->form)) {
                 printf($this->form);
             }
-            echo '<table id="' . $tableId  . '" class="display table table-bordered table-striped">';
-            if (count($this->data) < 1) {
-                if ($this->data['error']) {
-                    echo '<thead><tr class="header"></tr></thead>';
-                    echo '<tbody>';
-                    $tablestr = '<tr><td colspan="'
-                        . count($this->templates)
-                        . '">';
-                    $tablestr .= (
-                        is_array($this->data['error']) ?
-                        '<p>'
-                        . implode('</p><p>', $this->data['error'])
-                        : $this->data['error']
-                    );
-                    $tablestr .= '</td></tr>';
-                    echo $tablestr;
-                    echo '</tbody>';
-                } else {
-                    if (count($this->headerData) > 0) {
-                        echo '<thead>';
-                        echo $this->buildHeaderRow();
-                        echo '</thead>';
-                    } else {
-                        echo '<thead>';
-                        echo '</thead>';
-                    }
-                    echo '<tbody></tbody>';
-                }
-
+            echo '<table id="' . $tableId  . '" class="' . $tableClass . '">';
+            if ($this->data['error']) {
+                echo '<thead><tr class="header"></tr></thead>';
+                echo '<tbody>';
+                $tablestr = '<tr><td colspan="'
+                    . count($this->templates)
+                    . '">';
+                $tablestr .= (
+                    is_array($this->data['error']) ?
+                    '<p>'
+                    . implode('</p><p>', $this->data['error'])
+                    : $this->data['error']
+                );
+                $tablestr .= '</td></tr>';
+                echo $tablestr;
+                echo '</tbody>';
             } else {
                 if (count($this->headerData) > 0) {
                     echo '<thead>';
                     echo $this->buildHeaderRow();
                     echo '</thead>';
+                } else {
+                    echo '<thead>';
+                    echo '</thead>';
                 }
-                echo '<tbody>';
-                $tablestr = '';
-                foreach ($this->data as &$rowData) {
-                    $tablestr .= '<tr class="'
-                        . strtolower($node)
-                        . '" '
-                        . (
-                            isset($rowData['id']) || isset($rowData[$id_field]) ?
-                            'id="'
+                if (!$sub || $sub == 'list' || count($this->data) < 1) {
+                    echo '<tbody></tbody>';
+                } else {
+                    if (count($this->headerData) > 0) {
+                        echo '<thead>';
+                        echo $this->buildHeaderRow();
+                        echo '</thead>';
+                    }
+                    echo '<tbody>';
+                    $tablestr = '';
+                    foreach ($this->data as &$rowData) {
+                        $tablestr .= '<tr class="'
+                            . strtolower($node)
+                            . '" '
                             . (
-                                isset($rowData['id']) ?
-                                $rowData['id'] . '"' :
-                                $rowData[$id_field] . '"'
-                            ) :
-                            ''
-                        )
-                        . '>';
-                    $tablestr .= $this->buildRow($rowData);
-                    $tablestr .= '</tr>';
-                    unset($rowData);
+                                isset($rowData['id']) || isset($rowData[$id_field]) ?
+                                'id="'
+                                . (
+                                    isset($rowData['id']) ?
+                                    $rowData['id'] . '"' :
+                                    $rowData[$id_field] . '"'
+                                ) :
+                                ''
+                            )
+                            . '>';
+                        $tablestr .= $this->buildRow($rowData);
+                        $tablestr .= '</tr>';
+                        unset($rowData);
+                    }
+                    echo $tablestr;
+                    echo '</tbody>';
                 }
-                echo $tablestr;
-                echo '</tbody>';
             }
             echo '</table>';
-            if ($node != 'home') {
-           //     echo '</div>';
-            }
         } catch (Exception $e) {
             return $e->getMessage();
         }
         return ob_get_clean()
-            . $actionbox;
+            . $actionbox . $modals;
     }
     /**
      * Sets the attributes
@@ -2252,7 +2310,7 @@ abstract class FOGPage extends FOGBase
         };
         Route::listem('tasktype', 'id');
         $items = json_decode(Route::getData());
-        $items = $items->tasktypes;
+        $items = $items->data;
         $advanced = 0;
         $access = array(
             'both',
@@ -2274,7 +2332,7 @@ abstract class FOGPage extends FOGBase
                 'attributes' => &$this->attributes
             )
         );
-        
+
         echo '<div class="box box-solid" id="'
             . $this->node
             . '-tasks">';
@@ -2538,7 +2596,7 @@ abstract class FOGPage extends FOGBase
             echo '<div id="'
                 . $node
                 . '-active-directory" class="">';
-        
+
             echo '  <div class="box-body">';
         }
         echo '<input type="text" name="fakeusernameremembered" class='
@@ -2969,8 +3027,8 @@ abstract class FOGPage extends FOGBase
                     ->set(
                         'sec_time',
                         self::niceDate()
-                            ->modify('+30 minutes')
-                            ->format('Y-m-d H:i:s')
+                        ->modify('+30 minutes')
+                        ->format('Y-m-d H:i:s')
                     )
                     ->set(
                         'sec_tok',
@@ -3350,6 +3408,7 @@ abstract class FOGPage extends FOGBase
      *
      * @return void
      */
+    /**
     public function search()
     {
         $eventClass = $this->childClass;
@@ -3391,11 +3450,13 @@ abstract class FOGPage extends FOGBase
         $this->render(12);
         echo '</div>';
     }
+     */
     /**
      * Search form submission
      *
      * @return void
      */
+    /*
     public function searchPost()
     {
         $this->data = array();
@@ -3445,6 +3506,7 @@ abstract class FOGPage extends FOGBase
             $this->attributes
         );
     }
+     */
     /**
      * Presents the membership information
      *
@@ -3844,11 +3906,11 @@ abstract class FOGPage extends FOGBase
         echo '          <div>';
         echo '<p class="help-block">';
         echo _('This page allows you to upload a CSV file into FOG to ease')
-        . ' '
-        . _('migration or mass import new items')
-        . '. '
-        . _('It will operate based on the fields the area typically requires')
-        . '.';
+            . ' '
+            . _('migration or mass import new items')
+            . '. '
+            . _('It will operate based on the fields the area typically requires')
+            . '.';
         echo '</p>';
         echo '          </div>';
         echo '      </div>';
@@ -4424,5 +4486,51 @@ abstract class FOGPage extends FOGBase
     ) {
         // TODO: Make this check array elements and make sure array elements "line up".
         // TODO: Make $name = $id field if name is blank.
+    }
+    /**
+     * Function passes to allsearch method so we can have
+     * a paged version of universal searching.
+     *
+     * @return string
+     */
+    public function unisearch()
+    {
+        header('Content-type: application/json');
+        $search = filter_input(INPUT_POST, 'search');
+        if (!$search) {
+            $search = filter_input(INPUT_GET, 'search');
+        }
+        Route::unisearch($search, 5);
+    }
+    /**
+     * Translates the code to string
+     *
+     * @param int $code The code to get the status of.
+     *
+     * @return string
+     */
+    public function getSocketCodeStr()
+    {
+        $code = filter_input(INPUT_POST, 'code');
+        if (!$code) {
+            $code = filter_input(INPUT_GET, 'code');
+        }
+        $socketstr = socket_strerror($code);
+        $labelType = 'danger';
+
+        // Ping succeeded
+        if ($val == 0)
+            $labelType = 'success';
+        // No such device or address
+        else if ($val == 6)
+            $labelType = 'warning';
+
+        $strtoupdate = '<span class="label label-'
+            . $labelType
+            . '">'
+            . _($socketstr)
+            . '</span>';
+
+        return $strtoupdate;
     }
 }

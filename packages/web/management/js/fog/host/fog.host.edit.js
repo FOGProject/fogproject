@@ -342,6 +342,13 @@
         );
     });
 
+    // ---------------------------------------------------------------
+    // SERVICE TAB
+    // var modulesTable = Common.registerTable(
+    //     $("#host-service-modules-table"), 
+    //     function () {}, 
+    //     {paging: false, searching: false, select:false, ordering:false});
+
 })(jQuery);
 
 

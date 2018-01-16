@@ -86,6 +86,24 @@ abstract class FOGController extends FOGBase
      */
     protected $aliasedFields = array();
     /**
+     * The sql query string.
+     *
+     * @var string
+     */
+    protected $sqlQueryStr = "SELECT `%s`
+        FROM `%s`
+        %s
+        %s
+        %s";
+    /**
+     * The sql filter string.
+     *
+     * @var string
+     */
+    protected $sqlFilterStr = "SELECT COUNT(`%s`)
+        FROM `%s`
+        %s";
+    /**
      * Class relationships, for inner joins of data.
      *
      * @var array

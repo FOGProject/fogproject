@@ -170,7 +170,6 @@ var diskinterval = false;
 var bandinterval = false;
 var clientinterval = false;
 (function($) {
-    $('.sidebar-menu').tree()
     var now = new Date().getTime();
     // 30 Day History Graph
     $('<div class="tooltip-inner" id="graph-30day-tooltip"></div>').css({
@@ -260,23 +259,25 @@ var clientinterval = false;
 })(jQuery);
 // 30 day function
 function Update30Day() {
-    $.ajax({
-        url: '?node=home',
-        type: 'POST',
-        data: {
-            sub: 'get30day'
-        },
-        dataType: 'json',
-        success: function(gdata) {
-            Graph30DayData = [
-                {
-                    label: 'Computers Imaged',
-                    data: gdata
-                }
-            ];
-            $.plot(Graph30Day, Graph30DayData, Graph30DayOpts);
-            setTimeout(Update30Day, bandwidthtime - ((new Date().getTime() - startTime) % bandwidthtime));
-        }
+    Pace.ignore(function(){
+        $.ajax({
+            url: '?node=home',
+            type: 'POST',
+            data: {
+                sub: 'get30day'
+            },
+            dataType: 'json',
+            success: function(gdata) {
+                Graph30DayData = [
+                    {
+                        label: 'Computers Imaged',
+                        data: gdata
+                    }
+                ];
+                $.plot(Graph30Day, Graph30DayData, Graph30DayOpts);
+                setTimeout(Update30Day, bandwidthtime - ((new Date().getTime() - startTime) % bandwidthtime));
+            }
+        });
     });
 }
 // Disk Usage Functions
@@ -285,39 +286,43 @@ function GraphDiskUsageUpdate() {
     now = new Date().getTime();
     NodeID = GraphDiskUsageNode.val();
     URL = $('[name="nodesel"] option:selected').attr('urlcall');
-    GraphDiskUsageAJAX = $.ajax({
-        url: '?node=home',
-        type: 'POST',
-        data: {
-            sub: 'diskusage',
-            id:NodeID
-        },
-        dataType: 'json',
-        beforeSend: function() {
-            GraphDiskUsage
-                .html('')
-                .removeClass('loaded')
-                .parents('a')
-                .prop('href','?node=hwinfo&id='+NodeID);
-        },
-        success: GraphDiskUsagePlots
+    Pace.ignore(function(){
+        GraphDiskUsageAJAX = $.ajax({
+            url: '?node=home',
+            type: 'POST',
+            data: {
+                sub: 'diskusage',
+                id:NodeID
+            },
+            dataType: 'json',
+            beforeSend: function() {
+                GraphDiskUsage
+                    .html('')
+                    .removeClass('loaded')
+                    .parents('a')
+                    .prop('href','?node=hwinfo&id='+NodeID);
+            },
+            success: GraphDiskUsagePlots
+        });
     });
     $('[name="nodesel"] option').each(function(e) {
         URL = $(this).attr('urlcall');
         test = document.createElement('a');
         test.href = URL;
         test2 = test.pathname+test.search;
-        $.ajax({
-            context: this,
-            url: test2,
-            data: {
-                url: URL
-            },
-            success: function(gdata) {
-                var sel = $(this);
-                var text = sel.text();
-                sel.text(text.replace(/\(.*\)/,'('+gdata+')'));
-            }
+        Pace.ignore(function(){
+            $.ajax({
+                context: this,
+                url: test2,
+                data: {
+                    url: URL
+                },
+                success: function(gdata) {
+                    var sel = $(this);
+                    var text = sel.text();
+                    sel.text(text.replace(/\(.*\)/,'('+gdata+')'));
+                }
+            });
         });
     });
 }
@@ -348,21 +353,23 @@ function GraphDiskUsagePlots(gdata) {
 function UpdateBandwidth() {
     urls = $('#bandwidthUrls').val().split(',');
     names= $('#nodeNames').val().split(',');
-    $.ajax({
-        url: '?node=home',
-        data: {
-            sub: 'bandwidth',
-            url: urls,
-            names: names
-        },
-        dataType: 'json',
-        success: UpdateBandwidthGraph,
-        error: function(jqXHR, textStatus) {
-            UpdateBandwidthGraph(null);
-        },
-        complete: function() {
-            GraphBandwidth.addClass('loaded');
-        }
+    Pace.ignore(function(){
+        $.ajax({
+            url: '?node=home',
+            data: {
+                sub: 'bandwidth',
+                url: urls,
+                names: names
+            },
+            dataType: 'json',
+            success: UpdateBandwidthGraph,
+            error: function(jqXHR, textStatus) {
+                UpdateBandwidthGraph(null);
+            },
+            complete: function() {
+                GraphBandwidth.addClass('loaded');
+            }
+        });
     });
 }
 function UpdateBandwidthGraph(gdata) {
@@ -458,15 +465,17 @@ function UpdateBandwidthGraph(gdata) {
 // Client Count Functions.
 function UpdateClientCount() {
     GroupID = ClientCountGroup.val();
-    $.ajax({
-        url: '?node=home',
-        type: 'POST',
-        data: {
-            sub: 'clientcount',
-            id: GroupID
-        },
-        dataType: 'json',
-        success: UpdateClientCountPlot
+    Pace.ignore(function(){
+        $.ajax({
+            url: '?node=home',
+            type: 'POST',
+            data: {
+                sub: 'clientcount',
+                id: GroupID
+            },
+            dataType: 'json',
+            success: UpdateClientCountPlot
+        });
     });
 }
 function UpdateClientCountPlot(gdata) {

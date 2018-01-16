@@ -64,6 +64,18 @@ abstract class FOGManagerController extends FOGBase
      */
     protected $additionalFields = array();
     /**
+     * The sql query string
+     *
+     * @var string
+     */
+    protected $sqlQueryStr = '';
+    /**
+     * The sql filter string
+     *
+     * @var string
+     */
+    protected $sqlFilterStr = '';
+    /**
      * The load template.
      *
      * SELECT <field(s)> FROM `<table>` <join> <where>
@@ -129,6 +141,8 @@ abstract class FOGManagerController extends FOGBase
             'additionalFields',
             'databaseFieldsRequired',
             'databaseFieldClassRelationships',
+            'sqlQueryStr',
+            'sqlFilterStr'
         );
         $this->databaseTable = &$classVars[$classGet[0]];
         $this->databaseFields = &$classVars[$classGet[1]];
@@ -136,21 +150,573 @@ abstract class FOGManagerController extends FOGBase
         $this->databaseFieldsRequired = &$classVars[$classGet[3]];
         $this->databaseFieldClassRelationships = &$classVars[$classGet[4]];
         $this->databaseFieldsFlipped = array_flip($this->databaseFields);
+        $this->sqlQueryStr = &$classVars[$classGet[5]];
+        $this->sqlFilterStr = &$classVars[$classGet[6]];
         unset($classGet);
     }
+	/**
+	 * Create the data output array for the DataTables rows
+	 *
+	 *  @param  array $columns Column information array
+	 *  @param  array $data    Data from the SQL get
+	 *  @return array          Formatted data in a row based format
+	 */
+	public static function data_output ( $columns, $data )
+	{
+		$out = array();
+
+		for ( $i=0, $ien=count($data) ; $i<$ien ; $i++ ) {
+			$row = array();
+
+			for ( $j=0, $jen=count($columns) ; $j<$jen ; $j++ ) {
+				$column = $columns[$j];
+
+				// Is there a formatter?
+                if ( isset( $column['formatter'] ) ) {
+                    if (!isset($column['extra'])) {
+                        $row[ $column['dt'] ] = $column['formatter']( $data[$i][ $column['db'] ], $data[$i] );
+                    } else {
+                        $row[ $column['dt'] ] = $column['formatter']( $data[$i][ $column['extra'] ], $data[$i] );
+                    }
+				}
+				else {
+					$row[ $column['dt'] ] = $data[$i][ $columns[$j]['db'] ];
+                    if (!isset($column['extra'])) {
+                        $row[ $column['dt'] ] = $data[$i][ $columns[$j]['db'] ];
+                    } else {
+                        $row[ $column['dt'] ] = $data[$i][ $columns[$j]['extra'] ];
+                    }
+				}
+			}
+
+			$out[] = $row;
+		}
+
+		return $out;
+	}
+    /**
+     * Paging
+     *
+     * Construct the LIMIT clause for server-side processing SQL Query.
+     *
+     * @param array $request Data sent to the server.
+     * @param array $columns Column information array.
+     *
+     * @return string SQL limit clause.
+     */
+    public static function limit($request, $columns)
+    {
+        $limit = '';
+        if (isset($request['start']) && $request['length'] != -1) {
+            $limit = "LIMIT "
+                . intval($request['start']).", ".intval($request['length']);
+        }
+
+        return $limit;
+    }
+	/**
+	 * Ordering
+	 *
+	 * Construct the ORDER BY clause for server-side processing SQL query
+	 *
+	 *  @param  array $request Data sent to server by DataTables
+	 *  @param  array $columns Column information array
+	 *  @return string SQL order by clause
+	 */
+	static function order ( $request, $columns )
+	{
+		$order = '';
+
+		if ( isset($request['order']) && count($request['order']) ) {
+			$orderBy = array();
+			$dtColumns = self::pluck( $columns, 'dt' );
+
+			for ( $i=0, $ien=count($request['order']) ; $i<$ien ; $i++ ) {
+				// Convert the column index into the column data property
+				$columnIdx = intval($request['order'][$i]['column']);
+				$requestColumn = $request['columns'][$columnIdx];
+
+				$columnIdx = array_search( $requestColumn['data'], $dtColumns );
+				$column = $columns[ $columnIdx ];
+
+				if ( $requestColumn['orderable'] == 'true' ) {
+					$dir = $request['order'][$i]['dir'] === 'asc' ?
+						'ASC' :
+						'DESC';
+
+					$orderBy[] = '`'.$column['db'].'` '.$dir;
+				}
+			}
+
+			$order = 'ORDER BY '.implode(', ', $orderBy);
+		}
+
+		return $order;
+	}
+	/**
+	 * Searching / Filtering
+	 *
+	 * Construct the WHERE clause for server-side processing SQL query.
+	 *
+	 * NOTE this does not match the built-in DataTables filtering which does it
+	 * word by word on any field. It's possible to do here performance on large
+	 * databases would be very poor
+	 *
+	 *  @param  array $request  Data sent to server by DataTables
+	 *  @param  array $columns  Column information array
+	 *  @param  array $bindings Array of values for PDO bindings, used in the
+     *    sql_exec() function
+     *
+	 *  @return string SQL where clause
+	 */
+	public static function filter ( $request, $columns, &$bindings )
+	{
+		$globalSearch = array();
+        $columnSearch = array();
+        $andSearch = array();
+
+		$dtColumns = self::pluck( $columns, 'dt' );
+
+		if ( isset($request['search']) && $request['search']['value'] != '' ) {
+            $str = $request['search']['value'];
+            // TODO: Figure out how to get DT smart search here.
+            // Below does the proper striping for us.
+            /*$str_search = preg_split(
+                '/("[^"]*")|\h+/',
+                $str,
+                -1,
+                PREG_SPLIT_NO_EMPTY|PREG_SPLIT_DELIM_CAPTURE
+            );*/
+            for ( $i=0, $ien=count($request['columns']) ; $i<$ien ; $i++ ) {
+                $requestColumn = $request['columns'][$i];
+                $columnIdx = array_search( $requestColumn['data'], $dtColumns );
+                $column = $columns[ $columnIdx ];
+
+                if ( $requestColumn['searchable'] == 'true' ) {
+                    if (!isset($column['db'])) {
+                        continue;
+                    }
+                    
+                    // These two should be commented when doing smart searching.
+                    $binding = self::bind( $bindings, '%'.$str.'%', PDO::PARAM_STR );
+                    $globalSearch[] = "`".$column['db']."` LIKE ".$binding;
+
+                    /**
+                     * Initial Attempt at smart search looping.
+                     *
+                     * foreach ((array)$str_search as $ind => &$str) {
+                     *     $str = trim($str, '"');
+                     *     $binding = self::bind( $bindings, '%'.$str.'%', PDO::PARAM_STR );
+                     *     $varSearch = 'globalSearch';
+                     *     if ($ind > 0) {
+                     *         $varSearch = 'andSearch';
+                     *     }
+                     *     $$varSearch[] = "`".$column['db']."` LIKE ".$binding;
+                     *     unset($str);
+                     * }
+                     */
+                }
+            }
+		}
+
+		// Individual column filtering
+		if ( isset( $request['columns'] ) ) {
+			for ( $i=0, $ien=count($request['columns']) ; $i<$ien ; $i++ ) {
+				$requestColumn = $request['columns'][$i];
+				$columnIdx = array_search( $requestColumn['data'], $dtColumns );
+				$column = $columns[ $columnIdx ];
+
+                $str = $requestColumn['search']['value'];
+                // TODO: Figure out how to get DT smart search here.
+                // Below does the proper striping for us.
+                /*$str_search = preg_split(
+                    '/("[^"]*")|\h+/',
+                    $str,
+                    -1,
+                    PREG_SPLIT_NO_EMPTY|PREG_SPLIT_DELIM_CAPTURE
+                );*/
+
+                if ( $requestColumn['searchable'] == 'true') {
+                    // This whole if stanza should be commented when doing smart search.
+                    if ($str != '') {
+                        if (!isset($column['db'])) {
+                            continue;
+                        }
+                        $binding = self::bind( $bindings, '%'.$str.'%', PDO::PARAM_STR );
+                        $columnSearch[] = "`".$column['db']."` LIKE ".$binding;
+                    }
+                    /**
+                     * Initial Attempt at smart search looping.
+                     *
+                     * foreach ((array)$str_search as $ind => &$str) {
+                     *     $str = trim($str, '"');
+                     *     if ($str != '') {
+                     *         if (!isset($column['db'])) {
+                     *             continue;
+                     *         }
+                     *         $binding = self::bind( $bindings, '%'.trim($str,'"').'%', PDO::PARAM_STR );
+                     *         $columnSearch[] = "`".$column['db']."` LIKE ".$binding;
+                     *     }
+                     *     unset($str);
+                     * }
+                     */
+				}
+			}
+		}
+
+		// Combine the filters into a single string
+		$where = '';
+
+		if ( count( $globalSearch ) ) {
+            $where = '('.implode(' OR ', $globalSearch).')';
+        }
+        /**
+         * Initial Attempt as smart search.
+         *
+         * if (count($andSearch)) {
+         *     $where = $where === '' ?
+         *         '('.implode(' OR ', $andSearch).')' :
+         *             $where . ' AND ' . '('.implode(' OR ', $andSearch).')';
+         * }
+         */
+
+		if ( count( $columnSearch ) ) {
+			$where = $where === '' ?
+				implode(' AND ', $columnSearch) :
+				$where .' AND '. implode(' AND ', $columnSearch);
+		}
+
+		if ( $where !== '' ) {
+			$where = 'WHERE '.$where;
+		}
+
+		return $where;
+    }
+	/**
+	 * Perform the SQL queries needed for an server-side processing requested,
+	 * utilising the helper functions of this class, limit(), order() and
+	 * filter() among others. The returned array is ready to be encoded as JSON
+	 * in response to an SSP request, or can be modified if needed before
+	 * sending back to the client.
+	 *
+	 *  @param  array $request Data sent to server by DataTables
+	 *  @param  string $table SQL table to query
+	 *  @param  string $primaryKey Primary key of the table
+     *  @param  array $columns Column information array
+     *  @param string $sqlstr The sql query to use.
+     *  @param  string $fltrstr The Filter query to use.
+	 *  @return array          Server-side processing response array
+	 */
+    public static function simple(
+        $request,
+        $table,
+        $primaryKey,
+        $columns,
+        $sqlstr,
+        $fltrstr
+    ) {
+        $db = DatabaseManager::getLink();
+		$bindings = array();
+        if ($primaryKey == 'id') {
+            foreach ($columns as $item) {
+                if ($item['dt'] == 'id') {
+                    $primaryKey = $item['db'];
+                }
+                unset($item);
+            }
+        }
+
+		// Build the SQL query string from the request
+		$limit = self::limit($request, $columns);
+		$order = self::order($request, $columns);
+        $where = self::filter($request, $columns, $bindings);
+
+        // Build the actual string itself.
+        $sql_query = sprintf(
+            $sqlstr,
+            implode('`,`', self::pluck($columns, 'db')),
+            $table,
+            $where,
+            $order,
+            $limit
+        );
+
+        // Main query to actually get the data
+        $data = self::sql_exec($db, $bindings, $sql_query);
+
+        // Data set length after filtering
+        $filter_query = sprintf(
+            $fltrstr,
+            $primaryKey,
+            $table,
+            $where
+        );
+
+		$resFilterLength = self::sql_exec($db, $bindings, $filter_query);
+		$recordsFiltered = $resFilterLength[0][0];
+
+		// Total data set length
+		$resTotalLength = self::sql_exec( $db,
+			"SELECT COUNT(`{$primaryKey}`)
+			 FROM   `$table`"
+		);
+		$recordsTotal = $resTotalLength[0][0];
+
+		/*
+		 * Output
+		 */
+        return array(
+            "draw" => (
+                isset($request['draw']) ?
+                intval($request['draw']) :
+                0
+            ),
+			"recordsTotal"    => intval( $recordsTotal ),
+			"recordsFiltered" => intval( $recordsFiltered ),
+			"data"            => self::data_output( $columns, $data )
+		);
+	}
+	/**
+	 * The difference between this method and the `simple` one, is that you can
+	 * apply additional `where` conditions to the SQL queries. These can be in
+	 * one of two forms:
+	 *
+	 * * 'Result condition' - This is applied to the result set, but not the
+	 *   overall paging information query - i.e. it will not effect the number
+	 *   of records that a user sees they can have access to. This should be
+	 *   used when you want apply a filtering condition that the user has sent.
+	 * * 'All condition' - This is applied to all queries that are made and
+	 *   reduces the number of records that the user can access. This should be
+	 *   used in conditions where you don't want the user to ever have access to
+	 *   particular records (for example, restricting by a login id).
+	 *
+	 *  @param  array $request Data sent to server by DataTables
+	 *  @param  string $table SQL table to query
+	 *  @param  string $primaryKey Primary key of the table
+	 *  @param  array $columns Column information array
+	 *  @param  string $whereResult WHERE condition to apply to the result set
+	 *  @param  string $whereAll WHERE condition to apply to all queries
+	 *  @return array          Server-side processing response array
+	 */
+	public static function complex ( $request, $table, $primaryKey, $columns, $whereResult=null, $whereAll=null )
+	{
+        $bindings = array();
+        $db = DatabaseManager::getLink();
+		$localWhereResult = array();
+		$localWhereAll = array();
+		$whereAllSql = '';
+        if ($primaryKey == 'id') {
+            foreach ($columns as $item) {
+                if ($item['dt'] == 'id') {
+                    $primaryKey = $item['db'];
+                }
+                unset($item);
+            }
+        }
+
+		// Build the SQL query string from the request
+		$limit = self::limit( $request, $columns );
+		$order = self::order( $request, $columns );
+		$where = self::filter( $request, $columns, $bindings );
+
+		$whereResult = self::_flatten( $whereResult );
+		$whereAll = self::_flatten( $whereAll );
+
+		if ( $whereResult ) {
+			$where = $where ?
+				$where .' AND '.$whereResult :
+				'WHERE '.$whereResult;
+		}
+
+		if ( $whereAll ) {
+			$where = $where ?
+				$where .' AND '.$whereAll :
+				'WHERE '.$whereAll;
+
+
+			$whereAllSql = 'WHERE '.$whereAll;
+        }
+
+        // Build the actual string itself.
+        $sql_query = sprintf(
+            $sqlstr,
+            implode('`,`', self::pluck($columns, 'db')),
+            $table,
+            $where,
+            $order,
+            $limit
+        );
+
+        // Main query to actually get the data
+        $data = self::sql_exec($db, $bindings, $sql_query);
+
+        // Data set length after filtering
+        $filter_query = sprintf(
+            $fltrstr,
+            $primaryKey,
+            $table,
+            $where
+        );
+
+		$resFilterLength = self::sql_exec($db, $bindings, $filter_query);
+		$recordsFiltered = $resFilterLength[0][0];
+
+		// Total data set length
+		$resTotalLength = self::sql_exec($db, $bindings,
+			"SELECT COUNT(`{$primaryKey}`)
+			 FROM   `$table` ".
+			$whereAllSql
+		);
+		$recordsTotal = $resTotalLength[0][0];
+
+		/*
+		 * Output
+		 */
+		return array(
+            "draw" => (
+                isset ($request['draw']) ?
+				intval($request['draw']) :
+                0
+            ),
+			"recordsTotal"    => intval( $recordsTotal ),
+			"recordsFiltered" => intval( $recordsFiltered ),
+			"data"            => self::data_output( $columns, $data )
+		);
+	}
+	/**
+	 * Execute an SQL query on the database
+	 *
+	 * @param  resource $db  Database handler
+	 * @param  array    $bindings Array of PDO binding values from bind() to be
+	 *   used for safely escaping strings. Note that this can be given as the
+	 *   SQL query string if no bindings are required.
+	 * @param  string   $sql SQL query to execute.
+	 * @return array         Result from the query (all rows)
+	 */
+	public static function sql_exec($db, $bindings, $sql=null)
+	{
+		// Argument shifting
+		if ( $sql === null ) {
+			$sql = $bindings;
+        }
+
+        $stmt = $db->prepare($sql);
+		//echo $sql;
+
+		// Bind parameters
+		if ( is_array( $bindings ) ) {
+			for ( $i=0, $ien=count($bindings) ; $i<$ien ; $i++ ) {
+				$binding = $bindings[$i];
+				$stmt->bindValue($binding['key'], $binding['val'], $binding['type'] );
+			}
+        }
+
+		// Execute
+		try {
+			$stmt->execute();
+		}
+		catch (PDOException $e) {
+			self::fatal( "An SQL error occurred: ".$e->getMessage() );
+		}
+
+		// Return all
+		return $stmt->fetchAll( PDO::FETCH_BOTH );
+	}
+	/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	 * Internal methods
+	 */
+
+	/**
+	 * Throw a fatal error.
+	 *
+	 * This writes out an error message in a JSON string which DataTables will
+	 * see and show to the user in the browser.
+	 *
+	 * @param  string $msg Message to send to the client
+	 */
+	public static function fatal ( $msg )
+	{
+		echo json_encode( array( 
+			"error" => $msg
+		) );
+
+		exit(0);
+	}
+	/**
+	 * Create a PDO binding key which can be used for escaping variables safely
+	 * when executing a query with sql_exec()
+	 *
+	 * @param  array &$a    Array of bindings
+	 * @param  *      $val  Value to bind
+	 * @param  int    $type PDO field type
+	 * @return string       Bound key to be used in the SQL where this parameter
+	 *   would be used.
+	 */
+	public static function bind ( &$a, $val, $type )
+	{
+		$key = ':binding_'.count( $a );
+
+		$a[] = array(
+			'key' => $key,
+			'val' => $val,
+			'type' => $type
+		);
+
+		return $key;
+	}
+	/**
+	 * Pull a particular property from each assoc. array in a numeric array, 
+	 * returning and array of the property values from each item.
+	 *
+	 *  @param  array  $a    Array to get data from
+	 *  @param  string $prop Property to read
+	 *  @return array        Array of property values
+	 */
+	public static function pluck ( $a, $prop )
+	{
+		$out = array();
+
+        for ( $i=0, $len=count($a) ; $i<$len ; $i++ ) {
+            if (!isset($a[$i][$prop])) {
+                continue;
+            }
+			$out[] = $a[$i][$prop];
+		}
+
+		return $out;
+	}
+	/**
+	 * Return a string from an array or a string
+	 *
+	 * @param  array|string $a Array to join
+	 * @param  string $join Glue for the concatenation
+	 * @return string Joined string
+	 */
+	public static function _flatten ( $a, $join = ' AND ' )
+	{
+		if ( ! $a ) {
+			return '';
+		}
+		else if ( $a && is_array($a) ) {
+			return implode( $join, $a );
+		}
+		return $a;
+	}
     /**
      * Finds items related to the main object.
      *
-     * @param array  $findWhere     what to find
-     * @param string $whereOperator how to combine where items
-     * @param string $orderBy       how to order fields
-     * @param string $sort          how the sort order
-     * @param string $compare       how to compare
-     * @param string $groupBy       how to group fields
-     * @param bool   $not           use not operator
-     * @param mixed  $idField       what fields to get
-     * @param bool   $onecompare    second where uses AND
-     * @param string $filter        array function for filter
+     * @param array    $findWhere     what to find
+     * @param string   $whereOperator how to combine where items
+     * @param string   $orderBy       how to order fields
+     * @param string   $sort          how the sort order
+     * @param string   $compare       how to compare
+     * @param string   $groupBy       how to group fields
+     * @param bool     $not           use not operator
+     * @param mixed    $idField       what fields to get
+     * @param bool     $onecompare    second where uses AND
+     * @param string   $filter        array function for filter
+     * @param bool|int $limit         limit the results
+     * @param bool|int $offset        offset to start
      *
      * @return array
      */
@@ -164,7 +730,9 @@ abstract class FOGManagerController extends FOGBase
         $not = false,
         $idField = false,
         $onecompare = true,
-        $filter = 'array_unique'
+        $filter = 'array_unique',
+        $limit = false,
+        $offset = false
     ) {
         // Fail safe defaults
         if (empty($findWhere)) {
@@ -175,6 +743,18 @@ abstract class FOGManagerController extends FOGBase
         }
         if (empty($sort)) {
             $sort = 'ASC';
+        }
+        if (intval($limit) > 0) {
+            $limit = ' LIMIT '
+                . $limit;
+        } else {
+            $limit = '';
+        }
+        if ($offset !== false && $offset > -1) {
+            $offset = ' OFFSET '
+                . (int)$offset;
+        } else {
+            $offset = '';
         }
         $this->orderBy($orderBy);
         if (empty($compare)) {
@@ -390,6 +970,7 @@ abstract class FOGManagerController extends FOGBase
             $groupBy,
             $orderBy
         );
+        $query .= $limit . $offset;
         self::$DB->query(
             $query,
             array(),
@@ -969,6 +1550,7 @@ abstract class FOGManagerController extends FOGBase
      *
      * @return mixe
      */
+    /*
     public function search($keyword = '', $returnObjects = false)
     {
         $keyword = trim($keyword);
@@ -1302,6 +1884,7 @@ abstract class FOGManagerController extends FOGBase
 
         return $itemIDs;
     }
+     */
     /**
      * Returns the distinct (all matching).
      *
@@ -1427,5 +2010,41 @@ abstract class FOGManagerController extends FOGBase
     {
         $sql = Schema::dropTable($this->tablename);
         return self::$DB->query($sql);
+    }
+    /**
+     * Gets the columns for this item.
+     *
+     * @return array()
+     */
+    public function getColumns()
+    {
+        return $this->databaseFields;
+    }
+    /**
+     * Gets the table for this item.
+     *
+     * @return array()
+     */
+    public function getTable()
+    {
+        return $this->databaseTable;
+    }
+    /**
+     * Gets the query string for this item.
+     *
+     * @return string
+     */
+    public function getQueryStr()
+    {
+        return $this->sqlQueryStr;
+    }
+    /**
+     * Gets the Filter string for this item.
+     *
+     * @return string
+     */
+    public function getFilterStr()
+    {
+        return $this->sqlFilterStr;
     }
 }

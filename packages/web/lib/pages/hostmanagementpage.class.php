@@ -162,29 +162,21 @@ class HostManagementPage extends FOGPage
                 'membership' => &$this->membership
             )
         );
-        // $this->headerData = array(
-        //     'Selected',
-        // );
-        array_push($this->headerData,_('Host'));
+        array_push(
+            $this->headerData,
+            _('Host'),
+            _('Primary MAC')
+        );
 
         self::$fogpingactive ? array_push($this->headerData, 'Ping Status') : null;
         array_push(
             $this->headerData,
             _('Imaged'),
-            _('Task'),
             _('Assigned Image'),
             'Description'
         );
-        $this->templates = array(
-            // '<label for="host-${id}">'
-            // . '<input type="checkbox" name="host[]" '
-            // . 'value="${id}" class="icheck" id="host-${id}"/>'
-            // . '</label>',
-        );
+        $this->templates = array();
 
-        $up = new TaskType(2);
-        $down = new TaskType(1);
-        $mc = new TaskType(8);
         array_push(
             $this->templates,
             '<a href="?node=host&sub=edit&id=${id}" '
@@ -193,35 +185,18 @@ class HostManagementPage extends FOGPage
             . ': ${host_name}" id="host-${host_name}" '
             . 'data-toggle="tooltip" data-placement="right">'
             . '${host_name}'
-            . '</a>'
-            . '<br/>'
-            . '<small>${host_mac}</small>');
-            if (self::$fogpingactive) {
-                array_push(
-                    $this->templates,
-                    '${pingstatus}'
-                );
-            }
+            . '</a>',
+            '<small>${host_mac}</small>'
+        );
+        if (self::$fogpingactive) {
+            array_push(
+                $this->templates,
+                '${pingstatus}'
+            );
+        }
         array_push(
             $this->templates,
             '<small>${deployed}</small>',
-            sprintf(
-                '<a href="?node=host&sub=deploy&type=1&id=${id}">'
-                . '<i class="icon fa fa-%s" title="%s"></i></a> '
-                . '<a href="?node=host&sub=deploy&type=2&id=${id}">'
-                . '<i class="icon fa fa-%s" title="%s"></i></a> '
-                . '<a href="?node=host&sub=deploy&type=8&id=${id}">'
-                . '<i class="icon fa fa-%s" title="%s"></i></a> '
-                . '<a href="?node=host&sub=edit&id=${id}#host-tasks">'
-                . '<i class="icon fa fa-arrows-alt" title="%s"></i></a>',
-                $down->get('icon'),
-                $down->get('name'),
-                $up->get('icon'),
-                $up->get('name'),
-                $mc->get('icon'),
-                $mc->get('name'),
-                _('Goto task list')
-            ),
             '<small><a href="?node=image&sub=edit&id=${image_id}">'
             . '${image_name}</a></small>',
             '${host_desc}'
@@ -250,7 +225,6 @@ class HostManagementPage extends FOGPage
         }
         array_push(
             $this->attributes,
-            array('width' => 50),
             array('width' => 145),
             array(
                 'width' => 60,
@@ -1268,7 +1242,7 @@ class HostManagementPage extends FOGPage
         $Printers = json_decode(
             Route::getData()
         );
-        $Printers = $Printers->printers;
+        $Printers = $Printers->data;
         foreach ((array)$Printers as $Printer) {
             if (!in_array($Printer->id, $this->obj->get('printers'))) {
                 continue;
@@ -1427,7 +1401,7 @@ class HostManagementPage extends FOGPage
         $Snapins = json_decode(
             Route::getData()
         );
-        $Snapins = $Snapins->snapins;
+        $Snapins = $Snapins->data;
         foreach ((array)$Snapins as $Snapin) {
             if (!in_array($Snapin->id, $this->obj->get('snapins'))) {
                 continue;
@@ -1551,6 +1525,10 @@ class HostManagementPage extends FOGPage
      */
     public function hostService()
     {
+        $props = ' method="post" action="'
+        . $this->formAction
+        . '&tab=host-service" ';
+
         // Client module stuff
         unset(
             $this->data,
@@ -1591,24 +1569,19 @@ class HostManagementPage extends FOGPage
             _('on the old client')
         );
         $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-4 form-group'),
-            array('class' => 'col-xs-4'),
+            array('class' => ''),
+            array('class' => ''),
+            array('class' => ''),
         );
         $this->templates = array(
             '${mod_name}',
             '${input}',
             '${span}',
         );
-        $this->data[] = array(
-            'mod_name' => '<label for="checkAll">'
-            . _('Select/Deselect All')
-            . '</label>',
-            'input' => '<div class="checkbox">'
-            . '<input type="checkbox" class="checkboxes" '
-            . 'id="checkAll" name="checkAll" value="checkAll"/>'
-            . '</div>',
-            'span' => ' '
+        $this->headerData = array(
+            _('Module Name'),
+            _('Enabled'),
+            _('Notes')
         );
         $moduleName = self::getGlobalModuleStatus();
         $ModuleOn = $this->obj->get('modules');
@@ -1619,57 +1592,28 @@ class HostManagementPage extends FOGPage
         $Modules = $Modules->modules;
         foreach ((array)$Modules as &$Module) {
             switch ($Module->shortName) {
-            case 'dircleanup':
-                $note = sprintf(
-                    '<i class="icon fa fa-exclamation-triangle '
-                    . 'fa-1x hand" '
-                    . 'data-toggle="tooltip" data-placement="right" '
-                    . 'title="%s"></i>',
-                    $dcnote
-                );
-                break;
-            case 'greenfog':
-                $note = sprintf(
-                    '<i class="icon fa fa-exclamation-triangle '
-                    . 'fa-1x hand" '
-                    . 'data-toggle="tooltip" data-placement="right" '
-                    . 'title="%s"></i>',
-                    $gfnote
-                );
-                break;
-            case 'usercleanup':
-                $note = sprintf(
-                    '<i class="icon fa fa-exclamation-triangle '
-                    . 'fa-1x hand" '
-                    . 'data-toggle="tooltip" data-placement="right" '
-                    . 'title="%s"></i>',
-                    $ucnote
-                );
-                break;
-            case 'clientupdater':
-                $note = sprintf(
-                    '<i class="icon fa fa-exclamation-triangle '
-                    . 'fa-1x hand" '
-                    . 'data-toggle="tooltip" data-placement="right" '
-                    . 'title="%s"></i>',
-                    $cunote
-                );
-                break;
-            default:
-                $note = '';
-                break;
-            }
-            if ($note) {
-                $note = '<div class="col-xs-2">'
-                    . $note
-                    . '</div>';
-            }
+                case 'dircleanup':
+                    $note = $dcnote;
+                    break;
+                case 'greenfog':
+                    $note = $gfnote;
+                    break;
+                case 'usercleanup':
+                    $note = $ucnote;
+                    break;
+                case 'clientupdater':
+                    $note = $cunote;
+                    break;
+                default:
+                    $note = '';
+                    break;
+            } 
             $this->data[] = array(
                 'input' => sprintf(
-                    '<div class="checkbox">'
+                    '<center><div class="checkbox">'
                     . '<input id="%s"%stype="checkbox" name="modules[]" value="%s"'
                     . '%s%s/>'
-                    . '</div>',
+                    . '</div></center>',
                     $Module->shortName,
                     (
                         ($moduleName[$Module->shortName]
@@ -1691,26 +1635,14 @@ class HostManagementPage extends FOGPage
                     ),
                     $Module->shortName
                 ),
-                'span' => sprintf(
-                    '<div class="col-xs-2">'
-                    . '<span class="icon fa fa-question fa-1x hand" '
-                    . 'data-toggle="tooltip" data-placement="left" '
-                    . 'title="%s"></span>'
-                    . '</div>'
-                    . '%s',
-                    str_replace(
-                        '"',
-                        '\"',
-                        $Module->description
-                    ),
-                    $note
-                ),
-                'mod_name' => '<label for="'
-                . $Module->shortName
-                . '">'
-                . $Module->name
-                . '</label>',
+                'span' => $note,
+                'mod_name' => $Module->name,
             );
+            // str_replace(
+            //     '"',
+            //     '\"',
+            //     $Module->description
+            // ),''
             unset($Module);
         }
         unset($moduleName, $ModuleOn);
@@ -1724,37 +1656,61 @@ class HostManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        echo '<!-- Service Configuration -->';
-        echo '<div class="tab-pane fade" id="host-service">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Host FOG Client Module configuration');
-        echo '</h4>';
+        echo '<div class="box-group" id="printers">';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<div class="box-tools pull-right">';
+        echo self::$FOGCollapseBox;
         echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '&tab=host-service">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
+        echo '<h4 class="box-title">';
         echo _('Host module settings');
+        echo ' --------- IN PROGRESS';
         echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        $this->render(12);
-        echo '<label class="control-label col-xs-4" for="updatestatus">';
-        echo _('Update module configurations');
-        echo '</label>';
-        echo '<div class="col-xs-8">';
-        echo '<button type="submit" name="updatestatus" id="updatestatus" '
-            . 'class="btn btn-info btn-block">';
-        echo _('Update');
-        echo '</button>';
+        echo '<div><p class="help-block">';
+        echo _('Modules disabled globally cannot be enabled here');
+        echo '</p></div>';
         echo '</div>';
         echo '</div>';
+        echo '<div id="servicesettings" class="">';
+        echo '<form class="form-horizontal" method="post" action="'
+        . $this->formAction
+        . '&tab=host-service">';
+        echo '<div class="box-body table-responsive no-padding">';
+        $this->render(12, 'host-service-modules-table', '', 'table table-hover');
         echo '</div>';
+        echo '<div class="box-footer">';
+        echo '<div class="btn-group">';
+        echo '<button type="submit" class='
+            . '"btn btn-primary" id="service-module-send">'
+            . _('Update')
+            . '</button>';
+        echo '<button class='
+            . '"btn btn-success" id="service-module-enable">'
+            . _('Enable all')
+            . '</button>';
+            echo '<button  class='
+            . '"btn btn-danger" id="service-module-enable">'
+            . _('Disable all')
+            . '</button>';
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+
+
+        // echo '</div>';
+        // echo '<label class="control-label col-xs-4" for="updatestatus">';
+        // echo _('Update module configurations');
+        // echo '</label>';
+        // echo '<div class="col-xs-8">';
+        // echo '<button type="submit" name="updatestatus" id="updatestatus" '
+        //     . 'class="btn btn-info btn-block">';
+        // echo _('Update');
+        // echo '</button>';
+        // echo '</div>';
         unset(
             $this->data,
             $this->form,
@@ -1852,25 +1808,25 @@ class HostManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Host Screen Resolution');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        $this->render(12);
-        echo '<label class="control-label col-xs-4" for="updatedisplay">';
-        echo _('Update display resolution');
-        echo '</label>';
-        echo '<div class="col-xs-8">';
-        echo '<button type="submit" name="updatedisplay" id="updatedisplay" '
-            . 'class="btn btn-info btn-block">';
-        echo _('Update');
-        echo '</button>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
+        // echo '<div class="panel panel-info">';
+        // echo '<div class="panel-heading text-center">';
+        // echo '<h4 class="title">';
+        // echo _('Host Screen Resolution');
+        // echo '</h4>';
+        // echo '</div>';
+        // echo '<div class="panel-body">';
+        // $this->render(12);
+        // echo '<label class="control-label col-xs-4" for="updatedisplay">';
+        // echo _('Update display resolution');
+        // echo '</label>';
+        // echo '<div class="col-xs-8">';
+        // echo '<button type="submit" name="updatedisplay" id="updatedisplay" '
+        //     . 'class="btn btn-info btn-block">';
+        // echo _('Update');
+        // echo '</button>';
+        // echo '</div>';
+        // echo '</div>';
+        // echo '</div>';
         unset(
             $this->data,
             $this->form,
@@ -1918,29 +1874,29 @@ class HostManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Host Auto Logout');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        $this->render(12);
-        echo '<label class="control-label col-xs-4" for="updatealo">';
-        echo _('Update auto-logout time');
-        echo '</label>';
-        echo '<div class="col-xs-8">';
-        echo '<button type="submit" name="updatealo" id="updatealo" '
-            . 'class="btn btn-info btn-block">';
-        echo _('Update');
-        echo '</button>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</form>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
+        // echo '<div class="panel panel-info">';
+        // echo '<div class="panel-heading text-center">';
+        // echo '<h4 class="title">';
+        // echo _('Host Auto Logout');
+        // echo '</h4>';
+        // echo '</div>';
+        // echo '<div class="panel-body">';
+        // $this->render(12);
+        // echo '<label class="control-label col-xs-4" for="updatealo">';
+        // echo _('Update auto-logout time');
+        // echo '</label>';
+        // echo '<div class="col-xs-8">';
+        // echo '<button type="submit" name="updatealo" id="updatealo" '
+        //     . 'class="btn btn-info btn-block">';
+        // echo _('Update');
+        // echo '</button>';
+        // echo '</div>';
+        // echo '</div>';
+        // echo '</div>';
+        // echo '</form>';
+        // echo '</div>';
+        // echo '</div>';
+        // echo '</div>';
         unset(
             $this->data,
             $this->form,
@@ -2858,10 +2814,19 @@ class HostManagementPage extends FOGPage
                 $this->hostSnapins();
             }
         );
+
+        // Snapins
+        $tabData[] = array(
+            'name' => _('Service Settings'),
+            'id' => 'host-service',
+            'generator' => function() {
+                $this->hostService();
+            }
+        );
+
         /**
          * These need to be worked yet.
          *
-        $this->hostService();
         $this->hostPMDisplay();
         $this->hostInventory();
         $this->hostVirus();
