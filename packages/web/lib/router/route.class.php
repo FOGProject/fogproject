@@ -250,6 +250,11 @@ class Route extends FOGBase
                 'status'
             )
             ->get(
+                '/[search|unisearch]/[**:item]',
+                array(self, 'unisearch'),
+                'unisearch'
+            )
+            ->get(
                 "${expandeda}/[current|active]",
                 array(self, 'active'),
                 'active'
@@ -343,6 +348,7 @@ class Route extends FOGBase
         $passtoken = base64_decode(
             filter_input(INPUT_SERVER, 'HTTP_FOG_API_TOKEN')
         );
+        $passtoken = trim($passtoken);
         if ($passtoken !== self::$_token) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_FORBIDDEN
@@ -364,6 +370,7 @@ class Route extends FOGBase
             $usertoken = base64_decode(
                 filter_input(INPUT_SERVER, 'HTTP_FOG_USER_TOKEN')
             );
+            $usertoken = trim($usertoken);
             $pwtoken = self::getClass('User')
                 ->set('token', $usertoken)
                 ->load('token');
@@ -380,7 +387,8 @@ class Route extends FOGBase
                 return;
             }
             self::sendResponse(
-                HTTPResponseCodes::HTTP_UNAUTHORIZED
+                HTTPResponseCodes::HTTP_UNAUTHORIZED,
+                $usertoken
             );
         }
     }
@@ -407,7 +415,8 @@ class Route extends FOGBase
     public static function status()
     {
         self::sendResponse(
-            HTTPResponseCodes::HTTP_SUCCESS
+            HTTPResponseCodes::HTTP_SUCCESS,
+            'success'
         );
     }
     /**
@@ -426,11 +435,59 @@ class Route extends FOGBase
         $bypass = false,
         $find = array()
     ) {
+        self::$data = array();
         $classname = strtolower($class);
         $classman = self::getClass($class)->getManager();
-        self::$data = array();
+        $table = $classman->getTable();
+        $sqlstr = $classman->getQueryStr();
+        $fltrstr = $classman->getFilterStr();
+        $tmpcolumns = $classman->getColumns();
+        $columns = array();
+        /**
+         * Any custom fields for objects that we need.
+         */
+        switch ($classname) {
+        case 'host':
+            $columns[] = array('db' => 'imagename', 'dt' => 'imagename');
+            $columns[] = array('db' => 'hmMAC', 'dt' => 'primac');
+            self::arrayRemove(
+                array(
+                    'sec_tok',
+                    'ADPass',
+                    'ADPassLegacy',
+                    'ADOU',
+                    'ADDomain',
+                    'useAD'
+                ),
+                $tmpcolumns
+            );
+        default:
+            foreach ((array)$tmpcolumns as $common => &$real) {
+                $columns[] = array('db' => $real, 'dt' => $common);
+                //if ($common == 'id') {
+                //    $columns[] = array(
+                //        'db' => $real,
+                //        'dt' => 'DT_RowId',
+                //        'formatter' => function($d, $row) {
+                //            return 'row_'.$d;
+                //        }
+                //    );
+                //}
+                unset($real);
+            }
+        }
+        self::$HookManager->processEvent(
+            'CUSTOMIZE_DT_COLUMNS',
+            array(
+                'columns' => &$columns
+            )
+        );
         self::$data['count'] = 0;
         self::$data[$classname.'s'] = array();
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
         $find = self::fastmerge(
             $find,
             self::getsearchbody($classname)
@@ -459,21 +516,14 @@ class Route extends FOGBase
             }
             break;
         default:
-            foreach ((array)$classman->find($find, 'AND', $sortby) as &$class) {
-                $test = stripos(
-                    $class->get('name'),
-                    '_api_'
-                );
-                if (!$bypass && false != $test) {
-                    continue;
-                }
-                self::$data[$classname.'s'][] = self::getter(
-                    $classname,
-                    $class
-                );
-                self::$data['count']++;
-                unset($class);
-            }
+            self::$data = FOGManagerController::simple(
+                $pass_vars,
+                $table,
+                'id',
+                $columns,
+                $sqlstr,
+                $fltrstr
+            );
             break;
         }
         self::$HookManager
@@ -487,6 +537,59 @@ class Route extends FOGBase
             );
     }
     /**
+     * Presents the equivalent of a universal search.
+     * 
+     * @param string $item  The "search" term.
+     * @param int    $limit Limit the results?
+     *
+     * @return void
+     */
+    public static function unisearch($item, $limit = 0)
+    {
+        if (empty(trim($limit))) {
+            $limit = 0;
+        }
+        $item = trim($item);
+        $data = array();
+        foreach (self::$searchPages as &$search) {
+            if ($search == 'task') {
+                continue;
+            }
+            $data['_lang'][$search] = _($search);
+            $data['_results'][$search] = self::allsearch(
+                $search,
+                $item,
+                0,
+                true
+            );
+            $items = self::allsearch(
+                $search,
+                $item,
+                $limit
+            );
+            $data[$search] = array();
+            foreach ((array)$items as &$obj) {
+                $data[$search][] = array(
+                    'id' => $obj->get('id'),
+                    'name' => $obj->get('name')
+                );
+                unset($obj);
+            }
+            unset($items);
+            unset($search);
+        }
+        self::$HookManager
+            ->processEvent(
+                'API_UNISEARCH_RESULTS',
+                array(
+                    'data' => &$data
+                )
+            );
+        echo json_encode($data);
+        unset($data);
+        exit;
+    }
+    /**
      * Presents the equivalent of a page's search.
      *
      * @param string $class The class to work with.
@@ -497,21 +600,23 @@ class Route extends FOGBase
     public static function search($class, $item)
     {
         $classname = strtolower($class);
-        $_POST['crit'] = $item;
-        $classman = self::getClass($class)->getManager();
         self::$data = array();
-        self::$data['count'] = 0;
-        self::$data[$classname.'s'] = array();
-        foreach ($classman->search('', true) as &$class) {
-            if (false != stripos($class->get('name'), '_api_')) {
+        self::$data['_lang'] = $classname;
+        self::$data['_count'] = 0;
+        $items = self::allsearch(
+            $classname,
+            $item
+        );
+        foreach ((array)$items as &$obj) {
+            if (false != stripos($obj->get('name'), '_api')) {
                 continue;
             }
             self::$data[$classname.'s'][] = self::getter(
                 $classname,
-                $class
+                $obj
             );
-            self::$data['count']++;
-            unset($class);
+            self::$data['_count']++;
+            unset($obj);
         }
         self::$HookManager
             ->processEvent(

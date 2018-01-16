@@ -98,6 +98,19 @@ if (self::$FOGUser->isValid()) {
    // echo '                  <a href="#"><i class="fa fa-circle text-success"></i> Online</a>';
     echo '              </div>';
     echo '          </div>';
+    echo '          <form id="universal-search-form" class="sidebar-form" action="../management/index.php?sub=unisearch" method="post">';
+    echo '          <div class="input-group">';
+    echo '              <input id="universal-search-field" class="form-control" name="search" placeholder="Search..." type="text"/>';
+    echo '              <span class="input-group-btn">';
+    echo '                  <button id="universal-search-btn" class="btn btn-flat" type="submit" name="search">';
+    echo '                      <i class="fa fa-search">';
+    echo '                      </i>';
+    echo '                  </button>';
+    echo '              </span>';
+    echo '          </div>';
+    echo '          <div id="universal-search-results" style="background-color: #ECF0F5;"></div>';
+
+    echo '          </form>';
     echo '          <ul class="sidebar-menu" data-widget="tree">';
     echo '              <li class="header">MAIN NAVIGATION</li>';
     echo $this->menu;

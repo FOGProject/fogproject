@@ -2513,4 +2513,56 @@ abstract class FOGBase
             )
         );
     }
+    /**
+     * Universal search method.
+     *
+     * @param string $class   What class are we searching in.
+     * @param string $keyword What to search for.
+     * @param int    $limit   Limit results?
+     *
+     * @return mixed
+     */
+    public static function allsearch(
+        $class = 'host',
+        $keyword = '%',
+        $limit = 0,
+        $count = false
+    ) {
+        if (empty($keyword)) {
+            $keyword = '%';
+        }
+        $keyword = sprintf(
+            '%%%s%%',
+            $keyword
+        );
+        $find = array(
+            'id' => $keyword,
+            'name' => $keyword,
+        );
+        $classman = sprintf(
+            '%sManager',
+            $class
+        );
+        if ($count) {
+            return (int) self::getClass($classman)
+                ->count(
+                    $find,
+                    'OR',
+                    'name'
+                );
+        }
+        return self::getClass($classman)->find(
+            $find,
+            'OR',
+            'name',
+            'ASC',
+            '=',
+            false,
+            false,
+            false,
+            true,
+            'array_unique',
+            $limit
+        );
+    }
 }

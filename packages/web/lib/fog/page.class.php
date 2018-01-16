@@ -113,6 +113,7 @@ class Page extends FOGBase
             ->addCSS('plugins/iCheck/square/blue.css')
             ->addCSS('plugins/animate/animate.css')
             ->addCSS('plugins/pnotify/pnotify.min.css')
+            ->addCSS('plugins/pace/pace.min.css')
             ->addCSS('bower_components/select2/dist/css/select2.min.css')
             ->addCSS('plugins/datatables/datatables.min.css')
             ->addCSS('dist/css/AdminLTE.min.css')
@@ -137,12 +138,14 @@ class Page extends FOGBase
         FOGPage::buildMainMenuItems($this->menu);
         $files = array(
             'bower_components/jquery/dist/jquery.min.js',
+            'bower_components/jquery-ui/jquery-ui.min.js',
             'bower_components/bootstrap/dist/js/bootstrap.min.js',
             'plugins/datatables/datatables.min.js',
             'plugins/iCheck/icheck.min.js',
             'plugins/bootbox/bootbox.min.js',
             'bower_components/select2/dist/js/select2.full.min.js',
             'plugins/pnotify/pnotify.min.js',
+            'plugins/pace/pace.min.js',
             'plugins/input-mask/jquery.inputmask.js',
             'plugins/input-mask/jquery.inputmask.extensions.js',
             'plugins/input-mask/jquery.inputmask.regex.extensions.js',
