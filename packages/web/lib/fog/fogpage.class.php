@@ -819,13 +819,28 @@ $args
     /**
      * Print the information
      *
-     * @param int $colsize Col size
+     * @param int    $colsize    Col size
+     * @param string $tableId    The table id.
+     * @param string $buttons    Any buttons to pass in.
+     * @param string $tableClass The class for the table css.
+     * @param bool   $serverSide Is the table to be server side or not.
      *
      * @return void
      */
-    public function render($colsize = 9, $tableId = 'dataTable', $buttons = '', $tableClass = 'display table table-bordered table-striped')
-    {
-        echo $this->process($colsize, $tableId, $buttons, $tableClass);
+    public function render(
+        $colsize = 9,
+        $tableId = 'dataTable',
+        $buttons = '',
+        $tableClass = 'display table table-bordered table-striped',
+        $serverSide = true
+    ) {
+        echo $this->process(
+            $colsize,
+            $tableId,
+            $buttons,
+            $tableClass,
+            $serverSide
+        );
     }
 
     public function makeTabUpdateURL($tab, $id) {
@@ -913,8 +928,13 @@ $args
      *
      * @return string
      */
-    public function process($colsize = 9, $tableId = 'dataTable', $buttons = '', $tableClass = '')
-    {
+    public function process(
+        $colsize = 9,
+        $tableId = 'dataTable',
+        $buttons = '',
+        $tableClass = '',
+        $serverSide = true
+    ) {
         try {
             unset($actionbox);
             global $sub;
@@ -934,12 +954,12 @@ $args
                 $modals = $modals . self::makeModal('deleteModal',
                     _('Confirm password'),
                     '<input id="deletePassword" class="form-control" placeholder="' . _('Password') . '" autocomplete="off" type="password">',
-                    self::makeButton('closeDeleteModal', 
-                        _('Cancel'), 
-                        'btn btn-outline pull-left', 
-                        'data-dismiss="modal"') . 
-                    self::makeButton('confirmDeleteModal', 
-                        _('Delete') . ' {0} ' . _('hosts'), 
+                    self::makeButton('closeDeleteModal',
+                    _('Cancel'),
+                    'btn btn-outline pull-left',
+                    'data-dismiss="modal"') .
+                    self::makeButton('confirmDeleteModal',
+                        _('Delete') . ' {0} ' . _('hosts'),
                         'btn btn-outline'),
                     '','danger');
             }
@@ -1014,7 +1034,7 @@ $args
                     echo '<thead>';
                     echo '</thead>';
                 }
-                if (!$sub || $sub == 'list' || count($this->data) < 1) {
+                if ($serverSide || count($this->data) < 1) {
                     echo '<tbody></tbody>';
                 } else {
                     if (count($this->headerData) > 0) {
@@ -3818,7 +3838,9 @@ $args
             unset($Item);
         }
         $_SESSION['foglastreport'] = serialize($report);
-        array_walk($fields, $this->fieldsToData);
+        if (count($fields)) {
+            array_walk($fields, $this->fieldsToData);
+        }
         self::$HookManager->processEvent(
             strtoupper($this->node) . '_EXPORT',
             array(
@@ -4284,7 +4306,7 @@ $args
             . _('Add')
             . '</button>'
         );
-        array_walk($fields, $this->fieldsToData);
+        self::formFields($fields);
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
@@ -4519,10 +4541,10 @@ $args
         $labelType = 'danger';
 
         // Ping succeeded
-        if ($val == 0)
+        if ($code == 0)
             $labelType = 'success';
         // No such device or address
-        else if ($val == 6)
+        else if ($code == 6)
             $labelType = 'warning';
 
         $strtoupdate = '<span class="label label-'
@@ -4531,6 +4553,9 @@ $args
             . _($socketstr)
             . '</span>';
 
-        return $strtoupdate;
+        echo json_encode(
+            array('data'=> $strtoupdate)
+        );
+        exit;
     }
 }

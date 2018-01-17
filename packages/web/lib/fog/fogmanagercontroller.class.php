@@ -142,7 +142,8 @@ abstract class FOGManagerController extends FOGBase
             'databaseFieldsRequired',
             'databaseFieldClassRelationships',
             'sqlQueryStr',
-            'sqlFilterStr'
+            'sqlFilterStr',
+            'sqlTotalStr',
         );
         $this->databaseTable = &$classVars[$classGet[0]];
         $this->databaseFields = &$classVars[$classGet[1]];
@@ -152,6 +153,7 @@ abstract class FOGManagerController extends FOGBase
         $this->databaseFieldsFlipped = array_flip($this->databaseFields);
         $this->sqlQueryStr = &$classVars[$classGet[5]];
         $this->sqlFilterStr = &$classVars[$classGet[6]];
+        $this->sqlTotalStr = &$classVars[$classGet[7]];
         unset($classGet);
     }
 	/**
@@ -223,7 +225,7 @@ abstract class FOGManagerController extends FOGBase
 	 *  @param  array $columns Column information array
 	 *  @return string SQL order by clause
 	 */
-	static function order ( $request, $columns )
+	public static function order ( $request, $columns )
 	{
 		$order = '';
 
@@ -399,13 +401,15 @@ abstract class FOGManagerController extends FOGBase
 	 * in response to an SSP request, or can be modified if needed before
 	 * sending back to the client.
 	 *
-	 *  @param  array $request Data sent to server by DataTables
-	 *  @param  string $table SQL table to query
-	 *  @param  string $primaryKey Primary key of the table
-     *  @param  array $columns Column information array
-     *  @param string $sqlstr The sql query to use.
-     *  @param  string $fltrstr The Filter query to use.
-	 *  @return array          Server-side processing response array
+	 *  @param array  $request    Data sent to server by DataTables
+	 *  @param string $table      SQL table to query
+	 *  @param string $primaryKey Primary key of the table
+     *  @param array  $columns    Column information array
+     *  @param string $sqlstr     The sql query to use.
+     *  @param string $fltrstr    The Filter query to use.
+     *  @param string $ttlstr     The total query to use.
+     *
+	 *  @return array Server-side processing response array
 	 */
     public static function simple(
         $request,
@@ -413,7 +417,8 @@ abstract class FOGManagerController extends FOGBase
         $primaryKey,
         $columns,
         $sqlstr,
-        $fltrstr
+        $fltrstr,
+        $ttlstr
     ) {
         $db = DatabaseManager::getLink();
 		$bindings = array();
@@ -455,11 +460,14 @@ abstract class FOGManagerController extends FOGBase
 		$resFilterLength = self::sql_exec($db, $bindings, $filter_query);
 		$recordsFiltered = $resFilterLength[0][0];
 
-		// Total data set length
-		$resTotalLength = self::sql_exec( $db,
-			"SELECT COUNT(`{$primaryKey}`)
-			 FROM   `$table`"
-		);
+        // Total data set length
+        $total_query = sprintf(
+            $ttlstr,
+            $primaryKey,
+            $table
+        );
+
+		$resTotalLength = self::sql_exec($db, $total_query);
 		$recordsTotal = $resTotalLength[0][0];
 
 		/*
@@ -494,12 +502,24 @@ abstract class FOGManagerController extends FOGBase
 	 *  @param  string $table SQL table to query
 	 *  @param  string $primaryKey Primary key of the table
 	 *  @param  array $columns Column information array
+     *  @param string $sqlstr     The sql query to use.
+     *  @param string $fltrstr    The Filter query to use.
+     *  @param string $ttlstr     The total query to use.
 	 *  @param  string $whereResult WHERE condition to apply to the result set
 	 *  @param  string $whereAll WHERE condition to apply to all queries
 	 *  @return array          Server-side processing response array
 	 */
-	public static function complex ( $request, $table, $primaryKey, $columns, $whereResult=null, $whereAll=null )
-	{
+    public static function complex (
+        $request,
+        $table,
+        $primaryKey,
+        $columns,
+        $sqlstr,
+        $fltrstr,
+        $ttlstr,
+        $whereResult = null,
+        $whereAll = null
+    ) {
         $bindings = array();
         $db = DatabaseManager::getLink();
 		$localWhereResult = array();
@@ -515,20 +535,20 @@ abstract class FOGManagerController extends FOGBase
         }
 
 		// Build the SQL query string from the request
-		$limit = self::limit( $request, $columns );
-		$order = self::order( $request, $columns );
-		$where = self::filter( $request, $columns, $bindings );
+		$limit = self::limit($request, $columns);
+		$order = self::order($request, $columns);
+        $where = self::filter($request, $columns, $bindings);
 
 		$whereResult = self::_flatten( $whereResult );
 		$whereAll = self::_flatten( $whereAll );
 
-		if ( $whereResult ) {
+		if ($whereResult) {
 			$where = $where ?
 				$where .' AND '.$whereResult :
 				'WHERE '.$whereResult;
 		}
 
-		if ( $whereAll ) {
+		if ($whereAll) {
 			$where = $where ?
 				$where .' AND '.$whereAll :
 				'WHERE '.$whereAll;
@@ -560,19 +580,23 @@ abstract class FOGManagerController extends FOGBase
 
 		$resFilterLength = self::sql_exec($db, $bindings, $filter_query);
 		$recordsFiltered = $resFilterLength[0][0];
+        
+        // Total data set length
+        $total_query = sprintf(
+            $ttlstr,
+            $primaryKey,
+            $table
+        ).$whereAllSql;
 
 		// Total data set length
-		$resTotalLength = self::sql_exec($db, $bindings,
-			"SELECT COUNT(`{$primaryKey}`)
-			 FROM   `$table` ".
-			$whereAllSql
-		);
+		$resTotalLength = self::sql_exec($db, $total_query);
 		$recordsTotal = $resTotalLength[0][0];
 
 		/*
 		 * Output
 		 */
-		return array(
+        return array(
+            "sql_query" => $sql_query,
             "draw" => (
                 isset ($request['draw']) ?
 				intval($request['draw']) :
@@ -678,6 +702,9 @@ abstract class FOGManagerController extends FOGBase
 
         for ( $i=0, $len=count($a) ; $i<$len ; $i++ ) {
             if (!isset($a[$i][$prop])) {
+                continue;
+            }
+            if (isset($a[$i]['removeFromQuery'])) {
                 continue;
             }
 			$out[] = $a[$i][$prop];
@@ -1543,349 +1570,6 @@ abstract class FOGManagerController extends FOGBase
             ->get('total') > 0;
     }
     /**
-     * Search for items passed to keyword.
-     *
-     * @param string $keyword       what to search for
-     * @param bool   $returnObjects use ids or whole objects
-     *
-     * @return mixe
-     */
-    /*
-    public function search($keyword = '', $returnObjects = false)
-    {
-        $keyword = trim($keyword);
-        if (!$keyword) {
-            $keyword = filter_input(INPUT_POST, 'crit');
-        }
-        if (!$keyword) {
-            $keyword = filter_input(INPUT_GET, 'crit');
-        }
-        if (!$keyword) {
-            throw new Exception(_('Nothing passed to search for'));
-        }
-        $mac_keyword = str_replace(
-            array('-', ':'),
-            '',
-            $keyword
-        );
-        $mac_keyword = str_split($mac_keyword, 2);
-        $mac_keyword = implode(':', $mac_keyword);
-        $mac_keyword = preg_replace(
-            '#[%\+\s\+]#',
-            '%',
-            sprintf(
-                '%%%s%%',
-                $mac_keyword
-            )
-        );
-        if (empty($keyword) || $keyword === '%') {
-            return $this->find();
-        }
-        $keyword = preg_replace(
-            '#[%\+\s\+]#',
-            '%',
-            sprintf(
-                '%%%s%%',
-                $keyword
-            )
-        );
-        if (count($this->aliasedFields) > 0) {
-            self::arrayRemove($this->aliasedFields, $this->databaseFields);
-        }
-        $findWhere = array_fill_keys(array_keys($this->databaseFields), $keyword);
-        $find = array(
-            'name' => $keyword,
-            'description' => $keyword,
-        );
-        $itemIDs = self::getSubObjectIDs(
-            $this->childClass,
-            $findWhere,
-            'id',
-            '',
-            'OR'
-        );
-        $HostIDs = self::getSubObjectIDs(
-            'Host',
-            array(
-                'name' => $keyword,
-                'description' => $keyword,
-                'ip' => $keyword,
-            ),
-            'id',
-            '',
-            'OR'
-        );
-        switch (strtolower($this->childClass)) {
-        case 'user':
-            break;
-        case 'host':
-            $macHostIDs = self::getSubObjectIDs(
-                'MACAddressAssociation',
-                array(
-                    'mac' => $mac_keyword,
-                    'description' => $keyword,
-                ),
-                'hostID',
-                '',
-                'OR'
-            );
-            $invHostIDs = self::getSubObjectIDs(
-                'Inventory',
-                array(
-                    'sysserial' => $keyword,
-                    'caseserial' => $keyword,
-                    'mbserial' => $keyword,
-                    'primaryUser' => $keyword,
-                    'other1' => $keyword,
-                    'other2' => $keyword,
-                    'sysman' => $keyword,
-                    'sysproduct' => $keyword,
-                ),
-                'hostID',
-                '',
-                'OR'
-            );
-            $HostIDs = self::fastmerge(
-                $HostIDs,
-                $macHostIDs,
-                $invHostIDs
-            );
-            unset($invHostIDs, $macHostIDs);
-            $ImageIDs = self::getSubObjectIDs(
-                'Image',
-                $find,
-                'id',
-                '',
-                'OR'
-            );
-            $GroupIDs = self::getSubObjectIDs(
-                'Group',
-                $find,
-                'id',
-                '',
-                'OR'
-            );
-            $SnapinIDs = self::getSubObjectIDs(
-                'Snapin',
-                $find,
-                'id',
-                '',
-                'OR'
-            );
-            $PrinterIDs = self::getSubObjectIDs(
-                'Printer',
-                $find,
-                'id',
-                '',
-                'OR'
-            );
-            if (count($ImageIDs) > 0) {
-                $itemIDs = self::fastmerge(
-                    $itemIDs,
-                    self::getSubObjectIDs(
-                        'Host',
-                        array('imageID' => $ImageIDs)
-                    )
-                );
-            }
-            if (count($GroupIDs) > 0) {
-                $itemIDs = self::fastmerge(
-                    $itemIDs,
-                    self::getSubObjectIDs(
-                        'GroupAssociation',
-                        array('groupID' => $GroupIDs),
-                        'hostID'
-                    )
-                );
-            }
-            if (count($SnapinIDs) > 0) {
-                $itemIDs = self::fastmerge(
-                    $itemIDs,
-                    self::getSubObjectIDs(
-                        'SnapinAssociation',
-                        array('snapinID' => $SnapinIDs),
-                        'hostID'
-                    )
-                );
-            }
-            if (count($PrinterIDs) > 0) {
-                $itemIDs = self::fastmerge(
-                    $itemIDs,
-                    self::getSubObjectIDs(
-                        'PrinterAssociation',
-                        array('printerID' => $PrinterIDs),
-                        'hostID'
-                    )
-                );
-            }
-            $itemIDs = self::fastmerge($itemIDs, $HostIDs);
-            $itemIDs = array_filter($itemIDs);
-            $itemIDs = array_unique($itemIDs);
-            break;
-        case 'image':
-            if (count($HostIDs)) {
-                $ImageIDs = self::getSubObjectIDs(
-                    'Host',
-                    array('id' => $HostIDs),
-                    'imageID'
-                );
-                $itemIDs = self::fastmerge($itemIDs, $ImageIDs);
-            }
-            $itemIDs = array_filter($itemIDs);
-            $itemIDs = array_unique($itemIDs);
-            break;
-        case 'task':
-            $TaskStateIDs = self::getSubObjectIDs(
-                'TaskState',
-                $find,
-                'id',
-                '',
-                'OR'
-            );
-            $ImageIDs = self::getSubObjectIDs(
-                'Image',
-                $find,
-                'id',
-                '',
-                'OR'
-            );
-            $GroupIDs = self::getSubObjectIDs(
-                'Group',
-                $find,
-                'id',
-                '',
-                'OR'
-            );
-            $SnapinIDs = self::getSubObjectIDs(
-                'Snapin',
-                $find,
-                'id',
-                '',
-                'OR'
-            );
-            $PrinterIDs = self::getSubObjectIDs(
-                'Printer',
-                $find,
-                'id',
-                '',
-                'OR'
-            );
-            if (count($ImageIDs)) {
-                $itemIDs = self::fastmerge(
-                    $itemIDs,
-                    self::getSubObjectIDs(
-                        'Host',
-                        array('imageID' => $ImageIDs)
-                    )
-                );
-            }
-            if (count($GroupIDs)) {
-                $itemIDs = self::fastmerge(
-                    $itemIDs,
-                    self::getSubObjectIDs(
-                        'GroupAssociation',
-                        array('groupID' => $GroupIDs),
-                        'hostID'
-                    )
-                );
-            }
-            if (count($SnapinIDs)) {
-                $itemIDs = self::fastmerge(
-                    $itemIDs,
-                    self::getSubObjectIDs(
-                        'SnapinAssociation',
-                        array('snapinID' => $SnapinIDs),
-                        'hostID'
-                    )
-                );
-            }
-            if (count($PrinterIDs)) {
-                $itemIDs = self::fastmerge(
-                    $itemIDs,
-                    self::getSubObjectIDs(
-                        'PrinterAssociation',
-                        array('printerID' => $PrinterIDs),
-                        'hostID'
-                    )
-                );
-            }
-            if (count($TaskStateIDs)) {
-                $itemIDs = self::fastmerge(
-                    $itemIDs,
-                    self::getSubObjectIDs(
-                        'Task',
-                        array('stateID' => $TaskStateIDs)
-                    )
-                );
-            }
-            if (count($TaskTypeIDs)) {
-                $itemIDs = self::fastmerge(
-                    $itemIDs,
-                    self::getSubObjectIDs(
-                        'Task',
-                        array('typeID' => $TaskTypeIDs)
-                    )
-                );
-            }
-            if (count($HostIDs)) {
-                $itemIDs = self::fastmerge(
-                    $itemIDs,
-                    self::getSubObjectIDs(
-                        'Task',
-                        array('hostID' => $HostIDs)
-                    )
-                );
-            }
-            break;
-        default:
-            $assoc = sprintf(
-                '%sAssociation',
-                $this->childClass
-            );
-            $objID = sprintf(
-                '%sID',
-                strtolower($this->childClass)
-            );
-            if (!class_exists($assoc, false)) {
-                break;
-            }
-            if (count($itemIDs) && !count($HostIDs)) {
-                break;
-            }
-            $HostIDs = self::fastmerge(
-                $HostIDs,
-                self::getSubObjectIDs(
-                    $assoc,
-                    array($objID => $itemIDs),
-                    'hostID'
-                )
-            );
-            if (count($HostIDs)) {
-                $itemIDs = self::fastmerge(
-                    $itemIDs,
-                    self::getSubObjectIDs(
-                        $assoc,
-                        array('hostID' => $HostIDs),
-                        $objID
-                    )
-                );
-            }
-            break;
-        }
-        $itemIDs = array_filter($itemIDs);
-        $itemIDs = array_unique($itemIDs);
-        $itemIDs = self::getSubObjectIDs(
-            $this->childClass,
-            array('id' => $itemIDs)
-        );
-        if ($returnObjects) {
-            return $this->find(array('id' => $itemIDs));
-        }
-
-        return $itemIDs;
-    }
-     */
-    /**
      * Returns the distinct (all matching).
      *
      * @param string $field         the field to be distinct
@@ -2046,5 +1730,14 @@ abstract class FOGManagerController extends FOGBase
     public function getFilterStr()
     {
         return $this->sqlFilterStr;
+    }
+    /**
+     * Gets the Total string for this item.
+     *
+     * @return string
+     */
+    public function getTotalStr()
+    {
+        return $this->sqlTotalStr;
     }
 }

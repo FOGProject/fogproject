@@ -780,10 +780,10 @@ class HostManagementPage extends FOGPage
                 'month' => $PowerManagement->month,
                 'dow' => $PowerManagement->dow,
                 'action' => self::getClass('PowerManagementManager')
-                    ->getActionSelect(
-                        $PowerManagement->action,
-                        true
-                    )
+                ->getActionSelect(
+                    $PowerManagement->action,
+                    true
+                )
             );
             unset($PowerManagement);
         }
@@ -943,8 +943,8 @@ class HostManagementPage extends FOGPage
         $rendered = self::formFields($fields);
         echo '<div class="box box-solid">';
         echo '<form id="host-general-form" class="form-horizontal" method="post" action="'
-        . self::makeTabUpdateURL('host-general', $this->obj->get('id'))
-        . '" novalidate>';
+            . self::makeTabUpdateURL('host-general', $this->obj->get('id'))
+            . '" novalidate>';
         echo '  <div class="box-body">';
         echo $rendered;
         echo '  </div>';
@@ -1105,8 +1105,8 @@ class HostManagementPage extends FOGPage
     public function hostPrinters()
     {
         $props = ' method="post" action="'
-        . $this->formAction
-        . '&tab=host-printers" ';
+            . $this->formAction
+            . '&tab=host-printers" ';
 
         // =========================================================
         // Printer Configuration
@@ -1216,11 +1216,13 @@ class HostManagementPage extends FOGPage
 
         $buttons = self::makeButton('printer-default', _('Update default'), 'btn btn-primary', $props);
         $buttons = $buttons . self::makeButton('printer-remove', _('Remove selected'), 'btn btn-danger', $props);
-        
+
+
         $this->headerData = array(
             _('Default'),
             _('Printer Alias'),
-            _('Printer Type')
+            _('Printer Type'),
+            _('Printer Associated')
         );
         $this->templates = array(
             '<div class="radio">'
@@ -1229,52 +1231,17 @@ class HostManagementPage extends FOGPage
             . 'value="${printer_id}" ${is_default} wasoriginaldefault="${is_default}"/>'
             . '</div>',
             '<a href="?node=printer&sub=edit&id=${printer_id}">${printer_name}</a>',
-            '${printer_type}'
+            '${printer_type}',
+            ''
         );
         $this->attributes = array(
             array(
                 'class' => 'col-md-1'
             ),
             array(),
+            array(),
             array()
         );
-        Route::listem('printer');
-        $Printers = json_decode(
-            Route::getData()
-        );
-        $Printers = $Printers->data;
-        foreach ((array)$Printers as $Printer) {
-            if (!in_array($Printer->id, $this->obj->get('printers'))) {
-                continue;
-            }
-            $this->data[] = array(
-                'id' => $Printer->id,
-                'printer_id' => $Printer->id,
-                'is_default' => (
-                    $this->obj->getDefault($Printer->id) ?
-                    ' checked' :
-                    ''
-                ),
-                'printer_name' => $Printer->name,
-                'printer_type' => (
-                    stripos($Printer->config, 'local') !== false ?
-                    _('TCP/IP') :
-                    $Printer->config
-                )
-            );
-            unset($Printer);
-        }
-        self::$HookManager
-            ->processEvent(
-                'HOST_EDIT_PRINTER',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<div class="box-tools pull-right">';
@@ -1283,6 +1250,11 @@ class HostManagementPage extends FOGPage
         echo '<h4 class="box-title">';
         echo _('Update/Remove printers');
         echo '</h4>';
+        echo '<div>';
+        echo '<p class="help-block">';
+        echo _('Changes will be automatically be saved');
+        echo '</p>';
+        echo '</div>';
         echo '</div>';
         echo '<div id="updateprinters" class="">';
         echo '<div class="box-body">';
@@ -1295,7 +1267,7 @@ class HostManagementPage extends FOGPage
 
         // =========================================================
         // Add Printers
-        unset(
+        /*unset(
             $this->headerData,
             $this->templates,
             $this->attributes,
@@ -1365,6 +1337,7 @@ class HostManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
+         */
     }
     /**
      * Host snapins.
@@ -1374,9 +1347,13 @@ class HostManagementPage extends FOGPage
     public function hostSnapins()
     {
         $props = ' method="post" action="'
-        . $this->formAction
-        . '&tab=host-snapins" ';
+            . $this->formAction
+            . '&tab=host-snapins" ';
 
+        echo '<!-- Snapins -->';
+        echo '<div class="box-group" id="snapins">';
+        // =================================================================
+        // Associated Snapins
         unset(
             $this->headerData,
             $this->templates,
@@ -1385,68 +1362,49 @@ class HostManagementPage extends FOGPage
             $this->data
         );
 
+        $buttons = self::makeButton('snapins-remove', _('Remove selected'), 'btn btn-danger', $props);
+
         $this->headerData = array(
             _('Snapin Name'),
-            _('Snapin Created')
+            _('Snapin Created'),
+            _('Snapin Associated')
         );
         $this->templates = array(
             '<a href="?node=snapin&sub=edit&id=${snapin_id}">${snapin_name}</a>',
-            '${snapin_created}'
+            '${snapin_created}',
+            ''
         );
         $this->attributes = array(
             array(),
+            array(),
             array()
         );
-        Route::listem('snapin');
-        $Snapins = json_decode(
-            Route::getData()
-        );
-        $Snapins = $Snapins->data;
-        foreach ((array)$Snapins as $Snapin) {
-            if (!in_array($Snapin->id, $this->obj->get('snapins'))) {
-                continue;
-            }
-            $this->data[] = array(
-                'id' => $Snapin->id,
-                'snapin_id' => $Snapin->id,
-                'snapin_name' => $Snapin->name,
-                'snapin_created' => self::niceDate(
-                    $Snapin->createdTime
-                )->format('Y-m-d H:i:s')
-            );
-            unset($Snapin);
-        }
 
-        $buttons = self::makeButton('snapins-remove', _('Remove selected'), 'btn btn-danger', $props);
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Remove Snapins');
-        echo '</h4>';
         echo '<div class="box-tools pull-right">';
         echo self::$FOGCollapseBox;
         echo '</div>';
+        echo '<h4 class="box-title">';
+        echo _('Update/Remove Snapins');
+        echo '</h4>';
+        echo '<div>';
+        echo '<p class="help-block">';
+        echo _('Changes will be automatically be saved');
+        echo '</p>';
         echo '</div>';
-        echo '<div id="addsnapins" class="">';
-        self::$HookManager
-        ->processEvent(
-            'HOST_EDIT_SNAPIN',
-            array(
-                'headerData' => &$this->headerData,
-                'data' => &$this->data,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
-            )
-        );
+        echo '</div>';
+        echo '<div id="updatesnapins" class="">';
         echo '<div class="box-body">';
         $this->render(12, 'snapins-to-remove-table', $buttons);
         echo '</div>';
-        echo '<div class="box-footer">';
         echo '</div>';
         echo '</div>';
         echo '</div>';
 
-        unset(
+        // ========================================================
+        // Add Snapins
+        /*unset(
             $this->headerData,
             $this->templates,
             $this->attributes,
@@ -1493,15 +1451,15 @@ class HostManagementPage extends FOGPage
         echo '</div>';
         echo '<div id="addsnapins" class="">';
         self::$HookManager
-        ->processEvent(
-            'HOST_ADD_SNAPIN',
-            array(
-                'headerData' => &$this->headerData,
-                'data' => &$this->data,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
-            )
-        );
+            ->processEvent(
+                'HOST_ADD_SNAPIN',
+                array(
+                    'headerData' => &$this->headerData,
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes
+                )
+            );
         echo '<div class="box-body">';
         $this->render(12, 'snapins-to-add-table', $buttons);
         echo '</div>';
@@ -1509,14 +1467,14 @@ class HostManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
-        
+
         unset(
             $this->headerData,
             $this->templates,
             $this->attributes,
             $this->form,
             $this->data
-        );
+        );*/
     }
     /**
      * Display's the host service stuff
@@ -1526,8 +1484,8 @@ class HostManagementPage extends FOGPage
     public function hostService()
     {
         $props = ' method="post" action="'
-        . $this->formAction
-        . '&tab=host-service" ';
+            . $this->formAction
+            . '&tab=host-service" ';
 
         // Client module stuff
         unset(
@@ -1592,22 +1550,22 @@ class HostManagementPage extends FOGPage
         $Modules = $Modules->modules;
         foreach ((array)$Modules as &$Module) {
             switch ($Module->shortName) {
-                case 'dircleanup':
-                    $note = $dcnote;
-                    break;
-                case 'greenfog':
-                    $note = $gfnote;
-                    break;
-                case 'usercleanup':
-                    $note = $ucnote;
-                    break;
-                case 'clientupdater':
-                    $note = $cunote;
-                    break;
-                default:
-                    $note = '';
-                    break;
-            } 
+            case 'dircleanup':
+                $note = $dcnote;
+                break;
+            case 'greenfog':
+                $note = $gfnote;
+                break;
+            case 'usercleanup':
+                $note = $ucnote;
+                break;
+            case 'clientupdater':
+                $note = $cunote;
+                break;
+            default:
+                $note = '';
+                break;
+            }
             $this->data[] = array(
                 'input' => sprintf(
                     '<center><div class="checkbox">'
@@ -1673,8 +1631,8 @@ class HostManagementPage extends FOGPage
         echo '</div>';
         echo '<div id="servicesettings" class="">';
         echo '<form class="form-horizontal" method="post" action="'
-        . $this->formAction
-        . '&tab=host-service">';
+            . $this->formAction
+            . '&tab=host-service">';
         echo '<div class="box-body table-responsive no-padding">';
         $this->render(12, 'host-service-modules-table', '', 'table table-hover');
         echo '</div>';
@@ -1688,7 +1646,7 @@ class HostManagementPage extends FOGPage
             . '"btn btn-success" id="service-module-enable">'
             . _('Enable all')
             . '</button>';
-            echo '<button  class='
+        echo '<button  class='
             . '"btn btn-danger" id="service-module-enable">'
             . _('Disable all')
             . '</button>';
@@ -2790,13 +2748,13 @@ class HostManagementPage extends FOGPage
         );
         // Tasks
         if (!$this->obj->get('pending')) {
-                $tabData[] = array(
-                    'name' =>  _('Tasks'),
-                    'id' => 'host-tasks',
-                    'generator' => function() {
-                        $this->basictasksOptions();
-                    }
-                );
+            $tabData[] = array(
+                'name' =>  _('Tasks'),
+                'id' => 'host-tasks',
+                'generator' => function() {
+                    $this->basictasksOptions();
+                }
+            );
         }
         // Printers
         $tabData[] = array(
@@ -2815,7 +2773,7 @@ class HostManagementPage extends FOGPage
             }
         );
 
-        // Snapins
+        // Service
         $tabData[] = array(
             'name' => _('Service Settings'),
             'id' => 'host-service',
@@ -2824,10 +2782,28 @@ class HostManagementPage extends FOGPage
             }
         );
 
+        // Power Management
+        $tabData[] = array(
+            'name' => _('Power Management'),
+            'id' => 'host-powermanagement',
+            'generator' => function() {
+                $this->hostPMDisplay();
+            }
+        );
+
+        // Inventory
+        $tabData[] = array(
+            'name' => _('Inventory'),
+            'id' => 'host-inventory',
+            'generator' => function() {
+                $this->hostInventory();
+            }
+        );
+
         /**
          * These need to be worked yet.
          *
-        $this->hostPMDisplay();
+         $this->hostPMDisplay();
         $this->hostInventory();
         $this->hostVirus();
         $this->hostLoginHistory();
@@ -3399,6 +3375,129 @@ class HostManagementPage extends FOGPage
         }
         unset($UserTracks);
         echo json_encode($data);
+        exit;
+    }
+    /**
+     * Presents the printers list table.
+     *
+     * @return void
+     */
+    public function getPrintersList()
+    {
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
+        $where = "`hosts`.`hostID` = '"
+            . $this->obj->get('id')
+            . "'";
+
+        // Workable queries
+        $printersSqlStr = "SELECT `%s`,"
+            . "IF(`paHostID` IS NULL OR `paHostID` = '0' OR `paHostID` = '', 'dissociated', 'associated') AS `paHostID`,`paIsDefault`,`hostID`
+            FROM `%s`
+            CROSS JOIN `hosts`
+            LEFT OUTER JOIN `printerAssoc`
+            ON `printers`.`pID` = `printerAssoc`.`paPrinterID`
+            AND `hosts`.`hostID` = `printerAssoc`.`paHostID`
+            %s
+            %s
+            %s";
+
+        $printersFilterStr = "SELECT COUNT(`%s`),"
+            . "IF(`paHostID` IS NULL OR `paHostID` = '0' OR `paHostID` = '', 'dissociated', 'associated') AS `paHostID`,`paIsDefault`,`hostID`
+            FROM `%s`
+            CROSS JOIN `hosts`
+            LEFT OUTER JOIN `printerAssoc`
+            ON `printers`.`pID` = `printerAssoc`.`paPrinterID`
+            AND `hosts`.`hostID` = `printerAssoc`.`paHostID`
+            %s";
+
+        $printersTotalStr = "SELECT COUNT(`%s`)
+            FROM `%s`";
+
+        foreach (self::getClass('PrinterManager')
+            ->getColumns() as $common => &$real
+        ) {
+            $columns[] = array('db' => $real, 'dt' => $common);
+            unset($real);
+        }
+        $columns[] = array('db' => 'paIsDefault', 'dt' => 'isDefault');
+        $columns[] = array('db' => 'paHostID', 'dt' => 'association');
+        echo json_encode(
+            FOGManagerController::complex(
+                $pass_vars,
+                'printers',
+                'pID',
+                $columns,
+                $printersSqlStr,
+                $printersFilterStr,
+                $printersTotalStr,
+                $where
+            )
+        );
+        exit;
+    }
+    /**
+     * Presents the snapins list table.
+     *
+     * @return void
+     */
+    public function getSnapinsList()
+    {
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
+        $where = "`hosts`.`hostID` = '"
+            . $this->obj->get('id')
+            . "'";
+
+        // Workable queries
+        $snapinsSqlStr = "SELECT `%s`,"
+            . "IF(`saHostID` IS NULL OR `saHostID` = '0' OR `saHostID` = '', 'dissociated', 'associated') AS `saHostID`,`hostID`
+            FROM `%s`
+            CROSS JOIN `hosts`
+            LEFT OUTER JOIN `snapinAssoc`
+            ON `snapins`.`sID` = `snapinAssoc`.`saSnapinID`
+            AND `hosts`.`hostID` = `snapinAssoc`.`saHostID`
+            %s
+            %s
+            %s";
+
+        $snapinsFilterStr = "SELECT COUNT(`%s`),"
+            . "IF(`saHostID` IS NULL OR `saHostID` = '0' OR `saHostID` = '', 'dissociated', 'associated') AS `saHostID`,`hostID`
+            FROM `%s`
+            CROSS JOIN `hosts`
+            LEFT OUTER JOIN `snapinAssoc`
+            ON `snapins`.`sID` = `snapinAssoc`.`saSnapinID`
+            AND `hosts`.`hostID` = `snapinAssoc`.`saHostID`
+            %s";
+
+        $snapinsTotalStr = "SELECT COUNT(`%s`)
+            FROM `%s`";
+
+        foreach (self::getClass('SnapinManager')
+            ->getColumns() as $common => &$real
+        ) {
+            $columns[] = array('db' => $real, 'dt' => $common);
+            unset($real);
+        }
+        $columns[] = array('db' => 'saHostID', 'dt' => 'association');
+        echo json_encode(
+            FOGManagerController::complex(
+                $pass_vars,
+                'snapins',
+                'sID',
+                $columns,
+                $snapinsSqlStr,
+                $snapinsFilterStr,
+                $snapinsTotalStr,
+                $where
+            )
+        );
         exit;
     }
 }

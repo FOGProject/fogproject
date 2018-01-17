@@ -75,7 +75,6 @@ class PrinterManagementPage extends FOGPage
                 )
             );
         $this->headerData = array(
-            '',
             _('Printer Name'),
             _('Printer Type'),
             _('Model'),
@@ -85,7 +84,6 @@ class PrinterManagementPage extends FOGPage
             _('Config File')
         );
         $this->templates = array(
-            '<i class="icon fa fa-question hand"></i>',
             '<a href="?node=printer&sub=edit&id=${id}" title="Edit">${name}</a>',
             '${config}',
             '${model}',
@@ -95,14 +93,6 @@ class PrinterManagementPage extends FOGPage
             '${configFile}'
         );
         $this->attributes = array(
-            array(
-                'width' => 16,
-                'id' => 'printer-${name}',
-                'class' => 'filter-false',
-                'title' => '${desc}',
-                'data-toggle' => 'tooltip',
-                'data-placement' => 'right'
-            ),
             array(),
             array(),
             array(),

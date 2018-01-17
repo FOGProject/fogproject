@@ -150,32 +150,32 @@ class UserManagementPage extends FOGPage
             'display'
         );
         $fields = array(
-            '<label for="name">'
+            '<label class="col-sm-2 control-label" for="name">'
             . _('User Name')
             . '</label>' => '<input type="text" class="'
             . 'form-control username-input" name='
             . '"name" value="'
             . $name
             . '" autocomplete="off" id="name" required/>',
-            '<label for="display">'
+            '<label class="col-sm-2 control-label" for="display">'
             . _('Friendly Name')
             . '</label>' => '<input type="text" class="'
             . 'form-control friendlyname-input" name="'
             . 'display" value="'
             . $display
             . '" autocomplete="off" id="display"/>',
-            '<label for="password">'
+            '<label class="col-sm-2 control-label" for="password">'
             . _('User Password')
             . '</label>' => '<input type="password" class="'
             . 'form-control password-input1" name="password" value='
             . '"" autocomplete='
             . '"off" id="password" required/>',
-            '<label for="password2">'
+            '<label class="col-sm-2 control-label" for="password2">'
             . _('User Password (confirm)')
             . '</label>' => '<input type="password" class="'
             . 'form-control password-input2" name="password_confirm" value='
             . '"" autocomplete="off" id="password2" required/>',
-            '<label for="apion">'
+            '<label class="col-sm-2 control-label" for="apion">'
             . _('User API Enabled')
             . '</label>' => '<input type="checkbox" class="'
             . 'api-enabled" name="apienabled" id="'
@@ -196,29 +196,25 @@ class UserManagementPage extends FOGPage
             );
         $rendered = self::formFields($fields);
         unset($fields);
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '">';
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h3 class="box-title">';
         echo _('Create New User');
         echo '</h3>';
         echo '</div>';
+        echo '<form id="user-create-form" class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '" novalidate>';
         echo '<div class="box-body">';
-        echo '<input type="text" name="fakeusernameremembered" class="fakes" '
-            . 'style="display: none;"/>';
-        echo '<input type="password" name="fakepasswordremembered" class="fakes" '
-            . 'style="display: none;"/>';
+        echo '<!-- User General -->';
         echo $rendered;
         echo '</div>';
         echo '<div class="box-footer">';
-        echo '<button class="btn btn-primary" type="submit">'
-            . _('Create')
-            . '</button>';
-        echo '</div>';
+        echo '<button class="btn btn-primary" id="send">' . _('Create') . '</button>';
         echo '</div>';
         echo '</form>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Actually create the new user.

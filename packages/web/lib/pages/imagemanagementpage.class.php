@@ -123,27 +123,9 @@ class ImageManagementPage extends FOGPage
          * The header data for list/search.
          */
         $this->headerData = array(
-            '',
-            '',
+            _('Protected'),
+            _('Enabled'),
             _('Image Name'),
-            _('Storage Group'),
-            _('Image Size: ON CLIENT'),
-        );
-        /**
-         * If we have the size server enabled
-         * inject the on server element.
-         */
-        if ($SizeServer) {
-            array_push(
-                $this->headerData,
-                _('Image Size: ON SERVER')
-            );
-        }
-        /**
-         * Finish our injection of items.
-         */
-        array_push(
-            $this->headerData,
             _('Captured')
         );
         /**
@@ -165,24 +147,6 @@ class ImageManagementPage extends FOGPage
             . '<small>${image_type}</small>'
             . '<br/>'
             . '<small>${type}</small>',
-            '${storageGroup}',
-            '${size}',
-        );
-        /**
-         * If we have the size server enabled
-         * inject the on server template.
-         */
-        if ($SizeServer) {
-            array_push(
-                $this->templates,
-                '${serv_size}'
-            );
-        }
-        /**
-         * Finish our injection of template items.
-         */
-        array_push(
-            $this->templates,
             '${deployed}'
         );
         /**
@@ -198,31 +162,7 @@ class ImageManagementPage extends FOGPage
                 'class' => 'filter-false'
             ),
             array(),
-            array(
-                'class' => 'col-xs-1'
-            ),
-            array(
-                'class' => 'col-xs-1'
-            ),
-        );
-        /**
-         * If we have the size server enabled
-         * inject the on server attributes.
-         */
-        if ($SizeServer) {
-            array_push(
-                $this->attributes,
-                array(
-                    'class' => 'col-xs-1'
-                )
-            );
-        }
-        /**
-         * Finish our injection of attribute items.
-         */
-        array_push(
-            $this->attributes,
-            array('class' => 'col-xs-1')
+            array(),
         );
         /**
          * Lamda function to return data either by list or search.

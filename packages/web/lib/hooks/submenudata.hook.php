@@ -140,14 +140,6 @@ class SubMenuData extends Hook
         case 'task':
             $arguments['menu'] = array(
                 'active' => self::$foglang['ActiveTasks'],
-                'listhosts' => sprintf(
-                    self::$foglang['ListAll'],
-                    self::$foglang['Hosts']
-                ),
-                'listgroups' => sprintf(
-                    self::$foglang['ListAll'],
-                    self::$foglang['Groups']
-                ),
                 'activemulticast' => self::$foglang['ActiveMCTasks'],
                 'activesnapins' => self::$foglang['ActiveSnapins'],
                 'activescheduled' => self::$foglang['ScheduledTasks'],

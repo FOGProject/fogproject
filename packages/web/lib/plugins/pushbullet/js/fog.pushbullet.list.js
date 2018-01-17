@@ -5,7 +5,7 @@
     var confirmDelete = $('#confirmDeleteModal');
     var cancelDelete = $('#closeDeleteModal');
 
-    var numPrinterString = confirmDelete.val();
+    var numPushbulletString = confirmDelete.val();
 
     function disableButtons(disable) {
         deleteSelected.prop('disabled', disable);
@@ -17,34 +17,20 @@
 
     disableButtons(true);
     var table = Common.registerTable($('#dataTable'), onSelect, {
-        order: [
-            [0, 'asc']
-        ],
         columns: [
             {data: 'name'},
-            {data: 'config'},
-            {data: 'model'},
-            {data: 'port'},
-            {data: 'file'},
-            {data: 'ip'},
-            {data: 'configFile'}
+            {data: 'email'}
         ],
         rowId: 'id',
         columnDefs: [
             {
                 responsivePriority: -1,
-                render: function(data, type, row) {
-                    return '<a href="../management/index.php?node='+Common.node+'&sub=edit&id=' + row.id + '">' + data + '</a>';
-                },
-                targets: 0
+                targets: 0,
             },
             {
                 responsivePriority: 0,
-                render: function(data, type, row) {
-                    return row.config == 'Local' ? 'TCP/IP' : data;
-                },
                 targets: 1
-            }
+            },
         ],
         processing: true,
         serverSide: true,
@@ -60,7 +46,7 @@
 
     deleteSelected.click(function() {
         disableButtons(true);
-        confirmDelete.val(numPrinterString.format(''));
+        confirmDelete.val(numPushbulletString.format(''));
         Common.massDelete(null, function(err) {
             if (err.status == 401) {
                 deleteModal.modal('show');

@@ -333,8 +333,8 @@ var $_GET = getQueryParams(document.location.search),
              opts.dom = "<'row'<'col-sm-6'l><'col-sm-6'f>>B" +
              "<'row'<'col-sm-12'tr>>" +
              "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        if (opts.buttons === undefined)
-            if (opts.select)
+        if (opts.buttons === undefined) {
+            if (opts.select) {
                 opts.buttons = [
              //      'copy',
              //       'excel',
@@ -344,8 +344,10 @@ var $_GET = getQueryParams(document.location.search),
                     'selectAll',
                     'selectNone'
                 ];
-            else
-                opts.buttons = [];
+            }
+        } else {
+            opts.buttons = [];
+        }
         var table = e.DataTable(opts);
 
         if (onSelect !== undefined && typeof(onSelect) === 'function') {

@@ -12,13 +12,38 @@
         addToGroup.prop("disabled", disable);
         deleteSelected.prop("disabled", disable);
     }
+
     function onSelect (selected) {
         var disabled = selected.count() == 0;
         disableButtons(disabled);
     }
 
+    // Common ping codes.
+    var pingcodes = [0, 6, 110],
+        pingstring = [];
+
+    // Callback to set our ping string array.
+    function pingStatusCallback(retstring, code) {
+        return pingstring[code] = retstring;
+    }
+
+    $.each(pingcodes, function(index, value) {
+        $.ajax({
+            data: {code: value},
+            dataType: 'json',
+            type: 'post',
+            url: '../management/index.php?sub=getSocketCodeStr',
+            success: function(response) {
+                pingStatusCallback(response.data, value);
+            },
+        });
+    });
+
     disableButtons(true);
     var table = Common.registerTable($("#dataTable"), onSelect, {
+        order: [
+            [0, 'asc']
+        ],
         columns: [
             {data: 'name'},
             {data: 'primac'},
@@ -41,20 +66,12 @@
                 targets: 1
             },
             {
-                 sortable: false,
-                 searching: false,
+                searching: false,
                 render: function (data, type, row) {
-                    if (row.pingstatus === '') {
+                    if (!data) {
                         return '';
                     }
-                    var labelType = 'danger';
-                    var socketStr = 'Error: ' + row.pingstatus;
-                    if (row.pingstatus === '0') {
-                        labelType = 'success';
-                        socketStr = 'Connected';
-                    }
-                    // &sub=getSocketCodeStr&code={0}
-                    return '<span class="label label-' + labelType + '">' + socketStr + '</span>';
+                    return pingstring[data];
                 },
                  targets: 2
             },
@@ -103,5 +120,4 @@
             }
         }, table);
     });
-
 })(jQuery);

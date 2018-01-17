@@ -94,44 +94,22 @@ class GroupManagementPage extends FOGPage
         );
         $this->headerData = array(
             _('Name'),
-            _('Members'),
-            _('Tasking'),
+            _('Members')
         );
-        $down = self::getClass('TaskType', 1);
-        $mc = self::getClass('TaskType', 8);
         $this->templates = array(
             sprintf(
                 '<a href="?node=group&sub=edit&%s=${id}" '
                 . 'title="Edit">${name}</a>',
                 $this->id
             ),
-            '${count}',
-            sprintf(
-                '<a href="?node=group&sub=deploy&type=1&%s=${id}">'
-                . '<i class="icon fa fa-'
-                . $down->get('icon')
-                . '" title="'
-                . $down->get('name')
-                . '"></i></a> <a href="?node=group&sub=deploy&type=8&%s='
-                . '${id}"><i class="icon fa fa-'
-                . $mc->get('icon')
-                . '" title="'
-                . $mc->get('name')
-                . '"></i></a> <a href="?node=group&sub=edit&%s='
-                . '${id}#group-tasks"><i class="icon fa fa-arrows-alt" '
-                . 'title="Goto Basic Tasks"></i></a>',
-                $this->id,
-                $this->id,
-                $this->id,
-                $this->id,
-                $this->id,
-                $this->id
-            ),
+            '${count}'
         );
         $this->attributes = array(
             array(),
-            array('class' => 'text-center'),
-            array()
+            array(
+                'class' => 'text-center',
+                'width' => 5
+            )
         );
         global $id;
         if ($id > 0) {
