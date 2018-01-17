@@ -50,22 +50,14 @@ class PushbulletManagementPage extends FOGPage
             unset($this->subMenu);
         }
         $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" '
-            . 'class="toggle-checkboxAction"/>',
             _('Name'),
             _('Email'),
         );
         $this->templates = array(
-            '<input type="checkbox" name="pushbullet[]" '
-            . 'value="${id}" class="toggle-action"/>',
             '${name}',
             '${email}',
         );
         $this->attributes = array(
-            array(
-                'class' => 'filter-false',
-                'width' => 16
-            ),
             array(),
             array()
         );

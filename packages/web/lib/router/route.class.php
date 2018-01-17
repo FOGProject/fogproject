@@ -441,15 +441,23 @@ class Route extends FOGBase
         $table = $classman->getTable();
         $sqlstr = $classman->getQueryStr();
         $fltrstr = $classman->getFilterStr();
+        $ttlstr = $classman->getTotalStr();
         $tmpcolumns = $classman->getColumns();
         $columns = array();
         /**
-         * Any custom fields for objects that we need.
+         * Any custom fields that we need removed
          */
         switch ($classname) {
+        case 'user':
+            self::arrayRemove(
+                array(
+                    'password',
+                    'token'
+                ),
+                $tmpcolumns
+            );
+            break;
         case 'host':
-            $columns[] = array('db' => 'imagename', 'dt' => 'imagename');
-            $columns[] = array('db' => 'hmMAC', 'dt' => 'primac');
             self::arrayRemove(
                 array(
                     'sec_tok',
@@ -461,20 +469,34 @@ class Route extends FOGBase
                 ),
                 $tmpcolumns
             );
-        default:
-            foreach ((array)$tmpcolumns as $common => &$real) {
-                $columns[] = array('db' => $real, 'dt' => $common);
-                //if ($common == 'id') {
-                //    $columns[] = array(
-                //        'db' => $real,
-                //        'dt' => 'DT_RowId',
-                //        'formatter' => function($d, $row) {
-                //            return 'row_'.$d;
-                //        }
-                //    );
-                //}
-                unset($real);
-            }
+            break;
+        case 'group':
+            break;
+        }
+        foreach ((array)$tmpcolumns as $common => &$real) {
+            $columns[] = array('db' => $real, 'dt' => $common);
+            //if ($common == 'id') {
+            //    $columns[] = array(
+            //        'db' => $real,
+            //        'dt' => 'DT_RowId',
+            //        'formatter' => function($d, $row) {
+            //            return 'row_'.$d;
+            //        }
+            //    );
+            //}
+            unset($real);
+        }
+        // Any extra columns not in the db fields.
+        switch ($classname) {
+        case 'host':
+            $columns[] = array('db' => 'imageName', 'dt' => 'imagename');
+            $columns[] = array('db' => 'hmMAC', 'dt' => 'primac');
+            $columns[] = array('db' => 'iSysserial', 'dt' => 'sysserial');
+            $columns[] = array('db' => 'iSysproduct', 'dt' => 'sysproduct');
+            break;
+        case 'group':
+            $columns[] = array('db' => 'gmMembers', 'dt' => 'members', 'removeFromQuery' => true);
+            break;
         }
         self::$HookManager->processEvent(
             'CUSTOMIZE_DT_COLUMNS',
@@ -522,7 +544,8 @@ class Route extends FOGBase
                 'id',
                 $columns,
                 $sqlstr,
-                $fltrstr
+                $fltrstr,
+                $ttlstr
             );
             break;
         }

@@ -152,11 +152,10 @@ class SnapinManagementPage extends FOGPage
          * The header data for list/search.
          */
         $this->headerData = array(
-            '',
-            '',
+            _('Protected'),
+            _('Enabled'),
             _('Snapin Name'),
-            _('Is Pack'),
-            _('Storage Group'),
+            _('Is Pack')
         );
         /**
          * The template for the list/search elements.
@@ -171,8 +170,7 @@ class SnapinManagementPage extends FOGPage
             . 'title="'
             . _('Edit')
             . ': ${name}">${name} - ${id}</a>',
-            '${packtype}',
-            '${storageGroup}',
+            '${packtype}'
         );
         /**
          * The attributes for the table items.
@@ -188,9 +186,9 @@ class SnapinManagementPage extends FOGPage
             ),
             array(),
             array(
-                'width' => 50
-            ),
-            array()
+                'class' => 'filter-false',
+                'width' => 5
+            )
         );
         /**
          * Lamda function to return data either by list or search.

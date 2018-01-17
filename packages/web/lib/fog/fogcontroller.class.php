@@ -104,6 +104,13 @@ abstract class FOGController extends FOGBase
         FROM `%s`
         %s";
     /**
+     * The sql total string.
+     *
+     * @var string
+     */
+    protected $sqlTotalStr = "SELECT COUNT(`%s`)
+        FROM `%s`";
+    /**
      * Class relationships, for inner joins of data.
      *
      * @var array
