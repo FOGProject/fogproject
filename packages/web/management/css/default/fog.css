@@ -244,6 +244,13 @@ input[type=checkbox].delvid:checked + label:before {
     display: block;
     height: 18px;
 }
+
+#search-content>tbody>tr>td>a>.icon.fa.fa-download {
+  color: #7baa0f
+}
+#search-content>tbody>tr>td>a>i.icon.fa.fa-upload {
+  color: #ff9c07
+}
 @media (min-width: 768px) {
     .navbar-nav {
         width: 100%;
