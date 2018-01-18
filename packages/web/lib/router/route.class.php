@@ -1250,7 +1250,6 @@ class Route extends FOGBase
                     ),
                     'image' => $class->get('imagename')->get(),
                     'imagename' => $class->getImageName(),
-                    'pingstatus' => $class->getPingCodeStr(),
                     'primac' => $class->get('mac')->__toString(),
                     'macs' => $class->getMyMacs()
                 )

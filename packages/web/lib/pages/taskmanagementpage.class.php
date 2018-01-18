@@ -763,9 +763,10 @@ class TaskManagementPage extends FOGPage
             (array)self::getQueuedStates(),
             (array)self::getProgressState()
         );
-        $SnapinTasks = $SnapinTasks->snapintasks;
+        $SnapinTasks = $SnapinTasks->data;
         foreach ((array)$SnapinTasks as &$SnapinTask) {
-            $Snapin = $SnapinTask->snapin;
+            Route::indiv('snapin', $SnapinTask->snapinID);
+            $Snapin = json_decode(Route::getData());
             if (!$Snapin->id) {
                 continue;
             }
