@@ -1,19 +1,4 @@
 (function($) {
-    var vers = $('.placehere').attr('vers');
-    validatorOpts = {
-        submitHandler: submithandlerfunc
-    };
-    setTimeoutElement();
-    $.ajax({
-        url: '../status/mainversion.php',
-        dataType: 'json',
-        success: function(gdata) {
-            $('.placehere').append(gdata);
-        },
-        error: function() {
-            $('.placehere').append('Failed to get latest info');
-        }
-    });
     $('.kernvers').each(function() {
         URL = $(this).attr('urlcall');
         test = document.createElement('a');
@@ -26,22 +11,24 @@
             data: {
                 url: URL
             },
-            success: function(gdata) {
-                if (typeof(gdata) == null
-                    || typeof(gdata) == 'undefined'
+            success: function(data, textStatus, jqXHR) {
+                if (typeof(data) == null
+                    || typeof(data) == 'undefined'
                 ) {
                     $(this).text('No data returned');
                 }
-                gdata = gdata.split('\n');
-                if (gdata.length < 2) {
+                data = data.split('\n');
+                if (data.length < 2) {
                     $(this).text('No data returned');
                     return;
                 }
-                var nodevers = gdata.shift();
-                $(this).text(gdata.join('\n'));
+                var nodevers = data.shift();
+                $(this).text(data.join('\n'));
                 var setter = $(this).parents('div.hidefirst').prev('a').find('.kernversionupdate');
                 var nodename = setter.text();
                 setter.text(nodename.replace(/\(.*\)/,'('+nodevers+')'));
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
             }
         });
     });

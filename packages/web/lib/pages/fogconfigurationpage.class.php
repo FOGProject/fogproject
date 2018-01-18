@@ -94,35 +94,16 @@ class FOGConfigurationPage extends FOGPage
     public function version()
     {
         $this->title = _('FOG Version Information');
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo $this->title;
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body placehere" vers="'
-            . FOG_VERSION
-            . '">';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Kernel Versions');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
+
+        // Get our storage node urls.
         Route::listem('storagenode');
         $StorageNodes = json_decode(
             Route::getData()
         );
-        $StorageNodes = $StorageNodes->storagenodes;
-        $urls = array();
+        $StorageNodes = $StorageNodes->data;
+        ob_start();
         foreach ((array)$StorageNodes as &$StorageNode) {
-            $url = $urls[] = filter_var(
+            $url = filter_var(
                 sprintf(
                     '%s://%s/fog/status/kernelvers.php',
                     self::$httpproto,
@@ -130,36 +111,73 @@ class FOGConfigurationPage extends FOGPage
                 ),
                 FILTER_SANITIZE_URL
             );
-            $test = self::$FOGURLRequests->isAvailable($StorageNode->ip);
-            $test = array_shift($test);
-            if (!$test) {
-                continue;
-            }
-            echo '<a id="'
-                . $StorageNode->name
-                . '" class="expand_trigger btn btn-info btn-block"'
-                . 'href="#'
-                . $StorageNode->name
+            $id = str_replace(' ', '_', $StorageNode->name);
+            echo '<div class="panel box box-primary">';
+            echo '<div class="box-header with-border">';
+            echo '<h4 class="box-title">';
+            echo '<a data-toggle="collapse" data-parent="#nodekernvers" href="#'
+                . $id
                 . '">';
-            echo '<h4 class="title kernversionupdate">';
             echo $StorageNode->name;
-            echo ' ';
-            echo _('FOG Version');
-            echo ': ()';
-            echo '</h4>';
             echo '</a>';
+            echo '</h4>';
+            echo '</div>';
             echo '<div id="'
-                . $StorageNode->name
-                . '" class="hidefirst">';
-            echo '<pre class="kernvers" urlcall="';
-            echo $url;
-            echo '">';
+                . $id
+                . '" class="panel-collapse collapse">';
+            echo '<div class="box-body">';
+            echo '<pre class="kernvers" urlcall="'
+                . $url
+                . '">';
             echo '</pre>';
+            echo '</div>';
+            echo '</div>';
             echo '</div>';
             unset($StorageNode);
         }
+        $renderNodes = ob_get_clean();
+
+        // Main Grouping
+        echo '<div class="box-group" id="fogversion">';
+
+        // FOG Version Information.
+        echo '<div class="box box-default">';
+        echo '<div class="box-header with-border">';
+        echo '<div class="box-tools pull-right">';
+        echo self::$FOGCollapseBox;
+        echo '</div>';
+        echo '<h3 class="box-title">';
+        echo $this->title;
+        echo '</h3>';
+        echo '</div>';
+        echo '<div class="box-body placehere" vers="'
+            . FOG_VERSION
+            . '">';
+        echo '</div>';
+        echo '<div class="box-footer">';
         echo '</div>';
         echo '</div>';
+
+        // Kernel information
+        echo '<div class="box-group" id="nodekernvers">';
+        echo '<div class="box box-warning">';
+        echo '<div class="box-header with-border">';
+        echo '<div class="box-tools pull-right">';
+        echo self::$FOGCollapseBox;
+        echo '</div>';
+        echo '<h4 class="box-title">';
+        echo _('Kernel Versions');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo $renderNodes;
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+
+        // End Main Grouping
         echo '</div>';
     }
     /**
@@ -169,21 +187,28 @@ class FOGConfigurationPage extends FOGPage
      */
     public function license()
     {
-        $this->title = _('FOG License Information');
+        $this->title = _('GNU General Public License');
         $file = './languages/'
             . self::$locale
             . '.UTF-8/gpl-3.0.txt';
-        $contents = file_get_contents($file);
-        $contents = preg_replace('!\r?\n!', '<br/>', $contents);
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('GNU Gneral Public License');
-        echo '</h4>';
+        $contents = nl2br(
+            file_get_contents($file)
+        );
+        echo '<!-- License Information -->';
+        echo '<div class="box-group" id="license">';
+        echo '<div class="box box-solid">';
+        echo '<div class="box-header with-border">';
+        echo '<div class="box-tools pull-right">';
+        echo self::$FOGCollapseBox;
         echo '</div>';
-        echo '<div class="panel-body text-justify">';
+        echo '<h3 class="box-title">';
+        echo $this->title;
+        echo '</h3>';
+        echo '</div>';
+        echo '<div class="box-body">';
         echo $contents;
+        echo '</div>';
+        echo '<div class="box-footer">';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -204,16 +229,22 @@ class FOGConfigurationPage extends FOGPage
      */
     public function kernelUpdate()
     {
-        $url = 'https://fogproject.org/kernels/kernelupdate_bootstrap.php';
+        $url = 'https://fogproject.org/kernels/kernelupdate_bootstrap_fog2.php';
         $htmlData = self::$FOGURLRequests->process($url);
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Kernel Update');
-        echo '</h4>';
+
+        $this->title = _('Kernel Update');
+        echo '<!-- Kernel information -->';
+        echo '<div class="box-group" id="kernel-update">';
+        echo '<div class="box box-solid">';
+        echo '<div class="box-header with-border">';
+        echo '<div class="box-tools pull-right">';
+        echo self::$FOGCollapseBox;
         echo '</div>';
-        echo '<div class="panel-body">';
+        echo '<h3 class="box-title">';
+        echo $this->title;
+        echo '</h3>';
+        echo '<div>';
+        echo '<p class="help-block">';
         printf(
             '%s %s %s. %s, %s, %s %s. %s, %s %s, %s.',
             _('This section allows you to update'),
@@ -228,9 +259,13 @@ class FOGConfigurationPage extends FOGPage
             _('to get the requested Kernel'),
             _('so if it seems like the process is hanging please be patient')
         );
+        echo '</p>';
         echo '</div>';
-        echo '<div class="panel-body">';
+        echo '</div>';
+        echo '<div class="box-body">';
         echo $htmlData[0];
+        echo '</div>';
+        echo '<div class="box-footer">';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -245,7 +280,7 @@ class FOGConfigurationPage extends FOGPage
         global $node;
         global $sub;
         if (!isset($_POST['install']) && $sub == 'kernelUpdate') {
-            $url = 'https://fogproject.org/kernels/kernelupdate_bootstrap.php';
+            $url = 'https://fogproject.org/kernels/kernelupdate_bootstrap_fog2.php';
             $htmlData = self::$FOGURLRequests->process($url);
             echo $htmlData[0];
         } elseif (isset($_POST['install'])) {
@@ -273,20 +308,28 @@ class FOGConfigurationPage extends FOGPage
             if (file_exists($_SESSION['tmp-kernel-file'])) {
                 unlink($_SESSION['tmp-kernel-file']);
             }
-            echo '<div class="col-xs-9">';
-            echo '<div class="kerninfo">';
-            echo '<div class="panel panel-info">';
-            echo '<div class="panel-heading text-center">';
-            echo '<h4 class="title">';
-            echo _('Downloading Kernel');
-            echo '</h4>';
+            echo '<!-- Kernel Information -->';
+            echo '<div class="box-group" id="kernel-update-form">';
+            echo '<div class="box box-solid">';
+            echo '<div class="box-header with-border">';
+            echo '<div class="box-tools pull-right">';
+            echo self::$FOGCollapseBox;
             echo '</div>';
-            echo '<div class="panel-body">';
+            echo '<h3 class="box-title">';
+            echo $this->title;
+            echo '</h3>';
+            echo '<div>';
+            echo '<p class="help-block">';
+            echo _('Downloading Kernel');
+            echo '</p>';
+            echo '</div>';
+            echo '</div>';
+            echo '<div class="box-body">';
             echo '<i class="fa fa-cog fa-2x fa-spin"></i>';
             echo ' ';
             echo _('Starting process');
             echo '</div>';
-            echo '</div>';
+            echo '<div class="box-footer">';
             echo '</div>';
             echo '</div>';
             echo '</div>';
@@ -301,7 +344,49 @@ class FOGConfigurationPage extends FOGPage
                 'bzImage' :
                 'bzImage32'
             );
-            $formstr = "?node={$node}&sub=kernelUpdate";
+
+            $fields = array(
+                '<label class="col-sm-2 control-label" for="dstName">'
+                . _('Kernel Name')
+                . '</label>' => '<input class="form-control" type="text" name="dstName" id='
+                . '"dstName" value="'
+                . $tmpArch
+                . '"/>',
+                '' => '<input type="hidden" name="file" value="'
+                . $tmpFile
+                . '"/>'
+            );
+
+            $rendered = self::formFields($fields);
+
+            $props = ' method="post" action="'
+                . $formstr
+                . '" ';
+
+            $buttons = self::makeButton('install', _('Save Kernel'), 'btn btn-warning', $props);
+
+            $formstr = "../management/index.php?node={$node}&sub=kernelUpdate";
+            echo '<!-- Kernel Information -->';
+            echo '<div class="box-group" id="kernel-update-form">';
+            echo '<div class="box box-solid">';
+            echo '<div class="box-header with-border">';
+            echo '<div class="box-tools pull-right">';
+            echo self::$FOGCollapseBox;
+            echo '</div>';
+            echo '<h3 class="box-title">';
+            echo $this->title;
+            echo '</h3>';
+            echo '</div>';
+            echo '<div class="box-body">';
+            echo $rendered;
+            echo '</div>';
+            echo '<div class="box-footer">';
+            echo $buttons;
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            return;
+
             echo '<div class="col-xs-9">';
             echo '<div class="panel panel-info">';
             echo '<div class="panel-heading text-center">';

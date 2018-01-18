@@ -459,6 +459,7 @@ abstract class FOGPage extends FOGBase
     public static function buildMainMenuItems(&$main = '')
     {
         global $node;
+        global $sub;
         if (!self::$FOGUser->isValid() || strtolower($node) == 'schema') {
             return;
         }
@@ -1037,11 +1038,6 @@ $args
                 if ($serverSide || count($this->data) < 1) {
                     echo '<tbody></tbody>';
                 } else {
-                    if (count($this->headerData) > 0) {
-                        echo '<thead>';
-                        echo $this->buildHeaderRow();
-                        echo '</thead>';
-                    }
                     echo '<tbody>';
                     $tablestr = '';
                     foreach ($this->data as &$rowData) {

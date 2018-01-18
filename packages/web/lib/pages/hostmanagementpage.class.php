@@ -1547,7 +1547,7 @@ class HostManagementPage extends FOGPage
         $Modules = json_decode(
             Route::getData()
         );
-        $Modules = $Modules->modules;
+        $Modules = $Modules->data;
         foreach ((array)$Modules as &$Module) {
             switch ($Module->shortName) {
             case 'dircleanup':
@@ -1634,7 +1634,7 @@ class HostManagementPage extends FOGPage
             . $this->formAction
             . '&tab=host-service">';
         echo '<div class="box-body table-responsive no-padding">';
-        $this->render(12, 'host-service-modules-table', '', 'table table-hover');
+        $this->render(12, 'host-service-modules-table', '', 'table table-hover', false);
         echo '</div>';
         echo '<div class="box-footer">';
         echo '<div class="btn-group">';
@@ -1647,7 +1647,7 @@ class HostManagementPage extends FOGPage
             . _('Enable all')
             . '</button>';
         echo '<button  class='
-            . '"btn btn-danger" id="service-module-enable">'
+            . '"btn btn-danger" id="service-module-disable">'
             . _('Disable all')
             . '</button>';
         echo '</div>';
@@ -2800,10 +2800,46 @@ class HostManagementPage extends FOGPage
             }
         );
 
+        // Virus
+        $tabData[] = array(
+            'name' => _('Virus History'),
+            'id' => 'host-virus-history',
+            'generator' => function() {
+                $this->hostVirus();
+            }
+        );
+
+        // Login History
+        $tabData[] = array(
+            'name' => _('Login History'),
+            'id' => 'host-login-history',
+            'generator' => function() {
+                $this->hostLoginHistory();
+            }
+        );
+
+        // Image History
+        $tabData[] = array(
+            'name' => _('Image History'),
+            'id' => 'host-image-history',
+            'generator' => function() {
+                $this->hostImageHistory();
+            }
+        );
+
+        // Snapin History
+        $tabData[] = array(
+            'name' => _('Snapin History'),
+            'id' => 'host-snapin-history',
+            'generator' => function() {
+                $this->hostSnapinHistory();
+            }
+        );
+
         /**
          * These need to be worked yet.
          *
-         $this->hostPMDisplay();
+        $this->hostPMDisplay();
         $this->hostInventory();
         $this->hostVirus();
         $this->hostLoginHistory();
