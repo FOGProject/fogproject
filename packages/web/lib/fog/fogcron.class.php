@@ -73,8 +73,6 @@ class FOGCron extends FOGBase
         if (is_numeric($dow) && $dow == 0) {
             $dow = 7;
         }
-        $dowset = false;
-        $domset = false;
         $Start = self::niceDate();
         do {
             list(
@@ -84,7 +82,9 @@ class FOGCron extends FOGBase
                 $nmonth,
                 $ndow
             ) = array_map(
-                'trim',
+                function($val) {
+                    return intval(trim($val));
+                },
                 preg_split('/\s+/', $Start->format('i H d n N'))
             );
             // Fairly straight forward, check our minutes field.
