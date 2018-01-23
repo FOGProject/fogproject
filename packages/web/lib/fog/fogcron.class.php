@@ -54,23 +54,6 @@ class FOGCron extends FOGBase
         return (bool)($str == $num);
     }
     /**
-     * Return a test of num and str for our test fit
-     *
-     * @return void
-     */
-    public static function testFit()
-    {
-        $num = filter_input(INPUT_GET, 'num');
-        $str = filter_input(INPUT_GET, 'str');
-        if (strpos($str, '-')) {
-            list($low, $high) = explode('-', $str);
-            var_dump($low);
-            var_dump($high);
-            var_dump($num);
-            var_dump((bool) ($num >= $low) && ($num <= $high));
-        }
-    }
-    /**
      * Returns the next run time
      *
      * @param string $cron    the cron to parse
@@ -132,12 +115,14 @@ class FOGCron extends FOGBase
                     $Start->modify(sprintf('%s1 day', $lastrun ? '-' : '+'));
                     continue;
                 }
-            } elseif ($dom != '*') {
+            }
+            if ($dow == '*' && $dom != '*') {
                 if (!self::_fit($dom, $ndom)) {
                     $Start->modify(sprintf('%s1 day', $lastrun ? '-' : '+'));
                     continue;
                 }
-            } elseif ($dow != '*') {
+            }
+            if ($dow != '*' && $dom == '*') {
                 if (!self::_fit($dow, $ndow)) {
                     $Start->modify(sprintf('%s1 day', $lastrun ? '-' : '+'));
                     continue;
