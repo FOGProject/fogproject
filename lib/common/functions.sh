@@ -1592,34 +1592,34 @@ configureHttpd() {
         dummy=""
         while [[ -z $dummy ]]; do
             echo -n " * Is the MySQL password blank? (Y/n) "
-            read dummy
+            read -r dummy
             case $dummy in
                 [Yy]|[Yy][Ee][Ss]|"")
                     dummy='Y'
                     ;;
                 [Nn]|[Nn][Oo])
                     echo -n " * Enter the MySQL password: "
-                    read -s PASSWORD1
+                    read -rs PASSWORD1
                     echo
                     echo -n " * Re-enter the MySQL password: "
-                    read -s PASSWORD2
+                    read -rs PASSWORD2
                     echo
-                    if [[ ! -z $PASSWORD1 && $PASSWORD2 == $PASSWORD1 ]]; then
+                    if [[ ! -z $PASSWORD1 && $PASSWORD2 == "$PASSWORD1" ]]; then
                         dbpass=$PASSWORD1
                     else
                         dbpass=""
-                        while ! [[ ! -z $PASSWORD1 && $PASSWORD2 == $PASSWORD1 ]]; do
+                        while ! [[ ! -z $PASSWORD1 && $PASSWORD2 == "$PASSWORD1" ]]; do
                             echo "Password entries were blank or didn't match!"
                             echo -n " * Enter the MySQL password: "
-                            read -s PASSWORD1
+                            read -rs PASSWORD1
                             echo
                             echo -n " * Re-enter the MySQL password: "
-                            read -s PASSWORD2
+                            read -rs PASSWORD2
                             echo
-                            [[ ! -z $PASSWORD1 && $PASSWORD2 == $PASSWORD1 ]] && dbpass=$PASSWORD1
+                            [[ ! -z $PASSWORD1 && $PASSWORD2 == "$PASSWORD1" ]] && dbpass=$PASSWORD1
                         done
                     fi
-                    [[ $snmysqlpass != $dbpass ]] && snmysqlpass=$dbpass
+                    [[ $snmysqlpass != "$dbpass" ]] && snmysqlpass=$dbpass
                     ;;
                 *)
                     dummy=""
