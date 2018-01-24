@@ -61,4 +61,12 @@ packages/web/management/other/*
 ###############
 *config.class.php
 *.well-known
-packages/web/fog 
+packages/web/fog
+*.bak*
+
+# Erroneous Packages #
+######################
+packages/FOGService.msi
+packages/clientfiles
+packages/inits
+packages/kernels

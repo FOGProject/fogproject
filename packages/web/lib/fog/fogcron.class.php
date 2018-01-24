@@ -85,7 +85,7 @@ class FOGCron extends FOGBase
                 function($val) {
                     return intval(trim($val));
                 },
-                preg_split('/\s+/', $Start->format('i H d n N'))
+                preg_split('/\s+/', $Start->format('i H j n N'))
             );
             // Fairly straight forward, check our minutes field.
             if ($min != '*') {
