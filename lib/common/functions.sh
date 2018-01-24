@@ -1607,8 +1607,9 @@ configureHttpd() {
                     if [[ ! -z $PASSWORD1 && $PASSWORD2 == $PASSWORD1 ]]; then
                         dbpass=$PASSWORD1
                     else
-                        dppass=""
-                        while [[ ! -z $PASSWORD1 && $PASSWORD2 == $PASSWORD1 ]]; do
+                        dbpass=""
+                        while ! [[ ! -z $PASSWORD1 && $PASSWORD2 == $PASSWORD1 ]]; do
+                            echo "Password entries were blank or didn't match!"
                             echo -n " * Enter the MySQL password: "
                             read -s PASSWORD1
                             echo
