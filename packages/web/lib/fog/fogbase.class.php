@@ -1433,13 +1433,6 @@ abstract class FOGBase
             $token = bin2hex(
                 random_bytes(64)
             );
-        } elseif (function_exists('mcrypt_create_iv')) {
-            $token = bin2hex(
-                mcrypt_create_iv(
-                    64,
-                    MCRYPT_DEV_URANDOM
-                )
-            );
         } elseif (function_exists('openssl_random_pseudo_bytes')) {
             $token = bin2hex(
                 openssl_random_pseudo_bytes(
@@ -1476,25 +1469,23 @@ abstract class FOGBase
      * @param mixed  $data    the item to encrypt
      * @param string $key     the key to use if false will generate own
      * @param int    $enctype the type of encryption to use
-     * @param int    $mode    the mode of encryption
      *
      * @return string
      */
     public static function aesencrypt(
         $data,
         $key = false,
-        $enctype = MCRYPT_RIJNDAEL_128,
-        $mode = MCRYPT_MODE_CBC
+        $enctype = AES-256-CBC
     ) {
-        $iv_size = mcrypt_get_iv_size($enctype, $mode);
+        $iv_size = openssl_cipher_iv_length($enctype);
         if (!$key) {
             $addKey = true;
-            $key = openssl_random_pseudo_bytes($iv_size, $cstrong);
+            $key = openssl_random_pseudo_bytes($iv_size);
         } else {
             $key = self::hex2bin($key);
         }
-        $iv = mcrypt_create_iv($iv_size, MCRYPT_DEV_URANDOM);
-        $cipher = mcrypt_encrypt($enctype, $key, $data, $mode, $iv);
+        $iv = openssl_random_pseudo_bytes($iv_size);
+        $cipher = openssl_encrypt($data, $enctype, $key, 0, $iv);
         $iv = bin2hex($iv);
         $cipher = bin2hex($cipher);
         $key = bin2hex($key);
@@ -1511,17 +1502,15 @@ abstract class FOGBase
      * @param mixed  $encdata the item to decrypt
      * @param string $key     the key to use
      * @param int    $enctype the type of encryption to use
-     * @param int    $mode    the mode of encryption
      *
      * @return string
      */
     public static function aesdecrypt(
         $encdata,
         $key = false,
-        $enctype = MCRYPT_RIJNDAEL_128,
-        $mode = MCRYPT_MODE_CBC
+        $enctype = AES-256-CBC
     ) {
-        $iv_size = mcrypt_get_iv_size($enctype, $mode);
+        $iv_size = openssl_cipher_iv_length($enctype);
         if (false === strpos($encdata, '|')) {
             return $encdata;
         }
@@ -1534,7 +1523,7 @@ abstract class FOGBase
         if (empty($key)) {
             return '';
         }
-        $decipher = mcrypt_decrypt($enctype, $key, $encoded, $mode, $iv);
+        $decipher = openssl_decrypt($encoded, $enctype, $key, 0, $iv);
 
         return trim($decipher);
     }
