@@ -1117,7 +1117,7 @@ writeUpdateFile() {
     escblexports=$(echo $blexports | sed -e $replace)
     escinstalltype=$(echo $installtype | sed -e $replace)
     escsnmysqluser=$(echo $snmysqluser | sed -e $replace)
-    escsnmysqlpass=$(echo $snmysqlpass | sed -e $replace -e "s/[']{1}/'''/g")
+    escsnmysqlpass=$(echo "$snmysqlpass" | sed -e s/\'/\'\"\'\"\'/g)  # replace every ' with '"'"' for full bash escaping
     escsnmysqlhost=$(echo $snmysqlhost | sed -e $replace)
     escinstalllang=$(echo $installlang | sed -e $replace)
     escstorageLocation=$(echo $storageLocation | sed -e $replace)
@@ -1628,12 +1628,12 @@ configureHttpd() {
             esac
         done
     fi
-    options="-s"
-    [[ -n $snmysqlhost ]] && options="$options -h$snmysqlhost"
-    [[ -n $snmysqluser ]] && options="$options -u'$snmysqluser'"
-    [[ -n $snmysqlpass ]] && options="$options -p'$snmysqlpass'"
+    options=("-s")
+    [[ -n $snmysqlhost ]] && options=( "${options[@]}" "--host=$snmysqlhost" )
+    [[ -n $snmysqluser ]] && options=( "${options[@]}" "--user=$snmysqluser" )
+    [[ -n $snmysqlpass ]] && options=( "${options[@]}" "--password=$snmysqlpass" )
     sql="UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root';"
-    mysql ${options} -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    mysql "${options[@]}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     mysqlver=$(mysql -V |  sed -n 's/.*Distrib[ ]\(\([0-9]\([.]\|\)\)*\).*\([-]\|\)[,].*/\1/p')
     mariadb=$(mysql -V |  sed -n 's/.*Distrib[ ].*[-]\(.*\)[,].*/\1/p')
     vertocheck="5.7"
@@ -1647,17 +1647,17 @@ configureHttpd() {
         case $snmysqlhost in
             127.0.0.1|[Ll][Oo][Cc][Aa][Ll][Hh][Oo][Ss][Tt])
                 sql="UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root';"
-                mysql ${options} -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                mysql "${options[@]}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 sql="ALTER USER '$snmysqluser'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY '$snmysqlpass';"
-                mysql ${options} -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                mysql "${options[@]}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 sql="ALTER USER '$snmysqluser'@'localhost' IDENTIFIED WITH mysql_native_password BY '$snmysqlpass';"
-                mysql ${options} -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                mysql "${options[@]}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 ;;
             *)
                 sql="UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root';"
-                mysql ${options} -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                mysql "${options[@]}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 sql="ALTER USER '$snmysqluser'@'$snmysqlhost' IDENTIFIED WITH mysql_native_password BY '$snmysqlpass';"
-                mysql ${options} -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                mysql "${options[@]}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 ;;
         esac
     fi
