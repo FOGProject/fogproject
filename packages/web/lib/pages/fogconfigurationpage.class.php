@@ -1192,14 +1192,14 @@ class FOGConfigurationPage extends FOGPage
                 )
             );
             echo '<div class="panel panel-info">';
-            echo '<div class="panel-heading text-center expand_trigger hand" id="'
+            echo '<div class="panel-heading text-center expand_trigger hand" id="pxeItem_'
                 . $divTab
                 . '">';
             echo '<h4 class="title">';
             echo $Menu->name;
             echo '</h4>';
             echo '</div>';
-            echo '<div class="panel-body hidefirst" id="'
+            echo '<div class="panel-body hidefirst" id="pxeItem_'
                 . $divTab
                 . '">';
             echo '<form class="form-horizontal" method="post" action="'
