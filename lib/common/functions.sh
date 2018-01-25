@@ -1771,6 +1771,8 @@ configureHttpd() {
     dots "Creating config file"
     [[ -z $snmysqlhost ]] && snmysqlhost='localhost'
     [[ -z $snmysqluser ]] && snmysqluser='root'
+    phpescsnmysqlpass="${snmysqlpass//\\/\\\\}";   # Replace every \ with \\ ...
+    phpescsnmysqlpass="${phpescsnmysqlpass//\'/\\\'}"   # and then every ' with \' for full PHP escaping
     echo "<?php
 /**
  * The main configuration FOG uses.
@@ -1821,7 +1823,7 @@ class Config
         define('DATABASE_HOST', '$snmysqlhost');
         define('DATABASE_NAME', 'fog');
         define('DATABASE_USERNAME', '$snmysqluser');
-        define('DATABASE_PASSWORD', \"$snmysqlpass\");
+        define('DATABASE_PASSWORD', '$phpescsnmysqlpass');
     }
     /**
      * Defines the service settings
