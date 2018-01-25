@@ -63,31 +63,12 @@ if (self::$FOGUser->isValid()) {
     echo '<span class="icon-bar"></span>';
     echo '<span class="icon-bar"></span>';
     echo '</button>';
-    echo '<a class="navbar-brand" href="../management/index.php?node=home">';
-    echo '<img src="../favicon.ico" alt="'
-        . self::$foglang['Slogan']
-        . '" data-toggle="tooltip" data-placement="bottom" title="'
-        . self::$foglang['Home']
-        . '" class="logoimg"/>';
-    echo '</a>';
-    echo '<span class="nav-text version-info pull-left">';
-    printf(
-        '%s %s<br/>%s: %d<br/>',
-        _('Running Version'),
-        FOG_VERSION,
-        _('SVN Revision'),
-        FOG_SVN_REVISION
-    );
-    echo '<span id="showtime">'
-        . FOGCore::formatTime(
-            'Now',
-            'M d, Y G:i a'
-        )
-        . '</span>';
-    echo '</span>';
     echo '</div>';
     echo '<div class="collapse navbar-collapse">';
     echo '<ul class="nav navbar-nav">';
+    echo '<a class="navbar-brand" href="../management/index.php?node=home">';
+    echo '<b>FOG</b> Project';
+    echo '</a>';
     self::getSearchForm();
     echo $this->menu;
     self::getLogout();
@@ -154,17 +135,12 @@ if (self::$FOGUser->isValid()) {
     echo '<span class="icon-bar"></span>';
     echo '<span class="icon-bar"></span>';
     echo '</button>';
-    echo '<a class="navbar-brand" href="../management/index.php?node=home">';
-    echo '<img src="../favicon.ico" alt="'
-        . self::$foglang['Slogan']
-        . '" data-toggle="tooltip" data-placement="bottom" title="'
-        . self::$foglang['Home']
-        . '" class="logoimg"/>';
-    echo '</a>';
     echo '</div>';
     echo '<div class="collapse navbar-collapse">';
     echo '<ul class="nav navbar-nav">';
-    self::getLogout();
+    echo '<a class="navbar-brand" href="../management/index.php?node=home">';
+    echo '<b>FOG</b> Project';
+    echo '</a>';
     echo '</ul>';
     echo '</div>';
     echo '</div>';
@@ -198,6 +174,16 @@ echo '<li><a href="https://www.paypal.com/cgi-bin/webscr?item_name=Donation'
     . '@gmail.com">'
     . _('Donate to FOG')
     . '</a></li>';
+if (self::$FOGUser->isValid()) {
+    echo '<li class="pull-right">';
+    echo '<a href="../management/index.php?node=about">';
+    echo '<b>';
+    echo _('Version');
+    echo '</b> ';
+    echo FOG_VERSION;
+    echo '</a>';
+    echo '</li>';
+}
 echo '</ul>';
 echo '</div>';
 echo '</nav>';
