@@ -1118,6 +1118,7 @@ writeUpdateFile() {
     escinstalltype=$(echo $installtype | sed -e $replace)
     escsnmysqluser=$(echo $snmysqluser | sed -e $replace)
     escsnmysqlpass=$(echo "$snmysqlpass" | sed -e s/\'/\'\"\'\"\'/g)  # replace every ' with '"'"' for full bash escaping
+    sedescsnmysqlpass=$(echo "$escsnmysqlpass" | sed -e 's/[\&/]/\\&/g')  # then prefix every \ & and / with \ for sed escaping
     escsnmysqlhost=$(echo $snmysqlhost | sed -e $replace)
     escinstalllang=$(echo $installlang | sed -e $replace)
     escstorageLocation=$(echo $storageLocation | sed -e $replace)
@@ -1194,7 +1195,7 @@ writeUpdateFile() {
                 sed -i "s/snmysqluser=.*/snmysqluser='$escsnmysqluser'/g" $fogprogramdir/.fogsettings || \
                 echo "snmysqluser='$snmysqluser'" >> $fogprogramdir/.fogsettings
             grep -q "snmysqlpass=" $fogprogramdir/.fogsettings && \
-                sed -i "s/snmysqlpass=.*/snmysqlpass='$escsnmysqlpass'/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/snmysqlpass=.*/snmysqlpass='$sedescsnmysqlpass'/g" $fogprogramdir/.fogsettings || \
                 echo "snmysqlpass='$escsnmysqlpass'" >> $fogprogramdir/.fogsettings
             grep -q "snmysqlhost=" $fogprogramdir/.fogsettings && \
                 sed -i "s/snmysqlhost=.*/snmysqlhost='$escsnmysqlhost'/g" $fogprogramdir/.fogsettings || \
