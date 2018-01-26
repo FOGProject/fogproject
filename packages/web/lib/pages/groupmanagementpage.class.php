@@ -1789,7 +1789,7 @@ class GroupManagementPage extends FOGPage
         }
         unset($Hosts);
         $this->ReportMaker->appendHTML($this->process(12));
-        $this->ReportMaker->outputReport(false);
+        //$this->ReportMaker->outputReport(false);
         $_SESSION['foglastreport'] = serialize($this->ReportMaker);
         echo '</div>';
         echo '</div>';

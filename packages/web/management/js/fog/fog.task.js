@@ -147,17 +147,15 @@ function ActiveTasksUpdate() {
             thead = $('thead', Container);
             tbody = $('tbody', Container);
             LastCount = dataLength;
-            if (dataLength > 0) {
-                buildHeaderRow(
-                    response.headerData,
-                    response.attributes
-                );
-                buildRow(
-                    response.data,
-                    response.templates,
-                    response.attributes
-                );
-            }
+            buildHeaderRow(
+                response.headerData,
+                response.attributes
+            );
+            buildRow(
+                response.data,
+                response.templates,
+                response.attributes
+            );
             TableCheck();
             AJAXTaskRunning = null;
             checkboxToggleSearchListPages();
