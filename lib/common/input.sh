@@ -302,7 +302,7 @@ case $installtype in
             echo "  'FOG Settings' -> "
             echo "  'FOG Storage Nodes' -> "
             echo  -n "  'FOG_STORAGENODE_MYSQLPASS'.  Password: "
-            read snmysqlpass
+            read -r snmysqlpass
             [[ -z $snmysqlpass ]] && echo "Invalid input, please try again."
         done
         ;;
