@@ -1117,7 +1117,8 @@ writeUpdateFile() {
     escblexports=$(echo $blexports | sed -e $replace)
     escinstalltype=$(echo $installtype | sed -e $replace)
     escsnmysqluser=$(echo $snmysqluser | sed -e $replace)
-    escsnmysqlpass=$(echo $snmysqlpass | sed -e $replace -e "s/[']{1}/'''/g")
+    escsnmysqlpass=$(echo "$snmysqlpass" | sed -e s/\'/\'\"\'\"\'/g)  # replace every ' with '"'"' for full bash escaping
+    sedescsnmysqlpass=$(echo "$escsnmysqlpass" | sed -e 's/[\&/]/\\&/g')  # then prefix every \ & and / with \ for sed escaping
     escsnmysqlhost=$(echo $snmysqlhost | sed -e $replace)
     escinstalllang=$(echo $installlang | sed -e $replace)
     escstorageLocation=$(echo $storageLocation | sed -e $replace)
@@ -1194,7 +1195,7 @@ writeUpdateFile() {
                 sed -i "s/snmysqluser=.*/snmysqluser='$escsnmysqluser'/g" $fogprogramdir/.fogsettings || \
                 echo "snmysqluser='$snmysqluser'" >> $fogprogramdir/.fogsettings
             grep -q "snmysqlpass=" $fogprogramdir/.fogsettings && \
-                sed -i "s/snmysqlpass=.*/snmysqlpass='$escsnmysqlpass'/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/snmysqlpass=.*/snmysqlpass='$sedescsnmysqlpass'/g" $fogprogramdir/.fogsettings || \
                 echo "snmysqlpass='$escsnmysqlpass'" >> $fogprogramdir/.fogsettings
             grep -q "snmysqlhost=" $fogprogramdir/.fogsettings && \
                 sed -i "s/snmysqlhost=.*/snmysqlhost='$escsnmysqlhost'/g" $fogprogramdir/.fogsettings || \
@@ -1592,33 +1593,34 @@ configureHttpd() {
         dummy=""
         while [[ -z $dummy ]]; do
             echo -n " * Is the MySQL password blank? (Y/n) "
-            read dummy
+            read -r dummy
             case $dummy in
                 [Yy]|[Yy][Ee][Ss]|"")
                     dummy='Y'
                     ;;
                 [Nn]|[Nn][Oo])
                     echo -n " * Enter the MySQL password: "
-                    read -s PASSWORD1
+                    read -rs PASSWORD1
                     echo
                     echo -n " * Re-enter the MySQL password: "
-                    read -s PASSWORD2
+                    read -rs PASSWORD2
                     echo
-                    if [[ ! -z $PASSWORD1 && $PASSWORD2 == $PASSWORD1 ]]; then
+                    if [[ ! -z $PASSWORD1 && $PASSWORD2 == "$PASSWORD1" ]]; then
                         dbpass=$PASSWORD1
                     else
-                        dppass=""
-                        while [[ ! -z $PASSWORD1 && $PASSWORD2 == $PASSWORD1 ]]; do
+                        dbpass=""
+                        while ! [[ ! -z $PASSWORD1 && $PASSWORD2 == "$PASSWORD1" ]]; do
+                            echo "Password entries were blank or didn't match!"
                             echo -n " * Enter the MySQL password: "
-                            read -s PASSWORD1
+                            read -rs PASSWORD1
                             echo
                             echo -n " * Re-enter the MySQL password: "
-                            read -s PASSWORD2
+                            read -rs PASSWORD2
                             echo
-                            [[ ! -z $PASSWORD1 && $PASSWORD2 == $PASSWORD1 ]] && dbpass=$PASSWORD1
+                            [[ ! -z $PASSWORD1 && $PASSWORD2 == "$PASSWORD1" ]] && dbpass=$PASSWORD1
                         done
                     fi
-                    [[ $snmysqlpass != $dbpass ]] && snmysqlpass=$dbpass
+                    [[ $snmysqlpass != "$dbpass" ]] && snmysqlpass=$dbpass
                     ;;
                 *)
                     dummy=""
@@ -1627,12 +1629,13 @@ configureHttpd() {
             esac
         done
     fi
-    options="-s"
-    [[ -n $snmysqlhost ]] && options="$options -h$snmysqlhost"
-    [[ -n $snmysqluser ]] && options="$options -u'$snmysqluser'"
-    [[ -n $snmysqlpass ]] && options="$options -p'$snmysqlpass'"
+    options=("-s")
+    [[ -n $snmysqlhost ]] && options=( "${options[@]}" "--host=$snmysqlhost" )
+    [[ -n $snmysqluser ]] && options=( "${options[@]}" "--user=$snmysqluser" )
+    [[ -n $snmysqlpass ]] && options=( "${options[@]}" "--password=$snmysqlpass" )
+    sqlescsnmysqlpass=$(echo "$snmysqlpass" | sed -e s/\'/\'\'/g)   # Replace every ' with '' for full MySQL escaping
     sql="UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root';"
-    mysql ${options} -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    mysql "${options[@]}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     mysqlver=$(mysql -V |  sed -n 's/.*Distrib[ ]\(\([0-9]\([.]\|\)\)*\).*\([-]\|\)[,].*/\1/p')
     mariadb=$(mysql -V |  sed -n 's/.*Distrib[ ].*[-]\(.*\)[,].*/\1/p')
     vertocheck="5.7"
@@ -1646,17 +1649,17 @@ configureHttpd() {
         case $snmysqlhost in
             127.0.0.1|[Ll][Oo][Cc][Aa][Ll][Hh][Oo][Ss][Tt])
                 sql="UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root';"
-                mysql ${options} -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sql="ALTER USER '$snmysqluser'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY '$snmysqlpass';"
-                mysql ${options} -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sql="ALTER USER '$snmysqluser'@'localhost' IDENTIFIED WITH mysql_native_password BY '$snmysqlpass';"
-                mysql ${options} -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                mysql "${options[@]}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                sql="ALTER USER '$snmysqluser'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY '$sqlescsnmysqlpass';"
+                mysql "${options[@]}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                sql="ALTER USER '$snmysqluser'@'localhost' IDENTIFIED WITH mysql_native_password BY '$sqlescsnmysqlpass';"
+                mysql "${options[@]}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 ;;
             *)
                 sql="UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root';"
-                mysql ${options} -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sql="ALTER USER '$snmysqluser'@'$snmysqlhost' IDENTIFIED WITH mysql_native_password BY '$snmysqlpass';"
-                mysql ${options} -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                mysql "${options[@]}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                sql="ALTER USER '$snmysqluser'@'$snmysqlhost' IDENTIFIED WITH mysql_native_password BY '$sqlescsnmysqlpass';"
+                mysql "${options[@]}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 ;;
         esac
     fi
@@ -1769,6 +1772,8 @@ configureHttpd() {
     dots "Creating config file"
     [[ -z $snmysqlhost ]] && snmysqlhost='localhost'
     [[ -z $snmysqluser ]] && snmysqluser='root'
+    phpescsnmysqlpass="${snmysqlpass//\\/\\\\}";   # Replace every \ with \\ ...
+    phpescsnmysqlpass="${phpescsnmysqlpass//\'/\\\'}"   # and then every ' with \' for full PHP escaping
     echo "<?php
 /**
  * The main configuration FOG uses.
@@ -1819,7 +1824,7 @@ class Config
         define('DATABASE_HOST', '$snmysqlhost');
         define('DATABASE_NAME', 'fog');
         define('DATABASE_USERNAME', '$snmysqluser');
-        define('DATABASE_PASSWORD', \"$snmysqlpass\");
+        define('DATABASE_PASSWORD', '$phpescsnmysqlpass');
     }
     /**
      * Defines the service settings
