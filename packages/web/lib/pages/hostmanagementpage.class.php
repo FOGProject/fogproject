@@ -1215,7 +1215,7 @@ class HostManagementPage extends FOGPage
         );
 
         $buttons = self::makeButton('printer-default', _('Update default'), 'btn btn-primary', $props);
-        $buttons = $buttons . self::makeButton('printer-remove', _('Remove selected'), 'btn btn-danger', $props);
+        $buttons .= self::makeButton('printer-remove', _('Remove selected'), 'btn btn-danger', $props);
 
 
         $this->headerData = array(
@@ -1487,60 +1487,65 @@ class HostManagementPage extends FOGPage
             . $this->formAction
             . '&tab=host-service" ';
 
-        // Client module stuff
+        echo '<!-- Modules/Service Settings -->';
+        echo '<div class="box-group" id="modules">';
+        // =============================================================
+        // Associated Modules
         unset(
-            $this->data,
-            $this->form,
             $this->headerData,
             $this->templates,
-            $this->attributes
+            $this->attributes,
+            $this->form,
+            $this->data
         );
-        $dcnote = sprintf(
-            '%s. %s. %s %s.',
-            _('This module is only used on the old client'),
-            _('The old client is what was distributed with FOG 1.2.0 and earlier'),
-            _('This module did not work past Windows XP due to'),
-            _('UAC introduced in Vista and up')
-        );
-        $gfnote = sprintf(
-            '%s. %s %s. %s %s %s. %s.',
-            _('This module is only used on the old client'),
-            _('The old client is what was distributed with'),
-            _('FOG 1.2.0 and earlier'),
-            _('This module has been replaced in the new client'),
-            _('and the equivalent module for what Green'),
-            _('FOG did is now called Power Management'),
-            _('This is only here to maintain old client operations')
-        );
-        $ucnote = sprintf(
-            '%s. %s %s. %s %s.',
-            _('This module is only used on the old client'),
-            _('The old client is what was distributed with'),
-            _('FOG 1.2.0 and earlier'),
-            _('This module did not work past Windows XP due'),
-            _('to UAC introduced in Vista and up')
-        );
-        $cunote = sprintf(
-            '%s (%s) %s.',
-            _('This module is only used'),
-            _('with modules and config'),
-            _('on the old client')
-        );
-        $this->attributes = array(
-            array('class' => ''),
-            array('class' => ''),
-            array('class' => ''),
-        );
-        $this->templates = array(
-            '${mod_name}',
-            '${input}',
-            '${span}',
-        );
+
+        // Buttons for this.
+        $buttons = self::makeButton('modules-update', _('Update'), 'btn btn-primary', $props);
+        $buttons .= self::makeButton('modules-enable', _('Enable All'), 'btn btn-success', $props);
+        $buttons .= self::makeButton('modules-disable', _('Disable All'), 'btn btn-danger', $props);
+
         $this->headerData = array(
             _('Module Name'),
-            _('Enabled'),
-            _('Notes')
+            _('Module Associated')
         );
+
+        $this->templates = array(
+            '',
+            ''
+        );
+        $this->attributes = array(
+            array(),
+            array()
+        );
+
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<div class="box-tools pull-right">';
+        echo self::$FOGCollapseBox;
+        echo '</div>';
+        echo '<h4 class="box-title">';
+        echo _('Host module settings');
+        echo ' --------- IN PROGRESS';
+        echo '</h4>';
+        echo '<div>';
+        echo '<p class="help-block">';
+        echo _('Modules disabled globally cannot be enabled here');
+        echo '<br/>';
+        echo _('Changes will automatically be saved');
+        echo '</p>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div id="updatemodules" class="">';
+        echo '<div class="box-body">';
+        echo $this->render(12, 'modules-to-update', $buttons);
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        return;
+
+        // Old stuff, use if needed for extra elements (Display Manager, auto logout, etc...)
+
         $moduleName = self::getGlobalModuleStatus();
         $ModuleOn = $this->obj->get('modules');
         Route::listem('module');
@@ -1551,27 +1556,17 @@ class HostManagementPage extends FOGPage
         foreach ((array)$Modules as &$Module) {
             switch ($Module->shortName) {
             case 'dircleanup':
-                $note = $dcnote;
-                break;
             case 'greenfog':
-                $note = $gfnote;
-                break;
             case 'usercleanup':
-                $note = $ucnote;
-                break;
             case 'clientupdater':
-                $note = $cunote;
-                break;
-            default:
-                $note = '';
-                break;
+                continue 2;
             }
             $this->data[] = array(
                 'input' => sprintf(
-                    '<center><div class="checkbox">'
+                    '<div class="checkbox">'
                     . '<input id="%s"%stype="checkbox" name="modules[]" value="%s"'
                     . '%s%s/>'
-                    . '</div></center>',
+                    . '</div>',
                     $Module->shortName,
                     (
                         ($moduleName[$Module->shortName]
@@ -1593,7 +1588,6 @@ class HostManagementPage extends FOGPage
                     ),
                     $Module->shortName
                 ),
-                'span' => $note,
                 'mod_name' => $Module->name,
             );
             // str_replace(
@@ -1655,10 +1649,6 @@ class HostManagementPage extends FOGPage
         echo '</form>';
         echo '</div>';
         echo '</div>';
-        echo '</div>';
-        echo '</div>';
-
-
         // echo '</div>';
         // echo '<label class="control-label col-xs-4" for="updatestatus">';
         // echo _('Update module configurations');
@@ -2783,7 +2773,7 @@ class HostManagementPage extends FOGPage
         );
 
         // Power Management
-        $tabData[] = array(
+        /*$tabData[] = array(
             'name' => _('Power Management'),
             'id' => 'host-powermanagement',
             'generator' => function() {
@@ -2834,7 +2824,7 @@ class HostManagementPage extends FOGPage
             'generator' => function() {
                 $this->hostSnapinHistory();
             }
-        );
+        );*/
 
         /**
          * These need to be worked yet.
@@ -3531,6 +3521,70 @@ class HostManagementPage extends FOGPage
                 $snapinsSqlStr,
                 $snapinsFilterStr,
                 $snapinsTotalStr,
+                $where
+            )
+        );
+        exit;
+    }
+    /**
+     * Returns the module list as well as the associated
+     * for the host being edited.
+     *
+     * @return void
+     */
+    public function getModulesList()
+    {
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
+        $where = "`hosts`.`hostID` = '"
+            . $this->obj->get('id')
+            . "' AND `modules`.`short_name` "
+            . "NOT IN ('clientupdater','dircleanup','greenfog','usercleanup') ";
+
+        // Workable queries
+        $modulesSqlStr = "SELECT `%s`,"
+            . "IF(`msHostID` IS NULL OR `msHostID` = '0' OR `msHostID` = '', 'dissociated', 'associated') AS `msHostID`,`hostID`
+            FROM `%s`
+            CROSS JOIN `hosts`
+            LEFT OUTER JOIN `moduleStatusByHost`
+            ON `modules`.`id` = `moduleStatusByHost`.`msModuleID`
+            AND `hosts`.`hostID` = `moduleStatusByHost`.`msHostID`
+            %s
+            %s
+            %s";
+
+        $modulesFilterStr = "SELECT COUNT(`%s`),"
+            . "IF(`msHostID` IS NULL OR `msHostID` = '0' OR `msHostID` = '', 'dissociated', 'associated') AS `msHostID`,`hostID`
+            FROM `%s`
+            CROSS JOIN `hosts`
+            LEFT OUTER JOIN `moduleStatusByHost`
+            ON `modules`.`id` = `moduleStatusByHost`.`msModuleID`
+            AND `hosts`.`hostID` = `moduleStatusByHost`.`msHostID`
+            %s";
+
+        $modulesTotalStr = "SELECT COUNT(`%s`)
+            FROM `%s` WHERE `modules`.`short_name`
+            NOT IN ('clientupdater','dircleanup','greenfog','usercleanup')";
+
+        foreach (self::getClass('ModuleManager')
+            ->getColumns() as $common => &$real
+        ) {
+            $columns[] = array('db' => $real, 'dt' => $common);
+            unset($real);
+        }
+        $columns[] = array('db' => 'msHostID', 'dt' => 'association');
+        echo json_encode(
+            FOGManagerController::complex(
+                $pass_vars,
+                'modules',
+                'id',
+                $columns,
+                $modulesSqlStr,
+                $modulesFilterStr,
+                $modulesTotalStr,
                 $where
             )
         );
