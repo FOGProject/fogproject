@@ -462,6 +462,63 @@
 
     // ---------------------------------------------------------------
     // SERVICE TAB
+    var modulesEnableBtn = $('#modules-enable');
+    var modulesDisableBtn = $('#modules-disable');
+    var modulesUpdateBtn = $('#modules-update');
+
+    function onModulesDisable(selected) {
+        var disabled = selected.count() == 0;
+        modulesDisableBtn.prop("disabled", disabled);
+    }
+
+    function onModulesEnable(selected) {
+        var disabled = selected.count() == 0;
+        modulesEnableBtn.prop("disabled", disabled);
+    }
+
+    var modulesTable = Common.registerTable($("#modules-to-update"), onModulesEnable, {
+        columns: [
+            {data: 'name'},
+            {data: 'association'}
+        ],
+        rowId: 'id',
+        columnDefs: [
+            {
+                responsivePriority: -1,
+                render: function(data, type, row) {
+                    return row.name;
+                },
+                targets: 0
+
+            },
+            {
+                render: function(data, type, row) {
+                    var checkval = '';
+                    if (row.association === 'associated') {
+                        checkval = ' checked';
+                    }
+                    return '<div class="checkbox">'
+                        + '<input type="checkbox" class="associated" name="associate[]" id="moduleAssoc_'
+                        + row.id
+                        + '" value="' + row.id + '"'
+                        + checkval
+                        + '/>'
+                        + '</div>';
+                },
+                targets: 1
+            }
+        ],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '../management/index.php?node='+Common.node+'&sub=getModulesList&id='+Common.id,
+            type: 'POST'
+        }
+    });
+    modulesTable.on('draw', function() {
+        Common.iCheck("input");
+        $('input').on('ifClicked', onRadioSelect);
+    });
     // var modulesTable = Common.registerTable(
     //     $("#host-service-modules-table"),
     //     function () {},
