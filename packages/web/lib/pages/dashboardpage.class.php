@@ -104,7 +104,7 @@ class DashboardPage extends FOGPage
         $Nodes = json_decode(
             Route::getData()
         );
-        $Nodes = $Nodes->storagenodes;
+        $Nodes = $Nodes->data;
         foreach ((array)$Nodes as &$StorageNode) {
             $ip = $StorageNode->ip;
             $url = sprintf(
@@ -146,7 +146,7 @@ class DashboardPage extends FOGPage
         $Groups = json_decode(
             Route::getData()
         );
-        $Groups = $Groups->storagegroups;
+        $Groups = $Groups->data;
         foreach ((array)$Groups as &$StorageGroup) {
             self::$_groupOpts .= sprintf(
                 '<option value="%s">%s</option>',
@@ -155,12 +155,6 @@ class DashboardPage extends FOGPage
             );
             unset($StorageGroup);
         }
-        $test = array_filter(
-            self::$FOGURLRequests->isAvailable($testurls)
-        );
-        self::$_nodeOpts = array_intersect_key((array)self::$_nodeOpts, $test);
-        self::$_nodeNames = array_intersect_key((array)self::$_nodeNames, $test);
-        self::$_nodeURLs = array_intersect_key((array)self::$_nodeURLs, $test);
         self::$_nodeOpts = implode((array)self::$_nodeOpts);
         list(
             self::$_bandwidthtime,
@@ -244,9 +238,9 @@ class DashboardPage extends FOGPage
         echo '<div class="col-md-4">';
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
-        echo '<h3 class="box-title">';
+        echo '<h4 class="box-title">';
         echo _('System Overview');
-        echo '</h3>';
+        echo '</h4>';
         echo '<div class="box-tools pull-right">';
         echo self::$FOGCollapseBox;
         echo '</div>';
@@ -280,7 +274,7 @@ class DashboardPage extends FOGPage
         echo '<div id="ActivitySlots"></div>';
         echo '<div class="graph-selectors" id="graph-activity-selector">';
         printf(
-            '<select name="groupsel">%s</select>',
+            '<select class="activity-count" name="groupsel">%s</select>',
             self::$_groupOpts
         );
         echo '</div>';
@@ -299,9 +293,9 @@ class DashboardPage extends FOGPage
         echo '<div class="col-md-4">';
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
-        echo '<h3 class="box-title">';
+        echo '<h4 class="box-title">';
         echo _('Storage Node Disk Usage');
-        echo '</h3>';
+        echo '</h4>';
         echo '<div class="box-tools pull-right">';
         echo self::$FOGCollapseBox;
         echo '</div>';
@@ -313,7 +307,7 @@ class DashboardPage extends FOGPage
         echo '<div class="graph-selectors" id="diskusage-selector">';
         if (!empty(self::$_nodeOpts) && count(self::$_nodeOpts) > 0) {
             printf(
-                '<select name="nodesel">%s</select>',
+                '<select name="nodesel" class="nodeid">%s</select>',
                 self::$_nodeOpts
             );
         } else {
@@ -366,9 +360,9 @@ class DashboardPage extends FOGPage
         );
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
-        echo '<h3 class="box-title">';
+        echo '<h4 class="box-title">';
         echo self::$foglang['Bandwidth'];
-        echo '</h3>';
+        echo '</h4>';
         echo '<div class="row">';
         echo '<div id="graph-bandwidth-filters-type">';
         echo '<div class="col-md-2">';
@@ -381,8 +375,8 @@ class DashboardPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '<div id="graph-bandwidth-filters-time"></div>';
-        echo '<div class="col-md-2">';
-        echo '<div class="category" id="graph-bandwidth-time">';
+        echo '<div class="col-md-offset-4 col-md-6">';
+        echo '<div class="category" id="graph-bandwidth-time-title">';
         echo _('Time');
         echo ' - ';
         echo '<span>';
@@ -397,10 +391,42 @@ class DashboardPage extends FOGPage
         echo '<a href="#" id="graph-bandwidth-filters-transmit" '
             . 'class="type-filters graph-filters active">';
         echo self::$foglang['Transmit'];
-        echo '</a>&nbsp;&nbsp;';
+        echo '</a>';
+        echo '&nbsp;&nbsp;';
         echo '<a href="#" id="graph-bandwidth-filters-receive" class='
             . '"type-filters graph-filters">';
         echo self::$foglang['Receive'];
+        echo '</a>';
+        echo '</div>';
+        echo '<div class="col-md-offset-4 col-md-6">';
+        $relhour = (3600 / self::$_bandwidthtime);
+        $relhalf = ($relhour / 2);
+        $rel10 = ($relhour / 6);
+        $rel5 = ($relhour / 12);
+        $rel2 = ($relhour / 30);
+        echo '<a href="#" id="graph-bandwidth-time-filters-2min" '
+            . 'class="time-filters graph-filters active" rel="' . $rel2 . '">';
+        echo _('2 Minutes');
+        echo '</a>';
+        echo '&nbsp;&nbsp;';
+        echo '<a href="#" id="graph-bandwidth-time-filters-5min" '
+            . 'class="time-filters graph-filters active" rel="' . $rel5 . '">';
+        echo _('5 Minutes');
+        echo '</a>';
+        echo '&nbsp;&nbsp;';
+        echo '<a href="#" id="graph-bandwidth-time-filters-10min" '
+            . 'class="time-filters graph-filters active" rel="' . $rel10 . '">';
+        echo _('10 Minutes');
+        echo '</a>';
+        echo '&nbsp;&nbsp;';
+        echo '<a href="#" id="graph-bandwidth-time-filters-30min" '
+            . 'class="time-filters graph-filters active" rel="' . $relhalf . '">';
+        echo _('30 Minutes');
+        echo '</a>';
+        echo '&nbsp;&nbsp;';
+        echo '<a href="#" id="graph-bandwidth-time-filters-1hr" '
+            . 'class="time-filters graph-filters active" rel="' . $relhour . '">';
+        echo _('1 Hour');
         echo '</a>';
         echo '</div>';
         echo '</div>';
@@ -526,13 +552,13 @@ class DashboardPage extends FOGPage
         ignore_user_abort(true);
         set_time_limit(0);
         $sent = filter_input(
-            INPUT_GET,
+            INPUT_POST,
             'url',
             FILTER_DEFAULT,
             FILTER_REQUIRE_ARRAY
         );
         $names = filter_input(
-            INPUT_GET,
+            INPUT_POST,
             'names',
             FILTER_DEFAULT,
             FILTER_REQUIRE_ARRAY
