@@ -157,6 +157,24 @@ try {
             true
         )
     );
+    $pass = FOGCore::$Host->get('ADPass');
+    $passtest = FOGCore::aesdecrypt($pass);
+    if ($test_base64 = base64_decode($passtest)) {
+        if (mb_detect_encoding($test_base64, 'utf-8', true)) {
+            $pass = $test_base64;
+        }
+    } elseif (mb_detect_encoding($passtest, 'utf-8', true)) {
+        $pass = $passtest;
+    }
+    $productKey = FOGCore::$Host->get('productKey');
+    $productKeytest = FOGCore::aesdecrypt($productKey);
+    if ($test_base64 = base64_decode($productKeytest)) {
+        if (mb_detect_encoding($test_base64)) {
+            $productKey = $test_base64;
+        }
+    } elseif (mb_detect_encoding($productKeytest, 'utf-8', true)) {
+        $productKey = $productKeytest;
+    }
     $repFields = array(
         // Imaging items to set
         'mac' => $mac,
@@ -191,13 +209,9 @@ try {
         'hostusead' => FOGCore::$Host->get('useAD'),
         'hostaddomain' => FOGCore::$Host->get('ADDomain'),
         'hostaduser' => FOGCore::$Host->get('ADUser'),
-        'hostadpass' => trim(FOGCore::aesdecrypt(FOGCore::$Host->get('ADPass'))),
+        'hostadpass' => trim($pass),
         'hostadou' => str_replace(';', '', FOGCore::$Host->get('ADOU')),
-        'hostproductkey' => trim(
-            FOGCore::aesdecrypt(
-                FOGCore::$Host->get('productKey')
-            )
-        ),
+        'hostproductkey' => trim($productKey),
         'imagename' => $Image->get('name'),
         'imagedesc' => $Image->get('description'),
         'imageosid' => $osid,

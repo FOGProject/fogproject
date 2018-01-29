@@ -69,7 +69,15 @@ class Product_Keys extends ReportManagementPage
         );
         $Hosts = $Hosts->hosts;
         foreach ((array)$Hosts as &$Host) {
-            $productKey = self::aesdecrypt($Host->productKey);
+            $productKey = $Host->productKey;
+            $productKeytest = self::aesdecrypt($productKey);
+            if ($test_base64 = base64_decode($productKeytest)) {
+                if (mb_detect_encoding($test_base64, 'utf-8', true)) {
+                    $productKey = $test_base64;
+                }
+            } elseif (mb_detect_encoding($productKeytest, 'utf-8', true)) {
+                $pruductKey = $productKeytest;
+            }
             $Image = $Host->image;
             $imgID = $Image->id;
             $imgName = $Image->name;

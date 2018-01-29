@@ -1450,59 +1450,61 @@ abstract class FOGBase
         return $token;
     }
     /**
-     * Encrypt the data passed.
-     *
-     * @param string $pass the item to encrypt
-     *
-     * @return string
-     */
-    protected static function encryptpw($pass)
-    {
-        $pass = trim($pass);
-        if (empty($pass)) {
-            return '';
-        }
-        $decrypt = self::aesdecrypt($pass);
-        $newpass = $pass;
-        if ($decrypt && mb_detect_encoding($decrypt, 'utf-8', true)) {
-            $newpass = $decrypt;
-        }
-
-        return $newpass ? self::aesencrypt($newpass) : '';
-    }
-    /**
      * AES Encrypt function.
      *
      * @param mixed  $data    the item to encrypt
      * @param string $key     the key to use if false will generate own
      * @param int    $enctype the type of encryption to use
-     * @param int    $mode    the mode of encryption
      *
      * @return string
      */
     public static function aesencrypt(
         $data,
         $key = false,
-        $enctype = MCRYPT_RIJNDAEL_128,
-        $mode = MCRYPT_MODE_CBC
+        $enctype = 'aes-256-cbc'
     ) {
-        $iv_size = mcrypt_get_iv_size($enctype, $mode);
-        if (!$key) {
-            $addKey = true;
-            $key = openssl_random_pseudo_bytes($iv_size, $cstrong);
-        } else {
-            $key = self::hex2bin($key);
+        $iv_size = openssl_cipher_iv_length($enctype);
+        $key = self::hex2bin($key);
+        if (mb_strlen($key, '8bit') !== ($iv_size * 2)) {
+            echo json_encode(
+                array(
+                    'error' => _('Needs a 256-bit key')
+                )
+            );
+            exit;
         }
-        $iv = mcrypt_create_iv($iv_size, MCRYPT_DEV_URANDOM);
-        $cipher = mcrypt_encrypt($enctype, $key, $data, $mode, $iv);
+        $iv = openssl_random_pseudo_bytes($iv_size, $cstrong);
+
+        // Pad the plaintext
+        if(strlen($data) % 8) {
+            $data = str_pad(
+                $data,
+                strlen($data) + 8 - strlen($data) % 8,
+                "\0"
+            );
+        }
+
+        $cipher = openssl_encrypt(
+            $data,
+            $enctype,
+            $key,
+            OPENSSL_RAW_DATA | OPENSSL_NO_PADDING,
+            $iv
+        );
+        if (!$cipher) {
+            echo json_encode(
+                array(
+                    'error' => openssl_error_string()
+                )
+            );
+            exit;
+        }
         $iv = bin2hex($iv);
         $cipher = bin2hex($cipher);
-        $key = bin2hex($key);
         return sprintf(
-            '%s|%s%s',
+            '%s|%s',
             $iv,
-            $cipher,
-            $addKey ? sprintf('|%s', $key) : ''
+            $cipher
         );
     }
     /**
@@ -1518,10 +1520,9 @@ abstract class FOGBase
     public static function aesdecrypt(
         $encdata,
         $key = false,
-        $enctype = MCRYPT_RIJNDAEL_128,
-        $mode = MCRYPT_MODE_CBC
+        $enctype = 'aes-128-cbc'
     ) {
-        $iv_size = mcrypt_get_iv_size($enctype, $mode);
+        $iv_size = openssl_cipher_iv_length($enctype);
         if (false === strpos($encdata, '|')) {
             return $encdata;
         }
@@ -1534,7 +1535,21 @@ abstract class FOGBase
         if (empty($key)) {
             return '';
         }
-        $decipher = mcrypt_decrypt($enctype, $key, $encoded, $mode, $iv);
+        $decipher = openssl_decrypt(
+            $encoded,
+            $enctype,
+            $key,
+            OPENSSL_RAW_DATA | OPENSSL_NO_PADDING,
+            $iv
+        );
+        if (!$decipher) {
+            echo json_encode(
+                array(
+                    'error' => openssl_error_string()
+                )
+            );
+            exit;
+        }
 
         return trim($decipher);
     }

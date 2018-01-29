@@ -563,9 +563,6 @@ class HostManagementPage extends FOGPage
         $password = trim(
             filter_input(INPUT_POST, 'domainpassword')
         );
-        if ($password) {
-            $password = self::encryptpw($password);
-        }
         $useAD = (int)isset($_POST['domain']);
         $domain = trim(
             filter_input(INPUT_POST, 'domainname')
@@ -657,7 +654,7 @@ class HostManagementPage extends FOGPage
                 ->set('init', $init)
                 ->set('biosexit', $bootTypeExit)
                 ->set('efiexit', $efiBootTypeExit)
-                ->set('productKey', self::encryptpw($productKey))
+                ->set('productKey', $productKey)
                 ->addModule($ModuleIDs)
                 ->addPriMAC($MAC)
                 ->setAD(
@@ -1010,10 +1007,16 @@ class HostManagementPage extends FOGPage
             filter_input(INPUT_POST, 'description') ?: $this->obj->get('description')
         );
         $productKey = (
-            filter_input(INPUT_POST, 'key') ?: self::aesdecrypt(
-                $this->obj->get('productKey')
-            )
+            filter_input(INPUT_POST, 'key') ?: $this->obj->get('productKey')
         );
+        $productKeytest = self::aesdecrypt($productKey);
+        if ($test_base64 = base64_decode($productKeytest)) {
+            if (mb_detect_encoding($test_base64, 'utf-8', true)) {
+                $productKey = $test_base64;
+            }
+        } elseif (mb_detect_encoding($productKeytest, 'utf-8', true)) {
+            $productKey = $productKeytest;
+        }
         $kern = (
             filter_input(INPUT_POST, 'kern') ?: $this->obj->get('kernel')
         );
@@ -1312,7 +1315,6 @@ class HostManagementPage extends FOGPage
             )
         );
         $productKey = substr($productKey, 0, 29);
-        $productKey = self::aesencrypt($productKey);
         $kern = trim(
             filter_input(INPUT_POST, 'kern')
         );
