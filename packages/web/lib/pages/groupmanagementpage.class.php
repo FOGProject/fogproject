@@ -403,7 +403,14 @@ class GroupManagementPage extends FOGPage
         $productKey = (
             filter_input(INPUT_POST, 'key') ?: $productKey
         );
-        $productKey = self::aesdecrypt($productKey);
+        $productKeytest = self::aesdecrypt($productKey);
+        if ($test_base64 = base64_decode($productKeytest)) {
+            if (mb_detect_encoding($test_base64, 'utf-8', true)) {
+                $productKey = $test_base64;
+            }
+        } elseif (mb_detect_encoding($productKeytest, 'utf-8', true)) {
+            $productKey = $productKeytest;
+        }
         $kern = (
             filter_input(INPUT_POST, 'kern') ?: (
                 $kern ?: $this->obj->get('kernel')
@@ -1574,7 +1581,7 @@ class GroupManagementPage extends FOGPage
             self::$Host->get('ADPass') :
             ''
         );
-        $ADPass = self::encryptpw(self::$Host->get('ADPass'));
+        $ADPass = self::$Host->get('ADPass');
         $ADPassLegacy = (
             $adPassLegacy ?
             self::$Host->get('ADPassLegacy') :
@@ -1761,7 +1768,7 @@ class GroupManagementPage extends FOGPage
         }
         unset($Hosts);
         $this->ReportMaker->appendHTML($this->process(12));
-        $this->ReportMaker->outputReport(false);
+        //$this->ReportMaker->outputReport(false);
         $_SESSION['foglastreport'] = serialize($this->ReportMaker);
         echo '</div>';
         echo '</div>';
@@ -1880,11 +1887,7 @@ class GroupManagementPage extends FOGPage
                             'kernelDevice' => $dev,
                             'efiexit' => $efibootexit,
                             'biosexit' => $bootexit,
-                            'productKey' => self::encryptpw(
-                                trim(
-                                    $productKey
-                                )
-                            )
+                            'productKey' => trim($productKey)
                         )
                     );
                 break;

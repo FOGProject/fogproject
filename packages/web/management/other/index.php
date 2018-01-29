@@ -146,6 +146,39 @@ if (self::$FOGUser->isValid()) {
     echo '  </footer>';
     echo '</div>';
     
+    echo $this->menu;
+    echo '              <li class="header">RESOURCES</li>';
+    echo '              <li><a href="https://sourceforge.net/donate/index.php?group_id=201099"><i class="fa fa-money"></i> <span>Donate</span></a></li>';    
+    echo '              <li><a href="https://news.fogproject.org"><i class="fa fa-bullhorn"></i> <span>News</span></a></li>';
+    echo '              <li><a href="https://forums.fogproject.org"><i class="fa fa-users"></i> <span>Forums</span></a></li>';
+    echo '              <li><a href="https://wiki.fogproject.org"><i class="fa fa-book"></i> <span>Wiki</span></a></li>';
+    echo '          </ul>';
+    echo '      </section>';
+    echo '  </aside>';
+
+    // BODY
+    echo '  <div class="content-wrapper">';
+    echo '      <section class="content-header">';
+    echo '          <h1 id="sectionTitle">';
+    echo $this->sectionTitle;
+
+    echo '              <small id="pageTitle">' . $this->pageTitle . '</small>';
+    echo '          </h1>';
+    echo '      </section>';
+    echo '      <section class="content">';
+    echo $this->body;
+    echo '      </section>';
+    echo '  </div>';
+
+    // FOOTER
+    echo '  <footer class="main-footer">';
+    echo '      <div class="pull-right hidden-xs">';
+    echo '          <b>Version</b> ' . FOG_VERSION;
+    echo '      </div>';
+    echo '      <strong>Copyright &copy; 2012-2018 <a href="https://fogproject.org">FOG Project</a>.</strong> All rights reserved.';
+    echo '  </footer>';
+    echo '</div>';
+    
 } else {
     echo $this->body;
 }

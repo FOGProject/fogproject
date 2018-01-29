@@ -1277,14 +1277,14 @@ class FOGConfigurationPage extends FOGPage
                 )
             );
             echo '<div class="panel panel-info">';
-            echo '<div class="panel-heading text-center expand_trigger hand" id="'
+            echo '<div class="panel-heading text-center expand_trigger hand" id="pxeItem_'
                 . $divTab
                 . '">';
             echo '<h4 class="title">';
             echo $Menu->name;
             echo '</h4>';
             echo '</div>';
-            echo '<div class="panel-body hidefirst" id="'
+            echo '<div class="panel-body hidefirst" id="pxeItem_'
                 . $divTab
                 . '">';
             echo '<form class="form-horizontal" method="post" action="'
@@ -2862,7 +2862,6 @@ class FOGConfigurationPage extends FOGPage
                     }
                     break;
                 case 'FOG_AD_DEFAULT_PASSWORD':
-                    $set = self::encryptpw($set);
                     break;
                 case 'FOG_CLIENT_BANNER_SHA':
                     continue 2;
@@ -3236,7 +3235,7 @@ class FOGConfigurationPage extends FOGPage
                 }
                 printf(
                     '<option value="%s||%s"%s>%s</option>',
-                    self::aesencrypt($ip[$nodename]),
+                    base64_encode($ip[$nodename]),
                     $file,
                     (
                         $value == $_POST['logtype'] ?

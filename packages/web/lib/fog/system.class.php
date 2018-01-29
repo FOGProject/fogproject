@@ -23,7 +23,7 @@
  */
 class System
 {
-    const PHP_REQUIRED = '5.3.0';
+    const PHP_REQUIRED = '5.6.0';
     /**
      * Checks the php version against what we require.
      *
@@ -53,7 +53,7 @@ class System
     public function __construct()
     {
         self::_versionCompare();
-        define('FOG_VERSION', '1.5.0-RC-10');
+        define('FOG_VERSION', '1.5.0-RC-11');
         define('FOG_SCHEMA', 263);
         define('FOG_BCACHE_VER', 132);
         define('FOG_SVN_REVISION', 6080);

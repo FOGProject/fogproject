@@ -2117,13 +2117,13 @@ class Host extends FOGController
                     $user = trim($this->get('ADUser'));
                 }
                 if (empty($pass)) {
-                    $pass = trim(self::encryptpw($this->get('ADPass')));
+                    $pass = trim($this->get('ADPass'));
                 }
                 if (empty($legacy)) {
                     $legacy = trim($this->get('ADPassLegacy'));
                 }
                 if (empty($productKey)) {
-                    $productKey = trim(self::encryptpw($this->get('productKey')));
+                    $productKey = trim($this->get('productKey'));
                 }
                 if (empty($enforce)) {
                     $enforce = (int)$this->get('enforce');
@@ -2131,7 +2131,7 @@ class Host extends FOGController
             }
         }
         if ($pass) {
-            $pass = trim(self::encryptpw($pass));
+            $pass = trim($pass);
         }
         $this->set('useAD', $useAD)
             ->set('ADDomain', trim($domain))
@@ -2139,7 +2139,7 @@ class Host extends FOGController
             ->set('ADUser', trim($user))
             ->set('ADPass', $pass)
             ->set('ADPassLegacy', $legacy)
-            ->set('productKey', trim(self::encryptpw($productKey)))
+            ->set('productKey', trim($productKey))
             ->set('enforce', (string)$enforce);
         return $this;
     }

@@ -152,20 +152,4 @@ class WindowsKey extends FOGController
         );
         $this->set('imagesnotinme', $images);
     }
-    /**
-     * Custom Set method.
-     *
-     * @param string $key   The key to set.
-     * @param mixed  $value The value to set.
-     *
-     * @return object
-     */
-    public function set($key, $value)
-    {
-        if ($this->key($key) == 'key') {
-            $value = self::encryptpw($value);
-        }
-
-        return parent::set($key, $value);
-    }
 }

@@ -42,14 +42,14 @@ class FOGCron extends FOGBase
         }
         if (strpos($str, '-')) {
             list($low, $high) = explode('-', $str);
-            return (bool)($num = $low);
+            return (bool)((int)$num >= (int)$low) && ((int)$num <= (int)$high);
         }
         if (strpos($str, '/')) {
             list($pre, $pos) = explode('/', $str);
             if ($pre == '*') {
-                return ($num % $pos == 0);
+                return ((int)$num % (int)$pos == 0);
             }
-            return ($num % $pos == $pre);
+            return ((int)$num % (int)$pos == (int)$pre);
         }
         return (bool)($str == $num);
     }
@@ -69,7 +69,7 @@ class FOGCron extends FOGBase
             $dom,
             $month,
             $dow
-        ) = array_map('trim', preg_split('/ +/', $cron));
+        ) = array_map('trim', preg_split('/\s+/', $cron));
         if (is_numeric($dow) && $dow == 0) {
             $dow = 7;
         }
@@ -80,24 +80,50 @@ class FOGCron extends FOGBase
                 $nhour,
                 $ndom,
                 $nmonth,
-                $ndow) = array_map(
-                    'trim',
-                    preg_split('/ +/', $Start->format('i H d n N'))
-                );
+                $ndow
+            ) = array_map(
+                function($val) {
+                    return intval(trim($val));
+                },
+                preg_split('/\s+/', $Start->format('i H j n N'))
+            );
+            // Fairly straight forward, check our minutes field.
             if ($min != '*') {
                 if (!self::_fit($min, $nmin)) {
                     $Start->modify(sprintf('%s1 minute', $lastrun ? '-' : '+'));
                     continue;
                 }
             }
+            // Check our hours field.
             if ($hour != '*') {
                 if (!self::_fit($hour, $nhour)) {
                     $Start->modify(sprintf('%s1 hour', $lastrun ? '-' : '+'));
                     continue;
                 }
             }
-            if ($dom != '*') {
+            // Here comes tricky part. DOM and DOW checks.
+            // If dow AND dom are set to some value other than * the
+            // typical action is to run if the days are true OR the dow is true.
+            //
+            // For example:
+            // our crontab is:
+            // * * 2-5 * 5 it should run on the 2nd through 5th of the month
+            // AND every friday. If you only have the DOW, it will only run on
+            // that day of the week. (* * * * 5) would only run on fridays.
+            if ($dom != '*' && $dow != '*') {
+                if (!self::_fit($dom, $ndom) && !self::_fit($dow, $ndow)) {
+                    $Start->modify(sprintf('%s1 day', $lastrun ? '-' : '+'));
+                    continue;
+                }
+            }
+            if ($dow == '*' && $dom != '*') {
                 if (!self::_fit($dom, $ndom)) {
+                    $Start->modify(sprintf('%s1 day', $lastrun ? '-' : '+'));
+                    continue;
+                }
+            }
+            if ($dow != '*' && $dom == '*') {
+                if (!self::_fit($dow, $ndow)) {
                     $Start->modify(sprintf('%s1 day', $lastrun ? '-' : '+'));
                     continue;
                 }
@@ -108,13 +134,11 @@ class FOGCron extends FOGBase
                     continue;
                 }
             }
-            if ($dow != '*') {
-                if (!self::_fit($dow, $ndow)) {
-                    $Start->modify(sprintf('%s1 day', $lastrun ? '-' : '+'));
-                    continue;
-                }
-            }
-            return $Start->getTimestamp();
+            return $Start->setTime(
+                $Start->format('H'),
+                $Start->format('i'),
+                0
+            )->getTimestamp();
         } while (true);
     }
     /**

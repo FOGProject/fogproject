@@ -28,4 +28,5 @@
         1000
     );
     tokenreset();
+    checkboxToggleSearchListPages();
 })(jQuery);
