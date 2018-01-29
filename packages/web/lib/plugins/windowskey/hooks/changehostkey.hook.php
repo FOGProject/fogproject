@@ -104,9 +104,7 @@ class ChangeHostKey extends Hook
             'key'
         );
         $productKey = trim(
-            self::encryptpw(
-                array_shift($WindowsKey)
-            )
+            array_shift($WindowsKey)
         );
         $arguments['Host']
             ->set(

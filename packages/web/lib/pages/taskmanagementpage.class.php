@@ -141,18 +141,20 @@ class TaskManagementPage extends FOGPage
                     }
                 }
             }
-            if ($Task->type->id < 3) {
-                if ($Task->isForced) {
-                    $forcetask = sprintf(
-                        '<i class="icon-forced" title="%s"></i>',
-                        _('Task forced to start')
-                    );
-                } else {
-                    $forcetask = sprintf(
-                        '<i class="icon-force icon" title="%s" href="?%s"></i>',
-                        _('Force task to start'),
-                        'node=task&sub=forceTask&id=${id}'
-                    );
+            if ($Task->state->id < 3) {
+                if ($Task->type->id < 3) {
+                    if ($Task->isForced) {
+                        $forcetask = sprintf(
+                            '<i class="icon-forced" title="%s"></i>',
+                            _('Task forced to start')
+                        );
+                    } else {
+                        $forcetask = sprintf(
+                            '<i class="icon-force icon" title="%s" href="?%s"></i>',
+                            _('Force task to start'),
+                            'node=task&sub=forceTask&id=${id}'
+                        );
+                    }
                 }
             }
             $this->data[] = array(

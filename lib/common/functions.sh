@@ -1117,7 +1117,8 @@ writeUpdateFile() {
     escblexports=$(echo $blexports | sed -e $replace)
     escinstalltype=$(echo $installtype | sed -e $replace)
     escsnmysqluser=$(echo $snmysqluser | sed -e $replace)
-    escsnmysqlpass=$(echo $snmysqlpass | sed -e $replace -e "s/[']{1}/'''/g")
+    escsnmysqlpass=$(echo "$snmysqlpass" | sed -e s/\'/\'\"\'\"\'/g)  # replace every ' with '"'"' for full bash escaping
+    sedescsnmysqlpass=$(echo "$escsnmysqlpass" | sed -e 's/[\&/]/\\&/g')  # then prefix every \ & and / with \ for sed escaping
     escsnmysqlhost=$(echo $snmysqlhost | sed -e $replace)
     escinstalllang=$(echo $installlang | sed -e $replace)
     escstorageLocation=$(echo $storageLocation | sed -e $replace)
@@ -1194,7 +1195,7 @@ writeUpdateFile() {
                 sed -i "s/snmysqluser=.*/snmysqluser='$escsnmysqluser'/g" $fogprogramdir/.fogsettings || \
                 echo "snmysqluser='$snmysqluser'" >> $fogprogramdir/.fogsettings
             grep -q "snmysqlpass=" $fogprogramdir/.fogsettings && \
-                sed -i "s/snmysqlpass=.*/snmysqlpass='$escsnmysqlpass'/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/snmysqlpass=.*/snmysqlpass='$sedescsnmysqlpass'/g" $fogprogramdir/.fogsettings || \
                 echo "snmysqlpass='$escsnmysqlpass'" >> $fogprogramdir/.fogsettings
             grep -q "snmysqlhost=" $fogprogramdir/.fogsettings && \
                 sed -i "s/snmysqlhost=.*/snmysqlhost='$escsnmysqlhost'/g" $fogprogramdir/.fogsettings || \
@@ -1592,33 +1593,34 @@ configureHttpd() {
         dummy=""
         while [[ -z $dummy ]]; do
             echo -n " * Is the MySQL password blank? (Y/n) "
-            read dummy
+            read -r dummy
             case $dummy in
                 [Yy]|[Yy][Ee][Ss]|"")
                     dummy='Y'
                     ;;
                 [Nn]|[Nn][Oo])
                     echo -n " * Enter the MySQL password: "
-                    read -s PASSWORD1
+                    read -rs PASSWORD1
                     echo
                     echo -n " * Re-enter the MySQL password: "
-                    read -s PASSWORD2
+                    read -rs PASSWORD2
                     echo
-                    if [[ ! -z $PASSWORD1 && $PASSWORD2 == $PASSWORD1 ]]; then
+                    if [[ ! -z $PASSWORD1 && $PASSWORD2 == "$PASSWORD1" ]]; then
                         dbpass=$PASSWORD1
                     else
-                        dppass=""
-                        while [[ ! -z $PASSWORD1 && $PASSWORD2 == $PASSWORD1 ]]; do
+                        dbpass=""
+                        while ! [[ ! -z $PASSWORD1 && $PASSWORD2 == "$PASSWORD1" ]]; do
+                            echo "Password entries were blank or didn't match!"
                             echo -n " * Enter the MySQL password: "
-                            read -s PASSWORD1
+                            read -rs PASSWORD1
                             echo
                             echo -n " * Re-enter the MySQL password: "
-                            read -s PASSWORD2
+                            read -rs PASSWORD2
                             echo
-                            [[ ! -z $PASSWORD1 && $PASSWORD2 == $PASSWORD1 ]] && dbpass=$PASSWORD1
+                            [[ ! -z $PASSWORD1 && $PASSWORD2 == "$PASSWORD1" ]] && dbpass=$PASSWORD1
                         done
                     fi
-                    [[ $snmysqlpass != $dbpass ]] && snmysqlpass=$dbpass
+                    [[ $snmysqlpass != "$dbpass" ]] && snmysqlpass=$dbpass
                     ;;
                 *)
                     dummy=""
@@ -1627,12 +1629,13 @@ configureHttpd() {
             esac
         done
     fi
-    options="-s"
-    [[ -n $snmysqlhost ]] && options="$options -h$snmysqlhost"
-    [[ -n $snmysqluser ]] && options="$options -u'$snmysqluser'"
-    [[ -n $snmysqlpass ]] && options="$options -p'$snmysqlpass'"
+    options=("-s")
+    [[ -n $snmysqlhost ]] && options=( "${options[@]}" "--host=$snmysqlhost" )
+    [[ -n $snmysqluser ]] && options=( "${options[@]}" "--user=$snmysqluser" )
+    [[ -n $snmysqlpass ]] && options=( "${options[@]}" "--password=$snmysqlpass" )
+    sqlescsnmysqlpass=$(echo "$snmysqlpass" | sed -e s/\'/\'\'/g)   # Replace every ' with '' for full MySQL escaping
     sql="UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root';"
-    mysql ${options} -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    mysql "${options[@]}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     mysqlver=$(mysql -V |  sed -n 's/.*Distrib[ ]\(\([0-9]\([.]\|\)\)*\).*\([-]\|\)[,].*/\1/p')
     mariadb=$(mysql -V |  sed -n 's/.*Distrib[ ].*[-]\(.*\)[,].*/\1/p')
     vertocheck="5.7"
@@ -1646,17 +1649,17 @@ configureHttpd() {
         case $snmysqlhost in
             127.0.0.1|[Ll][Oo][Cc][Aa][Ll][Hh][Oo][Ss][Tt])
                 sql="UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root';"
-                mysql ${options} -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sql="ALTER USER '$snmysqluser'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY '$snmysqlpass';"
-                mysql ${options} -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sql="ALTER USER '$snmysqluser'@'localhost' IDENTIFIED WITH mysql_native_password BY '$snmysqlpass';"
-                mysql ${options} -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                mysql "${options[@]}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                sql="ALTER USER '$snmysqluser'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY '$sqlescsnmysqlpass';"
+                mysql "${options[@]}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                sql="ALTER USER '$snmysqluser'@'localhost' IDENTIFIED WITH mysql_native_password BY '$sqlescsnmysqlpass';"
+                mysql "${options[@]}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 ;;
             *)
                 sql="UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root';"
-                mysql ${options} -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sql="ALTER USER '$snmysqluser'@'$snmysqlhost' IDENTIFIED WITH mysql_native_password BY '$snmysqlpass';"
-                mysql ${options} -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                mysql "${options[@]}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                sql="ALTER USER '$snmysqluser'@'$snmysqlhost' IDENTIFIED WITH mysql_native_password BY '$sqlescsnmysqlpass';"
+                mysql "${options[@]}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 ;;
         esac
     fi
@@ -1695,19 +1698,19 @@ configureHttpd() {
         # Enable our virtual host file for fog
         echo -e "# FOG Virtual Host\nInclude conf/extra/fog.conf" >> /etc/httpd/conf/httpd.conf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         # Enable php extensions
-        sed -i 's/;extension=bcmath.so/extension=bcmath.so/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        sed -i 's/;extension=curl.so/extension=curl.so/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        sed -i 's/;extension=ftp.so/extension=ftp.so/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        sed -i 's/;extension=gd.so/extension=gd.so/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        sed -i 's/;extension=gettext.so/extension=gettext.so/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        sed -i 's/;extension=ldap.so/extension=ldap.so/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        sed -i 's/;extension=mcrypt.so/extension=mcrypt.so/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        sed -i 's/;extension=mysqli.so/extension=mysqli.so/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        sed -i 's/;extension=openssl.so/extension=openssl.so/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        sed -i 's/;extension=pdo_mysql.so/extension=pdo_mysql.so/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        sed -i 's/;extension=posix.so/extension=posix.so/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        sed -i 's/;extension=sockets.so/extension=sockets.so/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        sed -i 's/;extension=zip.so/extension=zip.so/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        sed -i 's/;extension=bcmath/extension=bcmath/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        sed -i 's/;extension=curl/extension=curl/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        sed -i 's/;extension=ftp/extension=ftp/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        sed -i 's/;extension=gd/extension=gd/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        sed -i 's/;extension=gettext/extension=gettext/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        sed -i 's/;extension=ldap/extension=ldap/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        sed -i 's/;extension=mcrypt/extension=mcrypt/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        sed -i 's/;extension=mysqli/extension=mysqli/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        sed -i 's/;extension=openssl/extension=openssl/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        sed -i 's/;extension=pdo_mysql/extension=pdo_mysql/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        sed -i 's/;extension=posix/extension=posix/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        sed -i 's/;extension=sockets/extension=sockets/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        sed -i 's/;extension=zip/extension=zip/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         sed -i 's/open_basedir\ =/;open_basedir\ ="/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     fi
     sed -i 's/post_max_size\ \=\ 8M/post_max_size\ \=\ 3000M/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -1769,6 +1772,8 @@ configureHttpd() {
     dots "Creating config file"
     [[ -z $snmysqlhost ]] && snmysqlhost='localhost'
     [[ -z $snmysqluser ]] && snmysqluser='root'
+    phpescsnmysqlpass="${snmysqlpass//\\/\\\\}";   # Replace every \ with \\ ...
+    phpescsnmysqlpass="${phpescsnmysqlpass//\'/\\\'}"   # and then every ' with \' for full PHP escaping
     echo "<?php
 /**
  * The main configuration FOG uses.
@@ -1819,7 +1824,7 @@ class Config
         define('DATABASE_HOST', '$snmysqlhost');
         define('DATABASE_NAME', 'fog');
         define('DATABASE_USERNAME', '$snmysqluser');
-        define('DATABASE_PASSWORD', \"$snmysqlpass\");
+        define('DATABASE_PASSWORD', '$phpescsnmysqlpass');
     }
     /**
      * Defines the service settings
@@ -2033,9 +2038,17 @@ downloadfiles() {
     echo "Done"
 }
 configureDHCP() {
-    dots "Setting up and starting DHCP Server"
     case $bldhcp in
         1)
+            case $linuxReleaseName in
+                *[Dd][Ee][Bb][Ii][Aa][Nn]*)
+                    dots "Setting up and starting DHCP Server (incl. debian 9 fix)"
+                    sed -i.fog "s/INTERFACESv4=\"\"/INTERFACESv4=\"$interface\"/g" /etc/default/isc-dhcp-server
+                    ;;
+                *)
+                    dots "Setting up and starting DHCP Server"
+                    ;;
+            esac
             [[ -f $dhcpconfig ]] && cp -f $dhcpconfig ${dhcpconfig}.fogbackup
             serverip=$(ip -4 -o addr show $interface | awk -F'([ /])+' '/global/ {print $4}')
             [[ -z $serverip ]] && serverip=$(/sbin/ifconfig $interface | grep -oE 'inet[:]? addr[:]?([0-9]{1,3}\.){3}[0-9]{1,3}' | awk -F'(inet[:]? ?addr[:]?)' '{print $2}')

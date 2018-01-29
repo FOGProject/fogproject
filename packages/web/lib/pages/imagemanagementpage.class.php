@@ -1310,7 +1310,7 @@ class ImageManagementPage extends FOGPage
                     ->set('path', $file)
                     ->set('imageTypeID', $imagetype)
                     ->set('imagePartitionTypeID', $imagepartitiontype)
-                    ->set('format', $imagemanage ?: $this->obj->get('format'))
+                    ->set('format', $imagemanage)
                     ->set('protected', $protected)
                     ->set('compress', $compress)
                     ->set('isEnabled', $isEnabled)
