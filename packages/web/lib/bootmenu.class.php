@@ -1132,7 +1132,7 @@ class BootMenu extends FOGBase
         if (!self::$Host->isValid()) {
             return;
         }
-        self::$Host->set('productKey', self::encryptpw($_REQUEST['key']));
+        self::$Host->set('productKey', $_REQUEST['key']);
         if (!self::$Host->save()) {
             return;
         }

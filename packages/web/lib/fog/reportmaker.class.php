@@ -330,6 +330,7 @@ class ReportMaker extends FOGBase
         } else {
             echo json_encode(
                 array(
+                    'title' => _('Export Success'),
                     'msg' => _('Export Complete')
                 )
             );

@@ -1433,13 +1433,6 @@ abstract class FOGBase
             $token = bin2hex(
                 random_bytes(64)
             );
-        } elseif (function_exists('mcrypt_create_iv')) {
-            $token = bin2hex(
-                mcrypt_create_iv(
-                    64,
-                    MCRYPT_DEV_URANDOM
-                )
-            );
         } elseif (function_exists('openssl_random_pseudo_bytes')) {
             $token = bin2hex(
                 openssl_random_pseudo_bytes(
@@ -1468,20 +1461,24 @@ abstract class FOGBase
         if (mb_strlen($key, '8bit') !== ($iv_size * 2)) {
             echo json_encode(
                 array(
-                    'error' => _('Needs a 256-bit key')
+                    'error' => _('Needs a 256-bit key!')
                 )
             );
             exit;
         }
         $iv = openssl_random_pseudo_bytes($iv_size, $cstrong);
+        if (!$iv) {
+            echo json_encode(
+                array(
+                    'error' => openssl_error_string()
+                )
+            );
+            exit;
+        }
 
         // Pad the plaintext
-        if(strlen($data) % 8) {
-            $data = str_pad(
-                $data,
-                strlen($data) + 8 - strlen($data) % 8,
-                "\0"
-            );
+        if (strlen($data) % 8) {
+            $data = str_pad($data, strlen($data) + 8 - strlen($data) % 8, "\0");
         }
 
         $cipher = openssl_encrypt(
@@ -1513,7 +1510,6 @@ abstract class FOGBase
      * @param mixed  $encdata the item to decrypt
      * @param string $key     the key to use
      * @param int    $enctype the type of encryption to use
-     * @param int    $mode    the mode of encryption
      *
      * @return string
      */

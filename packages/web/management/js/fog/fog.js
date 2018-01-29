@@ -1208,7 +1208,6 @@ function buildRow(
     }
     $('.toggle-action:checkbox, .toggle-checkboxAction:checkbox').change(function(e) {
         checkedIDs = getChecked();
-        console.log(checkedIDs);
     });
     setChecked(checkedIDs);
     tbody = $('tbody', Container);

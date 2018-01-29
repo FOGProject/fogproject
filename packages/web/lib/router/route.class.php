@@ -1234,7 +1234,7 @@ class Route extends FOGBase
         switch ($classname) {
         case 'host':
             $pass = $class->get('ADPass');
-            $passtest = self::aesdecrypt($pass);
+            $passtest = FOGCore::aesdecrypt($pass);
             if ($test_base64 = base64_decode($passtest)) {
                 if (mb_detect_encoding($test_base64, 'utf-8', true)) {
                     $pass = $test_base64;
@@ -1243,7 +1243,7 @@ class Route extends FOGBase
                 $pass = $passtest;
             }
             $productKey = $class->get('productKey');
-            $productKeytest = self::aesdecrypt($productKey);
+            $productKeytest = FOGCore::aesdecrypt($productKey);
             if ($test_base64 = base64_decode($productKeytest)) {
                 if (mb_detect_encoding($test_base64, 'utf-8', true)) {
                     $productKey = $test_base64;

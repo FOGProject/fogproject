@@ -373,6 +373,7 @@ class HostManagementPage extends FOGPage
             $this->templates,
             $this->attributes
         );
+        // Check all the post fields if they've already been set.
         $host = filter_input(INPUT_POST, 'host');
         $mac = filter_input(INPUT_POST, 'mac');
         $description = filter_input(INPUT_POST, 'description');
@@ -382,6 +383,18 @@ class HostManagementPage extends FOGPage
         $args = filter_input(INPUT_POST, 'args');
         $init = filter_input(INPUT_POST, 'init');
         $dev = filter_input(INPUT_POST, 'dev');
+        $domain = filter_input(INPUT_POST, 'domain');
+        $domainname = filter_input(INPUT_POST, 'domainname');
+        $ou = filter_input(INPUT_POST, 'ou');
+        $domainuser = filter_input(INPUT_POST, 'domainuser');
+        $domainpassword = filter_input(INPUT_POST, 'domainpassword');
+        $domainpasswordlegacy = filter_input(
+            INPUT_POST,
+            'domainpasswordlegacy'
+        );
+        $enforcesel = isset($_POST['enforcesel']);
+
+        // The fields to display
         $fields = array(
             '<label class="col-sm-2 control-label" for="host">'
             . _('Host Name')
@@ -454,10 +467,11 @@ class HostManagementPage extends FOGPage
                 )
             );
         $rendered = self::formFields($fields);
+        unset($fields);
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h3 class="box-title">';
-        echo $this->title;
+        echo _('Create New Host');
         echo '</h3>';
         echo '</div>';
         echo '<form id="host-create-form" class="form-horizontal" method="post" action="'
@@ -469,17 +483,6 @@ class HostManagementPage extends FOGPage
         }
         echo '<!-- Host General -->';
         echo $rendered;
-
-        $domain = filter_input(INPUT_POST, 'domain');
-        $domainname = filter_input(INPUT_POST, 'domainname');
-        $ou = filter_input(INPUT_POST, 'ou');
-        $domainuser = filter_input(INPUT_POST, 'domainuser');
-        $domainpassword = filter_input(INPUT_POST, 'domainpassword');
-        $domainpasswordlegacy = filter_input(
-            INPUT_POST,
-            'domainpasswordlegacy'
-        );
-        $enforcesel = isset($_POST['enforcesel']);
         echo '</br>';
         echo '<h5><b><center>' . _('Active Directory') . '</center></b></h5>';
         $this->adFieldsToDisplay(
@@ -940,7 +943,8 @@ class HostManagementPage extends FOGPage
         self::$HookManager->processEvent(
             'HOST_EDIT_FIELDS',
             array(
-                'fields' => $fields
+                'fields' => &$fields,
+                'obj' => &$this->obj
             )
         );
         $rendered = self::formFields($fields);
