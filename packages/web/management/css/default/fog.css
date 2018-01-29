@@ -246,10 +246,10 @@ input[type=checkbox].delvid:checked + label:before {
 }
 
 .icon.fa.fa-download {
-  color: #7baa0f
+    color: #7baa0f
 }
 .icon.fa.fa-upload {
-  color: #ff9c07
+    color: #ff9c07
 }
 @media (min-width: 768px) {
     .navbar-nav {

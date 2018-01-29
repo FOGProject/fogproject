@@ -247,6 +247,33 @@ var $_GET = getQueryParams(document.location.search),
         var opts = form.serialize();
         Common.apiCall(form.attr('method'), form.attr('action'), opts, cb);
     };
+    Common.massExport = function(password, cb) {
+        var opts = {
+            fogguipass: password
+        };
+        Pace.track(function() {
+            $.ajax('', {
+                type: 'POST',
+                url: '../management/export.php?type='+Common.node,
+                async: true,
+                data: opts,
+                success: function(res) {
+                    Common.notifyFromAPI(res, false);
+                    if (cb && typeof(cb) === 'function')
+                        cb();
+                },
+                error: function(res) {
+                    if (res.status == 401) {
+                        cb(res);
+                    } else {
+                        Common.notifyFromAPI(res.responseJSON, true);
+                        if (cb && typeof(cb) === 'function')
+                            cb(res);
+                    }
+                }
+            });
+        });
+    };
     Common.massDelete = function(password, cb, table, remIds) {
         if(!remIds)
             remIds = [];

@@ -67,7 +67,7 @@ class Product_Keys extends ReportManagementPage
         $Hosts = json_decode(
             Route::getData()
         );
-        $Hosts = $Hosts->hosts;
+        $Hosts = $Hosts->data;
         foreach ((array)$Hosts as &$Host) {
             $productKey = $Host->productKey;
             $productKeytest = self::aesdecrypt($productKey);
@@ -76,7 +76,7 @@ class Product_Keys extends ReportManagementPage
                     $productKey = $test_base64;
                 }
             } elseif (mb_detect_encoding($productKeytest, 'utf-8', true)) {
-                $pruductKey = $productKeytest;
+                $productKey = $productKeytest;
             }
             $Image = $Host->image;
             $imgID = $Image->id;

@@ -3777,23 +3777,6 @@ $args
             $this->templates,
             $this->attributes
         );
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8'),
-        );
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
-        $fields = array(
-            '<label for="exportbtn">'
-            . _('Export CSV')
-            . '</label>' => '<div id="exportDiv"></div>'
-            . '<button name="export" type="submit" class="'
-            . 'btn btn-info btn-block" id="exportbtn">'
-            . _('Export')
-            . '</button>'
-        );
         $report = self::getClass('ReportMaker');
         self::arrayRemove('id', $this->databaseFields);
         if ($this->node == 'host') {
@@ -3803,15 +3786,10 @@ $args
         $Items = json_decode(
             Route::getData()
         );
-        $items = $this->node
-            . 's';
-        $Items = $Items->$items;
+        $Items = $Items->data;
         foreach ((array)$Items as &$Item) {
             if ($this->node == 'host') {
-                $macs = implode(
-                    '|',
-                    $Item->macs
-                );
+                $macs = $Item->primac;
                 $report->addCSVCell($macs);
                 unset($macs);
             }
@@ -3846,20 +3824,38 @@ $args
                 'attributes' => &$this->attributes
             )
         );
-        echo '  <div class="box box-primary">';
-        echo '      <div class="box-header">';
-        echo '          <h3 class="box-title">';
-        echo $this->title;
-        echo '          </h3>';
-        echo '      </div>';
-        echo '      <div class="box-body">';
-        echo '          <form class="form-horizontal" method="post" action="export.php?type='
+        $plural = $this->node.'s';
+        $modals = $modals . self::makeModal('exportModal',
+            _('Confirm password'),
+            '<input id="exportPassword" class="form-control" placeholder="' . _('Password') . '" autocomplete="off" type="password">',
+            self::makeButton('closeExportModal',
+            _('Cancel'),
+            'btn btn-outline pull-left',
+            'data-dismiss="modal"') .
+            self::makeButton('confirmExportModal',
+                _('Export'),
+                'btn btn-outline'),
+            '','info');
+        echo '<form class="form-horizontal" method="post" action="export.php?type='
             . $this->node
-            . '">';
-        $this->render(12);
-        echo '          </form>';
-        echo '      </div>';
-        echo '  </div>';
+            . '" id="export-form">';
+        echo '<div class="box box-solid">';
+        echo '<div class="box-header">';
+        echo '<h3 class="box-title">';
+        echo $this->title;
+        echo '</h3>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo _('Export the items as a CSV?');
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo '<button class="btn btn-primary" id="export">'
+            . _('Export')
+            . '</button>';
+        echo $modals;
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
     }
     /**
      * Presents the importer elements
