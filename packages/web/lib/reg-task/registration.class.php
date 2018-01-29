@@ -391,9 +391,7 @@ class Registration extends FOGBase
                 ->addPriMAC($this->PriMAC)
                 ->addAddMAC($this->MACs);
             if (self::getSetting('FOG_QUICKREG_PROD_KEY_BIOS') > 0) {
-                $productKey = self::encryptpw(
-                    base64_decode($_REQUEST['productKey'])
-                );
+                $productKey = base64_decode($_REQUEST['productKey']);
                 self::$Host->set('productKey', $productKey);
             }
             self::$HookManager
@@ -452,9 +450,7 @@ class Registration extends FOGBase
                 ->addPriMAC($this->PriMAC)
                 ->addAddMAC($this->MACs);
             if (self::getSetting('FOG_QUICKREG_PROD_KEY_BIOS') > 0) {
-                $productKey = self::encryptpw(
-                    base64_decode($_REQUEST['productKey'])
-                );
+                $productKey = base64_decode($_REQUEST['productKey']);
                 self::$Host->set('productKey', $productKey);
             }
             self::$HookManager

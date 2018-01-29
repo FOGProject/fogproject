@@ -306,8 +306,16 @@ class WindowsKeyManagementPage extends FOGPage
             filter_input(
                 INPUT_POST,
                 'key'
-            ) ?: self::aesdecrypt($this->obj->get('key'))
+            ) ?: $this->obj->get('key')
         );
+        $keytest = self::aesdecrypt($key);
+        if ($test_base64 = base64_decode($keytest)) {
+            if (mb_detect_encoding($test_base64, 'utf-8', true)) {
+                $key = $test_base64;
+            }
+        } elseif (mb_detect_encoding($keytest, 'utf-8', true)) {
+            $key = $keytest;
+        }
         $fields = array(
             '<label for="name">'
             . _('Windows Key Name')

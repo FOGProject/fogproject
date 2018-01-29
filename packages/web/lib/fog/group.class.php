@@ -896,7 +896,7 @@ class Group extends FOGController
         $legacy,
         $enforce
     ) {
-        $pass = trim(self::encryptpw($pass));
+        $pass = trim($pass);
         self::getClass('HostManager')
             ->update(
                 array(

@@ -500,7 +500,7 @@ class LDAPManagementPage extends FOGPage
                 ->set('userGroup', $userGroup)
                 ->set('searchScope', $searchScope)
                 ->set('bindDN', $bindDN)
-                ->set('bindPwd', self::encryptpw($bindPwd))
+                ->set('bindPwd', $bindPwd)
                 ->set('useGroupMatch', $useGroupMatch)
                 ->set('grpSearchDN', $grpSearchDN);
             if (!$LDAP->save()) {
@@ -964,7 +964,7 @@ class LDAPManagementPage extends FOGPage
                 ->set('userGroup', $userGroup)
                 ->set('searchScope', $searchScope)
                 ->set('bindDN', $bindDN)
-                ->set('bindPwd', self::encryptpw($bindPwd))
+                ->set('bindPwd', $bindPwd)
                 ->set('useGroupMatch', $useGroupMatch)
                 ->set('grpSearchDN', $grpSearchDN);
             if (!$LDAP->save()) {
