@@ -30,6 +30,7 @@
             originalName = $('#name').val();
         });
     });
+    $("#name").inputmask({"mask": Common.masks.username, "placeholder": ""});
 
 
     // ----------------------------------------------------

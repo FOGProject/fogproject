@@ -367,6 +367,15 @@ class User extends FOGController
         return true;
     }
     /**
+     * Returns if the user is logged in or not
+     *
+     * @return bool
+     */
+    public function isLoggedIn()
+    {
+        return $this->_isLoggedIn() ? $this : new User(0);
+    }
+    /**
      * Tests if user is logged in
      *
      * @return bool

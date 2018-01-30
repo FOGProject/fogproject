@@ -20,4 +20,5 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
+FOGCore::getClass('ProcessLogin')->processMainLogin();
 new Route;

@@ -1,5 +1,3 @@
-var MACLookupTimer,
-    MACLookupTimeout = 1000;
 (function($) {
     var createForm = $("#host-create-form");
     var createFormBtn = $("#send");
