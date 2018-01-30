@@ -8,12 +8,23 @@ var $_GET = getQueryParams(document.location.search),
         masks: {
             'mac': "##:##:##:##:##:##",
             'productKey': "*****-*****-*****-*****-*****",
-            'hostname': ""
+            'hostname': "",
+            'username': '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'
         }
     };
 
 (function($) {
     PNotify.prototype.options.styling = "fontawesome";
+
+    // Extending input mask to add our types
+    $.extend($.inputmask.defaults.definitions, {
+        '^': {
+            validator: "[A-Za-z0-9\_\.]",
+            cardinality: 1
+        },
+    });
+
+
     var uniSearchForm = $('#universal-search-form');
     var uniSearchField = $('#universal-search-field');
     var uniSearchButton = $('#universal-search-btn');
@@ -98,9 +109,10 @@ var $_GET = getQueryParams(document.location.search),
             Pace.track(function(){
                 $.ajax('', {
                     type: uniSearchForm.attr('method'),
-                    url: uniSearchForm.attr('action'),
+                    url: uniSearchForm.attr('action') + '/' + query + '/' + 5,
                     async: true,
                     data: opts,
+                    dataType: 'json',
                     success: function(res) {
                         processSearch(res, opts.search);
                     },
@@ -169,9 +181,11 @@ var $_GET = getQueryParams(document.location.search),
                 var minLength = $(e).attr("minlength") || "-1";
                 var maxLength = $(e).attr("maxlength") || "-1";
                 var exactLength = $(e).attr("exactlength") || "-1";
+
                 minLength = parseInt(minLength);
                 maxLength = parseInt(maxLength);
                 exactLength = parseInt(exactLength);
+                if (beEqualTo) beEqualTo = "#" + beEqualTo;
 
                 if (val.length < minLength) {
                     isValid = false;
@@ -185,6 +199,21 @@ var $_GET = getQueryParams(document.location.search),
                         isValid = false;
                         invalidReason = 'Field is incomplete';
                     }
+                }
+            }
+
+            equalCheck: if (isValid) {
+                var beEqualTo = $(e).attr("beEqualTo");
+                if (!beEqualTo) break equalCheck;
+
+                if (! $("#" + beEqualTo).length) {
+                    console.log("Missing target " + beEqualTo + " for " + e);
+                    break equalCheck;
+                }
+                var target = $("#" + beEqualTo);
+                if ($(e).val() !== target.val()) {
+                    isValid = false;
+                    invalidReason = 'Field does not match';
                 }
             }
 

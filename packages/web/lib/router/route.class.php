@@ -166,14 +166,16 @@ class Route extends FOGBase
             );
             exit;
         }
-        /**
-         * Test our token.
-         */
-        self::_testToken();
-        /**
-         * Test our authentication.
-         */
-        self::_testAuth();
+        if (!self::$FOGUser->isValid()) {
+            /**
+             * Test our token.
+             */
+            self::_testToken();
+            /**
+             * Test our authentication.
+             */
+            self::_testAuth();
+        }
         /**
          * Ensure api has unlimited time.
          */
@@ -249,8 +251,9 @@ class Route extends FOGBase
                 array(self, 'status'),
                 'status'
             )
-            ->get(
-                '/[search|unisearch]/[**:item]',
+            ->map(
+                'GET|POST',
+                '/[search|unisearch]/[*:item]/[i:limit]?',
                 array(self, 'unisearch'),
                 'unisearch'
             )
@@ -562,13 +565,14 @@ class Route extends FOGBase
     /**
      * Presents the equivalent of a universal search.
      * 
-     * @param string $item  The "search" term.
-     * @param int    $limit Limit the results?
+     * @param string   $item  The "search" term.
+     * @param bool|int $limit Limit the results?
      *
      * @return void
      */
     public static function unisearch($item, $limit = 0)
     {
+        header('Content-type: application/json');
         if (empty(trim($limit))) {
             $limit = 0;
         }
@@ -582,7 +586,7 @@ class Route extends FOGBase
             $data['_results'][$search] = self::allsearch(
                 $search,
                 $item,
-                0,
+                $limit,
                 true
             );
             $items = self::allsearch(

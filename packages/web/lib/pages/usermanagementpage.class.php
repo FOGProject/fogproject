@@ -156,7 +156,7 @@ class UserManagementPage extends FOGPage
             . 'form-control username-input" name='
             . '"name" value="'
             . $name
-            . '" autocomplete="off" id="name" required/>',
+            . '" autocomplete="off" id="name" minlength="3" maxlength="40" required/>',
             '<label class="col-sm-2 control-label" for="display">'
             . _('Friendly Name')
             . '</label>' => '<input type="text" class="'
@@ -173,7 +173,7 @@ class UserManagementPage extends FOGPage
             '<label class="col-sm-2 control-label" for="password2">'
             . _('User Password (confirm)')
             . '</label>' => '<input type="password" class="'
-            . 'form-control password-input2" name="password_confirm" value='
+            . 'form-control password-input2" name="password_confirm" beEqualTo="password" value='
             . '"" autocomplete="off" id="password2" required/>',
             '<label class="col-sm-2 control-label" for="apion">'
             . _('User API Enabled')
@@ -301,6 +301,10 @@ class UserManagementPage extends FOGPage
                 )
             );
         }
+
+        http_response_code(201);
+        header('Location: ../management/index.php?node=user&sub=edit&id=' . $User->get('id'));
+
         self::$HookManager
             ->processEvent(
                 $hook,
@@ -335,7 +339,7 @@ class UserManagementPage extends FOGPage
             . _('User Name')
             . '" type="text" value="'
             . $name
-            . '" name="name" required/>',
+            . '" name="name" minlength="3" maxlength="40" required/>',
             '<label for="display" class="col-sm-2 control-label">'
             . _('Friendly Name')
             . '</label>' => '<input id="display" class="form-control" placeholder="'
@@ -401,7 +405,7 @@ class UserManagementPage extends FOGPage
             . _('User Password (confirm)')
             . '</label>' => '<input id="passwordConfirm" class="form-control" placeholder="'
             . _('User Password (confirm)')
-            . '" type="password" value="" name="password_confirm" required/>'
+            . '" type="password" value="" name="password_confirm" beEqualTo="password" required/>'
         );
         self::$HookManager->processEvent(
             'USER_PW_EDIT_FIELDS',
