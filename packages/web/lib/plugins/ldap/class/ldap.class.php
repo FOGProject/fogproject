@@ -357,9 +357,9 @@ class LDAP extends FOGController
             if ($test_base64 = base64_decode($bindPasstest)) {
                 if (mb_detect_encoding($test_base64, 'utf-8', true)) {
                     $bindPass = $test_base64;
+                } elseif (mb_detect_encoding($bindPasstest, 'utf-8', true)) {
+                    $bindPass = $bindPasstest;
                 }
-            } elseif (mb_detect_encoding($bindPasstest, 'utf-8', true)) {
-                $bindPass = $bindPasstest;
             }
             /**
              * If no bind password return immediately

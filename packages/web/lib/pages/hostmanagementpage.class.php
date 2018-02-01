@@ -1013,9 +1013,9 @@ class HostManagementPage extends FOGPage
         if ($test_base64 = base64_decode($productKeytest)) {
             if (mb_detect_encoding($test_base64, 'utf-8', true)) {
                 $productKey = $test_base64;
+            } elseif (mb_detect_encoding($productKeytest, 'utf-8', true)) {
+                $productKey = $productKeytest;
             }
-        } elseif (mb_detect_encoding($productKeytest, 'utf-8', true)) {
-            $productKey = $productKeytest;
         }
         $kern = (
             filter_input(INPUT_POST, 'kern') ?: $this->obj->get('kernel')

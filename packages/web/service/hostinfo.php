@@ -162,18 +162,18 @@ try {
     if ($test_base64 = base64_decode($passtest)) {
         if (mb_detect_encoding($test_base64, 'utf-8', true)) {
             $pass = $test_base64;
+        } elseif (mb_detect_encoding($passtest, 'utf-8', true)) {
+            $pass = $passtest;
         }
-    } elseif (mb_detect_encoding($passtest, 'utf-8', true)) {
-        $pass = $passtest;
     }
     $productKey = FOGCore::$Host->get('productKey');
     $productKeytest = FOGCore::aesdecrypt($productKey);
     if ($test_base64 = base64_decode($productKeytest)) {
         if (mb_detect_encoding($test_base64)) {
             $productKey = $test_base64;
+        } elseif (mb_detect_encoding($productKeytest, 'utf-8', true)) {
+            $productKey = $productKeytest;
         }
-    } elseif (mb_detect_encoding($productKeytest, 'utf-8', true)) {
-        $productKey = $productKeytest;
     }
     $repFields = array(
         // Imaging items to set

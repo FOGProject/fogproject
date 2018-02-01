@@ -3868,9 +3868,9 @@ abstract class FOGPage extends FOGBase
                         if ($test_base64 = base64_decode($data[$index])) {
                             if (mb_detect_encoding($test_base64, 'utf-8', true)) {
                                 $data[$index] = $test_base64;
+                            } elseif (mb_detect_encoding($test_encryption, 'utf-8', true)) {
+                                $data[$index] = $test_encryption;
                             }
-                        } elseif (mb_detect_encoding($test_encryption, 'utf-8', true)) {
-                            $data[$index] = $test_encryption;
                         }
                     }
                     if ($ItemMan->exists($data[$iterator])) {

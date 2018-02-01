@@ -74,9 +74,9 @@ class Product_Keys extends ReportManagementPage
             if ($test_base64 = base64_decode($productKeytest)) {
                 if (mb_detect_encoding($test_base64, 'utf-8', true)) {
                     $productKey = $test_base64;
+                } elseif (mb_detect_encoding($productKeytest, 'utf-8', true)) {
+                    $pruductKey = $productKeytest;
                 }
-            } elseif (mb_detect_encoding($productKeytest, 'utf-8', true)) {
-                $pruductKey = $productKeytest;
             }
             $Image = $Host->image;
             $imgID = $Image->id;
