@@ -1433,13 +1433,6 @@ abstract class FOGBase
             $token = bin2hex(
                 random_bytes(64)
             );
-        } elseif (function_exists('mcrypt_create_iv')) {
-            $token = bin2hex(
-                mcrypt_create_iv(
-                    64,
-                    MCRYPT_DEV_URANDOM
-                )
-            );
         } elseif (function_exists('openssl_random_pseudo_bytes')) {
             $token = bin2hex(
                 openssl_random_pseudo_bytes(
@@ -1463,6 +1456,14 @@ abstract class FOGBase
         $key = false,
         $enctype = 'aes-256-cbc'
     ) {
+        if (!$data) {
+            echo json_encode(
+                array(
+                    'error' => _('Data is blank')
+                )
+            );
+            exit;
+        }
         $iv_size = openssl_cipher_iv_length($enctype);
         $key = self::hex2bin($key);
         if (mb_strlen($key, '8bit') !== ($iv_size * 2)) {
@@ -1476,10 +1477,10 @@ abstract class FOGBase
         $iv = openssl_random_pseudo_bytes($iv_size, $cstrong);
 
         // Pad the plaintext
-        if(strlen($data) % 8) {
+        if (strlen($data) % $iv_size) {
             $data = str_pad(
                 $data,
-                strlen($data) + 8 - strlen($data) % 8,
+                ((strlen($data) + $iv_size) - (strlen($data) % $iv_size)),
                 "\0"
             );
         }

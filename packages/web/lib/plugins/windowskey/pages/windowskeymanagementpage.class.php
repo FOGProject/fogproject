@@ -312,9 +312,9 @@ class WindowsKeyManagementPage extends FOGPage
         if ($test_base64 = base64_decode($keytest)) {
             if (mb_detect_encoding($test_base64, 'utf-8', true)) {
                 $key = $test_base64;
+            } elseif (mb_detect_encoding($keytest, 'utf-8', true)) {
+                $key = $keytest;
             }
-        } elseif (mb_detect_encoding($keytest, 'utf-8', true)) {
-            $key = $keytest;
         }
         $fields = array(
             '<label for="name">'

@@ -41,9 +41,9 @@ class HostnameChanger extends FOGClient implements FOGClientSend
         if ($test_base64 = base64_decode($passwordtest)) {
             if (mb_detect_encoding($test_base64, 'utf-8', true)) {
                 $password = $test_base64;
+            } elseif (mb_detect_encoding($passwordtest, 'utf-8', true)) {
+                $password = $passwordtest;
             }
-        } elseif (mb_detect_encoding($passwordtest, 'utf-8', true)) {
-            $password = $passwordtest;
         }
         $productKey = self::$Host->get('productKey');
         $productKeytest = self::aesdecrypt($productKey);
@@ -51,7 +51,8 @@ class HostnameChanger extends FOGClient implements FOGClientSend
             if (mb_detect_encoding($test_base64, 'utf-8', true)) {
                 $productKey = $test_base64;
             }
-        } elseif (mb_detect_encoding($productKeytest, 'utf-8', true)) {
+        }
+        if (mb_detect_encoding($productKeytest, 'utf-8', true)) {
             $productKey = $productKeytest;
         }
         $username = trim(
