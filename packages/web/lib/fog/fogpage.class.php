@@ -2562,7 +2562,7 @@ abstract class FOGPage extends FOGBase
                     $filesize = self::getFilesize(
                         $_SESSION['tmp-kernel-file']
                     );
-                    if (!$filesize >  1048576) {
+                    if ($filesize <  1048576) {
                         throw new Exception(
                             sprintf(
                                 '%s: %s: %s - %s',
