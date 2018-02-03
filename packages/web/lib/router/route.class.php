@@ -166,14 +166,16 @@ class Route extends FOGBase
             );
             exit;
         }
-        /**
-         * Test our token.
-         */
-        self::_testToken();
-        /**
-         * Test our authentication.
-         */
-        self::_testAuth();
+        if (!self::$FOGUser->isValid()) {
+            /**
+             * Test our token.
+             */
+            self::_testToken();
+            /**
+             * Test our authentication.
+             */
+            self::_testAuth();
+        }
         /**
          * Ensure api has unlimited time.
          */
