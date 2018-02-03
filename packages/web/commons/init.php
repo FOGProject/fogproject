@@ -163,7 +163,7 @@ class Initiator
             && $useragent
             && file_exists(BASEPATH . $script)
             && session_status() == PHP_SESSION_NONE
-            && false === stripos($script, '/api/')
+            //&& false === stripos($script, '/api/')
         ) {
             session_start();
         }
