@@ -2199,7 +2199,7 @@ languagemogen() {
     local lang=''
     for lang in ${languages[@]}; do
         [[ ! -d "${langpath}/${lang}.UTF-8" ]] && continue
-        msgfmt -o \
+        msgfmt --no-hash -l ${lang} -f -o \
             "${langpath}/${lang}.UTF-8/LC_MESSAGES/messages.mo" \
             "${langpath}/${lang}.UTF-8/LC_MESSAGES/messages.po" \
             >>$workingdir/error_logs/fog_error_${version}.log 2>&1

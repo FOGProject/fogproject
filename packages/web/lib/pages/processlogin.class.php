@@ -55,7 +55,9 @@ class ProcessLogin extends FOGPage
     public function __construct($name = '')
     {
         parent::__construct($name);
+        require __DIR__ . '/../../commons/text.php';
         $this->_lang = self::$locale;
+        $this->setLang();
     }
     /**
      * Index page.
@@ -65,7 +67,7 @@ class ProcessLogin extends FOGPage
     public function index()
     {
         if (self::$FOGUser->isValid()) {
-            self::redirect('?node=home');
+            self::redirect('../management/index.php?node=home');
         }
     }
     /**
@@ -169,27 +171,20 @@ class ProcessLogin extends FOGPage
      */
     public function setLang()
     {
-        $langs = array(
-            'de_DE' => true,
-            'en_US' => true,
-            'es_ES' => true,
-            'fr_FR' => true,
-            'it_IT' => true,
-            'pt_BR' => true,
-            'zh_CN' => true,
-        );
         $this->_specLang();
+        $domain = 'messages';
+        putenv('LANG=' . $this->_lang.'.UTF-8');
         setlocale(
-            (int)LC_MESSAGES,
+            LC_ALL,
             sprintf(
                 '%s.UTF-8',
                 $this->_lang
             )
         );
-        $domain = 'messages';
+        $path = __DIR__ . '/../../management/languages/';
         bindtextdomain(
             $domain,
-            './languages'
+            $path
         );
         bind_textdomain_codeset(
             $domain,
@@ -238,7 +233,6 @@ class ProcessLogin extends FOGPage
     public function processMainLogin()
     {
         global $currentUser;
-        $this->setLang();
         $uname = filter_input(INPUT_POST, 'uname');
         $upass = filter_input(INPUT_POST, 'upass');
         $this->_username = $uname;
