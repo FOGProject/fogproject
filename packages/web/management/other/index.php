@@ -27,7 +27,7 @@ echo '<head>';
 echo '<meta charset="utf-8"/>';
 echo '<meta http-equiv="X-UA-Compatible" content="IE=edge"/>';
 echo '<meta name="viewport" content="width=device-width, initial-scale=1"/>';
-echo '<title>' . $this->title . '</title>';
+echo '<title>' . $this->pageTitle . '</title>';
 self::$HookManager
     ->processEvent(
         'CSS',
