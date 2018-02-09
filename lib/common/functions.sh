@@ -1438,9 +1438,10 @@ EOF
         *)
             if [[ $recreateCA == yes || $recreateKeys == yes || ! -f $etcconf ]]; then
                 if [[ $httpproto == https ]]; then
-                    echo "NameVirtualHost *:80" > "$etcconf"
-                    echo "NameVirtualHost *:443" >> "$etcconf"
                     echo "<VirtualHost *:80>" >> "$etcconf"
+                    echo "    <FilesMatch \"\.php\$\">" >> "$etcconf"
+                    echo "        SetHandler \"proxy:fcgi://127.0.0.1:9000/\"" >> "$etcconf"
+                    echo "    </FilesMatch>" >> "$etcconf"
                     echo "    ServerName $ipaddress" >> "$etcconf"
                     echo "    RewriteEngine On" >> "$etcconf"
                     echo "    RewriteRule /management/other/ca.cert.der$ - [L]" >> "$etcconf"
@@ -1449,6 +1450,9 @@ EOF
                     echo "</VirtualHost>" >> "$etcconf"
                     echo "<VirtualHost *:443>" >> "$etcconf"
                     echo "    KeepAlive Off" >> "$etcconf"
+                    echo "    <FilesMatch \"\.php\$\">" >> "$etcconf"
+                    echo "        SetHandler \"proxy:fcgi://127.0.0.1:9000/\"" >> "$etcconf"
+                    echo "    </FilesMatch>" >> "$etcconf"
                     echo "    ServerName $ipaddress" >> "$etcconf"
                     echo "    DocumentRoot $docroot" >> "$etcconf"
                     echo "    SSLEngine On" >> "$etcconf"
@@ -1467,8 +1471,10 @@ EOF
                     echo "    RewriteRule ^/(.*)$ /fog/api/index.php [QSA,L]" >> "$etcconf"
                     echo "</VirtualHost>" >> "$etcconf"
                 else
-                    echo "NameVirtualHost *:80" > "$etcconf"
                     echo "<VirtualHost *:80>" >> "$etcconf"
+                    echo "    <FilesMatch \"\.php\$\">" >> "$etcconf"
+                    echo "        SetHandler \"proxy:fcgi://127.0.0.1:9000/\"" >> "$etcconf"
+                    echo "    </FilesMatch>" >> "$etcconf"
                     echo "    KeepAlive Off" >> "$etcconf"
                     echo "    ServerName $ipaddress" >> "$etcconf"
                     echo "    DocumentRoot $docroot" >> "$etcconf"
@@ -1486,7 +1492,7 @@ EOF
                 if [[ $osid -eq 2 ]]; then
                     a2enmod $phpcmd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     a2enmod proxy_fcgi setenvif >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    a2enmod $phpfpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    sed -i 's/listen = .*/listen = 127.0.0.1:9000/g' /etc/php/$php_ver/fpm/pool.d/www.conf
                     a2enmod rewrite >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     a2enmod ssl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     a2ensite "001-fog" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
