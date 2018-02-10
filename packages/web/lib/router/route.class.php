@@ -248,52 +248,52 @@ class Route extends FOGBase
             ->map(
                 'HEAD|GET',
                 '/system/[status|info]',
-                array(self, 'status'),
+                array('self', 'status'),
                 'status'
             )
             ->get(
                 "${expandeda}/[current|active]",
-                array(self, 'active'),
+                array('self', 'active'),
                 'active'
             )
             ->get(
                 "${expanded}/search/[*:item]",
-                array(self, 'search'),
+                array('self', 'search'),
                 'search'
             )
             ->get(
                 "${expanded}/[list|all]?",
-                array(self, 'listem'),
+                array('self', 'listem'),
                 'list'
             )
             ->get(
                 "${expanded}/[i:id]",
-                array(self, 'indiv'),
+                array('self', 'indiv'),
                 'indiv'
             )
             ->put(
                 "${expanded}/[i:id]/[update|edit]?",
-                array(self, 'edit'),
+                array('self', 'edit'),
                 'update'
             )
             ->post(
                 "${expandedt}/[i:id]/[task]",
-                array(self, 'task'),
+                array('self', 'task'),
                 'task'
             )
             ->post(
                 "${expanded}/[create|new]?",
-                array(self, 'create'),
+                array('self', 'create'),
                 'create'
             )
             ->delete(
                 "${expandedt}/[i:id]?/[cancel]",
-                array(self, 'cancel'),
+                array('self', 'cancel'),
                 'cancel'
             )
             ->delete(
                 "${expanded}/[i:id]/[delete|remove]?",
-                array(self, 'delete'),
+                array('self', 'delete'),
                 'delete'
             );
     }
@@ -499,12 +499,11 @@ class Route extends FOGBase
     public static function search($class, $item)
     {
         $classname = strtolower($class);
-        $_POST['crit'] = $item;
         $classman = self::getClass($class)->getManager();
         self::$data = array();
         self::$data['count'] = 0;
         self::$data[$classname.'s'] = array();
-        foreach ($classman->search('', true) as &$class) {
+        foreach ($classman->search($item, true) as &$class) {
             if (false != stripos($class->get('name'), '_api_')) {
                 continue;
             }
