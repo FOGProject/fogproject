@@ -301,8 +301,8 @@ class FOGSubMenu extends FOGBase
     public function get($node)
     {
         ob_start();
-        if (count($this->notes[$node]) < 1
-            && count($this->items[$node]) < 1
+        if (count((array)$this->notes[$node]) < 1
+            && count((array)$this->items[$node]) < 1
         ) {
             return;
         }

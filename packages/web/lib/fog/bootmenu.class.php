@@ -1949,7 +1949,7 @@ class BootMenu extends FOGBase
         );
         array_map(
             function (&$Menu) use (&$Send) {
-                $Send["item-{$Menu->get(name)}"] = $this->_menuItem(
+                $Send["item-". $Menu->get('name')] = $this->_menuItem(
                     $Menu,
                     trim($Menu->get('description'))
                 );
@@ -1960,7 +1960,7 @@ class BootMenu extends FOGBase
         $Send['default'] = array($this->_defaultChoice);
         array_map(
             function (&$Menu) use (&$Send) {
-                $Send["choice-{$Menu->get(name)}"] = $this->_menuOpt(
+                $Send["choice-".$Menu->get('name')] = $this->_menuOpt(
                     $Menu,
                     trim($Menu->get('args'))
                 );
