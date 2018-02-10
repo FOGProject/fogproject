@@ -315,7 +315,7 @@ class Initiator
          * all REQUEST, COOKIE, POST, and GET data.
          * Otherwise it will clean the passed value.
          */
-        if (!count($value)) {
+        if (!count((array)$value)) {
             $process = array(
                 &$_GET,
                 &$_POST,
