@@ -1007,7 +1007,7 @@ abstract class FOGManagerController extends FOGBase
                 $keyword
             )
         );
-        if (count($this->aliasedFields) > 0) {
+        if (count((array)$this->aliasedFields) > 0) {
             self::arrayRemove($this->aliasedFields, $this->databaseFields);
         }
         $findWhere = array_fill_keys(array_keys($this->databaseFields), $keyword);
