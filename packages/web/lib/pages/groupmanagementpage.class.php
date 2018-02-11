@@ -331,7 +331,6 @@ class GroupManagementPage extends FOGPage
             'ADOU',
             'ADUser',
             'ADPass',
-            'ADPassLegacy',
             'biosexit',
             'efiexit',
         );
@@ -369,7 +368,6 @@ class GroupManagementPage extends FOGPage
             $adOU,
             $adUser,
             $adPass,
-            $adPassLegacy,
             $biosExit,
             $efiExit
         ) = self::$_common;
@@ -717,7 +715,6 @@ class GroupManagementPage extends FOGPage
             $adOU,
             $adUser,
             $adPass,
-            $adPassLegacy,
             $biosExit,
             $efiExit
         ) = self::$_common;
@@ -1534,7 +1531,6 @@ class GroupManagementPage extends FOGPage
             $adOU,
             $adUser,
             $adPass,
-            $adPassLegacy,
             $biosExit,
             $efiExit
         ) = self::$_common;
@@ -1582,11 +1578,6 @@ class GroupManagementPage extends FOGPage
             ''
         );
         $ADPass = self::$Host->get('ADPass');
-        $ADPassLegacy = (
-            $adPassLegacy ?
-            self::$Host->get('ADPassLegacy') :
-            ''
-        );
         echo '<div class="col-xs-9 tab-content">';
         $this->groupGeneral();
         $this->groupImage($imageMatchID);
@@ -1597,7 +1588,6 @@ class GroupManagementPage extends FOGPage
             $ADOU,
             $ADUser,
             $ADPass,
-            $ADPassLegacy,
             $enforce
         );
         $this->groupPrinters();
@@ -1614,14 +1604,12 @@ class GroupManagementPage extends FOGPage
             $adOU,
             $adUser,
             $adPass,
-            $adPassLegacy,
             $useAD,
             $ADOU,
             $ADDomain,
             $ADUser,
             $adPass,
             $ADPass,
-            $ADPassLegacy,
             $biosExit,
             $efiExit,
             $exitNorm,
@@ -1812,7 +1800,6 @@ class GroupManagementPage extends FOGPage
             $ou = filter_input(INPUT_POST, 'ou');
             $user = filter_input(INPUT_POST, 'domainuser');
             $pass = filter_input(INPUT_POST, 'domainpassword');
-            $legacy = filter_input(INPUT_POST, 'domainpasswordlegacy');
             $enforce = isset($_POST['enforcesel']);
             $items = filter_input_array(
                 INPUT_POST,
@@ -1901,7 +1888,6 @@ class GroupManagementPage extends FOGPage
                     $ou,
                     $user,
                     $pass,
-                    $legacy,
                     $enforce
                 );
                 break;

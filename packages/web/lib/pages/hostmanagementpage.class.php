@@ -388,10 +388,6 @@ class HostManagementPage extends FOGPage
         $ou = filter_input(INPUT_POST, 'ou');
         $domainuser = filter_input(INPUT_POST, 'domainuser');
         $domainpassword = filter_input(INPUT_POST, 'domainpassword');
-        $domainpasswordlegacy = filter_input(
-            INPUT_POST,
-            'domainpasswordlegacy'
-        );
         $enforcesel = isset($_POST['enforcesel']);
 
         // The fields to display
@@ -491,7 +487,6 @@ class HostManagementPage extends FOGPage
             $ou,
             $domainuser,
             $domainpassword,
-            $domainpasswordlegacy,
             $enforcesel,
             false
         );
@@ -536,9 +531,6 @@ class HostManagementPage extends FOGPage
             filter_input(INPUT_POST, 'domainuser')
         );
         $pass = $password;
-        $passlegacy = trim(
-            filter_input(INPUT_POST, 'domainpasswordlegacy')
-        );
         $key = trim(
             filter_input(INPUT_POST, 'key')
         );
@@ -628,7 +620,6 @@ class HostManagementPage extends FOGPage
                     $pass,
                     true,
                     true,
-                    $passlegacy,
                     $productKey,
                     $enforce
                 );
@@ -2744,7 +2735,6 @@ class HostManagementPage extends FOGPage
                     $this->obj->get('ADOU'),
                     $this->obj->get('ADUser'),
                     $this->obj->get('ADPass'),
-                    $this->obj->get('ADPassLegacy'),
                     $this->obj->get('enforce')
                 );
             }
@@ -2883,12 +2873,6 @@ class HostManagementPage extends FOGPage
                 'domainpassword'
             )
         );
-        $passlegacy = trim(
-            filter_input(
-                INPUT_POST,
-                'domainpasswordlegacy'
-            )
-        );
         $enforce = isset($_POST['enforcesel']);
         $this->obj->setAD(
             $useAD,
@@ -2898,7 +2882,6 @@ class HostManagementPage extends FOGPage
             $pass,
             true,
             true,
-            $passlegacy,
             $productKey,
             $enforce
         );

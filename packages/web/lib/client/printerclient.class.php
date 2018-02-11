@@ -19,7 +19,7 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class PrinterClient extends FOGClient implements FOGClientSend
+class PrinterClient extends FOGClient
 {
     /**
      * Module associated shortname
@@ -138,52 +138,5 @@ class PrinterClient extends FOGClient implements FOGClientSend
             self::$Host->getDefault($Printer->id),
             $Printer->configFile
         );
-    }
-    /**
-     * Creates the send string and stores to send variable
-     *
-     * @return void
-     */
-    public function send()
-    {
-        $level = self::$Host->get('printerLevel');
-        if ($level === 0 || empty($level)) {
-            $level = 0;
-        }
-        if (!in_array($level, array_keys(self::$_modes))) {
-            $level = 0;
-        }
-        $printerIDs = self::$Host->get('printers');
-        $printerCount = count($printerIDs);
-        if ($printerCount < 1) {
-            throw new Exception(
-                sprintf(
-                    "%s\n",
-                    base64_encode("#!mg=$level")
-                )
-            );
-        }
-        $this->send = base64_encode(sprintf("#!mg=%s\n", self::$_modes[$level]));
-        $this->send .= "\n";
-        $strtosend = "%s|%s|%s|%s|%s|%s";
-        Route::listem(
-            'printer',
-            'name',
-            false,
-            array('id' => $printerIDs)
-        );
-        $printers = json_decode(
-            Route::getData()
-        );
-        $printers = $printers->printers;
-        foreach ((array)$printers as &$Printer) {
-            $printerStr = $this->_getString($strtosend, $Printer);
-            $printerStrEncoded = base64_encode($printerStr);
-            $this->send .= sprintf(
-                "%s\n",
-                $printerStrEncoded
-            );
-            unset($Printer);
-        }
     }
 }

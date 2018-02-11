@@ -164,7 +164,6 @@ class Registration extends FOGBase
                     'FOG_AD_DEFAULT_DOMAINNAME',
                     'FOG_AD_DEFAULT_OU',
                     'FOG_AD_DEFAULT_PASSWORD',
-                    'FOG_AD_DEFAULT_PASSWORD_LEGACY',
                     'FOG_AD_DEFAULT_USER',
                     'FOG_ENFORCE_HOST_CHANGES'
                 );
@@ -172,7 +171,6 @@ class Registration extends FOGBase
                     $ADDomain,
                     $OUs,
                     $ADPass,
-                    $ADPassLegacy,
                     $ADUser,
                     $enforce
                 ) = self::getSubObjectIDs(
@@ -236,7 +234,6 @@ class Registration extends FOGBase
                     $ADPass,
                     false,
                     true,
-                    $ADPassLegacy,
                     $productKey,
                     $enforce
                 );

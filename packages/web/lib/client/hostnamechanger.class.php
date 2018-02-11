@@ -21,7 +21,7 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class HostnameChanger extends FOGClient implements FOGClientSend
+class HostnameChanger extends FOGClient
 {
     /**
      * Module associated shortname
@@ -101,64 +101,5 @@ class HostnameChanger extends FOGClient implements FOGClientSend
             $val['Key'] = $productKey;
         }
         return $val;
-    }
-    /**
-     * Creates the send string and stores to send variable
-     *
-     * @return void
-     */
-    public function send()
-    {
-        ob_start();
-        echo '#!ok';
-        $password = self::$Host->get('ADPassLegacy');
-        printf(
-            "=%s\n",
-            self::$Host->get('name')
-        );
-        self::$Host->setAD();
-        $username = trim(
-            self::$Host->get('ADUser')
-        );
-        if (strpos($username, chr(92))
-            || strpos($username, chr(64))
-        ) {
-            $adUser = $username;
-        } elseif ($username) {
-            $adUser = sprintf(
-                '%s\%s',
-                self::$Host->get('ADDomain'),
-                $username
-            );
-        } else {
-            $adUser = '';
-        }
-        $AD = (bool)self::$Host->get('useAD');
-        $hostname = self::$Host->get('name');
-        $ADDom = '';
-        $ADOU = '';
-        $ADUser = '';
-        $ADPass = '';
-        if ($AD === true) {
-            $AD = 1;
-            $ADDom = self::$Host->get('ADDomain');
-            $ADOU = str_replace(
-                ';',
-                '',
-                self::$Host->get('ADOU')
-            );
-            $ADUser = $adUser;
-            $ADPass = $password;
-        }
-        self::$Host->setAD();
-        printf(
-            "#AD=%s\n#ADDom=%s\n#ADOU=%s\n#ADUser=%s\n#ADPass=%s",
-            $AD,
-            $ADDom,
-            $ADOU,
-            $ADUser,
-            $ADPass
-        );
-        $this->send = ob_get_clean();
     }
 }

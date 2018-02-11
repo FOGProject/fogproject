@@ -2084,7 +2084,6 @@ class Host extends FOGController
      * @param string $pass       the pass to perform join with
      * @param bool   $override   should the host fields override whats passed
      * @param bool   $nosave     should we save automatically
-     * @param string $legacy     the legacy client ad pass string
      * @param string $productKey the product key for the host to activate
      * @param mixed  $enforce    should the host perform changes forcibly
      *
@@ -2098,7 +2097,6 @@ class Host extends FOGController
         $pass = '',
         $override = false,
         $nosave = false,
-        $legacy = '',
         $productKey = '',
         $enforce = ''
     ) {
@@ -2119,9 +2117,6 @@ class Host extends FOGController
                 if (empty($pass)) {
                     $pass = trim($this->get('ADPass'));
                 }
-                if (empty($legacy)) {
-                    $legacy = trim($this->get('ADPassLegacy'));
-                }
                 if (empty($productKey)) {
                     $productKey = trim($this->get('productKey'));
                 }
@@ -2138,7 +2133,6 @@ class Host extends FOGController
             ->set('ADOU', trim($ou))
             ->set('ADUser', trim($user))
             ->set('ADPass', $pass)
-            ->set('ADPassLegacy', $legacy)
             ->set('productKey', trim($productKey))
             ->set('enforce', (string)$enforce);
         return $this;
