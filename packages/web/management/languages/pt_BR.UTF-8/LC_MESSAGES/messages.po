@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-11 15:46-0500\n"
+"POT-Creation-Date: 2018-02-11 17:50-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -318,9 +318,6 @@ msgstr "Diretório"
 
 msgid "Active Directory"
 msgstr "Active Directory"
-
-msgid "Virus History"
-msgstr "Histórico de vírus"
 
 msgid "Login History"
 msgstr "História de login"
@@ -983,9 +980,6 @@ msgstr ""
 msgid "Invalid tasking!"
 msgstr "tarefa inválido"
 
-msgid "Hello FOG Client"
-msgstr "Olá Cliente FOG"
-
 #, fuzzy
 msgid "Failed to create inventory for this host"
 msgstr "Falha ao criar o inventário para este alojamento!"
@@ -1017,15 +1011,6 @@ msgstr ""
 #, fuzzy
 msgid "There are no groups on this server"
 msgstr "Não existem grupos neste servidor."
-
-msgid "Invalid operational mode"
-msgstr "modo operacional inválido"
-
-msgid "Failed"
-msgstr "fracassado"
-
-msgid "Accepted"
-msgstr "Aceitaram"
 
 #, fuzzy
 msgid "Integrity Settings"
@@ -2589,15 +2574,6 @@ msgstr "Dados inválidos"
 msgid "Host Product Keys"
 msgstr "Hospedar de Chave de Produto"
 
-msgid "FOG Virus Summary"
-msgstr "Resumo FOG Virus"
-
-msgid "Virus Name"
-msgstr "Nome vírus"
-
-msgid "Quarantine"
-msgstr "Quarentena"
-
 #, fuzzy
 msgid "Full History Export"
 msgstr "Exportação inventário completo"
@@ -2824,11 +2800,9 @@ msgstr "Abre uma conexão VNC para"
 msgid "VNC"
 msgstr ""
 
-msgid "FOG Client Installer"
-msgstr "FOG Cliente Installer"
-
-msgid "New Client and Utilities"
-msgstr "Novo Cliente e Utilities"
+#, fuzzy
+msgid "FOG Client Installers"
+msgstr "FOG Download Client"
 
 #, fuzzy
 msgid "The installers for the fog client"
@@ -2894,10 +2868,11 @@ msgstr "Smart Installer (recomendado)"
 msgid "Recommended"
 msgstr ""
 
-msgid "Help and Guide"
+#, fuzzy
+msgid "Help and Guides"
 msgstr "Ajuda e Guia"
 
-msgid "Where to get help"
+msgid "Where to get help and guides"
 msgstr ""
 
 msgid "Use the links below if you need assistance"
@@ -2940,59 +2915,11 @@ msgstr ""
 msgid "FOG Forums"
 msgstr "FOG Fóruns"
 
-msgid "Legacy Client and Utilities"
-msgstr "Legacy Client e Utilities"
+msgid "Help and Guide"
+msgstr "Ajuda e Guia"
 
-msgid "The old client and fogcrypt, deprecated"
+msgid "Where to get help"
 msgstr ""
-
-msgid "The legacy client and fog crypt utility for those"
-msgstr ""
-
-msgid "that are not yet using the new client"
-msgstr ""
-
-msgid "We highly recommend you make the switch for more"
-msgstr ""
-
-msgid "security and faster client communication and management"
-msgstr ""
-
-msgid "This is the file to install the legacy client"
-msgstr ""
-
-msgid "It is recommended to not use this file but"
-msgstr ""
-
-msgid "you may do as you please"
-msgstr ""
-
-msgid "This client is not being developed any further so any issues"
-msgstr ""
-
-msgid "you may find"
-msgstr ""
-
-msgid "or features you may request"
-msgstr ""
-
-msgid "will not be added to this client"
-msgstr ""
-
-msgid "Legacy FOG Client"
-msgstr "Legacy Client FOG"
-
-#, fuzzy
-msgid "This file is used to encrypt the AD Password"
-msgstr ""
-"Este arquivo é usado para criptografar a senha AD. NÃO USE ESTE Se estiver "
-"usando o novo cliente."
-
-msgid "DO NOT USE THIS IF YOU ARE USING THE NEW CLIENT"
-msgstr ""
-
-msgid "FOG Crypt"
-msgstr "FOG Crypt"
 
 msgid "FOG Project on Github"
 msgstr "Projeto FOG no Github"
@@ -4134,18 +4061,6 @@ msgid "Host Hardware Inventory"
 msgstr "Inventário de hardware de acolhimento"
 
 #, fuzzy
-msgid "Host Virus History"
-msgstr "Histórico de vírus"
-
-#, fuzzy
-msgid "Clear all history"
-msgstr "Limpar histórico"
-
-#, fuzzy
-msgid "Virus Report"
-msgstr "Relatório"
-
-#, fuzzy
 msgid "Logout not found"
 msgstr "Registro não encontrado, erro: %s"
 
@@ -4216,10 +4131,6 @@ msgstr "status do serviço"
 #, fuzzy
 msgid "You must select an action to perform"
 msgstr "Você deve especificar o alias e porta"
-
-#, fuzzy
-msgid "Virus items removed!"
-msgstr "vírus apuradas"
 
 msgid "Host Update Failed"
 msgstr "Anfitrião Update Failed"
@@ -5319,7 +5230,7 @@ msgstr ""
 msgid "There you can download utilities such as FOG Prep"
 msgstr ""
 
-msgid "and both the legacy and new FOG clients."
+msgid "and the FOG client."
 msgstr ""
 
 msgid "Click Here"
@@ -6812,12 +6723,6 @@ msgstr "senha de domínio"
 msgid "Will auto-encrypt plaintext"
 msgstr "Will texto simples criptografar-auto"
 
-msgid "Domain Password Legacy"
-msgstr "Domínio senha Legado"
-
-msgid "Must be encrypted"
-msgstr "Devem ser criptografados"
-
 msgid "Name Change/AD Join Forced reboot"
 msgstr ""
 
@@ -6833,6 +6738,9 @@ msgstr "Erro: falha ao baixar do kernel"
 
 msgid "Download Failed"
 msgstr "Falha no download"
+
+msgid "Failed"
+msgstr "fracassado"
 
 msgid "filesize"
 msgstr "tamanho do arquivo"
@@ -7133,33 +7041,9 @@ msgstr "No nó associado"
 msgid "Adding FOGPage: %s, Node: %s"
 msgstr "Adicionando FOGPage: %s , nó: %s"
 
-msgid "Needs action string of ask, get, or list"
-msgstr "Precisa de seqüência de perguntar, obter, ou lista de ações"
-
-#, fuzzy
-msgid "If action of ask or get"
-msgstr "Precisa de seqüência de perguntar, obter, ou lista de ações"
-
-#, fuzzy
-msgid "we need a file name in the request"
-msgstr ""
-"Se a ação de pedir ou obter, precisamos de um nome de arquivo no pedido"
-
-#, fuzzy
-msgid "Invalid data found"
-msgstr "Dados inválidos"
-
 #, fuzzy
 msgid "No valid tasks found"
 msgstr "Nenhuma classe válida enviada"
-
-#, fuzzy
-msgid "Snapin is invalid"
-msgstr "Snapin não é válido"
-
-#, fuzzy
-msgid "Snapin Task is invalid"
-msgstr "Snapin não é válido"
 
 #, fuzzy
 msgid "Invalid task id sent"
@@ -7217,24 +7101,6 @@ msgid "logout"
 msgstr "Sair"
 
 msgid "or start to operate"
-msgstr ""
-
-msgid "Postfix requires an action of login, logout, or start to operate"
-msgstr "Postfix requer uma ação de login, logout, ou começar a operar"
-
-#, fuzzy
-msgid "Replay from journal"
-msgstr "Repetição do diário: tempo de inserção reais"
-
-#, fuzzy
-msgid "real insert time"
-msgstr "Repetição do diário: tempo de inserção reais"
-
-#, fuzzy
-msgid "Login time"
-msgstr "Entrar"
-
-msgid "No directories defined to be cleaned up"
 msgstr ""
 
 #, fuzzy

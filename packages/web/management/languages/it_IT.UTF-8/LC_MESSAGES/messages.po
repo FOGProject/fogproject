@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-11 15:46-0500\n"
+"POT-Creation-Date: 2018-02-11 17:50-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -320,9 +320,6 @@ msgstr "elenco"
 
 msgid "Active Directory"
 msgstr "Active Directory"
-
-msgid "Virus History"
-msgstr "Storia di virus"
 
 msgid "Login History"
 msgstr "Accesso Storia"
@@ -966,9 +963,6 @@ msgstr "Impossiible visualizzare nel browser"
 msgid "Invalid tasking!"
 msgstr "Compito non valido!"
 
-msgid "Hello FOG Client"
-msgstr "Ciao FOG client"
-
 msgid "Failed to create inventory for this host"
 msgstr "Fallita la creazione dell'inventario per questo host"
 
@@ -995,15 +989,6 @@ msgstr "Il MAC primario associato è"
 
 msgid "There are no groups on this server"
 msgstr "Non ci sono gruppi su questo server"
-
-msgid "Invalid operational mode"
-msgstr "modalità operativa non valido"
-
-msgid "Failed"
-msgstr "Fallito"
-
-msgid "Accepted"
-msgstr "Accettato"
 
 msgid "Integrity Settings"
 msgstr "Impostazioni di integrità"
@@ -2348,15 +2333,6 @@ msgstr "Non valido"
 msgid "Host Product Keys"
 msgstr "Tasti del prodotto host"
 
-msgid "FOG Virus Summary"
-msgstr "Sommario FOG Virus"
-
-msgid "Virus Name"
-msgstr "Virus Nome"
-
-msgid "Quarantine"
-msgstr "Quarantena"
-
 #, fuzzy
 msgid "Full History Export"
 msgstr "Inventario Export completa"
@@ -2558,11 +2534,9 @@ msgstr "connessione VNC aperta a"
 msgid "VNC"
 msgstr "VNC"
 
-msgid "FOG Client Installer"
-msgstr "FOG Client Installer"
-
-msgid "New Client and Utilities"
-msgstr "Nuovo Cliente e utilità"
+#, fuzzy
+msgid "FOG Client Installers"
+msgstr "FOG client Scarica"
 
 msgid "The installers for the fog client"
 msgstr "Installatori per fog client"
@@ -2618,10 +2592,12 @@ msgstr "Smart Installer"
 msgid "Recommended"
 msgstr "Consigliato"
 
-msgid "Help and Guide"
+#, fuzzy
+msgid "Help and Guides"
 msgstr "Aiuto e guida"
 
-msgid "Where to get help"
+#, fuzzy
+msgid "Where to get help and guides"
 msgstr "Dove ottenere aiuto"
 
 msgid "Use the links below if you need assistance"
@@ -2662,56 +2638,11 @@ msgstr ""
 msgid "FOG Forums"
 msgstr "FOG Forum"
 
-msgid "Legacy Client and Utilities"
-msgstr "Client legacy e utilità"
+msgid "Help and Guide"
+msgstr "Aiuto e guida"
 
-msgid "The old client and fogcrypt, deprecated"
-msgstr "Il vecchio client e fogcrypt, deprecata"
-
-msgid "The legacy client and fog crypt utility for those"
-msgstr "Il client legacy e l'utilità FOG crypt per quelli"
-
-msgid "that are not yet using the new client"
-msgstr "che non utilizzano ancora il nuovo client"
-
-msgid "We highly recommend you make the switch for more"
-msgstr "Ti consigliamo di effettuare l'aggiornamento per maggiore"
-
-msgid "security and faster client communication and management"
-msgstr "sicurezza, comunicazione e gestione dei clienti più veloci"
-
-msgid "This is the file to install the legacy client"
-msgstr "Questo è il file per installare il client legacy"
-
-msgid "It is recommended to not use this file but"
-msgstr "Si raccomanda di non utilizzare questo file ma"
-
-msgid "you may do as you please"
-msgstr "si può fare come ti pare"
-
-msgid "This client is not being developed any further so any issues"
-msgstr "Questo cliente non è più sviluppato così eventuali problemi"
-
-msgid "you may find"
-msgstr "che puoi trovare"
-
-msgid "or features you may request"
-msgstr "c le funzionalità che puoi richiedere"
-
-msgid "will not be added to this client"
-msgstr "von verranno aggiunte a questo client"
-
-msgid "Legacy FOG Client"
-msgstr "Legacy Client FOG"
-
-msgid "This file is used to encrypt the AD Password"
-msgstr "Questo file viene utilizzato per crittografare la password AD"
-
-msgid "DO NOT USE THIS IF YOU ARE USING THE NEW CLIENT"
-msgstr "NON UTILIZZARE QUESTO SE UTILIZZATE IL NUOVO CLIENT"
-
-msgid "FOG Crypt"
-msgstr "FOG Crypt"
+msgid "Where to get help"
+msgstr "Dove ottenere aiuto"
 
 msgid "FOG Project on Github"
 msgstr "Progetto FOG su Github"
@@ -3732,15 +3663,6 @@ msgstr "Telaio Asset"
 msgid "Host Hardware Inventory"
 msgstr "Host inventario hardware"
 
-msgid "Host Virus History"
-msgstr "Cronologia virus dell'host"
-
-msgid "Clear all history"
-msgstr "Cancella tutta la cronologia"
-
-msgid "Virus Report"
-msgstr "Report Virus"
-
 msgid "Logout not found"
 msgstr "Logout non trovato"
 
@@ -3801,9 +3723,6 @@ msgstr "Stato servizio"
 
 msgid "You must select an action to perform"
 msgstr "È necessario selezionare un'azione da eseguire"
-
-msgid "Virus items removed!"
-msgstr "Elementi virus rimossi!"
 
 msgid "Host Update Failed"
 msgstr "Aggiornamento Host riuscito"
@@ -4759,8 +4678,9 @@ msgstr "Utilizzare il seguente collegamento per accedere alla pagina client."
 msgid "There you can download utilities such as FOG Prep"
 msgstr "Qui è possibile scaricare programmi di utilità come FOG Prep"
 
-msgid "and both the legacy and new FOG clients."
-msgstr "ed entrambi i client FOG legacy e nuovi."
+#, fuzzy
+msgid "and the FOG client."
+msgstr "sul vecchio client"
 
 msgid "Click Here"
 msgstr "Clicca qui"
@@ -6049,12 +5969,6 @@ msgstr "password di dominio"
 msgid "Will auto-encrypt plaintext"
 msgstr "Sarà chiaro auto-criptare"
 
-msgid "Domain Password Legacy"
-msgstr "Password di dominio Legacy"
-
-msgid "Must be encrypted"
-msgstr "Deve essere criptato"
-
 msgid "Name Change/AD Join Forced reboot"
 msgstr "Cambio nome/unione AD Riavvio forzato"
 
@@ -6069,6 +5983,9 @@ msgstr "Errore: Impossibile scaricare il kernel"
 
 msgid "Download Failed"
 msgstr "Scaricamento fallito"
+
+msgid "Failed"
+msgstr "Fallito"
 
 msgid "filesize"
 msgstr "dimensione del file"
@@ -6323,26 +6240,8 @@ msgstr "Nessun nodo associato"
 msgid "Adding FOGPage: %s, Node: %s"
 msgstr "FOGPage Aggiunta: %s , nodo: %s"
 
-msgid "Needs action string of ask, get, or list"
-msgstr "Ha bisogno stringa di azione di chiedere, ottenere, o di un elenco"
-
-msgid "If action of ask or get"
-msgstr "Se azione di chiedere o ottenere"
-
-msgid "we need a file name in the request"
-msgstr "Abbiamo bisogno di un nome di file nella richiesta"
-
-msgid "Invalid data found"
-msgstr "Sono stati trovati dati non validi"
-
 msgid "No valid tasks found"
 msgstr "Non sono stati trovati compiti validi"
-
-msgid "Snapin is invalid"
-msgstr "Snapin non è valido"
-
-msgid "Snapin Task is invalid"
-msgstr "L'attività Snapin non è valida"
 
 msgid "Invalid task id sent"
 msgstr "ID attività non valido inviato"
@@ -6391,21 +6290,6 @@ msgstr "disconnettersi"
 
 msgid "or start to operate"
 msgstr "o iniziare ad operare"
-
-msgid "Postfix requires an action of login, logout, or start to operate"
-msgstr "Postfix richiede un'azione di login, logout, o iniziare a funzionare"
-
-msgid "Replay from journal"
-msgstr "Replay dal journal"
-
-msgid "real insert time"
-msgstr "Tempo reale di inserimento"
-
-msgid "Login time"
-msgstr "Tempo di accesso"
-
-msgid "No directories defined to be cleaned up"
-msgstr "Nessuna directory definita per essere pulita"
 
 msgid "Invalid IP"
 msgstr "IP non valido"

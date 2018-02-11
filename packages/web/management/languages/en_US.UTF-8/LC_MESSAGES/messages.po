@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-11 15:46-0500\n"
+"POT-Creation-Date: 2018-02-11 17:50-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -318,9 +318,6 @@ msgstr "Directory"
 
 msgid "Active Directory"
 msgstr "Active Directory"
-
-msgid "Virus History"
-msgstr "Virus History"
 
 msgid "Login History"
 msgstr "Login History"
@@ -982,9 +979,6 @@ msgstr ""
 msgid "Invalid tasking!"
 msgstr "Invalid task"
 
-msgid "Hello FOG Client"
-msgstr "Hello FOG Client"
-
 #, fuzzy
 msgid "Failed to create inventory for this host"
 msgstr "Failed to create inventory for this host!"
@@ -1016,15 +1010,6 @@ msgstr ""
 #, fuzzy
 msgid "There are no groups on this server"
 msgstr "There are no groups on this server."
-
-msgid "Invalid operational mode"
-msgstr "Invalid operational mode"
-
-msgid "Failed"
-msgstr "Failed"
-
-msgid "Accepted"
-msgstr "Accepted"
 
 #, fuzzy
 msgid "Integrity Settings"
@@ -2588,15 +2573,6 @@ msgstr "Invalid data"
 msgid "Host Product Keys"
 msgstr "Host Product Key"
 
-msgid "FOG Virus Summary"
-msgstr "FOG Virus Summary"
-
-msgid "Virus Name"
-msgstr "Virus Name"
-
-msgid "Quarantine"
-msgstr "Quarantine"
-
 #, fuzzy
 msgid "Full History Export"
 msgstr "Full Inventory Export"
@@ -2821,11 +2797,9 @@ msgstr "Open VNC connection to"
 msgid "VNC"
 msgstr ""
 
-msgid "FOG Client Installer"
-msgstr "FOG Client Installer"
-
-msgid "New Client and Utilities"
-msgstr "New Client and Utilities"
+#, fuzzy
+msgid "FOG Client Installers"
+msgstr "FOG Client Download"
 
 #, fuzzy
 msgid "The installers for the fog client"
@@ -2890,10 +2864,11 @@ msgstr "Smart Installer (Recommended)"
 msgid "Recommended"
 msgstr ""
 
-msgid "Help and Guide"
+#, fuzzy
+msgid "Help and Guides"
 msgstr "Help and Guide"
 
-msgid "Where to get help"
+msgid "Where to get help and guides"
 msgstr ""
 
 msgid "Use the links below if you need assistance"
@@ -2936,59 +2911,11 @@ msgstr ""
 msgid "FOG Forums"
 msgstr "FOG Forums"
 
-msgid "Legacy Client and Utilities"
-msgstr "Legacy Client and Utilities"
+msgid "Help and Guide"
+msgstr "Help and Guide"
 
-msgid "The old client and fogcrypt, deprecated"
+msgid "Where to get help"
 msgstr ""
-
-msgid "The legacy client and fog crypt utility for those"
-msgstr ""
-
-msgid "that are not yet using the new client"
-msgstr ""
-
-msgid "We highly recommend you make the switch for more"
-msgstr ""
-
-msgid "security and faster client communication and management"
-msgstr ""
-
-msgid "This is the file to install the legacy client"
-msgstr ""
-
-msgid "It is recommended to not use this file but"
-msgstr ""
-
-msgid "you may do as you please"
-msgstr ""
-
-msgid "This client is not being developed any further so any issues"
-msgstr ""
-
-msgid "you may find"
-msgstr ""
-
-msgid "or features you may request"
-msgstr ""
-
-msgid "will not be added to this client"
-msgstr ""
-
-msgid "Legacy FOG Client"
-msgstr "Legacy FOG Client"
-
-#, fuzzy
-msgid "This file is used to encrypt the AD Password"
-msgstr ""
-"This file is used to encrypt the AD Password.  DO NOT USE THIS IF USING THE "
-"NEW CLIENT."
-
-msgid "DO NOT USE THIS IF YOU ARE USING THE NEW CLIENT"
-msgstr ""
-
-msgid "FOG Crypt"
-msgstr "FOG Crypt"
 
 msgid "FOG Project on Github"
 msgstr "FOG Project on Github"
@@ -4131,18 +4058,6 @@ msgid "Host Hardware Inventory"
 msgstr "Host Hardware Inventory"
 
 #, fuzzy
-msgid "Host Virus History"
-msgstr "Virus History"
-
-#, fuzzy
-msgid "Clear all history"
-msgstr "clear all history"
-
-#, fuzzy
-msgid "Virus Report"
-msgstr "Report"
-
-#, fuzzy
 msgid "Logout not found"
 msgstr "Record not found, Error: %s"
 
@@ -4213,10 +4128,6 @@ msgstr "Service Status"
 #, fuzzy
 msgid "You must select an action to perform"
 msgstr "You must specify the alias and port"
-
-#, fuzzy
-msgid "Virus items removed!"
-msgstr "Virus cleared"
 
 msgid "Host Update Failed"
 msgstr "Host Update Failed"
@@ -5318,7 +5229,7 @@ msgstr ""
 msgid "There you can download utilities such as FOG Prep"
 msgstr ""
 
-msgid "and both the legacy and new FOG clients."
+msgid "and the FOG client."
 msgstr ""
 
 msgid "Click Here"
@@ -6807,12 +6718,6 @@ msgstr "Domain Password"
 msgid "Will auto-encrypt plaintext"
 msgstr "Will auto-encrypt plaintext"
 
-msgid "Domain Password Legacy"
-msgstr "Domain Password Legacy"
-
-msgid "Must be encrypted"
-msgstr "Must be encrypted"
-
 msgid "Name Change/AD Join Forced reboot"
 msgstr ""
 
@@ -6827,6 +6732,9 @@ msgstr "Error: Failed to download kernel"
 
 msgid "Download Failed"
 msgstr "Download Failed"
+
+msgid "Failed"
+msgstr "Failed"
 
 msgid "filesize"
 msgstr "filesize"
@@ -7126,32 +7034,9 @@ msgstr "No node associated"
 msgid "Adding FOGPage: %s, Node: %s"
 msgstr "Adding FOGPage: %s, Node: %s"
 
-msgid "Needs action string of ask, get, or list"
-msgstr "Needs action string of ask, get, or list"
-
-#, fuzzy
-msgid "If action of ask or get"
-msgstr "Needs action string of ask, get, or list"
-
-#, fuzzy
-msgid "we need a file name in the request"
-msgstr "If action of ask or get, we need a file name in the request"
-
-#, fuzzy
-msgid "Invalid data found"
-msgstr "Invalid data"
-
 #, fuzzy
 msgid "No valid tasks found"
 msgstr "No valid class sent"
-
-#, fuzzy
-msgid "Snapin is invalid"
-msgstr "Snapin is not valid"
-
-#, fuzzy
-msgid "Snapin Task is invalid"
-msgstr "Snapin is not valid"
 
 #, fuzzy
 msgid "Invalid task id sent"
@@ -7209,24 +7094,6 @@ msgid "logout"
 msgstr "Logout"
 
 msgid "or start to operate"
-msgstr ""
-
-msgid "Postfix requires an action of login, logout, or start to operate"
-msgstr "Postfix requires an action of login, logout, or start to operate"
-
-#, fuzzy
-msgid "Replay from journal"
-msgstr "Replay from journal: real insert time"
-
-#, fuzzy
-msgid "real insert time"
-msgstr "Replay from journal: real insert time"
-
-#, fuzzy
-msgid "Login time"
-msgstr "Login"
-
-msgid "No directories defined to be cleaned up"
 msgstr ""
 
 #, fuzzy
