@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-11 15:46-0500\n"
+"POT-Creation-Date: 2018-02-11 17:50-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -315,9 +315,6 @@ msgid "Directory"
 msgstr ""
 
 msgid "Active Directory"
-msgstr ""
-
-msgid "Virus History"
 msgstr ""
 
 msgid "Login History"
@@ -961,9 +958,6 @@ msgstr ""
 msgid "Invalid tasking!"
 msgstr ""
 
-msgid "Hello FOG Client"
-msgstr ""
-
 msgid "Failed to create inventory for this host"
 msgstr ""
 
@@ -989,15 +983,6 @@ msgid "The primary mac associated is"
 msgstr ""
 
 msgid "There are no groups on this server"
-msgstr ""
-
-msgid "Invalid operational mode"
-msgstr ""
-
-msgid "Failed"
-msgstr ""
-
-msgid "Accepted"
 msgstr ""
 
 msgid "Integrity Settings"
@@ -2325,15 +2310,6 @@ msgstr ""
 msgid "Host Product Keys"
 msgstr ""
 
-msgid "FOG Virus Summary"
-msgstr ""
-
-msgid "Virus Name"
-msgstr ""
-
-msgid "Quarantine"
-msgstr ""
-
 msgid "Full History Export"
 msgstr ""
 
@@ -2529,10 +2505,7 @@ msgstr ""
 msgid "VNC"
 msgstr ""
 
-msgid "FOG Client Installer"
-msgstr ""
-
-msgid "New Client and Utilities"
+msgid "FOG Client Installers"
 msgstr ""
 
 msgid "The installers for the fog client"
@@ -2589,10 +2562,10 @@ msgstr ""
 msgid "Recommended"
 msgstr ""
 
-msgid "Help and Guide"
+msgid "Help and Guides"
 msgstr ""
 
-msgid "Where to get help"
+msgid "Where to get help and guides"
 msgstr ""
 
 msgid "Use the links below if you need assistance"
@@ -2631,55 +2604,10 @@ msgstr ""
 msgid "FOG Forums"
 msgstr ""
 
-msgid "Legacy Client and Utilities"
+msgid "Help and Guide"
 msgstr ""
 
-msgid "The old client and fogcrypt, deprecated"
-msgstr ""
-
-msgid "The legacy client and fog crypt utility for those"
-msgstr ""
-
-msgid "that are not yet using the new client"
-msgstr ""
-
-msgid "We highly recommend you make the switch for more"
-msgstr ""
-
-msgid "security and faster client communication and management"
-msgstr ""
-
-msgid "This is the file to install the legacy client"
-msgstr ""
-
-msgid "It is recommended to not use this file but"
-msgstr ""
-
-msgid "you may do as you please"
-msgstr ""
-
-msgid "This client is not being developed any further so any issues"
-msgstr ""
-
-msgid "you may find"
-msgstr ""
-
-msgid "or features you may request"
-msgstr ""
-
-msgid "will not be added to this client"
-msgstr ""
-
-msgid "Legacy FOG Client"
-msgstr ""
-
-msgid "This file is used to encrypt the AD Password"
-msgstr ""
-
-msgid "DO NOT USE THIS IF YOU ARE USING THE NEW CLIENT"
-msgstr ""
-
-msgid "FOG Crypt"
+msgid "Where to get help"
 msgstr ""
 
 msgid "FOG Project on Github"
@@ -3672,15 +3600,6 @@ msgstr ""
 msgid "Host Hardware Inventory"
 msgstr ""
 
-msgid "Host Virus History"
-msgstr ""
-
-msgid "Clear all history"
-msgstr ""
-
-msgid "Virus Report"
-msgstr ""
-
 msgid "Logout not found"
 msgstr ""
 
@@ -3739,9 +3658,6 @@ msgid "Service Settings"
 msgstr ""
 
 msgid "You must select an action to perform"
-msgstr ""
-
-msgid "Virus items removed!"
 msgstr ""
 
 msgid "Host Update Failed"
@@ -4687,7 +4603,7 @@ msgstr ""
 msgid "There you can download utilities such as FOG Prep"
 msgstr ""
 
-msgid "and both the legacy and new FOG clients."
+msgid "and the FOG client."
 msgstr ""
 
 msgid "Click Here"
@@ -5968,12 +5884,6 @@ msgstr ""
 msgid "Will auto-encrypt plaintext"
 msgstr ""
 
-msgid "Domain Password Legacy"
-msgstr ""
-
-msgid "Must be encrypted"
-msgstr ""
-
 msgid "Name Change/AD Join Forced reboot"
 msgstr ""
 
@@ -5987,6 +5897,9 @@ msgid "Error: Failed to download kernel"
 msgstr ""
 
 msgid "Download Failed"
+msgstr ""
+
+msgid "Failed"
 msgstr ""
 
 msgid "filesize"
@@ -6240,25 +6153,7 @@ msgstr ""
 msgid "Adding FOGPage: %s, Node: %s"
 msgstr ""
 
-msgid "Needs action string of ask, get, or list"
-msgstr ""
-
-msgid "If action of ask or get"
-msgstr ""
-
-msgid "we need a file name in the request"
-msgstr ""
-
-msgid "Invalid data found"
-msgstr ""
-
 msgid "No valid tasks found"
-msgstr ""
-
-msgid "Snapin is invalid"
-msgstr ""
-
-msgid "Snapin Task is invalid"
 msgstr ""
 
 msgid "Invalid task id sent"
@@ -6307,21 +6202,6 @@ msgid "logout"
 msgstr ""
 
 msgid "or start to operate"
-msgstr ""
-
-msgid "Postfix requires an action of login, logout, or start to operate"
-msgstr ""
-
-msgid "Replay from journal"
-msgstr ""
-
-msgid "real insert time"
-msgstr ""
-
-msgid "Login time"
-msgstr ""
-
-msgid "No directories defined to be cleaned up"
 msgstr ""
 
 msgid "Invalid IP"

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-11 15:46-0500\n"
+"POT-Creation-Date: 2018-02-11 17:50-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -315,9 +315,6 @@ msgstr "Verzeichnis"
 
 msgid "Active Directory"
 msgstr "Active Directory"
-
-msgid "Virus History"
-msgstr "Virus-Verlauf"
 
 msgid "Login History"
 msgstr "Login-Verlauf"
@@ -979,9 +976,6 @@ msgstr "Kann vom Browser nicht angezeigt werden"
 msgid "Invalid tasking!"
 msgstr "Ungültiger Vorgang"
 
-msgid "Hello FOG Client"
-msgstr "Hallo FOG Client"
-
 #, fuzzy
 msgid "Failed to create inventory for this host"
 msgstr "Erstellen eines Inventars für diesen Host fehlgeschlagen!"
@@ -1013,15 +1007,6 @@ msgstr "Die zugeordnete Primär-MAC lautet"
 #, fuzzy
 msgid "There are no groups on this server"
 msgstr "Es gibt keine Gruppen auf diesem Server."
-
-msgid "Invalid operational mode"
-msgstr "Ungültiger Betriebsmodus"
-
-msgid "Failed"
-msgstr "fehlgeschlagen"
-
-msgid "Accepted"
-msgstr "Akzeptiert"
 
 #, fuzzy
 msgid "Integrity Settings"
@@ -2589,15 +2574,6 @@ msgstr "nicht gültig"
 msgid "Host Product Keys"
 msgstr "Host-Produkt-Schlüssel"
 
-msgid "FOG Virus Summary"
-msgstr "FOG Viruszusammenfassung"
-
-msgid "Virus Name"
-msgstr "Name des Virus"
-
-msgid "Quarantine"
-msgstr "Quarantäne"
-
 #, fuzzy
 msgid "Full History Export"
 msgstr "Vollständigen Verlauf exportieren"
@@ -2822,11 +2798,9 @@ msgstr "VNC-Verbindung öffnen"
 msgid "VNC"
 msgstr "VNC"
 
-msgid "FOG Client Installer"
-msgstr "FOG Client Installer"
-
-msgid "New Client and Utilities"
-msgstr "Neuer Client und Dienstprogramme"
+#, fuzzy
+msgid "FOG Client Installers"
+msgstr "FOG-Client-Download"
 
 #, fuzzy
 msgid "The installers for the fog client"
@@ -2889,10 +2863,12 @@ msgstr "Smart Installer"
 msgid "Recommended"
 msgstr "(empfohlen)"
 
-msgid "Help and Guide"
+#, fuzzy
+msgid "Help and Guides"
 msgstr "Hilfe und Anleitung"
 
-msgid "Where to get help"
+#, fuzzy
+msgid "Where to get help and guides"
 msgstr "Wo bekomme ich Hilfe?"
 
 msgid "Use the links below if you need assistance"
@@ -2933,57 +2909,11 @@ msgstr "Für mehr Echtzeit-Hilfe gibt es auch die Chat-Funktion. "
 msgid "FOG Forums"
 msgstr "FOG-Forum"
 
-msgid "Legacy Client and Utilities"
-msgstr "Legacy Client und Dienstprogramme"
+msgid "Help and Guide"
+msgstr "Hilfe und Anleitung"
 
-msgid "The old client and fogcrypt, deprecated"
-msgstr "Der alte Client und FOG Krypto, veraltet"
-
-msgid "The legacy client and fog crypt utility for those"
-msgstr "Der Legacy Client und FOG Krypto Dienstprogramm für diejenigen,"
-
-msgid "that are not yet using the new client"
-msgstr "die nicht die neuen Clients nutzen."
-
-msgid "We highly recommend you make the switch for more"
-msgstr "Wir empfehlen dringend, den Umstieg auf"
-
-msgid "security and faster client communication and management"
-msgstr "mehr Sicherheit und schnellere Clientkommunikation und -management"
-
-msgid "This is the file to install the legacy client"
-msgstr "Diese Datei installiert den Legacy Client"
-
-msgid "It is recommended to not use this file but"
-msgstr "Es wird empfohlen, diese Datei nicht zu nutzen, "
-
-msgid "you may do as you please"
-msgstr "aber Sie können tun, was Sie möchten."
-
-msgid "This client is not being developed any further so any issues"
-msgstr "Dieser Client wird nicht weiter entwickelt, so dass"
-
-msgid "you may find"
-msgstr "mögliche Probleme oder Features, "
-
-msgid "or features you may request"
-msgstr "die Sie gerne hätten,"
-
-msgid "will not be added to this client"
-msgstr "nicht mehr berücksichtigt werden können."
-
-msgid "Legacy FOG Client"
-msgstr "Legacy FOG Client"
-
-#, fuzzy
-msgid "This file is used to encrypt the AD Password"
-msgstr "Diese Datei wird verwendet, um das AD-Passwort zu verschlüsseln."
-
-msgid "DO NOT USE THIS IF YOU ARE USING THE NEW CLIENT"
-msgstr "BENUTZEN SIE DIESE DATEI NICHT, WENN SIE EINEN NEUEN CLIENT NUTZEN!"
-
-msgid "FOG Crypt"
-msgstr "FOG Krypto"
+msgid "Where to get help"
+msgstr "Wo bekomme ich Hilfe?"
 
 msgid "FOG Project on Github"
 msgstr "FOG-Projekt auf Github"
@@ -4134,18 +4064,6 @@ msgid "Host Hardware Inventory"
 msgstr "Host Hardwareinventur"
 
 #, fuzzy
-msgid "Host Virus History"
-msgstr "Host Virus-Verlauf"
-
-#, fuzzy
-msgid "Clear all history"
-msgstr "gesamten Verlauf löschen"
-
-#, fuzzy
-msgid "Virus Report"
-msgstr "Virusbericht"
-
-#, fuzzy
 msgid "Logout not found"
 msgstr "Logout nicht gefunden"
 
@@ -4216,10 +4134,6 @@ msgstr "Service-Status"
 #, fuzzy
 msgid "You must select an action to perform"
 msgstr "Sie müssen eine Aktion auswählen, die ausgeführt werden soll"
-
-#, fuzzy
-msgid "Virus items removed!"
-msgstr "Virus gelöscht"
 
 msgid "Host Update Failed"
 msgstr "Host-Update fehlgeschlagen"
@@ -5319,8 +5233,9 @@ msgstr "Der folgende Link führt zur Clientseite"
 msgid "There you can download utilities such as FOG Prep"
 msgstr "Dort können Sie Tools wie FOG Prep, "
 
-msgid "and both the legacy and new FOG clients."
-msgstr "oder jeweils Legacy oder neue FOG Clients."
+#, fuzzy
+msgid "and the FOG client."
+msgstr "auf dem veralteten Client."
 
 msgid "Click Here"
 msgstr "Klicken Sie hier"
@@ -6815,12 +6730,6 @@ msgstr "Domänenkennwort"
 msgid "Will auto-encrypt plaintext"
 msgstr "Wird Klartext automatisch verschlüsseln"
 
-msgid "Domain Password Legacy"
-msgstr "veraltetes Domänenkennwort"
-
-msgid "Must be encrypted"
-msgstr "Muss verschlüsselt werden"
-
 msgid "Name Change/AD Join Forced reboot"
 msgstr "Namensänderung/AD-Beitreten erzwingt Reboot"
 
@@ -6836,6 +6745,9 @@ msgstr "Fehler: Herunterladen des Kernels fehlgeschlagen"
 
 msgid "Download Failed"
 msgstr "Download fehlgeschlagen"
+
+msgid "Failed"
+msgstr "fehlgeschlagen"
 
 msgid "filesize"
 msgstr "Dateigröße"
@@ -7137,32 +7049,9 @@ msgstr "Kein Knoten verknüpft"
 msgid "Adding FOGPage: %s, Node: %s"
 msgstr "Hinzufügen von FOGPage: %s, Knoten: %s"
 
-msgid "Needs action string of ask, get, or list"
-msgstr "Benötigt Zeichenfolge von ask, get oder list"
-
-#, fuzzy
-msgid "If action of ask or get"
-msgstr "Bei Ausführung von aks oder get"
-
-#, fuzzy
-msgid "we need a file name in the request"
-msgstr "wird ein Dateiname in der Anfrage benötigt"
-
-#, fuzzy
-msgid "Invalid data found"
-msgstr "Ungültige Daten gefunden"
-
 #, fuzzy
 msgid "No valid tasks found"
 msgstr "Keine gültigen Tasks gefunden"
-
-#, fuzzy
-msgid "Snapin is invalid"
-msgstr "Snapin ist ungültig"
-
-#, fuzzy
-msgid "Snapin Task is invalid"
-msgstr "Snapin Task ist ungültig"
 
 #, fuzzy
 msgid "Invalid task id sent"
@@ -7221,24 +7110,6 @@ msgstr "Logout"
 
 msgid "or start to operate"
 msgstr "oder Start zum Ausführen"
-
-msgid "Postfix requires an action of login, logout, or start to operate"
-msgstr "Postfix erfordert die Aktion login, logout oder start zum Ausführen"
-
-#, fuzzy
-msgid "Replay from journal"
-msgstr "Wiedergabe aus dem Journal"
-
-#, fuzzy
-msgid "real insert time"
-msgstr "Echte Zeit einfügen"
-
-#, fuzzy
-msgid "Login time"
-msgstr "Anmeldezeit"
-
-msgid "No directories defined to be cleaned up"
-msgstr "Keine Verzeichnisse definiert, die bereinigt werden sollen"
 
 #, fuzzy
 msgid "Invalid IP"
