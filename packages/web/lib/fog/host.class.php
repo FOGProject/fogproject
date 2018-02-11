@@ -1600,19 +1600,6 @@ class Host extends FOGController
         return $Task;
     }
     /**
-     * Clears virus records for the host
-     *
-     * @return object
-     */
-    public function clearAVRecordsForHost()
-    {
-        self::getClass('VirusManager')
-            ->destroy(
-                array('mac' => $this->getMyMacs())
-            );
-        return $this;
-    }
-    /**
      * Wakes this host up
      *
      * @return object

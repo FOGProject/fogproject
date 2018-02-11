@@ -615,9 +615,6 @@
 //     LoginHistoryDate.on('change', function(e) {
 //         this.form.submit();
 //     });
-//     $('a.loghist-date, .delvid').on('click', function(e) {
-//         $(this).parents('form').submit();
-//     });
 //     $('#resetSecData').val('Reset Encryption Data');
 //     resetEncData('hosts', 'host');
 //     if (LoginHistory.length > 0) {
