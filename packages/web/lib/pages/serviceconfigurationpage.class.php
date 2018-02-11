@@ -153,10 +153,8 @@ class ServiceConfigurationPage extends FOGPage
         echo _('Use the following link to go to the client page.');
         echo ' ';
         echo _('There you can download utilities such as FOG Prep');
-        echo ', ';
-        echo _('FOG Crypt');
-        echo ', ';
-        echo _('and both the legacy and new FOG clients.');
+        echo ' ';
+        echo _('and the FOG client.');
         echo '<br/>';
         echo '<a href="?node=client">';
         echo _('Click Here');

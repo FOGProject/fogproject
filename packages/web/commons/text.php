@@ -123,7 +123,6 @@ $foglang['Active'] = _('Active');
 $foglang['Printers'] = _('Printers');
 $foglang['Directory'] = _('Directory');
 $foglang['AD'] = _('Active Directory');
-$foglang['VirusHistory'] = _('Virus History');
 $foglang['LoginHistory'] = _('Login History');
 $foglang['ImageHistory'] = _('Image History');
 $foglang['SnapinHistory'] = _('Snapin History');

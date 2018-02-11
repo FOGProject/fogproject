@@ -105,7 +105,6 @@ class Route extends FOGBase
         //'user',
         'usercleanup',
         'usertracking',
-        'virus'
     );
     /**
      * Valid Tasking classes.

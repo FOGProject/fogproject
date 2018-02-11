@@ -98,10 +98,6 @@ class HostManagementPage extends FOGPage
                     ) => self::$foglang['Inventory'],
                     sprintf(
                         $linkstr,
-                        'virus-history'
-                    ) => self::$foglang['VirusHistory'],
-                    sprintf(
-                        $linkstr,
                         'login-history'
                     ) => self::$foglang['LoginHistory'],
                     sprintf(
@@ -2022,145 +2018,6 @@ class HostManagementPage extends FOGPage
         );
     }
     /**
-     * Display host virus information.
-     *
-     * @return void
-     */
-    public function hostVirus()
-    {
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
-        $this->headerData = array(
-            _('Virus Name'),
-            _('File'),
-            _('Mode'),
-            _('Date'),
-            _('Clear'),
-        );
-        $this->attributes = array(
-            array(),
-            array(),
-            array(),
-            array(),
-            array(),
-        );
-        $this->templates = array(
-            '<a href="http://www.google.com/search?q='
-            . '${virus_name}" target="_blank">${virus_name}</a>',
-            '${virus_file}',
-            '${virus_mode}',
-            '${virus_date}',
-            sprintf(
-                '<input type="checkbox" id="vir_del${virus_id}" '
-                . 'class="delvid" name="delvidarr[]" value="${virus_id}"/>'
-                . '<label for="${virus_id}" class="icon icon-hand" '
-                . 'title="%s ${virus_name}">'
-                . '<i class="icon fa fa-minus-circle link"></i>'
-                . '</label>',
-                _('Delete')
-            ),
-        );
-        Route::listem(
-            'virus',
-            'name',
-            false,
-            array('mac' => $this->obj->getMyMacs())
-        );
-        $Viruses = json_decode(
-            Route::getData()
-        );
-        $Viruses = $Viruses->viruss;
-        foreach ((array)$Viruses as &$Virus) {
-            if (!in_array($Virus->mac, $this->obj->getMyMacs())) {
-                continue;
-            }
-            switch (strtolower($Virus->mode)) {
-            case 'q':
-                $mode = _('Quarantine');
-                break;
-            case 's':
-                $mode = _('Report');
-                break;
-            default:
-                $mode = _('N/A');
-                break;
-            }
-            $this->data[] = array(
-                'virus_name' => $Virus->name,
-                'virus_file' => $Virus->file,
-                'virus_mode' => $mode,
-                'virus_date' => $Virus->date,
-                'virus_id' => $Virus->id,
-            );
-            unset($Virus);
-        }
-        self::$HookManager
-            ->processEvent(
-                'HOST_VIRUS',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        $paneltype = 'info';
-        if (count($this->data) > 0) {
-            $paneltype = 'warning';
-        }
-        echo '<!-- Virus -->';
-        echo '<div class="tab-pane fade" id="host-virus-history">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Host Virus History');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '&tab=host-virus-history">';
-        echo '<h4 class="title text-center">';
-        echo '<a href="#">';
-        echo '<div class="checkbox">';
-        echo '<input type="checkbox" class="delvid" id="all" '
-            . 'name="delvid" value="all"/>';
-        echo '<label for="all">';
-        echo _('Clear all history');
-        echo '</label>';
-        echo '</div>';
-        echo '</a>';
-        echo '</h4>';
-        echo '<div class="panel panel-'
-            . $paneltype
-            . '">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Virus Report');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        $this->render(12);
-        echo '</div>';
-        echo '</div>';
-        echo '</form>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
-    }
-    /**
      * Display Login History for Host.
      *
      * @return void
@@ -2793,15 +2650,6 @@ class HostManagementPage extends FOGPage
             }
         );
 
-        // Virus
-        $tabData[] = array(
-            'name' => _('Virus History'),
-            'id' => 'host-virus-history',
-            'generator' => function() {
-                $this->hostVirus();
-            }
-        );
-
         // Login History
         $tabData[] = array(
             'name' => _('Login History'),
@@ -2834,7 +2682,6 @@ class HostManagementPage extends FOGPage
          *
         $this->hostPMDisplay();
         $this->hostInventory();
-        $this->hostVirus();
         $this->hostLoginHistory();
         $this->hostImageHistory();
         $this->hostSnapinHistory();
@@ -3227,32 +3074,6 @@ class HostManagementPage extends FOGPage
                     . $tab
                 );
                 break;
-            case 'host-virus-history':
-                $delvid = filter_input(INPUT_POST, 'delvid');
-                $delvidarr = filter_input_array(
-                    INPUT_POST,
-                    array(
-                        'delvidarr' => array(
-                            'flags' => FILTER_REQUIRE_ARRAY
-                        )
-                    )
-                );
-                $delvidarr = $delvidarr['delvidarr'];
-                if ($delvid == 'all') {
-                    $this->obj->clearAVRecordsForHost();
-                } else {
-                    self::getClass('VirusManager')
-                        ->destroy(
-                            array(
-                                'id' => $delvidarr
-                            )
-                        );
-                }
-                $msg = json_encode(
-                    array('msg' => _('Virus items removed!'))
-                );
-                echo $msg;
-                exit;
             }
             if (!$this->obj->save()) {
                 throw new Exception(_('Host Update Failed'));
