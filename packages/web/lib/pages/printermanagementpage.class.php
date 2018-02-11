@@ -196,7 +196,7 @@ class PrinterManagementPage extends FOGPage
             . _('Printer Type')
             . '</label>' => $printerSel
         );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         self::$HookManager->processEvent(
             'PRINTER_COPY_DATA',
             array(
@@ -236,7 +236,7 @@ class PrinterManagementPage extends FOGPage
             . '</textarea>'
             . '</div>'
         );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         self::$HookManager->processEvent(
             'PRINTER_NETWORK',
             array(
@@ -285,7 +285,7 @@ class PrinterManagementPage extends FOGPage
             . '/>'
             . '</div>'
         );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         self::$HookManager->processEvent(
             'PRINTER_IPRINT',
             array(
@@ -341,7 +341,7 @@ class PrinterManagementPage extends FOGPage
             . '/>'
             . '</div>'
         );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         self::$HookManager->processEvent(
             'PRINTER_CUPS',
             array(
@@ -414,7 +414,7 @@ class PrinterManagementPage extends FOGPage
             . '/>'
             . '</div>'
         );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         $printerLocal = '<div class="hiddeninitially" id="local">'
             . $this->process(12)
             . '</div>';
@@ -596,7 +596,7 @@ class PrinterManagementPage extends FOGPage
             . _('Printer Type')
             . '</label>' => $printerSel
         );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         self::$HookManager->processEvent(
             'PRINTER_COPY_DATA',
             array(
@@ -636,7 +636,7 @@ class PrinterManagementPage extends FOGPage
             . '</textarea>'
             . '</div>'
         );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         self::$HookManager->processEvent(
             'PRINTER_NETWORK',
             array(
@@ -685,7 +685,7 @@ class PrinterManagementPage extends FOGPage
             . '/>'
             . '</div>'
         );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         self::$HookManager->processEvent(
             'PRINTER_IPRINT',
             array(
@@ -741,7 +741,7 @@ class PrinterManagementPage extends FOGPage
             . '/>'
             . '</div>'
         );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         self::$HookManager->processEvent(
             'PRINTER_CUPS',
             array(
@@ -814,7 +814,7 @@ class PrinterManagementPage extends FOGPage
             . '/>'
             . '</div>'
         );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         $printerLocal = '<div class="hiddeninitially" id="local">'
             . $this->process(12)
             . '</div>';
@@ -823,7 +823,7 @@ class PrinterManagementPage extends FOGPage
             $this->form,
             $this->headerData
         );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         echo '<!-- General -->';
         echo '<div class="tab-pane fade in active" id="printer-gen">';
         echo '<div class="panel panel-info">';

@@ -337,7 +337,7 @@ class PluginManagementPage extends FOGPage
                         . '</button>'
                     )
                 );
-                array_walk($fields, $this->fieldsToData);
+                $rendered = self::formFields($fields);
                 echo '<form class="form-horizontal" method="post" action="'
                     . $this->formAction
                     . '&run='
@@ -346,7 +346,7 @@ class PluginManagementPage extends FOGPage
                 $this->indexDivDisplay(true, false, true);
                 echo '</form>';
             } else {
-                array_walk($fields, $this->fieldsToData);
+                $rendered = self::formFields($fields);
                 $this->indexDivDisplay(true, false, true);
                 $run = filter_input(INPUT_GET, 'run');
                 if ('capone' === $plugin->name && $run === $plugin->hash) {
@@ -437,7 +437,7 @@ class PluginManagementPage extends FOGPage
                         . _('Update')
                         . '</button>'
                     );
-                    array_walk($fields, $this->fieldsToData);
+                    $rendered = self::formFields($fields);
                     $this->indexDivDisplay();
                     unset(
                         $fields,
@@ -464,7 +464,7 @@ class PluginManagementPage extends FOGPage
                         . _('Update')
                         . '</button>'
                     );
-                    array_walk($fields, $this->fieldsToData);
+                    $rendered = self::formFields($fields);
                     $this->indexDivDisplay();
                     unset(
                         $fields,
@@ -558,7 +558,7 @@ class PluginManagementPage extends FOGPage
                         . _('Delete')
                         . '</button>'
                     );
-                    array_walk($fields, $this->fieldsToData);
+                    $rendered = self::formFields($fields);
                     echo '<div class="panel panel-warning">';
                     echo '<div class="panel-heading text-center">';
                     echo '<h4 class="title">';

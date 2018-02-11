@@ -104,7 +104,7 @@ class User_Tracking extends ReportManagementPage
             . _('Search')
             . '</button>'
         );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         echo '<div class="col-xs-9">';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';

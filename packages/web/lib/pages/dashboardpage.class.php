@@ -222,7 +222,6 @@ class DashboardPage extends FOGPage
             array('class' => 'col-xs-8')
         );
         $fields = (array)$fields;
-        array_walk($fields, $this->fieldsToData);
         self::$HookManager
             ->processEvent(
                 'DashboardData',
@@ -305,7 +304,7 @@ class DashboardPage extends FOGPage
         echo '<div id="graph-diskusage"></div>';
         echo '</a>';
         echo '<div class="graph-selectors" id="diskusage-selector">';
-        if (!empty(self::$_nodeOpts) && count(self::$_nodeOpts) > 0) {
+        if (!empty(self::$_nodeOpts) && count((array)self::$_nodeOpts) > 0) {
             printf(
                 '<select name="nodesel" class="nodeid">%s</select>',
                 self::$_nodeOpts

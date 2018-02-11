@@ -346,7 +346,7 @@ class LDAPManagementPage extends FOGPage
                     'LDAP' => self::getClass('LDAP')
                 )
             );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         unset($fields);
         self::$HookManager
             ->processEvent(
@@ -788,7 +788,7 @@ class LDAPManagementPage extends FOGPage
                     'LDAP' => self::getClass('LDAP')
                 )
             );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         unset($fields);
         self::$HookManager
             ->processEvent(

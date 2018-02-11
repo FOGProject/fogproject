@@ -186,7 +186,7 @@ class LocationManagementPage extends FOGPage
             . _('Add')
             . '</button>'
         );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         self::$HookManager
             ->processEvent(
                 'LOCATION_ADD',
@@ -355,7 +355,7 @@ class LocationManagementPage extends FOGPage
             . _('Update')
             . '</button>'
         );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         self::$HookManager
             ->processEvent(
                 'LOCATION_EDIT',

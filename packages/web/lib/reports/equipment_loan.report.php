@@ -69,7 +69,7 @@ class Equipment_Loan extends ReportManagementPage
             . _('Generate')
             . '</button>'
         );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         echo '<div class="col-xs-9">';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';

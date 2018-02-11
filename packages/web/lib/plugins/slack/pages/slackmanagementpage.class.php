@@ -149,7 +149,7 @@ class SlackManagementPage extends FOGPage
             . _('Add')
             . '</button>'
         );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         self::$HookManager
             ->processEvent(
                 'SLACK_ADD',

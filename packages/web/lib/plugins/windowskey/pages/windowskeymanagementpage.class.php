@@ -175,7 +175,7 @@ class WindowsKeyManagementPage extends FOGPage
                     'WindowsKey' => self::getClass('WindowsKey')
                 )
             );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         unset($fields);
         self::$HookManager
             ->processEvent(
@@ -355,7 +355,7 @@ class WindowsKeyManagementPage extends FOGPage
                     'WindowsKey' => &$this->obj
                 )
             );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         unset($fields);
         self::$HookManager
             ->processEvent(

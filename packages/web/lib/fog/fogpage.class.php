@@ -164,12 +164,6 @@ abstract class FOGPage extends FOGBase
      */
     protected $titleEnabled = true;
     /**
-     * Fields to data
-     *
-     * @var mixed
-     */
-    protected $fieldsToData;
-    /**
      * The request
      *
      * @var array
@@ -441,7 +435,7 @@ abstract class FOGPage extends FOGBase
         if ($tab) {
             $tabstr = "#$tab";
         }
-        if (count($data) > 0) {
+        if (count($data ?: []) > 0) {
             $formstr .= http_build_query($data);
         }
         if ($tabstr) {
@@ -535,7 +529,7 @@ abstract class FOGPage extends FOGBase
                     'main' => &$menu
                 )
             );
-        if (count($menu) > 0) {
+        if (count($menu ?: []) > 0) {
             $links = array_keys($menu);
         }
         $links = self::fastmerge(
@@ -556,7 +550,7 @@ abstract class FOGPage extends FOGBase
         }
         ob_start();
         $count = false;
-        if (count($menu) > 0) {
+        if (count($menu ?: []) > 0) {
             foreach ($menu as $link => &$title) {
                 $links[] = $link;
                 if (!$node && $link == 'home') {
@@ -568,7 +562,7 @@ abstract class FOGPage extends FOGBase
                 );
                 echo '<li class="';
                 echo (
-                    count($subItems) > 0 ?
+                    count($subItems ?: []) > 0 ?
                     'treeview ' :
                     ''
                 );
@@ -580,20 +574,20 @@ abstract class FOGPage extends FOGBase
                 echo '">';
                 echo '  <a href="';
                 echo (
-                    count($subItems) > 0 ?
+                    count($subItems ?: []) > 0 ?
                     '#' :
                     '?node=' . $link
                 );
                 echo '">';
                 echo '      <i class="' . $title[1] . '"></i> ';
                 echo '<span>' . $title[0] . '</span>';
-                if (count($subItems) > 0) {
+                if (count($subItems ?: []) > 0) {
                     echo '<span class="pull-right-container">';
                     echo '    <i class="fa fa-angle-left pull-right"></i>';
                     echo '</span>';
                 }
                 echo '</a>';
-                if (count($subItems) > 0) {
+                if (count($subItems ?: []) > 0) {
                     echo '<ul class="treeview-menu">';
                     foreach ($subItems as $subItem => $text) {
                         echo '<li class="';
@@ -721,7 +715,7 @@ abstract class FOGPage extends FOGBase
             $items = json_decode(Route::getData());
             $type = $node.'s';
             $items = $items->$type;
-            if (count($items) > 0) {
+            if (count($items ?: []) > 0) {
                 array_walk($items, static::$returnData);
             }
             $event = sprintf(
@@ -764,14 +758,14 @@ abstract class FOGPage extends FOGBase
                     $value
                 );
             };
-            if (count($args) > 0) {
+            if (count($args ?: []) > 0) {
                 array_walk($args, $vals);
             }
             printf(
                 'Index page of: %s%s',
                 get_class($this),
                 (
-                    count($args) ?
+                    count($args ?: []) ?
                     sprintf(
 ', Arguments = %s',
 implode(
@@ -954,7 +948,7 @@ $args
                 $actionbox = $actionbox . self::makeButton('deleteSelected', _('Delete selected'), 'btn btn-danger');
                 $modals = $modals . self::makeModal('deleteModal',
                     _('Confirm password'),
-                    '<input id="deletePassword" class="form-control" placeholder="' . _('Password') . '" autocomplete="off" type="password">',
+                    '<div class="input-group"><input id="deletePassword" class="form-control" placeholder="' . _('Password') . '" autocomplete="off" type="password"></div>',
                     self::makeButton('closeDeleteModal',
                     _('Cancel'),
                     'btn btn-outline pull-left',
@@ -983,7 +977,7 @@ $args
                         'attributes' => $this->attributes,
                         'form' => $this->form,
                         'actionbox' => (
-                            count($this->data) > 0 ?
+                            count($this->data ?: []) > 0 ?
                             $actionbox :
                             ''
                         ),
@@ -991,7 +985,7 @@ $args
                 );
                 exit;
             }
-            if (!count($this->templates)) {
+            if (!count($this->templates ?: [])) {
                 throw new Exception(
                     _('Requires templates to process')
                 );
@@ -1015,7 +1009,7 @@ $args
                 echo '<thead><tr class="header"></tr></thead>';
                 echo '<tbody>';
                 $tablestr = '<tr><td colspan="'
-                    . count($this->templates)
+                    . count($this->templates ?: [])
                     . '">';
                 $tablestr .= (
                     is_array($this->data['error']) ?
@@ -1027,7 +1021,7 @@ $args
                 echo $tablestr;
                 echo '</tbody>';
             } else {
-                if (count($this->headerData) > 0) {
+                if (count($this->headerData) > 0 ?: []) {
                     echo '<thead>';
                     echo $this->buildHeaderRow();
                     echo '</thead>';
@@ -1035,7 +1029,7 @@ $args
                     echo '<thead>';
                     echo '</thead>';
                 }
-                if ($serverSide || count($this->data) < 1) {
+                if ($serverSide || count($this->data ?: []) < 1) {
                     echo '<tbody></tbody>';
                 } else {
                     echo '<tbody>';
@@ -1102,13 +1096,13 @@ $args
     {
         unset($this->atts);
         $this->_setAtts();
-        if (count($this->headerData) < 1) {
+        if (count($this->headerData ?: []) < 1) {
             return;
         }
         ob_start();
         echo '<tr class="header'
             . (
-                count($this->data) < 1 ?
+                count($this->data ?: []) < 1 ?
                 ' hiddeninitially' :
                 ''
             )
@@ -1617,7 +1611,7 @@ $args
             echo '</div>';
             echo '</div>';
         }
-        if (count($this->data)) {
+        if (count($this->data ?: [])) {
             echo '<div class="col-xs-12">';
             echo '<label class="control-label col-xs-4" for="taskingbtn">';
             echo _('Create');
@@ -1855,7 +1849,7 @@ $args
                 }
             } elseif ($this->obj instanceof Group) {
                 if (!(isset($_POST['taskhosts'])
-                    && count($_POST['taskhosts']) > 0)
+                    && count($_POST['taskhosts'] ?: []) > 0)
                 ) {
                     throw new Exception(
                         _('There are no hosts to task in this group')
@@ -1913,7 +1907,7 @@ $args
                             'imageID' => $imageIDs
                         )
                     );
-                    if (count($hostIDs) < 1) {
+                    if (count($hostIDs ?: []) < 1) {
                         throw new Exception(
                             sprintf(
                                 '%s/%s.',
@@ -2012,7 +2006,7 @@ $args
                     $e->getMessage()
                 );
             }
-            if (count($error)) {
+            if (count($error ?: [])) {
                 throw new Exception(
                     sprintf(
                         '<ul class="nav nav-pills nav-stacked">'
@@ -2182,7 +2176,7 @@ $args
             );
             unset($object);
         }
-        if (count($this->data) < 1) {
+        if (count($this->data ?: []) < 1) {
             self::redirect('?node=' . $node);
         }
         $this->data[] = array(
@@ -2468,7 +2462,7 @@ $args
         $ADOU = trim($ADOU);
         $ADOU = str_replace(';', '', $ADOU);
         $optFound = $ADOU;
-        if (count($OUs) > 1) {
+        if (count($OUs ?: []) > 1) {
             ob_start();
             printf(
                 '<option value="">- %s -</option>',
@@ -2548,9 +2542,9 @@ $args
                 _('Domain Password'),
                 _('Will auto-encrypt plaintext')
             ) => sprintf(
-                '<input id="adPassword" class="form-control" type='
+                '<div class="input-group"><input id="adPassword" class="form-control" type='
                 . '"password" '
-                . 'name="domainpassword" value="%s" autocomplete="off"/>',
+                . 'name="domainpassword" value="%s" autocomplete="off"/></div>',
                 $ADPass
             ),
             sprintf(
@@ -2560,9 +2554,9 @@ $args
                 _('Domain Password Legacy'),
                 _('Must be encrypted')
             ) => sprintf(
-                '<input id="adPasswordLegacy" class="form-control" '
+                '<div class="input-group"><input id="adPasswordLegacy" class="form-control" '
                 . 'type="password" name="domainpasswordlegacy" '
-                . 'value="%s" autocomplete="off"/>',
+                . 'value="%s" autocomplete="off"/></div>',
                 $ADPassLegacy
             ),
             sprintf(
@@ -2921,7 +2915,7 @@ $args
             ),
             array($this->childClass => &$this->obj)
         );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         self::$HookManager->processEvent(
             sprintf(
                 '%S_DEL',
@@ -3607,7 +3601,7 @@ $args
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '">';
-        if (count($this->data) > 0) {
+        if (count($this->data ?: []) > 0) {
             $notInMe = $meShow = $objType;
             $meShow .= 'MeShow';
             $notInMe .= 'NotInMe';
@@ -3680,7 +3674,7 @@ $args
         );
         $getter = $getType;
         array_walk($items, $returnData);
-        if (count($this->data) > 0) {
+        if (count($this->data ?: []) > 0) {
             echo '<div class="panel panel-warning">';
             echo '<div class="panel-heading text-center">';
             echo '<h4 class="title">';
@@ -3754,7 +3748,7 @@ $args
             $mac = filter_input(INPUT_GET, 'mac');
         }
         $macs = self::parseMacList($mac);
-        if (count($macs) < 1) {
+        if (count($macs ?: []) < 1) {
             return;
         }
         self::getClass('WakeOnLan', implode('|', $macs))->send();
@@ -3812,8 +3806,8 @@ $args
             unset($Item);
         }
         $_SESSION['foglastreport'] = serialize($report);
-        if (count($fields)) {
-            array_walk($fields, $this->fieldsToData);
+        if (count($fields ?: [])) {
+            $rendered = self::formFields($fields);
         }
         self::$HookManager->processEvent(
             strtoupper($this->node) . '_EXPORT',
@@ -3827,7 +3821,7 @@ $args
         $plural = $this->node.'s';
         $modals = $modals . self::makeModal('exportModal',
             _('Confirm password'),
-            '<input id="exportPassword" class="form-control" placeholder="' . _('Password') . '" autocomplete="off" type="password">',
+            '<div class="input-group"><input id="exportPassword" class="form-control modal" placeholder="' . _('Password') . '" autocomplete="off" type="password"></div>',
             self::makeButton('closeExportModal',
             _('Cancel'),
             'btn btn-outline pull-left',
@@ -3992,7 +3986,7 @@ $args
                 'id',
                 $this->databaseFields
             );
-            $comma_count = count(array_keys($this->databaseFields));
+            $comma_count = count(array_keys($this->databaseFields) ?: []);
             $iterator = 0;
             if ($Item instanceof Host) {
                 $comma_count++;
@@ -4005,7 +3999,7 @@ $args
             );
             $totalRows = 0;
             while (($data = fgetcsv($fh, 1000, ',')) !== false) {
-                $importCount = count($data);
+                $importCount = count($data ?: []);
                 if ($importCount > 0
                     && $importCount > $comma_count
                 ) {

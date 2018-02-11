@@ -176,7 +176,7 @@ class TaskstateeditManagementPage extends FOGPage
                     'TaskState' => self::getClass('TaskState')
                 )
             );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         self::$HookManager
             ->processEvent(
                 'TASKSTATE_ADD',
@@ -365,7 +365,7 @@ class TaskstateeditManagementPage extends FOGPage
                     'TaskState' => self::getClass('TaskState')
                 )
             );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         self::$HookManager
             ->processEvent(
                 'TASKSTATE_EDIT',

@@ -137,7 +137,7 @@ class WOLBroadcastManagementPage extends FOGPage
             . _('Create')
             . '</button>'
         );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         self::$HookManager
             ->processEvent(
                 'BROADCAST_ADD',
@@ -282,7 +282,7 @@ class WOLBroadcastManagementPage extends FOGPage
             . _('Update')
             . '</button>'
         );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         self::$HookManager
             ->processEvent(
                 'BROADCAST_EDIT',
