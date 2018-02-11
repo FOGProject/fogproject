@@ -54,7 +54,6 @@ class ClientManagementPage extends FOGPage
      */
     public function index()
     {
-        $this->title = _('FOG Client Installer');
         $webArr = array(
             'name' => array(
                 'FOG_WEB_HOST'
@@ -74,16 +73,19 @@ class ClientManagementPage extends FOGPage
             $url,
             FILTER_SANITIZE_URL
         );
+        echo '<div class="box-group">';
+        echo '<!-- FOG Client Installers -->';
         // Dash boxes row.
-        echo '<div class="row">';
-        // New Client and utilties
-        echo '<div class="col-xs-4">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('New Client and Utilities');
+        echo '<div class="col-md-6">';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('FOG Client Installers');
         echo '</h4>';
-        echo '<p class="category">';
+        echo '<div class="box-tools pull-right">';
+        echo self::$FOGCollapseBox;
+        echo '</div>';
+        echo '<p class="help-block">';
         echo _('The installers for the fog client');
         echo '<br/>';
         echo _('Client Version');
@@ -91,7 +93,7 @@ class ClientManagementPage extends FOGPage
         echo FOG_CLIENT_VERSION;
         echo '</p>';
         echo '</div>';
-        echo '<div class="panel-body">';
+        echo '<div class="box-body">';
         printf(
             '%s, %s, %s, %s. ',
             _('Cross platform'),
@@ -134,6 +136,56 @@ class ClientManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
         // Help and guide box
+        echo '<!-- Where to get help -->';
+        echo '<div class="col-md-6">';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Help and Guides');
+        echo '</h4>';
+        echo '<div class="box-tools pull-right">';
+        echo self::$FOGCollapseBox;
+        echo '</div>';
+        echo '<p class="help-block">';
+        echo _('Where to get help and guides');
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        printf(
+            '%s. %s: %s %s.<br/><br/>',
+            _('Use the links below if you need assistance'),
+            _('NOTE'),
+            _('Forums are the most common and fastest method of getting'),
+            _('help with any aspect of FOG')
+        );
+        echo '<br/>';
+        printf(
+            '<a href="'
+            . 'https://wiki.fogproject.org/wiki/index.php?title=FOG_client'
+            . '" data-toggle="tooltip" data-placement="right" '
+            . 'title="%s. %s">%s</a><br/>',
+            _('Detailed documentation'),
+            _('It is primarily geared for the smart installer methodology now'),
+            _('FOG Client Wiki')
+        );
+        printf(
+            '<a href="'
+            . 'https://forums.fogproject.org'
+            . '" data-toggle="tooltip" data-placement="right" '
+            . 'title="%s? %s. %s %s. %s.">%s</a>',
+            _('Need more support'),
+            _('Somebody will be able to help in some form'),
+            _('Use the forums to post issues so others'),
+            _('may see the issue and help and/or use the solutions'),
+            _('Chat is also available on the forums for more realtime help'),
+            _('FOG Forums')
+        );
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        return;
+
         echo '<div class="col-xs-4">';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
