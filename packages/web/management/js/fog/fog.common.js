@@ -435,6 +435,29 @@ var $_GET = getQueryParams(document.location.search),
     Common.iCheck();
 
     $(":input").inputmask();
+    $(':password')
+    .not('.fakes, [name="upass"]')
+    .before('<span class="input-group-addon"><i class="fa fa-eye-slash fogpasswordeye"></i></span>');
+    $(document).on('click', '.fogpasswordeye', function(e) {
+        e.preventDefault();
+        if (!$(this).hasClass('clicked')) {
+            $(this)
+                .addClass('clicked')
+                .removeClass('fa-eye-slash')
+                .addClass('fa-eye')
+                .closest('.input-group')
+                .find('input[type="password"]')
+                .prop('type', 'text');
+        } else {
+            $(this)
+                .removeClass('clicked')
+                .addClass('fa-eye-slash')
+                .removeClass('fa-eye')
+                .closest('.input-group')
+                .find('input[type="text"]')
+                .prop('type', 'password');
+        }
+    });
 })(jQuery);
 /**
  * Gets the GET params from the URL.

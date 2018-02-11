@@ -214,7 +214,7 @@ class GroupManagementPage extends FOGPage
                 'fields' => &$fields,
             )
         );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         self::$HookManager->processEvent(
             'GROUP_ADD',
             array(
@@ -506,7 +506,7 @@ class GroupManagementPage extends FOGPage
                 'Group' => &$this->obj
             )
         );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         self::$HookManager
             ->processEvent(
                 'GROUP_EDIT_GEN',
@@ -597,7 +597,7 @@ class GroupManagementPage extends FOGPage
                     'Group' => &$this->obj
                 )
             );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         self::$HookManager
             ->processEvent(
                 'GROUP_EDIT_IMAGE',

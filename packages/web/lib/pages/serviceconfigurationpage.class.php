@@ -263,7 +263,7 @@ class ServiceConfigurationPage extends FOGPage
                     $Module->description
                 )
             );
-            array_walk($fields, $this->fieldsToData);
+            $rendered = self::formFields($fields);
             $this->span = array(
                 'span',
                 '<button type="submit" name="updatestatus" class='
@@ -282,7 +282,7 @@ class ServiceConfigurationPage extends FOGPage
                 . $modNames[$Module->shortName]
                 . '"/>'
             );
-            array_walk($fields, $this->fieldsToData);
+            $rendered = self::formFields($fields);
             echo '<!-- '
                 . $Module->name
                 . ' -->';
@@ -573,7 +573,7 @@ class ServiceConfigurationPage extends FOGPage
                     . _('Update')
                     . '</button>'
                 );
-                array_walk($fields, $this->fieldsToData);
+                $rendered = self::formFields($fields);
                 echo '<div class="panel panel-info">';
                 echo '<div class="panel-heading text-center">';
                 echo '<h4 class="title">';

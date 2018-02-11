@@ -363,7 +363,7 @@ class AccessControlManagementPage extends FOGPage
             . _('Add')
             . '</button>'
         );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         self::$HookManager
             ->processEvent(
                 'ACCESSCONTROL_ADD',
@@ -507,7 +507,7 @@ class AccessControlManagementPage extends FOGPage
             . _('Update')
             . '</button>'
         );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         self::$HookManager
             ->processEvent(
                 'ACCESSCONTROL_EDIT',
@@ -745,7 +745,7 @@ class AccessControlManagementPage extends FOGPage
             . _('Create')
             . '</button>'
         );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         self::$HookManager
             ->processEvent(
                 'ACCESSCONTROL_RULE_ADD',

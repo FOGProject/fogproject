@@ -457,7 +457,7 @@ class StorageManagementPage extends FOGPage
             . _('Add')
             . '</button>'
         );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         self::$HookManager
             ->processEvent(
                 'STORAGE_NODE_ADD',
@@ -826,7 +826,7 @@ class StorageManagementPage extends FOGPage
             . _('Update')
             . '</button>'
         );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         self::$HookManager
             ->processEvent(
                 'STORAGE_NODE_EDIT',
@@ -1023,7 +1023,7 @@ class StorageManagementPage extends FOGPage
             . _('Delete')
             . '</button>'
         );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         self::$HookManager
             ->processEvent(
                 'STORAGE_NODE_DELETE',
@@ -1232,7 +1232,7 @@ class StorageManagementPage extends FOGPage
             . _('Add')
             . '</button>'
         );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         self::$HookManager
             ->processEvent(
                 'STORAGE_GROUP_ADD',
@@ -1357,7 +1357,7 @@ class StorageManagementPage extends FOGPage
             . self::$foglang['Update']
             . '</button>'
         );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         self::$HookManager
             ->processEvent(
                 'STORAGE_GROUP_EDIT',
@@ -1477,7 +1477,7 @@ class StorageManagementPage extends FOGPage
             . _('Delete')
             . '</button>'
         );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         self::$HookManager
             ->processEvent(
                 'STORAGE_GROUP_DELETE',

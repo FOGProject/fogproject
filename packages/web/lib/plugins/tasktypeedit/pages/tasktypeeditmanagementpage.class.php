@@ -244,7 +244,7 @@ class TasktypeeditManagementPage extends FOGPage
                     'TaskType' => self::getClass('TaskType')
                 )
             );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         self::$HookManager
             ->processEvent(
                 'TASKTYPE_ADD',
@@ -520,7 +520,7 @@ class TasktypeeditManagementPage extends FOGPage
                     'TaskType' => self::getClass('TaskState')
                 )
             );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         self::$HookManager
             ->processEvent(
                 'TASKTYPE_EDIT',

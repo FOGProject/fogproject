@@ -1801,6 +1801,13 @@ class HostManagementPage extends FOGPage
         $alodesc = self::getClass('Service')
             ->set('name', 'FOG_CLIENT_AUTOLOGOFF_MIN')
             ->load('name')
+            ->get('description')
+            ->set(
+                'description',
+                $alodesc
+                . ' '
+                . _('The minimum allowed time for autologout is 5 minutes.')
+            )
             ->get('description');
         $this->data[] = array(
             'field' => '<label for="tme">'
@@ -1986,7 +1993,7 @@ class HostManagementPage extends FOGPage
         );
         $this->title = _('Host Hardware Inventory');
         if ($this->obj->get('inventory')->isValid()) {
-            array_walk($fields, $this->fieldsToData);
+            $rendered = self::formFields($fields);
         }
         self::$HookManager
             ->processEvent(
@@ -3148,6 +3155,12 @@ class HostManagementPage extends FOGPage
         $y = filter_input(INPUT_POST, 'y');
         $r = filter_input(INPUT_POST, 'r');
         $tme = filter_input(INPUT_POST, 'tme');
+        if (!$tme
+            || !is_numeric($tme)
+            || (is_numeric($tme) && $tme < 5)
+        ) {
+            $tme = 0;
+        }
         $modOn = filter_input_array(
             INPUT_POST,
             array(

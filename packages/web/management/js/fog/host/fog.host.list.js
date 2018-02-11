@@ -47,7 +47,12 @@
         columns: [
             {data: 'name'},
             {data: 'primac'},
-            {data: 'pingstatus'},
+            {
+                data: 'pingstatus',
+                defaultContent: function(data, type, row) {
+                    return pingstring[6];
+                }
+            },
             {data: 'deployed'},
             {data: 'imagename'},
             {data: 'description'}

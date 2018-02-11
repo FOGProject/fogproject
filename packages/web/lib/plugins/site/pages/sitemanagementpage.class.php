@@ -145,7 +145,7 @@ class SiteManagementPage extends FOGPage
                 _('Add')
             ),
         );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         unset($fields);
         self::$HookManager
             ->processEvent(

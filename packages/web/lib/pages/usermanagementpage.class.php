@@ -166,15 +166,15 @@ class UserManagementPage extends FOGPage
             . '" autocomplete="off" id="display"/>',
             '<label class="col-sm-2 control-label" for="password">'
             . _('User Password')
-            . '</label>' => '<input type="password" class="'
+            . '</label>' => '<div class="input-group"><input type="password" class="'
             . 'form-control password-input1" name="password" value='
             . '"" autocomplete='
-            . '"off" id="password" required/>',
+            . '"off" id="password" required/></div>',
             '<label class="col-sm-2 control-label" for="password2">'
             . _('User Password (confirm)')
-            . '</label>' => '<input type="password" class="'
+            . '</label>' => '<div class="input-group"><input type="password" class="'
             . 'form-control password-input2" name="password_confirm" beEqualTo="password" value='
-            . '"" autocomplete="off" id="password2" required/>',
+            . '"" autocomplete="off" id="password2" required/></div>',
             '<label class="col-sm-2 control-label" for="apion">'
             . _('User API Enabled')
             . '</label>' => '<input type="checkbox" class="'
@@ -398,14 +398,14 @@ class UserManagementPage extends FOGPage
         $fields = array(
             '<label for="password" class="col-sm-2 control-label">'
             . _('User Password')
-            . '</label>' => '<input id="password" class="form-control" placeholder="'
+            . '</label>' => '<div class="input-group"><input id="password" class="form-control" placeholder="'
             . _('User Password')
-            . '" type="password" value="" name="password" required/>',
+            . '" type="password" value="" name="password" required/></div>',
             '<label for="passwordConfirm" class="col-sm-2 control-label">'
             . _('User Password (confirm)')
-            . '</label>' => '<input id="passwordConfirm" class="form-control" placeholder="'
+            . '</label>' => '<div class="input-group"><input id="passwordConfirm" class="form-control" placeholder="'
             . _('User Password (confirm)')
-            . '" type="password" value="" name="password_confirm" beEqualTo="password" required/>'
+            . '" type="password" value="" name="password_confirm" beEqualTo="password" required/></div>'
         );
         self::$HookManager->processEvent(
             'USER_PW_EDIT_FIELDS',

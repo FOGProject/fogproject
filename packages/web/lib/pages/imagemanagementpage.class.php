@@ -571,7 +571,7 @@ class ImageManagementPage extends FOGPage
                     'Image' => self::getClass('Image')
                 )
             );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         unset($fields);
         self::$HookManager
             ->processEvent(
@@ -936,7 +936,7 @@ class ImageManagementPage extends FOGPage
                     'Image' => &$this->obj
                 )
             );
-        array_walk($fields, $this->fieldsToData);
+        $rendered = self::formFields($fields);
         self::$HookManager
             ->processEvent(
                 'IMAGE_EDIT',
@@ -1441,10 +1441,7 @@ class ImageManagementPage extends FOGPage
             . _('Start')
             . '</button>'
         );
-        array_walk(
-            $fields,
-            $this->fieldsToData
-        );
+        $rendered = self::formFields($fields);
         self::$HookManager
             ->processEvent(
                 'IMAGE_MULTICAST_SESS',
