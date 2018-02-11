@@ -898,7 +898,6 @@ class Group extends FOGController
      * @param string $ou      the ou to associate
      * @param string $user    the user to join domain with
      * @param string $pass    the user password for domain join
-     * @param string $legacy  the legacy password for legacy client
      * @param int    $enforce sets whether to enforce changes
      *
      * @return object
@@ -909,7 +908,6 @@ class Group extends FOGController
         $ou,
         $user,
         $pass,
-        $legacy,
         $enforce
     ) {
         $pass = trim($pass);
@@ -925,7 +923,6 @@ class Group extends FOGController
                     'ADOU' => trim($ou),
                     'ADUser' => trim($user),
                     'ADPass' => $pass,
-                    'ADPassLegacy' => $legacy,
                     'enforce' => $enforce,
                 )
             );

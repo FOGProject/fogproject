@@ -19,7 +19,7 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class Autologout extends FOGClient implements FOGClientSend
+class Autologout extends FOGClient
 {
     /**
      * Module associated shortname
@@ -45,22 +45,5 @@ class Autologout extends FOGClient implements FOGClientSend
             return array('error' => 'time');
         }
         return array('time' => $time * 60);
-    }
-    /**
-     * Creates the send string and stores to send variable
-     *
-     * @return void
-     */
-    public function send()
-    {
-        $time = self::$Host->getAlo();
-        if (self::$newService) {
-            if ($time < 5) {
-                throw new Exception('#!time');
-            }
-            $this->send = $time * 60;
-        } else {
-            $this->send = base64_encode($time);
-        }
     }
 }

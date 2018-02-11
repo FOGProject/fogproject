@@ -19,7 +19,7 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class Jobs extends FOGClient implements FOGClientSend
+class Jobs extends FOGClient
 {
     /**
      * Module associated shortname
@@ -58,19 +58,5 @@ class Jobs extends FOGClient implements FOGClientSend
             }
         }
         return array($field => $answer);
-    }
-    /**
-     * Creates the send string and stores to send variable
-     *
-     * @return void
-     */
-    public function send()
-    {
-        $Task = self::$Host->get('task');
-        if ($Task->isInitNeededTasking()) {
-            $this->send = '#!ok';
-        } else {
-            throw new Exception('#!nj');
-        }
     }
 }

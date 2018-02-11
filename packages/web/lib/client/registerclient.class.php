@@ -23,7 +23,7 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class RegisterClient extends FOGClient implements FOGClientSend
+class RegisterClient extends FOGClient
 {
     /**
      * Module associated shortname
@@ -139,71 +139,5 @@ class RegisterClient extends FOGClient implements FOGClientSend
             return array('complete' => true);
         }
         return array('error' => 'ig');
-    }
-    /**
-     * Creates the send string and stores to send variable
-     *
-     * @return void
-     */
-    public function send()
-    {
-        $maxPending = 0;
-        $MACs = self::getHostItem(
-            true,
-            false,
-            true,
-            true
-        );
-        list(
-            $enforce,
-            $maxPending
-        ) = self::getSubObjectIDs(
-            'Service',
-            array(
-                'name' => array(
-                    'FOG_ENFORCE_HOST_CHANGES',
-                    'FOG_QUICKREG_MAX_PENDING_MACS'
-                )
-            ),
-            'value',
-            false,
-            'AND',
-            'name',
-            false,
-            ''
-        );
-        if (count($MACs) > $maxPending + 1) {
-            if (self::$json) {
-                return array('error' => _('Too many MACs'));
-            }
-            throw new Exception(_('Too many MACs'));
-        }
-        $MACs = self::parseMacList(
-            $MACs,
-            false,
-            true
-        );
-        $KnownMACs = self::$Host->getMyMacs(false);
-        $MACs = array_unique(
-            array_diff(
-                (array)$MACs,
-                (array)$KnownMACs
-            )
-        );
-        $lowerAndTrim = function ($element) {
-            return strtolower(trim($element));
-        };
-        $MACs = array_map(
-            $lowerAndTrim,
-            $MACs
-        );
-        if (count($MACs)) {
-            self::$Host->addPendMAC($MACs);
-            if (!self::$Host->save()) {
-                throw new Exception('#!db');
-            }
-            throw new Exception('#!ok');
-        }
-        throw new Exception('#!ig');
     }
 }

@@ -2410,7 +2410,6 @@ $args
      * @param string $ADOU         the ou to select
      * @param string $ADUser       the user to use
      * @param string $ADPass       the password
-     * @param string $ADPassLegacy the legacy password
      * @param mixed  $enforce      enforced selected
      * @param mixed  $ownElement   do we need to be our own container
      * @param mixed  $retFields    return just the fields?
@@ -2423,7 +2422,6 @@ $args
         $ADOU = '',
         $ADUser = '',
         $ADPass = '',
-        $ADPassLegacy = '',
         $enforce = '',
         $ownElement = true,
         $retFields = false
@@ -2446,9 +2444,6 @@ $args
             }
             if (empty($ADPass)) {
                 $ADPass = $this->obj->get('ADPass');
-            }
-            if (empty($ADPassLegacy)) {
-                $ADPassLegacy = $this->obj->get('ADPassLegacy');
             }
         }
         $OUs = array_unique(
@@ -2548,18 +2543,6 @@ $args
                 $ADPass
             ),
             sprintf(
-                '<label class="col-sm-2 control-label" for="adPasswordLegacy">%s'
-                . '<br/>(%s)'
-                . '</label>',
-                _('Domain Password Legacy'),
-                _('Must be encrypted')
-            ) => sprintf(
-                '<div class="input-group"><input id="adPasswordLegacy" class="form-control" '
-                . 'type="password" name="domainpasswordlegacy" '
-                . 'value="%s" autocomplete="off"/></div>',
-                $ADPassLegacy
-            ),
-            sprintf(
                 '<label class="col-sm-2 control-label" for="ensel">'
                 . '%s?'
                 . '</label>',
@@ -2639,7 +2622,6 @@ $args
             'DOMAINNAME',
             'OU',
             'PASSWORD',
-            'PASSWORD_LEGACY',
             'USER',
         );
         $names = array();
@@ -2654,7 +2636,6 @@ $args
             $domainname,
             $ou,
             $password,
-            $password_legacy,
             $user
         ) = self::getSubObjectIDs(
             'Service',
@@ -2671,7 +2652,6 @@ $args
                 'domainname' => $domainname,
                 'ou' => $ou,
                 'domainpass' => $password,
-                'domainpasslegacy' => $password_legacy,
                 'domainuser' => $user,
             )
         );

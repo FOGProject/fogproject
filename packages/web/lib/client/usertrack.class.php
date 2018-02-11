@@ -19,7 +19,7 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class UserTrack extends FOGClient implements FOGClientSend
+class UserTrack extends FOGClient
 {
     /**
      * Module associated shortname
@@ -89,74 +89,5 @@ class UserTrack extends FOGClient implements FOGClientSend
             ->set('date', $tmpDate->format('Y-m-d'))
             ->save();
         return array('' => '');
-    }
-    /**
-     * Sends the data to the client
-     *
-     * @return void
-     */
-    public function send()
-    {
-        if (!isset($_REQUEST['action'])
-            && !isset($_REQUEST['user'])
-        ) {
-            throw new Exception('#!us');
-        }
-        $action = strtolower(
-            base64_decode($_REQUEST['action'])
-        );
-        $user = strtolower(
-            base64_decode($_REQUEST['user'])
-        );
-        unset($tmpDate);
-        if (isset($_REQUEST['date'])) {
-            $date = base64_decode($_REQUEST['date']);
-            $tmpDate = self::niceDate($date);
-        } else {
-            $tmpDate = self::niceDate();
-        }
-        if (!in_array($action, array_keys($this->actions))) {
-            throw new Exception(
-                _('Postfix requires an action of login, logout, or start to operate')
-            );
-        }
-        if (strpos($user, chr(92))) {
-            $user = explode(chr(92), $user);
-            $user = $user[1];
-        } elseif (strpos($user, chr(64))) {
-            $user = explode(chr(64), $user);
-            $user = $user[0];
-        }
-        if ($user == null) {
-            throw new Exception('#!us');
-        }
-        $date = self::niceDate();
-        $desc = '';
-        if (isset($tmpDate)) {
-            if ($tmpDate < $date) {
-                $desc = sprintf(
-                    '%s: %s %s %s: %s',
-                    _('Replay from journal'),
-                    _('real insert time'),
-                    $date->format('M j, Y g:i:s a'),
-                    _('Login time'),
-                    $tmpDate->format('M j, Y g:i:s a')
-                );
-            }
-        }
-        if ($action == 'start') {
-            $user = '';
-        }
-        $UserTracking = self::getClass('UserTracking')
-            ->set('hostID', self::$Host->get('id'))
-            ->set('username', $user)
-            ->set('action', $this->actions[$action])
-            ->set('datetime', $tmpDate->format('Y-m-d H:i:s'))
-            ->set('description', $desc)
-            ->set('date', $tmpDate->format('Y-m-d'));
-        if (!$UserTracking->save()) {
-            throw new Exception('#!db');
-        }
-        throw new Exception('#!ok');
     }
 }

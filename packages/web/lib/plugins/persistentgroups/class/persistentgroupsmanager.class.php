@@ -43,10 +43,10 @@ class PersistentGroupsManager extends FOGManagerController
 
         IF (@myTemplateID IS NOT NULL) AND (@myHostID <> @myTemplateID) THEN
             UPDATE `hosts` `d`, (SELECT `hostImage`, `hostBuilding`, `hostUseAD`, `hostADDomain`, `hostADOU`, 
-            `hostADUser`, `hostADPass`, `hostADPassLegacy`, `hostProductKey`, `hostPrinterLevel`, `hostKernelArgs`, 
+            `hostADUser`, `hostADPass`, `hostProductKey`, `hostPrinterLevel`, `hostKernelArgs`, 
             `hostExitBios`, `hostExitEfi`, `hostEnforce` FROM `hosts` WHERE `hostID`=@myTemplateID) `s`
             SET `d`.`hostImage`=`s`.`hostImage`, `d`.`hostBuilding`=`s`.`hostBuilding`, `d`.`hostUseAD`=`s`.`hostUseAD`, `d`.`hostADDomain`=`s`.`hostADDomain`,
-            `d`.`hostADOU`=`s`.`hostADOU`, `d`.`hostADUser`=`s`.`hostADUser`, `d`.`hostADPass`=`s`.`hostADPass`, `d`.`hostADPassLegacy`=`s`.`hostADPassLegacy`,
+            `d`.`hostADOU`=`s`.`hostADOU`, `d`.`hostADUser`=`s`.`hostADUser`, `d`.`hostADPass`=`s`.`hostADPass`,
             `d`.`hostProductKey`=`s`.`hostProductKey`, `d`.`hostPrinterLevel`=`s`.`hostPrinterLevel`, `d`.`hostKernelArgs`=`s`.`hostKernelArgs`,
             `d`.`hostExitBios`=`s`.`hostExitBios`, `d`.`hostExitEfi`=`s`.`hostExitEfi`, `d`.`hostEnforce`=`s`.`hostEnforce`
             WHERE `d`.`hostID`=@myHostID;
