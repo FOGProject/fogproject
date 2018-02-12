@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-11 17:50-0500\n"
+"POT-Creation-Date: 2018-02-12 01:06-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3897,7 +3897,7 @@ msgstr "打印机说明"
 msgid "Update/Remove printers"
 msgstr "删除选定的打印机"
 
-msgid "Changes will be automatically be saved"
+msgid "Changes will be automatically saved"
 msgstr ""
 
 #, fuzzy
@@ -4193,6 +4193,10 @@ msgstr "集团创建失败"
 msgid "Group Product Key"
 msgstr "集团产品密钥"
 
+#, fuzzy
+msgid "Group Init"
+msgstr "出口Snapins"
+
 msgid "Group Bios Exit Type"
 msgstr "集团的Bios退出类型"
 
@@ -4207,12 +4211,12 @@ msgid "Group general"
 msgstr "集团核心"
 
 #, fuzzy
-msgid "Group image"
-msgstr "组名称"
+msgid "Please use another group name"
+msgstr "请输入主机名"
 
 #, fuzzy
-msgid "Group image association"
-msgstr "集团定位"
+msgid "Group image"
+msgstr "组名称"
 
 #, fuzzy
 msgid "Group Power Management Remove"
@@ -4222,44 +4226,18 @@ msgstr "用户管理"
 msgid "Delete all PM tasks?"
 msgstr "删除所有选定%s小号"
 
-msgid "TCP/IP"
-msgstr "TCP / IP协议"
-
 #, fuzzy
-msgid "Group Printers"
-msgstr "出口打印机"
-
-#, fuzzy
-msgid "Printer Configuration"
+msgid "Group Printer Configuration"
 msgstr "服务配置"
 
 #, fuzzy
-msgid "Select management level for these hosts"
-msgstr "该主机中选择管理水平"
-
-#, fuzzy
-msgid "Update printer configuration"
-msgstr "主机打印机配置"
-
-#, fuzzy
-msgid "Printer Associations"
-msgstr "打印机说明"
-
-#, fuzzy
-msgid "Make Printer Changes"
-msgstr "保存更改"
-
-#, fuzzy
-msgid "Add Printers"
-msgstr "打印机"
-
-#, fuzzy
-msgid "Update Default Printer"
-msgstr "更新打印机"
-
-#, fuzzy
-msgid "Remove selected printers"
-msgstr "删除选定snapins"
+msgid ""
+"This setting will only allow FO GAssigned printers to be added to the host. "
+"Any printer that is not assigned will be removed including non-FOG managed "
+"printers."
+msgstr ""
+"此设置仅允许FOG分配的打印机要添加到主机。没有分配任何打印机将包括非FOG管理的"
+"打印机被删除。"
 
 #, fuzzy
 msgid "Group Snapins"
@@ -4281,50 +4259,8 @@ msgid "Remove selected snapins"
 msgstr "删除选定snapins"
 
 #, fuzzy
-msgid "This module is only used on the old client"
-msgstr "此设置定义使用SSH客户端的用户名。"
-
-msgid "The old client is what was distributed with FOG 1.2.0 and earlier"
-msgstr ""
-
-msgid "This module did not work past Windows XP due to"
-msgstr ""
-
-msgid "UAC introduced in Vista and up"
-msgstr ""
-
-msgid "The old client is what was distributed with"
-msgstr ""
-
-msgid "FOG 1.2.0 and earlier"
-msgstr ""
-
-msgid "This module has been replaced in the new client"
-msgstr ""
-
-msgid "and the equivalent module for what Green"
-msgstr ""
-
-msgid "FOG did is now called Power Management"
-msgstr ""
-
-msgid "This is only here to maintain old client operations"
-msgstr ""
-
-msgid "This module did not work past Windows XP due"
-msgstr ""
-
-msgid "to UAC introduced in Vista and up"
-msgstr ""
-
-msgid "This module is only used"
-msgstr ""
-
-msgid "with modules and config"
-msgstr ""
-
-msgid "on the old client"
-msgstr ""
+msgid "Group module settings"
+msgstr "主机描述"
 
 msgid "Select/Deselect All"
 msgstr "选择/取消全部"
@@ -4332,10 +4268,6 @@ msgstr "选择/取消全部"
 #, fuzzy
 msgid "Group FOG Client Module configuration"
 msgstr "主机打印机配置"
-
-#, fuzzy
-msgid "Group module settings"
-msgstr "主机描述"
 
 #, fuzzy
 msgid "Update module configurations"
@@ -4373,6 +4305,9 @@ msgstr "用户创建"
 #, fuzzy
 msgid "Group Update Fail"
 msgstr "集团创建失败"
+
+msgid "TCP/IP"
+msgstr "TCP / IP协议"
 
 msgid "Printer Name"
 msgstr "打印机名称"

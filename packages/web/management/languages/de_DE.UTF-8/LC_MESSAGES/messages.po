@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-11 17:50-0500\n"
+"POT-Creation-Date: 2018-02-12 01:06-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -3918,7 +3918,7 @@ msgstr "Druckerzugehörigkeiten"
 msgid "Update/Remove printers"
 msgstr "Drucker Aktualisieren/Entfernen"
 
-msgid "Changes will be automatically be saved"
+msgid "Changes will be automatically saved"
 msgstr ""
 
 #, fuzzy
@@ -4214,6 +4214,10 @@ msgstr "Gruppe erstellen fehlgeschlagen"
 msgid "Group Product Key"
 msgstr "Produktschlüssel der Gruppe"
 
+#, fuzzy
+msgid "Group Init"
+msgstr "Gruppen-Snapins"
+
 msgid "Group Bios Exit Type"
 msgstr "Gruppen-BIOS-Exit-Typ"
 
@@ -4228,12 +4232,12 @@ msgid "Group general"
 msgstr "Gruppe allgemein"
 
 #, fuzzy
-msgid "Group image"
-msgstr "Gruppen-Image"
+msgid "Please use another group name"
+msgstr "Bitte geben Sie einen anderen Hostnamen ein"
 
 #, fuzzy
-msgid "Group image association"
-msgstr "Gruppen Imagezugehörigkeit"
+msgid "Group image"
+msgstr "Gruppen-Image"
 
 #, fuzzy
 msgid "Group Power Management Remove"
@@ -4243,44 +4247,19 @@ msgstr "Gruppen Power Management entfernen"
 msgid "Delete all PM tasks?"
 msgstr "Alle PM Tasks löschen?"
 
-msgid "TCP/IP"
-msgstr "TCP/IP"
-
 #, fuzzy
-msgid "Group Printers"
-msgstr "Gruppendrucker"
-
-#, fuzzy
-msgid "Printer Configuration"
+msgid "Group Printer Configuration"
 msgstr "Druckerkonfiguration"
 
 #, fuzzy
-msgid "Select management level for these hosts"
-msgstr "Wählen Sie die Verwaltungsebene für diese Hosts aus"
-
-#, fuzzy
-msgid "Update printer configuration"
-msgstr "Druckerkonfiguration aktualisieren"
-
-#, fuzzy
-msgid "Printer Associations"
-msgstr "Druckerzugehörigkeiten"
-
-#, fuzzy
-msgid "Make Printer Changes"
-msgstr "Änderungen speichern"
-
-#, fuzzy
-msgid "Add Printers"
-msgstr "Drucker hinzufügen"
-
-#, fuzzy
-msgid "Update Default Printer"
-msgstr "Standarddrucker aktualisieren"
-
-#, fuzzy
-msgid "Remove selected printers"
-msgstr "ausgewählte Drucker entfernen"
+msgid ""
+"This setting will only allow FO GAssigned printers to be added to the host. "
+"Any printer that is not assigned will be removed including non-FOG managed "
+"printers."
+msgstr ""
+"Diese Einstellung erlaubt, nur von FOG zugewiesene Drucker an den Host "
+"hinzuzufügen. Jeder Drucker, der nicht zugeordnet ist, wird entfernt, "
+"einschließlich nicht FOG-verwaltete Drucker."
 
 #, fuzzy
 msgid "Group Snapins"
@@ -4302,50 +4281,8 @@ msgid "Remove selected snapins"
 msgstr "ausgewählte Snapins entfernen"
 
 #, fuzzy
-msgid "This module is only used on the old client"
-msgstr "Diese Einstellung wird nur auf alten Clients verwendet."
-
-msgid "The old client is what was distributed with FOG 1.2.0 and earlier"
-msgstr "veraltete Clients wurden verteilt mit FOG 1.2.0 oder früher"
-
-msgid "This module did not work past Windows XP due to"
-msgstr "Dieses Modul funktioniert mit Windows Vista oder"
-
-msgid "UAC introduced in Vista and up"
-msgstr "neuer wegen UAC nicht mehr."
-
-msgid "The old client is what was distributed with"
-msgstr "Der veraltete Client sind Clients, die mit"
-
-msgid "FOG 1.2.0 and earlier"
-msgstr "FOG 1.2.0 oder früher verteilt wurden."
-
-msgid "This module has been replaced in the new client"
-msgstr "Dieses Modul wurde im neuen Client ersetzt"
-
-msgid "and the equivalent module for what Green"
-msgstr "und das entsprechende Modul, das früher"
-
-msgid "FOG did is now called Power Management"
-msgstr "Green FOG war, heißt nun Power Management"
-
-msgid "This is only here to maintain old client operations"
-msgstr "Dies ist nur verfügbar, um veraltete Clients zu pflegen "
-
-msgid "This module did not work past Windows XP due"
-msgstr "Dieses Modul funktioniert mit Windows Vista oder neuer"
-
-msgid "to UAC introduced in Vista and up"
-msgstr "wegen UAC nicht mehr."
-
-msgid "This module is only used"
-msgstr "Dieses Modul wird nur verwendet"
-
-msgid "with modules and config"
-msgstr "mit Modulen und Konfigurationen"
-
-msgid "on the old client"
-msgstr "auf dem veralteten Client."
+msgid "Group module settings"
+msgstr "Gruppeneinstellungen Module"
 
 msgid "Select/Deselect All"
 msgstr "Alle auswählen/abwählen"
@@ -4353,10 +4290,6 @@ msgstr "Alle auswählen/abwählen"
 #, fuzzy
 msgid "Group FOG Client Module configuration"
 msgstr "Gruppenkonfiguration FOG-Client-Module"
-
-#, fuzzy
-msgid "Group module settings"
-msgstr "Gruppeneinstellungen Module"
 
 #, fuzzy
 msgid "Update module configurations"
@@ -4394,6 +4327,9 @@ msgstr "Gruppe erfolgreich aktualisiert"
 #, fuzzy
 msgid "Group Update Fail"
 msgstr "Gruppe aktualisieren fehlgeschlagen"
+
+msgid "TCP/IP"
+msgstr "TCP/IP"
 
 msgid "Printer Name"
 msgstr "Druckername"

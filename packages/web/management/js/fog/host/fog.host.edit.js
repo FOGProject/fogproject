@@ -112,7 +112,6 @@
     printerAddBtn.prop("disabled", true);
     printerRemoveBtn.prop("disabled", true);
 
-
     function onPrintersToAddTableSelect (selected) {
         var disabled = selected.count() == 0;
         printerAddBtn.prop("disabled", disabled);
@@ -122,8 +121,6 @@
         printerRemoveBtn.prop("disabled", disabled);
     }
 
-
-    //var printersToAddTable = Common.registerTable($("#printers-to-add-table"), onPrintersToAddTableSelect);
     var printersTable = Common.registerTable($("#host-printers-table"), onPrintersSelect, {
         order: [
             [1, 'asc']
@@ -149,7 +146,7 @@
                         + '" value="' + row.id + '"'
                         + ' wasoriginaldefault="'
                         + checkval
-                        + '"'
+                        + '" '
                         + checkval
                         + '/>'
                         + '</div>';
@@ -159,7 +156,7 @@
             {
                 responsivePriority: 0,
                 render: function(data, type, row) {
-                    return '<a href="../management/index.php?node=printer&sub=edit&id=' + row.id +'">' + data + '</a>';
+                    return '<a href="../management/index.php?node=printer&sub=edit&id=' + row.id + '">' + data + '</a>';
                 },
                 targets: 1
 
@@ -208,7 +205,6 @@
             if(DEFAULT_PRINTER_ID === -1 && $(this).attr("wasoriginaldefault") === 'checked') {
                 DEFAULT_PRINTER_ID = id;
             }
-
             if (id === DEFAULT_PRINTER_ID) {
                 $(this).iCheck('uncheck');
                 DEFAULT_PRINTER_ID = 0;
@@ -217,7 +213,7 @@
             }
             printerDefaultBtn.prop("disabled", false);
         }
-    }
+    };
 
     // Setup default printer watcher
     $('input').on('ifClicked', onRadioSelect);
@@ -230,12 +226,10 @@
             'default': DEFAULT_PRINTER_ID
         }
 
-        Common.apiCall(printerDefaultBtn.attr('method'), printerDefaultBtn.attr('action'), opts,
-            function(err) {
-                printerDefaultBtn.prop("disabled", !err);
-                onPrintersSelect(printersTable.rows({selected: true}));
-            }
-        );
+        Common.apiCall(printerDefaultBtn.attr('method'), printerDefaultBtn.attr('action'), opts, function(err) {
+            printerDefaultBtn.prop("disabled", !err);
+            onPrintersSelect(printersTable.rows({selected: true}));
+        });
     });
 
     printerConfigForm.serialize2 = printerConfigForm.serialize;
@@ -245,12 +239,11 @@
     printerConfigForm.submit(function(e) {
         e.preventDefault();
     });
-    printerConfigBtn.click(function() {
+    printerConfigBtn.on('click', function() {
         printerConfigBtn.prop("disabled", true);
         Common.processForm(printerConfigForm, function(err) {
             printerConfigBtn.prop("disabled", false);
         });
-
     });
     printerAddBtn.click(function() {
         printerAddBtn.prop("disabled", true);
@@ -262,33 +255,30 @@
             'printer': toAdd
         };
 
-        Common.apiCall(printerAddBtn.attr('method'), printerAddBtn.attr('action'), opts,
-            function(err) {
-                if (!err) {
-                    rows.every(function (idx, tableLoop, rowLoop) {
-                        var data = this.data();
-                        var id = this.id();
-                        printersTable.row.add({
-                            0:'<div class="radio"><input id="printers' +
-                                id + '"belongsto="defaultPrinters" type="radio" class="default" name="default" value="'+
-                                id +'" wasoriginaldefault="" /></div>',
-                            1: data[0],
-                            2: data[1],
-                            3: data[2]
-                        });
+        Common.apiCall(printerAddBtn.attr('method'), printerAddBtn.attr('action'), opts, function(err) {
+            if (!err) {
+                rows.every(function (idx, tableLoop, rowLoop) {
+                    var data = this.data();
+                    var id = this.id();
+                    printersTable.row.add({
+                        0:'<div class="radio"><input id="printers' +
+                        id + '"belongsto="defaultPrinters" type="radio" class="default" name="default" value="'+
+                        id +'" wasoriginaldefault="" /></div>',
+                        1: data[0],
+                        2: data[1],
+                        3: data[2]
                     });
-                    printersTable.draw(false);
-                    printersToAddTable.rows({
-                        selected: true
-                    }).remove().draw(false);
-                    printersToAddTable.rows({selected: true}).deselect();
-                } else {
-                    printerAddBtn.prop("disabled", false);
-                }
+                });
+                printersTable.draw(false);
+                printersToAddTable.rows({
+                    selected: true
+                }).remove().draw(false);
+                printersToAddTable.rows({selected: true}).deselect();
+            } else {
+                printerAddBtn.prop("disabled", false);
             }
-        );
+        });
     });
-
 
     printerRemoveBtn.click(function() {
         printerRemoveBtn.prop("disabled", true);
@@ -301,29 +291,27 @@
             'printerRemove': toRemove
         };
 
-        Common.apiCall(printerRemoveBtn.attr('method'), printerRemoveBtn.attr('action'), opts,
-            function(err) {
-                printerDefaultBtn.prop("disabled", false);
+        Common.apiCall(printerRemoveBtn.attr('method'), printerRemoveBtn.attr('action'), opts, function(err) {
+            printerDefaultBtn.prop("disabled", false);
 
-                if (!err) {
-                    rows.every(function (idx, tableLoop, rowLoop) {
-                        var data = this.data();
-                        printersToAddTable.row.add({
-                            0: data[1],
-                            1: data[2]
-                        });
+            if (!err) {
+                rows.every(function (idx, tableLoop, rowLoop) {
+                    var data = this.data();
+                    printersToAddTable.row.add({
+                        0: data[1],
+                        1: data[2]
                     });
-                    printersToAddTable.draw(false);
+                });
+                printersToAddTable.draw(false);
 
-                    printersTable.rows({
-                        selected: true
-                    }).remove().draw(false);
-                    printersTable.rows({selected: true}).deselect();
-                } else {
-                    printerRemoveBtn.prop("disabled", false);
-                }
+                printersTable.rows({
+                    selected: true
+                }).remove().draw(false);
+                printersTable.rows({selected: true}).deselect();
+            } else {
+                printerRemoveBtn.prop("disabled", false);
             }
-        );
+        });
     });
 
     if (Common.search && Common.search.length > 0) {
@@ -333,23 +321,21 @@
     // ---------------------------------------------------------------
     // SNAPINS TAB
     var snapinsAddBtn = $("#snapins-add");
-    var snapinsRemovebtn = $("#snapins-remove");
+    var snapinsRemoveBtn = $("#snapins-remove");
 
     snapinsAddBtn.prop("disabled", true);
-    snapinsRemovebtn.prop("disabled", true);
-
+    snapinsRemoveBtn.prop("disabled", true);
 
     function onSnapinsRemoveSelect (selected) {
         var disabled = selected.count() == 0;
-        snapinsRemovebtn.prop("disabled", disabled);
+        snapinsRemoveBtn.prop("disabled", disabled);
     }
     function onSnapinsAddSelect (selected) {
         var disabled = selected.count() == 0;
         snapinsAddBtn.prop("disabled", disabled);
     }
 
-    //var snapinsAddTable = Common.registerTable($("#snapins-to-add-table"), onSnapinsAddSelect);
-    var snapinsTable = Common.registerTable($("#snapins-to-remove-table"), onSnapinsRemoveSelect, {
+    var snapinsTable = Common.registerTable($("#host-snapins-table"), onSnapinsRemoveSelect, {
         columns: [
             {data: 'name'},
             {data: 'createdTime'},
@@ -391,7 +377,6 @@
     });
     snapinsTable.on('draw', function() {
         Common.iCheck("input");
-        $('input').on('ifClicked', onRadioSelect);
     });
 
     snapinsAddBtn.click(function() {
@@ -403,62 +388,59 @@
             'updatesnapins': '1',
             'snapin': toAdd
         };
-        Common.apiCall(snapinsAddBtn.attr('method'), snapinsAddBtn.attr('action'), opts,
-            function(err) {
-                if (!err) {
-                    rows.every(function (idx, tableLoop, rowLoop) {
-                        var data = this.data();
-                        var id = this.id();
-                        snapinsTable.row.add({
-                            0: data[0],
-                            1: data[1],
-                            2: data[2]
-                        });
+        Common.apiCall(snapinsAddBtn.attr('method'), snapinsAddBtn.attr('action'), opts, function(err) {
+            if (!err) {
+                rows.every(function (idx, tableLoop, rowLoop) {
+                    var data = this.data();
+                    var id = this.id();
+                    snapinsTable.row.add({
+                        0: data[0],
+                        1: data[1],
+                        2: data[2]
                     });
-                    snapinsTable.draw(false);
-                    snapinsAddTable.rows({
-                        selected: true
-                    }).remove().draw(false);
-                    snapinsAddTable.rows({selected: true}).deselect();
-                } else {
-                    snapinsAddBtn.prop("disabled", false);
-                }
+                });
+                snapinsTable.draw(false);
+                snapinsAddTable.rows({
+                    selected: true
+                }).remove().draw(false);
+                snapinsAddTable.rows({selected: true}).deselect();
+            } else {
+                snapinsAddBtn.prop("disabled", false);
             }
-        );
+        });
     });
 
-    snapinsRemovebtn.click(function() {
-        snapinsRemovebtn.prop("disabled", true);
-
+    snapinsRemoveBtn.click(function() {
+        snapinsRemoveBtn.prop("disabled", true);
         var rows = snapinsTable.rows({selected: true});
         var toRemove = Common.getSelectedIds(snapinsTable);
         var opts = {
             'snapdel': '1',
             'snapinRemove': toRemove
         };
-
-        Common.apiCall(snapinsRemovebtn.attr('method'), snapinsRemovebtn.attr('action'), opts,
-            function(err) {
-                if (!err) {
-                    rows.every(function (idx, tableLoop, rowLoop) {
-                        var data = this.data();
-                        snapinsAddTable.row.add({
-                            0: data[0],
-                            1: data[1]
-                        });
+        Common.apiCall(snapinsRemoveBtn.attr('method'), snapinsRemoveBtn.attr('action'), opts, function(err) {
+            if (!err) {
+                rows.every(function (idx, tableLoop, rowLoop) {
+                    var data = this.data();
+                    snapinsAddTable.row.add({
+                        0: data[0],
+                        1: data[1]
                     });
-                    snapinsAddTable.draw(false);
+                });
+                snapinsAddTable.draw(false);
 
-                    snapinsTable.rows({
-                        selected: true
-                    }).remove().draw(false);
-                    snapinsTable.rows({selected: true}).deselect();
-                } else {
-                    snapinsRemovebtn.prop("disabled", false);
-                }
+                snapinsTable.rows({
+                    selected: true
+                }).remove().draw(false);
+                snapinsTable.rows({selected: true}).deselect();
+            } else {
+                snapinsRemoveBtn.prop("disabled", false);
             }
-        );
+        });
     });
+    if (Common.search && Common.search.length > 0) {
+        snapinsTable.search(Common.search).draw();
+    }
 
     // ---------------------------------------------------------------
     // SERVICE TAB
@@ -475,6 +457,16 @@
         var disabled = selected.count() == 0;
         modulesEnableBtn.prop("disabled", disabled);
     }
+
+    modulesEnableBtn.on('click', function(e) {
+        e.preventDefault();
+        $('.associated').iCheck('check');
+    });
+
+    modulesDisableBtn.on('click', function(e) {
+        e.preventDefault();
+        $('.associated').iCheck('uncheck');
+    });
 
     var modulesTable = Common.registerTable($("#modules-to-update"), onModulesEnable, {
         columns: [
@@ -512,12 +504,11 @@
         serverSide: true,
         ajax: {
             url: '../management/index.php?node='+Common.node+'&sub=getModulesList&id='+Common.id,
-            type: 'POST'
+            type: 'post'
         }
     });
     modulesTable.on('draw', function() {
         Common.iCheck("input");
-        $('input').on('ifClicked', onRadioSelect);
     });
     // var modulesTable = Common.registerTable(
     //     $("#host-service-modules-table"),
