@@ -872,6 +872,7 @@ abstract class FOGController extends FOGBase
                 )
             );
         }
+        $array = array_filter($array);
         if (count($array) < 1) {
             return $this;
         }

@@ -62,20 +62,29 @@ class Group extends FOGController
     );
     protected $sqlQueryStr = "SELECT COUNT(`gmHostID`) `gmMembers`,`%s`
         FROM `%s`
-        LEFT OUTER JOIN `groupMembers` AS `memberCount`
-        ON `memberCount`.`gmGroupID` = `groups`.`groupID`
+        CROSS JOIN `hosts`
+        LEFT OUTER JOIN `groupMembers`
+        ON `groups`.`groupID` = `groupMembers`.`gmGroupID`
+        AND `hosts`.`hostID` = `groupMembers`.`gmHostID`
+        GROUP BY `groupID`,`gmGroupID`
         %s
         %s
         %s";
-    protected $sqlFilterStr = "SELECT COUNT(`gmHostID`) `members`,COUNT(`%s`)
+    protected $sqlFilterStr = "SELECT COUNT(`gmHostID`) `gmMembers`,COUNT(`%s`)
         FROM `%s`
-        LEFT OUTER JOIN `groupMembers` AS `memberCount`
-        ON `memberCount`.`gmGroupID` = `groups`.`groupID`
+        CROSS JOIN `hosts`
+        LEFT OUTER JOIN `groupMembers`
+        ON `groups`.`groupID` = `groupMembers`.`gmGroupID`
+        AND `hosts`.`hostID` = `groupMembers`.`gmHostID`
+        GROUP BY `groupID`,`gmGroupID`
         %s";
-    protected $sqlTotalStr = "SELECT COUNT(`gmHostID`) `members`,COUNT(`%s`)
+    protected $sqlTotalStr = "SELECT COUNT(`gmHostID`) `gmMembers`,COUNT(`%s`)
         FROM `%s`
-        LEFT OUTER JOIN `groupMembers` AS `memberCount`
-        ON `memberCount`.`gmGroupID` = `groups`.`groupID`";
+        CROSS JOIN `hosts`
+        LEFT OUTER JOIN `groupMembers`
+        ON `groups`.`groupID` = `groupMembers`.`gmGroupID`
+        AND `hosts`.`hostID` = `groupMembers`.`gmHostID`
+        GROUP BY `groupID`,`gmGroupID`";
     /**
      * Destroy the group object and all associations.
      *
@@ -120,58 +129,26 @@ class Group extends FOGController
             );
     }
     /**
-     * Add or remove printers from all hosts in the group
-     * Sets printer management level for all hosts as well.
+     * Adds printers to hosts in this group
      *
-     * @param mixed $printerAdd the printers to add
-     * @param mixed $printerDel the printers to remove
-     * @param int   $level      the management level to set
+     * @param array $addArray the printers to add
      *
      * @return object
      */
-    public function addPrinter(
-        $printerAdd,
-        $printerDel,
-        $level = 0
-    ) {
-        self::getClass('HostManager')->update(
-            array(
-                'id' => $this->get('hosts'),
-            ),
-            '',
-            array(
-                'printerLevel' => $level,
-            )
-        );
-        if (count($printerDel) > 0) {
-            self::getClass('PrinterAssociationManager')
-                ->destroy(
-                    array(
-                        'hostID' => $this->get('hosts'),
-                        'printerID' => $printerDel,
-                    )
-                );
-        }
-        if (count($printerAdd) > 0) {
-            $insert_fields = array('hostID', 'printerID');
-            $insert_values = array();
+    public function addPrinter($addArray) {
+
+        if (count($addArray) > 0) {
+            $insert_fields = ['hostID', 'printerID'];
+            $insert_values = [];
             $hosts = $this->get('hosts');
             if (count($hosts) > 0) {
-                array_walk(
-                    $hosts,
-                    function (
-                        &$hostID,
-                        $index
-                    ) use (
-                        &$insert_values,
-                        $printerAdd
-                    ) {
-                        foreach ((array) $printerAdd as &$printerID) {
-                            $insert_values[] = array($hostID, $printerID);
-                            unset($printerID);
-                        }
+                foreach ((array)$hosts as $ind => &$hostID) {
+                    foreach ((array)$addArray as &$printerID) {
+                        $insert_values[] = [$hostID, $printerID];
+                        unset($printerID);
                     }
-                );
+                    unset($hostID);
+                }
             }
             if (count($insert_values) > 0) {
                 self::getClass('PrinterAssociationManager')
@@ -182,6 +159,52 @@ class Group extends FOGController
             }
         }
 
+        return $this;
+    }
+    /**
+     * Removes printers from all hosts in this group.
+     *
+     * @param array $removeArray
+     *
+     * @return object
+     */
+    public function removePrinter($removeArray)
+    {
+        self::getClass('PrinterAssociationManager')->destroy(
+            array(
+                'hostID' => $this->get('hosts'),
+                'printerID' => $removeArray
+            )
+        );
+        return $this;
+    }
+    /**
+     * Updates the default printer
+     *
+     * @param int   $printerid the printer id to update
+     * @param mixed $onoff     whether to enable or disable
+     *
+     * @return object
+     */
+    public function updateDefault($printerid, $onoff)
+    {
+        self::getClass('PrinterAssociationManager')
+            ->update(
+                array(
+                    'hostID' => $this->get('hosts')
+                ),
+                '',
+                array('isDefault' => 0)
+            );
+        self::getClass('PrinterAssociationManager')
+            ->update(
+                array(
+                    'hostID' => $this->get('hosts'),
+                    'printerID' => $printerid
+                ),
+                '',
+                array('isDefault' => $onoff)
+            );
         return $this;
     }
     /**
@@ -943,37 +966,6 @@ class Group extends FOGController
             );
 
         return $test == 1;
-    }
-    /**
-     * Updates all host's default printers.
-     *
-     * @param int $printerid the printer id to set as default
-     *
-     * @return object
-     */
-    public function updateDefault($printerid)
-    {
-        $AllGroupHostsPrinters = self::getSubObjectIDs(
-            'PrinterAssociation',
-            array('hostID' => $this->get('hosts'))
-        );
-        self::getClass('PrinterAssociationManager')
-            ->update(
-                array('id' => $AllGroupHostsPrinters),
-                '',
-                array('isDefault' => '0')
-            );
-        self::getClass('PrinterAssociationManager')
-            ->update(
-                array(
-                    'printerID' => $printerid,
-                    'hostID' => $this->get('hosts'),
-                ),
-                '',
-                array('isDefault' => 1)
-            );
-
-        return $this;
     }
     /**
      * Loads hosts in this group.

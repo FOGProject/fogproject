@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-11 17:50-0500\n"
+"POT-Creation-Date: 2018-02-12 01:06-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -3521,7 +3521,7 @@ msgstr "Associazioni stampanti"
 msgid "Update/Remove printers"
 msgstr "Aggiorna/Rimuovi stampanti"
 
-msgid "Changes will be automatically be saved"
+msgid "Changes will be automatically saved"
 msgstr ""
 
 msgid "Snapin Created"
@@ -3790,6 +3790,10 @@ msgstr "Creazione Gruppo fallita"
 msgid "Group Product Key"
 msgstr "Product Key Group"
 
+#, fuzzy
+msgid "Group Init"
+msgstr "Gruppo Snapins"
+
 msgid "Group Bios Exit Type"
 msgstr "Gruppo Bios Tipo Exit"
 
@@ -3802,11 +3806,12 @@ msgstr "Remposta dati crittografia"
 msgid "Group general"
 msgstr "Gruppo Generale"
 
+#, fuzzy
+msgid "Please use another group name"
+msgstr "Utilizza un altro hostname"
+
 msgid "Group image"
 msgstr "Immagine gruppo"
-
-msgid "Group image association"
-msgstr "Associazione immagine di gruppo"
 
 msgid "Group Power Management Remove"
 msgstr "Rimozione del gruppo di gestione energetica"
@@ -3814,35 +3819,19 @@ msgstr "Rimozione del gruppo di gestione energetica"
 msgid "Delete all PM tasks?"
 msgstr "Cancellare tutte le attività PM?"
 
-msgid "TCP/IP"
-msgstr "TCP/IP"
-
-msgid "Group Printers"
-msgstr "Stampanti di gruppo"
-
-msgid "Printer Configuration"
+#, fuzzy
+msgid "Group Printer Configuration"
 msgstr "Configurazione della stampante"
 
-msgid "Select management level for these hosts"
-msgstr "Seleziona il livello di gestione per questi host"
-
-msgid "Update printer configuration"
-msgstr "Aggiorna la configurazione della stampante"
-
-msgid "Printer Associations"
-msgstr "Associazioni stampanti"
-
-msgid "Make Printer Changes"
-msgstr "Effettuare le modifiche della stampante"
-
-msgid "Add Printers"
-msgstr "Aggiungi stampanti"
-
-msgid "Update Default Printer"
-msgstr "Aggiorna la stampante predefinita"
-
-msgid "Remove selected printers"
-msgstr "Rimuovere le stampanti selezionate"
+#, fuzzy
+msgid ""
+"This setting will only allow FO GAssigned printers to be added to the host. "
+"Any printer that is not assigned will be removed including non-FOG managed "
+"printers."
+msgstr ""
+"Questa impostazione consentirà solo che le stampanti FOG assegnate siano "
+"aggiunte all'host. Qualsiasi stampante non assegnata verrà rimossa, incluse "
+"le stampanti non gestite da FOG."
 
 msgid "Group Snapins"
 msgstr "Gruppo Snapins"
@@ -3859,61 +3848,14 @@ msgstr "Aggiungi snapins selezionati"
 msgid "Remove selected snapins"
 msgstr "Rimuovere snapins selezionati"
 
-msgid "This module is only used on the old client"
-msgstr "Questo modulo viene utilizzato solo sul vecchio client"
-
-msgid "The old client is what was distributed with FOG 1.2.0 and earlier"
-msgstr ""
-"Il vecchio cliente è quello che è stato distribuito con FOG 1.2.0 e "
-"precedenti"
-
-msgid "This module did not work past Windows XP due to"
-msgstr "Questo modulo non ha funzionato oltre Windows XP a causa di"
-
-msgid "UAC introduced in Vista and up"
-msgstr "UAC introdotto in Vista o superiore"
-
-msgid "The old client is what was distributed with"
-msgstr "Il vecchio cliente è quello che è stato distribuito con"
-
-msgid "FOG 1.2.0 and earlier"
-msgstr "FOG 1.2.0 e precedenti"
-
-msgid "This module has been replaced in the new client"
-msgstr "Questo modulo è stato sostituito nel nuovo client"
-
-msgid "and the equivalent module for what Green"
-msgstr "E il modulo equivalente per quello Green"
-
-msgid "FOG did is now called Power Management"
-msgstr "FOG did è ora chiamato Power Management"
-
-msgid "This is only here to maintain old client operations"
-msgstr "Questo è solo qui per mantenere le vecchie operazioni client"
-
-msgid "This module did not work past Windows XP due"
-msgstr "Questo modulo non funzionerà in Windows XP a causa di"
-
-msgid "to UAC introduced in Vista and up"
-msgstr "UAC introdotto in Vista e superiori"
-
-msgid "This module is only used"
-msgstr "Questo modulo viene utilizzato solo"
-
-msgid "with modules and config"
-msgstr "con moduli e configurazioni"
-
-msgid "on the old client"
-msgstr "sul vecchio client"
+msgid "Group module settings"
+msgstr "Impostazioni modulo del gruppo"
 
 msgid "Select/Deselect All"
 msgstr "Selezionare / deselezionare tutti"
 
 msgid "Group FOG Client Module configuration"
 msgstr "Configurazione Modulo di Gruppo FOG Client"
-
-msgid "Group module settings"
-msgstr "Impostazioni modulo del gruppo"
 
 msgid "Update module configurations"
 msgstr "Aggiorna le configurazioni del modulo"
@@ -3944,6 +3886,9 @@ msgstr "Aggiornamento del gruppo completato"
 
 msgid "Group Update Fail"
 msgstr "Aggiornamento gruppo non riuscito"
+
+msgid "TCP/IP"
+msgstr "TCP/IP"
 
 msgid "Printer Name"
 msgstr "Nome stampante"

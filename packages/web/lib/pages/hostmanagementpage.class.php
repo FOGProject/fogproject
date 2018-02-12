@@ -1116,7 +1116,6 @@ class HostManagementPage extends FOGPage
         echo '</div>';
         echo '<div id="printerconf" class="">';
         echo '<form id="printer-config-form" class="form-horizontal"' . $props . '>';
-
         echo '<div class="box-body">';
         echo '<div class="radio">';
         echo '<label for="nolevel" data-toggle="tooltip" data-placement="left" '
@@ -1209,8 +1208,6 @@ class HostManagementPage extends FOGPage
 
         $buttons = self::makeButton('printer-default', _('Update default'), 'btn btn-primary', $props);
         $buttons .= self::makeButton('printer-remove', _('Remove selected'), 'btn btn-danger', $props);
-
-
         $this->headerData = array(
             _('Default'),
             _('Printer Alias'),
@@ -1218,13 +1215,9 @@ class HostManagementPage extends FOGPage
             _('Printer Associated')
         );
         $this->templates = array(
-            '<div class="radio">'
-            . '<input belongsto="defaultPrinters" type="radio" class="default" '
-            . 'name="default" id="printer${printer_id}" '
-            . 'value="${printer_id}" ${is_default} wasoriginaldefault="${is_default}"/>'
-            . '</div>',
-            '<a href="?node=printer&sub=edit&id=${printer_id}">${printer_name}</a>',
-            '${printer_type}',
+            '',
+            '',
+            '',
             ''
         );
         $this->attributes = array(
@@ -1245,7 +1238,7 @@ class HostManagementPage extends FOGPage
         echo '</h4>';
         echo '<div>';
         echo '<p class="help-block">';
-        echo _('Changes will be automatically be saved');
+        echo _('Changes will be automatically saved');
         echo '</p>';
         echo '</div>';
         echo '</div>';
@@ -1256,81 +1249,6 @@ class HostManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
-
-
-        // =========================================================
-        // Add Printers
-        /*unset(
-            $this->headerData,
-            $this->templates,
-            $this->attributes,
-            $this->form,
-            $this->data
-        );
-
-        $this->headerData = array(
-            _('Printer Alias'),
-            _('Printer Type')
-        );
-        $this->templates = array(
-            '<a href="?node=printer&sub=edit&id=${printer_id}">${printer_name}</a>',
-            '${printer_type}'
-        );
-        $this->attributes = array(
-            array(),
-            array()
-        );
-        foreach ((array)$Printers as &$Printer) {
-            if (!in_array($Printer->id, $this->obj->get('printersnotinme'))) {
-                continue;
-            }
-            $this->data[] = array(
-                'id' => $Printer->id,
-                'printer_id' => $Printer->id,
-                'is_default' => (
-                    $this->obj->getDefault($Printer->id) ?
-                    ' checked' :
-                    ''
-                ),
-                'printer_name' => $Printer->name,
-                'printer_type' => (
-                    stripos($Printer->config, 'local') !== false ?
-                    _('TCP/IP') :
-                    $Printer->config
-                )
-            );
-            unset($Printer);
-        }
-
-        $buttons = self::makeButton('printer-add', _('Add selected'), 'btn btn-default', $props);
-        self::$HookManager
-            ->processEvent(
-                'HOST_ADD_PRINTER',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        echo '<div class="box box-warning collapsed-box">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Add Printers');
-        echo '</h4>';
-        echo '<div class="box-tools pull-right">';
-        echo self::$FOGExpandBox;
-        echo '</div>';
-        echo '</div>';
-        echo '<div id="addprinters" class="">';
-        echo '<div class="box-body">';
-        $this->render(12, 'printers-to-add-table', $buttons);
-        echo '</div>';
-        echo '<div class="box-footer">';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-         */
     }
     /**
      * Host snapins.
@@ -1363,8 +1281,8 @@ class HostManagementPage extends FOGPage
             _('Snapin Associated')
         );
         $this->templates = array(
-            '<a href="?node=snapin&sub=edit&id=${snapin_id}">${snapin_name}</a>',
-            '${snapin_created}',
+            '',
+            '',
             ''
         );
         $this->attributes = array(
@@ -1383,13 +1301,13 @@ class HostManagementPage extends FOGPage
         echo '</h4>';
         echo '<div>';
         echo '<p class="help-block">';
-        echo _('Changes will be automatically be saved');
+        echo _('Changes will be automatically saved');
         echo '</p>';
         echo '</div>';
         echo '</div>';
         echo '<div id="updatesnapins" class="">';
         echo '<div class="box-body">';
-        $this->render(12, 'snapins-to-remove-table', $buttons);
+        $this->render(12, 'host-snapins-table', $buttons);
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -2876,15 +2794,8 @@ class HostManagementPage extends FOGPage
     public function hostPrinterPost()
     {
         if (isset($_POST['levelup'])) {
-            $this
-                ->obj
-                ->set(
-                    'printerLevel',
-                    filter_input(
-                        INPUT_POST,
-                        'level'
-                    )
-                );
+            $level = filter_input(INPUT_POST, 'level');
+            $this->obj->set('printerLevel', $level);
         }
         if (isset($_POST['updateprinters'])) {
             $printers = filter_input_array(
@@ -2897,11 +2808,7 @@ class HostManagementPage extends FOGPage
             );
             $printers = $printers['printer'];
             if (count($printers) > 0) {
-                $this
-                    ->obj
-                    ->addPrinter(
-                        $printers
-                    );
+                $this->obj->addPrinter($printers);
             }
         }
         if (isset($_POST['defaultsel'])) {
@@ -2924,11 +2831,7 @@ class HostManagementPage extends FOGPage
             );
             $printers = $printers['printerRemove'];
             if (count($printers) > 0) {
-                $this
-                    ->obj
-                    ->removePrinter(
-                        $printers
-                    );
+                $this->obj->removePrinter($printers);
             }
         }
     }
@@ -3361,11 +3264,19 @@ class HostManagementPage extends FOGPage
             file_get_contents('php://input'),
             $pass_vars
         );
+        $moduleName = self::getGlobalModuleStatus();
+        $keys = [];
+        foreach ((array)$moduleName as $short_name => $bool) {
+            if ($bool) {
+                $keys[] = $short_name;
+            }
+        }
 
         $where = "`hosts`.`hostID` = '"
             . $this->obj->get('id')
             . "' AND `modules`.`short_name` "
-            . "NOT IN ('clientupdater','dircleanup','greenfog','usercleanup') ";
+            . "NOT IN ('clientupdater','dircleanup','greenfog','usercleanup') "
+            . "AND `modules`.`short_name` IN ('" . implode("','", $keys) . "')";
 
         // Workable queries
         $modulesSqlStr = "SELECT `%s`,"

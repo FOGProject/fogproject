@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-11 17:50-0500\n"
+"POT-Creation-Date: 2018-02-12 01:27-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3465,7 +3465,7 @@ msgstr ""
 msgid "Update/Remove printers"
 msgstr ""
 
-msgid "Changes will be automatically be saved"
+msgid "Changes will be automatically saved"
 msgstr ""
 
 msgid "Snapin Created"
@@ -3726,6 +3726,9 @@ msgstr ""
 msgid "Group Product Key"
 msgstr ""
 
+msgid "Group Init"
+msgstr ""
+
 msgid "Group Bios Exit Type"
 msgstr ""
 
@@ -3738,10 +3741,10 @@ msgstr ""
 msgid "Group general"
 msgstr ""
 
-msgid "Group image"
+msgid "Please use another group name"
 msgstr ""
 
-msgid "Group image association"
+msgid "Group image"
 msgstr ""
 
 msgid "Group Power Management Remove"
@@ -3750,34 +3753,13 @@ msgstr ""
 msgid "Delete all PM tasks?"
 msgstr ""
 
-msgid "TCP/IP"
+msgid "Group Printer Configuration"
 msgstr ""
 
-msgid "Group Printers"
-msgstr ""
-
-msgid "Printer Configuration"
-msgstr ""
-
-msgid "Select management level for these hosts"
-msgstr ""
-
-msgid "Update printer configuration"
-msgstr ""
-
-msgid "Printer Associations"
-msgstr ""
-
-msgid "Make Printer Changes"
-msgstr ""
-
-msgid "Add Printers"
-msgstr ""
-
-msgid "Update Default Printer"
-msgstr ""
-
-msgid "Remove selected printers"
+msgid ""
+"This setting will only allow FO GAssigned printers to be added to the host. "
+"Any printer that is not assigned will be removed including non-FOG managed "
+"printers."
 msgstr ""
 
 msgid "Group Snapins"
@@ -3795,58 +3777,13 @@ msgstr ""
 msgid "Remove selected snapins"
 msgstr ""
 
-msgid "This module is only used on the old client"
-msgstr ""
-
-msgid "The old client is what was distributed with FOG 1.2.0 and earlier"
-msgstr ""
-
-msgid "This module did not work past Windows XP due to"
-msgstr ""
-
-msgid "UAC introduced in Vista and up"
-msgstr ""
-
-msgid "The old client is what was distributed with"
-msgstr ""
-
-msgid "FOG 1.2.0 and earlier"
-msgstr ""
-
-msgid "This module has been replaced in the new client"
-msgstr ""
-
-msgid "and the equivalent module for what Green"
-msgstr ""
-
-msgid "FOG did is now called Power Management"
-msgstr ""
-
-msgid "This is only here to maintain old client operations"
-msgstr ""
-
-msgid "This module did not work past Windows XP due"
-msgstr ""
-
-msgid "to UAC introduced in Vista and up"
-msgstr ""
-
-msgid "This module is only used"
-msgstr ""
-
-msgid "with modules and config"
-msgstr ""
-
-msgid "on the old client"
+msgid "Group module settings"
 msgstr ""
 
 msgid "Select/Deselect All"
 msgstr ""
 
 msgid "Group FOG Client Module configuration"
-msgstr ""
-
-msgid "Group module settings"
 msgstr ""
 
 msgid "Update module configurations"
@@ -3877,6 +3814,9 @@ msgid "Group Update Success"
 msgstr ""
 
 msgid "Group Update Fail"
+msgstr ""
+
+msgid "TCP/IP"
 msgstr ""
 
 msgid "Printer Name"
