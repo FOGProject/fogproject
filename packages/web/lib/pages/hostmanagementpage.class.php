@@ -1334,82 +1334,134 @@ class HostManagementPage extends FOGPage
             . '" name="other2" id="other2"/>',
             '<label class="col-sm-2 control-label">'
             . _('System Manufacturer')
-            . '</label>' => '<span class="form-control">' . $sysman . '</span>',
+            . '</label>' => '<input type="text" class="form-control" value="'
+            . $sysman
+            . '" readonly/>',
             '<label class="col-sm-2 control-label">'
             . _('System Product')
-            . '</label>' => '<span class="form-control">' . $sysprod . '</span>',
+            . '</label>' => '<input type="text" class="form-control" value="'
+            . $sysprod
+            . '" readonly/>',
             '<label class="col-sm-2 control-label">'
             . _('System Version')
-            . '</label>' => '<span class="form-control">' . $sysver . '</span>',
+            . '</label>' => '<input type="text" class="form-control" value="'
+            . $sysver
+            . '" readonly/>',
             '<label class="col-sm-2 control-label">'
             . _('System Serial Number')
-            . '</label>' => '<span class="form-control">' . $sysser . '</span>',
+            . '</label>' => '<input type="text"  class="form-control" value="'
+            . $sysser
+            . '" readonly/>',
             '<label class="col-sm-2 control-label">'
             . _('System UUID') 
-            . '</label>' => '<span class="form-control">' . $sysuuid . '</span>',
+            . '</label>' => '<input type="text" class="form-control" value="'
+            . $sysuuid
+            . '" readonly/>',
             '<label class="col-sm-2 control-label">'
             . _('System Type') 
-            . '</label>' => '<span class="form-control">' . $systype . '</span>',
+            . '</label>' => '<input type="text" class="form-control" value="'
+            . $systype
+            . '" readonly/>',
             '<label class="col-sm-2 control-label">'
             . _('BIOS Vendor') 
-            . '</label>' => '<span class="form-control">' . $biosven . '</span>',
+            . '</label>' => '<input type="text" class="form-control" value="'
+            . $biosven
+            . '" readonly/>',
             '<label class="col-sm-2 control-label">'
             . _('BIOS Version') 
-            . '</label>' => '<span class="form-control">' . $biosver . '</span>',
+            . '</label>' => '<input type="text" class="form-control" value="'
+            . $biosver
+            . '" readonly/>',
             '<label class="col-sm-2 control-label">'
             . _('BIOS Date') 
-            . '</label>' => '<span class="form-control">' . $biosdate . '</span>',
+            . '</label>' => '<input type="text" class="form-control" value="'
+            . $biosdate
+            . '" readonly/>',
             '<label class="col-sm-2 control-label">'
             . _('Motherboard Manufacturer') 
-            . '</label>' => '<span class="form-control">' . $mbman . '</span>',
+            . '</label>' => '<input type="text" class="form-control" value="'
+            . $mbman
+            . '" readonly/>',
             '<label class="col-sm-2 control-label">'
             . _('Motherboard Product Name') 
-            . '</label>' => '<span class="form-control">' . $mbprod . '</span>',
+            . '</label>' => '<input type="text" class="form-control" value="'
+            . $mbprod
+            . '" readonly/>',
             '<label class="col-sm-2 control-label">'
             . _('Motherboard Version') 
-            . '</label>' => '<span class="form-control">' . $mbver . '</span>',
+            . '</label>' => '<input type="text" class="form-control" value="'
+            . $mbver
+            . '" readonly/>',
             '<label class="col-sm-2 control-label">'
             . _('Motherboard Serial Number') 
-            . '</label>' => '<span class="form-control">' . $mbser . '</span>',
+            . '</label>' => '<input type="text" class="form-control" value="'
+            . $mbser
+            . '" readonly/>',
             '<label class="col-sm-2 control-label">'
             . _('Motherboard Asset Tag') 
-            . '</label>' => '<span class="form-control">' . $mbast . '</span>',
+            . '</label>' => '<input type="text" class="form-control" value="'
+            . $mbast
+            . '" readonly/>',
             '<label class="col-sm-2 control-label">'
             . _('CPU Manufacturer') 
-            . '</label>' => '<span class="form-control">' . $cpuman . '</span>',
+            . '</label>' => '<input type="text" class="form-control" value="'
+            . $cpuman
+            . '" readonly/>',
             '<label class="col-sm-2 control-label">'
             . _('CPU Version') 
-            . '</label>' => '<span class="form-control">' . $cpuver . '</span>',
+            . '</label>' => '<input type="text" class="form-control" value="'
+            . $cpuver
+            . '" readonly/>',
             '<label class="col-sm-2 control-label">'
             . _('CPU Normal Speed') 
-            . '</label>' => '<span class="form-control">' . $cpucur . '</span>',
+            . '</label>' => '<input type="text" class="form-control" value="'
+            . $cpucur
+            . '" readonly/>',
             '<label class="col-sm-2 control-label">'
             . _('CPU Max Speed') 
-            . '</label>' => '<span class="form-control">' . $cpumax . '</span>',
+            . '</label>' => '<input type="text" class="form-control" value="'
+            . $cpumax
+            . '" readonly/>',
             '<label class="col-sm-2 control-label">'
             . _('Memory') 
-            . '</label>' => '<span class="form-control">' . $mem . '</span>',
+            . '</label>' => '<input type="text" class="form-control" value="'
+            . $mem
+            . '" readonly/>',
             '<label class="col-sm-2 control-label">'
             . _('Hard Disk Model') 
-            . '</label>' => '<span class="form-control">' . $hdmod . '</span>',
+            . '</label>' => '<input type="text" class="form-control" value="'
+            . $hdmod
+            . '" readonly/>',
             '<label class="col-sm-2 control-label">'
             . _('Hard Disk Firmware') 
-            . '</label>' => '<span class="form-control">' . $hdfirm . '</span>',
+            . '</label>' => '<input type="text" class="form-control" value="'
+            . $hdfirm
+            . '" readonly/>',
             '<label class="col-sm-2 control-label">'
             . _('Hard Disk Serial Number') 
-            . '</label>' => '<span class="form-control">' . $hdser . '</span>',
+            . '</label>' => '<input type="text" class="form-control" value="'
+            . $hdser
+            . '" readonly/>',
             '<label class="col-sm-2 control-label">'
             . _('Chassis Manufacturer') 
-            . '</label>' => '<span class="form-control">' . $caseman . '</span>',
+            . '</label>' => '<input type="text" class="form-control" value="'
+            . $caseman
+            . '" readonly/>',
             '<label class="col-sm-2 control-label">'
             . _('Chassis Version') 
-            . '</label>' => '<span class="form-control">' . $casever . '</span>',
+            . '</label>' => '<input type="text" class="form-control" value="'
+            . $casever
+            . '" readonly/>',
             '<label class="col-sm-2 control-label">'
             . _('Chassis Serial') 
-            . '</label>' => '<span class="form-control">' . $caseser . '</span>',
+            . '</label>' => '<input type="text" class="form-control" value="'
+            . $caseser
+            . '" readonly/>',
             '<label class="col-sm-2 control-label">'
             . _('Chassis Asset') 
-            . '</label>' => '<span class="form-control">' . $caseast . '</span>'
+            . '</label>' => '<input type="text" class="form-control" value="'
+            . $caseast
+            . '" readonly/>'
         ];
         self::$HookManager
             ->processEvent(
