@@ -711,6 +711,7 @@ class Group extends FOGController
                     'stateID',
                     'typeID',
                     'wol',
+                    'shutdown',
                 );
                 $batchTask = array();
                 for ($i = 0; $i < $hostCount; ++$i) {
@@ -721,6 +722,7 @@ class Group extends FOGController
                         self::getQueuedState(),
                         $TaskType->get('id'),
                         $wol,
+                        $shutdown,
                     );
                 }
                 if (count($batchTask) > 0) {
