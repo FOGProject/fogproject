@@ -188,8 +188,8 @@
     });
 
     printersTable.on('draw', function() {
-        Common.iCheck("input");
-        $('input').on('ifClicked', onRadioSelect);
+        Common.iCheck('#group-printers input');
+        $('.default').on('ifClicked', onRadioSelect);
     });
     printerDefaultBtn.prop("disabled", true);
 
@@ -210,7 +210,7 @@
     };
 
     // Setup default printer watcher
-    $('input').on('ifClicked', onRadioSelect);
+    $('.default').on('ifClicked', onRadioSelect);
 
     printerDefaultBtn.on('click', function() {
         printerRemoveBtn.prop("disabled", true);
@@ -367,7 +367,7 @@
         }
     });
     snapinsTable.on('draw', function() {
-        Common.iCheck('input');
+        Common.iCheck('#group-snapins-table input');
     });
 
     snapinsAddBtn.on('click', function() {
@@ -494,7 +494,7 @@
         }
     });
     modulesTable.on('draw', function() {
-        Common.iCheck('input');
+        Common.iCheck('#modules-to-update input');
     });
     //$('#resetSecData').val('Reset Encryption Data');
     //$('#delAllPM').val('Delete all power management for group');

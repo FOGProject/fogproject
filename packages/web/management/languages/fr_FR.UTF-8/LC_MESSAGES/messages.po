@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-12 01:06-0500\n"
+"POT-Creation-Date: 2018-02-13 00:46-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3719,38 +3719,15 @@ msgstr "groupe"
 msgid "Primary MAC"
 msgstr "MAC primaire"
 
+#, fuzzy
+msgid "Ping Status"
+msgstr "statut"
+
 msgid "Imaged"
 msgstr "imager"
 
 msgid "Assigned Image"
 msgstr "Assigné image"
-
-msgid "Pending Host List"
-msgstr "Dans l'attente de la liste d'hôtes"
-
-#, fuzzy
-msgid "Approve selected hosts"
-msgstr "Approuver hôtes sélectionnés"
-
-#, fuzzy
-msgid "Delete selected hosts"
-msgstr "Supprimer les hôtes sélectionnés"
-
-#, fuzzy
-msgid "Approve Success"
-msgstr "Approuver cet hôte?"
-
-#, fuzzy
-msgid "Selected hosts approved successfully"
-msgstr "sauvegarde réussie"
-
-#, fuzzy
-msgid "Deleted Success"
-msgstr "utilisateur créé"
-
-#, fuzzy
-msgid "Selected hosts deleted successfully"
-msgstr "Installation / Mise à jour réussie!"
 
 #, fuzzy
 msgid "Create New Host"
@@ -3809,21 +3786,6 @@ msgstr "hôte Créé"
 #, fuzzy
 msgid "Host Create Fail"
 msgstr "Hôte créer échoué"
-
-msgid "Cron Schedule"
-msgstr "Cron Schedule"
-
-#, fuzzy
-msgid "Current Power Management settings"
-msgstr "Gestion des utilisateurs"
-
-#, fuzzy
-msgid "Update PM Values"
-msgstr "Mettez à jour les images"
-
-#, fuzzy
-msgid "Delete selected"
-msgstr "Supprimer sélectionnée"
 
 #, fuzzy
 msgid "Host description"
@@ -3958,14 +3920,6 @@ msgstr ""
 msgid "Changes will automatically be saved"
 msgstr ""
 
-#, fuzzy
-msgid "Enable all"
-msgstr "Activée"
-
-#, fuzzy
-msgid "Disable all"
-msgstr "Activée"
-
 msgid "Screen Width (in pixels)"
 msgstr "Largeur de l'écran (en pixels)"
 
@@ -3975,11 +3929,20 @@ msgstr "Hauteur de l'écran (en pixels)"
 msgid "Screen Refresh Rate (in Hz)"
 msgstr "Screen Refresh Rate (en Hz)"
 
-msgid "The minimum allowed time for autologout is 5 minutes."
-msgstr ""
+#, fuzzy
+msgid "Display Manager Settings"
+msgstr "Paramètres"
 
-msgid "Auto Log Out Time (in minutes)"
-msgstr "Auto Log Time Out (en minutes)"
+#, fuzzy
+msgid "Auto Logout Time (in minutes)"
+msgstr "Par défaut déconnecter le temps (en minutes)"
+
+#, fuzzy
+msgid "Auto Logout Settings"
+msgstr "Paramètres"
+
+msgid "Minimum time limit for Auto Logout to become active is 5 minutes."
+msgstr ""
 
 msgid "Primary User"
 msgstr "utilisateur principal"
@@ -4063,8 +4026,9 @@ msgstr "chassis Serial"
 msgid "Chassis Asset"
 msgstr "chassis Asset"
 
-msgid "Host Hardware Inventory"
-msgstr "Hôte inventaire matériel"
+#, fuzzy
+msgid "Host Inventory"
+msgstr "Inventaire"
 
 #, fuzzy
 msgid "Logout not found"
@@ -4168,8 +4132,24 @@ msgstr "Installation / Mise à jour réussie!"
 msgid "Host Add to Group Fail"
 msgstr "Ajouter au groupe"
 
-msgid "New Group"
-msgstr "Nouveau groupe"
+msgid "Cron Schedule"
+msgstr "Cron Schedule"
+
+#, fuzzy
+msgid "Current Power Management settings"
+msgstr "Gestion des utilisateurs"
+
+#, fuzzy
+msgid "Update PM Values"
+msgstr "Mettez à jour les images"
+
+#, fuzzy
+msgid "Delete selected"
+msgstr "Supprimer sélectionnée"
+
+#, fuzzy
+msgid "Create New Group"
+msgstr "nœud de stockage"
 
 msgid "Group Name"
 msgstr "Nom de groupe"
@@ -4177,18 +4157,18 @@ msgstr "Nom de groupe"
 msgid "Group Description"
 msgstr "Description du groupe"
 
-msgid "Group Kernel"
-msgstr "Groupe Kernel"
+msgid "Group Product Key"
+msgstr "Groupe clé de produit"
 
 msgid "Group Kernel Arguments"
 msgstr "Arguments Groupe Kernel"
 
+#, fuzzy
+msgid "Group Init"
+msgstr "Export SnapIns"
+
 msgid "Group Primary Disk"
 msgstr "Primary Disk Group"
-
-#, fuzzy
-msgid "Make changes?"
-msgstr "Sauvegarder les modifications"
 
 #, fuzzy
 msgid "A group name is required!"
@@ -4214,25 +4194,14 @@ msgstr "utilisateur créé"
 msgid "Group Create Fail"
 msgstr "Groupe create a échoué"
 
-msgid "Group Product Key"
-msgstr "Groupe clé de produit"
-
-#, fuzzy
-msgid "Group Init"
-msgstr "Export SnapIns"
+msgid "Group Kernel"
+msgstr "Groupe Kernel"
 
 msgid "Group Bios Exit Type"
 msgstr "Groupe Bios Type de sortie"
 
 msgid "Group EFI Exit Type"
 msgstr "Groupe EFI Type de sortie"
-
-msgid "Reset Encryption Data"
-msgstr ""
-
-#, fuzzy
-msgid "Group general"
-msgstr "Groupe Kernel"
 
 #, fuzzy
 msgid "Please use another group name"
@@ -4243,12 +4212,8 @@ msgid "Group image"
 msgstr "Nom de groupe"
 
 #, fuzzy
-msgid "Group Power Management Remove"
-msgstr "Gestion des utilisateurs"
-
-#, fuzzy
-msgid "Delete all PM tasks?"
-msgstr "Supprimer tous sélectionnés %s s"
+msgid "Group Image Setting"
+msgstr "hôte description de"
 
 #, fuzzy
 msgid "Group Printer Configuration"
@@ -4265,52 +4230,8 @@ msgstr ""
 "imprimantes gérées non-FOG."
 
 #, fuzzy
-msgid "Group Snapins"
-msgstr "Export SnapIns"
-
-#, fuzzy
-msgid "Available Snapins"
-msgstr "Tous les composants logiciels enfichables"
-
-#, fuzzy
-msgid "Make Snapin Changes"
-msgstr "Sauvegarder les modifications"
-
-#, fuzzy
-msgid "Add selected snapins"
-msgstr "Imprimante"
-
-msgid "Remove selected snapins"
-msgstr "Retirer snapins sélectionnés"
-
-#, fuzzy
 msgid "Group module settings"
 msgstr "hôte description de"
-
-msgid "Select/Deselect All"
-msgstr "Sélectionner / désélectionner"
-
-#, fuzzy
-msgid "Group FOG Client Module configuration"
-msgstr "Hôte configuration de l'imprimante"
-
-#, fuzzy
-msgid "Update module configurations"
-msgstr "Hôte configuration de l'imprimante"
-
-msgid "Group Screen Resolution"
-msgstr "Groupe Résolution de l'écran"
-
-#, fuzzy
-msgid "Update display resolution"
-msgstr "Mise à jour de groupe principal"
-
-msgid "Group Auto Logout"
-msgstr ""
-
-#, fuzzy
-msgid "Update auto-logout time"
-msgstr "Mise à jour de l'imprimante"
 
 msgid "Host Memory"
 msgstr "Mémoire hôte"
@@ -4330,6 +4251,14 @@ msgstr "utilisateur créé"
 #, fuzzy
 msgid "Group Update Fail"
 msgstr "Groupe create a échoué"
+
+#, fuzzy
+msgid "Group Power Management Remove"
+msgstr "Gestion des utilisateurs"
+
+#, fuzzy
+msgid "Delete all PM tasks?"
+msgstr "Supprimer tous sélectionnés %s s"
 
 msgid "TCP/IP"
 msgstr "TCP / IP"

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-12 01:06-0500\n"
+"POT-Creation-Date: 2018-02-13 00:46-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -3715,38 +3715,15 @@ msgstr "Gruppe"
 msgid "Primary MAC"
 msgstr "Primäre MAC"
 
+#, fuzzy
+msgid "Ping Status"
+msgstr "Status"
+
 msgid "Imaged"
 msgstr "geimaged"
 
 msgid "Assigned Image"
 msgstr "Zugeordnetes Image"
-
-msgid "Pending Host List"
-msgstr "Liste der ausstehenden Hosts"
-
-#, fuzzy
-msgid "Approve selected hosts"
-msgstr "Ausgewählte Hosts freigeben"
-
-#, fuzzy
-msgid "Delete selected hosts"
-msgstr "Ausgewählte Hosts löschen"
-
-#, fuzzy
-msgid "Approve Success"
-msgstr "Freigabe erfolgreich"
-
-#, fuzzy
-msgid "Selected hosts approved successfully"
-msgstr "ausgewählte Hosts erfolgreich freigegeben"
-
-#, fuzzy
-msgid "Deleted Success"
-msgstr "Löschen erfolgreich"
-
-#, fuzzy
-msgid "Selected hosts deleted successfully"
-msgstr "ausgewählte Hosts erfolgreich gelöscht"
 
 #, fuzzy
 msgid "Create New Host"
@@ -3805,21 +3782,6 @@ msgstr "Host erfolgreich erstellt"
 #, fuzzy
 msgid "Host Create Fail"
 msgstr "Host erstellen fehlgeschlagen"
-
-msgid "Cron Schedule"
-msgstr "Cron-Zeitplan"
-
-#, fuzzy
-msgid "Current Power Management settings"
-msgstr "Momentane Power Management Einstellungen"
-
-#, fuzzy
-msgid "Update PM Values"
-msgstr "Werte des Power Managements aktualisieren"
-
-#, fuzzy
-msgid "Delete selected"
-msgstr "Ausgewählte löschen"
 
 #, fuzzy
 msgid "Host description"
@@ -3955,14 +3917,6 @@ msgstr ""
 msgid "Changes will automatically be saved"
 msgstr ""
 
-#, fuzzy
-msgid "Enable all"
-msgstr "Aktiviert"
-
-#, fuzzy
-msgid "Disable all"
-msgstr "Deaktiviert"
-
 msgid "Screen Width (in pixels)"
 msgstr "Breite (in Pixel)"
 
@@ -3972,11 +3926,20 @@ msgstr "Höhe (in Pixel)"
 msgid "Screen Refresh Rate (in Hz)"
 msgstr "Bildschirm-Aktualisierungsrate (in Hz)"
 
-msgid "The minimum allowed time for autologout is 5 minutes."
-msgstr ""
+#, fuzzy
+msgid "Display Manager Settings"
+msgstr "iPXE Menüeinstellungen"
 
-msgid "Auto Log Out Time (in minutes)"
-msgstr "Auto-Logout-Zeit (in Minuten)"
+#, fuzzy
+msgid "Auto Logout Time (in minutes)"
+msgstr "Standard Logout-Zeit (in Minuten)"
+
+#, fuzzy
+msgid "Auto Logout Settings"
+msgstr "Integritätseinstellungen"
+
+msgid "Minimum time limit for Auto Logout to become active is 5 minutes."
+msgstr ""
 
 msgid "Primary User"
 msgstr "Hauptbenutzer"
@@ -4060,8 +4023,9 @@ msgstr "Gehäuse-Serien"
 msgid "Chassis Asset"
 msgstr "Gehäuse-Asset"
 
-msgid "Host Hardware Inventory"
-msgstr "Host Hardwareinventur"
+#, fuzzy
+msgid "Host Inventory"
+msgstr "Inventar"
 
 #, fuzzy
 msgid "Logout not found"
@@ -4165,8 +4129,24 @@ msgstr "Host erfolgreich zur Gruppe hinzugefügt"
 msgid "Host Add to Group Fail"
 msgstr "Hinzufügen zur Gruppe fehlgeschlagen"
 
-msgid "New Group"
-msgstr "Neue Gruppe"
+msgid "Cron Schedule"
+msgstr "Cron-Zeitplan"
+
+#, fuzzy
+msgid "Current Power Management settings"
+msgstr "Momentane Power Management Einstellungen"
+
+#, fuzzy
+msgid "Update PM Values"
+msgstr "Werte des Power Managements aktualisieren"
+
+#, fuzzy
+msgid "Delete selected"
+msgstr "Ausgewählte löschen"
+
+#, fuzzy
+msgid "Create New Group"
+msgstr "Speichergruppe erstellen"
 
 msgid "Group Name"
 msgstr "Gruppenname"
@@ -4174,18 +4154,18 @@ msgstr "Gruppenname"
 msgid "Group Description"
 msgstr "Gruppenbeschreibung"
 
-msgid "Group Kernel"
-msgstr "Gruppe-Kernel"
+msgid "Group Product Key"
+msgstr "Produktschlüssel der Gruppe"
 
 msgid "Group Kernel Arguments"
 msgstr "Gruppe-Kernel Argumente"
 
+#, fuzzy
+msgid "Group Init"
+msgstr "Gruppen-Snapins"
+
 msgid "Group Primary Disk"
 msgstr "Primäre Festplatte der Gruppe"
-
-#, fuzzy
-msgid "Make changes?"
-msgstr "Änderungen speichern?"
 
 #, fuzzy
 msgid "A group name is required!"
@@ -4211,25 +4191,14 @@ msgstr "Gruppe erfolgreich erstellt"
 msgid "Group Create Fail"
 msgstr "Gruppe erstellen fehlgeschlagen"
 
-msgid "Group Product Key"
-msgstr "Produktschlüssel der Gruppe"
-
-#, fuzzy
-msgid "Group Init"
-msgstr "Gruppen-Snapins"
+msgid "Group Kernel"
+msgstr "Gruppe-Kernel"
 
 msgid "Group Bios Exit Type"
 msgstr "Gruppen-BIOS-Exit-Typ"
 
 msgid "Group EFI Exit Type"
 msgstr "Gruppe-EFI-Exit-Typ"
-
-msgid "Reset Encryption Data"
-msgstr "Verschlüsselungsdatei zurücksetzen"
-
-#, fuzzy
-msgid "Group general"
-msgstr "Gruppe allgemein"
 
 #, fuzzy
 msgid "Please use another group name"
@@ -4240,12 +4209,8 @@ msgid "Group image"
 msgstr "Gruppen-Image"
 
 #, fuzzy
-msgid "Group Power Management Remove"
-msgstr "Gruppen Power Management entfernen"
-
-#, fuzzy
-msgid "Delete all PM tasks?"
-msgstr "Alle PM Tasks löschen?"
+msgid "Group Image Setting"
+msgstr "Gruppeneinstellungen Module"
 
 #, fuzzy
 msgid "Group Printer Configuration"
@@ -4262,52 +4227,8 @@ msgstr ""
 "einschließlich nicht FOG-verwaltete Drucker."
 
 #, fuzzy
-msgid "Group Snapins"
-msgstr "Gruppen-Snapins"
-
-#, fuzzy
-msgid "Available Snapins"
-msgstr "verfügbare Snapins"
-
-#, fuzzy
-msgid "Make Snapin Changes"
-msgstr "Änderungen speichern"
-
-#, fuzzy
-msgid "Add selected snapins"
-msgstr "ausgewählte Snapins hinzufügen"
-
-msgid "Remove selected snapins"
-msgstr "ausgewählte Snapins entfernen"
-
-#, fuzzy
 msgid "Group module settings"
 msgstr "Gruppeneinstellungen Module"
-
-msgid "Select/Deselect All"
-msgstr "Alle auswählen/abwählen"
-
-#, fuzzy
-msgid "Group FOG Client Module configuration"
-msgstr "Gruppenkonfiguration FOG-Client-Module"
-
-#, fuzzy
-msgid "Update module configurations"
-msgstr "Modulkonfigurationen aktualisieren"
-
-msgid "Group Screen Resolution"
-msgstr "Gruppe Bildschirmauflösung"
-
-#, fuzzy
-msgid "Update display resolution"
-msgstr "Bilschirmauflösung aktualisieren"
-
-msgid "Group Auto Logout"
-msgstr "Gruppe Auto-Logout"
-
-#, fuzzy
-msgid "Update auto-logout time"
-msgstr "Auto-Logout-Zeit aktualisieren"
 
 msgid "Host Memory"
 msgstr "Hostspeicher"
@@ -4327,6 +4248,14 @@ msgstr "Gruppe erfolgreich aktualisiert"
 #, fuzzy
 msgid "Group Update Fail"
 msgstr "Gruppe aktualisieren fehlgeschlagen"
+
+#, fuzzy
+msgid "Group Power Management Remove"
+msgstr "Gruppen Power Management entfernen"
+
+#, fuzzy
+msgid "Delete all PM tasks?"
+msgstr "Alle PM Tasks löschen?"
 
 msgid "TCP/IP"
 msgstr "TCP/IP"

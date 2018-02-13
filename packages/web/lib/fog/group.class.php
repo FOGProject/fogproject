@@ -42,6 +42,7 @@ class Group extends FOGController
         'kernel' => 'groupKernel',
         'kernelArgs' => 'groupKernelArgs',
         'kernelDevice' => 'groupPrimaryDisk',
+        'init' => 'groupInit'
     );
     /**
      * Required fields.

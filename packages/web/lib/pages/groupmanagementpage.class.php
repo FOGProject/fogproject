@@ -4,6 +4,8 @@
  *
  * PHP version 5
  *
+ * The group represented to the GUI
+ *
  * @category GroupManagementPage
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
@@ -13,6 +15,8 @@
 /**
  * Group management page
  *
+ * The group represented to the GUI
+ *
  * @category GroupManagementPage
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
@@ -21,12 +25,7 @@
  */
 class GroupManagementPage extends FOGPage
 {
-    /**
-     * Group -> Host common items
-     *
-     * @var array
-     */
-    private static $_common = array();
+    private static $_common = [];
     /**
      * The node that uses this class
      *
@@ -34,9 +33,9 @@ class GroupManagementPage extends FOGPage
      */
     public $node = 'group';
     /**
-     * Initializes the group management page
+     * Initializes the group page
      *
-     * @param string $name the name to construct under
+     * @param string $name the name to construct with
      *
      * @return void
      */
@@ -46,268 +45,22 @@ class GroupManagementPage extends FOGPage
         parent::__construct($this->name);
         global $id;
         if ($id) {
-            $this->subMenu = array(
-                "$this->linkformat#group-general" =>
-                self::$foglang['General'],
-                "$this->linkformat#group-image" =>
-                self::$foglang['ImageAssoc'],
-                "$this->linkformat#group-tasks" =>
-                self::$foglang['BasicTasks'],
-                "$this->linkformat#group-active-directory" =>
-                self::$foglang['AD'],
-                "$this->linkformat#group-printers" =>
-                self::$foglang['Printers'],
-                "$this->linkformat#group-snapins" =>
-                self::$foglang['Snapins'],
-                "$this->linkformat#group-service" => sprintf(
-                    '%s %s',
-                    self::$foglang['Service'],
-                    self::$foglang['Settings']
-                ),
-                "$this->linkformat#group-powermanagement" =>
-                self::$foglang['PowerManagement'],
-                str_replace(
-                    'membership',
-                    'inventory',
-                    $this->membership
-                ) => self::$foglang['Inventory'],
-                $this->membership => self::$foglang['Membership'],
-                $this->delformat => self::$foglang['Delete'],
-            );
-            $this->notes = array(
-                self::$foglang['Group'] => $this->obj->get('name'),
-                self::$foglang['Members'] => $this->obj->getHostCount(),
-            );
-        }
-        self::$HookManager->processEvent(
-            'SUB_MENULINK_DATA',
-            array(
-                'menu' => &$this->menu,
-                'submenu' => &$this->subMenu,
-                'id' => &$this->id,
-                'notes' => &$this->notes,
-                'object' => &$this->obj,
-                'linkformat' => &$this->linkformat,
-                'delformat' => &$this->delformat,
-                'membership' => &$this->membership
-            )
-        );
-        $this->headerData = array(
-            _('Name'),
-            _('Members')
-        );
-        $this->templates = array(
-            sprintf(
-                '<a href="?node=group&sub=edit&%s=${id}" '
-                . 'title="Edit">${name}</a>',
-                $this->id
-            ),
-            '${count}'
-        );
-        $this->attributes = array(
-            array(),
-            array(
-                'class' => 'text-center',
-                'width' => 5
-            )
-        );
-        global $id;
-        if ($id > 0) {
             $this->_getHostCommon();
         }
-        /**
-         * Lamda function to return data either by list or search.
-         *
-         * @param object $Group the object to use.
-         *
-         * @return void
-         */
-        self::$returnData = function (&$Group) {
-            $this->data[] = array(
-                'id' => $Group->id,
-                'name' => $Group->name,
-                'description' => $Group->description,
-                'count' => $Group->hostcount
-            );
-            unset($Group);
-        };
-    }
-    /**
-     * Create new group
-     *
-     * @return void
-     */
-    public function add()
-    {
-        $this->title = _('New Group');
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
-        $this->templates = array(
-            '${field}',
-            '${input}'
-        );
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group')
-        );
-        $fields = array(
-            '<label for="name">'
-            . _('Group Name')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="name" '
-            . 'value="'
-            . filter_input(INPUT_POST, 'name')
-            . '" class="groupname-input form-control" '
-            . 'id="name" required/>'
-            . '</div>',
-            '<label for="description">'
-            . _('Group Description')
-            . '</label>' => '<div class="input-group">'
-            . '<textarea class="form-control" '
-            . 'id="description" name="description">'
-            . filter_input(INPUT_POST, 'description')
-            . '</textarea>'
-            . '</div>',
-            '<label for="kern">'
-            . _('Group Kernel')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="kern" '
-            . 'value="'
-            . filter_input(INPUT_POST, 'kern')
-            . '" class="groupkern-input form-control" '
-            . 'id="kern"/>'
-            . '</div>',
-            '<label for="args">'
-            . _('Group Kernel Arguments')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="args" '
-            . 'value="'
-            . filter_input(INPUT_POST, 'args')
-            . '" class="groupargs-input form-control" '
-            . 'id="args"/>'
-            . '</div>',
-            '<label for="dev">'
-            . _('Group Primary Disk')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="dev" '
-            . 'value="'
-            . filter_input(INPUT_POST, 'dev')
-            . '" class="groupdev-input form-control" '
-            . 'id="dev"/>'
-            . '</div>',
-            '<label for="addgroup">'
-            . _('Make changes?')
-            . '</label>' => '<button class="'
-            . 'btn btn-info btn-block" type="submit" name='
-            . '"add" id="add">'
-            . _('Add')
-            . '</button>'
-        );
-        self::$HookManager->processEvent(
-            'GROUP_ADD_FIELDS',
-            array(
-                'fields' => &$fields,
-            )
-        );
-        $rendered = self::formFields($fields);
-        self::$HookManager->processEvent(
-            'GROUP_ADD',
-            array(
-                'headerData' => &$this->headerData,
-                'data' => &$this->data,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
-            )
-        );
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo $this->title;
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '">';
-        $this->render(12);
-        echo '</form>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-    }
-    /**
-     * When submitted to add post this is what's run
-     *
-     * @return void
-     */
-    public function addPost()
-    {
-        self::$HookManager->processEvent('GROUP_ADD_POST');
-        $name = trim(
-            filter_input(INPUT_POST, 'name')
-        );
-        $desc = trim(
-            filter_input(INPUT_POST, 'description')
-        );
-        $kern = trim(
-            filter_input(INPUT_POST, 'kern')
-        );
-        $args = trim(
-            filter_input(INPUT_POST, 'args')
-        );
-        $dev = trim(
-            filter_input(INPUT_POST, 'dev')
-        );
-        try {
-            if (!$name) {
-                throw new Exception(
-                    _('A group name is required!')
-                );
-            }
-            if (self::getClass('GroupManager')->exists($name)) {
-                throw new Exception(
-                    _('A group already exists with this name!')
-                );
-            }
-            $Group = self::getClass('Group')
-                ->set('name', $name)
-                ->set('description', $desc)
-                ->set('kernel', $kern)
-                ->set('kernelArgs', $args)
-                ->set('kernelDevice', $dev);
-            if (!$Group->save()) {
-                throw new Exception(_('Add group failed!'));
-            }
-            $hook = 'GROUP_ADD_SUCCESS';
-            $msg = json_encode(
-                array(
-                    'msg' => _('Group added!'),
-                    'title' => _('Group Create Success')
-                )
-            );
-        } catch (Exception $e) {
-            $hook = 'GROUP_ADD_FAIL';
-            $msg = json_encode(
-                array(
-                    'error' => $e->getMessage(),
-                    'title' => _('Group Create Fail')
-                )
-            );
-        }
-        self::$HookManager
-            ->processEvent(
-                $hook,
-                array('Group' => &$Group)
-            );
-        unset($Group);
-        echo $msg;
-        exit;
+        $this->headerData = [
+            _('Name'),
+            _('Members')
+        ];
+        $this->templates = [
+            '',
+            ''
+        ];
+        $this->attributes = [
+            [],
+            [
+                'width' => 5
+            ]
+        ];
     }
     /**
      * Get host common items
@@ -316,12 +69,9 @@ class GroupManagementPage extends FOGPage
      */
     private function _getHostCommon()
     {
-        if (count(self::$_common) > 0) {
-            return;
-        }
         $HostCount = $this->obj->getHostCount();
         $hostids = $this->obj->get('hosts');
-        $getItems = array(
+        $getItems = [
             'imageID',
             'productKey',
             'printerLevel',
@@ -333,16 +83,180 @@ class GroupManagementPage extends FOGPage
             'ADPass',
             'biosexit',
             'efiexit',
-        );
+        ];
         foreach ($getItems as &$idField) {
             $tmp = self::getClass('HostManager')
                 ->distinct(
                     $idField,
-                    array('id' => $hostids)
+                    ['id' => $hostids]
                 );
             self::$_common[] = (bool)($tmp == 1);
             unset($idField);
         }
+        self::$Host = new Host(max($hostids));
+    }
+    /**
+     * Create a new group.
+     *
+     * @return void
+     */
+    public function add()
+    {
+        $this->title = _('Create New Group');
+        // Check all the post fields if they've already been set.
+        $group = filter_input(INPUT_POST, 'group');
+        $description = filter_input(INPUT_POST, 'description');
+        $kern = filter_input(INPUT_POST, 'kern');
+        $args = filter_input(INPUT_POST, 'args');
+        $init = filter_input(INPUT_POST, 'init');
+        $dev = filter_input(INPUT_POST, 'dev');
+
+        // The fields to display
+        $fields = [
+            '<label class="col-sm-2 control-label" for="group">'
+            . _('Group Name')
+            . '</label>' => '<input type="text" name="group" '
+            . 'value="'
+            . $group
+            . '" class="groupname-input form-control" '
+            . 'id="group" required/>',
+            '<label class="col-sm-2 control-label" for="description">'
+            . _('Group Description')
+            . '</label>' => '<textarea class="form-control" style="resize:vertical;'
+            . 'min-height: 50px;" '
+            . 'id="description" name="description">'
+            . $description
+            . '</textarea>',
+            '<label class="col-sm-2 control-label" for="kern">'
+            . _('Group Product Key')
+            . '</label>' => '<input type="text" name="kern" '
+            . 'value="'
+            . $kern
+            . '" class="form-control" id="kern"/>',
+            '<label class="col-sm-2 control-label" for="args">'
+            . _('Group Kernel Arguments')
+            . '</label>' => '<input type="text" name="args" id="args" value="'
+            . $args
+            . '" class="form-control"/>',
+            '<label class="col-sm-2 control-label" for="init">'
+            . _('Group Init')
+            . '</label>' => '<input type="text" name="init" value="'
+            . $init
+            . '" id="init" class="form-control"/>',
+            '<label class="col-sm-2 control-label" for="dev">'
+            . _('Group Primary Disk')
+            . '</label>' => '<input type="text" name="dev" value="'
+            . $dev
+            . '" id="dev" class="form-control"/>'
+        ];
+        self::$HookManager
+            ->processEvent(
+                'GROUP_ADD_FIELDS',
+                [
+                    'fields' => &$fields,
+                    'Group' => self::getClass('Group')
+                ]
+            );
+        $rendered = self::formFields($fields);
+        unset($fields);
+        echo '<div class="box box-solid" id="group-create">';
+        echo '<form id="group-create-form" class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '" novalidate>';
+        echo '<div class="box-body">';
+        echo '<!-- Group General -->';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h3 class="box-title">';
+        echo _('Create New Group');
+        echo '</h3>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo $rendered;
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo '<button class="btn btn-primary" id="send">'
+            . _('Create')
+            . '</button>';
+        echo '</form>';
+        echo '</div>';
+    }
+    /**
+     * When submitted to add post this is what's run
+     *
+     * @return void
+     */
+    public function addPost()
+    {
+        header('Content-type: application/json');
+        self::$HookManager->processEvent('GROUP_ADD_POST');
+        $group = trim(
+            filter_input(INPUT_POST, 'group')
+        );
+        $desc = trim(
+            filter_input(INPUT_POST, 'description')
+        );
+        $kern = trim(
+            filter_input(INPUT_POST, 'kern')
+        );
+        $args = trim(
+            filter_input(INPUT_POST, 'args')
+        );
+        $init = trim(
+            filter_input(INPUT_POST, 'init')
+        );
+        $dev = trim(
+            filter_input(INPUT_POST, 'dev')
+        );
+        try {
+            if (!$group) {
+                throw new Exception(
+                    _('A group name is required!')
+                );
+            }
+            if (self::getClass('GroupManager')->exists($group)) {
+                throw new Exception(
+                    _('A group already exists with this name!')
+                );
+            }
+            $Group = self::getClass('Group')
+                ->set('name', $group)
+                ->set('description', $desc)
+                ->set('kernel', $kern)
+                ->set('kernelArgs', $args)
+                ->set('kernelDevice', $dev)
+                ->set('init', $init);
+            if (!$Group->save()) {
+                $serverFault = true;
+                throw new Exception(_('Add group failed!'));
+            }
+            $hook = 'GROUP_ADD_SUCCESS';
+            $msg = json_encode(
+                [
+                    'msg' => _('Group added!'),
+                    'title' => _('Group Create Success')
+                ]
+            );
+        } catch (Exception $e) {
+            http_response_code(($serverFault) ? 500 : 400);
+            $hook = 'GROUP_ADD_FAIL';
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Group Create Fail')
+                ]
+            );
+        }
+        self::$HookManager
+            ->processEvent(
+                $hook,
+                ['Group' => &$Group]
+            );
+        unset($Group);
+        echo $msg;
+        exit;
     }
     /**
      * Displays the group general tab.
@@ -351,13 +265,6 @@ class GroupManagementPage extends FOGPage
      */
     public function groupGeneral()
     {
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->attributes,
-            $this->templates
-        );
         list(
             $imageIDs,
             $groupKey,
@@ -371,13 +278,14 @@ class GroupManagementPage extends FOGPage
             $biosExit,
             $efiExit
         ) = self::$_common;
-        $hostids = $this->obj->get('hosts');
         $exitNorm = Service::buildExitSelector(
             'bootTypeExit',
             (
-                $biosExit ?
-                self::$Host->get('biosexit') :
-                filter_input(INPUT_POST, 'bootTypeExit')
+                filter_input(INPUT_POST, 'bootTypeExit') ?: (
+                    $biosExit ?
+                    self::$Host->get('biosexit') :
+                    ''
+                )
             ),
             true,
             'bootTypeExit'
@@ -385,21 +293,27 @@ class GroupManagementPage extends FOGPage
         $exitEfi = Service::buildExitSelector(
             'efiBootTypeExit',
             (
-                $efiExit ?
-                self::$Host->get('efiexit') :
-                filter_input(INPUT_POST, 'efiBootTypeExit')
+                filter_input(INPUT_POST, 'efiBootTypeExit') ?: (
+                    $efiExit ?
+                    self::$Host->get('efiexit') :
+                    ''
+                )
             ),
             true,
             'efiBootTypeExit'
         );
-        $name = (
-            filter_input(INPUT_POST, 'name') ?: $this->obj->get('name')
+        $group = (
+            filter_input(INPUT_POST, 'group') ?: $this->obj->get('name')
         );
         $desc = (
             filter_input(INPUT_POST, 'description') ?: $this->obj->get('description')
         );
         $productKey = (
-            filter_input(INPUT_POST, 'key') ?: $productKey
+            filter_input(INPUT_POST, 'key') ?: (
+                $groupKey ?
+                self::$Host->get('productKey') :
+                ''
+            )
         );
         $productKeytest = self::aesdecrypt($productKey);
         if ($test_base64 = base64_decode($productKeytest)) {
@@ -411,37 +325,39 @@ class GroupManagementPage extends FOGPage
         }
         $kern = (
             filter_input(INPUT_POST, 'kern') ?: (
-                $kern ?: $this->obj->get('kernel')
+                $kern ?
+                self::$Host->get('kernel') :
+                $this->obj->get('kernel')
             )
         );
         $args = (
             filter_input(INPUT_POST, 'args') ?: (
-                $args ?: $this->obj->get('kernelArgs')
+                $args ?
+                self::$Host->get('kernelArgs') :
+                $this->obj->get('kernelArgs')
             )
         );
         $init = (
-            filter_input(INPUT_POST, 'init') ?: $init
+            filter_input(INPUT_POST, 'init') ?: (
+                $init ?
+                self::$Host->get('init') :
+                $this->obj->get('init')
+            )
         );
         $dev = (
             filter_input(INPUT_POST, 'dev') ?: (
-                $dev ?: $this->obj->get('kernelDevice')
+                $dev ?
+                self::$Host->get('kernelDevice')
+                : $this->obj->get('kernelDevice')
             )
         );
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group')
-        );
-        $this->templates = array(
-            '${field}',
-            '${input}'
-        );
-        $fields = array(
+        $fields = [
             '<label for="name" class="col-sm-2 control-label">'
             . _('Group Name')
             . '</label>' => '<input id="name" class="form-control" placeholder="'
             . _('Group Name')
             . '" type="text" value="'
-            . $name
+            . $group
             . '" name="group" required>',
             '<label for="description" class="col-sm-2 control-label">'
             . _('Group Description')
@@ -485,13 +401,13 @@ class GroupManagementPage extends FOGPage
             '<label for="efiBootTypeExit" class="col-sm-2 control-label">'
             . _('Group EFI Exit Type')
             . '</label>' => $exitEfi
-        );
+        ];
         self::$HookManager->processEvent(
             'GROUP_EDIT_FIELDS',
-            array(
+            [
                 'fields' => &$fields,
                 'obj' => &$this->obj
-            )
+            ]
         );
         $rendered = self::formFields($fields);
         echo '<div class="box box-solid">';
@@ -507,127 +423,6 @@ class GroupManagementPage extends FOGPage
         echo '</div>';
         echo '</form>';
         echo '</div>';
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->attributes,
-            $this->templates
-        );
-        return;
-        $fields = array(
-            '<label for="name" class="col-sm2 control-label">'
-            . _('Group Name')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="name" value="'
-            . $name
-            . '" class="groupname-input form-control" '
-            . 'id="name" required/>'
-            . '</div>',
-            '<label for="description">'
-            . _('Group Description')
-            . '</label>' => '<div class="input-group">'
-            . '<textarea class="form-control" id="description" '
-            . 'name="description">'
-            . $desc
-            . '</textarea>'
-            . '</div>',
-            '<label for="productKey">'
-            . _('Group Product Key')
-            . '</label>' => '<div class="input-group">'
-            . '<input id="productKey" type="text" '
-            . 'name="key" value="'
-            . $productKey
-            .'" class="form-control"/>'
-            . '</div>',
-            '<label for="kern">'
-            . _('Group Kernel')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="kern" id="kern" '
-            . 'class="form-control" value="'
-            . $kern
-            . '"/>'
-            . '</div>',
-            '<label for="args">'
-            . _('Group Kernel Arguments')
-            . '</label>' =>'<div class="input-group">'
-            . '<input type="text" name="args" id="args" '
-            . 'class="form-control" value="'
-            . $args
-            . '"/>'
-            . '</div>',
-            '<label for="dev">'
-            . _('Group Primary Disk')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="dev" id="dev" '
-            . 'class="form-control" value="'
-            . $dev
-            . '"/>'
-            . '</div>',
-            '<label for="bootTypeExit">'
-            . _('Group Bios Exit Type')
-            . '</label>' => $exitNorm,
-            '<label for="efiBootTypeExit">'
-            . _('Group EFI Exit Type')
-            . '</label>' => $exitEfi,
-            '<label for="updategen">'
-            . _('Make Changes?')
-            . '</label>' => '<button type="submit" class="btn btn-info btn-block" '
-            . 'id="updategen">'
-            . _('Update')
-            . '</button>'
-        );
-        self::$HookManager->processEvent(
-            'GROUP_FIELDS',
-            array(
-                'fields' => &$fields,
-                'Group' => &$this->obj
-            )
-        );
-        $rendered = self::formFields($fields);
-        self::$HookManager
-            ->processEvent(
-                'GROUP_EDIT_GEN',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes,
-                    'Group' => &$this->obj
-                )
-            );
-        $this->form = '<div class="text-center" id="resetSecDataBox">'
-            . '<button type="button" '
-            . 'id="resetSecData" '
-            . 'class="btn btn-warning btn-block">'
-            . _('Reset Encryption Data')
-            . '</button>'
-            . '</div>';
-        echo '<!-- General -->';
-        echo '<div id="group-general" class="'
-            . 'tab-pane fade in active">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Group general');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '&tab=group-general">';
-        $this->render(12);
-        echo '</form>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->attributes,
-            $this->templates
-        );
     }
     /**
      * Group general post element
@@ -636,7 +431,7 @@ class GroupManagementPage extends FOGPage
      */
     public function groupGeneralPost()
     {
-        $name = trim(
+        $group = trim(
             filter_input(INPUT_POST, 'group')
         );
         $desc = trim(
@@ -675,85 +470,81 @@ class GroupManagementPage extends FOGPage
         $ebte = trim(
             filter_input(INPUT_POST, 'efiBootTypeExit')
         );
-        if ($name != $this->obj->get('name')) {
-            if (!$this->obj->getManager()->exists($name)) {
+        if ($group != $this->obj->get('name')) {
+            if (!$this->obj->getManager()->exists($group)) {
                 throw new Exception(_('Please use another group name'));
             }
         }
         $this->obj
-            ->set('name', $name)
+            ->set('name', $group)
             ->set('description', $desc)
             ->set('kernel', $kern)
             ->set('kernelArgs', $args)
-            ->set('kernelDevice', $dev);
+            ->set('kernelDevice', $dev)
+            ->set('init', $init);
         self::getClass('HostManager')
             ->update(
-                array(
+                [
                     'id' => $this->obj->get('hosts')
-                ),
+                ],
                 '',
-                array(
+                [
                     'kernel' => $kern,
                     'kernelArgs' => $args,
                     'kernelDevice' => $dev,
+                    'init' => $init,
                     'efiexit' => $ebte,
                     'biosexit' => $bte,
                     'productKey' => trim($productKey)
-                )
+                ]
             );
     }
     /**
      * Prints the group image element.
      *
-     * @param mixed $imageMatchID The matching id.
-     *
      * @return void
      */
-    public function groupImage($imageMatchID = 0)
+    public function groupImage()
     {
-        // Group Images
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
+        $imageID = (
+            self::$_common[0] ?
+            self::$Host->get('imageID') :
+            ''
         );
+        // Group Images
         $imageSelector = self::getClass('ImageManager')
-            ->buildSelectBox($imageMatchID, 'image');
-        $fields = array(
+            ->buildSelectBox($imageID, 'image');
+        $fields = [
             '<label for="image" class="col-sm-2 control-label">'
             . _('Group image')
             . '</label>' => $imageSelector
-        );
+        ];
         self::$HookManager
             ->processEvent(
                 'GROUP_IMAGE_FIELDS',
-                array(
+                [
                     'fields' => &$fields,
                     'obj' => &$this->obj
-                )
+                ]
             );
         $rendered = self::formFields($fields);
         echo '<div class="box box-solid">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Group Image Setting');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
         echo '<form id="group-image-form" class="form-horizontal" method="post" action="'
             . self::makeTabUpdateURL('group-image', $this->obj->get('id'))
             . '" novalidate>';
-        echo '<div class="box-body">';
         echo $rendered;
+        echo '</form>';
         echo '</div>';
         echo '<div class="box-footer">';
         echo '<button class="btn btn-primary" id="image-send">' . _('Update') . '</button>';
         echo '</div>';
-        echo '</form>';
         echo '</div>';
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->attributes,
-            $this->templates
-        );
     }
     /**
      * Group image post element
@@ -768,72 +559,62 @@ class GroupManagementPage extends FOGPage
         $this->obj->addImage($image);
     }
     /**
-     * Display the group PM stuff.
+     * Group active directory post element
      *
      * @return void
      */
-    public function groupPMDisplay()
+    public function groupADPost()
     {
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
+        $useAD = isset($_POST['domain']);
+        $domain = trim(
+            filter_input(
+                INPUT_POST,
+                'domainname'
+            )
         );
-        echo '<!-- Power Management Items -->';
-        echo '<div class="tab-pane fade" id="group-powermanagement">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Power Management');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        $this->newPMDisplay();
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
+        $ou = trim(
+            filter_input(
+                INPUT_POST,
+                'ou'
+            )
         );
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Group Power Management Remove');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<label for="delAllPM" class="col-xs-4">'
-            . _('Delete all PM tasks?')
-            . '</label>';
-        echo '<div class="col-xs-8">';
-        echo '<button id="delAllPM" type="button" class='
-            . '"btn btn-danger btn-block">'
-            . _('Delete')
-            . '</button>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
+        $user = trim(
+            filter_input(
+                INPUT_POST,
+                'domainuser'
+            )
+        );
+        $pass = trim(
+            filter_input(
+                INPUT_POST,
+                'domainpassword'
+            )
+        );
+        $enforce = isset($_POST['enforcesel']);
+        $this->obj->setAD(
+            $useAD,
+            $domain,
+            $ou,
+            $user,
+            $pass,
+            $enforce
         );
     }
     /**
-     * Displays group printer element.
+     * Group printers display.
      *
      * @return void
      */
     public function groupPrinters()
     {
+        $printerLevel = (
+            filter_input(INPUT_POST, 'level') ?: (
+                self::$_common[2] ?
+                self::$Host->get('printerLevel') :
+                0
+            )
+        );
+
         $props = ' method="post" action="'
             . $this->formAction
             . '&tab=group-printers" ';
@@ -868,7 +649,7 @@ class GroupManagementPage extends FOGPage
         echo '<input type="radio" name="level" value="0" '
             . 'id="nolevel"'
             . (
-                self::$Host->get('printerLevel') == 0 ?
+                $printerLevel == 0 ?
                 ' checked' :
                 ''
             )
@@ -893,7 +674,7 @@ class GroupManagementPage extends FOGPage
         echo '<input type="radio" name="level" value="1" '
             . 'id="addlevel"'
             . (
-                self::$Host->get('printerLevel') == 1 ?
+                $printerLevel == 1 ?
                 ' checked' :
                 ''
             )
@@ -914,7 +695,7 @@ class GroupManagementPage extends FOGPage
         echo '<input type="radio" name="level" value="2" '
             . 'id="alllevel"'
             . (
-                self::$Host->get('printerLevel') == 2 ?
+                $printerLevel  == 2 ?
                 ' checked' :
                 ''
             )
@@ -935,36 +716,28 @@ class GroupManagementPage extends FOGPage
 
         // =========================================================
         // Associated Printers
-        unset(
-            $this->headerData,
-            $this->templates,
-            $this->attributes,
-            $this->form,
-            $this->data
-        );
-
         $buttons = self::makeButton('printer-default', _('Update default'), 'btn btn-primary', $props);
         $buttons .= self::makeButton('printer-remove', _('Remove selected'), 'btn btn-danger', $props);
-        $this->headerData = array(
+        $this->headerData = [
             _('Default'),
             _('Printer Alias'),
             _('Printer Type'),
             _('Printer Associated')
-        );
-        $this->templates = array(
+        ];
+        $this->templates = [
             '',
             '',
             '',
             ''
-        );
-        $this->attributes = array(
-            array(
+        ];
+        $this->attributes = [
+            [
                 'class' => 'col-md-1'
-            ),
-            array(),
-            array(),
-            array()
-        );
+            ],
+            [],
+            [],
+            []
+        ];
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<div class="box-tools pull-right">';
@@ -998,24 +771,24 @@ class GroupManagementPage extends FOGPage
             $level = filter_input(INPUT_POST, 'level');
             self::getClass('HostManager')
                 ->update(
-                    array(
+                    [
                         'id' => $this->get('hosts'),
-                    ),
+                    ],
                     '',
-                    array('printerLevel' => $level)
+                    ['printerLevel' => $level]
                 );
         }
         if (isset($_POST['updateprinters'])) {
             $printers = filter_input_array(
                 INPUT_POST,
-                array(
-                    'printer' => array(
+                [
+                    'printer' => [
                         'flags' => FILTER_REQUIRE_ARRAY
-                    )
-                )
+                    ]
+                ]
             );
             $printers = $printers['printer'];
-            if (count($printers) > 0) {
+            if (count($printers ?: []) > 0) {
                 $this->obj->addPrinter($printers);
             }
         }
@@ -1031,14 +804,14 @@ class GroupManagementPage extends FOGPage
         if (isset($_POST['printdel'])) {
             $printers = filter_input_array(
                 INPUT_POST,
-                array(
-                    'printerRemove' => array(
+                [
+                    'printerRemove' => [
                         'flags' => FILTER_REQUIRE_ARRAY
-                    )
-                )
+                    ]
+                ]
             );
             $printers = $printers['printerRemove'];
-            if (count($printers) > 0) {
+            if (count($printers ?: []) > 0) {
                 $this->obj->removePrinter($printers);
             }
         }
@@ -1058,31 +831,23 @@ class GroupManagementPage extends FOGPage
         echo '<div class="box-group" id="snapins">';
         // =================================================================
         // Associated Snapins
-        unset(
-            $this->headerData,
-            $this->templates,
-            $this->attributes,
-            $this->form,
-            $this->data
-        );
-
         $buttons = self::makeButton('snapins-remove', _('Remove selected'), 'btn btn-danger', $props);
 
-        $this->headerData = array(
+        $this->headerData = [
             _('Snapin Name'),
             _('Snapin Created'),
             _('Snapin Associated')
-        );
-        $this->templates = array(
+        ];
+        $this->templates = [
             '',
             '',
             ''
-        );
-        $this->attributes = array(
-            array(),
-            array(),
-            array()
-        );
+        ];
+        $this->attributes = [
+            [],
+            [],
+            []
+        ];
 
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
@@ -1105,95 +870,42 @@ class GroupManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
-        return;
-        Route::listem('snapin');
-        $Snapins = json_decode(
-            Route::getData()
-        );
-        $Snapins = $Snapins->snapins;
-        foreach ((array)$Snapins as &$Snapin) {
-            $this->data[] = array(
-                'snapin_id' => $Snapin->id,
-                'snapin_name' => $Snapin->name,
-                'snapin_created' => self::niceDate(
-                    $Snapin->createdTime
-                )->format('Y-m-d H:i:s')
+    }
+    /**
+     * Group snapin post
+     *
+     * @return void
+     */
+    public function groupSnapinPost()
+    {
+        if (isset($_POST['updatesnapins'])) {
+            $snapins = filter_input_array(
+                INPUT_POST,
+                [
+                    'snapin' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
             );
-            unset($Snapin);
+            $snapins = $snapins['snapin'];
+            if (count($snapins ?: []) > 0) {
+                $this->obj->addSnapin($snapins);
+            }
         }
-        self::$HookManager->processEvent(
-            'GROUP_SNAPINS',
-            array(
-                'data' => &$this->data,
-                'templates' => &$this->templates,
-                'headerData' => &$this->headerData,
-                'attributes' => &$this->attributes,
-            )
-        );
-        echo '<!-- Snapins -->';
-        echo '<div class="tab-pane fade" id="group-snapins">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Group Snapins');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '&tab=group-snapins">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Available Snapins');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        $this->render(12);
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Make Snapin Changes');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<div class="form-group">';
-        echo '<label for="addsnapins" class="control-label col-xs-4">';
-        echo _('Add selected snapins');
-        echo '</label>';
-        echo '<div class="col-xs-8">';
-        echo '<button type="submit" name="add" class='
-            . '"btn btn-info btn-block" id="addsnapins">';
-        echo _('Add');
-        echo '</button>';
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="form-group">';
-        echo '<label for="remsnapins" class="control-label col-xs-4">';
-        echo _('Remove selected snapins');
-        echo '</label>';
-        echo '<div class="col-xs-8">';
-        echo '<button type="submit" name="remove" class='
-            . '"btn btn-danger btn-block" id="remsnapins">';
-        echo _('Remove');
-        echo '</button>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</form>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        unset(
-            $this->headerData,
-            $this->templates,
-            $this->attributes,
-            $this->form,
-            $this->data
-        );
+        if (isset($_POST['snapdel'])) {
+            $snapins = filter_input_array(
+                INPUT_POST,
+                [
+                    'snapinRemove' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $snapins = $snapins['snapinRemove'];
+            if (count($snapins ?: []) > 0) {
+                $this->obj->removeSnapin($snapins);
+            }
+        }
     }
     /**
      * Display's the group service stuff
@@ -1209,30 +921,38 @@ class GroupManagementPage extends FOGPage
         echo '<div class="box-group" id="modules">';
         // =============================================================
         // Associated Modules
-        unset(
-            $this->headerData,
-            $this->templates,
-            $this->attributes,
-            $this->form,
-            $this->data
-        );
-
         // Buttons for this.
-        $buttons = self::makeButton('modules-update', _('Update'), 'btn btn-primary', $props);
-        $buttons .= self::makeButton('modules-enable', _('Enable All'), 'btn btn-success', $props);
-        $buttons .= self::makeButton('modules-disable', _('Disable All'), 'btn btn-danger', $props);
-        $this->headerData = array(
+        $buttons = self::makeButton(
+            'modules-update',
+            _('Update'),
+            'btn btn-primary',
+            $props
+        );
+        $buttons .= self::makeButton(
+            'modules-enable',
+            _('Enable All'),
+            'btn btn-success',
+            $props
+        );
+        $buttons .= self::makeButton(
+            'modules-disable',
+            _('Disable All'),
+            'btn btn-danger',
+            $props
+        );
+        $this->headerData = [
             _('Module Name'),
             _('Module Associated')
-        );
-        $this->templates = array(
+        ];
+        $this->templates = [
             '',
             ''
-        );
-        $this->attributes = array(
-            array(),
-            array()
-        );
+        ];
+        $this->attributes = [
+            [],
+            []
+        ];
+        // Modules Enable/Disable/Selected
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<div class="box-tools pull-right">';
@@ -1240,7 +960,6 @@ class GroupManagementPage extends FOGPage
         echo '</div>';
         echo '<h4 class="box-title">';
         echo _('Group module settings');
-        echo ' --------- IN PROGRESS';
         echo '</h4>';
         echo '<div>';
         echo '<p class="help-block">';
@@ -1256,249 +975,36 @@ class GroupManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
-        echo '</div>';
-        return;
-        $this->data[] = array(
-            'mod_name' => '<label for="checkAll">'
-            . _('Select/Deselect All')
-            . '</label>',
-            'input' => '<div class="checkbox">'
-            . '<input type="checkbox" class="checkboxes" '
-            . 'id="checkAll" name="checkAll" value="checkAll"/>'
-            . '</div>',
-            'span' => ' '
-        );
-        $moduleName = self::getGlobalModuleStatus();
-        $ModuleOn = array_values(
-            self::getSubObjectIDs(
-                'ModuleAssociation',
-                array(
-                    'hostID' => $this->obj->get('hosts')
-                ),
-                'moduleID',
-                false,
-                'AND',
-                'id'
-            )
-        );
-        Route::listem('module');
-        $Modules = json_decode(
-            Route::getData()
-        );
-        $Modules = $Modules->modules;
-        foreach ((array)$Modules as &$Module) {
-            switch ($Module->shortName) {
-            case 'dircleanup':
-                $note = sprintf(
-                    '<i class="icon fa fa-exclamation-triangle '
-                    . 'fa-1x hand" '
-                    . 'data-toggle="tooltip" data-placement="right" '
-                    . 'title="%s"></i>',
-                    $dcnote
-                );
-                break;
-            case 'greenfog':
-                $note = sprintf(
-                    '<i class="icon fa fa-exclamation-triangle '
-                    . 'fa-1x hand" '
-                    . 'data-toggle="tooltip" data-placement="right" '
-                    . 'title="%s"></i>',
-                    $gfnote
-                );
-                break;
-            case 'usercleanup':
-                $note = sprintf(
-                    '<i class="icon fa fa-exclamation-triangle '
-                    . 'fa-1x hand" '
-                    . 'data-toggle="tooltip" data-placement="right" '
-                    . 'title="%s"></i>',
-                    $ucnote
-                );
-                break;
-            case 'clientupdater':
-                $note = sprintf(
-                    '<i class="icon fa fa-exclamation-triangle '
-                    . 'fa-1x hand" '
-                    . 'data-toggle="tooltip" data-placement="right" '
-                    . 'title="%s"></i>',
-                    $cunote
-                );
-                break;
-            default:
-                $note = '';
-                break;
-            }
-            if ($note) {
-                $note = '<div class="col-xs-2">'
-                    . $note
-                    . '</div>';
-            }
-            $this->data[] = array(
-                'input' => sprintf(
-                    '<div class="checkbox">'
-                    . '<input id="%s"%stype="checkbox" name="modules[]" value="%s"'
-                    . '%s%s/>'
-                    . '</div>',
-                    $Module->shortName,
-                    (
-                        ($moduleName[$Module->shortName]
-                        || $moduleName[$Module->shortName])
-                        && $Module->isDefault ?
-                        ' class="checkboxes" ':
-                        ''
-                    ),
-                    $Module->id,
-                    (
-                        in_array($Module->id, $ModuleOn) ?
-                        ' checked' :
-                        ''
-                    ),
-                    (
-                        !$moduleName[$Module->shortName] ?
-                        ' disabled' :
-                        ''
-                    ),
-                    $Module->shortName
-                ),
-                'span' => sprintf(
-                    '<div class="col-xs-2">'
-                    . '<span class="icon fa fa-question fa-1x hand" '
-                    . 'data-toggle="tooltip" data-placement="left" '
-                    . 'title="%s"></span>'
-                    . '</div>'
-                    . '%s',
-                    str_replace(
-                        '"',
-                        '\"',
-                        $Module->description
-                    ),
-                    $note
-                ),
-                'mod_name' => '<label for="'
-                . $Module->shortName
-                . '">'
-                . $Module->name
-                . '</label>',
-            );
-            unset($Module);
-        }
-        unset($moduleName, $ModuleOn);
-        self::$HookManager
-            ->processEvent(
-                'GROUP_EDIT_SERVICE',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        echo '<!-- Service Configuration -->';
-        echo '<div class="tab-pane fade" id="group-service">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Group FOG Client Module configuration');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '&tab=group-service">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Group module settings');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        $this->render(12);
-        echo '<label class="control-label col-xs-4" for="updatestatus">';
-        echo _('Update module configurations');
-        echo '</label>';
-        echo '<div class="col-xs-8">';
-        echo '<button type="submit" name="updatestatus" id="updatestatus" '
-            . 'class="btn btn-info btn-block">';
-        echo _('Update');
-        echo '</button>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
-        $this->attributes = array(
-            array(
-                'class' => 'col-xs-4'
-            ),
-            array(
-                'class' => 'col-xs-4 form-group'
-            ),
-            array(
-                'class' => 'col-xs-4'
-            )
-        );
-        $this->templates = array(
-            '${field}',
-            '${input}',
-            '${span}',
-        );
-        list(
-            $refresh,
-            $width,
-            $height,
-        ) = self::getSubObjectIDs(
-            'Service',
-            array(
-                'name' => array(
-                    'FOG_CLIENT_DISPLAYMANAGER_R',
-                    'FOG_CLIENT_DISPLAYMANAGER_X',
-                    'FOG_CLIENT_DISPLAYMANAGER_Y',
-                )
-            ),
-            'description',
-            false,
-            'AND',
-            'name',
-            false,
-            false
-        );
+        // Display Manager Element.
         list(
             $r,
             $x,
             $y
         ) = self::getSubObjectIDs(
             'Service',
-            array(
-                'name' => array(
+            [
+                'name' => [
                     'FOG_CLIENT_DISPLAYMANAGER_R',
                     'FOG_CLIENT_DISPLAYMANAGER_X',
-                    'FOG_CLIENT_DISPLAYMANAGER_Y',
-                )
-            ),
+                    'FOG_CLIENT_DISPLAYMANAGER_Y'
+                ]
+            ],
             'value'
         );
-        $names = array(
-            'x' => array(
+        $names = [
+            'x' => [
                 'width',
-                $width,
-                _('Screen Width (in pixels)'),
-            ),
-            'y' => array(
+                _('Screen Width (in pixels)')
+            ],
+            'y' => [
                 'height',
-                $height,
-                _('Screen Height (in pixels)'),
-            ),
-            'r' => array(
+                _('Screen Height (in pixels)')
+            ],
+            'r' => [
                 'refresh',
-                $refresh,
-                _('Screen Refresh Rate (in Hz)'),
-            )
-        );
+                _('Screen Refresh Rate (in Hz)')
+            ]
+        ];
         foreach ($names as $name => &$get) {
             switch ($name) {
             case 'r':
@@ -1511,142 +1017,90 @@ class GroupManagementPage extends FOGPage
                 $val = $y;
                 break;
             }
-            $this->data[] = array(
-                'input' => sprintf(
-                    '<div class="input-group">'
-                    . '<input type="text" id="%s" name="%s" value="%s" '
-                    . 'class="form-control"/>'
-                    . '</div>',
-                    $name,
-                    $name,
-                    $val
-                ),
-                'span' => sprintf(
-                    '<div class="col-xs-2">'
-                    . '<span class="icon fa fa-question fa-1x hand" '
-                    . 'data-toggle="tooltip" data-placement="right" '
-                    . 'title="%s"></span>'
-                    . '</div>',
-                    $get[1]
-                ),
-                'field' => '<label for="'
+            $fields[
+                '<label for="'
                 . $name
-                . '">'
-                . $get[2]
-                . '</label>',
-            );
+                . '" class="col-sm-2 control-label">'
+                . $get[1]
+                . '</label>'
+            ] = '<input type="text" id="'
+            . $name
+            . '" class="form-control" name="'
+            . $name
+            . '" value="'
+            . $val
+            . '"/>';
             unset($get);
         }
-        self::$HookManager
-            ->processEvent(
-                'GROUP_EDIT_DISPSERV',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Group Screen Resolution');
+        $rendered = self::formFields($fields);
+        unset($fields);
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '&tab=group-service">';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Display Manager Settings');
         echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        $this->render(12);
-        echo '<label class="control-label col-xs-4" for="updatedisplay">';
-        echo _('Update display resolution');
-        echo '</label>';
-        echo '<div class="col-xs-8">';
-        echo '<button type="submit" name="updatedisplay" id="updatedisplay" '
-            . 'class="btn btn-info btn-block">';
-        echo _('Update');
-        echo '</button>';
+        echo '<div class="box-tools pull-right">';
+        echo self::$FOGCollapseBox;
         echo '</div>';
         echo '</div>';
+        echo '<div class="box-body">';
+        echo $rendered;
         echo '</div>';
-        unset(
-            $this->headerData,
-            $this->templates,
-            $this->attributes,
-            $this->form,
-            $this->data
-        );
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-4 form-group'),
-            array('class' => 'col-xs-4')
-        );
-        $this->templates = array(
-            '${field}',
-            '${input}',
-            '${desc}',
-        );
-        $alodesc = self::getClass('Service')
-            ->set('name', 'FOG_CLIENT_AUTOLOGOFF_MIN')
-            ->load('name')
-            ->get('description');
-        $aloval = self::getClass('Service')
-            ->set('name', 'FOG_CLIENT_AUTOLOGOFF_MIN')
-            ->load('name')
-            ->get('value');
-        $this->data[] = array(
-            'field' => '<label for="tme">'
-            . _('Auto Log Out Time (in minutes)')
-            . '</label>',
-            'input' => '<div class="input-group">'
-            . '<input type="text" name="tme" value="${value}" class='
-            . '"form-control" id="tme"/>'
-            . '</div>',
-            'desc' => '<div class="col-xs-2">'
-            . '<span class="icon fa fa-question fa-1x hand" '
-            . 'data-toggle="tooltip" data-placement="right" '
-            . 'title="${serv_desc}"></span>'
-            . '</div>',
-            'value' => $aloval,
-            'serv_desc' => $alodesc,
-        );
-        self::$HookManager
-            ->processEvent(
-                'GROUP_EDIT_ALO',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Group Auto Logout');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        $this->render(12);
-        echo '<label class="control-label col-xs-4" for="updatealo">';
-        echo _('Update auto-logout time');
-        echo '</label>';
-        echo '<div class="col-xs-8">';
-        echo '<button type="submit" name="updatealo" id="updatealo" '
-            . 'class="btn btn-info btn-block">';
-        echo _('Update');
-        echo '</button>';
-        echo '</div>';
+        echo '<div class="box-footer">';
+        echo '<button class="btn btn-primary" id="displayman-send">'
+            . _('Update')
+            . '</button>';
         echo '</div>';
         echo '</div>';
         echo '</form>';
+
+        // Auto Log Out
+        $tme = filter_input(INPUT_POST, 'tme');
+        if (!$tme) {
+            $tme = self::getSetting('FOG_CLIENT_AUTOLOGOFF_MIN');
+        }
+        $fields = [
+            '<label for="tme" class="col-sm-2 control-label">'
+            . _('Auto Logout Time (in minutes)')
+            . '</label>' => '<input type="text" name="tme" class="form-control" '
+            . 'value="'
+            . $tme
+            . '" id="tme"/>'
+        ];
+        $rendered = self::formFields($fields);
+        unset($fields);
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '&tab=group-service">';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Auto Logout Settings');
+        echo '</h4>';
+        echo '<div>';
+        echo '<p class="help-block">';
+        echo _('Minimum time limit for Auto Logout to become active is 5 minutes.');
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="box-tools pull-right">';
+        echo self::$FOGCollapseBox;
         echo '</div>';
         echo '</div>';
+        echo '<div class="box-body">';
+        echo $rendered;
         echo '</div>';
-        unset(
-            $this->headerData,
-            $this->templates,
-            $this->attributes,
-            $this->form,
-            $this->data
-        );
+        echo '<div class="box-footer">';
+        echo '<button class="btn btn-primary" id="alo-send">'
+            . _('Update')
+            . '</button>';
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
+        // End Box Group
+        echo '</div>';
     }
     /**
      * The group edit display method
@@ -1677,11 +1131,6 @@ class GroupManagementPage extends FOGPage
         $printerLevel = (
             $printerLevel ?
             self::$Host->get('printerLevel') :
-            ''
-        );
-        $imageMatchID = (
-            $imageIDs ?
-            self::$Host->get('imageID') :
             ''
         );
         $useAD = (
@@ -1738,7 +1187,7 @@ class GroupManagementPage extends FOGPage
             'name' => _('Image'),
             'id' => 'group-image',
             'generator' => function() {
-                $this->groupImage($imageMatchID);
+                $this->groupImage();
             }
         );
 
@@ -1794,58 +1243,24 @@ class GroupManagementPage extends FOGPage
             }
         );
 
+        // Power Management
+        /*$tabData[] = [
+            'name' => _('Power Management'),
+            'id' => 'group-powermanagement',
+            'generator' => function() {
+                $this->groupPMDisplay();
+            }
+        ];
+
+        // Inventory
+        $tabData[] = [
+            'name' => _('Inventory'),
+            'id' => 'group-inventory',
+            'generator' => function() {
+                $this->groupInventory();
+            }
+        ];*/
         echo self::tabFields($tabData);
-        return;
-        echo '<div class="col-xs-9 tab-content">';
-        $this->groupGeneral();
-        $this->groupImage($imageMatchID);
-        $this->basictasksOptions();
-        $this->adFieldsToDisplay(
-            $useAD,
-            $ADDomain,
-            $ADOU,
-            $ADUser,
-            $ADPass,
-            $enforce
-        );
-        $this->groupPrinters();
-        $this->groupSnapins();
-        $this->groupService();
-        $this->groupPMDisplay();
-        unset(
-            $imageID,
-            $imageMatchID,
-            $groupKey,
-            $groupKeyMatch,
-            $aduse,
-            $adDomain,
-            $adOU,
-            $adUser,
-            $adPass,
-            $useAD,
-            $ADOU,
-            $ADDomain,
-            $ADUser,
-            $adPass,
-            $ADPass,
-            $biosExit,
-            $efiExit,
-            $exitNorm,
-            $exitEfi
-        );
-        self::$HookManager->processEvent(
-            'GROUP_EDIT_EXTRA',
-            array(
-                'Group' => &$this->obj,
-                'data' => &$this->data,
-                'headerData' => &$this->headerData,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes,
-                'formAction' => &$this->formAction,
-                'render' => &$this
-            )
-        );
-        echo '</div>';
     }
     /**
      * Display inventory page, separated as groups can contain
@@ -2054,44 +1469,10 @@ class GroupManagementPage extends FOGPage
                 $this->groupADPost();
                 break;
             case 'group-printers':
-                if (isset($_POST['add'])) {
-                    $this->obj->addPrinter(
-                        $printers,
-                        array(),
-                        $level
-                    );
-                    if (in_array($default, (array)$printers)) {
-                        $this->obj->updateDefault($default);
-                    }
-                }
-                if (isset($_POST['remove'])) {
-                    $this->obj->addPrinter(
-                        array(),
-                        $printers,
-                        $level
-                    );
-                }
-                if (isset($_POST['update'])) {
-                    $this->obj->addPrinter(
-                        array(),
-                        array(),
-                        $level
-                    );
-                    $this->obj->addPrinter(
-                        $default,
-                        array(),
-                        $level
-                    );
-                    $this->obj->updateDefault($default);
-                }
+                $this->groupPrinterPost();
                 break;
             case 'group-snapins':
-                if (isset($_POST['add'])) {
-                    $this->obj->addSnapin($snapins);
-                }
-                if (isset($_POST['remove'])) {
-                    $this->obj->removeSnapin($snapins);
-                }
+                $this->groupSnapinPost();
                 break;
             case 'group-service':
                 list(
@@ -2332,48 +1713,6 @@ class GroupManagementPage extends FOGPage
         exit;
     }
     /**
-     * Group active directory post element
-     *
-     * @return void
-     */
-    public function groupADPost()
-    {
-        $useAD = isset($_POST['domain']);
-        $domain = trim(
-            filter_input(
-                INPUT_POST,
-                'domainname'
-            )
-        );
-        $ou = trim(
-            filter_input(
-                INPUT_POST,
-                'ou'
-            )
-        );
-        $user = trim(
-            filter_input(
-                INPUT_POST,
-                'domainuser'
-            )
-        );
-        $pass = trim(
-            filter_input(
-                INPUT_POST,
-                'domainpassword'
-            )
-        );
-        $enforce = isset($_POST['enforcesel']);
-        $this->obj->setAD(
-            $useAD,
-            $domain,
-            $ou,
-            $user,
-            $pass,
-            $enforce
-        );
-    }
-    /**
      * Returns the module list as well as the associated
      * for the group being edited.
      *
@@ -2447,5 +1786,65 @@ class GroupManagementPage extends FOGPage
             )
         );
         exit;
+    }
+    /**
+     * Display the group PM stuff.
+     *
+     * @return void
+     */
+    public function groupPMDisplay()
+    {
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
+        echo '<!-- Power Management Items -->';
+        echo '<div class="tab-pane fade" id="group-powermanagement">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Power Management');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        $this->newPMDisplay();
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Group Power Management Remove');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<label for="delAllPM" class="col-xs-4">'
+            . _('Delete all PM tasks?')
+            . '</label>';
+        echo '<div class="col-xs-8">';
+        echo '<button id="delAllPM" type="button" class='
+            . '"btn btn-danger btn-block">'
+            . _('Delete')
+            . '</button>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
     }
 }

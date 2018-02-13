@@ -194,8 +194,8 @@
     });
 
     printersTable.on('draw', function() {
-        Common.iCheck("input");
-        $('input').on('ifClicked', onRadioSelect);
+        Common.iCheck('#host-printers input');
+        $('#host-printers-table input.default').on('ifClicked', onRadioSelect);
     });
     printerDefaultBtn.prop("disabled", true);
 
@@ -216,7 +216,7 @@
     };
 
     // Setup default printer watcher
-    $('input').on('ifClicked', onRadioSelect);
+    $('.default').on('ifClicked', onRadioSelect);
 
     printerDefaultBtn.click(function() {
         printerRemoveBtn.prop("disabled", true);
@@ -376,7 +376,7 @@
         }
     });
     snapinsTable.on('draw', function() {
-        Common.iCheck("input");
+        Common.iCheck('#host-snapins input');
     });
 
     snapinsAddBtn.click(function() {
@@ -508,7 +508,7 @@
         }
     });
     modulesTable.on('draw', function() {
-        Common.iCheck("input");
+        Common.iCheck('#modules-to-update input');
     });
     // var modulesTable = Common.registerTable(
     //     $("#host-service-modules-table"),
