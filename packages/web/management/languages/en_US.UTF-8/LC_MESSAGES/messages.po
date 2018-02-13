@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-12 01:06-0500\n"
+"POT-Creation-Date: 2018-02-13 00:46-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3711,38 +3711,15 @@ msgstr "group"
 msgid "Primary MAC"
 msgstr "Primary MAC"
 
+#, fuzzy
+msgid "Ping Status"
+msgstr "Status"
+
 msgid "Imaged"
 msgstr "Imaged"
 
 msgid "Assigned Image"
 msgstr "Assigned Image"
-
-msgid "Pending Host List"
-msgstr "Pending Host List"
-
-#, fuzzy
-msgid "Approve selected hosts"
-msgstr "Approve selected Hosts"
-
-#, fuzzy
-msgid "Delete selected hosts"
-msgstr "Delete selected Hosts"
-
-#, fuzzy
-msgid "Approve Success"
-msgstr "Approve this host?"
-
-#, fuzzy
-msgid "Selected hosts approved successfully"
-msgstr "saved successfully"
-
-#, fuzzy
-msgid "Deleted Success"
-msgstr "User created"
-
-#, fuzzy
-msgid "Selected hosts deleted successfully"
-msgstr "Install / Update Successful!"
 
 #, fuzzy
 msgid "Create New Host"
@@ -3801,21 +3778,6 @@ msgstr "Host Created"
 #, fuzzy
 msgid "Host Create Fail"
 msgstr "Host create failed"
-
-msgid "Cron Schedule"
-msgstr "Cron Schedule"
-
-#, fuzzy
-msgid "Current Power Management settings"
-msgstr "User Management"
-
-#, fuzzy
-msgid "Update PM Values"
-msgstr "Update Images"
-
-#, fuzzy
-msgid "Delete selected"
-msgstr "Delete Selected"
 
 #, fuzzy
 msgid "Host description"
@@ -3949,14 +3911,6 @@ msgstr ""
 msgid "Changes will automatically be saved"
 msgstr ""
 
-#, fuzzy
-msgid "Enable all"
-msgstr "Enabled"
-
-#, fuzzy
-msgid "Disable all"
-msgstr "Enabled"
-
 msgid "Screen Width (in pixels)"
 msgstr "Screen Width (in pixels)"
 
@@ -3966,11 +3920,20 @@ msgstr "Screen Height (in pixels)"
 msgid "Screen Refresh Rate (in Hz)"
 msgstr "Screen Refresh Rate (in Hz)"
 
-msgid "The minimum allowed time for autologout is 5 minutes."
-msgstr ""
+#, fuzzy
+msgid "Display Manager Settings"
+msgstr "Settings"
 
-msgid "Auto Log Out Time (in minutes)"
-msgstr "Auto Log Out Time (in minutes)"
+#, fuzzy
+msgid "Auto Logout Time (in minutes)"
+msgstr "Default log out time (in minutes)"
+
+#, fuzzy
+msgid "Auto Logout Settings"
+msgstr "Settings"
+
+msgid "Minimum time limit for Auto Logout to become active is 5 minutes."
+msgstr ""
 
 msgid "Primary User"
 msgstr "Primary User"
@@ -4054,8 +4017,9 @@ msgstr "Chassis Serial"
 msgid "Chassis Asset"
 msgstr "Chassis Asset"
 
-msgid "Host Hardware Inventory"
-msgstr "Host Hardware Inventory"
+#, fuzzy
+msgid "Host Inventory"
+msgstr "Inventory"
 
 #, fuzzy
 msgid "Logout not found"
@@ -4159,8 +4123,24 @@ msgstr "Install / Update Successful!"
 msgid "Host Add to Group Fail"
 msgstr "Add to group"
 
-msgid "New Group"
-msgstr "New Group"
+msgid "Cron Schedule"
+msgstr "Cron Schedule"
+
+#, fuzzy
+msgid "Current Power Management settings"
+msgstr "User Management"
+
+#, fuzzy
+msgid "Update PM Values"
+msgstr "Update Images"
+
+#, fuzzy
+msgid "Delete selected"
+msgstr "Delete Selected"
+
+#, fuzzy
+msgid "Create New Group"
+msgstr "Storage Node"
 
 msgid "Group Name"
 msgstr "Group Name"
@@ -4168,18 +4148,18 @@ msgstr "Group Name"
 msgid "Group Description"
 msgstr "Group Description"
 
-msgid "Group Kernel"
-msgstr "Group Kernel"
+msgid "Group Product Key"
+msgstr "Group Product Key"
 
 msgid "Group Kernel Arguments"
 msgstr "Group Kernel Arguments"
 
+#, fuzzy
+msgid "Group Init"
+msgstr "Export Snapins"
+
 msgid "Group Primary Disk"
 msgstr "Group Primary Disk"
-
-#, fuzzy
-msgid "Make changes?"
-msgstr "Save Changes"
 
 #, fuzzy
 msgid "A group name is required!"
@@ -4205,25 +4185,14 @@ msgstr "User created"
 msgid "Group Create Fail"
 msgstr "Group create failed"
 
-msgid "Group Product Key"
-msgstr "Group Product Key"
-
-#, fuzzy
-msgid "Group Init"
-msgstr "Export Snapins"
+msgid "Group Kernel"
+msgstr "Group Kernel"
 
 msgid "Group Bios Exit Type"
 msgstr "Group Bios Exit Type"
 
 msgid "Group EFI Exit Type"
 msgstr "Group EFI Exit Type"
-
-msgid "Reset Encryption Data"
-msgstr ""
-
-#, fuzzy
-msgid "Group general"
-msgstr "Group Kernel"
 
 #, fuzzy
 msgid "Please use another group name"
@@ -4234,12 +4203,8 @@ msgid "Group image"
 msgstr "Group Name"
 
 #, fuzzy
-msgid "Group Power Management Remove"
-msgstr "User Management"
-
-#, fuzzy
-msgid "Delete all PM tasks?"
-msgstr "Delete all selected %ss"
+msgid "Group Image Setting"
+msgstr "Update Settings"
 
 #, fuzzy
 msgid "Group Printer Configuration"
@@ -4256,52 +4221,8 @@ msgstr ""
 "printers."
 
 #, fuzzy
-msgid "Group Snapins"
-msgstr "Export Snapins"
-
-#, fuzzy
-msgid "Available Snapins"
-msgstr "All Snap-ins"
-
-#, fuzzy
-msgid "Make Snapin Changes"
-msgstr "Save Changes"
-
-#, fuzzy
-msgid "Add selected snapins"
-msgstr "Remove selected snapins"
-
-msgid "Remove selected snapins"
-msgstr "Remove selected snapins"
-
-#, fuzzy
 msgid "Group module settings"
 msgstr "Update Settings"
-
-msgid "Select/Deselect All"
-msgstr "Select/Deselect All"
-
-#, fuzzy
-msgid "Group FOG Client Module configuration"
-msgstr "Host Printer Configuration"
-
-#, fuzzy
-msgid "Update module configurations"
-msgstr "Upload a new client module/configuration file"
-
-msgid "Group Screen Resolution"
-msgstr "Group Screen Resolution"
-
-#, fuzzy
-msgid "Update display resolution"
-msgstr "Update Primary Group"
-
-msgid "Group Auto Logout"
-msgstr ""
-
-#, fuzzy
-msgid "Update auto-logout time"
-msgstr "Update Images"
 
 msgid "Host Memory"
 msgstr "Host Memory"
@@ -4321,6 +4242,14 @@ msgstr "User created"
 #, fuzzy
 msgid "Group Update Fail"
 msgstr "Group create failed"
+
+#, fuzzy
+msgid "Group Power Management Remove"
+msgstr "User Management"
+
+#, fuzzy
+msgid "Delete all PM tasks?"
+msgstr "Delete all selected %ss"
 
 msgid "TCP/IP"
 msgstr "TCP/IP"

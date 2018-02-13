@@ -4307,8 +4307,8 @@ $args
         global $node;
         global $sub;
         ob_start();
-        echo '<div class="box">';
-        echo '<div class="box-header">';
+        echo '<div class="box box-solid">';
+        echo '<div class="box-header with-border">';
         echo '<h3 class="box-title">';
         echo $this->title;
         echo '</h3>';

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-12 01:27-0500\n"
+"POT-Creation-Date: 2018-02-13 00:46-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3299,31 +3299,13 @@ msgstr ""
 msgid "Primary MAC"
 msgstr ""
 
+msgid "Ping Status"
+msgstr ""
+
 msgid "Imaged"
 msgstr ""
 
 msgid "Assigned Image"
-msgstr ""
-
-msgid "Pending Host List"
-msgstr ""
-
-msgid "Approve selected hosts"
-msgstr ""
-
-msgid "Delete selected hosts"
-msgstr ""
-
-msgid "Approve Success"
-msgstr ""
-
-msgid "Selected hosts approved successfully"
-msgstr ""
-
-msgid "Deleted Success"
-msgstr ""
-
-msgid "Selected hosts deleted successfully"
 msgstr ""
 
 msgid "Create New Host"
@@ -3372,18 +3354,6 @@ msgid "Host Create Success"
 msgstr ""
 
 msgid "Host Create Fail"
-msgstr ""
-
-msgid "Cron Schedule"
-msgstr ""
-
-msgid "Current Power Management settings"
-msgstr ""
-
-msgid "Update PM Values"
-msgstr ""
-
-msgid "Delete selected"
 msgstr ""
 
 msgid "Host description"
@@ -3495,12 +3465,6 @@ msgstr ""
 msgid "Changes will automatically be saved"
 msgstr ""
 
-msgid "Enable all"
-msgstr ""
-
-msgid "Disable all"
-msgstr ""
-
 msgid "Screen Width (in pixels)"
 msgstr ""
 
@@ -3510,10 +3474,16 @@ msgstr ""
 msgid "Screen Refresh Rate (in Hz)"
 msgstr ""
 
-msgid "The minimum allowed time for autologout is 5 minutes."
+msgid "Display Manager Settings"
 msgstr ""
 
-msgid "Auto Log Out Time (in minutes)"
+msgid "Auto Logout Time (in minutes)"
+msgstr ""
+
+msgid "Auto Logout Settings"
+msgstr ""
+
+msgid "Minimum time limit for Auto Logout to become active is 5 minutes."
 msgstr ""
 
 msgid "Primary User"
@@ -3597,7 +3567,7 @@ msgstr ""
 msgid "Chassis Asset"
 msgstr ""
 
-msgid "Host Hardware Inventory"
+msgid "Host Inventory"
 msgstr ""
 
 msgid "Logout not found"
@@ -3684,7 +3654,19 @@ msgstr ""
 msgid "Host Add to Group Fail"
 msgstr ""
 
-msgid "New Group"
+msgid "Cron Schedule"
+msgstr ""
+
+msgid "Current Power Management settings"
+msgstr ""
+
+msgid "Update PM Values"
+msgstr ""
+
+msgid "Delete selected"
+msgstr ""
+
+msgid "Create New Group"
 msgstr ""
 
 msgid "Group Name"
@@ -3693,16 +3675,16 @@ msgstr ""
 msgid "Group Description"
 msgstr ""
 
-msgid "Group Kernel"
+msgid "Group Product Key"
 msgstr ""
 
 msgid "Group Kernel Arguments"
 msgstr ""
 
-msgid "Group Primary Disk"
+msgid "Group Init"
 msgstr ""
 
-msgid "Make changes?"
+msgid "Group Primary Disk"
 msgstr ""
 
 msgid "A group name is required!"
@@ -3723,10 +3705,7 @@ msgstr ""
 msgid "Group Create Fail"
 msgstr ""
 
-msgid "Group Product Key"
-msgstr ""
-
-msgid "Group Init"
+msgid "Group Kernel"
 msgstr ""
 
 msgid "Group Bios Exit Type"
@@ -3735,22 +3714,13 @@ msgstr ""
 msgid "Group EFI Exit Type"
 msgstr ""
 
-msgid "Reset Encryption Data"
-msgstr ""
-
-msgid "Group general"
-msgstr ""
-
 msgid "Please use another group name"
 msgstr ""
 
 msgid "Group image"
 msgstr ""
 
-msgid "Group Power Management Remove"
-msgstr ""
-
-msgid "Delete all PM tasks?"
+msgid "Group Image Setting"
 msgstr ""
 
 msgid "Group Printer Configuration"
@@ -3762,43 +3732,7 @@ msgid ""
 "printers."
 msgstr ""
 
-msgid "Group Snapins"
-msgstr ""
-
-msgid "Available Snapins"
-msgstr ""
-
-msgid "Make Snapin Changes"
-msgstr ""
-
-msgid "Add selected snapins"
-msgstr ""
-
-msgid "Remove selected snapins"
-msgstr ""
-
 msgid "Group module settings"
-msgstr ""
-
-msgid "Select/Deselect All"
-msgstr ""
-
-msgid "Group FOG Client Module configuration"
-msgstr ""
-
-msgid "Update module configurations"
-msgstr ""
-
-msgid "Group Screen Resolution"
-msgstr ""
-
-msgid "Update display resolution"
-msgstr ""
-
-msgid "Group Auto Logout"
-msgstr ""
-
-msgid "Update auto-logout time"
 msgstr ""
 
 msgid "Host Memory"
@@ -3814,6 +3748,12 @@ msgid "Group Update Success"
 msgstr ""
 
 msgid "Group Update Fail"
+msgstr ""
+
+msgid "Group Power Management Remove"
+msgstr ""
+
+msgid "Delete all PM tasks?"
 msgstr ""
 
 msgid "TCP/IP"

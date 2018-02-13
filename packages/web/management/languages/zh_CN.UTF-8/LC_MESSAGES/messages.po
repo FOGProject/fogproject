@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-12 01:06-0500\n"
+"POT-Creation-Date: 2018-02-13 00:46-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3698,38 +3698,15 @@ msgstr "组"
 msgid "Primary MAC"
 msgstr "主MAC"
 
+#, fuzzy
+msgid "Ping Status"
+msgstr "状态"
+
 msgid "Imaged"
 msgstr "成像"
 
 msgid "Assigned Image"
 msgstr "分配图像"
-
-msgid "Pending Host List"
-msgstr "待主机列表"
-
-#, fuzzy
-msgid "Approve selected hosts"
-msgstr "批准选定主机"
-
-#, fuzzy
-msgid "Delete selected hosts"
-msgstr "删除选定的主机"
-
-#, fuzzy
-msgid "Approve Success"
-msgstr "批准该主机？"
-
-#, fuzzy
-msgid "Selected hosts approved successfully"
-msgstr "保存成功"
-
-#, fuzzy
-msgid "Deleted Success"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Selected hosts deleted successfully"
-msgstr "安装/升级成功！"
 
 #, fuzzy
 msgid "Create New Host"
@@ -3788,21 +3765,6 @@ msgstr "主机创建"
 #, fuzzy
 msgid "Host Create Fail"
 msgstr "主机创建失败"
-
-msgid "Cron Schedule"
-msgstr "Cron排程"
-
-#, fuzzy
-msgid "Current Power Management settings"
-msgstr "用户管理"
-
-#, fuzzy
-msgid "Update PM Values"
-msgstr "更新映像"
-
-#, fuzzy
-msgid "Delete selected"
-msgstr "删除所选"
 
 #, fuzzy
 msgid "Host description"
@@ -3934,14 +3896,6 @@ msgstr ""
 msgid "Changes will automatically be saved"
 msgstr ""
 
-#, fuzzy
-msgid "Enable all"
-msgstr "启用"
-
-#, fuzzy
-msgid "Disable all"
-msgstr "启用"
-
 msgid "Screen Width (in pixels)"
 msgstr "屏幕宽度（以像素为单位）"
 
@@ -3951,11 +3905,20 @@ msgstr "屏幕高度（以像素为单位）"
 msgid "Screen Refresh Rate (in Hz)"
 msgstr "屏幕刷新率（赫兹）"
 
-msgid "The minimum allowed time for autologout is 5 minutes."
-msgstr ""
+#, fuzzy
+msgid "Display Manager Settings"
+msgstr "设置"
 
-msgid "Auto Log Out Time (in minutes)"
-msgstr "自动注销时间（分钟）"
+#, fuzzy
+msgid "Auto Logout Time (in minutes)"
+msgstr "默认注销时间（分钟）"
+
+#, fuzzy
+msgid "Auto Logout Settings"
+msgstr "设置"
+
+msgid "Minimum time limit for Auto Logout to become active is 5 minutes."
+msgstr ""
 
 msgid "Primary User"
 msgstr "主要用户"
@@ -4039,8 +4002,9 @@ msgstr "机箱序列"
 msgid "Chassis Asset"
 msgstr "机箱资产"
 
-msgid "Host Hardware Inventory"
-msgstr "主机硬件清单"
+#, fuzzy
+msgid "Host Inventory"
+msgstr "库存"
 
 #, fuzzy
 msgid "Logout not found"
@@ -4144,8 +4108,24 @@ msgstr "安装/升级成功！"
 msgid "Host Add to Group Fail"
 msgstr "添加到组"
 
-msgid "New Group"
-msgstr "新集团"
+msgid "Cron Schedule"
+msgstr "Cron排程"
+
+#, fuzzy
+msgid "Current Power Management settings"
+msgstr "用户管理"
+
+#, fuzzy
+msgid "Update PM Values"
+msgstr "更新映像"
+
+#, fuzzy
+msgid "Delete selected"
+msgstr "删除所选"
+
+#, fuzzy
+msgid "Create New Group"
+msgstr "存储节点"
 
 msgid "Group Name"
 msgstr "组名称"
@@ -4153,18 +4133,18 @@ msgstr "组名称"
 msgid "Group Description"
 msgstr "团体简介"
 
-msgid "Group Kernel"
-msgstr "集团核心"
+msgid "Group Product Key"
+msgstr "集团产品密钥"
 
 msgid "Group Kernel Arguments"
 msgstr "集团内核参数"
 
+#, fuzzy
+msgid "Group Init"
+msgstr "出口Snapins"
+
 msgid "Group Primary Disk"
 msgstr "集团主磁盘"
-
-#, fuzzy
-msgid "Make changes?"
-msgstr "保存更改"
 
 #, fuzzy
 msgid "A group name is required!"
@@ -4190,25 +4170,14 @@ msgstr "用户创建"
 msgid "Group Create Fail"
 msgstr "集团创建失败"
 
-msgid "Group Product Key"
-msgstr "集团产品密钥"
-
-#, fuzzy
-msgid "Group Init"
-msgstr "出口Snapins"
+msgid "Group Kernel"
+msgstr "集团核心"
 
 msgid "Group Bios Exit Type"
 msgstr "集团的Bios退出类型"
 
 msgid "Group EFI Exit Type"
 msgstr "集团EFI退出类型"
-
-msgid "Reset Encryption Data"
-msgstr ""
-
-#, fuzzy
-msgid "Group general"
-msgstr "集团核心"
 
 #, fuzzy
 msgid "Please use another group name"
@@ -4219,12 +4188,8 @@ msgid "Group image"
 msgstr "组名称"
 
 #, fuzzy
-msgid "Group Power Management Remove"
-msgstr "用户管理"
-
-#, fuzzy
-msgid "Delete all PM tasks?"
-msgstr "删除所有选定%s小号"
+msgid "Group Image Setting"
+msgstr "主机描述"
 
 #, fuzzy
 msgid "Group Printer Configuration"
@@ -4240,52 +4205,8 @@ msgstr ""
 "打印机被删除。"
 
 #, fuzzy
-msgid "Group Snapins"
-msgstr "出口Snapins"
-
-#, fuzzy
-msgid "Available Snapins"
-msgstr "所有管理单元"
-
-#, fuzzy
-msgid "Make Snapin Changes"
-msgstr "保存更改"
-
-#, fuzzy
-msgid "Add selected snapins"
-msgstr "打印机"
-
-msgid "Remove selected snapins"
-msgstr "删除选定snapins"
-
-#, fuzzy
 msgid "Group module settings"
 msgstr "主机描述"
-
-msgid "Select/Deselect All"
-msgstr "选择/取消全部"
-
-#, fuzzy
-msgid "Group FOG Client Module configuration"
-msgstr "主机打印机配置"
-
-#, fuzzy
-msgid "Update module configurations"
-msgstr "主机打印机配置"
-
-msgid "Group Screen Resolution"
-msgstr "集团屏幕分辨率"
-
-#, fuzzy
-msgid "Update display resolution"
-msgstr "更新主要组"
-
-msgid "Group Auto Logout"
-msgstr ""
-
-#, fuzzy
-msgid "Update auto-logout time"
-msgstr "更新打印机"
 
 msgid "Host Memory"
 msgstr "主机内存"
@@ -4305,6 +4226,14 @@ msgstr "用户创建"
 #, fuzzy
 msgid "Group Update Fail"
 msgstr "集团创建失败"
+
+#, fuzzy
+msgid "Group Power Management Remove"
+msgstr "用户管理"
+
+#, fuzzy
+msgid "Delete all PM tasks?"
+msgstr "删除所有选定%s小号"
 
 msgid "TCP/IP"
 msgstr "TCP / IP协议"

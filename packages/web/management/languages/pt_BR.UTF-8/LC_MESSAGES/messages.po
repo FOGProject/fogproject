@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-12 01:06-0500\n"
+"POT-Creation-Date: 2018-02-13 00:46-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3713,38 +3713,15 @@ msgstr "grupo"
 msgid "Primary MAC"
 msgstr "MAC primária"
 
+#, fuzzy
+msgid "Ping Status"
+msgstr "estado"
+
 msgid "Imaged"
 msgstr "fotografada"
 
 msgid "Assigned Image"
 msgstr "imagem atribuída"
-
-msgid "Pending Host List"
-msgstr "Enquanto se aguarda a lista de hosts"
-
-#, fuzzy
-msgid "Approve selected hosts"
-msgstr "Aprovar Hosts selecionados"
-
-#, fuzzy
-msgid "Delete selected hosts"
-msgstr "Excluir Hosts selecionados"
-
-#, fuzzy
-msgid "Approve Success"
-msgstr "Aprovar este anfitrião?"
-
-#, fuzzy
-msgid "Selected hosts approved successfully"
-msgstr "Salvo com sucesso"
-
-#, fuzzy
-msgid "Deleted Success"
-msgstr "usuário criado"
-
-#, fuzzy
-msgid "Selected hosts deleted successfully"
-msgstr "Instalar / Atualizar sucesso!"
 
 #, fuzzy
 msgid "Create New Host"
@@ -3803,21 +3780,6 @@ msgstr "host criado"
 #, fuzzy
 msgid "Host Create Fail"
 msgstr "Hospedar criar falha"
-
-msgid "Cron Schedule"
-msgstr "Horário cron"
-
-#, fuzzy
-msgid "Current Power Management settings"
-msgstr "Gerenciamento de usuários"
-
-#, fuzzy
-msgid "Update PM Values"
-msgstr "Imagens de atualização"
-
-#, fuzzy
-msgid "Delete selected"
-msgstr "Delete Selected"
 
 #, fuzzy
 msgid "Host description"
@@ -3952,14 +3914,6 @@ msgstr ""
 msgid "Changes will automatically be saved"
 msgstr ""
 
-#, fuzzy
-msgid "Enable all"
-msgstr "ativado"
-
-#, fuzzy
-msgid "Disable all"
-msgstr "ativado"
-
 msgid "Screen Width (in pixels)"
 msgstr "Largura da tela (em pixels)"
 
@@ -3969,11 +3923,20 @@ msgstr "Tela Altura (em pixels)"
 msgid "Screen Refresh Rate (in Hz)"
 msgstr "Tela Taxa de atualização (em Hz)"
 
-msgid "The minimum allowed time for autologout is 5 minutes."
-msgstr ""
+#, fuzzy
+msgid "Display Manager Settings"
+msgstr "Configurações"
 
-msgid "Auto Log Out Time (in minutes)"
-msgstr "Auto Log Out Time (em minutos)"
+#, fuzzy
+msgid "Auto Logout Time (in minutes)"
+msgstr "Padrão log out tempo (em minutos)"
+
+#, fuzzy
+msgid "Auto Logout Settings"
+msgstr "Configurações"
+
+msgid "Minimum time limit for Auto Logout to become active is 5 minutes."
+msgstr ""
 
 msgid "Primary User"
 msgstr "Usuário principal"
@@ -4057,8 +4020,9 @@ msgstr "chassis Serial"
 msgid "Chassis Asset"
 msgstr "chassis de ativos"
 
-msgid "Host Hardware Inventory"
-msgstr "Inventário de hardware de acolhimento"
+#, fuzzy
+msgid "Host Inventory"
+msgstr "Inventário"
 
 #, fuzzy
 msgid "Logout not found"
@@ -4162,8 +4126,24 @@ msgstr "Instalar / Atualizar sucesso!"
 msgid "Host Add to Group Fail"
 msgstr "Adicionar ao grupo"
 
-msgid "New Group"
-msgstr "Novo grupo"
+msgid "Cron Schedule"
+msgstr "Horário cron"
+
+#, fuzzy
+msgid "Current Power Management settings"
+msgstr "Gerenciamento de usuários"
+
+#, fuzzy
+msgid "Update PM Values"
+msgstr "Imagens de atualização"
+
+#, fuzzy
+msgid "Delete selected"
+msgstr "Delete Selected"
+
+#, fuzzy
+msgid "Create New Group"
+msgstr "Nó de armazenamento"
 
 msgid "Group Name"
 msgstr "Nome do grupo"
@@ -4171,18 +4151,18 @@ msgstr "Nome do grupo"
 msgid "Group Description"
 msgstr "descrição do grupo"
 
-msgid "Group Kernel"
-msgstr "grupo Kernel"
+msgid "Group Product Key"
+msgstr "Grupo de Chave de Produto"
 
 msgid "Group Kernel Arguments"
 msgstr "Argumentos Grupo Kernel"
 
+#, fuzzy
+msgid "Group Init"
+msgstr "exportação Snapins"
+
 msgid "Group Primary Disk"
 msgstr "Primary Disk grupo"
-
-#, fuzzy
-msgid "Make changes?"
-msgstr "Salvar alterações"
 
 #, fuzzy
 msgid "A group name is required!"
@@ -4208,25 +4188,14 @@ msgstr "usuário criado"
 msgid "Group Create Fail"
 msgstr "Grupo Criar falhou"
 
-msgid "Group Product Key"
-msgstr "Grupo de Chave de Produto"
-
-#, fuzzy
-msgid "Group Init"
-msgstr "exportação Snapins"
+msgid "Group Kernel"
+msgstr "grupo Kernel"
 
 msgid "Group Bios Exit Type"
 msgstr "Grupo Bios Tipo Exit"
 
 msgid "Group EFI Exit Type"
 msgstr "Grupo EFI Tipo Exit"
-
-msgid "Reset Encryption Data"
-msgstr ""
-
-#, fuzzy
-msgid "Group general"
-msgstr "grupo Kernel"
 
 #, fuzzy
 msgid "Please use another group name"
@@ -4237,12 +4206,8 @@ msgid "Group image"
 msgstr "Nome do grupo"
 
 #, fuzzy
-msgid "Group Power Management Remove"
-msgstr "Gerenciamento de usuários"
-
-#, fuzzy
-msgid "Delete all PM tasks?"
-msgstr "Excluir todos os selecionados %s s"
+msgid "Group Image Setting"
+msgstr "anfitrião Descrição"
 
 #, fuzzy
 msgid "Group Printer Configuration"
@@ -4259,52 +4224,8 @@ msgstr ""
 "incluindo impressoras gerenciadas não nevoeiro."
 
 #, fuzzy
-msgid "Group Snapins"
-msgstr "exportação Snapins"
-
-#, fuzzy
-msgid "Available Snapins"
-msgstr "Todos os snap-ins"
-
-#, fuzzy
-msgid "Make Snapin Changes"
-msgstr "Salvar alterações"
-
-#, fuzzy
-msgid "Add selected snapins"
-msgstr "Impressora"
-
-msgid "Remove selected snapins"
-msgstr "Remover snapins selecionados"
-
-#, fuzzy
 msgid "Group module settings"
 msgstr "anfitrião Descrição"
-
-msgid "Select/Deselect All"
-msgstr "Selecionar / desmarcar todas"
-
-#, fuzzy
-msgid "Group FOG Client Module configuration"
-msgstr "Host Configuration Printer"
-
-#, fuzzy
-msgid "Update module configurations"
-msgstr "Host Configuration Printer"
-
-msgid "Group Screen Resolution"
-msgstr "Resolução da tela Grupo"
-
-#, fuzzy
-msgid "Update display resolution"
-msgstr "Grupo primário de actualização"
-
-msgid "Group Auto Logout"
-msgstr ""
-
-#, fuzzy
-msgid "Update auto-logout time"
-msgstr "Atualizar impressora"
 
 msgid "Host Memory"
 msgstr "Memória de acolhimento"
@@ -4324,6 +4245,14 @@ msgstr "usuário criado"
 #, fuzzy
 msgid "Group Update Fail"
 msgstr "Grupo Criar falhou"
+
+#, fuzzy
+msgid "Group Power Management Remove"
+msgstr "Gerenciamento de usuários"
+
+#, fuzzy
+msgid "Delete all PM tasks?"
+msgstr "Excluir todos os selecionados %s s"
 
 msgid "TCP/IP"
 msgstr "TCP / IP"
