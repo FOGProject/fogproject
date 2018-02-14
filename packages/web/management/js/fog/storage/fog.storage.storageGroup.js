@@ -11,7 +11,7 @@
     }
     function onSelect(selected) {
         var disabled = selected.count() == 0;
-        disableButtons(disable);
+        disableButtons(disabled);
     }
 
     disableButtons(true);

@@ -69,17 +69,18 @@
                 responsivePriority: 20000,
                 render: function(data, type, row) {
                     var checkval = '';
-                    if (row.isMaster > 0) {
+                    if (row.isMaster > 0 && row.origID == Common.id) {
                         checkval = ' checked';
                     }
                     return '<div class="radio">'
-                        + '<input belongsto="isMasterNode" type="radio" class="master" name="master" id="node_'
+                        + '<input belongsto="isMasterNode' + row.origID +'" type="radio" class="master" name="master" id="node_'
                         + row.id
                         + '" value="' + row.id + '"'
                         + ' wasoriginaldefault="'
                         + checkval
                         + '" '
                         + checkval
+                        + (row.origID != Common.id ? ' disabled' : '')
                         + '/>'
                         + '</div>';
                 },
@@ -92,7 +93,7 @@
                         checkval = ' checked';
                     }
                     return '<div class="checkbox">'
-                        + '<input type="checkbox" class="associated" name="associate[]" id="snapinnodeAssoc_'
+                        + '<input type="checkbox" class="associated" name="associate[]" id="storagenodeAssoc_'
                         + row.id
                         + '" value="' + row.id + '"'
                         + checkval
@@ -116,8 +117,8 @@
     membershipMasterBtn.prop('disabled', true);
 
     var onRadioSelect = function(event) {
-        if ($(this).attr('belongsto') === 'isMasterNode') {
-            var id = parseInt($(this).attr('value'));
+        var id = parseInt($(this).attr('value'));
+        if ($(this).attr('belongsto') === 'isMasterNode'+Common.id) {
             if (MASTER_NODE_ID === -1 && $(this).attr('wasoriginaldefault') === ' checked') {
                 MASTER_NODE_ID = id;
             }
@@ -132,7 +133,7 @@
     };
 
     // Setup master node watcher
-    $('.master').on('ifClicked', onRadioSelect);
+    $('.master'+Common.id).on('ifClicked', onRadioSelect);
 
     membershipMasterBtn.on('click', function() {
         membershipAddBtn.prop('disabled', true);

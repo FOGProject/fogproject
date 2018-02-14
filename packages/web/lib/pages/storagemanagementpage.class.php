@@ -917,14 +917,14 @@ class StorageManagementPage extends FOGPage
             . "'";
 
         $storagegroupsSqlStr = "SELECT `%s`,"
-            . "IF(`ngmGroupID` IS NULL OR `ngmGroupID` = '0' OR `ngmGroupID` = '', 'dissociated', 'associated') AS `ngmGroupID`
+            . "`ngmGroupID` AS `origID`,IF(`ngmGroupID` IS NULL OR `ngmGroupID` = '0' OR `ngmGroupID` = '' OR `ngmGroupID` != `ngID`, 'dissociated', 'associated') AS `ngmGroupID`
             FROM `%s`
             CROSS JOIN `nfsGroups`
             %s
             %s
             %s";
         $storagegroupsFilterStr = "SELECT COUNT(`%s`),"
-            . "IF(`ngmGroupID` IS NULL OR `ngmGroupID` = '0' OR `ngmGroupID` = '', 'dissociated', 'associated') AS `ngmGroupID`
+            . "`ngmGroupID` AS `origID`,IF(`ngmGroupID` IS NULL OR `ngmGroupID` = '0' OR `ngmGroupID` = '' OR `ngmGroupID` != `ngID`, 'dissociated', 'associated') AS `ngmGroupID`
             FROM `%s`
             CROSS JOIN `nfsGroups`
             %s";
@@ -934,10 +934,21 @@ class StorageManagementPage extends FOGPage
         foreach (self::getClass('StorageNodeManager')
             ->getColumns() as $common => &$real
         ) {
-            $columns[] = array('db' => $real, 'dt' => $common);
+            $columns[] = [
+                'db' => $real,
+                'dt' => $common
+            ];
             unset($real);
         }
-        $columns[] = array('db' => 'ngmGroupID', 'dt' => 'association');
+        $columns[] = [
+            'db' => 'ngmGroupID',
+            'dt' => 'association'
+        ];
+        $columns[] = [
+            'db' => 'origID',
+            'dt' => 'origID',
+            'removeFromQuery' => true
+        ];
         echo json_encode(
             FOGManagerController::complex(
                 $pass_vars,
@@ -1429,6 +1440,7 @@ class StorageManagementPage extends FOGPage
      */
     public function storagegroupMembership()
     {
+        global $id;
         $props = ' method="post" action="'
             . $this->formAction
             . '&tab=storagegroup-membership" ';
@@ -1440,7 +1452,7 @@ class StorageManagementPage extends FOGPage
         $buttons = self::makeButton(
             'membership-master',
             _('Update Master Node'),
-            'btn btn-primary master',
+            'btn btn-primary master' . $id,
             $props
         );
         $buttons .= self::makeButton(
