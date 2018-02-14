@@ -416,7 +416,7 @@ class HostManagementPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            http_response_code(($serverFault) ? 500 : 400);
+            http_response_code($serverFault ? 500 : 400);
             $hook = 'HOST_ADD_FAIL';
             $msg = json_encode(
                 [
@@ -425,6 +425,8 @@ class HostManagementPage extends FOGPage
                 ]
             );
         }
+        http_response_code(201);
+        header('Location: ../management/index.php?node=host&sub=edit&id=' . $Host->get('id'));
         self::$HookManager
             ->processEvent(
                 $hook,
@@ -2354,11 +2356,11 @@ class HostManagementPage extends FOGPage
     public function editPost()
     {
         header('Content-type: application/json');
-
         self::$HookManager->processEvent(
             'HOST_EDIT_POST',
             array('Host' => &$this->obj)
         );
+        $serverFault = false;
         try {
             global $tab;
             switch ($tab) {
@@ -2409,6 +2411,7 @@ class HostManagementPage extends FOGPage
                 break;
             }
             if (!$this->obj->save()) {
+                $serverFault = true;
                 throw new Exception(_('Host Update Failed'));
             }
             $this->obj->setAD();
@@ -2436,7 +2439,7 @@ class HostManagementPage extends FOGPage
                 )
             );
         } catch (Exception $e) {
-            http_response_code(400);
+            http_response_code($serverFault ? 500 : 400);
             $hook = 'HOST_EDIT_FAIL';
             $msg = json_encode(
                 array(
@@ -2445,6 +2448,7 @@ class HostManagementPage extends FOGPage
                 )
             );
         }
+        http_response_code(201);
         self::$HookManager
             ->processEvent(
                 $hook,
@@ -2482,6 +2486,7 @@ class HostManagementPage extends FOGPage
             }
             $Group->addHost($hostids);
             if (!$Group->save()) {
+                $serverFault = true;
                 throw new Exception(_('Failed to create new Group'));
             }
             $msg = json_encode(
@@ -2491,6 +2496,7 @@ class HostManagementPage extends FOGPage
                 )
             );
         } catch (Exception $e) {
+            http_response_code($serverFault ? 500 : 400);
             $msg = json_encode(
                 array(
                     'error' => $e->getMessage(),
@@ -2498,6 +2504,7 @@ class HostManagementPage extends FOGPage
                 )
             );
         }
+        http_response_code(201);
         echo $msg;
         exit;
     }

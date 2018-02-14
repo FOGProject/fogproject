@@ -453,9 +453,9 @@ abstract class FOGManagerController extends FOGBase
                 intval($request['draw']) :
                 0
             ),
-            "recordsTotal"    => intval( $recordsTotal ),
-            "recordsFiltered" => intval( $recordsFiltered ),
-            "data"            => self::data_output( $columns, $data )
+            "recordsTotal"    => intval($recordsTotal),
+            "recordsFiltered" => intval($recordsFiltered),
+            "data"            => self::data_output($columns, $data)
         );
     }
     /**
@@ -563,9 +563,9 @@ abstract class FOGManagerController extends FOGBase
                 intval($request['draw']) :
                 0
             ),
-            "recordsTotal"    => intval( $recordsTotal ),
-            "recordsFiltered" => intval( $recordsFiltered ),
-            "data"            => self::data_output( $columns, $data )
+            "recordsTotal"    => intval($recordsTotal),
+            "recordsFiltered" => intval($recordsFiltered),
+            "data"            => self::data_output($columns, $data)
         );
     }
     /**

@@ -56,10 +56,10 @@ class SubMenuData extends Hook
         self::$HookManager
             ->register(
                 'SUB_MENULINK_DATA',
-                array(
+                [
                     $this,
                     'subMenu'
-                )
+                ]
             );
     }
     /**
@@ -76,13 +76,15 @@ class SubMenuData extends Hook
         }
         switch(strtolower($arguments['node'])) {
         case 'home':
-            $arguments['menu'] = array();
-            break;
         case 'client':
-            $arguments['menu'] = array();
+        case 'report':
+        case 'schema':
+        case 'service':
+        case 'hwinfo':
+            $arguments['menu'] = [];
             break;
         case 'about':
-            $arguments['menu'] = array(
+            $arguments['menu'] = [
                 'home' => self::$foglang['Home'],
                 'license' => self::$foglang['License'],
                 'kernelUpdate' => self::$foglang['KernelUpdate'],
@@ -93,13 +95,8 @@ class SubMenuData extends Hook
                 'maclist' => self::$foglang['MACAddrList'],
                 'settings' => self::$foglang['FOGSettings'],
                 'logviewer' => self::$foglang['LogViewer'],
-                'config' => self::$foglang['ConfigSave'],
-            
-            );
-            break;
-        case 'group':
-            break;
-        case 'host':
+                'config' => self::$foglang['ConfigSave']
+            ];
             break;
         case 'image':
             $arguments['menu']['multicast'] = sprintf(
@@ -109,47 +106,34 @@ class SubMenuData extends Hook
             );
             break;
         case 'plugin':
-            $arguments['menu'] = array(
-                'home'=>self::$foglang['Home'],
-                'activate'=>self::$foglang['ActivatePlugins'],
-                'install'=>self::$foglang['InstallPlugins'],
-                'installed'=>self::$foglang['InstalledPlugins'],
-            );
-            break;
-        case 'printer':
-            break;
-        case 'report':
-            $arguments['menu'] = array();
-            break;
-        case 'schema':
-            $arguments['menu'] = array();
-            break;
-        case 'service':
-            $arguments['menu'] = array();
-            break;
-        case 'snapin':
+            $arguments['menu'] = [
+                'home' => self::$foglang['Home'],
+                'activate' => self::$foglang['ActivatePlugins'],
+                'install' => self::$foglang['InstallPlugins'],
+                'installed' => self::$foglang['InstalledPlugins']
+            ];
             break;
         case 'storage':
-            $arguments['menu'] = array(
+            $arguments['menu'] = [
                 'list' => self::$foglang['AllSN'],
                 'addStorageNode' => self::$foglang['AddSN'],
                 'storageGroup' => self::$foglang['AllSG'],
-                'addStorageGroup' => self::$foglang['AddSG'],
-            );
+                'addStorageGroup' => self::$foglang['AddSG']
+            ];
             break;
         case 'task':
-            $arguments['menu'] = array(
+            $arguments['menu'] = [
                 'active' => self::$foglang['ActiveTasks'],
                 'activemulticast' => self::$foglang['ActiveMCTasks'],
                 'activesnapins' => self::$foglang['ActiveSnapins'],
                 'activescheduled' => self::$foglang['ScheduledTasks'],
-            );
+            ];
             break;
-        case 'hwinfo':
-            $arguments['menu'] = array(); 
-            break;
+        case 'group':
+        case 'host':
+        case 'printer':
+        case 'snapin':
         case 'user':
-            break;
         default:
             break;
         }

@@ -55,6 +55,29 @@ class StorageGroup extends FOGController
         'enablednodes',
         'usedtasks',
     );
+
+    protected $sqlQueryStr = "SELECT `%s`,SUM(`nfsGroupMembers`.`ngmMaxClients`) AS `totalclients`
+        FROM `%s`
+        LEFT OUTER JOIN `nfsGroupMembers`
+        ON `nfsGroups`.`ngID` = `nfsGroupMembers`.`ngmGroupID`
+        AND `nfsGroupMembers`.`ngmIsEnabled` = '1'
+        %s
+        GROUP BY `nfsGroups`.`ngName`
+        %s
+        %s";
+    protected $sqlFilterStr = "SELECT COUNT(`%s`),SUM(`nfsGroupMembers`.`ngmMaxClients`) AS `totalclients`
+        FROM `%s`
+        LEFT OUTER JOIN `nfsGroupMembers`
+        ON `nfsGroups`.`ngID` = `nfsGroupMembers`.`ngmGroupID`
+        AND `nfsGroupMembers`.`ngmIsEnabled` = '1'
+        %s
+        GROUP BY `nfsGroups`.`ngName`";
+    protected $sqlTotalStr = "SELECT COUNT(`%s`),SUM(`nfsGroupMembers`.`ngmMaxClients`) AS `totalclients`
+        FROM `%s`
+        LEFT OUTER JOIN `nfsGroupMembers`
+        ON `nfsGroups`.`ngID` = `nfsGroupMembers`.`ngmGroupID`
+        AND `nfsGroupMembers`.`ngmIsEnabled` = '1'
+        GROUP BY `nfsGroups`.`ngName`";
     /**
      * Load used tasks
      *

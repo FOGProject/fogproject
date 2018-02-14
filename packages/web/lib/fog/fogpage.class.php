@@ -685,39 +685,13 @@ abstract class FOGPage extends FOGBase
                 Route::listem($this->childClass);
                 echo Route::getData();
                 exit;
-                /*$newitems = array();
-                $type = $node.'s';
-                $items = json_decode(Route::getData());
-                $newitems['draw'] = $items->draw;
-                $newitems['recordsFiltered'] =
-                $newitems['recordsTotal'] = $items->recordsTotal;
-                $items = $items->$type;
-                $newitems['data'] = $items;
-                echo json_encode($newitems);*/
             }
             $this->title = sprintf(
                 '%s %s',
                 _('All'),
                 _("{$this->childClass}s")
             );
-            $manager = sprintf(
-                '%sManager',
-                $this->childClass
-            );
-            $this->data = array();
-            $find = '';
-            if ('Host' === $this->childClass) {
-                $find = array(
-                    'pending' => array(0, '')
-                );
-            }
-            Route::listem($this->childClass);
-            $items = json_decode(Route::getData());
-            $type = $node.'s';
-            $items = $items->$type;
-            if (count($items ?: []) > 0) {
-                array_walk($items, static::$returnData);
-            }
+            $this->data = [];
             $event = sprintf(
                 '%s_DATA',
                 strtoupper($this->node)
@@ -741,9 +715,7 @@ abstract class FOGPage extends FOGBase
                     'headerData' => &$this->headerData
                 )
             );
-            //echo '<div class="col-xs-9">';
             $this->indexDivDisplay();
-            //echo '</div>';
             unset(
                 $this->headerData,
                 $this->data,
@@ -766,13 +738,7 @@ abstract class FOGPage extends FOGBase
                 get_class($this),
                 (
                     count($args ?: []) ?
-                    sprintf(
-', Arguments = %s',
-implode(
-', ',
-$args
-                        )
-                    ) :
+                    sprintf(', Arguments = %s', implode(', ', $args)) :
                     ''
                 )
             );

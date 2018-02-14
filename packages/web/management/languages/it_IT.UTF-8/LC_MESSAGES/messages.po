@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-13 00:46-0500\n"
+"POT-Creation-Date: 2018-02-13 20:10-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -4374,21 +4374,16 @@ msgstr "sta succedendo al tuo sistema FOG"
 msgid "To view a report, select an item from the menu"
 msgstr "Per visualizzare un report, selezionare una voce dal menu"
 
-#, php-format
-msgid "%s ID %s is not valid"
-msgstr "%s ID %s non è valido"
+#, fuzzy
+msgid "Create New Storage Node"
+msgstr "Storage Node"
 
-msgid "Web root"
+#, fuzzy
+msgid "Web Root"
 msgstr "radice Web"
 
 msgid "Bitrate"
 msgstr "bitrate"
-
-msgid "Create Storage Node"
-msgstr "Crea nodo di archiviazione"
-
-msgid "New Storage Node"
-msgstr "Nuovo nodo di archiviazione"
 
 msgid "Bandwidth should be numeric and greater than 0"
 msgstr "Larghezza di banda deve essere numerico e maggiore di 0"
@@ -4408,6 +4403,9 @@ msgstr "Creazione nodo di archiviazione fallita"
 msgid "Storage Node General"
 msgstr "Generale nodo di archiviazione"
 
+msgid "Web root"
+msgstr "radice Web"
+
 msgid "Storage Node update failed!"
 msgstr "Aggiornamento nodo di archiviazione fallito!"
 
@@ -4420,14 +4418,13 @@ msgstr "Aggiornamento nodo di archiviazione completato"
 msgid "Storage Node Update Fail"
 msgstr "Aggiornamento nodo di archiviazione fallito!"
 
-msgid "Max"
-msgstr "Massimo"
+#, fuzzy
+msgid "Total Clients"
+msgstr "clienti max"
 
-msgid "Create Storage Group"
+#, fuzzy
+msgid "Create New Storage Group"
 msgstr "Creazione Gruppo di archiviazione"
-
-msgid "New Storage Group"
-msgstr "Nuovo Gruppo di archiviazione"
 
 msgid "Storage Group Create Success"
 msgstr "Gruppo di archiviazione creato con successo"
@@ -4450,20 +4447,8 @@ msgstr "Aggiornamento Gruppo di archiviazione completato"
 msgid "Storage Group Update Fail"
 msgstr "Aggiornamento Gruppo di archiviazione fallito"
 
-msgid "Change password"
-msgstr "Cambia password"
-
-msgid "API Settings"
-msgstr "impostazioni API"
-
-msgid "No friendly name defined"
-msgstr "Nessun nome amichevole definito"
-
 msgid "API?"
 msgstr "API?"
-
-msgid "Edit User"
-msgstr "Modifica utente"
 
 #, fuzzy
 msgid "Create New User"

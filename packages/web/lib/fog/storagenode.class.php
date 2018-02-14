@@ -90,6 +90,22 @@ class StorageNode extends FOGController
             'storagegroup'
         )
     );
+    protected $sqlQueryStr = "SELECT `%s`,`ngID`,`ngName`
+        FROM `%s`
+        LEFT OUTER JOIN `nfsGroups`
+        ON `nfsGroupMembers`.`ngmGroupID` = `nfsGroups`.`ngID`
+        %s
+        %s
+        %s";
+    protected $sqlFilterStr = "SELECT COUNT(`%s`),`ngID`,`ngName`
+        FROM `%s`
+        LEFT OUTER JOIN `nfsGroups`
+        ON `nfsGroupMembers`.`ngmGroupID` = `nfsGroups`.`ngID`
+        %s";
+    protected $sqlTotalStr = "SELECT COUNT(`%s`),`ngID`,`ngName`
+        FROM `%s`
+        LEFT OUTER JOIN `nfsGroups`
+        ON `nfsGroupMembers`.`ngmGroupID` = `nfsGroups`.`ngID`";
     /**
      * Gets an item from the key sent, if no key all object data is returned.
      *

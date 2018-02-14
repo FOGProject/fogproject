@@ -39,92 +39,26 @@ class UserManagementPage extends FOGPage
         $this->name = _('User Management');
         parent::__construct($this->name);
         global $id;
-        if ($id) {
-            $linkstr = "$this->linkformat#user-%s";
-            $this->subMenu = array(
-                sprintf(
-                    $linkstr,
-                    'general'
-                ) => self::$foglang['General'],
-                sprintf(
-                    $linkstr,
-                    'changepw'
-                ) => _('Change password'),
-                sprintf(
-                    $linkstr,
-                    'api'
-                ) => _('API Settings'),
-                $this->delformat => self::$foglang['Delete'],
-            );
-            $this->notes = array(
-                _('Friendly Name') => (
-                    $this->obj->get('display') ?
-                    $this->obj->get('display') :
-                    _('No friendly name defined')
-                ),
-                self::$foglang['User'] => $this->obj->get('name'),
-            );
-        }
-        self::$HookManager
-            ->processEvent(
-                'SUB_MENULINK_DATA',
-                array(
-                    'menu' => &$this->menu,
-                    'submenu' => &$this->subMenu,
-                    'notes' => &$this->notes,
-                    'object'=> &$this->obj,
-                    'linkformat' => &$this->linkformat,
-                    'delformat' => &$this->delformat
-                )
-            );
-        $this->headerData = array(
+        $this->headerData = [
             _('Username'),
             _('Friendly Name'),
             _('API?')
-        );
-        $this->templates = array(
-            sprintf(
-                '<a href="?node=%s&sub=edit&%s=${id}" title="%s">${name}</a>',
-                $this->node,
-                $this->id,
-                _('Edit User')
-            ),
-            '${friendly}',
-            '${apiYes}',
-        );
-        $this->attributes = array(
-            array(),
-            array(),
-            array(
-                'width' => 22
-            )
-        );
-        $types = array();
+        ];
+        $this->templates = [
+            '',
+            '',
+            ''
+        ];
+        $this->attributes = [
+            [],
+            [],
+            ['width' => 22]
+        ];
+        $types = [];
         self::$HookManager->processEvent(
             'USER_TYPES_FILTER',
-            array('types' => &$types)
+            ['types' => &$types]
         );
-        /**
-         * Lambda function to return data either by list or search.
-         *
-         * @param object $User the object to use
-         *
-         * @return void
-         */
-        self::$returnData = function (&$User) use (&$types) {
-            if (count($types) > 0
-                && in_array($User->type, $types)
-            ) {
-                return;
-            }
-            $this->data[] = array(
-                'id' => $User->id,
-                'apiYes' => $User->api ? _('Yes') : _('No'),
-                'name' => $User->name,
-                'friendly' => $User->display
-            );
-            unset($User);
-        };
     }
     /**
      * Page to enable creating a new user.
@@ -134,13 +68,6 @@ class UserManagementPage extends FOGPage
     public function add()
     {
         $this->title = _('Create New User');
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->attributes,
-            $this->templates
-        );
         $name = filter_input(
             INPUT_POST,
             'name'
@@ -149,7 +76,7 @@ class UserManagementPage extends FOGPage
             INPUT_POST,
             'display'
         );
-        $fields = array(
+        $fields = [
             '<label class="col-sm-2 control-label" for="name">'
             . _('User Name')
             . '</label>' => '<input type="text" class="'
@@ -186,13 +113,13 @@ class UserManagementPage extends FOGPage
                 ''
             )
             . '/>'
-        );
+        ];
         self::$HookManager
             ->processEvent(
                 'USER_ADD_FIELDS',
-                array(
+                [
                     'fields' => &$fields
-                )
+                ]
             );
         $rendered = self::formFields($fields);
         unset($fields);
@@ -286,29 +213,27 @@ class UserManagementPage extends FOGPage
             }
             $hook = 'USER_ADD_SUCCESS';
             $msg = json_encode(
-                array(
+                [
                     'msg' => _('User added!'),
-                    'title' => _('User Create Success')
-                )
+                    'title' => _('User Create Success'),
+                    'id' => $User->get('id')
+                ]
             );
         } catch (Exception $e) {
             http_response_code(($serverFault ? 500 : 400));
             $hook = 'USER_ADD_FAIL';
             $msg = json_encode(
-                array(
+                [
                     'error' => $e->getMessage(),
                     'title' => _('User Create Fail')
-                )
+                ]
             );
         }
-
         http_response_code(201);
-        header('Location: ../management/index.php?node=user&sub=edit&id=' . $User->get('id'));
-
         self::$HookManager
             ->processEvent(
                 $hook,
-                array('User' => &$User)
+                ['User' => &$User]
             );
         unset($User);
         echo $msg;
@@ -332,7 +257,7 @@ class UserManagementPage extends FOGPage
         $name = filter_input(INPUT_POST, 'name') ?: $this->obj->get('name');
         $display = filter_input(INPUT_POST, 'display') ?: $this->obj->get('display');
 
-        $fields = array(
+        $fields = [
             '<label for="name" class="col-sm-2 control-label">'
             . _('User Name')
             . '</label>' => '<input id="name" class="form-control" placeholder="'
@@ -347,13 +272,13 @@ class UserManagementPage extends FOGPage
             . '" name="display" value="'
             . $display
             . '"/>'
-        );
+        ];
         self::$HookManager->processEvent(
             'USER_EDIT_FIELDS',
-            array(
+            [
                 'fields' => &$fields,
                 'obj' => &$this->obj
-            )
+            ]
         );
         $rendered = self::formFields($fields);
         echo '<div class="box box-solid">';
@@ -395,7 +320,7 @@ class UserManagementPage extends FOGPage
             $this->attributes,
             $this->templates
         );
-        $fields = array(
+        $fields = [
             '<label for="password" class="col-sm-2 control-label">'
             . _('User Password')
             . '</label>' => '<div class="input-group"><input id="password" class="form-control" placeholder="'
@@ -406,13 +331,13 @@ class UserManagementPage extends FOGPage
             . '</label>' => '<div class="input-group"><input id="passwordConfirm" class="form-control" placeholder="'
             . _('User Password (confirm)')
             . '" type="password" value="" name="password_confirm" beEqualTo="password" required/></div>'
-        );
+        ];
         self::$HookManager->processEvent(
             'USER_PW_EDIT_FIELDS',
-            array(
+            [
                 'fields' => &$fields,
                 'obj' => &$this->obj
-            )
+            ]
         );
         $rendered = self::formFields($fields);
         echo '<div class="box box-solid">';
@@ -465,7 +390,7 @@ class UserManagementPage extends FOGPage
             $this->obj->get('token')
         );
 
-        $fields = array(
+        $fields = [
             '<label for="apion" class="col-sm-2 control-label">'
             . _('User API Enabled')
             . '</label>' => '<input id="apion" type="checkbox" name="apienabled"'
@@ -484,13 +409,13 @@ class UserManagementPage extends FOGPage
             . '</button>'
             . '</div>'
             . '</div>'
-        );
+        ];
         self::$HookManager->processEvent(
             'USER_API_EDIT_FIELDS',
-            array(
+            [
                 'fields' => &$fields,
                 'obj' => &$this->obj
-            )
+            ]
         );
         $rendered = self::formFields($fields);
         echo '<div class="box box-solid">';
@@ -533,37 +458,40 @@ class UserManagementPage extends FOGPage
                 ->save();
         }
 
-        $tabData = array();
+        $tabData = [];
+
         // General
-        $tabData[] = array(
+        $tabData[] = [
             'name' => _('General'),
             'id' => 'user-general',
             'generator' => function() {
                 $this->userGeneral();
             }
-        );
+        ];
+
         // Password Changing
-        $tabData[] = array(
+        $tabData[] = [
             'name' => _('Password'),
             'id' => 'user-changepw',
             'generator' => function() {
                 $this->userChangePW();
             }
-        );
+        ];
+
         // API Updating
-        $tabData[] = array(
+        $tabData[] = [
             'name' => _('API'),
             'id' => 'user-api',
             'generator' => function() {
                 $this->userAPI();
             }
-        );
+        ];
 
         self::$HookManager->processEvent(
             'USER_TAB_DATA',
-            array(
+            [
                 'tabData' => &$tabData
-            )
+            ]
         );
 
         echo self::tabFields($tabData);
@@ -636,7 +564,7 @@ class UserManagementPage extends FOGPage
         self::$HookManager
             ->processEvent(
                 'USER_EDIT_POST',
-                array('User' => &$this->obj)
+                ['User' => &$this->obj]
             );
         $serverFault = false;
         global $tab;
@@ -658,25 +586,26 @@ class UserManagementPage extends FOGPage
             }
             $hook = 'USER_UPDATE_SUCCESS';
             $msg = json_encode(
-                array(
+                [
                     'msg' => _('User updated!'),
                     'title' => _('User Update Success')
-                )
+                ]
             );
         } catch (Exception $e) {
             http_response_code(($serverFault ? 500 : 400));
             $hook = 'USER_UPDATE_FAIL';
             $msg = json_encode(
-                array(
+                [
                     'error' => $e->getMessage(),
                     'title' => _('User Update Fail')
-                )
+                ]
             );
         }
+        http_response_code(201);
         self::$HookManager
             ->processEvent(
                 $hook,
-                array('User' => &$this->obj)
+                ['User' => &$this->obj]
             );
         echo $msg;
         exit;

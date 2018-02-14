@@ -1,18 +1,16 @@
 (function($) {
-    var addToGroup = $("#addSelectedToGroup");
-    var deleteSelected = $("#deleteSelected");
-    var deleteModal = $("#deleteModal");
-    var passwordField = $("#deletePassword");
-    var confirmDelete = $("#confirmDeleteModal");
-    var cancelDelete = $("#closeDeleteModal");
-
-    var numHostString = confirmDelete.val();
+    var addToGroup = $("#addSelectedToGroup"),
+        deleteSelected = $("#deleteSelected"),
+        deleteModal = $("#deleteModal"),
+        passwordField = $("#deletePassword"),
+        confirmDelete = $("#confirmDeleteModal"),
+        cancelDelete = $("#closeDeleteModal"),
+        numHostString = confirmDelete.val();
 
     function disableButtons (disable) {
         addToGroup.prop("disabled", disable);
         deleteSelected.prop("disabled", disable);
     }
-
     function onSelect (selected) {
         var disabled = selected.count() == 0;
         disableButtons(disabled);
@@ -64,7 +62,7 @@
                 render: function (data, type, row) {
                     return '<a href="../management/index.php?node=host&sub=edit&id=' + row.id + '">' + data + '</a>';
                 },
-                targets: 0,
+                targets: 0
             },
             {
                 responsivePriority: 0,
@@ -78,13 +76,13 @@
                     }
                     return pingstring[data];
                 },
-                 targets: 2
+                targets: 2
             },
             {
                 render: function (data, type, row) {
                     return (data === '0000-00-00 00:00:00') ? '' : data;
                 },
-                targets: 3,
+                targets: 3
             },
             {
                 render: function (data, type, row) {
@@ -93,14 +91,8 @@
                     }
                     return '<a href="../management/index.php?node=image&sub=edit&id=' + row.imageID + '">' + data + '</a>';
                 },
-                targets: 4,
-            },
-            // {
-            //     render: function (data, type, row) {
-            //         return '<small>' + data + '</small>';
-            //     },
-            //     targets: 5,
-            // },
+                targets: 4
+            }
         ],
         processing: true,
         serverSide: true,

@@ -67,8 +67,8 @@ class Group extends FOGController
         LEFT OUTER JOIN `groupMembers`
         ON `groups`.`groupID` = `groupMembers`.`gmGroupID`
         AND `hosts`.`hostID` = `groupMembers`.`gmHostID`
-        GROUP BY `groupID`,`gmGroupID`
         %s
+        GROUP BY `groupID`,`gmGroupID`
         %s
         %s";
     protected $sqlFilterStr = "SELECT COUNT(`gmHostID`) `gmMembers`,COUNT(`%s`)
@@ -77,8 +77,8 @@ class Group extends FOGController
         LEFT OUTER JOIN `groupMembers`
         ON `groups`.`groupID` = `groupMembers`.`gmGroupID`
         AND `hosts`.`hostID` = `groupMembers`.`gmHostID`
-        GROUP BY `groupID`,`gmGroupID`
-        %s";
+        %s
+        GROUP BY `groupID`,`gmGroupID`";
     protected $sqlTotalStr = "SELECT COUNT(`gmHostID`) `gmMembers`,COUNT(`%s`)
         FROM `%s`
         CROSS JOIN `hosts`

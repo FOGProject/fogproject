@@ -499,6 +499,13 @@ class Route extends FOGBase
         case 'group':
             $columns[] = array('db' => 'gmMembers', 'dt' => 'members', 'removeFromQuery' => true);
             break;
+        case 'storagegroup':
+            $columns[] = array('db' => 'totalclients', 'dt' => 'totalclients', 'removeFromQuery' => true);
+            break;
+        case 'storagenode':
+            $columns[] = array('db' => 'ngID', 'dt' => 'storagegroupID');
+            $columns[] = array('db' => 'ngName', 'dt' => 'storagegroupName');
+            break;
         }
         self::$HookManager->processEvent(
             'CUSTOMIZE_DT_COLUMNS',
