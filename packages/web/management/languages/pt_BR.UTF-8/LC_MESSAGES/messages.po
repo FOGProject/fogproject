@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-13 00:46-0500\n"
+"POT-Creation-Date: 2018-02-13 20:10-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4866,23 +4866,16 @@ msgstr ""
 msgid "To view a report, select an item from the menu"
 msgstr ""
 
-#, php-format
-msgid "%s ID %s is not valid"
-msgstr "%s ID %s não é válido"
+#, fuzzy
+msgid "Create New Storage Node"
+msgstr "Nó de armazenamento"
 
-msgid "Web root"
+#, fuzzy
+msgid "Web Root"
 msgstr "raiz da web"
 
 msgid "Bitrate"
 msgstr "Bitrate"
-
-#, fuzzy
-msgid "Create Storage Node"
-msgstr "Nó de armazenamento"
-
-#, fuzzy
-msgid "New Storage Node"
-msgstr "Nó de armazenamento"
 
 msgid "Bandwidth should be numeric and greater than 0"
 msgstr "A largura de banda deve ser numérico e maior do que 0"
@@ -4907,6 +4900,9 @@ msgstr "Nó de Armazenamento Criado"
 msgid "Storage Node General"
 msgstr "Interface de Armazenamento Node"
 
+msgid "Web root"
+msgstr "raiz da web"
+
 #, fuzzy
 msgid "Storage Node update failed!"
 msgstr "Nó de Armazenamento Atualizado"
@@ -4923,16 +4919,13 @@ msgstr "Nó de Armazenamento Atualizado"
 msgid "Storage Node Update Fail"
 msgstr "Nó de Armazenamento Atualizado"
 
-msgid "Max"
-msgstr ""
+#, fuzzy
+msgid "Total Clients"
+msgstr "Clientes Max"
 
 #, fuzzy
-msgid "Create Storage Group"
+msgid "Create New Storage Group"
 msgstr "Nó de armazenamento"
-
-#, fuzzy
-msgid "New Storage Group"
-msgstr "Grupo de armazenamento"
 
 #, fuzzy
 msgid "Storage Group Create Success"
@@ -4962,22 +4955,8 @@ msgstr "usuário criado"
 msgid "Storage Group Update Fail"
 msgstr "Grupo de armazenamento Atualizado"
 
-#, fuzzy
-msgid "Change password"
-msgstr "Gerenciamento de senha"
-
-#, fuzzy
-msgid "API Settings"
-msgstr "Configurações"
-
-msgid "No friendly name defined"
-msgstr ""
-
 msgid "API?"
 msgstr ""
-
-msgid "Edit User"
-msgstr "Editar usuário"
 
 #, fuzzy
 msgid "Create New User"

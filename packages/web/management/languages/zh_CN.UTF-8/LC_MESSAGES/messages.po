@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-13 00:46-0500\n"
+"POT-Creation-Date: 2018-02-13 20:10-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4847,23 +4847,16 @@ msgstr ""
 msgid "To view a report, select an item from the menu"
 msgstr ""
 
-#, php-format
-msgid "%s ID %s is not valid"
-msgstr "%s ID %s是无效的"
+#, fuzzy
+msgid "Create New Storage Node"
+msgstr "存储节点"
 
-msgid "Web root"
+#, fuzzy
+msgid "Web Root"
 msgstr "Web根目录"
 
 msgid "Bitrate"
 msgstr "比特率"
-
-#, fuzzy
-msgid "Create Storage Node"
-msgstr "存储节点"
-
-#, fuzzy
-msgid "New Storage Node"
-msgstr "存储节点"
 
 msgid "Bandwidth should be numeric and greater than 0"
 msgstr "带宽应该是数字和大于0"
@@ -4888,6 +4881,9 @@ msgstr "存储节点创建"
 msgid "Storage Node General"
 msgstr "存储节点接口"
 
+msgid "Web root"
+msgstr "Web根目录"
+
 #, fuzzy
 msgid "Storage Node update failed!"
 msgstr "存储节点更新"
@@ -4904,16 +4900,13 @@ msgstr "存储节点更新"
 msgid "Storage Node Update Fail"
 msgstr "存储节点更新"
 
-msgid "Max"
-msgstr ""
+#, fuzzy
+msgid "Total Clients"
+msgstr "最大客户"
 
 #, fuzzy
-msgid "Create Storage Group"
+msgid "Create New Storage Group"
 msgstr "存储节点"
-
-#, fuzzy
-msgid "New Storage Group"
-msgstr "存储组"
 
 #, fuzzy
 msgid "Storage Group Create Success"
@@ -4943,22 +4936,8 @@ msgstr "用户创建"
 msgid "Storage Group Update Fail"
 msgstr "存储组更新"
 
-#, fuzzy
-msgid "Change password"
-msgstr "管理密码"
-
-#, fuzzy
-msgid "API Settings"
-msgstr "设置"
-
-msgid "No friendly name defined"
-msgstr ""
-
 msgid "API?"
 msgstr ""
-
-msgid "Edit User"
-msgstr "编辑用户"
 
 #, fuzzy
 msgid "Create New User"

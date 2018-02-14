@@ -4,13 +4,12 @@
         exportModal = $('#exportModal'),
         exportModalConfirm = $('#confirmExportModal'),
         passwordField = $('#exportPassword'),
-        cancelExport = $('#closeExportModal');
+        cancelExport = $('#closeExportModal'),
+        exportAction = exportForm.prop('action');
 
     function disableButtons(disable) {
         exportBtn.prop('disabled', disable);
     }
-
-    var exportAction = exportForm.prop('action');
 
     exportForm.submit(function(e) {
         e.preventDefault();

@@ -210,6 +210,7 @@ class GroupManagementPage extends FOGPage
         $dev = trim(
             filter_input(INPUT_POST, 'dev')
         );
+        $serverFault = false;
         try {
             if (!$group) {
                 throw new Exception(
@@ -240,7 +241,7 @@ class GroupManagementPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            http_response_code(($serverFault) ? 500 : 400);
+            http_response_code($serverFault ? 500 : 400);
             $hook = 'GROUP_ADD_FAIL';
             $msg = json_encode(
                 [
@@ -249,6 +250,8 @@ class GroupManagementPage extends FOGPage
                 ]
             );
         }
+        http_response_code(201);
+        header('Location: ../management/index.php?node=group&sub=edit&id=' . $Group->get('id'));
         self::$HookManager
             ->processEvent(
                 $hook,
@@ -1403,50 +1406,16 @@ class GroupManagementPage extends FOGPage
      */
     public function editPost()
     {
+        header('Content-type: appication/json');
         self::$HookManager
             ->processEvent(
                 'GROUP_EDIT_POST',
                 array('Group' => &$this->obj)
             );
+        $serverFault = false;
         try {
             global $tab;
             $hostids = $this->obj->get('hosts');
-            $name = trim(
-                filter_input(INPUT_POST, 'name')
-            );
-            $desc = trim(
-                filter_input(INPUT_POST, 'description')
-            );
-            $kern = trim(
-                filter_input(INPUT_POST, 'kern')
-            );
-            $args = trim(
-                filter_input(INPUT_POST, 'args')
-            );
-            $dev = trim(
-                filter_input(INPUT_POST, 'dev')
-            );
-            $key = filter_input(INPUT_POST, 'key');
-            $useAD = isset($_POST['domain']);
-            $items = filter_input_array(
-                INPUT_POST,
-                array(
-                    'printers' => array(
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ),
-                    'snapins' => array(
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ),
-                    'modules' => array(
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    )
-                )
-            );
-            $printers = $items['printers'];
-            $snapins = $items['snapins'];
-            $modules = $items['modules'];
-            $level = filter_input(INPUT_POST, 'level');
-            $default = filter_input(INPUT_POST, 'default');
             $x1 = filter_input(INPUT_POST, 'x');
             $y1 = filter_input(INPUT_POST, 'y');
             $r1 = filter_input(INPUT_POST, 'r');
@@ -1570,6 +1539,7 @@ class GroupManagementPage extends FOGPage
                 break;
             }
             if (!$this->obj->save()) {
+                $serverFault = true;
                 throw new Exception(_('Group update failed!'));
             }
             $hook = 'GROUP_EDIT_SUCCESS';
@@ -1580,7 +1550,7 @@ class GroupManagementPage extends FOGPage
                 )
             );
         } catch (Exception $e) {
-            http_response_code(400);
+            http_response_code($serverFault ? 500 : 400);
             $hook = 'GROUP_EDIT_FAIL';
             $msg = json_encode(
                 array(
@@ -1589,6 +1559,7 @@ class GroupManagementPage extends FOGPage
                 )
             );
         }
+        http_response_code(201);
         self::$HookManager
             ->processEvent(
                 $hook,

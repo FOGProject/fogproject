@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-13 00:46-0500\n"
+"POT-Creation-Date: 2018-02-13 20:10-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -4869,23 +4869,16 @@ msgstr "Vorgänge in Ihrem FOG-System."
 msgid "To view a report, select an item from the menu"
 msgstr "Um einen Bericht anzusehen, wählen Sie einen aus dem Menü aus."
 
-#, php-format
-msgid "%s ID %s is not valid"
-msgstr "%s ID %s ist nicht gültig"
+#, fuzzy
+msgid "Create New Storage Node"
+msgstr "Storage Node"
 
-msgid "Web root"
+#, fuzzy
+msgid "Web Root"
 msgstr "Webroot"
 
 msgid "Bitrate"
 msgstr "Bitrate"
-
-#, fuzzy
-msgid "Create Storage Node"
-msgstr "Speicherknoten erstellen"
-
-#, fuzzy
-msgid "New Storage Node"
-msgstr "Neuer Speicherknoten"
 
 msgid "Bandwidth should be numeric and greater than 0"
 msgstr "Bandbreite sollte numerisch und größer als 0 sein."
@@ -4910,6 +4903,9 @@ msgstr "Erstellen des Speicherknotens fehlgeschlagen"
 msgid "Storage Node General"
 msgstr "Speicherknoten allgemein"
 
+msgid "Web root"
+msgstr "Webroot"
+
 #, fuzzy
 msgid "Storage Node update failed!"
 msgstr "Speicherknoten aktualisieren fehlgeschlagen"
@@ -4926,16 +4922,13 @@ msgstr "Aktualisierung des Speicherknotens erfolgreich"
 msgid "Storage Node Update Fail"
 msgstr "Aktualisierung des Speicherknotens fehlgeschlagen"
 
-msgid "Max"
-msgstr "Maximal"
+#, fuzzy
+msgid "Total Clients"
+msgstr "Maximale Clients"
 
 #, fuzzy
-msgid "Create Storage Group"
+msgid "Create New Storage Group"
 msgstr "Speichergruppe erstellen"
-
-#, fuzzy
-msgid "New Storage Group"
-msgstr "Neue Speichergruppe"
 
 #, fuzzy
 msgid "Storage Group Create Success"
@@ -4965,22 +4958,8 @@ msgstr "Speichergruppe erfolgreich aktualisiert"
 msgid "Storage Group Update Fail"
 msgstr "Aktualisierung der Speichergruppe fehlgeschlagen"
 
-#, fuzzy
-msgid "Change password"
-msgstr "Passwort ändern"
-
-#, fuzzy
-msgid "API Settings"
-msgstr "API Einstellungen"
-
-msgid "No friendly name defined"
-msgstr "Kein nutzerfreundlicher Name vergeben"
-
 msgid "API?"
 msgstr "API?"
-
-msgid "Edit User"
-msgstr "Benutzer bearbeiten"
 
 #, fuzzy
 msgid "Create New User"

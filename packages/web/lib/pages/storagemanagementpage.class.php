@@ -38,13 +38,6 @@ class StorageManagementPage extends FOGPage
     {
         $this->name = 'Storage Management';
         parent::__construct($this->name);
-        $this->menu = array(
-            'list' => self::$foglang['AllSN'],
-            'addStorageNode' => self::$foglang['AddSN'],
-            'storageGroup' => self::$foglang['AllSG'],
-            'addStorageGroup' => self::$foglang['AddSG'],
-        );
-        global $node;
         global $sub;
         global $id;
         switch ($sub) {
@@ -54,38 +47,9 @@ class StorageManagementPage extends FOGPage
             if ($id) {
                 if (!$this->obj->isValid() && false === strpos($sub, 'add')) {
                     unset($this->obj);
-                    self::setMessage(
-                        sprintf(
-                            _('%s ID %s is not valid'),
-                            _('Storage Node'),
-                            $id
-                        )
-                    );
-                    self::redirect(sprintf('?node=%s', $this->node));
+                    header_response_code(400);
+                    header('Location: ../management/index.php?node=storage');
                 }
-                $this->subMenu = array(
-                    sprintf(
-                        '?node=%s&sub=%s&id=%s#node-general',
-                        $this->node,
-                        $sub,
-                        $id
-                    ) => self::$foglang['General'],
-                    sprintf(
-                        '?node=%s&sub=%s&id=%s',
-                        $this->node,
-                        'deleteStorageNode',
-                        $id
-                    ) => self::$foglang['Delete']
-                );
-                $this->notes = array(
-                    sprintf(
-                        '%s %s',
-                        self::$foglang['Storage'],
-                        self::$foglang['Node']
-                    ) => $this->obj->get('name'),
-                    self::$foglang['ImagePath'] => $this->obj->get('path'),
-                    self::$foglang['FTPPath'] => $this->obj->get('ftppath'),
-                );
             }
             break;
         case 'editStorageGroup':
@@ -93,41 +57,9 @@ class StorageManagementPage extends FOGPage
             if ($id) {
                 if (!$this->obj->isValid() && false === strpos($sub, 'add')) {
                     unset($this->obj);
-                    self::setMessage(
-                        sprintf(
-                            _('%s ID %s is not valid'),
-                            $this->childClass,
-                            $id
-                        )
-                    );
-                    self::redirect(
-                        sprintf(
-                            '?node=%s',
-                            $this->node
-                        )
-                    );
+                    header_response_code(400);
+                    header('Location: ../management/index.php?node=storage');
                 }
-                $this->subMenu = array(
-                    sprintf(
-                        '?node=%s&sub=%s&id=%s#group-general',
-                        $this->node,
-                        $sub,
-                        $id
-                    ) => self::$foglang['General'],
-                    sprintf(
-                        '?node=%s&sub=%s&id=%s',
-                        $this->node,
-                        'deleteStorageGroup',
-                        $id
-                    ) => self::$foglang['Delete']
-                );
-                $this->notes = array(
-                    sprintf(
-                        '%s %s',
-                        self::$foglang['Storage'],
-                        self::$foglang['Group']
-                    ) => $this->obj->get('name')
-                );
             }
             break;
         }
@@ -184,90 +116,49 @@ class StorageManagementPage extends FOGPage
      */
     public function index()
     {
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
-        $this->title = self::$foglang['AllSN'];
-        Route::listem('storagenode');
-        $StorageNodes = json_decode(
-            Route::getData()
-        );
-        $StorageNodes = $StorageNodes->storagenodes;
-        foreach ((array)$StorageNodes as &$StorageNode) {
-            $StorageGroup = $StorageNode->storagegroup;
-            $this->data[] = array(
-                'name' => $StorageNode->name,
-                'id' => $StorageNode->id,
-                'isMasterText' => (
-                    $StorageNode->isMaster ?
-                    _('Yes') :
-                    _('No')
-                ),
-                'isEnabledText' => (
-                    $StorageNode->isEnabled ?
-                    _('Yes') :
-                    _('No')
-                ),
-                'storage_group' => $StorageGroup->name,
-                'max_clients' => $StorageNode->maxClients,
-            );
-            unset($StorageGroup, $StorageNode);
+        global $node;
+        global $sub;
+        if (false === self::$showhtml) {
+            return;
         }
+        if (self::$ajax) {
+            header('Content-Type: application/json');
+            Route::listem($this->childClass);
+            echo Route::getData();
+            exit;
+        }
+        $this->title = self::$foglang['AllSN'];
         $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" class='
-            . '"toggle-checkboxAction" id="toggler"/>'
-            . '<label for="toggler"></label>',
             self::$foglang['SN'],
             self::$foglang['SG'],
             self::$foglang['Enabled'],
             self::$foglang['MasterNode'],
-            _('Max Clients'),
+            _('Max Clients')
         );
-        $this->templates = array(
-            '<input type="checkbox" name="node[]" value='
-            . '"${id}" class="toggle-action" id="node-${id}"/>'
-            . '<label for="node-${id}"></label>',
-            sprintf(
-                '<a href="?node=%s&sub=edit&%s=${id}" title="%s">${name}</a>',
-                $this->node,
-                $this->id,
-                self::$foglang['Edit']
-            ),
-            '${storage_group}',
-            '${isEnabledText}',
-            '${isMasterText}',
-            '${max_clients}',
-        );
-        $this->attributes = array(
-            array(
-                'class' => 'filter-false',
-                'width' => 22
-            ),
-            array(),
-            array(
-            ),
-            array(),
-            array(
-            ),
-            array(),
-        );
+        $this->templates = [
+            '',
+            '',
+            '',
+            '',
+            ''
+        ];
+        $this->attributes = [
+            [],
+            [],
+            [],
+            [],
+            []
+        ];
         self::$HookManager
             ->processEvent(
                 'STORAGE_NODE_DATA',
                 array(
                     'headerData' => &$this->headerData,
-                    'data' => &$this->data,
                     'templates' => &$this->templates,
                     'attributes' => &$this->attributes
                 )
             );
-        echo '<div class="col-xs-9">';
         $this->indexDivDisplay(true, 'node');
-        echo '</div>';
         unset(
             $this->data,
             $this->form,
@@ -283,152 +174,177 @@ class StorageManagementPage extends FOGPage
      */
     public function addStorageNode()
     {
-        $this->title = self::$foglang['AddSN'];
-        unset($this->headerData);
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
+        $this->title = _('Create New Storage Node');
+        $name = filter_input(
+            INPUT_POST,
+            'name'
         );
-        $this->templates = array(
-            '${field}',
-            '${input}',
+        $description = filter_input(
+            INPUT_POST,
+            'description'
         );
-        $name = filter_input(INPUT_POST, 'name');
-        $desc = filter_input(INPUT_POST, 'description');
-        $ip = filter_input(INPUT_POST, 'ip');
-        $webroot = filter_input(INPUT_POST, 'webroot') ?: '/fog';
-        $maxClients = (int)filter_input(INPUT_POST, 'maxClients');
-        $ismaster = isset($_POST['isMaster']) ? ' checked' : '';
-        $bandwidth = filter_input(INPUT_POST, 'bandwidth');
-        $storagegroupID = (int)filter_input(INPUT_POST, 'storagegroupID');
+        $ip = filter_input(
+            INPUT_POST,
+            'ip'
+        );
+        $webroot = filter_input(
+            INPUT_POST,
+            'webroot'
+        ) ?: '/fog';
+        $maxClients = (int)filter_input(
+            INPUT_POST,
+            'maxClients'
+        );
+        $isMaster = isset($_POST['isMaster']) ? ' checked' : '';
+        $bandwidth = filter_input(
+            INPUT_POST,
+            'bandwidth'
+        );
+        $storagegroupID = (int)filter_input(
+            INPUT_POST,
+            'storagegroupID'
+        );
         if (!$storagegroupID) {
             $storagegroupID = @min(
                 self::getSubObjectIDs('StorageGroup')
             );
         }
-        $path = filter_input(INPUT_POST, 'path') ?: '/images/';
-        $ftppath = filter_input(INPUT_POST, 'ftppath') ?: '/images/';
-        $snapinpath = filter_input(INPUT_POST, 'snapinpath') ?: '/opt/fog/snapins/';
-        $sslpath = filter_input(INPUT_POST, 'sslpath') ?: '/opt/fog/snapins/ssl/';
-        $bitrate = filter_input(INPUT_POST, 'bitrate');
-        $interface = filter_input(INPUT_POST, 'interface') ?: 'eth0';
-        $user = filter_input(INPUT_POST, 'user');
-        $pass = filter_input(INPUT_POST, 'pass');
-        $fields = array(
-            '<label for="name">'
-            . self::$foglang['SNName']
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="name" id="name" value="'
+        $path = filter_input(
+            INPUT_POST,
+            'path'
+        ) ?: '/images/';
+        $ftppath = filter_input(
+            INPUT_POST,
+            'ftppath'
+        ) ?: '/images/';
+        $snapinpath = filter_input(
+            INPUT_POST,
+            'snapinppath'
+        ) ?: '/opt/fog/snapins/';
+        $sslpath = filter_input(
+            INPUT_POST,
+            'sslpath'
+        ) ?: '/opt/fog/snapins/ssl/';
+        $bitrate = filter_input(
+            INPUT_POST,
+            'bitrate'
+        );
+        $interface = filter_input(
+            INPUT_POST,
+            'interface'
+        );
+        $user = filter_input(
+            INPUT_POST,
+            'user'
+        );
+        $pass = filter_input(
+            INPUT_POST,
+            'pass'
+        );
+
+        $fields = [
+            '<label class="col-sm-2 control-label" for="name">'
+            . _('Storage Node Name')
+            . '</label>' => '<input type="text" name="name" '
+            . 'value="'
             . $name
-            . '" autocomplete="off" class="form-control" required/>'
-            . '</div>',
-            '<label for="desc">'
-            . self::$foglang['SNDesc']
-            . '</label>' => '<div class="input-group">'
-            . '<textarea name="description" id="desc" autocomplete="off" '
-            . 'class="form-control">'
-            . $desc
-            . '</textarea>'
-            . '</div>',
-            '<label for="ip">'
+            . '" class="storagenodename-input form-control" '
+            . 'id="name" required/>',
+            '<label class="col-sm-2 control-label" for="description">'
+            . _('Storage Node Description')
+            . '</label>' => '<textarea class="form-control" style="resize:vertical;'
+            . 'min-height:50px;" '
+            . 'id="description" name="description">'
+            . $description
+            . '</textarea>',
+            '<label class="col-sm-2 control-label" for="ip">'
             . self::$foglang['IPAdr']
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="ip" id="ip" value="'
+            . '</label>' => '<input type="text" name="ip" '
+            . 'value="'
             . $ip
-            . '" autocomplete="off" class="form-control" required/>'
-            . '</div>',
-            '<label for="webroot">'
-            . _('Web root')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="webroot" id="webroot" value="'
+            . '" class="storagenodeip-input form-control" '
+            . 'id="ip" required/>',
+            '<label class="col-sm-2 control-label" for="webroot">'
+            . _('Web Root')
+            . '</label>' => '<input type="text" name="webroot" '
+            . 'value="'
             . $webroot
-            . '" class="form-control" autocomplete="off"/>'
-            . '</div>',
-            '<label for="maxClients">'
-            . self::$foglang['MaxClients']
-            . '</div>' => '<div class="input-group">'
-            . '<input type="number" name="maxClients" id="maxClients" value="'
+            . '" class="storagenodewebroot-input form-control" '
+            . 'id="webroot" required/>',
+            '<label class="col-sm-2 control-label" for="maxClients">'
+            . _('Max Clients')
+            . '</label>' => '<input type="number" name="maxClients" '
+            . 'value="'
             . $maxClients
-            . '" class="form-control" autocomplete="off" required/>'
-            . '</div>',
-            '<label for="ismaster">'
-            . self::$foglang['IsMasterNode']
-            . '</label>' => '<div class="col-xs-1">'
-            . '<input type="checkbox" name="isMaster" '
-            . 'id="ismaster"'
-            . $ismaster
-            . '/>'
-            . '</div>'
-            . '<div class="col-xs-1">'
-            . '<i class="icon fa fa-question hand" title="'
-            . self::$foglang['CautionPhrase']
-            . '" data-toggle="tooltip" data-placement="right"></i>'
-            . '</div>',
-            '<label for="bandwidth">'
+            . '" class="storagenodemaxclients-input form-control" '
+            . 'id="maxClients"/>',
+            '<label class="col-sm-2 control-label" for="isMaster">'
+            . _('Is Master Node')
+            . '</label>' => '<input type="checkbox" name="isMaster" '
+            . 'id="isMaster"'
+            . $isMaster
+            . '/>',
+            '<label class="col-sm-2 control-label" for="bandwidth">'
             . self::$foglang['BandwidthReplication']
             . ' (Kbps)'
-            . '</label>' => '<div class="input-group">'
-            . '<i class="input-group-addon icon fa fa-question hand" title="'
-            . self::$foglang['BandwidthRepHelp']
-            . '" data-toggle="tooltip" data-placement="left"></i>'
-            . '<input type="number" name="bandwidth" id="bandwidth" '
+            . '</label>' => '<input type="number" name="bandwidth" '
             . 'value="'
             . $bandwidth
-            . '" autocomplete="off" class="form-control"/>'
-            . '</div>',
-            '<label for="storagegroupID">'
-            . self::$foglang['SG']
+            . '" class="storagenodebandwidth-input form-control" '
+            . 'id="bandwidth"/>',
+            '<label class="col-sm-2 control-label" for="storagegroupID">'
+            . _('Storage Group')
             . '</label>' => self::getClass('StorageGroupManager')->buildSelectBox(
                 $storagegroupID,
                 'storagegroupID'
             ),
-            '<label for="path">'
-            . self::$foglang['ImagePath']
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="path" id="path" value="'
+            '<label class="col-sm-2 control-label" for="path">'
+            . _('Image Path')
+            . '</label>' => '<input type="text" name="path" '
+            . 'value="'
             . $path
-            . '" autocomplete="off" class="form-control"/>'
-            . '</div>',
-            '<label for="ftppath">'
-            . self::$foglang['FTPPath']
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="ftppath" id="ftppath" value="'
+            . '" class="storagenodepath-input form-control" '
+            . 'id="path" required/>',
+            '<label class="col-sm-2 control-label" for="ftppath">'
+            . _('FTP Path')
+            . '</label>' => '<input type="text" name="ftppath" '
+            . 'value="'
             . $ftppath
-            . '" autocomplete="off" class="form-control"/>'
-            . '</div>',
-            '<label for="snapinpath">'
-            . self::$foglang['SnapinPath']
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="snapinpath" id="snapinpath" value="'
+            . '" class="storagenodeftppath-input form-control" '
+            . 'id="ftppath" required/>',
+            '<label class="col-sm-2 control-label" for="snapinpath">'
+            . _('Snapin Path')
+            . '</label>' => '<input type="text" name="snapinpath" '
+            . 'value="'
             . $snapinpath
-            . '" autocomplete="off" class="form-control"/>'
-            . '</div>',
-            '<label for="sslpath">'
+            . '" class="storagenodesnapinpath-input form-control" '
+            . 'id="snapinpath" required/>',
+            '<label class="col-sm-2 control-label" for="sslpath">'
             . self::$foglang['SSLPath']
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="sslpath" id="sslpath" value="'
+            . '</label>' => '<input type="text" name="sslpath" '
+            . 'value="'
             . $sslpath
-            . '" autocomplete="off" class="form-control"/>'
-            . '</div>',
-            '<label for="bitrate">'
+            . '" class="storagenodesslpath-input form-control" '
+            . 'id="sslpath" required/>',
+            '<label class="col-sm-2 control-label" for="bitrate">'
             . _('Bitrate')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="bitrate" id="bitrate" value="'
+            . '</label>' => '<input type="text" name="bitrate" '
+            . 'value="'
             . $bitrate
-            . '" autocomplete="off" class="form-control"/>'
-            . '</div>',
-            '<label for="interface">'
+            . '" class="storagenodebitrate-input form-control" '
+            . 'id="bitrate"/>',
+            '<label class="col-sm-2 control-label" for="interface">'
             . self::$foglang['Interface']
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="interface" id="interface" value="'
+            . '</label>' => '<input type="text" name="interface" '
+            . 'value="'
             . $interface
-            . '" autocomplete="off" class="form-control"/>'
-            . '</div>',
-            '<label for="isen">'
+            . '" class="storagenodeinterface-input form-control" '
+            . 'id="interface"/>',
+            '<label class="col-sm-2 control-label" for="isen">'
             . self::$foglang['IsEnabled']
             . '</label>' => '<input type="checkbox" name="isEnabled" id="isen" '
             . 'checked/>',
-            '<label for="isgren">'
+            '<label class="col-sm-2 control-label" for="isgren">'
             . self::$foglang['IsGraphEnabled']
             . '<br/>'
             . '('
@@ -436,55 +352,55 @@ class StorageManagementPage extends FOGPage
             . ')'
             . '</label>' => '<input type="checkbox" name="isGraphEnabled" '
             . 'id="isgren" checked/>',
-            '<label for="user">'
+            '<label class="col-sm-2 control-label" for="user">'
             . self::$foglang['ManUser']
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="user" id="user" value="'
+            . '</label>' => '<input type="text" name="user" '
+            . 'value="'
             . $user
-            . '" autocomplete="off" class="form-control" required/>'
-            . '</div>',
-            '<label for="pass">'
+            . '" class="storagenodeuser-input form-control" '
+            . 'id="user" required/>',
+            '<label class="col-sm-2 control-label" for="pass">'
             . self::$foglang['ManPass']
             . '</label>' => '<div class="input-group">'
-            . '<input type="password" name="pass" id="pass" value="'
+            . '<input type="password" name="pass" '
+            . 'value="'
             . $pass
-            . '" autocomplete="off" class="form-control" required/>'
-            . '</div>',
-            '<label for="add">'
-            . _('Create Storage Node')
-            . '</label>' => '<button name="add" id="add" type="submit" '
-            . 'class="btn btn-info btn-block">'
-            . _('Add')
-            . '</button>'
-        );
-        $rendered = self::formFields($fields);
+            . '" class="storagenodepass-input form-control" '
+            . 'id="pass" required/>'
+            . '</div>'
+        ];
         self::$HookManager
             ->processEvent(
-                'STORAGE_NODE_ADD',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
+                'STORAGENODE_ADD_FIELDS',
+                [
+                    'fields' => &$fields,
+                    'StorageNode' => self::getClass('StorageNode')
+                ]
             );
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('New Storage Node');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
+        $rendered = self::formFields($fields);
+        unset($fields);
+        echo '<div class="box box-solid" id="storagenode-create">';
+        echo '<form id="storagenode-create-form" class="form-horizontal" method="post" action="'
             . $this->formAction
-            . '">';
-        echo '<input type="text" name="fakeusernameremembered" class="fakes"/>';
-        echo '<input type="text" name="fakepasswordremembered" class="fakes"/>';
-        $this->render(12);
+            . '" novalidate>';
+        echo '<div class="box-body">';
+        echo '<!-- Storage Node -->';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h3 class="box-title">';
+        echo _('Create New Storage Node');
+        echo '</h3>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo $rendered;
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo '<button class="btn btn-primary" id="send">'
+            . _('Create')
+            . '</button>';
+        echo '</div>';
         echo '</form>';
-        echo '</div>';
-        echo '</div>';
         echo '</div>';
     }
     /**
@@ -1113,62 +1029,35 @@ class StorageManagementPage extends FOGPage
         self::redirect($url);
     }
     /**
-     * Storage group display page.
+     * Display the list of storage nodes.
      *
      * @return void
      */
     public function storageGroup()
     {
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
-        $this->title = self::$foglang['AllSG'];
-        Route::listem('storagegroup');
-        $StorageGroups = json_decode(
-            Route::getData()
-        );
-        $StorageGroups = $StorageGroups->storagegroups;
-        foreach ((array)$StorageGroups as &$StorageGroup) {
-            $this->data[] = array(
-                'name' => $StorageGroup->name,
-                'id' => $StorageGroup->id,
-                'max_clients' => $StorageGroup->totalsupportedclients,
-            );
-            unset($StorageGroup);
+        global $node;
+        global $sub;
+        if (false === self::$showhtml) {
+            return;
         }
+        if (self::$ajax) {
+            header('Content-Type: application/json');
+            Route::listem($this->childClass);
+            echo Route::getData();
+            exit;
+        }
+        $this->title = self::$foglang['AllSG'];
         $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" class='
-            . '"toggle-checkboxAction" id="toggler2"/>'
-            . '<label for="toggler2"></label>',
             self::$foglang['SG'],
-            _('Max'),
+            _('Total Clients')
         );
         $this->templates = array(
-            '<input type="checkbox" name="storage[]" value='
-            . '"${id}" class="toggle-action" id="group-${id}"/>'
-            . '<label for="group-${id}"></label>',
-            sprintf(
-                '<a href="?node=%s&sub=editStorageGroup&%s=${id}" title='
-                . '"%s">${name}</a>',
-                $this->node,
-                $this->id,
-                self::$foglang['Edit']
-            ),
-            '${max_clients}',
+            '',
+            ''
         );
         $this->attributes = array(
-            array(
-                'class' => 'filter-false',
-                'width' => 22
-            ),
-            array(),
-            array(
-                'width' => 20
-            ),
+            [],
+            []
         );
         self::$HookManager
             ->processEvent(
@@ -1180,9 +1069,7 @@ class StorageManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        echo '<div class="col-xs-9">';
         $this->indexDivDisplay(true, 'group');
-        echo '</div>';
         unset(
             $this->data,
             $this->form,
@@ -1198,66 +1085,63 @@ class StorageManagementPage extends FOGPage
      */
     public function addStorageGroup()
     {
-        $this->title = self::$foglang['AddSG'];
-        unset($this->headerData);
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
+        $this->title = _('Create New Storage Group');
+        $name = filter_input(
+            INPUT_POST,
+            'name'
         );
-        $this->templates = array(
-            '${field}',
-            '${input}',
+        $description = filter_input(
+            INPUT_POST,
+            'description'
         );
-        $name = filter_input(INPUT_POST, 'name');
-        $desc = filter_input(INPUT_POST, 'description');
-        $fields = array(
-            '<label for="name">'
-            . self::$foglang['SGName']
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="name" id="name" value="'
+        $fields = [
+            '<label class="col-sm-2 control-label" for="name">'
+            . _('Storage Group Name')
+            . '</label>' => '<input type="text" name="name" '
+            . 'value="'
             . $name
-            . '" class="form-control" required/>'
-            . '</div>',
-            '<label for="description">'
-            . self::$foglang['SGDesc']
-            . '</label>' => '<div class="input-group">'
-            . '<textarea name="description" id="description" class="form-control">'
-            . $desc
+            . '" class="storagegroupname-input form-control" '
+            . 'id="name" required/>',
+            '<label class="col-sm-2 control-label" for="description">'
+            . _('Storage Group Description')
+            . '</label>' => '<textarea class="form-control" style="resize:vertical;'
+            . 'min-height:50px;" '
+            . 'id="description" name="description">'
+            . $description
             . '</textarea>'
-            . '</div>',
-            '<label for="add">'
-            . _('Create Storage Group')
-            . '</label>' => '<button name="add" id="add" type="submit" '
-            . 'class="btn btn-info btn-block">'
-            . _('Add')
-            . '</button>'
-        );
-        $rendered = self::formFields($fields);
+        ];
         self::$HookManager
             ->processEvent(
-                'STORAGE_GROUP_ADD',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
+                'STORAGEGROUP_ADD_FIELDS',
+                [
+                    'fields' => &$fields,
+                    'StorageGroup' => self::getClass('StorageGroup')
+                ]
             );
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('New Storage Group');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
+        $rendered = self::formFields($fields);
+        unset($fields);
+        echo '<div class="box box-solid" id="storagegroup-create">';
+        echo '<form id="storagegroup-create-form" class="form-horizontal" method="post" action="'
             . $this->formAction
-            . '">';
-        $this->render(12);
+            . '" novalidate>';
+        echo '<div class="box-body">';
+        echo '<!-- Storage Group -->';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h3 class="box-title">';
+        echo _('Create New Storage Group');
+        echo '</h3>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo $rendered;
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo '<button class="btn btn-primary" id="send">'
+            . _('Create')
+            . '</button>';
+        echo '</div>';
         echo '</form>';
-        echo '</div>';
-        echo '</div>';
         echo '</div>';
     }
     /**

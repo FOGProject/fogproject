@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-13 00:46-0500\n"
+"POT-Creation-Date: 2018-02-13 20:10-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -5104,25 +5104,17 @@ msgstr ""
 msgid "To view a report, select an item from the menu"
 msgstr ""
 
-#, fuzzy, php-format
-msgid "%s ID %s is not valid"
-msgstr "%s ID %s no es válido"
+#, fuzzy
+msgid "Create New Storage Node"
+msgstr "nodo de almacenamiento"
 
 #, fuzzy
-msgid "Web root"
+msgid "Web Root"
 msgstr "Reiniciar"
 
 #, fuzzy
 msgid "Bitrate"
 msgstr "Estado"
-
-#, fuzzy
-msgid "Create Storage Node"
-msgstr "nodo de almacenamiento"
-
-#, fuzzy
-msgid "New Storage Node"
-msgstr "nodo de almacenamiento"
 
 msgid "Bandwidth should be numeric and greater than 0"
 msgstr ""
@@ -5148,6 +5140,10 @@ msgid "Storage Node General"
 msgstr "nodo de almacenamiento"
 
 #, fuzzy
+msgid "Web root"
+msgstr "Reiniciar"
+
+#, fuzzy
 msgid "Storage Node update failed!"
 msgstr "nodo de almacenamiento"
 
@@ -5163,16 +5159,13 @@ msgstr "nodo de almacenamiento"
 msgid "Storage Node Update Fail"
 msgstr "nodo de almacenamiento"
 
-msgid "Max"
-msgstr ""
+#, fuzzy
+msgid "Total Clients"
+msgstr "Clientela"
 
 #, fuzzy
-msgid "Create Storage Group"
+msgid "Create New Storage Group"
 msgstr "nodo de almacenamiento"
-
-#, fuzzy
-msgid "New Storage Group"
-msgstr "Grupo de almacenamiento"
 
 #, fuzzy
 msgid "Storage Group Create Success"
@@ -5202,22 +5195,8 @@ msgstr "creado por el usuario"
 msgid "Storage Group Update Fail"
 msgstr "Nombre del grupo de almacenamiento"
 
-#, fuzzy
-msgid "Change password"
-msgstr "La gestión de contraseñas"
-
-#, fuzzy
-msgid "API Settings"
-msgstr "Configuración Tecla"
-
-msgid "No friendly name defined"
-msgstr ""
-
 msgid "API?"
 msgstr ""
-
-msgid "Edit User"
-msgstr "editar usuario"
 
 #, fuzzy
 msgid "Create New User"

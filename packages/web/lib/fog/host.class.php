@@ -164,7 +164,6 @@ class Host extends FOGController
         INNER JOIN `hostMAC`
         ON `hostMAC`.`hmHostID` = `hosts`.`hostID`
         AND `hostMAC`.`hmPrimary` = '1'";
-
     /**
      * Display val storage
      *

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-13 13:40-0500\n"
+"POT-Creation-Date: 2018-02-13 20:12-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4293,20 +4293,13 @@ msgstr ""
 msgid "To view a report, select an item from the menu"
 msgstr ""
 
-#, php-format
-msgid "%s ID %s is not valid"
+msgid "Create New Storage Node"
 msgstr ""
 
-msgid "Web root"
+msgid "Web Root"
 msgstr ""
 
 msgid "Bitrate"
-msgstr ""
-
-msgid "Create Storage Node"
-msgstr ""
-
-msgid "New Storage Node"
 msgstr ""
 
 msgid "Bandwidth should be numeric and greater than 0"
@@ -4327,6 +4320,9 @@ msgstr ""
 msgid "Storage Node General"
 msgstr ""
 
+msgid "Web root"
+msgstr ""
+
 msgid "Storage Node update failed!"
 msgstr ""
 
@@ -4339,13 +4335,10 @@ msgstr ""
 msgid "Storage Node Update Fail"
 msgstr ""
 
-msgid "Max"
+msgid "Total Clients"
 msgstr ""
 
-msgid "Create Storage Group"
-msgstr ""
-
-msgid "New Storage Group"
+msgid "Create New Storage Group"
 msgstr ""
 
 msgid "Storage Group Create Success"
@@ -4369,19 +4362,7 @@ msgstr ""
 msgid "Storage Group Update Fail"
 msgstr ""
 
-msgid "Change password"
-msgstr ""
-
-msgid "API Settings"
-msgstr ""
-
-msgid "No friendly name defined"
-msgstr ""
-
 msgid "API?"
-msgstr ""
-
-msgid "Edit User"
 msgstr ""
 
 msgid "Create New User"
