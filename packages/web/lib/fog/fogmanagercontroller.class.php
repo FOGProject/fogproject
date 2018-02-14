@@ -557,7 +557,6 @@ abstract class FOGManagerController extends FOGBase
          * Output
          */
         return array(
-            "sql_query" => $sql_query,
             "draw" => (
                 isset ($request['draw']) ?
                 intval($request['draw']) :

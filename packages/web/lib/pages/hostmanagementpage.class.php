@@ -408,6 +408,7 @@ class HostManagementPage extends FOGPage
                 $serverFault = true;
                 throw new Exception(_('Add host failed!'));
             }
+            $code = 201;
             $hook = 'HOST_ADD_SUCCESS';
             $msg = json_encode(
                 [
@@ -416,7 +417,7 @@ class HostManagementPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            http_response_code($serverFault ? 500 : 400);
+            $code = ($serverFault ? 500 : 400);
             $hook = 'HOST_ADD_FAIL';
             $msg = json_encode(
                 [
@@ -425,8 +426,8 @@ class HostManagementPage extends FOGPage
                 ]
             );
         }
-        http_response_code(201);
-        header('Location: ../management/index.php?node=host&sub=edit&id=' . $Host->get('id'));
+        http_response_code($code);
+        //header('Location: ../management/index.php?node=host&sub=edit&id=' . $Host->get('id'));
         self::$HookManager
             ->processEvent(
                 $hook,
@@ -539,26 +540,31 @@ class HostManagementPage extends FOGPage
             . '</label>' => $this->exitEfi
         ];
         self::$HookManager->processEvent(
-            'HOST_EDIT_FIELDS',
+            'HOST_GENERAL_FIELDS',
             [
                 'fields' => &$fields,
                 'obj' => &$this->obj
             ]
         );
         $rendered = self::formFields($fields);
-        echo '<div class="box box-solid">';
-        echo '<div class="box-body">';
+        unset($fields);
         echo '<form id="host-general-form" class="form-horizontal" method="post" action="'
             . self::makeTabUpdateURL('host-general', $this->obj->get('id'))
             . '" novalidate>';
+        echo '<div class="box box-solid">';
+        echo '<div class="box-body">';
         echo $rendered;
-        echo '</form>';
         echo '</div>';
         echo '<div class="box-footer">';
-        echo '<button class="btn btn-primary" id="general-send">' . _('Update') . '</button>';
-        echo '<button class="btn btn-danger pull-right" id="general-delete">' . _('Delete') . '</button>';
+        echo '<button class="btn btn-primary" id="general-send">'
+            . _('Update')
+            . '</button>';
+        echo '<button class="btn btn-danger pull-right" id="general-delete">'
+            . _('Delete')
+            . '</button>';
         echo '</div>';
         echo '</div>';
+        echo '</form>';
     }
     /**
      * Host general post update.
@@ -882,7 +888,7 @@ class HostManagementPage extends FOGPage
         echo '</h4>';
         echo '<div>';
         echo '<p class="help-block">';
-        echo _('Changes will be automatically saved');
+        echo _('Changes will automatically be saved');
         echo '</p>';
         echo '</div>';
         echo '</div>';
@@ -986,7 +992,7 @@ class HostManagementPage extends FOGPage
         echo '</h4>';
         echo '<div>';
         echo '<p class="help-block">';
-        echo _('Changes will be automatically saved');
+        echo _('Changes will automatically be saved');
         echo '</p>';
         echo '</div>';
         echo '</div>';
@@ -2053,19 +2059,19 @@ class HostManagementPage extends FOGPage
                 )
             );
         }
-        $tabData = array();
+        $tabData = [];
 
         // General
-        $tabData[] = array(
+        $tabData[] = [
             'name' => _('General'),
             'id' => 'host-general',
             'generator' => function() {
                 $this->hostGeneral();
             }
-        );
+        ];
 
         // Active Directory
-        $tabData[] = array(
+        $tabData[] = [
             'name' =>  _('Active Directory'),
             'id' => 'host-active-directory',
             'generator' => function() {
@@ -2078,90 +2084,90 @@ class HostManagementPage extends FOGPage
                     $this->obj->get('enforce')
                 );
             }
-        );
+        ];
 
         // Tasks
         if (!$this->obj->get('pending')) {
-            $tabData[] = array(
+            $tabData[] = [
                 'name' =>  _('Tasks'),
                 'id' => 'host-tasks',
                 'generator' => function() {
                     $this->basictasksOptions();
                 }
-            );
+            ];
         }
 
         // Printers
-        $tabData[] = array(
+        $tabData[] = [
             'name' => _('Printers'),
             'id' => 'host-printers',
             'generator' => function() {
                 $this->hostPrinters();
             }
-        );
+        ];
 
         // Snapins
-        $tabData[] = array(
+        $tabData[] = [
             'name' => _('Snapins'),
             'id' => 'host-snapins',
             'generator' => function() {
                 $this->hostSnapins();
             }
-        );
+        ];
 
         // Service
-        $tabData[] = array(
+        $tabData[] = [
             'name' => _('Service Settings'),
             'id' => 'host-service',
             'generator' => function() {
                 $this->hostService();
             }
-        );
+        ];
 
         // Power Management
-        /*$tabData[] = array(
+        /*$tabData[] = [
             'name' => _('Power Management'),
             'id' => 'host-powermanagement',
             'generator' => function() {
                 $this->hostPMDisplay();
             }
-        );*/
+        ];*/
 
         // Inventory
-        $tabData[] = array(
+        $tabData[] = [
             'name' => _('Inventory'),
             'id' => 'host-inventory',
             'generator' => function() {
                 $this->hostInventory();
             }
-        );
+        ];
 
         // Login History
-        /*$tabData[] = array(
+        /*$tabData[] = [
             'name' => _('Login History'),
             'id' => 'host-login-history',
             'generator' => function() {
                 $this->hostLoginHistory();
             }
-        );
+        ];
 
         // Image History
-        $tabData[] = array(
+        $tabData[] = [
             'name' => _('Image History'),
             'id' => 'host-image-history',
             'generator' => function() {
                 $this->hostImageHistory();
             }
-        );
+        ];
 
         // Snapin History
-        $tabData[] = array(
+        $tabData[] = [
             'name' => _('Snapin History'),
             'id' => 'host-snapin-history',
             'generator' => function() {
                 $this->hostSnapinHistory();
             }
-        );*/
+        ];*/
 
         /**
          * These need to be worked yet.
@@ -2431,6 +2437,7 @@ class HostManagementPage extends FOGPage
                 $igclient = $igstuff['igclient'];
                 $this->obj->ignore($igimage, $igclient);
             }
+            $code = 201;
             $hook = 'HOST_EDIT_SUCCESS';
             $msg = json_encode(
                 array(
@@ -2439,7 +2446,7 @@ class HostManagementPage extends FOGPage
                 )
             );
         } catch (Exception $e) {
-            http_response_code($serverFault ? 500 : 400);
+            $code = ($serverFault ? 500 : 400);
             $hook = 'HOST_EDIT_FAIL';
             $msg = json_encode(
                 array(
@@ -2448,7 +2455,7 @@ class HostManagementPage extends FOGPage
                 )
             );
         }
-        http_response_code(201);
+        http_response_code($code);
         self::$HookManager
             ->processEvent(
                 $hook,
@@ -2489,6 +2496,7 @@ class HostManagementPage extends FOGPage
                 $serverFault = true;
                 throw new Exception(_('Failed to create new Group'));
             }
+            $code = 201;
             $msg = json_encode(
                 array(
                     'msg' => _('Successfully added selected hosts to the group!'),
@@ -2496,7 +2504,7 @@ class HostManagementPage extends FOGPage
                 )
             );
         } catch (Exception $e) {
-            http_response_code($serverFault ? 500 : 400);
+            $code = ($serverFault ? 500 : 400);
             $msg = json_encode(
                 array(
                     'error' => $e->getMessage(),
@@ -2504,7 +2512,7 @@ class HostManagementPage extends FOGPage
                 )
             );
         }
-        http_response_code(201);
+        http_response_code($code);
         echo $msg;
         exit;
     }

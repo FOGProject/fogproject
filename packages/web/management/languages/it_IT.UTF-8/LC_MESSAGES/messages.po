@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-13 20:10-0500\n"
+"POT-Creation-Date: 2018-02-14 01:23-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -3492,7 +3492,7 @@ msgstr "Associazioni stampanti"
 msgid "Update/Remove printers"
 msgstr "Aggiorna/Rimuovi stampanti"
 
-msgid "Changes will be automatically saved"
+msgid "Changes will automatically be saved"
 msgstr ""
 
 msgid "Snapin Created"
@@ -3522,9 +3522,6 @@ msgid "Host module settings"
 msgstr "Impostazioni del modulo host"
 
 msgid "Modules disabled globally cannot be enabled here"
-msgstr ""
-
-msgid "Changes will automatically be saved"
 msgstr ""
 
 msgid "Screen Width (in pixels)"
@@ -4400,13 +4397,8 @@ msgstr "Nodo di archiviazione creato con successo"
 msgid "Storage Node Create Fail"
 msgstr "Creazione nodo di archiviazione fallita"
 
-msgid "Storage Node General"
-msgstr "Generale nodo di archiviazione"
-
-msgid "Web root"
-msgstr "radice Web"
-
-msgid "Storage Node update failed!"
+#, fuzzy
+msgid "Storage Node Update Failed"
 msgstr "Aggiornamento nodo di archiviazione fallito!"
 
 msgid "Storage Node updated!"
@@ -4432,11 +4424,29 @@ msgstr "Gruppo di archiviazione creato con successo"
 msgid "Storage Group Create Fail"
 msgstr "Gruppo di archiviazione creazione fallita"
 
-msgid "Storage Group General"
-msgstr "Gruppo di archiviazione Generale"
+#, fuzzy
+msgid "Update Master Node"
+msgstr "Maestro Node"
 
-msgid "Storage Group update failed!"
-msgstr "Aggiornamento Gruppo di archiviazione fallito!"
+#, fuzzy
+msgid "Add selected"
+msgstr "Aggiungi stampanti selezionate"
+
+#, fuzzy
+msgid "Storage Node Master"
+msgstr "Nome Storage Node"
+
+#, fuzzy
+msgid "Storage Node Associated"
+msgstr "Storage Node Creato"
+
+#, fuzzy
+msgid "Update/Remove Storage Nodes"
+msgstr "Aggiungi/rimuovi gruppo di archiviazione"
+
+#, fuzzy
+msgid "Storage Group Update Failed"
+msgstr "Aggiornamento Gruppo di archiviazione fallito"
 
 msgid "Storage Group updated!"
 msgstr "Gruppo di archiviazione aggiornato!"

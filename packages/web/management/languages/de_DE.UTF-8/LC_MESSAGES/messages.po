@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-13 20:10-0500\n"
+"POT-Creation-Date: 2018-02-14 01:23-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -3880,7 +3880,7 @@ msgstr "Druckerzugehörigkeiten"
 msgid "Update/Remove printers"
 msgstr "Drucker Aktualisieren/Entfernen"
 
-msgid "Changes will be automatically saved"
+msgid "Changes will automatically be saved"
 msgstr ""
 
 #, fuzzy
@@ -3912,9 +3912,6 @@ msgid "Host module settings"
 msgstr "Host Moduleinstellungen"
 
 msgid "Modules disabled globally cannot be enabled here"
-msgstr ""
-
-msgid "Changes will automatically be saved"
 msgstr ""
 
 msgid "Screen Width (in pixels)"
@@ -4900,15 +4897,8 @@ msgid "Storage Node Create Fail"
 msgstr "Erstellen des Speicherknotens fehlgeschlagen"
 
 #, fuzzy
-msgid "Storage Node General"
-msgstr "Speicherknoten allgemein"
-
-msgid "Web root"
-msgstr "Webroot"
-
-#, fuzzy
-msgid "Storage Node update failed!"
-msgstr "Speicherknoten aktualisieren fehlgeschlagen"
+msgid "Storage Node Update Failed"
+msgstr "Aktualisierung des Speicherknotens fehlgeschlagen"
 
 #, fuzzy
 msgid "Storage Node updated!"
@@ -4939,11 +4929,27 @@ msgid "Storage Group Create Fail"
 msgstr "Erstellen einer Speichergruppe fehlgeschlagen"
 
 #, fuzzy
-msgid "Storage Group General"
-msgstr "Speichergruppe allgemein"
+msgid "Update Master Node"
+msgstr "Master-Knoten"
 
 #, fuzzy
-msgid "Storage Group update failed!"
+msgid "Add selected"
+msgstr "ausgewählte Images hinzufügen"
+
+#, fuzzy
+msgid "Storage Node Master"
+msgstr "Speicherknotenname"
+
+#, fuzzy
+msgid "Storage Node Associated"
+msgstr "Speicherknoten erstellt"
+
+#, fuzzy
+msgid "Update/Remove Storage Nodes"
+msgstr "Speichergruppen aktualisieren/entfernen"
+
+#, fuzzy
+msgid "Storage Group Update Failed"
 msgstr "Aktualisierung der Speichergruppe fehlgeschlagen"
 
 #, fuzzy
