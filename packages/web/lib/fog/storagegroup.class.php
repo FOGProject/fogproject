@@ -280,4 +280,53 @@ class StorageGroup extends FOGController
         }
         return $winner;
     }
+    /**
+     * Adds nodes to this storage group
+     *
+     * @param array $addArray the nodes to add
+     *
+     * @return object
+     */
+    public function addNode($addArray)
+    {
+        self::getClass('StorageNodeManager')
+            ->update(
+                [
+                    'id' => $addArray
+                ],
+                '',
+                [
+                    'storagegroupID' => $this->get('id')
+                ]
+            );
+        $this->loadAllnodes();
+        $this->loadEnabledNodes();
+        $this->loadUsedtasks();
+        return $this;
+    }
+    /**
+     * Removes nodes from this storage group
+     *
+     * @param array $removeArray the nodes to remove
+     *
+     * @return object
+     */
+    public function removeNode($removeArray)
+    {
+        self::getClass('StorageNodeManager')
+            ->update(
+                [
+                    'id' => $removeArray,
+                    'storagegroupID' => $this->get('id')
+                ],
+                '',
+                [
+                    'storagegroupID' => 0
+                ]
+            );
+        $this->loadAllnodes();
+        $this->loadEnabledNodes();
+        $this->loadUsedtasks();
+        return $this;
+    }
 }

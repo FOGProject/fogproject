@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-13 20:10-0500\n"
+"POT-Creation-Date: 2018-02-14 01:23-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3875,7 +3875,7 @@ msgstr "Printer Description"
 msgid "Update/Remove printers"
 msgstr "Update Printer"
 
-msgid "Changes will be automatically saved"
+msgid "Changes will automatically be saved"
 msgstr ""
 
 #, fuzzy
@@ -3906,9 +3906,6 @@ msgid "Host module settings"
 msgstr ""
 
 msgid "Modules disabled globally cannot be enabled here"
-msgstr ""
-
-msgid "Changes will automatically be saved"
 msgstr ""
 
 msgid "Screen Width (in pixels)"
@@ -4898,14 +4895,7 @@ msgid "Storage Node Create Fail"
 msgstr "Storage Node Created"
 
 #, fuzzy
-msgid "Storage Node General"
-msgstr "Storage Node Interface"
-
-msgid "Web root"
-msgstr "Web root"
-
-#, fuzzy
-msgid "Storage Node update failed!"
+msgid "Storage Node Update Failed"
 msgstr "Storage Node Updated"
 
 #, fuzzy
@@ -4937,12 +4927,28 @@ msgid "Storage Group Create Fail"
 msgstr "Storage Group Created"
 
 #, fuzzy
-msgid "Storage Group General"
-msgstr "Storage Group Name"
+msgid "Update Master Node"
+msgstr "Master Node"
 
 #, fuzzy
-msgid "Storage Group update failed!"
-msgstr "User update failed"
+msgid "Add selected"
+msgstr "Remove selected printers"
+
+#, fuzzy
+msgid "Storage Node Master"
+msgstr "Storage Node Name"
+
+#, fuzzy
+msgid "Storage Node Associated"
+msgstr "Storage Node Created"
+
+#, fuzzy
+msgid "Update/Remove Storage Nodes"
+msgstr "Update Printer"
+
+#, fuzzy
+msgid "Storage Group Update Failed"
+msgstr "Storage Group Updated"
 
 #, fuzzy
 msgid "Storage Group updated!"

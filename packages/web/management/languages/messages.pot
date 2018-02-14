@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-13 20:12-0500\n"
+"POT-Creation-Date: 2018-02-14 01:23-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3435,7 +3435,7 @@ msgstr ""
 msgid "Update/Remove printers"
 msgstr ""
 
-msgid "Changes will be automatically saved"
+msgid "Changes will automatically be saved"
 msgstr ""
 
 msgid "Snapin Created"
@@ -3460,9 +3460,6 @@ msgid "Host module settings"
 msgstr ""
 
 msgid "Modules disabled globally cannot be enabled here"
-msgstr ""
-
-msgid "Changes will automatically be saved"
 msgstr ""
 
 msgid "Screen Width (in pixels)"
@@ -4317,13 +4314,7 @@ msgstr ""
 msgid "Storage Node Create Fail"
 msgstr ""
 
-msgid "Storage Node General"
-msgstr ""
-
-msgid "Web root"
-msgstr ""
-
-msgid "Storage Node update failed!"
+msgid "Storage Node Update Failed"
 msgstr ""
 
 msgid "Storage Node updated!"
@@ -4347,10 +4338,22 @@ msgstr ""
 msgid "Storage Group Create Fail"
 msgstr ""
 
-msgid "Storage Group General"
+msgid "Update Master Node"
 msgstr ""
 
-msgid "Storage Group update failed!"
+msgid "Add selected"
+msgstr ""
+
+msgid "Storage Node Master"
+msgstr ""
+
+msgid "Storage Node Associated"
+msgstr ""
+
+msgid "Update/Remove Storage Nodes"
+msgstr ""
+
+msgid "Storage Group Update Failed"
 msgstr ""
 
 msgid "Storage Group updated!"

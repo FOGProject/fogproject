@@ -233,6 +233,7 @@ class GroupManagementPage extends FOGPage
                 $serverFault = true;
                 throw new Exception(_('Add group failed!'));
             }
+            $code = 201;
             $hook = 'GROUP_ADD_SUCCESS';
             $msg = json_encode(
                 [
@@ -241,7 +242,7 @@ class GroupManagementPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            http_response_code($serverFault ? 500 : 400);
+            $code = ($serverFault ? 500 : 400);
             $hook = 'GROUP_ADD_FAIL';
             $msg = json_encode(
                 [
@@ -250,8 +251,8 @@ class GroupManagementPage extends FOGPage
                 ]
             );
         }
-        http_response_code(201);
-        header('Location: ../management/index.php?node=group&sub=edit&id=' . $Group->get('id'));
+        http_response_code($code);
+        //header('Location: ../management/index.php?node=group&sub=edit&id=' . $Group->get('id'));
         self::$HookManager
             ->processEvent(
                 $hook,
@@ -751,7 +752,7 @@ class GroupManagementPage extends FOGPage
         echo '</h4>';
         echo '<div>';
         echo '<p class="help-block">';
-        echo _('Changes will be automatically saved');
+        echo _('Changes will automatically be saved');
         echo '</p>';
         echo '</div>';
         echo '</div>';
@@ -862,7 +863,7 @@ class GroupManagementPage extends FOGPage
         echo '</h4>';
         echo '<div>';
         echo '<p class="help-block">';
-        echo _('Changes will be automatically saved');
+        echo _('Changes will automatically be saved');
         echo '</p>';
         echo '</div>';
         echo '</div>';
@@ -1542,6 +1543,7 @@ class GroupManagementPage extends FOGPage
                 $serverFault = true;
                 throw new Exception(_('Group update failed!'));
             }
+            $code = 201;
             $hook = 'GROUP_EDIT_SUCCESS';
             $msg = json_encode(
                 array(
@@ -1550,7 +1552,7 @@ class GroupManagementPage extends FOGPage
                 )
             );
         } catch (Exception $e) {
-            http_response_code($serverFault ? 500 : 400);
+            $code = ($serverFault ? 500 : 400);
             $hook = 'GROUP_EDIT_FAIL';
             $msg = json_encode(
                 array(
@@ -1559,7 +1561,7 @@ class GroupManagementPage extends FOGPage
                 )
             );
         }
-        http_response_code(201);
+        http_response_code($code);
         self::$HookManager
             ->processEvent(
                 $hook,

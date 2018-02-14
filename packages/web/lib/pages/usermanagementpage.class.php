@@ -211,6 +211,7 @@ class UserManagementPage extends FOGPage
                     _('Add user failed!')
                 );
             }
+            $code = 201;
             $hook = 'USER_ADD_SUCCESS';
             $msg = json_encode(
                 [
@@ -220,7 +221,7 @@ class UserManagementPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            http_response_code(($serverFault ? 500 : 400));
+            $code = ($serverFault ? 500 : 400);
             $hook = 'USER_ADD_FAIL';
             $msg = json_encode(
                 [
@@ -229,7 +230,7 @@ class UserManagementPage extends FOGPage
                 ]
             );
         }
-        http_response_code(201);
+        http_response_code($code);
         self::$HookManager
             ->processEvent(
                 $hook,
@@ -584,6 +585,7 @@ class UserManagementPage extends FOGPage
                 $serverFault = true;
                 throw new Exception(_('User update failed!'));
             }
+            $code = 201;
             $hook = 'USER_UPDATE_SUCCESS';
             $msg = json_encode(
                 [
@@ -592,7 +594,7 @@ class UserManagementPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            http_response_code(($serverFault ? 500 : 400));
+            $code = ($serverFault ? 500 : 400);
             $hook = 'USER_UPDATE_FAIL';
             $msg = json_encode(
                 [
@@ -601,7 +603,7 @@ class UserManagementPage extends FOGPage
                 ]
             );
         }
-        http_response_code(201);
+        http_response_code($code);
         self::$HookManager
             ->processEvent(
                 $hook,

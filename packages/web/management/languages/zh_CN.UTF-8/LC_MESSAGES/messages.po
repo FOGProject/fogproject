@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-13 20:10-0500\n"
+"POT-Creation-Date: 2018-02-14 01:23-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3859,7 +3859,7 @@ msgstr "打印机说明"
 msgid "Update/Remove printers"
 msgstr "删除选定的打印机"
 
-msgid "Changes will be automatically saved"
+msgid "Changes will automatically be saved"
 msgstr ""
 
 #, fuzzy
@@ -3891,9 +3891,6 @@ msgid "Host module settings"
 msgstr "主机描述"
 
 msgid "Modules disabled globally cannot be enabled here"
-msgstr ""
-
-msgid "Changes will automatically be saved"
 msgstr ""
 
 msgid "Screen Width (in pixels)"
@@ -4878,14 +4875,7 @@ msgid "Storage Node Create Fail"
 msgstr "存储节点创建"
 
 #, fuzzy
-msgid "Storage Node General"
-msgstr "存储节点接口"
-
-msgid "Web root"
-msgstr "Web根目录"
-
-#, fuzzy
-msgid "Storage Node update failed!"
+msgid "Storage Node Update Failed"
 msgstr "存储节点更新"
 
 #, fuzzy
@@ -4917,12 +4907,28 @@ msgid "Storage Group Create Fail"
 msgstr "存储组创建"
 
 #, fuzzy
-msgid "Storage Group General"
-msgstr "存储组名称"
+msgid "Update Master Node"
+msgstr "主节点"
 
 #, fuzzy
-msgid "Storage Group update failed!"
-msgstr "用户更新失败"
+msgid "Add selected"
+msgstr "打印机"
+
+#, fuzzy
+msgid "Storage Node Master"
+msgstr "存储节点名称"
+
+#, fuzzy
+msgid "Storage Node Associated"
+msgstr "存储节点创建"
+
+#, fuzzy
+msgid "Update/Remove Storage Nodes"
+msgstr "删除选定的打印机"
+
+#, fuzzy
+msgid "Storage Group Update Failed"
+msgstr "存储组更新"
 
 #, fuzzy
 msgid "Storage Group updated!"
