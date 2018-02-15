@@ -1001,11 +1001,11 @@ class HostManagementPage extends FOGPage
         if (isset($_POST['updatesnapins'])) {
             $snapins = filter_input_array(
                 INPUT_POST,
-                array(
-                    'snapin' => array(
+                [
+                    'snapin' => [
                         'flags' => FILTER_REQUIRE_ARRAY
-                    )
-                )
+                    ]
+                ]
             );
             $snapins = $snapins['snapin'];
             if (count($snapins ?: []) > 0) {
@@ -1015,11 +1015,11 @@ class HostManagementPage extends FOGPage
         if (isset($_POST['snapdel'])) {
             $snapins = filter_input_array(
                 INPUT_POST,
-                array(
-                    'snapinRemove' => array(
+                [
+                    'snapinRemove' => [
                         'flags' => FILTER_REQUIRE_ARRAY
-                    )
-                )
+                    ]
+                ]
             );
             $snapins = $snapins['snapinRemove'];
             if (count($snapins ?: []) > 0) {
@@ -1263,7 +1263,7 @@ class HostManagementPage extends FOGPage
         $props = ' method="post" action="'
             . $this->formAction
             . '&tab=host-hardware-inventory" ';
-        $cpus = array('cpuman', 'spuversion');
+        $cpus = ['cpuman', 'spuversion'];
         foreach ($cpus as &$x) {
             $this->obj->get('inventory')
                 ->set(

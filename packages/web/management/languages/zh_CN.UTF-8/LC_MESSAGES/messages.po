@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-14 21:32-0500\n"
+"POT-Creation-Date: 2018-02-15 18:14-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4455,22 +4455,18 @@ msgstr "压缩"
 msgid "Image Manager"
 msgstr "图像管理器"
 
+#, fuzzy
+msgid "An image name is required!"
+msgstr "图像名是必需的！"
+
 msgid "An image already exists with this name!"
 msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
-msgid "Please choose a different name"
+msgid "Please choose a different filename/path as this is reserved"
 msgstr "请选择一个图像"
 
-#, fuzzy
-msgid "this one is reserved for FOG"
-msgstr "请选择一个不同的名字，这个人是留给雾。"
-
-#, fuzzy
-msgid "Please choose a different path"
-msgstr "请选择一个图像"
-
-msgid "this one is already in use by another image"
+msgid "The path requested is already in use by another image!"
 msgstr ""
 
 #, fuzzy
@@ -4489,51 +4485,32 @@ msgstr "用户创建"
 msgid "Image Create Fail"
 msgstr "用户创建"
 
-msgid "Replicate?"
-msgstr "复制？"
+#, fuzzy
+msgid "Image Protected"
+msgstr "受保护"
 
 #, fuzzy
-msgid "Image General"
-msgstr "更新打印机"
-
-#, fuzzy
-msgid "Image Storage Groups"
-msgstr "存储组"
-
-#, fuzzy
-msgid "Check here to see what storage groups can be added"
-msgstr "请查看这里以可以添加什么snapins"
-
-#, fuzzy
-msgid "Add Storage Groups"
-msgstr "添加存储组"
-
-#, fuzzy
-msgid "Add selected storage groups"
-msgstr "打印机"
-
-#, fuzzy
-msgid "Update/Remove Storage Groups"
-msgstr "删除选定的打印机"
-
-#, fuzzy
-msgid "Update primary group"
+msgid "Update Primary Group"
 msgstr "更新主要组"
 
 #, fuzzy
-msgid "Remove selected groups"
-msgstr "删除选定snapins"
+msgid "Add selected"
+msgstr "打印机"
 
 #, fuzzy
-msgid "No groups selected to be removed"
-msgstr "没有组选中，没有输入新的组名"
+msgid "Storage Group Primary"
+msgstr "存储组名称"
 
 #, fuzzy
-msgid "You must have at least one group associated"
-msgstr "您必须至少有一个存储组"
+msgid "Storage Group Associated"
+msgstr "存储节点创建"
 
 #, fuzzy
-msgid "Image update failed!"
+msgid "Storage Groups"
+msgstr "存储组"
+
+#, fuzzy
+msgid "Image Update Failed"
 msgstr "图片更新"
 
 #, fuzzy
@@ -4858,10 +4835,6 @@ msgid "Update Master Node"
 msgstr "主节点"
 
 #, fuzzy
-msgid "Add selected"
-msgstr "打印机"
-
-#, fuzzy
 msgid "Storage Node Master"
 msgstr "存储节点名称"
 
@@ -5164,6 +5137,9 @@ msgstr "管理单元参数"
 msgid "Snapin Timeout (seconds)"
 msgstr "菜单超时（以秒为单位）"
 
+msgid "Replicate?"
+msgstr "复制？"
+
 msgid "Reboot after install"
 msgstr "重启后安装"
 
@@ -5198,6 +5174,14 @@ msgstr ""
 #, fuzzy
 msgid "must be specified"
 msgstr "没有指定的图像"
+
+#, fuzzy
+msgid "Please choose a different name"
+msgstr "请选择一个图像"
+
+#, fuzzy
+msgid "this one is reserved for FOG"
+msgstr "请选择一个不同的名字，这个人是留给雾。"
 
 msgid "FTP Connection has failed"
 msgstr "FTP连接失败"
@@ -5235,6 +5219,38 @@ msgstr "更新管理单元"
 #, fuzzy
 msgid "Snapin Storage Groups"
 msgstr "无效的存储组"
+
+#, fuzzy
+msgid "Check here to see what storage groups can be added"
+msgstr "请查看这里以可以添加什么snapins"
+
+#, fuzzy
+msgid "Add Storage Groups"
+msgstr "添加存储组"
+
+#, fuzzy
+msgid "Add selected storage groups"
+msgstr "打印机"
+
+#, fuzzy
+msgid "Update/Remove Storage Groups"
+msgstr "删除选定的打印机"
+
+#, fuzzy
+msgid "Update primary group"
+msgstr "更新主要组"
+
+#, fuzzy
+msgid "Remove selected groups"
+msgstr "删除选定snapins"
+
+#, fuzzy
+msgid "No groups selected to be removed"
+msgstr "没有组选中，没有输入新的组名"
+
+#, fuzzy
+msgid "You must have at least one group associated"
+msgstr "您必须至少有一个存储组"
 
 #, fuzzy
 msgid "Snapin update failed!"

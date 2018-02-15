@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-14 21:32-0500\n"
+"POT-Creation-Date: 2018-02-15 18:14-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -4477,23 +4477,19 @@ msgstr "Kompression"
 msgid "Image Manager"
 msgstr "Image Manager"
 
+#, fuzzy
+msgid "An image name is required!"
+msgstr "Ein Name ist erforderlich!"
+
 msgid "An image already exists with this name!"
 msgstr "Ein Image mit diesem Namen ist bereits vorhanden!"
 
 #, fuzzy
-msgid "Please choose a different name"
+msgid "Please choose a different filename/path as this is reserved"
 msgstr "Bitte wählen Sie einen anderen Namen!"
 
-#, fuzzy
-msgid "this one is reserved for FOG"
-msgstr "Dieser ist reserviert für FOG."
-
-#, fuzzy
-msgid "Please choose a different path"
-msgstr "Bitte wählen Sie einen anderen Pfad. "
-
-msgid "this one is already in use by another image"
-msgstr "Dieser wird durch ein anderes Image verwendet"
+msgid "The path requested is already in use by another image!"
+msgstr ""
 
 #, fuzzy
 msgid "Add image failed!"
@@ -4511,51 +4507,32 @@ msgstr "Imageerstellung erfolgreich"
 msgid "Image Create Fail"
 msgstr "Imageerstellung fehlgeschlagen"
 
-msgid "Replicate?"
-msgstr "Replizieren?"
+#, fuzzy
+msgid "Image Protected"
+msgstr "Geschützt"
 
 #, fuzzy
-msgid "Image General"
-msgstr "Image allgemein"
-
-#, fuzzy
-msgid "Image Storage Groups"
-msgstr "Speichergruppen"
-
-#, fuzzy
-msgid "Check here to see what storage groups can be added"
-msgstr "Prüfen Sie hier, welche Speichergruppen hinzugefügt werden können"
-
-#, fuzzy
-msgid "Add Storage Groups"
-msgstr "Speichergruppe hinzufügen"
-
-#, fuzzy
-msgid "Add selected storage groups"
-msgstr "Ausgewählte Speichergruppen hinzufügen"
-
-#, fuzzy
-msgid "Update/Remove Storage Groups"
-msgstr "Speichergruppen aktualisieren/entfernen"
-
-#, fuzzy
-msgid "Update primary group"
+msgid "Update Primary Group"
 msgstr "Primäre Gruppe aktualisieren"
 
 #, fuzzy
-msgid "Remove selected groups"
-msgstr "ausgewählte Gruppen entfernen"
+msgid "Add selected"
+msgstr "ausgewählte Images hinzufügen"
 
 #, fuzzy
-msgid "No groups selected to be removed"
-msgstr "Keine Gruppen zum Entfernen ausgewählt"
+msgid "Storage Group Primary"
+msgstr "Name der Speichergruppe"
 
 #, fuzzy
-msgid "You must have at least one group associated"
-msgstr "Sie müssen mindestens eine Speichergruppe verknüpfen"
+msgid "Storage Group Associated"
+msgstr "Speicherknoten erstellt"
 
 #, fuzzy
-msgid "Image update failed!"
+msgid "Storage Groups"
+msgstr "Speichergruppe"
+
+#, fuzzy
+msgid "Image Update Failed"
 msgstr "Image Update fehlgeschlagen"
 
 #, fuzzy
@@ -4880,10 +4857,6 @@ msgid "Update Master Node"
 msgstr "Master-Knoten"
 
 #, fuzzy
-msgid "Add selected"
-msgstr "ausgewählte Images hinzufügen"
-
-#, fuzzy
 msgid "Storage Node Master"
 msgstr "Speicherknotenname"
 
@@ -5188,6 +5161,9 @@ msgstr "Snapin-Argumente versteckt"
 msgid "Snapin Timeout (seconds)"
 msgstr "Snapin-Timeout (in Sekunden)"
 
+msgid "Replicate?"
+msgstr "Replizieren?"
+
 msgid "Reboot after install"
 msgstr "Nach der Installation neu starten"
 
@@ -5222,6 +5198,14 @@ msgstr "ob bereits ausgewählt oder hochgeladen"
 #, fuzzy
 msgid "must be specified"
 msgstr "muss angegeben werden"
+
+#, fuzzy
+msgid "Please choose a different name"
+msgstr "Bitte wählen Sie einen anderen Namen!"
+
+#, fuzzy
+msgid "this one is reserved for FOG"
+msgstr "Dieser ist reserviert für FOG."
 
 msgid "FTP Connection has failed"
 msgstr "FTP-Verbindung fehlgeschlagen"
@@ -5259,6 +5243,38 @@ msgstr "Snapin geschützt"
 #, fuzzy
 msgid "Snapin Storage Groups"
 msgstr "Snapin Speichergruppen"
+
+#, fuzzy
+msgid "Check here to see what storage groups can be added"
+msgstr "Prüfen Sie hier, welche Speichergruppen hinzugefügt werden können"
+
+#, fuzzy
+msgid "Add Storage Groups"
+msgstr "Speichergruppe hinzufügen"
+
+#, fuzzy
+msgid "Add selected storage groups"
+msgstr "Ausgewählte Speichergruppen hinzufügen"
+
+#, fuzzy
+msgid "Update/Remove Storage Groups"
+msgstr "Speichergruppen aktualisieren/entfernen"
+
+#, fuzzy
+msgid "Update primary group"
+msgstr "Primäre Gruppe aktualisieren"
+
+#, fuzzy
+msgid "Remove selected groups"
+msgstr "ausgewählte Gruppen entfernen"
+
+#, fuzzy
+msgid "No groups selected to be removed"
+msgstr "Keine Gruppen zum Entfernen ausgewählt"
+
+#, fuzzy
+msgid "You must have at least one group associated"
+msgstr "Sie müssen mindestens eine Speichergruppe verknüpfen"
 
 #, fuzzy
 msgid "Snapin update failed!"

@@ -41,6 +41,7 @@
 
     membershipAddBtn.prop('disabled', true);
     membershipRemoveBtn.prop('disabled', true);
+    membershipMasterBtn.prop('disabled', true);
 
     function onMembershipSelect(selected) {
         var disabled = selected.count() == 0;
@@ -54,6 +55,7 @@
         ],
         columns: [
             {data: 'name'},
+            {data: 'isMaster'},
             {data: 'association'}
         ],
         rowId: 'id',
@@ -73,10 +75,12 @@
                         checkval = ' checked';
                     }
                     return '<div class="radio">'
-                        + '<input belongsto="isMasterNode' + row.origID +'" type="radio" class="master" name="master" id="node_'
+                        + '<input belongsto="isMasterNode' + row.origID +'" type="radio" class="master'
+                        + row.origID
+                        + '" name="master" id="node_'
                         + row.id
                         + '" value="' + row.id + '"'
-                        + ' wasoriginaldefault="'
+                        + ' wasoriginalmaster="'
                         + checkval
                         + '" '
                         + checkval
@@ -115,12 +119,11 @@
         $('#storagegroup-membership-table input.master'+Common.id).on('ifClicked', onRadioSelect);
         $('#storagegroup-membership-table input.associated').on('ifClicked', onCheckboxSelect);
     });
-    membershipMasterBtn.prop('disabled', true);
 
     var onRadioSelect = function(event) {
         var id = parseInt($(this).attr('value'));
         if ($(this).attr('belongsto') === 'isMasterNode'+Common.id) {
-            if (MASTER_NODE_ID === -1 && $(this).attr('wasoriginaldefault') === ' checked') {
+            if (MASTER_NODE_ID === -1 && $(this).attr('wasoriginalmaster') === ' checked') {
                 MASTER_NODE_ID = id;
             }
             if (id === MASTER_NODE_ID) {
@@ -132,7 +135,7 @@
         }
     };
     var onCheckboxSelect = function(event) {
-    }
+    };
 
     // Setup master node watcher
     $('.master'+Common.id).on('ifClicked', onRadioSelect);

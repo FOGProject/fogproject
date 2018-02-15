@@ -1,20 +1,20 @@
 (function($) {
     // ---------------------------------------------------------------
     // GENERAL TAB
-    var originalName = $("#name").val();
+    var originalName = $('#name').val();
 
     var updateName = function(newName) {
-        var e = $("#pageTitle");
-        var text = e.text();
+        var e = $('#pageTitle'),
+            text = e.text();
         text = text.replace(": " + originalName, ": " + newName);
         e.text(text);
     };
 
     $("#productKey").inputmask({"mask": Common.masks.productKey});
 
-    var generalForm = $("#group-general-form");
-    var generalFormBtn = $("#general-send");
-    var generalDeleteBtn = $("#general-delete");
+    var generalForm = $('#group-general-form'),
+        generalFormBtn = $('#general-send'),
+        generalDeleteBtn = $('#general-delete');
 
     generalForm.submit(function(e) {
         e.preventDefault();

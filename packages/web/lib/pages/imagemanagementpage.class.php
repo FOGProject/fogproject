@@ -249,22 +249,15 @@ class ImageManagementPage extends FOGPage
             . 'name="toReplicate" id="toRep" checked/>',
             '<label class="col-sm-2 control-label" for="pigzcomp">'
             . _('Compression')
-            . '</label>' => '<div class="col-sm-8">'
-            //. '<div class="rangegen pigz"></div>'
-            . '<input type="text" value="'
+            . '</label>' => '<input type="text" value="'
             . $compression
             . '" class="slider form-control" '
             . 'data-slider-min="0" data-slider-max="22" data-slider-step="1" '
-            . 'data-slider-value="[0,22]" data-slider-orientation="horizontal" '
-            . 'data-slider-selection="before" data-slider-tooltip="show" '
-            . 'data-slider-id="blue">'
-            . '</div>'
-            . '<div class="col-sm-2">'
-            . '<input type="text" name="compress" class="form-control '
-            . 'showVal pigz" maxsize="2" value="'
+            . 'data-slider-value="'
             . $compression
-            . '" id="pigzcomp" readonly/>'
-            . '</div>',
+            . '" data-slider-orientation="horizontal" '
+            . 'data-slider-selection="before" data-slider-tooltip="show" '
+            . 'data-slider-id="blue"/>',
             '<label class="col-sm-2 control-label" for="imagemanage">'
             . _('Image Manager')
             . '</label>' => $format
@@ -272,10 +265,10 @@ class ImageManagementPage extends FOGPage
         self::$HookManager
             ->processEvent(
                 'IMAGE_ADD_FIELDS',
-                array(
+                [
                     'fields' => &$fields,
                     'Image' => self::getClass('Image')
-                )
+                ]
             );
         $rendered = self::formFields($fields);
         unset($fields);
@@ -302,61 +295,99 @@ class ImageManagementPage extends FOGPage
      */
     public function addPost()
     {
+        header('Content-type: application/json');
         self::$HookManager->processEvent('IMAGE_ADD_POST');
+        $image = trim(
+            filter_input(
+                INPUT_POST,
+                'image')
+        );
+        $description = trim(
+            filter_input(
+                INPUT_POST,
+                'description'
+            )
+        );
+        $storagegroup = (int)trim(
+            filter_input(
+                INPUT_POST,
+                'storagegroup'
+            )
+        );
+        $os = (int)trim(
+            filter_input(
+                INPUT_POST,
+                'os'
+            )
+        );
         $file = trim(
-            filter_input(INPUT_POST, 'file')
+            filter_input(
+                INPUT_POST,
+                'file'
+            )
         );
-        $name = trim(
-            filter_input(INPUT_POST, 'name')
+        $imagetype = (int)trim(
+            filter_input(
+                INPUT_POST,
+                'imagetype'
+            )
         );
-        $desc = trim(
-            filter_input(INPUT_POST, 'description')
+        $imagepartitiontype = (int)trim(
+            filter_input(
+                INPUT_POST,
+                'imagepartitiontype'
+            )
         );
-        $storagegroup = (int)filter_input(INPUT_POST, 'storagegroup');
-        $os = (int)filter_input(INPUT_POST, 'os');
-        $imagetype = (int)filter_input(INPUT_POST, 'imagetype');
-        $imagepartitiontype = (int)filter_input(INPUT_POST, 'imagepartitiontype');
-        $imagemanage = (int)filter_input(INPUT_POST, 'imagemanage');
-        $compress = (int)filter_input(INPUT_POST, 'compress');
-        $isenabled = (int)isset($_POST['isEnabled']);
-        $torep = (int)isset($_POST['toReplicate']);
+        $isEnabled = (int)isset($_POST['isEnabled']);
+        $toReplicate = (int)isset($_POST['toReplicate']);
+        $compress = (int)trim(
+            filter_input(
+                INPUT_POST,
+                'compress'
+            )
+        );
+        $imagemanage = (int)trim(
+            filter_input(
+                INPUT_POST,
+                'imagemanage'
+            )
+        );
+        $serverFault = false;
         try {
-            if (self::getClass('ImageManager')->exists($name)) {
-                throw new Exception(_('An image already exists with this name!'));
-            }
-            if ($file == 'postdownloadscripts'
-                || $file == 'dev'
-            ) {
+            if (!$image) {
                 throw new Exception(
-                    sprintf(
-                        '%s, %s.',
-                        _('Please choose a different name'),
-                        _('this one is reserved for FOG')
-                    )
+                    _('An image name is required!')
+                );
+            }
+            if (self::getClass('ImageManager')->exists($image)) {
+                throw new Exception(
+                    _('An image already exists with this name!')
+                );
+            }
+            if (in_array($file, ['postdownloadscripts','dev'])) {
+                throw new Exception(
+                    _('Please choose a different filename/path as this is reserved')
                 );
             }
             if (self::getClass('ImageManager')->exists($file, '', 'path')) {
                 throw new Exception(
-                    sprintf(
-                        '%s, %s.',
-                        _('Please choose a different path'),
-                        _('this one is already in use by another image')
-                    )
+                    _('The path requested is already in use by another image!')
                 );
             }
             $Image = self::getClass('Image')
-                ->set('name', $name)
-                ->set('description', $desc)
+                ->set('name', $image)
+                ->set('description', $description)
                 ->set('osID', $os)
                 ->set('path', $file)
                 ->set('imageTypeID', $imagetype)
                 ->set('imagePartitionTypeID', $imagepartitiontype)
                 ->set('compress', $compress)
-                ->set('isEnabled', $isenabled)
+                ->set('isEnabled', $isEnabled)
                 ->set('format', $imagemanage)
-                ->set('toReplicate', $torep)
+                ->set('toReplicate', $toReplicate)
                 ->addGroup($storagegroup);
             if (!$Image->save()) {
+                $serverFault = true;
                 throw new Exception(_('Add image failed!'));
             }
             /**
@@ -364,26 +395,30 @@ class ImageManagementPage extends FOGPage
              * This will set it to be the primary master.
              */
             $Image->setPrimaryGroup($storagegroup);
+            $code = 201;
             $hook = 'IMAGE_ADD_SUCCESS';
             $msg = json_encode(
-                array(
+                [
                     'msg' => _('Image added!'),
                     'title' => _('Image Create Success')
-                )
+                ]
             );
         } catch (Exception $e) {
+            $code = ($serverFault ? 500 : 400);
             $hook = 'IMAGE_ADD_FAIL';
             $msg = json_encode(
-                array(
+                [
                     'error' => $e->getMessage(),
                     'title' => _('Image Create Fail')
-                )
+                ]
             );
         }
+        http_response_code($code);
+        //header('Location: ../management/index.php?node=host&sub=edit&id=' . $Image->get('id'));
         self::$HookManager
             ->processEvent(
                 $hook,
-                array('Image' => &$Image)
+                ['Image' => &$Image]
             );
         unset($Image);
         echo $msg;
@@ -396,49 +431,54 @@ class ImageManagementPage extends FOGPage
      */
     public function imageGeneral()
     {
-        unset(
-            $this->data,
-            $this->form,
-            $this->templates,
-            $this->attributes,
-            $this->headerData
+        $image = (
+            filter_input(
+                INPUT_POST,
+                'image'
+            ) ?: $this->obj->get('name')
         );
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
+        $description = (
+            filter_input(
+                INPUT_POST,
+                'description'
+            ) ?: $this->obj->get('description')
         );
-        $this->templates = array(
-            '${field}',
-            '${input}',
+        $StorageNode = $this->obj->getStorageGroup()->getMasterStorageNode();
+        $osID = (int)(
+            filter_input(
+                INPUT_POST,
+                'os'
+            ) ?: $this->obj->get('osID')
         );
-        $StorageNode = $this
-            ->obj
-            ->getStorageGroup()
-            ->getMasterStorageNode();
-        $osID = (int)filter_input(INPUT_POST, 'os');
-        if ($osID < 1) {
-            $osID = $this->obj->get('osID');
-        }
         $OSs = self::getClass('OSManager')
             ->buildSelectBox(
                 $osID,
                 '',
                 'id'
             );
-        $itID = (int)filter_input(INPUT_POST, 'imagetype');
-        if ($itID < 1) {
-            $itID = $this->obj->get('imageTypeID');
-        }
+        $file = (
+            filter_input(
+                INPUT_POST,
+                'file'
+            ) ?: $this->obj->get('path')
+        );
+        $itID = (int)(
+            filter_input(
+                INPUT_POST,
+                'imagetype'
+            ) ?: $this->obj->get('imageTypeID')
+        );
         $ImageTypes = self::getClass('ImageTypeManager')
             ->buildSelectBox(
                 $itID,
                 '',
                 'id'
             );
-        $iptID = (
-            filter_input(INPUT_POST, 'imagepartitiontype') ?: $this->obj->get(
-                'imagePartitionTypeID'
-            )
+        $iptID = (int)(
+            filter_input(
+                INPUT_POST,
+                'imagepartitiontype'
+            ) ?: $this->obj->get('imagePartitionTypeID')
         );
         $ImagePartitionTypes = self::getClass('ImagePartitionTypeManager')
             ->buildSelectBox(
@@ -446,51 +486,36 @@ class ImageManagementPage extends FOGPage
                 '',
                 'id'
             );
-        $compression = (
-            filter_input(INPUT_POST, 'compress') ?: $this->obj->get('compress')
-        );
-        $imagemanage = (
-            filter_input(INPUT_POST, 'imagemanage') ?: $this->obj->get('format')
-        );
-        $name = (
-            filter_input(INPUT_POST, 'name') ?: $this->obj->get('name')
-        );
-        $desc = (
-            filter_input(INPUT_POST, 'description') ?: $this->obj->get('description')
-        );
-        $isen = (int)isset($_POST['isEnabled']);
-        if (!$isen) {
-            $isen = $this->obj->get('isEnabled');
-        }
-        if ($isen) {
-            $isen = ' checked';
-        } else {
-            $isen = '';
-        }
-        $torep = (int)isset($_POST['toReplicate']);
-        if (!$torep) {
-            $torep = $this->obj->get('toReplicate');
-        }
-        if ($torep) {
-            $torep = ' checked';
-        } else {
-            $torep = '';
-        }
-        $toprot = (int)isset($_POST['protected_image']);
-        if (!$toprot) {
-            $toprot = $this->obj->get('protected');
-        }
+        $toprot = (int)isset($_POST['isProtected']) ?: $this->obj->get('protected');
         if ($toprot) {
             $toprot = ' checked';
         } else {
             $toprot = '';
         }
-        $file = trim(
-            filter_input(INPUT_POST, 'file')
-        );
-        if (!$file) {
-            $file = $this->obj->get('path');
+        $isen = (int)isset($_POST['isEnabled']) ?: $this->obj->get('isEnabled');
+        if ($isen) {
+            $isen = ' checked';
+        } else {
+            $isen = '';
         }
+        $torep = (int)isset($_POST['toReplicate']) ?: $this->obj->get('toReplicate');;
+        if ($torep) {
+            $torep = ' checked';
+        } else {
+            $torep = '';
+        }
+        $compression = (int)(
+            filter_input(
+                INPUT_POST,
+                'compress'
+            ) ?: $this->obj->get('compress')
+        );
+        $imagemanage = (int)(
+            filter_input(
+                INPUT_POST,
+                'imagemanage'
+            ) ?: $this->obj->get('format')
+        );
         $format = sprintf(
             '<select name="imagemanage" id="imagemanage" class="form-control">'
             . '<option value="0"%s>%s</option>'
@@ -544,128 +569,160 @@ class ImageManagementPage extends FOGPage
             ),
             _('Partclone Zstd Split 200MiB')
         );
-        $fields = array(
-            '<label for="iName">'
+        $fields = [
+            '<label class="col-sm-2 control-label" for="image">'
             . _('Image Name')
-            . '</label>' => '<div class="input-group">'
-            . '<input class="form-control imagename-input" type="text" '
-            . 'name="name" id="iName" '
+            . '</label>' => '<input type="text" name="image" '
             . 'value="'
-            . $name
-            . '"/>'
-            . '</div>',
-            '<label for="description">'
+            . $image
+            . '" class="imagename-input form-control" '
+            . 'id="image" required/>',
+            '<label class="col-sm-2 control-label" for="description">'
             . _('Image Description')
-            . '</label>' => '<div class="input-group">'
-            . '<textarea name="description" class="form-control imagedesc-input" '
-            . 'id="description">'
-            . $desc
+            . '</label>' => '<textarea class="form-control" style="resize:vertical;'
+            . 'min-height:50px;" '
+            . 'id="description" name="description">'
+            . $description
             . '</textarea>',
-            '<label for="os">'
+            '<label class="col-sm-2 control-label" for="os">'
             . _('Operating System')
             . '</label>' => $OSs,
-            '<label for="iFile">'
+            '<label class="col-sm-2 control-label" for="file">'
             . _('Image Path')
             . '</label>' => '<div class="input-group">'
             . '<span class="input-group-addon">'
             . $StorageNode->get('path')
             . '/'
             . '</span>'
-            . '<input type="text" class="form-control imagefile-input" '
-            . 'name="file" id="iFile" '
+            . '<input type="text" name="file" '
             . 'value="'
             . $file
-            . '" />',
-            '<label for="imagetype">'
+            . '" class="form-control" id="file" required/></div>',
+            '<label class="col-sm-2 control-label" for="imagetype">'
             . _('Image Type')
             . '</label>' => $ImageTypes,
-            '<label for="imagepartitiontype">'
+            '<label class="col-sm-2 control-label" for="imagepartitiontype">'
             . _('Partition')
             . '</label>' => $ImagePartitionTypes,
-            '<label for="protectimage">'
-            . _('Protected')
+            '<label class="col-sm-2 control-label" for="isProtected">'
+            . _('Image Protected')
             . '</label>' => '<input type="checkbox" '
-            . 'name="protected_image" id="protectimage"'
+            . 'name="isProtected" id="isProtected"'
             . $toprot
             . '/>',
-            '<label for="isEnabled">'
+            '<label class="col-sm-2 control-label" for="isEnabled">'
             . _('Image Enabled')
             . '</label>' => '<input type="checkbox" '
             . 'name="isEnabled" id="isEnabled"'
             . $isen
             . '/>',
-            '<label for="toRep">'
-            . _('Replicate?')
+            '<label class="col-sm-2 control-label" for="toRep">'
+            . _('Replicate')
             . '</label>' => '<input type="checkbox" '
-            . 'name="toReplicate" id="toRep" '
+            . 'name="toReplicate" id="toRep"'
             . $torep
             . '/>',
-            '<label for="pigzcomp">'
+            '<label class="col-sm-2 control-label" for="pigzcomp">'
             . _('Compression')
-            . '</label>' => '<div class="col-xs-8">'
-            . '<div class="rangegen pigz"></div>'
-            . '</div>'
-            . '<div class="col-xs-2">'
-            . '<div class="input-group">'
-            . '<input type="text" name="compress" class="form-control '
-            . 'showVal pigz" maxsize="2" value="'
+            . '</label>' => '<input type="text" value="'
             . $compression
-            . '" id="pigzcomp" readonly/>'
-            . '</div>'
-            . '</div>',
-            '<label for="imagemanage">'
+            . '" class="slider form-control" '
+            . 'data-slider-min="0" data-slider-max="22" data-slider-step="1" '
+            . 'data-slider-value="'
+            . $compression
+            . '" data-slider-orientation="horizontal" '
+            . 'data-slider-selection="before" data-slider-tooltip="show" '
+            . 'data-slider-id="blue"/>',
+            '<label class="col-sm-2 control-label" for="imagemanage">'
             . _('Image Manager')
-            . '</label>' => $format,
-            '<label for="updategen">'
-            . _('Make Changes?')
-            . '</label>' => '<button class="btn btn-info btn-block" type="submit" '
-            . 'id="updategen" name="update">'
-            . _('Update')
-            . '</button>'
-        );
+            . '</label>' => $format
+        ];
         self::$HookManager
             ->processEvent(
-                'IMAGE_FIELDS',
-                array(
+                'IMAGE_GENERAL_FIELDS',
+                [
                     'fields' => &$fields,
-                    'Image' => &$this->obj
-                )
+                    'obj' => &$this->obj
+                ]
             );
         $rendered = self::formFields($fields);
-        self::$HookManager
-            ->processEvent(
-                'IMAGE_EDIT',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        echo '<!-- General -->';
-        echo '<div class="tab-pane fade in active" id="image-gen">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Image General');
-        echo '</h4>';
+        unset($fields);
+        echo '<form id="image-general-form" class="form-horizontal" method="post" action="'
+            . self::makeTabUpdateURL('image-general', $this->obj->get('id'))
+            . '" novalidate>';
+        echo '<div class="box box-solid">';
+        echo '<div class="box-body">';
+        echo $rendered;
         echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '&tab=image-gen">';
-        $this->render(12);
+        echo '<div class="box-footer">';
+        echo '<button class="btn btn-primary" id="general-send">'
+            . _('Update')
+            . '</button>';
+        echo '<button class="btn btn-danger pull-right" id="general-delete">'
+            . _('Delete')
+            . '</button>';
+        echo '</div>';
+        echo '</div>';
         echo '</form>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        unset(
-            $this->data,
-            $this->form,
-            $this->templates,
-            $this->attributes,
-            $this->headerData
+    }
+    /**
+     * Update the general post
+     *
+     * return void
+     */
+    public function imageGeneralPost()
+    {
+        $image = trim(
+            filter_input(
+                INPUT_POST,
+                'image'
+            )
         );
+        $description = trim(
+            filter_input(
+                INPUT_POST,
+                'description'
+            )
+        );
+        $osID = (int)trim(
+            filter_input(
+                INPUT_POST,
+                'os'
+            )
+        );
+        $file = trim(
+            filter_input(
+                INPUT_POST,
+                'file'
+            )
+        );
+        $itID = (int)trim(
+            filter_input(
+                INPUT_POST,
+                'imagetype'
+            )
+        );
+        $iptID = (int)trim(
+            filter_input(
+                INPUT_POST,
+                'imagepartitiontype'
+            )
+        );
+        $protected = (int)isset($_POST['isProtected']);
+        $isEnabled = (int)isset($_POST['isEnabled']);
+        $toReplicate = (int)isset($_POST['toReplicate']);
+        $this->obj
+            ->set('name', $image)
+            ->set('description', $description)
+            ->set('osID', $osID)
+            ->set('path', $file)
+            ->set('imageTypeID', $itID)
+            ->set('imagePartitionTypeID', $iptID)
+            ->set('format', $imagemanage)
+            ->set('protected', $protected)
+            ->set('compress', $compress)
+            ->set('isEnabled', $isEnabled)
+            ->set('toReplicate', $toReplicate);
     }
     /**
      * Display image storage groups.
@@ -674,226 +731,120 @@ class ImageManagementPage extends FOGPage
      */
     public function imageStoragegroups()
     {
-        unset(
-            $this->data,
-            $this->form,
-            $this->templates,
-            $this->attributes,
-            $this->headerData
-        );
-        $this->headerData = array(
-            '<label for="toggler2">'
-            . '<input type="checkbox" name="toggle-checkboxgroup1" '
-            . 'class="toggle-checkbox1" id="toggler2"/>'
-            . '</label>',
-            _('Storage Group Name')
-        );
-        $this->templates = array(
-            '<label for="sg-${storageGroup_id}">'
-            . '<input type="checkbox" name="storagegroup[]" class='
-            . '"toggle-group" id="sg-${storageGroup_id}" '
-            . 'value="${storageGroup_id}"/>'
-            . '</label>',
-            '<a href="?node=storage&editStorageGroup&id=${storageGroup_id}">'
-            . '${storageGroup_name}'
-            . '</a>'
-        );
-        $this->attributes = array(
-            array(
-                'class' => 'filter-false',
-                'width' => 16
-            ),
-            array(),
-        );
-        Route::listem('storagegroup');
-        $StorageGroups = json_decode(
-            Route::getData()
-        );
-        $StorageGroups = $StorageGroups->storagegroups;
-        foreach ((array)$StorageGroups as &$StorageGroup) {
-            $groupinme = in_array(
-                $StorageGroup->id,
-                $this->obj->get('storagegroups')
-            );
-            if ($groupinme) {
-                continue;
-            }
-            $this->data[] = array(
-                'storageGroup_id' => $StorageGroup->id,
-                'storageGroup_name' => $StorageGroup->name,
-            );
-            unset($StorageGroup);
-        }
-        self::$HookManager->processEvent(
-            'IMAGE_ADD_STORAGE_GROUP',
-            array(
-                'data' => &$this->data,
-                'headerData' => &$this->headerData,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
-            )
-        );
-        echo '<!-- Storage Groups -->';
-        echo '<div class="tab-pane fade" id="image-storage">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Image Storage Groups');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
+        $props = ' method="post" action="'
             . $this->formAction
-            . '&tab=image-storage">';
-        if (count($this->data)) {
-            echo '<div class="text-center">';
-            echo '<div class="checkbox">';
-            echo '<label for="groupMeShow">';
-            echo '<input type="checkbox" name="groupMeShow" '
-                . 'id="groupMeShow"/>';
-            echo _('Check here to see what storage groups can be added');
-            echo '</label>';
-            echo '</div>';
-            echo '</div>';
-            echo '<br/>';
-            echo '<div class="hiddeninitially groupNotInMe panel panel-info" '
-                . 'id="groupNotInMe">';
-            echo '<div class="panel-heading text-center">';
-            echo '<h4 class="title">';
-            echo _('Add Storage Groups');
-            echo '</h4>';
-            echo '</div>';
-            echo '<div class="panel-body">';
-            $this->render(12);
-            echo '<div class="form-group">';
-            echo '<label for="updategroups" class="control-label col-xs-4">';
-            echo _('Add selected storage groups');
-            echo '</label>';
-            echo '<div class="col-xs-8">';
-            echo '<button type="submit" name="updategroups" class='
-                . '"btn btn-info btn-block" id="updategroups">'
-                . _('Add')
-                . '</button>';
-            echo '</div>';
-            echo '</div>';
-            echo '</div>';
-            echo '</div>';
-        }
-        unset(
-            $this->data,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
+            . '&tab=image-storagegroups" ';
+
+        echo '<!-- Storage Groups -->';
+        echo '<div class="box-group" id="storagegroups">';
+        // =================================================================
+        // Associated Storage Groups
+        $buttons = self::makeButton(
+            'storagegroups-primary',
+            _('Update Primary Group'),
+            'btn btn-primary',
+            $props
         );
-        $this->headerData = array(
-            '<label for="toggler3">'
-            . '<input type="checkbox" name="toggle-checkbox" '
-            . 'class="toggle-checkboxAction" id="toggler3"/>'
-            . '</label>',
+        $buttons .= self::makeButton(
+            'storagegroups-add',
+            _('Add selected'),
+            'btn btn-success',
+            $props
+        );
+        $buttons .= self::makeButton(
+            'storagegroups-remove',
+            _('Remove selected'),
+            'btn btn-danger',
+            $props
+        );
+        $this->headerData = [
+            _('Storage Group Name'),
+            _('Storage Group Primary'),
+            _('Storage Group Associated')
+        ];
+        $this->templates = [
             '',
-            _('Storage Group Name')
-        );
-        $this->templates = array(
-            '<label for="sg1-${storageGroup_id}">'
-            . '<input type="checkbox" name="storagegroup-rm[]" class='
-            . '"toggle-group" id="sg1-${storageGroup_id}" '
-            . 'value="${storageGroup_id}"/>'
-            . '</label>',
-            '<div class="radio">'
-            . '<input type="radio" class="default" '
-            . 'name="primary" id="group${storageGroup_id}" '
-            . 'value="${storageGroup_id}" ${is_primary}/>'
-            . '<label for="group${storageGroup_id}">'
-            . '</label>'
-            . '</div>',
-            '<a href="?node=storage&editStorageGroup&id=${storageGroup_id}">'
-            . '${storageGroup_name}'
-            . '</a>'
-        );
-        $this->attributes = array(
-            array(
-                'class' => 'filter-false',
-                'width' => 16
-            ),
-            array(
-                'class' => 'filter-false',
-                'width' => 16
-            ),
-            array(),
-        );
-        foreach ((array)$StorageGroups as &$StorageGroup) {
-            $groupinme = in_array(
-                $StorageGroup->id,
-                $this->obj->get('storagegroups')
+            '',
+            ''
+        ];
+        $this->attributes = [
+            [],
+            [],
+            []
+        ];
+
+        echo '<div class="box box-solid">';
+        echo '<div class="updatestoragegroups" class="">';
+        echo '<div class="box-body">';
+        $this->render(12, 'image-storagegroups-table', $buttons);
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Image storage groups post.
+     *
+     * @return void
+     */
+    public function imageStoragegroupsPost()
+    {
+        if (isset($_POST['updatestoragegroups'])) {
+            $storagegroup = filter_input_array(
+                INPUT_POST,
+                [
+                    'storagegroups' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
             );
-            if (!$groupinme) {
-                continue;
+            $storagegroup = $storagegroup['storagegroups'];
+            if (count($storagegroup ?: []) > 0) {
+                $this->obj->addGroup($storagegroup);
             }
-            $this->data[] = array(
-                'storageGroup_id' => $StorageGroup->id,
-                'storageGroup_name' => $StorageGroup->name,
-                'is_primary' => (
-                    $this->obj->getPrimaryGroup($StorageGroup->id) ?
-                    ' checked' :
-                    ''
-                )
-            );
-            unset($StorageGroup);
         }
-        if (count($this->data) > 0) {
-            self::$HookManager->processEvent(
-                'IMAGE_EDIT_STORAGE_GROUP',
-                array(
-                    'data' => &$this->data,
-                    'headerData' => &$this->headerData,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
+        if (isset($_POST['storagegroupdel'])) {
+            $storagegroup = filter_input_array(
+                INPUT_POST,
+                [
+                    'storagegroupRemove' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
             );
-            echo '<div class="panel panel-info">';
-            echo '<div class="panel-heading text-center">';
-            echo '<h4 class="title">';
-            echo _('Update/Remove Storage Groups');
-            echo '</h4>';
-            echo '</div>';
-            echo '<div class="panel-body">';
-            $this->render(12);
-            echo '<div class="form-group">';
-            echo '<label for="primarysel" class="control-label col-xs-4">';
-            echo _('Update primary group');
-            echo '</label>';
-            echo '<div class="col-xs-8">';
-            echo '<button type="submit" name="primarysel" class='
-                . '"btn btn-info btn-block" id="primarysel">'
-                . _('Update')
-                . '</button>';
-            echo '</div>';
-            echo '</div>';
-            echo '<div class="form-group">';
-            echo '<label for="groupdel" class="control-label col-xs-4">';
-            echo _('Remove selected groups');
-            echo '</label>';
-            echo '<div class="col-xs-8">';
-            echo '<button type="submit" name="groupdel" class='
-                . '"btn btn-danger btn-block" id="groupdel">'
-                . _('Remove')
-                . '</button>';
-            echo '</div>';
-            echo '</div>';
-            echo '</div>';
-            echo '</div>';
+            $storagegroup = $storagegroup['storagegroupRemove'];
+            if (count($storagegroup ?: []) > 0) {
+                $this->obj->removeGroup($storagegroup);
+            }
         }
-        echo '</form>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        unset(
-            $this->data,
-            $this->form,
-            $this->templates,
-            $this->attributes,
-            $this->headerData
-        );
+        if (isset($_POST['primarysel'])) {
+            $primary = filter_input(
+                INPUT_POST,
+                'primary'
+            );
+            self::getClass('ImageAssociationManager')->update(
+                [
+                    'imageID' => $this->obj->get('id'),
+                    'primary' => '1'
+                ],
+                '',
+                [
+                    'primary' => '0'
+                ]
+            );
+            if ($primary) {
+                self::getClass('ImageAssociationManager')->update(
+                    [
+                        'imageID' => $this->obj->get('id'),
+                        'storagegroupID' => $primary
+                    ],
+                    '',
+                    [
+                        'primary' => '1'
+                    ]
+                );
+            }
+        }
     }
     /**
      * Edit this image
@@ -902,10 +853,39 @@ class ImageManagementPage extends FOGPage
      */
     public function edit()
     {
-        echo '<div class="col-xs-9 tab-content">';
-        $this->imageGeneral();
-        $this->imageStoragegroups();
-        echo '</div>';
+        $this->title = sprintf(
+            '%s: %s',
+            _('Edit'),
+            $this->obj->get('name')
+        );
+
+        $tabData = [];
+
+        $tabData[] = [
+            'name' => _('General'),
+            'id' => 'image-general',
+            'generator' => function() {
+                $this->imageGeneral();
+            }
+        ];
+
+        $tabData[] = [
+            'name' => _('Storage Groups'),
+            'id' => 'image-storagegroups',
+            'generator' => function() {
+                $this->imageStoragegroups();
+            }
+        ];
+
+        /*$tabData[] = [
+            'name' => _('Host Membership'),
+            'id' => 'image-membership',
+            'generator' => function() {
+                $this->imageMembership();
+            }
+        ];*/
+
+        echo self::tabFields($tabData);
     }
     /**
      * Submit save/update the image.
@@ -914,155 +894,52 @@ class ImageManagementPage extends FOGPage
      */
     public function editPost()
     {
-        self::$HookManager
-            ->processEvent(
-                'IMAGE_EDIT_POST',
-                array(
-                    'Image' => &$this->obj
-                )
-            );
-        global $tab;
-        $name = trim(
-            filter_input(INPUT_POST, 'name')
+        header('Content-type: application/json');
+        self::$HookManager->processEvent(
+            'IMAGE_EDIT_POST',
+            ['Image' => &$this->obj]
         );
-        $file = trim(
-            filter_input(INPUT_POST, 'file')
-        );
-        $desc = trim(
-            filter_input(INPUT_POST, 'description')
-        );
-        $os = (int)filter_input(INPUT_POST, 'os');
-        $imagetype = (int)filter_input(INPUT_POST, 'imagetype');
-        $imagepartitiontype = (int)filter_input(INPUT_POST, 'imagepartitiontype');
-        $imagemanage = (int)filter_input(INPUT_POST, 'imagemanage');
-        $protected = (int)isset($_POST['protected_image']);
-        $isEnabled = (int)isset($_POST['isEnabled']);
-        $toReplicate = (int)isset($_POST['toReplicate']);
-        $compress = (int)filter_input(INPUT_POST, 'compress');
-        $items = filter_input_array(
-            INPUT_POST,
-            array(
-                'storagegroup' => array(
-                    'flags' => FILTER_REQUIRE_ARRAY
-                ),
-                'storagegroup-rm' => array(
-                    'flags' => FILTER_REQUIRE_ARRAY
-                )
-            )
-        );
-        $storagegroup = $items['storagegroup'];
-        $storagegrouprm = $items['storagegroup-rm'];
-        $primary = (int)filter_input(
-            INPUT_POST,
-            'primary'
-        );
+        $serverFault = false;
         try {
+            global $tab;
             switch ($tab) {
-            case 'image-gen':
-                if ($this->obj->get('name') != $name
-                    && self::getClass('ImageManager')->exists(
-                        $name,
-                        $this->obj->get('id')
-                    )
-                ) {
-                    throw new Exception(
-                        _('An image already exists with this name!')
-                    );
-                }
-                if ($file == 'postdownloadscripts'
-                    || $file == 'dev'
-                ) {
-                    throw new Exception(
-                        sprintf(
-                            '%s, %s.',
-                            _('Please choose a different name'),
-                            _('this one is reserved for FOG')
-                        )
-                    );
-                }
-                $exists = self::getClass('ImageManager')
-                    ->exists(
-                        $file,
-                        '',
-                        'path'
-                    );
-                if ($this->obj->get('path') != $file
-                    && $exists
-                ) {
-                    throw new Exception(
-                        sprintf(
-                            '%s, %s.',
-                            _('Please choose a different path'),
-                            _('this one is already in use by another image')
-                        )
-                    );
-                }
-                $this
-                    ->obj
-                    ->set('name', $name)
-                    ->set('description', $desc)
-                    ->set('osID', $os)
-                    ->set('path', $file)
-                    ->set('imageTypeID', $imagetype)
-                    ->set('imagePartitionTypeID', $imagepartitiontype)
-                    ->set('format', $imagemanage)
-                    ->set('protected', $protected)
-                    ->set('compress', $compress)
-                    ->set('isEnabled', $isEnabled)
-                    ->set('toReplicate', $toReplicate);
+            case 'image-general':
+                $this->imageGeneralPost();
                 break;
-            case 'image-storage':
-                if (isset($_POST['updategroups'])) {
-                    $this->obj->addGroup($storagegroup);
-                } elseif (isset($_POST['primarysel'])) {
-                    $this->obj->setPrimaryGroup($primary);
-                } elseif (isset($_POST['groupdel'])) {
-                    $groupdel = count($storagegrouprm);
-                    $ingroups = count($this->obj->get('storagegroups'));
-                    if ($groupdel < 1) {
-                        throw new Exception(
-                            _('No groups selected to be removed')
-                        );
-                    }
-                    if ($ingroups < 2) {
-                        throw new Exception(
-                            _('You must have at least one group associated')
-                        );
-                    }
-                    $this
-                        ->obj
-                        ->removeGroup(
-                            $storagegrouprm
-                        );
-                }
+            case 'image-storagegroups':
+                $this->imageStoragegroupsPost();
+                break;
+            case 'image-membership':
+                $this->imageMembershipPost();
                 break;
             }
             if (!$this->obj->save()) {
-                throw new Exception(
-                    _('Image update failed!')
-                );
+                $serverFault = true;
+                throw new Exception(_('Image Update Failed'));
             }
-            $hook = 'IMAGE_UPDATE_SUCCESS';
+            $code = 201;
+            $hook = 'IMAGE_EDIT_SUCCESS';
             $msg = json_encode(
-                array(
+                [
                     'msg' => _('Image updated!'),
                     'title' => _('Image Update Success')
-                )
+                ]
             );
         } catch (Exception $e) {
-            $hook = 'IMAGE_UPDATE_FAIL';
+            $code = ($serverFault ? 500 : 400);
+            $hook = 'IMAGE_EDIT_FAIL';
             $msg = json_encode(
-                array(
+                [
                     'error' => $e->getMessage(),
                     'title' => _('Image Update Fail')
-                )
+                ]
             );
         }
-        self::$HookManager
-            ->processEvent(
-                $hook,
-                array('Image' => &$this->obj)
-            );
+        http_response_code($code);
+        self::$HookManager->processEvent(
+            $hook,
+            ['obj' => &$this->obj]
+        );
         echo $msg;
         exit;
     }
@@ -1384,5 +1261,94 @@ class ImageManagementPage extends FOGPage
             )
         );
         self::redirect(sprintf('?node=%s&sub=multicast', $this->node));
+    }
+    /**
+     * Presents the storage groups list table.
+     *
+     * @return void
+     */
+    public function getStoragegroupsList()
+    {
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
+        $where = "`images`.`imageID` = '"
+            . $this->obj->get('id')
+            . "'";
+
+        // Workable Queries
+        $storagegroupsSqlStr = "SELECT `%s`,"
+            . "`igaImageID` AS `origID`,IF (`igaImageID` IS NULL OR `igaImageID` = '0' OR `igaImageID` = '','dissociated','associated') AS `igaImageID`,`igaPrimary`,`imageID`
+            FROM `%s`
+            CROSS JOIN `images`
+            LEFT OUTER JOIN `imageGroupAssoc`
+            ON `nfsGroups`.`ngID` = `imageGroupAssoc`.`igaStorageGroupID`
+            AND `images`.`imageID` = `imageGroupAssoc`.`igaImageID`
+            %s
+            %s
+            %s";
+        $storagegroupsFilterStr = "SELECT COUNT(`%s`),"
+            . "`igaImageID` AS `origID`,IF (`igaImageID` IS NULL OR `igaImageID` = '0' OR `igaImageID` = '','dissociated','associated') AS `igaImageID`,`igaPrimary`,`imageID`
+            FROM `%s`
+            CROSS JOIN `images`
+            LEFT OUTER JOIN `imageGroupAssoc`
+            ON `images`.`imageID` = `imageGroupAssoc`.`igaImageID`
+            %s";
+        $storagegroupsTotalStr = "SELECT COUNT(`%s`)
+            FROM `%s`";
+
+        foreach (self::getClass('StorageGroupManager')
+            ->getColumns() as $common => &$real
+        ) {
+            $columns[] = [
+                'db' => $real,
+                'dt' => $common
+            ];
+            unset($real);
+        }
+        $columns[] = [
+            'db' => 'igaPrimary',
+            'dt' => 'primary'
+        ];
+        $columns[] = [
+            'db' => 'igaImageID',
+            'dt' => 'association'
+        ];
+        $columns[] = [
+            'db' => 'origID',
+            'dt' => 'origID',
+            'removeFromQuery' => true
+        ];
+        echo json_encode(
+            FOGManagerController::complex(
+                $pass_vars,
+                'nfsGroups',
+                'ngID',
+                $columns,
+                $storagegroupsSqlStr,
+                $storagegroupsFilterStr,
+                $storagegroupsTotalStr,
+                $where
+            )
+        );
+        exit;
+    }
+    /**
+     * Image -> host membership list
+     *
+     * @return void
+     */
+    public function getHostsList()
+    {
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
+        $where = "`images`.`imageID` = '"
+            . $this->obj->get('id')
+            . "'";
     }
 }

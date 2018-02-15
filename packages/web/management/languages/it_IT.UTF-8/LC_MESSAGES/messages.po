@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-14 21:32-0500\n"
+"POT-Creation-Date: 2018-02-15 18:14-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -4024,20 +4024,19 @@ msgstr "Compressione"
 msgid "Image Manager"
 msgstr "Image manager"
 
+#, fuzzy
+msgid "An image name is required!"
+msgstr "È richiesto un nome!"
+
 msgid "An image already exists with this name!"
 msgstr "Un'immagine esiste già con questo nome!"
 
-msgid "Please choose a different name"
+#, fuzzy
+msgid "Please choose a different filename/path as this is reserved"
 msgstr "Scegliere un nome diverso"
 
-msgid "this one is reserved for FOG"
-msgstr "questo è riservato per FOG"
-
-msgid "Please choose a different path"
-msgstr "Scegliere un percorso diverso"
-
-msgid "this one is already in use by another image"
-msgstr "questo è gà in uso in un'altra immagine"
+msgid "The path requested is already in use by another image!"
+msgstr ""
 
 msgid "Add image failed!"
 msgstr "Aggiuta immagine non riuscita!"
@@ -4051,43 +4050,33 @@ msgstr "Creazione immagine riuscita"
 msgid "Image Create Fail"
 msgstr "Creazione immagine fallita"
 
-msgid "Replicate?"
-msgstr "Replicare?"
+#, fuzzy
+msgid "Image Protected"
+msgstr "Protetta"
 
-msgid "Image General"
-msgstr "Immagine principale"
-
-msgid "Image Storage Groups"
-msgstr "Groppo di archiviazione immagini"
-
-msgid "Check here to see what storage groups can be added"
-msgstr ""
-"Controlla qui per vedere quali gruppi di archiviazione possono essere "
-"aggiunti"
-
-msgid "Add Storage Groups"
-msgstr "Aggiungi gruppo di archiviazione"
-
-msgid "Add selected storage groups"
-msgstr "Aggiungi gruppo di archiviazione selezionato"
-
-msgid "Update/Remove Storage Groups"
-msgstr "Aggiungi/rimuovi gruppo di archiviazione"
-
-msgid "Update primary group"
+#, fuzzy
+msgid "Update Primary Group"
 msgstr "Aggiornamento gruppo primario"
 
-msgid "Remove selected groups"
-msgstr "Rimuovi i gruppi selezionati"
+#, fuzzy
+msgid "Add selected"
+msgstr "Aggiungi stampanti selezionate"
 
-msgid "No groups selected to be removed"
-msgstr "Nessun gruppo selezionato per la rimozione"
+#, fuzzy
+msgid "Storage Group Primary"
+msgstr "Nome gruppo di archiviazione"
 
-msgid "You must have at least one group associated"
-msgstr "È necessaria l'associazione di almeno un gruppo di archiviazione"
+#, fuzzy
+msgid "Storage Group Associated"
+msgstr "Storage Node Creato"
 
-msgid "Image update failed!"
-msgstr "Modifica immagine fallita"
+#, fuzzy
+msgid "Storage Groups"
+msgstr "gruppo di archiviazione"
+
+#, fuzzy
+msgid "Image Update Failed"
+msgstr "Aggiornamento immagine fallito"
 
 msgid "Image updated!"
 msgstr "immagine aggiornata"
@@ -4384,10 +4373,6 @@ msgid "Update Master Node"
 msgstr "Maestro Node"
 
 #, fuzzy
-msgid "Add selected"
-msgstr "Aggiungi stampanti selezionate"
-
-#, fuzzy
 msgid "Storage Node Master"
 msgstr "Nome Storage Node"
 
@@ -4657,6 +4642,9 @@ msgstr "Snapin Argomenti nascosti"
 msgid "Snapin Timeout (seconds)"
 msgstr "Timeout Snapin (in secondi)"
 
+msgid "Replicate?"
+msgstr "Replicare?"
+
 msgid "Reboot after install"
 msgstr "Riavvio dopo l'installazione"
 
@@ -4687,6 +4675,12 @@ msgstr "già selezionati o caricati"
 msgid "must be specified"
 msgstr "deve essere specificato"
 
+msgid "Please choose a different name"
+msgstr "Scegliere un nome diverso"
+
+msgid "this one is reserved for FOG"
+msgstr "questo è riservato per FOG"
+
 msgid "FTP Connection has failed"
 msgstr "Connessione FTP non è riuscita"
 
@@ -4716,6 +4710,32 @@ msgstr "Snapin Protetto"
 
 msgid "Snapin Storage Groups"
 msgstr "Gruppo di archiviazione Snapin"
+
+msgid "Check here to see what storage groups can be added"
+msgstr ""
+"Controlla qui per vedere quali gruppi di archiviazione possono essere "
+"aggiunti"
+
+msgid "Add Storage Groups"
+msgstr "Aggiungi gruppo di archiviazione"
+
+msgid "Add selected storage groups"
+msgstr "Aggiungi gruppo di archiviazione selezionato"
+
+msgid "Update/Remove Storage Groups"
+msgstr "Aggiungi/rimuovi gruppo di archiviazione"
+
+msgid "Update primary group"
+msgstr "Aggiornamento gruppo primario"
+
+msgid "Remove selected groups"
+msgstr "Rimuovi i gruppi selezionati"
+
+msgid "No groups selected to be removed"
+msgstr "Nessun gruppo selezionato per la rimozione"
+
+msgid "You must have at least one group associated"
+msgstr "È necessaria l'associazione di almeno un gruppo di archiviazione"
 
 msgid "Snapin update failed!"
 msgstr "Aggiornamento Snapin fallito!"

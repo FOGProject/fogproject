@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-14 21:32-0500\n"
+"POT-Creation-Date: 2018-02-15 18:14-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4712,23 +4712,18 @@ msgstr "Compresión"
 msgid "Image Manager"
 msgstr "Administrador de imágenes"
 
+#, fuzzy
+msgid "An image name is required!"
+msgstr "Se requiere un nombre de imagen!"
+
 msgid "An image already exists with this name!"
 msgstr "Una imagen ya existe con este nombre!"
 
 #, fuzzy
-msgid "Please choose a different name"
+msgid "Please choose a different filename/path as this is reserved"
 msgstr "Por favor, seleccione una imagen"
 
-#, fuzzy
-msgid "this one is reserved for FOG"
-msgstr ""
-"Por favor, elija un nombre diferente, éste está reservado para la niebla."
-
-#, fuzzy
-msgid "Please choose a different path"
-msgstr "Por favor, seleccione una imagen"
-
-msgid "this one is already in use by another image"
+msgid "The path requested is already in use by another image!"
 msgstr ""
 
 #, fuzzy
@@ -4747,51 +4742,32 @@ msgstr "creado por el usuario"
 msgid "Image Create Fail"
 msgstr "creado por el usuario"
 
-msgid "Replicate?"
-msgstr "¿Reproducir exactamente?"
+#, fuzzy
+msgid "Image Protected"
+msgstr "Protegido"
 
 #, fuzzy
-msgid "Image General"
-msgstr "Actualizar impresora"
-
-#, fuzzy
-msgid "Image Storage Groups"
-msgstr "Grupo de almacenamiento"
-
-#, fuzzy
-msgid "Check here to see what storage groups can be added"
-msgstr "Marque aquí para ver lo que se pueden agregar impresoras"
-
-#, fuzzy
-msgid "Add Storage Groups"
-msgstr "Grupo de almacenamiento"
-
-#, fuzzy
-msgid "Add selected storage groups"
-msgstr "Impresora"
-
-#, fuzzy
-msgid "Update/Remove Storage Groups"
-msgstr "Eliminar todos los elementos seleccionados"
-
-#, fuzzy
-msgid "Update primary group"
+msgid "Update Primary Group"
 msgstr "Actualización de Grupo Primario"
 
 #, fuzzy
-msgid "Remove selected groups"
-msgstr "Remoto"
+msgid "Add selected"
+msgstr "Impresora"
 
 #, fuzzy
-msgid "No groups selected to be removed"
-msgstr "Sin grupo seleccionado y ningún nuevo nombre de grupo entró"
+msgid "Storage Group Primary"
+msgstr "Nombre del grupo de almacenamiento"
 
 #, fuzzy
-msgid "You must have at least one group associated"
-msgstr "Debe tener al menos un grupo de almacenamiento"
+msgid "Storage Group Associated"
+msgstr "nodo de almacenamiento"
 
 #, fuzzy
-msgid "Image update failed!"
+msgid "Storage Groups"
+msgstr "Grupo de almacenamiento"
+
+#, fuzzy
+msgid "Image Update Failed"
 msgstr "imagen actualizada"
 
 #, fuzzy
@@ -5116,10 +5092,6 @@ msgid "Update Master Node"
 msgstr "nodo de almacenamiento"
 
 #, fuzzy
-msgid "Add selected"
-msgstr "Impresora"
-
-#, fuzzy
 msgid "Storage Node Master"
 msgstr "nodo de almacenamiento"
 
@@ -5422,6 +5394,9 @@ msgstr ""
 msgid "Snapin Timeout (seconds)"
 msgstr ""
 
+msgid "Replicate?"
+msgstr "¿Reproducir exactamente?"
+
 msgid "Reboot after install"
 msgstr ""
 
@@ -5457,6 +5432,15 @@ msgstr ""
 #, fuzzy
 msgid "must be specified"
 msgstr "No hay imagen especificada"
+
+#, fuzzy
+msgid "Please choose a different name"
+msgstr "Por favor, seleccione una imagen"
+
+#, fuzzy
+msgid "this one is reserved for FOG"
+msgstr ""
+"Por favor, elija un nombre diferente, éste está reservado para la niebla."
 
 msgid "FTP Connection has failed"
 msgstr ""
@@ -5496,6 +5480,38 @@ msgstr "Nombre snapin"
 #, fuzzy
 msgid "Snapin Storage Groups"
 msgstr "Grupo de almacenamiento"
+
+#, fuzzy
+msgid "Check here to see what storage groups can be added"
+msgstr "Marque aquí para ver lo que se pueden agregar impresoras"
+
+#, fuzzy
+msgid "Add Storage Groups"
+msgstr "Grupo de almacenamiento"
+
+#, fuzzy
+msgid "Add selected storage groups"
+msgstr "Impresora"
+
+#, fuzzy
+msgid "Update/Remove Storage Groups"
+msgstr "Eliminar todos los elementos seleccionados"
+
+#, fuzzy
+msgid "Update primary group"
+msgstr "Actualización de Grupo Primario"
+
+#, fuzzy
+msgid "Remove selected groups"
+msgstr "Remoto"
+
+#, fuzzy
+msgid "No groups selected to be removed"
+msgstr "Sin grupo seleccionado y ningún nuevo nombre de grupo entró"
+
+#, fuzzy
+msgid "You must have at least one group associated"
+msgstr "Debe tener al menos un grupo de almacenamiento"
 
 #, fuzzy
 msgid "Snapin update failed!"

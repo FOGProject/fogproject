@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-14 21:32-0500\n"
+"POT-Creation-Date: 2018-02-15 18:14-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4473,22 +4473,18 @@ msgstr "Compression"
 msgid "Image Manager"
 msgstr "Image Manager"
 
+#, fuzzy
+msgid "An image name is required!"
+msgstr "An image name is required!"
+
 msgid "An image already exists with this name!"
 msgstr "An image already exists with this name!"
 
 #, fuzzy
-msgid "Please choose a different name"
+msgid "Please choose a different filename/path as this is reserved"
 msgstr "Please choose an image"
 
-#, fuzzy
-msgid "this one is reserved for FOG"
-msgstr "Please choose a different name, this one is reserved for FOG."
-
-#, fuzzy
-msgid "Please choose a different path"
-msgstr "Please choose an image"
-
-msgid "this one is already in use by another image"
+msgid "The path requested is already in use by another image!"
 msgstr ""
 
 #, fuzzy
@@ -4507,51 +4503,32 @@ msgstr "User created"
 msgid "Image Create Fail"
 msgstr "User created"
 
-msgid "Replicate?"
-msgstr "Replicate?"
+#, fuzzy
+msgid "Image Protected"
+msgstr "Protected"
 
 #, fuzzy
-msgid "Image General"
-msgstr "Update Printer"
-
-#, fuzzy
-msgid "Image Storage Groups"
-msgstr "Storage Group"
-
-#, fuzzy
-msgid "Check here to see what storage groups can be added"
-msgstr "Check here to see what snapins can be added"
-
-#, fuzzy
-msgid "Add Storage Groups"
-msgstr "Add Storage Group"
-
-#, fuzzy
-msgid "Add selected storage groups"
-msgstr "Remove selected snapins"
-
-#, fuzzy
-msgid "Update/Remove Storage Groups"
-msgstr "Update Printer"
-
-#, fuzzy
-msgid "Update primary group"
+msgid "Update Primary Group"
 msgstr "Update Primary Group"
 
 #, fuzzy
-msgid "Remove selected groups"
-msgstr "Remove selected snapins"
+msgid "Add selected"
+msgstr "Remove selected printers"
 
 #, fuzzy
-msgid "No groups selected to be removed"
-msgstr "No Group selected and no new Group name entered"
+msgid "Storage Group Primary"
+msgstr "Storage Group Name"
 
 #, fuzzy
-msgid "You must have at least one group associated"
-msgstr "You must have at least one Storage Group"
+msgid "Storage Group Associated"
+msgstr "Storage Node Created"
 
 #, fuzzy
-msgid "Image update failed!"
+msgid "Storage Groups"
+msgstr "Storage Group"
+
+#, fuzzy
+msgid "Image Update Failed"
 msgstr "Image updated"
 
 #, fuzzy
@@ -4878,10 +4855,6 @@ msgid "Update Master Node"
 msgstr "Master Node"
 
 #, fuzzy
-msgid "Add selected"
-msgstr "Remove selected printers"
-
-#, fuzzy
 msgid "Storage Node Master"
 msgstr "Storage Node Name"
 
@@ -5184,6 +5157,9 @@ msgstr "Snapin Arguments"
 msgid "Snapin Timeout (seconds)"
 msgstr "Menu Timeout (in seconds)"
 
+msgid "Replicate?"
+msgstr "Replicate?"
+
 msgid "Reboot after install"
 msgstr "Reboot after install"
 
@@ -5218,6 +5194,14 @@ msgstr ""
 #, fuzzy
 msgid "must be specified"
 msgstr "No image specified"
+
+#, fuzzy
+msgid "Please choose a different name"
+msgstr "Please choose an image"
+
+#, fuzzy
+msgid "this one is reserved for FOG"
+msgstr "Please choose a different name, this one is reserved for FOG."
 
 msgid "FTP Connection has failed"
 msgstr "FTP Connection has failed"
@@ -5255,6 +5239,38 @@ msgstr "Snapin updated"
 #, fuzzy
 msgid "Snapin Storage Groups"
 msgstr "Invalid Storage Group"
+
+#, fuzzy
+msgid "Check here to see what storage groups can be added"
+msgstr "Check here to see what snapins can be added"
+
+#, fuzzy
+msgid "Add Storage Groups"
+msgstr "Add Storage Group"
+
+#, fuzzy
+msgid "Add selected storage groups"
+msgstr "Remove selected snapins"
+
+#, fuzzy
+msgid "Update/Remove Storage Groups"
+msgstr "Update Printer"
+
+#, fuzzy
+msgid "Update primary group"
+msgstr "Update Primary Group"
+
+#, fuzzy
+msgid "Remove selected groups"
+msgstr "Remove selected snapins"
+
+#, fuzzy
+msgid "No groups selected to be removed"
+msgstr "No Group selected and no new Group name entered"
+
+#, fuzzy
+msgid "You must have at least one group associated"
+msgstr "You must have at least one Storage Group"
 
 #, fuzzy
 msgid "Snapin update failed!"
