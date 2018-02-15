@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-14 21:32-0500\n"
+"POT-Creation-Date: 2018-02-15 18:14-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3948,19 +3948,16 @@ msgstr ""
 msgid "Image Manager"
 msgstr ""
 
+msgid "An image name is required!"
+msgstr ""
+
 msgid "An image already exists with this name!"
 msgstr ""
 
-msgid "Please choose a different name"
+msgid "Please choose a different filename/path as this is reserved"
 msgstr ""
 
-msgid "this one is reserved for FOG"
-msgstr ""
-
-msgid "Please choose a different path"
-msgstr ""
-
-msgid "this one is already in use by another image"
+msgid "The path requested is already in use by another image!"
 msgstr ""
 
 msgid "Add image failed!"
@@ -3975,40 +3972,25 @@ msgstr ""
 msgid "Image Create Fail"
 msgstr ""
 
-msgid "Replicate?"
+msgid "Image Protected"
 msgstr ""
 
-msgid "Image General"
+msgid "Update Primary Group"
 msgstr ""
 
-msgid "Image Storage Groups"
+msgid "Add selected"
 msgstr ""
 
-msgid "Check here to see what storage groups can be added"
+msgid "Storage Group Primary"
 msgstr ""
 
-msgid "Add Storage Groups"
+msgid "Storage Group Associated"
 msgstr ""
 
-msgid "Add selected storage groups"
+msgid "Storage Groups"
 msgstr ""
 
-msgid "Update/Remove Storage Groups"
-msgstr ""
-
-msgid "Update primary group"
-msgstr ""
-
-msgid "Remove selected groups"
-msgstr ""
-
-msgid "No groups selected to be removed"
-msgstr ""
-
-msgid "You must have at least one group associated"
-msgstr ""
-
-msgid "Image update failed!"
+msgid "Image Update Failed"
 msgstr ""
 
 msgid "Image updated!"
@@ -4296,9 +4278,6 @@ msgstr ""
 msgid "Update Master Node"
 msgstr ""
 
-msgid "Add selected"
-msgstr ""
-
 msgid "Storage Node Master"
 msgstr ""
 
@@ -4560,6 +4539,9 @@ msgstr ""
 msgid "Snapin Timeout (seconds)"
 msgstr ""
 
+msgid "Replicate?"
+msgstr ""
+
 msgid "Reboot after install"
 msgstr ""
 
@@ -4590,6 +4572,12 @@ msgstr ""
 msgid "must be specified"
 msgstr ""
 
+msgid "Please choose a different name"
+msgstr ""
+
+msgid "this one is reserved for FOG"
+msgstr ""
+
 msgid "FTP Connection has failed"
 msgstr ""
 
@@ -4618,6 +4606,30 @@ msgid "Snapin Protected"
 msgstr ""
 
 msgid "Snapin Storage Groups"
+msgstr ""
+
+msgid "Check here to see what storage groups can be added"
+msgstr ""
+
+msgid "Add Storage Groups"
+msgstr ""
+
+msgid "Add selected storage groups"
+msgstr ""
+
+msgid "Update/Remove Storage Groups"
+msgstr ""
+
+msgid "Update primary group"
+msgstr ""
+
+msgid "Remove selected groups"
+msgstr ""
+
+msgid "No groups selected to be removed"
+msgstr ""
+
+msgid "You must have at least one group associated"
 msgstr ""
 
 msgid "Snapin update failed!"

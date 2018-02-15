@@ -279,7 +279,7 @@ abstract class FOGPage extends FOGBase
                 'node=storage&sub=storageGroup'
             );
         }
-        if (!isset($ref) || false === $ref) {
+        if ((!isset($ref) || false === $ref) && $sub !== 'getStoragegroupsList') {
             $ref = stripos(
                 $sub,
                 'storageGroup'

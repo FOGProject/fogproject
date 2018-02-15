@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-14 21:32-0500\n"
+"POT-Creation-Date: 2018-02-15 18:14-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4484,22 +4484,18 @@ msgstr "Compression"
 msgid "Image Manager"
 msgstr "Image Manager"
 
+#, fuzzy
+msgid "An image name is required!"
+msgstr "Un nom de l'image est nécessaire!"
+
 msgid "An image already exists with this name!"
 msgstr "Une image existe déjà avec ce nom!"
 
 #, fuzzy
-msgid "Please choose a different name"
+msgid "Please choose a different filename/path as this is reserved"
 msgstr "S'il vous plaît choisir une image"
 
-#, fuzzy
-msgid "this one is reserved for FOG"
-msgstr "S'il vous plaît choisir un autre nom, celui-ci est réservé pour FOG."
-
-#, fuzzy
-msgid "Please choose a different path"
-msgstr "S'il vous plaît choisir une image"
-
-msgid "this one is already in use by another image"
+msgid "The path requested is already in use by another image!"
 msgstr ""
 
 #, fuzzy
@@ -4518,51 +4514,32 @@ msgstr "utilisateur créé"
 msgid "Image Create Fail"
 msgstr "utilisateur créé"
 
-msgid "Replicate?"
-msgstr "Reproduire?"
+#, fuzzy
+msgid "Image Protected"
+msgstr "Protégé"
 
 #, fuzzy
-msgid "Image General"
-msgstr "Mise à jour de l'imprimante"
-
-#, fuzzy
-msgid "Image Storage Groups"
-msgstr "Groupe de stockage"
-
-#, fuzzy
-msgid "Check here to see what storage groups can be added"
-msgstr "Vérifiez ici pour voir ce que snapins peuvent être ajoutés"
-
-#, fuzzy
-msgid "Add Storage Groups"
-msgstr "Ajouter un groupe de stockage"
-
-#, fuzzy
-msgid "Add selected storage groups"
-msgstr "Imprimante"
-
-#, fuzzy
-msgid "Update/Remove Storage Groups"
-msgstr "Supprimer les imprimantes sélectionnées"
-
-#, fuzzy
-msgid "Update primary group"
+msgid "Update Primary Group"
 msgstr "Mise à jour de groupe principal"
 
 #, fuzzy
-msgid "Remove selected groups"
-msgstr "Retirer snapins sélectionnés"
+msgid "Add selected"
+msgstr "Imprimante"
 
 #, fuzzy
-msgid "No groups selected to be removed"
-msgstr "Aucun groupe sélectionné et aucun nouveau nom de groupe est entré"
+msgid "Storage Group Primary"
+msgstr "Nom du groupe de stockage"
 
 #, fuzzy
-msgid "You must have at least one group associated"
-msgstr "Vous devez avoir au moins un groupe de stockage"
+msgid "Storage Group Associated"
+msgstr "Nœud de stockage Créé"
 
 #, fuzzy
-msgid "Image update failed!"
+msgid "Storage Groups"
+msgstr "Groupe de stockage"
+
+#, fuzzy
+msgid "Image Update Failed"
 msgstr "image mise à jour"
 
 #, fuzzy
@@ -4887,10 +4864,6 @@ msgid "Update Master Node"
 msgstr "Node Master"
 
 #, fuzzy
-msgid "Add selected"
-msgstr "Imprimante"
-
-#, fuzzy
 msgid "Storage Node Master"
 msgstr "Nom du nœud de stockage"
 
@@ -5193,6 +5166,9 @@ msgstr "Arguments SnapIn"
 msgid "Snapin Timeout (seconds)"
 msgstr "Menu Délai (en secondes)"
 
+msgid "Replicate?"
+msgstr "Reproduire?"
+
 msgid "Reboot after install"
 msgstr "Redémarrez après l'installation"
 
@@ -5227,6 +5203,14 @@ msgstr ""
 #, fuzzy
 msgid "must be specified"
 msgstr "Aucune image spécifiée"
+
+#, fuzzy
+msgid "Please choose a different name"
+msgstr "S'il vous plaît choisir une image"
+
+#, fuzzy
+msgid "this one is reserved for FOG"
+msgstr "S'il vous plaît choisir un autre nom, celui-ci est réservé pour FOG."
 
 msgid "FTP Connection has failed"
 msgstr "Connexion FTP a échoué"
@@ -5264,6 +5248,38 @@ msgstr "snapin mise à jour"
 #, fuzzy
 msgid "Snapin Storage Groups"
 msgstr "Groupe de stockage non valide"
+
+#, fuzzy
+msgid "Check here to see what storage groups can be added"
+msgstr "Vérifiez ici pour voir ce que snapins peuvent être ajoutés"
+
+#, fuzzy
+msgid "Add Storage Groups"
+msgstr "Ajouter un groupe de stockage"
+
+#, fuzzy
+msgid "Add selected storage groups"
+msgstr "Imprimante"
+
+#, fuzzy
+msgid "Update/Remove Storage Groups"
+msgstr "Supprimer les imprimantes sélectionnées"
+
+#, fuzzy
+msgid "Update primary group"
+msgstr "Mise à jour de groupe principal"
+
+#, fuzzy
+msgid "Remove selected groups"
+msgstr "Retirer snapins sélectionnés"
+
+#, fuzzy
+msgid "No groups selected to be removed"
+msgstr "Aucun groupe sélectionné et aucun nouveau nom de groupe est entré"
+
+#, fuzzy
+msgid "You must have at least one group associated"
+msgstr "Vous devez avoir au moins un groupe de stockage"
 
 #, fuzzy
 msgid "Snapin update failed!"

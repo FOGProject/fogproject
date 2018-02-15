@@ -109,16 +109,14 @@ class Page extends FOGBase
         $this
             ->addCSS('bower_components/bootstrap/dist/css/bootstrap.min.css')
             ->addCSS('bower_components/font-awesome/css/font-awesome.min.css')
+            ->addCSS('bower_components/select2/dist/css/select2.min.css')
             ->addCSS('bower_components/Ionicons/css/ionicons.min.css')
-            ->addCSS('bower_components/ion.rangeSlider/css/ion.rangeSlider.css')
-            ->addCSS('bower_components/ion.rangeSlider/css/ion.rangeSlider.skinNice.css')
-            ->addCSS('bower_components/bootstrap-slider/slider.css')
+            ->addCSS('plugins/datatables/datatables.min.css')
+            ->addCSS('plugins/bootstrap-slider/slider.css')
+            ->addCSS('plugins/pnotify/pnotify.min.css')
             ->addCSS('plugins/iCheck/square/blue.css')
             ->addCSS('plugins/animate/animate.css')
-            ->addCSS('plugins/pnotify/pnotify.min.css')
             ->addCSS('plugins/pace/pace.min.css')
-            ->addCSS('bower_components/select2/dist/css/select2.min.css')
-            ->addCSS('plugins/datatables/datatables.min.css')
             ->addCSS('dist/css/AdminLTE.min.css')
             ->addCSS('dist/css/skins/_all-skins.min.css')
             ->addCSS('css/font.css');
@@ -141,14 +139,19 @@ class Page extends FOGBase
         FOGPage::buildMainMenuItems($this->menu);
         $files = array(
             'bower_components/jquery/dist/jquery.min.js',
-            'bower_components/jquery-ui/jquery-ui.min.js',
+            //'bower_components/jquery-ui/jquery-ui.min.js',
             'bower_components/bootstrap/dist/js/bootstrap.min.js',
-            'bower_components/ion.rangeSlider/js/ion.rangeSlider.js',
-            'bower_components/bootstrap-slider/bootstrap-slider.js',
+            'bower_components/fastclick/lib/fastclick.js',
+            'bower_components/Flot/jquery.flot.js',
+            'bower_components/Flot/jquery.flot.resize.js',
+            'bower_components/Flot/jquery.flot.pie.js',
+            'bower_components/Flot/jquery.flot.time.js',
+            'bower_components/select2/dist/js/select2.full.min.js',
+            'bower_components/jquery-slimscroll/jquery.slimscroll.min.js',
+            'dist/js/adminlte.min.js',
             'plugins/datatables/datatables.min.js',
             'plugins/iCheck/icheck.min.js',
             'plugins/bootbox/bootbox.min.js',
-            'bower_components/select2/dist/js/select2.full.min.js',
             'plugins/pnotify/pnotify.min.js',
             'plugins/pace/pace.min.js',
             'plugins/input-mask/jquery.inputmask.js',
@@ -156,13 +159,7 @@ class Page extends FOGBase
             'plugins/input-mask/jquery.inputmask.regex.extensions.js',
             'plugins/input-mask/jquery.inputmask.numeric.extensions.js',
             'plugins/input-mask/jquery.inputmask.date.extensions.js',
-            'bower_components/jquery-slimscroll/jquery.slimscroll.min.js',
-            'bower_components/fastclick/lib/fastclick.js',
-            'dist/js/adminlte.min.js',
-            'bower_components/Flot/jquery.flot.js',
-            'bower_components/Flot/jquery.flot.resize.js',
-            'bower_components/Flot/jquery.flot.pie.js',
-            'bower_components/Flot/jquery.flot.time.js',
+            'plugins/bootstrap-slider/bootstrap-slider.js',
             'js/fog/fog.common.js',
         );
         if (!self::$FOGUser->isValid()) {
