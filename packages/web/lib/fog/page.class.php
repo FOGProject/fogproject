@@ -110,6 +110,9 @@ class Page extends FOGBase
             ->addCSS('bower_components/bootstrap/dist/css/bootstrap.min.css')
             ->addCSS('bower_components/font-awesome/css/font-awesome.min.css')
             ->addCSS('bower_components/Ionicons/css/ionicons.min.css')
+            ->addCSS('bower_components/ion.rangeSlider/css/ion.rangeSlider.css')
+            ->addCSS('bower_components/ion.rangeSlider/css/ion.rangeSlider.skinNice.css')
+            ->addCSS('bower_components/bootstrap-slider/slider.css')
             ->addCSS('plugins/iCheck/square/blue.css')
             ->addCSS('plugins/animate/animate.css')
             ->addCSS('plugins/pnotify/pnotify.min.css')
@@ -140,6 +143,8 @@ class Page extends FOGBase
             'bower_components/jquery/dist/jquery.min.js',
             'bower_components/jquery-ui/jquery-ui.min.js',
             'bower_components/bootstrap/dist/js/bootstrap.min.js',
+            'bower_components/ion.rangeSlider/js/ion.rangeSlider.js',
+            'bower_components/bootstrap-slider/bootstrap-slider.js',
             'plugins/datatables/datatables.min.js',
             'plugins/iCheck/icheck.min.js',
             'plugins/bootbox/bootbox.min.js',
@@ -207,6 +212,7 @@ class Page extends FOGBase
             (array)$pluginfilepaths
         );
         if ($this->isHomepage
+            && self::$FOGUser->isValid()
             && ($node == 'home'
             || !$node)
         ) {

@@ -45,306 +45,36 @@ class ImageManagementPage extends FOGPage
          */
         parent::__construct($this->name);
         /**
-         * Add the multicast session items for images.
-         */
-        $this->menu['multicast'] = sprintf(
-            '%s %s',
-            self::$foglang['Multicast'],
-            self::$foglang['Image']
-        );
-        /**
          * If we want the Server size taken by the image.
          */
         $SizeServer = self::getSetting('FOG_FTP_IMAGE_SIZE');
         /**
-         * Get our nicer names.
-         */
-        global $id;
-        global $sub;
-        /**
-         * If the id is set load our sub-side menu.
-         */
-        if ($id) {
-            /**
-             * The other sub menu items.
-             */
-            $this->subMenu = array(
-                "$this->linkformat#image-gen" => self::$foglang['General'],
-                "$this->linkformat#image-storage" => sprintf(
-                    '%s %s',
-                    self::$foglang['Storage'],
-                    self::$foglang['Group']
-                ),
-                $this->membership => self::$foglang['Membership'],
-                $this->delformat => self::$foglang['Delete'],
-            );
-            /**
-             * The notes for this item.
-             */
-            $this->notes = array(
-                self::$foglang['Images'] => $this->obj->get('name'),
-                self::$foglang['LastCaptured'] => $this->obj->get('deployed'),
-                self::$foglang['DeployMethod'] => (
-                    $this->obj->get('format') ?
-                    _('Partimage') :
-                    _('Partclone')
-                ),
-                self::$foglang['ImageType'] => (
-                    $this->obj->getImageType() ?
-                    $this->obj->getImageType() :
-                    self::$foglang['NoAvail']
-                ),
-                _('Primary Storage Group') => $this->obj->getStorageGroup()->get(
-                    'name'
-                )
-            );
-        }
-        /**
-         * Allow custom hooks/changes to: Submenu data via.
-         *
-         * Menu, submenu, id, notes, the main object,
-         * linkformat, delformat, and membership information.
-         */
-        self::$HookManager
-            ->processEvent(
-                'SUB_MENULINK_DATA',
-                array(
-                    'menu' => &$this->menu,
-                    'submenu' => &$this->subMenu,
-                    'id' => &$this->id,
-                    'notes' => &$this->notes,
-                    'object' => &$this->obj,
-                    'linkformat' => &$this->linkformat,
-                    'delformat' => &$this->delformat,
-                    'membership' => &$this->membership
-                )
-            );
-        /**
          * The header data for list/search.
          */
-        $this->headerData = array(
+        $this->headerData = [
             _('Protected'),
             _('Enabled'),
             _('Image Name'),
             _('Captured')
-        );
+        ];
         /**
          * The template for the list/search elements.
          */
-        $this->templates = array(
-            '${protected}',
-            '${enabled}',
-            '<a href="?node='
-            . $this->node
-            . '&sub=edit&id=${id}" '
-            . 'data-toggle="tooltip" data-placement="right" '
-            . 'title="'
-            . _('Edit')
-            . ': ${name} '
-            . _('Last captured')
-            . ': ${deployed}">${name} - ${id}</a>'
-            . '<br/>'
-            . '<small>${image_type}</small>'
-            . '<br/>'
-            . '<small>${type}</small>',
-            '${deployed}'
-        );
+        $this->templates = [
+            '',
+            '',
+            '',
+            ''
+        ];
         /**
          * The attributes for the table items.
          */
-        $this->attributes = array(
-            array(
-                'width' => 5,
-                'class' => 'filter-false'
-            ),
-            array(
-                'width' => 5,
-                'class' => 'filter-false'
-            ),
-            array(),
-            array(),
-        );
-        /**
-         * Lamda function to return data either by list or search.
-         *
-         * @param object $Image the object to use.
-         *
-         * @return void
-         */
-        self::$returnData = function (&$Image) use ($SizeServer) {
-            /**
-             * Stores the image on client size.
-             */
-            $imageSize = self::formatByteSize(
-                array_sum(
-                    explode(
-                        ':',
-                        $Image->size
-                    )
-                )
-            );
-            /**
-             * Stores the items in a nicer name
-             */
-            /**
-             * The id.
-             */
-            $id = $Image->id;
-            /**
-             * The name.
-             */
-            $name = $Image->name;
-            /**
-             * The description.
-             */
-            $description = $Image->description;
-            /**
-             * The storage group name.
-             */
-            $storageGroup = $Image->storagegroupname;
-            /**
-             * The os name.
-             */
-            $os = $Image->osname;
-            /**
-             * If no os is set/found set to not set.
-             */
-            if (!$os) {
-                $os = _('Not set');
-            }
-            /**
-             * The deployed date.
-             */
-            $date = $Image->deployed;
-            /**
-             * If the date is valid format in Y-m-d H:i:s
-             * and if not set to no valid data.
-             */
-            if (self::validDate($date)) {
-                $date = self::formatTime($date, 'Y-m-d H:i:s');
-            } else {
-                $date = _('Invalid date');
-            }
-            /**
-             * The image type name.
-             */
-            $imageType = $Image->imagetypename;
-            /**
-             * The image partition type name.
-             */
-            $imagePartitionType = $Image->imageparttypename;
-            /**
-             * The path.
-             */
-            $path = $Image->path;
-            $serverSize = 0;
-            /**
-             * If size on server we get our function.
-             */
-            if ($SizeServer) {
-                $serverSize = self::formatByteSize($Image->srvsize);
-            }
-            /**
-             * If the image is not protected show
-             * the unlocked symbol and title of not protected
-             * otherwise set as is protected.
-             */
-            if ($Image->protected < 1) {
-                $protected = sprintf(
-                    '<i class="fa fa-unlock fa-1x icon hand" '
-                    . 'data-toggle="tooltip" data-placement="right" '
-                    . 'title="%s"></i>',
-                    _('Not protected')
-                );
-            } else {
-                $protected = sprintf(
-                    '<i class="fa fa-lock fa-1x icon hand" '
-                    . 'data-toggle="tooltip" data-placement="right" '
-                    . 'title="%s"></i>',
-                    _('Protected')
-                );
-            }
-            /**
-             * If the image is enabled or not.
-             */
-            if ($Image->isEnabled) {
-                $enabled = '<i class="fa fa-check-circle green" '
-                    . 'title="'
-                    . _('Enabled')
-                    . '" data-toggle="tooltip" data-placement="top">'
-                    . '</i>';
-            } else {
-                $enabled
-                    = '<i class="fa fa-times-circle red" '
-                    . 'title="'
-                    . _('Disabled')
-                    . '" data-toggle="tooltip" data-placement="top">'
-                    . '</i>';
-            }
-            /**
-             * If the image format not one, we must
-             * be using partclone otherwise partimage.
-             */
-            switch ($Image->format) {
-            case 0:
-                $type = _('Partclone Compressed');
-                break;
-            case 1:
-                $type = _('Partimage');
-                break;
-            case 2:
-                $type = _('Partclone Compressed 200MiB split');
-                break;
-            case 3:
-                $type = _('Partclone Uncompressed');
-                break;
-            case 4:
-                $type = _('Partclone Uncompressed 200MiB split');
-                break;
-            case 5:
-                $type = _('ZSTD Compressed');
-                break;
-            case 6:
-                $type = _('ZSTD Compressed 200MiB split');
-                break;
-            }
-            /**
-             * Store the data.
-             */
-            $this->data[] = array(
-                'id' => $id,
-                'name' => $name,
-                'description' => $description,
-                'storageGroup' => $storageGroup,
-                'os' => $os,
-                'deployed' => $date,
-                'size' => $imageSize,
-                'serv_size' => $serverSize,
-                'image_type' => $imageType,
-                'image_partition_type' => $imagePartitionType,
-                'protected' => $protected,
-                'type' => $type,
-                'enabled' => $enabled
-            );
-            /**
-             * Cleanup.
-             */
-            unset(
-                $id,
-                $name,
-                $description,
-                $storageGroup,
-                $os,
-                $date,
-                $imageSize,
-                $serverSize,
-                $imageType,
-                $imagePartitionType,
-                $protected,
-                $type,
-                $Image
-            );
-        };
+        $this->attributes = [
+            [],
+            [],
+            [],
+            []
+        ];
     }
     /**
      * The form to display when adding a new image
@@ -354,40 +84,20 @@ class ImageManagementPage extends FOGPage
      */
     public function add()
     {
+        $this->title = _('Create New Image');
         /**
          * Setup our variables for back up/incorrect settings without
          * making the user reset entirely
          */
+        $image = filter_input(INPUT_POST, 'image');
+        $description = filter_input(INPUT_POST, 'description');
         $storagegroup = (int)filter_input(INPUT_POST, 'storagegroup');
         $os = (int)filter_input(INPUT_POST, 'os');
         $imagetype = (int)filter_input(INPUT_POST, 'imagetype');
         $imagepartitiontype = (int)filter_input(INPUT_POST, 'imagepartitiontype');
         $compress = (int)filter_input(INPUT_POST, 'compress');
         $imagemanage = filter_input(INPUT_POST, 'imagemanage');
-        $name = filter_input(INPUT_POST, 'name');
-        $desc = filter_input(INPUT_POST, 'description');
         $file = filter_input(INPUT_POST, 'file');
-        /**
-         * Title of initial/general element.
-         */
-        $this->title = _('New Image');
-        /**
-         * The table attributes.
-         */
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
-        );
-        /**
-         * The table template.
-         */
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
-        /**
-         * Set the storage group to pre-select.
-         */
         if ($storagegroup > 0) {
             $sgID = $storagegroup;
         } else {
@@ -491,81 +201,77 @@ class ImageManagementPage extends FOGPage
             ),
             _('Partclone Zstd Split 200MiB')
         );
-        $fields = array(
-            '<label for="iName">'
+        $fields = [
+            '<label class="col-sm-2 control-label" for="image">'
             . _('Image Name')
-            . '</label>' => '<div class="input-group">'
-            . '<input class="form-control imagename-input" type="text" '
-            . 'name="name" id="iName" '
+            . '</label>' => '<input type="text" name="image" '
             . 'value="'
-            . $name
-            . '"/>'
-            . '</div>',
-            '<label for="description">'
+            . $image
+            . '" class="imagename-input form-control" '
+            . 'id="image" required/>',
+            '<label class="col-sm-2 control-label" for="description">'
             . _('Image Description')
-            . '</label>' => '<div class="input-group">'
-            . '<textarea name="description" class="form-control imagedesc-input" '
-            . 'id="description">'
+            . '</label>' => '<textarea class="form-control" style="resize:vertical;'
+            . 'min-height:50px;" '
+            . 'id="description" name="description">'
             . $description
             . '</textarea>',
-            '<label for="storagegroup">'
+            '<label class="col-sm-2 control-label" for="storagegroup">'
             . _('Storage Group')
             . '</label>' => $StorageGroups,
-            '<label for="os">'
+            '<label class="col-sm-2 control-label" for="os">'
             . _('Operating System')
             . '</label>' => $OSs,
-            '<label for="iFile">'
+            '<label class="col-sm-2 control-label" for="file">'
             . _('Image Path')
             . '</label>' => '<div class="input-group">'
             . '<span class="input-group-addon">'
             . $StorageNode->get('path')
             . '/'
             . '</span>'
-            . '<input type="text" class="form-control imagefile-input" '
-            . 'name="file" id="iFile" '
+            . '<input type="text" name="file" '
             . 'value="'
             . $file
-            . '"/>',
-            '<label for="imagetype">'
+            . '" class="form-control" id="file" required/></div>',
+            '<label class="col-sm-2 control-label" for="imagetype">'
             . _('Image Type')
             . '</label>' => $ImageTypes,
-            '<label for="imagepartitiontype">'
+            '<label class="col-sm-2 control-label" for="imagepartitiontype">'
             . _('Partition')
             . '</label>' => $ImagePartitionTypes,
-            '<label for="isEnabled">'
+            '<label class="col-sm-2 control-label" for="isEnabled">'
             . _('Image Enabled')
             . '</label>' => '<input type="checkbox" '
             . 'name="isEnabled" id="isEnabled" checked/>',
-            '<label for="toRep">'
-            . _('Replicate?')
+            '<label class="col-sm-2 control-label" for="toRep">'
+            . _('Replicate')
             . '</label>' => '<input type="checkbox" '
             . 'name="toReplicate" id="toRep" checked/>',
-            '<label for="pigzcomp">'
+            '<label class="col-sm-2 control-label" for="pigzcomp">'
             . _('Compression')
-            . '</label>' => '<div class="col-xs-8">'
-            . '<div class="rangegen pigz"></div>'
+            . '</label>' => '<div class="col-sm-8">'
+            //. '<div class="rangegen pigz"></div>'
+            . '<input type="text" value="'
+            . $compression
+            . '" class="slider form-control" '
+            . 'data-slider-min="0" data-slider-max="22" data-slider-step="1" '
+            . 'data-slider-value="[0,22]" data-slider-orientation="horizontal" '
+            . 'data-slider-selection="before" data-slider-tooltip="show" '
+            . 'data-slider-id="blue">'
             . '</div>'
-            . '<div class="col-xs-2">'
-            . '<div class="input-group">'
+            . '<div class="col-sm-2">'
             . '<input type="text" name="compress" class="form-control '
             . 'showVal pigz" maxsize="2" value="'
             . $compression
             . '" id="pigzcomp" readonly/>'
-            . '</div>'
             . '</div>',
-            '<label for="imagemanage">'
+            '<label class="col-sm-2 control-label" for="imagemanage">'
             . _('Image Manager')
-            . '</label>' => $format,
-            '<label for="add">'
-            . _('Create Image')
-            . '</label>' => '<button class="btn btn-info btn-block" type="submit" '
-            . 'id="add" name="add">'
-            . _('Add')
-            . '</button>'
-        );
+            . '</label>' => $format
+        ];
         self::$HookManager
             ->processEvent(
-                'IMAGE_FIELDS',
+                'IMAGE_ADD_FIELDS',
                 array(
                     'fields' => &$fields,
                     'Image' => self::getClass('Image')
@@ -573,31 +279,20 @@ class ImageManagementPage extends FOGPage
             );
         $rendered = self::formFields($fields);
         unset($fields);
-        self::$HookManager
-            ->processEvent(
-                'IMAGE_ADD',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo $this->title;
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
+        echo '<div class="box box-solid" id="image-create">';
+        echo '<form id="image-create-form" class="form-horizontal" method="post" action="'
             . $this->formAction
-            . '">';
-        $this->render(12);
+            . '" novalidate>';
+        echo '<div class="box-body">';
+        echo '<!-- Image General -->';
+        echo $rendered;
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo '<button class="btn btn-primary" id="send">'
+            . _('Create')
+            . '</button>';
+        echo '</div>';
         echo '</form>';
-        echo '</div>';
-        echo '</div>';
         echo '</div>';
     }
     /**
@@ -880,7 +575,7 @@ class ImageManagementPage extends FOGPage
             . 'name="file" id="iFile" '
             . 'value="'
             . $file
-            . '"/>',
+            . '" />',
             '<label for="imagetype">'
             . _('Image Type')
             . '</label>' => $ImageTypes,

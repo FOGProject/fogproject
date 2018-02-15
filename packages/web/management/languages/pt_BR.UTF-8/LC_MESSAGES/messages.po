@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-14 01:23-0500\n"
+"POT-Creation-Date: 2018-02-14 21:32-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3889,10 +3889,6 @@ msgid "Snapin Associated"
 msgstr "Snapin atualizada"
 
 #, fuzzy
-msgid "Update/Remove Snapins"
-msgstr "Remover impressoras selecionadas"
-
-#, fuzzy
 msgid "Enable All"
 msgstr "ativado"
 
@@ -4016,10 +4012,6 @@ msgstr "chassis Serial"
 
 msgid "Chassis Asset"
 msgstr "chassis de ativos"
-
-#, fuzzy
-msgid "Host Inventory"
-msgstr "Inventário"
 
 #, fuzzy
 msgid "Logout not found"
@@ -4199,12 +4191,8 @@ msgid "Please use another group name"
 msgstr "Por favor, indique um nome de host"
 
 #, fuzzy
-msgid "Group image"
+msgid "Group Image"
 msgstr "Nome do grupo"
-
-#, fuzzy
-msgid "Group Image Setting"
-msgstr "anfitrião Descrição"
 
 #, fuzzy
 msgid "Group Printer Configuration"
@@ -4453,15 +4441,6 @@ msgstr "atribuição destruída"
 msgid "Destroyed assignment"
 msgstr "atribuição destruída"
 
-msgid "Partimage"
-msgstr "Partimage"
-
-msgid "Partclone"
-msgstr "partclone"
-
-msgid "Primary Storage Group"
-msgstr "Grupo de armazenamento primário"
-
 msgid "Protected"
 msgstr "Protegido"
 
@@ -4470,43 +4449,11 @@ msgid "Captured"
 msgstr "Criado"
 
 #, fuzzy
-msgid "Last captured"
-msgstr "host criado"
+msgid "Create New Image"
+msgstr "Criar novo %s"
 
-msgid "Not set"
-msgstr "Não configurado"
-
-#, fuzzy
-msgid "Invalid date"
-msgstr "tipo inválido"
-
-#, fuzzy
-msgid "Not protected"
-msgstr "não protegido"
-
-#, fuzzy
-msgid "Disabled"
-msgstr "ativado"
-
-#, fuzzy
-msgid "Partclone Compressed"
-msgstr "partclone"
-
-msgid "Partclone Compressed 200MiB split"
-msgstr ""
-
-msgid "Partclone Uncompressed 200MiB split"
-msgstr ""
-
-#, fuzzy
-msgid "ZSTD Compressed"
-msgstr "partclone"
-
-msgid "ZSTD Compressed 200MiB split"
-msgstr ""
-
-msgid "New Image"
-msgstr "Nova imagem"
+msgid "Partimage"
+msgstr "Partimage"
 
 msgid "Image Description"
 msgstr "Descrição da imagem"
@@ -4517,7 +4464,8 @@ msgstr "divisória"
 msgid "Image Enabled"
 msgstr "imagem Ativado"
 
-msgid "Replicate?"
+#, fuzzy
+msgid "Replicate"
 msgstr "Replicar?"
 
 msgid "Compression"
@@ -4525,10 +4473,6 @@ msgstr "Compressão"
 
 msgid "Image Manager"
 msgstr "image Manager"
-
-#, fuzzy
-msgid "Create Image"
-msgstr "Criar Data"
 
 msgid "An image already exists with this name!"
 msgstr "Uma imagem já existe com este nome!"
@@ -4563,6 +4507,9 @@ msgstr "usuário criado"
 #, fuzzy
 msgid "Image Create Fail"
 msgstr "usuário criado"
+
+msgid "Replicate?"
+msgstr "Replicar?"
 
 #, fuzzy
 msgid "Image General"
@@ -4942,10 +4889,6 @@ msgid "Storage Node Associated"
 msgstr "Nó de Armazenamento Criado"
 
 #, fuzzy
-msgid "Update/Remove Storage Nodes"
-msgstr "Remover impressoras selecionadas"
-
-#, fuzzy
 msgid "Storage Group Update Failed"
 msgstr "Grupo de armazenamento Atualizado"
 
@@ -5181,6 +5124,14 @@ msgstr "tamanho do arquivo"
 #, fuzzy
 msgid "Is Pack"
 msgstr "É uma"
+
+#, fuzzy
+msgid "Not protected"
+msgstr "não protegido"
+
+#, fuzzy
+msgid "Disabled"
+msgstr "ativado"
 
 #, fuzzy
 msgid "New Snapin"

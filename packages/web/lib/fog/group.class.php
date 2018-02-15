@@ -63,28 +63,22 @@ class Group extends FOGController
     );
     protected $sqlQueryStr = "SELECT COUNT(`gmHostID`) `gmMembers`,`%s`
         FROM `%s`
-        CROSS JOIN `hosts`
         LEFT OUTER JOIN `groupMembers`
         ON `groups`.`groupID` = `groupMembers`.`gmGroupID`
-        AND `hosts`.`hostID` = `groupMembers`.`gmHostID`
         %s
         GROUP BY `groupID`,`gmGroupID`
         %s
         %s";
     protected $sqlFilterStr = "SELECT COUNT(`gmHostID`) `gmMembers`,COUNT(`%s`)
         FROM `%s`
-        CROSS JOIN `hosts`
         LEFT OUTER JOIN `groupMembers`
         ON `groups`.`groupID` = `groupMembers`.`gmGroupID`
-        AND `hosts`.`hostID` = `groupMembers`.`gmHostID`
         %s
         GROUP BY `groupID`,`gmGroupID`";
     protected $sqlTotalStr = "SELECT COUNT(`gmHostID`) `gmMembers`,COUNT(`%s`)
         FROM `%s`
-        CROSS JOIN `hosts`
         LEFT OUTER JOIN `groupMembers`
         ON `groups`.`groupID` = `groupMembers`.`gmGroupID`
-        AND `hosts`.`hostID` = `groupMembers`.`gmHostID`
         GROUP BY `groupID`,`gmGroupID`";
     /**
      * Destroy the group object and all associations.

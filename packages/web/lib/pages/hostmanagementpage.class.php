@@ -982,20 +982,7 @@ class HostManagementPage extends FOGPage
             []
         ];
 
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<div class="box-tools pull-right">';
-        echo self::$FOGCollapseBox;
-        echo '</div>';
-        echo '<h4 class="box-title">';
-        echo _('Update/Remove Snapins');
-        echo '</h4>';
-        echo '<div>';
-        echo '<p class="help-block">';
-        echo _('Changes will automatically be saved');
-        echo '</p>';
-        echo '</div>';
-        echo '</div>';
+        echo '<div class="box box-solid">';
         echo '<div id="updatesnapins" class="">';
         echo '<div class="box-body">';
         $this->render(12, 'host-snapins-table', $buttons);
@@ -1086,7 +1073,7 @@ class HostManagementPage extends FOGPage
             []
         ];
         // Modules Enable/Disable/Selected
-        echo '<div class="box box-primary">';
+        echo '<div class="box box-info">';
         echo '<div class="box-header with-border">';
         echo '<div class="box-tools pull-right">';
         echo self::$FOGCollapseBox;
@@ -1239,7 +1226,7 @@ class HostManagementPage extends FOGPage
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '&tab=host-service">';
-        echo '<div class="box box-primary">';
+        echo '<div class="box box-warning">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
         echo _('Auto Logout Settings');
@@ -1482,11 +1469,6 @@ class HostManagementPage extends FOGPage
         $rendered = self::formFields($fields);
         echo '<!-- Inventory -->';
         echo '<div class="box box-solid">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Host Inventory');
-        echo '</h4>';
-        echo '</div>';
         echo '<div class="box-body">';
         echo '<form id="host-inventory-form" class="form-horizontal" method="post" action="'
             . self::makeTabUpdateURL(

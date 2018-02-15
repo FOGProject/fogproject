@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-14 01:23-0500\n"
+"POT-Creation-Date: 2018-02-14 21:32-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3871,10 +3871,6 @@ msgid "Snapin Associated"
 msgstr "更新管理单元"
 
 #, fuzzy
-msgid "Update/Remove Snapins"
-msgstr "删除选定的打印机"
-
-#, fuzzy
 msgid "Enable All"
 msgstr "启用"
 
@@ -3998,10 +3994,6 @@ msgstr "机箱序列"
 
 msgid "Chassis Asset"
 msgstr "机箱资产"
-
-#, fuzzy
-msgid "Host Inventory"
-msgstr "库存"
 
 #, fuzzy
 msgid "Logout not found"
@@ -4181,12 +4173,8 @@ msgid "Please use another group name"
 msgstr "请输入主机名"
 
 #, fuzzy
-msgid "Group image"
+msgid "Group Image"
 msgstr "组名称"
-
-#, fuzzy
-msgid "Group Image Setting"
-msgstr "主机描述"
 
 #, fuzzy
 msgid "Group Printer Configuration"
@@ -4434,15 +4422,6 @@ msgstr "销毁作业"
 msgid "Destroyed assignment"
 msgstr "销毁作业"
 
-msgid "Partimage"
-msgstr "Partimage"
-
-msgid "Partclone"
-msgstr "Partclone"
-
-msgid "Primary Storage Group"
-msgstr "主存储组"
-
 msgid "Protected"
 msgstr "受保护"
 
@@ -4451,43 +4430,11 @@ msgid "Captured"
 msgstr "创建"
 
 #, fuzzy
-msgid "Last captured"
-msgstr "主机创建"
+msgid "Create New Image"
+msgstr "新建%s"
 
-msgid "Not set"
-msgstr "没有设置"
-
-#, fuzzy
-msgid "Invalid date"
-msgstr "无效类型"
-
-#, fuzzy
-msgid "Not protected"
-msgstr "不受保护"
-
-#, fuzzy
-msgid "Disabled"
-msgstr "启用"
-
-#, fuzzy
-msgid "Partclone Compressed"
-msgstr "Partclone"
-
-msgid "Partclone Compressed 200MiB split"
-msgstr ""
-
-msgid "Partclone Uncompressed 200MiB split"
-msgstr ""
-
-#, fuzzy
-msgid "ZSTD Compressed"
-msgstr "Partclone"
-
-msgid "ZSTD Compressed 200MiB split"
-msgstr ""
-
-msgid "New Image"
-msgstr "新图片"
+msgid "Partimage"
+msgstr "Partimage"
 
 msgid "Image Description"
 msgstr "图片说明"
@@ -4498,7 +4445,8 @@ msgstr "划分"
 msgid "Image Enabled"
 msgstr "图片启用"
 
-msgid "Replicate?"
+#, fuzzy
+msgid "Replicate"
 msgstr "复制？"
 
 msgid "Compression"
@@ -4506,10 +4454,6 @@ msgstr "压缩"
 
 msgid "Image Manager"
 msgstr "图像管理器"
-
-#, fuzzy
-msgid "Create Image"
-msgstr "创建日期"
 
 msgid "An image already exists with this name!"
 msgstr "图像已经存在具有此名称！"
@@ -4544,6 +4488,9 @@ msgstr "用户创建"
 #, fuzzy
 msgid "Image Create Fail"
 msgstr "用户创建"
+
+msgid "Replicate?"
+msgstr "复制？"
 
 #, fuzzy
 msgid "Image General"
@@ -4923,10 +4870,6 @@ msgid "Storage Node Associated"
 msgstr "存储节点创建"
 
 #, fuzzy
-msgid "Update/Remove Storage Nodes"
-msgstr "删除选定的打印机"
-
-#, fuzzy
 msgid "Storage Group Update Failed"
 msgstr "存储组更新"
 
@@ -5161,6 +5104,14 @@ msgstr "文件大小"
 #, fuzzy
 msgid "Is Pack"
 msgstr "是"
+
+#, fuzzy
+msgid "Not protected"
+msgstr "不受保护"
+
+#, fuzzy
+msgid "Disabled"
+msgstr "启用"
 
 #, fuzzy
 msgid "New Snapin"

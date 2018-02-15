@@ -165,21 +165,13 @@ class GroupManagementPage extends FOGPage
             . '" novalidate>';
         echo '<div class="box-body">';
         echo '<!-- Group General -->';
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h3 class="box-title">';
-        echo _('Create New Group');
-        echo '</h3>';
-        echo '</div>';
-        echo '<div class="box-body">';
         echo $rendered;
-        echo '</div>';
-        echo '</div>';
         echo '</div>';
         echo '<div class="box-footer">';
         echo '<button class="btn btn-primary" id="send">'
             . _('Create')
             . '</button>';
+        echo '</div>';
         echo '</form>';
         echo '</div>';
     }
@@ -520,7 +512,7 @@ class GroupManagementPage extends FOGPage
             ->buildSelectBox($imageID, 'image');
         $fields = [
             '<label for="image" class="col-sm-2 control-label">'
-            . _('Group image')
+            . _('Group Image')
             . '</label>' => $imageSelector
         ];
         self::$HookManager
@@ -533,11 +525,6 @@ class GroupManagementPage extends FOGPage
             );
         $rendered = self::formFields($fields);
         echo '<div class="box box-solid">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Group Image Setting');
-        echo '</h4>';
-        echo '</div>';
         echo '<div class="box-body">';
         echo '<form id="group-image-form" class="form-horizontal" method="post" action="'
             . self::makeTabUpdateURL('group-image', $this->obj->get('id'))
@@ -853,20 +840,7 @@ class GroupManagementPage extends FOGPage
             []
         ];
 
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<div class="box-tools pull-right">';
-        echo self::$FOGCollapseBox;
-        echo '</div>';
-        echo '<h4 class="box-title">';
-        echo _('Update/Remove Snapins');
-        echo '</h4>';
-        echo '<div>';
-        echo '<p class="help-block">';
-        echo _('Changes will automatically be saved');
-        echo '</p>';
-        echo '</div>';
-        echo '</div>';
+        echo '<div class="box box-solid">';
         echo '<div id="updatesnapins" class="">';
         echo '<div class="box-body">';
         $this->render(12, 'group-snapins-table', $buttons);
@@ -957,7 +931,7 @@ class GroupManagementPage extends FOGPage
             []
         ];
         // Modules Enable/Disable/Selected
-        echo '<div class="box box-primary">';
+        echo '<div class="box box-info">';
         echo '<div class="box-header with-border">';
         echo '<div class="box-tools pull-right">';
         echo self::$FOGCollapseBox;
@@ -1079,7 +1053,7 @@ class GroupManagementPage extends FOGPage
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '&tab=group-service">';
-        echo '<div class="box box-primary">';
+        echo '<div class="box box-warning">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
         echo _('Auto Logout Settings');
@@ -1709,10 +1683,10 @@ class GroupManagementPage extends FOGPage
         $where = "`modules`.`short_name` NOT IN('clientupdater','dircleanup','greenfog','usercleanup') "
             . "AND `modules`.`short_name` IN ('" . implode("','", $keys) . "')";
 
-        /*$where = "`hosts`.`hostID` = '"
-            . $this->obj->get('id')
+        $where = "`hosts`.`hostID` = '"
+            . self::$Host->get('id')
             . "' AND `modules`.`short_name` "
-            . "NOT IN ('clientupdater','dircleanup','greenfog','usercleanup') ";*/
+            . "NOT IN ('clientupdater','dircleanup','greenfog','usercleanup') ";
 
         // Workable queries
         $modulesSqlStr = "SELECT `%s`,"
