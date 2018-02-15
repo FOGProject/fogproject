@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-14 11:57-0500\n"
+"POT-Creation-Date: 2018-02-14 21:32-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3444,9 +3444,6 @@ msgstr ""
 msgid "Snapin Associated"
 msgstr ""
 
-msgid "Update/Remove Snapins"
-msgstr ""
-
 msgid "Enable All"
 msgstr ""
 
@@ -3562,9 +3559,6 @@ msgid "Chassis Serial"
 msgstr ""
 
 msgid "Chassis Asset"
-msgstr ""
-
-msgid "Host Inventory"
 msgstr ""
 
 msgid "Logout not found"
@@ -3714,10 +3708,7 @@ msgstr ""
 msgid "Please use another group name"
 msgstr ""
 
-msgid "Group image"
-msgstr ""
-
-msgid "Group Image Setting"
+msgid "Group Image"
 msgstr ""
 
 msgid "Group Printer Configuration"
@@ -3927,52 +3918,16 @@ msgstr ""
 msgid "Destroyed assignment"
 msgstr ""
 
-msgid "Partimage"
-msgstr ""
-
-msgid "Partclone"
-msgstr ""
-
-msgid "Primary Storage Group"
-msgstr ""
-
 msgid "Protected"
 msgstr ""
 
 msgid "Captured"
 msgstr ""
 
-msgid "Last captured"
+msgid "Create New Image"
 msgstr ""
 
-msgid "Not set"
-msgstr ""
-
-msgid "Invalid date"
-msgstr ""
-
-msgid "Not protected"
-msgstr ""
-
-msgid "Disabled"
-msgstr ""
-
-msgid "Partclone Compressed"
-msgstr ""
-
-msgid "Partclone Compressed 200MiB split"
-msgstr ""
-
-msgid "Partclone Uncompressed 200MiB split"
-msgstr ""
-
-msgid "ZSTD Compressed"
-msgstr ""
-
-msgid "ZSTD Compressed 200MiB split"
-msgstr ""
-
-msgid "New Image"
+msgid "Partimage"
 msgstr ""
 
 msgid "Image Description"
@@ -3984,16 +3939,13 @@ msgstr ""
 msgid "Image Enabled"
 msgstr ""
 
-msgid "Replicate?"
+msgid "Replicate"
 msgstr ""
 
 msgid "Compression"
 msgstr ""
 
 msgid "Image Manager"
-msgstr ""
-
-msgid "Create Image"
 msgstr ""
 
 msgid "An image already exists with this name!"
@@ -4021,6 +3973,9 @@ msgid "Image Create Success"
 msgstr ""
 
 msgid "Image Create Fail"
+msgstr ""
+
+msgid "Replicate?"
 msgstr ""
 
 msgid "Image General"
@@ -4350,9 +4305,6 @@ msgstr ""
 msgid "Storage Node Associated"
 msgstr ""
 
-msgid "Update/Remove Storage Nodes"
-msgstr ""
-
 msgid "Storage Group Update Failed"
 msgstr ""
 
@@ -4558,6 +4510,12 @@ msgid "Filesize"
 msgstr ""
 
 msgid "Is Pack"
+msgstr ""
+
+msgid "Not protected"
+msgstr ""
+
+msgid "Disabled"
 msgstr ""
 
 msgid "New Snapin"

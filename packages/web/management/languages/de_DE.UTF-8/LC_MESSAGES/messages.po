@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-14 01:23-0500\n"
+"POT-Creation-Date: 2018-02-14 21:32-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -3892,10 +3892,6 @@ msgid "Snapin Associated"
 msgstr "Snapin geschützt"
 
 #, fuzzy
-msgid "Update/Remove Snapins"
-msgstr "Drucker Aktualisieren/Entfernen"
-
-#, fuzzy
 msgid "Enable All"
 msgstr "Aktiviert"
 
@@ -4019,10 +4015,6 @@ msgstr "Gehäuse-Serien"
 
 msgid "Chassis Asset"
 msgstr "Gehäuse-Asset"
-
-#, fuzzy
-msgid "Host Inventory"
-msgstr "Inventar"
 
 #, fuzzy
 msgid "Logout not found"
@@ -4202,12 +4194,8 @@ msgid "Please use another group name"
 msgstr "Bitte geben Sie einen anderen Hostnamen ein"
 
 #, fuzzy
-msgid "Group image"
-msgstr "Gruppen-Image"
-
-#, fuzzy
-msgid "Group Image Setting"
-msgstr "Gruppeneinstellungen Module"
+msgid "Group Image"
+msgstr "Gruppenname"
 
 #, fuzzy
 msgid "Group Printer Configuration"
@@ -4456,15 +4444,6 @@ msgstr "Zerstörte Zuordnungen"
 msgid "Destroyed assignment"
 msgstr "Zerstörte Zuordnung"
 
-msgid "Partimage"
-msgstr "Partimage"
-
-msgid "Partclone"
-msgstr "Partclone"
-
-msgid "Primary Storage Group"
-msgstr "Primary Storage Group"
-
 msgid "Protected"
 msgstr "Geschützt"
 
@@ -4473,43 +4452,11 @@ msgid "Captured"
 msgstr "Erstellt"
 
 #, fuzzy
-msgid "Last captured"
-msgstr "zuletzt erstellt"
+msgid "Create New Image"
+msgstr "Neuen Schlüssel erstellen"
 
-msgid "Not set"
-msgstr "Nicht festgelegt"
-
-#, fuzzy
-msgid "Invalid date"
-msgstr "Ungültiges Datum"
-
-#, fuzzy
-msgid "Not protected"
-msgstr "Nicht geschützt"
-
-#, fuzzy
-msgid "Disabled"
-msgstr "Deaktiviert"
-
-#, fuzzy
-msgid "Partclone Compressed"
-msgstr "Partclone komprimiert"
-
-msgid "Partclone Compressed 200MiB split"
-msgstr "Partclone komprimiert 200MiB gesplittet"
-
-msgid "Partclone Uncompressed 200MiB split"
-msgstr "Partclone unkomprimiert 200MiB gesplittet"
-
-#, fuzzy
-msgid "ZSTD Compressed"
-msgstr "ZSTD komprimiert"
-
-msgid "ZSTD Compressed 200MiB split"
-msgstr "ZSTD komprimiert 200MiB gesplittet"
-
-msgid "New Image"
-msgstr "Neues Image"
+msgid "Partimage"
+msgstr "Partimage"
 
 msgid "Image Description"
 msgstr "Imagebeschreibung"
@@ -4520,7 +4467,8 @@ msgstr "Partition"
 msgid "Image Enabled"
 msgstr "Image aktiviert"
 
-msgid "Replicate?"
+#, fuzzy
+msgid "Replicate"
 msgstr "Replizieren?"
 
 msgid "Compression"
@@ -4528,10 +4476,6 @@ msgstr "Kompression"
 
 msgid "Image Manager"
 msgstr "Image Manager"
-
-#, fuzzy
-msgid "Create Image"
-msgstr "Image erstellen"
 
 msgid "An image already exists with this name!"
 msgstr "Ein Image mit diesem Namen ist bereits vorhanden!"
@@ -4566,6 +4510,9 @@ msgstr "Imageerstellung erfolgreich"
 #, fuzzy
 msgid "Image Create Fail"
 msgstr "Imageerstellung fehlgeschlagen"
+
+msgid "Replicate?"
+msgstr "Replizieren?"
 
 #, fuzzy
 msgid "Image General"
@@ -4945,10 +4892,6 @@ msgid "Storage Node Associated"
 msgstr "Speicherknoten erstellt"
 
 #, fuzzy
-msgid "Update/Remove Storage Nodes"
-msgstr "Speichergruppen aktualisieren/entfernen"
-
-#, fuzzy
 msgid "Storage Group Update Failed"
 msgstr "Aktualisierung der Speichergruppe fehlgeschlagen"
 
@@ -5185,6 +5128,14 @@ msgstr "Dateigröße"
 #, fuzzy
 msgid "Is Pack"
 msgstr "Ist ein Paket"
+
+#, fuzzy
+msgid "Not protected"
+msgstr "Nicht geschützt"
+
+#, fuzzy
+msgid "Disabled"
+msgstr "Deaktiviert"
 
 #, fuzzy
 msgid "New Snapin"

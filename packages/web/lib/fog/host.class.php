@@ -139,7 +139,7 @@ class Host extends FOGController
         ON `images`.`imageID` = `hosts`.`hostImage`
         LEFT OUTER JOIN `inventory`
         ON `inventory`.`iHostID` = `hosts`.`hostID`
-        INNER JOIN `hostMAC`
+        LEFT JOIN `hostMAC`
         ON `hostMAC`.`hmHostID` = `hosts`.`hostID`
         AND `hostMAC`.`hmPrimary` = '1'
         %s
@@ -151,7 +151,7 @@ class Host extends FOGController
         ON `images`.`imageID` = `hosts`.`hostImage`
         LEFT OUTER JOIN `inventory`
         ON `inventory`.`iHostID` = `hosts`.`hostID`
-        INNER JOIN `hostMAC`
+        LEFT JOIN `hostMAC`
         ON `hostMAC`.`hmHostID` = `hosts`.`hostID`
         AND `hostMAC`.`hmPrimary` = '1'
         %s";
@@ -161,7 +161,7 @@ class Host extends FOGController
         ON `images`.`imageID` = `hosts`.`hostImage`
         LEFT OUTER JOIN `inventory`
         ON `inventory`.`iHostID` = `hosts`.`hostID`
-        INNER JOIN `hostMAC`
+        LEFT JOIN `hostMAC`
         ON `hostMAC`.`hmHostID` = `hosts`.`hostID`
         AND `hostMAC`.`hmPrimary` = '1'";
     /**

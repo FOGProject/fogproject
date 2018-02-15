@@ -112,7 +112,8 @@
     });
     membershipTable.on('draw', function() {
         Common.iCheck('#storagegroup-membership input');
-        $('#storagegroup-membership-table input.master').on('ifClicked', onRadioSelect);
+        $('#storagegroup-membership-table input.master'+Common.id).on('ifClicked', onRadioSelect);
+        $('#storagegroup-membership-table input.associated').on('ifClicked', onCheckboxSelect);
     });
     membershipMasterBtn.prop('disabled', true);
 
@@ -123,7 +124,6 @@
                 MASTER_NODE_ID = id;
             }
             if (id === MASTER_NODE_ID) {
-                $(this).iCheck('uncheck');
                 MASTER_NODE_ID = 0;
             } else {
                 MASTER_NODE_ID = id;
@@ -131,9 +131,12 @@
             membershipMasterBtn.prop('disabled', false);
         }
     };
+    var onCheckboxSelect = function(event) {
+    }
 
     // Setup master node watcher
     $('.master'+Common.id).on('ifClicked', onRadioSelect);
+    $('.associated').on('ifClicked', onCheckboxSelect);
 
     membershipMasterBtn.on('click', function() {
         membershipAddBtn.prop('disabled', true);

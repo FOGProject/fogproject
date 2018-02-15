@@ -1483,20 +1483,7 @@ class StorageManagementPage extends FOGPage
             [],
             []
         ];
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<div class="box-tools pull-right">';
-        echo self::$FOGCollapseBox;
-        echo '</div>';
-        echo '<h4 class="box-title">';
-        echo _('Update/Remove Storage Nodes');
-        echo '</h4>';
-        echo '<div>';
-        echo '<p class="help-block">';
-        echo _('Changes will automatically be saved');
-        echo '</p>';
-        echo '</div>';
-        echo '</div>';
+        echo '<div class="box box-solid">';
         echo '<div id="updatestoragenodes" class="">';
         echo '<div class="box-body">';
         $this->render(12, 'storagegroup-membership-table', $buttons);

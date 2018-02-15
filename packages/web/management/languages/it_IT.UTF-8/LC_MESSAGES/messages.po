@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-14 01:23-0500\n"
+"POT-Creation-Date: 2018-02-14 21:32-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -3503,10 +3503,6 @@ msgid "Snapin Associated"
 msgstr "Snapin Protetto"
 
 #, fuzzy
-msgid "Update/Remove Snapins"
-msgstr "Aggiorna/Rimuovi stampanti"
-
-#, fuzzy
 msgid "Enable All"
 msgstr "Abilitato"
 
@@ -3628,10 +3624,6 @@ msgstr "Telaio seriale"
 
 msgid "Chassis Asset"
 msgstr "Telaio Asset"
-
-#, fuzzy
-msgid "Host Inventory"
-msgstr "Inventario"
 
 msgid "Logout not found"
 msgstr "Logout non trovato"
@@ -3784,12 +3776,9 @@ msgstr "Gruppo EFI Tipo Exit"
 msgid "Please use another group name"
 msgstr "Utilizza un altro hostname"
 
-msgid "Group image"
-msgstr "Immagine gruppo"
-
 #, fuzzy
-msgid "Group Image Setting"
-msgstr "Impostazioni modulo del gruppo"
+msgid "Group Image"
+msgstr "Nome del gruppo"
 
 #, fuzzy
 msgid "Group Printer Configuration"
@@ -4003,53 +3992,18 @@ msgstr "Assegnamenti distrutti"
 msgid "Destroyed assignment"
 msgstr "Assegnazione distrutta"
 
-msgid "Partimage"
-msgstr "partimage"
-
-msgid "Partclone"
-msgstr "Partclone"
-
-msgid "Primary Storage Group"
-msgstr "Gruppo di archiviazione primaria"
-
 msgid "Protected"
 msgstr "Protetta"
 
 msgid "Captured"
 msgstr "Catturato"
 
-msgid "Last captured"
-msgstr "Ultima cattura"
+#, fuzzy
+msgid "Create New Image"
+msgstr "Crea nuovo %s"
 
-msgid "Not set"
-msgstr "Non impostato"
-
-msgid "Invalid date"
-msgstr "Data non valida"
-
-msgid "Not protected"
-msgstr "Non protetto"
-
-msgid "Disabled"
-msgstr "Disabilitato"
-
-msgid "Partclone Compressed"
-msgstr "Partclone compressa"
-
-msgid "Partclone Compressed 200MiB split"
-msgstr "Partclone compressa diviso per 200MiB"
-
-msgid "Partclone Uncompressed 200MiB split"
-msgstr "Partclone non compressa diviso per 200MiB"
-
-msgid "ZSTD Compressed"
-msgstr "ZSTD compressa"
-
-msgid "ZSTD Compressed 200MiB split"
-msgstr "ZSTR compressa diviso per 200MiB"
-
-msgid "New Image"
-msgstr "Nuova immagine"
+msgid "Partimage"
+msgstr "partimage"
 
 msgid "Image Description"
 msgstr "Descrizione dell'immagine"
@@ -4060,7 +4014,8 @@ msgstr "Partizione"
 msgid "Image Enabled"
 msgstr "immagine Abilitato"
 
-msgid "Replicate?"
+#, fuzzy
+msgid "Replicate"
 msgstr "Replicare?"
 
 msgid "Compression"
@@ -4068,9 +4023,6 @@ msgstr "Compressione"
 
 msgid "Image Manager"
 msgstr "Image manager"
-
-msgid "Create Image"
-msgstr "Crea immagina"
 
 msgid "An image already exists with this name!"
 msgstr "Un'immagine esiste già con questo nome!"
@@ -4098,6 +4050,9 @@ msgstr "Creazione immagine riuscita"
 
 msgid "Image Create Fail"
 msgstr "Creazione immagine fallita"
+
+msgid "Replicate?"
+msgstr "Replicare?"
 
 msgid "Image General"
 msgstr "Immagine principale"
@@ -4441,10 +4396,6 @@ msgid "Storage Node Associated"
 msgstr "Storage Node Creato"
 
 #, fuzzy
-msgid "Update/Remove Storage Nodes"
-msgstr "Aggiungi/rimuovi gruppo di archiviazione"
-
-#, fuzzy
 msgid "Storage Group Update Failed"
 msgstr "Aggiornamento Gruppo di archiviazione fallito"
 
@@ -4657,6 +4608,12 @@ msgstr "Dimensione del file"
 
 msgid "Is Pack"
 msgstr "È Pack"
+
+msgid "Not protected"
+msgstr "Non protetto"
+
+msgid "Disabled"
+msgstr "Disabilitato"
 
 msgid "New Snapin"
 msgstr "Nuovo Snapin"
