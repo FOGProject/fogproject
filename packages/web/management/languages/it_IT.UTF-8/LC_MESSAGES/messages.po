@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-15 18:14-0500\n"
+"POT-Creation-Date: 2018-02-15 21:22-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -4073,6 +4073,10 @@ msgstr "Storage Node Creato"
 #, fuzzy
 msgid "Storage Groups"
 msgstr "gruppo di archiviazione"
+
+#, fuzzy
+msgid "Host Membership"
+msgstr "membri"
 
 #, fuzzy
 msgid "Image Update Failed"

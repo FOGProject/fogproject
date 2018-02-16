@@ -124,8 +124,7 @@
         columns: [
             {data: 'isDefault'},
             {data: 'name'},
-            {data: 'config'},
-            {data: 'association'}
+            {data: 'config'}
         ],
         rowId: 'id',
         columnDefs: [
@@ -162,22 +161,6 @@
                 },
                 targets: 2
             },
-            {
-                render: function(data, type, row) {
-                    var checkval = '';
-                    if (row.association === 'associated') {
-                        checkval = ' checked';
-                    }
-                    return '<div class="checkbox">'
-                        + '<input type="checkbox" class="associated" name="associate[]" id="printerAssoc_'
-                        + row.id
-                        + '" value="' + row.id + '"'
-                        + checkval
-                        + '/>'
-                        + '</div>';
-                },
-                targets: 3
-            }
         ],
         processing: true,
         serverSide: true,
@@ -330,8 +313,7 @@
     var snapinsTable = Common.registerTable($('#group-snapins-table'), onSnapinsRemoveSelect, {
         columns: [
             {data: 'name'},
-            {data: 'createdTime'},
-            {data: 'assocation'}
+            {data: 'createdTime'}
         ],
         rowId: 'id',
         columnDefs: [
@@ -341,22 +323,6 @@
                     return '<a href="../management/index.php?node=snapin&sub=edit&id=' + row.id + '">' + data + '</a>';
                 },
                 targets: 0
-            },
-            {
-                render: function(data, type, row) {
-                    var checkval = '';
-                    if (row.association === 'associated') {
-                        checkval = ' checked';
-                    }
-                    return '<div class="checkbox">'
-                        + '<input type="checkbox" class="associated" name="associate[]" id="snapinAssoc_'
-                        + row.id
-                        + '" value="' + row.id + '"'
-                        + checkval
-                        + '/>'
-                        + '</div>';
-                },
-                targets: 2
             }
         ],
         processing: true,
@@ -442,23 +408,22 @@
         modulesDisableBtn.prop('disabled', disabled);
     }
     function onModulesEnable(selected) {
-        var disabled = selected.count() == 0;
+        var disabled = selected.count() != 0;
         modulesEnableBtn.prop('disabled', disabled);
     }
 
     modulesEnableBtn.on('click', function(e) {
         e.preventDefault();
-        $('.associated').iCheck('check');
+        $('.buttons-select-all').trigger('click');
     });
     modulesDisableBtn.on('click', function(e) {
         e.preventDefault();
-        $('.associated').iCheck('uncheck');
+        $('.buttons-select-none').trigger('click');
     });
 
     var modulesTable = Common.registerTable($("#modules-to-update"), onModulesEnable, {
         columns: [
-            {data: 'name'},
-            {data: 'association'}
+            {data: 'name'}
         ],
         rowId: 'id',
         columnDefs: [
@@ -468,22 +433,6 @@
                     return row.name
                 },
                 targets: 0
-            },
-            {
-                render: function(data, type, row) {
-                    var checkval = '';
-                    if (row.association === 'associated') {
-                        checkval = ' checked';
-                    }
-                    return '<div class="checkbox">'
-                        + '<input type="checkbox" class="associated" name="associate[]" id="moduleAssoc_'
-                        + row.id
-                        + '" value="' + row.id + '"'
-                        + checkval
-                        + '/>'
-                        + '</div>';
-                },
-                targets: 1
             }
         ],
         processing: true,
@@ -496,82 +445,7 @@
     modulesTable.on('draw', function() {
         Common.iCheck('#modules-to-update input');
     });
-    //$('#resetSecData').val('Reset Encryption Data');
-    //$('#delAllPM').val('Delete all power management for group');
-    //resetEncData('groups hosts', 'group');
-    //$('#delAllPM').on('click', function() {
-    //    $('#delAllPMBox').html('Are you sure you wish to remove all power management tasks with this group?');
-    //    $('#delAllPMBox').dialog({
-    //        resizable: false,
-    //        modal: true,
-    //        title: 'Remove Power Management Tasks',
-    //        buttons: {
-    //            'Yes': function() {
-    //                $.post('../management/index.php',{sub: 'clearPMTasks',groupid: $_GET.id});
-    //                $(this).dialog('close');
-    //            },
-    //            'No': function() {
-    //                $(this).dialog('close');
-    //            }
-    //        }
-    //    });
-    //});
-    // Checkbox toggles
-    //checkboxAssociations('.toggle-checkbox1:checkbox','.toggle-host1:checkbox');
-    //checkboxAssociations('.toggle-checkbox2:checkbox','.toggle-host2:checkbox');
-    //checkboxAssociations('.toggle-checkboxprint:checkbox','.toggle-print:checkbox');
-    //checkboxAssociations('.toggle-checkboxprintrm:checkbox','.toggle-printrm:checkbox');
-    //checkboxAssociations('.toggle-checkboxsnapin:checkbox','.toggle-snapin:checkbox');
-    //checkboxAssociations('.toggle-checkboxsnapinrm:checkbox','.toggle-snapinrm:checkbox');
-    //checkboxAssociations('#rempowerselectors:checkbox','.rempoweritems:checkbox');
-    // Show hide based on checked state.
-    //$('#hostMeShow:checkbox').change(function(e) {
-    //    if ($(this).is(':checked')) $('#hostNotInMe').show();
-    //    else $('#hostNotInMe').hide();
-    //    e.preventDefault();
-    //});
-    //$('#hostMeShow:checkbox').trigger('change');
-    //$('#hostNoShow:checkbox').change(function(e) {
-    //    if ($(this).is(':checked')) $('#hostNoGroup').show();
-    //    else $('#hostNoGroup').hide();
-    //    e.preventDefault();
-    //});
-    //$('#hostNoShow:checkbox').trigger('change');
-    //result = true;
-    //$('#scheduleOnDemand').change(function() {
-    //    if ($(this).is(':checked') === true) {
-    //        $(this).parents('form').each(function() {
-    //            $("input[name^='scheduleCron']",this).each(function() {
-    //                $(this).val('').prop('readonly',true).hide().parents('tr').hide();
-    //            });
-    //        });
-    //    } else {
-    //        $(this).parents('form').each(function() {
-    //            $("input[name^='scheduleCron']",this).each(function() {
-    //                $(this).val('').prop('readonly',false).show().parents('tr').show();
-    //            });
-    //        });
-    //    }
-    //});
-    //$("form.deploy-container").submit(function() {
-    //    if ($('#scheduleOnDemand').is(':checked')) {
-    //        $(".cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
-    //            $(this).val('').prop('disabled',true);
-    //        });
-    //        return true;
-    //    } else {
-    //        $(".cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
-    //            result = validateCronInputs($(this));
-    //            if (result === false) return false;
-    //        });
-    //    }
-    //    return result;
-    //}).each(function() {
-    //    $("input[name^='scheduleCron']",this).each(function(id,value) {
-    //        if (!validateCronInputs($(this))) $(this).addClass('error');
-    //    }).blur(function() {
-    //        if (!validateCronInputs($(this))) $(this).addClass('error');
-    //    });
-    //});
-    //specialCrons();
+    if (Common.search && Common.search.length > 0) {
+        modulesTable.search(Common.search).draw();
+    }
 })(jQuery)

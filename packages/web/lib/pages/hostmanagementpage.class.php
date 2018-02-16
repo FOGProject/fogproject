@@ -2563,6 +2563,7 @@ class HostManagementPage extends FOGPage
      */
     public function getPrintersList()
     {
+        header('Content-type: application/json');
         parse_str(
             file_get_contents('php://input'),
             $pass_vars
@@ -2574,7 +2575,9 @@ class HostManagementPage extends FOGPage
 
         // Workable queries
         $printersSqlStr = "SELECT `%s`,"
-            . "IF(`paHostID` IS NULL OR `paHostID` = '0' OR `paHostID` = '', 'dissociated', 'associated') AS `paHostID`,`paIsDefault`,`hostID`
+            . "IF(`paHostID` = '"
+            . $this->obj->get('id')
+            . "','associated','dissociated') AS `paHostID`,`paIsDefault`
             FROM `%s`
             CROSS JOIN `hosts`
             LEFT OUTER JOIN `printerAssoc`
@@ -2583,27 +2586,36 @@ class HostManagementPage extends FOGPage
             %s
             %s
             %s";
-
         $printersFilterStr = "SELECT COUNT(`%s`),"
-            . "IF(`paHostID` IS NULL OR `paHostID` = '0' OR `paHostID` = '', 'dissociated', 'associated') AS `paHostID`,`paIsDefault`,`hostID`
+            . "IF(`paHostID` = '"
+            . $this->obj->get('id')
+            . "','associated','dissociated') AS `paHostID`,`paIsDefault`
             FROM `%s`
             CROSS JOIN `hosts`
             LEFT OUTER JOIN `printerAssoc`
             ON `printers`.`pID` = `printerAssoc`.`paPrinterID`
             AND `hosts`.`hostID` = `printerAssoc`.`paHostID`
             %s";
-
         $printersTotalStr = "SELECT COUNT(`%s`)
             FROM `%s`";
 
         foreach (self::getClass('PrinterManager')
             ->getColumns() as $common => &$real
         ) {
-            $columns[] = array('db' => $real, 'dt' => $common);
+            $columns[] = [
+                'db' => $real,
+                'dt' => $common
+            ];
             unset($real);
         }
-        $columns[] = array('db' => 'paIsDefault', 'dt' => 'isDefault');
-        $columns[] = array('db' => 'paHostID', 'dt' => 'association');
+        $columns[] = [
+            'db' => 'paIsDefault',
+            'dt' => 'isDefault'
+        ];
+        $columns[] = [
+            'db' => 'paHostID',
+            'dt' => 'association'
+        ];
         echo json_encode(
             FOGManagerController::complex(
                 $pass_vars,
@@ -2625,6 +2637,7 @@ class HostManagementPage extends FOGPage
      */
     public function getSnapinsList()
     {
+        header('Content-type: application/json');
         parse_str(
             file_get_contents('php://input'),
             $pass_vars
@@ -2636,7 +2649,9 @@ class HostManagementPage extends FOGPage
 
         // Workable queries
         $snapinsSqlStr = "SELECT `%s`,"
-            . "IF(`saHostID` IS NULL OR `saHostID` = '0' OR `saHostID` = '', 'dissociated', 'associated') AS `saHostID`,`hostID`
+            . "IF(`saHostID` = '"
+            . $this->obj->get('id')
+            . "','associated','dissociated') AS `saHostID`
             FROM `%s`
             CROSS JOIN `hosts`
             LEFT OUTER JOIN `snapinAssoc`
@@ -2645,26 +2660,32 @@ class HostManagementPage extends FOGPage
             %s
             %s
             %s";
-
         $snapinsFilterStr = "SELECT COUNT(`%s`),"
-            . "IF(`saHostID` IS NULL OR `saHostID` = '0' OR `saHostID` = '', 'dissociated', 'associated') AS `saHostID`,`hostID`
+            . "IF(`saHostID` = '"
+            . $this->obj->get('id')
+            . "','associated','dissociated') AS `saHostID`
             FROM `%s`
             CROSS JOIN `hosts`
             LEFT OUTER JOIN `snapinAssoc`
             ON `snapins`.`sID` = `snapinAssoc`.`saSnapinID`
             AND `hosts`.`hostID` = `snapinAssoc`.`saHostID`
             %s";
-
         $snapinsTotalStr = "SELECT COUNT(`%s`)
             FROM `%s`";
 
         foreach (self::getClass('SnapinManager')
             ->getColumns() as $common => &$real
         ) {
-            $columns[] = array('db' => $real, 'dt' => $common);
+            $columns[] = [
+                'db' => $real,
+                'dt' => $common
+            ];
             unset($real);
         }
-        $columns[] = array('db' => 'saHostID', 'dt' => 'association');
+        $columns[] = [
+            'db' => 'saHostID',
+            'dt' => 'association'
+        ];
         echo json_encode(
             FOGManagerController::complex(
                 $pass_vars,
@@ -2687,6 +2708,7 @@ class HostManagementPage extends FOGPage
      */
     public function getModulesList()
     {
+        header('Content-type: application/json');
         parse_str(
             file_get_contents('php://input'),
             $pass_vars
@@ -2698,16 +2720,27 @@ class HostManagementPage extends FOGPage
                 $keys[] = $short_name;
             }
         }
+        $notWhere = [
+            'clientupdater',
+            'dircleanup',
+            'greenfog',
+            'usercleanup'
+        ];
 
         $where = "`hosts`.`hostID` = '"
             . $this->obj->get('id')
             . "' AND `modules`.`short_name` "
-            . "NOT IN ('clientupdater','dircleanup','greenfog','usercleanup') "
-            . "AND `modules`.`short_name` IN ('" . implode("','", $keys) . "')";
+            . "NOT IN ('"
+            . implode("','", $notWhere)
+            . "') AND `modules`.`short_name` IN ('"
+            . implode("','", $keys)
+            . "')";
 
         // Workable queries
         $modulesSqlStr = "SELECT `%s`,"
-            . "IF(`msHostID` IS NULL OR `msHostID` = '0' OR `msHostID` = '', 'dissociated', 'associated') AS `msHostID`,`hostID`
+            . "IF(`msHostID` = '"
+            . $this->obj->get('id')
+            . "','associated','dissociated') AS `msHostID`
             FROM `%s`
             CROSS JOIN `hosts`
             LEFT OUTER JOIN `moduleStatusByHost`
@@ -2716,27 +2749,36 @@ class HostManagementPage extends FOGPage
             %s
             %s
             %s";
-
         $modulesFilterStr = "SELECT COUNT(`%s`),"
-            . "IF(`msHostID` IS NULL OR `msHostID` = '0' OR `msHostID` = '', 'dissociated', 'associated') AS `msHostID`,`hostID`
+            . "IF(`msHostID` = '"
+            . $this->obj->get('id')
+            . "','associated','dissociated') AS `msHostID`
             FROM `%s`
             CROSS JOIN `hosts`
             LEFT OUTER JOIN `moduleStatusByHost`
             ON `modules`.`id` = `moduleStatusByHost`.`msModuleID`
-            AND `hosts`.`hostID` = `moduleStatusByHost`.`msHostID`
+            AND `hosts`.`hostID` = `moduleStatusByHost`.`msHostID`;
             %s";
-
         $modulesTotalStr = "SELECT COUNT(`%s`)
-            FROM `%s` WHERE `modules`.`short_name`
-            NOT IN ('clientupdater','dircleanup','greenfog','usercleanup')";
+            FROM `%s`
+            WHERE `modules`.`short_name` "
+            . "NOT IN ('"
+            . implode("','", $notWhere)
+            . "')";
 
         foreach (self::getClass('ModuleManager')
             ->getColumns() as $common => &$real
         ) {
-            $columns[] = array('db' => $real, 'dt' => $common);
+            $columns[] = [
+                'db' => $real,
+                'dt' => $common
+            ];
             unset($real);
         }
-        $columns[] = array('db' => 'msHostID', 'dt' => 'association');
+        $columns[] = [
+            'db' => 'msHostID',
+            'dt' => 'association'
+        ];
         echo json_encode(
             FOGManagerController::complex(
                 $pass_vars,
