@@ -920,7 +920,7 @@ class StorageManagementPage extends FOGPage
         $storagegroupsSqlStr = "SELECT `%s`,"
             . "`ngmGroupID` AS `origID`,IF(`ngmGroupID` = '"
             . $this->obj->get('id')
-            . "','dissociated','associated') AS `ngmGroupID`
+            . "','associated','dissociated') AS `ngmGroupID`
             FROM `%s`
             CROSS JOIN `nfsGroups`
             %s
@@ -929,7 +929,7 @@ class StorageManagementPage extends FOGPage
         $storagegroupsFilterStr = "SELECT COUNT(`%s`),"
             . "`ngmGroupID` AS `origID`,IF(`ngmGroupID` = '"
             . $this->obj->get('id')
-            . "','dissociated','associated') AS `ngmGroupID`
+            . "','associated','dissociated') AS `ngmGroupID`
             FROM `%s`
             CROSS JOIN `nfsGroups`
             %s";
