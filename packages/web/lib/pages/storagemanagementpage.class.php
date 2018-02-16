@@ -907,6 +907,7 @@ class StorageManagementPage extends FOGPage
      */
     public function getStorageNodesList()
     {
+        header('Content-type: application/json');
         parse_str(
             file_get_contents('php://input'),
             $pass_vars
@@ -917,14 +918,18 @@ class StorageManagementPage extends FOGPage
             . "'";
 
         $storagegroupsSqlStr = "SELECT `%s`,"
-            . "`ngmGroupID` AS `origID`,IF(`ngmGroupID` IS NULL OR `ngmGroupID` = '0' OR `ngmGroupID` = '' OR `ngmGroupID` != `ngID`, 'dissociated', 'associated') AS `ngmGroupID`
+            . "`ngmGroupID` AS `origID`,IF(`ngmGroupID` = '"
+            . $this->obj->get('id')
+            . "','dissociated','associated') AS `ngmGroupID`
             FROM `%s`
             CROSS JOIN `nfsGroups`
             %s
             %s
             %s";
         $storagegroupsFilterStr = "SELECT COUNT(`%s`),"
-            . "`ngmGroupID` AS `origID`,IF(`ngmGroupID` IS NULL OR `ngmGroupID` = '0' OR `ngmGroupID` = '' OR `ngmGroupID` != `ngID`, 'dissociated', 'associated') AS `ngmGroupID`
+            . "`ngmGroupID` AS `origID`,IF(`ngmGroupID` = '"
+            . $this->obj->get('id')
+            . "','dissociated','associated') AS `ngmGroupID`
             FROM `%s`
             CROSS JOIN `nfsGroups`
             %s";

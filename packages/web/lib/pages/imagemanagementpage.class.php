@@ -52,9 +52,9 @@ class ImageManagementPage extends FOGPage
          * The header data for list/search.
          */
         $this->headerData = [
+            _('Image Name'),
             _('Protected'),
             _('Enabled'),
-            _('Image Name'),
             _('Captured')
         ];
         /**
@@ -847,6 +847,55 @@ class ImageManagementPage extends FOGPage
         }
     }
     /**
+     * Image Membership tab
+     *
+     * @return void
+     */
+    public function imageMembership()
+    {
+        $props = ' method="post" action="'
+            . $this->formAction
+            . '&tab=image-membership" ';
+
+        echo '<!-- Host Membership -->';
+        echo '<div class="box-group" id="membership">';
+        // =================================================================
+        // Associated Storage Groups
+        $buttons = self::makeButton(
+            'membership-add',
+            _('Add selected'),
+            'btn btn-primary',
+            $props
+        );
+        $buttons .= self::makeButton(
+            'membership-remove',
+            _('Remove selected'),
+            'btn btn-danger',
+            $props
+        );
+        $this->headerData = [
+            _('Host Name'),
+            _('Host Associated')
+        ];
+        $this->templates = [
+            '',
+            ''
+        ];
+        $this->attributes = [
+            [],
+            []
+        ];
+
+        echo '<div class="box box-solid">';
+        echo '<div class="updatemembership" class="">';
+        echo '<div class="box-body">';
+        $this->render(12, 'image-membership-table', $buttons);
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
      * Edit this image
      *
      * @return void
@@ -877,13 +926,13 @@ class ImageManagementPage extends FOGPage
             }
         ];
 
-        /*$tabData[] = [
+        $tabData[] = [
             'name' => _('Host Membership'),
             'id' => 'image-membership',
             'generator' => function() {
                 $this->imageMembership();
             }
-        ];*/
+        ];
 
         echo self::tabFields($tabData);
     }
@@ -1269,6 +1318,7 @@ class ImageManagementPage extends FOGPage
      */
     public function getStoragegroupsList()
     {
+        header('Content-type: application/json');
         parse_str(
             file_get_contents('php://input'),
             $pass_vars
@@ -1280,7 +1330,9 @@ class ImageManagementPage extends FOGPage
 
         // Workable Queries
         $storagegroupsSqlStr = "SELECT `%s`,"
-            . "`igaImageID` AS `origID`,IF (`igaImageID` IS NULL OR `igaImageID` = '0' OR `igaImageID` = '','dissociated','associated') AS `igaImageID`,`igaPrimary`,`imageID`
+            . "`igaImageID` AS `origID`,IF (`igaImageID` = '"
+            . $this->obj->get('id')
+            . "','associated','dissociated') AS `igaImageID`,`igaPrimary`,`imageID`
             FROM `%s`
             CROSS JOIN `images`
             LEFT OUTER JOIN `imageGroupAssoc`
@@ -1290,11 +1342,14 @@ class ImageManagementPage extends FOGPage
             %s
             %s";
         $storagegroupsFilterStr = "SELECT COUNT(`%s`),"
-            . "`igaImageID` AS `origID`,IF (`igaImageID` IS NULL OR `igaImageID` = '0' OR `igaImageID` = '','dissociated','associated') AS `igaImageID`,`igaPrimary`,`imageID`
+            . "`igaImageID` AS `origID`,IF (`igaImageID` = '"
+            . $this->obj->get('id')
+            . "','associated','dissociated') AS `igaImageID`,`igaPrimary`,`imageID`
             FROM `%s`
             CROSS JOIN `images`
             LEFT OUTER JOIN `imageGroupAssoc`
-            ON `images`.`imageID` = `imageGroupAssoc`.`igaImageID`
+            ON `nfsGroups`.`ngID` = `imageGroupAssoc`.`igaStorageGroupID`
+            AND `images`.`imageID` = `imageGroupAssoc`.`igaImageID`
             %s";
         $storagegroupsTotalStr = "SELECT COUNT(`%s`)
             FROM `%s`";
@@ -1342,13 +1397,105 @@ class ImageManagementPage extends FOGPage
      */
     public function getHostsList()
     {
+        header('Content-type: application/json');
         parse_str(
             file_get_contents('php://input'),
             $pass_vars
         );
 
-        $where = "`images`.`imageID` = '"
+        $hostsSqlStr = "SELECT `%s`,"
+            . "IF(`hostImage` = '"
             . $this->obj->get('id')
-            . "'";
+            . "','associated','dissociated') AS `hostImage`
+            FROM `%s`
+            LEFT OUTER JOIN `images`
+            ON `hosts`.`hostImage` = `images`.`imageID`
+            %s
+            %s
+            %s";
+        $hostsFilterStr = "SELECT COUNT(`%s`),"
+            . "IF(`hostImage` = '"
+            . $this->obj->get('id')
+            . "','associated','dissociated') AS `hostImage`
+            FROM `%s`
+            LEFT OUTER JOIN `images`
+            ON `hosts`.`hostImage` = `images`.`imageID`
+            %s";
+        $hostsTotalStr = "SELECT COUNT(`%s`)
+            FROM `%s`";
+
+        foreach (self::getClass('HostManager')
+            ->getColumns() as $common => &$real
+        ) {
+            $columns[] = [
+                'db' => $real,
+                'dt' => $common
+            ];
+        }
+        $columns[] = [
+            'db' => 'hostImage',
+            'dt' => 'association'
+        ];
+        echo json_encode(
+            FOGManagerController::complex(
+                $pass_vars,
+                'hosts',
+                'hostID',
+                $columns,
+                $hostsSqlStr,
+                $hostsFilterStr,
+                $hostsTotalStr
+            )
+        );
+        exit;
+    }
+    /**
+     * Image membership post elements
+     *
+     * @return void
+     */
+    public function imageMembershipPost()
+    {
+        if (isset($_POST['updatemembership'])) {
+            $membership = filter_input_array(
+                INPUT_POST,
+                [
+                    'membership' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $membership = $membership['membership'];
+            self::getClass('HostManager')->update(
+                [
+                    'id' => $membership
+                ],
+                '',
+                [
+                    'imageID' => $this->obj->get('id')
+                ]
+            );
+        }
+        if (isset($_POST['membershipdel'])) {
+            $membership = filter_input_array(
+                INPUT_POST,
+                [
+                    'membershipRemove' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $membership = $membership['membershipRemove'];
+            self::getCLass('HostManager')->update(
+                [
+                    'id' => $membership,
+                    'imageID' => $this->obj->get('id')
+                ],
+                '',
+                [
+                    'imageID' => '0'
+                ]
+            );
+        }
     }
 }
