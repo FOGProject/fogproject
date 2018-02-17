@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-15 18:14-0500\n"
+"POT-Creation-Date: 2018-02-15 21:22-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4508,6 +4508,10 @@ msgstr "存储节点创建"
 #, fuzzy
 msgid "Storage Groups"
 msgstr "存储组"
+
+#, fuzzy
+msgid "Host Membership"
+msgstr "籍"
 
 #, fuzzy
 msgid "Image Update Failed"

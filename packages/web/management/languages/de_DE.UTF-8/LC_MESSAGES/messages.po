@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-15 18:14-0500\n"
+"POT-Creation-Date: 2018-02-15 21:22-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -4530,6 +4530,10 @@ msgstr "Speicherknoten erstellt"
 #, fuzzy
 msgid "Storage Groups"
 msgstr "Speichergruppe"
+
+#, fuzzy
+msgid "Host Membership"
+msgstr "Mitgliedschaft"
 
 #, fuzzy
 msgid "Image Update Failed"

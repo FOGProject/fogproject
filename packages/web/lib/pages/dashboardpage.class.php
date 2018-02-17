@@ -121,12 +121,8 @@ class DashboardPage extends FOGPage
             $testurls[] = $ip;
             unset($ip);
             self::$_nodeOpts[] = sprintf(
-                '<option value="%s" urlcall="%s">%s%s ()</option>',
+                '<option value="%s">%s%s</option>',
                 $StorageNode->id,
-                sprintf(
-                    '%sservice/getversion.php',
-                    $url
-                ),
                 $StorageNode->name,
                 (
                     $StorageNode->isMaster ?
@@ -240,9 +236,6 @@ class DashboardPage extends FOGPage
         echo '<h4 class="box-title">';
         echo _('System Overview');
         echo '</h4>';
-        echo '<div class="box-tools pull-right">';
-        echo self::$FOGCollapseBox;
-        echo '</div>';
         echo '</div>';
         echo '<div class="box-body">';
         echo '<div class="dl-horizontal">';
@@ -255,15 +248,19 @@ class DashboardPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
+
         // Group Activity
         echo '<div class="col-md-4">';
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
-        echo '<h3 class="box-title">';
+        echo '<h4 class="box-title">';
         echo _('Storage Group Activity');
-        echo '</h3>';
-        echo '<div class="box-tools pull-right">';
-        echo self::$FOGCollapseBox;
+        echo '</h4>';
+        echo '<div class="graph-selectors pull-right" id="graph-activity-selector">';
+        printf(
+            '<select class="activity-count" name="groupsel">%s</select>',
+            self::$_groupOpts
+        );
         echo '</div>';
         echo '</div>';
         echo '<div class="box-body">';
@@ -271,12 +268,6 @@ class DashboardPage extends FOGPage
         echo '<div id="ActivityActive"></div>';
         echo '<div id="ActivityQueued"></div>';
         echo '<div id="ActivitySlots"></div>';
-        echo '<div class="graph-selectors" id="graph-activity-selector">';
-        printf(
-            '<select class="activity-count" name="groupsel">%s</select>',
-            self::$_groupOpts
-        );
-        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -295,24 +286,17 @@ class DashboardPage extends FOGPage
         echo '<h4 class="box-title">';
         echo _('Storage Node Disk Usage');
         echo '</h4>';
-        echo '<div class="box-tools pull-right">';
-        echo self::$FOGCollapseBox;
+        echo '<div class="graph-selectors pull-right" id="diskusage-selector">';
+        printf(
+            '<select name="nodesel" class="nodeid">%s</select>',
+            self::$_nodeOpts
+        );
         echo '</div>';
         echo '</div>';
         echo '<div class="box-body">';
         echo '<a href="?node=hwinfo">';
         echo '<div id="graph-diskusage"></div>';
         echo '</a>';
-        echo '<div class="graph-selectors" id="diskusage-selector">';
-        if (!empty(self::$_nodeOpts) && count((array)self::$_nodeOpts) > 0) {
-            printf(
-                '<select name="nodesel" class="nodeid">%s</select>',
-                self::$_nodeOpts
-            );
-        } else {
-                echo _('No nodes available at this time');
-        }
-        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -328,12 +312,9 @@ class DashboardPage extends FOGPage
         echo '<div class="col-xs-12">';
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
-        echo '<h3 class="box-title">';
+        echo '<h4 class="box-title">';
         echo _('Imaging Over the last 30 days');
-        echo '</h3>';
-        echo '<div class="box-tools pull-right">';
-        echo self::$FOGCollapseBox;
-        echo '</div>';
+        echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
         echo '<div id="graph-30day"></div>';
@@ -428,9 +409,6 @@ class DashboardPage extends FOGPage
         echo _('1 Hour');
         echo '</a>';
         echo '</div>';
-        echo '</div>';
-        echo '<div class="box-tools pull-right">';
-        echo self::$FOGCollapseBox;
         echo '</div>';
         echo '</div>';
         echo '<div class="box-body">';
