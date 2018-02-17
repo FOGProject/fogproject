@@ -870,6 +870,7 @@ class StorageNodeManagementPage extends FOGPage
             );
         $serverFault = false;
         try {
+            global $tab;
             switch ($tab) {
             case 'storagenode-general':
                 $this->storagenodeGeneralPost();

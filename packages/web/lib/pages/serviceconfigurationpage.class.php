@@ -842,7 +842,6 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function editPost()
     {
-        global $tab;
         $name = filter_input(INPUT_POST, 'name');
         $Service = self::getClass('Service')
             ->set('name', $name)
@@ -866,6 +865,7 @@ class ServiceConfigurationPage extends FOGPage
                     $Module->set('isDefault', $defen)->save();
                 }
             }
+            global $tab;
             switch ($tab) {
             case 'autologout':
                 $tme = (int)filter_input(INPUT_POST, 'tme');

@@ -568,8 +568,8 @@ class UserManagementPage extends FOGPage
                 ['User' => &$this->obj]
             );
         $serverFault = false;
-        global $tab;
         try {
+            global $tab;
             switch ($tab) {
             case 'user-general':
                 $this->userGeneralPost();

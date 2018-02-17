@@ -369,8 +369,8 @@ class WOLBroadcastManagementPage extends FOGPage
                 'BROADCAST_EDIT_POST',
                 array('Broadcast'=> &$this->obj)
             );
-        global $tab;
         try{
+            global $tab;
             switch ($tab) {
             case 'wol-general':
                 $this->wolGeneralPost();

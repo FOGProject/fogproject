@@ -942,8 +942,8 @@ class PrinterManagementPage extends FOGPage
                 'PRINTER_EDIT_POST',
                 array('Printer' => &$this->obj)
             );
-        global $tab;
         try {
+            global $tab;
             switch ($tab) {
             case 'printer-gen':
                 $this->printerGeneralPost();

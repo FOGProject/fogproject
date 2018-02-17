@@ -1380,7 +1380,6 @@ class GroupManagementPage extends FOGPage
             );
         $serverFault = false;
         try {
-            global $tab;
             $hostids = $this->obj->get('hosts');
             $x1 = filter_input(INPUT_POST, 'x');
             $y1 = filter_input(INPUT_POST, 'y');
@@ -1393,6 +1392,7 @@ class GroupManagementPage extends FOGPage
             $month = filter_input(INPUT_POST, 'scheduleCronMonth');
             $dow = filter_input(INPUT_POST, 'scheduleCronDOW');
             $action = filter_input(INPUT_POST, 'action');
+            global $tab;
             switch ($tab) {
             case 'group-general':
                 $this->groupGeneralPost();
