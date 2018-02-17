@@ -1188,7 +1188,7 @@ class SnapinManagementPage extends FOGPage
             . '"toggle-group" id="sg-${storageGroup_id}" '
             . 'value="${storageGroup_id}"/>'
             . '</label>',
-            '<a href="?node=storage&editStorageGroup&id=${storageGroup_id}">'
+            '<a href="?node=storagegroup&sub=edit&id=${storageGroup_id}">'
             . '${storageGroup_name}'
             . '</a>'
         );
@@ -1300,7 +1300,7 @@ class SnapinManagementPage extends FOGPage
             . '<label for="group${storageGroup_id}">'
             . '</label>'
             . '</div>',
-            '<a href="?node=storage&editStorageGroup&id=${storageGroup_id}">'
+            '<a href="?node=storagegroup&sub=edit&id=${storageGroup_id}">'
             . '${storageGroup_name}'
             . '</a>'
         );

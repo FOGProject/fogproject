@@ -101,7 +101,8 @@ abstract class FOGPage extends FOGBase
         'group',
         'snapin',
         'printer',
-        'storage'
+        'storagenode',
+        'storagegroup'
     );
     /**
      * The items table
@@ -276,26 +277,6 @@ abstract class FOGPage extends FOGBase
             return $this->{$sub}();
         }
         $this->childClass = ucfirst($this->node);
-        if ($node == 'storage') {
-            $ref = stripos(
-                self::$httpreferer,
-                'node=storage&sub=storageGroup'
-            );
-        }
-        if ((!isset($ref) || false === $ref) && $sub !== 'getStoragegroupsList') {
-            $ref = stripos(
-                $sub,
-                'storageGroup'
-            );
-        }
-        if ($ref) {
-            $this->childClass .= 'Group';
-        } elseif ($node == 'storage') {
-            $this->childClass = 'StorageNode';
-        }
-        if (strtolower($this->childClass) === 'storagenodegroup') {
-            $this->childClass = 'StorageGroup';
-        }
         if (!empty($name)) {
             $this->name = $name;
         }
@@ -487,7 +468,7 @@ abstract class FOGPage extends FOGBase
             ),
             'storagegroup' => array(
                 self::$foglang['StorageGroup'],
-                'fa fa-object'
+                'fa fa-object-group'
             ),
             'snapin' => array(
                 self::$foglang['Snapin'],
@@ -669,7 +650,6 @@ abstract class FOGPage extends FOGBase
                 'node' => &$refNode
             )
         );
-        //var_dump($menu);
         return $menu;
     }
     /**
@@ -2074,27 +2054,8 @@ abstract class FOGPage extends FOGBase
         global $node;
         $this->title = sprintf(
             "%s's to remove",
-            (
-                $this->childClass !== 'Storage' ?
-                $this->childClass :
-                sprintf(
-                    '%s %s',
-                    $this->childClass,
-                    (
-                        $sub !== 'storageGroup' ?
-                        'Node' :
-                        'Group'
-                    )
-                )
-            )
+            $this->childClass
         );
-        if ('Storage' === $this->childClass) {
-            if ('storageGroup' === $sub) {
-                $this->childClass = 'StorageGroup';
-            } else {
-                $this->childClass = 'StorageNode';
-            }
-        }
         unset(
             $this->data,
             $this->form,

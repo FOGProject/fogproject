@@ -38,7 +38,7 @@
             {
                 responsivePriority: 0,
                 render: function(data, type, row) {
-                    return '<a href="../management/index.php?node='+Common.node+'&sub=editStorageGroup&id='+row.storagegroupID+'">'+data+'</a>';
+                    return '<a href="../management/index.php?node=storagegroup&sub=edit&id='+row.storagegroupID+'">'+data+'</a>';
                 },
                 targets: 1
             },

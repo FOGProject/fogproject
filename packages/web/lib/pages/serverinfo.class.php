@@ -41,7 +41,7 @@ class ServerInfo extends FOGPage
         global $id;
         $this->obj = new StorageNode($id);
         $this->menu = array(
-            "?node=storage&sub=edit&id={$id}" => _('Edit Node')
+            "?node=storagenode&sub=edit&id={$id}" => _('Edit Node')
         );
         $this->notes = array(
             sprintf(

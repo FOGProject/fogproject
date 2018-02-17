@@ -66,7 +66,7 @@ class FileIntegrityManagementPage extends FOGPage
         $this->templates = array(
             '${checksum}',
             '${modtime}',
-            '<a href="?node=storage&sub=edit&id=${storagenodeID}" '
+            '<a href="?node=storagenode&sub=edit&id=${storagenodeID}" '
             . 'title="Edit: ${storage_name}" id="node-${storage_name}">'
             . '${storage_name}</a>',
             '${file_path}',
