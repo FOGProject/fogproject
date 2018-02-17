@@ -113,14 +113,6 @@ class SubMenuData extends Hook
                 'installed' => self::$foglang['InstalledPlugins']
             ];
             break;
-        case 'storage':
-            $arguments['menu'] = [
-                'list' => self::$foglang['AllSN'],
-                'addStorageNode' => self::$foglang['AddSN'],
-                'storageGroup' => self::$foglang['AllSG'],
-                'addStorageGroup' => self::$foglang['AddSG']
-            ];
-            break;
         case 'task':
             $arguments['menu'] = [
                 'active' => self::$foglang['ActiveTasks'],
@@ -129,6 +121,8 @@ class SubMenuData extends Hook
                 'activescheduled' => self::$foglang['ScheduledTasks'],
             ];
             break;
+        case 'storagenode':
+        case 'storagegroup':
         case 'group':
         case 'host':
         case 'printer':

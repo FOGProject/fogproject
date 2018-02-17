@@ -1,32 +1,32 @@
 <?php
 /**
- * Displays the storage group.node information.
+ * Displays the storage node information.
  *
  * PHP version 5
  *
- * @category StorageManagementPage
+ * @category StorageNodeManagementPage
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
 /**
- * Displays the storage group.node information.
+ * Displays the storage node information.
  *
- * @category StorageManagementPage
+ * @category StorageNodeManagementPage
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class StorageManagementPage extends FOGPage
+class StorageNodeManagementPage extends FOGPage
 {
     /**
      * Node this class works from.
      *
      * @var string
      */
-    public $node = 'storage';
+    public $node = 'storagenode';
     /**
      * Initializes the storage page.
      *
@@ -38,31 +38,6 @@ class StorageManagementPage extends FOGPage
     {
         $this->name = 'Storage Management';
         parent::__construct($this->name);
-        global $sub;
-        global $id;
-        switch ($sub) {
-        case 'edit':
-        case 'delete':
-        case 'deleteStorageNode':
-            if ($id) {
-                if (!$this->obj->isValid() && false === strpos($sub, 'add')) {
-                    unset($this->obj);
-                    header_response_code(400);
-                    header('Location: ../management/index.php?node=storage');
-                }
-            }
-            break;
-        case 'editStorageGroup':
-        case 'deleteStorageGroup':
-            if ($id) {
-                if (!$this->obj->isValid() && false === strpos($sub, 'add')) {
-                    unset($this->obj);
-                    header_response_code(400);
-                    header('Location: ../management/index.php?node=storage');
-                }
-            }
-            break;
-        }
     }
     /**
      * If search is passed display index.
@@ -907,6 +882,7 @@ class StorageManagementPage extends FOGPage
      */
     public function getStorageNodesList()
     {
+        header('Content-type: application/json');
         parse_str(
             file_get_contents('php://input'),
             $pass_vars
@@ -917,14 +893,18 @@ class StorageManagementPage extends FOGPage
             . "'";
 
         $storagegroupsSqlStr = "SELECT `%s`,"
-            . "`ngmGroupID` AS `origID`,IF(`ngmGroupID` IS NULL OR `ngmGroupID` = '0' OR `ngmGroupID` = '' OR `ngmGroupID` != `ngID`, 'dissociated', 'associated') AS `ngmGroupID`
+            . "`ngmGroupID` AS `origID`,IF(`ngmGroupID` = '"
+            . $this->obj->get('id')
+            . "','associated','dissociated') AS `ngmGroupID`
             FROM `%s`
             CROSS JOIN `nfsGroups`
             %s
             %s
             %s";
         $storagegroupsFilterStr = "SELECT COUNT(`%s`),"
-            . "`ngmGroupID` AS `origID`,IF(`ngmGroupID` IS NULL OR `ngmGroupID` = '0' OR `ngmGroupID` = '' OR `ngmGroupID` != `ngID`, 'dissociated', 'associated') AS `ngmGroupID`
+            . "`ngmGroupID` AS `origID`,IF(`ngmGroupID` = '"
+            . $this->obj->get('id')
+            . "','associated','dissociated') AS `ngmGroupID`
             FROM `%s`
             CROSS JOIN `nfsGroups`
             %s";

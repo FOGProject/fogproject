@@ -269,6 +269,9 @@ abstract class FOGPage extends FOGBase
             'authorize',
             'requestClientInfo'
         );
+        if (!$sub) {
+            $sub = 'list';
+        }
         if (in_array($sub, $subs)) {
             return $this->{$sub}();
         }
@@ -478,9 +481,13 @@ abstract class FOGPage extends FOGBase
                 self::$foglang['Images'],
                 'fa fa-picture-o'
             ),
-            'storage' => array(
-                self::$foglang['Storage'],
+            'storagenode' => array(
+                self::$foglang['StorageNode'],
                 'fa fa-archive'
+            ),
+            'storagegroup' => array(
+                self::$foglang['StorageGroup'],
+                'fa fa-object'
             ),
             'snapin' => array(
                 self::$foglang['Snapin'],
