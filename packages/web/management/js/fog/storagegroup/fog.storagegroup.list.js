@@ -28,7 +28,7 @@
             {
                 responsivePriority: -1,
                 render: function(data, type, row) {
-                    return '<a href="../management/index.php?node='+Common.node+'&sub=editStorageGroup&id='+row.id+'">'+data+'</a>';
+                    return '<a href="../management/index.php?node='+Common.node+'&sub=edit&id='+row.id+'">'+data+'</a>';
                 },
                 targets: 0
             },
@@ -40,7 +40,7 @@
         processing: true,
         serverSide: true,
         ajax: {
-            url: '../management/index.php?node='+Common.node+'&sub=storageGroup',
+            url: '../management/index.php?node='+Common.node+'&sub=list',
             type: 'post'
         }
     });

@@ -72,7 +72,7 @@
             {
                 responsivePriority: -1,
                 render: function(data, type, row) {
-                    return '<a href="../management/index.php?node=storage&sub=editStorageGroup&id='
+                    return '<a href="../management/index.php?node=storagegroup&sub=edit&id='
                         + row.id
                         + '">'
                         + data

@@ -63,7 +63,7 @@
             {
                 responsivePriority: -1,
                 render: function(data, type, row) {
-                    return '<a href="../management/index.php?node=storage&sub=edit&id='+row.id+'">'+data+'</a>';
+                    return '<a href="../management/index.php?node=storagenode&sub=edit&id='+row.id+'">'+data+'</a>';
                 },
                 targets: 0
             },

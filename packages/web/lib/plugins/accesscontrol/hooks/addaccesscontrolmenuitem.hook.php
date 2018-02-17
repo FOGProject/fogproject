@@ -89,7 +89,7 @@ class AddAccessControlMenuItem extends Hook
             return;
         }
         self::arrayInsertAfter(
-            'storage',
+            'storagegroup',
             $arguments['main'],
             $this->node,
             array(
