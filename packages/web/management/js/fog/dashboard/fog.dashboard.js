@@ -77,6 +77,70 @@ var GraphBandwidthMaxDataPoints,
             position: 'nw'
         }
     },
+    // Client Count
+    updateClientCountData = [[0,0]],
+    updateClientCountOpts = {
+        colors: ['#00c0ef', '#3c8dbc', '#0073b7'],
+        series: {
+            pie: {
+                show: true,
+                radius: 1,
+                innerRadius: 0.5,
+                label: {
+                    show: true,
+                    radius: 2/3,
+                    formatter: function(label, series) {
+                        return '<div style="color: #f3f3f3">' + series.percent + '%</div>';
+                    },
+                    threshold: 0.1
+                }
+            }
+        },
+        legend: {
+            show: true,
+            align: 'right',
+            position: 'se',
+            labelColor: '#666666',
+            labelFormatter: function(label, series) {
+                return '<div class="graph-legend">' + label + ': ' + series.datapoints.points[1] + '</div>';
+            }
+        }
+    },
+    clientinterval,
+    // Disk Usage
+    GraphDiskUsageOpts = {
+        colors: ['#00c0ef', '#3c8dbc'],
+        series: {
+            pie: {
+                show: true,
+                radius: 1,
+                innerRadius: 0.5,
+                label: {
+                    show: true,
+                    radius: 2/3,
+                    formatter: function(label, series) {
+                        return '<div style="color: #f3f3f3">' + Math.round(series.percent) + '%</div>';
+                    },
+                    threshold: 0.1
+                }
+            }
+        },
+        legend: {
+            show: true,
+            align: 'right',
+            position: 'se',
+            labelColor: '#666666',
+            labelFormatter: function(label, series) {
+                units = [' iB', ' KiB', ' MiB', ' GiB', ' TiB', ' PiB', ' EiB', ' ZiB', 'YiB'];
+                for (var i = 0; series.data[0][1] >= 1024 && i < units.length - 1; i++) {
+                    series.data[0][1] /= 1024;
+                }
+                return '<div class="graph-legend">' + label + ': ' + series.data[0][1].toFixed(2) + units[i] + '</div>';
+            }
+        }
+    },
+    GraphDiskUsageData = [],
+    diskusageinterval,
     startTime = new Date().getTime();
 (function($) {
     // 30 day chart, updates every 5 minutes
@@ -226,7 +290,7 @@ var GraphBandwidthMaxDataPoints,
             // Reset for next iteration
             GraphBandwidthData[i].dev = data[i].dev;
         }
-        GraphData = [];
+        var GraphData = [];
         for (i in GraphBandwidthData) {
             GraphData.push({
                 label: i + ' (' + GraphBandwidthData[i].dev + ')',
@@ -272,4 +336,131 @@ var GraphBandwidthMaxDataPoints,
         height: '150px'
     });
     updateBandwidth();
+
+    // Client Count
+    $('#graph-activity').css({
+        height: '150px',
+        color: '#f3f3f3',
+        'text-decoration': 'none',
+        'font-weight': 'bold'
+    });
+    var updateClientCount = function() {
+        sgID = $('.activity-count').val();
+        Pace.ignore(function() {
+            $.ajax({
+                url: '../management/index.php?node=home&sub=clientcount',
+                type: 'post',
+                data: {
+                    id: sgID
+                },
+                dataType: 'json',
+                success: updateClientCountGraph,
+                error: function(jqXHR, textStatus, errorThrown) {
+                },
+                complete: function() {
+                    $('#graph-activity').addClass('loaded');
+                }
+            });
+        });
+    };
+    var updateClientCountGraph = function(data) {
+        updateClientCountData = [
+            {
+                label: data._labels[2],
+                data: parseInt(data.ActivityActive)
+            },
+            {
+                label: data._labels[1],
+                data: parseInt(data.ActivityQueued)
+            },
+            {
+                label: data._labels[0],
+                data: parseInt(data.ActivitySlots)
+            }
+        ];
+        $.plot('#graph-activity', updateClientCountData, updateClientCountOpts);
+        if (clientinterval) {
+            clearTimeout(clientinterval);
+        }
+        clientinterval = setTimeout(
+            updateClientCount,
+            300000 - (
+                (new Date().getTime() - startTime)
+                % 300000
+            )
+        );
+    };
+    updateClientCount();
+    $('.activity-count').on('change', function(e) {
+        if (clientinterval) {
+            clearTimeout(clientinterval);
+        }
+        updateClientCount();
+        e.preventDefault();
+    });
+
+    // Disk Usage
+    $('#graph-diskusage').css({
+        height: '150px',
+        color: '#f3f3f3',
+        'text-decoration': 'none',
+        'font-weight': 'bold'
+    });
+    var updateDiskUsage = function() {
+        var now = new Date().getTime(),
+            nodeid = $('.nodeid').val();
+        Pace.ignore(function() {
+            $.ajax({
+                url: '../management/index.php?node=home&sub=diskusage',
+                data: {
+                    id: nodeid
+                },
+                dataType: 'json',
+                success: updateDiskUsageGraph,
+                error: function(jqXHR, textStatus, errorThrown) {
+                },
+                complete: function() {
+                }
+            });
+        });
+    };
+    var updateDiskUsageGraph = function(data) {
+        if (data.error) {
+            $('#graph-diskusage').html(data.error ? data.error : 'No data returned');
+        }
+        GraphDiskUsageData = [
+            {
+                label: data._labels[0],
+                data: parseInt(data.free, 10)
+            },
+            {
+                label: data._labels[1],
+                data: parseInt(data.used, 10)
+            }
+        ];
+        $.plot($('#graph-diskusage'), GraphDiskUsageData, GraphDiskUsageOpts);
+        if (diskusageinterval) {
+            clearTimeout(diskusageinterval);
+        }
+        diskusageinterval = setTimeout(
+            updateDiskUsage,
+            300000 - (
+                (
+                    new Date().getTime() - startTime
+                ) % 300000
+            )
+        );
+    };
+    nodeid = $('.nodeid').val();
+    $('#hwinfolink').attr('href', '../management/index.php?node=hwinfo&id=' + nodeid);
+    updateDiskUsage();
+    $('.nodeid').on('change', function(e) {
+        nodeid = $(this).val();
+        $('#hwinfolink').attr('href', '../management/index.php?node=hwinfo&id=' + nodeid);
+        if (diskusageinterval) {
+            clearTimeout(diskusageinterval);
+        }
+        updateDiskUsage();
+        e.preventDefault();
+    });
 })(jQuery);
