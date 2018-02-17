@@ -91,21 +91,15 @@ class DashboardPage extends FOGPage
         if (self::$ajax) {
             return;
         }
-        $find = array(
-            'isEnabled' => 1,
-            'isGraphEnabled' => 1
-        );
-        Route::listem(
-            'storagenode',
-            'name',
-            false,
-            $find
-        );
+        Route::listem('storagenode');
         $Nodes = json_decode(
             Route::getData()
         );
         $Nodes = $Nodes->data;
         foreach ((array)$Nodes as &$StorageNode) {
+            if (!($StorageNode->isEnabled && $StorageNode->isGraphEnabled)) {
+                continue;
+            }
             $ip = $StorageNode->ip;
             $url = sprintf(
                 '%s/%s/',
@@ -294,7 +288,7 @@ class DashboardPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '<div class="box-body">';
-        echo '<a href="?node=hwinfo">';
+        echo '<a href="?node=hwinfo" id="hwinfolink">';
         echo '<div id="graph-diskusage"></div>';
         echo '</a>';
         echo '</div>';
@@ -432,6 +426,11 @@ class DashboardPage extends FOGPage
         $ActivityQueued = $this->obj->getQueuedSlots();
         $ActivityActive = $this->obj->getUsedSlots();
         $data = array(
+            '_labels' => array(
+                _('Free'),
+                _('Queued'),
+                _('Active')
+            ),
             'ActivityActive' => &$ActivityActive,
             'ActivityQueued' => &$ActivityQueued,
             'ActivitySlots' => &$ActivityTotalClients
@@ -464,13 +463,20 @@ class DashboardPage extends FOGPage
         $data = self::$FOGURLRequests
             ->process($url);
         $data = json_decode(
-            array_shift($data),
-            true
+            array_shift($data)
         );
-        $data = array(
-            'free' => $data['free'],
-            'used' => $data['used']
-        );
+        if ($data->error) {
+            echo json_encode($data);
+            exit;
+        }
+        $data = [
+            '_labels' => [
+                _('Free'),
+                _('Used')
+            ],
+            'free' => $data->free,
+            'used' => $data->used
+        ];
         unset($url);
         echo json_encode((array)$data);
         unset($data);

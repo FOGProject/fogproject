@@ -22,17 +22,18 @@
 session_write_close();
 ignore_user_abort(true);
 set_time_limit(0);
-header('Content-Type: text/event-stream');
-$decodePath = base64_decode($_REQUEST['path']);
-if (!(file_exists($decodePath)
-    && is_readable($decodePath)
-    && is_dir($decodePath))
-) {
-    return;
+header('Content-Type: application/json');
+$decodePath = filter_input(INPUT_GET, 'path');
+$path = base64_decode($decodePath);
+if (!(file_exists($path) && is_dir($path) && is_readable($path))) {
+    echo json_encode(
+        [
+            'error' => _('File or path does not exist')
+        ]
+    );
+    exit;
 }
-$folder = escapeshellarg(
-    base64_decode($_REQUEST['path'])
-);
+$folder = escapeshellarg($path);
 $output = `df -PB1 $folder | tail -1`;
 $test = preg_match(
     '/\d+\s+(\d+)\s+(\d+)\s+\d+\%.*$/',
@@ -40,7 +41,12 @@ $test = preg_match(
     $match
 );
 if (!$test) {
-    return;
+    echo json_encode(
+        [
+            'error' => _('No data returned')
+        ]
+    );
+    exit;
 }
 $hdfree = $match[2];
 $hdused = $match[1];
