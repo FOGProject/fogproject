@@ -2549,7 +2549,7 @@ abstract class FOGBase
         );
         $find = array(
             'id' => $keyword,
-            'name' => $keyword,
+            'name' => $keyword
         );
         $classman = sprintf(
             '%sManager',
