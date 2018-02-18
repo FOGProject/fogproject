@@ -1,23 +1,37 @@
 (function($) {
-    name = 'Name';
-    version = 'v1.0.0';
-    file = 'cmd.exe';
-    argument = '/c "[FOG_SNAPIN_PATH]\\script.bat"';
-    if ($('#snapinpack-name').val().length < 1) $('#snapinpack-name').attr('placeholder',name);
-    if ($('#snapinpack-version').val().length < 1) $('#snapinpack-version').attr('placeholder',version);
-    if ($('#snapinpack-file').val().length < 1) $('#snapinpack-file').attr('placeholder',file);
-    if ($('#snapinpack-arguments').val().length < 1) $('#snapinpack-arguments').attr('placeholder',argument);
-    $('#argTypes').change(function() {
-        $('#snapinpack-file').val($('option:selected',this).attr('file'));
-        $('#snapinpack-arguments').val($('option:selected',this).attr('args'));
+    var name = 'Name',
+        version = 'v1.0.0',
+        file = 'cmd.exe',
+        argument = '/c "[FOG_SNAPIN_PATH]\\script.bat"',
+        snapinpackName = $('#snapinpack-name'),
+        snapinpackVersion = $('#snapinpack-version'),
+        snapinpackFile = $('#snapinpack-file'),
+        snapinpackArgs = $('#snapinpack-arguments'),
+        argTypes = $('#argTypes'),
+        snapinpackGenerate = $('.snapinpack-generate');
+    if (snapinpackName.val().length < 1) {
+        snapinpackName.attr('placeholder',name);
+    }
+    if (snapinpackVersion.val().length < 1) {
+        snapinpackVersion.attr('placeholder',version);
+    }
+    if (snapinpackFile.val().length < 1) {
+        snapinpackFile.attr('placeholder',file);
+    }
+    if (snapinpackArgs.val().length < 1) {
+        snapinpackArgs.attr('placeholder',argument);
+    }
+    argTypes.on('change',function() {
+        snapinpackFile.val($('option:selected',this).attr('file'));
+        snapinpackArgs.val($('option:selected',this).attr('args'));
     });
-    $('.snapinpack-generate').on('click', function(e) {
+    snapinpackGenerate.on('click', function(e) {
         e.preventDefault();
         var gdata = {
-            Name: $('#snapinpack-name').val(),
-            Version: $('#snapinpack-version').val(),
-            File: $('#snapinpack-file').val(),
-            Args: $('#snapinpack-arguments').val()
+            Name: snapinpackName.val(),
+            Version: snapinpackVersion.val(),
+            File: snapinpackFile.val(),
+            Args: snapinpackArgs.val()
         };
         var output = JSON.stringify(gdata, null, 2);
         download(output,'config.json','text/plain');
