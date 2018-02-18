@@ -22,6 +22,13 @@
 class TaskManagementPage extends FOGPage
 {
     /**
+     * The buttons elements are more or less common
+     * to all of the pages.
+     *
+     * @var string
+     */
+    private $_buttons = '';
+    /**
      * The node this page works with.
      *
      * @var string
@@ -38,486 +45,264 @@ class TaskManagementPage extends FOGPage
     {
         $this->name = 'Task Management';
         parent::__construct($this->name);
-        $this->menu = array(
-            'active' => self::$foglang['ActiveTasks'],
-            'activemulticast' => self::$foglang['ActiveMCTasks'],
-            'activesnapins' => self::$foglang['ActiveSnapins'],
-            'activescheduled' => self::$foglang['ScheduledTasks'],
-        );
-        self::$HookManager
-            ->processEvent(
-                'SUB_MENULINK_DATA',
-                array(
-                    'menu' => &$this->menu,
-                    'submenu' => &$this->subMenu,
-                    'id' => &$this->id,
-                    'notes' => &$this->notes
-                )
-            );
-        $this->headerData = array(
-            _('Started By:'),
-            sprintf(
-                '%s<br/><small>%s</small>',
-                _('Hostname'),
-                _('MAC')
-            ),
+        $this->headerData = [
+            _('Host Name'),
             _('Image Name'),
-            _('Start Time'),
-            _('Working with node'),
+            _('Storage Node'),
+            _('Started By'),
             _('Status')
-        );
-        $this->templates = array(
-            '${startedby}',
-            sprintf(
-                '<p><a href="?node=host&sub=edit&id=${host_id}" title='
-                . '"%s">${host_name}</a></p><small>${host_mac}</small>',
-                _('Edit Host')
-            ),
-            sprintf(
-                '<p><a href="?node=image&sub=edit&id=${image_id}" title='
-                . '"%s">${image_name}</a></p>',
-                _('Edit Image')
-            ),
-            '<small>${time}</small>',
-            '<small>${node_name}</small>',
-            '${details_taskforce} <i data-state="${state_id}" class='
-            . '"state fa fa-${icon_state} fa-1x icon" title="${state}">'
-            . '</i> <i class="fa fa-${icon_type} fa-1x icon" title="${type}"></i>',
-        );
-        $this->attributes = array(
-            array(
-                'width' => 65,
-                'id' => 'host-${host_id}'
-            ),
-            array(
-                'width' => 120,
-            ),
-            array(
-                'width' => 70,
-            ),
-            array(
-                'width' => 100,
-            ),
-            array(
-                'width' => 70,
-            ),
-            array(
-                'width' => 50,
-                'class' => 'filter-false'
-            ),
-        );
-        /**
-         * Lamda function to return data either by list or search.
-         *
-         * @param object $Image the object to use.
-         *
-         * @return void
-         */
-        self::$returnData = function (&$Task) {
-            $tmpTask = self::getClass(
-                'Task',
-                $Task->id
-            );
-            $SnapinTrue = $tmpTask->isSnapinTasking();
-            if ($SnapinTrue) {
-                $SnapinJob = self::getClass(
-                    'SnapinJob',
-                    $Task->host->snapinjob->id
-                );
-                if ($SnapinJob->isValid()) {
-                    $STCount = self::getClass('SnapinTaskManager')
-                        ->count(
-                            array(
-                                'jobID' => $SnapinJob->get('id'),
-                                'stateID' => self::fastmerge(
-                                    (array)$this->getQueuedStates(),
-                                    (array)$this->getProgressState()
-                                )
-                            )
-                        );
-                    if ($STCount < 1) {
-                        $tmpTask->cancel();
-                        return;
-                    }
-                }
-            }
-            if ($Task->state->id < 3) {
-                if ($Task->type->id < 3) {
-                    if ($Task->isForced) {
-                        $forcetask = sprintf(
-                            '<i class="icon-forced" title="%s"></i>',
-                            _('Task forced to start')
-                        );
-                    } else {
-                        $forcetask = sprintf(
-                            '<i class="icon-force icon" title="%s" href="?%s"></i>',
-                            _('Force task to start'),
-                            'node=task&sub=forceTask&id=${id}'
-                        );
-                    }
-                }
-            }
-            $this->data[] = array(
-                'startedby' => $Task->createdBy,
-                'details_taskforce' => $forcetask,
-                'id' => $Task->id,
-                'name' => $Task->name,
-                'time' => self::formatTime(
-                    $Task->createdTime,
-                    'Y-m-d H:i:s'
-                ),
-                'state' => $Task->state->name,
-                'forced' => $Task->isForced,
-                'type' => $Task->type->name,
-                'width' => 600 * intval($Task->percent) / 100,
-                'elapsed' => $Task->timeElapsed,
-                'remains' => $Task->timeRemaining,
-                'percent' => $Task->pct,
-                'copied' => $Task->dataCopied,
-                'total' => $Task->dataTotal,
-                'bpm' => $Task->bpm,
-                'details_taskname' => (
-                    $Task->name ?
-                    sprintf(
-                        '<div class="task-name">%s</div>',
-                        $Task->name
-                    ) :
-                    ''
-                ),
-                'host_id' => $Task->host->id,
-                'host_name' => $Task->host->name,
-                'host_mac' => $Task->host->mac,
-                'icon_state' => $Task->state->icon,
-                'icon_type' => $Task->type->icon,
-                'state_id' => $Task->state->id,
-                'image_name' => $Task->image->name,
-                'image_id' => $Task->image->id,
-                'node_name' => $Task->storagenode->name
-            );
-            unset($tmpTask, $Task);
-        };
+        ];
+        $this->templates = [
+            '',
+            '',
+            '',
+            '',
+            ''
+        ];
+        $this->attributes = [
+            [],
+            [],
+            [],
+            [],
+            []
+        ];
+        $props = ' method="post" action="'
+            . $this->formAction
+            . '" ';
+
+        $this->_buttons = self::makeButton('resume-refresh', _('Resume Reload'), 'btn btn-success', null);
+        $this->_buttons .= self::makeButton('pause-refresh', _('Pause Reload'), 'btn btn-warning', null);
+        $this->_buttons .= self::makeButton('cancel-selected', _('Cancel Selected'), 'btn btn-danger', $props);
     }
     /**
-     * Default page to show (active always).
+     * Get the active tasks
      *
      * @return void
      */
-    public function index()
+    public function getActiveTasks()
     {
-        $this->active();
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
+        $activestates = [
+            'queued',
+            'checked in',
+            'in-progress'
+        ];
+
+        $where = "`taskStates`.`tsName` IN ('"
+            . implode("','", $activestates)
+            . "')";
+
+        $tasksSqlStr = "SELECT `%s`
+            FROM `%s`
+            LEFT OUTER JOIN `taskTypes`
+            ON `tasks`.`taskTypeID` = `taskTypes`.`ttID`
+            LEFT OUTER JOIN `taskStates`
+            ON `tasks`.`taskStateID` = `taskStates`.`tsID`
+            LEFT OUTER JOIN `hosts`
+            ON `tasks`.`taskHostID` = `hosts`.`hostID`
+            LEFT OUTER JOIN `images`
+            ON `tasks`.`taskImageID` = `images`.`imageID`
+            LEFT OUTER JOIN `nfsGroupMembers`
+            ON `tasks`.`taskNFSMemberID` = `nfsGroupMembers`.`ngmID`
+            %s
+            %s
+            %s";
+        $tasksFilterStr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            LEFT OUTER JOIN `taskTypes`
+            ON `tasks`.`taskTypeID` = `taskTypes`.`ttID`
+            LEFT OUTER JOIN `taskStates`
+            ON `tasks`.`taskStateID` = `taskStates`.`tsID`
+            LEFT OUTER JOIN `hosts`
+            ON `tasks`.`taskHostID` = `hosts`.`hostID`
+            LEFT OUTER JOIN `images`
+            ON `tasks`.`taskImageID` = `images`.`imageID`
+            LEFT OUTER JOIN `nfsGroupMembers`
+            ON `tasks`.`taskNFSMemberID` = `nfsGroupMembers`.`ngmID`
+            %s";
+        $tasksTotalStr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            LEFT OUTER JOIN `taskTypes`
+            ON `tasks`.`taskTypeID` = `taskTypes`.`ttID`
+            LEFT OUTER JOIN `taskStates`
+            ON `tasks`.`taskStateID` = `taskStates`.`tsID`
+            LEFT OUTER JOIN `hosts`
+            ON `tasks`.`taskHostID` = `hosts`.`hostID`
+            LEFT OUTER JOIN `images`
+            ON `tasks`.`taskImageID` = `images`.`imageID`
+            LEFT OUTER JOIN `nfsGroupMembers`
+            ON `tasks`.`taskNFSMemberID` = `nfsGroupMembers`.`ngmID`
+            WHERE $where";
+        foreach (self::getClass('TaskManager')
+            ->getColumns() as $common => &$real
+        ) {
+            $columns[] = [
+                'db' => $real,
+                'dt' => $common
+            ];
+            unset($real);
+        }
+        foreach (self::getClass('HostManager')
+            ->getColumns() as $common => &$real
+        ) {
+            $columns[] = [
+                'db' => $real,
+                'dt' => 'host' . $common
+            ];
+            unset($real);
+        }
+        foreach (self::getClass('ImageManager')
+            ->getColumns() as $common => &$real
+        ) {
+            $columns[] = [
+                'db' => $real,
+                'dt' => 'image' . $common
+            ];
+            unset($real);
+        }
+        foreach (self::getclass('TaskStateManager')
+            ->getColumns() as $common => &$real
+        ) {
+            $columns[] = [
+                'db' => $real,
+                'dt' => 'taskstate' . $common
+            ];
+            unset($real);
+        }
+        foreach (self::getClass('StorageNodeManager')
+            ->getColumns() as $common => &$real
+        ){
+            $columns[] = [
+                'db' => $real,
+                'dt' => 'storagenode' . $common
+            ];
+            unset($real);
+        }
+        echo json_encode(
+            FOGManagerController::complex(
+                $pass_vars,
+                'tasks',
+                'taskID',
+                $columns,
+                $tasksSqlStr,
+                $tasksFilterStr,
+                $tasksTotalStr,
+                $where
+            )
+        );
+        exit;
     }
     /**
-     * How to search for data like other pages.
+     * Get the active multicast tasks
      *
      * @return void
      */
-    public function searchPost()
+    public function getActiveMulticastTasks()
     {
-        $this->data = array();
-        array_shift($this->headerData);
-        array_shift($this->templates);
-        array_shift($this->attributes);
-        parent::searchPost();
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
+        $activestates = [
+            'queued',
+            'checked in',
+            'in-progress'
+        ];
+
+        $where = "`taskStates`.`tsName` IN ('"
+            . implode("','", $activestates)
+            . "') AND `taskTypes`.`ttName` = 'Multi-Cast'";
+
+        $tasksSqlStr = "SELECT `%s`
+            FROM `%s`
+            CROSS JOIN `taskTypes`
+            LEFT OUTER JOIN `taskStates`
+            ON `multicastSessions`.`msState` = `taskStates`.`tsID`
+            %s
+            %s
+            %s";
+        $tasksFilterStr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            CROSS JOIN `taskTypes`
+            LEFT OUTER JOIN `taskStates`
+            ON `multicastSessions`.`msState` = `taskStates`.`tsID`
+            %s";
+        $tasksTotalStr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            CROSS JOIN `taskTypes`
+            LEFT OUTER JOIN `taskStates`
+            ON `multicastSessions`.`msState` = `taskStates`.`tsID`
+            WHERE $where";
+        foreach (self::getClass('MulticastSessionManager')
+            ->getColumns() as $common => &$real
+        ) {
+            $columns[] = [
+                'db' => $real,
+                'dt' => $common
+            ];
+            unset($real);
+        }
+        foreach (self::getClass('TaskTypeManager')
+            ->getColumns() as $common => &$real
+        ) {
+            $columns[] = [
+                'db' => $real,
+                'dt' => 'tasktype'.$common
+            ];
+            unset($real);
+        }
+        foreach (self::getClass('TaskStateManager')
+            ->getColumns() as $common => &$real
+        ) {
+            $collumns[] = [
+                'db' => $real,
+                'dt' => 'taskstate'.$common
+            ];
+            unset($real);
+        }
+        echo json_encode(
+            FOGManagerController::complex(
+                $pass_vars,
+                'multicastSessions',
+                'msID',
+                $columns,
+                $tasksSqlStr,
+                $tasksFilterStr,
+                $tasksTotalStr,
+                $where
+            )
+        );
+        exit;
     }
     /**
-     * How to display our active data.
+     * Display the active tasks.
      *
      * @return void
      */
     public function active()
     {
         $this->title = _('Active Tasks');
-        $this->data = array();
-        $find = array(
-            'stateID' => self::fastmerge(
-                (array) self::getQueuedStates(),
-                (array) self::getProgressState()
-            )
-        );
-        Route::active('task');
-        $items = json_decode(
-            Route::getData()
-        );
-        $items = $items->tasks;
-        if (count($items) > 0) {
-            array_walk(
-                $items,
-                static::$returnData
-            );
-        }
-        self::$HookManager
-            ->processEvent(
-                'HOST_DATA',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        unset($items);
-        if (self::$ajax) {
-            return $this->render();
-        }
-        $this->displayActive();
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
-    }
-    /**
-     * Parse and process/return the active item.
-     *
-     * @return void
-     */
-    public function displayActive()
-    {
-        echo '<div class="tab-content col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
+        echo '<!-- Active Tasks -->';
+        echo '<div class="box box-solid">';
+        echo '<div class="box-header with-border">';
+        echo '<h3 class="box-title">';
         echo $this->title;
-        echo '</h4>';
+        echo '</h3>';
         echo '</div>';
-        echo '<div class="panel-body">';
-        $this->render(12);
+        echo '<div class="box-body">';
+        $this->render(12, 'tasks-active-table');
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo $this->_buttons;
         echo '</div>';
         echo '</div>';
-        echo '</div>';
-    }
-    /**
-     * Gets the tasking of a particular item.
-     *
-     * @param string $type The type of the tasking to get.
-     *
-     * @return void
-     */
-    private function _tasking($type)
-    {
-        global $id;
-        try {
-            $types = array(
-                'host',
-                'group'
-            );
-            if (!in_array($type, $types)) {
-                throw new Exception(_('Invalid object type passed'));
-            }
-            $var = ucfirst($type);
-            $$var = self::getClass($var, $id);
-            if (!$$var->isValid()) {
-                throw new Exception(_(sprintf('Invalid %s', $var)));
-            }
-            $typeID = filter_input(INPUT_GET, 'type');
-            $TaskType = new TaskType($typeID);
-            if (!$TaskType->isValid()) {
-                throw new Exception(_('Invalid Task Type'));
-            }
-            if ($type == 'host') {
-                $Image = $$var->getImage();
-                if (!$Image->isValid()) {
-                    throw new Exception(_('Invalid image assigned to host'));
-                }
-                if ($TaskType->isCapture()
-                    && $Image->get('protected')
-                ) {
-                    throw new Exception(
-                        sprintf(
-                            '%s: %s %s',
-                            _('Image'),
-                            $Image->get('name'),
-                            _('is protected')
-                        )
-                    );
-                }
-                $taskName = sprintf(
-                    '%s %s',
-                    _('Quick'),
-                    $TaskType->get('name')
-                );
-            } elseif ($type == 'group') {
-                if ($TaskType->isMulticast()
-                    && !$$var->doMembersHaveUniformImages()
-                ) {
-                    throw new Exception(
-                        _('Hosts do not have the same image assigned')
-                    );
-                }
-                $taskName = (
-                    $TaskType->isMulticast() ?
-                    _('Multicast Quick Deploy') :
-                    _('Group Quick Deploy')
-                );
-            }
-            $enableSnapins = $TaskType->get('id') == 17 ? false : -1;
-            $enableDebug = in_array(
-                $TaskType->get('id'),
-                array(3, 15, 16)
-            );
-            $$var->createImagePackage(
-                $TaskType->get('id'),
-                $taskName,
-                false,
-                $enableDebug,
-                $enableSnapins,
-                $type === 'group',
-                self::$FOGUser->get('name'),
-                false,
-                false,
-                $TaskType->isInitNeededTasking() || $TaskType->get('id') == 14
-            );
-            echo '<div class="col-xs-9">';
-            echo '<div class="panel panel-success">';
-            echo '<div class="panel-heading text-center">';
-            echo '<h4 class="title">';
-            echo _('Tasked Successfully');
-            echo '</h4>';
-            echo '</div>';
-            echo '<div class="panel-body">';
-            echo _('Tasked successfully, click active tasks to view in line.');
-            echo '</div>';
-            echo '</div>';
-            echo '</div>';
-        } catch (Exception $e) {
-            echo '<div class="col-xs-9">';
-            echo '<div class="panel panel-warning">';
-            echo '<div class="panel-heading text-center">';
-            echo '<h4 class="title">';
-            echo _('Failed to create task');
-            echo '</h4>';
-            echo '</div>';
-            echo '<div class="panel-body">';
-            echo $e->getMessage();
-            echo '</div>';
-            echo '</div>';
-            echo '</div>';
-        }
-    }
-    /**
-     * Host deploy action.
-     *
-     * @return void
-     */
-    public function hostdeploy()
-    {
-        $this->_tasking('host');
-    }
-    /**
-     * Group deploy action.
-     *
-     * @return void
-     */
-    public function groupdeploy()
-    {
-        $this->_tasking('group');
-    }
-    /**
-     * The advanced task display.
-     *
-     * @param string $type The type of the tasking to get.
-     *
-     * @throws Exception
-     * @return void
-     */
-    private function _advanced($type)
-    {
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
-        $this->title = _(
-            sprintf(
-                '%s Advanced Actions',
-                ucfirst($type)
-            )
-        );
-        global $id;
-        $types = array(
-            'host',
-            'group'
-        );
-        if (!in_array($type, $types)) {
-            throw new Exception(_('Invalid object type passed'));
-        }
-        $this->templates = array(
-            sprintf(
-                '<a href="?node=%s&sub=%sdeploy&id=${id}&type=${type}">'
-                . '<i class="fa fa-${icon} fa-fw fa-2x"/></i><br/>${name}</a>',
-                $this->node,
-                $type
-            ),
-            '${description}',
-        );
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
-        );
-        Route::listem(
-            'tasktype',
-            'id',
-            false,
-            array(
-                'access' => array('both', $type),
-                'isAdvanced' => 1
-            )
-        );
-        $TaskTypes = json_decode(
-            Route::getData()
-        );
-        $TaskTypes = $TaskTypes->tasktypes;
-        foreach ((array)$TaskTypes as &$TaskType) {
-            $this->data[] = array(
-                'id' => $id,
-                'type' => $TaskType->id,
-                'icon' => $TaskType->icon,
-                'name' => $TaskType->name,
-                'description' => $TaskType->description
-            );
-            unset($TaskType);
-        }
-        self::$HookManager
-            ->processEvent(
-                'TASK_DATA',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        unset($TaskTypes);
-        $this->displayActive();
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
-    }
-    /**
-     * Display host advanced.
-     *
-     * @return void
-     */
-    public function hostadvanced()
-    {
-        $this->_advanced('host');
-    }
-    /**
-     * Display group advanced.
-     *
-     * @return void
-     */
-    public function groupadvanced()
-    {
-        $this->_advanced('group');
     }
     /**
      * For cancelling/forcing tasks.
@@ -526,51 +311,48 @@ class TaskManagementPage extends FOGPage
      */
     public function activePost()
     {
-        if (!self::$ajax) {
-            $this->_nonajax();
-        }
-        self::getClass('TaskManager')->cancel($_POST['task']);
-        exit;
-    }
-    /**
-     * Forces a task to start.
-     *
-     * @return void
-     */
-    public function forceTask()
-    {
-        global $id;
+        header('Content-type: application/json');
+        self::$HookManager->processEvent(
+            'TASK_ACTIVE_CANCEL'
+        );
         try {
-            $Task = new Task($id);
-            if (!$Task->isValid()) {
-                throw new Exception(_('Invalid task'));
-            }
-            self::$HookManager
-                ->processEvent(
-                    'TASK_FORCE',
-                    array(
-                        'Task' => &$Task
-                    )
+            if (isset($_POST['cancelconfirm'])) {
+                $tasks = filter_input_array(
+                    INPUT_POST,
+                    [
+                        'tasks' => [
+                            'flags' => FILTER_REQUIRE_ARRAY
+                        ]
+                    ]
                 );
-            $Task->set('isForced', 1)->save();
-            $result['success'] = true;
+                $tasks = $tasks['tasks'];
+                self::getClass('TaskManager')->cancel($tasks);
+            }
+            $code = 201;
+            $hook = 'TASK_CANCEL_SUCCESS';
+            $msg = json_encode(
+                [
+                    'msg' => _('Selected tasks cancelled!'),
+                    'title' => _('Task Cancel Success')
+                ]
+            );
         } catch (Exception $e) {
-            $result['error'] = $e->getMessage();
-        }
-        if (self::$ajax) {
-            echo json_encode($result);
-            exit;
-        }
-        if ($result['error']) {
-            self::fatalError($result['error']);
-        } else {
-            self::redirect(
-                sprintf(
-                    '?node=%s',
-                    $this->node
-                )
+            $code = ($serverFault ? 500 : 400);
+            $hook = 'TASK_CANCEL_FAIL';
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Task Cancel Fail')
+                ]
             );
         }
+        http_response_code($code);
+        self::$HookManager
+            ->processEvent(
+                $hook
+            );
+        echo $msg;
+        exit;
     }
     /**
      * Display active multicast tasks.
@@ -579,104 +361,39 @@ class TaskManagementPage extends FOGPage
      */
     public function activemulticast()
     {
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->attributes,
-            $this->templates
-        );
         $this->title = _('Active Multi-cast Tasks');
-        $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" class='
-            . '"toggle-checkboxAction" id="toggler1"/>'
-            . '<label for="toggler1"></label>',
+        $this->headerData = [
             _('Task Name'),
-            _('Hosts'),
+            _('Hosts in tasking'),
             _('Start Time'),
-            _('State'),
-            _('Status'),
-        );
-        $this->templates = array(
-            '<input type="checkbox" name="task[]" value="${id}" class='
-            . '"toggle-action" id="mctask-${id}"/>'
-            . '<label for="mctask-${id}"></label>',
-            '${name}',
-            '${count}',
-            '${start_date}',
-            '${state}',
-            '${percent}',
-        );
-        $this->attributes = array(
-            array(
-                'width' => 16,
-                'class' => 'filter-false',
-                'task-id' => '${id}'
-            ),
-            array(
-            ),
-            array(
-            ),
-            array(
-            ),
-            array(
-            ),
-            array(
-                'width' => 40
-            )
-        );
-        Route::active('multicastsession');
-        $Sessions = json_decode(
-            Route::getData()
-        );
-        $Sessions = $Sessions->multicastsessions;
-        foreach ((array)$Sessions as &$MulticastSession) {
-            $TaskState = $MulticastSession->state;
-            if (!$TaskState->id) {
-                continue;
-            }
-            $this->data[] = array(
-                'id' => $MulticastSession->id,
-                'name' => (
-                    $MulticastSession->name ?: _('MulticastTask')
-                ),
-                'count' => (
-                    self::getClass('MulticastSessionAssociationManager')
-                    ->count(array('msID' => $MulticastSession->id))
-                ),
-                'start_date' => self::formatTime(
-                    $MulticastSession->starttime,
-                    'Y-m-d H:i:s'
-                ),
-                'state' => (
-                    $TaskState->name ?: ''
-                ),
-                'percent' => $MulticastSession->percent,
-            );
-            unset($TaskState, $MulticastSession);
-        }
-        self::$HookManager
-            ->processEvent(
-                'TaskActiveMulticastData',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        unset($Sessions);
-        if (self::$ajax) {
-            return $this->render();
-        }
-        $this->displayActive();
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->attributes,
-            $this->templates
-        );
+            _('Status')
+        ];
+        $this->templates = [
+            '',
+            '',
+            '',
+            ''
+        ];
+        $this->attributes = [
+            [],
+            [],
+            [],
+            []
+        ];
+        echo '<!-- Active Multi-cast Tasks -->';
+        echo '<div class="box box-solid">';
+        echo '<div class="box-header with-border">';
+        echo '<h3 class="box-title">';
+        echo $this->title;
+        echo '</h3>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        $this->render(12, 'tasks-active-table');
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo $this->_buttons;
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Removes multicast sessions.
@@ -685,20 +402,57 @@ class TaskManagementPage extends FOGPage
      */
     public function activemulticastPost()
     {
-        if (!self::$ajax) {
-            $this->_nonajax();
-        }
-        $MulticastSessionIDs = (array)$_POST['task'];
-        $TaskIDs = self::getSubObjectIDs(
-            'MulticastSessionAssociation',
-            array(
-                'msID' => $MulticastSessionIDs
-            ),
-            'taskID'
+        header('Content-type: application/json');
+        self::$HookManager->processEvent(
+            'TASK_ACTIVEMULTICAST'
         );
-        self::getClass('TaskManager')->cancel($TaskIDs);
-        self::getClass('MulticastSessionManager')->cancel($_POST['task']);
-        unset($MulticastSessionIDs);
+        $serverFault = false;
+        try {
+            if (isset($_POST['cancelconfirm'])) {
+                $tasks = filter_input_array(
+                    INPUT_POST,
+                    [
+                        'tasks' => [
+                            'flags' => FILTER_REQUIRE_ARRAY
+                        ]
+                    ]
+                );
+            }
+            $tasks = $tasks['tasks'];
+            $mtasks = $tasks;
+            $tasks = self::getSubObjectIDs(
+                'MulticastSessionAssociation',
+                [
+                    'msID' => $mtasks
+                ],
+                'taskID'
+            );
+            self::getClass('TaskManager')->cancel($tasks);
+            self::getClass('MulticastSessionManager')->cancel($mtasks);
+            $code = 201;
+            $hook = 'TASK_CANCEL_SUCCESS';
+            $msg = json_encode(
+                [
+                    'msg' => _('Selected tasks cancelled!'),
+                    'title' => _('Task Cancel Success')
+                ]
+            );
+        } catch (Exception $e) {
+            $code = ($serverFault ? 500 : 400);
+            $hook = 'TASK_CANCEL_FAIL';
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Task Cancel Fail')
+                ]
+            );
+        }
+        http_response_code($code);
+        self::$HookManager
+            ->processEvent(
+                $hook
+            );
+        echo $msg;
         exit;
     }
     /**
@@ -708,13 +462,6 @@ class TaskManagementPage extends FOGPage
      */
     public function activesnapins()
     {
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->attributes,
-            $this->templates
-        );
         $this->title = 'Active Snapins';
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class='
@@ -821,7 +568,6 @@ class TaskManagementPage extends FOGPage
         if (self::$ajax) {
             return $this->render();
         }
-        $this->displayActive();
         unset(
             $this->data,
             $this->form,
@@ -831,27 +577,12 @@ class TaskManagementPage extends FOGPage
         );
     }
     /**
-     * Redirect if item is not ajax called.
-     *
-     * @return void
-     */
-    private function _nonajax()
-    {
-        self::setMessage(
-            _('Cannot cancel tasks this way')
-        );
-        self::redirect($this->formAction);
-    }
-    /**
      * Cancels and snapin taskings.
      *
      * @return void
      */
     public function activesnapinsPost()
     {
-        if (!self::$ajax) {
-            $this->_nonajax();
-        }
         $SnapinTaskIDs = (array)$_POST['task'];
         if (count($SnapinTaskIDs) > 0) {
             $SnapinJobIDs = self::getSubObjectIDs(
@@ -1051,7 +782,6 @@ class TaskManagementPage extends FOGPage
         if (self::$ajax) {
             return $this->render();
         }
-        $this->displayActive();
         unset(
             $this->data,
             $this->form,
@@ -1067,13 +797,46 @@ class TaskManagementPage extends FOGPage
      */
     public function activescheduledPost()
     {
-        if (!self::$ajax) {
-            $this->_nonajax();
-        }
-        self::getClass('ScheduledTaskManager')
-            ->destroy(
-                array('id' => $_POST['task'])
+        header('Content-type: application/json');
+        self::$HookManager->processEvent(
+            'TASK_ACTIVE_CANCEL'
+        );
+        try {
+            if (isset($_POST['cancelconfirm'])) {
+                $tasks = filter_input_array(
+                    INPUT_POST,
+                    [
+                        'tasks' => [
+                            'flags' => FILTER_REQUIRE_ARRAY
+                        ]
+                    ]
+                );
+                self::getClass('ScheduledTaskManager')->destroy($tasks);
+            }
+            $code = 201;
+            $hook = 'TASK_CANCEL_SUCCESS';
+            $msg = json_encode(
+                [
+                    'msg' => _('Selected tasks cancelled!'),
+                    'title' => _('Task Cancel Success')
+                ]
             );
+        } catch (Exception $e) {
+            $code = ($serverFault ? 500 : 400);
+            $hook = 'TASK_CANCEL_FAIL';
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Task Cancel Fail')
+                ]
+            );
+        }
+        http_response_code($code);
+        self::$HookManager
+            ->processEvent(
+                $hook
+            );
+        echo $msg;
         exit;
     }
 }

@@ -25,46 +25,24 @@
             [0, 'asc']
         ],
         columns: [
-            {data: 'hostname'},
-            {data: 'imagename'},
-            {data: 'storagenodename'},
-            {data: 'createdBy'},
+            {data: 'name'},
+            {data: 'clients'},
+            {data: 'starttime'},
             {data: 'taskstatename'}
         ],
         rowId: 'id',
         columnDefs: [
             {
-                responsivePriority: -1,
-                render: function(data, type, row) {
-                    return '<a href="../management/index.php?node=host&sub=edit&id=' + row.hostid + '">' + data + '</a>';
-                },
-                targets: 0
-            },
-            {
-                responsivePriority: 0,
-                render: function(data, type, row) {
-                    return '<a href="../management/index.php?node=image&sub=edit&id=' + row.imageid + '">' + data + '</a>';
-                },
-                targets: 1
-            },
-            {
-                responsivePriority: 1,
-                render: function(data, type, row) {
-                    return '<a href="../management/index.php?node=storagenode&sub=edit&id=' + row.storagenodeid + '">' + data + '</a>';
-                },
-                targets: 2
-            },
-            {
                 render: function(data, type, row) {
                     return '<i class="fa fa-' + row.taskstateicon + '"></i>';
                 },
-                targets: 4
+                targets: 3
             }
         ],
         processing: true,
         serverSide: true,
         ajax: {
-            url: '../management/index.php?node='+Common.node+'&sub=getActiveTasks',
+            url: '../management/index.php?node='+Common.node+'&sub=getActiveMulticastTasks',
             type: 'post'
         }
     });
