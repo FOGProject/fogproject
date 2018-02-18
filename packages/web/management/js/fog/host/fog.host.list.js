@@ -1,15 +1,15 @@
 (function($) {
-    var addToGroup = $("#addSelectedToGroup"),
-        deleteSelected = $("#deleteSelected"),
-        deleteModal = $("#deleteModal"),
-        passwordField = $("#deletePassword"),
-        confirmDelete = $("#confirmDeleteModal"),
-        cancelDelete = $("#closeDeleteModal"),
+    var addToGroup = $('#addSelectedToGroup'),
+        deleteSelected = $('#deleteSelected'),
+        deleteModal = $('#deleteModal'),
+        passwordField = $('#deletePassword'),
+        confirmDelete = $('#confirmDeleteModal'),
+        cancelDelete = $('#closeDeleteModal'),
         numHostString = confirmDelete.val();
 
     function disableButtons (disable) {
-        addToGroup.prop("disabled", disable);
-        deleteSelected.prop("disabled", disable);
+        addToGroup.prop('disabled', disable);
+        deleteSelected.prop('disabled', disable);
     }
     function onSelect (selected) {
         var disabled = selected.count() == 0;
@@ -38,7 +38,7 @@
     });
 
     disableButtons(true);
-    var table = Common.registerTable($("#dataTable"), onSelect, {
+    var table = Common.registerTable($('#dataTable'), onSelect, {
         order: [
             [0, 'asc']
         ],
@@ -106,7 +106,7 @@
         table.search(Common.search).draw();
     }
 
-    deleteSelected.click(function() {
+    deleteSelected.on('click',function() {
         disableButtons(true);
         confirmDelete.val(numHostString.format(''));
         Common.massDelete(null, function(err) {
