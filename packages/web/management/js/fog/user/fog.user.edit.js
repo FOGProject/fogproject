@@ -14,7 +14,7 @@
         generalFormBtn = $('#general-send'),
         generalDeleteBtn = $('#general-delete');
 
-    generalForm.submit(function(e) {
+    generalForm.on('submit',function(e) {
         e.preventDefault();
     });
     generalFormBtn.on('click', function(e) {
@@ -38,7 +38,7 @@
     var passwordForm = $('#user-changepw-form'),
         passwordFormBtn = $('#changepw-send');
 
-    passwordForm.submit(function(e) {
+    passwordForm.on('submit',function(e) {
         e.preventDefault();
     });
     passwordFormBtn.on('click', function(e) {
@@ -56,7 +56,7 @@
     var apiForm = $('#user-api-form'),
         apiFormBtn = $('#api-send');
 
-    apiForm.submit(function(e) {
+    apiForm.on('submit',function(e) {
         e.preventDefault();
     });
     apiFormBtn.on('click', function(e) {
@@ -83,5 +83,4 @@
             });
         });
     });
-
 })(jQuery);

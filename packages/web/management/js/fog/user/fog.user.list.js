@@ -6,8 +6,6 @@
         cancelDelete = $('#closeDeleteModal'),
         numUserString = confirmDelete.val();
 
-    console.log(numUserString);
-
     function disableButtons(disable) {
         deleteSelected.prop('disabled', disable);
     }
@@ -56,7 +54,7 @@
         serverSide: true,
         ajax: {
             url: '../management/index.php?node='+Common.node+'&sub=list',
-            type: 'POST'
+            type: 'post'
         }
     });
 
