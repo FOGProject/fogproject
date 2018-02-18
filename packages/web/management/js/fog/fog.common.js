@@ -36,7 +36,7 @@ var $_GET = getQueryParams(document.location.search),
         $(document).ajaxStart(function() { Pace.restart(); });
     }
 
-    $("body").click(function(e) {
+    $("body").on('click',function(e) {
         if(e.target !== uniSearchResults &&
             e.target !== uniSearchForm &&
             !uniSearchResults.has(e.target).length &&
@@ -124,12 +124,12 @@ var $_GET = getQueryParams(document.location.search),
         }, 100);
     }
 
-    uniSearchForm.submit(function(e) {
+    uniSearchForm.on('submit',function(e) {
         e.preventDefault();
     });
 
     uniSearchField.on('input', handleQueryChange);
-    uniSearchButton.click(function (e) {
+    uniSearchButton.on('click',function (e) {
         if (!uniSearchResults.hasClass("open")) {
             handleQueryChange();
         }
