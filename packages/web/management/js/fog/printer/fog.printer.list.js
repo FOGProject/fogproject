@@ -1,11 +1,10 @@
 (function($) {
-    var deleteSelected = $('#deleteSelected');
-    var deleteModal = $('#deleteModal');
-    var passwordField = $('#deletePassword');
-    var confirmDelete = $('#confirmDeleteModal');
-    var cancelDelete = $('#closeDeleteModal');
-
-    var numPrinterString = confirmDelete.val();
+    var deleteSelected = $('#deleteSelected'),
+        deleteModal = $('#deleteModal'),
+        passwordField = $('#deletePassword'),
+        confirmDelete = $('#confirmDeleteModal'),
+        cancelDelete = $('#closeDeleteModal'),
+        numPrinterString = confirmDelete.val();
 
     function disableButtons(disable) {
         deleteSelected.prop('disabled', disable);
@@ -50,7 +49,7 @@
         serverSide: true,
         ajax: {
             url: '../management/index.php?node='+Common.node+'&sub=list',
-            type: 'POST'
+            type: 'post'
         }
     });
 
@@ -58,7 +57,7 @@
         table.search(Common.search).draw();
     }
 
-    deleteSelected.click(function() {
+    deleteSelected.on('click',function() {
         disableButtons(true);
         confirmDelete.val(numPrinterString.format(''));
         Common.massDelete(null, function(err) {
