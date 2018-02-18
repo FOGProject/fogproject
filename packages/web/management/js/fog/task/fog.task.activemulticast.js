@@ -39,7 +39,6 @@
                 targets: 3
             }
         ],
-        processing: true,
         serverSide: true,
         ajax: {
             url: '../management/index.php?node='+Common.node+'&sub=getActiveMulticastTasks',

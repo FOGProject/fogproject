@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-18 15:27-0500\n"
+"POT-Creation-Date: 2018-02-18 17:37-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3420,6 +3420,9 @@ msgstr ""
 msgid "Update default"
 msgstr ""
 
+msgid "Add selected"
+msgstr ""
+
 msgid "Remove selected"
 msgstr ""
 
@@ -3769,9 +3772,6 @@ msgid "Storage Group Create Fail"
 msgstr ""
 
 msgid "Update Master Node"
-msgstr ""
-
-msgid "Add selected"
 msgstr ""
 
 msgid "Storage Node Master"

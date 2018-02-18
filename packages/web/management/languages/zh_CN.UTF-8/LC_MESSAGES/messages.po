@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-18 15:27-0500\n"
+"POT-Creation-Date: 2018-02-18 16:26-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3854,6 +3854,10 @@ msgid "Update default"
 msgstr "更新打印机"
 
 #, fuzzy
+msgid "Add selected"
+msgstr "打印机"
+
+#, fuzzy
 msgid "Remove selected"
 msgstr "删除选定snapins"
 
@@ -4265,10 +4269,6 @@ msgstr "存储组创建"
 #, fuzzy
 msgid "Update Master Node"
 msgstr "主节点"
-
-#, fuzzy
-msgid "Add selected"
-msgstr "打印机"
 
 #, fuzzy
 msgid "Storage Node Master"
