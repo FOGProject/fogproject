@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-15 21:22-0500\n"
+"POT-Creation-Date: 2018-02-18 03:51-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -449,6 +449,12 @@ msgstr "所有存储组"
 msgid "Add Storage Group"
 msgstr "添加存储组"
 
+msgid "Storage Node"
+msgstr "存储节点"
+
+msgid "Storage Group"
+msgstr "存储组"
+
 msgid "Active Tasks"
 msgstr "活动任务"
 
@@ -783,12 +789,6 @@ msgstr "错误多个主机返回的MAC地址列表"
 
 msgid "Session timeout"
 msgstr "会话超时"
-
-msgid "Storage Node"
-msgstr "存储节点"
-
-msgid "Storage Group"
-msgstr "存储组"
 
 msgid "Graph Enabled"
 msgstr "图启用"
@@ -2644,10 +2644,6 @@ msgstr "高清设备"
 msgid "Login Users"
 msgstr "登录"
 
-#, fuzzy
-msgid "No valid storage nodes found"
-msgstr "无效的存储节点"
-
 msgid "Invalid Storage Group"
 msgstr "无效的存储组"
 
@@ -3601,59 +3597,77 @@ msgstr "数据库更新失败"
 msgid "Errors on revert detected!"
 msgstr "在复归错误检测"
 
-msgid "Started By:"
-msgstr "发起者："
+#, fuzzy
+msgid "Create New Storage Node"
+msgstr "存储节点"
 
-msgid "Working with node"
+#, fuzzy
+msgid "Web Root"
+msgstr "Web根目录"
+
+msgid "Bitrate"
+msgstr "比特率"
+
+msgid "Bandwidth should be numeric and greater than 0"
+msgstr "带宽应该是数字和大于0"
+
+#, fuzzy
+msgid "Add storage node failed!"
+msgstr "添加管理单元失败！"
+
+#, fuzzy
+msgid "Storage Node added!"
+msgstr "存储节点名称"
+
+#, fuzzy
+msgid "Storage Node Create Success"
+msgstr "存储节点创建"
+
+#, fuzzy
+msgid "Storage Node Create Fail"
+msgstr "存储节点创建"
+
+#, fuzzy
+msgid "Storage Node Update Failed"
+msgstr "存储节点更新"
+
+#, fuzzy
+msgid "Storage Node updated!"
+msgstr "存储节点更新"
+
+#, fuzzy
+msgid "Storage Node Update Success"
+msgstr "存储节点更新"
+
+#, fuzzy
+msgid "Storage Node Update Fail"
+msgstr "存储节点更新"
+
+#, fuzzy
+msgid "Started By"
+msgstr "由...制作"
+
+msgid "Resume Reload"
 msgstr ""
 
-msgid "Edit Host"
-msgstr "编辑主机"
-
-msgid "Edit Image"
-msgstr "编辑图像"
-
-msgid "Task forced to start"
-msgstr "任务强行启动"
-
-msgid "Force task to start"
-msgstr "强制任务启动"
-
-msgid "Invalid object type passed"
-msgstr "无效的对象类型传递"
-
-msgid "Invalid Task Type"
-msgstr "无效的任务类型"
-
-msgid "Invalid image assigned to host"
-msgstr "分配给主机图像无效"
-
-msgid "is protected"
-msgstr "被保护"
-
-#, fuzzy
-msgid "Quick"
-msgstr "点击"
-
-msgid "Hosts do not have the same image assigned"
-msgstr "主机没有分配相同的图像"
-
-msgid "Multicast Quick Deploy"
-msgstr "组播快速部署"
-
-#, fuzzy
-msgid "Group Quick Deploy"
-msgstr "快速部署"
-
-#, fuzzy
-msgid "Tasked Successfully"
-msgstr "保存成功"
-
-msgid "Tasked successfully, click active tasks to view in line."
+msgid "Pause Reload"
 msgstr ""
 
-msgid "Invalid task"
-msgstr "任务无效"
+#, fuzzy
+msgid "Cancel Selected"
+msgstr "删除所选"
+
+#, fuzzy
+msgid "Selected tasks cancelled!"
+msgstr "已成功更新"
+
+#, fuzzy
+msgid "Task Cancel Success"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "Task Cancel Fail"
+msgstr "用户创建"
 
 #, fuzzy
 msgid "Active Multi-cast Tasks"
@@ -3662,11 +3676,12 @@ msgstr "活动组播任务"
 msgid "Task Name"
 msgstr "任务名称"
 
-msgid "MulticastTask"
-msgstr "MulticastTask"
+#, fuzzy
+msgid "Hosts in tasking"
+msgstr "在任务主机"
 
-msgid "Cannot cancel tasks this way"
-msgstr "无法取消任务，这种方式"
+msgid "Edit Host"
+msgstr "编辑主机"
 
 msgid "Host/Group Name"
 msgstr "主机/组名称"
@@ -4220,6 +4235,54 @@ msgstr "用户管理"
 msgid "Delete all PM tasks?"
 msgstr "删除所有选定%s小号"
 
+#, fuzzy
+msgid "Total Clients"
+msgstr "最大客户"
+
+#, fuzzy
+msgid "Create New Storage Group"
+msgstr "存储节点"
+
+#, fuzzy
+msgid "Storage Group Create Success"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "Storage Group Create Fail"
+msgstr "存储组创建"
+
+#, fuzzy
+msgid "Update Master Node"
+msgstr "主节点"
+
+#, fuzzy
+msgid "Add selected"
+msgstr "打印机"
+
+#, fuzzy
+msgid "Storage Node Master"
+msgstr "存储节点名称"
+
+#, fuzzy
+msgid "Storage Node Associated"
+msgstr "存储节点创建"
+
+#, fuzzy
+msgid "Storage Group Update Failed"
+msgstr "存储组更新"
+
+#, fuzzy
+msgid "Storage Group updated!"
+msgstr "存储组更新"
+
+#, fuzzy
+msgid "Storage Group Update Success"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "Storage Group Update Fail"
+msgstr "存储组更新"
+
 msgid "TCP/IP"
 msgstr "TCP / IP协议"
 
@@ -4494,10 +4557,6 @@ msgid "Update Primary Group"
 msgstr "更新主要组"
 
 #, fuzzy
-msgid "Add selected"
-msgstr "打印机"
-
-#, fuzzy
 msgid "Storage Group Primary"
 msgstr "存储组名称"
 
@@ -4713,10 +4772,6 @@ msgstr "存储组活动"
 msgid "Storage Node Disk Usage"
 msgstr "存储节点的磁盘使用情况"
 
-#, fuzzy
-msgid "No nodes available at this time"
-msgstr "在任务主机"
-
 msgid "Imaging Over the last 30 days"
 msgstr "成像在过去30天"
 
@@ -4736,6 +4791,12 @@ msgstr "30分钟"
 #, fuzzy
 msgid "1 Hour"
 msgstr "1小时"
+
+msgid "Free"
+msgstr ""
+
+msgid "Used"
+msgstr ""
 
 #, fuzzy
 msgid "Import Reports"
@@ -4771,96 +4832,6 @@ msgstr ""
 
 msgid "To view a report, select an item from the menu"
 msgstr ""
-
-#, fuzzy
-msgid "Create New Storage Node"
-msgstr "存储节点"
-
-#, fuzzy
-msgid "Web Root"
-msgstr "Web根目录"
-
-msgid "Bitrate"
-msgstr "比特率"
-
-msgid "Bandwidth should be numeric and greater than 0"
-msgstr "带宽应该是数字和大于0"
-
-#, fuzzy
-msgid "Add storage node failed!"
-msgstr "添加管理单元失败！"
-
-#, fuzzy
-msgid "Storage Node added!"
-msgstr "存储节点名称"
-
-#, fuzzy
-msgid "Storage Node Create Success"
-msgstr "存储节点创建"
-
-#, fuzzy
-msgid "Storage Node Create Fail"
-msgstr "存储节点创建"
-
-#, fuzzy
-msgid "Storage Node Update Failed"
-msgstr "存储节点更新"
-
-#, fuzzy
-msgid "Storage Node updated!"
-msgstr "存储节点更新"
-
-#, fuzzy
-msgid "Storage Node Update Success"
-msgstr "存储节点更新"
-
-#, fuzzy
-msgid "Storage Node Update Fail"
-msgstr "存储节点更新"
-
-#, fuzzy
-msgid "Total Clients"
-msgstr "最大客户"
-
-#, fuzzy
-msgid "Create New Storage Group"
-msgstr "存储节点"
-
-#, fuzzy
-msgid "Storage Group Create Success"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Storage Group Create Fail"
-msgstr "存储组创建"
-
-#, fuzzy
-msgid "Update Master Node"
-msgstr "主节点"
-
-#, fuzzy
-msgid "Storage Node Master"
-msgstr "存储节点名称"
-
-#, fuzzy
-msgid "Storage Node Associated"
-msgstr "存储节点创建"
-
-#, fuzzy
-msgid "Storage Group Update Failed"
-msgstr "存储组更新"
-
-#, fuzzy
-msgid "Storage Group updated!"
-msgstr "存储组更新"
-
-#, fuzzy
-msgid "Storage Group Update Success"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Storage Group Update Fail"
-msgstr "存储组更新"
 
 msgid "API?"
 msgstr ""
@@ -4949,10 +4920,6 @@ msgstr "安装/升级成功！"
 msgid "User Update Fail"
 msgstr "用户更新失败"
 
-#, fuzzy
-msgid "Service general"
-msgstr "主机内核"
-
 msgid "This will allow you to configure how services"
 msgstr ""
 
@@ -4971,9 +4938,6 @@ msgstr ""
 msgid "To get started please select an item from the menu."
 msgstr ""
 
-msgid "FOG Client Download"
-msgstr "FOG客户端下载"
-
 msgid "Use the following link to go to the client page."
 msgstr ""
 
@@ -4985,6 +4949,42 @@ msgstr ""
 
 msgid "Click Here"
 msgstr "点击这里"
+
+#, fuzzy
+msgid "Module Enabled"
+msgstr "模块名称"
+
+#, fuzzy
+msgid "Enabled as Default"
+msgstr "启用默认"
+
+#, fuzzy
+msgid "Unable to update global setting"
+msgstr "无法更新"
+
+#, fuzzy
+msgid "Unable to update module default setting"
+msgstr "无法打开文件进行读取"
+
+#, fuzzy
+msgid "Global Module Settings"
+msgstr "主机描述"
+
+#, fuzzy
+msgid "Module update success!"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "Module Update Success"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "Module update failed!"
+msgstr "用户更新失败"
+
+#, fuzzy
+msgid "Module Update Fail"
+msgstr "集团创建失败"
 
 msgid "Enabled as default"
 msgstr "启用默认"
@@ -5065,14 +5065,6 @@ msgstr "服务更新失败"
 #, fuzzy
 msgid "Module updated!"
 msgstr "集团补充"
-
-#, fuzzy
-msgid "Module Update Success"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Module Update Fail"
-msgstr "集团创建失败"
 
 #, fuzzy
 msgid "Filesize"
@@ -6003,6 +5995,10 @@ msgstr "发生未知上传错误。返回代码："
 msgid "Return code"
 msgstr "返回代码"
 
+#, fuzzy
+msgid "No valid storage nodes found"
+msgstr "无效的存储节点"
+
 msgid "Registered"
 msgstr "注册"
 
@@ -6328,6 +6324,9 @@ msgstr "无关联的节点"
 msgid "Host Unassociated Snapins"
 msgstr "无关联的节点"
 
+msgid "Edit Image"
+msgstr "编辑图像"
+
 #, fuzzy
 msgid "Confirm tasking"
 msgstr "任务无效"
@@ -6468,6 +6467,10 @@ msgstr "无法启动部署任务"
 
 msgid "Delayed Start"
 msgstr "延时启动"
+
+#, fuzzy
+msgid "Tasked Successfully"
+msgstr "保存成功"
 
 #, fuzzy
 msgid "Successfully created"
@@ -6916,6 +6919,10 @@ msgstr "IP传递是不正确"
 #, fuzzy
 msgid "Invalid"
 msgstr "无效的ID"
+
+#, fuzzy
+msgid "File or path does not exist"
+msgstr "方法不存在"
 
 #, fuzzy
 msgid "Device must be a string"

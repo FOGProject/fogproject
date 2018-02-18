@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-15 21:22-0500\n"
+"POT-Creation-Date: 2018-02-18 03:51-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -510,6 +510,12 @@ msgstr "Grupo de almacenamiento"
 msgid "Add Storage Group"
 msgstr "Grupo de almacenamiento"
 
+msgid "Storage Node"
+msgstr "nodo de almacenamiento"
+
+msgid "Storage Group"
+msgstr "Grupo de almacenamiento"
+
 #, fuzzy
 msgid "Active Tasks"
 msgstr "Activo"
@@ -917,12 +923,6 @@ msgstr ""
 #, fuzzy
 msgid "Session timeout"
 msgstr "Nombre de sesión"
-
-msgid "Storage Node"
-msgstr "nodo de almacenamiento"
-
-msgid "Storage Group"
-msgstr "Grupo de almacenamiento"
 
 #, fuzzy
 msgid "Graph Enabled"
@@ -2854,10 +2854,6 @@ msgid "Login Users"
 msgstr "Línea"
 
 #, fuzzy
-msgid "No valid storage nodes found"
-msgstr "nodo de almacenamiento no válido"
-
-#, fuzzy
 msgid "Invalid Storage Group"
 msgstr "Grupo de almacenamiento"
 
@@ -3833,59 +3829,78 @@ msgstr "actualización de la base no"
 msgid "Errors on revert detected!"
 msgstr "Los errores en Revert detectados"
 
-msgid "Started By:"
-msgstr "Iniciado por:"
+#, fuzzy
+msgid "Create New Storage Node"
+msgstr "nodo de almacenamiento"
 
-msgid "Working with node"
+#, fuzzy
+msgid "Web Root"
+msgstr "Reiniciar"
+
+#, fuzzy
+msgid "Bitrate"
+msgstr "Estado"
+
+msgid "Bandwidth should be numeric and greater than 0"
 msgstr ""
 
-msgid "Edit Host"
-msgstr "Editar anfitrión"
-
-msgid "Edit Image"
-msgstr "Editar imagen"
-
-msgid "Task forced to start"
-msgstr "Tarea obligado a empezar"
-
-msgid "Force task to start"
-msgstr "Grupo de trabajo para comenzar"
-
-msgid "Invalid object type passed"
-msgstr "Tipo de objeto no válido pasó"
-
-msgid "Invalid Task Type"
-msgstr "Tipo de tarea no válida"
-
-msgid "Invalid image assigned to host"
-msgstr "imagen no válido asignado a la sede"
-
-msgid "is protected"
-msgstr "esta protegido"
+#, fuzzy
+msgid "Add storage node failed!"
+msgstr "Añadir fallidos SNAPin!"
 
 #, fuzzy
-msgid "Quick"
-msgstr "Hacer clic"
-
-msgid "Hosts do not have the same image assigned"
-msgstr "Los anfitriones no tienen la misma imagen asignado"
-
-msgid "Multicast Quick Deploy"
-msgstr "Multicast distribución rápida"
+msgid "Storage Node added!"
+msgstr "nodo de almacenamiento"
 
 #, fuzzy
-msgid "Group Quick Deploy"
-msgstr "Distribución rápida"
+msgid "Storage Node Create Success"
+msgstr "nodo de almacenamiento"
 
 #, fuzzy
-msgid "Tasked Successfully"
-msgstr "Guardado exitosamente"
+msgid "Storage Node Create Fail"
+msgstr "nodo de almacenamiento"
 
-msgid "Tasked successfully, click active tasks to view in line."
+#, fuzzy
+msgid "Storage Node Update Failed"
+msgstr "nodo de almacenamiento"
+
+#, fuzzy
+msgid "Storage Node updated!"
+msgstr "nodo de almacenamiento"
+
+#, fuzzy
+msgid "Storage Node Update Success"
+msgstr "nodo de almacenamiento"
+
+#, fuzzy
+msgid "Storage Node Update Fail"
+msgstr "nodo de almacenamiento"
+
+#, fuzzy
+msgid "Started By"
+msgstr "Creado"
+
+msgid "Resume Reload"
 msgstr ""
 
-msgid "Invalid task"
-msgstr "tarea no válido"
+msgid "Pause Reload"
+msgstr ""
+
+#, fuzzy
+msgid "Cancel Selected"
+msgstr "Eliminar seleccionado"
+
+#, fuzzy
+msgid "Selected tasks cancelled!"
+msgstr "se ha actualizado correctamente"
+
+#, fuzzy
+msgid "Task Cancel Success"
+msgstr "creado por el usuario"
+
+#, fuzzy
+msgid "Task Cancel Fail"
+msgstr "creado por el usuario"
 
 #, fuzzy
 msgid "Active Multi-cast Tasks"
@@ -3894,11 +3909,12 @@ msgstr "MulticastTask"
 msgid "Task Name"
 msgstr "Nombre de la tarea"
 
-msgid "MulticastTask"
-msgstr "MulticastTask"
+#, fuzzy
+msgid "Hosts in tasking"
+msgstr "Anfitriones en tareas"
 
-msgid "Cannot cancel tasks this way"
-msgstr "No se puede cancelar tareas de esta manera"
+msgid "Edit Host"
+msgstr "Editar anfitrión"
 
 msgid "Host/Group Name"
 msgstr "Host / Nombre del grupo"
@@ -4466,6 +4482,54 @@ msgstr "Gestión de usuarios"
 msgid "Delete all PM tasks?"
 msgstr "Eliminar todos los seleccionados %s s"
 
+#, fuzzy
+msgid "Total Clients"
+msgstr "Clientela"
+
+#, fuzzy
+msgid "Create New Storage Group"
+msgstr "nodo de almacenamiento"
+
+#, fuzzy
+msgid "Storage Group Create Success"
+msgstr "creado por el usuario"
+
+#, fuzzy
+msgid "Storage Group Create Fail"
+msgstr "Nombre del grupo de almacenamiento"
+
+#, fuzzy
+msgid "Update Master Node"
+msgstr "nodo de almacenamiento"
+
+#, fuzzy
+msgid "Add selected"
+msgstr "Impresora"
+
+#, fuzzy
+msgid "Storage Node Master"
+msgstr "nodo de almacenamiento"
+
+#, fuzzy
+msgid "Storage Node Associated"
+msgstr "nodo de almacenamiento"
+
+#, fuzzy
+msgid "Storage Group Update Failed"
+msgstr "Nombre del grupo de almacenamiento"
+
+#, fuzzy
+msgid "Storage Group updated!"
+msgstr "Nombre del grupo de almacenamiento"
+
+#, fuzzy
+msgid "Storage Group Update Success"
+msgstr "creado por el usuario"
+
+#, fuzzy
+msgid "Storage Group Update Fail"
+msgstr "Nombre del grupo de almacenamiento"
+
 msgid "TCP/IP"
 msgstr "TCP / IP"
 
@@ -4751,10 +4815,6 @@ msgid "Update Primary Group"
 msgstr "Actualización de Grupo Primario"
 
 #, fuzzy
-msgid "Add selected"
-msgstr "Impresora"
-
-#, fuzzy
 msgid "Storage Group Primary"
 msgstr "Nombre del grupo de almacenamiento"
 
@@ -4970,10 +5030,6 @@ msgstr "Grupo de almacenamiento de Actividad"
 msgid "Storage Node Disk Usage"
 msgstr "Uso del disco nodo de almacenamiento"
 
-#, fuzzy
-msgid "No nodes available at this time"
-msgstr "Anfitriones en tareas"
-
 msgid "Imaging Over the last 30 days"
 msgstr "Imaging lo largo de los últimos 30 días"
 
@@ -4993,6 +5049,12 @@ msgstr "30 minutos"
 #, fuzzy
 msgid "1 Hour"
 msgstr "1 hora"
+
+msgid "Free"
+msgstr ""
+
+msgid "Used"
+msgstr ""
 
 #, fuzzy
 msgid "Import Reports"
@@ -5027,97 +5089,6 @@ msgstr ""
 
 msgid "To view a report, select an item from the menu"
 msgstr ""
-
-#, fuzzy
-msgid "Create New Storage Node"
-msgstr "nodo de almacenamiento"
-
-#, fuzzy
-msgid "Web Root"
-msgstr "Reiniciar"
-
-#, fuzzy
-msgid "Bitrate"
-msgstr "Estado"
-
-msgid "Bandwidth should be numeric and greater than 0"
-msgstr ""
-
-#, fuzzy
-msgid "Add storage node failed!"
-msgstr "Añadir fallidos SNAPin!"
-
-#, fuzzy
-msgid "Storage Node added!"
-msgstr "nodo de almacenamiento"
-
-#, fuzzy
-msgid "Storage Node Create Success"
-msgstr "nodo de almacenamiento"
-
-#, fuzzy
-msgid "Storage Node Create Fail"
-msgstr "nodo de almacenamiento"
-
-#, fuzzy
-msgid "Storage Node Update Failed"
-msgstr "nodo de almacenamiento"
-
-#, fuzzy
-msgid "Storage Node updated!"
-msgstr "nodo de almacenamiento"
-
-#, fuzzy
-msgid "Storage Node Update Success"
-msgstr "nodo de almacenamiento"
-
-#, fuzzy
-msgid "Storage Node Update Fail"
-msgstr "nodo de almacenamiento"
-
-#, fuzzy
-msgid "Total Clients"
-msgstr "Clientela"
-
-#, fuzzy
-msgid "Create New Storage Group"
-msgstr "nodo de almacenamiento"
-
-#, fuzzy
-msgid "Storage Group Create Success"
-msgstr "creado por el usuario"
-
-#, fuzzy
-msgid "Storage Group Create Fail"
-msgstr "Nombre del grupo de almacenamiento"
-
-#, fuzzy
-msgid "Update Master Node"
-msgstr "nodo de almacenamiento"
-
-#, fuzzy
-msgid "Storage Node Master"
-msgstr "nodo de almacenamiento"
-
-#, fuzzy
-msgid "Storage Node Associated"
-msgstr "nodo de almacenamiento"
-
-#, fuzzy
-msgid "Storage Group Update Failed"
-msgstr "Nombre del grupo de almacenamiento"
-
-#, fuzzy
-msgid "Storage Group updated!"
-msgstr "Nombre del grupo de almacenamiento"
-
-#, fuzzy
-msgid "Storage Group Update Success"
-msgstr "creado por el usuario"
-
-#, fuzzy
-msgid "Storage Group Update Fail"
-msgstr "Nombre del grupo de almacenamiento"
 
 msgid "API?"
 msgstr ""
@@ -5206,10 +5177,6 @@ msgstr "Actualizar impresora"
 msgid "User Update Fail"
 msgstr "actualización Valoración falló"
 
-#, fuzzy
-msgid "Service general"
-msgstr "Núcleo"
-
 msgid "This will allow you to configure how services"
 msgstr ""
 
@@ -5228,9 +5195,6 @@ msgstr ""
 msgid "To get started please select an item from the menu."
 msgstr ""
 
-msgid "FOG Client Download"
-msgstr "FOG descarga del cliente"
-
 msgid "Use the following link to go to the client page."
 msgstr ""
 
@@ -5242,6 +5206,42 @@ msgstr ""
 
 msgid "Click Here"
 msgstr "Haga clic aquí"
+
+#, fuzzy
+msgid "Module Enabled"
+msgstr "Nombre del módulo"
+
+#, fuzzy
+msgid "Enabled as Default"
+msgstr "Habilitado por defecto"
+
+#, fuzzy
+msgid "Unable to update global setting"
+msgstr "No se ha podido destruir"
+
+#, fuzzy
+msgid "Unable to update module default setting"
+msgstr "No se puede abrir archivo para lectura"
+
+#, fuzzy
+msgid "Global Module Settings"
+msgstr "Descripción del Grupo"
+
+#, fuzzy
+msgid "Module update success!"
+msgstr "creado por el usuario"
+
+#, fuzzy
+msgid "Module Update Success"
+msgstr "creado por el usuario"
+
+#, fuzzy
+msgid "Module update failed!"
+msgstr "actualización Valoración falló"
+
+#, fuzzy
+msgid "Module Update Fail"
+msgstr "Grupo Error de creación"
 
 msgid "Enabled as default"
 msgstr "Habilitado por defecto"
@@ -5322,14 +5322,6 @@ msgstr "actualización de servicio no pudo"
 #, fuzzy
 msgid "Module updated!"
 msgstr "grupo añadió"
-
-#, fuzzy
-msgid "Module Update Success"
-msgstr "creado por el usuario"
-
-#, fuzzy
-msgid "Module Update Fail"
-msgstr "Grupo Error de creación"
 
 #, fuzzy
 msgid "Filesize"
@@ -6267,6 +6259,10 @@ msgstr "Se produjo un error de carga desconocida. Código de retorno: "
 msgid "Return code"
 msgstr "Código de retorno"
 
+#, fuzzy
+msgid "No valid storage nodes found"
+msgstr "nodo de almacenamiento no válido"
+
 msgid "Registered"
 msgstr "Registrado"
 
@@ -6592,6 +6588,9 @@ msgstr "No nodo asociado"
 msgid "Host Unassociated Snapins"
 msgstr "No nodo asociado"
 
+msgid "Edit Image"
+msgstr "Editar imagen"
+
 #, fuzzy
 msgid "Confirm tasking"
 msgstr "tarea no válido"
@@ -6734,6 +6733,10 @@ msgstr "No se pudo iniciar tareas de despliegue"
 
 msgid "Delayed Start"
 msgstr "Comienzo demorado"
+
+#, fuzzy
+msgid "Tasked Successfully"
+msgstr "Guardado exitosamente"
 
 #, fuzzy
 msgid "Successfully created"
@@ -7184,6 +7187,10 @@ msgstr "Pasado IP es incorrecta"
 #, fuzzy
 msgid "Invalid"
 msgstr "identificación invalida"
+
+#, fuzzy
+msgid "File or path does not exist"
+msgstr "Método no existe"
 
 #, fuzzy
 msgid "Device must be a string"

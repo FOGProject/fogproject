@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-15 21:22-0500\n"
+"POT-Creation-Date: 2018-02-18 03:51-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -446,6 +446,12 @@ msgstr "Alle Speichergruppen"
 msgid "Add Storage Group"
 msgstr "Speichergruppe hinzufügen"
 
+msgid "Storage Node"
+msgstr "Storage Node"
+
+msgid "Storage Group"
+msgstr "Speichergruppe"
+
 msgid "Active Tasks"
 msgstr "Aktive Tasks"
 
@@ -781,12 +787,6 @@ msgstr "Fehler: Es gibt mehrere Hosts mit der gleichen MAC-Adresse"
 
 msgid "Session timeout"
 msgstr "Session-Timeout"
-
-msgid "Storage Node"
-msgstr "Storage Node"
-
-msgid "Storage Group"
-msgstr "Speichergruppe"
 
 msgid "Graph Enabled"
 msgstr "Diagramm aktiviert"
@@ -2648,10 +2648,6 @@ msgstr "HD-Gerät"
 msgid "Login Users"
 msgstr "Anmeldung"
 
-#, fuzzy
-msgid "No valid storage nodes found"
-msgstr "Keine gültigen Speicherknoten gefunden"
-
 msgid "Invalid Storage Group"
 msgstr "Ungültige Speichergruppe"
 
@@ -3617,60 +3613,77 @@ msgstr "Datenbankfehler!"
 msgid "Errors on revert detected!"
 msgstr "Fehler beim Zurücksetzen erkannt!"
 
-msgid "Started By:"
-msgstr "gestartet von:"
-
-msgid "Working with node"
-msgstr "Arbeitet mit Knoten"
-
-msgid "Edit Host"
-msgstr "Host bearbeiten"
-
-msgid "Edit Image"
-msgstr "Image bearbeiten"
-
-msgid "Task forced to start"
-msgstr "Task Start erzwungen"
-
-msgid "Force task to start"
-msgstr "Task Start erzwingen"
-
-msgid "Invalid object type passed"
-msgstr "Ungültiger Objekttyp übergeben"
-
-msgid "Invalid Task Type"
-msgstr "Ungültiger Task-Typ"
-
-msgid "Invalid image assigned to host"
-msgstr "Ungültiges Image zugewiesen"
-
-msgid "is protected"
-msgstr "ist geschützt"
+#, fuzzy
+msgid "Create New Storage Node"
+msgstr "Storage Node"
 
 #, fuzzy
-msgid "Quick"
-msgstr "Schnell"
+msgid "Web Root"
+msgstr "Webroot"
 
-msgid "Hosts do not have the same image assigned"
-msgstr "Den Hosts wurde nicht das gleiche Image zugewiesen"
+msgid "Bitrate"
+msgstr "Bitrate"
 
-msgid "Multicast Quick Deploy"
-msgstr "Multicast Schnellverteilung"
-
-#, fuzzy
-msgid "Group Quick Deploy"
-msgstr "Gruppen Schnellverteilung"
+msgid "Bandwidth should be numeric and greater than 0"
+msgstr "Bandbreite sollte numerisch und größer als 0 sein."
 
 #, fuzzy
-msgid "Tasked Successfully"
-msgstr "erfolgreich beauftragt"
+msgid "Add storage node failed!"
+msgstr "Hinzufügen eines Speicherknotens fehlgeschlagen!"
 
-msgid "Tasked successfully, click active tasks to view in line."
+#, fuzzy
+msgid "Storage Node added!"
+msgstr "Speicherknoten hinzugefügt"
+
+#, fuzzy
+msgid "Storage Node Create Success"
+msgstr "Speicherknoten erfolgreich erstellt"
+
+#, fuzzy
+msgid "Storage Node Create Fail"
+msgstr "Erstellen des Speicherknotens fehlgeschlagen"
+
+#, fuzzy
+msgid "Storage Node Update Failed"
+msgstr "Aktualisierung des Speicherknotens fehlgeschlagen"
+
+#, fuzzy
+msgid "Storage Node updated!"
+msgstr "Speicherknoten aktualisiert"
+
+#, fuzzy
+msgid "Storage Node Update Success"
+msgstr "Aktualisierung des Speicherknotens erfolgreich"
+
+#, fuzzy
+msgid "Storage Node Update Fail"
+msgstr "Aktualisierung des Speicherknotens fehlgeschlagen"
+
+#, fuzzy
+msgid "Started By"
+msgstr "Erstellt von"
+
+msgid "Resume Reload"
 msgstr ""
-"Erfogreiche Ausführung, ein Klick auf aktive Tasks zeigt sie in einer Zeile"
 
-msgid "Invalid task"
-msgstr "Ungültiger Task"
+msgid "Pause Reload"
+msgstr ""
+
+#, fuzzy
+msgid "Cancel Selected"
+msgstr "Ausgewählte löschen"
+
+#, fuzzy
+msgid "Selected tasks cancelled!"
+msgstr "geplante Tasks wurde erfolgreich erstellt"
+
+#, fuzzy
+msgid "Task Cancel Success"
+msgstr "Task-Typ erfolgreich erstellt"
+
+#, fuzzy
+msgid "Task Cancel Fail"
+msgstr "Task-Typ erstellen fehlgeschlagen"
 
 #, fuzzy
 msgid "Active Multi-cast Tasks"
@@ -3679,11 +3692,12 @@ msgstr "Aktive Multicast Tasks"
 msgid "Task Name"
 msgstr "Task-Name"
 
-msgid "MulticastTask"
-msgstr "MulticastTask"
+#, fuzzy
+msgid "Hosts in tasking"
+msgstr "Hosts im Task-Prozess"
 
-msgid "Cannot cancel tasks this way"
-msgstr "Tasks abbrechen auf diese Weise nicht möglich"
+msgid "Edit Host"
+msgstr "Host bearbeiten"
 
 msgid "Host/Group Name"
 msgstr "Host/Gruppenname"
@@ -4242,6 +4256,54 @@ msgstr "Gruppen Power Management entfernen"
 msgid "Delete all PM tasks?"
 msgstr "Alle PM Tasks löschen?"
 
+#, fuzzy
+msgid "Total Clients"
+msgstr "Maximale Clients"
+
+#, fuzzy
+msgid "Create New Storage Group"
+msgstr "Speichergruppe erstellen"
+
+#, fuzzy
+msgid "Storage Group Create Success"
+msgstr "Speichergruppe erfolgreich erstellt"
+
+#, fuzzy
+msgid "Storage Group Create Fail"
+msgstr "Erstellen einer Speichergruppe fehlgeschlagen"
+
+#, fuzzy
+msgid "Update Master Node"
+msgstr "Master-Knoten"
+
+#, fuzzy
+msgid "Add selected"
+msgstr "ausgewählte Images hinzufügen"
+
+#, fuzzy
+msgid "Storage Node Master"
+msgstr "Speicherknotenname"
+
+#, fuzzy
+msgid "Storage Node Associated"
+msgstr "Speicherknoten erstellt"
+
+#, fuzzy
+msgid "Storage Group Update Failed"
+msgstr "Aktualisierung der Speichergruppe fehlgeschlagen"
+
+#, fuzzy
+msgid "Storage Group updated!"
+msgstr "Speichergruppe aktualisiert"
+
+#, fuzzy
+msgid "Storage Group Update Success"
+msgstr "Speichergruppe erfolgreich aktualisiert"
+
+#, fuzzy
+msgid "Storage Group Update Fail"
+msgstr "Aktualisierung der Speichergruppe fehlgeschlagen"
+
 msgid "TCP/IP"
 msgstr "TCP/IP"
 
@@ -4516,10 +4578,6 @@ msgid "Update Primary Group"
 msgstr "Primäre Gruppe aktualisieren"
 
 #, fuzzy
-msgid "Add selected"
-msgstr "ausgewählte Images hinzufügen"
-
-#, fuzzy
 msgid "Storage Group Primary"
 msgstr "Name der Speichergruppe"
 
@@ -4735,10 +4793,6 @@ msgstr "Speichergruppenaktivität"
 msgid "Storage Node Disk Usage"
 msgstr "Storage Node Datenträgerverwendung"
 
-#, fuzzy
-msgid "No nodes available at this time"
-msgstr "Keine Hosts für Aufgaben (Task) verfügbar"
-
 msgid "Imaging Over the last 30 days"
 msgstr "Imaging in den letzten 30 Tagen"
 
@@ -4758,6 +4812,12 @@ msgstr "30 Minuten"
 #, fuzzy
 msgid "1 Hour"
 msgstr "1 Stunde"
+
+msgid "Free"
+msgstr ""
+
+msgid "Used"
+msgstr ""
 
 #, fuzzy
 msgid "Import Reports"
@@ -4793,96 +4853,6 @@ msgstr "Vorgänge in Ihrem FOG-System."
 
 msgid "To view a report, select an item from the menu"
 msgstr "Um einen Bericht anzusehen, wählen Sie einen aus dem Menü aus."
-
-#, fuzzy
-msgid "Create New Storage Node"
-msgstr "Storage Node"
-
-#, fuzzy
-msgid "Web Root"
-msgstr "Webroot"
-
-msgid "Bitrate"
-msgstr "Bitrate"
-
-msgid "Bandwidth should be numeric and greater than 0"
-msgstr "Bandbreite sollte numerisch und größer als 0 sein."
-
-#, fuzzy
-msgid "Add storage node failed!"
-msgstr "Hinzufügen eines Speicherknotens fehlgeschlagen!"
-
-#, fuzzy
-msgid "Storage Node added!"
-msgstr "Speicherknoten hinzugefügt"
-
-#, fuzzy
-msgid "Storage Node Create Success"
-msgstr "Speicherknoten erfolgreich erstellt"
-
-#, fuzzy
-msgid "Storage Node Create Fail"
-msgstr "Erstellen des Speicherknotens fehlgeschlagen"
-
-#, fuzzy
-msgid "Storage Node Update Failed"
-msgstr "Aktualisierung des Speicherknotens fehlgeschlagen"
-
-#, fuzzy
-msgid "Storage Node updated!"
-msgstr "Speicherknoten aktualisiert"
-
-#, fuzzy
-msgid "Storage Node Update Success"
-msgstr "Aktualisierung des Speicherknotens erfolgreich"
-
-#, fuzzy
-msgid "Storage Node Update Fail"
-msgstr "Aktualisierung des Speicherknotens fehlgeschlagen"
-
-#, fuzzy
-msgid "Total Clients"
-msgstr "Maximale Clients"
-
-#, fuzzy
-msgid "Create New Storage Group"
-msgstr "Speichergruppe erstellen"
-
-#, fuzzy
-msgid "Storage Group Create Success"
-msgstr "Speichergruppe erfolgreich erstellt"
-
-#, fuzzy
-msgid "Storage Group Create Fail"
-msgstr "Erstellen einer Speichergruppe fehlgeschlagen"
-
-#, fuzzy
-msgid "Update Master Node"
-msgstr "Master-Knoten"
-
-#, fuzzy
-msgid "Storage Node Master"
-msgstr "Speicherknotenname"
-
-#, fuzzy
-msgid "Storage Node Associated"
-msgstr "Speicherknoten erstellt"
-
-#, fuzzy
-msgid "Storage Group Update Failed"
-msgstr "Aktualisierung der Speichergruppe fehlgeschlagen"
-
-#, fuzzy
-msgid "Storage Group updated!"
-msgstr "Speichergruppe aktualisiert"
-
-#, fuzzy
-msgid "Storage Group Update Success"
-msgstr "Speichergruppe erfolgreich aktualisiert"
-
-#, fuzzy
-msgid "Storage Group Update Fail"
-msgstr "Aktualisierung der Speichergruppe fehlgeschlagen"
 
 msgid "API?"
 msgstr "API?"
@@ -4972,10 +4942,6 @@ msgstr "Benutzeraktualisierung erfolgreich!"
 msgid "User Update Fail"
 msgstr "Benutzer-Update fehlgeschlagen"
 
-#, fuzzy
-msgid "Service general"
-msgstr "Service allgemein"
-
 msgid "This will allow you to configure how services"
 msgstr "Hiermit können Sie konfigurieren, "
 
@@ -4994,9 +4960,6 @@ msgstr "nutzen Sie bitte die Host Service Settings."
 msgid "To get started please select an item from the menu."
 msgstr "Um zu beginnen, wählen Sie bitte ein Element aus dem Menü."
 
-msgid "FOG Client Download"
-msgstr "FOG-Client-Download"
-
 msgid "Use the following link to go to the client page."
 msgstr "Der folgende Link führt zur Clientseite"
 
@@ -5009,6 +4972,42 @@ msgstr "auf dem veralteten Client."
 
 msgid "Click Here"
 msgstr "Klicken Sie hier"
+
+#, fuzzy
+msgid "Module Enabled"
+msgstr "Modulname"
+
+#, fuzzy
+msgid "Enabled as Default"
+msgstr "Standardmäßig aktiviert"
+
+#, fuzzy
+msgid "Unable to update global setting"
+msgstr "Host- und globalen Einstellungen gibt,"
+
+#, fuzzy
+msgid "Unable to update module default setting"
+msgstr "Datei kann zum Lesen nicht geöffnet werden"
+
+#, fuzzy
+msgid "Global Module Settings"
+msgstr "Gruppeneinstellungen Module"
+
+#, fuzzy
+msgid "Module update success!"
+msgstr "Modulupdate erfolgreich"
+
+#, fuzzy
+msgid "Module Update Success"
+msgstr "Modulupdate erfolgreich"
+
+#, fuzzy
+msgid "Module update failed!"
+msgstr "Aktualisierung der Rolle fehlgeschlagen"
+
+#, fuzzy
+msgid "Module Update Fail"
+msgstr "Modulupdate fehlgeschlagen"
 
 msgid "Enabled as default"
 msgstr "Standardmäßig aktiviert"
@@ -5089,14 +5088,6 @@ msgstr "Service-Update fehlgeschlagen"
 #, fuzzy
 msgid "Module updated!"
 msgstr "Modul aktualisiert!"
-
-#, fuzzy
-msgid "Module Update Success"
-msgstr "Modulupdate erfolgreich"
-
-#, fuzzy
-msgid "Module Update Fail"
-msgstr "Modulupdate fehlgeschlagen"
 
 #, fuzzy
 msgid "Filesize"
@@ -6029,6 +6020,10 @@ msgstr "Ein unbekannter Upload-Fehler ist aufgetreten"
 msgid "Return code"
 msgstr "Rückgabewert"
 
+#, fuzzy
+msgid "No valid storage nodes found"
+msgstr "Keine gültigen Speicherknoten gefunden"
+
 msgid "Registered"
 msgstr "Registriert"
 
@@ -6359,6 +6354,9 @@ msgstr "Mit Hosts verknüpfte Snapins"
 msgid "Host Unassociated Snapins"
 msgstr "Snapins ohne Host"
 
+msgid "Edit Image"
+msgstr "Image bearbeiten"
+
 #, fuzzy
 msgid "Confirm tasking"
 msgstr "Bestätige Task"
@@ -6501,6 +6499,10 @@ msgstr "Fehler beim Starten des Task-Typs"
 
 msgid "Delayed Start"
 msgstr "Verzögerter Start"
+
+#, fuzzy
+msgid "Tasked Successfully"
+msgstr "erfolgreich beauftragt"
 
 #, fuzzy
 msgid "Successfully created"
@@ -6952,6 +6954,10 @@ msgstr "IP ist inkorrekt"
 #, fuzzy
 msgid "Invalid"
 msgstr "Ungültig"
+
+#, fuzzy
+msgid "File or path does not exist"
+msgstr "Diese Methode ist nicht vorhanden"
 
 #, fuzzy
 msgid "Device must be a string"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-15 21:22-0500\n"
+"POT-Creation-Date: 2018-02-18 03:51-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -449,6 +449,12 @@ msgstr "All Storage Groups"
 msgid "Add Storage Group"
 msgstr "Add Storage Group"
 
+msgid "Storage Node"
+msgstr "Storage Node"
+
+msgid "Storage Group"
+msgstr "Storage Group"
+
 msgid "Active Tasks"
 msgstr "Active Tasks"
 
@@ -784,12 +790,6 @@ msgstr "Error multiple hosts returned for list of mac addresses"
 
 msgid "Session timeout"
 msgstr "Session timeout"
-
-msgid "Storage Node"
-msgstr "Storage Node"
-
-msgid "Storage Group"
-msgstr "Storage Group"
 
 msgid "Graph Enabled"
 msgstr "Graph Enabled"
@@ -2647,10 +2647,6 @@ msgstr "HD Device"
 msgid "Login Users"
 msgstr "Login"
 
-#, fuzzy
-msgid "No valid storage nodes found"
-msgstr "Invalid storage node"
-
 msgid "Invalid Storage Group"
 msgstr "Invalid Storage Group"
 
@@ -3614,59 +3610,77 @@ msgstr "Database Update Failed"
 msgid "Errors on revert detected!"
 msgstr "Errors on revert detected"
 
-msgid "Started By:"
-msgstr "Started By:"
+#, fuzzy
+msgid "Create New Storage Node"
+msgstr "Storage Node"
 
-msgid "Working with node"
+#, fuzzy
+msgid "Web Root"
+msgstr "Web root"
+
+msgid "Bitrate"
+msgstr "Bitrate"
+
+msgid "Bandwidth should be numeric and greater than 0"
+msgstr "Bandwidth should be numeric and greater than 0"
+
+#, fuzzy
+msgid "Add storage node failed!"
+msgstr "Add snapin failed!"
+
+#, fuzzy
+msgid "Storage Node added!"
+msgstr "Storage Node Name"
+
+#, fuzzy
+msgid "Storage Node Create Success"
+msgstr "Storage Node Created"
+
+#, fuzzy
+msgid "Storage Node Create Fail"
+msgstr "Storage Node Created"
+
+#, fuzzy
+msgid "Storage Node Update Failed"
+msgstr "Storage Node Updated"
+
+#, fuzzy
+msgid "Storage Node updated!"
+msgstr "Storage Node Updated"
+
+#, fuzzy
+msgid "Storage Node Update Success"
+msgstr "Storage Node Updated"
+
+#, fuzzy
+msgid "Storage Node Update Fail"
+msgstr "Storage Node Updated"
+
+#, fuzzy
+msgid "Started By"
+msgstr "Created By"
+
+msgid "Resume Reload"
 msgstr ""
 
-msgid "Edit Host"
-msgstr "Edit Host"
-
-msgid "Edit Image"
-msgstr "Edit Image"
-
-msgid "Task forced to start"
-msgstr "Task forced to start"
-
-msgid "Force task to start"
-msgstr "Force task to start"
-
-msgid "Invalid object type passed"
-msgstr "Invalid object type passed"
-
-msgid "Invalid Task Type"
-msgstr "Invalid Task Type"
-
-msgid "Invalid image assigned to host"
-msgstr "Invalid image assigned to host"
-
-msgid "is protected"
-msgstr "is protected"
-
-#, fuzzy
-msgid "Quick"
-msgstr "Click"
-
-msgid "Hosts do not have the same image assigned"
-msgstr "Hosts do not have the same image assigned"
-
-msgid "Multicast Quick Deploy"
-msgstr "Multicast Quick Deploy"
-
-#, fuzzy
-msgid "Group Quick Deploy"
-msgstr "Quick Deploy"
-
-#, fuzzy
-msgid "Tasked Successfully"
-msgstr "saved successfully"
-
-msgid "Tasked successfully, click active tasks to view in line."
+msgid "Pause Reload"
 msgstr ""
 
-msgid "Invalid task"
-msgstr "Invalid task"
+#, fuzzy
+msgid "Cancel Selected"
+msgstr "Delete Selected"
+
+#, fuzzy
+msgid "Selected tasks cancelled!"
+msgstr "has been successfully updated"
+
+#, fuzzy
+msgid "Task Cancel Success"
+msgstr "User created"
+
+#, fuzzy
+msgid "Task Cancel Fail"
+msgstr "User created"
 
 #, fuzzy
 msgid "Active Multi-cast Tasks"
@@ -3675,11 +3689,12 @@ msgstr "Active Multicast Tasks"
 msgid "Task Name"
 msgstr "Task Name"
 
-msgid "MulticastTask"
-msgstr "MulticastTask"
+#, fuzzy
+msgid "Hosts in tasking"
+msgstr "Hosts in Task"
 
-msgid "Cannot cancel tasks this way"
-msgstr "Cannot cancel tasks this way"
+msgid "Edit Host"
+msgstr "Edit Host"
 
 msgid "Host/Group Name"
 msgstr "Host/Group Name"
@@ -4236,6 +4251,54 @@ msgstr "User Management"
 msgid "Delete all PM tasks?"
 msgstr "Delete all selected %ss"
 
+#, fuzzy
+msgid "Total Clients"
+msgstr "Max Clients"
+
+#, fuzzy
+msgid "Create New Storage Group"
+msgstr "Storage Node"
+
+#, fuzzy
+msgid "Storage Group Create Success"
+msgstr "User created"
+
+#, fuzzy
+msgid "Storage Group Create Fail"
+msgstr "Storage Group Created"
+
+#, fuzzy
+msgid "Update Master Node"
+msgstr "Master Node"
+
+#, fuzzy
+msgid "Add selected"
+msgstr "Remove selected printers"
+
+#, fuzzy
+msgid "Storage Node Master"
+msgstr "Storage Node Name"
+
+#, fuzzy
+msgid "Storage Node Associated"
+msgstr "Storage Node Created"
+
+#, fuzzy
+msgid "Storage Group Update Failed"
+msgstr "Storage Group Updated"
+
+#, fuzzy
+msgid "Storage Group updated!"
+msgstr "Storage Group Updated"
+
+#, fuzzy
+msgid "Storage Group Update Success"
+msgstr "User created"
+
+#, fuzzy
+msgid "Storage Group Update Fail"
+msgstr "Storage Group Updated"
+
 msgid "TCP/IP"
 msgstr "TCP/IP"
 
@@ -4512,10 +4575,6 @@ msgid "Update Primary Group"
 msgstr "Update Primary Group"
 
 #, fuzzy
-msgid "Add selected"
-msgstr "Remove selected printers"
-
-#, fuzzy
 msgid "Storage Group Primary"
 msgstr "Storage Group Name"
 
@@ -4731,10 +4790,6 @@ msgstr "Storage Group Activity"
 msgid "Storage Node Disk Usage"
 msgstr "Storage Node Disk Usage"
 
-#, fuzzy
-msgid "No nodes available at this time"
-msgstr "Hosts in Task"
-
 msgid "Imaging Over the last 30 days"
 msgstr "Imaging Over the last 30 days"
 
@@ -4754,6 +4809,12 @@ msgstr "30 Minutes"
 #, fuzzy
 msgid "1 Hour"
 msgstr "1 hour"
+
+msgid "Free"
+msgstr ""
+
+msgid "Used"
+msgstr ""
 
 #, fuzzy
 msgid "Import Reports"
@@ -4791,96 +4852,6 @@ msgstr ""
 
 msgid "To view a report, select an item from the menu"
 msgstr ""
-
-#, fuzzy
-msgid "Create New Storage Node"
-msgstr "Storage Node"
-
-#, fuzzy
-msgid "Web Root"
-msgstr "Web root"
-
-msgid "Bitrate"
-msgstr "Bitrate"
-
-msgid "Bandwidth should be numeric and greater than 0"
-msgstr "Bandwidth should be numeric and greater than 0"
-
-#, fuzzy
-msgid "Add storage node failed!"
-msgstr "Add snapin failed!"
-
-#, fuzzy
-msgid "Storage Node added!"
-msgstr "Storage Node Name"
-
-#, fuzzy
-msgid "Storage Node Create Success"
-msgstr "Storage Node Created"
-
-#, fuzzy
-msgid "Storage Node Create Fail"
-msgstr "Storage Node Created"
-
-#, fuzzy
-msgid "Storage Node Update Failed"
-msgstr "Storage Node Updated"
-
-#, fuzzy
-msgid "Storage Node updated!"
-msgstr "Storage Node Updated"
-
-#, fuzzy
-msgid "Storage Node Update Success"
-msgstr "Storage Node Updated"
-
-#, fuzzy
-msgid "Storage Node Update Fail"
-msgstr "Storage Node Updated"
-
-#, fuzzy
-msgid "Total Clients"
-msgstr "Max Clients"
-
-#, fuzzy
-msgid "Create New Storage Group"
-msgstr "Storage Node"
-
-#, fuzzy
-msgid "Storage Group Create Success"
-msgstr "User created"
-
-#, fuzzy
-msgid "Storage Group Create Fail"
-msgstr "Storage Group Created"
-
-#, fuzzy
-msgid "Update Master Node"
-msgstr "Master Node"
-
-#, fuzzy
-msgid "Storage Node Master"
-msgstr "Storage Node Name"
-
-#, fuzzy
-msgid "Storage Node Associated"
-msgstr "Storage Node Created"
-
-#, fuzzy
-msgid "Storage Group Update Failed"
-msgstr "Storage Group Updated"
-
-#, fuzzy
-msgid "Storage Group updated!"
-msgstr "Storage Group Updated"
-
-#, fuzzy
-msgid "Storage Group Update Success"
-msgstr "User created"
-
-#, fuzzy
-msgid "Storage Group Update Fail"
-msgstr "Storage Group Updated"
 
 msgid "API?"
 msgstr ""
@@ -4969,10 +4940,6 @@ msgstr "Install / Update Successful!"
 msgid "User Update Fail"
 msgstr "User update failed"
 
-#, fuzzy
-msgid "Service general"
-msgstr "Service Tag"
-
 msgid "This will allow you to configure how services"
 msgstr ""
 
@@ -4991,9 +4958,6 @@ msgstr ""
 msgid "To get started please select an item from the menu."
 msgstr ""
 
-msgid "FOG Client Download"
-msgstr "FOG Client Download"
-
 msgid "Use the following link to go to the client page."
 msgstr ""
 
@@ -5005,6 +4969,42 @@ msgstr ""
 
 msgid "Click Here"
 msgstr "Click Here"
+
+#, fuzzy
+msgid "Module Enabled"
+msgstr "Module Name"
+
+#, fuzzy
+msgid "Enabled as Default"
+msgstr "Enabled as default"
+
+#, fuzzy
+msgid "Unable to update global setting"
+msgstr "Failed to update"
+
+#, fuzzy
+msgid "Unable to update module default setting"
+msgstr "Unable to open file for reading"
+
+#, fuzzy
+msgid "Global Module Settings"
+msgstr "Update Settings"
+
+#, fuzzy
+msgid "Module update success!"
+msgstr "User created"
+
+#, fuzzy
+msgid "Module Update Success"
+msgstr "User created"
+
+#, fuzzy
+msgid "Module update failed!"
+msgstr "User update failed"
+
+#, fuzzy
+msgid "Module Update Fail"
+msgstr "Group create failed"
 
 msgid "Enabled as default"
 msgstr "Enabled as default"
@@ -5085,14 +5085,6 @@ msgstr "Service update failed"
 #, fuzzy
 msgid "Module updated!"
 msgstr "Group added"
-
-#, fuzzy
-msgid "Module Update Success"
-msgstr "User created"
-
-#, fuzzy
-msgid "Module Update Fail"
-msgstr "Group create failed"
 
 #, fuzzy
 msgid "Filesize"
@@ -6025,6 +6017,10 @@ msgstr "Unknown upload error occurred.  Return code: "
 msgid "Return code"
 msgstr "Return Code"
 
+#, fuzzy
+msgid "No valid storage nodes found"
+msgstr "Invalid storage node"
+
 msgid "Registered"
 msgstr "Registered"
 
@@ -6350,6 +6346,9 @@ msgstr "No node associated"
 msgid "Host Unassociated Snapins"
 msgstr "No node associated"
 
+msgid "Edit Image"
+msgstr "Edit Image"
+
 #, fuzzy
 msgid "Confirm tasking"
 msgstr "Invalid task"
@@ -6490,6 +6489,10 @@ msgstr "Failed to start deployment tasking"
 
 msgid "Delayed Start"
 msgstr "Delayed Start"
+
+#, fuzzy
+msgid "Tasked Successfully"
+msgstr "saved successfully"
 
 #, fuzzy
 msgid "Successfully created"
@@ -6938,6 +6941,10 @@ msgstr "IP Passed is incorrect"
 #, fuzzy
 msgid "Invalid"
 msgstr "Invalid ID"
+
+#, fuzzy
+msgid "File or path does not exist"
+msgstr "Method does not exist"
 
 #, fuzzy
 msgid "Device must be a string"
