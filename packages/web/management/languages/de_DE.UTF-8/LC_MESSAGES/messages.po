@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-18 15:17-0500\n"
+"POT-Creation-Date: 2018-02-18 15:27-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -3924,22 +3924,33 @@ msgstr "Host Moduleinstellungen"
 msgid "Modules disabled globally cannot be enabled here"
 msgstr ""
 
-msgid "Screen Width (in pixels)"
-msgstr "Breite (in Pixel)"
+msgid "Screen Width"
+msgstr ""
 
-msgid "Screen Height (in pixels)"
-msgstr "Höhe (in Pixel)"
+msgid "in pixels"
+msgstr ""
 
-msgid "Screen Refresh Rate (in Hz)"
-msgstr "Bildschirm-Aktualisierungsrate (in Hz)"
+msgid "Screen Height"
+msgstr ""
+
+#, fuzzy
+msgid "Screen Refresh Rate"
+msgstr "Standard-Bildwiederholrate"
+
+msgid "in Hz"
+msgstr ""
 
 #, fuzzy
 msgid "Display Manager Settings"
 msgstr "iPXE Menüeinstellungen"
 
 #, fuzzy
-msgid "Auto Logout Time (in minutes)"
+msgid "Auto Logout Time"
 msgstr "Standard Logout-Zeit (in Minuten)"
+
+#, fuzzy
+msgid "in minutes"
+msgstr "Minuten"
 
 #, fuzzy
 msgid "Auto Logout Settings"
@@ -4984,17 +4995,11 @@ msgstr "Standardmäßig aktiviert"
 msgid "Default Width"
 msgstr "Standardbreite"
 
-msgid "in pixels"
-msgstr ""
-
 msgid "Default Height"
 msgstr "Standardhöhe"
 
 msgid "Default Refresh Rate"
 msgstr "Standard-Bildwiederholrate"
-
-msgid "in Hz"
-msgstr ""
 
 #, fuzzy
 msgid "Unable to update global setting"
@@ -5007,10 +5012,6 @@ msgstr "Datei kann zum Lesen nicht geöffnet werden"
 #, fuzzy
 msgid "Auto Log Out Time"
 msgstr "Standard Logout-Zeit (in Minuten)"
-
-#, fuzzy
-msgid "in minutes"
-msgstr "Minuten"
 
 msgid "Active only at 5 minutes"
 msgstr ""

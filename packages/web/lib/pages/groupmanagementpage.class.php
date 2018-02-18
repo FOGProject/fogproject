@@ -963,15 +963,24 @@ class GroupManagementPage extends FOGPage
         $names = [
             'x' => [
                 'width',
-                _('Screen Width (in pixels)')
+                _('Screen Width')
+                . '<br/>('
+                . _('in pixels')
+                . ')'
             ],
             'y' => [
                 'height',
-                _('Screen Height (in pixels)')
+                _('Screen Height')
+                . '<br/>('
+                . _('in pixels')
+                . ')'
             ],
             'r' => [
                 'refresh',
-                _('Screen Refresh Rate (in Hz)')
+                _('Screen Refresh Rate')
+                . '<br/>('
+                . _('in Hz')
+                . ')'
             ]
         ];
         foreach ($names as $name => &$get) {
@@ -1033,8 +1042,10 @@ class GroupManagementPage extends FOGPage
         }
         $fields = [
             '<label for="tme" class="col-sm-2 control-label">'
-            . _('Auto Logout Time (in minutes)')
-            . '</label>' => '<input type="text" name="tme" class="form-control" '
+            . _('Auto Logout Time')
+            . '<br/>('
+            . _('in minutes')
+            . ')</label>' => '<input type="text" name="tme" class="form-control" '
             . 'value="'
             . $tme
             . '" id="tme"/>'

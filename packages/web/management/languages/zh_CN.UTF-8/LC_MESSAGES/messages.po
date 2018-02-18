@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-18 15:17-0500\n"
+"POT-Creation-Date: 2018-02-18 15:27-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3904,22 +3904,33 @@ msgstr "主机描述"
 msgid "Modules disabled globally cannot be enabled here"
 msgstr ""
 
-msgid "Screen Width (in pixels)"
-msgstr "屏幕宽度（以像素为单位）"
+msgid "Screen Width"
+msgstr ""
 
-msgid "Screen Height (in pixels)"
-msgstr "屏幕高度（以像素为单位）"
+msgid "in pixels"
+msgstr ""
 
-msgid "Screen Refresh Rate (in Hz)"
-msgstr "屏幕刷新率（赫兹）"
+msgid "Screen Height"
+msgstr ""
+
+#, fuzzy
+msgid "Screen Refresh Rate"
+msgstr "默认刷新频率"
+
+msgid "in Hz"
+msgstr ""
 
 #, fuzzy
 msgid "Display Manager Settings"
 msgstr "设置"
 
 #, fuzzy
-msgid "Auto Logout Time (in minutes)"
+msgid "Auto Logout Time"
 msgstr "默认注销时间（分钟）"
+
+#, fuzzy
+msgid "in minutes"
+msgstr "分钟"
 
 #, fuzzy
 msgid "Auto Logout Settings"
@@ -4961,17 +4972,11 @@ msgstr "启用默认"
 msgid "Default Width"
 msgstr "默认宽度"
 
-msgid "in pixels"
-msgstr ""
-
 msgid "Default Height"
 msgstr "默认高度"
 
 msgid "Default Refresh Rate"
 msgstr "默认刷新频率"
-
-msgid "in Hz"
-msgstr ""
 
 #, fuzzy
 msgid "Unable to update global setting"
@@ -4984,10 +4989,6 @@ msgstr "无法打开文件进行读取"
 #, fuzzy
 msgid "Auto Log Out Time"
 msgstr "默认注销时间（分钟）"
-
-#, fuzzy
-msgid "in minutes"
-msgstr "分钟"
 
 msgid "Active only at 5 minutes"
 msgstr ""

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-18 15:18-0500\n"
+"POT-Creation-Date: 2018-02-18 15:27-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3462,19 +3462,28 @@ msgstr ""
 msgid "Modules disabled globally cannot be enabled here"
 msgstr ""
 
-msgid "Screen Width (in pixels)"
+msgid "Screen Width"
 msgstr ""
 
-msgid "Screen Height (in pixels)"
+msgid "in pixels"
 msgstr ""
 
-msgid "Screen Refresh Rate (in Hz)"
+msgid "Screen Height"
+msgstr ""
+
+msgid "Screen Refresh Rate"
+msgstr ""
+
+msgid "in Hz"
 msgstr ""
 
 msgid "Display Manager Settings"
 msgstr ""
 
-msgid "Auto Logout Time (in minutes)"
+msgid "Auto Logout Time"
+msgstr ""
+
+msgid "in minutes"
 msgstr ""
 
 msgid "Auto Logout Settings"
@@ -4380,16 +4389,10 @@ msgstr ""
 msgid "Default Width"
 msgstr ""
 
-msgid "in pixels"
-msgstr ""
-
 msgid "Default Height"
 msgstr ""
 
 msgid "Default Refresh Rate"
-msgstr ""
-
-msgid "in Hz"
 msgstr ""
 
 msgid "Unable to update global setting"
@@ -4399,9 +4402,6 @@ msgid "Unable to update module default setting"
 msgstr ""
 
 msgid "Auto Log Out Time"
-msgstr ""
-
-msgid "in minutes"
 msgstr ""
 
 msgid "Active only at 5 minutes"
