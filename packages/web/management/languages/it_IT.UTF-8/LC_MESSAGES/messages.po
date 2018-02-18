@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-18 15:17-0500\n"
+"POT-Creation-Date: 2018-02-18 15:27-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -3530,22 +3530,33 @@ msgstr "Impostazioni del modulo host"
 msgid "Modules disabled globally cannot be enabled here"
 msgstr ""
 
-msgid "Screen Width (in pixels)"
-msgstr "Larghezza dello schermo (in pixel)"
+msgid "Screen Width"
+msgstr ""
 
-msgid "Screen Height (in pixels)"
-msgstr "Schermo Altezza (in pixel)"
+msgid "in pixels"
+msgstr ""
 
-msgid "Screen Refresh Rate (in Hz)"
-msgstr "Schermo Frequenza di aggiornamento (in Hz)"
+msgid "Screen Height"
+msgstr ""
+
+#, fuzzy
+msgid "Screen Refresh Rate"
+msgstr "Predefinito: frequenza aggiornamento"
+
+msgid "in Hz"
+msgstr ""
 
 #, fuzzy
 msgid "Display Manager Settings"
 msgstr "Impostazioni del menu iPXE"
 
 #, fuzzy
-msgid "Auto Logout Time (in minutes)"
+msgid "Auto Logout Time"
 msgstr "Predefinito disconnettersi tempo (in minuti)"
+
+#, fuzzy
+msgid "in minutes"
+msgstr "minuti"
 
 #, fuzzy
 msgid "Auto Logout Settings"
@@ -4488,17 +4499,11 @@ msgstr "Attivata come impostazione predefinita"
 msgid "Default Width"
 msgstr "Larghezza predefinita"
 
-msgid "in pixels"
-msgstr ""
-
 msgid "Default Height"
 msgstr "Altezza di default"
 
 msgid "Default Refresh Rate"
 msgstr "Predefinito: frequenza aggiornamento"
-
-msgid "in Hz"
-msgstr ""
 
 #, fuzzy
 msgid "Unable to update global setting"
@@ -4511,10 +4516,6 @@ msgstr "Impossibile aprire il file per la lettura"
 #, fuzzy
 msgid "Auto Log Out Time"
 msgstr "Predefinito disconnettersi tempo (in minuti)"
-
-#, fuzzy
-msgid "in minutes"
-msgstr "minuti"
 
 msgid "Active only at 5 minutes"
 msgstr ""

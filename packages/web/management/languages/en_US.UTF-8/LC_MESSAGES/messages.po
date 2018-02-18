@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-18 15:17-0500\n"
+"POT-Creation-Date: 2018-02-18 15:27-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3919,22 +3919,33 @@ msgstr ""
 msgid "Modules disabled globally cannot be enabled here"
 msgstr ""
 
-msgid "Screen Width (in pixels)"
-msgstr "Screen Width (in pixels)"
+msgid "Screen Width"
+msgstr ""
 
-msgid "Screen Height (in pixels)"
-msgstr "Screen Height (in pixels)"
+msgid "in pixels"
+msgstr ""
 
-msgid "Screen Refresh Rate (in Hz)"
-msgstr "Screen Refresh Rate (in Hz)"
+msgid "Screen Height"
+msgstr ""
+
+#, fuzzy
+msgid "Screen Refresh Rate"
+msgstr "Default Refresh Rate"
+
+msgid "in Hz"
+msgstr ""
 
 #, fuzzy
 msgid "Display Manager Settings"
 msgstr "Settings"
 
 #, fuzzy
-msgid "Auto Logout Time (in minutes)"
+msgid "Auto Logout Time"
 msgstr "Default log out time (in minutes)"
+
+#, fuzzy
+msgid "in minutes"
+msgstr "minutes"
 
 #, fuzzy
 msgid "Auto Logout Settings"
@@ -4981,17 +4992,11 @@ msgstr "Enabled as default"
 msgid "Default Width"
 msgstr "Default Width"
 
-msgid "in pixels"
-msgstr ""
-
 msgid "Default Height"
 msgstr "Default Height"
 
 msgid "Default Refresh Rate"
 msgstr "Default Refresh Rate"
-
-msgid "in Hz"
-msgstr ""
 
 #, fuzzy
 msgid "Unable to update global setting"
@@ -5004,10 +5009,6 @@ msgstr "Unable to open file for reading"
 #, fuzzy
 msgid "Auto Log Out Time"
 msgstr "Default log out time (in minutes)"
-
-#, fuzzy
-msgid "in minutes"
-msgstr "minutes"
 
 msgid "Active only at 5 minutes"
 msgstr ""
