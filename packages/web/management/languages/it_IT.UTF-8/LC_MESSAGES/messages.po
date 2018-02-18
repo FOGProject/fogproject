@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-15 21:22-0500\n"
+"POT-Creation-Date: 2018-02-18 03:51-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -448,6 +448,12 @@ msgstr "Tutti i gruppi di archiviazione"
 msgid "Add Storage Group"
 msgstr "Aggiungere gruppo di archiviazione"
 
+msgid "Storage Node"
+msgstr "Storage Node"
+
+msgid "Storage Group"
+msgstr "gruppo di archiviazione"
+
 msgid "Active Tasks"
 msgstr "Attività in corso"
 
@@ -776,12 +782,6 @@ msgstr "Errore più host restituiti per elenco di indirizzi MAC"
 
 msgid "Session timeout"
 msgstr "Timeout della sessione"
-
-msgid "Storage Node"
-msgstr "Storage Node"
-
-msgid "Storage Group"
-msgstr "gruppo di archiviazione"
 
 msgid "Graph Enabled"
 msgstr "Grafico Abilitato"
@@ -2402,9 +2402,6 @@ msgstr "dispositivo HD"
 msgid "Login Users"
 msgstr "Login Utenti"
 
-msgid "No valid storage nodes found"
-msgstr "Nessun nodo di archiviazione valido trovato"
-
 msgid "Invalid Storage Group"
 msgstr "Gruppo di archiviazione non valido"
 
@@ -3251,58 +3248,70 @@ msgstr "Fallimento del database"
 msgid "Errors on revert detected!"
 msgstr "Errori su Revert rilevati"
 
-msgid "Started By:"
-msgstr "Ordina per:"
+#, fuzzy
+msgid "Create New Storage Node"
+msgstr "Storage Node"
 
-msgid "Working with node"
-msgstr "Lavorare con il nodo"
+#, fuzzy
+msgid "Web Root"
+msgstr "radice Web"
 
-msgid "Edit Host"
-msgstr "Modifica Host"
+msgid "Bitrate"
+msgstr "bitrate"
 
-msgid "Edit Image"
-msgstr "Modifica immagine"
+msgid "Bandwidth should be numeric and greater than 0"
+msgstr "Larghezza di banda deve essere numerico e maggiore di 0"
 
-msgid "Task forced to start"
-msgstr "Task forzato a partire"
+msgid "Add storage node failed!"
+msgstr "Aggiunta nodo di archiviazione fallita!"
 
-msgid "Force task to start"
-msgstr "Task da forzare a partire"
+msgid "Storage Node added!"
+msgstr "Nodo di archiviazione aggiunto!"
 
-msgid "Invalid object type passed"
-msgstr "tipo di oggetto non valido passato"
+msgid "Storage Node Create Success"
+msgstr "Nodo di archiviazione creato con successo"
 
-msgid "Invalid Task Type"
-msgstr "Non valido Tipo Task"
+msgid "Storage Node Create Fail"
+msgstr "Creazione nodo di archiviazione fallita"
 
-msgid "Invalid image assigned to host"
-msgstr "immagine non valido assegnato ad ospitare"
+#, fuzzy
+msgid "Storage Node Update Failed"
+msgstr "Aggiornamento nodo di archiviazione fallito!"
 
-msgid "is protected"
-msgstr "è protetta"
+msgid "Storage Node updated!"
+msgstr "Nodo di archiviazione aggiornato!"
 
-msgid "Quick"
-msgstr "Veloce"
+msgid "Storage Node Update Success"
+msgstr "Aggiornamento nodo di archiviazione completato"
 
-msgid "Hosts do not have the same image assigned"
-msgstr "Host non hanno la stessa immagine assegnato"
+msgid "Storage Node Update Fail"
+msgstr "Aggiornamento nodo di archiviazione fallito!"
 
-msgid "Multicast Quick Deploy"
-msgstr "Multicast rapida Deploy"
+#, fuzzy
+msgid "Started By"
+msgstr "Creato da"
 
-msgid "Group Quick Deploy"
-msgstr "Rapida distribuzione di gruppo"
-
-msgid "Tasked Successfully"
-msgstr "Attività Completata"
-
-msgid "Tasked successfully, click active tasks to view in line."
+msgid "Resume Reload"
 msgstr ""
-"Assegnato con successo, fare clic su attività attive per visualizzare in "
-"linea."
 
-msgid "Invalid task"
-msgstr "Attività non valida"
+msgid "Pause Reload"
+msgstr ""
+
+#, fuzzy
+msgid "Cancel Selected"
+msgstr "Elimina selezionato"
+
+#, fuzzy
+msgid "Selected tasks cancelled!"
+msgstr "Attività pianificate create con successo"
+
+#, fuzzy
+msgid "Task Cancel Success"
+msgstr "Aggiunta tipo attività riuscita"
+
+#, fuzzy
+msgid "Task Cancel Fail"
+msgstr "Aggiunta tipo attività fallita"
 
 msgid "Active Multi-cast Tasks"
 msgstr "Attività multi-cast attive"
@@ -3310,11 +3319,12 @@ msgstr "Attività multi-cast attive"
 msgid "Task Name"
 msgstr "Nome attività"
 
-msgid "MulticastTask"
-msgstr "Attività Multicast"
+#, fuzzy
+msgid "Hosts in tasking"
+msgstr "Host in attività"
 
-msgid "Cannot cancel tasks this way"
-msgstr "Impossibile annullare le attività in questo modo"
+msgid "Edit Host"
+msgstr "Modifica Host"
 
 msgid "Host/Group Name"
 msgstr "Host / Nome gruppo"
@@ -3818,6 +3828,49 @@ msgstr "Rimozione del gruppo di gestione energetica"
 msgid "Delete all PM tasks?"
 msgstr "Cancellare tutte le attività PM?"
 
+#, fuzzy
+msgid "Total Clients"
+msgstr "clienti max"
+
+#, fuzzy
+msgid "Create New Storage Group"
+msgstr "Creazione Gruppo di archiviazione"
+
+msgid "Storage Group Create Success"
+msgstr "Gruppo di archiviazione creato con successo"
+
+msgid "Storage Group Create Fail"
+msgstr "Gruppo di archiviazione creazione fallita"
+
+#, fuzzy
+msgid "Update Master Node"
+msgstr "Maestro Node"
+
+#, fuzzy
+msgid "Add selected"
+msgstr "Aggiungi stampanti selezionate"
+
+#, fuzzy
+msgid "Storage Node Master"
+msgstr "Nome Storage Node"
+
+#, fuzzy
+msgid "Storage Node Associated"
+msgstr "Storage Node Creato"
+
+#, fuzzy
+msgid "Storage Group Update Failed"
+msgstr "Aggiornamento Gruppo di archiviazione fallito"
+
+msgid "Storage Group updated!"
+msgstr "Gruppo di archiviazione aggiornato!"
+
+msgid "Storage Group Update Success"
+msgstr "Aggiornamento Gruppo di archiviazione completato"
+
+msgid "Storage Group Update Fail"
+msgstr "Aggiornamento Gruppo di archiviazione fallito"
+
 msgid "TCP/IP"
 msgstr "TCP/IP"
 
@@ -4059,10 +4112,6 @@ msgid "Update Primary Group"
 msgstr "Aggiornamento gruppo primario"
 
 #, fuzzy
-msgid "Add selected"
-msgstr "Aggiungi stampanti selezionate"
-
-#, fuzzy
 msgid "Storage Group Primary"
 msgstr "Nome gruppo di archiviazione"
 
@@ -4266,10 +4315,6 @@ msgstr "Gruppo di archiviazione di attività"
 msgid "Storage Node Disk Usage"
 msgstr "Utilizzo disco nodo di archiviazione"
 
-#, fuzzy
-msgid "No nodes available at this time"
-msgstr "Nessun host disponibile per task"
-
 msgid "Imaging Over the last 30 days"
 msgstr "Imaging Negli ultimi 30 giorni"
 
@@ -4288,6 +4333,12 @@ msgstr "30 minuti"
 
 msgid "1 Hour"
 msgstr "1 ora"
+
+msgid "Free"
+msgstr ""
+
+msgid "Used"
+msgstr ""
 
 msgid "Import Reports"
 msgstr "Importa Report"
@@ -4318,84 +4369,6 @@ msgstr "sta succedendo al tuo sistema FOG"
 
 msgid "To view a report, select an item from the menu"
 msgstr "Per visualizzare un report, selezionare una voce dal menu"
-
-#, fuzzy
-msgid "Create New Storage Node"
-msgstr "Storage Node"
-
-#, fuzzy
-msgid "Web Root"
-msgstr "radice Web"
-
-msgid "Bitrate"
-msgstr "bitrate"
-
-msgid "Bandwidth should be numeric and greater than 0"
-msgstr "Larghezza di banda deve essere numerico e maggiore di 0"
-
-msgid "Add storage node failed!"
-msgstr "Aggiunta nodo di archiviazione fallita!"
-
-msgid "Storage Node added!"
-msgstr "Nodo di archiviazione aggiunto!"
-
-msgid "Storage Node Create Success"
-msgstr "Nodo di archiviazione creato con successo"
-
-msgid "Storage Node Create Fail"
-msgstr "Creazione nodo di archiviazione fallita"
-
-#, fuzzy
-msgid "Storage Node Update Failed"
-msgstr "Aggiornamento nodo di archiviazione fallito!"
-
-msgid "Storage Node updated!"
-msgstr "Nodo di archiviazione aggiornato!"
-
-msgid "Storage Node Update Success"
-msgstr "Aggiornamento nodo di archiviazione completato"
-
-msgid "Storage Node Update Fail"
-msgstr "Aggiornamento nodo di archiviazione fallito!"
-
-#, fuzzy
-msgid "Total Clients"
-msgstr "clienti max"
-
-#, fuzzy
-msgid "Create New Storage Group"
-msgstr "Creazione Gruppo di archiviazione"
-
-msgid "Storage Group Create Success"
-msgstr "Gruppo di archiviazione creato con successo"
-
-msgid "Storage Group Create Fail"
-msgstr "Gruppo di archiviazione creazione fallita"
-
-#, fuzzy
-msgid "Update Master Node"
-msgstr "Maestro Node"
-
-#, fuzzy
-msgid "Storage Node Master"
-msgstr "Nome Storage Node"
-
-#, fuzzy
-msgid "Storage Node Associated"
-msgstr "Storage Node Creato"
-
-#, fuzzy
-msgid "Storage Group Update Failed"
-msgstr "Aggiornamento Gruppo di archiviazione fallito"
-
-msgid "Storage Group updated!"
-msgstr "Gruppo di archiviazione aggiornato!"
-
-msgid "Storage Group Update Success"
-msgstr "Aggiornamento Gruppo di archiviazione completato"
-
-msgid "Storage Group Update Fail"
-msgstr "Aggiornamento Gruppo di archiviazione fallito"
 
 msgid "API?"
 msgstr "API?"
@@ -4471,9 +4444,6 @@ msgstr "Utente aggiornato con successo"
 msgid "User Update Fail"
 msgstr "Aggiornamento utente non riuscita"
 
-msgid "Service general"
-msgstr "Servizio generale"
-
 msgid "This will allow you to configure how services"
 msgstr "Ciò consentirà di configurare come servizi"
 
@@ -4494,9 +4464,6 @@ msgstr "Si prega di consultare la sezione di impostazioni del servizio host"
 msgid "To get started please select an item from the menu."
 msgstr "Per iniziare, seleziona un elemento dal menu."
 
-msgid "FOG Client Download"
-msgstr "FOG client Scarica"
-
 msgid "Use the following link to go to the client page."
 msgstr "Utilizzare il seguente collegamento per accedere alla pagina client."
 
@@ -4509,6 +4476,40 @@ msgstr "sul vecchio client"
 
 msgid "Click Here"
 msgstr "Clicca qui"
+
+#, fuzzy
+msgid "Module Enabled"
+msgstr "Nome Modulo"
+
+#, fuzzy
+msgid "Enabled as Default"
+msgstr "Attivata come impostazione predefinita"
+
+#, fuzzy
+msgid "Unable to update global setting"
+msgstr "Tra impostazioni host e globali"
+
+#, fuzzy
+msgid "Unable to update module default setting"
+msgstr "Impossibile aprire il file per la lettura"
+
+#, fuzzy
+msgid "Global Module Settings"
+msgstr "Impostazioni modulo del gruppo"
+
+#, fuzzy
+msgid "Module update success!"
+msgstr "Aggiornamento del modulo completato"
+
+msgid "Module Update Success"
+msgstr "Aggiornamento del modulo completato"
+
+#, fuzzy
+msgid "Module update failed!"
+msgstr "Aggiornamento ruolo non riuscito"
+
+msgid "Module Update Fail"
+msgstr "Aggiornamento modulo non riuscito"
 
 msgid "Enabled as default"
 msgstr "Attivata come impostazione predefinita"
@@ -4585,12 +4586,6 @@ msgstr "aggiornamento del servizio non riuscito"
 
 msgid "Module updated!"
 msgstr "Modulo aggiornato!"
-
-msgid "Module Update Success"
-msgstr "Aggiornamento del modulo completato"
-
-msgid "Module Update Fail"
-msgstr "Aggiornamento modulo non riuscito"
 
 msgid "Filesize"
 msgstr "Dimensione del file"
@@ -5383,6 +5378,9 @@ msgstr "Si è verificato errore di caricamento sconosciuto"
 msgid "Return code"
 msgstr "Codice di ritorno"
 
+msgid "No valid storage nodes found"
+msgstr "Nessun nodo di archiviazione valido trovato"
+
 msgid "Registered"
 msgstr "Registrato"
 
@@ -5675,6 +5673,9 @@ msgstr "Snapin associati a Host"
 msgid "Host Unassociated Snapins"
 msgstr "Snapin non associati a Host"
 
+msgid "Edit Image"
+msgstr "Modifica immagine"
+
 msgid "Confirm tasking"
 msgstr "Conferma il task"
 
@@ -5790,6 +5791,9 @@ msgstr "Fallito l'avvio di una attività tipo"
 
 msgid "Delayed Start"
 msgstr "Partenza ritardata"
+
+msgid "Tasked Successfully"
+msgstr "Attività Completata"
 
 msgid "Successfully created"
 msgstr "Creato con successo"
@@ -6174,6 +6178,10 @@ msgstr "IP Passato è corretto"
 
 msgid "Invalid"
 msgstr "Non valido"
+
+#, fuzzy
+msgid "File or path does not exist"
+msgstr "Metodo non esiste"
 
 msgid "Device must be a string"
 msgstr "Dispositivo deve essere una stringa"

@@ -145,7 +145,7 @@ class ServiceConfigurationPage extends FOGPage
         echo '<div class="box box-solid">';
         echo '<div id="updatedisplaymanager" class="">';
         echo '<div class="box-body">';
-        echo '<form id="displayupdate-form" class="form-horizontal">';
+        echo '<form id="displaymanagerupdate-form" class="form-horizontal">';
         echo '<input type="hidden" name="name" value="'
             . self::$_modNames['displaymanager']
             . '"/>';
@@ -174,6 +174,18 @@ class ServiceConfigurationPage extends FOGPage
         $Service = self::getClass('Service')
             ->set('name', self::$_modNames['displaymanager'])
             ->load('name');
+        if (isset($_POST['update'])) {
+            $isen = (int)isset($_POST['isEnabled']);
+            $isdef = (int)isset($_POST['isDefault']);
+            $Service->set('value', $isen);
+            $Module->set('isDefault', $isdef);
+            if (!$Service->save()) {
+                throw new Exception(_('Unable to update global setting'));
+            }
+            if (!$Module->save()) {
+                throw new Exception(_('Unable to update module default setting'));
+            }
+        }
     }
     /**
      * Presents the autologout page.
@@ -263,6 +275,18 @@ class ServiceConfigurationPage extends FOGPage
         $Service = self::getClass('Service')
             ->set('name', self::$_modNames['autologout'])
             ->load('name');
+        if (isset($_POST['update'])) {
+            $isen = (int)isset($_POST['isEnabled']);
+            $isdef = (int)isset($_POST['isDefault']);
+            $Service->set('value', $isen);
+            $Module->set('isDefault', $isdef);
+            if (!$Service->save()) {
+                throw new Exception(_('Unable to update global setting'));
+            }
+            if (!$Module->save()) {
+                throw new Exception(_('Unable to update module default setting'));
+            }
+        }
     }
     /**
      * Presents the snapin client page.
@@ -352,6 +376,18 @@ class ServiceConfigurationPage extends FOGPage
         $Service = self::getClass('Service')
             ->set('name', self::$_modNames['snapinclient'])
             ->load('name');
+        if (isset($_POST['update'])) {
+            $isen = (int)isset($_POST['isEnabled']);
+            $isdef = (int)isset($_POST['isDefault']);
+            $Service->set('value', $isen);
+            $Module->set('isDefault', $isdef);
+            if (!$Service->save()) {
+                throw new Exception(_('Unable to update global setting'));
+            }
+            if (!$Module->save()) {
+                throw new Exception(_('Unable to update module default setting'));
+            }
+        }
     }
     /**
      * Presents the host register page.
@@ -441,6 +477,18 @@ class ServiceConfigurationPage extends FOGPage
         $Service = self::getClass('Service')
             ->set('name', self::$_modNames['hostregister'])
             ->load('name');
+        if (isset($_POST['update'])) {
+            $isen = (int)isset($_POST['isEnabled']);
+            $isdef = (int)isset($_POST['isDefault']);
+            $Service->set('value', $isen);
+            $Module->set('isDefault', $isdef);
+            if (!$Service->save()) {
+                throw new Exception(_('Unable to update global setting'));
+            }
+            if (!$Module->save()) {
+                throw new Exception(_('Unable to update module default setting'));
+            }
+        }
     }
     /**
      * Presents the hostname changer page.
@@ -530,6 +578,18 @@ class ServiceConfigurationPage extends FOGPage
         $Service = self::getClass('Service')
             ->set('name', self::$_modNames['hostnamechanger'])
             ->load('name');
+        if (isset($_POST['update'])) {
+            $isen = (int)isset($_POST['isEnabled']);
+            $isdef = (int)isset($_POST['isDefault']);
+            $Service->set('value', $isen);
+            $Module->set('isDefault', $isdef);
+            if (!$Service->save()) {
+                throw new Exception(_('Unable to update global setting'));
+            }
+            if (!$Module->save()) {
+                throw new Exception(_('Unable to update module default setting'));
+            }
+        }
     }
     /**
      * Presents the printer manager page.
@@ -619,6 +679,18 @@ class ServiceConfigurationPage extends FOGPage
         $Service = self::getClass('Service')
             ->set('name', self::$_modNames['printermanager'])
             ->load('name');
+        if (isset($_POST['update'])) {
+            $isen = (int)isset($_POST['isEnabled']);
+            $isdef = (int)isset($_POST['isDefault']);
+            $Service->set('value', $isen);
+            $Module->set('isDefault', $isdef);
+            if (!$Service->save()) {
+                throw new Exception(_('Unable to update global setting'));
+            }
+            if (!$Module->save()) {
+                throw new Exception(_('Unable to update module default setting'));
+            }
+        }
     }
     /**
      * Presents the task reboot page.
@@ -708,6 +780,18 @@ class ServiceConfigurationPage extends FOGPage
         $Service = self::getClass('Service')
             ->set('name', self::$_modNames['taskreboot'])
             ->load('name');
+        if (isset($_POST['update'])) {
+            $isen = (int)isset($_POST['isEnabled']);
+            $isdef = (int)isset($_POST['isDefault']);
+            $Service->set('value', $isen);
+            $Module->set('isDefault', $isdef);
+            if (!$Service->save()) {
+                throw new Exception(_('Unable to update global setting'));
+            }
+            if (!$Module->save()) {
+                throw new Exception(_('Unable to update module default setting'));
+            }
+        }
     }
     /**
      * Presents the user tracker page.
@@ -797,6 +881,18 @@ class ServiceConfigurationPage extends FOGPage
         $Service = self::getClass('Service')
             ->set('name', self::$_modNames['usertracker'])
             ->load('name');
+        if (isset($_POST['update'])) {
+            $isen = (int)isset($_POST['isEnabled']);
+            $isdef = (int)isset($_POST['isDefault']);
+            $Service->set('value', $isen);
+            $Module->set('isDefault', $isdef);
+            if (!$Service->save()) {
+                throw new Exception(_('Unable to update global setting'));
+            }
+            if (!$Module->save()) {
+                throw new Exception(_('Unable to update module default setting'));
+            }
+        }
     }
     /**
      * Presents the powermanagement page.
@@ -886,13 +982,52 @@ class ServiceConfigurationPage extends FOGPage
         $Service = self::getClass('Service')
             ->set('name', self::$_modNames['powermanagement'])
             ->load('name');
+        if (isset($_POST['update'])) {
+            $isen = (int)isset($_POST['isEnabled']);
+            $isdef = (int)isset($_POST['isDefault']);
+            $Service->set('value', $isen);
+            $Module->set('isDefault', $isdef);
+            if (!$Service->save()) {
+                throw new Exception(_('Unable to update global setting'));
+            }
+            if (!$Module->save()) {
+                throw new Exception(_('Unable to update module default setting'));
+            }
+        }
+    }
+    /**
+     * Redirects index page to edit
+     *
+     * @return void
+     */
+    public function index()
+    {
+        $this->edit();
+    }
+    /**
+     * Redirect index page updates.
+     *
+     * @return void
+     */
+    public function indexPost()
+    {
+        $this->editPost();
+    }
+    /**
+     * Redirect list page updates
+     *
+     * @return void
+     */
+    public function listPost()
+    {
+        $this->editPost();
     }
     /**
      * The home elements.
      *
      * @return void
      */
-    public function index()
+    public function edit()
     {
         $this->title = _('Global Module Settings');
 
@@ -943,7 +1078,7 @@ class ServiceConfigurationPage extends FOGPage
      *
      * @return void
      */
-    public function indexPost()
+    public function editPost()
     {
         header('Content-type: application/json');
         self::$HookManager->processEvent(
@@ -981,6 +1116,14 @@ class ServiceConfigurationPage extends FOGPage
                 $this->servicePowermanagementPost();
                 break;
             }
+            $code = 201;
+            $hook = 'SERVICE_UPDATE_SUCCESS';
+            $msg = json_encode(
+                [
+                    'msg' => _('Module update success!'),
+                    'title' => _('Module Update Success')
+                ]
+            );
         } catch (Exception $e) {
             $code = ($serverFault ? 500 : 400);
             $hook = 'SERVICE_UPDATE_FAIL';
@@ -1675,7 +1818,7 @@ class ServiceConfigurationPage extends FOGPage
      *
      * @return void
      */
-    public function editPost()
+    public function editbackupPost()
     {
         $name = filter_input(INPUT_POST, 'name');
         $Service = self::getClass('Service')

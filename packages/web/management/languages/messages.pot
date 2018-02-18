@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-15 21:38-0500\n"
+"POT-Creation-Date: 2018-02-18 03:51-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -444,6 +444,12 @@ msgstr ""
 msgid "Add Storage Group"
 msgstr ""
 
+msgid "Storage Node"
+msgstr ""
+
+msgid "Storage Group"
+msgstr ""
+
 msgid "Active Tasks"
 msgstr ""
 
@@ -770,12 +776,6 @@ msgid "Error multiple hosts returned for list of mac addresses"
 msgstr ""
 
 msgid "Session timeout"
-msgstr ""
-
-msgid "Storage Node"
-msgstr ""
-
-msgid "Storage Group"
 msgstr ""
 
 msgid "Graph Enabled"
@@ -2373,9 +2373,6 @@ msgstr ""
 msgid "Login Users"
 msgstr ""
 
-msgid "No valid storage nodes found"
-msgstr ""
-
 msgid "Invalid Storage Group"
 msgstr ""
 
@@ -3209,55 +3206,61 @@ msgstr ""
 msgid "Errors on revert detected!"
 msgstr ""
 
-msgid "Started By:"
+msgid "Create New Storage Node"
 msgstr ""
 
-msgid "Working with node"
+msgid "Web Root"
 msgstr ""
 
-msgid "Edit Host"
+msgid "Bitrate"
 msgstr ""
 
-msgid "Edit Image"
+msgid "Bandwidth should be numeric and greater than 0"
 msgstr ""
 
-msgid "Task forced to start"
+msgid "Add storage node failed!"
 msgstr ""
 
-msgid "Force task to start"
+msgid "Storage Node added!"
 msgstr ""
 
-msgid "Invalid object type passed"
+msgid "Storage Node Create Success"
 msgstr ""
 
-msgid "Invalid Task Type"
+msgid "Storage Node Create Fail"
 msgstr ""
 
-msgid "Invalid image assigned to host"
+msgid "Storage Node Update Failed"
 msgstr ""
 
-msgid "is protected"
+msgid "Storage Node updated!"
 msgstr ""
 
-msgid "Quick"
+msgid "Storage Node Update Success"
 msgstr ""
 
-msgid "Hosts do not have the same image assigned"
+msgid "Storage Node Update Fail"
 msgstr ""
 
-msgid "Multicast Quick Deploy"
+msgid "Started By"
 msgstr ""
 
-msgid "Group Quick Deploy"
+msgid "Resume Reload"
 msgstr ""
 
-msgid "Tasked Successfully"
+msgid "Pause Reload"
 msgstr ""
 
-msgid "Tasked successfully, click active tasks to view in line."
+msgid "Cancel Selected"
 msgstr ""
 
-msgid "Invalid task"
+msgid "Selected tasks cancelled!"
+msgstr ""
+
+msgid "Task Cancel Success"
+msgstr ""
+
+msgid "Task Cancel Fail"
 msgstr ""
 
 msgid "Active Multi-cast Tasks"
@@ -3266,10 +3269,10 @@ msgstr ""
 msgid "Task Name"
 msgstr ""
 
-msgid "MulticastTask"
+msgid "Hosts in tasking"
 msgstr ""
 
-msgid "Cannot cancel tasks this way"
+msgid "Edit Host"
 msgstr ""
 
 msgid "Host/Group Name"
@@ -3744,6 +3747,42 @@ msgstr ""
 msgid "Delete all PM tasks?"
 msgstr ""
 
+msgid "Total Clients"
+msgstr ""
+
+msgid "Create New Storage Group"
+msgstr ""
+
+msgid "Storage Group Create Success"
+msgstr ""
+
+msgid "Storage Group Create Fail"
+msgstr ""
+
+msgid "Update Master Node"
+msgstr ""
+
+msgid "Add selected"
+msgstr ""
+
+msgid "Storage Node Master"
+msgstr ""
+
+msgid "Storage Node Associated"
+msgstr ""
+
+msgid "Storage Group Update Failed"
+msgstr ""
+
+msgid "Storage Group updated!"
+msgstr ""
+
+msgid "Storage Group Update Success"
+msgstr ""
+
+msgid "Storage Group Update Fail"
+msgstr ""
+
 msgid "TCP/IP"
 msgstr ""
 
@@ -3978,9 +4017,6 @@ msgstr ""
 msgid "Update Primary Group"
 msgstr ""
 
-msgid "Add selected"
-msgstr ""
-
 msgid "Storage Group Primary"
 msgstr ""
 
@@ -4179,9 +4215,6 @@ msgstr ""
 msgid "Storage Node Disk Usage"
 msgstr ""
 
-msgid "No nodes available at this time"
-msgstr ""
-
 msgid "Imaging Over the last 30 days"
 msgstr ""
 
@@ -4198,6 +4231,12 @@ msgid "30 Minutes"
 msgstr ""
 
 msgid "1 Hour"
+msgstr ""
+
+msgid "Free"
+msgstr ""
+
+msgid "Used"
 msgstr ""
 
 msgid "Import Reports"
@@ -4228,75 +4267,6 @@ msgid "is going on with your FOG System"
 msgstr ""
 
 msgid "To view a report, select an item from the menu"
-msgstr ""
-
-msgid "Create New Storage Node"
-msgstr ""
-
-msgid "Web Root"
-msgstr ""
-
-msgid "Bitrate"
-msgstr ""
-
-msgid "Bandwidth should be numeric and greater than 0"
-msgstr ""
-
-msgid "Add storage node failed!"
-msgstr ""
-
-msgid "Storage Node added!"
-msgstr ""
-
-msgid "Storage Node Create Success"
-msgstr ""
-
-msgid "Storage Node Create Fail"
-msgstr ""
-
-msgid "Storage Node Update Failed"
-msgstr ""
-
-msgid "Storage Node updated!"
-msgstr ""
-
-msgid "Storage Node Update Success"
-msgstr ""
-
-msgid "Storage Node Update Fail"
-msgstr ""
-
-msgid "Total Clients"
-msgstr ""
-
-msgid "Create New Storage Group"
-msgstr ""
-
-msgid "Storage Group Create Success"
-msgstr ""
-
-msgid "Storage Group Create Fail"
-msgstr ""
-
-msgid "Update Master Node"
-msgstr ""
-
-msgid "Storage Node Master"
-msgstr ""
-
-msgid "Storage Node Associated"
-msgstr ""
-
-msgid "Storage Group Update Failed"
-msgstr ""
-
-msgid "Storage Group updated!"
-msgstr ""
-
-msgid "Storage Group Update Success"
-msgstr ""
-
-msgid "Storage Group Update Fail"
 msgstr ""
 
 msgid "API?"
@@ -4371,9 +4341,6 @@ msgstr ""
 msgid "User Update Fail"
 msgstr ""
 
-msgid "Service general"
-msgstr ""
-
 msgid "This will allow you to configure how services"
 msgstr ""
 
@@ -4392,9 +4359,6 @@ msgstr ""
 msgid "To get started please select an item from the menu."
 msgstr ""
 
-msgid "FOG Client Download"
-msgstr ""
-
 msgid "Use the following link to go to the client page."
 msgstr ""
 
@@ -4405,6 +4369,33 @@ msgid "and the FOG client."
 msgstr ""
 
 msgid "Click Here"
+msgstr ""
+
+msgid "Module Enabled"
+msgstr ""
+
+msgid "Enabled as Default"
+msgstr ""
+
+msgid "Unable to update global setting"
+msgstr ""
+
+msgid "Unable to update module default setting"
+msgstr ""
+
+msgid "Global Module Settings"
+msgstr ""
+
+msgid "Module update success!"
+msgstr ""
+
+msgid "Module Update Success"
+msgstr ""
+
+msgid "Module update failed!"
+msgstr ""
+
+msgid "Module Update Fail"
 msgstr ""
 
 msgid "Enabled as default"
@@ -4480,12 +4471,6 @@ msgid "Service update failed"
 msgstr ""
 
 msgid "Module updated!"
-msgstr ""
-
-msgid "Module Update Success"
-msgstr ""
-
-msgid "Module Update Fail"
 msgstr ""
 
 msgid "Filesize"
@@ -5277,6 +5262,9 @@ msgstr ""
 msgid "Return code"
 msgstr ""
 
+msgid "No valid storage nodes found"
+msgstr ""
+
 msgid "Registered"
 msgstr ""
 
@@ -5565,6 +5553,9 @@ msgstr ""
 msgid "Host Unassociated Snapins"
 msgstr ""
 
+msgid "Edit Image"
+msgstr ""
+
 msgid "Confirm tasking"
 msgstr ""
 
@@ -5677,6 +5668,9 @@ msgid "Failed to start tasking type"
 msgstr ""
 
 msgid "Delayed Start"
+msgstr ""
+
+msgid "Tasked Successfully"
 msgstr ""
 
 msgid "Successfully created"
@@ -6057,6 +6051,9 @@ msgid "IP Passed is incorrect"
 msgstr ""
 
 msgid "Invalid"
+msgstr ""
+
+msgid "File or path does not exist"
 msgstr ""
 
 msgid "Device must be a string"

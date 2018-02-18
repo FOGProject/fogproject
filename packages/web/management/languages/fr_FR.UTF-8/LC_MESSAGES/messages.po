@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-15 21:22-0500\n"
+"POT-Creation-Date: 2018-02-18 03:51-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -450,6 +450,12 @@ msgstr "Tous les groupes de stockage"
 msgid "Add Storage Group"
 msgstr "Ajouter un groupe de stockage"
 
+msgid "Storage Node"
+msgstr "nœud de stockage"
+
+msgid "Storage Group"
+msgstr "Groupe de stockage"
+
 msgid "Active Tasks"
 msgstr "Tâches actives"
 
@@ -786,12 +792,6 @@ msgstr "Erreur plusieurs hôtes retournés pour la liste des adresses MAC"
 
 msgid "Session timeout"
 msgstr "Expiration de la session"
-
-msgid "Storage Node"
-msgstr "nœud de stockage"
-
-msgid "Storage Group"
-msgstr "Groupe de stockage"
 
 msgid "Graph Enabled"
 msgstr "Graphique Enabled"
@@ -2650,10 +2650,6 @@ msgstr "HD Dispositif"
 msgid "Login Users"
 msgstr "S'identifier"
 
-#, fuzzy
-msgid "No valid storage nodes found"
-msgstr "nœud de stockage non valide"
-
 msgid "Invalid Storage Group"
 msgstr "Groupe de stockage non valide"
 
@@ -3622,59 +3618,77 @@ msgstr "Mise à jour de base de données a échoué"
 msgid "Errors on revert detected!"
 msgstr "Erreurs sur revert détectées"
 
-msgid "Started By:"
-msgstr "Commencé par:"
+#, fuzzy
+msgid "Create New Storage Node"
+msgstr "nœud de stockage"
 
-msgid "Working with node"
+#, fuzzy
+msgid "Web Root"
+msgstr "Web racine"
+
+msgid "Bitrate"
+msgstr "Bitrate"
+
+msgid "Bandwidth should be numeric and greater than 0"
+msgstr "La bande passante doit être numérique et supérieur à 0"
+
+#, fuzzy
+msgid "Add storage node failed!"
+msgstr "Ajouter SnapIn a échoué!"
+
+#, fuzzy
+msgid "Storage Node added!"
+msgstr "Nom du nœud de stockage"
+
+#, fuzzy
+msgid "Storage Node Create Success"
+msgstr "Nœud de stockage Créé"
+
+#, fuzzy
+msgid "Storage Node Create Fail"
+msgstr "Nœud de stockage Créé"
+
+#, fuzzy
+msgid "Storage Node Update Failed"
+msgstr "Nœud de stockage Mise à jour"
+
+#, fuzzy
+msgid "Storage Node updated!"
+msgstr "Nœud de stockage Mise à jour"
+
+#, fuzzy
+msgid "Storage Node Update Success"
+msgstr "Nœud de stockage Mise à jour"
+
+#, fuzzy
+msgid "Storage Node Update Fail"
+msgstr "Nœud de stockage Mise à jour"
+
+#, fuzzy
+msgid "Started By"
+msgstr "Créé par"
+
+msgid "Resume Reload"
 msgstr ""
 
-msgid "Edit Host"
-msgstr "Modifier Host"
-
-msgid "Edit Image"
-msgstr "Modifier l'image"
-
-msgid "Task forced to start"
-msgstr "Tâche forcé de commencer"
-
-msgid "Force task to start"
-msgstr "Task force pour commencer"
-
-msgid "Invalid object type passed"
-msgstr "type d'objet non valide passé"
-
-msgid "Invalid Task Type"
-msgstr "Invalid Type de tâche"
-
-msgid "Invalid image assigned to host"
-msgstr "Image non valide assigné à l'hôte"
-
-msgid "is protected"
-msgstr "est protégé"
-
-#, fuzzy
-msgid "Quick"
-msgstr "Cliquez"
-
-msgid "Hosts do not have the same image assigned"
-msgstr "Les hôtes ne possèdent pas la même image assignée"
-
-msgid "Multicast Quick Deploy"
-msgstr "Multicast Déploiement rapide"
-
-#, fuzzy
-msgid "Group Quick Deploy"
-msgstr "Déploiement rapide"
-
-#, fuzzy
-msgid "Tasked Successfully"
-msgstr "sauvegarde réussie"
-
-msgid "Tasked successfully, click active tasks to view in line."
+msgid "Pause Reload"
 msgstr ""
 
-msgid "Invalid task"
-msgstr "tâche non valide"
+#, fuzzy
+msgid "Cancel Selected"
+msgstr "Supprimer sélectionnée"
+
+#, fuzzy
+msgid "Selected tasks cancelled!"
+msgstr "a été mis à jour avec succès"
+
+#, fuzzy
+msgid "Task Cancel Success"
+msgstr "utilisateur créé"
+
+#, fuzzy
+msgid "Task Cancel Fail"
+msgstr "utilisateur créé"
 
 #, fuzzy
 msgid "Active Multi-cast Tasks"
@@ -3683,11 +3697,12 @@ msgstr "Tâches Multicast actifs"
 msgid "Task Name"
 msgstr "Nom de la tâche"
 
-msgid "MulticastTask"
-msgstr "MulticastTask"
+#, fuzzy
+msgid "Hosts in tasking"
+msgstr "Hôtes sur Task"
 
-msgid "Cannot cancel tasks this way"
-msgstr "Vous ne pouvez pas annuler les tâches de cette façon"
+msgid "Edit Host"
+msgstr "Modifier Host"
 
 msgid "Host/Group Name"
 msgstr "Hôte / Nom de groupe"
@@ -4245,6 +4260,54 @@ msgstr "Gestion des utilisateurs"
 msgid "Delete all PM tasks?"
 msgstr "Supprimer tous sélectionnés %s s"
 
+#, fuzzy
+msgid "Total Clients"
+msgstr "Les clients de Max"
+
+#, fuzzy
+msgid "Create New Storage Group"
+msgstr "nœud de stockage"
+
+#, fuzzy
+msgid "Storage Group Create Success"
+msgstr "utilisateur créé"
+
+#, fuzzy
+msgid "Storage Group Create Fail"
+msgstr "Groupe de stockage Créé"
+
+#, fuzzy
+msgid "Update Master Node"
+msgstr "Node Master"
+
+#, fuzzy
+msgid "Add selected"
+msgstr "Imprimante"
+
+#, fuzzy
+msgid "Storage Node Master"
+msgstr "Nom du nœud de stockage"
+
+#, fuzzy
+msgid "Storage Node Associated"
+msgstr "Nœud de stockage Créé"
+
+#, fuzzy
+msgid "Storage Group Update Failed"
+msgstr "Groupe de stockage Mise à jour"
+
+#, fuzzy
+msgid "Storage Group updated!"
+msgstr "Groupe de stockage Mise à jour"
+
+#, fuzzy
+msgid "Storage Group Update Success"
+msgstr "utilisateur créé"
+
+#, fuzzy
+msgid "Storage Group Update Fail"
+msgstr "Groupe de stockage Mise à jour"
+
 msgid "TCP/IP"
 msgstr "TCP / IP"
 
@@ -4523,10 +4586,6 @@ msgid "Update Primary Group"
 msgstr "Mise à jour de groupe principal"
 
 #, fuzzy
-msgid "Add selected"
-msgstr "Imprimante"
-
-#, fuzzy
 msgid "Storage Group Primary"
 msgstr "Nom du groupe de stockage"
 
@@ -4742,10 +4801,6 @@ msgstr "Stockage Activité Groupe"
 msgid "Storage Node Disk Usage"
 msgstr "Utilisation Noeud de stockage de disque"
 
-#, fuzzy
-msgid "No nodes available at this time"
-msgstr "Hôtes sur Task"
-
 msgid "Imaging Over the last 30 days"
 msgstr "Imaging Au cours des 30 derniers jours"
 
@@ -4765,6 +4820,12 @@ msgstr "30 minutes"
 #, fuzzy
 msgid "1 Hour"
 msgstr "1 heure"
+
+msgid "Free"
+msgstr ""
+
+msgid "Used"
+msgstr ""
 
 #, fuzzy
 msgid "Import Reports"
@@ -4800,96 +4861,6 @@ msgstr ""
 
 msgid "To view a report, select an item from the menu"
 msgstr ""
-
-#, fuzzy
-msgid "Create New Storage Node"
-msgstr "nœud de stockage"
-
-#, fuzzy
-msgid "Web Root"
-msgstr "Web racine"
-
-msgid "Bitrate"
-msgstr "Bitrate"
-
-msgid "Bandwidth should be numeric and greater than 0"
-msgstr "La bande passante doit être numérique et supérieur à 0"
-
-#, fuzzy
-msgid "Add storage node failed!"
-msgstr "Ajouter SnapIn a échoué!"
-
-#, fuzzy
-msgid "Storage Node added!"
-msgstr "Nom du nœud de stockage"
-
-#, fuzzy
-msgid "Storage Node Create Success"
-msgstr "Nœud de stockage Créé"
-
-#, fuzzy
-msgid "Storage Node Create Fail"
-msgstr "Nœud de stockage Créé"
-
-#, fuzzy
-msgid "Storage Node Update Failed"
-msgstr "Nœud de stockage Mise à jour"
-
-#, fuzzy
-msgid "Storage Node updated!"
-msgstr "Nœud de stockage Mise à jour"
-
-#, fuzzy
-msgid "Storage Node Update Success"
-msgstr "Nœud de stockage Mise à jour"
-
-#, fuzzy
-msgid "Storage Node Update Fail"
-msgstr "Nœud de stockage Mise à jour"
-
-#, fuzzy
-msgid "Total Clients"
-msgstr "Les clients de Max"
-
-#, fuzzy
-msgid "Create New Storage Group"
-msgstr "nœud de stockage"
-
-#, fuzzy
-msgid "Storage Group Create Success"
-msgstr "utilisateur créé"
-
-#, fuzzy
-msgid "Storage Group Create Fail"
-msgstr "Groupe de stockage Créé"
-
-#, fuzzy
-msgid "Update Master Node"
-msgstr "Node Master"
-
-#, fuzzy
-msgid "Storage Node Master"
-msgstr "Nom du nœud de stockage"
-
-#, fuzzy
-msgid "Storage Node Associated"
-msgstr "Nœud de stockage Créé"
-
-#, fuzzy
-msgid "Storage Group Update Failed"
-msgstr "Groupe de stockage Mise à jour"
-
-#, fuzzy
-msgid "Storage Group updated!"
-msgstr "Groupe de stockage Mise à jour"
-
-#, fuzzy
-msgid "Storage Group Update Success"
-msgstr "utilisateur créé"
-
-#, fuzzy
-msgid "Storage Group Update Fail"
-msgstr "Groupe de stockage Mise à jour"
 
 msgid "API?"
 msgstr ""
@@ -4978,10 +4949,6 @@ msgstr "Installation / Mise à jour réussie!"
 msgid "User Update Fail"
 msgstr "mise à jour de l'utilisateur a échoué"
 
-#, fuzzy
-msgid "Service general"
-msgstr "hôte Kernel"
-
 msgid "This will allow you to configure how services"
 msgstr ""
 
@@ -5000,9 +4967,6 @@ msgstr ""
 msgid "To get started please select an item from the menu."
 msgstr ""
 
-msgid "FOG Client Download"
-msgstr "FOG client Télécharger"
-
 msgid "Use the following link to go to the client page."
 msgstr ""
 
@@ -5014,6 +4978,42 @@ msgstr ""
 
 msgid "Click Here"
 msgstr "Cliquez ici"
+
+#, fuzzy
+msgid "Module Enabled"
+msgstr "Nom du module"
+
+#, fuzzy
+msgid "Enabled as Default"
+msgstr "Activé par défaut"
+
+#, fuzzy
+msgid "Unable to update global setting"
+msgstr "Impossible de mettre à jour"
+
+#, fuzzy
+msgid "Unable to update module default setting"
+msgstr "Impossible d'ouvrir le fichier pour la lecture"
+
+#, fuzzy
+msgid "Global Module Settings"
+msgstr "hôte description de"
+
+#, fuzzy
+msgid "Module update success!"
+msgstr "utilisateur créé"
+
+#, fuzzy
+msgid "Module Update Success"
+msgstr "utilisateur créé"
+
+#, fuzzy
+msgid "Module update failed!"
+msgstr "mise à jour de l'utilisateur a échoué"
+
+#, fuzzy
+msgid "Module Update Fail"
+msgstr "Groupe create a échoué"
 
 msgid "Enabled as default"
 msgstr "Activé par défaut"
@@ -5094,14 +5094,6 @@ msgstr "mise à jour du service n'a pas"
 #, fuzzy
 msgid "Module updated!"
 msgstr "Groupe ajouté"
-
-#, fuzzy
-msgid "Module Update Success"
-msgstr "utilisateur créé"
-
-#, fuzzy
-msgid "Module Update Fail"
-msgstr "Groupe create a échoué"
 
 #, fuzzy
 msgid "Filesize"
@@ -6040,6 +6032,10 @@ msgstr "Erreur inconnue de téléchargement a eu lieu. Code de retour: "
 msgid "Return code"
 msgstr "code de retour"
 
+#, fuzzy
+msgid "No valid storage nodes found"
+msgstr "nœud de stockage non valide"
+
 msgid "Registered"
 msgstr "Inscrit"
 
@@ -6369,6 +6365,9 @@ msgstr "Aucun noeud associé"
 msgid "Host Unassociated Snapins"
 msgstr "Aucun noeud associé"
 
+msgid "Edit Image"
+msgstr "Modifier l'image"
+
 #, fuzzy
 msgid "Confirm tasking"
 msgstr "tâche non valide"
@@ -6511,6 +6510,10 @@ msgstr "Impossible de démarrer le déploiement multitâche"
 
 msgid "Delayed Start"
 msgstr "Démarrage retardé"
+
+#, fuzzy
+msgid "Tasked Successfully"
+msgstr "sauvegarde réussie"
 
 #, fuzzy
 msgid "Successfully created"
@@ -6963,6 +6966,10 @@ msgstr "IP Passé est incorrect"
 #, fuzzy
 msgid "Invalid"
 msgstr "ID invalide"
+
+#, fuzzy
+msgid "File or path does not exist"
+msgstr "Méthode n'existe pas"
 
 #, fuzzy
 msgid "Device must be a string"
