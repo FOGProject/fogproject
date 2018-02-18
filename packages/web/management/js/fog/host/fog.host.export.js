@@ -24,5 +24,4 @@
             $('<form method="post" action="' + exportForm.prop('action') + '"><input type="hidden" name="nojson"/></form>').appendTo('body').submit().remove();
         });
     });
-
 })(jQuery);
