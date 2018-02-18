@@ -1,12 +1,10 @@
 (function($) {
-    var deleteSelected = $('#deleteSelected');
-    var deleteModal = $('#deleteModal');
-    var passwordField = $('#deletePassword');
-    var confirmDelete = $('#confirmDeleteModal');
-    var cancelDelete = $('#closeDeleteModal');
-
-    var numImageString = confirmDelete.val();
-
+    var deleteSelected = $('#deleteSelected'),
+        deleteModal = $('#deleteModal'),
+        passwordField = $('#deletePassword'),
+        confirmDelete = $('#confirmDeleteModal'),
+        cancelDelete = $('#closeDeleteModal'),
+        numImageString = confirmDelete.val();
     function disableButtons(disable) {
         deleteSelected.prop('disabled', disable);
     }
@@ -14,7 +12,6 @@
         var disabled = selected.count() == 0;
         disableButtons(disabled);
     }
-
     disableButtons(true);
     var table = Common.registerTable($('#dataTable'), onSelect, {
         order: [
@@ -68,15 +65,13 @@
         serverSide: true,
         ajax: {
             url: '../management/index.php?node='+Common.node+'&sub=list',
-            type: 'POST'
+            type: 'post'
         }
     });
-
     if (Common.search && Common.search.length > 0) {
         table.search(Common.search).draw();
     }
-
-    deleteSelected.click(function() {
+    deleteSelected.on('click', function() {
         disableButtons(true);
         confirmDelete.val(numImageString.format(''));
         Common.massDelete(null, function(err) {
