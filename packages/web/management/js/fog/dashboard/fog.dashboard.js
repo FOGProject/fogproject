@@ -366,16 +366,16 @@ var GraphBandwidthMaxDataPoints,
     var updateClientCountGraph = function(data) {
         updateClientCountData = [
             {
-                label: data._labels[2],
-                data: parseInt(data.ActivityActive)
+                label: data._labels[0],
+                data: parseInt(data.ActivitySlots)
             },
             {
                 label: data._labels[1],
                 data: parseInt(data.ActivityQueued)
             },
             {
-                label: data._labels[0],
-                data: parseInt(data.ActivitySlots)
+                label: data._labels[2],
+                data: parseInt(data.ActivityActive)
             }
         ];
         $.plot('#graph-activity', updateClientCountData, updateClientCountOpts);
