@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-18 03:51-0500\n"
+"POT-Creation-Date: 2018-02-18 15:17-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -5215,6 +5215,21 @@ msgstr "Nombre del módulo"
 msgid "Enabled as Default"
 msgstr "Habilitado por defecto"
 
+msgid "Default Width"
+msgstr "Ancho por defecto"
+
+msgid "in pixels"
+msgstr ""
+
+msgid "Default Height"
+msgstr "Altura por defecto"
+
+msgid "Default Refresh Rate"
+msgstr "Frecuencia de actualización predeterminado"
+
+msgid "in Hz"
+msgstr ""
+
 #, fuzzy
 msgid "Unable to update global setting"
 msgstr "No se ha podido destruir"
@@ -5222,6 +5237,17 @@ msgstr "No se ha podido destruir"
 #, fuzzy
 msgid "Unable to update module default setting"
 msgstr "No se puede abrir archivo para lectura"
+
+#, fuzzy
+msgid "Auto Log Out Time"
+msgstr "Por defecto cerrar sesión en el tiempo (en minutos)"
+
+#, fuzzy
+msgid "in minutes"
+msgstr "minutos"
+
+msgid "Active only at 5 minutes"
+msgstr ""
 
 #, fuzzy
 msgid "Global Module Settings"
@@ -5236,92 +5262,8 @@ msgid "Module Update Success"
 msgstr "creado por el usuario"
 
 #, fuzzy
-msgid "Module update failed!"
-msgstr "actualización Valoración falló"
-
-#, fuzzy
 msgid "Module Update Fail"
 msgstr "Grupo Error de creación"
-
-msgid "Enabled as default"
-msgstr "Habilitado por defecto"
-
-msgid "Service Status"
-msgstr "Estado del servicio"
-
-#, fuzzy
-msgid "Current settings"
-msgstr "Configuración Tecla"
-
-msgid "Default log out time (in minutes)"
-msgstr "Por defecto cerrar sesión en el tiempo (en minutos)"
-
-#, fuzzy
-msgid "This module is only used on the old client."
-msgstr "Este ajuste define el nombre de usuario utilizado para el cliente ssh."
-
-msgid "The old client iswhat was distributed with"
-msgstr ""
-
-msgid "FOG 1.2.0 and earlier."
-msgstr ""
-
-msgid "This module did not work past Windows XP"
-msgstr ""
-
-msgid "due to UAC introduced in Vista and up."
-msgstr ""
-
-#, fuzzy
-msgid "Directories"
-msgstr "Directorio"
-
-msgid "Add Directory"
-msgstr "Añadir directorio"
-
-msgid "Default Width"
-msgstr "Ancho por defecto"
-
-msgid "Default Height"
-msgstr "Altura por defecto"
-
-msgid "Default Refresh Rate"
-msgstr "Frecuencia de actualización predeterminado"
-
-msgid "The old client was distributed with FOG 1.2.0 and earlier."
-msgstr ""
-
-msgid "This module has since been replaced with Power Management."
-msgstr ""
-
-#, fuzzy
-msgid "New Event"
-msgstr "Añadir evento"
-
-msgid "Add Event"
-msgstr "Añadir evento"
-
-msgid "This module did not work past Windows XP due to UAC."
-msgstr ""
-
-msgid "Add User"
-msgstr "Agregar usuario"
-
-msgid "Must be 0 through 23 for hours in a day."
-msgstr ""
-
-msgid "Must be 0 through 59 for minutes in an hour."
-msgstr ""
-
-msgid "Either reboot or shutdown action must be used."
-msgstr ""
-
-msgid "Service update failed"
-msgstr "actualización de servicio no pudo"
-
-#, fuzzy
-msgid "Module updated!"
-msgstr "grupo añadió"
 
 #, fuzzy
 msgid "Filesize"

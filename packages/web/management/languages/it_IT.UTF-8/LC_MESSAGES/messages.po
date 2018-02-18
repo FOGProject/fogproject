@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-18 03:51-0500\n"
+"POT-Creation-Date: 2018-02-18 15:17-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -4485,6 +4485,21 @@ msgstr "Nome Modulo"
 msgid "Enabled as Default"
 msgstr "Attivata come impostazione predefinita"
 
+msgid "Default Width"
+msgstr "Larghezza predefinita"
+
+msgid "in pixels"
+msgstr ""
+
+msgid "Default Height"
+msgstr "Altezza di default"
+
+msgid "Default Refresh Rate"
+msgstr "Predefinito: frequenza aggiornamento"
+
+msgid "in Hz"
+msgstr ""
+
 #, fuzzy
 msgid "Unable to update global setting"
 msgstr "Tra impostazioni host e globali"
@@ -4492,6 +4507,17 @@ msgstr "Tra impostazioni host e globali"
 #, fuzzy
 msgid "Unable to update module default setting"
 msgstr "Impossibile aprire il file per la lettura"
+
+#, fuzzy
+msgid "Auto Log Out Time"
+msgstr "Predefinito disconnettersi tempo (in minuti)"
+
+#, fuzzy
+msgid "in minutes"
+msgstr "minuti"
+
+msgid "Active only at 5 minutes"
+msgstr ""
 
 #, fuzzy
 msgid "Global Module Settings"
@@ -4504,88 +4530,8 @@ msgstr "Aggiornamento del modulo completato"
 msgid "Module Update Success"
 msgstr "Aggiornamento del modulo completato"
 
-#, fuzzy
-msgid "Module update failed!"
-msgstr "Aggiornamento ruolo non riuscito"
-
 msgid "Module Update Fail"
 msgstr "Aggiornamento modulo non riuscito"
-
-msgid "Enabled as default"
-msgstr "Attivata come impostazione predefinita"
-
-msgid "Service Status"
-msgstr "Stato servizio"
-
-msgid "Current settings"
-msgstr "Sessioni correnti"
-
-msgid "Default log out time (in minutes)"
-msgstr "Predefinito disconnettersi tempo (in minuti)"
-
-msgid "This module is only used on the old client."
-msgstr "Questo modulo viene utilizzato solo sul vecchio client."
-
-msgid "The old client iswhat was distributed with"
-msgstr "Il vecchio cliente è stato distribuito con"
-
-msgid "FOG 1.2.0 and earlier."
-msgstr "FOG 1.2.0 e precedenti"
-
-msgid "This module did not work past Windows XP"
-msgstr "Questo modulo non funziona oltre Windows XP"
-
-msgid "due to UAC introduced in Vista and up."
-msgstr "a causa di UAC introdotte in Vista e in su."
-
-msgid "Directories"
-msgstr "Cartelle"
-
-msgid "Add Directory"
-msgstr "Aggiungere Directory"
-
-msgid "Default Width"
-msgstr "Larghezza predefinita"
-
-msgid "Default Height"
-msgstr "Altezza di default"
-
-msgid "Default Refresh Rate"
-msgstr "Predefinito: frequenza aggiornamento"
-
-msgid "The old client was distributed with FOG 1.2.0 and earlier."
-msgstr "Il vecchio client è stato distribuito con FOG 1.2.0 e precedenti."
-
-msgid "This module has since been replaced with Power Management."
-msgstr "Questo modulo è stato sostituito da Power Management."
-
-msgid "New Event"
-msgstr "Aggiungi evento"
-
-msgid "Add Event"
-msgstr "Aggiungi evento"
-
-msgid "This module did not work past Windows XP due to UAC."
-msgstr ""
-"Questo modulo non funziona successivamente a Windows XP a causa di UAC."
-
-msgid "Add User"
-msgstr "Aggiungi utente"
-
-msgid "Must be 0 through 23 for hours in a day."
-msgstr "Deve essere tra 0 e 23 per le ore del giorno."
-
-msgid "Must be 0 through 59 for minutes in an hour."
-msgstr "Deve essere tra 0 e 59 per i minuti del giorno."
-
-msgid "Either reboot or shutdown action must be used."
-msgstr "È necessario utilizzare l'azione di riavvio o di arresto."
-
-msgid "Service update failed"
-msgstr "aggiornamento del servizio non riuscito"
-
-msgid "Module updated!"
-msgstr "Modulo aggiornato!"
 
 msgid "Filesize"
 msgstr "Dimensione del file"
