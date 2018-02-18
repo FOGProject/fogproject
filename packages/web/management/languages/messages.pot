@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-18 05:01-0500\n"
+"POT-Creation-Date: 2018-02-18 15:18-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4377,10 +4377,34 @@ msgstr ""
 msgid "Enabled as Default"
 msgstr ""
 
+msgid "Default Width"
+msgstr ""
+
+msgid "in pixels"
+msgstr ""
+
+msgid "Default Height"
+msgstr ""
+
+msgid "Default Refresh Rate"
+msgstr ""
+
+msgid "in Hz"
+msgstr ""
+
 msgid "Unable to update global setting"
 msgstr ""
 
 msgid "Unable to update module default setting"
+msgstr ""
+
+msgid "Auto Log Out Time"
+msgstr ""
+
+msgid "in minutes"
+msgstr ""
+
+msgid "Active only at 5 minutes"
 msgstr ""
 
 msgid "Global Module Settings"
@@ -4392,85 +4416,7 @@ msgstr ""
 msgid "Module Update Success"
 msgstr ""
 
-msgid "Module update failed!"
-msgstr ""
-
 msgid "Module Update Fail"
-msgstr ""
-
-msgid "Enabled as default"
-msgstr ""
-
-msgid "Service Status"
-msgstr ""
-
-msgid "Current settings"
-msgstr ""
-
-msgid "Default log out time (in minutes)"
-msgstr ""
-
-msgid "This module is only used on the old client."
-msgstr ""
-
-msgid "The old client iswhat was distributed with"
-msgstr ""
-
-msgid "FOG 1.2.0 and earlier."
-msgstr ""
-
-msgid "This module did not work past Windows XP"
-msgstr ""
-
-msgid "due to UAC introduced in Vista and up."
-msgstr ""
-
-msgid "Directories"
-msgstr ""
-
-msgid "Add Directory"
-msgstr ""
-
-msgid "Default Width"
-msgstr ""
-
-msgid "Default Height"
-msgstr ""
-
-msgid "Default Refresh Rate"
-msgstr ""
-
-msgid "The old client was distributed with FOG 1.2.0 and earlier."
-msgstr ""
-
-msgid "This module has since been replaced with Power Management."
-msgstr ""
-
-msgid "New Event"
-msgstr ""
-
-msgid "Add Event"
-msgstr ""
-
-msgid "This module did not work past Windows XP due to UAC."
-msgstr ""
-
-msgid "Add User"
-msgstr ""
-
-msgid "Must be 0 through 23 for hours in a day."
-msgstr ""
-
-msgid "Must be 0 through 59 for minutes in an hour."
-msgstr ""
-
-msgid "Either reboot or shutdown action must be used."
-msgstr ""
-
-msgid "Service update failed"
-msgstr ""
-
-msgid "Module updated!"
 msgstr ""
 
 msgid "Filesize"

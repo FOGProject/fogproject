@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-18 03:51-0500\n"
+"POT-Creation-Date: 2018-02-18 15:17-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4958,6 +4958,21 @@ msgstr "模块名称"
 msgid "Enabled as Default"
 msgstr "启用默认"
 
+msgid "Default Width"
+msgstr "默认宽度"
+
+msgid "in pixels"
+msgstr ""
+
+msgid "Default Height"
+msgstr "默认高度"
+
+msgid "Default Refresh Rate"
+msgstr "默认刷新频率"
+
+msgid "in Hz"
+msgstr ""
+
 #, fuzzy
 msgid "Unable to update global setting"
 msgstr "无法更新"
@@ -4965,6 +4980,17 @@ msgstr "无法更新"
 #, fuzzy
 msgid "Unable to update module default setting"
 msgstr "无法打开文件进行读取"
+
+#, fuzzy
+msgid "Auto Log Out Time"
+msgstr "默认注销时间（分钟）"
+
+#, fuzzy
+msgid "in minutes"
+msgstr "分钟"
+
+msgid "Active only at 5 minutes"
+msgstr ""
 
 #, fuzzy
 msgid "Global Module Settings"
@@ -4979,92 +5005,8 @@ msgid "Module Update Success"
 msgstr "用户创建"
 
 #, fuzzy
-msgid "Module update failed!"
-msgstr "用户更新失败"
-
-#, fuzzy
 msgid "Module Update Fail"
 msgstr "集团创建失败"
-
-msgid "Enabled as default"
-msgstr "启用默认"
-
-msgid "Service Status"
-msgstr "服务状态"
-
-#, fuzzy
-msgid "Current settings"
-msgstr "设置"
-
-msgid "Default log out time (in minutes)"
-msgstr "默认注销时间（分钟）"
-
-#, fuzzy
-msgid "This module is only used on the old client."
-msgstr "此设置定义使用SSH客户端的用户名。"
-
-msgid "The old client iswhat was distributed with"
-msgstr ""
-
-msgid "FOG 1.2.0 and earlier."
-msgstr ""
-
-msgid "This module did not work past Windows XP"
-msgstr ""
-
-msgid "due to UAC introduced in Vista and up."
-msgstr ""
-
-#, fuzzy
-msgid "Directories"
-msgstr "目录"
-
-msgid "Add Directory"
-msgstr "添加目录"
-
-msgid "Default Width"
-msgstr "默认宽度"
-
-msgid "Default Height"
-msgstr "默认高度"
-
-msgid "Default Refresh Rate"
-msgstr "默认刷新频率"
-
-msgid "The old client was distributed with FOG 1.2.0 and earlier."
-msgstr ""
-
-msgid "This module has since been replaced with Power Management."
-msgstr ""
-
-#, fuzzy
-msgid "New Event"
-msgstr "添加事件"
-
-msgid "Add Event"
-msgstr "添加事件"
-
-msgid "This module did not work past Windows XP due to UAC."
-msgstr ""
-
-msgid "Add User"
-msgstr "添加用户"
-
-msgid "Must be 0 through 23 for hours in a day."
-msgstr ""
-
-msgid "Must be 0 through 59 for minutes in an hour."
-msgstr ""
-
-msgid "Either reboot or shutdown action must be used."
-msgstr ""
-
-msgid "Service update failed"
-msgstr "服务更新失败"
-
-#, fuzzy
-msgid "Module updated!"
-msgstr "集团补充"
 
 #, fuzzy
 msgid "Filesize"

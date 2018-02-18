@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-18 03:51-0500\n"
+"POT-Creation-Date: 2018-02-18 15:17-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -4981,6 +4981,21 @@ msgstr "Modulname"
 msgid "Enabled as Default"
 msgstr "Standardmäßig aktiviert"
 
+msgid "Default Width"
+msgstr "Standardbreite"
+
+msgid "in pixels"
+msgstr ""
+
+msgid "Default Height"
+msgstr "Standardhöhe"
+
+msgid "Default Refresh Rate"
+msgstr "Standard-Bildwiederholrate"
+
+msgid "in Hz"
+msgstr ""
+
 #, fuzzy
 msgid "Unable to update global setting"
 msgstr "Host- und globalen Einstellungen gibt,"
@@ -4988,6 +5003,17 @@ msgstr "Host- und globalen Einstellungen gibt,"
 #, fuzzy
 msgid "Unable to update module default setting"
 msgstr "Datei kann zum Lesen nicht geöffnet werden"
+
+#, fuzzy
+msgid "Auto Log Out Time"
+msgstr "Standard Logout-Zeit (in Minuten)"
+
+#, fuzzy
+msgid "in minutes"
+msgstr "Minuten"
+
+msgid "Active only at 5 minutes"
+msgstr ""
 
 #, fuzzy
 msgid "Global Module Settings"
@@ -5002,92 +5028,8 @@ msgid "Module Update Success"
 msgstr "Modulupdate erfolgreich"
 
 #, fuzzy
-msgid "Module update failed!"
-msgstr "Aktualisierung der Rolle fehlgeschlagen"
-
-#, fuzzy
 msgid "Module Update Fail"
 msgstr "Modulupdate fehlgeschlagen"
-
-msgid "Enabled as default"
-msgstr "Standardmäßig aktiviert"
-
-msgid "Service Status"
-msgstr "Service-Status"
-
-#, fuzzy
-msgid "Current settings"
-msgstr "Momentane Einstellungen"
-
-msgid "Default log out time (in minutes)"
-msgstr "Standard Logout-Zeit (in Minuten)"
-
-#, fuzzy
-msgid "This module is only used on the old client."
-msgstr "Dieses Modul wird nur auf alten Clients genutzt."
-
-msgid "The old client iswhat was distributed with"
-msgstr "Alte Clients sind Clients, die mit FOG 1.2.0 oder"
-
-msgid "FOG 1.2.0 and earlier."
-msgstr "älter verteilt wurden."
-
-msgid "This module did not work past Windows XP"
-msgstr "Dieses Modul funktioniert nicht auf Windows Vista oder"
-
-msgid "due to UAC introduced in Vista and up."
-msgstr "neuer aufgrund des eingeführten UAC."
-
-#, fuzzy
-msgid "Directories"
-msgstr "Verzeichnis"
-
-msgid "Add Directory"
-msgstr "Verzeichnis hinzufügen"
-
-msgid "Default Width"
-msgstr "Standardbreite"
-
-msgid "Default Height"
-msgstr "Standardhöhe"
-
-msgid "Default Refresh Rate"
-msgstr "Standard-Bildwiederholrate"
-
-msgid "The old client was distributed with FOG 1.2.0 and earlier."
-msgstr "Der alte Client wurde verteilt mit FOG 1.2.0 oder früher."
-
-msgid "This module has since been replaced with Power Management."
-msgstr "Dieses Modul wurde durch Power Management ersetzt."
-
-#, fuzzy
-msgid "New Event"
-msgstr "Neues Ereignis hinzufügen"
-
-msgid "Add Event"
-msgstr "Ereignis hinzufügen"
-
-msgid "This module did not work past Windows XP due to UAC."
-msgstr "Dieses Modul funktioniert wegen UAC nicht mehr."
-
-msgid "Add User"
-msgstr "Benutzer hinzufügen"
-
-msgid "Must be 0 through 23 for hours in a day."
-msgstr "Der Wert muss zwischen 0 und 23 liegen (Stunden am Tag)"
-
-msgid "Must be 0 through 59 for minutes in an hour."
-msgstr "Der Wert muss zwischen 0 und 59 liegen (Minuten in der Stunde)"
-
-msgid "Either reboot or shutdown action must be used."
-msgstr "Entweder neustarten oder herunterfahren"
-
-msgid "Service update failed"
-msgstr "Service-Update fehlgeschlagen"
-
-#, fuzzy
-msgid "Module updated!"
-msgstr "Modul aktualisiert!"
 
 #, fuzzy
 msgid "Filesize"
