@@ -2747,17 +2747,12 @@ class HostManagementPage extends FOGPage
             ON `modules`.`id` = `moduleStatusByHost`.`msModuleID`
             AND `hosts`.`hostID` = `moduleStatusByHost`.`msHostID`
             %s
+            GROUP BY `modules`.`short_name`
             %s
             %s";
-        $modulesFilterStr = "SELECT COUNT(`%s`),"
-            . "IF(`msHostID` = '"
-            . $this->obj->get('id')
-            . "','associated','dissociated') AS `msHostID`
+        $modulesFilterStr = "SELECT COUNT(`%s`)
             FROM `%s`
             CROSS JOIN `hosts`
-            LEFT OUTER JOIN `moduleStatusByHost`
-            ON `modules`.`id` = `moduleStatusByHost`.`msModuleID`
-            AND `hosts`.`hostID` = `moduleStatusByHost`.`msHostID`;
             %s";
         $modulesTotalStr = "SELECT COUNT(`%s`)
             FROM `%s`
