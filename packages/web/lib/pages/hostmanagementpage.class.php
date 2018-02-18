@@ -856,8 +856,24 @@ class HostManagementPage extends FOGPage
 
         // =========================================================
         // Associated Printers
-        $buttons = self::makeButton('printer-default', _('Update default'), 'btn btn-primary', $props);
-        $buttons .= self::makeButton('printer-remove', _('Remove selected'), 'btn btn-danger', $props);
+        $buttons = self::makeButton(
+            'printer-default',
+            _('Update default'),
+            'btn btn-primary',
+            $props
+        );
+        $buttons .= self::makeButton(
+            'printer-add',
+            _('Add selected'),
+            'btn btn-success',
+            $props
+        );
+        $buttons .= self::makeButton(
+            'printer-remove',
+            _('Remove selected'),
+            'btn btn-danger',
+            $props
+        );
         $this->headerData = [
             _('Default'),
             _('Printer Alias'),
@@ -964,7 +980,18 @@ class HostManagementPage extends FOGPage
         echo '<div class="box-group" id="snapins">';
         // =================================================================
         // Associated Snapins
-        $buttons = self::makeButton('snapins-remove', _('Remove selected'), 'btn btn-danger', $props);
+        $buttons = self::makeButton(
+            'snapins-add',
+            _('Add selected'),
+            'btn btn-primary',
+            $props
+        );
+        $buttons .= self::makeButton(
+            'snapins-remove',
+            _('Remove selected'),
+            'btn btn-danger',
+            $props
+        );
 
         $this->headerData = [
             _('Snapin Name'),

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-18 15:27-0500\n"
+"POT-Creation-Date: 2018-02-18 16:26-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -3483,6 +3483,10 @@ msgid "Update default"
 msgstr "Aggiorna la stampante predefinita"
 
 #, fuzzy
+msgid "Add selected"
+msgstr "Aggiungi stampanti selezionate"
+
+#, fuzzy
 msgid "Remove selected"
 msgstr "Rimuovi i selezionati"
 
@@ -3856,10 +3860,6 @@ msgstr "Gruppo di archiviazione creazione fallita"
 #, fuzzy
 msgid "Update Master Node"
 msgstr "Maestro Node"
-
-#, fuzzy
-msgid "Add selected"
-msgstr "Aggiungi stampanti selezionate"
 
 #, fuzzy
 msgid "Storage Node Master"

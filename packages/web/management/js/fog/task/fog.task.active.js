@@ -61,7 +61,6 @@
                 targets: 4
             }
         ],
-        processing: true,
         serverSide: true,
         ajax: {
             url: '../management/index.php?node='+Common.node+'&sub=getActiveTasks',

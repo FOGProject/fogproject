@@ -1,47 +1,47 @@
 (function($) {
     // ---------------------------------------------------------------
     // GENERAL TAB
-    var originalName = $("#name").val();
+    var originalName = $("#name").val(),
+        updateName = function(newName) {
+            var e = $("#pageTitle"),
+                text = e.text();
+            text = text.replace(": " + originalName, ": " + newName);
+            e.text(text);
+        };
 
-    var updateName = function(newName) {
-        var e = $("#pageTitle");
-        var text = e.text();
-        text = text.replace(": " + originalName, ": " + newName);
-        e.text(text);
-    };
+    $('#name').inputmask({mask: Common.masks.hostname, repeat: 15});
+    $('#mac').inputmask({mask: Common.masks.mac});
+    $('#productKey').inputmask({mask: Common.masks.productKey});
 
-    $("#name").inputmask({"mask": Common.masks.hostname, "repeat": 15 });
-    $("#mac").inputmask({"mask": Common.masks.mac});
-    $("#productKey").inputmask({"mask": Common.masks.productKey});
+    var generalForm = $('#host-general-form'),
+        generalFormBtn = $('#general-send'),
+        generalDeleteBtn = $('#general-delete');
 
-    var generalForm = $("#host-general-form");
-    var generalFormBtn = $("#general-send");
-    var generalDeleteBtn = $("#general-delete");
-
-    generalForm.submit(function(e) {
+    generalForm.on('submit',function(e) {
         e.preventDefault();
     });
-    generalFormBtn.click(function() {
-        generalFormBtn.prop("disabled", true);
-        generalDeleteBtn.prop("disabled", true);
+    generalFormBtn.on('click',function() {
+        generalFormBtn.prop('disabled', true);
+        generalDeleteBtn.prop('disabled', true);
         Common.processForm(generalForm, function(err) {
-            generalFormBtn.prop("disabled", false);
-            generalDeleteBtn.prop("disabled", false);
-            if (err)
+            generalFormBtn.prop('disabled', false);
+            generalDeleteBtn.prop('disabled', false);
+            if (err) {
                 return;
-            updateName($("#name").val())
-            originalName = $("#name").val();
+            }
+            updateName($('#name').val())
+            originalName = $('#name').val();
         });
     });
-    generalDeleteBtn.click(function() {
-        generalFormBtn.prop("disabled", true);
-        generalDeleteBtn.prop("disabled", true);
+    generalDeleteBtn.on('click',function() {
+        generalFormBtn.prop('disabled', true);
+        generalDeleteBtn.prop('disabled', true);
         Common.massDelete(
             null,
             function(err) {
                 if (err) {
-                    generalDeleteBtn.prop("disabled", false);
-                    generalFormBtn.prop("disabled", false);
+                    generalDeleteBtn.prop('disabled', false);
+                    generalFormBtn.prop('disabled', false);
                     return;
                 }
                 window.location = '../management/index.php?node='+Common.node+'&sub=list';
@@ -50,78 +50,75 @@
 
     // ---------------------------------------------------------------
     // ACTIVE DIRECTORY TAB
-    var ADForm = $("#active-directory-form");
-    var ADFormBtn = $("#ad-send");
-    var ADClearBtn = $("#ad-clear");
+    var ADForm = $('#active-directory-form'),
+        ADFormBtn = $('#ad-send'),
+        ADClearBtn = $('#ad-clear');
 
-    ADForm.submit(function(e) {
+    ADForm.on('submit',function(e) {
         e.preventDefault();
     });
-    ADFormBtn.click(function() {
-        ADFormBtn.prop("disabled", true);
-        ADClearBtn.prop("disabled", true);
+    ADFormBtn.on('click',function() {
+        ADFormBtn.prop('disabled', true);
+        ADClearBtn.prop('disabled', true);
         Common.processForm(ADForm, function(err) {
-            ADFormBtn.prop("disabled", false);
-            ADClearBtn.prop("disabled", false);
+            ADFormBtn.prop('disabled', false);
+            ADClearBtn.prop('disabled', false);
         });
     });
-    ADClearBtn.click(function() {
-        ADClearBtn.prop("disabled", true);
-        ADFormBtn.prop("disabled", true);
+    ADClearBtn.on('click',function() {
+        ADClearBtn.prop('disabled', true);
+        ADFormBtn.prop('disabled', true);
 
         var restoreMap = [];
-        ADForm.find("input[type=text], input[type=password], textarea").each(function(i, e) {
+        ADForm.find('input[type="text"], input[type="password"], textarea').each(function(i, e) {
             restoreMap.push({checkbox: false, e: e, val: $(e).val()});
-            $(e).val("");
-            $(e).prop("disabled", true);
+            $(e).val('');
+            $(e).prop('disabled', true);
         });
-        ADForm.find("input[type=checkbox]").each(function(i, e) {
+        ADForm.find('input[type=checkbox]').each(function(i, e) {
             restoreMap.push({checkbox: true, e: e, val: $(e).iCheck('update')[0].checked});
-            $(e).iCheck("uncheck");
-            $(e).iCheck("disable");
+            $(e).iCheck('uncheck');
+            $(e).iCheck('disable');
         });
 
-        ADForm.find("input[type=text], input[type=password], textarea").val("");
-        ADForm.find("input[type=checkbox]").iCheck('uncheck');
+        ADForm.find('input[type=text], input[type=password], textarea').val('');
+        ADForm.find('input[type=checkbox]').iCheck('uncheck');
 
         Common.processForm(ADForm, function(err) {
             for (var i = 0; i < restoreMap.length; i++) {
                 field = restoreMap[i];
                 if (field.checkbox) {
-                    if (err) $(field.e).iCheck((field.val ? "check" : "uncheck"));
-                    $(field.e).iCheck("enable");
+                    if (err) $(field.e).iCheck((field.val ? 'check' : 'uncheck'));
+                    $(field.e).iCheck('enable');
                 } else {
                     if (err) $(field.e).val(field.val);
-                    $(field.e).prop("disabled", false);
+                    $(field.e).prop('disabled', false);
                 }
             }
-            ADClearBtn.prop("disabled", false);
-            ADFormBtn.prop("disabled", false);
+            ADClearBtn.prop('disabled', false);
+            ADFormBtn.prop('disabled', false);
         });
     });
 
     // ---------------------------------------------------------------
     // PRINTER TAB
-    var printerConfigForm = $("#printer-config-form");
-    var printerConfigBtn = $("#printer-config-send");
-    var printerAddBtn = $("#printer-add");
-    var printerDefaultBtn = $("#printer-default");
-    var printerRemoveBtn = $("#printer-remove");
-    var DEFAULT_PRINTER_ID = -1;
+    var printerConfigForm = $('#printer-config-form'),
+        printerConfigBtn = $('#printer-config-send'),
+        printerAddBtn = $('#printer-add'),
+        printerDefaultBtn = $('#printer-default'),
+        printerRemoveBtn = $('#printer-remove'),
+        DEFAULT_PRINTER_ID = -1;
 
-    printerAddBtn.prop("disabled", true);
-    printerRemoveBtn.prop("disabled", true);
+    printerAddBtn.prop('disabled', true);
+    printerRemoveBtn.prop('disabled', true);
 
-    function onPrintersToAddTableSelect (selected) {
+    function onPrintersSelect(selected) {
         var disabled = selected.count() == 0;
-        printerAddBtn.prop("disabled", disabled);
-    }
-    function onPrintersSelect (selected) {
-        var disabled = selected.count() == 0;
-        printerRemoveBtn.prop("disabled", disabled);
+        printerAddBtn.prop('disabled', disabled);
+        printerRemoveBtn.prop('disabled', disabled);
     }
 
-    var printersTable = Common.registerTable($("#host-printers-table"), onPrintersSelect, {
+    var printersTable = Common.registerTable($('#host-printers-table'), onPrintersSelect, {
         order: [
             [1, 'asc']
         ],
@@ -189,7 +186,7 @@
         serverSide: true,
         ajax: {
             url: '../management/index.php?node='+Common.node+'&sub=getPrintersList&id='+Common.id,
-            type: 'POST'
+            type: 'post'
         }
     });
 
@@ -197,12 +194,12 @@
         Common.iCheck('#host-printers input');
         $('#host-printers-table input.default').on('ifClicked', onRadioSelect);
     });
-    printerDefaultBtn.prop("disabled", true);
+    printerDefaultBtn.prop('disabled', true);
 
     var onRadioSelect = function(event) {
-        if($(this).attr("belongsto") === 'defaultPrinters') {
-            var id = parseInt($(this).attr("value"));
-            if(DEFAULT_PRINTER_ID === -1 && $(this).attr("wasoriginaldefault") === 'checked') {
+        if($(this).attr('belongsto') === 'defaultPrinters') {
+            var id = parseInt($(this).val());
+            if(DEFAULT_PRINTER_ID === -1 && $(this).attr('wasoriginaldefault') === ' checked') {
                 DEFAULT_PRINTER_ID = id;
             }
             if (id === DEFAULT_PRINTER_ID) {
@@ -211,23 +208,26 @@
             } else {
                 DEFAULT_PRINTER_ID = id;
             }
-            printerDefaultBtn.prop("disabled", false);
+            printerDefaultBtn.prop('disabled', false);
         }
     };
 
     // Setup default printer watcher
     $('.default').on('ifClicked', onRadioSelect);
 
-    printerDefaultBtn.click(function() {
-        printerRemoveBtn.prop("disabled", true);
+    printerDefaultBtn.on('click',function() {
+        printerAddBtn.prop('disabled', true);
+        printerRemoveBtn.prop('disabled', true);
 
-        var opts = {
-            'defaultsel': '1',
-            'default': DEFAULT_PRINTER_ID
-        }
+        var method = printerDefaultBtn.attr('method'),
+            action = printerDefaultBtn.attr('action'),
+            opts = {
+                'defaultsel': '1',
+                'default': DEFAULT_PRINTER_ID
+            };
 
-        Common.apiCall(printerDefaultBtn.attr('method'), printerDefaultBtn.attr('action'), opts, function(err) {
-            printerDefaultBtn.prop("disabled", !err);
+        Common.apiCall(method,action, opts, function(err) {
+            printerDefaultBtn.prop('disabled', !err);
             onPrintersSelect(printersTable.rows({selected: true}));
         });
     });
@@ -236,80 +236,64 @@
     printerConfigForm.serialize = function() {
         return printerConfigForm.serialize2() + '&levelup';
     }
-    printerConfigForm.submit(function(e) {
+    printerConfigForm.on('submit',function(e) {
         e.preventDefault();
     });
     printerConfigBtn.on('click', function() {
-        printerConfigBtn.prop("disabled", true);
+        printerConfigBtn.prop('disabled', true);
         Common.processForm(printerConfigForm, function(err) {
-            printerConfigBtn.prop("disabled", false);
+            printerConfigBtn.prop('disabled', false);
         });
     });
-    printerAddBtn.click(function() {
-        printerAddBtn.prop("disabled", true);
+    printerAddBtn.on('click',function() {
+        printerAddBtn.prop('disabled', true);
 
-        var rows = printersToAddTable.rows({selected: true});
-        var toAdd = Common.getSelectedIds(printersToAddTable);
-        var opts = {
-            'updateprinters': '1',
-            'printer': toAdd
-        };
+        var method = printerAddBtn.attr('method'),
+            action = printerAddBtn.attr('action'),
+            rows = printersTable.rows({selected: true}),
+            toAdd = Common.getSelectedIds(printersTable),
+            opts = {
+                'updateprinters': '1',
+                'printer': toAdd
+            };
 
-        Common.apiCall(printerAddBtn.attr('method'), printerAddBtn.attr('action'), opts, function(err) {
+        Common.apiCall(method,action,opts,function(err) {
             if (!err) {
-                rows.every(function (idx, tableLoop, rowLoop) {
-                    var data = this.data();
-                    var id = this.id();
-                    printersTable.row.add({
-                        0:'<div class="radio"><input id="printers' +
-                        id + '"belongsto="defaultPrinters" type="radio" class="default" name="default" value="'+
-                        id +'" wasoriginaldefault="" /></div>',
-                        1: data[0],
-                        2: data[1],
-                        3: data[2]
-                    });
-                });
                 printersTable.draw(false);
-                printersToAddTable.rows({
-                    selected: true
-                }).remove().draw(false);
-                printersToAddTable.rows({selected: true}).deselect();
-            } else {
-                printerAddBtn.prop("disabled", false);
-            }
-        });
-    });
-
-    printerRemoveBtn.click(function() {
-        printerRemoveBtn.prop("disabled", true);
-        printerDefaultBtn.prop("disabled", true);
-
-        var rows = printersTable.rows({selected: true});
-        var toRemove = Common.getSelectedIds(printersTable);
-        var opts = {
-            'printdel': '1',
-            'printerRemove': toRemove
-        };
-
-        Common.apiCall(printerRemoveBtn.attr('method'), printerRemoveBtn.attr('action'), opts, function(err) {
-            printerDefaultBtn.prop("disabled", false);
-
-            if (!err) {
-                rows.every(function (idx, tableLoop, rowLoop) {
-                    var data = this.data();
-                    printersToAddTable.row.add({
-                        0: data[1],
-                        1: data[2]
-                    });
-                });
-                printersToAddTable.draw(false);
-
                 printersTable.rows({
                     selected: true
                 }).remove().draw(false);
                 printersTable.rows({selected: true}).deselect();
             } else {
-                printerRemoveBtn.prop("disabled", false);
+                printerAddBtn.prop('disabled', false);
+            }
+        });
+    });
+
+    printerRemoveBtn.on('click',function() {
+        printerAddBtn.prop('disabled', true);
+        printerRemoveBtn.prop('disabled', true);
+        printerDefaultBtn.prop('disabled', true);
+
+        var method = printerRemoveBtn.attr('method'),
+            action = printerRemoveBtn.attr('action'),
+            rows = printersTable.rows({selected: true}),
+            toRemove = Common.getSelectedIds(printersTable),
+            opts = {
+                'printdel': '1',
+                'printerRemove': toRemove
+            };
+
+        Common.apiCall(method,action,opts,function(err) {
+            printerDefaultBtn.prop('disabled', false);
+            if (!err) {
+                printersTable.draw(false);
+                printersTable.rows({
+                    selected: true
+                }).remove().draw(false);
+                printersTable.rows({selected: true}).deselect();
+            } else {
+                printerRemoveBtn.prop('disabled', false);
             }
         });
     });
@@ -320,22 +304,19 @@
 
     // ---------------------------------------------------------------
     // SNAPINS TAB
-    var snapinsAddBtn = $("#snapins-add");
-    var snapinsRemoveBtn = $("#snapins-remove");
+    var snapinsAddBtn = $('#snapins-add'),
+        snapinsRemoveBtn = $('#snapins-remove');
 
-    snapinsAddBtn.prop("disabled", true);
-    snapinsRemoveBtn.prop("disabled", true);
+    snapinsAddBtn.prop('disabled', true);
+    snapinsRemoveBtn.prop('disabled', true);
 
-    function onSnapinsRemoveSelect (selected) {
+    function onSnapinsSelect(selected) {
         var disabled = selected.count() == 0;
-        snapinsRemoveBtn.prop("disabled", disabled);
-    }
-    function onSnapinsAddSelect (selected) {
-        var disabled = selected.count() == 0;
-        snapinsAddBtn.prop("disabled", disabled);
+        snapinsAddBtn.prop('disabled', disabled);
+        snapinsRemoveBtn.prop('disabled', disabled);
     }
 
-    var snapinsTable = Common.registerTable($("#host-snapins-table"), onSnapinsRemoveSelect, {
+    var snapinsTable = Common.registerTable($('#host-snapins-table'), onSnapinsSelect, {
         columns: [
             {data: 'name'},
             {data: 'createdTime'},
@@ -372,69 +353,57 @@
         serverSide: true,
         ajax: {
             url: '../management/index.php?node='+Common.node+'&sub=getSnapinsList&id='+Common.id,
-            type: 'POST'
+            type: 'post'
         }
     });
     snapinsTable.on('draw', function() {
         Common.iCheck('#host-snapins input');
     });
 
-    snapinsAddBtn.click(function() {
-        snapinsAddBtn.prop("disabled", true);
+    snapinsAddBtn.on('click',function() {
+        snapinsAddBtn.prop('disabled', true);
+        snapinsRemoveBtn.prop('disabled', true);
 
-        var rows = snapinsAddTable.rows({selected: true});
-        var toAdd = Common.getSelectedIds(snapinsAddTable);
-        var opts = {
-            'updatesnapins': '1',
-            'snapin': toAdd
-        };
-        Common.apiCall(snapinsAddBtn.attr('method'), snapinsAddBtn.attr('action'), opts, function(err) {
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            rows = snapinsTable.rows({selected: true}),
+            toAdd = Common.getSelectedIds(snapinsAddTable),
+            opts = {
+                'updatesnapins': '1',
+                'snapin': toAdd
+            };
+        Common.apiCall(method,action,opts,function(err) {
             if (!err) {
-                rows.every(function (idx, tableLoop, rowLoop) {
-                    var data = this.data();
-                    var id = this.id();
-                    snapinsTable.row.add({
-                        0: data[0],
-                        1: data[1],
-                        2: data[2]
-                    });
-                });
                 snapinsTable.draw(false);
-                snapinsAddTable.rows({
-                    selected: true
-                }).remove().draw(false);
-                snapinsAddTable.rows({selected: true}).deselect();
-            } else {
-                snapinsAddBtn.prop("disabled", false);
-            }
-        });
-    });
-
-    snapinsRemoveBtn.click(function() {
-        snapinsRemoveBtn.prop("disabled", true);
-        var rows = snapinsTable.rows({selected: true});
-        var toRemove = Common.getSelectedIds(snapinsTable);
-        var opts = {
-            'snapdel': '1',
-            'snapinRemove': toRemove
-        };
-        Common.apiCall(snapinsRemoveBtn.attr('method'), snapinsRemoveBtn.attr('action'), opts, function(err) {
-            if (!err) {
-                rows.every(function (idx, tableLoop, rowLoop) {
-                    var data = this.data();
-                    snapinsAddTable.row.add({
-                        0: data[0],
-                        1: data[1]
-                    });
-                });
-                snapinsAddTable.draw(false);
-
                 snapinsTable.rows({
                     selected: true
                 }).remove().draw(false);
                 snapinsTable.rows({selected: true}).deselect();
             } else {
-                snapinsRemoveBtn.prop("disabled", false);
+                snapinsAddBtn.prop('disabled', false);
+            }
+        });
+    });
+
+    snapinsRemoveBtn.on('click',function() {
+        snapinsRemoveBtn.prop('disabled', true);
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            rows = snapinsTable.rows({selected: true}),
+            toRemove = Common.getSelectedIds(snapinsTable),
+            opts = {
+                'snapdel': '1',
+                'snapinRemove': toRemove
+            };
+        Common.apiCall(method,action,opts,function(err) {
+            if (!err) {
+                snapinsTable.draw(false);
+                snapinsTable.rows({
+                    selected: true
+                }).remove().draw(false);
+                snapinsTable.rows({selected: true}).deselect();
+            } else {
+                snapinsRemoveBtn.prop('disabled', false);
             }
         });
     });
@@ -444,28 +413,32 @@
 
     // ---------------------------------------------------------------
     // SERVICE TAB
-    var modulesEnableBtn = $('#modules-enable');
-    var modulesDisableBtn = $('#modules-disable');
-    var modulesUpdateBtn = $('#modules-update');
+    var modulesEnableBtn = $('#modules-enable'),
+        modulesDisableBtn = $('#modules-disable'),
+        modulesUpdateBtn = $('#modules-update');
 
     function onModulesDisable(selected) {
         var disabled = selected.count() == 0;
-        modulesDisableBtn.prop("disabled", disabled);
+        modulesDisableBtn.prop('disabled', disabled);
     }
-
     function onModulesEnable(selected) {
         var disabled = selected.count() == 0;
-        modulesEnableBtn.prop("disabled", disabled);
+        modulesEnableBtn.prop('disabled', disabled);
     }
 
     modulesEnableBtn.on('click', function(e) {
         e.preventDefault();
-        $('.associated').iCheck('check');
+        $('#modules-to-update_wrapper .buttons-select-all').trigger('click');
+        $('#modules-to-update_wrapper .associated').iCheck('check');
+        $(this).prop('disabled', true);
+        modulesDisableBtn.prop('disabled', false);
     });
-
     modulesDisableBtn.on('click', function(e) {
         e.preventDefault();
-        $('.associated').iCheck('uncheck');
+        $('#modules-to-update_wrapper .buttons-select-none').trigger('click');
+        $('#modules-to-update_wrapper .associated').iCheck('uncheck');
+        $(this).prop('disabled', true);
+        modulesEnableBtn.prop('disabled', false);
     });
 
     var modulesTable = Common.registerTable($("#modules-to-update"), onModulesEnable, {
@@ -510,15 +483,10 @@
     modulesTable.on('draw', function() {
         Common.iCheck('#modules-to-update input');
     });
-    // var modulesTable = Common.registerTable(
-    //     $("#host-service-modules-table"),
-    //     function () {},
-    //     {paging: false, searching: false, select:false, ordering:false});
-
+    if (Common.search && Common.search.length > 0) {
+        modulesTable.search(Common.search).draw();
+    }
 })(jQuery);
-
-
-
 // var LoginHistory = $('#login-history'),
 //     LoginHistoryDate = $('.loghist-date'),
 //     LoginHistoryData = [],

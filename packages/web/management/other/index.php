@@ -141,7 +141,8 @@ if (self::$FOGUser->isValid()) {
     // FOOTER
     echo '  <footer class="main-footer">';
     echo '      <div class="pull-right hidden-xs">';
-    echo '          <b>Version</b> ' . FOG_VERSION;
+    echo '          <b>Channel</b> ' . FOG_CHANNEL . ' |';
+    echo '          <b>Version</b> 1.5.0.' . FOG_VERSION;
     echo '      </div>';
     echo '      <strong>Copyright &copy; 2012-2018 <a href="https://fogproject.org">FOG Project</a>.</strong> All rights reserved.';
     echo '  </footer>';
