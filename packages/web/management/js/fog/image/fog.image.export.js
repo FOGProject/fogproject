@@ -6,21 +6,19 @@
         passwordField = $('#exportPassword'),
         cancelExport = $('#closeExportModal'),
         exportAction = exportForm.prop('action');
-
     function disableButtons(disable) {
         exportBtn.prop('disabled', disable);
     }
-
-    exportForm.submit(function(e) {
+    exportForm.on('submit',function(e) {
         e.preventDefault();
     });
-
     exportBtn.on('click', function(e) {
         exportBtn.prop('disabled', true);
         Common.processForm(exportForm, function(err) {
             exportBtn.prop('disabled', false);
-            if (err)
+            if (err) {
                 return;
+            }
             $('<form method="post" action="' + exportForm.prop('action') + '"><input type="hidden" name="nojson"/></form>').appendTo('body').submit().remove();
         });
     });
