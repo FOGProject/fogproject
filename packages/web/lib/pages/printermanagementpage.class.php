@@ -851,9 +851,15 @@ class PrinterManagementPage extends FOGPage
         // =================================================================
         // Associated Hosts
         $buttons = self::makeButton(
+            'membership-default',
+            _('Update Default'),
+            'btn btn-primary',
+            $props
+        );
+        $buttons .= self::makeButton(
             'membership-add',
             _('Add selected'),
-            'btn btn-primary',
+            'btn btn-success',
             $props
         );
         $buttons .= self::makeButton(
@@ -864,13 +870,16 @@ class PrinterManagementPage extends FOGPage
         );
         $this->headerData = [
             _('Host Name'),
+            _('Default Printer'),
             _('Host Associated')
         ];
         $this->templates = [
             '',
+            '',
             ''
         ];
         $this->attributes = [
+            [],
             [],
             []
         ];
@@ -891,6 +900,40 @@ class PrinterManagementPage extends FOGPage
      */
     public function printerMembershipPost()
     {
+        if (isset($_POST['updatedefault'])) {
+            $items = filter_input_array(
+                INPUT_POST,
+                [
+                    'defaulton' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $defaulton = $items['defaulton'];
+            self::getClass('PrinterAssociationManager')
+                ->update(
+                    [
+                        'printerID' => $this->obj->get('id'),
+                    ],
+                    '',
+                    [
+                        'isDefault' => 0
+                    ]
+                );
+            if (count($defaulton ?: [])) {
+                self::getClass('PrinterAssociationManager')
+                    ->update(
+                        [
+                            'printerID' => $this->obj->get('id'),
+                            'hostID' => $defaulton
+                        ],
+                        '',
+                        [
+                            'isDefault' => 1
+                        ]
+                    );
+            }
+        }
         if (isset($_POST['updatemembership'])) {
             $membership = filter_input_array(
                 INPUT_POST,
@@ -970,6 +1013,10 @@ class PrinterManagementPage extends FOGPage
         $columns[] = [
             'db' => 'paPrinterID',
             'dt' => 'association'
+        ];
+        $columns[] = [
+            'db' => 'paIsDefault',
+            'dt' => 'isDefault'
         ];
         echo json_encode(
             FOGManagerController::complex(
