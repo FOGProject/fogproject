@@ -60,7 +60,8 @@
     });
     // ---------------------------------------------------------------
     // MEMBERSHIP TAB
-    var membershipAddBtn = $('#membership-add'),
+    var membershipDefaultBtn = $('#membership-default'),
+        membershipAddBtn = $('#membership-add'),
         membershipRemoveBtn = $('#membership-remove');
     membershipAddBtn.prop('disabled', true);
     membershipRemoveBtn.prop('disabled', true);
@@ -74,6 +75,7 @@
     var membershipTable = Common.registerTable($('#printer-membership-table'), onMembershipSelect, {
         columns: [
             {data: 'name'},
+            {data: 'isDefault'},
             {data: 'association'}
         ],
         rowId: 'id',
@@ -92,6 +94,28 @@
             {
                 render: function(data, type, row) {
                     var checkval = '';
+                    if (row.association !== 'associated') {
+                        checkval = ' disabled';
+                    } else if (row.isDefault > 0) {
+                        checkval = ' checked';
+                    } else {
+                        checkval = '';
+                    }
+                    return '<div class="checkbox">'
+                        + '<input type="checkbox" class="default" name="default[]" id="memberDefault_'
+                        + row.id
+                        + '" value="'
+                        + row.id
+                        + '"'
+                        + checkval
+                        + '/>'
+                        + '</div>';
+                },
+                targets: 1
+            },
+            {
+                render: function(data, type, row) {
+                    var checkval = '';
                     if (row.association === 'associated') {
                         checkval = ' checked';
                     }
@@ -105,7 +129,7 @@
                         + '/>'
                         + '</div>';
                 },
-                targets: 1
+                targets: 2
             }
         ],
         processing: true,
@@ -117,6 +141,30 @@
     membershipTable.on('draw', function() {
         Common.iCheck('#printer-membership-table input');
         $('#printer-membership-table input.associated').on('ifClicked', onCheckboxSelect);
+    });
+    membershipDefaultBtn.on('click', function() {
+        membershipDefaultBtn.prop('disabled', true);
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            rows = membershipTable.rows({selected: true}),
+            defaulton = [],
+            opts = {
+                updatedefault: '1',
+                defaulton: defaulton
+            };
+        // Get all the checked default options.
+        $('.default:checked').each(function() {
+            defaulton.push($(this).val());
+        });
+        Common.apiCall(method,action,opts,function(err) {
+            membershipDefaultBtn.prop('disabled', true);
+            if (!err) {
+                membershipTable.draw(false);
+                membershipTable.rows({selected: true}).deselect();
+            } else {
+                membershipDefaultBtn.prop('disabled', false);
+            }
+        });
     });
     membershipAddBtn.on('click', function() {
         membershipAddBtn.prop('disabled', true);
@@ -132,8 +180,19 @@
             if (!err) {
                 membershipTable.draw(false);
                 membershipTable.rows({selected: true}).deselect();
+                $('.default:disabled').each(function() {
+                    if (toAdd.indexOf($(this).val()) != -1) {
+                        $(this).prop('disabled', false);
+                        Common.iCheck('.default[value='+$(this).val()+']');
+                    }
+                });
+                $('.associated').each(function() {
+                    if (toAdd.indexOf($(this).val()) != -1) {
+                        $('.associated[value='+$(this).val()+']').iCheck('check');
+                    }
+                });
             } else {
-                membershipAddBtn.prop('disable', false);
+                membershipAddBtn.prop('disabled', false);
             }
         });
     });
@@ -151,6 +210,17 @@
             if (!err) {
                 membershipTable.draw(false);
                 membershipTable.rows({selected: true}).deselect();
+                $('.default').each(function() {
+                    if (toRemove.indexOf($(this).val()) != -1) {
+                        $(this).prop('disabled', true);
+                        Common.iCheck('.default[value='+$(this).val()+']');
+                    }
+                });
+                $('.associated').each(function() {
+                    if (toRemove.indexOf($(this).val()) != -1) {
+                        $('.associated[value='+$(this).val()+']').iCheck('uncheck');
+                    }
+                });
             } else {
                 membershipRemoveBtn.prop('disabled', false);
             }
