@@ -264,7 +264,7 @@
                 'printerRemove': toRemove
             };
 
-        Common.apiCall(method,action,opts function(err) {
+        Common.apiCall(method,action,opts, function(err) {
             printerDefaultBtn.prop('disabled', false);
             if (!err) {
                 printersTable.draw(false);
