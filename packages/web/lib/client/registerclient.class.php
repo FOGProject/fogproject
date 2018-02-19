@@ -50,12 +50,12 @@ class RegisterClient extends FOGClient
             $maxPending
         ) = self::getSubObjectIDs(
             'Service',
-            array(
-                'name' => array(
+            [
+                'name' => [
                     'FOG_ENFORCE_HOST_CHANGES',
                     'FOG_QUICKREG_MAX_PENDING_MACS'
-                )
-            ),
+                ]
+            ],
             'value',
             false,
             'AND',
@@ -68,7 +68,7 @@ class RegisterClient extends FOGClient
         if (!self::$Host->isValid()) {
             self::$Host = self::getClass(
                 'Host',
-                array('name' => $hostname)
+                ['name' => $hostname]
             )->load('name');
             if (!(self::$Host->isValid() && !self::$Host->get('pending'))) {
                 if (!self::getClass('Host')->isHostnameSafe($hostname)) {
@@ -76,7 +76,7 @@ class RegisterClient extends FOGClient
                         echo '#!ih';
                         exit;
                     }
-                    return array('error' => 'ih');
+                    return ['error' => 'ih'];
                 }
                 $PriMAC = array_shift($MACs);
                 self::$Host = self::getClass('Host')
@@ -90,19 +90,19 @@ class RegisterClient extends FOGClient
                     ->addModule(
                         self::getSubObjectIDs(
                             'Module',
-                            array('isDefault' => 1)
+                            ['isDefault' => 1]
                         )
                     )
                     ->addPriMAC($PriMAC)
                     ->addAddMAC($MACs);
                 if (!self::$Host->save()) {
-                    return array('error' => 'db');
+                    return ['error' => 'db'];
                 }
-                return array('complete' => true);
+                return ['complete' => true];
             }
         }
         if ($pendingMACcount > $maxPending) {
-            return array(
+            return [
                 'error' => sprintf(
                     '%s. %s %d %s.',
                     _('Too many MACs'),
@@ -110,7 +110,7 @@ class RegisterClient extends FOGClient
                     $maxPending,
                     _('additional macs')
                 )
-            );
+            ];
         }
         $MACs = self::parseMacList(
             $MACs,
@@ -134,10 +134,10 @@ class RegisterClient extends FOGClient
         if (count($MACs)) {
             self::$Host->addPendMAC($MACs);
             if (!self::$Host->save()) {
-                return array('error' => 'db');
+                return ['error' => 'db'];
             }
-            return array('complete' => true);
+            return ['complete' => true];
         }
-        return array('error' => 'ig');
+        return ['error' => 'ig'];
     }
 }

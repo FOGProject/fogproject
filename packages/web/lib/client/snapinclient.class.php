@@ -38,24 +38,24 @@ class SnapinClient extends FOGClient
         $Task = self::$Host->get('task');
         $SnapinJob = self::$Host->get('snapinjob');
         if ($Task->isValid() && !$Task->isSnapinTasking()) {
-            return array(
+            return [
                 'error' => 'it'
-            );
+            ];
         }
         if (!$SnapinJob->isValid()) {
-            return array(
+            return [
                 'error' => 'ns'
-            );
+            ];
         }
         $STaskCount = self::getClass('SnapinTaskManager')
             ->count(
-                array(
+                [
                     'jobID' => $SnapinJob->get('id'),
                     'stateID' => self::fastmerge(
                         self::getQueuedStates(),
                         (array)self::getProgressState()
                     )
-                )
+                ]
             );
         if ($STaskCount < 1) {
             if ($Task->isValid()) {
@@ -64,12 +64,12 @@ class SnapinClient extends FOGClient
             $SnapinJob->set('stateID', self::getCompleteState())->save();
             self::$EventManager->notify(
                 'HOST_SNAPIN_COMPLETE',
-                array(
+                [
                     'Host' => &self::$Host,
                     'HostName' => &$HostName
-                )
+                ]
             );
-            return array('error' => 'ns');
+            return ['error' => 'ns'];
         }
         if ($Task->isValid()) {
             $Task
@@ -85,44 +85,42 @@ class SnapinClient extends FOGClient
             if (!isset($_REQUEST['exitcode'])) {
                 $snapinIDs = self::getSubObjectIDs(
                     'SnapinTask',
-                    array(
+                    [
                         'stateID' => self::fastmerge(
                             self::getQueuedStates(),
                             (array)self::getProgressState()
                         ),
                         'jobID' => $SnapinJob->get('id'),
-                    ),
+                    ],
                     'snapinID'
                 );
                 $snapinIDs = self::getSubObjectIDs(
                     'Snapin',
-                    array('id' => $snapinIDs)
+                    ['id' => $snapinIDs]
                 );
                 if (count($snapinIDs) < 1) {
                     $SnapinJob
                         ->set('stateID', self::getCancelledState())
                         ->save();
-                    return array(
-                        'error' => _('No valid tasks found')
-                    );
+                    return ['error' => _('No valid tasks found')];
                 }
-                $info = array();
-                $info['snapins'] = array();
+                $info = [];
+                $info['snapins'] = [];
                 foreach ((array)self::getClass('SnapinManager')
                     ->find(
-                        array('id' => $snapinIDs)
+                        ['id' => $snapinIDs]
                     ) as &$Snapin
                 ) {
                     $snapinTaskID = self::getSubObjectIDs(
                         'SnapinTask',
-                        array(
+                        [
                             'snapinID' => $Snapin->get('id'),
                             'jobID' => $SnapinJob->get('id'),
                             'stateID' => self::fastmerge(
                                 self::getQueuedStates(),
                                 (array)self::getProgressState()
                             )
-                        )
+                        ]
                     );
                     $snapinTaskID = array_shift($snapinTaskID);
                     $SnapinTask = new SnapinTask($snapinTaskID);
@@ -132,19 +130,19 @@ class SnapinClient extends FOGClient
                     $StorageNode = $StorageGroup = null;
                     self::$HookManager->processEvent(
                         'SNAPIN_GROUP',
-                        array(
+                        [
                             'Host' => &self::$Host,
                             'Snapin' => &$Snapin,
                             'StorageGroup' => &$StorageGroup,
-                        )
+                        ]
                     );
                     self::$HookManager->processEvent(
                         'SNAPIN_NODE',
-                        array(
+                        [
                             'Host' => &self::$Host,
                             'Snapin' => &$Snapin,
                             'StorageNode' => &$StorageNode,
-                        )
+                        ]
                     );
                     if (!($StorageGroup instanceof StorageGroup
                         && $StorageGroup->isValid())
@@ -183,7 +181,7 @@ class SnapinClient extends FOGClient
                     } elseif ($Snapin->get('reboot')) {
                         $action = 'reboot';
                     }
-                    $info['snapins'][] = array(
+                    $info['snapins'][] = [
                         'pack' =>( bool)$Snapin->get('packtype'),
                         'hide' => (bool)$Snapin->get('hide'),
                         'timeout' => $Snapin->get('timeout'),
@@ -198,7 +196,7 @@ class SnapinClient extends FOGClient
                         'hash' => strtoupper($hash),
                         'size' => $size,
                         'url' => rtrim($location, '/'),
-                    );
+                    ];
                     unset($Snapin, $SnapinTask);
                 }
                 return $info;
@@ -235,10 +233,10 @@ class SnapinClient extends FOGClient
         if (!($SnapinTask->isValid()
             && !in_array(
                 $SnapinTask->get('stateID'),
-                array(
+                [
                     self::getCompleteState(),
                     self::getCancelledState()
-                )
+                ]
             ))
         ) {
             throw new Exception(
@@ -267,22 +265,22 @@ class SnapinClient extends FOGClient
             ->save();
         self::$EventManager->notify(
             'HOST_SNAPINTASK_COMPLETE',
-            array(
+            [
                 'Snapin' => &$Snapin,
                 'SnapinTask' => &$SnapinTask,
                 'Host' => &self::$Host,
                 'HostName' => &$HostName
-            )
+            ]
         );
         $STaskCount = self::getClass('SnapinTaskManager')
             ->count(
-                array(
+                [
                     'jobID' => $SnapinJob->get('id'),
                     'stateID' => self::fastmerge(
                         self::getQueuedStates(),
                         (array)self::getProgressState()
                     )
-                )
+                ]
             );
         if ($STaskCount < 1) {
             if ($Task->isValid()) {
@@ -291,10 +289,10 @@ class SnapinClient extends FOGClient
             $SnapinJob->set('stateID', self::getCompleteState())->save();
             self::$EventManager->notify(
                 'HOST_SNAPIN_COMPLETE',
-                array(
+                [
                     'HostName' => &$HostName,
                     'Host' => &self::$Host
-                )
+                ]
             );
         }
     }
@@ -337,19 +335,19 @@ class SnapinClient extends FOGClient
         $StorageGroup = $StorageNode = null;
         self::$HookManager->processEvent(
             'SNAPIN_GROUP',
-            array(
+            [
                 'Host' => &self::$Host,
                 'Snapin' => &$Snapin,
                 'StorageGroup' => &$StorageGroup
-            )
+            ]
         );
         self::$HookManager->processEvent(
             'SNAPIN_NODE',
-            array(
+            [
                 'Host' => &self::$Host,
                 'Snapin' => &$Snapin,
                 'StorageNode' => &$StorageNode
-            )
+            ]
         );
         if (!($StorageGroup instanceof StorageGroup
             && $StorageGroup->isValid())

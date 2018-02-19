@@ -28,10 +28,10 @@ class DisplayManager extends FOGClient
      */
     public function json()
     {
-        return array(
+        return [
             'x' => self::$Host->getDispVals('width'),
             'y' => self::$Host->getDispVals('height'),
             'r' => self::$Host->getDispVals('refresh'),
-        );
+        ];
     }
 }

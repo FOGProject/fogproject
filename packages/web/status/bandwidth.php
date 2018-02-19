@@ -46,7 +46,7 @@ $getBytes = function ($dev, $file) {
     if (!is_string($file)) {
         throw new Exception(_('File must be a string'));
     }
-    if (!in_array($file, array('tx_bytes', 'rx_bytes'))) {
+    if (!in_array($file, ['tx_bytes', 'rx_bytes'])) {
         throw new Exception(_('Only tx and rx bytes files can be read'));
     }
     $path = "/sys/class/net/$dev/statistics/$file";
@@ -69,13 +69,13 @@ $scan = scandir('/sys/class/net');
 // Filter out dots
 $dir_interfaces = array_diff(
     $scan,
-    array(
+    [
         '..',
         '.'
-    )
+    ]
 );
 // Initiate our interfaces variable
-$interfaces = array();
+$interfaces = [];
 // Loop the captured data and set up interfaces
 foreach ($dir_interfaces as &$iface) {
     $operstateFile = "/sys/class/net/$iface/operstate";
@@ -102,11 +102,11 @@ if (count($interface) < 1) {
 $dev = trim($dev);
 // If the device is not set or found return Unknown
 if (!$dev) {
-    $ret = array(
+    $ret = [
         'dev' => 'Unknown',
         'rx' => 0,
         'tx' => 0,
-    );
+    ];
     echo json_encode($ret);
     exit;
 }
@@ -114,11 +114,11 @@ if (!$dev) {
 $rx = $getBytes($dev, 'rx_bytes');
 $tx = $getBytes($dev, 'tx_bytes');
 // Setup our return array
-$ret = array(
+$ret = [
     'dev' => $dev,
     'rx' => $rx,
     'tx' => $tx,
-);
+];
 // Return
 echo json_encode($ret);
 exit;

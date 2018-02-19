@@ -65,7 +65,7 @@ function vals($reverse, $HookManager, $lines, $file)
         '#^%s$#',
         $folder
     );
-    $folders = array(
+    $folders = [
         '/var/log/fog/',
         '/opt/fog/log/',
         '/var/log/httpd/',
@@ -75,8 +75,8 @@ function vals($reverse, $HookManager, $lines, $file)
         '/var/log/php5.6-fpm/',
         '/var/log/php5-fpm/',
         '/var/log/php7.0-fpm/'
-    );
-    $HookManager->processEvent('LOG_FOLDERS', array('folders'=>&$folders));
+    ];
+    $HookManager->processEvent('LOG_FOLDERS', ['folders'=>&$folders]);
     if (!preg_grep($pattern, $folders)) {
         return _('Invalid Folder');
     }
@@ -176,12 +176,12 @@ $url = sprintf(
     FOGCore::$httpproto,
     $ip
 );
-$process = array(
+$process = [
     'ip' => base64_encode($ip),
     'file' => $file,
     'lines' => $lines,
     'reverse' => $reverse
-);
+];
 $response = $FOGURLRequests->process(
     $url,
     'POST',

@@ -35,11 +35,11 @@ class PrinterClient extends FOGClient
      *
      * @var array
      */
-    private static $_modes = array(
+    private static $_modes = [
         0,
         'a',
         'ar'
-    );
+    ];
     /**
      * Function returns data that will be translated to json
      *
@@ -62,26 +62,26 @@ class PrinterClient extends FOGClient
         $printerIDs = self::$Host->get('printers');
         $printerCount = count($printerIDs);
         if ($printerCount < 1) {
-            $data = array(
+            $data = [
                 'error' => 'np',
                 'mode' => self::$_modes[$level],
                 'allPrinters' => $allPrinters,
                 'default' => '',
-                'printers' => array(),
-            );
+                'printers' => [],
+            ];
             return $data;
         }
         $defaultID = self::getSubObjectIDs(
             'PrinterAssociation',
-            array(
+            [
                 'hostID' => self::$Host->get('id'),
                 'isDefault' => 1,
-            ),
+            ],
             'printerID'
         );
         $defaultName = self::getSubObjectIDs(
             'Printer',
-            array('id' => $defaultID),
+            ['id' => $defaultID],
             'name'
         );
         if (count($defaultName) < 1) {
@@ -98,7 +98,7 @@ class PrinterClient extends FOGClient
             if (!in_array($Printer->id, $printerIDs)) {
                 continue;
             }
-            $printers[] = array(
+            $printers[] = [
                 'type' => $Printer->config,
                 'port' => $Printer->port,
                 'file' => $Printer->file,
@@ -106,16 +106,16 @@ class PrinterClient extends FOGClient
                 'name' => $Printer->name,
                 'ip' => $Printer->ip,
                 'configFile' => $Printer->configFile,
-            );
+            ];
             unset($Printer);
         }
         unset($Printers);
-        $data = array(
+        $data = [
             'mode' => self::$_modes[$level],
             'allPrinters' => $allPrinters,
             'default' => $default,
             'printers' => $printers,
-        );
+        ];
         return $data;
     }
     /**

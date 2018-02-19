@@ -57,6 +57,6 @@ class Jobs extends FOGClient
                 $answer = false;
             }
         }
-        return array($field => $answer);
+        return [$field => $answer];
     }
 }

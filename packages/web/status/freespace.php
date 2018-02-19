@@ -50,9 +50,9 @@ if (!$test) {
 }
 $hdfree = $match[2];
 $hdused = $match[1];
-$data = array(
+$data = [
     'free' => $hdfree,
     'used' => $hdused,
-);
+];
 echo json_encode($data);
 exit;

@@ -36,10 +36,10 @@ class PM extends FOGClient
     {
         $actions = self::getSubObjectIDs(
             'PowerManagement',
-            array(
+            [
                 'id' => self::$Host->get('powermanagementtasks'),
                 'onDemand' => '1'
-            ),
+            ],
             'action'
         );
         $action = '';
@@ -50,31 +50,31 @@ class PM extends FOGClient
         }
         self::getClass('PowerManagementManager')
             ->destroy(
-                array(
+                [
                     'onDemand' => '1',
                     'hostID' => self::$Host->get('id')
-                )
+                ]
             );
         $PMTasks = self::getClass('PowerManagementManager')
             ->find(
-                array(
+                [
                     'hostID' => self::$Host->get('id'),
-                    'onDemand' => array(
+                    'onDemand' => [
                         '0',
                         0,
                         null,
                         ''
-                    ),
-                    'action' => array(
+                    ],
+                    'action' => [
                         'shutdown',
                         'reboot',
-                    )
-                )
+                    ]
+                ]
             );
-        $data = array(
+        $data = [
             'onDemand' => $action,
-            'tasks' => array(),
-        );
+            'tasks' => [],
+        ];
         foreach ((array)$PMTasks as &$PMTask) {
             $min = trim($PMTask->get('min'));
             $hour = trim($PMTask->get('hour'));
@@ -95,10 +95,10 @@ class PM extends FOGClient
                 $dow
             );
             $action = $PMTask->get('action');
-            $data['tasks'][] = array(
+            $data['tasks'][] = [
                 'cron' => $cron,
                 'action' => $action
-            );
+            ];
         }
         return $data;
     }

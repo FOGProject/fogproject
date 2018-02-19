@@ -32,11 +32,11 @@ class UserTrack extends FOGClient
      *
      * @var array
      */
-    protected $actions = array(
+    protected $actions = [
         'login' => 1,
         'start' => 99,
         'logout' => 0
-    );
+    ];
     /**
      * Function returns data that will be translated to json
      *
@@ -47,7 +47,7 @@ class UserTrack extends FOGClient
         if (!isset($_REQUEST['action'])
             && !isset($_REQUEST['user'])
         ) {
-            return array('' => '');
+            return ['' => ''];
         }
         $action = strtolower(
             $_REQUEST['action']
@@ -61,14 +61,14 @@ class UserTrack extends FOGClient
             $tmpDate = self::niceDate();
         }
         if (!in_array($action, array_keys($this->actions))) {
-            return array(
+            return [
                 'error' => sprintf(
                     '%s, %s, %s',
                     _('Postfix requires an action of login'),
                     _('logout'),
                     _('or start to operate')
                 )
-            );
+            ];
         }
         if (strpos($user, chr(92))) {
             $user = explode(chr(92), $user);
@@ -78,7 +78,7 @@ class UserTrack extends FOGClient
             $user = $user[0];
         }
         if ($user == null) {
-            return array('error' => 'us');
+            return ['error' => 'us'];
         }
         $date = self::niceDate();
         self::getClass('UserTracking')
@@ -88,6 +88,6 @@ class UserTrack extends FOGClient
             ->set('datetime', $tmpDate->format('Y-m-d H:i:s'))
             ->set('date', $tmpDate->format('Y-m-d'))
             ->save();
-        return array('' => '');
+        return ['' => ''];
     }
 }

@@ -29,10 +29,10 @@ if ($link) {
     $redirect = FOGCore::getClass('Schema', 1)
         ->get('version') == FOG_SCHEMA;
 }
-$ret = array(
+$ret = [
     'running' => (bool)$link,
     'redirect' => (bool)$redirect,
-);
+];
 $ret = json_encode($ret);
 echo $ret;
 exit;

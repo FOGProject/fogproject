@@ -26,7 +26,7 @@ class FOGPageManager extends FOGBase
      *
      * @var array
      */
-    private $_nodes = array();
+    private $_nodes = [];
     /**
      * The pages class value
      *
@@ -80,7 +80,7 @@ class FOGPageManager extends FOGBase
         $this->methodValue = $this->_replaceVariable($sub);
         self::$HookManager->processEvent(
             'SEARCH_PAGES',
-            array('searchPages' => &self::$searchPages)
+            ['searchPages' => &self::$searchPages]
         );
     }
     /**
@@ -139,11 +139,11 @@ class FOGPageManager extends FOGBase
     public function render()
     {
         global $node;
-        $nodes = array(
+        $nodes = [
             'client',
             'schema',
             'ipxe'
-        );
+        ];
         if (!self::$FOGUser->isValid()
             && !in_array($node, $nodes)
         ) {
@@ -166,7 +166,7 @@ class FOGPageManager extends FOGBase
             }
             $id = filter_input(INPUT_GET, $class->id);
             if ($id) {
-                $this->_arguments = array('id' => $id);
+                $this->_arguments = ['id' => $id];
             }
             if (self::$post) {
                 self::setRequest();
@@ -191,10 +191,10 @@ class FOGPageManager extends FOGBase
         } catch (Exception $e) {
             $this->debug(
                 _('Failed to Render Page: Node: %s, Error: %s'),
-                array(
+                [
                     get_class($class),
                     $e->getMessage()
-                )
+                ]
             );
         }
         /**
@@ -202,12 +202,12 @@ class FOGPageManager extends FOGBase
          * alternate methods are clean of their constructed
          * data of header, attributes, data, and templates.
          */
-        $nonresetmethods = array(
+        $nonresetmethods = [
             'index',
             'search',
             'active',
             'pending',
-        );
+        ];
         $test = str_replace('Post', '', $method);
         $methodTest = preg_grep("#$test#i", $nonresetmethods);
         global $node;
@@ -256,11 +256,11 @@ class FOGPageManager extends FOGBase
         } catch (Exception $e) {
             $this->debug(
                 'Failed to add Page: Node: %s, Page Class: %s, Error: $s',
-                array(
+                [
                     $class->node,
                     get_class($class),
                     $e->getMessage()
-                )
+                ]
             );
         }
         return $this;
