@@ -149,7 +149,7 @@ class ServiceConfigurationPage extends FOGPage
             . _('Default Width')
             . '<br/>('
             . _('in pixels')
-            . ')</label>' => '<input type="text" class="form-control" '
+            . ')</label>' => '<input type="number" class="form-control" '
             . 'name="width" value="'
             . $x
             . '" id="width"/>',
@@ -158,7 +158,7 @@ class ServiceConfigurationPage extends FOGPage
             . '<br/>('
             . _('in pixels')
             . ')'
-            . '</label>' => '<input type="text" class="form-control" '
+            . '</label>' => '<input type="number" class="form-control" '
             . 'name="height" value="'
             . $y
             . '" id="height"/>',
@@ -166,7 +166,7 @@ class ServiceConfigurationPage extends FOGPage
             . _('Default Refresh Rate')
             . '<br/>('
             . _('in Hz')
-            . ')</label>' => '<input type="text" class="form-control" '
+            . ')</label>' => '<input type="number" class="form-control" '
             . 'name="refresh" value="'
             . $r
             . '" id="refresh"/>'
@@ -284,7 +284,7 @@ class ServiceConfigurationPage extends FOGPage
             . _('in minutes')
             . ')<br/>('
             . _('Active only at 5 minutes')
-            . ')</label>' => '<input type="text" class="form-control" '
+            . ')</label>' => '<input type="number" class="form-control" '
             . 'name="tme" value="'
             . $tme
             . '" id="updatetme"/>'

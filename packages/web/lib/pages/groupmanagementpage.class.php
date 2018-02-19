@@ -1028,7 +1028,7 @@ class GroupManagementPage extends FOGPage
                 . '" class="col-sm-2 control-label">'
                 . $get[1]
                 . '</label>'
-            ] = '<input type="text" id="'
+            ] = '<input type="number" id="'
             . $name
             . '" class="form-control" name="'
             . $name
@@ -1072,7 +1072,7 @@ class GroupManagementPage extends FOGPage
             . _('Auto Logout Time')
             . '<br/>('
             . _('in minutes')
-            . ')</label>' => '<input type="text" name="tme" class="form-control" '
+            . ')</label>' => '<input type="number" name="tme" class="form-control" '
             . 'value="'
             . $tme
             . '" id="tme"/>'
