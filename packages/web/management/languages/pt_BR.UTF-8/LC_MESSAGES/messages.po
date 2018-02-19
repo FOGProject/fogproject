@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-18 16:26-0500\n"
+"POT-Creation-Date: 2018-02-19 18:44-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3414,21 +3414,40 @@ msgid "MAC Address Manufacturer Listing"
 msgstr "MAC Listing Endereço Fabricante"
 
 #, fuzzy
-msgid ""
-"This section allows you to import known mac address makers into the FOG "
-"database for easier identification"
+msgid "Confirm"
+msgstr "tarefa inválido"
+
+#, fuzzy
+msgid "Cancel"
+msgstr "tarefa cancelada"
+
+#, fuzzy
+msgid "Update MAC List"
+msgstr "Atualizar impressora"
+
+#, fuzzy
+msgid "Delete MAC List"
+msgstr "Apagar dados de arquivo"
+
+#, fuzzy
+msgid "Update MAC Listing"
+msgstr "Atualizar impressora"
+
+msgid "Confirm that you would like to update the MAC vendor listing"
 msgstr ""
-"Esta seção permite que você importe os fabricantes de endereço MAC "
-"conhecidos na névoa banco de dados para facilitar a identificação."
+
+#, fuzzy
+msgid "Delete MAC Listings"
+msgstr "Excluir todos os hosts dentro do grupo"
+
+msgid "Confirm that you would like to delete the MAC vendor listing"
+msgstr ""
+
+msgid "Import known mac address makers"
+msgstr ""
 
 msgid "Current Records"
 msgstr "Registros atuais"
-
-msgid "Delete MACs"
-msgstr "excluir MACs"
-
-msgid "Update MACs"
-msgstr "Atualizar MACs"
 
 msgid "Could not read temp file"
 msgstr "Não foi possível ler arquivo temporário"
@@ -4313,15 +4332,16 @@ msgstr "usuário criado"
 msgid "Storage Group Update Fail"
 msgstr "Grupo de armazenamento Atualizado"
 
-msgid "TCP/IP"
-msgstr "TCP / IP"
-
 msgid "Printer Name"
 msgstr "Nome da impressora"
 
 #, fuzzy
 msgid "Config File"
 msgstr "Printer Arquivo de Configuração"
+
+#, fuzzy
+msgid "Create New Printer"
+msgstr "Criar novo %s"
 
 msgid "TCP/IP Port Printer"
 msgstr "Impressora TCP / IP"
@@ -4349,6 +4369,10 @@ msgstr ""
 msgid "Printer Description"
 msgstr "Descrição Printer"
 
+#, fuzzy
+msgid "Printer Configuration File"
+msgstr "Configuração de serviço"
+
 msgid "Printer Port"
 msgstr "Porta de impressora"
 
@@ -4362,20 +4386,12 @@ msgid "Printer Model"
 msgstr "Modelo de impressora"
 
 #, fuzzy
-msgid "Create New Printer"
-msgstr "Criar novo %s"
+msgid "A printer name is required!"
+msgstr "Um nome de imagem é necessário!"
 
 #, fuzzy
-msgid "Add New Printer"
-msgstr "Impressora"
-
-#, fuzzy
-msgid "A name must be set"
-msgstr "Evento deve ser uma string"
-
-#, fuzzy
-msgid "Printer name already exists"
-msgstr "Impressora já existe"
+msgid "A printer already exists with this name!"
+msgstr "Uma imagem já existe com este nome!"
 
 #, fuzzy
 msgid "Add printer failed!"
@@ -4394,16 +4410,16 @@ msgid "Printer Create Fail"
 msgstr "atualização da impressora falhou!"
 
 #, fuzzy
-msgid "Printer General"
-msgstr "Modelo de impressora"
+msgid "Host Membership"
+msgstr "Membership"
 
 #, fuzzy
-msgid "A printer name is required!"
-msgstr "Um nome de imagem é necessário!"
+msgid "Update Default"
+msgstr "Atualizar impressora"
 
 #, fuzzy
-msgid "A printer already exists with this name!"
-msgstr "Uma imagem já existe com este nome!"
+msgid "Default Printer"
+msgstr "Item padrão:"
 
 msgid "Printer update failed!"
 msgstr "atualização da impressora falhou!"
@@ -4549,6 +4565,10 @@ msgid "Image Manager"
 msgstr "image Manager"
 
 #, fuzzy
+msgid "Create New User"
+msgstr "Criar novo %s"
+
+#, fuzzy
 msgid "An image name is required!"
 msgstr "Um nome de imagem é necessário!"
 
@@ -4597,10 +4617,6 @@ msgstr "Nó de Armazenamento Criado"
 #, fuzzy
 msgid "Storage Groups"
 msgstr "Grupo de armazenamento"
-
-#, fuzzy
-msgid "Host Membership"
-msgstr "Membership"
 
 #, fuzzy
 msgid "Image Update Failed"
@@ -4865,10 +4881,6 @@ msgstr ""
 
 msgid "API?"
 msgstr ""
-
-#, fuzzy
-msgid "Create New User"
-msgstr "Criar novo %s"
 
 msgid "User Password"
 msgstr "Senha do usuário"
@@ -6261,10 +6273,6 @@ msgstr "Impressora"
 msgid "Confirm password"
 msgstr "Gerenciamento de senha"
 
-#, fuzzy
-msgid "Cancel"
-msgstr "tarefa cancelada"
-
 msgid "Requires templates to process"
 msgstr "Requer modelos para processar"
 
@@ -6536,18 +6544,6 @@ msgstr "suprimido"
 #, fuzzy
 msgid "Delete Fail"
 msgstr "Apagar dados de arquivo"
-
-#, fuzzy
-msgid " Name"
-msgstr "Nome"
-
-#, fuzzy
-msgid "Remove "
-msgstr "Remover"
-
-#, fuzzy
-msgid "Remove selected "
-msgstr "Remover snapins selecionados"
 
 msgid "Export the items as a CSV?"
 msgstr ""

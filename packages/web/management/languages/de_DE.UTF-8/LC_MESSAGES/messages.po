@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-18 16:26-0500\n"
+"POT-Creation-Date: 2018-02-19 18:44-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -3413,21 +3413,40 @@ msgid "MAC Address Manufacturer Listing"
 msgstr "Liste der Hersteller nach MAC-Adresse"
 
 #, fuzzy
-msgid ""
-"This section allows you to import known mac address makers into the FOG "
-"database for easier identification"
+msgid "Confirm"
+msgstr "Bestätige Task"
+
+#, fuzzy
+msgid "Cancel"
+msgstr "Stornierter Task"
+
+#, fuzzy
+msgid "Update MAC List"
+msgstr "Sites aktualisieren"
+
+#, fuzzy
+msgid "Delete MAC List"
+msgstr "Datei löschen"
+
+#, fuzzy
+msgid "Update MAC Listing"
+msgstr "Sites aktualisieren"
+
+msgid "Confirm that you would like to update the MAC vendor listing"
 msgstr ""
-"In diesem Abschnitt können Sie bekannte MAC-Adressenhersteller in die FOG-"
-"Datenbank zur leichteren Identifizierung importieren."
+
+#, fuzzy
+msgid "Delete MAC Listings"
+msgstr "Löschen aller Hosts innerhalb der Gruppe"
+
+msgid "Confirm that you would like to delete the MAC vendor listing"
+msgstr ""
+
+msgid "Import known mac address makers"
+msgstr ""
 
 msgid "Current Records"
 msgstr "Aktuelle Datensätze"
-
-msgid "Delete MACs"
-msgstr "MACs löschen"
-
-msgid "Update MACs"
-msgstr "MACs aktualisieren"
 
 msgid "Could not read temp file"
 msgstr "Temporäre Datei konnte nicht gelesen werden."
@@ -4315,15 +4334,16 @@ msgstr "Speichergruppe erfolgreich aktualisiert"
 msgid "Storage Group Update Fail"
 msgstr "Aktualisierung der Speichergruppe fehlgeschlagen"
 
-msgid "TCP/IP"
-msgstr "TCP/IP"
-
 msgid "Printer Name"
 msgstr "Druckername"
 
 #, fuzzy
 msgid "Config File"
 msgstr "Config-Datei"
+
+#, fuzzy
+msgid "Create New Printer"
+msgstr "Neuen Drucker erstellen"
 
 msgid "TCP/IP Port Printer"
 msgstr "TCP/IP-Port Drucker"
@@ -4351,6 +4371,10 @@ msgstr "z.B."
 msgid "Printer Description"
 msgstr "Druckerbeschreibung"
 
+#, fuzzy
+msgid "Printer Configuration File"
+msgstr "Druckerkonfiguration"
+
 msgid "Printer Port"
 msgstr "Drucker-Port"
 
@@ -4364,20 +4388,12 @@ msgid "Printer Model"
 msgstr "Druckermodell"
 
 #, fuzzy
-msgid "Create New Printer"
-msgstr "Neuen Drucker erstellen"
+msgid "A printer name is required!"
+msgstr "Ein Druckername ist erforderlich!"
 
 #, fuzzy
-msgid "Add New Printer"
-msgstr "Drucker hinzufügen"
-
-#, fuzzy
-msgid "A name must be set"
-msgstr "Ein Name muss eingegeben werden"
-
-#, fuzzy
-msgid "Printer name already exists"
-msgstr "Druckername ist bereits vorhanden."
+msgid "A printer already exists with this name!"
+msgstr "Ein Drucker mit diesem Namen ist bereits vorhanden!"
 
 #, fuzzy
 msgid "Add printer failed!"
@@ -4396,16 +4412,16 @@ msgid "Printer Create Fail"
 msgstr "Drucker erstellen fehlgeschlagen!"
 
 #, fuzzy
-msgid "Printer General"
-msgstr "Drucker allgemein"
+msgid "Host Membership"
+msgstr "Mitgliedschaft"
 
 #, fuzzy
-msgid "A printer name is required!"
-msgstr "Ein Druckername ist erforderlich!"
+msgid "Update Default"
+msgstr "Standarddrucker aktualisieren"
 
 #, fuzzy
-msgid "A printer already exists with this name!"
-msgstr "Ein Drucker mit diesem Namen ist bereits vorhanden!"
+msgid "Default Printer"
+msgstr "Standard-Eintrag:"
 
 msgid "Printer update failed!"
 msgstr "Drucker-Update fehlgeschlagen!"
@@ -4551,6 +4567,10 @@ msgid "Image Manager"
 msgstr "Image Manager"
 
 #, fuzzy
+msgid "Create New User"
+msgstr "Neue %s erstellen"
+
+#, fuzzy
 msgid "An image name is required!"
 msgstr "Ein Name ist erforderlich!"
 
@@ -4599,10 +4619,6 @@ msgstr "Speicherknoten erstellt"
 #, fuzzy
 msgid "Storage Groups"
 msgstr "Speichergruppe"
-
-#, fuzzy
-msgid "Host Membership"
-msgstr "Mitgliedschaft"
 
 #, fuzzy
 msgid "Image Update Failed"
@@ -4867,10 +4883,6 @@ msgstr "Um einen Bericht anzusehen, wählen Sie einen aus dem Menü aus."
 
 msgid "API?"
 msgstr "API?"
-
-#, fuzzy
-msgid "Create New User"
-msgstr "Neue %s erstellen"
 
 msgid "User Password"
 msgstr "Benutzerpasswort"
@@ -6265,10 +6277,6 @@ msgstr "Ausgewählte Speichergruppen hinzufügen"
 msgid "Confirm password"
 msgstr "Passwort ändern"
 
-#, fuzzy
-msgid "Cancel"
-msgstr "Stornierter Task"
-
 msgid "Requires templates to process"
 msgstr "Template erforderlich"
 
@@ -6544,18 +6552,6 @@ msgstr "gelöscht"
 #, fuzzy
 msgid "Delete Fail"
 msgstr "Löschen fehlgeschlagen"
-
-#, fuzzy
-msgid " Name"
-msgstr " Name"
-
-#, fuzzy
-msgid "Remove "
-msgstr "Entfernen "
-
-#, fuzzy
-msgid "Remove selected "
-msgstr "Ausgewählte entfernen "
 
 msgid "Export the items as a CSV?"
 msgstr ""

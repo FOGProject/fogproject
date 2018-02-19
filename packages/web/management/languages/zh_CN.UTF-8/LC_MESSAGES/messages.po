@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-18 16:26-0500\n"
+"POT-Creation-Date: 2018-02-19 18:44-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3401,19 +3401,40 @@ msgid "MAC Address Manufacturer Listing"
 msgstr "MAC地址制造商上市"
 
 #, fuzzy
-msgid ""
-"This section allows you to import known mac address makers into the FOG "
-"database for easier identification"
-msgstr "这部分可以导入已知MAC地址厂商成雾数据库更容易识别。"
+msgid "Confirm"
+msgstr "任务无效"
+
+#, fuzzy
+msgid "Cancel"
+msgstr "取消任务"
+
+#, fuzzy
+msgid "Update MAC List"
+msgstr "更新打印机"
+
+#, fuzzy
+msgid "Delete MAC List"
+msgstr "删除的文件数据"
+
+#, fuzzy
+msgid "Update MAC Listing"
+msgstr "更新打印机"
+
+msgid "Confirm that you would like to update the MAC vendor listing"
+msgstr ""
+
+#, fuzzy
+msgid "Delete MAC Listings"
+msgstr "删除组内的所有主机"
+
+msgid "Confirm that you would like to delete the MAC vendor listing"
+msgstr ""
+
+msgid "Import known mac address makers"
+msgstr ""
 
 msgid "Current Records"
 msgstr "当前记录"
-
-msgid "Delete MACs"
-msgstr "删除的MAC"
-
-msgid "Update MACs"
-msgstr "更新的MAC"
 
 msgid "Could not read temp file"
 msgstr "无法读取临时文件"
@@ -4294,15 +4315,16 @@ msgstr "用户创建"
 msgid "Storage Group Update Fail"
 msgstr "存储组更新"
 
-msgid "TCP/IP"
-msgstr "TCP / IP协议"
-
 msgid "Printer Name"
 msgstr "打印机名称"
 
 #, fuzzy
 msgid "Config File"
 msgstr "打印机配置文件"
+
+#, fuzzy
+msgid "Create New Printer"
+msgstr "新建%s"
 
 msgid "TCP/IP Port Printer"
 msgstr "TCP / IP端口打印机"
@@ -4330,6 +4352,10 @@ msgstr ""
 msgid "Printer Description"
 msgstr "打印机说明"
 
+#, fuzzy
+msgid "Printer Configuration File"
+msgstr "服务配置"
+
 msgid "Printer Port"
 msgstr "打印机端口"
 
@@ -4343,20 +4369,12 @@ msgid "Printer Model"
 msgstr "打印机型号"
 
 #, fuzzy
-msgid "Create New Printer"
-msgstr "新建%s"
+msgid "A printer name is required!"
+msgstr "图像名是必需的！"
 
 #, fuzzy
-msgid "Add New Printer"
-msgstr "打印机"
-
-#, fuzzy
-msgid "A name must be set"
-msgstr "事件必须是字符串"
-
-#, fuzzy
-msgid "Printer name already exists"
-msgstr "打印机已经存在"
+msgid "A printer already exists with this name!"
+msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
 msgid "Add printer failed!"
@@ -4375,16 +4393,16 @@ msgid "Printer Create Fail"
 msgstr "打印机更新失败！"
 
 #, fuzzy
-msgid "Printer General"
-msgstr "打印机型号"
+msgid "Host Membership"
+msgstr "籍"
 
 #, fuzzy
-msgid "A printer name is required!"
-msgstr "图像名是必需的！"
+msgid "Update Default"
+msgstr "更新打印机"
 
 #, fuzzy
-msgid "A printer already exists with this name!"
-msgstr "图像已经存在具有此名称！"
+msgid "Default Printer"
+msgstr "默认项："
 
 msgid "Printer update failed!"
 msgstr "打印机更新失败！"
@@ -4530,6 +4548,10 @@ msgid "Image Manager"
 msgstr "图像管理器"
 
 #, fuzzy
+msgid "Create New User"
+msgstr "新建%s"
+
+#, fuzzy
 msgid "An image name is required!"
 msgstr "图像名是必需的！"
 
@@ -4578,10 +4600,6 @@ msgstr "存储节点创建"
 #, fuzzy
 msgid "Storage Groups"
 msgstr "存储组"
-
-#, fuzzy
-msgid "Host Membership"
-msgstr "籍"
 
 #, fuzzy
 msgid "Image Update Failed"
@@ -4846,10 +4864,6 @@ msgstr ""
 
 msgid "API?"
 msgstr ""
-
-#, fuzzy
-msgid "Create New User"
-msgstr "新建%s"
 
 msgid "User Password"
 msgstr "用户密码"
@@ -6237,10 +6251,6 @@ msgstr "打印机"
 msgid "Confirm password"
 msgstr "管理密码"
 
-#, fuzzy
-msgid "Cancel"
-msgstr "取消任务"
-
 msgid "Requires templates to process"
 msgstr "需要模板来处理"
 
@@ -6512,18 +6522,6 @@ msgstr "删除"
 #, fuzzy
 msgid "Delete Fail"
 msgstr "删除的文件数据"
-
-#, fuzzy
-msgid " Name"
-msgstr "名称"
-
-#, fuzzy
-msgid "Remove "
-msgstr "去掉"
-
-#, fuzzy
-msgid "Remove selected "
-msgstr "删除选定snapins"
 
 msgid "Export the items as a CSV?"
 msgstr ""
