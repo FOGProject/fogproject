@@ -1955,48 +1955,71 @@ class FOGConfigurationPage extends FOGPage
     public function maclist()
     {
         $this->title = _('MAC Address Manufacturer Listing');
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
+        $modalupdatebtn = self::makeButton(
+            'updatemacsConfirm',
+            _('Confirm'),
+            'btn btn-success'
+        );
+        $modalupdatebtn .= self::makeButton(
+            'updatemacsCancel',
+            _('Cancel'),
+            'btn btn-danger pull-right'
+        );
+        $modaldeletebtn = self::makeButton(
+            'deletemacsConfirm',
+            _('Confirm'),
+            'btn btn-success'
+        );
+        $modaldeletebtn .= self::makeButton(
+            'deletemacsCancel',
+            _('Cancel'),
+            'btn btn-danger pull-right'
+        );
+        $buttons = self::makeButton(
+            'updatemacs',
+            _('Update MAC List'),
+            'btn btn-primary'
+        );
+        $buttons .= self::makeButton(
+            'deletemacs',
+            _('Delete MAC List'),
+            'btn btn-danger pull-right'
+        );
+        $modalupdate = self::makeModal(
+            'updatemacsmodal',
+            _('Update MAC Listing'),
+            _('Confirm that you would like to update the MAC vendor listing'),
+            $modalupdatebtn
+        );
+        $modaldelete = self::makeModal(
+            'deletemacsmodal',
+            _('Delete MAC Listings'),
+            _('Confirm that you would like to delete the MAC vendor listing'),
+            $modaldeletebtn
+        );
+        echo '<div class="box box-solid">';
+        echo '<div class="box-header with-border">';
         echo '<h4 class="title">';
         echo $this->title;
         echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body text-center">';
-        echo _(
-            'This section allows you to import known mac address makers '
-            . 'into the FOG database for easier identification'
-        );
-        echo '<br/>';
-        echo '<div class="row">';
-        echo _('Current Records');
-        echo ': ';
-        echo self::getMACLookupCount();
-        echo '</div>';
-        echo '<br/>';
-        echo '<div class="row">';
+        echo '<p class="help-block">';
+        echo _('Import known mac address makers');
+        echo '</p>';
+        echo '<p class="help-block">';
         echo '<a href="http://standards.ieee.org/regauth/oui/oui.txt">';
         echo 'http://standards.ieee.org/regauth/oui/oui.txt';
         echo '</a>';
+        echo '</p>';
         echo '</div>';
-        echo '<br/>';
-        echo '<div class="row">';
-        echo '<div id="delete"></div>';
-        echo '<div id="update"></div>';
-        echo '<div class="form-group col-xs-offset-4 col-xs-2">';
-        echo '<button class="macButtons btn btn-danger btn-block" type='
-            . '"button" id="macButtonDel">';
-        echo _('Delete MACs');
-        echo '</button>';
+        echo '<div class="box-body">';
+        echo _('Current Records');
+        echo ': ';
+        echo '<span id="lookupcount">' . self::getMACLookupCount() . '</span>';
         echo '</div>';
-        echo '<div class="form-group col-xs-2">';
-        echo '<button class="macButtons btn btn-info btn-block" type='
-            . '"button" id="macButtonUp">';
-        echo _('Update MACs');
-        echo '</button>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
+        echo '<div class="box-footer">';
+        echo $buttons;
+        echo $modalupdate;
+        echo $modaldelete;
         echo '</div>';
         echo '</div>';
     }
@@ -2007,7 +2030,7 @@ class FOGConfigurationPage extends FOGPage
      */
     public function maclistPost()
     {
-        if (isset($_GET['update'])) {
+        if (isset($_POST['update'])) {
             self::clearMACLookupTable();
             $url = 'http://linuxnet.ca/ieee/oui.txt';
             if (($fh = fopen($url, 'rb')) === false) {
@@ -2064,11 +2087,13 @@ class FOGConfigurationPage extends FOGPage
             }
             unset($first_id);
         }
-        if (isset($_GET['clear'])) {
+        if (isset($_POST['clear'])) {
             self::clearMACLookupTable();
         }
-        self::resetRequest();
-        self::redirect('?node=about&sub=maclist');
+        echo json_encode(
+            ['count' => self::getMACLookupCount()]
+        );
+        exit;
     }
     /**
      * The fog settings
