@@ -38,7 +38,7 @@ $login = isset($_REQUEST['login']);
 $user = trim($_REQUEST['username']);
 $pass = trim($_REQUEST['password']);
 if ($login) {
-    $Send['loginstuff'] = array(
+    $Send['loginstuff'] = [
         '#!ipxe',
         'clear username',
         'clear password',
@@ -47,27 +47,27 @@ if ($login) {
         'param username ${username}',
         'param password ${password}',
         'chain ${boot-url}/service/ipxe/advanced.php##params',
-    );
+    ];
     $parseMe($Send);
     unset($_REQUEST['login']);
 }
 if (!empty($user)) {
     $tmp = FOGCore::attemptLogin($user, $pass);
     if ($tmp) {
-        $Send['loginsuccess'] = array(
+        $Send['loginsuccess'] = [
             '#!ipxe',
             'set userID ${username}',
             'chain ${boot-url}/service/ipxe/advanced.php',
-        );
+        ];
     } else {
-        $Send['loginfail'] = array(
+        $Send['loginfail'] = [
             '#!ipxe',
             'clear username',
             'clear password',
             'echo Invalid login!',
             'sleep 3',
             'chain -ar ${boot-url}/service/ipxe/advanced.php',
-        );
+        ];
         $parseMe($Send);
         unset($user, $pass);
     }

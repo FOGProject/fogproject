@@ -31,7 +31,7 @@ try {
     $imageids = FOGCore::getSubObjectIDs('Image');
     $imagenames = FOGCore::getSubObjectIDs(
         'Image',
-        array('id' => $imageids),
+        ['id' => $imageids],
         'name'
     );
     foreach ((array)$imageids as $index => $imageid) {

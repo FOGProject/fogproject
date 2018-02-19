@@ -32,32 +32,32 @@ try {
     }
     $snapinids = FOGCore::getSubObjectIDs(
         'SnapinTask',
-        array(
+        [
             'stateID' => $FOGCore->getQUeuedStates(),
             'jobID' => $SnapinJob->get('id')
-        ),
+        ],
         'snapinID'
     );
     if (isset($_REQUEST['getSnapnames'])) {
         $snapins = FOGCore::getSubObjectIDs(
             'Snapin',
-            array('id' => $snapinids),
+            ['id' => $snapinids],
             'name'
         );
     } elseif (isset($_REQUEST['getSnapargs'])) {
         $snapins = FOGCore::getSubObjectIDs(
             'Snapin',
-            array('id' => $snapinids),
+            ['id' => $snapinids],
             'args'
         );
     } else {
         $snapins = (
             FOGCore::getClass('SnapinTaskManager')
             ->count(
-                array(
+                [
                     'stateID' => FOGCore::getQueuedStates(),
                     'jobID' => $SnapinJob->get('id')
-                )
+                ]
             ) ?
             1 :
             0

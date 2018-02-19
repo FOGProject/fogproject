@@ -31,7 +31,7 @@ try {
     $locationids = FOGCore::getSubObjectIDs('Location');
     $locationnames = FOGCore::getSubObjectIDs(
         'Location',
-        array('id' => $locationids),
+        ['id' => $locationids],
         'name'
     );
     foreach ((array)$locationids as $index => $locationid) {

@@ -131,7 +131,7 @@ $AESDecryption = function (
 $RawResponse = function () {
     echo 'Foobar22!';
 };
-$units = array(
+$units = [
     'Response',
     'ResponseArray',
     'BadResponse',
@@ -140,7 +140,7 @@ $units = array(
     'AESDecryption',
     'AESDecryptionResponse1',
     'AESDecryptionResponse2',
-);
+];
 if (!in_array($_REQUEST['unit'], $units)) {
     echo _('Invalid unit passed');
     exit;

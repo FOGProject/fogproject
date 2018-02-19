@@ -31,7 +31,7 @@ try {
     $snapinids = FOGCore::getSubObjectIDs('Snapin');
     $snapinnames = FOGCore::getSubObjectIDs(
         'Snapin',
-        array('id' => $snapinids),
+        ['id' => $snapinids],
         'name'
     );
     foreach ((array)$snapinids as $index => $snapinid) {
