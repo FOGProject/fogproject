@@ -1,7 +1,11 @@
 (function($) {
+    var printertype = $('#printertype'),
+        printercopy = $('#printercopy'),
+        type = printertype.val().toLowerCase();
+
     // ---------------------------------------------------------------
     // GENERAL TAB
-    var originalName = $('#printer').val();
+    var originalName = $('#printer'+type).val();
 
     var updateName = function(newName) {
         var e = $('#pageTitle'),
@@ -20,13 +24,17 @@
     generalFormBtn.on('click', function() {
         generalFormBtn.prop('disabled', true);
         generalDeleteBtn.prop('disabled', true);
-        Common.processForm(generalForm, function(err) {
+        var method = generalForm.attr('method'),
+            action = generalForm.attr('action'),
+            opts = generalForm.find(':visible').serialize();
+        Common.apiCall(method,action,opts,function(err) {
             generalFormBtn.prop('disabled', false);
             generalDeleteBtn.prop('disabled', false);
-            if (err)
+            if (err) {
                 return;
-            updateName($('#printer').val());
-            originalName = $('#printer').val();
+            }
+            updateName($('#printer'+type).val());
+            originalName = $('#printer'+type).val();
         });
     });
     generalDeleteBtn.on('click',function() {
@@ -140,4 +148,14 @@
     if (Common.search && Common.search.length > 0) {
         membershipTable.search(Common.search).draw();
     }
+
+    // Hides the fields not currently selected.
+    $('.network,.iprint,.cups,.local').not('.'+type).hide();
+    // On change hide all the fields and show the appropriate type.
+    printertype.on('change', function(e) {
+        e.preventDefault();
+        type = printertype.val().toLowerCase();
+        $('.network,.iprint,.cups,.local').not('.'+type).hide();
+        $('.'+type).show();
+    });
 })(jQuery);
