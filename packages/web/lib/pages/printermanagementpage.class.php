@@ -748,8 +748,7 @@ class PrinterManagementPage extends FOGPage
             'name' => _('Host Membership'),
             'id' => 'printer-membership',
             'generator' => function() {
-                //$this->printerMembership();
-                echo 'Not Ready Yet';
+                $this->printerMembership();
             }
         ];
 
@@ -845,6 +844,155 @@ class PrinterManagementPage extends FOGPage
             ->set('file', $inf)
             ->set('configFile', $configFile)
             ->set('ip', $ip);
+    }
+    /**
+     * Printer Membership tab
+     *
+     * @return void
+     */
+    public function printerMembership()
+    {
+        $props = ' method="post" action="'
+            . $this->formAction
+            . '&tab=printer-membership" ';
+
+        echo '<!-- Host Membership -->';
+        echo '<div class="box-group" id="membership">';
+        // =================================================================
+        // Associated Hosts
+        $buttons = self::makeButton(
+            'membership-add',
+            _('Add selected'),
+            'btn btn-primary',
+            $props
+        );
+        $buttons .= self::makeButton(
+            'membership-remove',
+            _('Remove selected'),
+            'btn btn-danger',
+            $props
+        );
+        $this->headerData = [
+            _('Host Name'),
+            _('Host Associated')
+        ];
+        $this->templates = [
+            '',
+            ''
+        ];
+        $this->attributes = [
+            [],
+            []
+        ];
+
+        echo '<div class="box box-solid">';
+        echo '<div class="updatemembership" class="">';
+        echo '<div class="box-body">';
+        $this->render(12, 'printer-membership-table', $buttons);
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Printer membership post elements
+     *
+     * @return void
+     */
+    public function printerMembershipPost()
+    {
+        if (isset($_POST['updatemembership'])) {
+            $membership = filter_input_array(
+                INPUT_POST,
+                [
+                    'membership' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $membership = $membership['membership'];
+            $this->obj->addHost($membership);
+        }
+        if (isset($_POST['membershipdel'])) {
+            $membership = filter_input_array(
+                INPUT_POST,
+                [
+                    'membershipRemove' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $membership = $membership['membershipRemove'];
+            self::getClass('PrinterAssociationManager')->destroy(
+                [
+                    'printerID' => $this->obj->get('id'),
+                    'hostID' => $membership
+                ]
+            );
+        }
+    }
+    /**
+     * Printer -> host membership list
+     *
+     * @return void
+     */
+    public function getHostsList()
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
+        $hostsSqlStr = "SELECT `%s`,"
+            . "IF(`paPrinterID` = '"
+            . $this->obj->get('id')
+            . "','associated','dissociated') AS `paPrinterID`
+            FROM `%s`
+            CROSS JOIN `printers`
+            LEFT OUTER JOIN `printerAssoc`
+            ON `printers`.`pID` = `printerAssoc`.`paPrinterID`
+            AND `hosts`.`hostID` = `printerAssoc`.`paHostID`
+            %s
+            %s
+            %s";
+        $hostsFilterStr = "SELECT COUNT(`%s`),"
+            . "IF(`paPrinterID` = '"
+            . $this->obj->get('id')
+            . "','associated','dissociated') AS `paPrinterID`
+            FROM `%s`
+            CROSS JOIN `printers`
+            LEFT OUTER JOIN `printerAssoc`
+            ON `printers`.`pID` = `printerAssoc`.`paPrinterID`
+            AND `hosts`.`hostID` = `printerAssoc`.`paHostID`
+            %s";
+        $hostsTotalStr = "SELECT COUNT(`%s`)
+            FROM `%s`";
+
+        foreach (self::getClass('HostManager')
+            ->getColumns() as $common => &$real
+        ) {
+            $columns[] = [
+                'db' => $real,
+                'dt' => $common
+            ];
+        }
+        $columns[] = [
+            'db' => 'paPrinterID',
+            'dt' => 'association'
+        ];
+        echo json_encode(
+            FOGManagerController::complex(
+                $pass_vars,
+                'hosts',
+                'hostID',
+                $columns,
+                $hostsSqlStr,
+                $hostsFilterStr,
+                $hostsTotalStr
+            )
+        );
+        exit;
     }
     /**
      * Save the edits.
