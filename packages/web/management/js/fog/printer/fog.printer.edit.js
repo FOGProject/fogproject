@@ -160,4 +160,47 @@
         $('.network,.iprint,.cups,.local').not('.'+type).hide();
         $('.'+type).show();
     });
+    // Setup all fields to match when/where appropriate
+    $('[name="printer"]').on('change', function() {
+        var val = $(this).val();
+        $(this).each(function() {
+            $('[name="printer"]').val(val);
+        });
+    });
+    $('[name="description"]').on('change', function() {
+        var val = $(this).val();
+        $(this).each(function() {
+            $('[name="description"]').val(val);
+        });
+    });
+    $('[name="inf"]').on('change', function() {
+        var val = $(this).val();
+        $(this).each(function() {
+            $('[name="inf"]').val(val);
+        });
+    });
+    $('[name="port"]').on('change', function() {
+        var val = $(this).val();
+        $(this).each(function() {
+            $('[name="port"]').val(val);
+        });
+    });
+    $('[name="ip"]').on('change', function() {
+        var val = $(this).val();
+        $(this).each(function() {
+            $('[name="ip"]').val(val);
+        });
+    });
+    $('[name="model"]').on('change', function() {
+        var val = $(this).val();
+        $(this).each(function() {
+            $('[name="model"]').val(val);
+        });
+    });
+    $('[name="configFile"]').on('change', function() {
+        var val = $(this).val();
+        $(this).each(function() {
+            $('[name="configFile"]').val(val);
+        });
+    });
 })(jQuery);
