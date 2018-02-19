@@ -32,7 +32,7 @@ class Group extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'groupID',
         'name' => 'groupName',
         'description' => 'groupDesc',
@@ -43,24 +43,24 @@ class Group extends FOGController
         'kernelArgs' => 'groupKernelArgs',
         'kernelDevice' => 'groupPrimaryDisk',
         'init' => 'groupInit'
-    );
+    ];
     /**
      * Required fields.
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'name',
-    );
+    ];
     /**
      * Additional fields.
      *
      * @var array
      */
-    protected $additionalFields = array(
+    protected $additionalFields = [
         'hosts',
         'hostsnotinme',
-    );
+    ];
     protected $sqlQueryStr = "SELECT COUNT(`gmHostID`) `gmMembers`,`%s`
         FROM `%s`
         LEFT OUTER JOIN `groupMembers`
@@ -91,9 +91,7 @@ class Group extends FOGController
     {
         self::getClass('GroupAssociationManager')
             ->destroy(
-                array(
-                    'groupID' => $this->get('id'),
-                )
+                ['groupID' => $this->get('id')]
             );
         return parent::destroy($field);
     }
@@ -118,9 +116,7 @@ class Group extends FOGController
     {
         return self::getClass('HostManager')
             ->count(
-                array(
-                    'id' => $this->get('hosts'),
-                )
+                ['id' => $this->get('hosts')]
             );
     }
     /**
@@ -166,10 +162,10 @@ class Group extends FOGController
     public function removePrinter($removeArray)
     {
         self::getClass('PrinterAssociationManager')->destroy(
-            array(
+            [
                 'hostID' => $this->get('hosts'),
                 'printerID' => $removeArray
-            )
+            ]
         );
         return $this;
     }
@@ -185,20 +181,18 @@ class Group extends FOGController
     {
         self::getClass('PrinterAssociationManager')
             ->update(
-                array(
-                    'hostID' => $this->get('hosts')
-                ),
+                ['hostID' => $this->get('hosts')],
                 '',
-                array('isDefault' => 0)
+                ['isDefault' => 0]
             );
         self::getClass('PrinterAssociationManager')
             ->update(
-                array(
+                [
                     'hostID' => $this->get('hosts'),
                     'printerID' => $printerid
-                ),
+                ],
                 '',
-                array('isDefault' => $onoff)
+                ['isDefault' => $onoff]
             );
         return $this;
     }
@@ -211,8 +205,8 @@ class Group extends FOGController
      */
     public function addSnapin($addArray)
     {
-        $insert_fields = array('hostID', 'snapinID');
-        $insert_values = array();
+        $insert_fields = ['hostID', 'snapinID'];
+        $insert_values = [];
         $hosts = $this->get('hosts');
         if (count($hosts) > 0) {
             array_walk(
@@ -225,7 +219,7 @@ class Group extends FOGController
                     $addArray
                 ) {
                     foreach ($addArray as $snapinID) {
-                        $insert_values[] = array($hostID, $snapinID);
+                        $insert_values[] = [$hostID, $snapinID];
                     }
                 }
             );
@@ -251,10 +245,10 @@ class Group extends FOGController
     {
         self::getClass('SnapinAssociationManager')
             ->destroy(
-                array(
+                [
                     'hostID' => $this->get('hosts'),
                     'snapinID' => $removeArray,
-                )
+                ]
             );
 
         return $this;
@@ -268,12 +262,12 @@ class Group extends FOGController
      */
     public function addModule($addArray)
     {
-        $insert_fields = array('hostID', 'moduleID', 'state');
-        $insert_values = array();
+        $insert_fields = ['hostID', 'moduleID', 'state'];
+        $insert_values = [];
         $hostids = $this->get('hosts');
         foreach ((array) $hostids as &$hostid) {
             foreach ((array) $addArray as &$moduleid) {
-                $insert_values[] = array($hostid, $moduleid, 1);
+                $insert_values[] = [$hostid, $moduleid, 1];
                 unset($moduleid);
             }
             unset($hostid);
@@ -300,10 +294,10 @@ class Group extends FOGController
     {
         self::getClass('ModuleAssociationManager')
             ->destroy(
-                array(
+                [
                     'hostID' => $this->get('hosts'),
                     'moduleID' => $removeArray,
-                )
+                ]
             );
 
         return $this;
@@ -324,19 +318,17 @@ class Group extends FOGController
     ) {
         self::getClass('HostScreenSettingManager')
             ->destroy(
-                array(
-                    'hostID' => $this->get('hosts'),
-                )
+                ['hostID' => $this->get('hosts')]
             );
-        $insert_fields = array(
+        $insert_fields = [
             'hostID',
             'width',
             'height',
             'refresh',
-        );
-        $insert_items = array();
+        ];
+        $insert_items = [];
         foreach ((array) $this->get('hosts') as &$hostID) {
-            $insert_items[] = array($hostID, $x, $y, $r);
+            $insert_items[] = [$hostID, $x, $y, $r];
             unset($hostID);
         }
         self::getClass('HostScreenSettingManager')
@@ -358,20 +350,18 @@ class Group extends FOGController
     {
         self::getClass('HostAutoLogoutManager')
             ->destroy(
-                array(
-                    'hostID' => $this->get('hosts'),
-                )
+                ['hostID' => $this->get('hosts')]
             );
-        $insert_fields = array(
+        $insert_fields = [
             'hostID',
             'time',
-        );
-        $insert_items = array();
+        ];
+        $insert_items = [];
         foreach ((array) $this->get('hosts') as &$hostID) {
-            $insert_items[] = array(
+            $insert_items[] = [
                 $hostID,
                 $time,
-            );
+            ];
             unset($hostID);
         }
         self::getClass('HostAutoLogoutManager')
@@ -433,21 +423,19 @@ class Group extends FOGController
         );
         $TaskCount = self::getClass('TaskManager')
             ->count(
-                array(
+                [
                     'hostID' => $this->get('hosts'),
                     'stateID' => $states,
-                )
+                ]
             );
         if ($TaskCount > 0) {
             throw new Exception(_('There is a host in a tasking'));
         }
         self::getClass('HostManager')
             ->update(
-                array(
-                    'id' => $this->get('hosts'),
-                ),
+                ['id' => $this->get('hosts')],
                 '',
-                array('imageID' => $imageID)
+                ['imageID' => $imageID]
             );
 
         return $this;
@@ -493,14 +481,14 @@ class Group extends FOGController
             $hostids,
             self::getSubObjectIDs(
                 'Task',
-                array(
+                [
                     'hostID' => $hostids,
                     'stateID' => self::fastmerge(
                         self::getQueuedStates(),
                         (array)self::getProgressState()
                     ),
                     'typeID' => $TaskType->isInitNeededTasking(true)
-                ),
+                ],
                 'hostID'
             )
         );
@@ -513,9 +501,7 @@ class Group extends FOGController
             $imageID = @min(
                 self::getSubObjectIDs(
                     'Host',
-                    array(
-                        'id' => $hostids,
-                    ),
+                    ['id' => $hostids],
                     'imageID'
                 )
             );
@@ -540,12 +526,12 @@ class Group extends FOGController
                     $defaultPort
                 ) = self::getSubObjectIDs(
                     'Service',
-                    array(
-                        'name' => array(
+                    [
+                        'name' => [
                             'FOG_MULTICAST_PORT_OVERRIDE',
                             'FOG_UDPCAST_STARTINGPORT',
-                        ),
-                    ),
+                        ],
+                    ],
                     'value',
                     false,
                     'AND',
@@ -572,9 +558,7 @@ class Group extends FOGController
                 if ($MulticastSession->save()) {
                     self::getClass('MulticastSessionAssociationManager')
                         ->destroy(
-                            array(
-                                'hostID' => $hostids,
-                            )
+                            ['hostID' => $hostids]
                         );
                     $randomnumber = mt_rand(24576, 32766) * 2;
                     while ($randomnumber == $MulticastSession->get('port')) {
@@ -583,7 +567,7 @@ class Group extends FOGController
                     self::setSetting('FOG_UDPCAST_STARTINGPORT', $randomnumber);
                 }
                 $hostIDs = $hostids;
-                $batchFields = array(
+                $batchFields = [
                     'name',
                     'createdBy',
                     'hostID',
@@ -595,10 +579,10 @@ class Group extends FOGController
                     'shutdown',
                     'isDebug',
                     'passreset',
-                );
-                $batchTask = array();
+                ];
+                $batchTask = [];
                 for ($i = 0; $i < $hostCount; ++$i) {
-                    $batchTask[] = array(
+                    $batchTask[] = [
                         $taskName,
                         $username,
                         $hostIDs[$i],
@@ -610,7 +594,7 @@ class Group extends FOGController
                         $shutdown,
                         $debug,
                         $passreset,
-                    );
+                    ];
                 }
                 if (count($batchTask) > 0) {
                     list(
@@ -622,21 +606,21 @@ class Group extends FOGController
                         $batchTask
                     );
                     $ids = range($first_id, ($first_id + $affected_rows - 1));
-                    $multicastsessionassocs = array();
+                    $multicastsessionassocs = [];
                     foreach ((array) $batchTask as $index => &$val) {
-                        $multicastsessionassocs[] = array(
+                        $multicastsessionassocs[] = [
                             $MulticastSession->get('id'),
                             $ids[$index],
-                        );
+                        ];
                         unset($val);
                     }
                     if (count($multicastsessionassocs) > 0) {
                         self::getClass('MulticastSessionAssociationManager')
                             ->insertBatch(
-                                array(
+                                [
                                     'msID',
                                     'taskID',
-                                ),
+                                ],
                                 $multicastsessionassocs
                             );
                     }
@@ -654,9 +638,7 @@ class Group extends FOGController
                 $hostIDs = $hostids;
                 $imageIDs = self::getSubObjectIDs(
                     'Host',
-                    array(
-                        'id' => $hostIDs,
-                    ),
+                    ['id' => $hostIDs],
                     'imageID',
                     false,
                     'AND',
@@ -664,7 +646,7 @@ class Group extends FOGController
                     false,
                     ''
                 );
-                $batchFields = array(
+                $batchFields = [
                     'name',
                     'createdBy',
                     'hostID',
@@ -676,10 +658,10 @@ class Group extends FOGController
                     'shutdown',
                     'isDebug',
                     'passreset',
-                );
-                $batchTask = array();
+                ];
+                $batchTask = [];
                 for ($i = 0; $i < $hostCount; ++$i) {
-                    $batchTask[] = array(
+                    $batchTask[] = [
                         $taskName,
                         $username,
                         $hostIDs[$i],
@@ -691,7 +673,7 @@ class Group extends FOGController
                         $shutdown,
                         $debug,
                         $passreset,
-                    );
+                    ];
                 }
                 if (count($batchTask) > 0) {
                     self::getClass('TaskManager')
@@ -713,7 +695,7 @@ class Group extends FOGController
         } elseif ($TaskType->isSnapinTasking()) {
             $hostIDs = $this->_createSnapinTasking($now, $deploySnapins);
             $hostCount = count($hostIDs);
-            $batchFields = array(
+            $batchFields = [
                 'name',
                 'createdBy',
                 'hostID',
@@ -721,10 +703,10 @@ class Group extends FOGController
                 'typeID',
                 'wol',
                 'shutdown'
-            );
-            $batchTask = array();
+            ];
+            $batchTask = [];
             for ($i = 0; $i < $hostCount; ++$i) {
-                $batchTask[] = array(
+                $batchTask[] = [
                     $taskName,
                     $username,
                     $hostIDs[$i],
@@ -732,7 +714,7 @@ class Group extends FOGController
                     $TaskType->get('id'),
                     $wol,
                     $shutdown
-                );
+                ];
             }
             if (count($batchTask) > 0) {
                 self::getClass('TaskManager')
@@ -742,24 +724,24 @@ class Group extends FOGController
             if ($TaskType->get('id') != 14) {
                 $hostIDs = $this->get('hosts');
                 $hostCount = count($hostIDs);
-                $batchFields = array(
+                $batchFields = [
                     'name',
                     'createdBy',
                     'hostID',
                     'stateID',
                     'typeID',
                     'wol',
-                );
-                $batchTask = array();
+                ];
+                $batchTask = [];
                 for ($i = 0; $i < $hostCount; ++$i) {
-                    $batchTask[] = array(
+                    $batchTask[] = [
                         $taskName,
                         $username,
                         $hostIDs[$i],
                         self::getQueuedState(),
                         $TaskType->get('id'),
                         $wol,
-                    );
+                    ];
                 }
                 if (count($batchTask) > 0) {
                     self::getClass('TaskManager')
@@ -777,7 +759,7 @@ class Group extends FOGController
             'host',
             'name',
             false,
-            array('id' => $hostIDs)
+            ['id' => $hostIDs]
         );
         $Hosts = json_decode(
             Route::getData()
@@ -808,10 +790,10 @@ class Group extends FOGController
     {
         $hostMACs = self::getSubObjectIDs(
             'MACAddressAssociation',
-            array(
+            [
                 'hostID' => $this->get('hosts'),
-                'pending' => array(0, '')
-            ),
+                'pending' => [0, '']
+            ],
             'mac'
         );
         $hostMACs = self::parseMacList($hostMACs);
@@ -839,35 +821,31 @@ class Group extends FOGController
         $hostIDs = array_values(
             self::getSubObjectIDs(
                 'SnapinAssociation',
-                array(
-                    'hostID' => $this->get('hosts'),
-                ),
+                ['hostID' => $this->get('hosts')],
                 'hostID'
             )
         );
         $hostCount = count($hostIDs);
-        $snapinJobs = array();
+        $snapinJobs = [];
         for ($i = 0; $i < $hostCount; ++$i) {
             $hostID = $hostIDs[$i];
             $snapins[$hostID] = (
                 $snapin == -1 ?
                 self::getSubObjectIDs(
                     'SnapinAssociation',
-                    array(
-                        'hostID' => $hostID,
-                    ),
+                    ['hostID' => $hostID],
                     'snapinID'
                 ) :
-                array($snapin)
+                [$snapin]
             );
             if (count($snapins[$hostID]) < 1) {
                 continue;
             }
-            $snapinJobs[] = array(
+            $snapinJobs[] = [
                 $hostID,
                 self::getQueuedState(),
                 $now->format('Y-m-d H:i:s'),
-            );
+            ];
         }
         if (count($snapinJobs) > 0) {
             list(
@@ -875,11 +853,11 @@ class Group extends FOGController
                 $affected_rows
             ) = self::getClass('SnapinJobManager')
             ->insertBatch(
-                array(
+                [
                     'hostID',
                     'stateID',
                     'createdTime',
-                ),
+                ],
                 $snapinJobs
             );
             $ids = range($first_id, ($first_id + $affected_rows - 1));
@@ -888,21 +866,21 @@ class Group extends FOGController
                 $jobID = $ids[$i];
                 $snapinCount = count($snapins[$hostID]);
                 for ($j = 0; $j < $snapinCount; ++$j) {
-                    $snapinTasks[] = array(
+                    $snapinTasks[] = [
                         $jobID,
                         self::getQueuedState(),
                         $snapins[$hostID][$j],
-                    );
+                    ];
                 }
             }
             if (count($snapinTasks) > 0) {
                 self::getClass('SnapinTaskManager')
                     ->insertBatch(
-                        array(
+                        [
                             'jobID',
                             'stateID',
                             'snapinID',
-                        ),
+                        ],
                         $snapinTasks
                     );
             }
@@ -933,18 +911,16 @@ class Group extends FOGController
         $pass = trim($pass);
         self::getClass('HostManager')
             ->update(
-                array(
-                    'id' => $this->get('hosts'),
-                ),
+                ['id' => $this->get('hosts')],
                 '',
-                array(
+                [
                     'useAD' => $useAD,
                     'ADDomain' => trim($domain),
                     'ADOU' => trim($ou),
                     'ADUser' => trim($user),
                     'ADPass' => $pass,
                     'enforce' => $enforce,
-                )
+                ]
             );
 
         return $this;
@@ -959,7 +935,7 @@ class Group extends FOGController
         $test = self::getClass('HostManager')
             ->distinct(
                 'imageID',
-                array('id' => $this->get('hosts'))
+                ['id' => $this->get('hosts')]
             );
 
         return $test == 1;
@@ -975,7 +951,7 @@ class Group extends FOGController
             'hosts',
             self::getSubObjectIDs(
                 'GroupAssociation',
-                array('groupID' => $this->get('id')),
+                ['groupID' => $this->get('id')],
                 'hostID'
             )
         );

@@ -38,33 +38,33 @@ class GroupManager extends FOGManagerController
         $sql = Schema::createTable(
             $this->tablename,
             true,
-            array(
+            [
                 'gmID',
                 'gmHostID',
                 'gmGroupID'
-            ),
-            array(
+            ],
+            [
                 'INTEGER',
                 'INTEGER',
                 'INTEGER'
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 'gmID',
-                array(
+                [
                     'gmHostID',
                     'gmGroupID'
-                )
-            ),
+                ]
+            ],
             'MyISAM',
             'utf8',
             'gmID',
@@ -88,7 +88,7 @@ class GroupManager extends FOGManagerController
      * @return parent::destroy
      */
     public function destroy(
-        $findWhere = array(),
+        $findWhere = [],
         $whereOperator = 'AND',
         $orderBy = 'name',
         $sort = 'ASC',
@@ -112,7 +112,7 @@ class GroupManager extends FOGManagerController
          * Setup other entries to find
          */
         if (isset($findWhere['id'])) {
-            $findWhere = array('groupID' => $findWhere['id']);
+            $findWhere = ['groupID' => $findWhere['id']];
         }
         /**
          * Remove any group entries

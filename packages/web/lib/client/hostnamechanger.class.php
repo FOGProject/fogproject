@@ -88,7 +88,7 @@ class HostnameChanger extends FOGClient
             $ADPass = $password;
         }
         self::$Host->setAD();
-        $val = array(
+        $val = [
             'enforce' => (bool)$enforce,
             'hostname' => $hostname,
             'AD' => (bool)$AD,
@@ -96,7 +96,7 @@ class HostnameChanger extends FOGClient
             'ADOU' => $ADOU,
             'ADUser' => $ADUser,
             'ADPass' => $ADPass
-        );
+        ];
         if ($productKey) {
             $val['Key'] = $productKey;
         }

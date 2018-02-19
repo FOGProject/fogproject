@@ -42,8 +42,8 @@ class Autologout extends FOGClient
     {
         $time = self::$Host->getAlo();
         if ($time < 5) {
-            return array('error' => 'time');
+            return ['error' => 'time'];
         }
-        return array('time' => $time * 60);
+        return ['time' => $time * 60];
     }
 }

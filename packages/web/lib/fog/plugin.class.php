@@ -80,7 +80,7 @@ class Plugin extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'pID',
         'name' => 'pName',
         'state' => 'pState',
@@ -91,23 +91,23 @@ class Plugin extends FOGController
         'pAnon3' => 'pAnon3',
         'pAnon4' => 'pAnon4',
         'pAnon5' => 'pAnon5',
-    );
+    ];
     /**
      * The required fields.
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'name',
-    );
+    ];
     /**
      * Any additional Fields.
      *
      * @var array
      */
-    protected $additionalFields = array(
+    protected $additionalFields = [
         'description',
-    );
+    ];
     /**
      * Gets the needed include files to run.
      *
@@ -127,7 +127,7 @@ class Plugin extends FOGController
             break;
         }
 
-        return array($name, $Plugin->_getEntryPoint());
+        return [$name, $Plugin->_getEntryPoint()];
     }
     /**
      * Sets/gets the active plugins.
@@ -188,11 +188,11 @@ class Plugin extends FOGController
      */
     public function getPlugins()
     {
-        $Plugins = array();
+        $Plugins = [];
         foreach ((array) $this->_getDirs() as &$file) {
             $pluginID = self::getSubObjectIDs(
                 'Plugin',
-                array('name' => basename($file))
+                ['name' => basename($file)]
             );
             $pluginID = @min($pluginID);
             $configFile = sprintf(

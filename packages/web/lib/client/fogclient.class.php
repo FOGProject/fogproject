@@ -81,7 +81,7 @@ abstract class FOGClient extends FOGBase
             }
             $globalInfo = array_intersect_key(
                 self::getGlobalModuleStatus(),
-                array($this->shortName => '')
+                [$this->shortName => '']
             );
             if (!(isset($globalInfo[$this->shortName])
                 && $globalInfo[$this->shortName])
@@ -90,10 +90,10 @@ abstract class FOGClient extends FOGBase
             }
             $hostModInfo = self::getSubObjectIDs(
                 'Module',
-                array(
+                [
                     'id' => self::$Host->get('modules'),
                     'shortName' => $this->shortName
-                ),
+                ],
                 'shortName'
             );
             if (!in_array($this->shortName, $hostModInfo)) {
@@ -108,14 +108,14 @@ abstract class FOGClient extends FOGBase
                     $method = 'json';
                 }
             }
-            $validClientBrowserFiles = array(
+            $validClientBrowserFiles = [
                 'jobs.php',
                 'servicemodule-active.php',
                 'snapins.checkin.php',
                 'usertracking.report.php',
                 'snapins.file.php',
                 'register.php',
-            );
+            ];
             $scriptCheck = basename(self::$scriptname);
             $new = (self::$json || self::$newService);
             if ($new && !in_array($scriptCheck, $validClientBrowserFiles)) {
@@ -145,12 +145,12 @@ abstract class FOGClient extends FOGBase
                 );
             }
             $this->{$method}();
-            $nonJsonEncode = array(
+            $nonJsonEncode = [
                 'autologout',
                 'displaymanager',
                 'printerclient',
                 'servicemodule',
-            );
+            ];
             $lowclass = strtolower(
                 get_class($this)
             );
@@ -172,7 +172,7 @@ abstract class FOGClient extends FOGBase
             $message = $e->getMessage();
             $msg = preg_replace('/^[#][!]?/', '', $message);
             $message = json_encode(
-                array('error' => $msg)
+                ['error' => $msg]
             );
             $jsonSub = (!isset($sub) || $sub !== 'requestClientInfo');
             if ($jsonSub && self::$json) {

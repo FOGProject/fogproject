@@ -32,7 +32,7 @@ class MACAddressAssociation extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'hmID',
         'hostID' => 'hmHostID',
         'mac' => 'hmMAC',
@@ -41,24 +41,24 @@ class MACAddressAssociation extends FOGController
         'primary' => 'hmPrimary',
         'clientIgnore' => 'hmIgnoreClient',
         'imageIgnore' => 'hmIgnoreImaging',
-    );
+    ];
     /**
      * The fields required for the db
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'hostID',
         'mac',
-    );
+    ];
     /**
      * Additional fields
      *
      * @var array
      */
-    protected $additionalFields = array(
+    protected $additionalFields = [
         'host'
-    );
+    ];
     /**
      * Returns the host associated
      *

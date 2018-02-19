@@ -32,29 +32,29 @@ class StorageGroup extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'ngID',
         'name' => 'ngName',
         'description' => 'ngDesc',
-    );
+    ];
     /**
      * The required fields
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'name',
-    );
+    ];
     /**
      * Additional fields
      *
      * @var array
      */
-    protected $additionalFields = array(
+    protected $additionalFields = [
         'allnodes',
         'enablednodes',
         'usedtasks',
-    );
+    ];
 
     protected $sqlQueryStr = "SELECT `%s`,SUM(`nfsGroupMembers`.`ngmMaxClients`) AS `totalclients`
         FROM `%s`
@@ -87,11 +87,11 @@ class StorageGroup extends FOGController
     {
         $used = explode(',', self::getSetting('FOG_USED_TASKS'));
         if (count($used) < 1) {
-            $used = array(
+            $used = [
                 1,
                 15,
                 17
-            );
+            ];
         }
         $this->set('usedtasks', $used);
     }
@@ -106,9 +106,7 @@ class StorageGroup extends FOGController
             'allnodes',
             self::getSubObjectIDs(
                 'StorageNode',
-                array(
-                    'storagegroupID' => $this->get('id'),
-                ),
+                ['storagegroupID' => $this->get('id')],
                 'id'
             )
         );
@@ -120,13 +118,13 @@ class StorageGroup extends FOGController
      */
     protected function loadEnablednodes()
     {
-        $find = array(
+        $find = [
             'storagegroupID' => $this->get('id'),
             'id' => $this->get('allnodes'),
             'isEnabled' => 1
-        );
-        $nodeids = array();
-        $testurls = array();
+        ];
+        $nodeids = [];
+        $testurls = [];
         foreach ((array)self::getClass('StorageNodeManager')
             ->find($find) as &$node
         ) {
@@ -164,11 +162,11 @@ class StorageGroup extends FOGController
     {
         return self::getClass('TaskManager')
             ->count(
-                array(
+                [
                     'stateID' => self::getProgressState(),
                     'storagenodeID' => $this->get('enablednodes'),
                     'typeID' => $this->get('usedtasks'),
-                )
+                ]
             );
     }
     /**
@@ -180,11 +178,11 @@ class StorageGroup extends FOGController
     {
         return self::getClass('TaskManager')
             ->count(
-                array(
+                [
                     'stateID' => self::getQueuedStates(),
                     'storagenodeID' => $this->get('enablednodes'),
                     'typeID' => $this->get('usedtasks'),
-                )
+                ]
             );
     }
     /**
@@ -196,7 +194,7 @@ class StorageGroup extends FOGController
     {
         return self::getSubObjectIDs(
             'StorageNode',
-            array('id' => $this->get('enablednodes')),
+            ['id' => $this->get('enablednodes')],
             'maxClients',
             false,
             'AND',
@@ -214,10 +212,10 @@ class StorageGroup extends FOGController
     {
         $masternode = self::getSubObjectIDs(
             'StorageNode',
-            array(
+            [
                 'id' => $this->get('enablednodes'),
                 'isMaster' => 1,
-            )
+            ]
         );
         $masternode = array_shift($masternode);
         if (!($masternode
@@ -229,19 +227,19 @@ class StorageGroup extends FOGController
         if (!$masternode > 0) {
             $nodeids = self::getSubObjectIDs(
                 'StorageNode',
-                array(
+                [
                     'id' => $this->get('allnodes'),
                     'isEnabled' => 1,
                     'isMaster' => 1
-                )
+                ]
             );
             if (count($nodeids) < 1) {
                 $nodeids = self::getSubObjectIDs(
                     'StorageNode',
-                    array(
+                    [
                         'id' => $this->get('allnodes'),
                         'isEnabled' => 1
-                    )
+                    ]
                 );
             }
             $masternode = @min($nodeids);
@@ -262,7 +260,7 @@ class StorageGroup extends FOGController
         $winner = null;
         foreach ((array)self::getClass('StorageNodeManager')
             ->find(
-                array('id' => $this->get($getter))
+                ['id' => $this->get($getter)]
             ) as &$Node
         ) {
             if ($Node->get('maxClients') < 1) {
