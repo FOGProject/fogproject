@@ -273,8 +273,10 @@ var $_GET = getQueryParams(document.location.search),
                 cb('invalid');
             return;
         }
-        var opts = form.serialize();
-        Common.apiCall(form.attr('method'), form.attr('action'), opts, cb);
+        var method = form.attr('method'),
+            action = form.attr('action'),
+            opts = form.serialize();
+        Common.apiCall(method,action,opts,cb);
     };
     Common.massExport = function(password, cb) {
         var opts = {

@@ -42,39 +42,9 @@ class PrinterManagementPage extends FOGPage
      */
     public function __construct($name = '')
     {
-        global $id;
         $this->name = 'Printer Management';
         parent::__construct($this->name);
-        if ($id) {
-            $this->_config = _('TCP/IP');
-            if (false === stripos($this->obj->get('config'), 'local')) {
-                $this->_config = $this->obj->get('config');
-            }
-            $this->subMenu = array(
-                "$this->linkformat#$this->node-gen" => self::$foglang['General'],
-                $this->membership => self::$foglang['Membership'],
-                $this->delformat => self::$foglang['Delete'],
-            );
-            $this->notes = array(
-                self::$foglang['Printer'] => $this->obj->get('name'),
-                self::$foglang['Type'] => $this->_config,
-            );
-        }
-        self::$HookManager
-            ->processEvent(
-                'SUB_MENULINK_DATA',
-                array(
-                    'menu' => &$this->menu,
-                    'submenu' => &$this->subMenu,
-                    'id' => &$this->id,
-                    'notes' => &$this->notes,
-                    'object' => &$this->obj,
-                    'linkformat' => &$this->linkformat,
-                    'delformat' => &$this->delformat,
-                    'membership' => &$this->membership
-                )
-            );
-        $this->headerData = array(
+        $this->headerData = [
             _('Printer Name'),
             _('Printer Type'),
             _('Model'),
@@ -82,50 +52,25 @@ class PrinterManagementPage extends FOGPage
             _('File'),
             _('IP'),
             _('Config File')
-        );
-        $this->templates = array(
-            '<a href="?node=printer&sub=edit&id=${id}" title="Edit">${name}</a>',
-            '${config}',
-            '${model}',
-            '${port}',
-            '${file}',
-            '${ip}',
-            '${configFile}'
-        );
-        $this->attributes = array(
-            array(),
-            array(),
-            array(),
-            array(),
-            array(),
-            array(),
-            array()
-        );
-        /**
-         * Lamda function to return data either by list or search.
-         *
-         * @param object $Image the object to use.
-         *
-         * @return void
-         */
-        self::$returnData = function (&$Printer) {
-            $config = _('TCP/IP');
-            if (false === stripos($Printer->config, 'local')) {
-                $config = $Printer->config;
-            }
-            $this->data[] = array(
-                'id' => $Printer->id,
-                'name' => $Printer->name,
-                'config' => $config,
-                'model' => $Printer->model,
-                'port' => $Printer->port,
-                'file' => $Printer->file,
-                'ip' => $Printer->ip,
-                'configFile' => $Printer->configFile,
-                'desc' => $Printer->description
-            );
-            unset($Printer);
-        };
+        ];
+        $this->templates = [
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            ''
+        ];
+        $this->attributes = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        ];
     }
     /**
      * Gets the printer information.
@@ -135,14 +80,14 @@ class PrinterManagementPage extends FOGPage
     public function getPrinterInfo()
     {
         echo json_encode(
-            array(
+            [ 
                 'file' => $this->obj->get('file'),
                 'port' => $this->obj->get('port'),
                 'model' => $this->obj->get('model'),
                 'ip' => $this->obj->get('ip'),
                 'config' => strtolower($this->obj->get('config')),
                 'configFile' => $this->obj->get('configFile')
-            )
+            ]
         );
         exit;
     }
@@ -153,315 +98,242 @@ class PrinterManagementPage extends FOGPage
      */
     public function add()
     {
-        $name = filter_input(INPUT_POST, 'alias');
-        $desc = filter_input(INPUT_POST, 'description');
+        $this->title = _('Create New Printer');
+        /**
+         * Setup our variables for back up/incorrect settings without
+         * making the user reset entirely
+         */
+        $printer = filter_input(INPUT_POST, 'printer');
+        $description = filter_input(INPUT_POST, 'description');
         $port = filter_input(INPUT_POST, 'port');
         $inf = filter_input(INPUT_POST, 'inf');
         $ip = filter_input(INPUT_POST, 'ip');
         $config = filter_input(INPUT_POST, 'printertype');
         $configFile = filter_input(INPUT_POST, 'configFile');
         $model = filter_input(INPUT_POST, 'model');
-        $this->title = 'New Printer';
-        unset($this->headerData);
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
-        );
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
         if (!$config) {
             $config = 'Local';
         }
-        $printerTypes = array(
+        $printerTypes = [
             'Local'=>_('TCP/IP Port Printer'),
             'iPrint'=>_('iPrint Printer'),
             'Network'=>_('Network Printer'),
             'Cups'=>_('CUPS Printer'),
-        );
+        ];
         $printerSel = self::selectForm(
             'printertype',
             $printerTypes,
             $config,
             true
         );
-        $fields = array(
-            '<label for="printer">'
+        $fields = [
+            '<label class="col-sm-2 control-label" for="printercopy">'
             . _('Copy from existing')
-            . '</label>' => self::getClass('PrinterManager')->buildSelectBox(
-                $this->obj->get('id')
-            ),
-            '<label for="printertype">'
+            . '</label>' => self::getClass('PrinterManager')->buildSelectBox('','printercopy'),
+            '<label class="col-sm-2 control-label" for="printertype">'
             . _('Printer Type')
             . '</label>' => $printerSel
-        );
-        $rendered = self::formFields($fields);
+        ];
         self::$HookManager->processEvent(
-            'PRINTER_COPY_DATA',
-            array(
-                'data' => &$this->data,
-                'headerData' => &$this->headerData,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
-            )
+            'PRINTER_COPY-TYPE_FIELDS',
+            [
+                'fields' => &$fields,
+            ]
         );
-        $printerCopy = '<div id="printer-copy">'
-            . $this->process(12)
+        $printerCopy = '<div class="printer-copy">'
+            . self::formFields($fields)
             . '</div>';
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $fields
-        );
+        unset($fields);
         // Network
-        $fields = array(
-            '<label for="namenetwork">'
+        $fields = [
+            '<label class="col-sm-2 control-label" for="printernetwork">'
             . _('Printer Name/Alias')
-            . '</label>'
-            . '<br/>'
+            . '<br/>('
             . _('e.g.')
-            . ' \\\\printerserver\\printername' => '<div class="input-group">'
-            . '<input type="text" name="alias" id="namenetwork" value="'
-            . $name
-            . '" class="form-control printername-input" autocomplete="off" '
-            . 'required/>'
-            . '</div>',
-            '<label for="descnetwork">'
+            . ' \\\\printerserver\\printername'
+            . ')</label>' => '<input type="text" name="printer" '
+            . 'value="'
+            . $printer
+            . '" class="form-control" id="printernetwork" '
+            . 'required/>',
+            '<label class="col-sm-2 control-label" for="descnetwork">'
             . _('Printer Description')
-            . '</label>' => '<div class="input-group">'
-            . '<textarea name="description" id="descnetwork" class="form-control">'
-            . $desc
-            . '</textarea>'
-            . '</div>'
-        );
-        $rendered = self::formFields($fields);
+            . '</label>' => '<textarea name="description" id="descnetwork" class="form-control">'
+            . $description
+            . '</textarea>',
+            '<label class="col-sm-2 control-label" for="filenetwork">'
+            . _('Printer Configuration File')
+            . '</label>' => '<input type="text" name="configFile" value="'
+            . $configFile
+            . '" id="filenetwork" class="form-control"/>'
+        ];
         self::$HookManager->processEvent(
-            'PRINTER_NETWORK',
-            array(
-                'data' => &$this->data,
-                'headerData' => &$this->headerData,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
-            )
+            'PRINTER_NETWORK_FIELDS',
+            [
+                'fields' => &$fields
+            ]
         );
-        $printerNetwork = '<div class="hiddeninitially" id="network">'
-            . $this->process(12)
+        $printerNetwork = '<div class="network">'
+            . self::formFields($fields)
             . '</div>';
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $fields
-        );
+        unset($fields);
         // iPrint
-        $fields = array(
-            '<label for="nameiprint">'
+        $fields = [
+            '<label class="col-sm-2 control-label" for="printeriprint">'
             . _('Printer Name/Alias')
-            . '</label>'
-            . '<br/>'
+            . '<br/>('
             . _('e.g.')
-            . ' \\\\printerserver\\printername' => '<div class="input-group">'
-            . '<input type="text" name="alias" id="nameiprint" value="'
-            . $name
-            . '" class="form-control printername-input" autocomplete="off" '
-            . 'required/>'
-            . '</div>',
-            '<label for="desciprint">'
+            . ' \\\\printerserver\\printername'
+            . ')</label>' => '<input type="text" name="printer" '
+            . 'value="'
+            . $printer
+            . '" class="form-control" id="printeriprint" '
+            . 'required/>',
+            '<label class="col-sm-2 control-label" for="desciprint">'
             . _('Printer Description')
-            . '</label>' => '<div class="input-group">'
-            . '<textarea name="description" id="desciprint" class="form-control">'
-            . $desc
-            . '</textarea>'
-            . '</div>',
-            '<label for="portiprint">'
+            . '</label>' => '<textarea name="description" id="desciprint" class="form-control">'
+            . $description
+            . '</textarea>',
+            '<label class="col-sm-2 control-label" for="portiprint">'
             . _('Printer Port')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="port" id="portiprint" '
+            . '</label>' => '<input type="text" name="port" id="portiprint" '
             . 'value="'
             . $port
-            . '" class="form-control printerport-input" autocomplete="off" '
-            . '/>'
-            . '</div>'
-        );
-        $rendered = self::formFields($fields);
+            . '" class="form-control" autocomplete="off" '
+            . 'required/>',
+            '<label class="col-sm-2 control-label" for="fileiprint">'
+            . _('Printer Configuration File')
+            . '</label>' => '<input type="text" name="configFile" value="'
+            . $configFile
+            . '" id="fileiprint" class="form-control"/>'
+        ];
         self::$HookManager->processEvent(
-            'PRINTER_IPRINT',
-            array(
-                'data' => &$this->data,
-                'headerData' => &$this->headerData,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
-            )
+            'PRINTER_IPRINT_FIELDS',
+            [
+                'fields' => &$fields
+            ]
         );
-        $printeriPrint = '<div class="hiddeninitially" id="iprint">'
-            . $this->process(12)
+        $printeriPrint = '<div class="iprint">'
+            . self::formFields($fields)
             . '</div>';
-        unset(
-            $fields,
-            $this->data,
-            $this->form,
-            $this->headerData
-        );
+        unset($fields);
         // CUPS
-        $fields = array(
-            '<label for="namecups">'
+        $fields = [
+            '<label class="col-sm-2 control-label" for="printercups">'
             . _('Printer Name/Alias')
-            . '</label>'
-            . '<br/>'
+            . '<br/>('
             . _('e.g.')
-            . ' \\\\printerserver\\printername' => '<div class="input-group">'
-            . '<input type="text" name="alias" id="namecups" value="'
-            . $name
-            . '" class="form-control printername-input" autocomplete="off" '
-            . 'required/>'
-            . '</div>',
-            '<label for="desccups">'
+            . ' \\\\printerserver\\printername'
+            . ')</label>' => '<input type="text" name="printer" '
+            . 'value="'
+            . $printer
+            . '" class="form-control" id="printercups" '
+            . 'required/>',
+            '<label class="col-sm-2 control-label" for="desccups">'
             . _('Printer Description')
-            . '</label>' => '<div class="input-group">'
-            . '<textarea name="description" id="desccups" class="form-control">'
-            . $desc
-            . '</textarea>'
-            . '</div>',
-            '<label for="infcups">'
+            . '</label>' => '<textarea name="description" id="desccups" class="form-control">'
+            . $description
+            . '</textarea>',
+            '<label class="col-sm-2 control-label" for="infcups">'
             . _('Printer INF File')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="inf" value="'
+            . '</label>' => '<input type="text" name="inf" value="'
             . $inf
-            . '" id="infcups" class="printerinf-input form-control" '
-            . '/>'
-            . '</div>',
-            '<label for="ipcups">'
+            . '" id="infcups" class="form-control" required/>',
+            '<label class="col-sm-2 control-label" for="ipcups">'
             . _('Printer IP')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="ip" value="'
+            . '</label>' => '<input type="text" name="ip" value="'
             . $ip
-            . '" id="ipcups" class="printerip-input form-control" '
-            . '/>'
-            . '</div>'
-        );
-        $rendered = self::formFields($fields);
+            . '" id="ipcups" class="form-control" required/>',
+            '<label class="col-sm-2 control-label" for="filecups">'
+            . _('Printer Configuration File')
+            . '</label>' => '<input type="text" name="configFile" value="'
+            . $configFile
+            . '" id="filecups" class="form-control"/>'
+        ];
         self::$HookManager->processEvent(
-            'PRINTER_CUPS',
-            array(
-                'data' => &$this->data,
-                'headerData' => &$this->headerData,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
-            )
+            'PRINTER_CUPS_FIELDS',
+            [
+                'fields' => &$fields
+            ]
         );
-        $printerCups = '<div class="hiddeninitially" id="cups">'
-            . $this->process(12)
+        $printerCups = '<div class="cups">'
+            . self::formFields($fields)
             . '</div>';
-        unset(
-            $fields,
-            $this->data,
-            $this->form,
-            $this->headerData
-        );
+        unset($fields);
         // Local
-        $fields = array(
-            '<label for="namelocal">'
+        $fields = [
+            '<label class="col-sm-2 control-label" for="printerlocal">'
             . _('Printer Name/Alias')
-            . '</label>'
-            . '<br/>'
+            . '<br/>('
             . _('e.g.')
-            . ' \\\\printerserver\\printername' => '<div class="input-group">'
-            . '<input type="text" name="alias" id="namelocal" value="'
-            . $name
-            . '" class="form-control printername-input" autocomplete="off" '
-            . 'required/>'
-            . '</div>',
-            '<label for="desclocal">'
+            . ' \\\\printerserver\\printername'
+            . ')</label>' => '<input type="text" name="printer" '
+            . 'value="'
+            . $printer
+            . '" class="form-control" id="printerlocal" '
+            . 'required/>',
+            '<label class="col-sm-2 control-label" for="desclocal">'
             . _('Printer Description')
-            . '</label>' => '<div class="input-group">'
-            . '<textarea name="description" id="desclocal" class="form-control">'
-            . $desc
-            . '</textarea>'
-            . '</div>',
-            '<label for="portlocal">'
+            . '</label>' => '<textarea name="description" id="desclocal" class="form-control">'
+            . $description
+            . '</textarea>',
+            '<label class="col-sm-2 control-label" for="portlocal">'
             . _('Printer Port')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="port" id="portlocal" '
+            . '</label>' => '<input type="text" name="port" id="portlocal" '
             . 'value="'
             . $port
-            . '" class="form-control printerport-input" autocomplete="off" '
-            . '/>'
-            . '</div>',
-            '<label for="inflocal">'
+            . '" class="form-control" autocomplete="off" '
+            . 'required/>',
+            '<label class="col-sm-2 control-label" for="inflocal">'
             . _('Printer INF File')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="inf" value="'
+            . '</label>' => '<input type="text" name="inf" value="'
             . $inf
-            . '" id="inflocal" class="printerinf-input form-control" '
-            . '/>'
-            . '</div>',
-            '<label for="iplocal">'
+            . '" id="inflocal" class="form-control" required/>',
+            '<label class="col-sm-2 control-label" for="iplocal">'
             . _('Printer IP')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="ip" value="'
+            . '</label>' => '<input type="text" name="ip" value="'
             . $ip
-            . '" id="iplocal" class="printerip-input form-control" '
-            . '/>'
-            . '</div>',
-            '<label for="modellocal">'
+            . '" id="iplocal" class="form-control" required/>',
+            '<label class="col-sm-2 control-label" for="modellocal">'
             . _('Printer Model')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="model" value="'
+            . '</label>' => '<input type="text" name="model" value="'
             . $model
-            . '" id="modellocal" class="printermodel-input form-control" '
-            . '/>'
-            . '</div>'
+            . '" id="modellocal" class="form-control" required/>',
+            '<label class="col-sm-2 control-label" for="filelocal">'
+            . _('Printer Configuration File')
+            . '</label>' => '<input type="text" name="configFile" value="'
+            . $configFile
+            . '" id="filelocal" class="form-control"/>'
+        ];
+        self::$HookManager->processEvent(
+            'PRINTER_LOCAL_FIELDS',
+            [
+                'fields' => &$fields
+            ]
         );
-        $rendered = self::formFields($fields);
-        $printerLocal = '<div class="hiddeninitially" id="local">'
-            . $this->process(12)
+        $printerLocal = '<div class="local">'
+            . self::formFields($fields)
             . '</div>';
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData
-        );
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Create New Printer');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
+        unset($fields);
+        echo '<div class="box box-solid" id="printer-create">';
+        echo '<form id="printer-create-form" class="form-horizontal" method="post action="'
             . $this->formAction
-            . '">';
+            . '" novalidate>';
+        echo '<div class="box-body">';
+        echo '<!-- Printer General -->';
         echo $printerCopy;
         echo $printerNetwork;
         echo $printeriPrint;
         echo $printerCups;
         echo $printerLocal;
-        echo '<div class="form-group">';
-        echo '<label for="add" class="col-xs-4">'
-            . _('Add New Printer')
-            . '</label>';
-        echo '<div class="col-xs-8">';
-        echo '<button type="submit" name="add" '
-            . 'id="add" '
-            . 'class="btn btn-info btn-block">'
-            . _('Add')
-            . '</button>';
         echo '</div>';
+        echo '<div class="box-footer">';
+        echo '<button class="btn btn-primary" id="send">'
+            . _('Create')
+            . '</button>';
         echo '</div>';
         echo '</form>';
         echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
     }
     /**
      * Actually create the item.
@@ -470,25 +342,69 @@ class PrinterManagementPage extends FOGPage
      */
     public function addPost()
     {
+        header('Content-type: application/json');
         self::$HookManager->processEvent('PRINTER_ADD_POST');
-        $alias = filter_input(INPUT_POST, 'alias');
-        $port = filter_input(INPUT_POST, 'port');
-        $inf = filter_input(INPUT_POST, 'inf');
-        $model = filter_input(INPUT_POST, 'model');
-        $ip = filter_input(INPUT_POST, 'ip');
-        $configFile = filter_input(INPUT_POST, 'configFile');
-        $config = strtolower(
-            filter_input(INPUT_POST, 'printertype')
+        $printer = trim(
+            filter_input(
+                INPUT_POST,
+                'printer'
+            )
         );
-        $desc = filter_input(INPUT_POST, 'description');
+        $description = trim(
+            filter_input(
+                INPUT_POST,
+                'description'
+            )
+        );
+        $port = trim(
+            filter_input(
+                INPUT_POST,
+                'port'
+            )
+        );
+        $inf = trim(
+            filter_input(
+                INPUT_POST,
+                'inf'
+            )
+        );
+        $ip = trim(
+            filter_input(
+                INPUT_POST,
+                'ip'
+            )
+        );
+        $config = trim(
+            filter_input(
+                INPUT_POST,
+                'printertype'
+            )
+        );
+        $configFile = trim(
+            filter_input(
+                INPUT_POST,
+                'configFile'
+            )
+        );
+        $model = trim(
+            filter_input(
+                INPUT_POST,
+                'model'
+            )
+        );
+        $serverFault = false;
         try {
-            if (empty($alias)) {
-                throw new Exception(_('A name must be set'));
+            if (!$printer) {
+                throw new Exception(
+                    _('A printer name is required!')
+                );
             }
-            if (self::getClass('PrinterManager')->exists($alias)) {
-                throw new Exception(_('Printer name already exists'));
+            if (self::getClass('PrinterManager')->exists($printer)) {
+                throw new Exception(
+                    _('A printer already exists with this name!')
+                );
             }
-            switch ($config) {
+            switch (strtolower($config)) {
             case 'local':
                 $printertype = 'Local';
                 break;
@@ -503,8 +419,8 @@ class PrinterManagementPage extends FOGPage
                 break;
             }
             $Printer = self::getClass('Printer')
-                ->set('description', $desc)
-                ->set('name', $alias)
+                ->set('name', $printer)
+                ->set('description', $description)
                 ->set('config', $printertype)
                 ->set('model', $model)
                 ->set('port', $port)
@@ -512,30 +428,34 @@ class PrinterManagementPage extends FOGPage
                 ->set('configFile', $configFile)
                 ->set('ip', $ip);
             if (!$Printer->save()) {
-                throw new Exception(
-                    _('Add printer failed!')
-                );
+                $serverFault = true;
+                throw new Exception(_('Add printer failed!'));
             }
+            $code = 201;
             $hook = 'PRINTER_ADD_SUCCESS';
             $msg = json_encode(
-                array(
+                [
                     'msg' => _('Printer added!'),
                     'title' => _('Printer Create Success')
-                )
+                ]
             );
         } catch (Exception $e) {
+            $code = ($serverFault ? 500 : 400);
             $hook = 'PRINTER_ADD_FAIL';
             $msg = json_encode(
-                array(
+                [
                     'error' => $e->getMessage(),
                     'title' => _('Printer Create Fail')
-                )
+                ]
             );
         }
-        self::$HookManager->processEvent(
-            $hook,
-            array('Printer' => &$Printer)
-        );
+        http_response_code($code);
+        //header('Location: ../management/index.php?node=host&sub=edit&id=' . $Printer->get('id'));
+        self::$HookManager
+            ->processEvent(
+                $hook,
+                ['Printer' => &$Printer]
+            );
         unset($Printer);
         echo $msg;
         exit;
@@ -547,9 +467,9 @@ class PrinterManagementPage extends FOGPage
      */
     public function printerGeneral()
     {
-        $name = filter_input(INPUT_POST, 'alias') ?:
+        $printer = filter_input(INPUT_POST, 'printer') ?:
             $this->obj->get('name');
-        $desc = filter_input(INPUT_POST, 'description') ?:
+        $description = filter_input(INPUT_POST, 'description') ?:
             $this->obj->get('description');
         $port = filter_input(INPUT_POST, 'port') ?:
             $this->obj->get('port');
@@ -563,307 +483,241 @@ class PrinterManagementPage extends FOGPage
             $this->obj->get('configFile');
         $model = filter_input(INPUT_POST, 'model') ?:
             $this->obj->get('model');
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
-        );
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
-        if (!$config) {
-            $config = 'Local';
-        }
-        $printerTypes = array(
+        $printerTypes = [
             'Local'=>_('TCP/IP Port Printer'),
             'iPrint'=>_('iPrint Printer'),
             'Network'=>_('Network Printer'),
             'Cups'=>_('CUPS Printer'),
-        );
+        ];
         $printerSel = self::selectForm(
             'printertype',
             $printerTypes,
             $config,
             true
         );
-        $fields = array(
-            '<label for="printer">'
+        $fields = [
+            '<label class="col-sm-2 control-label" for="printercopy">'
             . _('Copy from existing')
             . '</label>' => self::getClass('PrinterManager')->buildSelectBox(
-                $this->obj->get('id')
+                $this->obj->get('id'),
+                'printercopy'
             ),
-            '<label for="printertype">'
+            '<label class="col-sm-2 control-label" for="printertype">'
             . _('Printer Type')
             . '</label>' => $printerSel
-        );
-        $rendered = self::formFields($fields);
+        ];
         self::$HookManager->processEvent(
-            'PRINTER_COPY_DATA',
-            array(
-                'data' => &$this->data,
-                'headerData' => &$this->headerData,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
-            )
+            'PRINTER_COPY-TYPE_FIELDS',
+            [
+                'fields' => &$fields
+            ]
         );
-        $printerCopy = '<div id="printer-copy">'
-            . $this->process(12)
+        $printerCopy = '<div class="printer-copy">'
+            . self::formFields($fields)
             . '</div>';
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $fields
-        );
+        unset($fields);
         // Network
-        $fields = array(
-            '<label for="namenetwork">'
+        $fields = [
+            '<label class="col-sm-2 control-label" for="printernetwork">'
             . _('Printer Name/Alias')
-            . '</label>'
-            . '<br/>'
+            . '<br/>('
             . _('e.g.')
-            . ' \\\\printerserver\\printername' => '<div class="input-group">'
-            . '<input type="text" name="alias" id="namenetwork" value="'
-            . $name
-            . '" class="form-control printername-input" autocomplete="off" '
-            . 'required/>'
-            . '</div>',
-            '<label for="descnetwork">'
+            . ' \\\\printerserver\\printername'
+            . ')</label>' => '<input type="text" name="printer" '
+            . 'value="'
+            . $printer
+            . '" class="form-control" id="printernetwork" '
+            . 'required/>',
+            '<label class="col-sm-2 control-label" for="descnetwork">'
             . _('Printer Description')
-            . '</label>' => '<div class="input-group">'
-            . '<textarea name="description" id="descnetwork" class="form-control">'
-            . $desc
-            . '</textarea>'
-            . '</div>'
-        );
-        $rendered = self::formFields($fields);
+            . '</label>' => '<textarea name="description" id="descnetwork" class="form-control">'
+            . $description
+            . '</textarea>',
+            '<label class="col-sm-2 control-label" for="filenetwork">'
+            . _('Printer Configuration File')
+            . '</label>' => '<input type="text" name="configFile" value="'
+            . $configFile
+            . '" id="filenetwork" class="form-control"/>'
+        ];
         self::$HookManager->processEvent(
-            'PRINTER_NETWORK',
-            array(
-                'data' => &$this->data,
-                'headerData' => &$this->headerData,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
-            )
+            'PRINTER_NETWORK_FIELDS',
+            [
+                'fields' => &$fields
+            ]
         );
-        $printerNetwork = '<div class="hiddeninitially" id="network">'
-            . $this->process(12)
+        $printerNetwork = '<div class="network">'
+            . self::formFields($fields)
             . '</div>';
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $fields
-        );
+        unset($fields);
         // iPrint
-        $fields = array(
-            '<label for="nameiprint">'
+        $fields = [
+            '<label class="col-sm-2 control-label" for="printeriprint">'
             . _('Printer Name/Alias')
-            . '</label>'
-            . '<br/>'
+            . '<br/>('
             . _('e.g.')
-            . ' \\\\printerserver\\printername' => '<div class="input-group">'
-            . '<input type="text" name="alias" id="nameiprint" value="'
-            . $name
-            . '" class="form-control printername-input" autocomplete="off" '
-            . 'required/>'
-            . '</div>',
-            '<label for="desciprint">'
+            . ' \\\\printerserver\\printername'
+            . ')</label>' => '<input type="text" name="printer" '
+            . 'value="'
+            . $printer
+            . '" class="form-control" id="printeriprint" '
+            . 'required/>',
+            '<label class="col-sm-2 control-label" for="desciprint">'
             . _('Printer Description')
-            . '</label>' => '<div class="input-group">'
-            . '<textarea name="description" id="desciprint" class="form-control">'
-            . $desc
-            . '</textarea>'
-            . '</div>',
-            '<label for="portiprint">'
+            . '</label>' => '<textarea name="description" id="desciprint" class="form-control">'
+            . $description
+            . '</textarea>',
+            '<label class="col-sm-2 control-label" for="portiprint">'
             . _('Printer Port')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="port" id="portiprint" '
+            . '</label>' => '<input type="text" name="port" id="portiprint" '
             . 'value="'
             . $port
-            . '" class="form-control printerport-input" autocomplete="off" '
-            . '/>'
-            . '</div>'
-        );
-        $rendered = self::formFields($fields);
+            . '" class="form-control" autocomplete="off" '
+            . 'required/>',
+            '<label class="col-sm-2 control-label" for="fileiprint">'
+            . _('Printer Configuration File')
+            . '</label>' => '<input type="text" name="configFile" value="'
+            . $configFile
+            . '" id="fileiprint" class="form-control"/>'
+        ];
         self::$HookManager->processEvent(
-            'PRINTER_IPRINT',
-            array(
-                'data' => &$this->data,
-                'headerData' => &$this->headerData,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
-            )
+            'PRINTER_IPRINT_FIELDS',
+            [
+                'fields' => &$fields
+            ]
         );
-        $printeriPrint = '<div class="hiddeninitially" id="iprint">'
-            . $this->process(12)
+        $printeriPrint = '<div class="iprint">'
+            . self::formFields($fields)
             . '</div>';
-        unset(
-            $fields,
-            $this->data,
-            $this->form,
-            $this->headerData
-        );
+        unset($fields);
         // CUPS
-        $fields = array(
-            '<label for="namecups">'
+        $fields = [
+            '<label class="col-sm-2 control-label" for="printercups">'
             . _('Printer Name/Alias')
-            . '</label>'
-            . '<br/>'
+            . '<br/>('
             . _('e.g.')
-            . ' \\\\printerserver\\printername' => '<div class="input-group">'
-            . '<input type="text" name="alias" id="namecups" value="'
-            . $name
-            . '" class="form-control printername-input" autocomplete="off" '
-            . 'required/>'
-            . '</div>',
-            '<label for="desccups">'
+            . ' \\\\printerserver\\printername'
+            . ')</label>' => '<input type="text" name="printer" '
+            . 'value="'
+            . $printer
+            . '" class="form-control" id="printercups" '
+            . 'required/>',
+            '<label class="col-sm-2 control-label" for="desccups">'
             . _('Printer Description')
-            . '</label>' => '<div class="input-group">'
-            . '<textarea name="description" id="desccups" class="form-control">'
-            . $desc
-            . '</textarea>'
-            . '</div>',
-            '<label for="infcups">'
+            . '</label>' => '<textarea name="description" id="desccups" class="form-control">'
+            . $description
+            . '</textarea>',
+            '<label class="col-sm-2 control-label" for="infcups">'
             . _('Printer INF File')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="inf" value="'
+            . '</label>' => '<input type="text" name="inf" value="'
             . $inf
-            . '" id="infcups" class="printerinf-input form-control" '
-            . '/>'
-            . '</div>',
-            '<label for="ipcups">'
+            . '" id="infcups" class="form-control" required/>',
+            '<label class="col-sm-2 control-label" for="ipcups">'
             . _('Printer IP')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="ip" value="'
+            . '</label>' => '<input type="text" name="ip" value="'
             . $ip
-            . '" id="ipcups" class="printerip-input form-control" '
-            . '/>'
-            . '</div>'
-        );
-        $rendered = self::formFields($fields);
+            . '" id="ipcups" class="form-control" required/>',
+            '<label class="col-sm-2 control-label" for="filecups">'
+            . _('Printer Configuration File')
+            . '</label>' => '<input type="text" name="configFile" value="'
+            . $configFile
+            . '" id="filecups" class="form-control"/>'
+        ];
         self::$HookManager->processEvent(
-            'PRINTER_CUPS',
-            array(
-                'data' => &$this->data,
-                'headerData' => &$this->headerData,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
-            )
+            'PRINTER_CUPS_FIELDS',
+            [
+                'fields' => &$fields
+            ]
         );
-        $printerCups = '<div class="hiddeninitially" id="cups">'
-            . $this->process(12)
+        $printerCups = '<div class="cups">'
+            . self::formFields($fields)
             . '</div>';
-        unset(
-            $fields,
-            $this->data,
-            $this->form,
-            $this->headerData
+        unset($fields);
+        self::$HookManager->processEvent(
+            'PRINTER_CUPS_FIELDS',
+            [
+                'fields' => &$fields
+            ]
         );
+        $printerCups = '<div class="cups">'
+            . self::formFields($fields)
+            . '</div>';
+        unset($fields);
         // Local
-        $fields = array(
-            '<label for="namelocal">'
+        $fields = [
+            '<label class="col-sm-2 control-label" for="printerlocal">'
             . _('Printer Name/Alias')
-            . '</label>'
-            . '<br/>'
+            . '<br/>('
             . _('e.g.')
-            . ' \\\\printerserver\\printername' => '<div class="input-group">'
-            . '<input type="text" name="alias" id="namelocal" value="'
-            . $name
-            . '" class="form-control printername-input" autocomplete="off" '
-            . 'required/>'
-            . '</div>',
-            '<label for="desclocal">'
+            . ' \\\\printerserver\\printername'
+            . ')</label>' => '<input type="text" name="printer" '
+            . 'value="'
+            . $printer
+            . '" class="form-control" id="printerlocal" '
+            . 'required/>',
+            '<label class="col-sm-2 control-label" for="desclocal">'
             . _('Printer Description')
-            . '</label>' => '<div class="input-group">'
-            . '<textarea name="description" id="desclocal" class="form-control">'
-            . $desc
-            . '</textarea>'
-            . '</div>',
-            '<label for="portlocal">'
+            . '</label>' => '<textarea name="description" id="desclocal" class="form-control">'
+            . $description
+            . '</textarea>',
+            '<label class="col-sm-2 control-label" for="portlocal">'
             . _('Printer Port')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="port" id="portlocal" '
+            . '</label>' => '<input type="text" name="port" id="portlocal" '
             . 'value="'
             . $port
-            . '" class="form-control printerport-input" autocomplete="off" '
-            . '/>'
-            . '</div>',
-            '<label for="inflocal">'
+            . '" class="form-control" autocomplete="off" '
+            . 'required/>',
+            '<label class="col-sm-2 control-label" for="inflocal">'
             . _('Printer INF File')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="inf" value="'
+            . '</label>' => '<input type="text" name="inf" value="'
             . $inf
-            . '" id="inflocal" class="printerinf-input form-control" '
-            . '/>'
-            . '</div>',
-            '<label for="iplocal">'
+            . '" id="inflocal" class="form-control" required/>',
+            '<label class="col-sm-2 control-label" for="iplocal">'
             . _('Printer IP')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="ip" value="'
+            . '</label>' => '<input type="text" name="ip" value="'
             . $ip
-            . '" id="iplocal" class="printerip-input form-control" '
-            . '/>'
-            . '</div>',
-            '<label for="modellocal">'
+            . '" id="iplocal" class="form-control" required/>',
+            '<label class="col-sm-2 control-label" for="modellocal">'
             . _('Printer Model')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="model" value="'
+            . '</label>' => '<input type="text" name="model" value="'
             . $model
-            . '" id="modellocal" class="printermodel-input form-control" '
-            . '/>'
-            . '</div>'
+            . '" id="modellocal" class="form-control" required/>',
+            '<label class="col-sm-2 control-label" for="filelocal">'
+            . _('Printer Configuration File')
+            . '</label>' => '<input type="text" name="configFile" value="'
+            . $configFile
+            . '" id="filelocal" class="form-control"/>'
+        ];
+        self::$HookManager->processEvent(
+            'PRINTER_LOCAL_FIELDS',
+            [
+                'fields' => &$fields
+            ]
         );
-        $rendered = self::formFields($fields);
-        $printerLocal = '<div class="hiddeninitially" id="local">'
-            . $this->process(12)
+        $printerLocal = '<div class="local">'
+            . self::formFields($fields)
             . '</div>';
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData
-        );
-        $rendered = self::formFields($fields);
-        echo '<!-- General -->';
-        echo '<div class="tab-pane fade in active" id="printer-gen">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Printer General');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '&tab=printer-gen">';
+        unset($fields);
+        echo '<form id="printer-general-form" class="form-horizontal" method="post" action="'
+            . self::makeTabUpdateURL('printer-general', $this->obj->get('id'))
+            . '" novalidate>';
+        echo '<div class="box box-solid">';
+        echo '<div class="box-body">';
         echo $printerCopy;
         echo $printerNetwork;
         echo $printeriPrint;
         echo $printerCups;
         echo $printerLocal;
-        echo '<div class="form-group">';
-        echo '<label for="updategen" class="col-xs-4">'
-            . _('Make Changes?')
-            . '</label>';
-        echo '<div class="col-xs-8">';
-        echo '<button type="submit" name="add" '
-            . 'id="updategen" '
-            . 'class="btn btn-info btn-block">'
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo '<button class="btn btn-primary" id="general-send">'
             . _('Update')
+            . '</button>';
+        echo '<button class="btn btn-danger pull-right" id="general-delete">'
+            . _('Delete')
             . '</button>';
         echo '</div>';
         echo '</div>';
         echo '</form>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
     }
     /**
      * Edit printer object.
@@ -872,10 +726,34 @@ class PrinterManagementPage extends FOGPage
      */
     public function edit()
     {
-        $this->title = sprintf('%s: %s', _('Edit'), $this->obj->get('name'));
-        echo '<div class="col-xs-9 tab-content">';
-        $this->printerGeneral();
-        echo '</div>';
+        $this->title = sprintf(
+            '%s: %s',
+            _('Edit'),
+            $this->obj->get('name')
+        );
+
+        $tabData = [];
+
+        // General
+        $tabData[] = [
+            'name' => _('General'),
+            'id' => 'printer-general',
+            'generator' => function() {
+                $this->printerGeneral();
+            }
+        ];
+
+        // Membership
+        $tabData[] = [
+            'name' => _('Host Membership'),
+            'id' => 'printer-membership',
+            'generator' => function() {
+                //$this->printerMembership();
+                echo 'Not Ready Yet';
+            }
+        ];
+
+        echo self::tabFields($tabData);
     }
     /**
      * Printer General Post
@@ -884,22 +762,67 @@ class PrinterManagementPage extends FOGPage
      */
     public function printerGeneralPost()
     {
-        $alias = filter_input(INPUT_POST, 'alias');
-        $port = filter_input(INPUT_POST, 'port');
-        $inf = filter_input(INPUT_POST, 'inf');
-        $model = filter_input(INPUT_POST, 'model');
-        $ip = filter_input(INPUT_POST, 'ip');
-        $configFile = filter_input(INPUT_POST, 'configFile');
-        $config = strtolower(
-            filter_input(INPUT_POST, 'printertype')
+        $printer = trim(
+            filter_input(
+                INPUT_POST,
+                'printer'
+            )
         );
-        $desc = filter_input(INPUT_POST, 'description');
-        if (!$alias) {
+        $description = trim(
+            filter_input(
+                INPUT_POST,
+                'description'
+            )
+        );
+        $port = trim(
+            filter_input(
+                INPUT_POST,
+                'port'
+            )
+        );
+        $inf = trim(
+            filter_input(
+                INPUT_POST,
+                'inf'
+            )
+        );
+        $ip = trim(
+            filter_input(
+                INPUT_POST,
+                'ip'
+            )
+        );
+        $config = trim(
+            filter_input(
+                INPUT_POST,
+                'printertype'
+            )
+        );
+        $configFile = trim(
+            filter_input(
+                INPUT_POST,
+                'configFile'
+            )
+        );
+        $model = trim(
+            filter_input(
+                INPUT_POST,
+                'model'
+            )
+        );
+        if (!$printer) {
             throw new Exception(
                 _('A printer name is required!')
             );
         }
-        switch ($config) {
+        if ($printer != $this->obj->get('name')
+            && self::getClass('PrinterManager')->exists($printer)
+        ) {
+            throw new Exception(
+                _('A printer already exists with this name!')
+            );
+        }
+        switch (strtolower($config)) {
         case 'local':
             $printertype = 'Local';
             break;
@@ -913,16 +836,9 @@ class PrinterManagementPage extends FOGPage
             $printertype = 'Network';
             break;
         }
-        if ($this->obj->get('name') != $alias
-            && self::getClass('PrinterManager')->exists($alias)
-        ) {
-            throw new Exception(
-                _('A printer already exists with this name!')
-            );
-        }
         $this->obj
-            ->set('description', $desc)
-            ->set('name', $alias)
+            ->set('name', $printer)
+            ->set('description', $description)
             ->set('config', $printertype)
             ->set('model', $model)
             ->set('port', $port)
@@ -937,41 +853,49 @@ class PrinterManagementPage extends FOGPage
      */
     public function editPost()
     {
-        self::$HookManager
-            ->processEvent(
-                'PRINTER_EDIT_POST',
-                array('Printer' => &$this->obj)
-            );
+        header('Content-type: application/json');
+        self::$HookManager->processEvent(
+            'PRINTER_EDIT_POST',
+            ['Printer' => &$this->obj]
+        );
+        $serverFault = false;
         try {
             global $tab;
             switch ($tab) {
-            case 'printer-gen':
+            case 'printer-general':
                 $this->printerGeneralPost();
+                break;
+            case 'printer-membership':
+                $this->printerMembershipPost();
                 break;
             }
             if (!$this->obj->save()) {
+                $serverFault = true;
                 throw new Exception(_('Printer update failed!'));
             }
-            $hook = 'PRINTER_UPDATE_SUCCESS';
+            $code = 201;
+            $hook = 'PRINTER_EDIT_SUCCESS';
             $msg = json_encode(
-                array(
+                [
                     'msg' => _('Printer updated!'),
                     'title' => _('Printer Update Success')
-                )
+                ]
             );
         } catch (Exception $e) {
-            $hook = 'PRINTER_UPDATE_FAIL';
+            $code = ($serverFault ? 500 : 400);
+            $hook = 'PRINTER_EDIT_FAIL';
             $msg = json_encode(
-                array(
+                [
                     'error' => $e->getMessage(),
                     'title' => _('Printer Update Fail')
-                )
+                ]
             );
         }
+        http_response_code($code);
         self::$HookManager
             ->processEvent(
                 $hook,
-                array('Printer' => &$this->obj)
+                ['Printer' => &$this->obj]
             );
         echo $msg;
         exit;
