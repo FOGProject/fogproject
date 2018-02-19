@@ -31,7 +31,7 @@ try {
     $groupids = FOGCore::getSubObjectIDs('Group');
     $groupnames = FOGCore::getSubObjectIDs(
         'Group',
-        array('id' => $groupids),
+        ['id' => $groupids],
         'name'
     );
     foreach ((array)$groupids as $index => $groupid) {

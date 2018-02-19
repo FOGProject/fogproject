@@ -42,7 +42,7 @@ try {
                 @max(
                     FOGCore::getSubObjectIDs(
                         'MulticastSessionAssociation',
-                        array('taskID' => $Task->get('id'))
+                        ['taskID' => $Task->get('id')]
                     )
                 )
             );
@@ -61,11 +61,11 @@ try {
         $StorageGroup = $StorageNode = null;
         $HookManager->processEvent(
             'BOOT_TASK_NEW_SETTINGS',
-            array(
+            [
                 'Host' => &FOGCore::$Host,
                 'StorageNode' => &$StorageNode,
                 'StorageGroup' => &$StorageGroup
-            )
+            ]
         );
         if (!$StorageGroup || !$StorageGroup->isValid()) {
             $StorageGroup = $Image->getStorageGroup();
@@ -113,14 +113,14 @@ try {
             $ftp
         ) = FOGCore::getSubObjectIDs(
             'Service',
-            array(
-                'name' => array(
+            [
+                'name' => [
                     'FOG_CAPTUREIGNOREPAGEHIBER',
                     'FOG_CAPTURERESIZEPCT',
                     'FOG_CHANGE_HOSTNAME_EARLY',
                     'FOG_TFTP_HOST'
-                )
-            ),
+                ]
+            ],
             'value',
             false,
             'AND',
@@ -175,7 +175,7 @@ try {
     } elseif (mb_detect_encoding($productKeytest, 'utf-8', true)) {
         $productKey = $productKeytest;
     }
-    $repFields = array(
+    $repFields = [
         // Imaging items to set
         'mac' => $mac,
         'ftp' => $ftp,
@@ -229,7 +229,7 @@ try {
         'caseman' => $Inventory->get('caseman'),
         'caseserial' => $Inventory->get('caseserial'),
         'caseasset' => $Inventory->get('caseasset'),
-    );
+    ];
     $TaskArgs = preg_split(
         '#[\s]+#',
         trim($TaskType->get('kernelArgs'))
@@ -247,10 +247,10 @@ try {
     }
     $HookManager->processEvent(
         'HOST_INFO_EXPOSE',
-        array(
+        [
             'repFields' => &$repFields,
             'Host'=>&FOGCore::$Host
-        )
+        ]
     );
     foreach ((array)$repFields as $key => &$val) {
         printf(

@@ -23,7 +23,7 @@ require '../commons/base.inc.php';
 $FOGPageManager = FOGCore::getClass('FOGPageManager');
 if (session_status() != PHP_SESSION_NONE) {
     if (isset($_SESSION['delitems'])
-        && !in_array($sub, array('deletemulti', 'deleteconf'))
+        && !in_array($sub, ['deletemulti', 'deleteconf'])
     ) {
         unset($_SESSION['delitems']);
     }
@@ -31,11 +31,11 @@ if (session_status() != PHP_SESSION_NONE) {
 FOGCore::getClass('ProcessLogin')->processMainLogin();
 require '../commons/text.php';
 $Page = FOGCore::getClass('Page');
-$nodes = array(
+$nodes = [
     'schema',
     'client',
     'ipxe'
-);
+];
 if (!in_array($node, $nodes)
     && ($node == 'logout' || !$currentUser->isValid())
 ) {

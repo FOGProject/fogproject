@@ -52,49 +52,49 @@ abstract class FOGPage extends FOGBase
      *
      * @var array
      */
-    public $menu = array();
+    public $menu = [];
     /**
      * The submenu (Object displayed menus)
      *
      * @var array
      */
-    public $subMenu = array();
+    public $subMenu = [];
     /**
      * Additional notes for object
      *
      * @var array
      */
-    public $notes = array();
+    public $notes = [];
     /**
      * Table header data
      *
      * @var array
      */
-    public $headerData = array();
+    public $headerData = [];
     /**
      * Table data
      *
      * @var array
      */
-    public $data = array();
+    public $data = [];
     /**
      * Template data to replace
      *
      * @var array
      */
-    public $templates = array();
+    public $templates = [];
     /**
      * Attributes such as class, id, etc...
      *
      * @var array
      */
-    public $attributes = array();
+    public $attributes = [];
     /**
      * Pages that contain objects
      *
      * @var array
      */
-    public $PagesWithObjects = array(
+    public $PagesWithObjects = [
         'user',
         'host',
         'image',
@@ -103,7 +103,7 @@ abstract class FOGPage extends FOGBase
         'printer',
         'storagenode',
         'storagegroup'
-    );
+    ];
     /**
      * The items table
      *
@@ -115,25 +115,25 @@ abstract class FOGPage extends FOGBase
      *
      * @var array
      */
-    protected $databaseFields = array();
+    protected $databaseFields = [];
     /**
      * The items required fields
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array();
+    protected $databaseFieldsRequired = [];
     /**
      * Database -> Class field relationships
      *
      * @var array
      */
-    protected $databaseFieldClassRelationships = array();
+    protected $databaseFieldClassRelationships = [];
     /**
      * The items additional fields
      *
      * @var array
      */
-    protected $additionalFields = array();
+    protected $additionalFields = [];
     /**
      * The forms action placeholder
      *
@@ -169,7 +169,7 @@ abstract class FOGPage extends FOGBase
      *
      * @var array
      */
-    protected $request = array();
+    protected $request = [];
     /**
      * PDF Place holder
      *
@@ -241,7 +241,7 @@ abstract class FOGPage extends FOGBase
         }
         self::$HookManager->processEvent(
             'PAGES_WITH_OBJECTS',
-            array('PagesWithObjects' => &$this->PagesWithObjects)
+            ['PagesWithObjects' => &$this->PagesWithObjects]
         );
         global $node;
         global $type;
@@ -265,11 +265,11 @@ abstract class FOGPage extends FOGBase
             );
             exit;
         }
-        $subs = array(
+        $subs = [
             'configure',
             'authorize',
             'requestClientInfo'
-        );
+        ];
         if (!$sub) {
             $sub = 'list';
         }
@@ -355,7 +355,7 @@ abstract class FOGPage extends FOGBase
             . '</h4>';
         self::$pdffile = '<i class="fa fa-file-pdf-o fa-2x"></i>';
         self::$csvfile = '<i class="fa fa-file-excel-o fa-2x"></i>';
-        self::$inventoryCsvHead = array(
+        self::$inventoryCsvHead = [
             _('Host ID') => 'id',
             _('Host name') => 'name',
             _('Host MAC') => 'mac',
@@ -390,10 +390,10 @@ abstract class FOGPage extends FOGBase
             _('Chassis Version') => 'casever',
             _('Chassis Serial') => 'caseser',
             _('Chassis Asset') => 'caseasset',
-        );
+        ];
         self::$HookManager->processEvent(
             'SEARCH_PAGES',
-            array('searchPages' => &self::$searchPages)
+            ['searchPages' => &self::$searchPages]
         );
         /**
          * This builds our form action dynamically.
@@ -441,69 +441,69 @@ abstract class FOGPage extends FOGBase
         if (!self::$FOGUser->isValid() || strtolower($node) == 'schema') {
             return;
         }
-        $menu = array(
-            'home' => array(
+        $menu = [
+            'home' => [
                 self::$foglang['Dashboard'],
                 'fa fa-dashboard'
-            ),
-            'user' => array(
+            ],
+            'user' => [
                 self::$foglang['Users'],
                 'fa fa-users'
-            ),
-            'host' => array(
+            ],
+            'host' => [
                 self::$foglang['Hosts'],
                 'fa fa-desktop'
-            ),
-            'group' => array(
+            ],
+            'group' => [
                 self::$foglang['Groups'],
                 'fa fa-sitemap'
-            ),
-            'image' => array(
+            ],
+            'image' => [
                 self::$foglang['Images'],
                 'fa fa-picture-o'
-            ),
-            'storagenode' => array(
+            ],
+            'storagenode' => [
                 self::$foglang['StorageNode'],
                 'fa fa-archive'
-            ),
-            'storagegroup' => array(
+            ],
+            'storagegroup' => [
                 self::$foglang['StorageGroup'],
                 'fa fa-object-group'
-            ),
-            'snapin' => array(
+            ],
+            'snapin' => [
                 self::$foglang['Snapin'],
                 'fa fa-files-o'
-            ),
-            'printer' => array(
+            ],
+            'printer' => [
                 self::$foglang['Printer'],
                 'fa fa-print'
-            ),
-            'service' => array(
+            ],
+            'service' => [
                 self::$foglang['ClientSettings'],
                 'fa fa-cogs'
-            ),
-            'task' => array(
+            ],
+            'task' => [
                 self::$foglang['Tasks'],
                 'fa fa-tasks'
-            ),
-            'report' => array(
+            ],
+            'report' => [
                 self::$foglang['Reports'],
                 'fa fa-file-text'
-            ),
-            'about' => array(
+            ],
+            'about' => [
                 self::$foglang['FOG Configuration'],
                 'fa fa-wrench'
-            )
-        );
+            ]
+        ];
         if (self::getSetting('FOG_PLUGINSYS_ENABLED')) {
             self::arrayInsertAfter(
                 'about',
                 $menu,
                 'plugin',
-                array(
+                [
                     self::$foglang['Plugins'],
                     'fa fa-cog'
-                )
+                ]
             );
         }
         $menu = array_unique(
@@ -513,23 +513,21 @@ abstract class FOGPage extends FOGBase
         self::$HookManager
             ->processEvent(
                 'MAIN_MENU_DATA',
-                array(
-                    'main' => &$menu
-                )
+                ['main' => &$menu]
             );
         if (count($menu ?: []) > 0) {
             $links = array_keys($menu);
         }
         $links = self::fastmerge(
             (array)$links,
-            array(
+            [
                 'home',
                 'logout',
                 'hwinfo',
                 'client',
                 'schema',
                 'ipxe'
-            )
+            ]
         );
         if ($node
             && !in_array($node, $links)
@@ -612,7 +610,7 @@ abstract class FOGPage extends FOGBase
     {
         $refNode = ucfirst($refNode);
         $refNode = _($refNode);
-        $menu = array(
+        $menu = [
             'list' => sprintf(
                 self::$foglang['ListAll'],
                 _(
@@ -642,13 +640,13 @@ abstract class FOGPage extends FOGBase
                     )
                 ]
             ),
-        );
+        ];
         self::$HookManager->processEvent(
             'SUB_MENULINK_DATA',
-            array(
+            [
                 'menu' => &$menu,
                 'node' => &$refNode
-            )
+            ]
         );
         return $menu;
     }
@@ -685,12 +683,12 @@ abstract class FOGPage extends FOGBase
             );
             self::$HookManager->processEvent(
                 $event,
-                array(
+                [
                     'data' => &$this->data,
                     'templates' => &$this->templates,
                     'attributes' => &$this->attributes,
                     'headerData' => &$this->headerData
-                )
+                ]
             );
             $event = sprintf(
                 '%s_HEADER_DATA',
@@ -698,9 +696,7 @@ abstract class FOGPage extends FOGBase
             );
             self::$HookManager->processEvent(
                 $event,
-                array(
-                    'headerData' => &$this->headerData
-                )
+                ['headerData' => &$this->headerData]
             );
             $this->indexDivDisplay();
             unset(
@@ -888,10 +884,10 @@ abstract class FOGPage extends FOGBase
             global $sub;
             global $node;
             $defaultScreen = strtolower(self::$defaultscreen);
-            $defaultScreens = array(
+            $defaultScreens = [
                 'search',
                 'list'
-            );
+            ];
             $actionbox = '';
             $modals = '';
             if ($sub == 'list') {
@@ -914,7 +910,7 @@ abstract class FOGPage extends FOGBase
             $actionbox = $actionbox . $buttons;
             self::$HookManager->processEvent(
                 'ACTIONBOX',
-                array('actionbox' => &$actionbox)
+                ['actionbox' => &$actionbox]
             );
             if (strlen($actionbox) > 0) {
                 $actionbox = '<div class="btn-group">' . $actionbox . '</div>';
@@ -922,7 +918,7 @@ abstract class FOGPage extends FOGBase
 
             if (self::$ajax) {
                 echo json_encode(
-                    array(
+                    [
                         'data' => $this->data,
                         'templates' => $this->templates,
                         'headerData' => $this->headerData,
@@ -934,7 +930,7 @@ abstract class FOGPage extends FOGBase
                             $actionbox :
                             ''
                         ),
-                    )
+                    ]
                 );
                 exit;
             }
@@ -943,7 +939,7 @@ abstract class FOGPage extends FOGBase
                     _('Requires templates to process')
                 );
             }
-            if (in_array($node, array('task'))
+            if (in_array($node, ['task'])
                 && (!$sub || $sub == 'list')
             ) {
                 self::redirect(
@@ -1095,11 +1091,11 @@ abstract class FOGPage extends FOGBase
         global $node;
         global $sub;
         global $tab;
-        $urlvars = array(
+        $urlvars = [
             'node' => $node,
             'sub' => $sub,
             'tab' => $tab
-        );
+        ];
         $arrayReplace = self::fastmerge(
             $urlvars,
             (array)$data
@@ -1208,25 +1204,25 @@ abstract class FOGPage extends FOGBase
             );
         }
         unset($this->headerData);
-        $this->attributes = array(
-            array(
+        $this->attributes = [
+            [
                 'data-toggle' => 'tooltip',
                 'data-placement' => 'right',
                 'title' => '${host_title}'
-            ),
-            array(),
-            array(
+            ],
+            [],
+            [
                 'data-toggle' => 'tooltip',
                 'data-placement' => 'right',
                 'title' => '${image_title}'
-            )
-        );
-        $this->templates = array(
+            ]
+        ];
+        $this->templates = [
             '<a href="${host_link}">${host_name}</a>',
             '${host_mac}',
             '<a href="${image_link}">${image_name}</a>'
             . '<input type="hidden" name="taskhosts[]" value="${host_id}"/>',
-        );
+        ];
         if ($this->obj instanceof Host) {
             ob_start();
             echo '<select class="form-control input-group" name="snapin" id="'
@@ -1243,7 +1239,7 @@ abstract class FOGPage extends FOGBase
                 'snapin',
                 'name',
                 false,
-                array('id' => $this->obj->get('snapins'))
+                ['id' => $this->obj->get('snapins')]
             );
             $snapins = json_decode(
                 Route::getData()
@@ -1270,7 +1266,7 @@ abstract class FOGPage extends FOGBase
                 'snapin',
                 'name',
                 false,
-                array('id' => $this->obj->get('snapinsnotinme'))
+                ['id' => $this->obj->get('snapinsnotinme')]
             );
             $snapins = json_decode(
                 Route::getData()
@@ -1289,7 +1285,7 @@ abstract class FOGPage extends FOGBase
             }
             unset($snapins);
             $snapselector = ob_get_clean();
-            $this->data[] = array(
+            $this->data[] = [
                 'host_link' => '?node=host&sub=edit&id=${host_id}',
                 'image_link' => '?node=image&sub=edit&id=${image_id}',
                 'host_id' => $this->obj->get('id'),
@@ -1299,7 +1295,7 @@ abstract class FOGPage extends FOGBase
                 'image_name' => $this->obj->getImage()->get('name'),
                 'host_title' => _('Edit Host'),
                 'image_title' => _('Edit Image'),
-            );
+            ];
         } elseif ($this->obj instanceof Group) {
             $snapselector = self::getClass('SnapinManager')->buildSelectBox();
             Route::listem('host');
@@ -1320,7 +1316,7 @@ abstract class FOGPage extends FOGBase
                     $imageID = $Image->id;
                     $imageName = $Image->name;
                 }
-                $this->data[] = array(
+                $this->data[] = [
                     'host_link' => '?node=host&sub=edit&id=${host_id}',
                     'host_title' => sprintf(
                         '%s: ${host_name}',
@@ -1336,7 +1332,7 @@ abstract class FOGPage extends FOGBase
                     ),
                     'image_id' => $imageID,
                     'image_name' => $imageName,
-                );
+                ];
                 unset(
                     $index,
                     $Host,
@@ -1349,12 +1345,12 @@ abstract class FOGPage extends FOGBase
                 '%s_DEPLOY',
                 strtoupper($this->childClass)
             ),
-            array(
+            [
                 'headerData' => &$this->headerData,
                 'data' => &$this->data,
                 'templates' => &$this->templates,
                 'attributes' => &$this->attributes
-            )
+            ]
         );
         echo '<div class="col-xs-9">';
         echo '<div class="panel panel-info">';
@@ -1492,14 +1488,14 @@ abstract class FOGPage extends FOGBase
             echo '</div>';
             echo '</div>';
             // Cron elements
-            $specialCrons = array(
+            $specialCrons = [
                 ''=>_('Select a cron type'),
                 'yearly'=>sprintf('%s/%s', _('Yearly'), _('Annually')),
                 'monthly'=>_('Monthly'),
                 'weekly'=>_('Weekly'),
                 'daily'=>sprintf('%s/%s', _('Daily'), _('Midnight')),
                 'hourly'=>_('Hourly'),
-            );
+            ];
             ob_start();
             foreach ($specialCrons as $val => &$name) {
                 echo '<option value="'
@@ -1677,17 +1673,15 @@ abstract class FOGPage extends FOGBase
             $scheduleType = strtolower(
                 filter_input(INPUT_POST, 'scheduleType')
             );
-            $scheduleTypes = array(
+            $scheduleTypes = [
                 'cron',
                 'instant',
                 'single',
-            );
+            ];
             self::$HookManager
                 ->processEvent(
                     'SCHEDULE_TYPES',
-                    array(
-                        'scheduleTypes' => &$scheduleTypes
-                    )
+                    ['scheduleTypes' => &$scheduleTypes]
                 );
             foreach ((array)$scheduleTypes as $ind => &$type) {
                 $scheduleTypes[$ind] = trim(
@@ -1725,13 +1719,13 @@ abstract class FOGPage extends FOGBase
                 $dom = strval(filter_input(INPUT_POST, 'scheduleCronDOM'));
                 $month = strval(filter_input(INPUT_POST, 'scheduleCronMonth'));
                 $dow = strval(filter_input(INPUT_POST, 'scheduleCronDOW'));
-                $valsToSet = array(
+                $valsToSet = [
                     'minute' => $min,
                     'hour' => $hour,
                     'dayOfMonth' => $dom,
                     'month' => $month,
                     'dayOfWeek' => $dow
-                );
+                ];
                 if (!FOGCron::checkMinutesField($min)) {
                     throw new Exception(
                         sprintf(
@@ -1849,16 +1843,16 @@ abstract class FOGPage extends FOGBase
                     }
                     $imageIDs = self::getSubObjectIDs(
                         'Host',
-                        array('id' => $this->obj->get('hosts')),
+                        ['id' => $this->obj->get('hosts')],
                         'imageID'
                     );
                     $orig_hosts = $this->get('hosts');
                     $hostIDs = self::getSubObjectIDs(
                         'Host',
-                        array(
+                        [
                             'id' => $this->obj->get('hosts'),
                             'imageID' => $imageIDs
-                        )
+                        ]
                     );
                     if (count($hostIDs ?: []) < 1) {
                         throw new Exception(
@@ -2063,14 +2057,14 @@ abstract class FOGPage extends FOGBase
             $this->templates,
             $this->attributes
         );
-        $this->templates = array(
+        $this->templates = [
             '${field}',
             '${input}'
-        );
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group')
-        );
+        ];
+        $this->attributes = [
+            ['class' => 'col-xs-4'],
+            ['class' => 'col-xs-8 form-group']
+        ];
         $reqID = $node
             . 'IDArray';
         $items = filter_input(
@@ -2096,7 +2090,7 @@ abstract class FOGPage extends FOGBase
             ) {
                 continue;
             }
-            $this->data[] = array(
+            $this->data[] = [
                 'field' => '<input type="hidden" value="'
                 . $object->id
                 . '" name="remitems[]"/>',
@@ -2107,13 +2101,13 @@ abstract class FOGPage extends FOGBase
                 . '">'
                 . $object->name
                 . '</a>'
-            );
+            ];
             unset($object);
         }
         if (count($this->data ?: []) < 1) {
             self::redirect('?node=' . $node);
         }
-        $this->data[] = array(
+        $this->data[] = [
             'field' => '<label for="delete">'
             . _('Remove these items?')
             . '</label>',
@@ -2121,7 +2115,7 @@ abstract class FOGPage extends FOGBase
             . 'name="delete" id="delete">'
             . _('Delete')
             . '</button>',
-        );
+        ];
         echo '<!-- Delete Items -->';
         echo '<div class="col-xs-9">';
         echo '<div class="panel panel-warning">';
@@ -2173,10 +2167,10 @@ abstract class FOGPage extends FOGBase
                 );
             if (!$validate) {
                 echo json_encode(
-                    array(
+                    [
                         'error' => self::$foglang['InvalidLogin'],
                         'title' => _('Unable to Authenticate')
-                    )
+                    ]
                 );
                 http_response_code(401);
                 exit;
@@ -2184,16 +2178,16 @@ abstract class FOGPage extends FOGBase
         }
         $remitems = filter_input_array(
             INPUT_POST,
-            array(
-                'remitems' => array(
+            [
+                'remitems' => [
                     'flags' => FILTER_REQUIRE_ARRAY
-                )
-            )
+                ]
+            ]
         );
         $remitems = $remitems['remitems'];
         self::$HookManager->processEvent(
             'MULTI_REMOVE',
-            array('removing' => &$remitems)
+            ['removing' => &$remitems]
         );
         if ((int)$_POST['storagegroup'] === 1) {
             $this->childClass = 'StorageGroup';
@@ -2201,13 +2195,13 @@ abstract class FOGPage extends FOGBase
         self::getClass($this->childClass)
             ->getManager()
             ->destroy(
-                array('id' => $remitems)
+                ['id' => $remitems]
             );
         echo json_encode(
-            array(
+            [
                 'msg' => _('Successfully deleted'),
                 'title' => _('Delete Success')
-            )
+            ]
         );
         http_response_code(200);
         exit;
@@ -2220,7 +2214,7 @@ abstract class FOGPage extends FOGBase
     public function basictasksOptions()
     {
         unset($this->headerData);
-        $this->templates = array(
+        $this->templates = [
             '<a href="?node='
             . $this->node
             . '&sub=deploy&id=${'
@@ -2229,7 +2223,7 @@ abstract class FOGPage extends FOGBase
             . 'fa-${task_icon} fa-2x"></i><br/>'
             . '${task_name}</a>',
             '${task_desc}'
-        );
+        ];
         global $id;
         $taskTypeIterator = function (&$TaskType) use (&$access, &$advanced, $id) {
             if (!in_array($TaskType->access, $access)) {
@@ -2256,10 +2250,10 @@ abstract class FOGPage extends FOGBase
         $items = json_decode(Route::getData());
         $items = $items->data;
         $advanced = 0;
-        $access = array(
+        $access = [
             'both',
             $this->node
-        );
+        ];
         foreach ((array)$items as $TaskType) {
             $taskTypeIterator($TaskType);
             unset($TaskType);
@@ -2269,12 +2263,12 @@ abstract class FOGPage extends FOGBase
                 '%s_EDIT_TASKS',
                 strtoupper($this->childClass)
             ),
-            array(
+            [
                 'headerData' => &$this->headerData,
                 'data' => &$this->data,
                 'templates' => &$this->templates,
                 'attributes' => &$this->attributes
-            )
+            ]
         );
 
         echo '<div class="box box-solid" id="'
@@ -2317,12 +2311,12 @@ abstract class FOGPage extends FOGBase
                 '%s_DATA_ADV',
                 strtoupper($this->node)
             ),
-            array(
+            [
                 'headerData' => &$this->headerData,
                 'data' => &$this->data,
                 'templates' => &$this->templates,
                 'attributes' => &$this->attributes
-            )
+            ]
         );
         echo self::stripedTable($this->data);
         echo '                          </tbody>';
@@ -2429,7 +2423,7 @@ abstract class FOGPage extends FOGBase
                 $ADOU
             );
         }
-        $fields = array(
+        $fields = [
             sprintf(
                 '<label class="col-sm-2 control-label" for="adEnabled">%s</label>',
                 _('Join Domain after deploy')
@@ -2491,7 +2485,7 @@ abstract class FOGPage extends FOGBase
                     ''
                 )
             ),
-        );
+        ];
         if ($retFields) {
             return $fields;
         }
@@ -2506,9 +2500,7 @@ abstract class FOGPage extends FOGBase
                 '%s_EDIT_AD_FIELDS',
                 strtoupper($this->childClass)
             ),
-            array(
-                'fields' => &$fields
-            )
+            ['fields' => &$fields]
         );
         $rendered = self::formFields($fields);
         echo '<!-- Active Directory -->';
@@ -2552,13 +2544,13 @@ abstract class FOGPage extends FOGBase
         if (!self::$ajax) {
             return;
         }
-        $items = array(
+        $items = [
             'DOMAINNAME',
             'OU',
             'PASSWORD',
             'USER',
-        );
-        $names = array();
+        ];
+        $names = [];
         foreach ((array)$items as &$item) {
             $names[] = sprintf(
                 'FOG_AD_DEFAULT_%s',
@@ -2573,7 +2565,7 @@ abstract class FOGPage extends FOGBase
             $user
         ) = self::getSubObjectIDs(
             'Service',
-            array('name' => $names),
+            ['name' => $names],
             'value',
             false,
             'AND',
@@ -2582,12 +2574,12 @@ abstract class FOGPage extends FOGBase
             ''
         );
         echo json_encode(
-            array(
+            [
                 'domainname' => $domainname,
                 'ou' => $ou,
                 'domainpass' => $password,
                 'domainuser' => $user,
-            )
+            ]
         );
         exit;
     }
@@ -2674,13 +2666,13 @@ abstract class FOGPage extends FOGBase
                         $tftpHost
                     ) = self::getSubObjectIDs(
                         'Service',
-                        array(
-                            'name' => array(
+                        [
+                            'name' => [
                                 'FOG_TFTP_FTP_PASSWORD',
                                 'FOG_TFTP_FTP_USERNAME',
                                 'FOG_TFTP_HOST'
-                            )
-                        ),
+                            ]
+                        ],
                         'value',
                         false,
                         'AND',
@@ -2721,10 +2713,10 @@ abstract class FOGPage extends FOGBase
      */
     public function loginInfo()
     {
-        $urls = array(
+        $urls = [
             'https://fogproject.org/globalusers',
             'https://fogproject.org/version/index.php?stable&dev&svn'
-        );
+        ];
         $resp = self::$FOGURLRequests->process($urls);
         $data['sites'] = $resp[0];
         $data['version'] = $resp[1];
@@ -2753,7 +2745,7 @@ abstract class FOGPage extends FOGBase
             if (!$MAC->isValid() || !$prefix) {
                 throw new Exception(_('Unknown'));
             }
-            $OUI = self::getClass('OUIManager')->find(array('prefix'=>$prefix));
+            $OUI = self::getClass('OUIManager')->find(['prefix'=>$prefix]);
             $OUI = array_shift($OUI);
             if (!(($OUI instanceof OUI) && $OUI->isValid())) {
                 throw new Exception(_('Not found'));
@@ -2778,37 +2770,37 @@ abstract class FOGPage extends FOGBase
             $this->obj->get('name')
         );
         unset($this->headerData);
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
-        );
-        $this->templates = array(
+        $this->attributes = [
+            ['class' => 'col-xs-4'],
+            ['class' => 'col-xs-8 form-group'],
+        ];
+        $this->templates = [
             '${field}',
             '${input}',
-        );
+        ];
         if ($this->obj instanceof Group) {
-            $fieldsg = array(
+            $fieldsg = [
                 '<label for="massDel">'
                 . _('Delete hosts within')
                 . '</label>' => '<div class="input-group checkbox">'
                 . '<input type="checkbox" name="massDelHosts" id="'
                 . 'massDel"/>'
                 . '</div>'
-            );
+            ];
         } elseif ($this->obj instanceof Image || $this->obj instanceof Snapin) {
-            $fieldsi = array(
+            $fieldsi = [
                 '<label for="andFile">'
                 . _('Delete files')
                 . '</label>' => '<div class="input-group checkbox">'
                 . '<input type="checkbox" name="andFile" id="'
                 . 'andFile"/>'
                 . '</div>'
-            );
+            ];
         }
         $fields = self::fastmerge(
             (array)$fieldsg,
             (array)$fieldsi,
-            array(
+            [
                 '<label for="delete">'
                 . $this->title
                 . '</label>' => '<input type="hidden" name="remitems[]" '
@@ -2819,7 +2811,7 @@ abstract class FOGPage extends FOGBase
                 . 'class="btn btn-danger btn-block">'
                 . _('Delete')
                 . '</button>'
-            )
+            ]
         );
         $fields = array_filter($fields);
         self::$HookManager->processEvent(
@@ -2827,7 +2819,7 @@ abstract class FOGPage extends FOGBase
                 '%s_DEL_FIELDS',
                 strtoupper($this->node)
             ),
-            array($this->childClass => &$this->obj)
+            [$this->childClass => &$this->obj]
         );
         $rendered = self::formFields($fields);
         self::$HookManager->processEvent(
@@ -2835,13 +2827,13 @@ abstract class FOGPage extends FOGBase
                 '%S_DEL',
                 strtoupper($this->childClass)
             ),
-            array(
+            [
                 'data' => &$this->data,
                 'headerData' => &$this->headerData,
                 'templates' => &$this->templates,
                 'attributes' => &$this->attributes,
                 $this->childClass => &$this->obj
-            )
+            ]
         );
         echo '<div class="col-xs-9">';
         echo '<div class="panel panel-warning">';
@@ -2870,14 +2862,14 @@ abstract class FOGPage extends FOGBase
     {
         $Services = self::getSubObjectIDs(
             'Service',
-            array(
-                'name' => array(
+            [
+                'name' => [
                     'FOG_CLIENT_CHECKIN_TIME',
                     'FOG_CLIENT_MAXSIZE',
                     'FOG_GRACE_TIMEOUT',
                     'FOG_TASK_FORCE_REBOOT'
-                )
-            ),
+                ]
+            ],
             'value',
             false,
             'AND',
@@ -2919,10 +2911,10 @@ abstract class FOGPage extends FOGBase
                 array_map(
                     'bin2hex',
                     self::certDecrypt(
-                        array(
+                        [
                             $sym_key,
                             $token
-                        )
+                        ]
                     )
                 )
             );
@@ -2985,13 +2977,13 @@ abstract class FOGPage extends FOGBase
                 }
                 $err = str_replace('#!', '', $e->getMessage());
                 echo json_encode(
-                    array('error' => $err)
+                    ['error' => $err]
                 );
                 exit;
             }
             if ($e->getMessage() == '#!ist') {
                 echo json_encode(
-                    array('error' => 'ist')
+                    ['error' => 'ist']
                 );
                 exit;
             }
@@ -3023,8 +3015,8 @@ abstract class FOGPage extends FOGBase
                 $freboot
             ) = self::getSubObjectIDs(
                 'Service',
-                array(
-                    'name' => array(
+                [
+                    'name' => [
                         'FOG_CLIENT_BANNER_IMAGE',
                         'FOG_CLIENT_BANNER_SHA',
                         'FOG_CLIENT_CHECKIN_TIME',
@@ -3033,8 +3025,8 @@ abstract class FOGPage extends FOGBase
                         'FOG_COMPANY_NAME',
                         'FOG_GRACE_TIMEOUT',
                         'FOG_TASK_FORCE_REBOOT'
-                    )
-                ),
+                    ]
+                ],
                 'value',
                 false,
                 'AND',
@@ -3042,7 +3034,7 @@ abstract class FOGPage extends FOGBase
                 false,
                 ''
             );
-            $vals = array(
+            $vals = [
                 'sleep' => $checkin + mt_rand(1, 91),
                 'maxsize' => $maxsize,
                 'promptTime' => $timeout,
@@ -3058,7 +3050,7 @@ abstract class FOGPage extends FOGBase
                 'bannerHash' => strtoupper($bannersha),
                 'color' => "#$pcolor",
                 'company' => $coname
-            );
+            ];
             echo json_encode($vals);
             exit;
         }
@@ -3072,23 +3064,23 @@ abstract class FOGPage extends FOGBase
         self::getClass('RegisterClient')->json();
         ob_end_clean();
         try {
-            $igMods = array(
+            $igMods = [
                 'dircleanup',
                 'usercleanup',
                 'clientupdater',
                 'hostregister',
-            );
+            ];
             $globalModules = array_diff(
                 self::getGlobalModuleStatus(false, true),
-                array(
+                [
                     'dircleanup',
                     'usercleanup',
                     'clientupdater',
                     'hostregister'
-                )
+                ]
             );
             $globalInfo = self::getGlobalModuleStatus();
-            $globalDisabled = array();
+            $globalDisabled = [];
             foreach ((array)$globalInfo as $key => &$en) {
                 if (in_array($key, $igMods)) {
                     continue;
@@ -3107,7 +3099,7 @@ abstract class FOGPage extends FOGBase
             );
             $hostModules = self::getSubObjectIDs(
                 'Module',
-                array('id' => self::$Host->get('modules')),
+                ['id' => self::$Host->get('modules')],
                 'shortName'
             );
             $hostEnabled = array_diff(
@@ -3118,7 +3110,7 @@ abstract class FOGPage extends FOGBase
                 (array)$globalModules,
                 (array)$hostEnabled
             );
-            $array = array();
+            $array = [];
             foreach ($globalModules as $index => &$key) {
                 switch ($key) {
                 case 'greenfog':
@@ -3204,13 +3196,13 @@ abstract class FOGPage extends FOGBase
         }
         self::getClass('HostManager')
             ->update(
-                array('id' => $hosts),
+                ['id' => $hosts],
                 '',
-                array(
+                [
                     'pub_key' => '',
                     'sec_tok' => '',
                     'sec_time' => '0000-00-00 00:00:00'
-                )
+                ]
             );
     }
     /**
@@ -3231,7 +3223,7 @@ abstract class FOGPage extends FOGBase
             ->get('hosts');
         self::getClass('PowerManagementManager')
             ->destroy(
-                array('hostID' => $hosts)
+                ['hostID' => $hosts]
             );
     }
     /**
@@ -3250,9 +3242,7 @@ abstract class FOGPage extends FOGBase
                 );
             if (!$validate) {
                 echo json_encode(
-                    array(
-                        'error' => self::$foglang['InvalidLogin']
-                    )
+                    ['error' => self::$foglang['InvalidLogin']]
                 );
                 exit;
             }
@@ -3262,7 +3252,7 @@ abstract class FOGPage extends FOGBase
                 '%s_DEL_POST',
                 strtoupper($this->node)
             ),
-            array($this->childClass => &$this->obj)
+            [$this->childClass => &$this->obj]
         );
         try {
             if ($this->obj->get('protected')) {
@@ -3278,7 +3268,7 @@ abstract class FOGPage extends FOGBase
                 if (isset($_POST['massDelHosts'])) {
                     self::getClass('HostManager')
                         ->destroy(
-                            array('id' => $this->obj->get('hosts'))
+                            ['id' => $this->obj->get('hosts')]
                         );
                 }
             }
@@ -3295,11 +3285,11 @@ abstract class FOGPage extends FOGBase
                     '%s_DELETE_SUCCESS',
                     strtoupper($this->childClass)
                 ),
-                array($this->childClass => &$this->obj)
+                [$this->childClass => &$this->obj]
             );
             self::resetRequest();
             echo json_encode(
-                array(
+                [
                     'msg' => sprintf(
                         '%s %s: %s',
                         $this->childClass,
@@ -3307,7 +3297,7 @@ abstract class FOGPage extends FOGBase
                         $this->obj->get('name')
                     ),
                     'title' => _('Delete Success')
-                )
+                ]
             );
             exit;
         } catch (Exception $e) {
@@ -3316,338 +3306,15 @@ abstract class FOGPage extends FOGBase
                     '%s_DELETE_FAIL',
                     strtoupper($this->node)
                 ),
-                array($this->childClass => &$this->obj)
+                [$this->childClass => &$this->obj]
             );
             echo json_encode(
-                array(
+                [
                     'error' => $e->getMessage(),
                     'title' => _('Delete Fail')
-                )
+                ]
             );
             exit;
-        }
-    }
-    /**
-     * Resents the page's search elements
-     *
-     * @return void
-     */
-    /**
-    public function search()
-    {
-        $eventClass = $this->childClass;
-        if ($this->childClass == 'Task') {
-            $eventClass = 'host';
-        }
-        $this->title = _('Search')
-            . ' '
-            . $this->node
-            . "s";
-        self::$HookManager->processEvent(
-            sprintf(
-                '%s_DATA',
-                strtoupper($eventClass)
-            ),
-            array(
-                'data' => &$this->data,
-                'templates' => &$this->templates,
-                'headerData' => &$this->headerData,
-                'attributes' => &$this->attributes,
-                'title' => &$this->title,
-            )
-        );
-        self::$HookManager->processEvent(
-            sprintf(
-                '%s_HEADER_DATA',
-                strtoupper($this->childClass)
-            ),
-            array('headerData' => &$this->headerData)
-        );
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo $this->title;
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        $this->render(12);
-        echo '</div>';
-    }
-     */
-    /**
-     * Search form submission
-     *
-     * @return void
-     */
-    /*
-    public function searchPost()
-    {
-        $this->data = array();
-        $manager = sprintf(
-            '%sManager',
-            $this->childClass
-        );
-        Route::search(
-            $this->childClass,
-            filter_input(INPUT_POST, 'crit')
-        );
-        $items = json_decode(Route::getData());
-        $type = $this->node
-            .'s';
-        $search = $items->$type;
-        if (count($search) > 0) {
-            array_walk($search, static::$returnData);
-        }
-        $event = sprintf(
-            '%s_DATA',
-            strtoupper($this->node)
-        );
-        self::$HookManager->processEvent(
-            $event,
-            array(
-                'data' => &$this->data,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes,
-                'headerData' => &$this->headerData
-            )
-        );
-        $event = sprintf(
-            '%s_HEADER_DATA',
-            strtoupper($this->node)
-        );
-        self::$HookManager->processEvent(
-            $event,
-            array(
-                'headerData' => &$this->headerData
-            )
-        );
-        $this->render();
-        unset(
-            $this->headerData,
-            $this->data,
-            $this->templates,
-            $this->attributes
-        );
-    }
-     */
-    /**
-     * Presents the membership information
-     *
-     * @return void
-     */
-    public function membership()
-    {
-        $objType = $this->obj instanceof Host ? 'group' : 'host';
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
-        $this->headerData = array(
-            '<label for="toggler">'
-            . '<input type="checkbox" name="toggle-checkbox'
-            . $this->node
-            . '1" class="toggle-checkbox1" id="toggler"/>'
-            . '</label>',
-            _(ucfirst($objType) . ' Name')
-        );
-        $this->templates = array(
-            '<label for="host-${host_id}">'
-            . '<input type="checkbox" name="host[]" class="toggle-'
-            . $objType
-            . '${check_num}" id="host-${host_id}" '
-            . 'value="${host_id}"/>'
-            . '</label>',
-            '<a href="?node='
-            . $objType
-            . '&sub=edit&id=${host_id}">${host_name}</a>'
-        );
-        $this->attributes = array(
-            array(
-                'width' => 16,
-                'class' => 'filter-false'
-            ),
-            array(
-                'data-toggle' => 'tooltip',
-                'data-placement' => 'bottom',
-                'title' => _('Edit')
-                . ' '
-                . '${host_name}'
-            )
-        );
-        Route::listem($objType);
-        $items = json_decode(
-            Route::getData()
-        );
-        $getType = $objType . 's';
-        $getter = $getType . 'notinme';
-        $items = $items->${getType};
-        $returnData = function (&$item) use (&$getter) {
-            $this->obj->get($getter);
-            if (!in_array($item->id, (array)$this->obj->get($getter))) {
-                return;
-            }
-            $this->data[] = array(
-                'host_id' => $item->id,
-                'host_name' => $item->name,
-                'check_num' => 1,
-            );
-            unset($item);
-        };
-        array_walk($items, $returnData);
-        echo '<!-- Membership -->';
-        echo '<div class="col-xs-9">';
-        echo '<div class="tab-pane fade in active" id="'
-            . $this->node
-            . '-membership">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo $this->childClass
-            . ' '
-            . _('Membership');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '">';
-        if (count($this->data ?: []) > 0) {
-            $notInMe = $meShow = $objType;
-            $meShow .= 'MeShow';
-            $notInMe .= 'NotInMe';
-            echo '<div class="text-center">';
-            echo '<div class="checkbox">';
-            echo '<label for="'
-                . $meShow
-                . '">';
-            echo '<input type="checkbox" name="'
-                . $meShow
-                . '" id="'
-                . $meShow
-                . '"/>';
-            echo _("Check here to see what $getType can be added");
-            echo '</label>';
-            echo '</div>';
-            echo '</div>';
-            echo '<br/>';
-            echo '<div class="hiddeninitially panel panel-info" id="'
-                . $notInMe
-                . '">';
-            echo '<div class="panel-heading text-center">';
-            echo '<h4 class="title">';
-            echo _('Add')
-                . ' '
-                . ucfirst($getType);
-            echo '</h4>';
-            echo '</div>';
-            echo '<div class="panel-body">';
-            $this->render(12);
-            echo '<div class="form-group">';
-            echo '<label for="update'
-                . $getType
-                . '" class="control-label col-xs-4">';
-            echo _("Add selected $getType");
-            echo '</label>';
-            echo '<div class="col-xs-8">';
-            echo '<button type="submit" name="addHosts" '
-                . 'id="update'
-                . $getType
-                . '" class="btn btn-info btn-block">'
-                . _('Add')
-                . '</button>';
-            echo '</div>';
-            echo '</div>';
-            echo '</div>';
-            echo '</div>';
-        }
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates
-        );
-        $this->headerData = array(
-            '<label for="toggler1">'
-            . '<input type="checkbox" name="toggle-checkbox" '
-            . 'class="toggle-checkboxAction" id="toggler1"/></label>',
-            _(ucfirst($objType) . ' Name')
-        );
-        $this->templates = array(
-            '<label for="hostrm-${host_id}">'
-            . '<input type="checkbox" name="hostdel[]" '
-            . 'value="${host_id}" class="toggle-action" id="'
-            . 'hostrm-${host_id}"/>'
-            . '</label>',
-            '<a href="?node='
-            . $objType
-            . '&sub=edit&id=${host_id}">${host_name}</a>'
-        );
-        $getter = $getType;
-        array_walk($items, $returnData);
-        if (count($this->data ?: []) > 0) {
-            echo '<div class="panel panel-warning">';
-            echo '<div class="panel-heading text-center">';
-            echo '<h4 class="title">';
-            echo _('Remove ' . ucfirst($getType));
-            echo '</h4>';
-            echo '</div>';
-            echo '<div class="panel-body">';
-            $this->render(12);
-            echo '<div class="form-group">';
-            echo '<label for="remhosts" class="control-label col-xs-4">';
-            echo _('Remove selected ' . $getType);
-            echo '</label>';
-            echo '<div class="col-xs-8">';
-            echo '<button type="submit" name="remhosts" class='
-                . '"btn btn-danger btn-block" id="remhosts">'
-                . _('Remove')
-                . '</button>';
-            echo '</div>';
-            echo '</div>';
-            echo '</div>';
-            echo '</div>';
-        }
-        echo '</form>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-    }
-    /**
-     * Commonized membership actions
-     *
-     * @return void
-     */
-    public function membershipPost()
-    {
-        if (self::$ajax) {
-            return;
-        }
-        $reqitems = filter_input_array(
-            INPUT_POST,
-            array(
-                'host' => array(
-                    'flags' => FILTER_REQUIRE_ARRAY
-                ),
-                'hostdel' => array(
-                    'flags' => FILTER_REQUIRE_ARRAY
-                )
-            )
-        );
-        $host = $reqitems['host'];
-        $hostdel = $reqitems['hostdel'];
-        if (isset($_POST['addHosts'])) {
-            $this->obj->addHost($host);
-        }
-        if (isset($_POST['remhosts'])) {
-            $this->obj->removeHost($hostdel);
-        }
-        if ($this->obj->save()) {
-            self::redirect($this->formAction);
         }
     }
     /**
@@ -3711,10 +3378,10 @@ abstract class FOGPage extends FOGBase
                     '%s_EXPORT_REPORT',
                     strtoupper($this->childClass)
                 ),
-                array(
+                [
                     'report' => &$report,
                     $this->childClass => &$Item
-                )
+                ]
             );
             $report->endCSVLine();
             unset($Item);
@@ -3725,12 +3392,12 @@ abstract class FOGPage extends FOGBase
         }
         self::$HookManager->processEvent(
             strtoupper($this->node) . '_EXPORT',
-            array(
+            [
                 'data' => &$this->data,
                 'headerData' => &$this->headerData,
                 'templates' => &$this->templates,
                 'attributes' => &$this->attributes
-            )
+            ]
         );
         $plural = $this->node.'s';
         $modals = $modals . self::makeModal('exportModal',
@@ -3784,15 +3451,15 @@ abstract class FOGPage extends FOGBase
             $this->templates,
             $this->attributes
         );
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8'),
-        );
-        $this->templates = array(
+        $this->attributes = [
+            ['class' => 'col-xs-4'],
+            ['class' => 'col-xs-8'],
+        ];
+        $this->templates = [
             '${field}',
             '${input}',
-        );
-        $this->data[] = array(
+        ];
+        $this->data[] = [
             'field' => '<label for="import">'
             . _('Import CSV')
             . '<br/>'
@@ -3809,8 +3476,8 @@ abstract class FOGPage extends FOGBase
             . '</label>'
             . '<input type="text" class="form-control filedisp" readonly/>'
             . '</div>'
-        );
-        $this->data[] = array(
+        ];
+        $this->data[] = [
             'field' => '<label for="importbtn">'
             . _('Import CSV?')
             . '</label>',
@@ -3818,7 +3485,7 @@ abstract class FOGPage extends FOGBase
             . 'btn btn-info btn-block" id="importbtn">'
             . _('Import')
             . '</button>'
-        );
+        ];
         echo '  <div class="box box-primary">';
         echo '      <div class="box-header with-border">';
         echo '          <h3 class="box-title">';
@@ -3862,7 +3529,7 @@ abstract class FOGPage extends FOGBase
     public function importPost()
     {
         try {
-            $mimes = array(
+            $mimes = [
                 'text/csv',
                 'text/anytext',
                 'text/comma-separated-values',
@@ -3870,7 +3537,7 @@ abstract class FOGPage extends FOGBase
                 'application/excel',
                 'application/vnd.msexcel',
                 'application/vnd.ms-excel',
-            );
+            ];
             $fileinfo = pathinfo($_FILES['file']['name']);
             $ext = $fileinfo['extension'];
             $Item = new $this->childClass();
@@ -3909,7 +3576,7 @@ abstract class FOGPage extends FOGBase
             $ItemMan = $Item->getManager();
             $modules = self::getSubObjectIDs(
                 'Module',
-                array('isDefault' => 1)
+                ['isDefault' => 1]
             );
             $totalRows = 0;
             while (($data = fgetcsv($fh, 1000, ',')) !== false) {
@@ -3972,10 +3639,10 @@ abstract class FOGPage extends FOGBase
                             '%s_IMPORT',
                             $itemCap
                         );
-                        $arr = array(
+                        $arr = [
                             'data' => &$data,
                             $this->childClass => &$Item
-                        );
+                        ];
                         self::$HookManager->processEvent(
                             $event,
                             $arr
@@ -4006,15 +3673,15 @@ abstract class FOGPage extends FOGBase
             _('Results')
         );
         unset($this->headerData);
-        $this->templates = array(
+        $this->templates = [
             '${field}',
             '${input}',
-        );
-        $this->attributes = array(
-            array(),
-            array(),
-        );
-        $fields = array(
+        ];
+        $this->attributes = [
+            [],
+            []
+        ];
+        $fields = [
             _('Total Rows') => $totalRows,
             sprintf(
                 '%s %ss',
@@ -4027,12 +3694,12 @@ abstract class FOGPage extends FOGBase
                 $this->childClass
             ) => $numFailed,
             _('Errors') => $uploadErrors,
-        );
+        ];
         foreach ((array)$fields as $field => &$input) {
-            $this->data[] = array(
+            $this->data[] = [
                 'field' => $field,
                 'input' => $input
-            );
+            ];
             unset($input);
         }
         $upper = strtoupper($this->childClass);
@@ -4040,12 +3707,12 @@ abstract class FOGPage extends FOGBase
             '%s_IMPORT_FIELDS',
             $upper
         );
-        $arr = array(
+        $arr = [
             'headerData' => &$this->headerData,
             'data' => &$this->data,
             'templates' => &$this->templates,
             'attributes' => &$this->attributes
-        );
+        ];
         self::$HookManager->processEvent(
             $event,
             $arr
@@ -4065,7 +3732,7 @@ abstract class FOGPage extends FOGBase
      */
     public static function selectForm(
         $name,
-        $items = array(),
+        $items = [],
         $selected = '',
         $useidsel = false,
         $addClass = ''
@@ -4124,15 +3791,15 @@ abstract class FOGPage extends FOGBase
             $this->attributes,
             $this->data
         );
-        $this->templates = array(
+        $this->templates = [
             '${field}',
             '${input}',
-        );
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8'),
-        );
-        $fields = array(
+        ];
+        $this->attributes = [
+            ['class' => 'col-xs-4'],
+            ['class' => 'col-xs-8'],
+        ];
+        $fields = [
             '<label for="specialCrons">'
             . _('Schedule Power')
             . '</label>' => '<div class="cronOptions input-group">'
@@ -4202,7 +3869,7 @@ abstract class FOGPage extends FOGBase
             . '"pmsubmit" class="btn btn-info btn-block">'
             . _('Add')
             . '</button>'
-        );
+        ];
         self::formFields($fields);
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
@@ -4277,12 +3944,12 @@ abstract class FOGPage extends FOGBase
         // buttons are built into the "process" which render calls and echos.
         self::$HookManager->processEvent(
             'INDEX_DIV_DISPLAY_CHANGE',
-            array(
+            [
                 'items' => &$items,
                 'childClass' => &$this->childClass,
                 'main' => &$this,
                 'delNeeded' => &$delNeeded
-            )
+            ]
         );
         echo $items;
     }
@@ -4451,7 +4118,7 @@ abstract class FOGPage extends FOGBase
             . '</span>';
 
         echo json_encode(
-            array('data'=> $strtoupdate)
+            ['data'=> $strtoupdate]
         );
         exit;
     }

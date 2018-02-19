@@ -21,12 +21,12 @@
  */
 require '../../commons/base.inc.php';
 header("Content-type: text/plain");
-$items = array(
+$items = [
     'mac' => filter_input(INPUT_POST, 'mac'),
     'mac0' => filter_input(INPUT_POST, 'mac0'),
     'mac1' => filter_input(INPUT_POST, 'mac1'),
     'mac2' => filter_input(INPUT_POST, 'mac2')
-);
+];
 $mac = FOGCore::fastmerge(
     explode('|', $items['mac']),
     explode('|', $items['mac0']),

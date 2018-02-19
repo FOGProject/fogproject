@@ -30,7 +30,7 @@ try {
     $printerids = FOGCore::getSubObjectIDs('Printer');
     $printernames = FOGCore::getSubObjectIDs(
         'Printer',
-        array('id' => $printerids),
+        ['id' => $printerids],
         'name'
     );
     foreach ((array)$printerids as $index => $printerid) {

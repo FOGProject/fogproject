@@ -32,9 +32,7 @@ echo '<title>' . $this->pageTitle . '</title>';
 self::$HookManager
     ->processEvent(
         'CSS',
-        array(
-            'stylesheets' => &$this->stylesheets
-        )
+        ['stylesheets' => &$this->stylesheets]
     );
 foreach ((array)$this->stylesheets as &$stylesheet) {
     echo '<link href="'

@@ -125,7 +125,7 @@ class Initiator
         /**
          * Define all paths as an array.
          */
-        $allpaths = array();
+        $allpaths = [];
         /**
          * Loop our paths from earlier storing the dirname of the element.
          */
@@ -267,7 +267,7 @@ class Initiator
          * Sets up variables for sub/node callers among other
          * request/post/get variables for neater access.
          */
-        $globalVars = array(
+        $globalVars = [
             'newService',
             'json',
             'node',
@@ -281,7 +281,7 @@ class Initiator
             'confirm',
             'tab',
             'type',
-        );
+        ];
         /**
          * Sets our variables to always be trimmed.
          */
@@ -316,13 +316,13 @@ class Initiator
          * Otherwise it will clean the passed value.
          */
         if (!count((array)$value)) {
-            $process = array(
+            $process = [
                 &$_GET,
                 &$_POST,
                 &$_COOKIE,
                 &$_REQUEST,
                 &$_SESSION
-            );
+            ];
             array_walk($process, self::$_sanitizeItems);
         } else {
             if (is_array($value)) {
@@ -372,10 +372,10 @@ class Initiator
         /**
          * List of required extensions.
          */
-        $requiredExtensions = array(
+        $requiredExtensions = [
             'gettext',
             'mysqli'
-        );
+        ];
         /**
          * Get the loaded extensions.
          */
@@ -406,19 +406,19 @@ class Initiator
         /**
          * Line commented for clarity
          */
-        $search = array(
+        $search = [
             '/\>[^\S ]+/s', //strip whitespaces after tags, except space
             '/[^\S ]+\</s', //strip whitespaces before tags, except space
             '/(\s)+/s',  // shorten multiple whitespace sequences
-        );
+        ];
         /**
          * Replaces what's found with same element here.
          */
-        $replace = array(
+        $replace = [
             '>',
             '<',
             '\\1',
-        );
+        ];
         /**
          * Perform our replace.
          */

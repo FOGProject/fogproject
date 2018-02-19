@@ -43,7 +43,7 @@ require 'init.php';
 /**
  * All output should be sanitized for faster browser experience.
  */
-ob_start(array('Initiator', 'sanitizeOutput'));
+ob_start(['Initiator', 'sanitizeOutput']);
 Initiator::sanitizeItems();
 Initiator::startInit();
 new LoadGlobals();

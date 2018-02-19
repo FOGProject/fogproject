@@ -36,10 +36,10 @@ header('Content-type: application/json');
         );
     if (!$validate) {
         echo json_encode(
-            array(
+            [
                 'error' => $foglang['InvalidLogin'],
                 'title' => _('Unable to Authenticate')
-            )
+            ]
         );
         http_response_code(401);
         exit;

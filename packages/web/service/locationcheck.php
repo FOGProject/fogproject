@@ -24,11 +24,11 @@
 require '../commons/base.inc.php';
 $count = FOGCore::getClass('PluginManager')
     ->count(
-        array(
+        [
             'installed' => 1,
             'state' => 1,
             'name' => 'location',
-        )
+        ]
     );
 if ($count > 0) {
     echo '##';
