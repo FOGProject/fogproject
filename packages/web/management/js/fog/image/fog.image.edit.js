@@ -1,14 +1,14 @@
 (function($) {
     // ---------------------------------------------------------------
     // GENERAL TAB
-    var originalName = $('#image').val();
-
-    var updateName = function(newName) {
-        var e = $('#pageTitle'),
-            text = e.text();
-        text = text.replace(': ' + originalName, ': ' + newName);
-        e.text(text);
-    };
+    var originalName = $('#image').val(),
+        updateName = function(newName) {
+            var e = $('#pageTitle'),
+                text = e.text();
+            text = text.replace(': ' + originalName, ': ' + newName);
+            document.title = text;
+            e.text(text);
+        };
 
     var generalForm = $('#image-general-form'),
         generalFormBtn = $('#general-send'),

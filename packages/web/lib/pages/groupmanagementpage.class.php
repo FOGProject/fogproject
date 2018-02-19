@@ -165,7 +165,16 @@ class GroupManagementPage extends FOGPage
             . '" novalidate>';
         echo '<div class="box-body">';
         echo '<!-- Group General -->';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h3 class="box-title">';
+        echo _('Create New Group');
+        echo '</h3>';
+        echo '</div>';
+        echo '<div class="box-body">';
         echo $rendered;
+        echo '</div>';
+        echo '</div>';
         echo '</div>';
         echo '<div class="box-footer">';
         echo '<button class="btn btn-primary" id="send">'
@@ -467,7 +476,7 @@ class GroupManagementPage extends FOGPage
             filter_input(INPUT_POST, 'efiBootTypeExit')
         );
         if ($group != $this->obj->get('name')) {
-            if (!$this->obj->getManager()->exists($group)) {
+            if ($this->obj->getManager()->exists($group)) {
                 throw new Exception(_('Please use another group name'));
             }
         }

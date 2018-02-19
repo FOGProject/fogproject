@@ -6,6 +6,7 @@
             var e = $("#pageTitle"),
                 text = e.text();
             text = text.replace(": " + originalName, ": " + newName);
+            document.title = text;
             e.text(text);
         };
 

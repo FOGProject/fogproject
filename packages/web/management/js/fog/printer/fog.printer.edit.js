@@ -5,14 +5,23 @@
 
     // ---------------------------------------------------------------
     // GENERAL TAB
-    var originalName = $('#printer'+type).val();
-
-    var updateName = function(newName) {
+    var originalName = $('#printer'+type+':visible').val(),
+        updateName = function(newName) {
         var e = $('#pageTitle'),
             text = e.text();
-        text = text.replace(': ' + originalName, ': ' + newName);
-        e.text(text);
-    };
+            text = text.replace(': ' + originalName, ': ' + newName);
+            $('#printercopy option').each(function() {
+                opttext = $(this).text().split(' - ');
+                if (opttext[0] == originalName) {
+                    opttext[0] = newName;
+                    opttext = opttext.join(' - ');
+                    $(this).text(opttext);
+                }
+            });
+            $('#printercopy').select2();
+            document.title = text;
+            e.text(text);
+        };
 
     var generalForm = $('#printer-general-form'),
         generalFormBtn = $('#general-send'),
