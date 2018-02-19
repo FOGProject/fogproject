@@ -60,6 +60,8 @@
         membershipAddBtn.prop('disabled', disabled);
         membershipRemoveBtn.prop('disabled', disabled);
     }
+    function onCheckboxSelect(selected) {
+    }
     var membershipTable = Common.registerTable($('#printer-membership-table'), onMembershipSelect, {
         columns: [
             {data: 'name'},

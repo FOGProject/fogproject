@@ -1486,7 +1486,7 @@ class ImageManagementPage extends FOGPage
                 ]
             );
             $membership = $membership['membershipRemove'];
-            self::getCLass('HostManager')->update(
+            self::getClass('HostManager')->update(
                 [
                     'id' => $membership,
                     'imageID' => $this->obj->get('id')
