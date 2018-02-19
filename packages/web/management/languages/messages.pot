@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-18 17:37-0500\n"
+"POT-Creation-Date: 2018-02-19 18:44-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3039,18 +3039,34 @@ msgstr ""
 msgid "MAC Address Manufacturer Listing"
 msgstr ""
 
-msgid ""
-"This section allows you to import known mac address makers into the FOG "
-"database for easier identification"
+msgid "Confirm"
+msgstr ""
+
+msgid "Cancel"
+msgstr ""
+
+msgid "Update MAC List"
+msgstr ""
+
+msgid "Delete MAC List"
+msgstr ""
+
+msgid "Update MAC Listing"
+msgstr ""
+
+msgid "Confirm that you would like to update the MAC vendor listing"
+msgstr ""
+
+msgid "Delete MAC Listings"
+msgstr ""
+
+msgid "Confirm that you would like to delete the MAC vendor listing"
+msgstr ""
+
+msgid "Import known mac address makers"
 msgstr ""
 
 msgid "Current Records"
-msgstr ""
-
-msgid "Delete MACs"
-msgstr ""
-
-msgid "Update MACs"
 msgstr ""
 
 msgid "Could not read temp file"
@@ -3792,13 +3808,13 @@ msgstr ""
 msgid "Storage Group Update Fail"
 msgstr ""
 
-msgid "TCP/IP"
-msgstr ""
-
 msgid "Printer Name"
 msgstr ""
 
 msgid "Config File"
+msgstr ""
+
+msgid "Create New Printer"
 msgstr ""
 
 msgid "TCP/IP Port Printer"
@@ -3825,6 +3841,9 @@ msgstr ""
 msgid "Printer Description"
 msgstr ""
 
+msgid "Printer Configuration File"
+msgstr ""
+
 msgid "Printer Port"
 msgstr ""
 
@@ -3837,16 +3856,10 @@ msgstr ""
 msgid "Printer Model"
 msgstr ""
 
-msgid "Create New Printer"
+msgid "A printer name is required!"
 msgstr ""
 
-msgid "Add New Printer"
-msgstr ""
-
-msgid "A name must be set"
-msgstr ""
-
-msgid "Printer name already exists"
+msgid "A printer already exists with this name!"
 msgstr ""
 
 msgid "Add printer failed!"
@@ -3861,13 +3874,13 @@ msgstr ""
 msgid "Printer Create Fail"
 msgstr ""
 
-msgid "Printer General"
+msgid "Host Membership"
 msgstr ""
 
-msgid "A printer name is required!"
+msgid "Update Default"
 msgstr ""
 
-msgid "A printer already exists with this name!"
+msgid "Default Printer"
 msgstr ""
 
 msgid "Printer update failed!"
@@ -3996,6 +4009,9 @@ msgstr ""
 msgid "Image Manager"
 msgstr ""
 
+msgid "Create New User"
+msgstr ""
+
 msgid "An image name is required!"
 msgstr ""
 
@@ -4033,9 +4049,6 @@ msgid "Storage Group Associated"
 msgstr ""
 
 msgid "Storage Groups"
-msgstr ""
-
-msgid "Host Membership"
 msgstr ""
 
 msgid "Image Update Failed"
@@ -4279,9 +4292,6 @@ msgid "To view a report, select an item from the menu"
 msgstr ""
 
 msgid "API?"
-msgstr ""
-
-msgid "Create New User"
 msgstr ""
 
 msgid "User Password"
@@ -5475,9 +5485,6 @@ msgstr ""
 msgid "Confirm password"
 msgstr ""
 
-msgid "Cancel"
-msgstr ""
-
 msgid "Requires templates to process"
 msgstr ""
 
@@ -5704,15 +5711,6 @@ msgid "deleted"
 msgstr ""
 
 msgid "Delete Fail"
-msgstr ""
-
-msgid " Name"
-msgstr ""
-
-msgid "Remove "
-msgstr ""
-
-msgid "Remove selected "
 msgstr ""
 
 msgid "Export the items as a CSV?"

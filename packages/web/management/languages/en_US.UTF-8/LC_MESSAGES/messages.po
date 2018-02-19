@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-18 16:26-0500\n"
+"POT-Creation-Date: 2018-02-19 18:44-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3410,21 +3410,40 @@ msgid "MAC Address Manufacturer Listing"
 msgstr "MAC Address Manufacturer Listing"
 
 #, fuzzy
-msgid ""
-"This section allows you to import known mac address makers into the FOG "
-"database for easier identification"
+msgid "Confirm"
+msgstr "Invalid task"
+
+#, fuzzy
+msgid "Cancel"
+msgstr "Cancelled task"
+
+#, fuzzy
+msgid "Update MAC List"
+msgstr "Update Printer"
+
+#, fuzzy
+msgid "Delete MAC List"
+msgstr "Delete file data"
+
+#, fuzzy
+msgid "Update MAC Listing"
+msgstr "Update Printer"
+
+msgid "Confirm that you would like to update the MAC vendor listing"
 msgstr ""
-"This section allows you to import known mac address makers into the FOG "
-"Database for easier identification."
+
+#, fuzzy
+msgid "Delete MAC Listings"
+msgstr "Delete all hosts within group"
+
+msgid "Confirm that you would like to delete the MAC vendor listing"
+msgstr ""
+
+msgid "Import known mac address makers"
+msgstr ""
 
 msgid "Current Records"
 msgstr "Current Records"
-
-msgid "Delete MACs"
-msgstr "Delete MACs"
-
-msgid "Update MACs"
-msgstr "Update MACs"
 
 msgid "Could not read temp file"
 msgstr "Could not read temp file"
@@ -4310,15 +4329,16 @@ msgstr "User created"
 msgid "Storage Group Update Fail"
 msgstr "Storage Group Updated"
 
-msgid "TCP/IP"
-msgstr "TCP/IP"
-
 msgid "Printer Name"
 msgstr "Printer Name"
 
 #, fuzzy
 msgid "Config File"
 msgstr "Printer Config File"
+
+#, fuzzy
+msgid "Create New Printer"
+msgstr "Create New %s"
 
 msgid "TCP/IP Port Printer"
 msgstr "TCP/IP Port Printer"
@@ -4346,6 +4366,10 @@ msgstr ""
 msgid "Printer Description"
 msgstr "Printer Description"
 
+#, fuzzy
+msgid "Printer Configuration File"
+msgstr "Service Configuration"
+
 msgid "Printer Port"
 msgstr "Printer Port"
 
@@ -4359,20 +4383,12 @@ msgid "Printer Model"
 msgstr "Printer Model"
 
 #, fuzzy
-msgid "Create New Printer"
-msgstr "Create New %s"
+msgid "A printer name is required!"
+msgstr "An image name is required!"
 
 #, fuzzy
-msgid "Add New Printer"
-msgstr "Printer"
-
-#, fuzzy
-msgid "A name must be set"
-msgstr "Event must be a string"
-
-#, fuzzy
-msgid "Printer name already exists"
-msgstr "Printer already exists"
+msgid "A printer already exists with this name!"
+msgstr "An image already exists with this name!"
 
 #, fuzzy
 msgid "Add printer failed!"
@@ -4391,16 +4407,16 @@ msgid "Printer Create Fail"
 msgstr "Printer update failed!"
 
 #, fuzzy
-msgid "Printer General"
-msgstr "Printer Model"
+msgid "Host Membership"
+msgstr "Membership"
 
 #, fuzzy
-msgid "A printer name is required!"
-msgstr "An image name is required!"
+msgid "Update Default"
+msgstr "Update Printer"
 
 #, fuzzy
-msgid "A printer already exists with this name!"
-msgstr "An image already exists with this name!"
+msgid "Default Printer"
+msgstr "Default Item:"
 
 msgid "Printer update failed!"
 msgstr "Printer update failed!"
@@ -4548,6 +4564,10 @@ msgid "Image Manager"
 msgstr "Image Manager"
 
 #, fuzzy
+msgid "Create New User"
+msgstr "Create New %s"
+
+#, fuzzy
 msgid "An image name is required!"
 msgstr "An image name is required!"
 
@@ -4596,10 +4616,6 @@ msgstr "Storage Node Created"
 #, fuzzy
 msgid "Storage Groups"
 msgstr "Storage Group"
-
-#, fuzzy
-msgid "Host Membership"
-msgstr "Membership"
 
 #, fuzzy
 msgid "Image Update Failed"
@@ -4866,10 +4882,6 @@ msgstr ""
 
 msgid "API?"
 msgstr ""
-
-#, fuzzy
-msgid "Create New User"
-msgstr "Create New %s"
 
 msgid "User Password"
 msgstr "User Password"
@@ -6259,10 +6271,6 @@ msgstr "Remove selected snapins"
 msgid "Confirm password"
 msgstr "Management Password"
 
-#, fuzzy
-msgid "Cancel"
-msgstr "Cancelled task"
-
 msgid "Requires templates to process"
 msgstr "Requires templates to process"
 
@@ -6533,18 +6541,6 @@ msgstr "deleted"
 #, fuzzy
 msgid "Delete Fail"
 msgstr "Delete file data"
-
-#, fuzzy
-msgid " Name"
-msgstr "Name"
-
-#, fuzzy
-msgid "Remove "
-msgstr "Remove"
-
-#, fuzzy
-msgid "Remove selected "
-msgstr "Remove selected snapins"
 
 msgid "Export the items as a CSV?"
 msgstr ""

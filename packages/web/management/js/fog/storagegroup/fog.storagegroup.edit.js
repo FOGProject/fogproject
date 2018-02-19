@@ -166,15 +166,17 @@
             };
         Common.apiCall(membershipAddBtn.attr('method'), membershipAddBtn.attr('action'), opts, function(err) {
             if (!err) {
-                rows.every(function(idx, tableLoop, rowLoop) {
-                    var data = this.data(),
-                        id = this.id();
-                    $(this).iCheck('check');
-                });
                 membershipTable.draw(false);
                 membershipTable.rows({selected: true}).deselect();
+                $('.master'+Common.id).prop('disabled', false);
+                Common.iCheck('.master'+Common.id);
+                $('.associated').each(function() {
+                    if (toAdd.indexOf($(this).val()) != -1{
+                        $('.associated[value='+$(this).val()+']').iCheck('check');
+                    }
+                });
             } else {
-                membershipAddBtn.prop('disable', false);
+                membershipAddBtn.prop('disabled', false);
             }
         });
     });
@@ -189,12 +191,15 @@
             };
         Common.apiCall(membershipRemoveBtn.attr('method'), membershipRemoveBtn.attr('action'), opts, function(err) {
             if (!err) {
-                rows.every(function(idx, tableLoop, rowLoop) {
-                    var data = this.data();
-                    $(this).iCheck('uncheck');
-                });
                 membershipTable.draw(false);
                 membershipTable.rows({selected: true}).deselect();
+                $('.master'+Common.id).prop('disabled', true);
+                Common.iCheck('.master'+Common.id);
+                $('.associated').each(function() {
+                    if (toAdd.indexOf($(this).val()) != -1{
+                        $('.associated[value='+$(this).val()+']').iCheck('uncheck');
+                    }
+                });
             } else {
                 membershipRemoveBtn.prop('disabled', false);
             }
