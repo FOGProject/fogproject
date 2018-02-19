@@ -123,24 +123,28 @@ class UserManagementPage extends FOGPage
             );
         $rendered = self::formFields($fields);
         unset($fields);
+        echo '<div class="box box-solid" id="user-create">';
+        echo '<form id="user-create-form" class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '" novalidate>';
+        echo '<div class="box-body">';
+        echo '<!-- User General -->';
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h3 class="box-title">';
         echo _('Create New User');
         echo '</h3>';
         echo '</div>';
-        echo '<form id="user-create-form" class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '" novalidate>';
         echo '<div class="box-body">';
         echo '<!-- User General -->';
         echo $rendered;
+        echo '</div>';
+        echo '</div>';
         echo '</div>';
         echo '<div class="box-footer">';
         echo '<button class="btn btn-primary" id="send">' . _('Create') . '</button>';
         echo '</div>';
         echo '</form>';
-        echo '</div>';
         echo '</div>';
     }
     /**

@@ -632,16 +632,6 @@ class PrinterManagementPage extends FOGPage
             . self::formFields($fields)
             . '</div>';
         unset($fields);
-        self::$HookManager->processEvent(
-            'PRINTER_CUPS_FIELDS',
-            [
-                'fields' => &$fields
-            ]
-        );
-        $printerCups = '<div class="cups">'
-            . self::formFields($fields)
-            . '</div>';
-        unset($fields);
         // Local
         $fields = [
             '<label class="col-sm-2 control-label" for="printerlocal">'
