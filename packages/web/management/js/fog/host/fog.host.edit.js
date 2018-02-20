@@ -537,8 +537,6 @@
             };
         Common.apiCall(method,action,opts,function(err) {
             if (!err) {
-                modulesTable.draw(false);
-                modulesTable.rows({selected: true}).deselect();
                 $('#modules-to-update').find('.associated').each(function() {
                     if (toEnable.indexOf($(this).val()) != -1) {
                         $(this).iCheck('check');
@@ -547,6 +545,8 @@
             } else {
                 modulesEnableBtn.prop('disabled', false);
             }
+            modulesTable.draw(false);
+            modulesTable.rows({selected: true}).deselect();
         });
     });
     modulesDisableBtn.on('click', function(e) {
@@ -567,11 +567,9 @@
             if (!$(this).is(':checked')) {
                 toDisable.push($(this).val());
             }
-        }),
+        });
         Common.apiCall(method,action,opts,function(err) {
             if (!err) {
-                modulesTable.draw(false);
-                modulesTable.rows({selected: true}).deselect();
                 $('#modules-to-update').find('.associated').each(function() {
                     if (toDisable.indexOf($(this).val()) != -1) {
                         $(this).iCheck('uncheck');
@@ -580,6 +578,8 @@
             } else {
                 modulesDisableBtn.prop('disabled', false);
             }
+            modulesTable.draw(false);
+            modulesTable.rows({selected: true}).deselect();
         });
     });
     modulesDispBtn.on('click', function(e) {
