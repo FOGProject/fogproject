@@ -1224,7 +1224,7 @@ class SnapinManagementPage extends FOGPage
      *
      * @return void
      */
-    public function Membership()
+    public function snapinMembership()
     {
         $props = ' method="post" action="'
             . $this->formAction
@@ -1515,7 +1515,7 @@ class SnapinManagementPage extends FOGPage
             CROSS JOIN `snapins`
             LEFT OUTER JOIN `snapinAssoc`
             ON `snapins`.`sID` = `snapinAssoc`.`saSnapinID`
-            AND `hosts`.`hostID` = `snapinAssoc`.`paHostID`
+            AND `hosts`.`hostID` = `snapinAssoc`.`saHostID`
             %s";
         $hostsTotalStr = "SELECT COUNT(`%s`)
             FROM `%s`";
