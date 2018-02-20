@@ -262,13 +262,13 @@
             if (!err) {
                 printersTable.draw(false);
                 printersTable.rows({selected: true}).deselect();
-                printersTable.find('.default:disabled').each(function() {
+                $('#host-printers-table').find('.default:disabled').each(function() {
                     if (toAdd.indexOf($(this).val()) != -1) {
                         $(this).prop('disabled', false);
                         Common.iCheck(this);
                     }
                 });
-                printersTable.find('.associated').each(function() {
+                $('#host-printers-table').find('.associated').each(function() {
                     if (toAdd.indexOf($(this).val()) != -1) {
                         $(this).iCheck('check');
                     }
@@ -298,14 +298,14 @@
             if (!err) {
                 printersTable.draw(false);
                 printersTable.rows({selected: true}).deselect();
-                printersTable.find('.default').each(function() {
+                $('#host-printers-table').find('.default').each(function() {
                     if (toRemove.indexOf($(this).val()) != -1) {
                         $(this).iCheck('uncheck');
                         $(this).prop('disabled', true);
                         Common.iCheck(this);
                     }
                 });
-                printersTable.find('.associated').each(function() {
+                $('#host-printers-table').find('.associated').each(function() {
                     if (toRemove.indexOf($(this).val()) != -1) {
                         $(this).iCheck('uncheck');
                     }
@@ -394,7 +394,7 @@
             if (!err) {
                 snapinsTable.draw(false);
                 snapinsTable.rows({selected: true}).deselect();
-                snapinsTable.find('.associated').each(function() {
+                $('#host-snapins-table').find('.associated').each(function() {
                     if (toAdd.indexOf($(this).val()) != -1) {
                         $(this).iCheck('check');
                     }
@@ -419,7 +419,7 @@
             if (!err) {
                 snapinsTable.draw(false);
                 snapinsTable.rows({selected: true}).deselect();
-                snapinsTable.find('.associated').each(function() {
+                $('#host-snapins-table').find('.associated').each(function() {
                     if (toRemove.indexOf($(this).val()) != -1) {
                         $(this).iCheck('uncheck');
                     }
@@ -501,7 +501,7 @@
         modulesDisableBtn.prop('disabled', false);
         var method = modulesEnableBtn.attr('method'),
             action = modulesEnableBtn.attr('action'),
-            rows = membershipTable.rows({selected: true}),
+            rows = modulesTable.rows({selected: true}),
             toEnable = Common.getSelectedIds(modulesTable),
             opts = {
                 'enablemodulessel': '1',
@@ -511,7 +511,7 @@
             if (!err) {
                 modulesTable.draw(false);
                 modulesTable.rows({selected: true}).deselect();
-                modulesTable.find('.associated').each(function() {
+                $('#modules-to-update').find('.associated').each(function() {
                     if (toEnable.indexOf($(this).val()) != -1) {
                         $(this).iCheck('check');
                     }
@@ -529,7 +529,7 @@
         modulesEnableBtn.prop('disabled', false);
         var method = modulesEnableBtn.attr('method'),
             action = modulesEnableBtn.attr('action'),
-            rows = membershipTable.rows({selected: true}),
+            rows = modulesTable.rows({selected: true}),
             toDisable = Common.getSelectedIds(modulesTable),
             opts = {
                 'disablemodulessel': '1',
@@ -539,7 +539,7 @@
             if (!err) {
                 modulesTable.draw(false);
                 modulesTable.rows({selected: true}).deselect();
-                modulesTable.find('.associated').each(function() {
+                $('#modules-to-update').find('.associated').each(function() {
                     if (toDisable.indexOf($(this).val()) != -1) {
                         $(this).iCheck('uncheck');
                     }
