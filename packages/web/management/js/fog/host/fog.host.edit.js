@@ -551,29 +551,17 @@
     });
     modulesDispBtn.on('click', function(e) {
         e.preventDefault();
-        var method = modulesDispBtn.attr('method'),
-            action = modulesDispBtn.attr('action'),
-            opts = {
-                'displaymanupdate': '1',
-                'x': $('[name=width]').val(),
-                'y': $('[name=height]').val(),
-                'r': $('[name=refresh]').val()
-            };
+        var form = $('#host-dispman');
         modulesDispBtn.prop('disabled', true);
-        Common.apiCall(method,action,opts,function(err) {
+        Common.processForm(form, function(err) {
             modulesDispBtn.prop('disabled', false);
         });
     });
     modulesAloBtn.on('click', function(e) {
         e.preventDefault();
-        var method = modulesAloBtn.attr('method'),
-            action = modulesAloBtn.attr('action'),
-            opts = {
-                'aloupdate': '1',
-                'tme': $('[name=tme]').val()
-            };
+        var form = $('#host-alo');
         modulesAloBtn.prop('disabled', true);
-        Common.apiCall(method,action,opts,function(err) {
+        Common.processForm(form, function(err) {
             modulesAloBtn.prop('disabled', false);
         });
     });

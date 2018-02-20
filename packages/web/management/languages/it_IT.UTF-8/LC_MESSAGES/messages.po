@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-19 19:14-0500\n"
+"POT-Creation-Date: 2018-02-20 17:05-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -4156,8 +4156,8 @@ msgid "Storage Groups"
 msgstr "gruppo di archiviazione"
 
 #, fuzzy
-msgid "Image Update Failed"
-msgstr "Aggiornamento immagine fallito"
+msgid "Image update failed!"
+msgstr "immagine aggiornata"
 
 msgid "Image updated!"
 msgstr "immagine aggiornata"
@@ -4182,9 +4182,6 @@ msgstr "minuti"
 
 msgid "Select Image"
 msgstr "Seleziona Immagine"
-
-msgid "Start Session"
-msgstr "Inizia sessione"
 
 msgid "Multicast Image"
 msgstr "Immagine Multicast"
@@ -4231,11 +4228,17 @@ msgstr "Il tuo server consente solo"
 msgid "Failed to create Session"
 msgstr "Impossibile creare Session"
 
-msgid "Multicast session created"
-msgstr "sessione multicast creato"
+#, fuzzy
+msgid "Multicast session created!"
+msgstr "Inizia sessione multicast"
 
-msgid "has been started on port"
-msgstr "è stato avviato sulla porta"
+#, fuzzy
+msgid "Multicast Session Create Success"
+msgstr "Creazione posizione riuscita"
+
+#, fuzzy
+msgid "Multicast Session Create Fail"
+msgstr "Creazione posizione fallita"
 
 msgid "Cancelled task"
 msgstr "compito Annullato"
@@ -4545,29 +4548,20 @@ msgstr "Aggiornamento del modulo completato"
 msgid "Module Update Fail"
 msgstr "Aggiornamento modulo non riuscito"
 
-msgid "Filesize"
-msgstr "Dimensione del file"
-
 msgid "Is Pack"
 msgstr "È Pack"
 
-msgid "Not protected"
-msgstr "Non protetto"
-
-msgid "Disabled"
-msgstr "Disabilitato"
-
-msgid "New Snapin"
-msgstr "Nuovo Snapin"
-
-msgid "Snapin Type"
-msgstr "Snapin Tipo"
+msgid "Create New Snapin"
+msgstr "Crea nuovo snapin"
 
 msgid "Normal Snapin"
 msgstr "Snapin normale"
 
 msgid "Snapin Pack"
 msgstr "Snapin Pack"
+
+msgid "Snapin Type"
+msgstr "Snapin Tipo"
 
 msgid "Snapin Template"
 msgstr "Snapin Modello"
@@ -4599,9 +4593,6 @@ msgstr "Snapin Argomenti nascosti"
 msgid "Snapin Timeout (seconds)"
 msgstr "Timeout Snapin (in secondi)"
 
-msgid "Replicate?"
-msgstr "Replicare?"
-
 msgid "Reboot after install"
 msgstr "Riavvio dopo l'installazione"
 
@@ -4613,9 +4604,6 @@ msgstr "Snapin comando"
 
 msgid "read-only"
 msgstr "sola lettura"
-
-msgid "Create New Snapin"
-msgstr "Crea nuovo snapin"
 
 msgid "A snapin name is required!"
 msgstr "È richiesto un nome di snapin!"
@@ -4659,40 +4647,8 @@ msgstr "Creazione Snapin completata"
 msgid "Snapin Create Fail"
 msgstr "Creazione Snapin fallita"
 
-msgid "Snapin General"
-msgstr "Generale Snapin"
-
 msgid "Snapin Protected"
 msgstr "Snapin Protetto"
-
-msgid "Snapin Storage Groups"
-msgstr "Gruppo di archiviazione Snapin"
-
-msgid "Check here to see what storage groups can be added"
-msgstr ""
-"Controlla qui per vedere quali gruppi di archiviazione possono essere "
-"aggiunti"
-
-msgid "Add Storage Groups"
-msgstr "Aggiungi gruppo di archiviazione"
-
-msgid "Add selected storage groups"
-msgstr "Aggiungi gruppo di archiviazione selezionato"
-
-msgid "Update/Remove Storage Groups"
-msgstr "Aggiungi/rimuovi gruppo di archiviazione"
-
-msgid "Update primary group"
-msgstr "Aggiornamento gruppo primario"
-
-msgid "Remove selected groups"
-msgstr "Rimuovi i gruppi selezionati"
-
-msgid "No groups selected to be removed"
-msgstr "Nessun gruppo selezionato per la rimozione"
-
-msgid "You must have at least one group associated"
-msgstr "È necessaria l'associazione di almeno un gruppo di archiviazione"
 
 msgid "Snapin update failed!"
 msgstr "Aggiornamento Snapin fallito!"

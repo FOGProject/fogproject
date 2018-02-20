@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-19 19:14-0500\n"
+"POT-Creation-Date: 2018-02-20 17:05-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4598,7 +4598,7 @@ msgid "Storage Groups"
 msgstr "存储组"
 
 #, fuzzy
-msgid "Image Update Failed"
+msgid "Image update failed!"
 msgstr "图片更新"
 
 #, fuzzy
@@ -4627,10 +4627,6 @@ msgstr "分钟"
 
 msgid "Select Image"
 msgstr "选择图片"
-
-#, fuzzy
-msgid "Start Session"
-msgstr "开始多播会话"
 
 #, fuzzy
 msgid "Multicast Image"
@@ -4682,11 +4678,17 @@ msgstr "您只能分配"
 msgid "Failed to create Session"
 msgstr "无法创建会话"
 
-msgid "Multicast session created"
-msgstr "组播会话创建"
+#, fuzzy
+msgid "Multicast session created!"
+msgstr "开始多播会话"
 
-msgid "has been started on port"
-msgstr "已经开始在端口"
+#, fuzzy
+msgid "Multicast Session Create Success"
+msgstr "更新管理单元"
+
+#, fuzzy
+msgid "Multicast Session Create Fail"
+msgstr "更新管理单元"
 
 msgid "Cancelled task"
 msgstr "取消任务"
@@ -5018,28 +5020,12 @@ msgid "Module Update Fail"
 msgstr "集团创建失败"
 
 #, fuzzy
-msgid "Filesize"
-msgstr "文件大小"
-
-#, fuzzy
 msgid "Is Pack"
 msgstr "是"
 
 #, fuzzy
-msgid "Not protected"
-msgstr "不受保护"
-
-#, fuzzy
-msgid "Disabled"
-msgstr "启用"
-
-#, fuzzy
-msgid "New Snapin"
-msgstr "添加新的管理单元"
-
-#, fuzzy
-msgid "Snapin Type"
-msgstr "模板管理单元"
+msgid "Create New Snapin"
+msgstr "新建%s"
 
 #, fuzzy
 msgid "Normal Snapin"
@@ -5048,6 +5034,10 @@ msgstr "无效的管理单元"
 #, fuzzy
 msgid "Snapin Pack"
 msgstr "管理单元路径"
+
+#, fuzzy
+msgid "Snapin Type"
+msgstr "模板管理单元"
 
 msgid "Snapin Template"
 msgstr "模板管理单元"
@@ -5084,9 +5074,6 @@ msgstr "管理单元参数"
 msgid "Snapin Timeout (seconds)"
 msgstr "菜单超时（以秒为单位）"
 
-msgid "Replicate?"
-msgstr "复制？"
-
 msgid "Reboot after install"
 msgstr "重启后安装"
 
@@ -5098,10 +5085,6 @@ msgstr "管理单元命令"
 
 msgid "read-only"
 msgstr ""
-
-#, fuzzy
-msgid "Create New Snapin"
-msgstr "新建%s"
 
 #, fuzzy
 msgid "A snapin name is required!"
@@ -5156,48 +5139,8 @@ msgid "Snapin Create Fail"
 msgstr "更新管理单元"
 
 #, fuzzy
-msgid "Snapin General"
-msgstr "启用管理单元"
-
-#, fuzzy
 msgid "Snapin Protected"
 msgstr "更新管理单元"
-
-#, fuzzy
-msgid "Snapin Storage Groups"
-msgstr "无效的存储组"
-
-#, fuzzy
-msgid "Check here to see what storage groups can be added"
-msgstr "请查看这里以可以添加什么snapins"
-
-#, fuzzy
-msgid "Add Storage Groups"
-msgstr "添加存储组"
-
-#, fuzzy
-msgid "Add selected storage groups"
-msgstr "打印机"
-
-#, fuzzy
-msgid "Update/Remove Storage Groups"
-msgstr "删除选定的打印机"
-
-#, fuzzy
-msgid "Update primary group"
-msgstr "更新主要组"
-
-#, fuzzy
-msgid "Remove selected groups"
-msgstr "删除选定snapins"
-
-#, fuzzy
-msgid "No groups selected to be removed"
-msgstr "没有组选中，没有输入新的组名"
-
-#, fuzzy
-msgid "You must have at least one group associated"
-msgstr "您必须至少有一个存储组"
 
 #, fuzzy
 msgid "Snapin update failed!"

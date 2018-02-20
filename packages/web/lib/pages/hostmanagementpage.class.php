@@ -1159,7 +1159,7 @@ class HostManagementPage extends FOGPage
             $ix = $this->obj->get('hostscreen')->get('width');
             if ($ix) {
                 $x = $ix;
-            }
+           }
         } else {
             $x = $ix;
         }
@@ -1233,7 +1233,7 @@ class HostManagementPage extends FOGPage
         }
         $rendered = self::formFields($fields);
         unset($fields);
-        echo '<form class="form-horizontal" method="post" action="'
+        echo '<form id="host-dispman" class="form-horizontal" method="post" action="'
             . $this->formAction
             . '&tab=host-service">';
         echo '<div class="box box-primary">';
@@ -1259,6 +1259,9 @@ class HostManagementPage extends FOGPage
         if (!$tme) {
             $tme = $this->obj->getAlo();
         }
+        if (!$tme) {
+            $tme = 0;
+        }
         $fields = [
             '<label for="tme" class="col-sm-2 control-label">'
             . _('Auto Logout Time')
@@ -1267,11 +1270,11 @@ class HostManagementPage extends FOGPage
             . ')</label>' => '<input type="number" name="tme" class="form-control" '
             . 'value="'
             . $tme
-            . '" id="tme"/>'
+            . '" id="tme" required/>'
         ];
         $rendered = self::formFields($fields);
         unset($fields);
-        echo '<form class="form-horizontal" method="post" action="'
+        echo '<form id="host-alo" class="form-horizontal" method="post" action="'
             . $this->formAction
             . '&tab=host-service">';
         echo '<div class="box box-warning">';
@@ -2381,19 +2384,15 @@ class HostManagementPage extends FOGPage
             $disablemodules = $disablemodules['disablemodules'];
             $this->obj->removeModule($disablemodules);
         }
-        if (isset($_POST['displaymanupdate'])) {
-            $x = filter_input(INPUT_POST, 'x');
-            $y = filter_input(INPUT_POST, 'y');
-            $r = filter_input(INPUT_POST, 'r');
-            $this->obj->setDisp($x, $y, $r);
+        $x = filter_input(INPUT_POST, 'x');
+        $y = filter_input(INPUT_POST, 'y');
+        $r = filter_input(INPUT_POST, 'r');
+        $this->obj->setDisp($x, $y, $r);
+        $tme = (int)filter_input(INPUT_POST, 'tme');
+        if (!(is_numeric($tme) && $tme > 4)) {
+            $tme = 0;
         }
-        if (isset($_POST['aloupdate'])) {
-            $tme = (int)filter_input(INPUT_POST, 'tme');
-            if (!(is_numeric($tme) && $tme > 4)) {
-                $tme = 0;
-            }
-            $this->obj->setAlo($tme);
-        }
+        $this->obj->setAlo($tme);
     }
     /**
      * Updates the host when form is submitted

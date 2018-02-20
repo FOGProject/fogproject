@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-19 19:14-0500\n"
+"POT-Creation-Date: 2018-02-20 17:05-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4625,7 +4625,7 @@ msgid "Storage Groups"
 msgstr "Groupe de stockage"
 
 #, fuzzy
-msgid "Image Update Failed"
+msgid "Image update failed!"
 msgstr "image mise à jour"
 
 #, fuzzy
@@ -4654,10 +4654,6 @@ msgstr "minutes"
 
 msgid "Select Image"
 msgstr "Sélectionner l'image"
-
-#, fuzzy
-msgid "Start Session"
-msgstr "Démarrez Multicast session"
 
 #, fuzzy
 msgid "Multicast Image"
@@ -4709,11 +4705,17 @@ msgstr "Vous êtes seulement autorisé à attribuer"
 msgid "Failed to create Session"
 msgstr "Échec de la création Session"
 
-msgid "Multicast session created"
-msgstr "Session Multicast créé"
+#, fuzzy
+msgid "Multicast session created!"
+msgstr "Démarrez Multicast session"
 
-msgid "has been started on port"
-msgstr "a été lancé sur le port"
+#, fuzzy
+msgid "Multicast Session Create Success"
+msgstr "snapin mise à jour"
+
+#, fuzzy
+msgid "Multicast Session Create Fail"
+msgstr "snapin mise à jour"
 
 msgid "Cancelled task"
 msgstr "tâche Annulé"
@@ -5045,28 +5047,12 @@ msgid "Module Update Fail"
 msgstr "Groupe create a échoué"
 
 #, fuzzy
-msgid "Filesize"
-msgstr "taille du fichier"
-
-#, fuzzy
 msgid "Is Pack"
 msgstr "Est un"
 
 #, fuzzy
-msgid "Not protected"
-msgstr "Non protégé"
-
-#, fuzzy
-msgid "Disabled"
-msgstr "Activée"
-
-#, fuzzy
-msgid "New Snapin"
-msgstr "Ajouter New Snapin"
-
-#, fuzzy
-msgid "Snapin Type"
-msgstr "snapin Template"
+msgid "Create New Snapin"
+msgstr "Créer un nouveau %s"
 
 #, fuzzy
 msgid "Normal Snapin"
@@ -5075,6 +5061,10 @@ msgstr "Invalid Snapin"
 #, fuzzy
 msgid "Snapin Pack"
 msgstr "snapin Chemin"
+
+#, fuzzy
+msgid "Snapin Type"
+msgstr "snapin Template"
 
 msgid "Snapin Template"
 msgstr "snapin Template"
@@ -5111,9 +5101,6 @@ msgstr "Arguments SnapIn"
 msgid "Snapin Timeout (seconds)"
 msgstr "Menu Délai (en secondes)"
 
-msgid "Replicate?"
-msgstr "Reproduire?"
-
 msgid "Reboot after install"
 msgstr "Redémarrez après l'installation"
 
@@ -5125,10 +5112,6 @@ msgstr "commande snapin"
 
 msgid "read-only"
 msgstr ""
-
-#, fuzzy
-msgid "Create New Snapin"
-msgstr "Créer un nouveau %s"
 
 #, fuzzy
 msgid "A snapin name is required!"
@@ -5183,48 +5166,8 @@ msgid "Snapin Create Fail"
 msgstr "snapin mise à jour"
 
 #, fuzzy
-msgid "Snapin General"
-msgstr "snapin Enabled"
-
-#, fuzzy
 msgid "Snapin Protected"
 msgstr "snapin mise à jour"
-
-#, fuzzy
-msgid "Snapin Storage Groups"
-msgstr "Groupe de stockage non valide"
-
-#, fuzzy
-msgid "Check here to see what storage groups can be added"
-msgstr "Vérifiez ici pour voir ce que snapins peuvent être ajoutés"
-
-#, fuzzy
-msgid "Add Storage Groups"
-msgstr "Ajouter un groupe de stockage"
-
-#, fuzzy
-msgid "Add selected storage groups"
-msgstr "Imprimante"
-
-#, fuzzy
-msgid "Update/Remove Storage Groups"
-msgstr "Supprimer les imprimantes sélectionnées"
-
-#, fuzzy
-msgid "Update primary group"
-msgstr "Mise à jour de groupe principal"
-
-#, fuzzy
-msgid "Remove selected groups"
-msgstr "Retirer snapins sélectionnés"
-
-#, fuzzy
-msgid "No groups selected to be removed"
-msgstr "Aucun groupe sélectionné et aucun nouveau nom de groupe est entré"
-
-#, fuzzy
-msgid "You must have at least one group associated"
-msgstr "Vous devez avoir au moins un groupe de stockage"
 
 #, fuzzy
 msgid "Snapin update failed!"

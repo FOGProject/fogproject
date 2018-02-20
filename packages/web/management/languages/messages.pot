@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-19 19:14-0500\n"
+"POT-Creation-Date: 2018-02-20 17:05-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4048,7 +4048,7 @@ msgstr ""
 msgid "Storage Groups"
 msgstr ""
 
-msgid "Image Update Failed"
+msgid "Image update failed!"
 msgstr ""
 
 msgid "Image updated!"
@@ -4073,9 +4073,6 @@ msgid "minutes"
 msgstr ""
 
 msgid "Select Image"
-msgstr ""
-
-msgid "Start Session"
 msgstr ""
 
 msgid "Multicast Image"
@@ -4123,10 +4120,13 @@ msgstr ""
 msgid "Failed to create Session"
 msgstr ""
 
-msgid "Multicast session created"
+msgid "Multicast session created!"
 msgstr ""
 
-msgid "has been started on port"
+msgid "Multicast Session Create Success"
+msgstr ""
+
+msgid "Multicast Session Create Fail"
 msgstr ""
 
 msgid "Cancelled task"
@@ -4423,28 +4423,19 @@ msgstr ""
 msgid "Module Update Fail"
 msgstr ""
 
-msgid "Filesize"
-msgstr ""
-
 msgid "Is Pack"
 msgstr ""
 
-msgid "Not protected"
-msgstr ""
-
-msgid "Disabled"
-msgstr ""
-
-msgid "New Snapin"
-msgstr ""
-
-msgid "Snapin Type"
+msgid "Create New Snapin"
 msgstr ""
 
 msgid "Normal Snapin"
 msgstr ""
 
 msgid "Snapin Pack"
+msgstr ""
+
+msgid "Snapin Type"
 msgstr ""
 
 msgid "Snapin Template"
@@ -4477,9 +4468,6 @@ msgstr ""
 msgid "Snapin Timeout (seconds)"
 msgstr ""
 
-msgid "Replicate?"
-msgstr ""
-
 msgid "Reboot after install"
 msgstr ""
 
@@ -4490,9 +4478,6 @@ msgid "Snapin Command"
 msgstr ""
 
 msgid "read-only"
-msgstr ""
-
-msgid "Create New Snapin"
 msgstr ""
 
 msgid "A snapin name is required!"
@@ -4537,37 +4522,7 @@ msgstr ""
 msgid "Snapin Create Fail"
 msgstr ""
 
-msgid "Snapin General"
-msgstr ""
-
 msgid "Snapin Protected"
-msgstr ""
-
-msgid "Snapin Storage Groups"
-msgstr ""
-
-msgid "Check here to see what storage groups can be added"
-msgstr ""
-
-msgid "Add Storage Groups"
-msgstr ""
-
-msgid "Add selected storage groups"
-msgstr ""
-
-msgid "Update/Remove Storage Groups"
-msgstr ""
-
-msgid "Update primary group"
-msgstr ""
-
-msgid "Remove selected groups"
-msgstr ""
-
-msgid "No groups selected to be removed"
-msgstr ""
-
-msgid "You must have at least one group associated"
 msgstr ""
 
 msgid "Snapin update failed!"
