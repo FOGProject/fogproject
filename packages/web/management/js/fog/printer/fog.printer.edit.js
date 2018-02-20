@@ -153,7 +153,7 @@
                 defaulton: defaulton
             };
         // Get all the checked default options.
-        membershipTable.find('.default:checked').each(function() {
+        $('#printer-membership-table').find('.default:checked').each(function() {
             defaulton.push($(this).val());
         });
         Common.apiCall(method,action,opts,function(err) {
@@ -180,13 +180,13 @@
             if (!err) {
                 membershipTable.draw(false);
                 membershipTable.rows({selected: true}).deselect();
-                membershipTable.find('.default:disabled').each(function() {
+                $('#printer-membership-table').find('.default:disabled').each(function() {
                     if (toAdd.indexOf($(this).val()) != -1) {
                         $(this).prop('disabled', false);
                         Common.iCheck(this);
                     }
                 });
-                membershipTable.find('.associated').each(function() {
+                $('#printer-membership-table').find('.associated').each(function() {
                     if (toAdd.indexOf($(this).val()) != -1) {
                         $(this).iCheck('check');
                     }
@@ -210,14 +210,14 @@
             if (!err) {
                 membershipTable.draw(false);
                 membershipTable.rows({selected: true}).deselect();
-                membershipTable.find('.default').each(function() {
+                $('#printer-membership-table').find('.default').each(function() {
                     if (toRemove.indexOf($(this).val()) != -1) {
                         $(this).iCheck('uncheck');
                         $(this).prop('disabled', true);
                         Common.iCheck(this);
                     }
                 });
-                membershipTable.find('.associated').each(function() {
+                $('#printer-membership-table').find('.associated').each(function() {
                     if (toRemove.indexOf($(this).val()) != -1) {
                         $(this).iCheck('uncheck');
                     }

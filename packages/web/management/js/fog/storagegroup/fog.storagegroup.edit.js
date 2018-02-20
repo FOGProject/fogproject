@@ -168,13 +168,13 @@
             if (!err) {
                 membershipTable.draw(false);
                 membershipTable.rows({selected: true}).deselect();
-                membershipTable.find('.master').each(function() {
+                $('#storagegroup-membership-table').find('.master').each(function() {
                     if (toAdd.indexOf($(this).val()) != -1) {
                         $(this).prop('disabled', false);
                         Common.iCheck(this);
                     }
                 });
-                membershipTable.find('.associated').each(function() {
+                $('#storagegroup-membership-table').find('.associated').each(function() {
                     if (toAdd.indexOf($(this).val()) != -1) {
                         $(this).iCheck('check');
                     }
@@ -199,14 +199,14 @@
             if (!err) {
                 membershipTable.draw(false);
                 membershipTable.rows({selected: true}).deselect();
-                membershipTable.find('.master').each(function() {
+                $('#storagegroup-membership-table').find('.master').each(function() {
                     if (toRemove.indexOf($(this).val()) != -1) {
                         $(this).iCheck('uncheck');
                         $(this).prop('disabled', true);
                         Common.iCheck(this);
                     }
                 });
-                membershipTable.find('.associated').each(function() {
+                $('#storagegroup-membership-table').find('.associated').each(function() {
                     if (toRemove.indexOf($(this).val()) != -1) {
                         $(this).iCheck('uncheck');
                     }
