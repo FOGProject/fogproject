@@ -3933,9 +3933,6 @@ abstract class FOGPage extends FOGBase
             echo '</div>';
         }
         echo '</div>';
-        if ($delNeeded) {
-            echo _('Delete selected');
-        }
         $items = ob_get_clean();
 
         // This is where the index div displays, as you know.

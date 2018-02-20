@@ -980,12 +980,12 @@ class SnapinManagementPage extends FOGPage
         $timeout = (int)filter_input(INPUT_POST, 'timeout');
         $action = filter_input(INPUT_POST, 'action');
         $args = filter_input(INPUT_POST, 'args');
-        if (!$name) {
+        if (!$snapin) {
             throw new Exception(
                 _('A snapin name is required!')
             );
         }
-        if ($this->obj->get('name') != $name
+        if ($this->obj->get('name') != $snapin
             && self::getClass('SnapinManager')->exists(
                 $snapin,
                 $this->obj->get('id')
