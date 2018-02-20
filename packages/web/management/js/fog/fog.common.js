@@ -154,7 +154,7 @@ var $_GET = getQueryParams(document.location.search),
         }
         Common.notify(
             res.title || 'Bad Response',
-            ((isError) ? res.error : res.msg) || 'Bad Response',
+            res.error || 'Bad Response',
             (isError) ? 'error' : 'success'
         );
     };
@@ -459,6 +459,27 @@ var $_GET = getQueryParams(document.location.search),
                 .find('input[type="text"]')
                 .prop('type', 'password');
         }
+    }).on('change', ':file', function() {
+        var input = $(this),
+            numFiles = input.get(0).files ? input.get(0).files.length : 1,
+            label = input
+                .val()
+                .replace(/\\/g, '/')
+                .replace(/.*\//, '');
+        input.trigger('fileselect', [numFiles, label]);
+        /**
+         * If only one file display the value in the text field.
+         * Otherwise show the number of files selected.
+         */
+        if (numFiles == 1) {
+            $('.filedisp').val(label);
+        } else {
+            $('.filedisp').val(numFiles + ' files selected');
+        }
+    }).on('mouseover', function() {
+        $('[data-toggle="tooltip"').tooltip({
+            container: 'body'
+        });
     });
 })(jQuery);
 /**
