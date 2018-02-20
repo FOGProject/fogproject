@@ -14,13 +14,14 @@
         });
     });
     // Hides the fields not currently selected.
-    $('.network,.iprint,.cups,.local').not('.'+type).hide();
+    $('.network,.iprint,.cups,.local').addClass('hidden');
+    $('.'+type).removeClass('hidden');
     // On change hide all the fields and show the appropriate type.
     printertype.on('change', function(e) {
         e.preventDefault();
         type = printertype.val().toLowerCase();
-        $('.network,.iprint,.cups,.local').not('.'+type).hide();
-        $('.'+type).show();
+        $('.network,.iprint,.cups,.local').addClass('hidden');
+        $('.'+type).removeClass('hidden');
     });
     // Setup all fields to match when/where appropriate
     $('[name="printer"]').on('change', function() {

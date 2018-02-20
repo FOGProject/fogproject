@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-19 18:44-0500\n"
+"POT-Creation-Date: 2018-02-19 19:14-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -4567,10 +4567,6 @@ msgid "Image Manager"
 msgstr "Image Manager"
 
 #, fuzzy
-msgid "Create New User"
-msgstr "Neue %s erstellen"
-
-#, fuzzy
 msgid "An image name is required!"
 msgstr "Ein Name ist erforderlich!"
 
@@ -4713,12 +4709,6 @@ msgstr "wurde gestartet auf Port"
 
 msgid "Cancelled task"
 msgstr "Stornierter Task"
-
-msgid "Edit Node"
-msgstr "Knoten bearbeiten"
-
-msgid "Hostname / IP"
-msgstr "Hostname / IP"
 
 #, fuzzy
 msgid "Server Information"
@@ -4883,6 +4873,10 @@ msgstr "Um einen Bericht anzusehen, wählen Sie einen aus dem Menü aus."
 
 msgid "API?"
 msgstr "API?"
+
+#, fuzzy
+msgid "Create New User"
+msgstr "Neue %s erstellen"
 
 msgid "User Password"
 msgstr "Benutzerpasswort"

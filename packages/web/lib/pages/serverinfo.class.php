@@ -40,19 +40,6 @@ class ServerInfo extends FOGPage
         parent::__construct($this->name);
         global $id;
         $this->obj = new StorageNode($id);
-        $this->menu = array(
-            "?node=storagenode&sub=edit&id={$id}" => _('Edit Node')
-        );
-        $this->notes = array(
-            sprintf(
-                '%s %s',
-                self::$foglang['Storage'],
-                self::$foglang['Node']
-            ) => $this->obj->get('name'),
-                _('Hostname / IP') => $this->obj->get('ip'),
-                self::$foglang['ImagePath'] => $this->obj->get('path'),
-                self::$foglang['FTPPath'] => $this->obj->get('ftppath')
-            );
     }
     /**
      * The index page.
@@ -61,13 +48,6 @@ class ServerInfo extends FOGPage
      */
     public function index()
     {
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
         $this->title = _('Server Information');
         if (!$this->obj->isValid()) {
             echo '<div class="col-md-12">';
@@ -114,10 +94,6 @@ class ServerInfo extends FOGPage
             echo '</div>';
             return;
         }
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
         $section = 0;
         $arGeneral = array();
         $arFS = array();
@@ -232,9 +208,7 @@ class ServerInfo extends FOGPage
         echo '</div>';
         unset(
             $fields,
-            $rendered,
-            $this->form,
-            $this->data
+            $rendered
         );
         // File System Info
         $fields = array(
@@ -344,10 +318,7 @@ class ServerInfo extends FOGPage
             $NICRec,
             $NICErr,
             $NICDro,
-            $this->data,
-            $fields,
-            $this->attributes,
-            $this->templates
+            $fields
         );
         echo '</div>';
     }
