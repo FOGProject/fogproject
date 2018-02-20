@@ -517,7 +517,7 @@
             modulesUpdateBtn.prop('disabled', false);
             if (!err) {
                 modulesTable.draw(false);
-                modules.rows({selected: true}).deselect();
+                modulesTable.rows({selected: true}).deselect();
             }
         });
     });
