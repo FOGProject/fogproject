@@ -379,7 +379,9 @@
     // SERVICE TAB
     var modulesEnableBtn = $('#modules-enable'),
         modulesDisableBtn = $('#modules-disable'),
-        modulesUpdateBtn = $('#modules-update');
+        modulesUpdateBtn = $('#modules-update'),
+        modulesDispBtn = $('#displayman-send'),
+        modulesAloBtn = $('#alo-send');
 
     function onModulesDisable(selected) {
         var disabled = selected.count() == 0;
@@ -389,19 +391,6 @@
         var disabled = selected.count() != 0;
         modulesEnableBtn.prop('disabled', disabled);
     }
-
-    modulesEnableBtn.on('click', function(e) {
-        e.preventDefault();
-        $('#modules-to-update_wrapper .buttons-select-all').trigger('click');
-        $(this).prop('disabled', true);
-        modulesDisableBtn.prop('disabled', true);
-    });
-    modulesDisableBtn.on('click', function(e) {
-        e.preventDefault();
-        $('#modules-to-update_wrapper .buttons-select-none').trigger('click');
-        $(this).prop('disabled', true);
-        modulesEnableBtn.prop('disabled', true);
-    });
 
     var modulesTable = Common.registerTable($("#modules-to-update"), onModulesEnable, {
         columns: [
@@ -415,6 +404,18 @@
                     return row.name
                 },
                 targets: 0
+            },
+            {
+                render: function(data, type, row) {
+                    return '<div class="checkbox">'
+                    + '<input type="checkbox" class="associated" name="associate[]" id="moduleAssoc_'
+                    + row.id
+                    + '" value="'
+                    + row.id
+                    + '"/>'
+                    + '</div>';
+                },
+                targets: 1
             }
         ],
         processing: true,
@@ -426,6 +427,112 @@
     });
     modulesTable.on('draw', function() {
         Common.iCheck('#modules-to-update input');
+    });
+
+    modulesUpdateBtn.on('click', function(e) {
+        e.preventDefault();
+        $(this).prop('disabled', true);
+        var method = modulesUpdateBtn.attr('method'),
+            action = modulesUpdateBtn.attr('action'),
+            toEnable = [],
+            toDisable = [],
+            opts = {
+                'enablemodulessel': '1',
+                'disablemodulessel': '1',
+                'enablemodules': toEnable,
+                'disablemodules': toDisable
+            };
+        $('#modules-to-update').find('.associated').each(function() {
+            if ($(this).is(':checked')) {
+                toEnable.push($(this).val());
+            } else if (!$(this).is(':checked')) {
+                toDisable.push($(this).val());
+            }
+        });
+        Common.apiCall(method,action,opts,function(err) {
+            modulesUpdateBtn.prop('disabled', false);
+            if (!err) {
+                modulesTable.draw(false);
+                modules.rows({selected: true}).deselect();
+            }
+        });
+    });
+    modulesEnableBtn.on('click', function(e) {
+        e.preventDefault();
+        $('#modules-to-update_wrapper .buttons-select-all').trigger('click');
+        $('#modules-to-update_wrapper .associated').iCheck('cleck');
+        $(this).prop('disabled', true);
+        modulesDisableBtn.prop('disabled', false);
+        var method = modulesEnableBtn.attr('method'),
+            action = modulesEnableBtn.attr('action'),
+            rows = modulesTable.rows({selected: true}),
+            toEnable = Common.getSelectedIds(modulesTable),
+            opts = {
+                'enablemodulessel': '1',
+                'enablemodules': toEnable
+            };
+        Common.apiCall(method,action,opts,function(err) {
+            if (!err) {
+                $('#modules-to-update').find('.associated').each(function() {
+                    if (toEnable.indexOf($(this).val()) != -1) {
+                        $(this).iCheck('check');
+                    }
+                });
+            } else {
+                modulesEnableBtn.prop('disabled', false);
+            }
+            modulesTable.draw(false);
+            modulesTable.rows({selected: true}).deselect();
+        });
+    });
+    modulesDisableBtn.on('click', function(e) {
+        e.preventDefault();
+        $('#modules-to-update_wrapper .buttons-select-none').trigger('click');
+        $('#modules-to-update_wrapper .associated').iCheck('uncheck');
+        $(this).prop('disabled', true);
+        modulesEnableBtn.prop('disabled', false);
+        var method = modulesDisableBtn.attr('method'),
+            action = modulesDisableBtn.attr('action'),
+            rows = modulesTable.rows({selected: true}),
+            toDisable = [],
+            opts = {
+                'disablemodulessel': '1',
+                'disablemodules': toDisable
+            };
+        $('#modules-to-update').find('.associated').each(function() {
+            if (!$(this).is(':checked')) {
+                toDisable.push($(this).val());
+            }
+        });
+        Common.apiCall(method,action,opts,function(err) {
+            if (!err) {
+                $('#modules-to-update').find('.associated').each(function() {
+                    if (toDisable.indexOf($(this).val()) != -1) {
+                        $(this).iCheck('uncheck');
+                    }
+                });
+            } else {
+                modulesDisableBtn.prop('disabled', false);
+            }
+            modulesTable.draw(false);
+            modulesTable.rows({selected: true}).deselect();
+        });
+    });
+    modulesDispBtn.on('click', function(e) {
+        e.preventDefault();
+        var form = $('#group-dispman');
+        modulesDispBtn.prop('disabled', true);
+        Common.processForm(form, function(err) {
+            modulesDispBtn.prop('disabled', false);
+        });
+    });
+    modulesAloBtn.on('click', function(e) {
+        e.preventDefault();
+        var form = $('#group-alo');
+        modulesDispBtn.prop('disabled', true);
+        Common.processForm(form, function(err) {
+            modulesAloBtn.prop('disabled', false);
+        });
     });
     if (Common.search && Common.search.length > 0) {
         modulesTable.search(Common.search).draw();

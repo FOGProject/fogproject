@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-20 17:05-0500\n"
+"POT-Creation-Date: 2018-02-20 18:13-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4239,6 +4239,10 @@ msgid ""
 msgstr ""
 "此设置仅允许FOG分配的打印机要添加到主机。没有分配任何打印机将包括非FOG管理的"
 "打印机被删除。"
+
+#, fuzzy
+msgid "Module Association"
+msgstr "图像协会"
 
 #, fuzzy
 msgid "Group module settings"

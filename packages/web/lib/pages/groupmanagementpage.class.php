@@ -949,12 +949,15 @@ class GroupManagementPage extends FOGPage
             $props
         );
         $this->headerData = [
-            _('Module Name')
+            _('Module Name'),
+            _('Module Association')
         ];
         $this->templates = [
+            '',
             ''
         ];
         $this->attributes = [
+            [],
             []
         ];
         // Modules Enable/Disable/Selected
@@ -1048,7 +1051,7 @@ class GroupManagementPage extends FOGPage
         }
         $rendered = self::formFields($fields);
         unset($fields);
-        echo '<form class="form-horizontal" method="post" action="'
+        echo '<form id="group-dispman" class="form-horizontal" method="post" action="'
             . $this->formAction
             . '&tab=group-service">';
         echo '<div class="box box-primary">';
@@ -1062,6 +1065,7 @@ class GroupManagementPage extends FOGPage
         echo '</div>';
         echo '<div class="box-body">';
         echo $rendered;
+        echo '<input type="hidden" name="dispmansend" value="1"/>';
         echo '</div>';
         echo '<div class="box-footer">';
         echo '<button class="btn btn-primary" id="displayman-send">'
@@ -1088,7 +1092,7 @@ class GroupManagementPage extends FOGPage
         ];
         $rendered = self::formFields($fields);
         unset($fields);
-        echo '<form class="form-horizontal" method="post" action="'
+        echo '<form id="group-alo" class="form-horizontal" method="post" action="'
             . $this->formAction
             . '&tab=group-service">';
         echo '<div class="box box-warning">';
@@ -1107,6 +1111,7 @@ class GroupManagementPage extends FOGPage
         echo '</div>';
         echo '<div class="box-body">';
         echo $rendered;
+        echo '<input type="hidden" name="alosend" value="1"/>';
         echo '</div>';
         echo '<div class="box-footer">';
         echo '<button class="btn btn-primary" id="alo-send">'
@@ -1117,6 +1122,51 @@ class GroupManagementPage extends FOGPage
         echo '</form>';
         // End Box Group
         echo '</div>';
+    }
+    /**
+     * Group Service post.
+     *
+     * @return void
+     */
+    public function groupServicePost()
+    {
+        if (isset($_POST['enablemodulessel'])) {
+            $enablemodules = filter_input_array(
+                INPUT_POST,
+                [
+                    'enablemodules' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $enablemodules = $enablemodules['enablemodules'];
+            $this->obj->addModule($enablemodules);
+        }
+        if (isset($_POST['disablemodulessel'])) {
+            $disablemodules = filter_input_array(
+                INPUT_POST,
+                [
+                    'disablemodules' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $disablemodules = $disablemodules['disablemodules'];
+            $this->obj->removeModule($disablemodules);
+        }
+        if (isset($_POST['dispmansend'])) {
+            $x = filter_input(INPUT_POST, 'x');
+            $y = filter_input(INPUT_POST, 'y');
+            $r = filter_input(INPUT_POST, 'r');
+            $this->obj->setDisp($x, $y, $r);
+        }
+        if (isset($_POST['alosend'])) {
+            $tme = (int)filter_input(INPUT_POST, 'tme');
+            if (!(is_numeric($tme) && $tm > 4)) {
+                $tme = 0;
+            }
+            $this->obj->setAlo($tme);
+        }
     }
     /**
      * The group edit display method
@@ -1427,11 +1477,6 @@ class GroupManagementPage extends FOGPage
             );
         $serverFault = false;
         try {
-            $hostids = $this->obj->get('hosts');
-            $x1 = filter_input(INPUT_POST, 'x');
-            $y1 = filter_input(INPUT_POST, 'y');
-            $r1 = filter_input(INPUT_POST, 'r');
-            $time1 = filter_input(INPUT_POST, 'tme');
             $onDemand = (int)isset($_POST['onDemand']);
             $min = filter_input(INPUT_POST, 'scheduleCronMin');
             $hour = filter_input(INPUT_POST, 'scheduleCronHour');
@@ -1457,57 +1502,7 @@ class GroupManagementPage extends FOGPage
                 $this->groupSnapinPost();
                 break;
             case 'group-service':
-                list(
-                    $time,
-                    $r,
-                    $x,
-                    $y
-                ) = self::getSubObjectIDs(
-                    'Service',
-                    array(
-                        'name' => array(
-                            'FOG_CLIENT_AUTOLOGOFF_MIN',
-                            'FOG_CLIENT_DISPLAYMANAGER_R',
-                            'FOG_CLIENT_DISPLAYMANAGER_X',
-                            'FOG_CLIENT_DISPLAYMANAGER_Y'
-                        )
-                    ),
-                    'value'
-                );
-                $x = (
-                    is_numeric($x1) ?
-                    $x1 :
-                    $x
-                );
-                $y = (
-                    is_numeric($y1) ?
-                    $y1 :
-                    $y
-                );
-                $r = (
-                    is_numeric($r1) ?
-                    $r1 :
-                    $r
-                );
-                $time = (
-                    is_numeric($time1) ?
-                    $time1 :
-                    $time
-                );
-                $mods = self::getSubObjectIDs('Module');
-                $modOn = array_intersect(
-                    (array)$mods,
-                    (array)$modules
-                );
-                $modOff = array_diff(
-                    (array)$mods,
-                    (array)$modOn
-                );
-                $this->obj
-                    ->addModule($modOn)
-                    ->removeModule($modOff)
-                    ->setDisp($x, $y, $r)
-                    ->setAlo($time);
+                $this->groupServicePost();
                 break;
             case 'group-powermanagement':
                 if (!$action) {

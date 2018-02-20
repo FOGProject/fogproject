@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-20 17:05-0500\n"
+"POT-Creation-Date: 2018-02-20 18:13-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -4258,6 +4258,10 @@ msgstr ""
 "Diese Einstellung erlaubt, nur von FOG zugewiesene Drucker an den Host "
 "hinzuzufügen. Jeder Drucker, der nicht zugeordnet ist, wird entfernt, "
 "einschließlich nicht FOG-verwaltete Drucker."
+
+#, fuzzy
+msgid "Module Association"
+msgstr "Regel Zuordnung"
 
 #, fuzzy
 msgid "Group module settings"

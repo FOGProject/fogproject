@@ -1247,6 +1247,7 @@ class HostManagementPage extends FOGPage
         echo '</div>';
         echo '<div class="box-body">';
         echo $rendered;
+        echo '<input type="hidden" name="dispmansend" value="1"/>';
         echo '</div>';
         echo '<div class="box-footer">';
         echo $dispBtn;
@@ -1293,6 +1294,7 @@ class HostManagementPage extends FOGPage
         echo '</div>';
         echo '<div class="box-body">';
         echo $rendered;
+        echo '<input type="hidden" name="alosend" value="1"/>';
         echo '</div>';
         echo '<div class="box-footer">';
         echo $aloBtn;
@@ -2353,13 +2355,6 @@ class HostManagementPage extends FOGPage
      */
     public function hostServicePost()
     {
-        $tme = filter_input(INPUT_POST, 'tme');
-        if (!$tme
-            || !is_numeric($tme)
-            || (is_numeric($tme) && $tme < 5)
-        ) {
-            $tme = 0;
-        }
         if (isset($_POST['enablemodulessel'])) {
             $enablemodules = filter_input_array(
                 INPUT_POST,
@@ -2384,15 +2379,19 @@ class HostManagementPage extends FOGPage
             $disablemodules = $disablemodules['disablemodules'];
             $this->obj->removeModule($disablemodules);
         }
-        $x = filter_input(INPUT_POST, 'x');
-        $y = filter_input(INPUT_POST, 'y');
-        $r = filter_input(INPUT_POST, 'r');
-        $this->obj->setDisp($x, $y, $r);
-        $tme = (int)filter_input(INPUT_POST, 'tme');
-        if (!(is_numeric($tme) && $tme > 4)) {
-            $tme = 0;
+        if (isset($_POST['dispmansend'])) {
+            $x = filter_input(INPUT_POST, 'x');
+            $y = filter_input(INPUT_POST, 'y');
+            $r = filter_input(INPUT_POST, 'r');
+            $this->obj->setDisp($x, $y, $r);
         }
-        $this->obj->setAlo($tme);
+        if (isset($_POST['alosend'])) {
+            $tme = (int)filter_input(INPUT_POST, 'tme');
+            if (!(is_numeric($tme) && $tme > 4)) {
+                $tme = 0;
+            }
+            $this->obj->setAlo($tme);
+        }
     }
     /**
      * Updates the host when form is submitted
