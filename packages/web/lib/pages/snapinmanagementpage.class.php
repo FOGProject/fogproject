@@ -696,58 +696,32 @@ class SnapinManagementPage extends FOGPage
      */
     public function snapinGeneral()
     {
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->attributes,
-            $this->templates
-        );
-        $this->title = _('Snapin General');
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group')
-        );
-        $this->templates = array(
-            '${field}',
-            '${input}'
-        );
-        $snapinfileexists = basename(
-            filter_input(INPUT_POST, 'snapinfileexist')
-        );
-        if (!$snapinfileexists) {
-            $snapinfileexists = $this->obj->get('file');
-        }
-        $name = filter_input(INPUT_POST, 'name') ?:
+        $snapin = filter_input(INPUT_POST, 'snapin') ?:
             $this->obj->get('name');
-        $desc = filter_input(INPUT_POST, 'description') ?:
+        $description = filter_input(INPUT_POST, 'description') ?:
             $this->obj->get('description');
-        $packtype = (int)filter_input(INPUT_POST, 'packtype') ?:
-            (int)$this->obj->get('packtype');
+        $packtype = (int)(filter_input(INPUT_POST, 'packtype') ?:
+            $this->obj->get('packtype'));
+        $snapinfileexists = basename(
+            filter_input(INPUT_POST, 'snapinfileexist') ?:
+            $this->obj->get('file')
+        );
         $rw = filter_input(INPUT_POST, 'rw') ?:
             $this->obj->get('runWith');
         $rwa = filter_input(INPUT_POST, 'rwa') ?:
             $this->obj->get('runWithArgs');
-        $protected = (int)isset($_POST['protected_snapin']) ?:
-            (int)$this->obj->get('protected');
-        $toReplicate = (int)isset($_POST['toReplicate']) ?:
-            (int)$this->obj->get('toReplicate');
-        $isEnabled = (int)isset($_POST['isEnabled']) ?:
-            (int)$this->obj->get('isEnabled');
-        $isHidden = (int)isset($_POST['isHidden']) ?:
-            (int)$this->obj->get('hide');
-        $ishid = (
-            $isHidden > 0 ? ' checked' : ''
-        );
-        $isprot = (
-            $protected > 0 ? ' checked' : ''
-        );
-        $isen = (
-            $isEnabled > 0 ? ' checked' : ''
-        );
-        $isrep = (
-            $toReplicate > 0 ? ' checked' : ''
-        );
+        $protected = (int)(isset($_POST['protected']) ?:
+            $this->obj->get('protected'));
+        $toReplicate = (int)(isset($_POST['toReplicate']) ?:
+            $this->obj->get('toReplicate'));
+        $isEnabled = (int)(isset($_POST['isEnabled']) ?:
+            $this->obj->get('isEnabled'));
+        $isHidden = (int)(isset($_POST['isHidden']) ?:
+            $this->obj->get('hide'));
+        $ishid = ($isHidden ? ' checked' : '');
+        $isprot = ($protected ? ' checked' : '');
+        $isen = ($isEnabled ? ' checked' : '');
+        $isrep = ($toReplicate ? ' checked' : '');
         $action = filter_input(INPUT_POST, 'action');
         if (!$action) {
             $action = (
@@ -759,33 +733,32 @@ class SnapinManagementPage extends FOGPage
                 )
             );
         }
-        $reboot = (
-            $action == 'reboot' ? ' checked' : ''
-        );
-        $shutdown = (
-            $action == 'shutdown' ? ' checked' : ''
-        );
+        $reboot = $shutdown = '';
+        switch ($action) {
+        case 'reboot':
+            $reboot = ' checked';
+            break;
+        case 'shutdown':
+            $shutdown = ' checked';
+            break;
+        }
         $args = filter_input(INPUT_POST, 'args') ?:
             $this->obj->get('args');
         self::$selected = $snapinfileexists;
-        $filelist = self::getSubObjectIDs(
-            'Snapin',
-            '',
-            'file'
-        );
         $filelist = array_values(
             array_unique(
                 array_filter(
-                    $filelist
+                    self::getSubObjectIDs(
+                        'Snapin',
+                        '',
+                        'file'
+                    )
                 )
             )
         );
         natcasesort($filelist);
         ob_start();
-        array_map(
-            self::$buildSelectBox,
-            $filelist
-        );
+        array_map(self::$buildSelectBox, $filelist);
         $selectFiles = '<select class='
             . '"snapinfileexist-input cmdlet3 form-control" '
             . 'name="snapinfileexist" id="snapinfileexist">'
@@ -794,25 +767,8 @@ class SnapinManagementPage extends FOGPage
             . ' -</option>'
             . ob_get_clean()
             . '</select>';
-        $fields = array(
-            '<label for="name">'
-            . _('Snapin Name')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="name" id="name" value="'
-            . $name
-            . '" class="snapinname-input form-control"/>'
-            . '</div>',
-            '<label for="desc">'
-            . _('Snapin Description')
-            . '</label>' => '<div class="input-group">'
-            . '<textarea name="description" id="desc" class='
-            . '"form-control snapindescription-input">'
-            . $desc
-            . '</textarea>'
-            . '</div>',
-            '<label class="col-sm-2 control-label" for="snapinpack">'
-            . _('Snapin Type')
-            . '</label>' => '<select class="snapinpack-input form-control" '
+
+        $packtypes = '<select class="form-control" '
             . 'name="packtype" id="snapinpack">'
             . '<option value="0"'
             . (
@@ -832,59 +788,65 @@ class SnapinManagementPage extends FOGPage
             . '>'
             . _('Snapin Pack')
             . '</option>'
-            . '</select>',
-            '<span class="hiddeninitially packnotemplate">'
-            . '<label for="argTypes">'
+            . '</select>';
+        /**
+         * Setup the fields to be used to display.
+         */
+        $fields = [
+            '<label class="col-sm-2 control-label" for="snapin">'
+            . _('Snapin Name')
+            . '</label>' => '<input type="text" name="snapin" '
+            . 'value="'
+            . $snapin
+            . '" class="form-control" id="snapin" '
+            . 'required/>',
+            '<label class="col-sm-2 control-label" for="description">'
+            . _('Snapin Description')
+            . '</label>' => '<textarea class="form-control" style="resize:vertical;'
+            . 'min-height:50px;" '
+            . 'id="description" name="description">'
+            . $description
+            . '</textarea>',
+            '<label class="col-sm-2 control-label" for="storagegroup">'
+            . _('Storage Group')
+            . '</label>' => $StorageGroups,
+            '<label class="col-sm-2 control-label" for="snapinpack">'
+            . _('Snapin Type')
+            . '</label>' => $packtypes,
+            '<label class="packnotemplate hidden col-sm-2 control-label" for="argTypes">'
             . _('Snapin Template')
             . '</label>'
-            . '</span>'
-            . '<span class="hiddeninitially packtemplate">'
-            . '<label for="packTypes">'
+            . '<label class="packtemplate hidden col-sm-2 control-label" for="packTypes">'
             . _('Snapin Pack Template')
-            . '</label>'
-            . '</span>' => '<span class="hiddeninitially packnotemplate">'
-            . self::$_template1
-            . '</span>'
-            . '<span class="hiddeninitially packtemplate">'
-            . self::$_template2
-            . '</span>',
-            '<span class="hiddeninitially packnochangerw">'
-            . '<label for="snaprw">'
+            . '</label>' => self::$_template1
+            . self::$_template2,
+            '<label class="packnotemplate hidden col-sm-2 control-label" for="snaprw">'
             . _('Snapin Run With')
             . '</label>'
-            . '</span>'
-            . '<span class="hiddeninitially packchangerw">'
-            . '<label for="snaprw">'
+            . '<label class="packtemplate hidden col-sm-2 control-label" for="snaprw">'
             . _('Snapin Pack File')
-            . '</label>'
-            . '</span>' => '<div class="input-group">'
-            . '<input type="text" class="snapinrw-input cmdlet1 form-control" '
-            . 'name="rw" id="snaprw" value="'
+            . '</label>' => '<input type="text" name="rw" '
+            . 'value="'
             . $rw
-            . '"/>'
-            . '</div>',
-            '<span class="hiddeninitially packnochangerwa">'
-            . '<label for="snaprwa">'
+            . '" class="snapinrw-input cmdlet1 form-control" '
+            . 'id="snaprw"/>',
+            '<label class="packnotemplate hidden col-sm-2 control-label" for="snaprwa">'
             . _('Snapin Run With Argument')
             . '</label>'
-            . '</span>'
-            . '<span class="hiddeninitially packchangerwa">'
-            . '<label for="snaprwa">'
+            . '<label class="packtemplate hidden col-sm-2 control-label" for="snaprwa">'
             . _('Snapin Pack Arguments')
-            . '</label>'
-            . '</span>' => '<div class="input-group">'
-            . '<input type="text" class="snapinrwa-input cmdlet2 form-control" '
-            . 'name="rwa" id="snaprwa" value="'
+            . '</label>' => '<input type="text" name="rwa" '
+            . 'value="'
             . $rwa
-            . '"/>'
-            . '</div>',
-            '<label for="snapinfile">'
+            . '" class="snapinrwa-input cmdlet2 form-control" '
+            . 'id="snaprwa"/>',
+            '<label class="col-sm-2 control-label" for="snapinfile">'
             . _('Snapin File')
-            . '<br/>'
+            . '<br/>('
             . _('Max Size')
             . ': '
             . ini_get('post_max_size')
-            . '</label>' => '<div class="input-group">'
+            . ')</label>' => '<div class="input-group">'
             . '<label class="input-group-btn">'
             . '<span class="btn btn-info">'
             . _('Browse')
@@ -892,13 +854,11 @@ class SnapinManagementPage extends FOGPage
             . 'id="snapinfile"/>'
             . '</span>'
             . '</label>'
-            . '<input type="text" class="form-control filedisp cmdlet3" value="'
-            . $snapinfileexists
-            . '" readonly/>'
+            . '<input type="text" class="form-control filedisp cmdlet3" readonly/>'
             . '</div>',
             (
                 count($filelist) > 0 ?
-                '<label for="snapinfileexist">'
+                '<label class="col-sm-2 control-label" for="snapinfileexist">'
                 . _('Snapin File (exists)')
                 . '</label>' :
                 ''
@@ -907,353 +867,90 @@ class SnapinManagementPage extends FOGPage
                 $selectFiles :
                 ''
             ),
-            '<span class="hiddeninitially packhide">'
-            . '<label for="args">'
+            '<label class="packhide hidden col-sm-2 control-label" for="args">'
             . _('Snapin Arguments')
             . '</label>'
-            . '</span>' => '<span class="hiddeninitially packhide">'
-            . '<div class="input-group">'
-            . '<input type="text" name="args" id="args" class='
-            . '"snapinargs-input cmdlet4 form-control" value="'
+            . '</span>' => '<input type="text" name="args" '
+            . 'value="'
             . $args
-            . '"/>'
-            . '</div>'
-            . '</span>',
-            '<label for="isprot">'
+            . '" class="packhide hidden snapinargs-input cmdlet4 form-control" '
+            . 'id="args"/>',
+            '<label class="col-sm-2 control-label" for="isprot">'
             . _('Snapin Protected')
-            . '</label>' => '<input type="checkbox" name="protected_snapin" '
+            . '</label>' => '<input type="checkbox" name="protected" '
             . 'class="snapinprotected-input" id="isprot"'
             . $isprot
             . '/>',
-            '<label for="isen">'
+            '<label class="col-sm-2 control-label" for="isen">'
             . _('Snapin Enabled')
             . '</label>' => '<input type="checkbox" name="isEnabled" '
             . 'class="snapinenabled-input" id="isen"'
             . $isen
             . '/>',
-            '<label for="isHidden">'
+            '<label class="col-sm-2 control-label" for="isHidden">'
             . _('Snapin Arguments Hidden')
             . '</label>' => '<input type="checkbox" name="isHidden" '
             . 'class="snapinhidden-input" id="isHidden"'
             . $ishid
             . '/>',
-            '<label for="timeout">'
+            '<label class="col-sm-2 control-label" for="timeout">'
             . _('Snapin Timeout (seconds)')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="number" class='
-            . '"snapintimeout-input form-control" name="timeout" '
-            . 'id="timeout" value="0"/>'
-            . '</div>',
-            '<label for="toRep">'
-            . _('Replicate?')
-            . '</label>' => '<input type="checkbox" name="toReplicate" '
-            . 'class="snapinreplicate-input" id="toRep"'
+            . '</label>' => '<input type="number" name="timeout" '
+            . 'value="0" class="snapintimeout-input form-control" '
+            . 'id="timeout"/>',
+            '<label class="col-sm-2 control-label" for="toRep">'
+            . _('Replicate')
+            . '</label>' => '<input type="checkbox" '
+            . 'name="toReplicate" id="toRep"'
             . $isrep
             . '/>',
-            '<label for="reboot">'
+            '<label class="col-sm-2 control-label" for="reboot">'
             . _('Reboot after install')
             . '</label>' => '<input type="radio" name="action" '
-            . 'class="snapinreboot-input action" id="reboot" value="reboot"'
+            . 'class="snapin-action" id="reboot" value="reboot"'
             . $reboot
             . '/>',
-            '<label for="shutdown">'
+            '<label class="col-sm-2 control-label" for="shutdown">'
             . _('Shutdown after install')
             . '</label>' => '<input type="radio" name="action" '
-            . 'class="snapinshutdown-input action" id="shutdown" value="shutdown"'
+            . 'class="snapin-action" id="shutdown" value="shutdown"'
             . $shutdown
             . '/>',
-            '<label for="cmdletin">'
+            '<label class="col-sm-2 control-label" for="cmdletin">'
             . _('Snapin Command')
             . '<br/>'
             . _('read-only')
-            . '</label>' => '<div class="input-group">'
-            . '<textarea class="form-control snapincmd" name="snapincmd" '
-            . 'id="cmdletin" readonly></textarea>',
-            '<label for="update">'
-            . _('Make Changes?')
-            . '</label>' => '<button type="submit" name="update" id="update" '
-            . 'class="btn btn-info btn-block">'
-            . _('Update')
-            . '</button>'
-        );
-        $fields = array_filter(
-            $fields
-        );
-        $rendered = self::formFields($fields);
+            . '</label>' => '<textarea class="form-control snapincmd" name="snapincmd" '
+            . 'id="cmdletin" style="resize:vertical;height:50px;" readonly></textarea>'
+        ];
         self::$HookManager
             ->processEvent(
-                'SNAPIN_EDIT',
-                array(
-                    'data' => &$this->data,
-                    'headerData' => &$this->headerData,
-                    'attributes' => &$this->attributes,
-                    'templates' => &$this->templates
-                )
+                'SNAPIN_GENERAL_FIELDS',
+                [
+                    'fields' => &$fields,
+                    'obj' => &$this->obj
+                ]
             );
-        echo '<!-- General -->';
-        echo '<div class="tab-pane fade in active" id="snap-gen">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo $this->title;
-        echo '</h4>';
+        $rendered = self::formFields($fields);
+        unset($fields);
+        echo '<form id="snapin-general-form" class="form-horizontal" '
+            . 'enctype="multipart/form-data" method="post" action="'
+            . self::makeTabUpdateURL('snapin-general', $this->obj->get('id'))
+            . '" novalidate>';
+        echo '<div class="box box-solid">';
+        echo '<div class="box-body">';
+        echo $rendered;
         echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '&tab=snap-gen">';
-        $this->render(12);
+        echo '<div class="box-footer">';
+        echo '<button class="btn btn-primary" id="general-send">'
+            . _('Update')
+            . '</button>';
+        echo '<button class="btn btn-danger pull-right" id="general-delete">'
+            . _('Delete')
+            . '</button>';
+        echo '</div>';
+        echo '</div>';
         echo '</form>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->attributes,
-            $this->templates
-        );
-    }
-    /**
-     * Display snapin storage groups.
-     *
-     * @return void
-     */
-    public function snapinStoragegroups()
-    {
-        unset(
-            $this->data,
-            $this->form,
-            $this->templates,
-            $this->attributes,
-            $this->headerData
-        );
-        $this->headerData = array(
-            '<label for="toggler2">'
-            . '<input type="checkbox" name="toggle-checkboxgroup1" '
-            . 'class="toggle-checkbox1" id="toggler2"/>'
-            . '</label>',
-            _('Storage Group Name')
-        );
-        $this->templates = array(
-            '<label for="sg-${storageGroup_id}">'
-            . '<input type="checkbox" name="storagegroup[]" class='
-            . '"toggle-group" id="sg-${storageGroup_id}" '
-            . 'value="${storageGroup_id}"/>'
-            . '</label>',
-            '<a href="?node=storagegroup&sub=edit&id=${storageGroup_id}">'
-            . '${storageGroup_name}'
-            . '</a>'
-        );
-        $this->attributes = array(
-            array(
-                'class' => 'filter-false',
-                'width' => 16
-            ),
-            array(),
-        );
-        Route::listem('storagegroup');
-        $StorageGroups = json_decode(
-            Route::getData()
-        );
-        $StorageGroups = $StorageGroups->storagegroups;
-        foreach ((array)$StorageGroups as &$StorageGroup) {
-            $groupinme = in_array(
-                $StorageGroup->id,
-                $this->obj->get('storagegroups')
-            );
-            if ($groupinme) {
-                continue;
-            }
-            $this->data[] = array(
-                'storageGroup_id' => $StorageGroup->id,
-                'storageGroup_name' => $StorageGroup->name,
-            );
-            unset($StorageGroup);
-        }
-        self::$HookManager->processEvent(
-            'SNAPIN_ADD_STORAGE_GROUP',
-            array(
-                'data' => &$this->data,
-                'headerData' => &$this->headerData,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
-            )
-        );
-        echo '<!-- Storage Groups -->';
-        echo '<div class="tab-pane fade" id="snap-storage">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Snapin Storage Groups');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '&tab=snap-storage" enctype="multipart/form-data">';
-        if (count($this->data)) {
-            echo '<div class="text-center">';
-            echo '<div class="checkbox">';
-            echo '<label for="groupMeShow">';
-            echo '<input type="checkbox" name="groupMeShow" '
-                . 'id="groupMeShow"/>';
-            echo _('Check here to see what storage groups can be added');
-            echo '</label>';
-            echo '</div>';
-            echo '</div>';
-            echo '<br/>';
-            echo '<div class="hiddeninitially groupNotInMe panel panel-info" '
-                . 'id="groupNotInMe">';
-            echo '<div class="panel-heading text-center">';
-            echo '<h4 class="title">';
-            echo _('Add Storage Groups');
-            echo '</h4>';
-            echo '</div>';
-            echo '<div class="panel-body">';
-            $this->render(12);
-            echo '<div class="form-group">';
-            echo '<label for="updategroups" class="control-label col-xs-4">';
-            echo _('Add selected storage groups');
-            echo '</label>';
-            echo '<div class="col-xs-8">';
-            echo '<button type="submit" name="updategroups" class='
-                . '"btn btn-info btn-block" id="updategroups">'
-                . _('Add')
-                . '</button>';
-            echo '</div>';
-            echo '</div>';
-            echo '</div>';
-            echo '</div>';
-        }
-        unset(
-            $this->data,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
-        $this->headerData = array(
-            '<label for="toggler3">'
-            . '<input type="checkbox" name="toggle-checkbox" '
-            . 'class="toggle-checkboxAction" id="toggler3"/>'
-            . '</label>',
-            '',
-            _('Storage Group Name')
-        );
-        $this->templates = array(
-            '<label for="sg1-${storageGroup_id}">'
-            . '<input type="checkbox" name="storagegroup-rm[]" class='
-            . '"toggle-group" id="sg1-${storageGroup_id}" '
-            . 'value="${storageGroup_id}"/>'
-            . '</label>',
-            '<div class="radio">'
-            . '<input type="radio" class="default" '
-            . 'name="primary" id="group${storageGroup_id}" '
-            . 'value="${storageGroup_id}" ${is_primary}/>'
-            . '<label for="group${storageGroup_id}">'
-            . '</label>'
-            . '</div>',
-            '<a href="?node=storagegroup&sub=edit&id=${storageGroup_id}">'
-            . '${storageGroup_name}'
-            . '</a>'
-        );
-        $this->attributes = array(
-            array(
-                'class' => 'filter-false',
-                'width' => 16
-            ),
-            array(
-                'class' => 'filter-false',
-                'width' => 16
-            ),
-            array(),
-        );
-        foreach ((array)$StorageGroups as &$StorageGroup) {
-            $groupinme = in_array(
-                $StorageGroup->id,
-                $this->obj->get('storagegroups')
-            );
-            if (!$groupinme) {
-                continue;
-            }
-            $this->data[] = array(
-                'storageGroup_id' => $StorageGroup->id,
-                'storageGroup_name' => $StorageGroup->name,
-                'is_primary' => (
-                    $this->obj->getPrimaryGroup($StorageGroup->id) ?
-                    ' checked' :
-                    ''
-                )
-            );
-            unset($StorageGroup);
-        }
-        if (count($this->data) > 0) {
-            self::$HookManager->processEvent(
-                'SNAPIN_EDIT_STORAGE_GROUP',
-                array(
-                    'data' => &$this->data,
-                    'headerData' => &$this->headerData,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-            echo '<div class="panel panel-info">';
-            echo '<div class="panel-heading text-center">';
-            echo '<h4 class="title">';
-            echo _('Update/Remove Storage Groups');
-            echo '</h4>';
-            echo '</div>';
-            echo '<div class="panel-body">';
-            $this->render(12);
-            echo '<div class="form-group">';
-            echo '<label for="primarysel" class="control-label col-xs-4">';
-            echo _('Update primary group');
-            echo '</label>';
-            echo '<div class="col-xs-8">';
-            echo '<button type="submit" name="primarysel" class='
-                . '"btn btn-info btn-block" id="primarysel">'
-                . _('Update')
-                . '</button>';
-            echo '</div>';
-            echo '</div>';
-            echo '<div class="form-group">';
-            echo '<label for="groupdel" class="control-label col-xs-4">';
-            echo _('Remove selected groups');
-            echo '</label>';
-            echo '<div class="col-xs-8">';
-            echo '<button type="submit" name="groupdel" class='
-                . '"btn btn-danger btn-block" id="groupdel">'
-                . _('Remove')
-                . '</button>';
-            echo '</div>';
-            echo '</div>';
-            echo '</div>';
-            echo '</div>';
-        }
-        echo '</form>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        unset(
-            $this->data,
-            $this->form,
-            $this->templates,
-            $this->attributes,
-            $this->headerData
-        );
-    }
-    /**
-     * Edit this snapin
-     *
-     * @return void
-     */
-    public function edit()
-    {
-        echo '<div class="col-xs-9 tab-content">';
-        $this->snapinGeneral();
-        $this->snapinStoragegroups();
-        echo '</div>';
     }
     /**
      * Snapin General Post
@@ -1262,8 +959,8 @@ class SnapinManagementPage extends FOGPage
      */
     public function snapinGeneralPost()
     {
-        $name = filter_input(INPUT_POST, 'name');
-        $desc = filter_input(INPUT_POST, 'description');
+        $snapin = filter_input(INPUT_POST, 'snapin');
+        $description = filter_input(INPUT_POST, 'description');
         $packtype = filter_input(INPUT_POST, 'packtype');
         $runWith = filter_input(INPUT_POST, 'rw');
         $runWithArgs = filter_input(INPUT_POST, 'rwa');
@@ -1276,7 +973,7 @@ class SnapinManagementPage extends FOGPage
         if ($uploadfile) {
             $snapinfile = $uploadfile;
         }
-        $protected = (int)isset($_POST['protected_snapin']);
+        $protected = (int)isset($_POST['protected']);
         $isEnabled = (int)isset($_POST['isEnabled']);
         $toReplicate = (int)isset($_POST['toReplicate']);
         $hide = (int)isset($_POST['isHidden']);
@@ -1290,7 +987,7 @@ class SnapinManagementPage extends FOGPage
         }
         if ($this->obj->get('name') != $name
             && self::getClass('SnapinManager')->exists(
-                $name,
+                $snapin,
                 $this->obj->get('id')
             )
         ) {
@@ -1383,9 +1080,9 @@ class SnapinManagementPage extends FOGPage
                 ->close();
         }
         $this->obj
-            ->set('name', $name)
+            ->set('name', $snapin)
+            ->set('description', $description)
             ->set('packtype', $packtype)
-            ->set('description', $desc)
             ->set('file', $snapinfile)
             ->set('args', $args)
             ->set('hash', $hash)
@@ -1401,52 +1098,168 @@ class SnapinManagementPage extends FOGPage
             ->set('timeout', $timeout);
     }
     /**
-     * Snapin Storage Group Post
+     * Display snapin storage groups.
+     *
+     * @return void
+     */
+    public function snapinStoragegroups()
+    {
+        $props = ' method="post" action="'
+            . $this->formAction
+            . '&tab=snapin-storagegroups" ';
+
+        echo '<!-- Storage Groups -->';
+        echo '<div class="box-group" id="storagegroups">';
+        // =================================================================
+        // Associated Storage Groups
+        $buttons = self::makeButton(
+            'storagegroups-primary',
+            _('Update Primary Group'),
+            'btn btn-primary',
+            $props
+        );
+        $buttons .= self::makeButton(
+            'storagegroups-add',
+            _('Add selected'),
+            'btn btn-success',
+            $props
+        );
+        $buttons .= self::makeButton(
+            'storagegroups-remove',
+            _('Remove selected'),
+            'btn btn-danger',
+            $props
+        );
+        $this->headerData = [
+            _('Storage Group Name'),
+            _('Storage Group Primary'),
+            _('Storage Group Associated')
+        ];
+        $this->templates = [
+            '',
+            '',
+            ''
+        ];
+        $this->attributes = [
+            [],
+            [],
+            []
+        ];
+
+        echo '<div class="box box-solid">';
+        echo '<div class="updatestoragegroups" class="">';
+        echo '<div class="box-body">';
+        $this->render(12, 'snapin-storagegroups-table', $buttons);
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Snapin storage groups post.
      *
      * @return void
      */
     public function snapinStoragegroupsPost()
     {
-        $items = filter_input_array(
-            INPUT_POST,
-            array(
-                'storagegroup' => array(
-                    'flags' => FILTER_REQUIRE_ARRAY
-                ),
-                'storagegroup-rm' => array(
-                    'flags' => FILTER_REQUIRE_ARRAY
-                )
-            )
-        );
-        $storagegroup = $items['storagegroup'];
-        $storagegrouprm = $items['storagegroup-rm'];
-        $primary = (int)filter_input(
-            INPUT_POST,
-            'primary'
-        );
-        if (isset($_POST['updategroups'])) {
-            $this->obj->addGroup($storagegroup);
-        } elseif (isset($_POST['primarysel'])) {
-            $this->obj->setPrimaryGroup($primary);
-        } elseif (isset($_POST['groupdel'])) {
-            $groupdel = count($storagegrouprm);
-            $ingroups = count($this->obj->get('storagegroups'));
-            if ($groupdel < 1) {
-                throw new Exception(
-                    _('No groups selected to be removed')
-                );
+        if (isset($_POST['updatestoragegroups'])) {
+            $storagegroup = filter_input_array(
+                INPUT_POST,
+                [
+                    'storagegroups' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $storagegroup = $storagegroup['storagegroups'];
+            if (count($storagegroup ?: []) > 0) {
+                $this->obj->addGroup($storagegroup);
             }
-            if ($ingroups < 2) {
-                throw new Exception(
-                    _('You must have at least one group associated')
-                );
-            }
-            $this
-                ->obj
-                ->removeGroup(
-                    $storagegrouprm
-                );
         }
+        if (isset($_POST['storagegroupdel'])) {
+            $storagegroup = filter_input_array(
+                INPUT_POST,
+                [
+                    'storagegroupRemove' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $storagegroup = $storagegroup['storagegroupRemove'];
+            if (count($storagegroup ?: []) > 0) {
+                $this->obj->removeGroup($storagegroup);
+            }
+        }
+        if (isset($_POST['primarysel'])) {
+            $primary = filter_input(
+                INPUT_POST,
+                'primary'
+            );
+            self::getClass('SnapinGroupAssociationManager')->update(
+                [
+                    'snapinID' => $this->obj->get('id'),
+                    'primary' => '1'
+                ],
+                '',
+                [
+                    'primary' => '0'
+                ]
+            );
+            if ($primary) {
+                self::getClass('SnapinGroupAssociationManager')->update(
+                    [
+                        'snapinID' => $this->obj->get('id'),
+                        'storagegroupID' => $primary
+                    ],
+                    '',
+                    [
+                        'primary' => '1'
+                    ]
+                );
+            }
+        }
+    }
+    /**
+     * Edit this snapin
+     *
+     * @return void
+     */
+    public function edit()
+    {
+        $this->title = sprintf(
+            '%s: %s',
+            _('Edit'),
+            $this->obj->get('name')
+        );
+
+        $tabData = [];
+
+        $tabData[] = [
+            'name' => _('General'),
+            'id' => 'snapin-general',
+            'generator' => function() {
+                $this->snapinGeneral();
+            }
+        ];
+
+        $tabData[] = [
+            'name' => _('Storage Groups'),
+            'id' => 'snapin-storagegroups',
+            'generator' => function() {
+                $this->snapinStoragegroups();
+            }
+        ];
+
+        $tabData[] = [
+            'name' => _('Host Membership'),
+            'id' => 'snapin-membership',
+            'generator' => function() {
+                echo 'Host membership goes here';
+                //$this->snapinMembership();
+            }
+        ];
+
+        echo self::tabFields($tabData);
     }
     /**
      * Submit for update.
@@ -1455,35 +1268,41 @@ class SnapinManagementPage extends FOGPage
      */
     public function editPost()
     {
+        header('Content-type: application/json');
         self::$HookManager->processEvent(
             'SNAPIN_EDIT_POST',
-            array(
-                'Snapin' => &$this->obj
-            )
+            ['Snapin' => &$this->obj]
         );
-        global $tab;
+        $serverFault = false;
         try {
+            global $tab;
             switch ($tab) {
-            case 'snap-gen':
+            case 'snapin-general':
                 $this->snapinGeneralPost();
                 break;
-            case 'snap-storage':
+            case 'snapin-storagegroups':
                 $this->snapinStoragegroupsPost();
+                break;
+            case 'snapin-membership':
+                $this->snapinMembershipPost();
                 break;
             }
             if (!$this->obj->save()) {
+                $serverFault = true;
                 throw new Exception(_('Snapin update failed!'));
             }
-            $hook = 'SNAPIN_UPDATE_SUCCESS';
+            $code = 201;
+            $hook = 'SNAPIN_EDIT_SUCCESS';
             $msg = json_encode(
-                array(
+                [
                     'msg' => _('Snapin updated!'),
                     'title' => _('Snapin Update Success')
-                )
+                ]
             );
         } catch (Exception $e) {
             self::$FOGFTP->close();
-            $hook = 'SNAPIN_UPDATE_FAIL';
+            $code = ($serverFalt ? 500 : 400);
+            $hook = 'SNAPIN_EDIT_FAIL';
             $msg = json_encode(
                 array(
                     'error' => $e->getMessage(),
@@ -1491,12 +1310,91 @@ class SnapinManagementPage extends FOGPage
                 )
             );
         }
-        self::$HookManager
-            ->processEvent(
-                $hook,
-                array('Snapin' => &$this->obj)
-            );
+        http_response_code($code);
+        self::$HookManager->processEvent(
+            $hook,
+            ['obj' => &$this->obj]
+        );
         echo $msg;
+        exit;
+    }
+    /**
+     * Presents the storage groups list table.
+     *
+     * @return void
+     */
+    public function getStoragegroupsList()
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
+        $where = "`snapins`.`sID` = '"
+            . $this->obj->get('id')
+            . "'";
+
+        // Workable Queries
+        $storagegroupsSqlStr = "SELECT `%s`,"
+            . "`sgaSnapinID` as `origID`,IF (`sgaSnapinID` = '"
+            . $this->obj->get('id')
+            . "','associated','dissociated') AS `sgaSnapinID`,`sgaPrimary`,`sID`
+            FROM `%s`
+            CROSS JOIN `snapins`
+            LEFT OUTER JOIN `snapinGroupAssoc`
+            ON `nfsGroups`.`ngID` = `snapinGroupAssoc`.`sgaStorageGroupID`
+            AND `snapins`.`sID` = `snapinGroupAssoc`.`sgaSnapinID`
+            %s
+            %s
+            %s";
+        $storagegroupsFilterStr = "SELECT COUNT(`%s`),"
+            . "`sgaSnapinID` AS `origID`,IF (`sgaSnapinID` = '"
+            . $this->obj->get('id')
+            . "','associated','dissociated') AS `sgaSnapinID`,`sgaPrimary`,`sID`
+            FROM `%s`
+            CROSS JOIN `snapins`
+            LEFT OUTER JOIN `snapinGroupAssoc`
+            ON `nfsGroups`.`ngID` = `snapinGroupAssoc`.`sgaStorageGroupID`
+            AND `snapins`.`sID` = `snapinGroupAssoc`.`sgaSnapinID`
+            %s";
+        $storagegroupsTotalStr = "SELECT COUNT(`%s`)
+            FROM `%s`";
+
+        foreach (self::getClass('StorageGroupManager')
+            ->getColumns() as $common => &$real
+        ) {
+            $columns[] = [
+                'db' => $real,
+                'dt' => $common
+            ];
+            unset($real);
+        }
+        $columns[] = [
+            'db' => 'sgaPrimary',
+            'dt' => 'primary'
+        ];
+        $columns[] = [
+            'db' => 'sgaSnapinID',
+            'dt' => 'association'
+        ];
+        $columns[] = [
+            'db' => 'origID',
+            'dt' => 'origID',
+            'removeFromQuery' => true
+        ];
+        echo json_encode(
+            FOGManagerController::complex(
+                $pass_vars,
+                'nfsGroups',
+                'ngID',
+                $columns,
+                $storagegroupsSqlStr,
+                $storagegroupsFilterStr,
+                $storagegroupsTotalStr,
+                $where
+            )
+        );
         exit;
     }
 }
