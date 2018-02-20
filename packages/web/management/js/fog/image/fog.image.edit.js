@@ -81,9 +81,9 @@
                         checkval = ' checked';
                     }
                     return '<div class="radio">'
-                        + '<input belongsto="isPrimaryGroup' + row.origID + '" type="radio" class="primary'
+                        + '<input belongsto="isPrimaryGroup'
                         + row.origID
-                        + '" name="primary" id="group_'
+                        + '" type="radio" class="primary" name="primary" id="group_'
                         + row.id
                         + '" value="'
                         + row.id
@@ -125,7 +125,7 @@
     });
     storagegroupsTable.on('draw', function() {
         Common.iCheck('#image-storagegroups-table input');
-        $('#image-storagegroups-table input.primary'+Common.id).on('ifClicked', onRadioSelect);
+        $('#image-storagegroups-table input.primary').on('ifClicked', onRadioSelect);
         $('#image-storagegroups-table input.associated').on('ifClicked', onCheckboxSelect);
     });
     var onRadioSelect = function(event) {
@@ -145,7 +145,7 @@
     var onCheckboxSelect = function(event) {
     };
     // Setup primary group watcher
-    $('.primary'+Common.id).on('ifClicked', onRadioSelect);
+    $('.primary').on('ifClicked', onRadioSelect);
     $('.associated').on('ifClicked', onCheckboxSelect);
     storagegroupsPrimaryBtn.on('click', function() {
         storagegroupsAddBtn.prop('disabled', true);
@@ -160,6 +160,7 @@
         Common.apiCall(method,action,opts,function(err) {
             storagegroupsPrimaryBtn.prop('disabled', !err);
             onStoragegroupsSelect(storagegroupsTable.rows({selected: true}));
+            $('.primary[value='+PRIMARY_GROUP_ID+']').iCheck('check');
         });
     });
     storagegroupsAddBtn.on('click', function() {
@@ -176,6 +177,19 @@
             if (!err) {
                 storagegroupsTable.draw(false);
                 storagegroupsTable.rows({selected: true}).deselect();
+                // Unset the primary radio from disabled.
+                $('.primary').each(function() {
+                    if (toAdd.indexOf($(this).val()) != -1) {
+                        $(this).prop('disabled', false);
+                        Common.iCheck(this);
+                    }
+                });
+                // Check the associated checkbox.
+                $('.associated').each(function() {
+                    if (toAdd.indexOf($(this).val()) != -1) {
+                        $(this).iCheck('check');
+                    }
+                });
             } else {
                 storagegroupsAddBtn.prop('disable', false);
             }
@@ -195,6 +209,20 @@
             if (!err) {
                 storagegroupsTable.draw(false);
                 storagegroupsTable.rows({selected: true}).deselect();
+                // Set the primary radio as disabled
+                $('.primary').each(function() {
+                    if (toRemove.indexOf($(this).val()) != -1) {
+                        $(this).iCheck('uncheck');
+                        $(this).prop('disabled', true);
+                        Common.iCheck(this);
+                    }
+                });
+                // Uncheck the associated checkbox.
+                $('.associated').each(function() {
+                    if (toRemove.indexOf($(this).val()) != -1) {
+                        $(this).iCheck('uncheck');
+                    }
+                });
             } else {
                 storagegroupsRemoveBtn.prop('disabled', false);
             }
