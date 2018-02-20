@@ -75,9 +75,9 @@
                         checkval = ' checked';
                     }
                     return '<div class="radio">'
-                        + '<input belongsto="isMasterNode' + row.origID +'" type="radio" class="master'
+                        + '<input belongsto="isMasterNode'
                         + row.origID
-                        + '" name="master" id="node_'
+                        +'" type="radio" class="master" name="master" id="node_'
                         + row.id
                         + '" value="' + row.id + '"'
                         + ' wasoriginalmaster="'
@@ -116,7 +116,7 @@
     });
     membershipTable.on('draw', function() {
         Common.iCheck('#storagegroup-membership input');
-        $('#storagegroup-membership-table input.master'+Common.id).on('ifClicked', onRadioSelect);
+        $('#storagegroup-membership-table input.master').on('ifClicked', onRadioSelect);
         $('#storagegroup-membership-table input.associated').on('ifClicked', onCheckboxSelect);
     });
 
@@ -127,7 +127,7 @@
                 MASTER_NODE_ID = id;
             }
             if (id === MASTER_NODE_ID) {
-                MASTER_NODE_ID = 0;
+                MASTER_NODE_ID = id;
             } else {
                 MASTER_NODE_ID = id;
             }
@@ -138,7 +138,7 @@
     };
 
     // Setup master node watcher
-    $('.master'+Common.id).on('ifClicked', onRadioSelect);
+    $('.master').on('ifClicked', onRadioSelect);
     $('.associated').on('ifClicked', onCheckboxSelect);
 
     membershipMasterBtn.on('click', function() {
@@ -168,11 +168,15 @@
             if (!err) {
                 membershipTable.draw(false);
                 membershipTable.rows({selected: true}).deselect();
-                $('.master'+Common.id).prop('disabled', false);
-                Common.iCheck('.master'+Common.id);
+                $('.master').each(function() {
+                    if (toAdd.indexOf($(this).val()) != -1) {
+                        $(this).prop('disabled', false);
+                        Common.iCheck(this);
+                    }
+                });
                 $('.associated').each(function() {
-                    if (toAdd.indexOf($(this).val()) != -1{
-                        $('.associated[value='+$(this).val()+']').iCheck('check');
+                    if (toAdd.indexOf($(this).val()) != -1) {
+                        $(this).iCheck('check');
                     }
                 });
             } else {
@@ -193,11 +197,16 @@
             if (!err) {
                 membershipTable.draw(false);
                 membershipTable.rows({selected: true}).deselect();
-                $('.master'+Common.id).prop('disabled', true);
-                Common.iCheck('.master'+Common.id);
+                $('.master').each(function() {
+                    if (toRemove.indexOf($(this).val()) != -1) {
+                        $(this).iCheck('uncheck');
+                        $(this).prop('disabled', true);
+                        Common.iCheck(this);
+                    }
+                });
                 $('.associated').each(function() {
-                    if (toAdd.indexOf($(this).val()) != -1{
-                        $('.associated[value='+$(this).val()+']').iCheck('uncheck');
+                    if (toRemove.indexOf($(this).val()) != -1) {
+                        $(this).iCheck('uncheck');
                     }
                 });
             } else {
