@@ -280,7 +280,7 @@ class ImageManagementPage extends FOGPage
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h3 class="box-title">';
-        echo _('Create New User');
+        echo _('Create New Image');
         echo '</h3>';
         echo '</div>';
         echo '<!-- Image General -->';

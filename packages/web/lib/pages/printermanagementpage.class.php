@@ -173,7 +173,7 @@ class PrinterManagementPage extends FOGPage
                 'fields' => &$fields
             ]
         );
-        $printerNetwork = '<div class="network">'
+        $printerNetwork = '<div class="network hidden">'
             . self::formFields($fields)
             . '</div>';
         unset($fields);
@@ -213,7 +213,7 @@ class PrinterManagementPage extends FOGPage
                 'fields' => &$fields
             ]
         );
-        $printeriPrint = '<div class="iprint">'
+        $printeriPrint = '<div class="iprint hidden">'
             . self::formFields($fields)
             . '</div>';
         unset($fields);
@@ -256,7 +256,7 @@ class PrinterManagementPage extends FOGPage
                 'fields' => &$fields
             ]
         );
-        $printerCups = '<div class="cups">'
+        $printerCups = '<div class="cups hidden">'
             . self::formFields($fields)
             . '</div>';
         unset($fields);
@@ -311,7 +311,7 @@ class PrinterManagementPage extends FOGPage
                 'fields' => &$fields
             ]
         );
-        $printerLocal = '<div class="local">'
+        $printerLocal = '<div class="local hidden">'
             . self::formFields($fields)
             . '</div>';
         unset($fields);
@@ -321,11 +321,19 @@ class PrinterManagementPage extends FOGPage
             . '" novalidate>';
         echo '<div class="box-body">';
         echo '<!-- Printer General -->';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h3 class="box-title">';
+        echo _('Create New Printer');
+        echo '</h3>';
+        echo '</div>';
+        echo '<div class="box-body">';
         echo $printerCopy;
         echo $printerNetwork;
         echo $printeriPrint;
         echo $printerCups;
         echo $printerLocal;
+        echo '</div>';
         echo '</div>';
         echo '<div class="box-footer">';
         echo '<button class="btn btn-primary" id="send">'
@@ -545,7 +553,7 @@ class PrinterManagementPage extends FOGPage
                 'fields' => &$fields
             ]
         );
-        $printerNetwork = '<div class="network">'
+        $printerNetwork = '<div class="network hidden">'
             . self::formFields($fields)
             . '</div>';
         unset($fields);
@@ -585,7 +593,7 @@ class PrinterManagementPage extends FOGPage
                 'fields' => &$fields
             ]
         );
-        $printeriPrint = '<div class="iprint">'
+        $printeriPrint = '<div class="iprint hidden">'
             . self::formFields($fields)
             . '</div>';
         unset($fields);
@@ -628,7 +636,7 @@ class PrinterManagementPage extends FOGPage
                 'fields' => &$fields
             ]
         );
-        $printerCups = '<div class="cups">'
+        $printerCups = '<div class="cups hidden">'
             . self::formFields($fields)
             . '</div>';
         unset($fields);
@@ -683,7 +691,7 @@ class PrinterManagementPage extends FOGPage
                 'fields' => &$fields
             ]
         );
-        $printerLocal = '<div class="local">'
+        $printerLocal = '<div class="local hidden">'
             . self::formFields($fields)
             . '</div>';
         unset($fields);

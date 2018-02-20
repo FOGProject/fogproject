@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-19 18:44-0500\n"
+"POT-Creation-Date: 2018-02-19 19:14-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4575,10 +4575,6 @@ msgid "Image Manager"
 msgstr "Image Manager"
 
 #, fuzzy
-msgid "Create New User"
-msgstr "Créer un nouveau %s"
-
-#, fuzzy
 msgid "An image name is required!"
 msgstr "Un nom de l'image est nécessaire!"
 
@@ -4721,12 +4717,6 @@ msgstr "a été lancé sur le port"
 
 msgid "Cancelled task"
 msgstr "tâche Annulé"
-
-msgid "Edit Node"
-msgstr "Modifier Node"
-
-msgid "Hostname / IP"
-msgstr "Hostname / IP"
 
 #, fuzzy
 msgid "Server Information"
@@ -4891,6 +4881,10 @@ msgstr ""
 
 msgid "API?"
 msgstr ""
+
+#, fuzzy
+msgid "Create New User"
+msgstr "Créer un nouveau %s"
 
 msgid "User Password"
 msgstr "Mot de passe de l'utilisateur"

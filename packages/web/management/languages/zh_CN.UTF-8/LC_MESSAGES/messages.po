@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-19 18:44-0500\n"
+"POT-Creation-Date: 2018-02-19 19:14-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4548,10 +4548,6 @@ msgid "Image Manager"
 msgstr "图像管理器"
 
 #, fuzzy
-msgid "Create New User"
-msgstr "新建%s"
-
-#, fuzzy
 msgid "An image name is required!"
 msgstr "图像名是必需的！"
 
@@ -4694,12 +4690,6 @@ msgstr "已经开始在端口"
 
 msgid "Cancelled task"
 msgstr "取消任务"
-
-msgid "Edit Node"
-msgstr "编辑节点"
-
-msgid "Hostname / IP"
-msgstr "主机名/ IP"
 
 #, fuzzy
 msgid "Server Information"
@@ -4864,6 +4854,10 @@ msgstr ""
 
 msgid "API?"
 msgstr ""
+
+#, fuzzy
+msgid "Create New User"
+msgstr "新建%s"
 
 msgid "User Password"
 msgstr "用户密码"
