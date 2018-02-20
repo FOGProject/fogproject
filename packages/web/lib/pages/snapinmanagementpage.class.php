@@ -1220,6 +1220,92 @@ class SnapinManagementPage extends FOGPage
         }
     }
     /**
+     * Snapin Membership tab
+     *
+     * @return void
+     */
+    public function Membership()
+    {
+        $props = ' method="post" action="'
+            . $this->formAction
+            . '&tab=snapin-membership" ';
+
+        echo '<!-- Host Membership -->';
+        echo '<div class="box-group" id="membership">';
+        // =================================================================
+        // Associated Hosts
+        $buttons = self::makeButton(
+            'membership-add',
+            _('Add selected'),
+            'btn btn-primary',
+            $props
+        );
+        $buttons .= self::makeButton(
+            'membership-remove',
+            _('Remove selected'),
+            'btn btn-danger',
+            $props
+        );
+        $this->headerData = [
+            _('Host Name'),
+            _('Host Associated')
+        ];
+        $this->templates = [
+            '',
+            ''
+        ];
+        $this->attributes = [
+            [],
+            []
+        ];
+
+        echo '<div class="box box-solid">';
+        echo '<div class="updatemembership" class="">';
+        echo '<div class="box-body">';
+        $this->render(12, 'snapin-membership-table', $buttons);
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Snapin membership post elements
+     *
+     * @return void
+     */
+    public function snapinMembershipPost()
+    {
+        if (isset($_POST['updatemembership'])) {
+            $membership = filter_input_array(
+                INPUT_POST,
+                [
+                    'membership' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $membership = $membership['membership'];
+            $this->obj->addHost($membership);
+        }
+        if (isset($_POST['membershipdel'])) {
+            $membership = filter_input_array(
+                INPUT_POST,
+                [
+                    'membershipRemove' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $membership = $membership['membershipRemove'];
+            self::getClass('SnapinAssociationManager')->destroy(
+                [
+                    'snapinID' => $this->obj->get('id'),
+                    'hostID' => $membership
+                ]
+            );
+        }
+    }
+    /**
      * Edit this snapin
      *
      * @return void
@@ -1254,8 +1340,7 @@ class SnapinManagementPage extends FOGPage
             'name' => _('Host Membership'),
             'id' => 'snapin-membership',
             'generator' => function() {
-                echo 'Host membership goes here';
-                //$this->snapinMembership();
+                $this->snapinMembership();
             }
         ];
 
@@ -1393,6 +1478,69 @@ class SnapinManagementPage extends FOGPage
                 $storagegroupsFilterStr,
                 $storagegroupsTotalStr,
                 $where
+            )
+        );
+        exit;
+    }
+    /**
+     * Snapin -> host membership list
+     *
+     * @return void
+     */
+    public function getHostsList()
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
+        $hostsSqlStr = "SELECT `%s`,"
+            . "IF(`saSnapinID` = '"
+            . $this->obj->get('id')
+            . "','associated','dissociated') AS `saSnapinID`
+            FROM `%s`
+            CROSS JOIN `snapins`
+            LEFT OUTER JOIN `snapinAssoc`
+            ON `snapins`.`sID` = `snapinAssoc`.`saSnapinID`
+            AND `hosts`.`hostID` = `snapinAssoc`.`saHostID`
+            %s
+            %s
+            %s";
+        $hostsFilterStr = "SELECT COUNT(`%s`),"
+            . "IF(`saSnapinID` = '"
+            . $this->obj->get('id')
+            . "','associated','dissociated') AS `saSnapinID`
+            FROM `%s`
+            CROSS JOIN `snapins`
+            LEFT OUTER JOIN `snapinAssoc`
+            ON `snapins`.`sID` = `snapinAssoc`.`saSnapinID`
+            AND `hosts`.`hostID` = `snapinAssoc`.`paHostID`
+            %s";
+        $hostsTotalStr = "SELECT COUNT(`%s`)
+            FROM `%s`";
+
+        foreach (self::getClass('HostManager')
+            ->getColumns() as $common => &$real
+        ) {
+            $columns[] = [
+                'db' => $real,
+                'dt' => $common
+            ];
+        }
+        $columns[] = [
+            'db' => 'saSnapinID',
+            'dt' => 'association'
+        ];
+        echo json_encode(
+            FOGManagerController::complex(
+                $pass_vars,
+                'hosts',
+                'hostID',
+                $columns,
+                $hostsSqlStr,
+                $hostsFilterStr,
+                $hostsTotalStr
             )
         );
         exit;
