@@ -1009,27 +1009,20 @@ class ImageManagementPage extends FOGPage
      */
     public function multicast()
     {
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
         $this->title = self::$foglang['Multicast'];
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
-        );
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
+        $this->attributes = [
+            [],
+            []
+        ];
+        $this->templates = [
+            '',
+            ''
+        ];
         $name = filter_input(INPUT_POST, 'name');
         $count = (int)filter_input(INPUT_POST, 'count');
         $timeout = (int)filter_input(INPUT_POST, 'timeout');
         $image = (int)filter_input(INPUT_POST, 'image');
-        $fields = array(
+        $fields = [
             '<label for="iName">'
             . _('Session Name')
             . '</label>' => '<div class="input-group">'
@@ -1063,25 +1056,15 @@ class ImageManagementPage extends FOGPage
                 $image,
                 '',
                 'name'
-            ),
-            '<label for="start">'
-            . _('Start Session')
-            . '</label>' => '<button class="btn btn-info btn-block" type="submit" '
-            . 'name="start" id="start">'
-            . _('Start')
-            . '</button>'
-        );
-        $rendered = self::formFields($fields);
+            )
+        ];
         self::$HookManager
             ->processEvent(
-                'IMAGE_MULTICAST_SESS',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
+                'IMAGE_MULTICAST_SESSION_FIELDS',
+                ['fields' => &$fields]
             );
+        $rendered = self::formFields($fields);
+        unset($fields);
         echo '<div class="col-xs-9">';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
@@ -1110,54 +1093,47 @@ class ImageManagementPage extends FOGPage
             $this->templates,
             $this->attributes
         );
-        $this->headerData = array(
+        $this->headerData = [
             _('Task Name'),
             _('Clients'),
             _('Start Time'),
             _('Percent'),
             _('State'),
             _('Stop Task'),
-        );
-        $this->attributes = array(
-            array(),
-            array(),
-            array(),
-            array(),
-            array('class' => 'text-center'),
-            array('class'=>'filter-false'),
-        );
-        $this->templates = array(
-            '${mc_name}<br/><small>${image_name}:${os}</small>',
-            '${mc_count}',
-            '<small>${mc_start}</small>',
-            '${mc_percent}',
-            '<i class="fa fa-${mc_state}"></i>',
-            '<a href="?node='
-            . $this->node
-            . '&sub=stop&mcid=${mc_id}" '
-            . 'title="'
-            . _('Remove')
-            . '" data-toggle="tooltip" data-placement="top">'
-            . '<i class="fa fa-minus-circle"></i>'
-            . '</a>'
-        );
-        $find = array(
+        ];
+        $this->attributes = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        ];
+        $this->templates = [
+            '',
+            '',
+            '',
+            '',
+            '',
+            ''
+        ];
+        $find = [
             'stateID' => self::fastmerge(
                 (array)self::getQueuedStates(),
                 (array)self::getProgressState()
             )
-        );
+        ];
         Route::active('multicastsession');
         $MulticastSessions = json_decode(
             Route::getData()
         );
-        $MulticastSessions = $MulticastSessions->multicastsessions;
+        $MulticastSessions = $MulticastSessions->data;
         foreach ((array)$MulticastSessions as &$MulticastSession) {
             $Image = $MulticastSession->image;
             if (!$Image->id) {
                 continue;
             }
-            $this->data[] = array(
+            $this->data[] = [
                 'mc_name' => $MulticastSession->name,
                 'mc_count' => $MulticastSession->sessclients,
                 'image_name' => $Image->name,
@@ -1169,18 +1145,18 @@ class ImageManagementPage extends FOGPage
                 'mc_percent' => $MulticastSession->percent,
                 'mc_state' => $MulticastSession->state->icon,
                 'mc_id' => $MulticastSession->id,
-            );
+            ];
             unset($MulticastSession);
         }
         self::$HookManager
             ->processEvent(
                 'IMAGE_MULTICAST_START',
-                array(
+                [
                     'data' => &$this->data,
                     'headerData' => &$this->headerData,
                     'templates' => &$this->templates,
                     'attributes' => &$this->attributes
-                )
+                ]
             );
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
@@ -1208,9 +1184,15 @@ class ImageManagementPage extends FOGPage
             $name = trim(
                 filter_input(INPUT_POST, 'name')
             );
-            $image = (int)filter_input(INPUT_POST, 'image');
-            $timeout = (int)filter_input(INPUT_POST, 'timeout');
-            $count = (int)filter_input(INPUT_POST, 'count');
+            $image = (int)trim(
+                filter_input(INPUT_POST, 'image')
+            );
+            $timeout = (int)trim(
+                filter_input(INPUT_POST, 'timeout')
+            );
+            $count = (int)trim(
+                filter_input(INPUT_POST, 'count')
+            );
             if (!$name) {
                 throw new Exception(_('Please input a session name'));
             }
@@ -1230,12 +1212,12 @@ class ImageManagementPage extends FOGPage
             }
             $countmc = self::getClass('MulticastSessionManager')
                 ->count(
-                    array(
+                    [
                         'stateID' => self::fastmerge(
                             (array)self::getQueuedStates(),
                             (array)self::getProgressState()
                         )
-                    )
+                    ]
                 );
             $countmctot = self::getSetting('FOG_MULTICAST_MAX_SESSIONS');
             $Image = new Image($image);
@@ -1267,31 +1249,36 @@ class ImageManagementPage extends FOGPage
                 ->set('storagegroupID', $StorageNode->get('id'))
                 ->set('clients', -2);
             if (!$MulticastSession->save()) {
-                self::setMessage(_('Failed to create Session'));
+                $serverFault = true;
+                throw new Exception(_('Failed to create Session'));
             }
             $randomnumber = mt_rand(24576, 32766)*2;
             while ($randomnumber == $MulticastSession->get('port')) {
                 $randomnumber = mt_rand(24576, 32766)*2;
             }
             self::setSetting('FOG_UDPCAST_STARTINGPORT', $randomnumber);
-            self::setMessage(
-                sprintf(
-                    '%s<br/>%s %s %s',
-                    _('Multicast session created'),
-                    $MulticastSession->get('name'),
-                    _('has been started on port'),
-                    $MulticastSession->get('port')
-                )
+            $code = 201;
+            $hook = 'IMAGE_MULTICAST_SESSION_SUCCESS';
+            $msg = json_encode(
+                [
+                    'msg' => _('Multicast session created!'),
+                    'title' => _('Multicast Session Create Success')
+                ]
             );
         } catch (Exception $e) {
-            self::setMessage($e->getMessage());
+            $code = ($serverFault ? 500 : 400);
+            $hook = 'IMAGE_MULTICAST_SESSION_FAIL';
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Multicast Session Create Fail')
+                ]
+            );
         }
-        self::redirect(
-            sprintf(
-                '?node=%s&sub=multicast',
-                $this->node
-            )
-        );
+        http_response_code($code);
+        echo $msg;
+        unset($MulticastSession);
+        exit;
     }
     /**
      * Stops/Cancels the mutlicast session(s).
