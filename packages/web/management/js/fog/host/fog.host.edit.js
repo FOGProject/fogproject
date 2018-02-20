@@ -493,6 +493,34 @@
         Common.iCheck('#modules-to-update input');
     });
 
+    modulesUpdateBtn.on('click', function(e) {
+        e.preventDefault();
+        $(this).prop('disabled', true);
+        var method = modulesUpdateBtn.attr('method'),
+            action = modulesUpdateBtn.attr('action'),
+            toEnable = [],
+            toDisable = [],
+            opts = {
+                'enablemodulessel': '1',
+                'disablemodulessel': '1',
+                'enablemodules': toEnable,
+                'disablemodules': toDisable
+            };
+        $('#modules-to-update').find('.associated').each(function() {
+            if ($(this).is(':checked')) {
+                toEnable.push($(this).val());
+            } else if (!$(this).is(':checked')) {
+                toDisable.push($(this).val());
+            }
+        });
+        Common.apiCall(method,action,opts,function(err) {
+            modulesUpdateBtn.prop('disabled', false);
+            if (!err) {
+                modulesTable.draw(false);
+                modules.rows({selected: true}).deselect();
+            }
+        });
+    });
     modulesEnableBtn.on('click', function(e) {
         e.preventDefault();
         $('#modules-to-update_wrapper .buttons-select-all').trigger('click');
@@ -505,7 +533,7 @@
             toEnable = Common.getSelectedIds(modulesTable),
             opts = {
                 'enablemodulessel': '1',
-                'enablemmodules': toEnable
+                'enablemodules': toEnable
             };
         Common.apiCall(method,action,opts,function(err) {
             if (!err) {
@@ -530,11 +558,16 @@
         var method = modulesEnableBtn.attr('method'),
             action = modulesEnableBtn.attr('action'),
             rows = modulesTable.rows({selected: true}),
-            toDisable = Common.getSelectedIds(modulesTable),
+            toDisable = [],
             opts = {
                 'disablemodulessel': '1',
-                'disablemmodules': toDisable
+                'disablemodules': toDisable
             };
+        $('#modules-to-update').find('.associated').each(function() {
+            if (!$(this).is(':checked')) {
+                toDisable.push($(this).val());
+            }
+        }),
         Common.apiCall(method,action,opts,function(err) {
             if (!err) {
                 modulesTable.draw(false);
