@@ -261,10 +261,18 @@
         Common.apiCall(method,action,opts,function(err) {
             if (!err) {
                 printersTable.draw(false);
-                printersTable.rows({
-                    selected: true
-                }).remove().draw(false);
                 printersTable.rows({selected: true}).deselect();
+                printersTable.find('.default:disabled').each(function() {
+                    if (toAdd.indexOf($(this).val()) != -1) {
+                        $(this).prop('disabled', false);
+                        Common.iCheck(this);
+                    }
+                });
+                printersTable.find('.associated').each(function() {
+                    if (toAdd.indexOf($(this).val()) != -1) {
+                        $(this).iCheck('check');
+                    }
+                });
             } else {
                 printerAddBtn.prop('disabled', false);
             }
@@ -289,10 +297,19 @@
             printerDefaultBtn.prop('disabled', false);
             if (!err) {
                 printersTable.draw(false);
-                printersTable.rows({
-                    selected: true
-                }).remove().draw(false);
                 printersTable.rows({selected: true}).deselect();
+                printersTable.find('.default').each(function() {
+                    if (toRemove.indexOf($(this).val()) != -1) {
+                        $(this).iCheck('uncheck');
+                        $(this).prop('disabled', true);
+                        Common.iCheck(this);
+                    }
+                });
+                printersTable.find('.associated').each(function() {
+                    if (toRemove.indexOf($(this).val()) != -1) {
+                        $(this).iCheck('uncheck');
+                    }
+                });
             } else {
                 printerRemoveBtn.prop('disabled', false);
             }
@@ -368,7 +385,7 @@
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             rows = snapinsTable.rows({selected: true}),
-            toAdd = Common.getSelectedIds(snapinsAddTable),
+            toAdd = Common.getSelectedIds(snapinsTable),
             opts = {
                 'updatesnapins': '1',
                 'snapin': toAdd
@@ -376,10 +393,12 @@
         Common.apiCall(method,action,opts,function(err) {
             if (!err) {
                 snapinsTable.draw(false);
-                snapinsTable.rows({
-                    selected: true
-                }).remove().draw(false);
                 snapinsTable.rows({selected: true}).deselect();
+                snapinsTable.find('.associated').each(function() {
+                    if (toAdd.indexOf($(this).val()) != -1) {
+                        $(this).iCheck('check');
+                    }
+                });
             } else {
                 snapinsAddBtn.prop('disabled', false);
             }
@@ -399,10 +418,12 @@
         Common.apiCall(method,action,opts,function(err) {
             if (!err) {
                 snapinsTable.draw(false);
-                snapinsTable.rows({
-                    selected: true
-                }).remove().draw(false);
                 snapinsTable.rows({selected: true}).deselect();
+                snapinsTable.find('.associated').each(function() {
+                    if (toRemove.indexOf($(this).val()) != -1) {
+                        $(this).iCheck('uncheck');
+                    }
+                });
             } else {
                 snapinsRemoveBtn.prop('disabled', false);
             }
@@ -416,7 +437,9 @@
     // SERVICE TAB
     var modulesEnableBtn = $('#modules-enable'),
         modulesDisableBtn = $('#modules-disable'),
-        modulesUpdateBtn = $('#modules-update');
+        modulesUpdateBtn = $('#modules-update'),
+        modulesDispBtn = $('#displayman-send'),
+        modulesAloBtn = $('#alo-send');
 
     function onModulesDisable(selected) {
         var disabled = selected.count() == 0;
@@ -426,21 +449,6 @@
         var disabled = selected.count() == 0;
         modulesEnableBtn.prop('disabled', disabled);
     }
-
-    modulesEnableBtn.on('click', function(e) {
-        e.preventDefault();
-        $('#modules-to-update_wrapper .buttons-select-all').trigger('click');
-        $('#modules-to-update_wrapper .associated').iCheck('check');
-        $(this).prop('disabled', true);
-        modulesDisableBtn.prop('disabled', false);
-    });
-    modulesDisableBtn.on('click', function(e) {
-        e.preventDefault();
-        $('#modules-to-update_wrapper .buttons-select-none').trigger('click');
-        $('#modules-to-update_wrapper .associated').iCheck('uncheck');
-        $(this).prop('disabled', true);
-        modulesEnableBtn.prop('disabled', false);
-    });
 
     var modulesTable = Common.registerTable($("#modules-to-update"), onModulesEnable, {
         columns: [
@@ -483,6 +491,91 @@
     });
     modulesTable.on('draw', function() {
         Common.iCheck('#modules-to-update input');
+    });
+
+    modulesEnableBtn.on('click', function(e) {
+        e.preventDefault();
+        $('#modules-to-update_wrapper .buttons-select-all').trigger('click');
+        $('#modules-to-update_wrapper .associated').iCheck('check');
+        $(this).prop('disabled', true);
+        modulesDisableBtn.prop('disabled', false);
+        var method = modulesEnableBtn.attr('method'),
+            action = modulesEnableBtn.attr('action'),
+            rows = membershipTable.rows({selected: true}),
+            toEnable = Common.getSelectedIds(modulesTable),
+            opts = {
+                'enablemodulessel': '1',
+                'enablemmodules': toEnable
+            };
+        Common.apiCall(method,action,opts,function(err) {
+            if (!err) {
+                modulesTable.draw(false);
+                modulesTable.rows({selected: true}).deselect();
+                modulesTable.find('.associated').each(function() {
+                    if (toEnable.indexOf($(this).val()) != -1) {
+                        $(this).iCheck('check');
+                    }
+                });
+            } else {
+                modulesEnableBtn.prop('disabled', false);
+            }
+        });
+    });
+    modulesDisableBtn.on('click', function(e) {
+        e.preventDefault();
+        $('#modules-to-update_wrapper .buttons-select-none').trigger('click');
+        $('#modules-to-update_wrapper .associated').iCheck('uncheck');
+        $(this).prop('disabled', true);
+        modulesEnableBtn.prop('disabled', false);
+        var method = modulesEnableBtn.attr('method'),
+            action = modulesEnableBtn.attr('action'),
+            rows = membershipTable.rows({selected: true}),
+            toDisable = Common.getSelectedIds(modulesTable),
+            opts = {
+                'disablemodulessel': '1',
+                'disablemmodules': toDisable
+            };
+        Common.apiCall(method,action,opts,function(err) {
+            if (!err) {
+                modulesTable.draw(false);
+                modulesTable.rows({selected: true}).deselect();
+                modulesTable.find('.associated').each(function() {
+                    if (toDisable.indexOf($(this).val()) != -1) {
+                        $(this).iCheck('uncheck');
+                    }
+                });
+            } else {
+                modulesDisableBtn.prop('disabled', false);
+            }
+        });
+    });
+    modulesDispBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = modulesDispBtn.attr('method'),
+            action = modulesDispBtn.attr('action'),
+            opts = {
+                'displaymanupdate': '1',
+                'x': $('[name=width]').val(),
+                'y': $('[name=height]').val(),
+                'r': $('[name=refresh]').val()
+            };
+        modulesDispBtn.prop('disabled', true);
+        Common.apiCall(method,action,opts,function(err) {
+            modulesDispBtn.prop('disabled', false);
+        });
+    });
+    modulesAloBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = modulesAloBtn.attr('method'),
+            action = modulesAloBtn.attr('action'),
+            opts = {
+                'aloupdate': '1',
+                'tme': $('[name=tme]').val()
+            };
+        modulesAloBtn.prop('disabled', true);
+        Common.apiCall(method,action,opts,function(err) {
+            modulesAloBtn.prop('disabled', false);
+        });
     });
     if (Common.search && Common.search.length > 0) {
         modulesTable.search(Common.search).draw();

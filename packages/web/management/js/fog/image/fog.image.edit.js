@@ -178,14 +178,14 @@
                 storagegroupsTable.draw(false);
                 storagegroupsTable.rows({selected: true}).deselect();
                 // Unset the primary radio from disabled.
-                $('.primary').each(function() {
+                storagegroupsTable.find('.primary').each(function() {
                     if (toAdd.indexOf($(this).val()) != -1) {
                         $(this).prop('disabled', false);
                         Common.iCheck(this);
                     }
                 });
                 // Check the associated checkbox.
-                $('.associated').each(function() {
+                storagegroupsTable.find('.associated').each(function() {
                     if (toAdd.indexOf($(this).val()) != -1) {
                         $(this).iCheck('check');
                     }
@@ -210,7 +210,7 @@
                 storagegroupsTable.draw(false);
                 storagegroupsTable.rows({selected: true}).deselect();
                 // Set the primary radio as disabled
-                $('.primary').each(function() {
+                storagegroupsTable.find('.primary').each(function() {
                     if (toRemove.indexOf($(this).val()) != -1) {
                         $(this).iCheck('uncheck');
                         $(this).prop('disabled', true);
@@ -218,7 +218,7 @@
                     }
                 });
                 // Uncheck the associated checkbox.
-                $('.associated').each(function() {
+                storagegroupsTable.find('.associated').each(function() {
                     if (toRemove.indexOf($(this).val()) != -1) {
                         $(this).iCheck('uncheck');
                     }
@@ -303,6 +303,11 @@
             if (!err) {
                 membershipTable.draw(false);
                 membershipTable.rows({selected: true}).deselect();
+                membershipTable.find('.associated').each(function() {
+                    if (toAdd.indexOf($(this).val()) != -1) {
+                        $(this).iCheck('check');
+                    }
+                });
             } else {
                 membershipAddBtn.prop('disable', false);
             }
@@ -322,6 +327,11 @@
             if (!err) {
                 membershipTable.draw(false);
                 membershipTable.rows({selected: true}).deselect();
+                membershipTable.find('.associated').each(function() {
+                    if (toRemove.indexOf($(this).val()) != -1) {
+                        $(this).iCheck('uncheck');
+                    }
+                });
             } else {
                 membershipRemoveBtn.prop('disabled', false);
             }

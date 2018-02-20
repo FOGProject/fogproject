@@ -168,13 +168,13 @@
             if (!err) {
                 membershipTable.draw(false);
                 membershipTable.rows({selected: true}).deselect();
-                $('.master').each(function() {
+                membershipTable.find('.master').each(function() {
                     if (toAdd.indexOf($(this).val()) != -1) {
                         $(this).prop('disabled', false);
                         Common.iCheck(this);
                     }
                 });
-                $('.associated').each(function() {
+                membershipTable.find('.associated').each(function() {
                     if (toAdd.indexOf($(this).val()) != -1) {
                         $(this).iCheck('check');
                     }
@@ -187,24 +187,26 @@
 
     membershipRemoveBtn.on('click', function() {
         membershipRemoveBtn.prop('disabled', true);
-        var rows = membershipTable.rows({selected: true}),
+        var method = membershipRemoveBtn.attr('method'),
+            action = membershipRemoveBtn.attr('action'),
+            rows = membershipTable.rows({selected: true}),
             toRemove = Common.getSelectedIds(membershipTable),
             opts = {
                 'membershipdel': '1',
                 'membershipRemove': toRemove
             };
-        Common.apiCall(membershipRemoveBtn.attr('method'), membershipRemoveBtn.attr('action'), opts, function(err) {
+        Common.apiCall(method,action,opts,function(err) {
             if (!err) {
                 membershipTable.draw(false);
                 membershipTable.rows({selected: true}).deselect();
-                $('.master').each(function() {
+                membershipTable.find('.master').each(function() {
                     if (toRemove.indexOf($(this).val()) != -1) {
                         $(this).iCheck('uncheck');
                         $(this).prop('disabled', true);
                         Common.iCheck(this);
                     }
                 });
-                $('.associated').each(function() {
+                membershipTable.find('.associated').each(function() {
                     if (toRemove.indexOf($(this).val()) != -1) {
                         $(this).iCheck('uncheck');
                     }

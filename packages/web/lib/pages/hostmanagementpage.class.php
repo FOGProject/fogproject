@@ -1087,6 +1087,18 @@ class HostManagementPage extends FOGPage
             'btn btn-danger',
             $props
         );
+        $dispBtn = self::makeButton(
+            'displayman-send',
+            _('Update'),
+            'btn btn-primary',
+            $props
+        );
+        $aloBtn = self::makeButton(
+            'alo-send',
+            _('Update'),
+            'btn btn-primary',
+            $props
+        );
         $this->headerData = [
             _('Module Name'),
             _('Module Associated')
@@ -1237,9 +1249,7 @@ class HostManagementPage extends FOGPage
         echo $rendered;
         echo '</div>';
         echo '<div class="box-footer">';
-        echo '<button class="btn btn-primary" id="displayman-send">'
-            . _('Update')
-            . '</button>';
+        echo $dispBtn;
         echo '</div>';
         echo '</div>';
         echo '</form>';
@@ -1282,9 +1292,7 @@ class HostManagementPage extends FOGPage
         echo $rendered;
         echo '</div>';
         echo '<div class="box-footer">';
-        echo '<button class="btn btn-primary" id="alo-send">'
-            . _('Update')
-            . '</button>';
+        echo $aloBtn;
         echo '</div>';
         echo '</div>';
         echo '</form>';
@@ -2342,9 +2350,6 @@ class HostManagementPage extends FOGPage
      */
     public function hostServicePost()
     {
-        $x = filter_input(INPUT_POST, 'x');
-        $y = filter_input(INPUT_POST, 'y');
-        $r = filter_input(INPUT_POST, 'r');
         $tme = filter_input(INPUT_POST, 'tme');
         if (!$tme
             || !is_numeric($tme)
@@ -2352,27 +2357,43 @@ class HostManagementPage extends FOGPage
         ) {
             $tme = 0;
         }
-        $modOn = filter_input_array(
-            INPUT_POST,
-            array(
-                'modules' => array(
-                    'flags' => FILTER_REQUIRE_ARRAY
-                )
-            )
-        );
-        $modOn = $modOn['modules'];
-        $modOff = self::getSubObjectIDs(
-            'Module',
-            array(
-                'id' => $modOn
-            ),
-            'id',
-            true
-        );
-        $this->obj->addModule($modOn);
-        $this->obj->removeModule($modOff);
-        $this->obj->setDisp($x, $y, $r);
-        $this->obj->setAlo($tme);
+        if (isset($_POST['enablemodulessel'])) {
+            $enablemodules = filter_input_array(
+                INPUT_POST,
+                [
+                    'enablemodules' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $enablemodules = $enablemodules['enablemodules'];
+            $this->obj->addModule($enablemodules);
+        }
+        if (isset($_POST['disablemodulessel'])) {
+            $disablemodules = filter_input_array(
+                INPUT_POST,
+                [
+                    'disablemodules' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $disablemodules = $disablemodules['disablemodules'];
+            $this->obj->removeModule($disablemodules);
+        }
+        if (isset($_POST['displaymanupdate'])) {
+            $x = filter_input(INPUT_POST, 'x');
+            $y = filter_input(INPUT_POST, 'y');
+            $r = filter_input(INPUT_POST, 'r');
+            $this->obj->setDisp($x, $y, $r);
+        }
+        if (isset($_POST['aloupdate'])) {
+            $tme = (int)filter_input(INPUT_POST, 'tme');
+            if (!(is_numeric($tme) && $tme > 4)) {
+                $tme = 0;
+            }
+            $this->obj->setAlo($tme);
+        }
     }
     /**
      * Updates the host when form is submitted
