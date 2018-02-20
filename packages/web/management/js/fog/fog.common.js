@@ -154,8 +154,8 @@ var $_GET = getQueryParams(document.location.search),
         }
         Common.notify(
             res.title || 'Bad Response',
-            res.error || 'Bad Response',
-            (isError) ? 'error' : 'success'
+            (isError ? res.error : res.msg) || 'Bad Response',
+            (isError ? 'error' : 'success')
         );
     };
     Common.validateForm = function(form) {

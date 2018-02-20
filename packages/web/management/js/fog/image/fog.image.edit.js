@@ -49,7 +49,6 @@
         PRIMARY_GROUP_ID = -1;
     storagegroupsAddBtn.prop('disabled', true);
     storagegroupsRemoveBtn.prop('disabled', true);
-    storagegroupsPrimaryBtn.prop('disabled', true);
     function onStoragegroupsSelect(selected) {
         var disabled = selected.count() == 0;
         storagegroupsAddBtn.prop('disabled', disabled);
@@ -157,7 +156,7 @@
             opts = {
                 'primarysel': '1',
                 'primary': PRIMARY_GROUP_ID
-            }:
+            };
         Common.apiCall(method,action,opts,function(err) {
             storagegroupsPrimaryBtn.prop('disabled', !err);
             onStoragegroupsSelect(storagegroupsTable.rows({selected: true}));
