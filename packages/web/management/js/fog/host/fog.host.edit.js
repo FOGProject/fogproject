@@ -16,7 +16,12 @@
 
     var generalForm = $('#host-general-form'),
         generalFormBtn = $('#general-send'),
-        generalDeleteBtn = $('#general-delete');
+        generalDeleteBtn = $('#general-delete'),
+        resetEncryptionBtn = $('#reset-encryption-data'),
+        resetEncryptionModal = $('#resetencryptionmodal'),
+        resetEncryptionCancelBtn = $('#resetencryptionCancel'),
+        resetEncryptionConfirmBtn = $('#resetencryptionConfirm'),
+
 
     generalForm.on('submit',function(e) {
         e.preventDefault();
@@ -47,6 +52,62 @@
                 }
                 window.location = '../management/index.php?node='+Common.node+'&sub=list';
             });
+    });
+
+    // Reset encryption confirmation modal.
+    resetEncryptionBtn.on('click', function(e) {
+        e.preventDefault();
+        // Set our general form buttons disabled.
+        $(this).prop('disabled', true);
+        generalFormBtn.prop('disabled', true);
+        generalDeleteBtn.prop('disabled', true);
+
+        // Enable our modal buttons.
+        resetEncryptionConfirmBtn.prop('disabled', false);
+        resetEncryptionCancelBtn.prop('disabled', false);
+
+        // Display the reset encryption modal
+        resetEncryptionModal.modal('show');
+    });
+
+    // Modal cancelled
+    resetEncryptionCancelBtn.on('click', function(e) {
+        e.preventDefault();
+
+        // Set our modal buttons disabled.
+        $(this).prop('disabled', true);
+        resetEncryptionConfirmBtn.prop('disabled', true);
+
+        // Enable our general form buttons.
+        generalFormBtn.prop('disabled', false);
+        generalDeleteBtn.prop('disabled', false);
+        resetEncryptionBtn.prop('disabled', false);
+
+        // Hide the modal
+        resetEncryptionModal.modal('hide');
+    });
+
+    // Modal Confirmed
+    resetEncryptionConfirmBtn.on('click', function(e) {
+        e.preventDefault();
+
+        // Set our modal buttons disabled.
+        $(this).prop('disabled', true);
+        resetEncryptionCancelBtn.prop('disabled', true);
+
+        // Enable our general form buttons.
+        generalFormBtn.prop('disabled', false);
+        generalDeleteBtn.prop('disabled', false);
+        resetEncryptionBtn.prop('disabled', false);
+
+        // Reset our encryption data.
+        $.post(
+            '../management/index.php?sub=slearAES',
+            {id: Common.id}
+        );
+
+        // Hide the modal
+        resetEncryptionModal.modal('hide');
     });
 
     // ---------------------------------------------------------------
@@ -601,6 +662,26 @@
     if (Common.search && Common.search.length > 0) {
         modulesTable.search(Common.search).draw();
     }
+    // ---------------------------------------------------------------
+    // POWER MANAGMENT TAB
+
+    // ---------------------------------------------------------------
+    // GROUP MEMBERSHIP TAB
+
+    // ---------------------------------------------------------------
+    // INVENTORY TAB
+    var inventoryForm = $('#host-inventory-form'),
+        inventoryFormBtn = $('#inventory-send');
+    inventoryFormBtn.on('click', function(e) {
+        e.preventDefault();
+        $(this).prop('disabled', true);
+        Common.processForm(inventoryForm, function(err) {
+            inventoryFormBtn.prop('disabled', false);
+        });
+    });
+
+    // ---------------------------------------------------------------
+    // LOGIN HISTORY TAB
 })(jQuery);
 // var LoginHistory = $('#login-history'),
 //     LoginHistoryDate = $('.loghist-date'),
@@ -691,83 +772,5 @@
 //     });
 //     $('#resetSecData').val('Reset Encryption Data');
 //     resetEncData('hosts', 'host');
-//     if (LoginHistory.length > 0) {
-//         UpdateLoginGraph();
-//     }
-//     $('input:not(:hidden):checkbox[name="default"]').change(function() {
-//         $(this).each(function(e) {
-//             if (this.checked) this.checked = false;
-//             e.preventDefault();
-//         });
-//         this.checked = false;
-//     });
-//     checkboxAssociations('.toggle-checkbox1:checkbox','.toggle-group1:checkbox');
-//     checkboxAssociations('.toggle-checkbox2:checkbox','.toggle-group2:checkbox');
-//     checkboxAssociations('#groupMeShow:checkbox','#groupNotInMe:checkbox');
-//     checkboxAssociations('#printerNotInHost:checkbox','#printerNotInHost:checkbox');
-//     checkboxAssociations('#snapinNotInHost:checkbox','#snapinNotInHost:checkbox');
-//     checkboxAssociations('.toggle-checkboxprint:checkbox','.toggle-print:checkbox');
-//     checkboxAssociations('.toggle-checkboxsnapin:checkbox','.toggle-snapin:checkbox');
-//     checkboxAssociations('#rempowerselectors:checkbox','.rempoweritems:checkbox');
-//     $('#groupMeShow:checkbox').on('change', function(e) {
-//         if ($(this).is(':checked')) $('#groupNotInMe').show();
-//         else $('#groupNotInMe').hide();
-//         e.preventDefault();
-//     });
-//     $('#groupMeShow:checkbox').trigger('change');
-//     $('#hostPrinterShow:checkbox').on('change', function(e) {
-//         if ($(this).is(':checked')) {
-//             $('.printerNotInHost').show();
-//         } else {
-//             $('.printerNotInHost').hide();
-//         }
-//         e.preventDefault();
-//     });
-//     $('#hostPrinterShow:checkbox').trigger('change');
-//     $('#hostSnapinShow:checkbox').on('change', function(e) {
-//         if ($(this).is(':checked')) {
-//             $('.snapinNotInHost').show();
-//         } else {
-//             $('.snapinNotInHost').hide();
-//         }
-//         e.preventDefault();
-//     });
-//     $('#hostSnapinShow:checkbox').trigger('change');
-//     result = true;
-//     $('#scheduleOnDemand').on('change', function() {
-//         if ($(this).is(':checked') === true) {
-//             $(this).parents('form').each(function() {
-//                 $("input[name^='scheduleCron']",this).each(function() {
-//                     $(this).val('').prop('readonly',true).hide().parents('tr').hide();
-//                 });
-//             });
-//         } else {
-//             $(this).parents('form').each(function() {
-//                 $("input[name^='scheduleCron']",this).each(function() {
-//                     $(this).val('').prop('readonly',false).show().parents('tr').show();
-//                 });
-//             });
-//         }
-//     });
-//     $("form.deploy-container").submit(function() {
-//         if ($('#scheduleOnDemand').is(':checked')) {
-//             $('.cronOptions > input[name^="scheduleCron"]', $(this)).each(function() {
-//                 $(this).val('').prop('disabled', true);
-//             });
-//             return true;
-//         } else {
-//             $('.cronOptions > input[name^="scheduleCron"]', $(this)).each(function() {
-//                 result = validateCronInputs($(this));
-//                 if (result === false) return false;
-//             });
-//         }
-//         return result;
-//     }).each(function() {
-//         $('input[name^="scheduleCron"]', this).each(function(id,value) {
-//             if (!validateCronInputs($(this))) $(this).addClass('error');
-//         }).blur(function() {
-//             if (!validateCronInputs($(this))) $(this).addClass('error');
-//         });
-//     });
 //     specialCrons();
 // })(jQuery);
