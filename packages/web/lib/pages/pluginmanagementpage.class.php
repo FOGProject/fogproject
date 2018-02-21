@@ -342,7 +342,7 @@ class PluginManagementPage extends FOGPage
                     . $this->formAction
                     . '&run='
                     . $plugin->hash
-                    . '">';
+                    . '" novalidate>';
                 $this->indexDivDisplay(true, false, true);
                 echo '</form>';
             } else {
@@ -354,7 +354,7 @@ class PluginManagementPage extends FOGPage
                         . $this->formAction
                         . '&run='
                         . $plugin->hash
-                        . '">';
+                        . '" novalidate>';
                     $dmiFields = array(
                         'bios-vendor',
                         'bios-version',

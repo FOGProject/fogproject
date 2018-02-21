@@ -185,7 +185,7 @@ class ServiceConfigurationPage extends FOGPage
         echo '<div class="box box-solid">';
         echo '<div id="updatedisplaymanager" class="">';
         echo '<div class="box-body">';
-        echo '<form id="displaymanagerupdate-form" class="form-horizontal">';
+        echo '<form id="displaymanagerupdate-form" class="form-horizontal" novalidate>';
         echo '<input type="hidden" name="name" value="'
             . self::$_modNames['displaymanager']
             . '"/>';
@@ -303,7 +303,7 @@ class ServiceConfigurationPage extends FOGPage
         echo '<div class="box box-solid">';
         echo '<div id="updateautologout" class="">';
         echo '<div class="box-body">';
-        echo '<form id="autologoutupdate-form" class="form-horizontal">';
+        echo '<form id="autologoutupdate-form" class="form-horizontal" novalidate>';
         echo '<input type="hidden" name="name" value="'
             . self::$_modNames['autologout']
             . '"/>';
@@ -409,7 +409,7 @@ class ServiceConfigurationPage extends FOGPage
         echo '<div class="box box-solid">';
         echo '<div id="updatesnapinclient" class="">';
         echo '<div class="box-body">';
-        echo '<form id="snapinclientupdate-form" class="form-horizontal">';
+        echo '<form id="snapinclientupdate-form" class="form-horizontal" novalidate>';
         echo '<input type="hidden" name="name" value="'
             . self::$_modNames['snapinclient']
             . '"/>';
@@ -510,7 +510,7 @@ class ServiceConfigurationPage extends FOGPage
         echo '<div class="box box-solid">';
         echo '<div id="updatehostregister" class="">';
         echo '<div class="box-body">';
-        echo '<form id="hostregisterupdate-form" class="form-horizontal">';
+        echo '<form id="hostregisterupdate-form" class="form-horizontal" novalidate>';
         echo '<input type="hidden" name="name" value="'
             . self::$_modNames['hostregister']
             . '"/>';
@@ -611,7 +611,7 @@ class ServiceConfigurationPage extends FOGPage
         echo '<div class="box box-solid">';
         echo '<div id="updatehostnamechanger" class="">';
         echo '<div class="box-body">';
-        echo '<form id="hostnamechangerupdate-form" class="form-horizontal">';
+        echo '<form id="hostnamechangerupdate-form" class="form-horizontal" novalidate>';
         echo '<input type="hidden" name="name" value="'
             . self::$_modNames['hostnamechanger']
             . '"/>';
@@ -712,7 +712,7 @@ class ServiceConfigurationPage extends FOGPage
         echo '<div class="box box-solid">';
         echo '<div id="updateprintermanager" class="">';
         echo '<div class="box-body">';
-        echo '<form id="printermanagerupdate-form" class="form-horizontal">';
+        echo '<form id="printermanagerupdate-form" class="form-horizontal" novalidate>';
         echo '<input type="hidden" name="name" value="'
             . self::$_modNames['printermanager']
             . '"/>';
@@ -813,7 +813,7 @@ class ServiceConfigurationPage extends FOGPage
         echo '<div class="box box-solid">';
         echo '<div id="updatetaskreboot" class="">';
         echo '<div class="box-body">';
-        echo '<form id="taskrebootupdate-form" class="form-horizontal">';
+        echo '<form id="taskrebootupdate-form" class="form-horizontal" novalidate>';
         echo '<input type="hidden" name="name" value="'
             . self::$_modNames['taskreboot']
             . '"/>';
@@ -914,7 +914,7 @@ class ServiceConfigurationPage extends FOGPage
         echo '<div class="box box-solid">';
         echo '<div id="updateusertracker" class="">';
         echo '<div class="box-body">';
-        echo '<form id="usertrackerupdate-form" class="form-horizontal">';
+        echo '<form id="usertrackerupdate-form" class="form-horizontal" novalidate>';
         echo '<input type="hidden" name="name" value="'
             . self::$_modNames['usertracker']
             . '"/>';
@@ -1015,7 +1015,7 @@ class ServiceConfigurationPage extends FOGPage
         echo '<div class="box box-solid">';
         echo '<div id="updatepowermanagement" class="">';
         echo '<div class="box-body">';
-        echo '<form id="powermanagementupdate-form" class="form-horizontal">';
+        echo '<form id="powermanagementupdate-form" class="form-horizontal" novalidate>';
         echo '<input type="hidden" name="name" value="'
             . self::$_modNames['powermanagement']
             . '"/>';

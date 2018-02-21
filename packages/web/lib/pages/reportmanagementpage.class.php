@@ -256,7 +256,7 @@ class ReportManagementPage extends FOGPage
         echo '<hr/>';
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
-            . '">';
+            . '" novalidate>';
         $this->render(12);
         echo '</form>';
         echo '</div>';

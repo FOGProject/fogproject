@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-20 18:13-0500\n"
+"POT-Creation-Date: 2018-02-20 20:20-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3819,6 +3819,14 @@ msgstr "Hospedar criar falha"
 msgid "Host description"
 msgstr "anfitrião Descrição"
 
+msgid "Reset Encryption Data"
+msgstr ""
+
+msgid ""
+"Resetting encryption data should only be done if you re-installed the FOG "
+"Client or are using Debugger"
+msgstr ""
+
 msgid "Please enter a hostname"
 msgstr "Por favor, indique um nome de host"
 
@@ -4105,30 +4113,17 @@ msgstr ""
 msgid "Host Snapin History"
 msgstr "História Snapin"
 
-msgid "Host approved"
-msgstr "hospedar aprovado"
-
-msgid "Host approval failed."
-msgstr "aprovação anfitrião falhou."
-
-#, fuzzy
-msgid "Approve Host"
-msgstr "Aprovar este anfitrião?"
-
-msgid "Approve this host?"
-msgstr "Aprovar este anfitrião?"
-
-#, fuzzy
-msgid "Approved"
-msgstr "hospedar aprovado"
-
-#, fuzzy
-msgid "All Pending MACs approved"
-msgstr "Todos os MACs pendentes aprovado."
-
 #, fuzzy
 msgid "Service Settings"
 msgstr "status do serviço"
+
+#, fuzzy
+msgid "Group Membership"
+msgstr "Membership"
+
+#, fuzzy
+msgid "Imaging History"
+msgstr "Hospedar História Imagiologia"
 
 #, fuzzy
 msgid "You must select an action to perform"
@@ -6472,6 +6467,13 @@ msgstr "Excluir todos os hosts dentro do grupo"
 #, fuzzy
 msgid "Delete files"
 msgstr "Apagar dados de arquivo"
+
+msgid "Encryption Data Reset"
+msgstr ""
+
+#, fuzzy
+msgid "Reset Encryption Success"
+msgstr "usuário criado"
 
 msgid "is protected, removal not allowed"
 msgstr "é protegido, a remoção não permitidos"

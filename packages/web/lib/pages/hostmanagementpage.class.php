@@ -551,7 +551,8 @@ class HostManagementPage extends FOGPage
         $modalresetBtn = self::makeButton(
             'resetencryptionConfirm',
             _('Confirm'),
-            'btn btn-primary'
+            'btn btn-primary',
+            ' method="post" action="../management/index.php?sub=clearAES" '
         );
         $modalresetBtn .= self::makeButton(
             'resetencryptionCancel',
@@ -561,7 +562,7 @@ class HostManagementPage extends FOGPage
         $modalreset = self::makeModal(
             'resetencryptionmodal',
             _('Reset Encryption Data'),
-            _('Confirm that you would like to reset encryption data for this host'),
+            _('Resetting encryption data should only be done if you re-installed the FOG Client or are using Debugger'),
             $modalresetBtn
         );
         echo '<form id="host-general-form" class="form-horizontal" method="post" action="'
@@ -572,12 +573,14 @@ class HostManagementPage extends FOGPage
         echo $rendered;
         echo '</div>';
         echo '<div class="box-footer">';
+        echo '<div class="btn-group">';
         echo '<button class="btn btn-primary" id="general-send">'
             . _('Update')
             . '</button>';
         echo '<button class="btn btn-warning" id="reset-encryption-data">'
             . _('Reset Encryption Data')
             . '</button>';
+        echo '</div>';
         echo '<button class="btn btn-danger pull-right" id="general-delete">'
             . _('Delete')
             . '</button>';
@@ -793,7 +796,7 @@ class HostManagementPage extends FOGPage
         echo '</h4>';
         echo '</div>';
         echo '<div id="printerconf" class="">';
-        echo '<form id="printer-config-form" class="form-horizontal"' . $props . '>';
+        echo '<form id="printer-config-form" class="form-horizontal"' . $props . ' novalidate>';
         echo '<div class="box-body">';
         echo '<div class="radio">';
         echo '<label for="nolevel" data-toggle="tooltip" data-placement="left" '
@@ -1255,7 +1258,7 @@ class HostManagementPage extends FOGPage
         unset($fields);
         echo '<form id="host-dispman" class="form-horizontal" method="post" action="'
             . $this->formAction
-            . '&tab=host-service">';
+            . '&tab=host-service" novalidate>';
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
@@ -1297,7 +1300,7 @@ class HostManagementPage extends FOGPage
         unset($fields);
         echo '<form id="host-alo" class="form-horizontal" method="post" action="'
             . $this->formAction
-            . '&tab=host-service">';
+            . '&tab=host-service" novalidate>';
         echo '<div class="box box-warning">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
@@ -1713,7 +1716,7 @@ class HostManagementPage extends FOGPage
         echo '<div class="panel-body">';
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
-            . '&tab=host-login-history">';
+            . '&tab=host-login-history" novalidate>';
         if (count($Dates) > 0) {
             echo '<div class="form-group">';
             echo '<label class="control-label col-xs-4" for="dte">';
@@ -3014,7 +3017,7 @@ class HostManagementPage extends FOGPage
             echo '<form class="deploy-container form-horizontal" '
                 . 'method="post" action="'
                 . $this->formAction
-                . '&tab=host-powermanagement">';
+                . '&tab=host-powermanagement" novalidate>';
             $this->render(12);
             echo '<div class="form-group">';
             echo '<label class="col-xs-4 control-label" for="pmupdate">';

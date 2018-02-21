@@ -359,7 +359,8 @@ class GroupManagementPage extends FOGPage
         $modalresetBtn = self::makeButton(
             'resetencryptionConfirm',
             _('Confirm'),
-            'btn btn-primary'
+            'btn btn-primary',
+            ' method="post" action="../management/index.php?sub=clearAES" '
         );
         $modalresetBtn .= self::makeButton(
             'resetencryptionCancel',
@@ -369,7 +370,7 @@ class GroupManagementPage extends FOGPage
         $modalreset = self::makeModal(
             'resetencryptionmodal',
             _('Reset Encryption Data'),
-            _('Confirm that you would like to reset encryption data for all hosts in this group'),
+            _('Resetting encryption data should only be done if you re-installed the FOG Client or are using Debugger'),
             $modalresetBtn
         );
         $fields = [
@@ -439,12 +440,14 @@ class GroupManagementPage extends FOGPage
         echo $rendered;
         echo '</div>';
         echo '<div class="box-footer">';
+        echo '<div class="btn-group">';
         echo '<button class="btn btn-primary" id="general-send">'
             . _('Update')
             . '</button>';
         echo '<button class="btn btn-warning" id="reset-encryption-data">'
             . _('Reset Encryption Data')
             . '</button>';
+        echo '</div>';
         echo '<button class="btn btn-danger pull-right" id="general-delete">'
             . _('Delete')
             . '</button>';
@@ -657,7 +660,7 @@ class GroupManagementPage extends FOGPage
         echo '</h4>';
         echo '</div>';
         echo '<div id="printerconf" class="">';
-        echo '<form id="printer-config-form" class="form-horizontal"' . $props . '>';
+        echo '<form id="printer-config-form" class="form-horizontal"' . $props . ' novalidate>';
         echo '<div class="box-body">';
         echo '<div class="radio">';
         echo '<label for="nolevel" data-toggle="tooltip" data-placement="left" '
@@ -1077,7 +1080,7 @@ class GroupManagementPage extends FOGPage
         unset($fields);
         echo '<form id="group-dispman" class="form-horizontal" method="post" action="'
             . $this->formAction
-            . '&tab=group-service">';
+            . '&tab=group-service" novalidate>';
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
@@ -1118,7 +1121,7 @@ class GroupManagementPage extends FOGPage
         unset($fields);
         echo '<form id="group-alo" class="form-horizontal" method="post" action="'
             . $this->formAction
-            . '&tab=group-service">';
+            . '&tab=group-service" novalidate>';
         echo '<div class="box box-warning">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';

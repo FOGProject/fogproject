@@ -3180,6 +3180,7 @@ abstract class FOGPage extends FOGBase
      */
     public function clearAES()
     {
+        header('Content-type: application/json');
         global $groupid;
         global $id;
         if (!(is_numeric($groupid) || is_numeric($id))) {
@@ -3204,6 +3205,14 @@ abstract class FOGPage extends FOGBase
                     'sec_time' => '0000-00-00 00:00:00'
                 ]
             );
+        http_response_code(201);
+        echo json_encode(
+            [
+                'msg' => _('Encryption Data Reset'),
+                'title' => _('Reset Encryption Success')
+            ]
+        );
+        exit;
     }
     /**
      * Clears group Powermanagement tasks

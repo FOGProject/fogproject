@@ -299,7 +299,7 @@ class ProcessLogin extends FOGPage
         
         echo '      <form method="post" action="'; 
         echo $this->formAction; 
-        echo '">';
+        echo '" novalidate>';
 
         echo '          <div class="form-group has-feedback">';
         echo '              <input type="username" class="form-control" placeholder="';

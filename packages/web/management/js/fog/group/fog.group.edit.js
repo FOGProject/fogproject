@@ -90,19 +90,23 @@
         $(this).prop('disabled', true);
         resetEncryptionCancelBtn.prop('disabled', true);
 
-        // Enable our general form buttons.
-        generalFormBtn.prop('disabled', false);
-        generalDeleteBtn.prop('disabled', false);
-        resetEncryptionBtn.prop('disabled', false);
 
         // Reset our encryption data.
-        $.post(
-            '../management/index.php?sub=slearAES',
-            {groupid: Common.id}
-        );
-
-        // Hide the modal
-        resetEncryptionModal.modal('hide');
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            opts = {
+                groupid: Common.id
+            };
+        Common.apiCall(method,action,opts,function(err) {
+            if (!err) {
+                // Enable our general form buttons.
+                generalFormBtn.prop('disabled', false);
+                generalDeleteBtn.prop('disabled', false);
+                resetEncryptionBtn.prop('disabled', false);
+                // Hide modal
+                resetEncryptionModal.modal('hide');
+            }
+        });
     });
 
     // ---------------------------------------------------------------
