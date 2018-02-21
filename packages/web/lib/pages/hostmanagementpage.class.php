@@ -548,6 +548,22 @@ class HostManagementPage extends FOGPage
         );
         $rendered = self::formFields($fields);
         unset($fields);
+        $modalresetBtn = self::makeButton(
+            'resetencryptionConfirm',
+            _('Confirm'),
+            'btn btn-primary'
+        );
+        $modalresetBtn .= self::makeButton(
+            'resetencryptionCancel',
+            _('Cancel'),
+            'btn btn-danger pull-right'
+        );
+        $modalreset = self::makeModal(
+            'resetencryptionmodal',
+            _('Reset Encryption Data'),
+            _('Confirm that you would like to reset encryption data for this host'),
+            $modalresetBtn
+        );
         echo '<form id="host-general-form" class="form-horizontal" method="post" action="'
             . self::makeTabUpdateURL('host-general', $this->obj->get('id'))
             . '" novalidate>';
@@ -559,9 +575,13 @@ class HostManagementPage extends FOGPage
         echo '<button class="btn btn-primary" id="general-send">'
             . _('Update')
             . '</button>';
+        echo '<button class="btn btn-warning" id="reset-encryption-data">'
+            . _('Reset Encryption Data')
+            . '</button>';
         echo '<button class="btn btn-danger pull-right" id="general-delete">'
             . _('Delete')
             . '</button>';
+        echo $modalreset;
         echo '</div>';
         echo '</div>';
         echo '</form>';
@@ -1313,7 +1333,7 @@ class HostManagementPage extends FOGPage
     {
         $props = ' method="post" action="'
             . $this->formAction
-            . '&tab=host-hardware-inventory" ';
+            . '&tab=host-inventory" ';
         $cpus = ['cpuman', 'spuversion'];
         foreach ($cpus as &$x) {
             $this->obj->get('inventory')
@@ -1523,11 +1543,12 @@ class HostManagementPage extends FOGPage
         echo '<div class="box-body">';
         echo '<form id="host-inventory-form" class="form-horizontal" method="post" action="'
             . self::makeTabUpdateURL(
-                'host-hardware-inventory',
+                'host-inventory',
                 $this->obj->get('id')
             )
             . '" novalidate>';
         echo $rendered;
+        echo '<input type="hidden" name="updateinv" value="1"/>';
         echo '</form>';
         echo '</div>';
         echo '<div class="box-footer">';
@@ -1536,6 +1557,21 @@ class HostManagementPage extends FOGPage
             . '</button>';
         echo '</div>';
         echo '</div>';
+    }
+    public function hostInventoryPost()
+    {
+        if (isset($_POST['updateinv'])) {
+            $pu = filter_input(INPUT_POST, 'pu');
+            $other1 = filter_input(INPUT_POST, 'other1');
+            $other2 = filter_input(INPUT_POST, 'other2');
+            $this->obj
+                ->get('inventory')
+                ->set('primaryUser', $pu)
+                ->set('other1', $other1)
+                ->set('other2', $other2)
+                ->set('hostID', $this->obj->get('id'))
+                ->save();
+        }
     }
     /**
      * Display Login History for Host.
@@ -2002,7 +2038,133 @@ class HostManagementPage extends FOGPage
             _('Edit'),
             $this->obj->get('name')
         );
-        $approve = filter_input(INPUT_GET, 'approveHost');
+
+        $tabData = [];
+
+        // General
+        $tabData[] = [
+            'name' => _('General'),
+            'id' => 'host-general',
+            'generator' => function() {
+                $this->hostGeneral();
+            }
+        ];
+
+        // Active Directory
+        $tabData[] = [
+            'name' =>  _('Active Directory'),
+            'id' => 'host-active-directory',
+            'generator' => function() {
+                $this->adFieldsToDisplay(
+                    $this->obj->get('useAD'),
+                    $this->obj->get('ADDomain'),
+                    $this->obj->get('ADOU'),
+                    $this->obj->get('ADUser'),
+                    $this->obj->get('ADPass'),
+                    $this->obj->get('enforce')
+                );
+            }
+        ];
+
+        // Tasks
+        if (!$this->obj->get('pending')) {
+            $tabData[] = [
+                'name' =>  _('Tasks'),
+                'id' => 'host-tasks',
+                'generator' => function() {
+                    $this->basictasksOptions();
+                }
+            ];
+        }
+
+        // Printers
+        $tabData[] = [
+            'name' => _('Printers'),
+            'id' => 'host-printers',
+            'generator' => function() {
+                $this->hostPrinters();
+            }
+        ];
+
+        // Snapins
+        $tabData[] = [
+            'name' => _('Snapins'),
+            'id' => 'host-snapins',
+            'generator' => function() {
+                $this->hostSnapins();
+            }
+        ];
+
+        // Service
+        $tabData[] = [
+            'name' => _('Service Settings'),
+            'id' => 'host-service',
+            'generator' => function() {
+                $this->hostService();
+            }
+        ];
+
+        // Power Management
+        $tabData[] = [
+            'name' => _('Power Management'),
+            'id' => 'host-powermanagement',
+            'generator' => function() {
+                //$this->hostPowermanagement();
+                echo 'TODO: Make functional';
+            }
+        ];
+
+        // Group Membership
+        $tabData[] = [
+            'name' => _('Group Membership'),
+            'id' => 'host-membership',
+            'generator' => function() {
+                //$this->hostMembership();
+                echo 'TODO: Make functional';
+            }
+        ];
+
+        // Inventory
+        $tabData[] = [
+            'name' => _('Inventory'),
+            'id' => 'host-inventory',
+            'generator' => function() {
+                $this->hostInventory();
+            }
+        ];
+
+        // Login History
+        $tabData[] = [
+            'name' => _('Login History'),
+            'id' => 'host-login-history',
+            'generator' => function() {
+                //$this->hostLoginHistory();
+                echo 'TODO: Make functional';
+            }
+        ];
+
+        // Image History
+        $tabData[] = [
+            'name' => _('Imaging History'),
+            'id' => 'host-image-history',
+            'generator' => function() {
+                //$this->hostImageHistory();
+                echo 'TODO: Make functional';
+            }
+        ];
+
+        // Snapin History
+        $tabData[] = [
+            'name' => _('Snapin History'),
+            'id' => 'host-snapin-history',
+            'generator' => function() {
+                //$this->hostSnapinHistory();
+                echo 'TODO: Make functional';
+            }
+        ];
+
+        echo self::tabFields($tabData);
+        /*$approve = filter_input(INPUT_GET, 'approveHost');
         if ($approve) {
             $this
                 ->obj
@@ -2091,134 +2253,14 @@ class HostManagementPage extends FOGPage
                     (int)$_POST['id']
                 )
             );
-        }
-        $tabData = [];
-
-        // General
-        $tabData[] = [
-            'name' => _('General'),
-            'id' => 'host-general',
-            'generator' => function() {
-                $this->hostGeneral();
-            }
-        ];
-
-        // Active Directory
-        $tabData[] = [
-            'name' =>  _('Active Directory'),
-            'id' => 'host-active-directory',
-            'generator' => function() {
-                $this->adFieldsToDisplay(
-                    $this->obj->get('useAD'),
-                    $this->obj->get('ADDomain'),
-                    $this->obj->get('ADOU'),
-                    $this->obj->get('ADUser'),
-                    $this->obj->get('ADPass'),
-                    $this->obj->get('enforce')
-                );
-            }
-        ];
-
-        // Tasks
-        if (!$this->obj->get('pending')) {
-            $tabData[] = [
-                'name' =>  _('Tasks'),
-                'id' => 'host-tasks',
-                'generator' => function() {
-                    $this->basictasksOptions();
-                }
-            ];
-        }
-
-        // Printers
-        $tabData[] = [
-            'name' => _('Printers'),
-            'id' => 'host-printers',
-            'generator' => function() {
-                $this->hostPrinters();
-            }
-        ];
-
-        // Snapins
-        $tabData[] = [
-            'name' => _('Snapins'),
-            'id' => 'host-snapins',
-            'generator' => function() {
-                $this->hostSnapins();
-            }
-        ];
-
-        // Service
-        $tabData[] = [
-            'name' => _('Service Settings'),
-            'id' => 'host-service',
-            'generator' => function() {
-                $this->hostService();
-            }
-        ];
-
-        // Power Management
-        /*$tabData[] = [
-            'name' => _('Power Management'),
-            'id' => 'host-powermanagement',
-            'generator' => function() {
-                $this->hostPMDisplay();
-            }
-        ];*/
-
-        // Inventory
-        $tabData[] = [
-            'name' => _('Inventory'),
-            'id' => 'host-inventory',
-            'generator' => function() {
-                $this->hostInventory();
-            }
-        ];
-
-        // Login History
-        /*$tabData[] = [
-            'name' => _('Login History'),
-            'id' => 'host-login-history',
-            'generator' => function() {
-                $this->hostLoginHistory();
-            }
-        ];
-
-        // Image History
-        $tabData[] = [
-            'name' => _('Image History'),
-            'id' => 'host-image-history',
-            'generator' => function() {
-                $this->hostImageHistory();
-            }
-        ];
-
-        // Snapin History
-        $tabData[] = [
-            'name' => _('Snapin History'),
-            'id' => 'host-snapin-history',
-            'generator' => function() {
-                $this->hostSnapinHistory();
-            }
-        ];*/
-
-        /**
-         * These need to be worked yet.
-         *
-        $this->hostPMDisplay();
-        $this->hostInventory();
-        $this->hostLoginHistory();
-        $this->hostImageHistory();
-        $this->hostSnapinHistory();
-         */
-        echo self::tabFields($tabData);
+        }*/
     }
     /**
      * Host power management post.
      *
      * @return void
      */
-    public function hostPMPost()
+    public function hostPowermanagementPost()
     {
         $onDemand = (int)isset($_POST['onDemand']);
         $items = array();
@@ -2416,7 +2458,7 @@ class HostManagementPage extends FOGPage
                 $this->hostADPost();
                 break;
             case 'host-powermanagement':
-                $this->hostPMPost();
+                $this->hostPowermanagementPost();
                 break;
             case 'host-printers':
                 $this->hostPrinterPost();
@@ -2427,19 +2469,8 @@ class HostManagementPage extends FOGPage
             case 'host-service':
                 $this->hostServicePost();
                 break;
-            case 'host-hardware-inventory':
-                $pu = filter_input(INPUT_POST, 'pu');
-                $other1 = filter_input(INPUT_POST, 'other1');
-                $other2 = filter_input(INPUT_POST, 'other2');
-                if (isset($_POST['update'])) {
-                    $this->obj
-                        ->get('inventory')
-                        ->set('primaryUser', $pu)
-                        ->set('other1', $other1)
-                        ->set('other2', $other2)
-                        ->set('hostID', $this->obj->get('id'))
-                        ->save();
-                }
+            case 'host-inventory':
+                $this->hostInventoryPost();
                 break;
             case 'host-login-history':
                 $dte = filter_input(INPUT_POST, 'dte');
@@ -2850,7 +2881,7 @@ class HostManagementPage extends FOGPage
      *
      * @return void
      */
-    public function hostPMDisplay()
+    public function hostPowermanagement()
     {
         echo '<!-- Power Management Items -->';
         echo '<div class="tab-pane fade" id="host-powermanagement">';
