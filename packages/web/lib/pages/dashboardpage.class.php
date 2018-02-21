@@ -38,13 +38,13 @@ class DashboardPage extends FOGPage
      *
      * @var array
      */
-    private static $_nodeURLs = array();
+    private static $_nodeURLs = [];
     /**
      * The node names
      *
      * @var array
      */
-    private static $_nodeNames = array();
+    private static $_nodeNames = [];
     /**
      * The node options
      *
@@ -74,7 +74,6 @@ class DashboardPage extends FOGPage
     {
         $this->name = self::$foglang['Dashboard'];
         parent::__construct($this->name);
-        $this->menu = array();
         global $sub;
         global $id;
         $objName = 'StorageNode';
@@ -151,12 +150,12 @@ class DashboardPage extends FOGPage
             self::$_tftp
         ) = self::getSubObjectIDs(
             'Service',
-            array(
-                'name' => array(
+            [
+                'name' => [
                     'FOG_BANDWIDTH_TIME',
                     'FOG_TFTP_HOST'
-                )
-            ),
+                ]
+            ],
             'value'
         );
     }
@@ -195,31 +194,19 @@ class DashboardPage extends FOGPage
             self::displayAlert($title, $macPend, 'warning', true, true);
         }
         $SystemUptime = self::$FOGCore->systemUptime();
-        $fields = array(
+        $fields = [
             _('Web Server') => filter_input(
                 INPUT_SERVER,
                 'SERVER_ADDR'
             ),
             _('Load Average') => $SystemUptime['load'],
             _('System Uptime') => $SystemUptime['uptime']
-        );
-        $this->templates = array(
-            '${field}',
-            '${input}'
-        );
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8')
-        );
+        ];
         $fields = (array)$fields;
         self::$HookManager
             ->processEvent(
-                'DashboardData',
-                array(
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
+                'DASHBOARD_SYSTEM_FIELDS',
+                ['fields' => &$fields]
             );
 
         echo '<!-- FOG Overview Boxes -->';
@@ -425,16 +412,16 @@ class DashboardPage extends FOGPage
         $ActivityTotalClients = $this->obj->getTotalAvailableSlots();
         $ActivityQueued = $this->obj->getQueuedSlots();
         $ActivityActive = $this->obj->getUsedSlots();
-        $data = array(
-            '_labels' => array(
+        $data = [
+            '_labels' => [
                 _('Free'),
                 _('Queued'),
                 _('Active')
-            ),
+            ],
             'ActivityActive' => &$ActivityActive,
             'ActivityQueued' => &$ActivityQueued,
             'ActivitySlots' => &$ActivityTotalClients
-        );
+        ];
         unset(
             $ActivityActive,
             $ActivityQueued,
@@ -509,16 +496,16 @@ class DashboardPage extends FOGPage
         foreach ((array)$dates as $index => &$date) {
             $count = self::getClass('ImagingLogManager')
                 ->count(
-                    array(
+                    [
                         'start' => $date->format('Y-m-d%'),
                         'finish' => $date->format('Y-m-d%')
-                    ),
+                    ],
                     'OR'
                 );
-            $data[] = array(
+            $data[] = [
                 ($date->getTimestamp() * 1000),
                 $count
-            );
+            ];
             unset($date);
         }
         echo json_encode($data);
@@ -546,14 +533,14 @@ class DashboardPage extends FOGPage
             FILTER_DEFAULT,
             FILTER_REQUIRE_ARRAY
         );
-        $urls = array();
+        $urls = [];
         foreach ((array)$sent as &$url) {
             $urls[] = $url;
             unset($url);
         }
         $datas = self::$FOGURLRequests
             ->process($urls);
-        $dataSet = array();
+        $dataSet = [];
         foreach ((array)$datas as &$data) {
             $dataSet[] = json_decode($data, true);
             unset($data);

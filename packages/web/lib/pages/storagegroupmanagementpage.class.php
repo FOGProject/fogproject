@@ -38,124 +38,18 @@ class StorageGroupManagementPage extends FOGPage
     {
         $this->name = 'Storage Group Management';
         parent::__construct($this->name);
-    }
-    /**
-     * Presents the Storage nodes list table.
-     *
-     * @return void
-     */
-    public function getStorageNodesList()
-    {
-        header('Content-type: application/json');
-        parse_str(
-            file_get_contents('php://input'),
-            $pass_vars
-        );
-
-        $where = "`nfsGroups`.`ngID` = '"
-            . $this->obj->get('id')
-            . "'";
-
-        $storagegroupsSqlStr = "SELECT `%s`,"
-            . "`ngmGroupID` AS `origID`,IF(`ngmGroupID` = '"
-            . $this->obj->get('id')
-            . "','associated','dissociated') AS `ngmGroupID`
-            FROM `%s`
-            CROSS JOIN `nfsGroups`
-            %s
-            %s
-            %s";
-        $storagegroupsFilterStr = "SELECT COUNT(`%s`),"
-            . "`ngmGroupID` AS `origID`,IF(`ngmGroupID` = '"
-            . $this->obj->get('id')
-            . "','associated','dissociated') AS `ngmGroupID`
-            FROM `%s`
-            CROSS JOIN `nfsGroups`
-            %s";
-        $storagegroupsTotalStr = "SELECT COUNT(`%s`)
-            FROM `%s`";
-
-        foreach (self::getClass('StorageNodeManager')
-            ->getColumns() as $common => &$real
-        ) {
-            $columns[] = [
-                'db' => $real,
-                'dt' => $common
-            ];
-            unset($real);
-        }
-        $columns[] = [
-            'db' => 'ngmGroupID',
-            'dt' => 'association'
-        ];
-        $columns[] = [
-            'db' => 'origID',
-            'dt' => 'origID',
-            'removeFromQuery' => true
-        ];
-        echo json_encode(
-            FOGManagerController::complex(
-                $pass_vars,
-                'nfsGroupMembers',
-                'ngmID',
-                $columns,
-                $storagegroupsSqlStr,
-                $storagegroupsFilterStr,
-                $storagegroupsTotalStr,
-                $where
-            )
-        );
-        exit;
-    }
-    /**
-     * Display the list of storage nodes.
-     *
-     * @return void
-     */
-    public function index()
-    {
-        global $node;
-        global $sub;
-        if (false === self::$showhtml) {
-            return;
-        }
-        if (self::$ajax) {
-            header('Content-Type: application/json');
-            Route::listem($this->childClass);
-            echo Route::getData();
-            exit;
-        }
-        $this->title = self::$foglang['AllSG'];
-        $this->headerData = array(
+        $this->headerData = [
             self::$foglang['SG'],
             _('Total Clients')
-        );
-        $this->templates = array(
+        ];
+        $this->templates = [
             '',
             ''
-        );
-        $this->attributes = array(
+        ];
+        $this->attributes = [
             [],
             []
-        );
-        self::$HookManager
-            ->processEvent(
-                'STORAGE_GROUP_DATA',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        $this->indexDivDisplay(true, 'group');
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
+        ];
     }
     /**
      * Create a new storage group.
@@ -252,19 +146,19 @@ class StorageGroupManagementPage extends FOGPage
             $code = 201;
             $hook = 'STORAGEGROUP_ADD_POST_SUCCESS';
             $msg = json_encode(
-                array(
+                [
                     'msg' => self::$foglang['SGCreated'],
                     'title' => _('Storage Group Create Success')
-                )
+                ]
             );
         } catch (Exception $e) {
             $code = ($serverFault ? 500 : 400);
             $hook = 'STORAGEGROUP_ADD_POST_FAIL';
             $msg = json_encode(
-                array(
+                [
                     'error' => $e->getMessage(),
                     'title' => _('Storage Group Create Fail')
-                )
+                ]
             );
         }
         http_response_code($code);
@@ -272,7 +166,7 @@ class StorageGroupManagementPage extends FOGPage
         self::$HookManager
             ->processEvent(
                 $hook,
-                array('StorageGroup' => &$StorageGroup)
+                ['StorageGroup' => &$StorageGroup]
             );
         unset($StorageGroup);
         echo $msg;
@@ -565,9 +459,77 @@ class StorageGroupManagementPage extends FOGPage
         http_response_code($code);
         self::$HookManager->processEvent(
             $hook,
-            array('StorageGroup' => &$this->obj)
+            ['StorageGroup' => &$this->obj]
         );
         echo $msg;
+        exit;
+    }
+    /**
+     * Presents the Storage nodes list table.
+     *
+     * @return void
+     */
+    public function getStorageNodesList()
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
+        $where = "`nfsGroups`.`ngID` = '"
+            . $this->obj->get('id')
+            . "'";
+
+        $storagegroupsSqlStr = "SELECT `%s`,"
+            . "`ngmGroupID` AS `origID`,IF(`ngmGroupID` = '"
+            . $this->obj->get('id')
+            . "','associated','dissociated') AS `ngmGroupID`
+            FROM `%s`
+            CROSS JOIN `nfsGroups`
+            %s
+            %s
+            %s";
+        $storagegroupsFilterStr = "SELECT COUNT(`%s`),"
+            . "`ngmGroupID` AS `origID`,IF(`ngmGroupID` = '"
+            . $this->obj->get('id')
+            . "','associated','dissociated') AS `ngmGroupID`
+            FROM `%s`
+            CROSS JOIN `nfsGroups`
+            %s";
+        $storagegroupsTotalStr = "SELECT COUNT(`%s`)
+            FROM `%s`";
+
+        foreach (self::getClass('StorageNodeManager')
+            ->getColumns() as $common => &$real
+        ) {
+            $columns[] = [
+                'db' => $real,
+                'dt' => $common
+            ];
+            unset($real);
+        }
+        $columns[] = [
+            'db' => 'ngmGroupID',
+            'dt' => 'association'
+        ];
+        $columns[] = [
+            'db' => 'origID',
+            'dt' => 'origID',
+            'removeFromQuery' => true
+        ];
+        echo json_encode(
+            FOGManagerController::complex(
+                $pass_vars,
+                'nfsGroupMembers',
+                'ngmID',
+                $columns,
+                $storagegroupsSqlStr,
+                $storagegroupsFilterStr,
+                $storagegroupsTotalStr,
+                $where
+            )
+        );
         exit;
     }
 }

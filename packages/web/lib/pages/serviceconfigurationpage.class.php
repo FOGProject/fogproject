@@ -109,18 +109,18 @@ class ServiceConfigurationPage extends FOGPage
         );
         $Module = $Modules->modules[0];
         unset($Modules);
-        $disps = array(
+        $disps = [
             'FOG_CLIENT_DISPLAYMANAGER_R',
             'FOG_CLIENT_DISPLAYMANAGER_X',
             'FOG_CLIENT_DISPLAYMANAGER_Y'
-        );
+        ];
         list(
             $r,
             $x,
             $y
         ) = self::getSubObjectIDs(
             'Service',
-            array('name' => $disps),
+            ['name' => $disps],
             'value'
         );
         unset($disps);

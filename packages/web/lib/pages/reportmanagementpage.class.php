@@ -78,7 +78,7 @@ class ReportManagementPage extends FOGPage
             $RegexIterator
         );
         $plugins = '?!';
-        $tFiles = array_map($fileitems, (array) $files);
+        $tFiles = array_map($fileitems, (array)$files);
         $fFiles = array_filter($tFiles);
         $normalfiles = array_values($fFiles);
         unset($tFiles, $fFiles);
@@ -92,7 +92,7 @@ class ReportManagementPage extends FOGPage
             ),
             DS
         );
-        $tFiles = array_map($fileitems, (array) $files);
+        $tFiles = array_map($fileitems, (array)$files);
         $fFiles = preg_grep($grepString, $tFiles);
         $pluginfiles = array_values($fFiles);
         unset($tFiles, $fFiles, $files);
@@ -130,12 +130,12 @@ class ReportManagementPage extends FOGPage
         set_time_limit(0);
         $this->name = 'Report Management';
         parent::__construct($this->name);
-        $this->menu = array(
+        $this->menu = [
             'home' => self::$foglang['Home']
-        );
-        $reportlink = "?node={$this->node}&sub=file&f=";
+        ];
+        $reportlink = "../management/index.php?node={$this->node}&sub=file&f=";
         foreach (self::_loadCustomReports() as &$report) {
-            $item = array();
+            $item = [];
             foreach (explode(' ', strtolower($report)) as &$rep) {
                 $item[] = ucfirst(trim($rep));
                 unset($rep);
@@ -143,29 +143,29 @@ class ReportManagementPage extends FOGPage
             $item = implode(' ', $item);
             $this->menu = self::fastmerge(
                 (array)$this->menu,
-                array(
+                [
                     sprintf(
                         '%s%s',
                         $reportlink,
                         base64_encode($report)
                     ) => $item
-                )
+                ]
             );
             unset($report, $item);
         }
         $this->menu = self::fastmerge(
             (array)$this->menu,
-            array('upload' => _('Import Reports'))
+            ['upload' => _('Import Reports')]
         );
         self::$HookManager
             ->processEvent(
                 'SUB_MENULINK_DATA',
-                array(
+                [
                     'menu' => &$this->menu,
                     'submenu' => &$this->subMenu,
                     'id' => &$this->id,
                     'notes' => &$this->notes
-                )
+                ]
             );
         $_SESSION['foglastreport'] = null;
         $this->ReportMaker = self::getClass('ReportMaker');
@@ -194,15 +194,15 @@ class ReportManagementPage extends FOGPage
             $this->templates,
             $this->attributes
         );
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group')
-        );
-        $this->templates = array(
+        $this->attributes = [
+            [],
+            []
+        ];
+        $this->templates = [
             '${field}',
             '${input}'
-        );
-        $this->data[] = array(
+        ];
+        $this->data[] = [
             'field' => '<label for="import">'
             . _('Import Report?')
             . '<br/>'
@@ -220,8 +220,8 @@ class ReportManagementPage extends FOGPage
             . '</label>'
             . '<input type="text" class="form-control filedisp" readonly/>'
             . '</div>'
-        );
-        $this->data[] = array(
+        ];
+        $this->data[] = [
             'field' => '<label for="importbtn">'
             . _('Import Report?')
             . '</label>',
@@ -229,15 +229,15 @@ class ReportManagementPage extends FOGPage
             . 'btn btn-info btn-block" id="importbtn">'
             . _('Import')
             . '</button>'
-        );
+        ];
         self::$HookManager->processEvent(
             'IMPORT_REPORT',
-            array(
+            [
                 'data' => &$this->data,
                 'headerData' => &$this->headerData,
                 'templates' => &$this->templates,
                 'attributes' => &$this->attributes
-            )
+            ]
         );
         echo '<div class="col-xs-9">';
         echo '<div class="panel panel-info">';

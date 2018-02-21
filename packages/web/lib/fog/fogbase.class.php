@@ -1041,17 +1041,13 @@ abstract class FOGBase
         //     FOG_CLIENT_<name>_ENABLED in lowercase.
         $services = array(
             'autologout' => 'autologoff',
-            'clientupdater' => true,
-            'dircleanup' => 'directorycleaner',
             'displaymanager' => true,
-            'greenfog' => true,
             'hostnamechanger' => true,
             'hostregister' => true,
             'powermanagement' => true,
             'printermanager' => true,
             'snapinclient' => 'snapin',
             'taskreboot' => true,
-            'usercleanup' => true,
             'usertracker' => true,
         );
         // If keys is set, return just the keys.

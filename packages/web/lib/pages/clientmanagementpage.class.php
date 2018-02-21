@@ -44,7 +44,7 @@ class ClientManagementPage extends FOGPage
     {
         $this->name = 'Client Management';
         parent::__construct($this->name);
-        $this->menu = array();
+        $this->menu = [];
     }
     /**
      * This is the default method called.  Displays what we want on the
@@ -54,11 +54,11 @@ class ClientManagementPage extends FOGPage
      */
     public function index()
     {
-        $webArr = array(
-            'name' => array(
+        $webArr = [
+            'name' => [
                 'FOG_WEB_HOST'
-            )
-        );
+            ]
+        ];
         list($ip) = self::getSubObjectIDs(
             'Service',
             $webArr,
@@ -151,52 +151,6 @@ class ClientManagementPage extends FOGPage
         echo '</p>';
         echo '</div>';
         echo '<div class="box-body">';
-        printf(
-            '%s. %s: %s %s.<br/><br/>',
-            _('Use the links below if you need assistance'),
-            _('NOTE'),
-            _('Forums are the most common and fastest method of getting'),
-            _('help with any aspect of FOG')
-        );
-        echo '<br/>';
-        printf(
-            '<a href="'
-            . 'https://wiki.fogproject.org/wiki/index.php?title=FOG_client'
-            . '" data-toggle="tooltip" data-placement="right" '
-            . 'title="%s. %s">%s</a><br/>',
-            _('Detailed documentation'),
-            _('It is primarily geared for the smart installer methodology now'),
-            _('FOG Client Wiki')
-        );
-        printf(
-            '<a href="'
-            . 'https://forums.fogproject.org'
-            . '" data-toggle="tooltip" data-placement="right" '
-            . 'title="%s? %s. %s %s. %s.">%s</a>',
-            _('Need more support'),
-            _('Somebody will be able to help in some form'),
-            _('Use the forums to post issues so others'),
-            _('may see the issue and help and/or use the solutions'),
-            _('Chat is also available on the forums for more realtime help'),
-            _('FOG Forums')
-        );
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        return;
-
-        echo '<div class="col-xs-4">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Help and Guide');
-        echo '</h4>';
-        echo '<p class="category">';
-        echo _('Where to get help');
-        echo '</p>';
-        echo '</div>';
-        echo '<div class="panel-body">';
         printf(
             '%s. %s: %s %s.<br/><br/>',
             _('Use the links below if you need assistance'),

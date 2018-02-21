@@ -42,8 +42,6 @@ class SchemaUpdaterPage extends FOGPage
             self::redirect('index.php');
         }
         $this->name = 'Database Schema Installer / Updater';
-        $this->menu = array();
-        $this->subMenu = array();
     }
     /**
      * The first page displayed if on GUI
@@ -53,9 +51,9 @@ class SchemaUpdaterPage extends FOGPage
     public function index()
     {
         $this->title = _('Database Schema Installer / Updater');
-        $vals = array(
+        $vals = [
             "\n",
-        );
+        ];
         // Success
         echo '<div class="panel panel-info hiddeninitially" id="dbRunning">';
         echo '<div class="panel-heading text-center">';
@@ -162,7 +160,7 @@ class SchemaUpdaterPage extends FOGPage
             DS,
             DS
         );
-        $errors = array();
+        $errors = [];
         try {
             if (!DatabaseManager::getLink()) {
                 throw new Exception(_('No connection available'));
@@ -204,14 +202,14 @@ class SchemaUpdaterPage extends FOGPage
                             break 2;
                         }
                     } elseif (false !== self::$DB->query($update)->error) {
-                        $dups = array(
+                        $dups = [
                             1050, // Can't drop not exist
                             1054, // Column not found.
                             1060, // Duplicate column name
                             1061, // Duplicate index/key name
                             1062, // Duplicate entry
                             1091  // Table not exist.
-                        );
+                        ];
                         $err = self::$DB->errorCode;
                         if (in_array(self::$DB->errorCode, $dups)) {
                             continue;

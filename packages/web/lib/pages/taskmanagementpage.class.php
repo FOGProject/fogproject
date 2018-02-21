@@ -467,7 +467,7 @@ class TaskManagementPage extends FOGPage
     public function activesnapins()
     {
         $this->title = 'Active Snapins';
-        $this->headerData = array(
+        $this->headerData = [
             '<input type="checkbox" name="toggle-checkbox" class='
             . '"toggle-checkboxAction" id="toggler2"/><label for="'
             . 'toggler2"></label>',
@@ -475,8 +475,8 @@ class TaskManagementPage extends FOGPage
             _('Snapin'),
             _('Start Time'),
             _('State'),
-        );
-        $this->templates = array(
+        ];
+        $this->templates = [
             '<input type="checkbox" name="task[]" value="${id}" class='
             . '"toggle-action" id="sntasks-${id}"/><label for="'
             . 'sntasks-${id}"></label>',
@@ -488,26 +488,14 @@ class TaskManagementPage extends FOGPage
             '${name}',
             '${startDate}',
             '${state}',
-        );
-        $this->attributes = array(
-            array(
-                'class' => 'filter-false',
-                'width' => 16,
-                'task-id'=>'${id}'
-            ),
-            array(
-                'width' => 50
-            ),
-            array(
-                'width' => 50
-            ),
-            array(
-                'width' => 50
-            ),
-            array(
-                'width' => 40
-            )
-        );
+        ];
+        $this->attributes = [
+            [],
+            [],
+            [],
+            [],
+            []
+        ];
         Route::active('snapintask');
         $SnapinTasks = json_decode(
             Route::getData()
@@ -539,7 +527,7 @@ class TaskManagementPage extends FOGPage
             if (!$inArr) {
                 continue;
             }
-            $this->data[] = array(
+            $this->data[] = [
                 'id' => $SnapinTask->id,
                 'name' => $Snapin->name,
                 'host_id' => $Host->id,
@@ -550,7 +538,7 @@ class TaskManagementPage extends FOGPage
                     'Y-m-d H:i:s'
                 ),
                 'state' => $SnapinTask->state->name
-            );
+            ];
             unset(
                 $SnapinTask,
                 $Snapin,
@@ -561,12 +549,12 @@ class TaskManagementPage extends FOGPage
         self::$HookManager
             ->processEvent(
                 'TaskActiveSnapinsData',
-                array(
+                [
                     'headerData' => &$this->headerData,
                     'data' => &$this->data,
                     'templates' => &$this->templates,
                     'attributes' => &$this->attributes
-                )
+                ]
             );
         unset($SnapinTasks);
         if (self::$ajax) {
@@ -591,9 +579,7 @@ class TaskManagementPage extends FOGPage
         if (count($SnapinTaskIDs) > 0) {
             $SnapinJobIDs = self::getSubObjectIDs(
                 'SnapinTask',
-                array(
-                    'id' => $SnapinTaskIDs
-                ),
+                ['id' => $SnapinTaskIDs],
                 'jobID'
             );
             self::getClass('SnapinTaskManager')->cancel($SnapinTaskIDs);
@@ -601,18 +587,14 @@ class TaskManagementPage extends FOGPage
         if (count($SnapinJobIDs) > 0) {
             $HostIDs = self::getSubObjectIDs(
                 'SnapinJob',
-                array(
-                    'id' => $SnapinJobIDs
-                ),
+                ['id' => $SnapinJobIDs],
                 'hostID'
             );
         }
         if (count($HostIDs) > 0) {
             $SnapTaskIDs = self::getSubObjectIDs(
                 'SnapinTask',
-                array(
-                    'jobID' => $SnapinJobIDs,
-                )
+                ['jobID' => $SnapinJobIDs]
             );
             $TaskIDs = array_diff(
                 $SnapTaskIDs,
@@ -622,13 +604,13 @@ class TaskManagementPage extends FOGPage
         if (count($TaskIDs) < 1) {
             $TaskIDs = self::getSubObjectIDs(
                 'Task',
-                array(
+                [
                     'hostID' => $HostIDs,
-                    'typeID' => array(
+                    'typeID' => [
                         12,
                         13
-                    )
-                )
+                    ]
+                ]
             );
             self::getClass('TaskManager')->cancel($TaskIDs);
         }
@@ -649,7 +631,7 @@ class TaskManagementPage extends FOGPage
             $this->templates
         );
         $this->title = _('Scheduled Tasks');
-        $this->headerData = array(
+        $this->headerData = [
             '<input type="checkbox" name="toggle-checkbox" class='
             . '"toggle-checkboxAction" id="toggler3"/><label for="'
             . 'toggler3"></label>',
@@ -660,8 +642,8 @@ class TaskManagementPage extends FOGPage
             _('Start Time'),
             _('Active'),
             _('Type'),
-        );
-        $this->templates = array(
+        ];
+        $this->templates = [
             '<input type="checkbox" name="task[]" value="${id}" class='
             . '"toggle-action" id="sctasks-${id}"/><label for="'
             . 'sctasks-${id}"></label>',
@@ -673,40 +655,22 @@ class TaskManagementPage extends FOGPage
             '<small>${start_time}</small>',
             '${active}',
             '${type}',
-        );
-        $this->attributes = array(
-            array(
-                'width' => 16,
-                'class' => 'filter-false',
-                'task-id' => '${id}'
-            ),
-            array(
-                'width' => 100
-            ),
-            array(
-                'width' => 25
-            ),
-            array(
-                'width' => 110
-            ),
-            array(
-                'width' => 80
-            ),
-            array(
-                'width' => 70
-            ),
-            array(
-                'width' => 30
-            ),
-            array(
-                'width' => 80
-            )
-        );
+        ];
+        $this->attributes = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        ];
         Route::active('scheduledtask');
         $ScheduledTasks = json_decode(
             Route::getData()
         );
-        $ScheduledTasks = $ScheduledTasks->scheduledtasks;
+        $ScheduledTasks = $ScheduledTasks->data;
         foreach ((array)$ScheduledTasks as &$ScheduledTask) {
             $method = 'host';
             if ($ScheduledTask->isGroupTask) {
@@ -737,7 +701,7 @@ class TaskManagementPage extends FOGPage
                     }
                 }
             }
-            $this->data[] = array(
+            $this->data[] = [
                 'id' => $ScheduledTask->id,
                 'start_time' => $ScheduledTask->runtime,
                 'groupbased' => (
@@ -770,18 +734,18 @@ class TaskManagementPage extends FOGPage
                 ),
                 'nametype' => $method,
                 'hover' => $hover
-            );
+            ];
             unset($ScheduledTask, $ObjTest, $TaskType);
         }
         self::$HookManager
             ->processEvent(
                 'TaskScheduledData',
-                array(
+                [
                     'headerData' => &$this->headerData,
                     'data' => &$this->data,
                     'templates' => &$this->templates,
                     'attributes' => &$this->attributes
-                )
+                ]
             );
         if (self::$ajax) {
             return $this->render();
