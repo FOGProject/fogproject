@@ -169,10 +169,6 @@
     printerAddBtn.prop('disabled', true);
     printerRemoveBtn.prop('disabled', true);
 
-    function onPrintersToAddTableSelect (selected) {
-        var disabled = selected.count() == 0;
-        printerAddBtn.prop('disabled', disabled);
-    }
     function onPrintersSelect (selected) {
         var disabled = selected.count() == 0;
         printerAddBtn.prop('disabled', disabled);
@@ -291,8 +287,8 @@
 
         var method = printerAddBtn.attr('method'),
             action = printerAddBtn.attr('action'),
-            rows = printersToAddTable.rows({selected: true}),
-            toAdd = Common.getSelectedIds(printersToAddTable),
+            rows = printersTable.rows({selected: true}),
+            toAdd = Common.getSelectedIds(printersTable),
             opts = {
                 'updateprinters': '1',
                 'printer': toAdd
@@ -301,9 +297,6 @@
         Common.apiCall(method,action,opts,function(err) {
             if (!err) {
                 printersTable.draw(false);
-                printersTable.rows({
-                    selected: true
-                }).remove().draw(false);
                 printersTable.rows({selected: true}).deselect();
             } else {
                 printerAddBtn.prop('disabled', false);
@@ -329,9 +322,6 @@
             printerDefaultBtn.prop('disabled', false);
             if (!err) {
                 printersTable.draw(false);
-                printersTable.rows({
-                    selected: true
-                }).remove().draw(false);
                 printersTable.rows({selected: true}).deselect();
             } else {
                 printerRemoveBtn.prop('disabled', false);
@@ -399,9 +389,6 @@
         Common.apiCall(method,action,opts,function(err) {
             if (!err) {
                 snapinsTable.draw(false);
-                snapisnTable.rows({
-                    selected: true
-                }).remove().draw(false);
                 snapinsTable.rows({selected: true}).deselect();
             } else {
                 snapinsAddBtn.prop('disabled', false);
@@ -422,9 +409,6 @@
         Common.apiCall(method,action,opts,function(err) {
             if (!err) {
                 snapinsTable.draw(false);
-                snapinsTable.rows({
-                    selected: true
-                }).remove().draw(false);
                 snapinsTable.rows({selected: true}).deselect();
             } else {
                 snapinsRemoveBtn.prop('disabled', false);
