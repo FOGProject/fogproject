@@ -14,7 +14,11 @@
 
     var generalForm = $('#group-general-form'),
         generalFormBtn = $('#general-send'),
-        generalDeleteBtn = $('#general-delete');
+        generalDeleteBtn = $('#general-delete'),
+        resetEncryptionBtn = $('#reset-encryption-data'),
+        resetEncryptionModal = $('#resetencryptionmodal'),
+        resetEncryptionCancelBtn = $('#resetencryptionCancel'),
+        resetEncryptionConfirmBtn = $('#resetencryptionConfirm');
 
     generalForm.on('submit',function(e) {
         e.preventDefault();
@@ -43,6 +47,62 @@
             }
             window.location = '../management/index.php?node='+Common.node+'&sub=list';
         });
+    });
+
+    // Reset encryption confirmation modal.
+    resetEncryptionBtn.on('click', function(e) {
+        e.preventDefault();
+        // Set our general form buttons disabled.
+        $(this).prop('disabled', true);
+        generalFormBtn.prop('disabled', true);
+        generalDeleteBtn.prop('disabled', true);
+
+        // Enable our modal buttons.
+        resetEncryptionConfirmBtn.prop('disabled', false);
+        resetEncryptionCancelBtn.prop('disabled', false);
+
+        // Display the reset encryption modal
+        resetEncryptionModal.modal('show');
+    });
+
+    // Modal cancelled
+    resetEncryptionCancelBtn.on('click', function(e) {
+        e.preventDefault();
+
+        // Set our modal buttons disabled.
+        $(this).prop('disabled', true);
+        resetEncryptionConfirmBtn.prop('disabled', true);
+
+        // Enable our general form buttons.
+        generalFormBtn.prop('disabled', false);
+        generalDeleteBtn.prop('disabled', false);
+        resetEncryptionBtn.prop('disabled', false);
+
+        // Hide the modal
+        resetEncryptionModal.modal('hide');
+    });
+
+    // Modal Confirmed
+    resetEncryptionConfirmBtn.on('click', function(e) {
+        e.preventDefault();
+
+        // Set our modal buttons disabled.
+        $(this).prop('disabled', true);
+        resetEncryptionCancelBtn.prop('disabled', true);
+
+        // Enable our general form buttons.
+        generalFormBtn.prop('disabled', false);
+        generalDeleteBtn.prop('disabled', false);
+        resetEncryptionBtn.prop('disabled', false);
+
+        // Reset our encryption data.
+        $.post(
+            '../management/index.php?sub=slearAES',
+            {groupid: Common.id}
+        );
+
+        // Hide the modal
+        resetEncryptionModal.modal('hide');
     });
 
     // ---------------------------------------------------------------
