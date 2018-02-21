@@ -356,6 +356,22 @@ class GroupManagementPage extends FOGPage
                 : $this->obj->get('kernelDevice')
             )
         );
+        $modalresetBtn = self::makeButton(
+            'resetencryptionConfirm',
+            _('Confirm'),
+            'btn btn-primary'
+        );
+        $modalresetBtn .= self::makeButton(
+            'resetencryptionCancel',
+            _('Cancel'),
+            'btn btn-danger pull-right'
+        );
+        $modalreset = self::makeModal(
+            'resetencryptionmodal',
+            _('Reset Encryption Data'),
+            _('Confirm that you would like to reset encryption data for all hosts in this group'),
+            $modalresetBtn
+        );
         $fields = [
             '<label for="name" class="col-sm-2 control-label">'
             . _('Group Name')
@@ -423,8 +439,16 @@ class GroupManagementPage extends FOGPage
         echo $rendered;
         echo '</div>';
         echo '<div class="box-footer">';
-        echo '<button class="btn btn-primary" id="general-send">' . _('Update') . '</button>';
-        echo '<button class="btn btn-danger pull-right" id="general-delete">' . _('Delete') . '</button>';
+        echo '<button class="btn btn-primary" id="general-send">'
+            . _('Update')
+            . '</button>';
+        echo '<button class="btn btn-warning" id="reset-encryption-data">'
+            . _('Reset Encryption Data')
+            . '</button>';
+        echo '<button class="btn btn-danger pull-right" id="general-delete">'
+            . _('Delete')
+            . '</button>';
+        echo $modalreset;
         echo '</div>';
         echo '</form>';
         echo '</div>';
