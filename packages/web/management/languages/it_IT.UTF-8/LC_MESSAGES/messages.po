@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-20 20:20-0500\n"
+"POT-Creation-Date: 2018-02-21 11:19-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -347,9 +347,6 @@ msgstr "Aggiornamento del kernel"
 
 msgid "iPXE General Configuration"
 msgstr "Configurazione generale iPXE"
-
-msgid "Client Updater"
-msgstr "Updater client"
 
 msgid "Hostname Changer"
 msgstr "Nome host Changer"
@@ -2635,24 +2632,6 @@ msgstr ""
 msgid "FOG Forums"
 msgstr "FOG Forum"
 
-msgid "Help and Guide"
-msgstr "Aiuto e guida"
-
-msgid "Where to get help"
-msgstr "Dove ottenere aiuto"
-
-msgid "FOG Project on Github"
-msgstr "Progetto FOG su Github"
-
-msgid "FOG Client on Github"
-msgstr "Client FOG su Github"
-
-msgid "FOG Wiki"
-msgstr "FOG Wiki"
-
-msgid "Donate to FOG"
-msgstr "Donate alla nebbia"
-
 msgid "FOG Version Information"
 msgstr "FOG Informazioni sulla versione"
 
@@ -2987,6 +2966,10 @@ msgstr "Una descrizione deve essere impostato"
 msgid "iPXE Item create failed!"
 msgstr "Creazione elemento iPXE non riuscita!"
 
+#, fuzzy
+msgid "Menu item failed!"
+msgstr "Aggiornamento ruolo non riuscito"
+
 msgid "iPXE Item added!"
 msgstr "Elemento iPXE aggiunto!"
 
@@ -2995,85 +2978,6 @@ msgstr "Creazione elemento iPXE riuscita"
 
 msgid "iPXE Item Create Fail"
 msgstr "Creazione elemento iPXE non riuscita!"
-
-msgid "FOG Client Service Updater"
-msgstr "FOG Servizio Clienti Updater"
-
-msgid "Module Name"
-msgstr "Nome Modulo"
-
-msgid "Module MD5"
-msgstr "Modulo MD5"
-
-msgid "Module Type"
-msgstr "Tipo di modulo"
-
-msgid "Current files"
-msgstr "File corrente"
-
-msgid "NOTICE"
-msgstr "AVVISO"
-
-msgid "The below items are only used for the old client."
-msgstr ""
-"Gli elementi riportati di seguito sono utilizzati solo per il vecchio client."
-
-msgid "Old clients are the clients that came with FOG"
-msgstr "I vecchi client sono i client che si preventano con FOG"
-
-msgid "Version 1.2.0 and earlier"
-msgstr "Versione 1.2.0. o precedente"
-
-msgid "This section allows you to update the modules and"
-msgstr "Questa sezione consente di aggiornare i moduli e"
-
-msgid "config files that run on the client computers."
-msgstr "file di configurazione eseguiti sui computer client."
-
-msgid "The clients will checkin with the server from time"
-msgstr "I clienti effettueranno il check-in con il server di tanto"
-
-msgid "to time to see if a new module is published."
-msgstr "in tanto per vedere se è stato pubblicato un nuovo modulo."
-
-msgid "If a new module is published the client will"
-msgstr "Se viene pubblicato un nuovo modulo, il client farà"
-
-msgid "download the module and use it on the next"
-msgstr "scaricare il modulo e utilizzarlo nella successiva"
-
-msgid "time the service is started."
-msgstr "volta che il servizio viene avviato."
-
-msgid "Upload file"
-msgstr "Caricare un file"
-
-msgid "Max Size"
-msgstr "Dimensione massima"
-
-msgid "Browse"
-msgstr "Sfoglia"
-
-msgid "Delete Selected Items"
-msgstr "Eliminare gli elementi selezionati"
-
-msgid "Make Changes"
-msgstr "Applicare cambiamenti"
-
-msgid "Item removed successfully!"
-msgstr "Elemento rimosso con successo!"
-
-msgid "Client Modules Change Success"
-msgstr "Moduli client modificato con successo"
-
-msgid "No file uploaded!"
-msgstr "Nessun file caricato"
-
-msgid "Modules added/updated successfully!"
-msgstr "Moduli aggiunti/aggiornati con successo!"
-
-msgid "Client Modules Change Fail"
-msgstr "Modulo Client fallimento di cambiamento"
 
 msgid "MAC Address Manufacturer Listing"
 msgstr "MAC Listing Indirizzo Produttore"
@@ -3160,6 +3064,9 @@ msgstr "Nessun immagine specificata"
 msgid "Reset Token"
 msgstr "Reset Token"
 
+msgid "Browse"
+msgstr "Sfoglia"
+
 msgid "No Image specified"
 msgstr "Nessuna immagine specificata"
 
@@ -3237,6 +3144,9 @@ msgstr "Esporta database"
 
 msgid "Import Database?"
 msgstr "Importa database?"
+
+msgid "Max Size"
+msgstr "Dimensione massima"
 
 msgid "Import"
 msgstr "Importare"
@@ -3552,6 +3462,9 @@ msgstr "Abilitato"
 msgid "Disable All"
 msgstr "Disabilitato"
 
+msgid "Module Name"
+msgstr "Nome Modulo"
+
 #, fuzzy
 msgid "Module Associated"
 msgstr "Host associato"
@@ -3844,9 +3757,6 @@ msgstr "Regole di associazione"
 msgid "Group module settings"
 msgstr "Impostazioni modulo del gruppo"
 
-msgid "Host Memory"
-msgstr "Memoria Host"
-
 msgid "Group update failed!"
 msgstr "Aggiornamento del gruppo non riuscito!"
 
@@ -3858,12 +3768,6 @@ msgstr "Aggiornamento del gruppo completato"
 
 msgid "Group Update Fail"
 msgstr "Aggiornamento gruppo non riuscito"
-
-msgid "Group Power Management Remove"
-msgstr "Rimozione del gruppo di gestione energetica"
-
-msgid "Delete all PM tasks?"
-msgstr "Cancellare tutte le attività PM?"
 
 #, fuzzy
 msgid "Total Clients"
@@ -6095,9 +5999,3 @@ msgstr "Metodo non esiste"
 
 msgid "Device must be a string"
 msgstr "Dispositivo deve essere una stringa"
-
-msgid "File must be a string"
-msgstr "File deve essere una stringa"
-
-msgid "Only tx and rx bytes files can be read"
-msgstr "Solo file di tx e rx byte possono essere letti"

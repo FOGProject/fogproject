@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-20 20:20-0500\n"
+"POT-Creation-Date: 2018-02-21 11:19-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -347,9 +347,6 @@ msgstr "Kernel Update"
 #, fuzzy
 msgid "iPXE General Configuration"
 msgstr "iPXE Configuration du menu"
-
-msgid "Client Updater"
-msgstr "Updater Client"
 
 msgid "Hostname Changer"
 msgstr "Hostname Changeur"
@@ -2911,24 +2908,6 @@ msgstr ""
 msgid "FOG Forums"
 msgstr "BROUILLARD Forums"
 
-msgid "Help and Guide"
-msgstr "Aide et Guide"
-
-msgid "Where to get help"
-msgstr ""
-
-msgid "FOG Project on Github"
-msgstr "Projet FOG sur Github"
-
-msgid "FOG Client on Github"
-msgstr "FOG Client sur Github"
-
-msgid "FOG Wiki"
-msgstr "FOG Wiki"
-
-msgid "Donate to FOG"
-msgstr "Faire un don à BROUILLARD"
-
 msgid "FOG Version Information"
 msgstr "FOG Informations de version"
 
@@ -3315,6 +3294,10 @@ msgid "iPXE Item create failed!"
 msgstr "Menu create a échoué"
 
 #, fuzzy
+msgid "Menu item failed!"
+msgstr "mise à jour de l'utilisateur a échoué"
+
+#, fuzzy
 msgid "iPXE Item added!"
 msgstr "Nom de l'imprimante"
 
@@ -3325,96 +3308,6 @@ msgstr "Imprimante existe déjà"
 #, fuzzy
 msgid "iPXE Item Create Fail"
 msgstr "mise à jour de l'imprimante a échoué!"
-
-msgid "FOG Client Service Updater"
-msgstr "FOG service à la clientèle Updater"
-
-msgid "Module Name"
-msgstr "Nom du module"
-
-msgid "Module MD5"
-msgstr "Module MD5"
-
-msgid "Module Type"
-msgstr "Type de module"
-
-#, fuzzy
-msgid "Current files"
-msgstr "Enregistrements courants"
-
-#, fuzzy
-msgid "NOTICE"
-msgstr "NE PAS"
-
-#, fuzzy
-msgid "The below items are only used for the old client."
-msgstr "Ce paramètre définit le nom d'utilisateur utilisé pour le client ssh."
-
-msgid "Old clients are the clients that came with FOG"
-msgstr ""
-
-msgid "Version 1.2.0 and earlier"
-msgstr ""
-
-#, fuzzy
-msgid "This section allows you to update the modules and"
-msgstr "Ce paramètre définit le nom d'utilisateur proxy à utiliser."
-
-msgid "config files that run on the client computers."
-msgstr ""
-
-msgid "The clients will checkin with the server from time"
-msgstr ""
-
-msgid "to time to see if a new module is published."
-msgstr ""
-
-#, fuzzy
-msgid "If a new module is published the client will"
-msgstr "Ce paramètre définit le nom d'utilisateur utilisé pour le client ssh."
-
-msgid "download the module and use it on the next"
-msgstr ""
-
-msgid "time the service is started."
-msgstr ""
-
-#, fuzzy
-msgid "Upload file"
-msgstr "Téléverser un fichier"
-
-msgid "Max Size"
-msgstr "Max Taille"
-
-msgid "Browse"
-msgstr ""
-
-#, fuzzy
-msgid "Delete Selected Items"
-msgstr "Supprimer tous les éléments sélectionnés"
-
-#, fuzzy
-msgid "Make Changes"
-msgstr "Sauvegarder les modifications"
-
-#, fuzzy
-msgid "Item removed successfully!"
-msgstr "sauvegarde réussie"
-
-#, fuzzy
-msgid "Client Modules Change Success"
-msgstr "Imprimante existe déjà"
-
-#, fuzzy
-msgid "No file uploaded!"
-msgstr "Aucun fichier téléchargé"
-
-#, fuzzy
-msgid "Modules added/updated successfully!"
-msgstr "Modules ajoutées / mises à jour"
-
-msgid "Client Modules Change Fail"
-msgstr ""
 
 msgid "MAC Address Manufacturer Listing"
 msgstr "MAC Listing Adresse du fabricant"
@@ -3505,6 +3398,9 @@ msgstr "Aucune image spécifiée"
 #, fuzzy
 msgid "Reset Token"
 msgstr "Jeton d'accès"
+
+msgid "Browse"
+msgstr ""
 
 msgid "No Image specified"
 msgstr "Pas d'image spécifiée"
@@ -3597,6 +3493,9 @@ msgstr "date"
 #, fuzzy
 msgid "Import Database?"
 msgstr "date"
+
+msgid "Max Size"
+msgstr "Max Taille"
 
 msgid "Import"
 msgstr "Importer"
@@ -3948,6 +3847,9 @@ msgstr "Activée"
 msgid "Disable All"
 msgstr "Activée"
 
+msgid "Module Name"
+msgstr "Nom du module"
+
 #, fuzzy
 msgid "Module Associated"
 msgstr "Aucun noeud associé"
@@ -4266,9 +4168,6 @@ msgstr "Association Image"
 msgid "Group module settings"
 msgstr "hôte description de"
 
-msgid "Host Memory"
-msgstr "Mémoire hôte"
-
 #, fuzzy
 msgid "Group update failed!"
 msgstr "mise à jour de l'utilisateur a échoué"
@@ -4284,14 +4183,6 @@ msgstr "utilisateur créé"
 #, fuzzy
 msgid "Group Update Fail"
 msgstr "Groupe create a échoué"
-
-#, fuzzy
-msgid "Group Power Management Remove"
-msgstr "Gestion des utilisateurs"
-
-#, fuzzy
-msgid "Delete all PM tasks?"
-msgstr "Supprimer tous sélectionnés %s s"
 
 #, fuzzy
 msgid "Total Clients"
@@ -6856,10 +6747,3 @@ msgstr "Méthode n'existe pas"
 #, fuzzy
 msgid "Device must be a string"
 msgstr "Événement doit être une chaîne"
-
-#, fuzzy
-msgid "File must be a string"
-msgstr "Événement doit être une chaîne"
-
-msgid "Only tx and rx bytes files can be read"
-msgstr ""

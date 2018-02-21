@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-20 20:20-0500\n"
+"POT-Creation-Date: 2018-02-21 11:19-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -343,9 +343,6 @@ msgstr "Kernel-Update"
 #, fuzzy
 msgid "iPXE General Configuration"
 msgstr "iPXE allg. Konfiguration"
-
-msgid "Client Updater"
-msgstr "Client-Updater"
 
 msgid "Hostname Changer"
 msgstr "Hostname-Wechsler"
@@ -2905,24 +2902,6 @@ msgstr "Für mehr Echtzeit-Hilfe gibt es auch die Chat-Funktion. "
 msgid "FOG Forums"
 msgstr "FOG-Forum"
 
-msgid "Help and Guide"
-msgstr "Hilfe und Anleitung"
-
-msgid "Where to get help"
-msgstr "Wo bekomme ich Hilfe?"
-
-msgid "FOG Project on Github"
-msgstr "FOG-Projekt auf Github"
-
-msgid "FOG Client on Github"
-msgstr "FOG-Client auf Github"
-
-msgid "FOG Wiki"
-msgstr "FOG-Wiki"
-
-msgid "Donate to FOG"
-msgstr "Spenden für das FOG Projekt"
-
 msgid "FOG Version Information"
 msgstr "FOG-Versionsinformationen"
 
@@ -3306,6 +3285,10 @@ msgid "iPXE Item create failed!"
 msgstr "Erstellen eines iPXE-Menüs fehlgeschlagen"
 
 #, fuzzy
+msgid "Menu item failed!"
+msgstr "Aktualisierung der Rolle fehlgeschlagen"
+
+#, fuzzy
 msgid "iPXE Item added!"
 msgstr "iPXE Element hinzugefügt!"
 
@@ -3316,98 +3299,6 @@ msgstr "iPXE-Element erfolgreich erstellt"
 #, fuzzy
 msgid "iPXE Item Create Fail"
 msgstr "Erstellung eines iPXE-Elements fehlgeschlagen!"
-
-msgid "FOG Client Service Updater"
-msgstr "FOG-Client Service Updater"
-
-msgid "Module Name"
-msgstr "Modulname"
-
-msgid "Module MD5"
-msgstr "Modul-MD5"
-
-msgid "Module Type"
-msgstr "Modul-Typ"
-
-#, fuzzy
-msgid "Current files"
-msgstr "Aktuelle Datensätze"
-
-#, fuzzy
-msgid "NOTICE"
-msgstr "BEACHTE"
-
-#, fuzzy
-msgid "The below items are only used for the old client."
-msgstr "Die unten aufgeführten Elemente werden nur für alte Clients genutzt"
-
-msgid "Old clients are the clients that came with FOG"
-msgstr "Alte Clients sind die Clients, die von FOG Version 1.2.0"
-
-msgid "Version 1.2.0 and earlier"
-msgstr "oder früher gekommen sind."
-
-#, fuzzy
-msgid "This section allows you to update the modules and"
-msgstr "In diesem Abschnitt können Sie die Module und "
-
-msgid "config files that run on the client computers."
-msgstr ""
-"Konfigurationsdateien aktualisieren, die auf den Clientcomputern ausgeführt "
-"werden."
-
-msgid "The clients will checkin with the server from time"
-msgstr "Die Clients prüfen von Zeit zu Zeit,"
-
-msgid "to time to see if a new module is published."
-msgstr "ob ein neues Modul veröffentlicht wurde."
-
-#, fuzzy
-msgid "If a new module is published the client will"
-msgstr "Falls ein neues Modul veröffentlicht wurde, wird "
-
-msgid "download the module and use it on the next"
-msgstr "der Client das Modul herunterladen und verwendet es "
-
-msgid "time the service is started."
-msgstr "beim nächsten Start des Dienstes."
-
-#, fuzzy
-msgid "Upload file"
-msgstr "Datei hochladen"
-
-msgid "Max Size"
-msgstr "Max. Größe"
-
-msgid "Browse"
-msgstr "browse"
-
-#, fuzzy
-msgid "Delete Selected Items"
-msgstr "ausgewählte Elemente löschen"
-
-#, fuzzy
-msgid "Make Changes"
-msgstr "Änderungen speichern"
-
-#, fuzzy
-msgid "Item removed successfully!"
-msgstr "Element erfolgreich entfernt!"
-
-#, fuzzy
-msgid "Client Modules Change Success"
-msgstr "Client Modul erfolgreich geändert"
-
-#, fuzzy
-msgid "No file uploaded!"
-msgstr "Keine Datei hochgeladen"
-
-#, fuzzy
-msgid "Modules added/updated successfully!"
-msgstr "Module erfolgreich hinzugefügt/aktualisiert"
-
-msgid "Client Modules Change Fail"
-msgstr "Änderung des Client Moduls fehlgeschlagen"
 
 msgid "MAC Address Manufacturer Listing"
 msgstr "Liste der Hersteller nach MAC-Adresse"
@@ -3501,6 +3392,9 @@ msgstr "Kein Image angegeben"
 msgid "Reset Token"
 msgstr "Token zurücksetzen"
 
+msgid "Browse"
+msgstr "browse"
+
 msgid "No Image specified"
 msgstr "Kein Image angegeben"
 
@@ -3592,6 +3486,9 @@ msgstr "Datenbank exportieren"
 #, fuzzy
 msgid "Import Database?"
 msgstr "Datenbank importieren?"
+
+msgid "Max Size"
+msgstr "Max. Größe"
 
 msgid "Import"
 msgstr "Import"
@@ -3944,6 +3841,9 @@ msgstr "Aktiviert"
 msgid "Disable All"
 msgstr "Deaktiviert"
 
+msgid "Module Name"
+msgstr "Modulname"
+
 #, fuzzy
 msgid "Module Associated"
 msgstr "zugeordneter Host"
@@ -4262,9 +4162,6 @@ msgstr "Regel Zuordnung"
 msgid "Group module settings"
 msgstr "Gruppeneinstellungen Module"
 
-msgid "Host Memory"
-msgstr "Hostspeicher"
-
 #, fuzzy
 msgid "Group update failed!"
 msgstr "Gruppenaktualisierung fehlgeschlagen"
@@ -4280,14 +4177,6 @@ msgstr "Gruppe erfolgreich aktualisiert"
 #, fuzzy
 msgid "Group Update Fail"
 msgstr "Gruppe aktualisieren fehlgeschlagen"
-
-#, fuzzy
-msgid "Group Power Management Remove"
-msgstr "Gruppen Power Management entfernen"
-
-#, fuzzy
-msgid "Delete all PM tasks?"
-msgstr "Alle PM Tasks löschen?"
 
 #, fuzzy
 msgid "Total Clients"
@@ -6844,10 +6733,3 @@ msgstr "Diese Methode ist nicht vorhanden"
 #, fuzzy
 msgid "Device must be a string"
 msgstr "Gerätename muss eine Zeichenfolge sein."
-
-#, fuzzy
-msgid "File must be a string"
-msgstr "Dateiname muss eine Zeichenfolge sein."
-
-msgid "Only tx and rx bytes files can be read"
-msgstr "Nur tx und rx bytes-Dateien können gelesen werden"

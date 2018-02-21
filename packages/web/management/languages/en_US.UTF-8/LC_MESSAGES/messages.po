@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-20 20:20-0500\n"
+"POT-Creation-Date: 2018-02-21 11:19-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -346,9 +346,6 @@ msgstr "Kernel Update"
 #, fuzzy
 msgid "iPXE General Configuration"
 msgstr "iPXE Menu Configuration"
-
-msgid "Client Updater"
-msgstr "Client Updater"
 
 msgid "Hostname Changer"
 msgstr "Hostname Changer"
@@ -2907,24 +2904,6 @@ msgstr ""
 msgid "FOG Forums"
 msgstr "FOG Forums"
 
-msgid "Help and Guide"
-msgstr "Help and Guide"
-
-msgid "Where to get help"
-msgstr ""
-
-msgid "FOG Project on Github"
-msgstr "FOG Project on Github"
-
-msgid "FOG Client on Github"
-msgstr "FOG Client on Github"
-
-msgid "FOG Wiki"
-msgstr "FOG Wiki"
-
-msgid "Donate to FOG"
-msgstr "Donate to FOG"
-
 msgid "FOG Version Information"
 msgstr "FOG Version Information"
 
@@ -3303,6 +3282,10 @@ msgid "iPXE Item create failed!"
 msgstr "Menu create failed"
 
 #, fuzzy
+msgid "Menu item failed!"
+msgstr "User update failed"
+
+#, fuzzy
 msgid "iPXE Item added!"
 msgstr "Printer Name"
 
@@ -3313,98 +3296,6 @@ msgstr "Printer already exists"
 #, fuzzy
 msgid "iPXE Item Create Fail"
 msgstr "Printer update failed!"
-
-msgid "FOG Client Service Updater"
-msgstr "FOG Client Service Updater"
-
-msgid "Module Name"
-msgstr "Module Name"
-
-msgid "Module MD5"
-msgstr "Module MD5"
-
-msgid "Module Type"
-msgstr "Module Type"
-
-#, fuzzy
-msgid "Current files"
-msgstr "Current Records"
-
-#, fuzzy
-msgid "NOTICE"
-msgstr "NOT"
-
-#, fuzzy
-msgid "The below items are only used for the old client."
-msgstr "This setting defines the username used for the ssh client."
-
-msgid "Old clients are the clients that came with FOG"
-msgstr ""
-
-msgid "Version 1.2.0 and earlier"
-msgstr ""
-
-#, fuzzy
-msgid "This section allows you to update the modules and"
-msgstr ""
-"This section allows you to import known mac address makers into the FOG "
-"Database for easier identification."
-
-msgid "config files that run on the client computers."
-msgstr ""
-
-msgid "The clients will checkin with the server from time"
-msgstr ""
-
-msgid "to time to see if a new module is published."
-msgstr ""
-
-#, fuzzy
-msgid "If a new module is published the client will"
-msgstr "This setting defines the username used for the ssh client."
-
-msgid "download the module and use it on the next"
-msgstr ""
-
-msgid "time the service is started."
-msgstr ""
-
-#, fuzzy
-msgid "Upload file"
-msgstr "Upload File"
-
-msgid "Max Size"
-msgstr "Max Size"
-
-msgid "Browse"
-msgstr ""
-
-#, fuzzy
-msgid "Delete Selected Items"
-msgstr "Delete Selected"
-
-#, fuzzy
-msgid "Make Changes"
-msgstr "Save Changes"
-
-#, fuzzy
-msgid "Item removed successfully!"
-msgstr "saved successfully"
-
-#, fuzzy
-msgid "Client Modules Change Success"
-msgstr "Printer already exists"
-
-#, fuzzy
-msgid "No file uploaded!"
-msgstr "No file uploaded"
-
-#, fuzzy
-msgid "Modules added/updated successfully!"
-msgstr "Modules added/updated"
-
-msgid "Client Modules Change Fail"
-msgstr ""
 
 msgid "MAC Address Manufacturer Listing"
 msgstr "MAC Address Manufacturer Listing"
@@ -3498,6 +3389,9 @@ msgstr "No image specified"
 msgid "Reset Token"
 msgstr "Access Token"
 
+msgid "Browse"
+msgstr ""
+
 msgid "No Image specified"
 msgstr "No Image specified"
 
@@ -3589,6 +3483,9 @@ msgstr "Date"
 #, fuzzy
 msgid "Import Database?"
 msgstr "Date"
+
+msgid "Max Size"
+msgstr "Max Size"
 
 msgid "Import"
 msgstr "Import"
@@ -3940,6 +3837,9 @@ msgstr "Enabled"
 msgid "Disable All"
 msgstr "Enabled"
 
+msgid "Module Name"
+msgstr "Module Name"
+
 #, fuzzy
 msgid "Module Associated"
 msgstr "No node associated"
@@ -4257,9 +4157,6 @@ msgstr "Image Association"
 msgid "Group module settings"
 msgstr "Update Settings"
 
-msgid "Host Memory"
-msgstr "Host Memory"
-
 #, fuzzy
 msgid "Group update failed!"
 msgstr "User update failed"
@@ -4275,14 +4172,6 @@ msgstr "User created"
 #, fuzzy
 msgid "Group Update Fail"
 msgstr "Group create failed"
-
-#, fuzzy
-msgid "Group Power Management Remove"
-msgstr "User Management"
-
-#, fuzzy
-msgid "Delete all PM tasks?"
-msgstr "Delete all selected %ss"
 
 #, fuzzy
 msgid "Total Clients"
@@ -6831,10 +6720,3 @@ msgstr "Method does not exist"
 #, fuzzy
 msgid "Device must be a string"
 msgstr "Event must be a string"
-
-#, fuzzy
-msgid "File must be a string"
-msgstr "Event must be a string"
-
-msgid "Only tx and rx bytes files can be read"
-msgstr ""

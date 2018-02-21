@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-20 20:20-0500\n"
+"POT-Creation-Date: 2018-02-21 11:19-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -386,10 +386,6 @@ msgstr "Nombre del núcleo"
 #, fuzzy
 msgid "iPXE General Configuration"
 msgstr "Configuración del menú de arranque PXE FOG"
-
-#, fuzzy
-msgid "Client Updater"
-msgstr "FOG cliente de servicio de actualización"
 
 #, fuzzy
 msgid "Hostname Changer"
@@ -3122,24 +3118,6 @@ msgstr ""
 msgid "FOG Forums"
 msgstr "Foros FOG"
 
-msgid "Help and Guide"
-msgstr "Ayuda y Guía"
-
-msgid "Where to get help"
-msgstr ""
-
-msgid "FOG Project on Github"
-msgstr "Proyecto FOG en Github"
-
-msgid "FOG Client on Github"
-msgstr "FOG cliente en Github"
-
-msgid "FOG Wiki"
-msgstr "FOG Wiki"
-
-msgid "Donate to FOG"
-msgstr "Donar a la niebla"
-
 msgid "FOG Version Information"
 msgstr "FOG Información de la versión"
 
@@ -3526,6 +3504,10 @@ msgid "iPXE Item create failed!"
 msgstr "Menú Error de creación"
 
 #, fuzzy
+msgid "Menu item failed!"
+msgstr "actualización Valoración falló"
+
+#, fuzzy
 msgid "iPXE Item added!"
 msgstr "Nombre de la impresora"
 
@@ -3536,97 +3518,6 @@ msgstr "Impresora ya existe"
 #, fuzzy
 msgid "iPXE Item Create Fail"
 msgstr "actualización de la impresora ha fallado!"
-
-msgid "FOG Client Service Updater"
-msgstr "FOG cliente de servicio de actualización"
-
-msgid "Module Name"
-msgstr "Nombre del módulo"
-
-msgid "Module MD5"
-msgstr "módulo MD5"
-
-msgid "Module Type"
-msgstr "Tipo de módulo"
-
-#, fuzzy
-msgid "Current files"
-msgstr "Registros actuales"
-
-#, fuzzy
-msgid "NOTICE"
-msgstr "NO"
-
-#, fuzzy
-msgid "The below items are only used for the old client."
-msgstr "Este ajuste define el nombre de usuario utilizado para el cliente ssh."
-
-msgid "Old clients are the clients that came with FOG"
-msgstr ""
-
-msgid "Version 1.2.0 and earlier"
-msgstr ""
-
-#, fuzzy
-msgid "This section allows you to update the modules and"
-msgstr "Este ajuste define el nombre de usuario proxy para utilizar."
-
-msgid "config files that run on the client computers."
-msgstr ""
-
-msgid "The clients will checkin with the server from time"
-msgstr ""
-
-msgid "to time to see if a new module is published."
-msgstr ""
-
-#, fuzzy
-msgid "If a new module is published the client will"
-msgstr "Este ajuste define el nombre de usuario utilizado para el cliente ssh."
-
-msgid "download the module and use it on the next"
-msgstr ""
-
-msgid "time the service is started."
-msgstr ""
-
-#, fuzzy
-msgid "Upload file"
-msgstr "Subir archivo"
-
-#, fuzzy
-msgid "Max Size"
-msgstr "Tamaño máximo:"
-
-msgid "Browse"
-msgstr ""
-
-#, fuzzy
-msgid "Delete Selected Items"
-msgstr "Eliminar todos los elementos seleccionados"
-
-#, fuzzy
-msgid "Make Changes"
-msgstr "Guardar cambios"
-
-#, fuzzy
-msgid "Item removed successfully!"
-msgstr "Guardado exitosamente"
-
-#, fuzzy
-msgid "Client Modules Change Success"
-msgstr "Impresora ya existe"
-
-#, fuzzy
-msgid "No file uploaded!"
-msgstr "Ningún archivo subido"
-
-#, fuzzy
-msgid "Modules added/updated successfully!"
-msgstr "Módulos añadidos / actualizan"
-
-msgid "Client Modules Change Fail"
-msgstr ""
 
 msgid "MAC Address Manufacturer Listing"
 msgstr "MAC propiedad Dirección Fabricante"
@@ -3715,6 +3606,9 @@ msgid "No image specified"
 msgstr "No hay imagen especificada"
 
 msgid "Reset Token"
+msgstr ""
+
+msgid "Browse"
 msgstr ""
 
 msgid "No Image specified"
@@ -3808,6 +3702,10 @@ msgstr "Fecha"
 #, fuzzy
 msgid "Import Database?"
 msgstr "Fecha"
+
+#, fuzzy
+msgid "Max Size"
+msgstr "Tamaño máximo:"
 
 msgid "Import"
 msgstr "Importar"
@@ -4163,6 +4061,9 @@ msgstr "habilitado"
 msgid "Disable All"
 msgstr "habilitado"
 
+msgid "Module Name"
+msgstr "Nombre del módulo"
+
 #, fuzzy
 msgid "Module Associated"
 msgstr "No nodo asociado"
@@ -4488,9 +4389,6 @@ msgstr "Asociación para la imagen"
 msgid "Group module settings"
 msgstr "Descripción del Grupo"
 
-msgid "Host Memory"
-msgstr "memoria de acogida"
-
 #, fuzzy
 msgid "Group update failed!"
 msgstr "actualización Valoración falló"
@@ -4506,14 +4404,6 @@ msgstr "creado por el usuario"
 #, fuzzy
 msgid "Group Update Fail"
 msgstr "Grupo Error de creación"
-
-#, fuzzy
-msgid "Group Power Management Remove"
-msgstr "Gestión de usuarios"
-
-#, fuzzy
-msgid "Delete all PM tasks?"
-msgstr "Eliminar todos los seleccionados %s s"
 
 #, fuzzy
 msgid "Total Clients"
@@ -7077,10 +6967,3 @@ msgstr "Método no existe"
 #, fuzzy
 msgid "Device must be a string"
 msgstr "Evento debe ser una cadena"
-
-#, fuzzy
-msgid "File must be a string"
-msgstr "Evento debe ser una cadena"
-
-msgid "Only tx and rx bytes files can be read"
-msgstr ""
