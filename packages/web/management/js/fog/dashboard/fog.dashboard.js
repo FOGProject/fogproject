@@ -15,7 +15,9 @@ var GraphBandwidthMaxDataPoints,
         },
         yaxis: {
             tickFormatter: function(v) {
-                return '<div class="tick r">'+v+'</div>';
+                return '<div class="tick r">'
+                    + v
+                    + '</div>';
             },
             min: 0,
             minTickSize: 1,
@@ -64,7 +66,8 @@ var GraphBandwidthMaxDataPoints,
         yaxis: {
             min: 0,
             tickFormatter: function(v) {
-                return v + 'Mbps';
+                return v
+                    + 'Mbps';
             },
             show: true
         },
@@ -90,7 +93,9 @@ var GraphBandwidthMaxDataPoints,
                     show: true,
                     radius: 2/3,
                     formatter: function(label, series) {
-                        return '<div style="color: #f3f3f3">' + series.percent + '%</div>';
+                        return '<div style="color: #f3f3f3">'
+                            + series.percent
+                            + '%</div>';
                     },
                     threshold: 0.1
                 }
@@ -102,7 +107,11 @@ var GraphBandwidthMaxDataPoints,
             position: 'se',
             labelColor: '#666666',
             labelFormatter: function(label, series) {
-                return '<div class="graph-legend">' + label + ': ' + series.datapoints.points[1] + '</div>';
+                return '<div class="graph-legend">'
+                    + label
+                    + ': '
+                    + series.datapoints.points[1]
+                    + '</div>';
             }
         }
     },
@@ -117,9 +126,11 @@ var GraphBandwidthMaxDataPoints,
                 innerRadius: 0.5,
                 label: {
                     show: true,
-                    radius: 2/3,
+                    radius: 3/4,
                     formatter: function(label, series) {
-                        return '<div style="color: #f3f3f3">' + Math.round(series.percent) + '%</div>';
+                        return '<div style="color: #f3f3f3">'
+                            + Math.round(series.percent)
+                            + '%</div>';
                     },
                     threshold: 0.1
                 }
@@ -131,11 +142,26 @@ var GraphBandwidthMaxDataPoints,
             position: 'se',
             labelColor: '#666666',
             labelFormatter: function(label, series) {
-                units = [' iB', ' KiB', ' MiB', ' GiB', ' TiB', ' PiB', ' EiB', ' ZiB', 'YiB'];
+                units = [
+                    ' iB',
+                    ' KiB',
+                    ' MiB',
+                    ' GiB',
+                    ' TiB',
+                    ' PiB',
+                    ' EiB',
+                    ' ZiB',
+                    ' YiB'
+                ];
                 for (var i = 0; series.data[0][1] >= 1024 && i < units.length - 1; i++) {
                     series.data[0][1] /= 1024;
                 }
-                return '<div class="graph-legend">' + label + ': ' + series.data[0][1].toFixed(2) + units[i] + '</div>';
+                return '<div class="graph-legend">'
+                    + label
+                    + ': '
+                    + series.data[0][1].toFixed(2)
+                    + units[i]
+                    + '</div>';
             }
         }
     },
