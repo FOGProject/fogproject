@@ -80,6 +80,7 @@ var GraphBandwidthMaxDataPoints,
             position: 'nw'
         }
     },
+    bandwidth_plot,
     // Client Count
     updateClientCountData = [[0,0]],
     updateClientCountOpts = {
@@ -250,83 +251,90 @@ var GraphBandwidthMaxDataPoints,
             });
         });
     };
+    // Graph the bandwidth data
     var updateBandwidthGraph = function(data) {
+        // Return in Mbps, from Bytes
         var retval = function(d) {
             if (parseInt(d) < 1) {
                 return 0;
             } else {
-                var val = Math.round(d / 1024 * 8 / bandwidthtime, 2);
+                var val = Math.round(d / 1024 * 8 / 1000);
                 if (val < 1) {
                     val = 0;
                 }
                 return val;
             }
         };
+
+        // Date information
         var d = new Date(),
-            tx = [],
-            rx = [],
-            tx_old = [],
-            rx_old = [],
-            nodes_count = data.length,
-            Now = new Date().getTime() - (d.getTimezoneOffset() * 60000);
-        for (i in data) {
-            if (typeof GraphBandwidthData[i] == 'undefined') {
-                GraphBandwidthData[i] = [];
-                GraphBandwidthData[i].dev = [];
-                GraphBandwidthData[i].tx = [];
-                GraphBandwidthData[i].rx = [];
-                GraphBandwidthData[i].txd = [];
-                GraphBandwidthData[i].rxd = [];
-            }
+            Now = d.getTime() - (d.getTimezoneOffset() * 60000),
+            GraphData = [];
 
-            while (GraphBandwidthData[i].tx.length >= GraphBandwidthMaxDataPoints) {
-                GraphBandwidthData[i].tx.slice(1);
-                GraphBandwidthData[i].txd.slice(1);
-                GraphBandwidthData[i].rx.slice(1);
-                GraphBandwidthData[i].rxd.slice(1);
-            }
-
-            if (data[i] === null) {
-                data[i] = {
+        $.each(data, function(index, value) {
+            // If value is null/unset setup default vals.
+            if (value === null) {
+                value = {
                     dev: 'Unknown',
-                    tx: 0,
-                    rx: 0
+                    name: 'Unknown',
+                    rx: 0,
+                    tx: 0
                 };
             }
-
-            if (data[i].dev === 'Unknown' && GraphBandwidthData[i].dev !== 'Unknown') {
-                data[i].dev = GraphBandwidthData[i].dev;
+            // If unset setup our data
+            // Initialize the values or push data where needed.
+            if (typeof GraphBandwidthData[index] == 'undefined') {
+                GraphBandwidthData[index] = [];
+                GraphBandwidthData[index].tx = [];
+                GraphBandwidthData[index].rx = [];
+                GraphBandwidthData[index].txd = [];
+                GraphBandwidthData[index].rxd = [];
+                GraphBandwidthData[index].dev = value.dev;
+                GraphBandwidthData[index].name = value.name;
+                GraphBandwidthData[index].txd.push(value.tx);
+                GraphBandwidthData[index].rxd.push(value.rx);
+            } else {
+                GraphBandwidthData[index].txd.push(value.tx);
+                GraphBandwidthData[index].rxd.push(value.rx);
             }
-            txlength = GraphBandwidthData[i].txd.length - 1;
-            rxlength = GraphBandwidthData[i].rxd.length - 1;
-            lasttx = GraphBandwidthData[i].txd[txlength];
-            lastrx = GraphBandwidthData[i].rxd[rxlength];
-            tx_rate = 0;
-            rx_rate = 0;
+            // If our tx/rx data is greater than our max points
+            // strip the excess data.
+            while (GraphBandwidthData[index].tx.length > GraphBandwidthMaxDataPoints) {
+                GraphBandwidthData[index].tx.slice(1);
+                GraphBandwidthData[index].rx.slice(1);
+            }
+            // Setup our basic variables
+            var tx_rate = 0,
+                rx_rate = 0,
+                txlength = GraphBandwidthData[index].txd.length - 1,
+                rxlength = GraphBandwidthData[index].rxd.length - 1,
+                lasttx = parseInt(GraphBandwidthData[index].txd[txlength]),
+                lastrx = parseInt(GraphBandwidthData[index].rxd[rxlength]);
+            // Get our last value if possible.
             if (txlength > 0 && parseInt(lasttx) > 0) {
-                tx_rate = retval(data[i].tx - lasttx);
+                tx_rate = retval(value.tx - lasttx);
             }
             if (rxlength > 0 && parseInt(lastrx) > 0) {
-                rx_rate = retval(data[i].rx - lastrx);
+                rx_rate = retval(value.rx - lastrx);
             }
-            GraphBandwidthData[i].txd.push(data[i].tx);
-            GraphBandwidthData[i].rxd.push(data[i].rx);
-            GraphBandwidthData[i].tx.push([Now, tx_rate]);
-            GraphBandwidthData[i].rx.push([Now, rx_rate]);
-            // Reset for next iteration
-            GraphBandwidthData[i].dev = data[i].dev;
-        }
-        var GraphData = [];
-        for (i in GraphBandwidthData) {
-            GraphData.push({
-                label: i + ' (' + GraphBandwidthData[i].dev + ')',
-                data: (
-                    $('#graph-bandwidth-filters-transmit').hasClass('active') ?
-                    GraphBandwidthData[i].tx :
-                    GraphBandwidthData[i].rx
-                )
-            });
-        }
+            // Push the new changes.
+            GraphBandwidthData[index].tx.push([Now, tx_rate]);
+            GraphBandwidthData[index].rx.push([Now, tx_rate]);
+            // Push to the GraphData.
+            GraphData.push(
+                {
+                    label: GraphBandwidthData[index].name
+                    + ' ('
+                    + GraphBandwidthData[index].dev
+                    + ')',
+                    data: (
+                        $('#graph-bandwidth-filters-transmit').hasClass('active') ?
+                        GraphBandwidthData[index].tx :
+                        GraphBandwidthData[index].rx
+                    )
+                }
+            );
+        });
         $.plot($('#graph-bandwidth'), GraphData, GraphBandwidthOpts);
         if (bandwidthinterval || realtime !== 'on') {
             clearTimeout(bandwidthinterval);
@@ -349,6 +357,7 @@ var GraphBandwidthMaxDataPoints,
         GraphBandwidthMaxDataPoints = $(this).prop('rel');
         e.preventDefault();
     });
+    GraphBandwidthMaxDataPoints = $('.time-filters.active').prop('rel');
     $('#realtime .btn').on('click', function(e) {
         if ($(this).data('toggle') === 'on') {
             realtime = 'on';

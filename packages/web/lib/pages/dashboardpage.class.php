@@ -518,6 +518,7 @@ class DashboardPage extends FOGPage
      */
     public function bandwidth()
     {
+        header('Content-type: application/json');
         session_write_close();
         ignore_user_abort(true);
         set_time_limit(0);
@@ -541,16 +542,19 @@ class DashboardPage extends FOGPage
         $datas = self::$FOGURLRequests
             ->process($urls);
         $dataSet = [];
-        foreach ((array)$datas as &$data) {
-            $dataSet[] = json_decode($data, true);
-            unset($data);
+        foreach ((array)$datas as $i => &$data) {
+            $d = json_decode($data);
+            $data = [
+                'dev' => $d->dev,
+                'name' => $names[$i],
+                'rx' => $d->rx,
+                'tx' => $d->tx
+            ];
+            $dataSet[] = $data;
+            unset($data, $d);
         }
-        echo json_encode(
-            array_combine(
-                $names,
-                $dataSet
-            )
-        );
+        http_response_code(201);
+        echo json_encode($dataSet);
         exit;
     }
 }
