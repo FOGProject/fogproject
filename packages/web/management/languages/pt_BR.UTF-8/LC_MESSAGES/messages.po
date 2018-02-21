@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-20 20:20-0500\n"
+"POT-Creation-Date: 2018-02-21 11:19-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -346,9 +346,6 @@ msgstr "Kernel Atualização"
 #, fuzzy
 msgid "iPXE General Configuration"
 msgstr "Configuração do menu gpxe"
-
-msgid "Client Updater"
-msgstr "Updater cliente"
 
 msgid "Hostname Changer"
 msgstr "hostname Changer"
@@ -2911,24 +2908,6 @@ msgstr ""
 msgid "FOG Forums"
 msgstr "FOG Fóruns"
 
-msgid "Help and Guide"
-msgstr "Ajuda e Guia"
-
-msgid "Where to get help"
-msgstr ""
-
-msgid "FOG Project on Github"
-msgstr "Projeto FOG no Github"
-
-msgid "FOG Client on Github"
-msgstr "Cliente FOG no Github"
-
-msgid "FOG Wiki"
-msgstr "FOG Wiki"
-
-msgid "Donate to FOG"
-msgstr "Doe ao nevoeiro"
-
 msgid "FOG Version Information"
 msgstr "FOG Informação da versão"
 
@@ -3307,6 +3286,10 @@ msgid "iPXE Item create failed!"
 msgstr "Menu Criar falhou"
 
 #, fuzzy
+msgid "Menu item failed!"
+msgstr "atualização do utilizador falhou"
+
+#, fuzzy
 msgid "iPXE Item added!"
 msgstr "Nome da impressora"
 
@@ -3317,98 +3300,6 @@ msgstr "Impressora já existe"
 #, fuzzy
 msgid "iPXE Item Create Fail"
 msgstr "atualização da impressora falhou!"
-
-msgid "FOG Client Service Updater"
-msgstr "FOG Service Client Updater"
-
-msgid "Module Name"
-msgstr "Nome do módulo"
-
-msgid "Module MD5"
-msgstr "módulo MD5"
-
-msgid "Module Type"
-msgstr "Tipo de módulo"
-
-#, fuzzy
-msgid "Current files"
-msgstr "Registros atuais"
-
-#, fuzzy
-msgid "NOTICE"
-msgstr "NÃO"
-
-#, fuzzy
-msgid "The below items are only used for the old client."
-msgstr ""
-"Esta configuração define o nome de usuário utilizado para o cliente ssh."
-
-msgid "Old clients are the clients that came with FOG"
-msgstr ""
-
-msgid "Version 1.2.0 and earlier"
-msgstr ""
-
-#, fuzzy
-msgid "This section allows you to update the modules and"
-msgstr "Esta configuração define o nome de usuário proxy para usar."
-
-msgid "config files that run on the client computers."
-msgstr ""
-
-msgid "The clients will checkin with the server from time"
-msgstr ""
-
-msgid "to time to see if a new module is published."
-msgstr ""
-
-#, fuzzy
-msgid "If a new module is published the client will"
-msgstr ""
-"Esta configuração define o nome de usuário utilizado para o cliente ssh."
-
-msgid "download the module and use it on the next"
-msgstr ""
-
-msgid "time the service is started."
-msgstr ""
-
-#, fuzzy
-msgid "Upload file"
-msgstr "Subir arquivo"
-
-msgid "Max Size"
-msgstr "Max Size"
-
-msgid "Browse"
-msgstr ""
-
-#, fuzzy
-msgid "Delete Selected Items"
-msgstr "Excluir todos os itens selecionados"
-
-#, fuzzy
-msgid "Make Changes"
-msgstr "Salvar alterações"
-
-#, fuzzy
-msgid "Item removed successfully!"
-msgstr "Salvo com sucesso"
-
-#, fuzzy
-msgid "Client Modules Change Success"
-msgstr "Impressora já existe"
-
-#, fuzzy
-msgid "No file uploaded!"
-msgstr "No arquivo carregado"
-
-#, fuzzy
-msgid "Modules added/updated successfully!"
-msgstr "Módulos adicionado / atualizado"
-
-msgid "Client Modules Change Fail"
-msgstr ""
 
 msgid "MAC Address Manufacturer Listing"
 msgstr "MAC Listing Endereço Fabricante"
@@ -3499,6 +3390,9 @@ msgstr "Nenhuma imagem especificada"
 #, fuzzy
 msgid "Reset Token"
 msgstr "token de acesso"
+
+msgid "Browse"
+msgstr ""
 
 msgid "No Image specified"
 msgstr "Sem Imagem do especificado"
@@ -3591,6 +3485,9 @@ msgstr "Encontro"
 #, fuzzy
 msgid "Import Database?"
 msgstr "Encontro"
+
+msgid "Max Size"
+msgstr "Max Size"
 
 msgid "Import"
 msgstr "Importar"
@@ -3942,6 +3839,9 @@ msgstr "ativado"
 msgid "Disable All"
 msgstr "ativado"
 
+msgid "Module Name"
+msgstr "Nome do módulo"
+
 #, fuzzy
 msgid "Module Associated"
 msgstr "No nó associado"
@@ -4260,9 +4160,6 @@ msgstr "Associação imagem"
 msgid "Group module settings"
 msgstr "anfitrião Descrição"
 
-msgid "Host Memory"
-msgstr "Memória de acolhimento"
-
 #, fuzzy
 msgid "Group update failed!"
 msgstr "atualização do utilizador falhou"
@@ -4278,14 +4175,6 @@ msgstr "usuário criado"
 #, fuzzy
 msgid "Group Update Fail"
 msgstr "Grupo Criar falhou"
-
-#, fuzzy
-msgid "Group Power Management Remove"
-msgstr "Gerenciamento de usuários"
-
-#, fuzzy
-msgid "Delete all PM tasks?"
-msgstr "Excluir todos os selecionados %s s"
 
 #, fuzzy
 msgid "Total Clients"
@@ -6835,10 +6724,3 @@ msgstr "O método não existe"
 #, fuzzy
 msgid "Device must be a string"
 msgstr "Evento deve ser uma string"
-
-#, fuzzy
-msgid "File must be a string"
-msgstr "Evento deve ser uma string"
-
-msgid "Only tx and rx bytes files can be read"
-msgstr ""

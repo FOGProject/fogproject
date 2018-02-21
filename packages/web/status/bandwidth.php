@@ -22,11 +22,11 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-require '../commons/base.inc.php';
-session_write_close();
-ignore_user_abort(true);
-set_time_limit(0);
-header('Content-Type: text/event-stream');
+//require '../commons/base.inc.php';
+//session_write_close();
+//ignore_user_abort(true);
+//set_time_limit(0);
+header('Content-Type: application/json');
 /**
  * Lambda for returning the bytes from the file requested.
  *
@@ -39,31 +39,23 @@ header('Content-Type: text/event-stream');
  * @throws Exception
  * @return int
  */
-$getBytes = function ($dev, $file) {
+$getBytes = function ($dev) {
     if (!is_string($dev)) {
         throw new Exception(_('Device must be a string'));
     }
-    if (!is_string($file)) {
-        throw new Exception(_('File must be a string'));
-    }
-    if (!in_array($file, ['tx_bytes', 'rx_bytes'])) {
-        throw new Exception(_('Only tx and rx bytes files can be read'));
-    }
-    $path = "/sys/class/net/$dev/statistics/$file";
-    if (!(file_exists($path) && is_readable($path))) {
-        return 0;
-    } else {
-        $data = file_get_contents($path);
-        return trim($data);
-    }
+    $txpath = "/sys/class/net/$dev/statistics/tx_bytes";
+    $rxpath = "/sys/class/net/$dev/statistics/rx_bytes";
+    $tx = file_get_contents($txpath);
+    $rx = file_get_contents($rxpath);
+    return [$rx,$tx];
 };
 // Make sure a device is set
-if (!isset($_REQUEST['dev'])) {
-    $_REQUEST['dev'] = 'eth0';
+$dev = filter_input(INPUT_GET, 'dev');
+if (!$dev) {
+    $dev = 'eth0';
 }
 // Only use the last bit in case somebody is doing stuff bad
-$baseint = basename($_REQUEST['dev']);
-$dev = trim($baseint);
+$dev = trim(basename($dev));
 // Directory to check for interfaces and get all system interfaces
 $scan = scandir('/sys/class/net');
 // Filter out dots
@@ -91,6 +83,10 @@ foreach ($dir_interfaces as &$iface) {
 $interface = preg_grep("#^$dev$#", $interfaces);
 // If our interface isn't found, try getting it directly off the system
 if (count($interface) < 1) {
+    require '../commons/base.inc.php';
+    session_write_close();
+    ignore_user_abort(true);
+    set_time_limit(0);
     // Find our server address
     $srvAddr = $_SERVER['SERVER_ADDR'];
     // If accessed by hostname resolve to ip
@@ -111,8 +107,11 @@ if (!$dev) {
     exit;
 }
 // Set our rx and tx data values
-$rx = $getBytes($dev, 'rx_bytes');
-$tx = $getBytes($dev, 'tx_bytes');
+list($rxlast,$txlast) = $getBytes($dev);
+sleep(1);
+list($rxcur,$txcur) = $getBytes($dev);
+$rx = round(ceil(($rxcur - $rxlast)) / 1024 * 8 / 1000, 2);
+$tx = round(ceil(($txcur - $txlast)) / 1024 * 8 / 1000, 2);
 // Setup our return array
 $ret = [
     'dev' => $dev,

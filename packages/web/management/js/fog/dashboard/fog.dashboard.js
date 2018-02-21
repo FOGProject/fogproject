@@ -1,6 +1,5 @@
 // 30 day
-var GraphBandwidthMaxDataPoints,
-    Graph30Day = $('#graph-30day'),
+var Graph30Day = $('#graph-30day'),
     Graph30DayData,
     Graph30DayOpts = {
         colors: ['#3c8dbc', '#0073b7'],
@@ -53,10 +52,13 @@ var GraphBandwidthMaxDataPoints,
         },
         series: {
             shadowSize: 0,
-            colors: ['#3c8dbc', '#0073b7']
+            colors: ['#3c8dbc', '#0073b7'],
+            lines: {
+                show: true
+            }
         },
         lines: {
-            fill: true,
+            fill: false,
             colors: ['#3c8dbc', '#0073b7']
         },
         xaxis: {
@@ -253,24 +255,28 @@ var GraphBandwidthMaxDataPoints,
     };
     // Graph the bandwidth data
     var updateBandwidthGraph = function(data) {
+        // If we are already running, clear it out.
+        if (bandwidthinterval || realtime !== 'on') {
+            clearTimeout(bandwidthinterval);
+        }
         // Return in Mbps, from Bytes
         var retval = function(d) {
             if (parseInt(d) < 1) {
                 return 0;
             } else {
-                var val = Math.round(d / 1024 * 8 / 1000);
+                var val = Math.round(d / 1000 / 1024 * 8, 2);
                 if (val < 1) {
                     val = 0;
                 }
                 return val;
             }
         };
-
-        // Date information
+        // Date information and GraphData initialization.
         var d = new Date(),
             Now = d.getTime() - (d.getTimezoneOffset() * 60000),
             GraphData = [];
 
+        // Cycle each data element.
         $.each(data, function(index, value) {
             // If value is null/unset setup default vals.
             if (value === null) {
@@ -287,40 +293,17 @@ var GraphBandwidthMaxDataPoints,
                 GraphBandwidthData[index] = [];
                 GraphBandwidthData[index].tx = [];
                 GraphBandwidthData[index].rx = [];
-                GraphBandwidthData[index].txd = [];
-                GraphBandwidthData[index].rxd = [];
                 GraphBandwidthData[index].dev = value.dev;
                 GraphBandwidthData[index].name = value.name;
-                GraphBandwidthData[index].txd.push(value.tx);
-                GraphBandwidthData[index].rxd.push(value.rx);
-            } else {
-                GraphBandwidthData[index].txd.push(value.tx);
-                GraphBandwidthData[index].rxd.push(value.rx);
             }
+            GraphBandwidthData[index].tx.push([Now, value.tx]);
+            GraphBandwidthData[index].rx.push([Now, value.rx]);
             // If our tx/rx data is greater than our max points
             // strip the excess data.
             while (GraphBandwidthData[index].tx.length > GraphBandwidthMaxDataPoints) {
                 GraphBandwidthData[index].tx.slice(1);
                 GraphBandwidthData[index].rx.slice(1);
             }
-            // Setup our basic variables
-            var tx_rate = 0,
-                rx_rate = 0,
-                txlength = GraphBandwidthData[index].txd.length - 1,
-                rxlength = GraphBandwidthData[index].rxd.length - 1,
-                lasttx = parseInt(GraphBandwidthData[index].txd[txlength]),
-                lastrx = parseInt(GraphBandwidthData[index].rxd[rxlength]);
-            // Get our last value if possible.
-            if (txlength > 0 && parseInt(lasttx) > 0) {
-                tx_rate = retval(value.tx - lasttx);
-            }
-            if (rxlength > 0 && parseInt(lastrx) > 0) {
-                rx_rate = retval(value.rx - lastrx);
-            }
-            // Push the new changes.
-            GraphBandwidthData[index].tx.push([Now, tx_rate]);
-            GraphBandwidthData[index].rx.push([Now, tx_rate]);
-            // Push to the GraphData.
             GraphData.push(
                 {
                     label: GraphBandwidthData[index].name
@@ -335,14 +318,17 @@ var GraphBandwidthMaxDataPoints,
                 }
             );
         });
-        $.plot($('#graph-bandwidth'), GraphData, GraphBandwidthOpts);
-        if (bandwidthinterval || realtime !== 'on') {
-            clearTimeout(bandwidthinterval);
+        if (bandwidth_plot) {
+            bandwidth_plot.setData(GraphData);
+            bandwidth_plot.setupGrid();
+            bandwidth_plot.draw();
+        } else {
+            bandwidth_plot = $.plot($('#graph-bandwidth'), GraphData, GraphBandwidthOpts);
         }
         if (realtime === 'on') {
             bandwidthinterval = setTimeout(
                 updateBandwidth,
-                1000 - ((new Date().getTime() - startTime) % 1000)
+                10
             );
         }
     };

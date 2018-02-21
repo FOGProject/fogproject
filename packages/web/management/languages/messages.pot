@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-20 20:20-0500\n"
+"POT-Creation-Date: 2018-02-21 11:19-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -342,9 +342,6 @@ msgid "Kernel Update"
 msgstr ""
 
 msgid "iPXE General Configuration"
-msgstr ""
-
-msgid "Client Updater"
 msgstr ""
 
 msgid "Hostname Changer"
@@ -2601,24 +2598,6 @@ msgstr ""
 msgid "FOG Forums"
 msgstr ""
 
-msgid "Help and Guide"
-msgstr ""
-
-msgid "Where to get help"
-msgstr ""
-
-msgid "FOG Project on Github"
-msgstr ""
-
-msgid "FOG Client on Github"
-msgstr ""
-
-msgid "FOG Wiki"
-msgstr ""
-
-msgid "Donate to FOG"
-msgstr ""
-
 msgid "FOG Version Information"
 msgstr ""
 
@@ -2949,6 +2928,9 @@ msgstr ""
 msgid "iPXE Item create failed!"
 msgstr ""
 
+msgid "Menu item failed!"
+msgstr ""
+
 msgid "iPXE Item added!"
 msgstr ""
 
@@ -2956,84 +2938,6 @@ msgid "iPXE Item Create Success"
 msgstr ""
 
 msgid "iPXE Item Create Fail"
-msgstr ""
-
-msgid "FOG Client Service Updater"
-msgstr ""
-
-msgid "Module Name"
-msgstr ""
-
-msgid "Module MD5"
-msgstr ""
-
-msgid "Module Type"
-msgstr ""
-
-msgid "Current files"
-msgstr ""
-
-msgid "NOTICE"
-msgstr ""
-
-msgid "The below items are only used for the old client."
-msgstr ""
-
-msgid "Old clients are the clients that came with FOG"
-msgstr ""
-
-msgid "Version 1.2.0 and earlier"
-msgstr ""
-
-msgid "This section allows you to update the modules and"
-msgstr ""
-
-msgid "config files that run on the client computers."
-msgstr ""
-
-msgid "The clients will checkin with the server from time"
-msgstr ""
-
-msgid "to time to see if a new module is published."
-msgstr ""
-
-msgid "If a new module is published the client will"
-msgstr ""
-
-msgid "download the module and use it on the next"
-msgstr ""
-
-msgid "time the service is started."
-msgstr ""
-
-msgid "Upload file"
-msgstr ""
-
-msgid "Max Size"
-msgstr ""
-
-msgid "Browse"
-msgstr ""
-
-msgid "Delete Selected Items"
-msgstr ""
-
-msgid "Make Changes"
-msgstr ""
-
-msgid "Item removed successfully!"
-msgstr ""
-
-msgid "Client Modules Change Success"
-msgstr ""
-
-msgid "No file uploaded!"
-msgstr ""
-
-msgid "Modules added/updated successfully!"
-msgstr ""
-
-msgid "Client Modules Change Fail"
 msgstr ""
 
 msgid "MAC Address Manufacturer Listing"
@@ -3114,6 +3018,9 @@ msgstr ""
 msgid "Reset Token"
 msgstr ""
 
+msgid "Browse"
+msgstr ""
+
 msgid "No Image specified"
 msgstr ""
 
@@ -3190,6 +3097,9 @@ msgid "Export Database"
 msgstr ""
 
 msgid "Import Database?"
+msgstr ""
+
+msgid "Max Size"
 msgstr ""
 
 msgid "Import"
@@ -3480,6 +3390,9 @@ msgstr ""
 msgid "Disable All"
 msgstr ""
 
+msgid "Module Name"
+msgstr ""
+
 msgid "Module Associated"
 msgstr ""
 
@@ -3753,9 +3666,6 @@ msgstr ""
 msgid "Group module settings"
 msgstr ""
 
-msgid "Host Memory"
-msgstr ""
-
 msgid "Group update failed!"
 msgstr ""
 
@@ -3766,12 +3676,6 @@ msgid "Group Update Success"
 msgstr ""
 
 msgid "Group Update Fail"
-msgstr ""
-
-msgid "Group Power Management Remove"
-msgstr ""
-
-msgid "Delete all PM tasks?"
 msgstr ""
 
 msgid "Total Clients"
@@ -5955,10 +5859,4 @@ msgid "File or path does not exist"
 msgstr ""
 
 msgid "Device must be a string"
-msgstr ""
-
-msgid "File must be a string"
-msgstr ""
-
-msgid "Only tx and rx bytes files can be read"
 msgstr ""
