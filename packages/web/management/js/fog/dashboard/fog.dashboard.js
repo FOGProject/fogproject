@@ -297,26 +297,24 @@ var Graph30Day = $('#graph-30day'),
                 GraphBandwidthData[index].name = value.name;
             }
             GraphBandwidthData[index].tx.push([Now, value.tx]);
-            GraphBandwidthData[index].rx.push([Now, value.rx]);
+            GraphBandwidthData[index].rx.push([Now, value.rx])
             // If our tx/rx data is greater than our max points
             // strip the excess data.
             while (GraphBandwidthData[index].tx.length > GraphBandwidthMaxDataPoints) {
                 GraphBandwidthData[index].tx.slice(1);
                 GraphBandwidthData[index].rx.slice(1);
             }
-            GraphData.push(
-                {
-                    label: GraphBandwidthData[index].name
-                    + ' ('
-                    + GraphBandwidthData[index].dev
-                    + ')',
-                    data: (
-                        $('#graph-bandwidth-filters-transmit').hasClass('active') ?
-                        GraphBandwidthData[index].tx :
-                        GraphBandwidthData[index].rx
-                    )
-                }
-            );
+            GraphData[index] = {
+                label: GraphBandwidthData[index].name
+                + ' ('
+                + GraphBandwidthData[index].dev
+                + ')',
+                data: (
+                    $('#graph-bandwidth-filters-transmit').hasClass('active') ?
+                    GraphBandwidthData[index].tx :
+                    GraphBandwidthData[index].rx
+                )
+            };
         });
         if (bandwidth_plot) {
             bandwidth_plot.setData(GraphData);

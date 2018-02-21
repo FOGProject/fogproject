@@ -108,10 +108,10 @@ if (!$dev) {
 }
 // Set our rx and tx data values
 list($rxlast,$txlast) = $getBytes($dev);
-sleep(1);
+usleep(500000);
 list($rxcur,$txcur) = $getBytes($dev);
-$rx = round(ceil(($rxcur - $rxlast)) / 1024 * 8 / 1000, 2);
-$tx = round(ceil(($txcur - $txlast)) / 1024 * 8 / 1000, 2);
+$rx = round(ceil(($rxcur - $rxlast)) / 1024 * 8 / 500, 2);
+$tx = round(ceil(($txcur - $txlast)) / 1024 * 8 / 500, 2);
 // Setup our return array
 $ret = [
     'dev' => $dev,
