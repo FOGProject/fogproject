@@ -300,7 +300,9 @@ class TaskManagementPage extends FOGPage
         $this->render(12, 'tasks-active-table');
         echo '</div>';
         echo '<div class="box-footer">';
+        echo '<div class="btn-group">';
         echo $this->_buttons;
+        echo '</div>';
         echo '</div>';
         echo '</div>';
     }
@@ -391,7 +393,9 @@ class TaskManagementPage extends FOGPage
         $this->render(12, 'tasks-active-table');
         echo '</div>';
         echo '<div class="box-footer">';
+        echo '<div class="btn-group">';
         echo $this->_buttons;
+        echo '</div>';
         echo '</div>';
         echo '</div>';
     }
