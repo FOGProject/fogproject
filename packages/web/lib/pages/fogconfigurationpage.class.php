@@ -397,7 +397,7 @@ class FOGConfigurationPage extends FOGPage
             echo '<div class="panel-body">';
             echo '<form class="form-horizontal" method="post" action="';
             $formstr;
-            echo '">';
+            echo '" novalidate>';
             echo '<input type="hidden" name="file" value="';
             echo $tmpFile;
             echo '"/>';
@@ -688,7 +688,7 @@ class FOGConfigurationPage extends FOGPage
         echo '<div class="panel-body">';
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
-            . '">';
+            . '" novalidate>';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center expand_trigger hand" id='
             . '"menusettings">';
@@ -1289,7 +1289,7 @@ class FOGConfigurationPage extends FOGPage
                 . '">';
             echo '<form class="form-horizontal" method="post" action="'
                 . $this->formAction
-                . '">';
+                . '" novalidate>';
             echo $this->render(12);
             echo '</form>';
             echo '</div>';
@@ -1577,7 +1577,7 @@ class FOGConfigurationPage extends FOGPage
         echo '<div class="panel-body">';
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
-            . '">';
+            . '" novalidate>';
         $this->render(12);
         echo '</form>';
         echo '</div>';
@@ -1744,7 +1744,7 @@ class FOGConfigurationPage extends FOGPage
             echo '<div class="col-xs-9">';
             echo '<form class="form-horizontal" method="post" action="'
                 . $this->formAction
-                . '&tab=clientupdater" enctype="multipart/form-data">';
+                . '&tab=clientupdater" enctype="multipart/form-data" novalidate>';
         }
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
@@ -2181,7 +2181,7 @@ class FOGConfigurationPage extends FOGPage
         echo '<div class="panel-body">';
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
-            . '" enctype="multipart/form-data">';
+            . '" enctype="multipart/form-data" novalidate>';
         echo _('This section allows you to customize or alter')
             . ' '
             . _('the way in which FOG operates')
@@ -3311,7 +3311,7 @@ class FOGConfigurationPage extends FOGPage
         echo '<div class="panel-body">';
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
-            . '">';
+            . '" novalidate>';
         echo '<div class="col-xs-4">';
         echo '<label class="control-label" for="logToView">';
         echo _('File') .': ';
@@ -3401,7 +3401,7 @@ class FOGConfigurationPage extends FOGPage
         echo '</div>';
         echo '<div class="panel-body">';
         echo '<form class="form-horizontal" method="post" action='
-            . '"export.php?type=sql">';
+            . '"export.php?type=sql" novalidate>';
         $this->render(12);
         $this->data = array();
         $this->data[] = array(
@@ -3444,7 +3444,7 @@ class FOGConfigurationPage extends FOGPage
         echo '<div class="panel-body">';
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
-            . '" enctype="multipart/form-data">';
+            . '" enctype="multipart/form-data" novalidate>';
         $this->render(12);
         echo '</form>';
         echo '</div>';

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-20 18:13-0500\n"
+"POT-Creation-Date: 2018-02-20 20:20-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3378,6 +3378,14 @@ msgstr ""
 msgid "Host description"
 msgstr ""
 
+msgid "Reset Encryption Data"
+msgstr ""
+
+msgid ""
+"Resetting encryption data should only be done if you re-installed the FOG "
+"Client or are using Debugger"
+msgstr ""
+
 msgid "Please enter a hostname"
 msgstr ""
 
@@ -3628,25 +3636,13 @@ msgstr ""
 msgid "Host Snapin History"
 msgstr ""
 
-msgid "Host approved"
-msgstr ""
-
-msgid "Host approval failed."
-msgstr ""
-
-msgid "Approve Host"
-msgstr ""
-
-msgid "Approve this host?"
-msgstr ""
-
-msgid "Approved"
-msgstr ""
-
-msgid "All Pending MACs approved"
-msgstr ""
-
 msgid "Service Settings"
+msgstr ""
+
+msgid "Group Membership"
+msgstr ""
+
+msgid "Imaging History"
 msgstr ""
 
 msgid "You must select an action to perform"
@@ -5651,6 +5647,12 @@ msgid "Delete hosts within"
 msgstr ""
 
 msgid "Delete files"
+msgstr ""
+
+msgid "Encryption Data Reset"
+msgstr ""
+
+msgid "Reset Encryption Success"
 msgstr ""
 
 msgid "is protected, removal not allowed"

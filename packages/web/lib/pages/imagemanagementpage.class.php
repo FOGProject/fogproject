@@ -1075,7 +1075,7 @@ class ImageManagementPage extends FOGPage
         echo '<div class="panel-body">';
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
-            . '">';
+            . '" novalidate>';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';

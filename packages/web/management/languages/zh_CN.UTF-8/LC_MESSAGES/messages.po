@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-20 18:13-0500\n"
+"POT-Creation-Date: 2018-02-20 20:20-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3806,6 +3806,14 @@ msgstr "主机创建失败"
 msgid "Host description"
 msgstr "主机描述"
 
+msgid "Reset Encryption Data"
+msgstr ""
+
+msgid ""
+"Resetting encryption data should only be done if you re-installed the FOG "
+"Client or are using Debugger"
+msgstr ""
+
 msgid "Please enter a hostname"
 msgstr "请输入主机名"
 
@@ -4089,30 +4097,17 @@ msgstr ""
 msgid "Host Snapin History"
 msgstr "历史管理单元"
 
-msgid "Host approved"
-msgstr "主机批准"
-
-msgid "Host approval failed."
-msgstr "主机批准失败。"
-
-#, fuzzy
-msgid "Approve Host"
-msgstr "批准该主机？"
-
-msgid "Approve this host?"
-msgstr "批准该主机？"
-
-#, fuzzy
-msgid "Approved"
-msgstr "主机批准"
-
-#, fuzzy
-msgid "All Pending MACs approved"
-msgstr "所有待定的MAC批准。"
-
 #, fuzzy
 msgid "Service Settings"
 msgstr "服务状态"
+
+#, fuzzy
+msgid "Group Membership"
+msgstr "籍"
+
+#, fuzzy
+msgid "Imaging History"
+msgstr "主持人成像历史"
 
 #, fuzzy
 msgid "You must select an action to perform"
@@ -6450,6 +6445,13 @@ msgstr "删除组内的所有主机"
 #, fuzzy
 msgid "Delete files"
 msgstr "删除的文件数据"
+
+msgid "Encryption Data Reset"
+msgstr ""
+
+#, fuzzy
+msgid "Reset Encryption Success"
+msgstr "用户创建"
 
 msgid "is protected, removal not allowed"
 msgstr "被保护，去除不允许"

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-20 18:13-0500\n"
+"POT-Creation-Date: 2018-02-20 20:20-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -3820,6 +3820,14 @@ msgstr "Host erstellen fehlgeschlagen"
 msgid "Host description"
 msgstr "Host-Beschreibung"
 
+msgid "Reset Encryption Data"
+msgstr ""
+
+msgid ""
+"Resetting encryption data should only be done if you re-installed the FOG "
+"Client or are using Debugger"
+msgstr ""
+
 msgid "Please enter a hostname"
 msgstr "Bitte geben Sie einen Hostnamen ein"
 
@@ -4107,30 +4115,17 @@ msgstr "Keine vollständige Zeit aufgezeichnet"
 msgid "Host Snapin History"
 msgstr "Host Snapinverlauf"
 
-msgid "Host approved"
-msgstr "Host freigeben"
-
-msgid "Host approval failed."
-msgstr "Host-Genehmigung ist fehlgeschlagen."
-
-#, fuzzy
-msgid "Approve Host"
-msgstr "Host freigeben"
-
-msgid "Approve this host?"
-msgstr "Diesen Host freigeben?"
-
-#, fuzzy
-msgid "Approved"
-msgstr "freigegeben"
-
-#, fuzzy
-msgid "All Pending MACs approved"
-msgstr "Alle ausstehenden MACs freigegeben."
-
 #, fuzzy
 msgid "Service Settings"
 msgstr "Service-Status"
+
+#, fuzzy
+msgid "Group Membership"
+msgstr "Mitgliedschaft"
+
+#, fuzzy
+msgid "Imaging History"
+msgstr "Host Imagingverlauf"
 
 #, fuzzy
 msgid "You must select an action to perform"
@@ -6480,6 +6475,13 @@ msgstr "Löschen aller Hosts innerhalb der Gruppe"
 #, fuzzy
 msgid "Delete files"
 msgstr "Datei löschen"
+
+msgid "Encryption Data Reset"
+msgstr ""
+
+#, fuzzy
+msgid "Reset Encryption Success"
+msgstr "Rolle erfolgreich erstellt"
 
 msgid "is protected, removal not allowed"
 msgstr "ist geschützt, Entfernen ist nicht erlaubt"

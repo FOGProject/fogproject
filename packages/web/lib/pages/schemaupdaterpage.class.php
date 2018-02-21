@@ -107,7 +107,7 @@ class SchemaUpdaterPage extends FOGPage
         echo '<br/>';
         echo '<form class="form-horizontal" action="'
             . $this->formAction
-            . '" method="post">';
+            . '" method="post" novalidate>';
         echo '<div class="col-xs-offset-4 col-xs-4">';
         echo '<input type="hidden" name="fogverified"/>';
         echo '<button type="submit" class="btn btn-primary btn-block" name='
