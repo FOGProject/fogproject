@@ -38,33 +38,13 @@ class StorageNodeManagementPage extends FOGPage
     {
         $this->name = 'Storage Node Management';
         parent::__construct($this->name);
-    }
-    /**
-     * Display the list of storage nodes.
-     *
-     * @return void
-     */
-    public function index()
-    {
-        global $node;
-        global $sub;
-        if (false === self::$showhtml) {
-            return;
-        }
-        if (self::$ajax) {
-            header('Content-Type: application/json');
-            Route::listem($this->childClass);
-            echo Route::getData();
-            exit;
-        }
-        $this->title = self::$foglang['AllSN'];
-        $this->headerData = array(
+        $this->headerData = [
             self::$foglang['SN'],
             self::$foglang['SG'],
             self::$foglang['Enabled'],
             self::$foglang['MasterNode'],
             _('Max Clients')
-        );
+        ];
         $this->templates = [
             '',
             '',
@@ -79,23 +59,6 @@ class StorageNodeManagementPage extends FOGPage
             [],
             []
         ];
-        self::$HookManager
-            ->processEvent(
-                'STORAGE_NODE_DATA',
-                array(
-                    'headerData' => &$this->headerData,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        $this->indexDivDisplay(true, 'node');
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
     }
     /**
      * Display createing a new storage node.
@@ -416,43 +379,43 @@ class StorageNodeManagementPage extends FOGPage
             if ($StorageNode->get('isMaster')) {
                 $masternodes = self::getSubObjectIDs(
                     'StorageNode',
-                    array(
+                    [
                         'isMaster' => 1,
                         'storagegroupID' => $StorageNode->get('storagegroupID')
-                    )
+                    ]
                 );
                 self::getClass('StorageNodeManager')
                     ->update(
-                        array(
+                        [
                             'id' => array_diff(
-                                (array) $StorageNode->get('id'),
-                                (array) $masternodes
+                                (array)$StorageNode->get('id'),
+                                (array)$masternodes
                             )
-                        ),
+                        ],
                         '',
-                        array('isMaster' => 0)
+                        ['isMaster' => 0]
                     );
             }
             $hook = 'STORAGE_NODE_ADD_SCCESS';
             $msg = json_encode(
-                array(
+                [
                     'msg' => _('Storage Node added!'),
                     'title' => _('Storage Node Create Success')
-                )
+                ]
             );
         } catch (Exception $e) {
             $hook = 'STORAGE_NODE_ADD_FAIL';
             $msg = json_encode(
-                array(
+                [
                     'error' => $e->getMessage(),
                     'title' => _('Storage Node Create Fail')
-                )
+                ]
             );
         }
         self::$HookManager
             ->processEvent(
                 $hook,
-                array('StorageNode' => &$StorageNode)
+                ['StorageNode' => &$StorageNode]
             );
         unset($StorageNode);
         echo $msg;
@@ -866,7 +829,7 @@ class StorageNodeManagementPage extends FOGPage
         self::$HookManager
             ->processEvent(
                 'STORAGENODE_EDIT_POST',
-                array('StorageNode' => &$this->obj)
+                ['StorageNode' => &$this->obj]
             );
         $serverFault = false;
         try {
@@ -883,46 +846,46 @@ class StorageNodeManagementPage extends FOGPage
             if ($this->obj->get('isMaster')) {
                 $masternodes = self::getSubObjectIDs(
                     'StorageNode',
-                    array(
+                    [
                         'isMaster' => 1,
                         'storagegroupID' => $this->obj->get('storagegroupID')
-                    )
+                    ]
                 );
                 self::getClass('StorageNodeManager')
                     ->update(
-                        array(
+                        [
                             'id' => array_diff(
                                 (array)$this->obj->get('id'),
                                 (array)$masternodes
                             )
-                        ),
+                        ],
                         '',
-                        array('isMaster' => 0)
+                        ['isMaster' => 0]
                     );
             }
             $code = 201;
             $hook = 'STORAGENODE_EDIT_SUCCESS';
             $msg = json_encode(
-                array(
+                [
                     'msg' => _('Storage Node updated!'),
                     'title' => _('Storage Node Update Success')
-                )
+                ]
             );
         } catch (Exception $e) {
             $code = ($serverFault ? 500 : 400);
             $hook = 'STORAGENODE_EDIT_FAIL';
             $msg = json_encode(
-                array(
+                [
                     'error' => $e->getMessage(),
                     'title' => _('Storage Node Update Fail')
-                )
+                ]
             );
         }
         http_response_code($code);
         self::$HookManager
             ->processEvent(
                 $hook,
-                array('StorageNode' => &$this->obj)
+                ['StorageNode' => &$this->obj]
             );
         echo $msg;
         exit;

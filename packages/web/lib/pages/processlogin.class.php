@@ -169,7 +169,7 @@ class ProcessLogin extends FOGPage
      */
     public function setLang()
     {
-        $langs = array(
+        $langs = [
             'de_DE' => true,
             'en_US' => true,
             'es_ES' => true,
@@ -177,7 +177,7 @@ class ProcessLogin extends FOGPage
             'it_IT' => true,
             'pt_BR' => true,
             'zh_CN' => true,
-        );
+        ];
         $this->_specLang();
         setlocale(
             (int)LC_MESSAGES,
@@ -209,7 +209,7 @@ class ProcessLogin extends FOGPage
             unset($value);
         }
         unset($redirect['upass'], $redirect['uname'], $redirect['ulang']);
-        if (in_array($redirect['node'], array('login', 'logout'))) {
+        if (in_array($redirect['node'], ['login', 'logout'])) {
             unset($redirect['node']);
         }
         foreach ((array)$redirect as $key => &$value) {
@@ -247,7 +247,7 @@ class ProcessLogin extends FOGPage
         self::$HookManager
             ->processEvent(
                 'USER_TYPE_HOOK',
-                array('type' => &$type)
+                ['type' => &$type]
             );
         if (!isset($_POST['login'])) {
             return;
@@ -266,10 +266,10 @@ class ProcessLogin extends FOGPage
         self::$HookManager
             ->processEvent(
                 'LoginSuccess',
-                array(
+                [
                     'username' => $this->_username,
                     'password' => $this->_password
-                )
+                ]
             );
         $this->_setRedirMode();
     }
@@ -282,7 +282,7 @@ class ProcessLogin extends FOGPage
     {
         $this->setLang();
         global $node;
-        if (in_array($node, array('login', 'logout'))) {
+        if (in_array($node, ['login', 'logout'])) {
             if (session_status() != PHP_SESSION_NONE) {
                 self::setMessage($_SESSION['FOG_MESSAGES']);
             }

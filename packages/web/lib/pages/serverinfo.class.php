@@ -95,9 +95,9 @@ class ServerInfo extends FOGPage
             return;
         }
         $section = 0;
-        $arGeneral = array();
-        $arFS = array();
-        $arNIC = array();
+        $arGeneral = [];
+        $arFS = [];
+        $arNIC = [];
         $lines = explode("\n", $ret);
         foreach ((array)$lines as &$line) {
             $line = trim($line);
@@ -164,7 +164,7 @@ class ServerInfo extends FOGPage
             unset($nic);
         }
         // General Info
-        $fields = array(
+        $fields = [
             _('Storage Node') => $this->obj->get('name'),
             _('IP') => self::resolveHostname(
                 $this->obj->get('ip')
@@ -180,7 +180,7 @@ class ServerInfo extends FOGPage
             _('Total Memory') => $arGeneral[8],
             _('Used Memory') => $arGeneral[9],
             _('Free Memory') => $arGeneral[10]
-        );
+        ];
         ob_start();
         foreach ($fields as $field => &$input) {
             echo '<div class="col-md-4 pull-left">';
@@ -211,11 +211,11 @@ class ServerInfo extends FOGPage
             $rendered
         );
         // File System Info
-        $fields = array(
+        $fields = [
             _('Total Disk Space') => $arFS[0],
             _('Used Disk Space') => $arFS[1],
             _('Free Disk Space') => $arFS[2]
-        );
+        ];
         ob_start();
         foreach ($fields as $field => &$input) {
             echo '<div class="col-md-4 pull-left">';
@@ -265,12 +265,12 @@ class ServerInfo extends FOGPage
                 $this->data
             );
             $ethName = explode(' ', $txtran);
-            $fields = array(
+            $fields = [
                 $NICTrans[$index] => $NICTransSized[$index],
                 $NICRec[$index] => $NICRecSized[$index],
                 $NICErr[$index] => $NICErrInfo[$index],
                 $NICDro[$index] => $NICDropInfo[$index]
-            );
+            ];
             ob_start();
             foreach ($fields as $field => &$input) {
                 echo '<div class="col-md-3 pull-left">';

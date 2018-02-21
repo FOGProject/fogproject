@@ -1389,10 +1389,10 @@ class SnapinManagementPage extends FOGPage
             $code = ($serverFalt ? 500 : 400);
             $hook = 'SNAPIN_EDIT_FAIL';
             $msg = json_encode(
-                array(
+                [
                     'error' => $e->getMessage(),
                     'title' => _('Snapin Update Fail')
-                )
+                ]
             );
         }
         http_response_code($code);

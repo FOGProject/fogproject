@@ -57,9 +57,6 @@ class Route extends FOGBase
      * @var array
      */
     public static $validClasses = array(
-        'clientupdater',
-        'dircleaner',
-        'greenfog',
         'group',
         'groupassociation',
         'history',
@@ -102,8 +99,7 @@ class Route extends FOGBase
         'tasklog',
         'taskstate',
         'tasktype',
-        //'user',
-        'usercleanup',
+        'user',
         'usertracking',
     );
     /**

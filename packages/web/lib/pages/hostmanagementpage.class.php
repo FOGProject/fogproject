@@ -1590,33 +1590,31 @@ class HostManagementPage extends FOGPage
             $this->templates,
             $this->attributes
         );
-        $this->headerData = array(
+        $this->headerData = [
             _('Time'),
             _('Action'),
             _('Username'),
             _('Description')
-        );
-        $this->attributes = array(
-            array(),
-            array(),
-            array(),
-            array(),
-        );
-        $this->templates = array(
+        ];
+        $this->attributes = [
+            [],
+            [],
+            [],
+            []
+        ];
+        $this->templates = [
             '${user_time}',
             '${action}',
             '${user_name}',
             '${user_desc}',
-        );
+        ];
         $dte = filter_input(INPUT_GET, 'dte');
         if (!$dte) {
             self::niceDate()->format('Y-m-d');
         }
         $Dates = self::getSubObjectIDs(
             'UserTracking',
-            array(
-                'id' => $this->obj->get('users')
-            ),
+            ['id' => $this->obj->get('users')],
             'date'
         );
         if (count($Dates) > 0) {
@@ -1633,27 +1631,27 @@ class HostManagementPage extends FOGPage
             'usertracking',
             'name',
             false,
-            array(
+            [
                 'hostID' => $this->obj->get('id'),
                 'date' => $dte,
-                'action' => array('', 0, 1)
-            )
+                'action' => ['', 0, 1]
+            ]
         );
         $UserLogins = json_decode(
             Route::getData()
         );
         $UserLogins = $UserLogins->usertrackings;
-        $Data = array();
+        $Data = [];
         foreach ((array)$UserLogins as &$UserLogin) {
             $time = self::niceDate(
                 $UserLogin->datetime
             )->format('U');
             if (!isset($Data[$UserLogin->username])) {
-                $Data[$UserLogin->username] = array();
+                $Data[$UserLogin->username] = [];
             }
             if (array_key_exists('login', $Data[$UserLogin->username])) {
                 if ($UserLogin->action > 0) {
-                    $this->data[] = array(
+                    $this->data[] = [
                         'action' => _('Logout'),
                         'user_name' => $UserLogin->username,
                         'user_time' => (
@@ -1664,13 +1662,13 @@ class HostManagementPage extends FOGPage
                         'user_desc' => _('Logout not found')
                         . '<br/>'
                         . _('Setting logout to one second prior to next login')
-                    );
-                    $Data[$UserLogin->username] = array();
+                    ];
+                    $Data[$UserLogin->username] = [];
                 }
             }
             if ($UserLogin->action > 0) {
                 $Data[$UserLogin->username]['login'] = true;
-                $this->data[] = array(
+                $this->data[] = [
                     'action' => _('Login'),
                     'user_name' => $UserLogin->username,
                     'user_time' => (
@@ -1679,9 +1677,9 @@ class HostManagementPage extends FOGPage
                         ->format('Y-m-d H:i:s')
                     ),
                     'user_desc' => $UserLogin->description
-                );
+                ];
             } elseif ($UserLogin->action < 1) {
-                $this->data[] = array(
+                $this->data[] = [
                     'action' => _('Logout'),
                     'user_name' => $UserLogin->username,
                     'user_time' => (
@@ -1690,20 +1688,20 @@ class HostManagementPage extends FOGPage
                         ->format('Y-m-d H:i:s')
                     ),
                     'user_desc' => $UserLogin->description
-                );
-                $Data[$UserLogin->username] = array();
+                ];
+                $Data[$UserLogin->username] = [];
             }
             unset($UserLogin);
         }
         self::$HookManager
             ->processEvent(
                 'HOST_USER_LOGIN',
-                array(
+                [
                     'headerData' => &$this->headerData,
                     'data' => &$this->data,
                     'templates' => &$this->templates,
                     'attributes' => &$this->attributes
-                )
+                ]
             );
         echo '<!-- Login History -->';
         echo '<div class="tab-pane fade" id="host-login-history">';
@@ -1772,7 +1770,7 @@ class HostManagementPage extends FOGPage
             $this->templates,
             $this->attributes
         );
-        $this->headerData = array(
+        $this->headerData = [
             _('Engineer'),
             _('Imaged From'),
             _('Start'),
@@ -1781,8 +1779,8 @@ class HostManagementPage extends FOGPage
             _('Image'),
             _('Type'),
             _('State'),
-        );
-        $this->templates = array(
+        ];
+        $this->templates = [
             '${createdBy}',
             sprintf(
                 '<small>%s: ${group_name}</small><br/><small>%s: '
@@ -1796,31 +1794,31 @@ class HostManagementPage extends FOGPage
             '${image_name}',
             '${type}',
             '${state}',
-        );
-        $this->attributes = array(
-            array(),
-            array(),
-            array(),
-            array(),
-            array(),
-            array(),
-            array(),
-            array(),
-        );
+        ];
+        $this->attributes = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        ];
         Route::listem(
             'imaginglog',
             'name',
             false,
-            array('hostID' => $this->obj->get('id'))
+            ['hostID' => $this->obj->get('id')]
         );
         $Logs = json_decode(
             Route::getData()
         );
-        $Logs = $Logs->imaginglogs;
-        $imgTypes = array(
+        $Logs = $Logs->data;
+        $imgTypes = [
             'up' => _('Capture'),
             'down' => _('Deploy'),
-        );
+        ];
         foreach ((array)$Logs as &$Log) {
             $start = $Log->start;
             $finish = $Log->finish;
@@ -1834,10 +1832,10 @@ class HostManagementPage extends FOGPage
             $finish = self::niceDate($finish);
             $TaskIDs = self::getSubObjectIDs(
                 'Task',
-                array(
+                [
                     'checkInTime' => $Log->start,
                     'hostID' => $this->obj->get('id')
-                )
+                ]
             );
             $taskID = @max($TaskIDs);
             if (!$taskID) {
@@ -1853,7 +1851,7 @@ class HostManagementPage extends FOGPage
             if (!$typeName) {
                 $typeName = $Log->type;
             }
-            if (in_array($typeName, array('up', 'down'))) {
+            if (in_array($typeName, ['up', 'down'])) {
                 $typeName = $imgTypes[$typeName];
             }
             $stateName = $Task->state->name;
@@ -1870,7 +1868,7 @@ class HostManagementPage extends FOGPage
                 $imgName = $Image->name;
                 $imgPath = $Image->path;
             }
-            $this->data[] = array(
+            $this->data[] = [
                 'createdBy' => $createdBy,
                 'group_name' => $groupName,
                 'node_name' => $nodeName,
@@ -1882,18 +1880,18 @@ class HostManagementPage extends FOGPage
                 'image_name' => $imgName,
                 'type' => $typeName,
                 'state' => $stateName,
-            );
+            ];
             unset($Image, $Log);
         }
         self::$HookManager
             ->processEvent(
                 'HOST_IMAGE_HIST',
-                array(
+                [
                     'headerData' => &$this->headerData,
                     'data' => &$this->data,
                     'templates' => &$this->templates,
                     'attributes' => &$this->attributes
-                )
+                ]
             );
         echo '<!-- Image History -->';
         echo '<div class="tab-pane fade" id="host-image-history">';
@@ -1930,42 +1928,40 @@ class HostManagementPage extends FOGPage
             $this->templates,
             $this->attributes
         );
-        $this->headerData = array(
+        $this->headerData = [
             _('Snapin Name'),
             _('Start Time'),
             _('Complete'),
             _('Duration'),
             _('Return Code')
-        );
-        $this->templates = array(
+        ];
+        $this->templates = [
             '${snapin_name}',
             '${snapin_start}',
             '${snapin_end}',
             '${snapin_duration}',
             '${snapin_return}'
-        );
-        $this->attributes = array(
-            array(),
-            array(),
-            array(),
-            array(),
-            array()
-        );
+        ];
+        $this->attributes = [
+            [],
+            [],
+            [],
+            [],
+            []
+        ];
         $SnapinJobIDs = self::getSubObjectIDs(
             'SnapinJob',
-            array(
-                'hostID' => $this->obj->get('id')
-            )
+            ['hostID' => $this->obj->get('id')]
         );
-        $doneStates = array(
+        $doneStates = [
             self::getCompleteState(),
             self::getCancelledState()
-        );
+        ];
         Route::listem(
             'snapintask',
             'name',
             false,
-            array('jobID' => $SnapinJobIDs)
+            ['jobID' => $SnapinJobIDs]
         );
         $SnapinTasks = json_decode(
             Route::getData()
@@ -1985,7 +1981,7 @@ class HostManagementPage extends FOGPage
             } else {
                 $diff = self::diff($start, $end);
             }
-            $this->data[] = array(
+            $this->data[] = [
                 'snapin_name' => $Snapin->name,
                 'snapin_start' => $start->format('Y-m-d H:i:s'),
                 'snapin_end' => sprintf(
@@ -1996,18 +1992,18 @@ class HostManagementPage extends FOGPage
                 ),
                 'snapin_duration' => $diff,
                 'snapin_return'=> $SnapinTask->return,
-            );
+            ];
             unset($SnapinTask);
         }
         self::$HookManager
             ->processEvent(
                 'HOST_SNAPIN_HIST',
-                array(
+                [
                     'headerData' => &$this->headerData,
                     'data' => &$this->data,
                     'templates' => &$this->templates,
                     'attributes' => &$this->attributes
-                )
+                ]
             );
         echo '<div class="tab-pane fade" id="host-snapin-history">';
         echo '<div class="panel panel-info">';
@@ -2236,13 +2232,9 @@ class HostManagementPage extends FOGPage
         } elseif ($approveAll) {
             self::getClass('MACAddressAssociationManager')
                 ->update(
-                    array(
-                        'hostID' => $this->obj->get('id')
-                    ),
+                    ['hostID' => $this->obj->get('id')]
                     '',
-                    array(
-                        'pending' => 0
-                    )
+                    ['pending' => 0]
                 );
             $msg = sprintf(
                 '%s.',
@@ -2266,12 +2258,12 @@ class HostManagementPage extends FOGPage
     public function hostPowermanagementPost()
     {
         $onDemand = (int)isset($_POST['onDemand']);
-        $items = array();
-        $flags = array('flags' => FILTER_REQUIRE_ARRAY);
+        $items = [];
+        $flags = ['flags' => FILTER_REQUIRE_ARRAY];
         if (isset($_POST['pmupdate'])) {
             $items = filter_input_array(
                 INPUT_POST,
-                array(
+                [
                     'scheduleCronMin' => $flags,
                     'scheduleCronHour' => $flags,
                     'scheduleCronDOM' => $flags,
@@ -2279,7 +2271,7 @@ class HostManagementPage extends FOGPage
                     'scheduleCronDOW' => $flags,
                     'pmid' => $flags,
                     'action' => $flags
-                )
+                ]
             );
             extract($items);
             if (!$action) {
@@ -2287,13 +2279,13 @@ class HostManagementPage extends FOGPage
                     _('You must select an action to perform')
                 );
             }
-            $items = array();
+            $items = [];
             foreach ((array)$pmid as $index => &$pm) {
                 $onDemandItem = array_search(
                     $pm,
                     $onDemand
                 );
-                $items[] = array(
+                $items[] = [
                     $pm,
                     $this->obj->get('id'),
                     $scheduleCronMin[$index],
@@ -2306,12 +2298,12 @@ class HostManagementPage extends FOGPage
                     1 :
                     0,
                     $action[$index]
-                );
+                ];
                 unset($pm);
             }
             self::getClass('PowerManagementManager')
                 ->insertBatch(
-                    array(
+                    [
                         'id',
                         'hostID',
                         'min',
@@ -2321,7 +2313,7 @@ class HostManagementPage extends FOGPage
                         'dow',
                         'onDemand',
                         'action'
-                    ),
+                    ],
                     $items
                 );
         }
@@ -2380,16 +2372,12 @@ class HostManagementPage extends FOGPage
         if (isset($_POST['pmdelete'])) {
             $pmid = filter_input_array(
                 INPUT_POST,
-                array(
-                    'rempowermanagements' => $flags
-                )
+                ['rempowermanagements' => $flags]
             );
             $pmid = $pmid['rempowermanagements'];
             self::getClass('PowerManagementManager')
                 ->destroy(
-                    array(
-                        'id' => $pmid
-                    )
+                    ['id' => $pmid]
                 );
         }
     }
@@ -2448,7 +2436,7 @@ class HostManagementPage extends FOGPage
         header('Content-type: application/json');
         self::$HookManager->processEvent(
             'HOST_EDIT_POST',
-            array('Host' => &$this->obj)
+            ['Host' => &$this->obj]
         );
         $serverFault = false;
         try {
@@ -2497,14 +2485,14 @@ class HostManagementPage extends FOGPage
             if ($tab == 'host-general') {
                 $igstuff = filter_input_array(
                     INPUT_POST,
-                    array(
-                        'igimage' => array(
+                    [
+                        'igimage' => [
                             'flags' => FILTER_REQUIRE_ARRAY
-                        ),
-                        'igclient' => array(
+                        ],
+                        'igclient' => [
                             'flags' => FILTER_REQUIRE_ARRAY
-                        )
-                    )
+                        ]
+                    ]
                 );
                 $igimage = $igstuff['igimage'];
                 $igclient = $igstuff['igclient'];
@@ -2513,26 +2501,26 @@ class HostManagementPage extends FOGPage
             $code = 201;
             $hook = 'HOST_EDIT_SUCCESS';
             $msg = json_encode(
-                array(
+                [
                     'msg' => _('Host updated!'),
                     'title' => _('Host Update Success')
-                )
+                ]
             );
         } catch (Exception $e) {
             $code = ($serverFault ? 500 : 400);
             $hook = 'HOST_EDIT_FAIL';
             $msg = json_encode(
-                array(
+                [
                     'error' => $e->getMessage(),
                     'title' => _('Host Update Fail')
-                )
+                ]
             );
         }
         http_response_code($code);
         self::$HookManager
             ->processEvent(
                 $hook,
-                array('Host' => &$this->obj)
+                ['Host' => &$this->obj]
             );
         echo $msg;
         exit;
@@ -2571,18 +2559,18 @@ class HostManagementPage extends FOGPage
             }
             $code = 201;
             $msg = json_encode(
-                array(
+                [
                     'msg' => _('Successfully added selected hosts to the group!'),
                     'title' => _('Host Add to Group Success')
-                )
+                ]
             );
         } catch (Exception $e) {
             $code = ($serverFault ? 500 : 400);
             $msg = json_encode(
-                array(
+                [
                     'error' => $e->getMessage(),
                     'title' => _('Host Add to Group Fail')
-                )
+                ]
             );
         }
         http_response_code($code);
@@ -2608,22 +2596,22 @@ class HostManagementPage extends FOGPage
         );
         $UserTracks = $UserTracks->usertrackings;
         $data = null;
-        $Data = array();
+        $Data = [];
         foreach ((array)$UserTracks as &$Login) {
             $ldate = self::niceDate($Login->date)
                 ->format('Y-m-d');
             if ($Login->hostID != $this->obj->get('id')
                 || $ldate != $date
-                || !in_array($Login->action, array('', 0, 1))
+                || !in_array($Login->action, ['', 0, 1])
             ) {
                 continue;
             }
             $time = self::niceDate($Login->datetime);
-            $Data[$Login->username] = array(
+            $Data[$Login->username] = [
                 'user' => $Login->username,
                 'min' => $MainDate,
                 'max' => $MainDate_1
-            );
+            ];
             if (array_key_exists('login', $Data[$Login->username])) {
                 if ($Login->action > 0) {
                     $Data[$Login->username]['logout'] = (int)$time - 1;
@@ -2632,11 +2620,11 @@ class HostManagementPage extends FOGPage
                     $Data[$Login->username]['logout'] = (int)$time;
                     $data[] = $Data[$Login->username];
                 }
-                $Data[$Login->username] = array(
+                $Data[$Login->username] = [
                     'user' => $Login->username,
                     'min' => $MainDate,
                     'max' => $MainDate_1
-                );
+                ];
             }
             if ($Login->action > 0) {
                 $Data[$Login->username]['login'] = (int)$time;
@@ -2904,7 +2892,7 @@ class HostManagementPage extends FOGPage
             $this->attributes
         );
         // PowerManagement
-        $this->headerData = array(
+        $this->headerData = [
             '<div class="checkbox">'
             . '<label for="rempowerselectors">'
             . '<input type="checkbox" id="rempowerselectors"/>'
@@ -2912,8 +2900,8 @@ class HostManagementPage extends FOGPage
             . '</div>',
             _('Cron Schedule'),
             _('Action'),
-        );
-        $this->templates = array(
+        ];
+        $this->templates = [
             '<input type="checkbox" name="rempowermanagements[]" '
             . 'class="rempoweritems" value="${id}" id="rmpm-${id}"/>'
             . '<label for="rmpm-${id}"></label>',
@@ -2961,19 +2949,12 @@ class HostManagementPage extends FOGPage
             . '</div>'
             . '</div>',
             '${action}',
-        );
-        $this->attributes = array(
-            array(
-                'width' => 16,
-                'class' => 'filter-false'
-            ),
-            array(
-                'class' => 'filter-false'
-            ),
-            array(
-                'class' => 'filter-false'
-            )
-        );
+        ];
+        $this->attributes = [
+            [],
+            [],
+            []
+        ];
         Route::listem('powermanagement');
         $PowerManagements = json_decode(
             Route::getData()
@@ -2990,7 +2971,7 @@ class HostManagementPage extends FOGPage
             if ($PowerManagement->onDemand) {
                 continue;
             }
-            $this->data[] = array(
+            $this->data[] = [
                 'id' => $PowerManagement->id,
                 'min' => $PowerManagement->min,
                 'hour' => $PowerManagement->hour,
@@ -3002,7 +2983,7 @@ class HostManagementPage extends FOGPage
                     $PowerManagement->action,
                     true
                 )
-            );
+            ];
             unset($PowerManagement);
         }
         // Current data.

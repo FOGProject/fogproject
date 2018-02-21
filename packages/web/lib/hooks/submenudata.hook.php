@@ -91,7 +91,6 @@ class SubMenuData extends Hook
                 'pxemenu' => self::$foglang['PXEBootMenu'],
                 'customizepxe' => self::$foglang['PXEConfiguration'],
                 'newMenu' => self::$foglang['NewMenu'],
-                'clientupdater' => self::$foglang['ClientUpdater'],
                 'maclist' => self::$foglang['MACAddrList'],
                 'settings' => self::$foglang['FOGSettings'],
                 'logviewer' => self::$foglang['LogViewer'],

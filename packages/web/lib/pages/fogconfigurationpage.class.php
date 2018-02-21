@@ -38,43 +38,6 @@ class FOGConfigurationPage extends FOGPage
     {
         $this->name = 'FOG Configuration';
         parent::__construct($this->name);
-        $this->menu = array(
-            'home' => self::$foglang['Home'],
-            'license' => self::$foglang['License'],
-            'kernelUpdate' => self::$foglang['KernelUpdate'],
-            'pxemenu' => self::$foglang['PXEBootMenu'],
-            'customizepxe' => self::$foglang['PXEConfiguration'],
-            'newMenu' => self::$foglang['NewMenu'],
-            'clientupdater' => self::$foglang['ClientUpdater'],
-            'maclist' => self::$foglang['MACAddrList'],
-            'settings' => self::$foglang['FOGSettings'],
-            'logviewer' => self::$foglang['LogViewer'],
-            'config' => self::$foglang['ConfigSave'],
-            'http://www.sf.net/projects/freeghost' => self::$foglang['FOGSFPage'],
-            'https://fogproject.org' => self::$foglang['FOGWebPage'],
-            'https://github.com/fogproject/fogproject.git' => _(
-                'FOG Project on Github'
-            ),
-            'https://github.com/fogproject/fog-client.git' => _(
-                'FOG Client on Github'
-            ),
-            'https://wiki.fogproject.org/wiki/index.php' => _('FOG Wiki'),
-            'https://forums.fogproject.org' => _('FOG Forums'),
-            'https://www.paypal.com/cgi-bin/webscr?i'
-            . 'item_name=Donation+to+FOG+-+A+Free+Cloning+'
-            . 'Solution&cmd=_donations&business=fogproject'
-            . '.org%40gmail.com' => _('Donate to FOG'),
-            );
-        self::$HookManager
-            ->processEvent(
-                'SUB_MENULINK_DATA',
-                array(
-                    'menu' => &$this->menu,
-                    'submenu' => &$this->subMenu,
-                    'id' => &$this->id,
-                    'notes'=>&$this->notes
-                )
-            );
     }
     /**
      * Redirects to the version when initially entering
@@ -345,7 +308,7 @@ class FOGConfigurationPage extends FOGPage
                 'bzImage32'
             );
 
-            $fields = array(
+            $fields = [
                 '<label class="col-sm-2 control-label" for="dstName">'
                 . _('Kernel Name')
                 . '</label>' => '<input class="form-control" type="text" name="dstName" id='
@@ -355,7 +318,7 @@ class FOGConfigurationPage extends FOGPage
                 '' => '<input type="hidden" name="file" value="'
                 . $tmpFile
                 . '"/>'
-            );
+            ];
 
             $rendered = self::formFields($fields);
 
@@ -440,17 +403,17 @@ class FOGConfigurationPage extends FOGPage
     {
         $this->title = _('FOG PXE Boot Menu Configuration');
         unset($this->headerData);
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-6 form-group'),
-            array('class' => 'col-xs-2')
-        );
-        $this->templates = array(
+        $this->attributes = [
+            [],
+            [],
+            []
+        ];
+        $this->templates = [
             '${field}',
             '${input}',
-            '${span}',
-        );
-        $ServicesToSee = array(
+            '${span}'
+        ];
+        $ServicesToSee = [
             'FOG_ADVANCED_MENU_LOGIN',
             'FOG_BOOT_EXIT_TYPE',
             'FOG_EFI_BOOT_EXIT_TYPE',
@@ -467,7 +430,7 @@ class FOGConfigurationPage extends FOGPage
             'FOG_PXE_HIDDENMENU_TIMEOUT',
             'FOG_PXE_MENU_HIDDEN',
             'FOG_PXE_MENU_TIMEOUT',
-        );
+        ];
         list(
             $advLogin,
             $exitNorm,
@@ -487,9 +450,7 @@ class FOGConfigurationPage extends FOGPage
             $timeout
         ) = self::getSubObjectIDs(
             'Service',
-            array(
-                'name' => $ServicesToSee
-            ),
+            ['name' => $ServicesToSee],
             'value',
             false,
             'AND',
@@ -523,7 +484,7 @@ class FOGConfigurationPage extends FOGPage
             ''
         );
         $fieldsToData = function (&$input, &$field) {
-            $this->data[] = array(
+            $this->data[] = [
                 'field' => $field,
                 'input' => (
                     is_array($input) ?
@@ -535,14 +496,14 @@ class FOGConfigurationPage extends FOGPage
                     $input[1] :
                     ''
                 )
-            );
+            ];
             unset($input, $field);
         };
         // Menu based changes.
-        $fields = array(
+        $fields = [
             '<label for="mainColors">'
             . _('Main Colors')
-            . '</label>' => array(
+            . '</label>' => [
                 '<div class="input-group">'
                 . '<textarea id="mainColors" name="mainColors" class="form-control">'
                 . $mainColors
@@ -551,10 +512,10 @@ class FOGConfigurationPage extends FOGPage
                 '<i class="fa fa-question hand" title="'
                 . _('Option specifies the color settings of the main menu items')
                 . '." data-toggle="tooltip" data-placement="right"></i>'
-            ),
+            ],
             '<label for="hostValid">'
             . _('Valid Host Colors')
-            . '<label>' => array(
+            . '<label>' => [
                 '<div class="input-group">'
                 . '<textarea id="hostValid" class="form-control" name="hostValid">'
                 . $hostValid
@@ -565,10 +526,10 @@ class FOGConfigurationPage extends FOGPage
                 . ' '
                 . _('is valid')
                 . '." data-toggle="tooltip" data-placement="right"></i>'
-            ),
+            ],
             '<label for="hostInvalid">'
             . _('Invalid Host Colors')
-            . '</label>' => array(
+            . '</label>' => [
                 '<div class="input-group">'
                 . '<textarea name="hostInvalid" class="form-control" id='
                 . '"hostInvalid">'
@@ -580,10 +541,10 @@ class FOGConfigurationPage extends FOGPage
                 . ' '
                 . _('is invalid')
                 . '." data-toggle="tooltip" data-placement="right"></i>'
-            ),
+            ],
             '<label for="mainCpairs">'
             . _('Main pairings')
-            . '</label>' => array(
+            . '</label>' => [
                 '<div class="input-group">'
                 . '<textarea id="mainCpairs" name="mainCpairs" class='
                 . '"form-control">'
@@ -595,10 +556,10 @@ class FOGConfigurationPage extends FOGPage
                 . ' '
                 . _('present and where/how they need to display')
                 . '." data-toggle="tooltip" data-placement="right"></i>'
-            ),
+            ],
             '<label for="mainFallback">'
             . _('Main fallback pairings')
-            . '</label>' => array(
+            . '</label>' => [
                 '<div class="input-group">'
                 . '<textarea class="form-control" id="mainFallback" name='
                 . '"mainFallback">'
@@ -608,10 +569,10 @@ class FOGConfigurationPage extends FOGPage
                 '<i class="fa fa-question hand" title="'
                 . _('Option specifies the pairings as a fallback')
                 . '." data-toggle="tooltip" data-placement="right"></i>'
-            ),
+            ],
             '<label for="hostCpairs">'
             . _('Host pairings')
-            . '</label>' => array(
+            . '</label>' => [
                 '<div class="input-group">'
                 . '<textarea class="form-control" id="hostCPairs" name="hostCpairs">'
                 . $hostCpairs
@@ -620,13 +581,13 @@ class FOGConfigurationPage extends FOGPage
                 '<i class="fa fa-question hand" title="'
                 . _('Option specifies the pairings after host checks')
                 . '." data-toggle="tooltip" data-placement="right"></i>'
-            ),
+            ],
             '<label for="timeout">'
             . _('Menu Timeout')
             . ' ('
             . _('in seconds')
             . ')'
-            . '</label>' => array(
+            . '</label>' => [
                 '<div class="input-group">'
                 . '<input type="text" id="timeout" name="timeout" value="'
                 . $timeout
@@ -641,10 +602,10 @@ class FOGConfigurationPage extends FOGPage
                 . ' '
                 . _('open')
                 . '." data-toggle="tooltip" data-placement="right"></i>'
-            ),
+            ],
             '<label for="bgfile">'
             . _('Menu Background File')
-            . '</label>' => array(
+            . '</label>' => [
                 '<div class="input-group">'
                 . '<input type="text" id="bgfile" name="bgfile" value="'
                 . $bgfile
@@ -655,28 +616,26 @@ class FOGConfigurationPage extends FOGPage
                 . ' '
                 . _('for the menu background')
                 . '." data-toggle="tooltip" data-placement="right"></i>'
-            ),
+            ],
             '<label for="menuSet">'
             . _('Make Changes?')
             . '</label>' => '<button type="submit" id="menuSet" class="'
             . 'btn btn-info btn-block" name="updatemenuset">'
             . _('Update')
             . '</button>'
-        );
+        ];
         self::$HookManager->processEvent(
             'IPXE_MENU_SETTINGS_FIELDS',
-            array(
-                'fields' => &$fields
-            )
+            ['fields' => &$fields]
         );
         array_walk($fields, $fieldsToData);
         self::$HookManager->processEvent(
             'IPXE_MENU_SETTINGS',
-            array(
+            [
                 'data' => &$this->data,
                 'templates' => &$this->templates,
                 'attributes' => &$this->attributes
-            )
+            ]
         );
         echo '<div class="col-xs-9">';
         echo '<div class="panel panel-info">';
@@ -700,11 +659,11 @@ class FOGConfigurationPage extends FOGPage
         $this->render(12);
         echo '</div>';
         echo '</div>';
-        $this->data = array();
-        $fields = array(
+        $this->data = [];
+        $fields = [
             '<label for="nomenu">'
             . _('No Menu')
-            . '</label>' => array(
+            . '</label>' => [
                 '<input type="checkbox" id="nomenu" name="nomenu"'
                 . $noMenu
                 . '/>',
@@ -723,10 +682,10 @@ class FOGConfigurationPage extends FOGPage
                 . ', '
                 . _('it performs that task')
                 . '." data-toggle="tooltip" data-placement="right"></i>'
-            ),
+            ],
             '<label for="hidemenu">'
             . _('Hide Menu')
-            . '</label>' => array(
+            . '</label>' => [
                 '<input type="checkbox" id="hidemenu" name="hidemenu"'
                 . $hidChecked
                 . '/>',
@@ -741,10 +700,10 @@ class FOGConfigurationPage extends FOGPage
                 . '. '
                 . _('Otherwise it will just boot like normal')
                 . '." data-toggle="tooltip" data-placement="right"></i>'
-            ),
+            ],
             '<label for="hidetimeout">'
             . _('Hide Menu Timeout')
-            . '</label>' => array(
+            . '</label>' => [
                 '<div class="input-group">'
                 . '<input type="text" id="hidetimeout" name="hidetimeout" '
                 . 'value="'
@@ -754,38 +713,36 @@ class FOGConfigurationPage extends FOGPage
                 '<i class="fa fa-question hand" title="'
                 . _('Option specifies the timeout value for the hidden menu system')
                 . '." data-toggle="tooltip" data-placement="right"></i>'
-            ),
+            ],
             '<label for="keysequence">'
             . _('Boot Key Sequence')
-            . '</label>' => array(
+            . '</label>' => [
                 $bootKeys,
                 '<i class="fa fa-question hand" title="'
                 . _('Option sets the ipxe keysequence to enter to gain menu')
                 . ' '
                 . _('access to the hidden menu system')
                 . '." data-toggle="tooltip" data-placement="right"></i>'
-            ),
+            ],
             '<label for="hideSet">'
             . _('Make Changes?')
             . '</label>' => '<button type="submit" id="hideSet" class="'
             . 'btn btn-info btn-block" name="updatehideset">'
             . _('Update')
             . '</button>'
-        );
+        ];
         self::$HookManager->processEvent(
             'IPXE_HIDENOMENU_SETTINGS_FIELDS',
-            array(
-                'fields' => &$fields
-            )
+            ['fields' => &$fields]
         );
         array_walk($fields, $fieldsToData);
         self::$HookManager->processEvent(
             'IPXE_HIDENOMENU_SETTINGS',
-            array(
+            [
                 'data' => &$this->data,
                 'templates' => &$this->templates,
                 'attributes' => &$this->attributes
-            )
+            ]
         );
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center expand_trigger hand" id="'
@@ -798,45 +755,43 @@ class FOGConfigurationPage extends FOGPage
         $this->render(12);
         echo '</div>';
         echo '</div>';
-        $this->data = array();
-        $fields = array(
+        $this->data = [];
+        $fields = [
             '<label for="bootTypeExit">'
             . _('Exit to Hard Drive Type')
-            . '</label>' => array(
+            . '</label>' => [
                 $exitNorm,
                 '<i class="fa fa-question hand" title="'
                 . _('Option specifies the legacy boot exit method ipxe will use')
                 . '." data-toggle="tooltip" data-placement="right"></i>'
-            ),
+            ],
             '<label for="efiBootTypeExit">'
             . _('Exit to Hard Drive Type(EFI)')
-            . '</label>' => array(
+            . '</label>' => [
                 $exitEfi,
                 '<i class="fa fa-question hand" title="'
                 . _('Option specifies the efi boot exit method ipxe will use')
                 . '." data-toggle="tooltip" data-placement="right"></i>'
-            ),
+            ],
             '<label for="exitSet">'
             . _('Make Changes?')
             . '</label>' => '<button type="submit" id="exitSet" class="'
             . 'btn btn-info btn-block" name="updatebootexit">'
             . _('Update')
             . '</button>'
-        );
+        ];
         self::$HookManager->processEvent(
             'IPXE_EXITTYPE_SETTINGS_FIELDS',
-            array(
-                'fields' => &$fields
-            )
+            ['fields' => &$fields]
         );
         array_walk($fields, $fieldsToData);
         self::$HookManager->processEvent(
             'IPXE_EXITTYPE_SETTINGS',
-            array(
+            [
                 'data' => &$this->data,
                 'templates' => &$this->templates,
                 'attributes' => &$this->attributes
-            )
+            ]
         );
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center expand_trigger hand" id="'
@@ -849,11 +804,11 @@ class FOGConfigurationPage extends FOGPage
         $this->render(12);
         echo '</div>';
         echo '</div>';
-        $this->data = array();
-        $fields = array(
+        $this->data = [];
+        $fields = [
             '<label for="advlog">'
             . _('Advanced Menu Login')
-            . '</label>' => array(
+            . '</label>' => [
                 '<input type="checkbox" id="advlog" name="advmenulogin"'
                 . $advLogin
                 . '/>',
@@ -872,10 +827,10 @@ class FOGConfigurationPage extends FOGPage
                 . ' '
                 . _('menu system')
                 . '." data-toggle="tooltip" data-placement="right"></i>'
-            ),
+            ],
             '<label for="advtext">'
             . _('Advanced menu command')
-            . '</label>' => array(
+            . '</label>' => [
                 '<div class="input-group">'
                 . '<textarea id="advtext" class="form-control" name="adv">'
                 . $advanced
@@ -888,28 +843,26 @@ class FOGConfigurationPage extends FOGPage
                 . '. '
                 . _('This is ipxe script commands to operate with')
                 . '." data-toggle="tooltip" data-placement="right"></i>'
-            ),
+            ],
             '<label for="advSet">'
             . _('Make Changes?')
             . '</label>' => '<button type="submit" id="advSet" class="'
             . 'btn btn-info btn-block" name="updateadvset">'
             . _('Update')
             . '</button>'
-        );
+        ];
         self::$HookManager->processEvent(
             'IPXE_ADVANCED_SETTINGS_FIELDS',
-            array(
-                'fields' => &$fields
-            )
+            ['fields' => &$fields]
         );
         array_walk($fields, $fieldsToData);
         self::$HookManager->processEvent(
             'IPXE_ADVANCED_SETTINGS',
-            array(
+            [
                 'data' => &$this->data,
                 'templates' => &$this->templates,
                 'attributes' => &$this->attributes
-            )
+            ]
         );
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center expand_trigger hand" id="'
@@ -971,7 +924,7 @@ class FOGConfigurationPage extends FOGPage
                     INPUT_POST,
                     'bgfile'
                 );
-                $ServicesToEdit = array(
+                $ServicesToEdit = [
                     'FOG_IPXE_MAIN_COLOURS' => $mainColors,
                     'FOG_IPXE_VALID_HOST_COLOURS' => $hostValid,
                     'FOG_IPXE_INVALID_HOST_COLOURS' => $hostInvalid,
@@ -980,7 +933,7 @@ class FOGConfigurationPage extends FOGPage
                     'FOG_IPXE_HOST_CPAIRS' => $hostCpairs,
                     'FOG_PXE_MENU_TIMEOUT' => $timeout,
                     'FOG_IPXE_BG_FILE' => $bgfile
-                );
+                ];
             }
             if (isset($_POST['updatehideset'])) {
                 $noMenu = (int)isset($_POST['nomenu']);
@@ -996,12 +949,12 @@ class FOGConfigurationPage extends FOGPage
                     INPUT_POST,
                     'keysequence'
                 );
-                $ServicesToEdit = array(
+                $ServicesToEdit = [
                     'FOG_NO_MENU' => $noMenu,
                     'FOG_PXE_MENU_HIDDEN' => $hideMenu,
                     'FOG_PXE_HIDDENMENU_TIMEOUT' => $hidetimeout,
                     'FOG_KEY_SEQUENCE' => $keysequence
-                );
+                ];
             }
             if (isset($_POST['updatebootexit'])) {
                 $bootTypeExit = filter_input(
@@ -1012,10 +965,10 @@ class FOGConfigurationPage extends FOGPage
                     INPUT_POST,
                     'efiBootTypeExit'
                 );
-                $ServicesToEdit = array(
+                $ServicesToEdit = [
                     'FOG_BOOT_EXIT_TYPE' => $bootTypeExit,
                     'FOG_EFI_BOOT_EXIT_TYPE' => $efiBootTypeExit
-                );
+                ];
             }
             if (isset($_POST['updateadvset'])) {
                 $advmenulogin = filter_input(
@@ -1026,50 +979,51 @@ class FOGConfigurationPage extends FOGPage
                     INPUT_POST,
                     'adv'
                 );
-                $ServicesToEdit = array(
+                $ServicesToEdit = [
                     'FOG_ADVANCED_MENU_LOGIN' => $advmenulogin,
                     'FOG_PXE_ADVANCED' => $adv,
-                );
+                ];
             }
             ksort($ServicesToEdit);
             $ids = self::getSubObjectIDs(
                 'Service',
-                array(
-                    'name' => array_keys($ServicesToEdit)
-                )
+                ['name' => array_keys($ServicesToEdit)]
             );
-            $items = array();
+            $items = [];
             $iteration = 0;
             foreach ($ServicesToEdit as $key => &$value) {
-                $items[] = array($ids[$iteration], $key, $value);
+                $items[] = [$ids[$iteration], $key, $value];
                 $iteration++;
                 unset($value);
             }
             if (count($items) > 0) {
                 self::getClass('ServiceManager')
                     ->insertBatch(
-                        array(
+                        [
                             'id',
                             'name',
                             'value'
-                        ),
+                        ],
                         $items
                     );
             }
+            $code = 201;
             $msg = json_encode(
-                array(
+                [
                     'msg' => _('iPXE Settings updated successfully!'),
                     'title' => _('iPXE Update Success')
-                )
+                ]
             );
         } catch (Exception $e) {
+            $code = 400;
             $msg = json_encode(
-                array(
+                [
                     'error' => $e->getMessage(),
                     'title' => _('iPXE Update Fail')
-                )
+                ]
             );
         }
+        http_response_code($code);
         echo $msg;
         exit;
     }
@@ -1081,15 +1035,15 @@ class FOGConfigurationPage extends FOGPage
     public function customizepxe()
     {
         $this->title = self::$foglang['PXEMenuCustomization'];
-        $this->templates = array(
+        $this->templates = [
             '${field}',
-            '${input}',
-        );
+            '${input}'
+        ];
         Route::listem('pxemenuoptions');
         $Menus = json_decode(
             Route::getData()
         );
-        $Menus = $Menus->pxemenuoptionss;
+        $Menus = $Menus->data;
         echo '<div class="col-xs-9">';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
@@ -1138,7 +1092,7 @@ class FOGConfigurationPage extends FOGPage
                 ''
             );
             $keySeq = $Menu->keysequence;
-            $fields = array(
+            $fields = [
                 '<label for="menu_item'
                 . $divTab
                 . '">'
@@ -1261,7 +1215,7 @@ class FOGConfigurationPage extends FOGPage
                     . '</button>' :
                     ''
                 ),
-            );
+            ];
             $fields = array_filter($fields);
             array_walk($fields, $this->fieldsToData);
             self::$HookManager->processEvent(
@@ -1269,12 +1223,12 @@ class FOGConfigurationPage extends FOGPage
                     'BOOT_ITEMS_%s',
                     $divTab
                 ),
-                array(
+                [
                     'data' => &$this->data,
                     'templates' => &$this->templates,
                     'attributes' => &$this->attributes,
                     'headerData' => &$this->headerData
-                )
+                ]
             );
             echo '<div class="panel panel-info">';
             echo '<div class="panel-heading text-center expand_trigger hand" id="pxeItem_'
@@ -1343,11 +1297,9 @@ class FOGConfigurationPage extends FOGPage
             $menu_default = (int)isset($_POST['menu_default']);
             self::getClass('PXEMenuOptionsManager')
                 ->update(
-                    array(
-                        'id' => $menuid
-                    ),
+                    ['id' => $menuid],
                     '',
-                    array(
+                    [
                         'name' => $menu_item,
                         'description' => $menu_desc,
                         'params' => $menu_params,
@@ -1356,7 +1308,7 @@ class FOGConfigurationPage extends FOGPage
                         'default' => $menu_default,
                         'hotkey' => $menu_hotkey,
                         'keysequence' => $menu_key
-                    )
+                    ]
                 );
             if ($menu_default) {
                 $MenuIDs = self::getSubObjectIDs('PXEMenuOptions');
@@ -1370,19 +1322,15 @@ class FOGConfigurationPage extends FOGPage
                 natsort($MenuIDs);
                 self::getClass('PXEMenuOptionsManager')
                     ->update(
-                        array(
-                            'id' => $MenuIDs
-                        ),
+                        ['id' => $MenuIDs],
                         '',
-                        array(
-                            'default' => '0'
-                        )
+                        ['default' => '0']
                     );
             }
             unset($MenuIDs);
             $DefMenuIDs = self::getSubObjectIDs(
                 'PXEMenuOptions',
-                array('default' => 1)
+                ['default' => 1]
             );
             if (!count($DefMenuIDs)) {
                 self::getClass('PXEMenuOptions', 1)
@@ -1390,11 +1338,12 @@ class FOGConfigurationPage extends FOGPage
                     ->save();
             }
             unset($DefMenuIDs);
+            $code = 201;
             $msg = json_encode(
-                array(
+                [
                     'msg' => _("$menu_item successfully updated!"),
                     'title' => _('iPXE Item Update Success')
-                )
+                ]
             );
         }
         if (isset($_POST['delform'])) {
@@ -1408,20 +1357,16 @@ class FOGConfigurationPage extends FOGPage
             );
             if ($menuname->destroy()) {
                 $msg = json_encode(
-                    array(
+                    [
                         'msg' => $menuname->get('name')
                         . ' '
                         . _('successfully removed!'),
                         'title' => _('iPXE Item Remove Success')
-                    )
+                    ]
                 );
             }
             $countDefault = self::getClass('PXEMenuOptionsManager')
-                ->count(
-                    array(
-                        'default' => 1
-                    )
-                );
+                ->count(['default' => 1]);
             if ($countDefault == 0
                 || $countDefault > 1
             ) {
@@ -1441,10 +1386,10 @@ class FOGConfigurationPage extends FOGPage
     public function newMenu()
     {
         $this->title = _('Create New iPXE Menu Entry');
-        $this->templates = array(
+        $this->templates = [
             '${field}',
             '${input}',
-        );
+        ];
         $menu_item = filter_input(
             INPUT_POST,
             'menu_item'
@@ -1479,7 +1424,7 @@ class FOGConfigurationPage extends FOGPage
             ' checked' :
             ''
         );
-        $fields = array(
+        $fields = [
             '<label for="menu_item">'
             . _('Menu Item')
             . '</label>' => '<div class="input-group">'
@@ -1554,18 +1499,18 @@ class FOGConfigurationPage extends FOGPage
             . '">'
             . self::$foglang['Submit']
             . '</button>',
-        );
+        ];
         $fields = array_filter($fields);
         array_walk($fields, $this->fieldsToData);
         self::$HookManager
             ->processEvent(
                 'BOOT_ITEMS_ADD',
-                array(
+                [
                     'data' => &$this->data,
                     'templates' => &$this->templates,
                     'attributes' => &$this->attributes,
                     'headerData' => &$this->headerData
-                )
+                ]
             );
         echo '<div class="col-xs-9">';
         echo '<div class="panel panel-info">';
@@ -1629,9 +1574,7 @@ class FOGConfigurationPage extends FOGPage
                     ->update(
                         '',
                         '',
-                        array(
-                            'default' => 0
-                        )
+                        ['default' => 0]
                     );
             }
             $Menu = self::getClass('PXEMenuOptions')
@@ -1645,305 +1588,38 @@ class FOGConfigurationPage extends FOGPage
                 throw new Exception(_('iPXE Item create failed!'));
             }
             $countDefault = self::getClass('PXEMenuOptionsManager')
-                ->count(
-                    array(
-                        'default' => 1
-                    )
-                );
+                ->count(['default' => 1]);
             if ($countDefault == 0 || $countDefault > 1) {
-                self::getClass('PXEMenuOptions', 1)
-                    ->set('default', 1)
-                    ->save();
+                if (!self::getClass('PXEMenuOptions', 1)->set('default', 1)->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Menu item failed!'));
+                }
             }
+            $code = 201;
             $hook = 'MENU_ADD_SUCCESS';
             $msg = json_encode(
-                array(
+                [
                     'msg' => _('iPXE Item added!'),
                     'title' => _('iPXE Item Create Success')
-                )
+                ]
             );
         } catch (Exception $e) {
+            $code = ($serverFault ? 500 : 400);
             $hook = 'MENU_ADD_FAIL';
             $msg = json_encode(
-                array(
+                [
                     'error' => $e->getMessage(),
                     'title' => _('iPXE Item Create Fail')
-                )
+                ]
             );
         }
+        http_response_code($code);
         self::$HookManager
             ->processEvent(
                 $hook,
-                array(
-                    'Menu' => &$Menu
-                )
+                ['Menu' => &$Menu]
             );
         unset($Menu);
-        echo $msg;
-        exit;
-    }
-    /**
-     * Client updater element from config page.
-     *
-     * @param bool $formNeeded Is the element needing form?
-     *
-     * @return void
-     */
-    public function clientupdater($formNeeded = true)
-    {
-        $this->title = _('FOG Client Service Updater');
-        $this->headerData = array(
-            _('Delete'),
-            _('Module Name'),
-            _('Module MD5'),
-            _('Module Type'),
-        );
-        $this->templates = array(
-            '<input type="checkbox" name="delcu[]" class='
-            . '"delid" id="delcuid${client_id}" value='
-            . '"${client_id}"/>',
-            '<input type="hidden" name="name" value='
-            . '"FOG_CLIENT_CLIENTUPDATER_ENABLED"/>${name}',
-            '${module}',
-            '${type}'
-        );
-        $this->attributes = array(
-            array(),
-            array(),
-            array(),
-            array(
-                'class' => 'filter-false'
-            )
-        );
-        Route::listem('clientupdater');
-        $ClientUpdates = json_decode(
-            Route::getData()
-        );
-        $ClientUpdates = $ClientUpdates->clientupdaters;
-        foreach ((array)$ClientUpdates as &$ClientUpdate) {
-            $this->data[] = array(
-                'name' => $ClientUpdate->name,
-                'module' => $ClientUpdate->md5,
-                'type' => $ClientUpdate->type,
-                'client_id' => $ClientUpdate->id,
-                'id' => $ClientUpdate->id,
-            );
-            unset($ClientUpdate);
-        }
-        self::$HookManager
-            ->processEvent(
-                'CLIENT_UPDATE',
-                array(
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes,
-                    'headerData' => &$this->headerData
-                )
-            );
-        if ($formNeeded) {
-            echo '<div class="col-xs-9">';
-            echo '<form class="form-horizontal" method="post" action="'
-                . $this->formAction
-                . '&tab=clientupdater" enctype="multipart/form-data" novalidate>';
-        }
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Current files');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo _('NOTICE');
-        echo ': ';
-        echo _('The below items are only used for the old client.');
-        echo ' ';
-        echo _('Old clients are the clients that came with FOG');
-        echo ' ';
-        echo _('Version 1.2.0 and earlier');
-        echo '<hr/>';
-        echo _('This section allows you to update the modules and');
-        echo ' ';
-        echo _('config files that run on the client computers.');
-        echo ' ';
-        echo _('The clients will checkin with the server from time');
-        echo ' ';
-        echo _('to time to see if a new module is published.');
-        echo ' ';
-        echo _('If a new module is published the client will');
-        echo ' ';
-        echo _('download the module and use it on the next');
-        echo ' ';
-        echo _('time the service is started.');
-        echo '<hr/>';
-        $this->render(12);
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
-        $this->templates = array(
-            '${field}',
-            '${input}'
-        );
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group')
-        );
-        $fields = array(
-            '<label for="file">'
-            . _('Upload file')
-            . ' '
-            . _('Max Size')
-            . ': '
-            . ini_get('post_max_size')
-            . '</label>' => '<div class="input-group">'
-            . '<label class="input-group-btn">'
-            . '<span class="btn btn-info">'
-            . _('Browse')
-            . '<input type="file" class="hidden" multiple name='
-            . '"module[]" id="file"/>'
-            . '</span>'
-            . '</label>'
-            . '<input type="text" class="form-control filedisp" readonly/>'
-            . '</div>'
-        );
-        array_walk($fields, $this->fieldsToData);
-        self::$HookManager
-            ->processEvent(
-                'CLIENT_UPDATE',
-                array(
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        $this->render(12);
-        echo '<div class="form-group">';
-        echo '<label class="control-label col-xs-4" for="deletecu">';
-        echo _('Delete Selected Items');
-        echo '</label>';
-        echo '<div class="col-xs-8">';
-        echo '<button class="btn btn-danger btn-block" type="submit" id="deletecu" '
-            . 'name="deletecu">';
-        echo _('Delete');
-        echo '</button>';
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="form-group">';
-        echo '<label class="control-label col-xs-4" for="upload">';
-        echo _('Make Changes');
-        echo '</label>';
-        echo '<div class="col-xs-8">';
-        echo '<button class="btn btn-info btn-block" type="submit" id="upload" '
-            . 'name="upload">';
-        echo _('Update');
-        echo '</button>';
-        echo '</div>';
-        echo '</div>';
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
-        echo '</div>';
-        echo '</div>';
-        if ($formNeeded) {
-            echo '</form>';
-            echo '</div>';
-        }
-    }
-    /**
-     * Submits the changes as needed.
-     *
-     * @return void
-     */
-    public function clientupdaterPost()
-    {
-        try {
-            if (isset($_POST['deletecu'])) {
-                $delcus = filter_input_array(
-                    INPUT_POST,
-                    array(
-                        'delcu' => array(
-                            'flags' => FILTER_REQUIRE_ARRAY
-                        )
-                    )
-                );
-                $delcus = $delcus['delcu'];
-                self::getClass('ClientUpdaterManager')
-                    ->destroy(array('id' => $delcus));
-                echo json_encode(
-                    array(
-                        'msg' => _('Item removed successfully!'),
-                        'title' => _('Client Modules Change Success')
-                    )
-                );
-                exit;
-            }
-            if (isset($_POST['upload'])) {
-                if (count($_FILES['module']['tmp_name']) < 1) {
-                    throw new Exception(_('No file uploaded!'));
-                }
-                $error = $_FILES['module']['error'];
-                foreach ((array)$error as &$err) {
-                    if ($err > 0) {
-                        throw new UploadException($err);
-                    }
-                    unset($err);
-                }
-                $tmpfiles = $_FILES['module']['tmp_name'];
-                foreach ((array)$tmpfiles as $index => &$tmp_name) {
-                    if (!file_exists($tmp_name)) {
-                        continue;
-                    }
-                    if (!($md5 = md5_file($tmp_name))) {
-                        continue;
-                    }
-                    $filename = basename(
-                        $_FILES['module']['name'][$index]
-                    );
-                    $fp = fopen(
-                        $tmp_name,
-                        'rb'
-                    );
-                    $content = fread(
-                        $fp,
-                        self::getFilesize($tmp_name)
-                    );
-                    fclose($fp);
-                    $finfo = new finfo(FILEINFO_MIME);
-                    $f = $finfo->file($tmp_name);
-                    self::getClass('ClientUpdater')
-                        ->set('name', $filename)
-                        ->load('name')
-                        ->set('md5', $md5)
-                        ->set('type', $f)
-                        ->set('file', $content)
-                        ->save();
-                }
-                global $tab;
-                self::redirect(
-                    $this->formAction
-                );
-            }
-            $msg = json_encode(
-                array(
-                    'msg' => _('Modules added/updated successfully!'),
-                    'title' => _('Client Modules Change Success')
-                )
-            );
-        } catch (Exception $e) {
-            $msg = json_encode(
-                array(
-                    'error' => $e->getMessage(),
-                    'title' => _('Client Modules Change Fail')
-                )
-            );
-        }
         echo $msg;
         exit;
     }
@@ -2036,7 +1712,7 @@ class FOGConfigurationPage extends FOGPage
             if (($fh = fopen($url, 'rb')) === false) {
                 throw new Exception(_('Could not read temp file'));
             }
-            $items = array();
+            $items = [];
             $start = 18;
             $imported = 0;
             $pat = '#^([0-9a-fA-F]{2}[:-]){2}([0-9a-fA-F]{2}).*$#';
@@ -2064,10 +1740,10 @@ class FOGConfigurationPage extends FOGPage
                 ) {
                     continue;
                 }
-                $items[] = array(
+                $items[] = [
                     $mac,
                     $mak
-                );
+                ];
             }
             fclose($fh);
             if (count($items) > 0) {
@@ -2076,10 +1752,10 @@ class FOGConfigurationPage extends FOGPage
                     $affected_rows
                 ) = self::getClass('OUIManager')
                 ->insertBatch(
-                    array(
+                    [
                         'prefix',
                         'name'
-                    ),
+                    ],
                     $items
                 );
                 $imported += $affected_rows;
@@ -2102,7 +1778,7 @@ class FOGConfigurationPage extends FOGPage
      */
     public function settings()
     {
-        $ServiceNames = array(
+        $ServiceNames = [
             'FOG_REGISTRATION_ENABLED',
             'FOG_PXE_MENU_HIDDEN',
             'FOG_QUICKREG_AUTOPOP',
@@ -2155,13 +1831,11 @@ class FOGConfigurationPage extends FOGPage
             'FOG_IMAGE_LIST_MENU',
             'FOG_REAUTH_ON_DELETE',
             'FOG_REAUTH_ON_EXPORT'
-        );
+        ];
         self::$HookManager
             ->processEvent(
                 'SERVICE_NAMES',
-                array(
-                    'ServiceNames' => &$ServiceNames
-                )
+                ['ServiceNames' => &$ServiceNames]
             );
         $this->title = _('FOG System Settings');
         unset(
@@ -2191,16 +1865,16 @@ class FOGConfigurationPage extends FOGPage
             . _('as they can cause issues that are difficult to troubleshoot')
             . '.';
         echo '<hr/>';
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-6 form-group'),
-            array('class' => 'col-xs-2'),
-        );
-        $this->templates = array(
+        $this->attributes = [
+            [],
+            [],
+            []
+        ];
+        $this->templates = [
             '${field}',
             '${input}',
             '${span}',
-        );
+        ];
         echo '<div class="col-xs-12">';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center trigger_expand hand">';
@@ -2227,7 +1901,7 @@ class FOGConfigurationPage extends FOGPage
             }
             if ($curcat != $catset) {
                 if ($catset !== false) {
-                    $this->data[] = array(
+                    $this->data[] = [
                         'field' => '<label for='
                         . '"'
                         . $divTab
@@ -2244,7 +1918,7 @@ class FOGConfigurationPage extends FOGPage
                         . _('Update')
                         . '</button>',
                         'span' => ''
-                    );
+                    ];
                     $this->render(12);
                     unset($this->data);
                     echo '</div>';
@@ -2318,14 +1992,14 @@ class FOGConfigurationPage extends FOGPage
                     . '</div>';
                 break;
             case 'FOG_IMAGE_COMPRESSION_FORMAT_DEFAULT':
-                $vals = array(
+                $vals = [
                     _('Partclone Gzip') => 0,
                     _('Partclone Gzip Split 200MiB') => 2,
                     _('Partclone Uncompressed') => 3,
                     _('Partclone Uncompressed Split 200MiB') => 4,
                     _('Partclone Zstd') => 5,
                     _('Partclone Zstd Split 200MiB') => 6
-                );
+                ];
                 ob_start();
                 foreach ((array)$vals as $view => &$value) {
                     printf(
@@ -2350,7 +2024,7 @@ class FOGConfigurationPage extends FOGPage
                     . '</div>';
                 break;
             case 'FOG_VIEW_DEFAULT_SCREEN':
-                $screens = array('SEARCH','LIST');
+                $screens = ['SEARCH','LIST'];
                 ob_start();
                 foreach ((array)$screens as &$viewop) {
                     printf(
@@ -2375,10 +2049,10 @@ class FOGConfigurationPage extends FOGPage
                     . '</div>';
                 break;
             case 'FOG_MULTICAST_DUPLEX':
-                $duplexTypes = array(
+                $duplexTypes = [
                     'HALF_DUPLEX' => '--half-duplex',
                     'FULL_DUPLEX' => '--full-duplex',
-                );
+                ];
                 ob_start();
                 foreach ((array)$duplexTypes as $types => &$val) {
                     printf(
@@ -2605,7 +2279,7 @@ class FOGConfigurationPage extends FOGPage
                     . '</div>';
                 break;
             }
-            $this->data[] = array(
+            $this->data[] = [
                 'field' => '<label for="${service_name}">'
                 . '${label_name}'
                 . '</label>',
@@ -2631,30 +2305,30 @@ class FOGConfigurationPage extends FOGPage
                 'service_id' => $Service->id,
                 'service_name' => $Service->name,
                 'label_name' => str_replace(
-                    array('FOG_', '_'),
-                    array('', ' '),
+                    ['FOG_', '_'],
+                    ['', ' '],
                     $Service->name
                 ),
                 'service_value' => $Service->value,
                 'service_base64val' => base64_encode($Service->value),
                 'service_desc' => $Service->description,
-            );
+            ];
             self::$HookManager
                 ->processEvent(
                     sprintf(
                         'CLIENT_UPDATE_%s',
                         $divTab
                     ),
-                    array(
+                    [
                         'data' => &$this->data,
                         'templates' => &$this->templates,
                         'attributes' => &$this->attributes
-                    )
+                    ]
                 );
             $catset = $Service->category;
             unset($options, $Service);
         }
-        $this->data[] = array(
+        $this->data[] = [
             'field' => '<label for='
             . '"'
             . $divTab
@@ -2671,7 +2345,7 @@ class FOGConfigurationPage extends FOGPage
             . _('Update')
             . '</button>',
             'span' => ''
-        );
+        ];
         $this->render(12);
         unset($this->data);
         echo '</div>';
@@ -2700,10 +2374,10 @@ class FOGConfigurationPage extends FOGPage
      */
     public function settingsPost()
     {
-        $checkbox = array(0,1);
+        $checkbox = [0,1];
         $regenrange = range(0, 24, .25);
         array_shift($regenrange);
-        $needstobenumeric = array(
+        $needstobenumeric = [
             // API System
             'FOG_API_ENABLED' => $checkbox,
             // FOG Boot Settings
@@ -2826,14 +2500,14 @@ class FOGConfigurationPage extends FOGPage
             'FOG_PROXY_PORT' => range(0, 65535),
             // User Management
             'FOG_USER_MINPASSLENGTH' => true,
-        );
-        $needstobeip = array(
+        ];
+        $needstobeip = [
             // Multicast Settings
             'FOG_MULTICAST_ADDRESS' => true,
             'FOG_MULTICAST_RENDEZVOUS' => true,
             // Proxy Settings
             'FOG_PROXY_IP' => true,
-        );
+        ];
         unset($findWhere, $setWhere);
         Route::listem('service', 'id', true);
         $Services = json_decode(
@@ -2947,25 +2621,26 @@ class FOGConfigurationPage extends FOGPage
                     }
                     break;
                 }
-                $items[] = array($key, $name, $set);
+                $items[] = [$key, $name, $set];
                 unset($Service, $index);
             }
             if (count($items) > 0) {
                 self::getClass('ServiceManager')
                     ->insertBatch(
-                        array(
+                        [
                             'id',
                             'name',
                             'value'
-                        ),
+                        ],
                         $items
                     );
             }
+            $code = 201;
             $msg = json_encode(
-                array(
+                [
                     'msg' => _('Settings successfully stored!'),
                     'title' => _('Settings Update Success')
-                )
+                ]
             );
             if (isset($_POST['Rebranding'])) {
                 echo '<div class="col-xs-9">';
@@ -2983,11 +2658,12 @@ class FOGConfigurationPage extends FOGPage
                 return;
             }
         } catch (Exception $e) {
+            $code = 400;
             $msg = json_encode(
-                array(
+                [
                     'error' => $e->getMessage(),
                     'title' => _('Settings Update Fail')
-                )
+                ]
             );
             if (isset($_POST['Rebranding'])) {
                 echo '<div class="col-xs-9">';
@@ -3005,6 +2681,7 @@ class FOGConfigurationPage extends FOGPage
                 return;
             }
         }
+        http_response_code($code);
         if (isset($_POST['Rebranding'])) {
             self::redirect(
                 $this->formAction
@@ -3100,7 +2777,7 @@ class FOGConfigurationPage extends FOGPage
                     '#(fogsnapinrep.log.transfer)#i',
                     $fogfiles
                 );
-                $files[$StorageNode->name] = array(
+                $files[$StorageNode->name] = [
                     (
                         $svcmasterlog ?
                         _('Service Master') :
@@ -3173,7 +2850,7 @@ class FOGConfigurationPage extends FOGPage
                         $pinghostlog :
                         null
                     ),
-                );
+                ];
                 $logtype = 'error';
                 $logparse = function (&$log) use (&$files, $StorageNode, &$logtype) {
                     $str = sprintf(
@@ -3231,18 +2908,18 @@ class FOGConfigurationPage extends FOGPage
                     (array)$files[$StorageNode->name]
                 );
             } catch (Exception $e) {
-                $files[$StorageNode->name] = array(
+                $files[$StorageNode->name] = [
                     $e->getMessage() => null,
-                );
+                ];
             }
             $ip[$StorageNode->name] = $StorageNode->ip;
             self::$HookManager
                 ->processEvent(
                     'LOG_VIEWER_HOOK',
-                    array(
+                    [
                         'files' => &$files,
                         'StorageNode' => &$StorageNode
-                    )
+                    ]
                 );
             unset($StorageGroup);
         }
@@ -3275,7 +2952,7 @@ class FOGConfigurationPage extends FOGPage
         }
         unset($files);
         $logOpts = ob_get_clean();
-        $vals = array(
+        $vals = [
             20,
             50,
             100,
@@ -3283,7 +2960,7 @@ class FOGConfigurationPage extends FOGPage
             400,
             500,
             1000
-        );
+        ];
         ob_start();
         foreach ((array)$vals as $i => &$value) {
             printf(
@@ -3367,15 +3044,15 @@ class FOGConfigurationPage extends FOGPage
             $this->templates,
             $this->attributes
         );
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
-        );
-        $this->templates = array(
+        $this->attributes = [
+            [],
+            []
+        ];
+        $this->templates = [
             '${field}',
             '${input}',
-        );
-        $this->data[] = array(
+        ];
+        $this->data[] = [
             'field' => '<label for="export">'
             . _('Export Database?')
             . '</label>',
@@ -3384,7 +3061,7 @@ class FOGConfigurationPage extends FOGPage
             . 'btn btn-info btn-block" id="export">'
             . _('Export')
             . '</button>'
-        );
+        ];
         echo '<div class="col-xs-9">';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
@@ -3403,8 +3080,8 @@ class FOGConfigurationPage extends FOGPage
         echo '<form class="form-horizontal" method="post" action='
             . '"export.php?type=sql" novalidate>';
         $this->render(12);
-        $this->data = array();
-        $this->data[] = array(
+        $this->data = [];;
+        $this->data[] = [
             'field' => '<label for="import">'
             . _('Import Database?')
             . '<br/>'
@@ -3422,8 +3099,8 @@ class FOGConfigurationPage extends FOGPage
             . '</label>'
             . '<input type="text" class="form-control filedisp" readonly/>'
             . '</div>'
-        );
-        $this->data[] = array(
+        ];
+        $this->data[] = [
             'field' => '<label for="importbtn">'
             . _('Import Database?')
             . '</label>',
@@ -3431,7 +3108,7 @@ class FOGConfigurationPage extends FOGPage
             . 'btn btn-info btn-block" id="importbtn">'
             . _('Import')
             . '</button>'
-        );
+        ];
         echo '</form>';
         echo '</div>';
         echo '</div>';

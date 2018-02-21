@@ -1196,6 +1196,68 @@ class GroupManagementPage extends FOGPage
         }
     }
     /**
+     * Display the group PM stuff.
+     *
+     * @return void
+     */
+    public function groupPowermanagement()
+    {
+        echo 'TODO: Make Functional';
+    }
+    /**
+     * Modify the power management stuff.
+     *
+     * @return void
+     */
+    public function groupPowermanagementPost()
+    {
+        $onDemand = (int)isset($_POST['onDemand']);
+        $min = filter_input(INPUT_POST, 'scheduleCronMin');
+        $hour = filter_input(INPUT_POST, 'scheduleCronHour');
+        $dom = filter_input(INPUT_POST, 'scheduleCronDOM');
+        $month = filter_input(INPUT_POST, 'scheduleCronMonth');
+        $dow = filter_input(INPUT_POST, 'scheduleCronDOW');
+        $action = filter_input(INPUT_POST, 'action');
+        if (!$action) {
+            throw new Exception(_('You must select an action to perform'));
+        }
+        $items = [];
+        if (isset($_POST['pmsubmit'])) {
+            if ($onDemand && $action === 'wol') {
+                $this->obj->wakeOnLAN();
+                return;
+            }
+            $hostIDs = (array)$this->obj->get('hosts');
+            foreach ((array)$hostIDs as &$hostID) {
+                $items[] = [
+                    $hostID,
+                    $min,
+                    $hour,
+                    $dom,
+                    $month,
+                    $dow,
+                    $onDemand,
+                    $action
+                ];
+                unset($hostID);
+            }
+            $fields = [
+                'hostID',
+                'min',
+                'hour',
+                'dom',
+                'month',
+                'dow',
+                'onDemand',
+                'action'
+            ];
+            if (count($items) > 0) {
+                self::getClass('PowerManagementManager')
+                    ->insertBatch($fields, $items);
+            }
+        }
+    }
+    /**
      * The group edit display method
      *
      * @return void
@@ -1264,28 +1326,28 @@ class GroupManagementPage extends FOGPage
             $this->obj->get('name')
         );
 
-        $tabData = array();
+        $tabData = [];
 
         // General
-        $tabData[] = array(
+        $tabData[] = [
             'name' => _('General'),
             'id' => 'group-general',
             'generator' => function() {
                 $this->groupGeneral();
             }
-        );
+        ];
 
         // Image
-        $tabData[] = array(
+        $tabData[] = [
             'name' => _('Image'),
             'id' => 'group-image',
             'generator' => function() {
                 $this->groupImage();
             }
-        );
+        ];
 
         // Active Directory
-        $tabData[] = array(
+        $tabData[] = [
             'name' => _('Active Directory'),
             'id' => 'group-active-directory',
             'generator' => function() {
@@ -1298,50 +1360,50 @@ class GroupManagementPage extends FOGPage
                     $enforce
                 );
             }
-        );
+        ];
 
         // Tasks
-        $tabData[] = array(
+        $tabData[] = [
             'name' => _('Tasks'),
             'id' => 'group-tasks',
             'generator' => function() {
                 $this->basictasksOptions();
             }
-        );
+        ];
 
         // Printers
-        $tabData[] = array(
+        $tabData[] = [
             'name' => _('Printers'),
             'id' => 'group-printers',
             'generator' => function() {
                 $this->groupPrinters();
             }
-        );
+        ];
 
         // Snapins
-        $tabData[] = array(
+        $tabData[] = [
             'name' => _('Snapins'),
             'id' => 'group-snapins',
             'generator' => function() {
                 $this->groupSnapins();
             }
-        );
+        ];
 
         // Service
-        $tabData[] = array(
+        $tabData[] = [
             'name' => _('Service Settings'),
             'id' => 'group-service',
             'generator' => function() {
                 $this->groupService();
             }
-        );
+        ];
 
         // Power Management
-        /*$tabData[] = [
+        $tabData[] = [
             'name' => _('Power Management'),
             'id' => 'group-powermanagement',
             'generator' => function() {
-                $this->groupPMDisplay();
+                $this->groupPowermanagement();
             }
         ];
 
@@ -1352,7 +1414,8 @@ class GroupManagementPage extends FOGPage
             'generator' => function() {
                 $this->groupInventory();
             }
-        ];*/
+        ];
+
         echo self::tabFields($tabData);
     }
     /**
@@ -1361,133 +1424,14 @@ class GroupManagementPage extends FOGPage
      *
      * @return void
      */
-    public function inventory()
+    public function groupInventory()
     {
         $this->title = sprintf(
             '%s %s',
             _('Group'),
             self::$foglang['Inventory']
         );
-        echo '<div class="col-xs-9">';
-        echo '<div class="tab-pane fade in active">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo $this->title;
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<div class="text-center">';
-        printf(
-            $this->reportString,
-            sprintf(
-                'Group_%s_InventoryReport',
-                $this->obj->get('name')
-            ),
-            _('Export CSV'),
-            _('Export CSV'),
-            self::$csvfile,
-            sprintf(
-                'Group_%s_InventoryReport',
-                $this->obj->get('name')
-            ),
-            _('Export PDF'),
-            _('Export PDF'),
-            self::$pdffile
-        );
-        echo '</div>';
-        $this->ReportMaker = self::getClass('ReportMaker');
-        foreach (self::$inventoryCsvHead as $csvHeader => &$classGet) {
-            $this->ReportMaker->addCSVCell($csvHeader);
-            unset($classGet, $csvHeader);
-        }
-        $this->ReportMaker->endCSVLine();
-        $this->headerData = array(
-            _('Host name'),
-            _('Memory'),
-            _('System Product'),
-            _('System Serial')
-        );
-        $this->templates = array(
-            '${host_name}<br/><small>${host_mac}</small>',
-            '${memory}',
-            '${sysprod}',
-            '${sysser}'
-        );
-        $this->attributes = array(
-            array(),
-            array(),
-            array(),
-            array(),
-        );
-        Route::listem(
-            'host',
-            'name',
-            false,
-            array('id' => $this->obj->get('hosts'))
-        );
-        $Hosts = json_decode(
-            Route::getData()
-        );
-        $Hosts = $Hosts->hosts;
-        foreach ((array)$Hosts as &$Host) {
-            if (!$Host->inventory->id) {
-                continue;
-            }
-            $Image = $Host->image;
-            $this->data[] = array(
-                'host_name' => $Host->name,
-                'host_mac' => $Host->primac,
-                'memory' => $Host->inventory->mem,
-                'sysprod' => $Host->inventory->sysproduct,
-                'sysser' => $Host->inventory->sysserial,
-            );
-            foreach (self::$inventoryCsvHead as $csvHead => &$classGet) {
-                switch ($csvHead) {
-                case _('Host ID'):
-                    $this->ReportMaker->addCSVCell(
-                        $Host->id
-                    );
-                    break;
-                case _('Host name'):
-                    $this->ReportMaker->addCSVCell(
-                        $Host->name
-                    );
-                    break;
-                case _('Host MAC'):
-                    $this->ReportMaker->addCSVCell(
-                        $Host->mac
-                    );
-                    break;
-                case _('Host Desc'):
-                    $this->ReportMaker->addCSVCell(
-                        $Host->description
-                    );
-                    break;
-                case _('Host Memory'):
-                    $this->ReportMaker->addCSVCell(
-                        $Host->inventory->mem
-                    );
-                    break;
-                default:
-                    $this->ReportMaker->addCSVCell(
-                        $Host->inventory->$classGet
-                    );
-                    break;
-                }
-                unset($classGet, $csvHead);
-            }
-            $this->ReportMaker->endCSVLine();
-            unset($Host, $index);
-        }
-        unset($Hosts);
-        $this->ReportMaker->appendHTML($this->process(12));
-        //$this->ReportMaker->outputReport(false);
-        $_SESSION['foglastreport'] = serialize($this->ReportMaker);
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
+        echo 'TODO: Make Functional';
     }
     /**
      * Submit the edit function.
@@ -1500,17 +1444,10 @@ class GroupManagementPage extends FOGPage
         self::$HookManager
             ->processEvent(
                 'GROUP_EDIT_POST',
-                array('Group' => &$this->obj)
+                ['Group' => &$this->obj]
             );
         $serverFault = false;
         try {
-            $onDemand = (int)isset($_POST['onDemand']);
-            $min = filter_input(INPUT_POST, 'scheduleCronMin');
-            $hour = filter_input(INPUT_POST, 'scheduleCronHour');
-            $dom = filter_input(INPUT_POST, 'scheduleCronDOM');
-            $month = filter_input(INPUT_POST, 'scheduleCronMonth');
-            $dow = filter_input(INPUT_POST, 'scheduleCronDOW');
-            $action = filter_input(INPUT_POST, 'action');
             global $tab;
             switch ($tab) {
             case 'group-general':
@@ -1532,45 +1469,7 @@ class GroupManagementPage extends FOGPage
                 $this->groupServicePost();
                 break;
             case 'group-powermanagement':
-                if (!$action) {
-                    throw new Exception(_('You must select an action to perform'));
-                }
-                $items = array();
-                if (isset($_POST['pmsubmit'])) {
-                    if ($onDemand && $action === 'wol') {
-                        $this->obj->wakeOnLAN();
-                        break;
-                    }
-                    $hostIDs = (array)$this->obj->get('hosts');
-                    $items = array();
-                    foreach ((array)$hostIDs as &$hostID) {
-                        $items[] = array(
-                            $hostID,
-                            $min,
-                            $hour,
-                            $dom,
-                            $month,
-                            $dow,
-                            $onDemand,
-                            $action
-                        );
-                        unset($hostID);
-                    }
-                    $fields = array(
-                        'hostID',
-                        'min',
-                        'hour',
-                        'dom',
-                        'month',
-                        'dow',
-                        'onDemand',
-                        'action'
-                    );
-                    if (count($items) > 0) {
-                        self::getClass('PowerManagementManager')
-                            ->insertBatch($fields, $items);
-                    }
-                }
+                $this->groupPowermanagementPost();
                 break;
             }
             if (!$this->obj->save()) {
@@ -1580,26 +1479,26 @@ class GroupManagementPage extends FOGPage
             $code = 201;
             $hook = 'GROUP_EDIT_SUCCESS';
             $msg = json_encode(
-                array(
+                [
                     'msg' => _('Group updated!'),
                     'title' => _('Group Update Success')
-                )
+                ]
             );
         } catch (Exception $e) {
             $code = ($serverFault ? 500 : 400);
             $hook = 'GROUP_EDIT_FAIL';
             $msg = json_encode(
-                array(
+                [
                     'error' => $e->getMessage(),
                     'title' => _('Group Update Fail')
-                )
+                ]
             );
         }
         http_response_code($code);
         self::$HookManager
             ->processEvent(
                 $hook,
-                array('Group' => &$this->obj)
+                ['Group' => &$this->obj]
             );
         echo $msg;
         exit;
@@ -1772,65 +1671,5 @@ class GroupManagementPage extends FOGPage
             )
         );
         exit;
-    }
-    /**
-     * Display the group PM stuff.
-     *
-     * @return void
-     */
-    public function groupPMDisplay()
-    {
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
-        echo '<!-- Power Management Items -->';
-        echo '<div class="tab-pane fade" id="group-powermanagement">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Power Management');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        $this->newPMDisplay();
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Group Power Management Remove');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<label for="delAllPM" class="col-xs-4">'
-            . _('Delete all PM tasks?')
-            . '</label>';
-        echo '<div class="col-xs-8">';
-        echo '<button id="delAllPM" type="button" class='
-            . '"btn btn-danger btn-block">'
-            . _('Delete')
-            . '</button>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
     }
 }

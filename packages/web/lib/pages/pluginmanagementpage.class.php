@@ -32,7 +32,7 @@ class PluginManagementPage extends FOGPage
      *
      * @var array
      */
-    private static $_plugins = array();
+    private static $_plugins = [];
     /**
      * The node that uses this item
      *
@@ -55,43 +55,40 @@ class PluginManagementPage extends FOGPage
             Route::getData()
         );
         self::$_plugins = self::$_plugins->plugins;
-        $this->menu = array(
+        $this->menu = [
             'home'=>self::$foglang['Home'],
             'activate'=>self::$foglang['ActivatePlugins'],
             'install'=>self::$foglang['InstallPlugins'],
             'installed'=>self::$foglang['InstalledPlugins'],
-        );
+        ];
         self::$HookManager->processEvent(
             'SUB_MENULINK_DATA',
-            array(
+            [
                 'menu' => &$this->menu,
                 'submenu' => &$this->subMenu,
                 'id' => &$this->id,
                 'notes' => &$this->notes
-            )
+            ]
         );
-        $this->headerData = array(
+        $this->headerData = [
             _('Plugin Name'),
             _('Description'),
             _('Location'),
-        );
-        $this->templates = array(
+        ];
+        $this->templates = [
             '<a href="?node=plugin&sub=${type}&run=${encname}&${type}'
             . '=${encname}" class="icon" title="Plugin: ${name}">${icon}'
             . '<br/><small>${name}</small></a>',
             '${desc}',
             '${location}',
-        );
-        $this->attributes = array(
-            array(
-                'width' => 66,
-                'height' => 66
-            ),
-            array('class' => 'col-xs-8'),
-            array('class' => 'col-xs-3'),
-        );
+        ];
+        $this->attributes = [
+            [],
+            [],
+            []
+        ];
         global $sub;
-        $subs = array('installed', 'install');
+        $subs = ['installed', 'install'];
         if (in_array($sub, $subs)) {
             array_unshift(
                 $this->headerData,
@@ -109,10 +106,10 @@ class PluginManagementPage extends FOGPage
             );
             array_unshift(
                 $this->attributes,
-                array(
+                [
                     'class' => 'filter-false form-group',
                     'width' => 16
-                )
+                ]
             );
         }
         /**
@@ -140,7 +137,7 @@ class PluginManagementPage extends FOGPage
                 }
                 break;
             }
-            $this->data[] = array(
+            $this->data[] = [
                 'type' => self::$_plugintype,
                 'encname' => md5($Plugin->name),
                 'id' => $Plugin->id,
@@ -148,7 +145,7 @@ class PluginManagementPage extends FOGPage
                 'icon' => $Plugin->icon,
                 'desc' => $Plugin->description,
                 'location' => $Plugin->location
-            );
+            ];
             unset($Plugin);
         };
     }
@@ -173,12 +170,12 @@ class PluginManagementPage extends FOGPage
         array_walk(self::$_plugins, static::$returnData);
         self::$HookManager->processEvent(
             'PLUGIN_DATA',
-            array(
+            [
                 'headerData' => &$this->headerData,
                 'data' => &$this->data,
                 'templates' => &$this->templates,
                 'attributes' => &$this->attributes
-            )
+            ]
         );
         echo '<div class="col-xs-9">';
         $this->indexDivDisplay();
@@ -201,12 +198,12 @@ class PluginManagementPage extends FOGPage
         array_walk(self::$_plugins, static::$returnData);
         self::$HookManager->processEvent(
             'PLUGIN_DATA',
-            array(
+            [
                 'headerData' => &$this->headerData,
                 'data' => &$this->data,
                 'templates' => &$this->templates,
                 'attributes' => &$this->attributes
-            )
+            ]
         );
         $runset = trim(
             filter_input(INPUT_GET, 'run')
@@ -249,12 +246,12 @@ class PluginManagementPage extends FOGPage
         array_walk(self::$_plugins, static::$returnData);
         self::$HookManager->processEvent(
             'PLUGIN_DATA',
-            array(
+            [
                 'headerData' => &$this->headerData,
                 'data' => &$this->data,
                 'templates' => &$this->templates,
                 'attributes' => &$this->attributes
-            )
+            ]
         );
         $runset = trim(
             filter_input(INPUT_GET, 'run')
@@ -308,34 +305,34 @@ class PluginManagementPage extends FOGPage
                 $this->templates,
                 $this->attributes
             );
-            $this->templates = array(
+            $this->templates = [
                 '${field}',
                 '${input}'
-            );
-            $this->attributes = array(
-                array('class' => 'col-xs-4'),
-                array('class' => 'col-xs-8 form-group')
-            );
-            $fields = array(
+            ];
+            $this->attributes = [
+                [],
+                []
+            ];
+            $fields = [
                 _('Plugin Description') => $plugin->description
-            );
+            ];
             if (!$plugin->installed) {
                 $fields = self::fastmerge(
                     (array)$fields,
-                    array(
+                    [
                         _('Plugin Installation') => _('This plugin is not installed')
                         . ', '
                         . _('would you ilke to install it now')
                         . '?'
-                    ),
-                    array(
+                    ],
+                    [
                         '<label for="installplugin">'
                         . _('Install Plugin')
                         . '</label>' => '<button class="btn btn-info btn-block" '
                         . 'id="installplugin" name="installplugin" type="submit">'
                         . _('Install')
                         . '</button>'
-                    )
+                    ]
                 );
                 $rendered = self::formFields($fields);
                 echo '<form class="form-horizontal" method="post" action="'
@@ -355,7 +352,7 @@ class PluginManagementPage extends FOGPage
                         . '&run='
                         . $plugin->hash
                         . '" novalidate>';
-                    $dmiFields = array(
+                    $dmiFields = [
                         'bios-vendor',
                         'bios-version',
                         'bios-release-date',
@@ -378,11 +375,11 @@ class PluginManagementPage extends FOGPage
                         'processor-manufacturer',
                         'processor-version',
                         'processor-frequency',
-                    );
-                    $actionFields = array(
+                    ];
+                    $actionFields = [
                         _('Reboot after deploy'),
                         _('Shutdown after deploy'),
-                    );
+                    ];
                     unset(
                         $this->data,
                         $this->form,
@@ -391,25 +388,25 @@ class PluginManagementPage extends FOGPage
                         $this->attributes
                     );
                     $this->title = _('Basic Settings');
-                    $this->templates = array(
+                    $this->templates = [
                         '${field}',
                         '${input}'
-                    );
-                    $this->attributes = array(
-                        array('class' => 'col-xs-4'),
-                        array('class' => 'col-xs-8 form-group')
-                    );
+                    ];
+                    $this->attributes = [
+                        [],
+                        []
+                    ];
                     list(
                         $dmifield,
                         $shutdown
                     ) = self::getSubObjectIDs(
                         'Service',
-                        array(
-                            'name' => array(
+                        [
+                            'name' => [
                                 'FOG_PLUGIN_CAPONE_DMI',
                                 'FOG_PLUGIN_CAPONE_SHUTDOWN',
-                            )
-                        ),
+                            ]
+                        ],
                         'value'
                     );
                     $dmiSel = self::selectForm(
@@ -423,7 +420,7 @@ class PluginManagementPage extends FOGPage
                         $shutdown,
                         true
                     );
-                    $fields = array(
+                    $fields = [
                         '<label for="dmifield">'
                         . _('DMI Field')
                         . '</label>' => $dmiSel,
@@ -436,7 +433,7 @@ class PluginManagementPage extends FOGPage
                         . 'name="basics" id="basics">'
                         . _('Update')
                         . '</button>'
-                    );
+                    ];
                     $rendered = self::formFields($fields);
                     $this->indexDivDisplay();
                     unset(
@@ -447,7 +444,7 @@ class PluginManagementPage extends FOGPage
                     );
                     $images = self::getClass('ImageManager')->buildSelectBox();
                     $this->title = _('Image Associations');
-                    $fields = array(
+                    $fields = [
                         '<label for="image">'
                         . _('Image Definition')
                         . '</label>' => $images,
@@ -463,7 +460,7 @@ class PluginManagementPage extends FOGPage
                         . 'name="addass" id="addass">'
                         . _('Update')
                         . '</button>'
-                    );
+                    ];
                     $rendered = self::formFields($fields);
                     $this->indexDivDisplay();
                     unset(
@@ -474,7 +471,7 @@ class PluginManagementPage extends FOGPage
                         $this->headerData
                     );
                     $this->title = _('Image to DMI Mappings');
-                    $this->headerData = array(
+                    $this->headerData = [
                         '<label for="toggler">'
                         . '<input type="checkbox" name="toggle-checkbox" '
                         . 'id="checkAll"/>'
@@ -482,8 +479,8 @@ class PluginManagementPage extends FOGPage
                         _('Image Name'),
                         _('OS Name'),
                         _('DMI Key')
-                    );
-                    $this->templates = array(
+                    ];
+                    $this->templates = [
                         '<label for="kill-${id}">'
                         . '<input type="checkbox" name="kill[]" value="${id}" '
                         . 'id="kill-${id}" class="checkboxes"/>'
@@ -493,29 +490,26 @@ class PluginManagementPage extends FOGPage
                         . '</a>',
                         '${os_name}',
                         '${capone_key}'
-                    );
-                    $this->attributes = array(
-                        array(
-                            'width' => 16,
-                            'class' => 'filter-false'
-                        ),
-                        array(),
-                        array(),
-                        array(),
-                    );
+                    ];
+                    $this->attributes = [
+                        [],
+                        [],
+                        [],
+                        []
+                    ];
                     Route::listem('capone');
                     $Capones = json_decode(
                         Route::getData()
                     );
-                    $Capones = $Capones->capones;
+                    $Capones = $Capones->data;
                     foreach ($Capones as &$Capone) {
-                        $this->data[] = array(
+                        $this->data[] = [
                             'image_name' => $Capone->image->name,
                             'image_id' => $Capone->image->id,
                             'os_name' => $Capone->os->name,
                             'capone_key' => $Capone->key,
                             'id' => $Capone->id
-                        );
+                        ];
                         unset($Capone);
                     }
                     echo '<div class="panel panel-info">';
@@ -542,22 +536,22 @@ class PluginManagementPage extends FOGPage
                         $this->templates,
                         $this->attributes
                     );
-                    $this->templates = array(
+                    $this->templates = [
                         '${field}',
                         '${input}'
-                    );
-                    $this->attributes = array(
-                        array('class' => 'col-xs-4'),
-                        array('class' => 'col-xs-8 form-group')
-                    );
-                    $fields = array(
+                    ];
+                    $this->attributes = [
+                        [],
+                        []
+                    ];
+                    $fields = [
                         '<label for="delcapone">'
                         . _('Remove Selected?')
                         . '</label>' => '<button class="btn btn-danger btn-block" '
                         . 'type="submit" name="rmAssocs" id="delcapone">'
                         . _('Delete')
                         . '</button>'
-                    );
+                    ];
                     $rendered = self::formFields($fields);
                     echo '<div class="panel panel-warning">';
                     echo '<div class="panel-heading text-center">';
@@ -678,15 +672,15 @@ class PluginManagementPage extends FOGPage
             if (isset($_POST['rmAssocs'])) {
                 $kill = filter_input_array(
                     INPUT_POST,
-                    array(
-                        'kill' => array(
+                    [
+                        'kill' => [
                             'flags' => FILTER_REQUIRE_ARRAY
-                        )
-                    )
+                        ]
+                    ]
                 );
                 $kill = $kill['kill'];
                 self::getClass('CaponeManager')
-                    ->destroy(array('id' => $kill));
+                    ->destroy(['id' => $kill]);
                 if (count($kill) !== 1) {
                     throw new Exception(_('Destroyed assignments'));
                 } else {
