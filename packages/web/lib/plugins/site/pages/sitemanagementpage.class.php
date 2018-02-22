@@ -124,27 +124,55 @@ class SiteManagementPage extends FOGPage
     public function add()
     {
         $this->title = _('New Site');
-        unset($this->headerData);
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
         );
         $this->templates = array(
             '${field}',
             '${input}',
         );
-
-        $fields = array(
-            _('Site Name') => '<input class="smaller" type="text" name="name"/>',
-            _('Site Description') => sprintf(
-                '<textarea name="description">%s</textarea>',
-                $_REQUEST['description']
-            ),
-            '&nbsp;' => sprintf(
-                '<input name="add" class="smaller" type="submit" value="%s"/>',
-                _('Add')
-            ),
+        $this->attributes = array(
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
         );
+        $name = filter_input(INPUT_POST, 'name');
+        $description = filter_input(INPUT_POST, 'description');
+        $fields = array(
+            '<label for="site">'
+            . _('Site Name')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="name" '
+            . 'value="'
+            . $name
+            . '" class="form-control" '
+            . 'id="site" required/>',
+            '<label for="description">'
+            . _('Site Description')
+            . '</label>' => '<div class="input-group">'
+            . '<textarea class="form-control" '
+            . 'id="description" name="description">'
+            . $description
+            . '</textarea>'
+            . '</div>',
+            '<label for="add">'
+            . _('Create Site')
+            . '</label>' => '<button type="submit" class="btn btn-info btn-block" '
+            . 'id="add" name="add">'
+            . _('Create')
+            . '</button>'
+        );
+        self::$HookManager
+            ->processEvent(
+                'SITE_FIELDS',
+                array(
+                    'fields' => &$fields,
+                    'Site' => self::getClass('Site')
+                )
+            );
         array_walk($fields, $this->fieldsToData);
         unset($fields);
         self::$HookManager
@@ -157,10 +185,22 @@ class SiteManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-
-        printf('<form method="post" action="%s">', $this->formAction);
-        $this->render();
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
+        $this->render(12);
         echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Add post.
@@ -169,86 +209,114 @@ class SiteManagementPage extends FOGPage
      */
     public function addPost()
     {
+        self::$HookManager->processEvent('SITE_ADD_POST');
+        $name = trim(
+            filter_input(INPUT_POST, 'name')
+        );
+        $description = trim(
+            filter_input(INPUT_POST, 'description')
+        );
         try {
-            $name = trim($_REQUEST['name']);
             $exists = self::getClass('SiteManager')
-                ->exists(trim($name));
+                ->exists($name);
             if ($exists) {
-                throw new Exception(_('Site already Exists, please try again.'));
+                throw new Exception(_('A site already exists with this name!'));
             }
-            if (!$name) {
-                throw new Exception(_('Please enter a name for this site.'));
-            }
-
-            $description = $_REQUEST['description'];
             $Site = self::getClass('Site')
                 ->set('name', $name)
                 ->set('description', $description);
             if (!$Site->save()) {
-                throw new Exception(_('Failed to create'));
+                throw new Exception(_('Add site failed!'));
             }
-            self::setMessage(_('Site Added, editing!'));
-            self::redirect(
-                sprintf(
-                    '?node=site&sub=edit&id=%s',
-                    $Site->get('id')
+            $hook = 'SITE_ADD_SUCCESS';
+            $msg = json_encode(
+                array(
+                    'msg' => _('Site added!'),
+                    'title' => _('Site Create Success')
                 )
             );
         } catch (Exception $e) {
-            self::setMessage($e->getMessage());
-            self::redirect($this->formAction);
+            $hook = 'SITE_ADD_FAIL';
+            $msg = json_encode(
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('Site Create Fail')
+                )
+            );
         }
+        self::$HookManager
+            ->processEvent(
+                $hook,
+                array('Site' => &$Site)
+            );
+        unset($Site);
+        echo $msg;
+        exit;
     }
     /**
-     * Edit.
+     * Display site general information.
      *
      * @return void
      */
-    public function edit()
+    public function siteGeneral()
     {
-        $this->title = sprintf(
-            '%s: %s',
-            _('Edit'),
+        unset(
+            $this->data,
+            $this->form,
+            $this->templates,
+            $this->attributes,
+            $this->headerData
+        );
+        $name = (
+            filter_input(INPUT_POST, 'name') ?:
             $this->obj->get('name')
         );
-        unset($this->headerData);
+        $description = (
+            filter_input(INPUT_POST, 'description') ?:
+            $this->obj->get('description')
+        );
         $this->attributes = array(
             array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
+            array('class' => 'col-xs-8 form-group')
         );
         $this->templates = array(
             '${field}',
-            '${input}',
+            '${input}'
         );
         $fields = array(
-            _('Site Name') => sprintf(
-                '<input class="smaller" type="text" name="name" value="%s"/>',
-                (
-                    $_REQUEST['name'] ?
-                    $_REQUEST['name'] :
-                    $this->obj->get('name')
-                )
-            ),
-            _('Site Description') => '<textarea name="description">'
-            . (
-                $_REQUEST['description'] ?
-                $_REQUEST['description'] :
-                $this->obj->get('description')
-            )
-            . '</textarea>',
-            '&nbsp;' => sprintf(
-                '<input name="update" class="smaller" type="submit" value="%s"/>',
-                _('Update')
-            ),
+            '<label for="name">'
+            . _('Site Name')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control sitename-input" type="text" '
+            . 'name="name" id="name" '
+            . 'value="'
+            . $name
+            . '"/>'
+            . '</div>',
+            '<label for="description">'
+            . _('Site Description')
+            . '</label>' => '<div class="input-group">'
+            . '<textarea name="description" class="form-control sitedesc-input" '
+            . 'id="description">'
+            . $description
+            . '</textarea>'
+            . '</div>',
+            '<label for="updategen">'
+            . _('Make Changes?')
+            . '</label>' => '<button class="btn btn-info btn-block" type="submit" '
+            . 'id="updategen" name="update">'
+            . _('Update')
+            . '</button>'
         );
-        foreach ((array)$fields as $field => &$input) {
-            $this->data[] = array(
-                'field'=>$field,
-                'input'=>$input,
+        self::$HookManager
+            ->processEvent(
+                'SITE_FIELDS',
+                array(
+                    'fields' => &$fields,
+                    'Site' => &$this->obj
+                )
             );
-            unset($input);
-        }
-        unset($fields);
+        array_walk($fields, $this->fieldsToData);
         self::$HookManager
             ->processEvent(
                 'SITE_EDIT',
@@ -259,12 +327,41 @@ class SiteManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        printf(
-            '<form method="post" action="%s">',
-            $this->formAction
-        );
-        $this->render();
+        echo '<!-- General -->';
+        echo '<div class="tab-pane fade in active" id="site-gen">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Site General');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '&tab=site-gen">';
+        $this->render(12);
         echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        unset(
+            $this->data,
+            $this->form,
+            $this->templates,
+            $this->attributes,
+            $this->headerData
+        );
+    }
+    /**
+     * Edit.
+     *
+     * @return void
+     */
+    public function edit()
+    {
+        echo '<div class="col-xs-9 tab-content">';
+        $this->siteGeneral();
+        echo '</div>';
     }
     /**
      * Edit post.
@@ -280,32 +377,57 @@ class SiteManagementPage extends FOGPage
                     'Site' => &$this->obj
                 )
             );
+        global $tab;
+        $name = trim(
+            filter_input(INPUT_POST, 'name')
+        );
+        $description = trim(
+            filter_input(INPUT_POST, 'description')
+        );
         try {
-            if ($_REQUEST['name'] != $this->obj->get('name')
-                && $this->obj->getManager()->exists($_REQUEST['name'])
-            ) {
-                throw new Exception(_('A site with that name already exists.'));
-            }
-            if (isset($_REQUEST['update'])) {
-                $description = $_REQUEST['description'];
-                $this->obj
-                    ->set('name', $_REQUEST['name'])
-                    ->set('description', $_REQUEST['description']);
-                if (!$this->obj->save()) {
-                    throw new Exception(_('Failed to update'));
-                }
-                self::setMessage(_('Site Updated'));
-                self::redirect(
-                    sprintf(
-                        '?node=site&sub=edit&id=%d',
+            switch ($tab) {
+            case 'site-gen':
+                if ($this->obj->get('name') != $name
+                    && self::getClass('SiteManager')->exists(
+                        $name,
                         $this->obj->get('id')
                     )
-                );
+                ) {
+                    throw new Exception(
+                        _('A site alread exists with this name!')
+                    );
+                }
+                $this->obj
+                    ->set('name', $name)
+                    ->set('description', $description);
+                break;
             }
+            if (!$this->obj->save()) {
+                throw new Exception(_('Site update failed!'));
+            }
+            $hook = 'SITE_UPDATE_SUCCESS';
+            $msg = json_encode(
+                array(
+                    'msg' => _('Site Updated!'),
+                    'title' => _('Site Update Success')
+                )
+            );
         } catch (Exception $e) {
-            self::setMessage($e->getMessage());
-            self::redirect($this->formAction);
+            $hook = 'SITE_UPDATE_FAIL';
+            $msg = json_encode(
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('Site Update Fail')
+                )
+            );
         }
+        self::$HookManager
+            ->processEvent(
+                $hook,
+                array('Site' => &$this->obj)
+            );
+        echo $msg;
+        exit;
     }
     /**
      * List the hosts which are associated to a site

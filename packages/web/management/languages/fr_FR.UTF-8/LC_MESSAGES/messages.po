@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-06 16:24-0500\n"
+"POT-Creation-Date: 2018-02-22 15:29-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1547,27 +1547,52 @@ msgid "New Site"
 msgstr "Ajouter New Snapin"
 
 #, fuzzy
-msgid "Site already Exists, please try again."
-msgstr "Localisation existe déjà, s'il vous plaît essayer à nouveau."
+msgid "Create Site"
+msgstr "Créer"
 
 #, fuzzy
-msgid "Please enter a name for this site."
-msgstr "S'il vous plaît entrer un nom pour cette adresse."
+msgid "A site already exists with this name!"
+msgstr "Une image existe déjà avec ce nom!"
 
 #, fuzzy
-msgid "Site Added, editing!"
-msgstr "Lieu Ajouté, édition!"
+msgid "Add site failed!"
+msgstr "Ajouter SnapIn a échoué!"
 
 #, fuzzy
-msgid "A site with that name already exists."
-msgstr "Un nom d'hôte avec ce nom existe déjà."
-
-msgid "Failed to update"
-msgstr "Impossible de mettre à jour"
+msgid "Site added!"
+msgstr "Nom de l'imprimante"
 
 #, fuzzy
-msgid "Site Updated"
-msgstr "Service de mise à jour!"
+msgid "Site Create Success"
+msgstr "Imprimante existe déjà"
+
+#, fuzzy
+msgid "Site Create Fail"
+msgstr "mise à jour de l'imprimante a échoué!"
+
+#, fuzzy
+msgid "Site General"
+msgstr "Modèle d'imprimante"
+
+#, fuzzy
+msgid "A site alread exists with this name!"
+msgstr "Une image existe déjà avec ce nom!"
+
+#, fuzzy
+msgid "Site update failed!"
+msgstr "mise à jour de l'imprimante a échoué!"
+
+#, fuzzy
+msgid "Site Updated!"
+msgstr "Imprimante mis à jour!"
+
+#, fuzzy
+msgid "Site Update Success"
+msgstr "Imprimante mis à jour!"
+
+#, fuzzy
+msgid "Site Update Fail"
+msgstr "mise à jour de l'imprimante a échoué!"
 
 #, fuzzy
 msgid "Check here to see hosts not within this"
@@ -2009,6 +2034,9 @@ msgstr "S'il vous plaît entrer un nom pour cette adresse."
 #, fuzzy
 msgid "Rule Added, editing!"
 msgstr "Lieu Ajouté, édition!"
+
+msgid "Failed to update"
+msgstr "Impossible de mettre à jour"
 
 #, fuzzy
 msgid "Rule Updated"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-06 16:24-0500\n"
+"POT-Creation-Date: 2018-02-22 15:29-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1544,27 +1544,52 @@ msgid "New Site"
 msgstr "Add New Snapin"
 
 #, fuzzy
-msgid "Site already Exists, please try again."
-msgstr "Location already Exists, please try again."
+msgid "Create Site"
+msgstr "Create"
 
 #, fuzzy
-msgid "Please enter a name for this site."
-msgstr "Please enter a name for this address."
+msgid "A site already exists with this name!"
+msgstr "An image already exists with this name!"
 
 #, fuzzy
-msgid "Site Added, editing!"
-msgstr "Location Added, editing!"
+msgid "Add site failed!"
+msgstr "Add snapin failed!"
 
 #, fuzzy
-msgid "A site with that name already exists."
-msgstr "A hostname with that name already exists."
-
-msgid "Failed to update"
-msgstr "Failed to update"
+msgid "Site added!"
+msgstr "Printer Name"
 
 #, fuzzy
-msgid "Site Updated"
-msgstr "Service Updated!"
+msgid "Site Create Success"
+msgstr "Printer already exists"
+
+#, fuzzy
+msgid "Site Create Fail"
+msgstr "Printer update failed!"
+
+#, fuzzy
+msgid "Site General"
+msgstr "Printer Model"
+
+#, fuzzy
+msgid "A site alread exists with this name!"
+msgstr "An image already exists with this name!"
+
+#, fuzzy
+msgid "Site update failed!"
+msgstr "Printer update failed!"
+
+#, fuzzy
+msgid "Site Updated!"
+msgstr "Printer updated!"
+
+#, fuzzy
+msgid "Site Update Success"
+msgstr "Printer updated!"
+
+#, fuzzy
+msgid "Site Update Fail"
+msgstr "Printer update failed!"
 
 #, fuzzy
 msgid "Check here to see hosts not within this"
@@ -2006,6 +2031,9 @@ msgstr "Please enter a name for this address."
 #, fuzzy
 msgid "Rule Added, editing!"
 msgstr "Location Added, editing!"
+
+msgid "Failed to update"
+msgstr "Failed to update"
 
 #, fuzzy
 msgid "Rule Updated"

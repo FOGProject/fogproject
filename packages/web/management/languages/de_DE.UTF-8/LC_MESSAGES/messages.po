@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-06 16:24-0500\n"
+"POT-Creation-Date: 2018-02-22 15:29-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -1542,27 +1542,52 @@ msgid "New Site"
 msgstr "Neue Site"
 
 #, fuzzy
-msgid "Site already Exists, please try again."
-msgstr "Site besteht bereits, bitte versuchen Sie es erneut"
+msgid "Create Site"
+msgstr "Erstellen"
 
 #, fuzzy
-msgid "Please enter a name for this site."
-msgstr "Bitte geben Sie einen Namen für diese Site ein."
+msgid "A site already exists with this name!"
+msgstr "Ein Host mit diesem Namen ist bereits vorhanden!"
 
 #, fuzzy
-msgid "Site Added, editing!"
-msgstr "Site hinzugefügt, bearbeiten!"
+msgid "Add site failed!"
+msgstr "Hinzufügen eines Hosts fehlgeschlagen!"
 
 #, fuzzy
-msgid "A site with that name already exists."
-msgstr "Eine Site mit diesem Namen existiert bereits."
-
-msgid "Failed to update"
-msgstr "Aktualisierung fehlgeschlagen"
+msgid "Site added!"
+msgstr "Drucker hinzugefügt"
 
 #, fuzzy
-msgid "Site Updated"
-msgstr "Site aktualisiert!"
+msgid "Site Create Success"
+msgstr "Drucker hinzufügen erfolgreich."
+
+#, fuzzy
+msgid "Site Create Fail"
+msgstr "Drucker erstellen fehlgeschlagen!"
+
+#, fuzzy
+msgid "Site General"
+msgstr "Drucker allgemein"
+
+#, fuzzy
+msgid "A site alread exists with this name!"
+msgstr "Ein Host mit diesem Namen ist bereits vorhanden!"
+
+#, fuzzy
+msgid "Site update failed!"
+msgstr "Drucker-Update fehlgeschlagen!"
+
+#, fuzzy
+msgid "Site Updated!"
+msgstr "Drucker aktualisiert!"
+
+#, fuzzy
+msgid "Site Update Success"
+msgstr "Drucker aktualisiert!"
+
+#, fuzzy
+msgid "Site Update Fail"
+msgstr "Drucker-Update fehlgeschlagen!"
 
 #, fuzzy
 msgid "Check here to see hosts not within this"
@@ -2006,6 +2031,9 @@ msgstr "Bitte geben Sie einen Wert für diese Regel ein."
 #, fuzzy
 msgid "Rule Added, editing!"
 msgstr "Regel hinzugefügt, bearbeiten!"
+
+msgid "Failed to update"
+msgstr "Aktualisierung fehlgeschlagen"
 
 #, fuzzy
 msgid "Rule Updated"

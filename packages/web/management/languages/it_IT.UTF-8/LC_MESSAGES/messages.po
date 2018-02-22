@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-06 16:24-0500\n"
+"POT-Creation-Date: 2018-02-22 15:29-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -1464,23 +1464,53 @@ msgstr "Descrizione Sito"
 msgid "New Site"
 msgstr "Nuovo Sito"
 
-msgid "Site already Exists, please try again."
-msgstr "Sito già esistente, si prega di riprovare."
+#, fuzzy
+msgid "Create Site"
+msgstr "Creare"
 
-msgid "Please enter a name for this site."
-msgstr "Inserisci un nome per questo sito."
+#, fuzzy
+msgid "A site already exists with this name!"
+msgstr "Un host già esiste con questo nome!"
 
-msgid "Site Added, editing!"
-msgstr "Sito aggiunto, modifico!"
+#, fuzzy
+msgid "Add site failed!"
+msgstr "Aggiunta host non riuscita!"
 
-msgid "A site with that name already exists."
-msgstr "Esiste già un sito con questo nome."
+#, fuzzy
+msgid "Site added!"
+msgstr "Stampante aggiunta"
 
-msgid "Failed to update"
-msgstr "Impossibile aggiornare"
+#, fuzzy
+msgid "Site Create Success"
+msgstr "Creazione stampante riuscita"
 
-msgid "Site Updated"
-msgstr "Sito aggiornato!"
+#, fuzzy
+msgid "Site Create Fail"
+msgstr "Creazione stampante fallita"
+
+#, fuzzy
+msgid "Site General"
+msgstr "Stampante Generale"
+
+#, fuzzy
+msgid "A site alread exists with this name!"
+msgstr "Un host già esiste con questo nome!"
+
+#, fuzzy
+msgid "Site update failed!"
+msgstr "Aggiornamento della stampante non è riuscito!"
+
+#, fuzzy
+msgid "Site Updated!"
+msgstr "aggiornato stampante!"
+
+#, fuzzy
+msgid "Site Update Success"
+msgstr "Aggiornamento stampante riuscito"
+
+#, fuzzy
+msgid "Site Update Fail"
+msgstr "Aggiornamento della stampante non riuscito"
 
 msgid "Check here to see hosts not within this"
 msgstr "Controlla qui per vedere gli host non all'interno di questo"
@@ -1837,6 +1867,9 @@ msgstr "Inserisci un valore per questa regola."
 
 msgid "Rule Added, editing!"
 msgstr "Regola Aggiunta, modifica!"
+
+msgid "Failed to update"
+msgstr "Impossibile aggiornare"
 
 msgid "Rule Updated"
 msgstr "Regola aggiornata"
