@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-14 13:35-0500\n"
+"POT-Creation-Date: 2018-02-22 15:29-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1441,22 +1441,40 @@ msgstr ""
 msgid "New Site"
 msgstr ""
 
-msgid "Site already Exists, please try again."
+msgid "Create Site"
 msgstr ""
 
-msgid "Please enter a name for this site."
+msgid "A site already exists with this name!"
 msgstr ""
 
-msgid "Site Added, editing!"
+msgid "Add site failed!"
 msgstr ""
 
-msgid "A site with that name already exists."
+msgid "Site added!"
 msgstr ""
 
-msgid "Failed to update"
+msgid "Site Create Success"
 msgstr ""
 
-msgid "Site Updated"
+msgid "Site Create Fail"
+msgstr ""
+
+msgid "Site General"
+msgstr ""
+
+msgid "A site alread exists with this name!"
+msgstr ""
+
+msgid "Site update failed!"
+msgstr ""
+
+msgid "Site Updated!"
+msgstr ""
+
+msgid "Site Update Success"
+msgstr ""
+
+msgid "Site Update Fail"
 msgstr ""
 
 msgid "Check here to see hosts not within this"
@@ -1813,6 +1831,9 @@ msgid "Please enter a value for this rule."
 msgstr ""
 
 msgid "Rule Added, editing!"
+msgstr ""
+
+msgid "Failed to update"
 msgstr ""
 
 msgid "Rule Updated"

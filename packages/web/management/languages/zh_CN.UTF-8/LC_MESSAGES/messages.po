@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-06 16:24-0500\n"
+"POT-Creation-Date: 2018-02-22 15:29-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1541,27 +1541,52 @@ msgid "New Site"
 msgstr "添加新的管理单元"
 
 #, fuzzy
-msgid "Site already Exists, please try again."
-msgstr "位置已经存在，请重试。"
+msgid "Create Site"
+msgstr "创建"
 
 #, fuzzy
-msgid "Please enter a name for this site."
-msgstr "这个地址输入名称。"
+msgid "A site already exists with this name!"
+msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
-msgid "Site Added, editing!"
-msgstr "位置添加，编辑！"
+msgid "Add site failed!"
+msgstr "添加管理单元失败！"
 
 #, fuzzy
-msgid "A site with that name already exists."
-msgstr "使用此名称的主机名已经存在。"
-
-msgid "Failed to update"
-msgstr "无法更新"
+msgid "Site added!"
+msgstr "打印机名称"
 
 #, fuzzy
-msgid "Site Updated"
-msgstr "服务更新！"
+msgid "Site Create Success"
+msgstr "打印机已经存在"
+
+#, fuzzy
+msgid "Site Create Fail"
+msgstr "打印机更新失败！"
+
+#, fuzzy
+msgid "Site General"
+msgstr "打印机型号"
+
+#, fuzzy
+msgid "A site alread exists with this name!"
+msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
+msgid "Site update failed!"
+msgstr "打印机更新失败！"
+
+#, fuzzy
+msgid "Site Updated!"
+msgstr "打印机更新！"
+
+#, fuzzy
+msgid "Site Update Success"
+msgstr "打印机更新！"
+
+#, fuzzy
+msgid "Site Update Fail"
+msgstr "打印机更新失败！"
 
 #, fuzzy
 msgid "Check here to see hosts not within this"
@@ -2003,6 +2028,9 @@ msgstr "这个地址输入名称。"
 #, fuzzy
 msgid "Rule Added, editing!"
 msgstr "位置添加，编辑！"
+
+msgid "Failed to update"
+msgstr "无法更新"
 
 #, fuzzy
 msgid "Rule Updated"

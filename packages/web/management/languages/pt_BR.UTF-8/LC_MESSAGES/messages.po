@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-06 16:24-0500\n"
+"POT-Creation-Date: 2018-02-22 15:29-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1545,27 +1545,52 @@ msgid "New Site"
 msgstr "Adicionar novo Snapin"
 
 #, fuzzy
-msgid "Site already Exists, please try again."
-msgstr "Localização já existe, por favor tente novamente."
+msgid "Create Site"
+msgstr "Crio"
 
 #, fuzzy
-msgid "Please enter a name for this site."
-msgstr "Por favor, indique um nome para esse endereço."
+msgid "A site already exists with this name!"
+msgstr "Uma imagem já existe com este nome!"
 
 #, fuzzy
-msgid "Site Added, editing!"
-msgstr "Localização Added, edição!"
+msgid "Add site failed!"
+msgstr "Adicionar snap-in falhou!"
 
 #, fuzzy
-msgid "A site with that name already exists."
-msgstr "Um nome de host com esse nome já existe."
-
-msgid "Failed to update"
-msgstr "Falha ao atualizar"
+msgid "Site added!"
+msgstr "Nome da impressora"
 
 #, fuzzy
-msgid "Site Updated"
-msgstr "Serviço Atualizado!"
+msgid "Site Create Success"
+msgstr "Impressora já existe"
+
+#, fuzzy
+msgid "Site Create Fail"
+msgstr "atualização da impressora falhou!"
+
+#, fuzzy
+msgid "Site General"
+msgstr "Modelo de impressora"
+
+#, fuzzy
+msgid "A site alread exists with this name!"
+msgstr "Uma imagem já existe com este nome!"
+
+#, fuzzy
+msgid "Site update failed!"
+msgstr "atualização da impressora falhou!"
+
+#, fuzzy
+msgid "Site Updated!"
+msgstr "Impressora atualizado!"
+
+#, fuzzy
+msgid "Site Update Success"
+msgstr "Impressora atualizado!"
+
+#, fuzzy
+msgid "Site Update Fail"
+msgstr "atualização da impressora falhou!"
 
 #, fuzzy
 msgid "Check here to see hosts not within this"
@@ -2007,6 +2032,9 @@ msgstr "Por favor, indique um nome para esse endereço."
 #, fuzzy
 msgid "Rule Added, editing!"
 msgstr "Localização Added, edição!"
+
+msgid "Failed to update"
+msgstr "Falha ao atualizar"
 
 #, fuzzy
 msgid "Rule Updated"
