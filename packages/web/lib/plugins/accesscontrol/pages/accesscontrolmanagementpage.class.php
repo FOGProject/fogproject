@@ -716,7 +716,7 @@ class AccessControlManagementPage extends FOGPage
             . '</div>',
             '<label for="parent">'
             . _('Parent')
-            . '</label>' => 'div class="input-group">'
+            . '</label>' => '<div class="input-group">'
             . '<input class="form-control ruleparent-input" type='
             . '"text" name="parent" id="parent" required value="'
             . $parent
