@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-22 20:39-0500\n"
+"POT-Creation-Date: 2018-02-23 08:51-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1588,27 +1588,32 @@ msgstr "打印机更新！"
 msgid "Site Update Fail"
 msgstr "打印机更新失败！"
 
-#, fuzzy
-msgid "Check here to see hosts not within this"
-msgstr "请查看这里以组未分配此图片"
+msgid "Host Name"
+msgstr "主机名"
 
 #, fuzzy
-msgid "Modify site membership for"
-msgstr "修改为会员"
-
-msgid "host"
-msgstr "主办"
+msgid "Host Membership"
+msgstr "籍"
 
 #, fuzzy
-msgid "to"
-msgstr "汽车"
-
-msgid "Delete Selected"
-msgstr "删除所选"
+msgid "Check here to see what hosts can be added"
+msgstr "请查看这里以可以添加哪些打印机"
 
 #, fuzzy
-msgid "from"
-msgstr "从"
+msgid "Add Hosts"
+msgstr "所有主机"
+
+#, fuzzy
+msgid "Add selected hosts"
+msgstr "打印机"
+
+#, fuzzy
+msgid "Remove Hosts"
+msgstr "去掉"
+
+#, fuzzy
+msgid "Remove selected hosts"
+msgstr "删除选定snapins"
 
 #, fuzzy
 msgid "Friendly Name"
@@ -1633,9 +1638,6 @@ msgstr "去掉"
 #, fuzzy
 msgid "Remove selected users"
 msgstr "删除选定snapins"
-
-msgid "saved successfully"
-msgstr "保存成功"
 
 msgid "Pushbullet Accounts"
 msgstr "Pushbullet账户"
@@ -1888,6 +1890,9 @@ msgstr ""
 msgid "Access Controls"
 msgstr "所有访问控制"
 
+msgid "Delete Selected"
+msgstr "删除所选"
+
 #, fuzzy
 msgid "Role"
 msgstr "去掉"
@@ -2069,8 +2074,16 @@ msgid "rule"
 msgstr "结果"
 
 #, fuzzy
+msgid "to"
+msgstr "汽车"
+
+#, fuzzy
 msgid "Rule Name"
 msgstr "模块名称"
+
+#, fuzzy
+msgid "from"
+msgstr "从"
 
 #, fuzzy
 msgid "Not role selected"
@@ -2090,6 +2103,9 @@ msgstr "修改为会员"
 #, fuzzy
 msgid "user"
 msgstr "用户"
+
+msgid "saved successfully"
+msgstr "保存成功"
 
 #, fuzzy
 msgid "LDAP Servers"
@@ -2342,9 +2358,6 @@ msgstr "插件说明"
 
 msgid "FOG Snapin Log"
 msgstr "FOG管理单元日志"
-
-msgid "Host Name"
-msgstr "主机名"
 
 msgid "Snapin Name"
 msgstr "管理单元名称"
@@ -3839,6 +3852,9 @@ msgstr "延迟"
 
 msgid "group"
 msgstr "组"
+
+msgid "host"
+msgstr "主办"
 
 msgid "Imaged"
 msgstr "成像"

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-22 20:39-0500\n"
+"POT-Creation-Date: 2018-02-23 08:51-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -1589,27 +1589,32 @@ msgstr "Drucker aktualisiert!"
 msgid "Site Update Fail"
 msgstr "Drucker-Update fehlgeschlagen!"
 
-#, fuzzy
-msgid "Check here to see hosts not within this"
-msgstr "Prüfen Sie hier, welche Hosts nicht dazugehören"
+msgid "Host Name"
+msgstr "Host-Name"
 
 #, fuzzy
-msgid "Modify site membership for"
-msgstr "Site-Mitgliedschaft ändern für"
-
-msgid "host"
-msgstr "Host"
+msgid "Host Membership"
+msgstr "Mitgliedschaft"
 
 #, fuzzy
-msgid "to"
-msgstr "zu"
-
-msgid "Delete Selected"
-msgstr "Ausgewählte löschen"
+msgid "Check here to see what hosts can be added"
+msgstr "Überprüfen Sie hier, welche Drucker hinzugefügt werden können"
 
 #, fuzzy
-msgid "from"
-msgstr "Von"
+msgid "Add Hosts"
+msgstr "Alle Hosts"
+
+#, fuzzy
+msgid "Add selected hosts"
+msgstr "Ausgewählte Drucker hinzufügen"
+
+#, fuzzy
+msgid "Remove Hosts"
+msgstr "Entfernen "
+
+#, fuzzy
+msgid "Remove selected hosts"
+msgstr "Ausgewählte entfernen "
 
 #, fuzzy
 msgid "Friendly Name"
@@ -1634,9 +1639,6 @@ msgstr "Entfernen "
 #, fuzzy
 msgid "Remove selected users"
 msgstr "Ausgewählte entfernen "
-
-msgid "saved successfully"
-msgstr "erfolgreich gespeichert"
 
 msgid "Pushbullet Accounts"
 msgstr "Pushbullet Accounts"
@@ -1891,6 +1893,9 @@ msgstr ""
 msgid "Access Controls"
 msgstr "Zugriffskontrollen"
 
+msgid "Delete Selected"
+msgstr "Ausgewählte löschen"
+
 #, fuzzy
 msgid "Role"
 msgstr "Rolle"
@@ -2072,8 +2077,16 @@ msgid "rule"
 msgstr "Regel ändern"
 
 #, fuzzy
+msgid "to"
+msgstr "zu"
+
+#, fuzzy
 msgid "Rule Name"
 msgstr "Regelname"
+
+#, fuzzy
+msgid "from"
+msgstr "Von"
 
 #, fuzzy
 msgid "Not role selected"
@@ -2093,6 +2106,9 @@ msgstr "Ändern der Mitgliedschaft für"
 #, fuzzy
 msgid "user"
 msgstr "Benutzer"
+
+msgid "saved successfully"
+msgstr "erfolgreich gespeichert"
 
 #, fuzzy
 msgid "LDAP Servers"
@@ -2346,9 +2362,6 @@ msgstr "Plugin-Beschreibung"
 
 msgid "FOG Snapin Log"
 msgstr "FOG Snapin-Log"
-
-msgid "Host Name"
-msgstr "Host-Name"
 
 msgid "Snapin Name"
 msgstr "Snapin-Namen"
@@ -3855,6 +3868,9 @@ msgstr "Verzögert"
 
 msgid "group"
 msgstr "Gruppe"
+
+msgid "host"
+msgstr "Host"
 
 msgid "Imaged"
 msgstr "geimaged"

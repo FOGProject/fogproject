@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-22 20:39-0500\n"
+"POT-Creation-Date: 2018-02-23 08:51-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1768,26 +1768,32 @@ msgstr "Impresora actualiza!"
 msgid "Site Update Fail"
 msgstr "actualización de la impresora ha fallado!"
 
-#, fuzzy
-msgid "Check here to see hosts not within this"
-msgstr "Marque aquí para ver los grupos no asignado esta imagen"
+msgid "Host Name"
+msgstr "Nombre de host"
 
 #, fuzzy
-msgid "Modify site membership for"
-msgstr "Modificar la pertenencia de"
-
-msgid "host"
-msgstr "anfitrión"
-
-msgid "to"
-msgstr ""
-
-msgid "Delete Selected"
-msgstr "Eliminar seleccionado"
+msgid "Host Membership"
+msgstr "miembros"
 
 #, fuzzy
-msgid "from"
-msgstr "De"
+msgid "Check here to see what hosts can be added"
+msgstr "Marque aquí para ver lo que se pueden agregar impresoras"
+
+#, fuzzy
+msgid "Add Hosts"
+msgstr "Hospedadores"
+
+#, fuzzy
+msgid "Add selected hosts"
+msgstr "Impresora"
+
+#, fuzzy
+msgid "Remove Hosts"
+msgstr "retirar"
+
+#, fuzzy
+msgid "Remove selected hosts"
+msgstr "Remoto"
 
 #, fuzzy
 msgid "Friendly Name"
@@ -1812,9 +1818,6 @@ msgstr "retirar"
 #, fuzzy
 msgid "Remove selected users"
 msgstr "Remoto"
-
-msgid "saved successfully"
-msgstr "Guardado exitosamente"
 
 msgid "Pushbullet Accounts"
 msgstr ""
@@ -2077,6 +2080,9 @@ msgstr ""
 msgid "Access Controls"
 msgstr "impresora iPrint"
 
+msgid "Delete Selected"
+msgstr "Eliminar seleccionado"
+
 #, fuzzy
 msgid "Role"
 msgstr "retirar"
@@ -2253,9 +2259,16 @@ msgstr "Modificar la pertenencia de"
 msgid "rule"
 msgstr ""
 
+msgid "to"
+msgstr ""
+
 #, fuzzy
 msgid "Rule Name"
 msgstr "Nombre del módulo"
+
+#, fuzzy
+msgid "from"
+msgstr "De"
 
 #, fuzzy
 msgid "Not role selected"
@@ -2275,6 +2288,9 @@ msgstr "Modificar la pertenencia de"
 #, fuzzy
 msgid "user"
 msgstr "Usuario"
+
+msgid "saved successfully"
+msgstr "Guardado exitosamente"
 
 #, fuzzy
 msgid "LDAP Servers"
@@ -2523,9 +2539,6 @@ msgstr "Descripción de la impresora"
 #, fuzzy
 msgid "FOG Snapin Log"
 msgstr "Snapin del registro de transacciones"
-
-msgid "Host Name"
-msgstr "Nombre de host"
 
 msgid "Snapin Name"
 msgstr "Nombre snapin"
@@ -4079,6 +4092,9 @@ msgstr "Retrasado"
 
 msgid "group"
 msgstr "grupo"
+
+msgid "host"
+msgstr "anfitrión"
 
 #, fuzzy
 msgid "Imaged"
