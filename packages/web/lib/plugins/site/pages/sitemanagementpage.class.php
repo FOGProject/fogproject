@@ -59,7 +59,7 @@ class SiteManagementPage extends FOGPage
                 sprintf(
                     '?node=%s&sub=%s&id=%s',
                     $this->node,
-                    'assocHost',
+                    'membershipHost',
                     $id
                 ) => _('Hosts Associated'),
                     "$this->delformat" => self::$foglang['Delete'],
@@ -434,141 +434,200 @@ class SiteManagementPage extends FOGPage
      *
      * @return void
      */
-    public function assocHost()
+    public function membershipHost()
     {
-        $this->data = array();
-        echo '<!-- Host membership -->';
-        printf(
-            '<div id="%s-membership">',
-            $this->node
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
         );
         $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkboxhost"'
-            . 'class="toggle-checkboxhost"/>',
-            _('Host')
+            '<label for="togglerHost">'
+            . '<input type="checkbox" name="toggle-checkbox'
+            . $this->node
+            . '" class="toggle-checkboxhost" id="togglerHost"/>'
+            . '</label>',
+            _('Host Name')
         );
         $this->templates = array(
-            '<input type="checkbox" name="host[]" value="${host_id}" '
-            . 'class="toggle-host"/>',
-            sprintf(
-                '<a href="?node=%ssub=edit&id=${host_id}" '
-                . 'title="%s: ${host_name}">${host_name}</a>',
-                'host',
-                _('Edit')
-            )
+            '<label for="host-${host_id}">'
+            . '<input type="checkbox" name="host[]" class="toggle-'
+            . 'host" id="host-${host_id}" '
+            . 'value="${host_id}"/>'
+            . '</label>',
+            '<a href="?node=user&sub=edit&id=${host_id}">'
+            . '${host_name}</a>'
         );
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'filter-false',
+                'class' => 'filter-false'
             ),
-            array()
-        );
-        foreach ((array)self::getClass('HostManager')
-            ->find(
-                array('id' => $this->obj->get('hostsnotinme'))
-            ) as &$Host
-        ) {
-            $this->data[] = array(
-                'host_id' => $Host->get('id'),
-                'host_name' => $Host->get('name'),
-            );
-            unset($Host);
-        }
-        if (count($this->data) > 0) {
-            self::$HookManager
-                ->processEvent(
-                    'SITE_ASSOCHOST_NOT_IN_ME',
-                    array(
-                        'headerData' => &$this->headerData,
-                        'data' => &$this->data,
-                        'templates' => &$this->templates,
-                        'attributes' => &$this->attributes
-                    )
-                );
-            printf(
-                '<form method="post" action="%s"><label for="hostMeShow">'
-                . '<p class="c"> %s %s&nbsp;&nbsp;<input '
-                . 'type="checkbox" name="hostMeShow" id="hostMeShow"/>'
-                . '</p></label><div id="hostNotInMe"><h2>%s %s</h2>',
-                $this->formAction,
-                _('Check here to see hosts not within this'),
-                $this->node,
-                _('Modify site membership for'),
-                $this->obj->get('name')
-            );
-            $this->render();
-            printf(
-                '</div><br/><p class="c"><input type="submit" '
-                . 'value="%s %s(s) %s %s" name="addHosts"/></p><br/>',
-                _('Add'),
-                _('host'),
-                _('to'),
-                $this->node
-            );
-        }
-        $this->data = array();
-        $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" '
-            . 'class="toggle-checkboxAction"/>',
-            _('Host')
-        );
-        $this->templates = array(
-            '<input type="checkbox" name="hostdel[]" value="${host_id}" '
-            . 'class="toggle-action"/>',
-            sprintf(
-                '<a href="?node=%ssub=edit&id=${host_id}" '
-                . 'title="%s: ${host_name}">${host_name}</a>',
-                'host',
-                _('Edit')
+            array(
+                'data-toggle' => 'tooltip',
+                'data-placement' => 'bottom',
+                'title' => _('Edit')
+                . ' '
+                . '${host_name}'
             )
         );
-        foreach ((array)self::getClass('HostManager')
-            ->find(
-                array('id' => $this->obj->get('hosts'))
-            ) as &$Host
-        ) {
-            $this->data[] = array(
-                'host_id' => $Host->get('id'),
-                'host_name' => $Host->get('name'),
-            );
-            unset($Host);
-        }
-        self::$HookManager
-            ->processEvent(
-                'SITE_ASSOCHOST_DATA',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        printf(
-            '<form method="post" action="%s">',
-            $this->formAction
+        Route::listem('host');
+        $items = json_decode(
+            Route::getData()
         );
-        $this->render();
-        if (count($this->data)) {
-            printf(
-                '<p class="c"><input type="submit" '
-                . 'value="%s %ss %s %s" name="remhost"/></p>',
-                _('Delete Selected'),
-                _('host'),
-                _('from'),
-                $this->node
+        $items = $items->hosts;
+        $getter = 'hostsnotinme';
+        $returnData = function(&$item) use(&$getter) {
+            $this->obj->get($getter);
+            if (!in_array($item->id, (array)$this->obj->get($getter))) {
+                return;
+            }
+            $this->data[] = array(
+                'host_id' => $item->id,
+                'host_name' => $item->name
             );
+        };
+        array_walk($items, $returnData);
+        echo '<!-- Host Membership -->';
+        echo '<div class="col-xs-9">';
+        echo '<div class="tab-pane fade in active" id="'
+            . $this->node
+            . '-membershipHost">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Host Membership');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
+        if (count($this->data) > 0) {
+            $notInMe = $meShow = 'host';
+            $meShow .= 'MeShow';
+            $notInMe .= 'NotInMe';
+            echo '<div class="text-center">';
+            echo '<div class="checkbox">';
+            echo '<label for="'
+                . $meShow
+                . '">';
+            echo '<input type="checkbox" name="'
+                . $meShow
+                . '" id="'
+                . $meShow
+                . '"/>';
+            echo _('Check here to see what hosts can be added');
+            echo '</label>';
+            echo '</div>';
+            echo '</div>';
+            echo '<br/>';
+            echo '<div class="hiddeninitially panel panel-info" id="'
+                . $notInMe
+                . '">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Add Hosts');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            $this->render(12);
+            echo '<div class="form-group">';
+            echo '<label for="updatehosts" class="control-label col-xs-4">';
+            echo _('Add selected hosts');
+            echo '</label>';
+            echo '<div class="col-xs-8">';
+            echo '<button type="submit" name="addHosts" '
+                . 'id="updatehosts" class="btn btn-info btn-block">'
+                . _('Add')
+                . '</button>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
         }
-        $this->data = array();
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates
+        );
+        $this->headerData = array(
+            '<label for="togglerHosts1">'
+            . '<input type="checkbox" name="toggle-hostrm" '
+            . 'class="toggle-checkboxhostrm" id="togglerHosts1"/></label>',
+            _('Host Name')
+        );
+        $this->templates = array(
+            '<label for="hostrm-${host_id}">'
+            . '<input type="checkbox" name="hostdel[]" '
+            . 'value="${host_id}" class="toggle-hostrm" id="'
+            . 'hostrm-${host_id}"/>'
+            . '</label>',
+            '<a href="?node=host&sub=edit&id=${host_id}">'
+            . '${host_name}</a>'
+        );
+        $getter = 'hosts';
+        array_walk($items, $returnData);
+        if (count($this->data) > 0) {
+            echo '<div class="panel panel-warning">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Remove Hosts');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            $this->render(12);
+            echo '<div class="form-group">';
+            echo '<label for="remhosts" class="control-label col-xs-4">';
+            echo _('Remove selected hosts');
+            echo '</label>';
+            echo '<div class="col-xs-8">';
+            echo '<button type="submit" name="remhosts" class='
+                . '"btn btn-danger btn-block" id="remhosts">'
+                . _('Remove')
+                . '</button>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+        }
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Post assoc host adjustments.
      *
      * @return void
      */
-    public function assocHostPost()
+    public function membershipHostPost()
     {
-        $this->membershipPost();
+        $flags = array(
+            'flags' => FILTER_REQUIRE_ARRAY
+        );
+        $reqitems = filter_input_array(
+            INPUT_POST,
+            array(
+                'host' => $flags,
+                'hostdel' => $flags
+            )
+        );
+        $hosts = $reqitems['host'];
+        $hostsdel = $reqitems['hostdel'];
+        if (isset($_POST['addHosts'])) {
+            $this->obj->addHost($hosts);
+        }
+        if (isset($_POST['remhosts'])) {
+            $this->obj->removeHost($hostsdel);
+        }
+        if ($this->obj->save()) {
+            self::redirect($this->formAction);
+        }
     }
     /**
      * Custom membership method.
@@ -588,7 +647,7 @@ class SiteManagementPage extends FOGPage
             '<label for="toggler">'
             . '<input type="checkbox" name="toggle-checkbox'
             . $this->node
-            . '" class="toggle-checkbox" id="toggler"/>'
+            . '" class="toggle-checkboxuser" id="toggler"/>'
             . '</label>',
             _('User Name'),
             _('Friendly Name')
@@ -597,8 +656,9 @@ class SiteManagementPage extends FOGPage
             '<label for="user-${user_id}">'
             . '<input type="checkbox" name="user[]" class="toggle-'
             . 'user" id="user-${user_id}" '
-            . 'value="${user_id"/>',
-            '<a href="../management/index.php?node=user&sub=edit&id=${user_id}">'
+            . 'value="${user_id}"/>'
+            . '</label>',
+            '<a href="?node=user&sub=edit&id=${user_id}">'
             . '${user_name}</a>',
             '${friendly}'
         );
@@ -684,12 +744,11 @@ class SiteManagementPage extends FOGPage
             echo '<label for="updateusers" class="control-label col-xs-4">';
             echo _('Add selected users');
             echo '</label>';
-            echo '<div class="col-xs8">';
+            echo '<div class="col-xs-8">';
             echo '<button type="submit" name="addUsers" '
                 . 'id="updateusers" class="btn btn-info btn-block">'
                 . _('Add')
                 . '</button>';
-            echo '</div>';
             echo '</div>';
             echo '</div>';
             echo '</div>';
@@ -704,17 +763,17 @@ class SiteManagementPage extends FOGPage
         $this->headerData = array(
             '<label for="toggler1">'
             . '<input type="checkbox" name="toggle-checkbox" '
-            . 'class="toggle-checkboxAction" id="toggler1"/></label>',
+            . 'class="toggle-checkboxuserrm" id="toggler1"/></label>',
             _('User Name'),
             _('Friendly Name')
         );
         $this->templates = array(
             '<label for="userrm-${user_id}">'
             . '<input type="checkbox" name="userdel[]" '
-            . 'value="${user_id}" class="toggle-action" id="'
+            . 'value="${user_id}" class="toggle-userrm" id="'
             . 'userrm-${user_id}"/>'
             . '</label>',
-            '<a href="../management/index.php?node=user&sub=edit&id=${user_id}">'
+            '<a href="?node=user&sub=edit&id=${user_id}">'
             . '${user_name}</a>',
             '${friendly}'
         );
@@ -723,7 +782,7 @@ class SiteManagementPage extends FOGPage
         if (count($this->data) > 0) {
             echo '<div class="panel panel-warning">';
             echo '<div class="panel-heading text-center">';
-            echo '<h4 clas="title">';
+            echo '<h4 class="title">';
             echo _('Remove Users');
             echo '</h4>';
             echo '</div>';
@@ -756,27 +815,26 @@ class SiteManagementPage extends FOGPage
      */
     public function membershipPost()
     {
-        if (isset($_REQUEST['addUsers'])) {
-            $this->obj->addUser($_REQUEST['user']);
+        $flags = array(
+            'flags' => FILTER_REQUIRE_ARRAY
+        );
+        $reqitems = filter_input_array(
+            INPUT_POST,
+            array(
+                'user' => $flags,
+                'userdel' => $flags
+            )
+        );
+        $users = $reqitems['user'];
+        $usersdel = $reqitems['userdel'];
+        if (isset($_POST['addUsers'])) {
+            $this->obj->addUser($users);
         }
-        if (isset($_REQUEST['remusers'])) {
-            $this->obj->removeUser($_REQUEST['userdel']);
-        }
-        if (isset($_REQUEST['addHosts'])) {
-            $this->obj->addHost($_REQUEST['host']);
-        }
-        if (isset($_REQUEST['remhost'])) {
-            $this->obj->removeHost($_REQUEST['hostdel']);
+        if (isset($_POST['remusers'])) {
+            $this->obj->removeUser($usersdel);
         }
         if ($this->obj->save()) {
-            self::setMessage(
-                sprintf(
-                    '%s %s',
-                    $this->obj->get('name'),
-                    _('saved successfully')
-                )
-            );
+            self::redirect($this->formAction);
         }
-        self::redirect($this->formAction);
     }
 }

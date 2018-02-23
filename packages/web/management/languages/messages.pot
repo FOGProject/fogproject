@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-22 20:39-0500\n"
+"POT-Creation-Date: 2018-02-23 08:51-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1477,22 +1477,25 @@ msgstr ""
 msgid "Site Update Fail"
 msgstr ""
 
-msgid "Check here to see hosts not within this"
+msgid "Host Name"
 msgstr ""
 
-msgid "Modify site membership for"
+msgid "Host Membership"
 msgstr ""
 
-msgid "host"
+msgid "Check here to see what hosts can be added"
 msgstr ""
 
-msgid "to"
+msgid "Add Hosts"
 msgstr ""
 
-msgid "Delete Selected"
+msgid "Add selected hosts"
 msgstr ""
 
-msgid "from"
+msgid "Remove Hosts"
+msgstr ""
+
+msgid "Remove selected hosts"
 msgstr ""
 
 msgid "Friendly Name"
@@ -1511,9 +1514,6 @@ msgid "Remove Users"
 msgstr ""
 
 msgid "Remove selected users"
-msgstr ""
-
-msgid "saved successfully"
 msgstr ""
 
 msgid "Pushbullet Accounts"
@@ -1720,6 +1720,9 @@ msgstr ""
 msgid "Access Controls"
 msgstr ""
 
+msgid "Delete Selected"
+msgstr ""
+
 msgid "Role"
 msgstr ""
 
@@ -1863,7 +1866,13 @@ msgstr ""
 msgid "rule"
 msgstr ""
 
+msgid "to"
+msgstr ""
+
 msgid "Rule Name"
+msgstr ""
+
+msgid "from"
 msgstr ""
 
 msgid "Not role selected"
@@ -1879,6 +1888,9 @@ msgid "Modify Membership for"
 msgstr ""
 
 msgid "user"
+msgstr ""
+
+msgid "saved successfully"
 msgstr ""
 
 msgid "LDAP Servers"
@@ -2089,9 +2101,6 @@ msgid "Plugin Description"
 msgstr ""
 
 msgid "FOG Snapin Log"
-msgstr ""
-
-msgid "Host Name"
 msgstr ""
 
 msgid "Snapin Name"
@@ -3426,6 +3435,9 @@ msgid "Delayed"
 msgstr ""
 
 msgid "group"
+msgstr ""
+
+msgid "host"
 msgstr ""
 
 msgid "Imaged"

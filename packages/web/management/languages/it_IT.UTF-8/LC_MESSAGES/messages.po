@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-22 20:39-0500\n"
+"POT-Creation-Date: 2018-02-23 08:51-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -1512,23 +1512,32 @@ msgstr "Aggiornamento stampante riuscito"
 msgid "Site Update Fail"
 msgstr "Aggiornamento della stampante non riuscito"
 
-msgid "Check here to see hosts not within this"
-msgstr "Controlla qui per vedere gli host non all'interno di questo"
+msgid "Host Name"
+msgstr "Nome Host"
 
-msgid "Modify site membership for"
-msgstr "Modificare appartenenza al sito per"
+#, fuzzy
+msgid "Host Membership"
+msgstr "membri"
 
-msgid "host"
-msgstr "host"
+#, fuzzy
+msgid "Check here to see what hosts can be added"
+msgstr "Controllare qui per vedere cosa è possibile aggiungere stampanti"
 
-msgid "to"
-msgstr "a"
+#, fuzzy
+msgid "Add Hosts"
+msgstr "tutti gli host"
 
-msgid "Delete Selected"
-msgstr "Elimina selezionato"
+#, fuzzy
+msgid "Add selected hosts"
+msgstr "Aggiungi stampanti selezionate"
 
-msgid "from"
-msgstr "da"
+#, fuzzy
+msgid "Remove Hosts"
+msgstr "Rimuovere"
+
+#, fuzzy
+msgid "Remove selected hosts"
+msgstr "Rimuovi i selezionati"
 
 msgid "Friendly Name"
 msgstr "Nome amichevole"
@@ -1552,9 +1561,6 @@ msgstr "Rimuovere"
 #, fuzzy
 msgid "Remove selected users"
 msgstr "Rimuovi i selezionati"
-
-msgid "saved successfully"
-msgstr "Salvato con successo"
 
 msgid "Pushbullet Accounts"
 msgstr "Pushbullet Conti"
@@ -1760,6 +1766,9 @@ msgstr "Consente la modifica/creazione di Task States per FOG."
 msgid "Access Controls"
 msgstr "Controllo accessi"
 
+msgid "Delete Selected"
+msgstr "Elimina selezionato"
+
 msgid "Role"
 msgstr "Regola"
 
@@ -1903,8 +1912,14 @@ msgstr "Modificare l'appartenenza alle regole per"
 msgid "rule"
 msgstr "regola"
 
+msgid "to"
+msgstr "a"
+
 msgid "Rule Name"
 msgstr "Nome regola"
+
+msgid "from"
+msgstr "da"
 
 msgid "Not role selected"
 msgstr "Nessun ruolo selezionato"
@@ -1920,6 +1935,9 @@ msgstr "Modificare l'appartenenza per"
 
 msgid "user"
 msgstr "utente"
+
+msgid "saved successfully"
+msgstr "Salvato con successo"
 
 msgid "LDAP Servers"
 msgstr "LDAP Servers"
@@ -2130,9 +2148,6 @@ msgstr "Plugin Descrizione"
 
 msgid "FOG Snapin Log"
 msgstr "FOG Snapin Log"
-
-msgid "Host Name"
-msgstr "Nome Host"
 
 msgid "Snapin Name"
 msgstr "Nome Snapin"
@@ -3485,6 +3500,9 @@ msgstr "Ritardato"
 
 msgid "group"
 msgstr "gruppo"
+
+msgid "host"
+msgstr "host"
 
 msgid "Imaged"
 msgstr "imaged"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-22 20:39-0500\n"
+"POT-Creation-Date: 2018-02-23 08:51-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1591,27 +1591,32 @@ msgstr "Printer updated!"
 msgid "Site Update Fail"
 msgstr "Printer update failed!"
 
-#, fuzzy
-msgid "Check here to see hosts not within this"
-msgstr "Check here to see groups not assigned this image"
+msgid "Host Name"
+msgstr "Host Name"
 
 #, fuzzy
-msgid "Modify site membership for"
-msgstr "Modify Membership for"
-
-msgid "host"
-msgstr "host"
+msgid "Host Membership"
+msgstr "Membership"
 
 #, fuzzy
-msgid "to"
-msgstr "Auto"
-
-msgid "Delete Selected"
-msgstr "Delete Selected"
+msgid "Check here to see what hosts can be added"
+msgstr "Check here to see what printers can be added"
 
 #, fuzzy
-msgid "from"
-msgstr "From"
+msgid "Add Hosts"
+msgstr "All Hosts"
+
+#, fuzzy
+msgid "Add selected hosts"
+msgstr "Remove selected printers"
+
+#, fuzzy
+msgid "Remove Hosts"
+msgstr "Remove"
+
+#, fuzzy
+msgid "Remove selected hosts"
+msgstr "Remove selected snapins"
 
 #, fuzzy
 msgid "Friendly Name"
@@ -1636,9 +1641,6 @@ msgstr "Remove"
 #, fuzzy
 msgid "Remove selected users"
 msgstr "Remove selected snapins"
-
-msgid "saved successfully"
-msgstr "saved successfully"
 
 msgid "Pushbullet Accounts"
 msgstr "Pushbullet Accounts"
@@ -1891,6 +1893,9 @@ msgstr ""
 msgid "Access Controls"
 msgstr "All Access Controls"
 
+msgid "Delete Selected"
+msgstr "Delete Selected"
+
 #, fuzzy
 msgid "Role"
 msgstr "Remove"
@@ -2072,8 +2077,16 @@ msgid "rule"
 msgstr "Results"
 
 #, fuzzy
+msgid "to"
+msgstr "Auto"
+
+#, fuzzy
 msgid "Rule Name"
 msgstr "Module Name"
+
+#, fuzzy
+msgid "from"
+msgstr "From"
 
 #, fuzzy
 msgid "Not role selected"
@@ -2093,6 +2106,9 @@ msgstr "Modify Membership for"
 #, fuzzy
 msgid "user"
 msgstr "User"
+
+msgid "saved successfully"
+msgstr "saved successfully"
 
 #, fuzzy
 msgid "LDAP Servers"
@@ -2345,9 +2361,6 @@ msgstr "Plugin Description"
 
 msgid "FOG Snapin Log"
 msgstr "FOG Snapin Log"
-
-msgid "Host Name"
-msgstr "Host Name"
 
 msgid "Snapin Name"
 msgstr "Snapin Name"
@@ -3854,6 +3867,9 @@ msgstr "Delayed"
 
 msgid "group"
 msgstr "group"
+
+msgid "host"
+msgstr "host"
 
 msgid "Imaged"
 msgstr "Imaged"
