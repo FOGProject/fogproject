@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-22 15:29-0500\n"
+"POT-Creation-Date: 2018-02-22 20:39-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1618,15 +1618,24 @@ msgid "Friendly Name"
 msgstr "Kernel Name"
 
 #, fuzzy
-msgid "Check here to see users not within this"
-msgstr "Check here to see groups not assigned this image"
-
-msgid "Modify Membership for"
-msgstr "Modify Membership for"
+msgid "Check here to see what users can be added"
+msgstr "Check here to see what printers can be added"
 
 #, fuzzy
-msgid "user"
-msgstr "User"
+msgid "Add Users"
+msgstr "Add User"
+
+#, fuzzy
+msgid "Add selected users"
+msgstr "Remove selected printers"
+
+#, fuzzy
+msgid "Remove Users"
+msgstr "Remove"
+
+#, fuzzy
+msgid "Remove selected users"
+msgstr "Remove selected snapins"
 
 msgid "saved successfully"
 msgstr "saved successfully"
@@ -2073,6 +2082,17 @@ msgstr "No Hosts were selected"
 #, fuzzy
 msgid "Not rule selected"
 msgstr "No Hosts were selected"
+
+#, fuzzy
+msgid "Check here to see users not within this"
+msgstr "Check here to see groups not assigned this image"
+
+msgid "Modify Membership for"
+msgstr "Modify Membership for"
+
+#, fuzzy
+msgid "user"
+msgstr "User"
 
 #, fuzzy
 msgid "LDAP Servers"

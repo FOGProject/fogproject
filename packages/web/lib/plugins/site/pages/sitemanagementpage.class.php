@@ -577,29 +577,29 @@ class SiteManagementPage extends FOGPage
      */
     public function membership()
     {
-        $this->data = array();
-        echo '<!-- Membership -->';
-        printf(
-            '<div id="%s-membership">',
-            $this->node
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
         );
         $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkboxuser" '
-            . 'class="toggle-checkboxuser"/>',
-            _('Username'),
+            '<label for="toggler">'
+            . '<input type="checkbox" name="toggle-checkbox'
+            . $this->node
+            . '" class="toggle-checkbox" id="toggler"/>'
+            . '</label>',
+            _('User Name'),
             _('Friendly Name')
         );
         $this->templates = array(
-            sprintf(
-                '<input type="checkbox" name="user[]" value="${user_id}" '
-                . 'class="toggle-%s"/>',
-                'user'
-            ),
-            sprintf(
-                '<a href="?node=%s&sub=edit&id=${user_id}" '
-                . 'title="Edit: ${user_name}">${user_name}</a>',
-                'user'
-            ),
+            '<label for="user-${user_id}">'
+            . '<input type="checkbox" name="user[]" class="toggle-'
+            . 'user" id="user-${user_id}" '
+            . 'value="${user_id"/>',
+            '<a href="../management/index.php?node=user&sub=edit&id=${user_id}">'
+            . '${user_name}</a>',
             '${friendly}'
         );
         $this->attributes = array(
@@ -608,112 +608,146 @@ class SiteManagementPage extends FOGPage
                 'class' => 'filter-false'
             ),
             array(
+                'data-toggle' => 'tooltip',
+                'data-placement' => 'bottom',
+                'title' => _('Edit')
+                . ' '
+                . '${user_name}'
             ),
             array()
         );
-        foreach ((array)self::getClass('UserManager')
-            ->find(
-                array(
-                    'id' => $this->obj->get('usersnotinme'),
-                )
-            ) as &$User
-        ) {
+        Route::listem('user');
+        $items = json_decode(
+            Route::getData()
+        );
+        $items = $items->users;
+        $getter = 'usersnotinme';
+        $returnData = function(&$item) use (&$getter) {
+            $this->obj->get($getter);
+            if (!in_array($item->id, (array)$this->obj->get($getter))) {
+                return;
+            }
             $this->data[] = array(
-                'user_id' => $User->get('id'),
-                'user_name' => $User->get('name'),
-                'friendly' => $User->get('display')
+                'user_id' => $item->id,
+                'user_name' => $item->name,
+                'friendly' => $item->display
             );
-            unset($User);
-        }
+        };
+        array_walk($items, $returnData);
+        echo '<!-- Membership -->';
+        echo '<div class="col-xs-9">';
+        echo '<div class="tab-pane fade in active" id="'
+            . $this->node
+            . '-membership">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->childClass
+            . ' '
+            . _('Membership');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
         if (count($this->data) > 0) {
-            self::$HookManager->processEvent(
-                'OBJ_USERS_NOT_IN_ME',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-            printf(
-                '<form method="post" action="%s"><label for="userMeShow">'
-                . '<p class="c">%s %s&nbsp;&nbsp;<input '
-                . 'type="checkbox" name="userMeShow" id="userMeShow"/>'
-                . '</p></label><div id="userNotInMe"><h2>%s %s</h2>',
-                $this->formAction,
-                _('Check here to see users not within this'),
-                $this->node,
-                _('Modify Membership for'),
-                $this->obj->get('name')
-            );
-            $this->render();
-            printf(
-                '</div><br/><p class="c"><input type="submit" '
-                . 'value="%s %s(s) %s %s" name="addUsers"/></p><br/>',
-                _('Add'),
-                _('user'),
-                _('to'),
-                $this->node
-            );
+            $notInMe = $meShow = 'user';
+            $meShow .= 'MeShow';
+            $notInMe .= 'NotInMe';
+            echo '<div clss="text-center">';
+            echo '<div class="checkbox">';
+            echo '<label for="'
+                . $meShow
+                . '">';
+            echo '<input type="checkbox" name="'
+                . $meShow
+                . '" id="'
+                . $meShow
+                . '"/>';
+            echo _('Check here to see what users can be added');
+            echo '</label>';
+            echo '</div>';
+            echo '</div>';
+            echo '<br/>';
+            echo '<div class="hiddeninitially panel panel-info" id="'
+                . $notInMe
+                . '">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Add Users');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            $this->render(12);
+            echo '<div class="form-group">';
+            echo '<label for="updateusers" class="control-label col-xs-4">';
+            echo _('Add selected users');
+            echo '</label>';
+            echo '<div class="col-xs8">';
+            echo '<button type="submit" name="addUsers" '
+                . 'id="updateusers" class="btn btn-info btn-block">'
+                . _('Add')
+                . '</button>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
         }
-        $this->data = array();
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates
+        );
         $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" '
-            . 'class="toggle-checkboxAction"/>',
-            _('Username'),
+            '<label for="toggler1">'
+            . '<input type="checkbox" name="toggle-checkbox" '
+            . 'class="toggle-checkboxAction" id="toggler1"/></label>',
+            _('User Name'),
             _('Friendly Name')
         );
         $this->templates = array(
-            '<input type="checkbox" name="userdel[]" '
-            . 'value="${user_id}" class="toggle-action"/>',
-            sprintf(
-                '<a href="?node=%s&sub=edit&id=${user_id}" '
-                . 'title="%s: ${user_name}">${user_name}</a>',
-                'user',
-                _('Edit')
-            ),
+            '<label for="userrm-${user_id}">'
+            . '<input type="checkbox" name="userdel[]" '
+            . 'value="${user_id}" class="toggle-action" id="'
+            . 'userrm-${user_id}"/>'
+            . '</label>',
+            '<a href="../management/index.php?node=user&sub=edit&id=${user_id}">'
+            . '${user_name}</a>',
             '${friendly}'
         );
-        foreach ((array)self::getClass('UserManager')
-            ->find(
-                array(
-                    'id' => $this->obj->get('users'),
-                )
-            ) as &$User
-        ) {
-            $this->data[] = array(
-                'user_id' => $User->get('id'),
-                'user_name' => $User->get('name'),
-                'friendly' => $User->get('display')
-            );
-            unset($User);
+        $getter = 'users';
+        array_walk($items, $returnData);
+        if (count($this->data) > 0) {
+            echo '<div class="panel panel-warning">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 clas="title">';
+            echo _('Remove Users');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            $this->render(12);
+            echo '<div class="form-group">';
+            echo '<label for="remusers" class="control-label col-xs-4">';
+            echo _('Remove selected users');
+            echo '</label>';
+            echo '<div class="col-xs-8">';
+            echo '<button type="submit" name="remusers" class='
+                . '"btn btn-danger btn-block" id="remusers">'
+                . _('Remove')
+                . '</button>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
         }
-        self::$HookManager
-            ->processEvent(
-                'SITE_USER_DATA',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        printf(
-            '<form method="post" action="%s">',
-            $this->formAction
-        );
-        $this->render();
-        if (count($this->data)) {
-            printf(
-                '<p class="c"><input type="submit" '
-                . 'value="%s %ss %s %s" name="remusers"/></p>',
-                _('Delete Selected'),
-                _('user'),
-                _('from'),
-                $this->node
-            );
-        }
-        $this->data = array();
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Customize membership actions
