@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-22 15:29-0500\n"
+"POT-Creation-Date: 2018-02-22 20:39-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1615,15 +1615,24 @@ msgid "Friendly Name"
 msgstr "内核名称"
 
 #, fuzzy
-msgid "Check here to see users not within this"
-msgstr "请查看这里以组未分配此图片"
-
-msgid "Modify Membership for"
-msgstr "修改为会员"
+msgid "Check here to see what users can be added"
+msgstr "请查看这里以可以添加哪些打印机"
 
 #, fuzzy
-msgid "user"
-msgstr "用户"
+msgid "Add Users"
+msgstr "添加用户"
+
+#, fuzzy
+msgid "Add selected users"
+msgstr "打印机"
+
+#, fuzzy
+msgid "Remove Users"
+msgstr "去掉"
+
+#, fuzzy
+msgid "Remove selected users"
+msgstr "删除选定snapins"
 
 msgid "saved successfully"
 msgstr "保存成功"
@@ -2070,6 +2079,17 @@ msgstr "没有选定主机"
 #, fuzzy
 msgid "Not rule selected"
 msgstr "没有选定主机"
+
+#, fuzzy
+msgid "Check here to see users not within this"
+msgstr "请查看这里以组未分配此图片"
+
+msgid "Modify Membership for"
+msgstr "修改为会员"
+
+#, fuzzy
+msgid "user"
+msgstr "用户"
 
 #, fuzzy
 msgid "LDAP Servers"

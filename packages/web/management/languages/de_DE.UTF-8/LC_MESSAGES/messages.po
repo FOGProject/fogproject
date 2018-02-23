@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-22 15:29-0500\n"
+"POT-Creation-Date: 2018-02-22 20:39-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -1616,15 +1616,24 @@ msgid "Friendly Name"
 msgstr "nutzerfreundlicher Name"
 
 #, fuzzy
-msgid "Check here to see users not within this"
-msgstr "Prüfen Sie hier, welche User nicht enthalten sind"
-
-msgid "Modify Membership for"
-msgstr "Ändern der Mitgliedschaft für"
+msgid "Check here to see what users can be added"
+msgstr "Überprüfen Sie hier, welche Drucker hinzugefügt werden können"
 
 #, fuzzy
-msgid "user"
-msgstr "Benutzer"
+msgid "Add Users"
+msgstr "Benutzer hinzufügen"
+
+#, fuzzy
+msgid "Add selected users"
+msgstr "Ausgewählte Drucker hinzufügen"
+
+#, fuzzy
+msgid "Remove Users"
+msgstr "Entfernen "
+
+#, fuzzy
+msgid "Remove selected users"
+msgstr "Ausgewählte entfernen "
 
 msgid "saved successfully"
 msgstr "erfolgreich gespeichert"
@@ -2073,6 +2082,17 @@ msgstr "Keine Rolle ausgewählt"
 #, fuzzy
 msgid "Not rule selected"
 msgstr "Keine Regel ausgewählt"
+
+#, fuzzy
+msgid "Check here to see users not within this"
+msgstr "Prüfen Sie hier, welche User nicht enthalten sind"
+
+msgid "Modify Membership for"
+msgstr "Ändern der Mitgliedschaft für"
+
+#, fuzzy
+msgid "user"
+msgstr "Benutzer"
 
 #, fuzzy
 msgid "LDAP Servers"

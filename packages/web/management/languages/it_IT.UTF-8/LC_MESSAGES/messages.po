@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-22 15:29-0500\n"
+"POT-Creation-Date: 2018-02-22 20:39-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -1533,14 +1533,25 @@ msgstr "da"
 msgid "Friendly Name"
 msgstr "Nome amichevole"
 
-msgid "Check here to see users not within this"
-msgstr "Controlla qui per vedere gli utenti non all'interno di questo"
+#, fuzzy
+msgid "Check here to see what users can be added"
+msgstr "Controllare qui per vedere cosa è possibile aggiungere stampanti"
 
-msgid "Modify Membership for"
-msgstr "Modificare l'appartenenza per"
+#, fuzzy
+msgid "Add Users"
+msgstr "Aggiungi utente"
 
-msgid "user"
-msgstr "utente"
+#, fuzzy
+msgid "Add selected users"
+msgstr "Aggiungi stampanti selezionate"
+
+#, fuzzy
+msgid "Remove Users"
+msgstr "Rimuovere"
+
+#, fuzzy
+msgid "Remove selected users"
+msgstr "Rimuovi i selezionati"
 
 msgid "saved successfully"
 msgstr "Salvato con successo"
@@ -1900,6 +1911,15 @@ msgstr "Nessun ruolo selezionato"
 
 msgid "Not rule selected"
 msgstr "Nessuna regola selezionata"
+
+msgid "Check here to see users not within this"
+msgstr "Controlla qui per vedere gli utenti non all'interno di questo"
+
+msgid "Modify Membership for"
+msgstr "Modificare l'appartenenza per"
+
+msgid "user"
+msgstr "utente"
 
 msgid "LDAP Servers"
 msgstr "LDAP Servers"

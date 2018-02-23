@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-22 15:29-0500\n"
+"POT-Creation-Date: 2018-02-22 20:39-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1498,13 +1498,19 @@ msgstr ""
 msgid "Friendly Name"
 msgstr ""
 
-msgid "Check here to see users not within this"
+msgid "Check here to see what users can be added"
 msgstr ""
 
-msgid "Modify Membership for"
+msgid "Add Users"
 msgstr ""
 
-msgid "user"
+msgid "Add selected users"
+msgstr ""
+
+msgid "Remove Users"
+msgstr ""
+
+msgid "Remove selected users"
 msgstr ""
 
 msgid "saved successfully"
@@ -1864,6 +1870,15 @@ msgid "Not role selected"
 msgstr ""
 
 msgid "Not rule selected"
+msgstr ""
+
+msgid "Check here to see users not within this"
+msgstr ""
+
+msgid "Modify Membership for"
+msgstr ""
+
+msgid "user"
 msgstr ""
 
 msgid "LDAP Servers"
