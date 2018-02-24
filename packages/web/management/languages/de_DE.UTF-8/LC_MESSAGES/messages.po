@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-23 08:51-0500\n"
+"POT-Creation-Date: 2018-02-24 16:22-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -1472,28 +1472,17 @@ msgstr "Stellen hin und her wechseln."
 msgid "Associated Sites"
 msgstr "zugehörige Sites"
 
-msgid "Associate Host to a Site "
-msgstr "Host einer Site zuordnen"
-
 #, fuzzy
-msgid "No Site"
-msgstr "Keine Site"
-
-#, fuzzy
-msgid "Site"
-msgstr "Site"
+msgid "Host Site"
+msgstr "Hostliste"
 
 #, fuzzy
 msgid "Site Association"
 msgstr "Site Zugehörigkeit"
 
 #, fuzzy
-msgid "Site Association for"
-msgstr "Sitezugehörigkeit für"
-
-#, fuzzy
-msgid "Update Sites"
-msgstr "Sites aktualisieren"
+msgid "Site"
+msgstr "Site"
 
 #, fuzzy
 msgid "Is restricted"
@@ -1508,6 +1497,10 @@ msgstr "Benutzername"
 
 msgid "Is Restricted User "
 msgstr "ist ein eingeschränkter Benutzer"
+
+#, fuzzy
+msgid "No Site"
+msgstr "Keine Site"
 
 #, fuzzy
 msgid "Sites"

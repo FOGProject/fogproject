@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-23 08:51-0500\n"
+"POT-Creation-Date: 2018-02-24 16:22-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1471,28 +1471,17 @@ msgstr ""
 msgid "Associated Sites"
 msgstr "预估FOG网站"
 
-msgid "Associate Host to a Site "
-msgstr ""
-
 #, fuzzy
-msgid "No Site"
-msgstr "没有设置"
-
-#, fuzzy
-msgid "Site"
-msgstr "最大尺寸"
+msgid "Host Site"
+msgstr "主机列表"
 
 #, fuzzy
 msgid "Site Association"
 msgstr "图像协会"
 
 #, fuzzy
-msgid "Site Association for"
-msgstr "图像协会"
-
-#, fuzzy
-msgid "Update Sites"
-msgstr "更新打印机"
+msgid "Site"
+msgstr "最大尺寸"
 
 #, fuzzy
 msgid "Is restricted"
@@ -1507,6 +1496,10 @@ msgstr "用户名"
 
 msgid "Is Restricted User "
 msgstr ""
+
+#, fuzzy
+msgid "No Site"
+msgstr "没有设置"
 
 #, fuzzy
 msgid "Sites"
