@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-23 08:51-0500\n"
+"POT-Creation-Date: 2018-02-24 16:22-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1477,28 +1477,17 @@ msgstr ""
 msgid "Associated Sites"
 msgstr "Sites FOG estimés"
 
-msgid "Associate Host to a Site "
-msgstr ""
-
 #, fuzzy
-msgid "No Site"
-msgstr "Pas encore défini"
-
-#, fuzzy
-msgid "Site"
-msgstr "Max Taille"
+msgid "Host Site"
+msgstr "Liste des hôtes"
 
 #, fuzzy
 msgid "Site Association"
 msgstr "Association Image"
 
 #, fuzzy
-msgid "Site Association for"
-msgstr "Association d'image pour"
-
-#, fuzzy
-msgid "Update Sites"
-msgstr "Mise à jour de l'imprimante"
+msgid "Site"
+msgstr "Max Taille"
 
 #, fuzzy
 msgid "Is restricted"
@@ -1513,6 +1502,10 @@ msgstr "Nom d'utilisateur"
 
 msgid "Is Restricted User "
 msgstr ""
+
+#, fuzzy
+msgid "No Site"
+msgstr "Pas encore défini"
 
 #, fuzzy
 msgid "Sites"

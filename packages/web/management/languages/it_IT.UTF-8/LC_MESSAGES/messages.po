@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-23 08:51-0500\n"
+"POT-Creation-Date: 2018-02-24 16:22-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -1410,23 +1410,15 @@ msgstr "tra diversi siti"
 msgid "Associated Sites"
 msgstr "Siti Associati"
 
-msgid "Associate Host to a Site "
-msgstr "Associa Host a un Sito"
-
-msgid "No Site"
-msgstr "Nessun Sito"
-
-msgid "Site"
-msgstr "Sito"
+#, fuzzy
+msgid "Host Site"
+msgstr "Lista Host"
 
 msgid "Site Association"
 msgstr "Associazione Sito"
 
-msgid "Site Association for"
-msgstr "Associazione Sito per"
-
-msgid "Update Sites"
-msgstr "Aggiornamento Siti"
+msgid "Site"
+msgstr "Sito"
 
 msgid "Is restricted"
 msgstr "È limitato"
@@ -1439,6 +1431,9 @@ msgstr "Nome utente"
 
 msgid "Is Restricted User "
 msgstr "È Utente Limitato"
+
+msgid "No Site"
+msgstr "Nessun Sito"
 
 msgid "Sites"
 msgstr "Siti"
