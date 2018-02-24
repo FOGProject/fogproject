@@ -21,9 +21,29 @@
  */
 class AddSiteGroup extends Hook
 {
+    /**
+     * The name of this hook.
+     *
+     * @var string
+     */
     public $name = 'AddSiteGroup';
+    /**
+     * The description of this hook.
+     *
+     * @var string
+     */
     public $description = 'Add the hosts of a group to a Site';
+    /**
+     * The active flag (always true but for posterity)
+     *
+     * @var bool
+     */
     public $active = true;
+    /**
+     * The node this hook enacts with.
+     *
+     * @var string
+     */
     public $node = 'site';
     /**
      * Initializes object.
@@ -35,17 +55,17 @@ class AddSiteGroup extends Hook
         parent::__construct();
         self::$HookManager
             ->register(
+                'GROUP_EDIT_EXTRA',
+                array(
+                    $this,
+                    'groupFields'
+                )
+            )
+            ->register(
                 'SUB_MENULINK_DATA',
                 array(
                     $this,
                     'groupSideMenu'
-                )
-            )
-            ->register(
-                'GROUP_GENERAL_EXTRA',
-                array(
-                    $this,
-                    'groupFields'
                 )
             )
             ->register(
@@ -107,34 +127,53 @@ class AddSiteGroup extends Hook
         } else {
             $siteID = '';
         }
-        echo '<!-- Site --><div id="group-site">';
-        printf(
-            '<h2>%s: %s</h2>',
-            _('Site Association for'),
-            $arguments['Group']->get('name')
-        );
-        printf(
-            '<form method="post" action="%s&tab=group-site">',
-            $arguments['formAction']
-        );
-        unset($arguments['headerData']);
         $arguments['attributes'] = array(
             array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
+            array('class' => 'col-xs-8 form-group')
         );
         $arguments['templates'] = array(
             '${field}',
-            '${input}',
+            '${input}'
         );
-        $arguments['data'][] = array(
-            'field' => self::getClass('SiteManager')->buildSelectBox($siteID),
-            'input' => sprintf(
-                '<input type="submit" value="%s"/>',
-                _('Update Sites')
-            )
+        $fields = array(
+            '<label for="site">'
+            . _('Site')
+            . '</label>' => self::getClass('SiteManager')->buildSelectBox(
+                $siteID
+            ),
+            '<label for="updatesite">'
+            . _('Make Changes?')
+            . '</label>' => '<button type="submit" class="btn btn-info btn-block" '
+            . 'id="updatesite">'
+            . _('Update')
+            . '</button>'
         );
-        $arguments['render']->render();
-        echo '</form></div>';
+        $arguments['data'] = array();
+        foreach((array)$fields as $field => &$input) {
+            $arguments['data'][] = array(
+                'field' => $field,
+                'input' => $input
+            );
+            unset($input);
+        }
+        unset($fields);
+        echo '<!-- Site -->';
+        echo '<div id="group-site" class="tab-pane fade">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Site Association');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $arguments['formAction']
+            . '&tab=group-site">';
+        $arguments['render']->render(12);
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Group add site.
@@ -161,18 +200,22 @@ class AddSiteGroup extends Hook
                 'hostID' => $arguments['Group']->get('hosts')
             )
         );
-        if ($_REQUEST['site']
-            && is_numeric($_REQUEST['site'])
-            && $_REQUEST['site'] > 0
-        ) {
-            $insert_fields = array('siteID','hostID');
+        $site = (int)filter_input(INPUT_POST, 'site');
+        if ($site) {
+            $insert_fields = array(
+                'siteID',
+                'hostID'
+            );
             $insert_values = array();
             foreach ((array)$arguments['Group']->get('hosts') as &$hostID) {
-                $insert_values[] = array($_REQUEST['site'], $hostID);
+                $insert_values[] = array(
+                    $site,
+                    $hostID
+                );
                 unset($hostID);
             }
             if (count($insert_values) > 0) {
-                self::getClass('SiteHostAssociationManager')
+                self::getClass('SiteAssociationManager')
                     ->insertBatch(
                         $insert_fields,
                         $insert_values

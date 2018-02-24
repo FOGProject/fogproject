@@ -21,9 +21,29 @@
  */
 class AddSiteAPI extends Hook
 {
+    /**
+     * The name of the hook.
+     *
+     * @var string
+     */
     public $name = 'AddSiteAPI';
+    /**
+     * The description.
+     *
+     * @var string
+     */
     public $description = 'Add Site stuff into the api system.';
+    /**
+     * For posterity.
+     *
+     * @var bool
+     */
     public $active = true;
+    /**
+     * The node the hook works with.
+     *
+     * @var string
+     */
     public $node = 'site';
     /**
      * Initialize object.

@@ -42,7 +42,7 @@ class AddLocationHost extends Hook
      */
     public $active = true;
     /**
-     * THe node this hook enacts with.
+     * The node this hook enacts with.
      *
      * @var string
      */
