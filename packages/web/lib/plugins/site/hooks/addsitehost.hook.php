@@ -21,9 +21,29 @@
  */
 class AddSiteHost extends Hook
 {
+    /**
+     * The name of this hook.
+     *
+     * @var string
+     */
     public $name = 'AddSiteHost';
+    /**
+     * The description of this hook.
+     * 
+     * @var string
+     */
     public $description = 'Add Hosts to a Site';
+    /**
+     * The active flag (always true but for posterity)
+     *
+     * @var bool
+     */
     public $active = true;
+    /**
+     * The node this hook enacts with.
+     *
+     * @var string
+     */
     public $node = 'site';
     /**
      * Initializes object.
@@ -70,10 +90,31 @@ class AddSiteHost extends Hook
                 )
             )
             ->register(
-                'SUB_MENULINK_DATA',
+                'HOST_IMPORT',
                 array(
                     $this,
-                    'addNotes'
+                    'hostImport'
+                )
+            )
+            ->register(
+                'HOST_EXPORT_REPORT',
+                array(
+                    $this,
+                    'hostExport'
+                )
+            )
+            ->register(
+                'DESTROY_HOST',
+                array(
+                    $this,
+                    'hostDestroy'
+                )
+            )
+            ->register(
+                'HOST_INFO_EXPOSE',
+                array(
+                    $this,
+                    'hostInfoExpose'
                 )
             );
     }
@@ -87,11 +128,11 @@ class AddSiteHost extends Hook
      */
     public function hostTableHeader($arguments)
     {
+        global $node;
+        global $sub;
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
-        global $node;
-        global $sub;
         if ($node != 'host') {
             return;
         }
@@ -112,10 +153,9 @@ class AddSiteHost extends Hook
         }
     }
     /**
-     * This function modifies the data of the user page.
-     * Add one column calls 'Associated Sites'
+     * Adjusts the host data.
      *
-     * @param mixed $arguments The arguments to modify.
+     * @param mixed $arguments The arguments to change.
      *
      * @return void
      */
@@ -132,7 +172,7 @@ class AddSiteHost extends Hook
         if ($sub == 'pending') {
             return;
         }
-        if (!in_array('accesscontrol', (array)self::$pluginsinstalled)) {
+        if (!in_array('accesscontrol', (array)selfy5y::$pluginsinstalled)) {
             $insertIndex = 4;
         } else {
             $insertIndex = 5;
@@ -182,9 +222,9 @@ class AddSiteHost extends Hook
         }
     }
     /**
-     * This function adds a new column in the result table.
+     * Adjusts the host fields.
      *
-     * @param mixed $arguments The arguments to modify.
+     * @param mixed $arguments The arguments to change.
      *
      * @return void
      */
@@ -217,19 +257,23 @@ class AddSiteHost extends Hook
                 'Site',
                 array('id' => $SiteIDs)
             );
-            $sID = $Sites[0];
+            $sID = array_shift($Sites);
         }
         self::arrayInsertAfter(
-            _('Host Product Key'),
+            '<label for="productKey">'
+            . _('Host Product Key')
+            . '</label>',
             $arguments['fields'],
-            _('Associate Host to a Site '),
+            '<label for="site">'
+            . _('Host Site')
+            . '</label>',
             self::getClass('SiteManager')->buildSelectBox(
                 $sID
             )
         );
     }
     /**
-     * This function adds one entry in the siteUserAssoc table in the DB
+     * Adds the site selector to the host.
      *
      * @param mixed $arguments The arguments to modify.
      *
@@ -237,6 +281,9 @@ class AddSiteHost extends Hook
      */
     public function hostAddSite($arguments)
     {
+        global $node;
+        global $sub;
+        global $tab;
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
@@ -255,78 +302,196 @@ class AddSiteHost extends Hook
         if (!in_array($sub, $subs)) {
             return;
         }
+        if (str_replace('_', '-', $tab) != 'host-general') {
+            return;
+        }
         self::getClass('SiteHostAssociationManager')->destroy(
             array(
                 'hostID' => $arguments['Host']->get('id')
             )
         );
-        $cnt = self::getClass('SiteManager')
-            ->count(
-                array('id' => $_REQUEST['site'])
+        $site = (int)filter_input(INPUT_POST, 'site');
+        if ($site) {
+            $insert_fields = array(
+                'siteID',
+                'hostID'
             );
-        if ($cnt !== 1) {
-            return;
+            $insert_valuse = array();
+            $insert_values[] = array(
+                $site,
+                $arguements['Host']->get('id')
+            );
+            if (count($insert_valeus)) {
+                self::getClass('SiteHostAssociationManager')
+                    ->insertBatch(
+                        $insert_fields,
+                        $insert_values
+                    );
+            }
         }
-        $Site = new Site($_REQUEST['site']);
-        self::getClass('SiteHostAssociation')
-            ->set('hostID', $arguments['Host']->get('id'))
-            ->load('hostID')
-            ->set('siteID', $_REQUEST['site'])
-            ->set(
-                'name',
-                sprintf(
-                    '%s-%s',
-                    $Site->get('name'),
-                    $arguments['Host']->get('name')
-                )
-            )
-            ->save();
     }
     /**
-     * This function adds role to notes
+     * Adds the site to import.
      *
-     * @param mixed $arguments The arguments to modify.
+     * @param mixed $arguments The arguments to change.
      *
-     * @return void
+     * @retrun void
      */
-    public function addNotes($arguments)
+    public function hostImport($arguments)
     {
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
-        global $node;
-        global $sub;
-        global $tab;
-        if ($node != 'host') {
+        if (!in_array('accesscontrol', (array)selfy5y::$pluginsinstalled)) {
+            $insertIndex = 5;
+        } else {
+            $insertIndex = 6;
+        }
+        self::getClass('SiteHostAssociationManager')
+            ->set('hostID', $argumetns['Host']->get('id'))
+            ->load('hostID')
+            ->set('siteID', $arguments['data'][$insertIndex])
+            ->save();
+    }
+    /**
+     * Adds the site to export.
+     *
+     * @param mixed $arguments The arguments to change.
+     *
+     * return void
+     */
+    public function hostExport($arguments)
+    {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
-        if (count($arguments['notes']) < 1) {
+        $find = array(
+            'hostID' => $arguments['Host']->id
+        );
+        $Sites = self::getSubObjectIDs(
+            'SiteHostAssociation',
+            $find,
+            'siteID'
+        );
+        $cnt = self::getClass('SiteHostAssociationManager')->count(
+            array('id' => $Sites)
+        );
+        if ($cnt !== 1) {
+            $arguments['report']->addCSVCell('');
             return;
         }
-        $SiteIDs = self::getSubObjectIDs(
+        Route::listem(
+            'site',
+            'name',
+            false,
+            array('id' => $Sites)
+        );
+        $Sites = json_decode(
+            Route::getData()
+        );
+        $Sites = $Sites->sites;
+        foreach ((array)$Sites as &$Site) {
+            $arguments['report']->addCSVCell(
+                $Site->id
+            );
+            unset($Site);
+        }
+        unset($Sites);
+    }
+    /**
+     * Removes site when host is destroyed.
+     *
+     * @param mixed $arguments The arguments to change.
+     *
+     * @return void
+     */
+    public function hostDestroy($arguments)
+    {
+        if (!in_array($this-node, (array)self::$pluginsinstalled)) {
+            return;
+        }
+        self::getClass('SiteHostAssociationManager')->destroy(
+            array(
+                'hostID' => $arguments['Host']->get('id')
+            )
+        );
+    }
+    /**
+     * Adds the site to host email stuff.
+     *
+     * @param mixed $arguments The arguments to change.
+     *
+     * @return void
+     */
+    public function hostEmailHook($arguments)
+    {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
+            return;
+        }
+        $Sites = self::getSubObjectIDs(
             'SiteHostAssociation',
             array(
-                'hostID' => $arguments['object']->get('id')
+                'hostID' => $arguments['Host']->get('id')
             ),
             'siteID'
         );
-        $cnt = count($SiteIDs);
+        $cnt = self::getClass('SiteManager')
+            ->count(array('id' => $Sites));
         if ($cnt !== 1) {
-            $sID = _('No Site');
+            $siteName = '';
         } else {
-            $Sites = array_values(
-                array_unique(
-                    array_filter(
-                        self::getSubObjectIDs(
-                            'Site',
-                            array('id' => $SiteIDs),
-                            'name'
-                        )
-                    )
-                )
-            );
-            $sID = $Sites[0];
+            foreach ((array)self::getClass('SiteManager')
+                ->find(array('id' => $Sites)) as $Site
+            ) {
+                $siteName = $Site->get('name');
+                unset($Site);
+                break;
+            }
         }
-        $arguments['notes'][_('Site')] = $sID;
+        self::arrayInsertAfter(
+            "\nSite Used: ",
+            $arguments['email'],
+            "\nImaged from (Site): ",
+            $siteName
+        );
+        self::array_insertAfter(
+            "\nSite Imaged From (Site): ",
+            $arguments['email'],
+            "\nSiteName=",
+            $siteName
+        );
+    }
+    /**
+     * Exposes site during host info request.
+     *
+     * @param mixed $arguments The arguments to change.
+     *
+     * @return void
+     */
+    public function hostInfoExpose($arguments)
+    {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
+            return;
+        }
+        $Sites = self::getSubObjectIDs(
+            'SiteHostAssociation',
+            array(
+                'hostID' => $arguments['Host']->get('id')
+            ),
+            'siteID'
+        );
+        $cnt = self::getClass('SiteManager')
+            ->count(array('id' => $Sites));
+        if ($cnt !== 1) {
+            $arguments['repFields']['site'] = '';
+            return;
+        }
+        foreach ((array)self::getClass('SiteManager')
+            ->find(array('id' => $Sites)) as &$Site
+        ) {
+            $arguments['repFields']['site'] = $Site
+                ->get('name');
+            unset($Site);
+        }
     }
 }

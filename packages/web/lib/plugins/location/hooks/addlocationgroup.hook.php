@@ -154,6 +154,7 @@ class AddLocationGroup extends Hook
             . _('Update')
             . '</button>'
         );
+        $arguments['data'] = array();
         foreach ((array)$fields as $field => &$input) {
             $arguments['data'][] = array(
                 'field' => $field,
