@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-24 23:36-0500\n"
+"POT-Creation-Date: 2018-02-25 01:37-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2009,6 +2009,26 @@ msgstr "Valeur"
 #, fuzzy
 msgid "Parent"
 msgstr "Pour cent"
+
+#, fuzzy
+msgid "Access Control Rule"
+msgstr "Tous les contrôles d'accès"
+
+#, fuzzy
+msgid "Remove these items?"
+msgstr "Retirer snapins sélectionnés"
+
+#, fuzzy
+msgid "Unable to Authenticate"
+msgstr "Erreur serveur contactant"
+
+#, fuzzy
+msgid "Successfully deleted"
+msgstr "mise à jour réussie"
+
+#, fuzzy
+msgid "Delete Success"
+msgstr "utilisateur créé"
 
 #, fuzzy
 msgid "New Rule"
@@ -6973,22 +6993,6 @@ msgstr "mise à jour réussie"
 #, fuzzy
 msgid "Created Tasks For"
 msgstr "Créer un utilisateur"
-
-#, fuzzy
-msgid "Remove these items?"
-msgstr "Retirer snapins sélectionnés"
-
-#, fuzzy
-msgid "Unable to Authenticate"
-msgstr "Erreur serveur contactant"
-
-#, fuzzy
-msgid "Successfully deleted"
-msgstr "mise à jour réussie"
-
-#, fuzzy
-msgid "Delete Success"
-msgstr "utilisateur créé"
 
 msgid "View advanced tasks for this"
 msgstr "Voir tâches avancées pour cette"

@@ -5,6 +5,12 @@ $(function() {
         rules: {
             name: {
                 required: true
+            },
+            parent: {
+                required: true
+            },
+            type: {
+                required: true
             }
         }
     };
@@ -23,17 +29,14 @@ $(function() {
         for (var i = 0,len = checked.size();i < len;i++) {
             accesscontrolIDArray[accesscontrolIDArray.length] = checked.eq(i).attr('value');
         }
-        $('input[name="accesscontrolIDArray"]').val(accesscontrolIDArray.join(','));
+        if (sub != 'ruleList') {
+            $('input[name="accesscontrolIDArray"]').val(accesscontrolIDArray.join(','));
+        } else {
+            $('input[name="accesscontrolruleIDArray"]').val(accesscontrolIDArray.join(','));
+        }
+
     });
     $('.action-boxes').show();
-    $('.action-boxes.host').on('submit',function() {
-        var checked = $('input.toggle-action:checked');
-        var accesscontrolruleIDArray = new Array();
-        for (var i = 0,len = checked.size();i < len;i++) {
-            accesscontrolruleIDArray[accesscontrolruleIDArray.length] = checked.eq(i).attr('value');
-        }
-        $('input[name="accesscontrolruleIDArray"]').val(accesscontrolruleIDArray.join(','));
-    });
     checkboxAssociations('.toggle-checkboxuser:checkbox','.toggle-user:checkbox');
-    setupTimeoutElement('#add, #update', '#name', 1000);
+    setupTimeoutElement('#add, #update, #updaterule', '#name, .ruletype-input, .ruleparent-input', 1000);
 });

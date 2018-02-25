@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-24 23:36-0500\n"
+"POT-Creation-Date: 2018-02-25 01:37-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -2006,6 +2006,26 @@ msgstr "Wert"
 #, fuzzy
 msgid "Parent"
 msgstr "Übergeordnet"
+
+#, fuzzy
+msgid "Access Control Rule"
+msgstr "Zugriffskontrollregeln"
+
+#, fuzzy
+msgid "Remove these items?"
+msgstr "Diese Objekte entfernen?"
+
+#, fuzzy
+msgid "Unable to Authenticate"
+msgstr "Authentifizieren nicht möglich"
+
+#, fuzzy
+msgid "Successfully deleted"
+msgstr "erfolgreich gelöscht"
+
+#, fuzzy
+msgid "Delete Success"
+msgstr "erfolgreich gelöscht"
 
 #, fuzzy
 msgid "New Rule"
@@ -6958,22 +6978,6 @@ msgstr "erfolgreich erstellt"
 #, fuzzy
 msgid "Created Tasks For"
 msgstr "Erstellte Aufgaben für"
-
-#, fuzzy
-msgid "Remove these items?"
-msgstr "Diese Objekte entfernen?"
-
-#, fuzzy
-msgid "Unable to Authenticate"
-msgstr "Authentifizieren nicht möglich"
-
-#, fuzzy
-msgid "Successfully deleted"
-msgstr "erfolgreich gelöscht"
-
-#, fuzzy
-msgid "Delete Success"
-msgstr "erfolgreich gelöscht"
 
 msgid "View advanced tasks for this"
 msgstr "Anzeigen der erweiterte Aufgaben für diese"
