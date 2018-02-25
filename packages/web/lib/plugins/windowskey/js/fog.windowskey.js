@@ -18,7 +18,7 @@ $(function() {
     setupTimeoutElement('#add, #update', '#name, #productKey', 1000);
     checkboxAssociations('.toggle-checkboxAction1:checkbox','.toggle-image1:checkbox');
     ProductUpdate();
-    $('.action-boxes').submit(function() {
+    $('.action-boxes').on('submit',function() {
         var checked = $('input.toggle-image:checked');
         var windowskeyIDArray = new Array();
         for (var i = 0,len = checked.size();i < len;i++) {
@@ -29,10 +29,10 @@ $(function() {
     // Show hide based on checked state.
     $('#imageNotInMe').hide();
     $('#imageNoGroup').hide();
-    $('#imageMeShow').click(function() {
+    $('#imageMeShow').on('click',function() {
         $('#imageNotInMe').toggle();
     });
-    $('#imageNoShow').click(function() {
+    $('#imageNoShow').on('click',function() {
         $('#imageNoGroup').toggle();
     });
 });

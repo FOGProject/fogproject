@@ -15,7 +15,7 @@ $(function() {
         }
     };
     setupTimeoutElement('#add, #updategen', '.wolinput-name, .wolinput-ip', 1000);
-    $('.action-boxes').submit(function() {
+    $('.action-boxes').on('submit',function() {
         var checked = $('input.toggle-action:checked');
         var wolbroadcastIDArray = new Array();
         for (var i = 0,len = checked.size();i < len;i++) {

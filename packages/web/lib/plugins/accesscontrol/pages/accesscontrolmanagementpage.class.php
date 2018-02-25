@@ -249,7 +249,7 @@ class AccessControlManagementPage extends FOGPage
             );
             $this->templates = array(
                 '<input type="checkbox" name="accesscontrol[]" value='
-                . '"${id}" class="toggle-action" checked/>',
+                . '"${id}" class="toggle-action"/>',
                 '<a href="?node=accesscontrol&sub=edit'
                 . '&id=${id}" title="Edit">${name}</a>',
                 '${description}',

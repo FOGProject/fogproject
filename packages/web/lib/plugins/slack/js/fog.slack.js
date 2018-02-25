@@ -17,7 +17,7 @@ $(function() {
         }
     };
     setupTimeoutElement('#add', 'input[name="apiToken"], input[name="user"]', 1000);
-    $('.action-boxes').submit(function() {
+    $('.action-boxes').on('submit',function() {
         var checked = $('input.toggle-action:checked');
         var slackIDArray = new Array();
         for (var i = 0,len = checked.size();i < len;i++) {

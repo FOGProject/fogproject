@@ -14,7 +14,7 @@ $(function() {
         }
     };
     setupTimeoutElement('#add, #update', '.locationname-input, #storagegroup', 1000);
-    $('.action-boxes').submit(function() {
+    $('.action-boxes').on('submit',function() {
         var checked = $('input.toggle-action:checked');
         var locationIDArray = new Array();
         for (var i = 0,len = checked.size();i < len;i++) {
@@ -25,10 +25,10 @@ $(function() {
     // Show hide based on checked state.
     $('#hostNotInMe').hide();
     $('#hostNoGroup').hide();
-    $('#hostMeShow').click(function() {
+    $('#hostMeShow').on('click',function() {
         $('#hostNotInMe').toggle();
     });
-    $('#hostNoShow').click(function() {
+    $('#hostNoShow').on('click',function() {
         $('#hostNoGroup').toggle();
     });
 });

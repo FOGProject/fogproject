@@ -134,7 +134,7 @@ $.fn.fogAjaxSearch = function(opts) {
             if (searchElement.val() != searchElement.prop('placeholder')) {
                 searchElement.val('');
             }
-        }).parents('form').submit(function(e) {
+        }).parents('form').on('submit',function(e) {
             e.preventDefault();
         });
         function PerformSearch() {
@@ -215,7 +215,7 @@ $.fn.fogVariable = function(opts) {
     /**
      * FOG Settings quick image os display.
      */
-    $('#FOG_QUICKREG_IMG_ID').change(function() {
+    $('#FOG_QUICKREG_IMG_ID').on('change',function() {
         $.ajax({
             url: '../management/index.php?node=about',
             cache: false,
@@ -1206,7 +1206,7 @@ function buildRow(
         showForceButton();
         showProgressBar();
     }
-    $('.toggle-action:checkbox, .toggle-checkboxAction:checkbox').change(function(e) {
+    $('.toggle-action:checkbox, .toggle-checkboxAction:checkbox').on('change',function(e) {
         checkedIDs = getChecked();
         console.log(checkedIDs);
     });
@@ -1520,7 +1520,7 @@ function setupFogTableInformation() {
  * Checkbox associations.
  */
 function checkboxAssociations(selector,checkselectors) {
-    $(selector).change(function(e) {
+    $(selector).on('change',function(e) {
         allchecked = this.checked;
         $(checkselectors).each(function() {
             if ($(this).parent().is(':visible')) {
@@ -1640,7 +1640,7 @@ function ProductUpdate() {
  * Deploy Stuff
  */
 function DeployStuff() {
-    $('#checkDebug').change(function(e) {
+    $('#checkDebug').on('change',function(e) {
         $('.hideFromDebug,.hiddeninitially').each(function(e) {
             $(this).toggle();
         });
@@ -1671,9 +1671,9 @@ function DeployStuff() {
     // Basic validation on deployment page
     var scheduleType = $('input[name="scheduleType"]:checked').val();
     var result = true;
-    $('input[name="scheduleType"]').change(function() {
+    $('input[name="scheduleType"]').on('change',function() {
         scheduleType = this.value;
-        $('form.deploy-container').submit(function() {
+        $('form.deploy-container').on('submit',function() {
             if (scheduleType == 'single') {
                 // Format check
                 validateInput = $('#'+scheduleType+'Options > input').removeClass('error');

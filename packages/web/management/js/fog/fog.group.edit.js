@@ -28,20 +28,20 @@
     checkboxAssociations('.toggle-checkboxsnapinrm:checkbox','.toggle-snapinrm:checkbox');
     checkboxAssociations('#rempowerselectors:checkbox','.rempoweritems:checkbox');
     // Show hide based on checked state.
-    $('#hostMeShow:checkbox').change(function(e) {
+    $('#hostMeShow:checkbox').on('change',function(e) {
         if ($(this).is(':checked')) $('#hostNotInMe').show();
         else $('#hostNotInMe').hide();
         e.preventDefault();
     });
     $('#hostMeShow:checkbox').trigger('change');
-    $('#hostNoShow:checkbox').change(function(e) {
+    $('#hostNoShow:checkbox').on('change',function(e) {
         if ($(this).is(':checked')) $('#hostNoGroup').show();
         else $('#hostNoGroup').hide();
         e.preventDefault();
     });
     $('#hostNoShow:checkbox').trigger('change');
     result = true;
-    $('#scheduleOnDemand').change(function() {
+    $('#scheduleOnDemand').on('change',function() {
         if ($(this).is(':checked') === true) {
             $(this).parents('form').each(function() {
                 $("input[name^='scheduleCron']",this).each(function() {
@@ -56,7 +56,7 @@
             });
         }
     });
-    $("form.deploy-container").submit(function() {
+    $("form.deploy-container").on('submit',function() {
         if ($('#scheduleOnDemand').is(':checked')) {
             $(".cronOptions > input[name^='scheduleCron']",$(this)).each(function() {
                 $(this).val('').prop('disabled',true);

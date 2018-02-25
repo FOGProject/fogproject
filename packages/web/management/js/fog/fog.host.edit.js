@@ -93,7 +93,7 @@ function UpdateLoginGraphPlot(gdata) {
     if (LoginHistory.length > 0) {
         UpdateLoginGraph();
     }
-    $('input:not(:hidden):checkbox[name="default"]').change(function() {
+    $('input:not(:hidden):checkbox[name="default"]').on('change',function() {
         $(this).each(function(e) {
             if (this.checked) this.checked = false;
             e.preventDefault();
@@ -148,7 +148,7 @@ function UpdateLoginGraphPlot(gdata) {
             });
         }
     });
-    $("form.deploy-container").submit(function() {
+    $("form.deploy-container").on('submit',function() {
         if ($('#scheduleOnDemand').is(':checked')) {
             $('.cronOptions > input[name^="scheduleCron"]', $(this)).each(function() {
                 $(this).val('').prop('disabled', true);
