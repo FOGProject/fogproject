@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-24 16:22-0500\n"
+"POT-Creation-Date: 2018-02-24 23:36-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2028,80 +2028,114 @@ msgid "Create Rule?"
 msgstr "Create User"
 
 #, fuzzy
-msgid "Rule already Exists, please try again."
-msgstr "Location already Exists, please try again."
+msgid "A rule already exists with this name."
+msgstr "An image already exists with this name!"
 
 #, fuzzy
-msgid "Please enter a value for this rule."
-msgstr "Please enter a name for this address."
+msgid "Add rule failed!"
+msgstr "Add snapin failed!"
 
 #, fuzzy
-msgid "Rule Added, editing!"
-msgstr "Location Added, editing!"
+msgid "Rule added!"
+msgstr "Printer Name"
+
+#, fuzzy
+msgid "Rule Create Success"
+msgstr "User created"
+
+#, fuzzy
+msgid "Rule Create Fail"
+msgstr "User created"
+
+#, fuzzy
+msgid "Access Control Rule General"
+msgstr "All Access Controls"
 
 msgid "Failed to update"
 msgstr "Failed to update"
 
 #, fuzzy
-msgid "Rule Updated"
+msgid "Rule updated!"
 msgstr "Client Updater"
 
 #, fuzzy
-msgid "Fail to delete rule"
-msgstr "Failed to delete file"
+msgid "Rule Update Success"
+msgstr "User created"
+
+#, fuzzy
+msgid "Rule Update Fail"
+msgstr "Group create failed"
+
+#, fuzzy
+msgid "Fail to destroy"
+msgstr "Failed to destroy"
+
+#, fuzzy
+msgid "Rule deleted successfully!"
+msgstr "Install / Update Successful!"
 
 msgid "Rule Delete Success"
 msgstr ""
 
 #, fuzzy
-msgid "Rule name"
-msgstr "Module Name"
-
-#, fuzzy
-msgid "Check here to see rules not within this"
-msgstr "Check here to see groups not assigned this image"
-
-#, fuzzy
-msgid "Modify Rule Membership for"
-msgstr "Modify Membership for"
-
-#, fuzzy
-msgid "rule"
-msgstr "Results"
-
-#, fuzzy
-msgid "to"
-msgstr "Auto"
+msgid "Rule Delete Fail"
+msgstr "Delete file data"
 
 #, fuzzy
 msgid "Rule Name"
 msgstr "Module Name"
 
 #, fuzzy
-msgid "from"
-msgstr "From"
+msgid "Rule Membership"
+msgstr "Membership"
 
 #, fuzzy
-msgid "Not role selected"
-msgstr "No Hosts were selected"
+msgid "Check here to see what rules can be added"
+msgstr "Check here to see what printers can be added"
 
 #, fuzzy
-msgid "Not rule selected"
-msgstr "No Hosts were selected"
+msgid "Add Rules"
+msgstr "Add User"
 
 #, fuzzy
-msgid "Check here to see users not within this"
-msgstr "Check here to see groups not assigned this image"
-
-msgid "Modify Membership for"
-msgstr "Modify Membership for"
+msgid "Add selected rules"
+msgstr "Remove selected printers"
 
 #, fuzzy
-msgid "user"
-msgstr "User"
+msgid "Remove Accesscontrol Rules"
+msgstr "All Access Controls"
 
-msgid "saved successfully"
-msgstr "saved successfully"
+#, fuzzy
+msgid "Remove selected rules"
+msgstr "Remove selected snapins"
+
+#, fuzzy
+msgid "No role selected"
+msgstr "Delete Selected"
+
+#, fuzzy
+msgid "No rule selected"
+msgstr "Delete Selected"
+
+#, fuzzy
+msgid "Associate rule failed!"
+msgstr "Add snapin failed!"
+
+#, fuzzy
+msgid "Rule associate success!"
+msgstr "User created"
+
+#, fuzzy
+msgid "Rule Associate Success"
+msgstr "User created"
+
+#, fuzzy
+msgid "Rule Associate Fail"
+msgstr "Image Association"
+
+#, fuzzy
+msgid "User name"
+msgstr "Username"
 
 #, fuzzy
 msgid "LDAP Servers"
@@ -3385,6 +3419,10 @@ msgstr ""
 
 msgid "see the forums or lookup the commands and scripts available"
 msgstr ""
+
+#, fuzzy
+msgid "from"
+msgstr "From"
 
 #, fuzzy
 msgid "Menu Item"

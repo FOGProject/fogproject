@@ -449,6 +449,11 @@ class AccessControlManagementPage extends FOGPage
                 )
             );
         }
+        self::$HookManager
+            ->processEvent(
+                $hook,
+                array('AccessControl' => &$AccessControl)
+            );
         unset($AccessControl);
         echo $msg;
         exit;
@@ -781,38 +786,76 @@ class AccessControlManagementPage extends FOGPage
      */
     public function addRulePost()
     {
+        self::$HookManager
+            ->processEvent(
+                'ADD_RULE_POST'
+            );
+        $value = trim(
+            filter_input(
+                INPUT_POST,
+                'value'
+            )
+        );
+        $type = trim(
+            filter_input(
+                INPUT_POST,
+                'type'
+            )
+        );
+        $name = $type
+            . '-'
+            . $value;
+        $parent = trim(
+            filter_input(
+                INPUT_POST,
+                'parent'
+            )
+        );
+        $node = trim(
+            filter_input(
+                INPUT_POST,
+                'nodeParent'
+            )
+        );
         try {
-            $value = trim($_REQUEST['value']);
             $exists = self::getClass('AccessControlRuleManager')
-                ->exists(trim($value));
+                ->exists($value);
             if ($exists) {
-                throw new Exception(_('Rule already Exists, please try again.'));
+                throw new Exception(_('A rule already exists with this name.'));
             }
-            if (!$value) {
-                throw new Exception(_('Please enter a value for this rule.'));
-            }
-
-            $type = $_REQUEST['type'];
             $AccessControlRule = self::getClass('AccessControlRule')
                 ->set('type', $type)
                 ->set('value', $value)
-                ->set('name', $type. '-' . $value)
-                ->set('parent', trim($_REQUEST['parent']))
-                ->set('node', trim($_REQUEST['nodeParent']));
+                ->set('name', $name)
+                ->set('parent', $parent)
+                ->set('node', $node);
             if (!$AccessControlRule->save()) {
-                throw new Exception(_('Failed to create'));
+                throw new Exception(_('Add rule failed!'));
             }
-            self::setMessage(_('Rule Added, editing!'));
-            self::redirect(
-                sprintf(
-                    '?node=accesscontrol&sub=editRule&id=%s',
-                    $AccessControlRule->get('id')
+            $hook = 'RULE_ADD_SUCCESS';
+            $msg = json_encode(
+                array(
+                    'msg' => _('Rule added!'),
+                    'title' => _('Rule Create Success')
                 )
             );
         } catch (Exception $e) {
-            self::setMessage($e->getMessage());
-            self::redirect($this->formAction);
+            $hook = 'RULE_ADD_FAIL';
+            $msg = json_encode(
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('Rule Create Fail')
+                )
+            );
         }
+        self::$HookManager
+            ->processEvent(
+                $hook,
+                array('AccessControlRule' => &$AccessControlRule)
+            );
+        unset($AccessControlRule);
+        echo $msg;
+        exit;
     }
     /**
      * Edit rule.
@@ -821,69 +864,71 @@ class AccessControlManagementPage extends FOGPage
      */
     public function editRule()
     {
-        $this->obj = new AccessControlRule($_REQUEST['id']);
-
-        $this->title = sprintf(
-            '%s: %s',
-            _('Edit'),
-            $this->obj->get('value')
-        );
+        $this->title = _('New Rule');
         unset($this->headerData);
         $this->attributes = array(
             array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
+            array('class' => 'col-xs-8 form-group')
         );
         $this->templates = array(
             '${field}',
-            '${input}',
+            '${input}'
         );
+        $type = filter_input(
+            INPUT_POST,
+            'type'
+        ) ?: $this->obj->get('type');
+        $parent = filter_input(
+            INPUT_POST,
+            'parent'
+        ) ?: $this->obj->get('parent');
+        $node = filter_input(
+            INPUT_POST,
+            'nodeParent'
+        ) ?: $this->obj->get('node');
+        $value = filter_input(
+            INPUT_POST,
+            'value'
+        ) ?: $this->obj->get('value');
         $fields = array(
-            _('Rule Type') => sprintf(
-                '<input class="smaller" type="text" name="type" value="%s"/>',
-                (
-                    $_REQUEST['type'] ?
-                    $_REQUEST['type'] :
-                    $this->obj->get('type')
-                )
-            ),
-            _('Parent') => sprintf(
-                '<input class="smaller" type="text" name="parent" value="%s"/>',
-                (
-                    $_REQUEST['parent'] ?
-                    $_REQUEST['parent'] :
-                    $this->obj->get('parent')
-                )
-            ),
-            _('Node') => sprintf(
-                '<input class="smaller" type="text" name="nodeParent" value="%s"/>',
-                (
-                    $_REQUEST['nodeParent'] ?
-                    $_REQUEST['nodeParent'] :
-                    $this->obj->get('node')
-                )
-            ),
-            _('Rule Value') => sprintf(
-                '<input class="smaller" type="text" name="value" value="%s"/>',
-                (
-                    $_REQUEST['value'] ?
-                    $_REQUEST['value'] :
-                    $this->obj->get('value')
-                )
-            ),
-            '&nbsp;' => sprintf(
-                '<input name="update" class="smaller" type="submit" value="%s"/>',
-                _('Update')
-            ),
+            '<label for="type">'
+            . _('Rule Type')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control ruletype-input" type='
+            . '"text" name="type" id="type" required value="'
+            . $type
+            . '"/>'
+            . '</div>',
+            '<label for="parent">'
+            . _('Parent')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control ruleparent-input" type='
+            . '"text" name="parent" id="parent" required value="'
+            . $parent
+            . '"/>'
+            . '</div>',
+            '<label for="nodeParent">'
+            . _('Node Parent')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control rulenodeparent-input" '
+            . 'type="text" name="nodeParent" id="nodeParent" required value="'
+            . $value
+            . '"/>'
+            . '</div>',
+            '<label for="updaterule">'
+            . _('Make Changes?')
+            . '</label>' => '<button class="btn btn-info btn-block" name="'
+            . 'updaterule" id="updaterule" type="submit">'
+            . _('Update')
+            . '</button>'
         );
         foreach ((array)$fields as $field => &$input) {
             $this->data[] = array(
-                'field'=>$field,
-                'input'=>$input,
+                'field' => $field,
+                'input' => $input
             );
             unset($input);
         }
-        unset($fields);
-
         self::$HookManager
             ->processEvent(
                 'ACCESSCONTROL_RULE_EDIT',
@@ -894,13 +939,31 @@ class AccessControlManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-
-        printf(
-            '<form method="post" action="%s">',
-            $this->formAction
-        );
-        $this->render();
+        echo '<div class="col-xs-9 tab-content">';
+        echo '<div class="tab-pane fade in active" id="rule-general">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Access Control Rule General');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
+        $this->render(12);
         echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->attributes,
+            $this->templates
+        );
     }
     /**
      * Edit rule post.
@@ -916,29 +979,64 @@ class AccessControlManagementPage extends FOGPage
                     'AccessControlRule' => &$this->obj
                 )
             );
+        $value = trim(
+            filter_input(
+                INPUT_POST,
+                'value'
+            )
+        );
+        $parent = trim(
+            filter_input(
+                INPUT_POST,
+                'parent'
+            )
+        );
+        $node = trim(
+            filter_input(
+                INPUT_POST,
+                'nodeParent'
+            )
+        );
+        $type = trim(
+            filter_input(
+                INPUT_POST,
+                'type'
+            )
+        );
         try {
-            if (isset($_REQUEST['update'])) {
-                $value = $_REQUEST['value'];
+            if (isset($_POST['updaterule'])) {
                 $this->obj
-                    ->set('type', $_REQUEST['type'])
-                    ->set('parent', $_REQUEST['parent'])
-                    ->set('node', $_REQUEST['nodeParent'])
-                    ->set('value', $_REQUEST['value']);
+                    ->set('type', $type)
+                    ->set('parent', $parent)
+                    ->set('node', $node)
+                    ->set('value', $value);
                 if (!$this->obj->save()) {
                     throw new Exception(_('Failed to update'));
                 }
-                self::setMessage(_('Rule Updated'));
-                self::redirect(
-                    sprintf(
-                        '?node=accesscontrol&sub=editRule&id=%d',
-                        $this->obj->get('id')
+                $hook = 'ROLE_EDIT_SUCCESS';
+                $msg = json_encode(
+                    array(
+                        'msg' => _('Rule updated!'),
+                        'title' => _('Rule Update Success')
                     )
                 );
             }
         } catch (Exception $e) {
-            self::setMessage($e->getMessage());
-            self::redirect($this->formAction);
+            $hook = 'RULE_EDIT_FAIL';
+            $msg = json_encode(
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('Rule Update Fail')
+                )
+            );
         }
+        self::$HookManager
+            ->processEvent(
+                $hook,
+                array('AccessControlRule' => &$this->obj)
+            );
+        echo $msg;
+        exit;
     }
     /**
      * Delete rule.
@@ -955,46 +1053,60 @@ class AccessControlManagementPage extends FOGPage
         unset($this->headerData);
         $this->attributes = array(
             array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8'),
+            array('class' => 'col-xs-8 form-group')
         );
         $this->templates = array(
             '${field}',
-            '${input}',
+            '${input}'
         );
         $fields = array(
-            sprintf(
-                '%s <b>%s</b>',
-                self::$foglang['ConfirmDel'],
-                $this->obj->get('value')
-            ) => sprintf(
-                '<input name="delete" type="submit" value="%s"/>',
-                $this->title
-            )
+            '<label for="delete">'
+            . $this->title
+            . '</label>' => '<input type="hidden" name="remitems[]" '
+            . 'value="'
+            . $this->obj->get('id')
+            . '"/>'
+            . '<button type="submit" name="delete" id="delete" '
+            . 'class="btn btn-danger btn-block">'
+            . _('Delete')
+            . '</button>'
         );
-        foreach ((array)$fields as $field => &$input) {
-            $this->data[] = array(
-                'field'=>$field,
-                'input'=>$input,
-            );
-            unset($field, $input);
-        }
-        printf(
-            '<form method="post" action="%s" class="c">',
-            $this->formAction
-        );
-        echo '<div id="deleteDiv"></div>';
         self::$HookManager
             ->processEvent(
-                'ACCESSCONTROL_RULE_DELETE',
+                'RULE_DEL_FIELDS',
                 array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
+                    'fields' => &$fields,
+                    'AccessControlRule' => &$this->obj
                 )
             );
-        $this->render();
+        array_walk($fields, $this->fieldsToData);
+        self::$HookManager->processEvent(
+            'RULE_DEL',
+            array(
+                'data' => &$this->data,
+                'headerData' => &$this->headerData,
+                'attributes' => &$this->attributes,
+                'templates' => &$this->templates,
+                'AccessControlRule' => &$this->obj
+            )
+        );
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-warning">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<div id="deleteDiv"></div>';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
+        $this->render(12);
         echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Delete rule post.
@@ -1003,27 +1115,52 @@ class AccessControlManagementPage extends FOGPage
      */
     public function deleteRulePost()
     {
+        if (self::getSetting('FOG_REAUTH_ON_DELETE')) {
+            $validate = self::getUser('User')
+                ->passwordValidate(
+                    $_POST['fogguiuser'],
+                    $_POST['fogguipass'],
+                    true
+                );
+            if (!$validate) {
+                echo json_encode(
+                    array(
+                        'error' => self::$foglang['InvalidLogin']
+                    )
+                );
+                exit;
+            }
+        }
         self::$HookManager
             ->processEvent(
-                'ACCESS_CONTROL_RULE_DELETE_POST',
+                'ACCESSCONTROL_RULE_DELETE_POST',
                 array('AccessControlRule' => &$this->obj)
             );
         try {
             if (!$this->obj->destroy()) {
-                throw new Exception(_('Fail to delete rule'));
+                throw new Exception(
+                    _('Fail to destroy')
+                );
             }
             $hook = 'ACCESSCONTROL_RULE_DELETE_POST_SUCCESS';
-            $msg = sprintf(
-                '%s',
-                _('Rule Delete Success')
+            $msg = json_encode(
+                array(
+                    'msg' => _('Rule deleted successfully!'),
+                    'title' => _('Rule Delete Success')
+                )
             );
             $url = sprintf(
-                '?node=%s&sub=accesscontrol',
+                '?node=%s&sub=ruleList',
                 $this->node
             );
         } catch (Exception $e) {
             $hook = 'ACCESSCONTROL_RULE_DELETE_POST_FAIL';
-            $msg = $e->getMessage();
+            $msg = json_encode(
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('Rule Delete Fail')
+                )
+            );
             $url = $this->formAction;
         }
         self::$HookManager
@@ -1031,7 +1168,8 @@ class AccessControlManagementPage extends FOGPage
                 $hook,
                 array('AccessControlRule'=>&$this->obj)
             );
-        self::setMessage($msg);
+        self::resetRequest();
+        echo $msg;
         self::redirect($url);
     }
     /**
@@ -1041,157 +1179,206 @@ class AccessControlManagementPage extends FOGPage
      */
     public function assocRule()
     {
-        $this->data = array();
-        echo '<!-- Rule Membership -->';
-        printf(
-            '<div id="%s-membership">',
-            $this->node
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
         );
         $this->headerData = array(
-            sprintf(
-                '<input type="checkbox" name="toggle-checkboxrule"'
-                . 'class="toggle-checkboxrule"/>',
-                $this->node
-            ),
-            _('Rule name'),
+            '<label for="toggler2>'
+            . '<input type="checkbox" name="toggle-checkbox'
+            . $this->node
+            . '" class="toggle-checkboxrule" id="toggler2"/>'
+            . '</label>',
+            _('Rule Name'),
             _('Value'),
             _('Parent'),
-            _('Node'),
+            _('Node')
         );
         $this->templates = array(
-            '<input type="checkbox" name="rule[]" value="${rule_id}" '
-            . 'class="toggle-rule"/>',
-            sprintf(
-                '<a href="?node=%s&sub=editRule&id=${rule_id}" '
-                . 'title="%s: ${rule_name}">${rule_name}</a>',
-                $this->node,
-                _('Edit')
-            ),
+            '<label for="rule-${rule_id}">'
+            . '<input type="checkbox" name="rule[]" class="toggle-'
+            . 'rule" id="rule-${rule_id}" '
+            . 'value="${rule_id}"/>'
+            . '</label>',
+            '<a href="?node=%s&sub=editRule&id=${rule_id}">'
+            . '${rule_name}</a>',
             '${value}',
             '${parent}',
-            '${node}',
+            '${node}'
         );
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'filter-false',
+                'class' => 'filter-false'
             ),
-            array(),
+            array(
+                'data-toggle' => 'tooltip',
+                'data-placement' => 'bottom',
+                'title' => _('Edit')
+                . ' '
+                . '${rule_name}'
+            ),
             array(),
             array(),
             array()
         );
-        foreach ((array)self::getClass('AccessControlRuleManager')
-            ->find(
-                array(
-                    'id' => $this->obj->get('accesscontrolrulesnotinme'),
-                )
-            ) as &$Rule
-        ) {
+        Route::listem('accesscontrolrule');
+        $items = json_decode(
+            Route::getData()
+        );
+        $items = $items->accesscontrolrules;
+        $getter = 'accesscontrolrulesnotinme';
+        $returnData = function(&$item) use (&$getter) {
+            $this->obj->get($getter);
+            if (!in_array($item->id, (array)$this->obj->get($getter))) {
+                return;
+            }
             $this->data[] = array(
-                'rule_id' => $Rule->get('id'),
-                'rule_name' => $Rule->get('name'),
-                'value' => $Rule->get('value'),
-                'parent' => $Rule->get('parent'),
-                'node' => $Rule->get('node'),
+                'rule_id' => $item->id,
+                'rule_name' => $item->name,
+                'value' => $item->value,
+                'parent' => $item->parent,
+                'node' => $item->node,
             );
-            unset($Rule);
-        }
+            unset($item);
+        };
+        array_walk($items, $returnData);
+        echo '<!-- Rule Membership -->';
+        echo '<div class="col-xs-9">';
+        echo '<div class="tab-pane fade in active" id="'
+            . $this->node
+            . '-membership">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->childClass
+            . ' '
+            . _('Rule Membership');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
         if (count($this->data) > 0) {
-            self::$HookManager->processEvent(
-                'OBJ_RULES_NOT_IN_ME',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-            printf(
-                '<form method="post" action="%s"><label for="ruleMeShow">'
-                . '<p class="c">%s %s&nbsp;&nbsp;<input '
-                . 'type="checkbox" name="ruleMeShow" id="ruleMeShow"/>'
-                . '</p></label><div id="ruleNotInMe"><h2>%s %s</h2>',
-                $this->formAction,
-                _('Check here to see rules not within this'),
-                $this->node,
-                _('Modify Rule Membership for'),
-                $this->obj->get('name')
-            );
-            $this->render();
-            printf(
-                '</div><br/><p class="c"><input type="submit" '
-                . 'value="%s %s(s) %s %s" name="addRules"/></p><br/>',
-                _('Add'),
-                _('rule'),
-                _('to'),
-                $this->node
-            );
+            $notInMe = $meShow = 'accesscontrolrule';
+            $meShow .= 'MeShow';
+            $notInMe .= 'NotInMe';
+            echo '<div class="text-center">';
+            echo '<div class="checkbox">';
+            echo '<label for="'
+                . $meShow
+                . '">';
+            echo '<input type="checkbox" name="'
+                . $meShow
+                . '" id="'
+                . $meShow
+                . '"/>';
+            echo _('Check here to see what rules can be added');
+            echo '</label>';
+            echo '</div>';
+            echo '</div>';
+            echo '<br/>';
+            echo '<div class="hiddeninitially panel panel-info" id="'
+                . $notInMe
+                . '">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Add Rules');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            $this->render(12);
+            echo '<div class="form-group">';
+            echo '<label for="updaterules" class="control-label col-xs-4">';
+            echo _('Add selected rules');
+            echo '</label>';
+            echo '<div class="col-xs-8">';
+            echo '<button type="submit" name="addRules" '
+                . 'id="updaterules" class="btn btn-info btn-block">'
+                . _('Add')
+                . '</button>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
         }
-        $this->data = array();
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates
+        );
         $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" '
-            . 'class="toggle-checkboxAction"/>',
+            '<label for="toggler3">'
+            . '<input type="checkbox" name="toggle-checkbox" '
+            . 'class="toggle-checkboxrulerm" id="toggler3"/></label>',
             _('Rule Name'),
             _('Value'),
             _('Parent'),
-            _('Node'),
+            _('Node')
         );
         $this->templates = array(
-            '<input type="checkbox" name="ruledel[]" '
-            . 'value="${rule_id}" class="toggle-action"/>',
-            sprintf(
-                '<a href="?node=%s&sub=editRule&id=${rule_id}" '
-                . 'title="%s: ${rule_name}">${rule_name}</a>',
-                $this->node,
-                _('Edit')
-            ),
+            '<label for="rulerm-${rule_id}">'
+            . '<input type="checkbox" name="ruledel[]" class="toggle-'
+            . 'rulerm" id="rulerm-${rule_id}" '
+            . 'value="${rule_id}"/>'
+            . '</label>',
+            '<a href="?node=%s&sub=editRule&id=${rule_id}">'
+            . '${rule_name}</a>',
             '${value}',
             '${parent}',
-            '${node}',
+            '${node}'
         );
-        foreach ((array)self::getClass('AccessControlRuleManager')
-            ->find(
-                array(
-                    'id' => $this->obj->get('accesscontrolrules'),
-                )
-            ) as &$Rule
-        ) {
-            $this->data[] = array(
-                'rule_id' => $Rule->get('id'),
-                'rule_name' => $Rule->get('name'),
-                'value' => $Rule->get('value'),
-                'parent' => $Rule->get('parent'),
-                'node' => $Rule->get('node'),
-            );
-            unset($Rule);
-        }
-        self::$HookManager
-            ->processEvent(
-                'ACCESSCONTROL_ASSOCRULE_DATA',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        printf(
-            '<form method="post" action="%s">',
-            $this->formAction
+        $this->attributes = array(
+            array(
+                'width' => 16,
+                'class' => 'filter-false'
+            ),
+            array(
+                'data-toggle' => 'tooltip',
+                'data-placement' => 'bottom',
+                'title' => _('Edit')
+                . ' '
+                . '${rule_name}'
+            ),
+            array(),
+            array(),
+            array()
         );
-        $this->render();
-        if (count($this->data)) {
-            printf(
-                '<p class="c"><input type="submit" '
-                . 'value="%s %ss %s %s" name="remrules"/></p>',
-                _('Delete Selected'),
-                _('rule'),
-                _('from'),
-                $this->node
-            );
+        $getter = 'accesscontrolrules';
+        array_walk($items, $returnData);
+        if (count($this->data) > 0) {
+            echo '<div class="panel panel-warning">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Remove Accesscontrol Rules');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            $this->render(12);
+            echo '<div class="form-group">';
+            echo '<label for="remrules" class="control-label col-xs-4">';
+            echo _('Remove selected rules');
+            echo '</label>';
+            echo '<div class="col-xs-8">';
+            echo '<button type="submit" name="remrules" class='
+                . '"btn btn-danger btn-block" id="remrules">'
+                . _('Remove')
+                . '</button>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
         }
-        $this->data = array();
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Post assoc rule adjustments.
@@ -1200,7 +1387,27 @@ class AccessControlManagementPage extends FOGPage
      */
     public function assocRulePost()
     {
-        $this->membershipPost();
+        $flags = array(
+            'flags' => FILTER_REQUIRE_ARRAY
+        );
+        $reqitems = filter_input_array(
+            INPUT_POST,
+            array(
+                'rule' => $flags,
+                'ruledel' => $flags
+            )
+        );
+        $rules = $reqitems['rule'];
+        $rulesdel = $reqitems['ruledel'];
+        if (isset($_POST['addRules'])) {
+            $this->obj->addRule($rules);
+        }
+        if (isset($_POST['remrules'])) {
+            $this->obj->removeRule($rulesdel);
+        }
+        if ($this->obj->save()) {
+            self::redirect($this->formAction);
+        }
     }
     /**
      * Add rule group.
@@ -1209,38 +1416,65 @@ class AccessControlManagementPage extends FOGPage
      */
     public function addRuleGroup()
     {
+        $reqitems = filter_input_array(
+            INPUT_POST,
+            array(
+                'accesscontrol',
+                'accesscontrolruleIDArray'
+            )
+        );
+        $accesscontrol = $reqitems['accesscontrol'];
+        $accesscontrolrules = array_unique(
+            array_filter(
+                explode(',', $reqitems['accesscontrolruleIDArray'])
+            )
+        );
         try {
-            if (!$_REQUEST['accesscontrol']) {
-                throw new Exception(_('Not role selected'));
+            if (!$accesscontrol) {
+                throw new Exception(_('No role selected'));
             }
-            if (!$_REQUEST['accesscontrolruleIDArray']) {
-                throw new Exception(_('Not rule selected'));
+            if (count($accesstrolrules) < 1) {
+                throw new Exception(_('No rule selected'));
             }
-            $reqID = explode(',', $_REQUEST['accesscontrolruleIDArray']);
-            $reqID = array_unique($reqID);
-            $reqID = array_filter($reqID);
-            $Role = new AccessControl($_REQUEST['accesscontrol']);
-            foreach ((array)$reqID as $ruleID) {
+            $Role = new AccessControl($accesscontrol);
+            foreach ((array)$accesscontrolrules as $ruleID) {
                 $Rule = new AccessControlRule($ruleID);
+                $name = $Role->get('name')
+                    . '-'
+                    . $Rule->get('name');
                 $AccessControlRuleAssociation
                     = self::getClass('AccessControlRuleAssociation')
-                    ->set('accesscontrolID', $_REQUEST['accesscontrol'])
-                    ->set('name', $Role->get('name'). "-" . $Rule->get('name'))
+                    ->set('accesscontrolID', $accesscontrol)
+                    ->set('name', $name)
                     ->set('accesscontrolruleID', $ruleID);
                 if (!$AccessControlRuleAssociation->save()) {
-                    throw new Exception(_('Failed to create'));
+                    throw new Exception(_('Associate rule failed!'));
                 }
                 unset($AccessControlRuleAssociation);
                 unset($Rule);
             }
             unset($ruleID);
-
-            self::setMessage(_('Rule Added, editing!'));
-            self::redirect('?node=accesscontrol&sub=ruleList');
+            $hook = 'RULEASSOC_SUCCESS';
+            $msg = json_encode(
+                array(
+                    'msg' => _('Rule associate success!'),
+                    'title' => _('Rule Associate Success')
+                )
+            );
         } catch (Exception $e) {
-            self::setMessage($e->getMessage());
-            self::redirect($this->formAction);
+            $hook = 'RULEASSOC_FAIL';
+            $msg = json_encode(
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('Rule Associate Fail')
+                )
+            );
         }
+        self::$HookManager->processEvent(
+            $hook
+        );
+        echo $msg;
+        exit;
     }
     /**
      * Custom membership method.
@@ -1249,29 +1483,30 @@ class AccessControlManagementPage extends FOGPage
      */
     public function membership()
     {
-        $this->data = array();
-        echo '<!-- Membership -->';
-        printf(
-            '<div id="%s-membership">',
-            $this->node
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
         );
         $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkboxuser" '
-            . 'class="toggle-checkboxuser"/>',
-            _('Username'),
+            '<label for="toggler">'
+            . '<input type="checkbox" name="toggle-checkbox'
+            . $this->node
+            . '" class="toggle-checkboxuser" id="toggler"/>'
+            . '</label>',
+            _('User name'),
             _('Friendly Name')
         );
         $this->templates = array(
-            sprintf(
-                '<input type="checkbox" name="user[]" value="${user_id}" '
-                . 'class="toggle-%s"/>',
-                'user'
-            ),
-            sprintf(
-                '<a href="?node=%s&sub=edit&id=${user_id}" '
-                . 'title="Edit: ${user_name}">${user_name}</a>',
-                'user'
-            ),
+            '<label for="user-${user_id}">'
+            . '<input type="checkbox" name="user[]" class="toggle-'
+            . 'user" id="user-${user_id}" '
+            . 'value="${user_id}"/>'
+            . '</label>',
+            '<a href="?node=user&sub=edit&id=${user_id}">'
+            . '${user_name}</a>',
             '${friendly}'
         );
         $this->attributes = array(
@@ -1280,112 +1515,145 @@ class AccessControlManagementPage extends FOGPage
                 'class' => 'filter-false'
             ),
             array(
+                'data-toggle' => 'tooltip',
+                'data-placement' => 'bottom',
+                'title' => _('Edit')
+                . ' '
+                . '${user_name}'
             ),
             array()
         );
-        foreach ((array)self::getClass('UserManager')
-            ->find(
-                array(
-                    'id' => $this->obj->get('usersnotinme'),
-                )
-            ) as &$User
-        ) {
+        Route::listem('user');
+        $items = json_decode(
+            Route::getData()
+        );
+        $items = $items->users;
+        $getter = 'usersnotinme';
+        $returnData = function(&$item) use (&$getter) {
+            $this->obj->get($getter);
+            if (!in_array($item->id, (array)$this->obj->get($getter))) {
+                return;
+            }
             $this->data[] = array(
-                'user_id' => $User->get('id'),
-                'user_name' => $User->get('name'),
-                'friendly' => $User->get('display')
+                'user_id' => $item->id,
+                'user_name' => $item->name,
+                'friendly' => $item->display
             );
-            unset($User);
-        }
+        };
+        array_walk($items, $returnData);
+        echo '<!-- Membership -->';
+        echo '<div class="col-xs-9">';
+        echo '<div class="tab-pane fade in active" id="'
+            . $this->node
+            . '-membership">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->childClass
+            . ' '
+            . _('Membership');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
         if (count($this->data) > 0) {
-            self::$HookManager->processEvent(
-                'OBJ_USERS_NOT_IN_ME',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-            printf(
-                '<form method="post" action="%s"><label for="userMeShow">'
-                . '<p class="c">%s %s&nbsp;&nbsp;<input '
-                . 'type="checkbox" name="userMeShow" id="userMeShow"/>'
-                . '</p></label><div id="userNotInMe"><h2>%s %s</h2>',
-                $this->formAction,
-                _('Check here to see users not within this'),
-                $this->node,
-                _('Modify Membership for'),
-                $this->obj->get('name')
-            );
-            $this->render();
-            printf(
-                '</div><br/><p class="c"><input type="submit" '
-                . 'value="%s %s(s) %s %s" name="addUsers"/></p><br/>',
-                _('Add'),
-                _('user'),
-                _('to'),
-                $this->node
-            );
+            $notInMe = $meShow = 'user';
+            $meShow .= 'MeShow';
+            $notInMe .= 'NotInMe';
+            echo '<div class="text-center">';
+            echo '<div class="checkbox">';
+            echo '<label for="'
+                . $meShow
+                . '">';
+            echo '<input type="checkbox" name="'
+                . $meShow
+                . '" id="'
+                . $meShow
+                . '"/>';
+            echo _('Check here to see what users can be added');
+            echo '</label>';
+            echo '</div>';
+            echo '</div>';
+            echo '<br/>';
+            echo '<div class="hiddeninitially panel panel-info" id="'
+                . $notInMe
+                . '"/>';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Add Users');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            $this->render(12);
+            echo '<div class="form-group">';
+            echo '<label for="updateusers" class="control-label col-xs-4">';
+            echo _('Add selected users');
+            echo '</label>';
+            echo '<div class="col-xs-8">';
+            echo '<button type="submit" name="addUsers" '
+                . 'id="updateusers" class="btn btn-info btn-block">'
+                . _('Add')
+                . '</button>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
         }
-        $this->data = array();
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates
+        );
         $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" '
-            . 'class="toggle-checkboxAction"/>',
-            _('Username'),
+            '<label for="toggler1">'
+            . '<input type="checkbox" name="toggle-checkbox" '
+            . 'class="toggle-checkboxuserrm" id="toggler1"/></label>',
+            _('User Name'),
             _('Friendly Name')
         );
         $this->templates = array(
-            '<input type="checkbox" name="userdel[]" '
-            . 'value="${user_id}" class="toggle-action"/>',
-            sprintf(
-                '<a href="?node=%s&sub=edit&id=${user_id}" '
-                . 'title="%s: ${user_name}">${user_name}</a>',
-                $this->node,
-                _('Edit')
-            ),
+            '<label for="userrm-${user_id}">'
+            . '<input type="checkbox" name="userdel[]" '
+            . 'value="${user_id}" class="toggle-userrm" id="'
+            . 'userrm-${user_id}"/>'
+            . '</label>',
+            '<a href="?node=user&sub=edit&id=${user_id}">'
+            . '${user_name}</a>',
             '${friendly}'
         );
-        foreach ((array)self::getClass('UserManager')
-            ->find(
-                array(
-                    'id' => $this->obj->get('users'),
-                )
-            ) as &$User
-        ) {
-            $this->data[] = array(
-                'user_id' => $User->get('id'),
-                'user_name' => $User->get('name'),
-                'friendly' => $User->get('display')
-            );
-            unset($User);
+        $getter = 'users';
+        array_walk($items, $returnData);
+        if (count($this->data) > 0) {
+            echo '<div class="panel panel-warning">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Remove Users');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            $this->render(12);
+            echo '<div class="form-group">';
+            echo '<label for="remusers" class="control-label col-xs-4">';
+            echo _('Remove selected users');
+            echo '</label>';
+            echo '<div class="col-xs-8">';
+            echo '<button type="submit" name="remusers" class='
+                . '"btn btn-danger btn-block" id="remusers">'
+                . _('Remove')
+                . '</button>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
         }
-        self::$HookManager
-            ->processEvent(
-                'ACCESSCONTROL_USER_DATA',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        printf(
-            '<form method="post" action="%s">',
-            $this->formAction
-        );
-        $this->render();
-        if (count($this->data)) {
-            printf(
-                '<p class="c"><input type="submit" '
-                . 'value="%s %ss %s %s" name="remusers"/></p>',
-                _('Delete Selected'),
-                _('user'),
-                _('from'),
-                $this->node
-            );
-        }
-        $this->data = array();
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Customize membership actions
@@ -1394,27 +1662,26 @@ class AccessControlManagementPage extends FOGPage
      */
     public function membershipPost()
     {
-        if (isset($_REQUEST['addUsers'])) {
-            $this->obj->addUser($_REQUEST['user']);
+        $flags = array(
+            'flags' => FILTER_REQUIRE_ARRAY
+        );
+        $reqitems = filter_input_array(
+            INPUT_POST,
+            array(
+                'user' => $flags,
+                'userdel' => $flags
+            )
+        );
+        $users = $reqitems['user'];
+        $usersdel = $reqitems['userdel'];
+        if (isset($_POST['addUsers'])) {
+            $this->obj->addUser($users);
         }
-        if (isset($_REQUEST['remusers'])) {
-            $this->obj->removeUser($_REQUEST['userdel']);
-        }
-        if (isset($_REQUEST['addRules'])) {
-            $this->obj->addRule($_REQUEST['rule']);
-        }
-        if (isset($_REQUEST['remrules'])) {
-            $this->obj->removeRule($_REQUEST['ruledel']);
+        if (isset($_POST['remusers'])) {
+            $this->obj->removeUser($usersdel);
         }
         if ($this->obj->save()) {
-            self::setMessage(
-                sprintf(
-                    '%s %s',
-                    $this->obj->get('name'),
-                    _('saved successfully')
-                )
-            );
+            self::redirect($this->formAction);
         }
-        self::redirect($this->formAction);
     }
 }

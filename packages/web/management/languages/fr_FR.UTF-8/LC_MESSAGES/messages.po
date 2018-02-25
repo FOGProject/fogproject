@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-24 16:22-0500\n"
+"POT-Creation-Date: 2018-02-24 23:36-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2031,80 +2031,114 @@ msgid "Create Rule?"
 msgstr "Créer un utilisateur"
 
 #, fuzzy
-msgid "Rule already Exists, please try again."
-msgstr "Localisation existe déjà, s'il vous plaît essayer à nouveau."
+msgid "A rule already exists with this name."
+msgstr "Une image existe déjà avec ce nom!"
 
 #, fuzzy
-msgid "Please enter a value for this rule."
-msgstr "S'il vous plaît entrer un nom pour cette adresse."
+msgid "Add rule failed!"
+msgstr "Ajouter SnapIn a échoué!"
 
 #, fuzzy
-msgid "Rule Added, editing!"
-msgstr "Lieu Ajouté, édition!"
+msgid "Rule added!"
+msgstr "Nom de l'imprimante"
+
+#, fuzzy
+msgid "Rule Create Success"
+msgstr "utilisateur créé"
+
+#, fuzzy
+msgid "Rule Create Fail"
+msgstr "utilisateur créé"
+
+#, fuzzy
+msgid "Access Control Rule General"
+msgstr "Tous les contrôles d'accès"
 
 msgid "Failed to update"
 msgstr "Impossible de mettre à jour"
 
 #, fuzzy
-msgid "Rule Updated"
+msgid "Rule updated!"
 msgstr "Updater Client"
 
 #, fuzzy
-msgid "Fail to delete rule"
-msgstr "Impossible de supprimer le fichier"
+msgid "Rule Update Success"
+msgstr "utilisateur créé"
+
+#, fuzzy
+msgid "Rule Update Fail"
+msgstr "Groupe create a échoué"
+
+#, fuzzy
+msgid "Fail to destroy"
+msgstr "Impossible de détruire"
+
+#, fuzzy
+msgid "Rule deleted successfully!"
+msgstr "Installation / Mise à jour réussie!"
 
 msgid "Rule Delete Success"
 msgstr ""
 
 #, fuzzy
-msgid "Rule name"
-msgstr "Nom du module"
-
-#, fuzzy
-msgid "Check here to see rules not within this"
-msgstr "Vérifiez ici pour voir les groupes non affecté cette image"
-
-#, fuzzy
-msgid "Modify Rule Membership for"
-msgstr "Modifier adhésion pour"
-
-#, fuzzy
-msgid "rule"
-msgstr "Résultats"
-
-#, fuzzy
-msgid "to"
-msgstr "Auto"
+msgid "Rule Delete Fail"
+msgstr "Supprimer les données de fichiers"
 
 #, fuzzy
 msgid "Rule Name"
 msgstr "Nom du module"
 
 #, fuzzy
-msgid "from"
-msgstr "De"
+msgid "Rule Membership"
+msgstr "Adhésion"
 
 #, fuzzy
-msgid "Not role selected"
-msgstr "Aucun hôtes ont été sélectionnés"
+msgid "Check here to see what rules can be added"
+msgstr "Vérifiez ici pour voir ce que les imprimantes peuvent être ajoutés"
 
 #, fuzzy
-msgid "Not rule selected"
-msgstr "Aucun hôtes ont été sélectionnés"
+msgid "Add Rules"
+msgstr "Ajouter un utilisateur"
 
 #, fuzzy
-msgid "Check here to see users not within this"
-msgstr "Vérifiez ici pour voir les groupes non affecté cette image"
-
-msgid "Modify Membership for"
-msgstr "Modifier adhésion pour"
+msgid "Add selected rules"
+msgstr "Imprimante"
 
 #, fuzzy
-msgid "user"
-msgstr "Utilisateur"
+msgid "Remove Accesscontrol Rules"
+msgstr "Tous les contrôles d'accès"
 
-msgid "saved successfully"
-msgstr "sauvegarde réussie"
+#, fuzzy
+msgid "Remove selected rules"
+msgstr "Retirer snapins sélectionnés"
+
+#, fuzzy
+msgid "No role selected"
+msgstr "Supprimer sélectionnée"
+
+#, fuzzy
+msgid "No rule selected"
+msgstr "Supprimer sélectionnée"
+
+#, fuzzy
+msgid "Associate rule failed!"
+msgstr "Ajouter SnapIn a échoué!"
+
+#, fuzzy
+msgid "Rule associate success!"
+msgstr "utilisateur créé"
+
+#, fuzzy
+msgid "Rule Associate Success"
+msgstr "utilisateur créé"
+
+#, fuzzy
+msgid "Rule Associate Fail"
+msgstr "Association Image"
+
+#, fuzzy
+msgid "User name"
+msgstr "Nom d'utilisateur"
 
 #, fuzzy
 msgid "LDAP Servers"
@@ -3397,6 +3431,10 @@ msgstr ""
 
 msgid "see the forums or lookup the commands and scripts available"
 msgstr ""
+
+#, fuzzy
+msgid "from"
+msgstr "De"
 
 #, fuzzy
 msgid "Menu Item"

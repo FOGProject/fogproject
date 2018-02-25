@@ -2757,7 +2757,10 @@ abstract class FOGPage extends FOGBase
                 '%s_DEL_FIELDS',
                 strtoupper($this->node)
             ),
-            array($this->childClass => &$this->obj)
+            array(
+                'fields' => &$fields,
+                $this->childClass => &$this->obj
+            )
         );
         array_walk($fields, $this->fieldsToData);
         self::$HookManager->processEvent(

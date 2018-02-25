@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-24 16:22-0500\n"
+"POT-Creation-Date: 2018-02-24 23:36-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -2028,80 +2028,114 @@ msgid "Create Rule?"
 msgstr "Regel erstellen?"
 
 #, fuzzy
-msgid "Rule already Exists, please try again."
-msgstr "Regel ist bereits vorhanden, versuchen Sie es bitte erneut."
+msgid "A rule already exists with this name."
+msgstr "Eine Rolle mit diesem Namen ist bereits vorhanden!"
 
 #, fuzzy
-msgid "Please enter a value for this rule."
-msgstr "Bitte geben Sie einen Wert für diese Regel ein."
+msgid "Add rule failed!"
+msgstr "Hinzufügen einer Rolle fehlgeschlagen"
 
 #, fuzzy
-msgid "Rule Added, editing!"
-msgstr "Regel hinzugefügt, bearbeiten!"
+msgid "Rule added!"
+msgstr "Rolle hinzugefügt"
+
+#, fuzzy
+msgid "Rule Create Success"
+msgstr "Rolle erfolgreich erstellt"
+
+#, fuzzy
+msgid "Rule Create Fail"
+msgstr "Erstellen der Rolle fehlgeschlagen"
+
+#, fuzzy
+msgid "Access Control Rule General"
+msgstr "Zugriffssteuerungsrolle Allgemein"
 
 msgid "Failed to update"
 msgstr "Aktualisierung fehlgeschlagen"
 
 #, fuzzy
-msgid "Rule Updated"
-msgstr "Regel aktualisiert"
+msgid "Rule updated!"
+msgstr "Rolle aktualisiert"
 
 #, fuzzy
-msgid "Fail to delete rule"
-msgstr "Fehler beim Löschen der Regel"
+msgid "Rule Update Success"
+msgstr "Rolle erfolgreich aktualisiert"
+
+#, fuzzy
+msgid "Rule Update Fail"
+msgstr "Aktualisierung der Rolle fehlgeschlagen"
+
+#, fuzzy
+msgid "Fail to destroy"
+msgstr "Fehler beim Zerstören"
+
+#, fuzzy
+msgid "Rule deleted successfully!"
+msgstr "Regel erfolgreich gelöscht"
 
 msgid "Rule Delete Success"
 msgstr "Regel erfolgreich gelöscht"
 
 #, fuzzy
-msgid "Rule name"
-msgstr "Regelname"
-
-#, fuzzy
-msgid "Check here to see rules not within this"
-msgstr "Prüfen Sie hier, welche Regeln nicht enthalten sind"
-
-#, fuzzy
-msgid "Modify Rule Membership for"
-msgstr "Regelmitgliedschaft für diese"
-
-#, fuzzy
-msgid "rule"
-msgstr "Regel ändern"
-
-#, fuzzy
-msgid "to"
-msgstr "zu"
+msgid "Rule Delete Fail"
+msgstr "Löschen fehlgeschlagen"
 
 #, fuzzy
 msgid "Rule Name"
 msgstr "Regelname"
 
 #, fuzzy
-msgid "from"
-msgstr "Von"
+msgid "Rule Membership"
+msgstr "Mitgliedschaft"
 
 #, fuzzy
-msgid "Not role selected"
-msgstr "Keine Rolle ausgewählt"
+msgid "Check here to see what rules can be added"
+msgstr "Überprüfen Sie hier, welche Drucker hinzugefügt werden können"
 
 #, fuzzy
-msgid "Not rule selected"
-msgstr "Keine Regel ausgewählt"
+msgid "Add Rules"
+msgstr "Benutzer hinzufügen"
 
 #, fuzzy
-msgid "Check here to see users not within this"
-msgstr "Prüfen Sie hier, welche User nicht enthalten sind"
-
-msgid "Modify Membership for"
-msgstr "Ändern der Mitgliedschaft für"
+msgid "Add selected rules"
+msgstr "Ausgewählte Drucker hinzufügen"
 
 #, fuzzy
-msgid "user"
-msgstr "Benutzer"
+msgid "Remove Accesscontrol Rules"
+msgstr "Zugriffskontrollregeln"
 
-msgid "saved successfully"
-msgstr "erfolgreich gespeichert"
+#, fuzzy
+msgid "Remove selected rules"
+msgstr "Ausgewählte entfernen "
+
+#, fuzzy
+msgid "No role selected"
+msgstr "Ausgewählte löschen"
+
+#, fuzzy
+msgid "No rule selected"
+msgstr "Ausgewählte löschen"
+
+#, fuzzy
+msgid "Associate rule failed!"
+msgstr "Hinzufügen einer Rolle fehlgeschlagen"
+
+#, fuzzy
+msgid "Rule associate success!"
+msgstr "Regel erfolgreich gelöscht"
+
+#, fuzzy
+msgid "Rule Associate Success"
+msgstr "Regel erfolgreich gelöscht"
+
+#, fuzzy
+msgid "Rule Associate Fail"
+msgstr "Regel Zuordnung"
+
+#, fuzzy
+msgid "User name"
+msgstr "Benutzername"
 
 #, fuzzy
 msgid "LDAP Servers"
@@ -3385,6 +3419,10 @@ msgid "see the forums or lookup the commands and scripts available"
 msgstr ""
 "lesen Sie bitte die Foren oder suchen Sie nach den verfügbaren Befehlen und "
 "Skripts."
+
+#, fuzzy
+msgid "from"
+msgstr "Von"
 
 #, fuzzy
 msgid "Menu Item"

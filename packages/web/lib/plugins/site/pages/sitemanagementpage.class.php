@@ -715,7 +715,7 @@ class SiteManagementPage extends FOGPage
             $notInMe = $meShow = 'user';
             $meShow .= 'MeShow';
             $notInMe .= 'NotInMe';
-            echo '<div clss="text-center">';
+            echo '<div class="text-center">';
             echo '<div class="checkbox">';
             echo '<label for="'
                 . $meShow

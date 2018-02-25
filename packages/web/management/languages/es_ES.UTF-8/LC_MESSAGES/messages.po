@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-24 16:22-0500\n"
+"POT-Creation-Date: 2018-02-24 23:36-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2213,77 +2213,116 @@ msgstr "Valor"
 msgid "Create Rule?"
 msgstr "Crear usuario"
 
-msgid "Rule already Exists, please try again."
-msgstr ""
+#, fuzzy
+msgid "A rule already exists with this name."
+msgstr "Una imagen ya existe con este nombre!"
 
-msgid "Please enter a value for this rule."
-msgstr ""
+#, fuzzy
+msgid "Add rule failed!"
+msgstr "Añadir fallidos SNAPin!"
 
-msgid "Rule Added, editing!"
-msgstr ""
+#, fuzzy
+msgid "Rule added!"
+msgstr "Nombre de la impresora"
+
+#, fuzzy
+msgid "Rule Create Success"
+msgstr "creado por el usuario"
+
+#, fuzzy
+msgid "Rule Create Fail"
+msgstr "creado por el usuario"
+
+#, fuzzy
+msgid "Access Control Rule General"
+msgstr "impresora iPrint"
 
 #, fuzzy
 msgid "Failed to update"
 msgstr "No se ha podido descifrar datos"
 
 #, fuzzy
-msgid "Rule Updated"
+msgid "Rule updated!"
 msgstr "Actualizar"
 
 #, fuzzy
-msgid "Fail to delete rule"
-msgstr "No se pudo crear el usuario"
+msgid "Rule Update Success"
+msgstr "creado por el usuario"
+
+#, fuzzy
+msgid "Rule Update Fail"
+msgstr "Grupo Error de creación"
+
+#, fuzzy
+msgid "Fail to destroy"
+msgstr "No se ha podido destruir"
+
+#, fuzzy
+msgid "Rule deleted successfully!"
+msgstr "actualización de servicio no pudo"
 
 msgid "Rule Delete Success"
 msgstr ""
 
 #, fuzzy
-msgid "Rule name"
-msgstr "Nombre del módulo"
-
-#, fuzzy
-msgid "Check here to see rules not within this"
-msgstr "Marque aquí para ver los grupos no asignado esta imagen"
-
-#, fuzzy
-msgid "Modify Rule Membership for"
-msgstr "Modificar la pertenencia de"
-
-msgid "rule"
-msgstr ""
-
-msgid "to"
-msgstr ""
+msgid "Rule Delete Fail"
+msgstr "Eliminar los datos del archivo"
 
 #, fuzzy
 msgid "Rule Name"
 msgstr "Nombre del módulo"
 
 #, fuzzy
-msgid "from"
-msgstr "De"
+msgid "Rule Membership"
+msgstr "miembros"
 
 #, fuzzy
-msgid "Not role selected"
-msgstr "no Protegido"
+msgid "Check here to see what rules can be added"
+msgstr "Marque aquí para ver lo que se pueden agregar impresoras"
 
 #, fuzzy
-msgid "Not rule selected"
-msgstr "no Protegido"
+msgid "Add Rules"
+msgstr "Agregar usuario"
 
 #, fuzzy
-msgid "Check here to see users not within this"
-msgstr "Marque aquí para ver los grupos no asignado esta imagen"
-
-msgid "Modify Membership for"
-msgstr "Modificar la pertenencia de"
+msgid "Add selected rules"
+msgstr "Impresora"
 
 #, fuzzy
-msgid "user"
-msgstr "Usuario"
+msgid "Remove Accesscontrol Rules"
+msgstr "impresora iPrint"
 
-msgid "saved successfully"
-msgstr "Guardado exitosamente"
+#, fuzzy
+msgid "Remove selected rules"
+msgstr "Remoto"
+
+#, fuzzy
+msgid "No role selected"
+msgstr "Eliminar seleccionado"
+
+#, fuzzy
+msgid "No rule selected"
+msgstr "Eliminar seleccionado"
+
+#, fuzzy
+msgid "Associate rule failed!"
+msgstr "Añadir fallidos SNAPin!"
+
+#, fuzzy
+msgid "Rule associate success!"
+msgstr "creado por el usuario"
+
+#, fuzzy
+msgid "Rule Associate Success"
+msgstr "creado por el usuario"
+
+#, fuzzy
+msgid "Rule Associate Fail"
+msgstr "Asociación para la imagen"
+
+#, fuzzy
+msgid "User name"
+msgstr "Nombre de usuario"
 
 #, fuzzy
 msgid "LDAP Servers"
@@ -3613,6 +3652,10 @@ msgstr ""
 
 msgid "see the forums or lookup the commands and scripts available"
 msgstr ""
+
+#, fuzzy
+msgid "from"
+msgstr "De"
 
 #, fuzzy
 msgid "Menu Item"

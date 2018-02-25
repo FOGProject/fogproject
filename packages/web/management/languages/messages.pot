@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-24 16:22-0500\n"
+"POT-Creation-Date: 2018-02-24 23:37-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1827,64 +1827,88 @@ msgstr ""
 msgid "Create Rule?"
 msgstr ""
 
-msgid "Rule already Exists, please try again."
+msgid "A rule already exists with this name."
 msgstr ""
 
-msgid "Please enter a value for this rule."
+msgid "Add rule failed!"
 msgstr ""
 
-msgid "Rule Added, editing!"
+msgid "Rule added!"
+msgstr ""
+
+msgid "Rule Create Success"
+msgstr ""
+
+msgid "Rule Create Fail"
+msgstr ""
+
+msgid "Access Control Rule General"
 msgstr ""
 
 msgid "Failed to update"
 msgstr ""
 
-msgid "Rule Updated"
+msgid "Rule updated!"
 msgstr ""
 
-msgid "Fail to delete rule"
+msgid "Rule Update Success"
+msgstr ""
+
+msgid "Rule Update Fail"
+msgstr ""
+
+msgid "Fail to destroy"
+msgstr ""
+
+msgid "Rule deleted successfully!"
 msgstr ""
 
 msgid "Rule Delete Success"
 msgstr ""
 
-msgid "Rule name"
-msgstr ""
-
-msgid "Check here to see rules not within this"
-msgstr ""
-
-msgid "Modify Rule Membership for"
-msgstr ""
-
-msgid "rule"
-msgstr ""
-
-msgid "to"
+msgid "Rule Delete Fail"
 msgstr ""
 
 msgid "Rule Name"
 msgstr ""
 
-msgid "from"
+msgid "Rule Membership"
 msgstr ""
 
-msgid "Not role selected"
+msgid "Check here to see what rules can be added"
 msgstr ""
 
-msgid "Not rule selected"
+msgid "Add Rules"
 msgstr ""
 
-msgid "Check here to see users not within this"
+msgid "Add selected rules"
 msgstr ""
 
-msgid "Modify Membership for"
+msgid "Remove Accesscontrol Rules"
 msgstr ""
 
-msgid "user"
+msgid "Remove selected rules"
 msgstr ""
 
-msgid "saved successfully"
+msgid "No role selected"
+msgstr ""
+
+msgid "No rule selected"
+msgstr ""
+
+msgid "Associate rule failed!"
+msgstr ""
+
+msgid "Rule associate success!"
+msgstr ""
+
+msgid "Rule Associate Success"
+msgstr ""
+
+msgid "Rule Associate Fail"
+msgstr ""
+
+msgid "User name"
 msgstr ""
 
 msgid "LDAP Servers"
@@ -3025,6 +3049,9 @@ msgid "If you need help understanding what items are needed please"
 msgstr ""
 
 msgid "see the forums or lookup the commands and scripts available"
+msgstr ""
+
+msgid "from"
 msgstr ""
 
 msgid "Menu Item"
