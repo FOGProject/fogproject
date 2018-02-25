@@ -457,13 +457,19 @@ class PrinterManagementPage extends FOGPage
                 ]
             );
         }
-        http_response_code($code);
         //header('Location: ../management/index.php?node=host&sub=edit&id=' . $Printer->get('id'));
         self::$HookManager
             ->processEvent(
                 $hook,
-                ['Printer' => &$Printer]
+                [
+                    'Printer' => &$Printer,
+                    'hook' => &$hook,
+                    'code' => &$code,
+                    'msg' => &$msg,
+                    'serverFault' => &$serverFault
+                ]
             );
+        http_response_code($code);
         unset($Printer);
         echo $msg;
         exit;
@@ -1084,12 +1090,18 @@ class PrinterManagementPage extends FOGPage
                 ]
             );
         }
-        http_response_code($code);
         self::$HookManager
             ->processEvent(
                 $hook,
-                ['Printer' => &$this->obj]
+                [
+                    'Printer' => &$this->obj,
+                    'hook' => &$hook,
+                    'code' => &$code,
+                    'msg' => &$msg,
+                    'serverFault' => &$serverFault
+                ]
             );
+        http_response_code($code);
         echo $msg;
         exit;
     }

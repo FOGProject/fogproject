@@ -57,447 +57,200 @@ class AddLocationHost extends Hook
         parent::__construct();
         self::$HookManager
             ->register(
-                'HOST_HEADER_DATA',
+                'TABDATA_HOOK',
                 array(
                     $this,
-                    'hostTableHeader'
-                )
-            )
-            ->register(
-                'HOST_DATA',
-                array(
-                    $this,
-                    'hostData'
-                )
-            )
-            ->register(
-                'HOST_FIELDS',
-                array(
-                    $this,
-                    'hostFields'
-                )
-            )
-            ->register(
-                'HOST_ADD_SUCCESS',
-                array(
-                    $this,
-                    'hostAddLocation'
+                    'hostTabData'
                 )
             )
             ->register(
                 'HOST_EDIT_SUCCESS',
                 array(
                     $this,
-                    'hostAddLocation'
+                    'hostAddLocationEdit'
                 )
             )
             ->register(
-                'HOST_REGISTER',
+                'HOST_ADD_FIELDS',
                 array(
                     $this,
-                    'hostRegister'
-                )
-            )
-            ->register(
-                'HOST_IMPORT',
-                array(
-                    $this,
-                    'hostImport'
-                )
-            )
-            ->register(
-                'HOST_EXPORT_REPORT',
-                array(
-                    $this,
-                    'hostExport'
-                )
-            )
-            ->register(
-                'DESTROY_HOST',
-                array(
-                    $this,
-                    'hostDestroy'
-                )
-            )
-            ->register(
-                'EMAIL_ITEMS',
-                array(
-                    $this,
-                    'hostEmailHook'
-                )
-            )
-            ->register(
-                'HOST_INFO_EXPOSE',
-                array(
-                    $this,
-                    'hostInfoExpose'
+                    'hostAddLocationField'
                 )
             );
     }
     /**
-     * Adjusts the host header.
+     * The host tab data.
      *
      * @param mixed $arguments The arguments to change.
      *
      * @return void
      */
-    public function hostTableHeader($arguments)
+    public function hostTabData($arguments)
     {
         global $node;
-        global $sub;
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         if ($node != 'host') {
             return;
         }
-        if ($sub == 'pending') {
-            return;
-        }
-        $arguments['headerData'][4] = _('Location/Deployed');
-    }
-    /**
-     * Adjusts the host data.
-     *
-     * @param mixed $arguments The arguments to change.
-     *
-     * @return void
-     */
-    public function hostData($arguments)
-    {
-        global $node;
-        global $sub;
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        if ($node != 'host') {
-            return;
-        }
-        if ($sub == 'pending') {
-            return;
-        }
-        $arguments['templates'][4] = '${location}<br/><small>${deployed}</small>';
-        foreach ((array)$arguments['data'] as $index => &$vals) {
-            $find = array(
-                'hostID' => $vals['id']
-            );
-            $Locations = self::getSubObjectIDs(
-                'LocationAssociation',
-                $find,
-                'locationID'
-            );
-            $cnt = self::getClass('LocationManager')
-                ->count(
-                    array('id' => $Locations)
-                );
-            if ($cnt !== 1) {
-                $arguments['data'][$index]['location'] = '';
-                continue;
+        $obj = $arguments['obj'];
+        $arguments['tabData'][] = [
+            'name' => _('Location Association'),
+            'id' => 'host-location',
+            'generator' => function() use ($obj) {
+                $this->hostLocation($obj);
             }
-            foreach ((array)self::getClass('LocationManager')
-                ->find(array('id' => $Locations)) as &$Location
-            ) {
-                $arguments['data'][$index]['location'] = $Location
-                    ->get('name');
-                unset($Location);
-            }
-            unset($vals);
-            unset($Locations);
-        }
+        ];
     }
     /**
-     * Adjusts the host fields.
+     * The host location display
      *
-     * @param mixed $arguments The arguments to change.
+     * @param object $obj The host object we're working with.
      *
      * @return void
      */
-    public function hostFields($arguments)
+    public function hostLocation($obj)
     {
-        global $node;
-        global $sub;
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        if ($node != 'host') {
-            return;
-        }
-        $Locations = self::getSubObjectIDs(
-            'LocationAssociation',
-            array(
-                'hostID' => $arguments['Host']->get('id')
-            ),
-            'locationID'
+        $locationID = (int)filter_input(
+            INPUT_POST,
+            'location'
         );
-        $cnt = self::getClass('LocationManager')->count(
-            array(
-                'id' => $Locations
-            )
-        );
-        if ($cnt !== 1) {
-            $locID = 0;
-        } else {
-            $Locations = self::getSubObjectIDs(
-                'Location',
-                array('id' => $Locations)
-            );
-            $locID = array_shift($Locations);
-        }
-        self::arrayInsertAfter(
-            '<label for="productKey">'
-            . _('Host Product Key')
-            . '</label>',
-            $arguments['fields'],
-            '<label for="location">'
+        // Host Locations
+        $locationSelector = self::getClass('LocationManager')
+            ->buildSelectBox($locationID, 'location');
+        $fields = [
+            '<label for="location" class="col-sm-2 control-label">'
             . _('Host Location')
-            . '</label>',
-            self::getClass('LocationManager')->buildSelectBox(
-                $locID
-            )
-        );
-    }
-    /**
-     * Adds the location selector to the host.
-     *
-     * @param mixed $arguments The arguments to change.
-     *
-     * @return void
-     */
-    public function hostAddLocation($arguments)
-    {
-        global $node;
-        global $sub;
-        global $tab;
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        $subs = array(
-            'add',
-            'edit',
-            'addPost',
-            'editPost'
-        );
-        if ($node != 'host') {
-            return;
-        }
-        if (!in_array($sub, $subs)) {
-            return;
-        }
-        if (str_replace('_', '-', $tab) != 'host-general') {
-            return;
-        }
-        self::getClass('LocationAssociationManager')->destroy(
-            array(
-                'hostID' => $arguments['Host']->get('id')
-            )
-        );
-        $location = (int)filter_input(INPUT_POST, 'location');
-        if ($location) {
-            $insert_fields = array(
-                'locationID',
-                'hostID'
-            );
-            $insert_values = array();
-            $insert_values[] = array(
-                $location,
-                $arguments['Host']->get('id')
-            );
-            if (count($insert_values)) {
-                self::getClass('LocationAssociationManager')
-                    ->insertBatch(
-                        $insert_fields,
-                        $insert_values
-                    );
-            }
-        }
-    }
-    /**
-     * Adds the location to import.
-     *
-     * @param mixed $arguments The arguments to change.
-     *
-     * @return void
-     */
-    public function hostImport($arguments)
-    {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        self::getClass('LocationAssociation')
-            ->set('hostID', $arguments['Host']->get('id'))
-            ->load('hostID')
-            ->set('locationID', $arguments['data'][5])
-            ->save();
-    }
-    /**
-     * Adds the location to export.
-     *
-     * @param mixed $arguments The arguments to change.
-     *
-     * @return void
-     */
-    public function hostExport($arguments)
-    {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        $find = array(
-            'hostID' => $arguments['Host']->id
-        );
-        $Locations = self::getSubObjectIDs(
-            'LocationAssociation',
-            $find,
-            'locationID'
-        );
-        $cnt = self::getClass('LocationManager')->count(
-            array('id' => $Locations)
-        );
-        if ($cnt !== 1) {
-            $arguments['report']->addCSVCell('');
-            return;
-        }
-        Route::listem(
-            'location',
-            'name',
-            false,
-            array('id' => $Locations)
-        );
-        $Locations = json_decode(
-            Route::getData()
-        );
-        $Locations = $Locations->locations;
-        foreach ((array)$Locations as &$Location) {
-            $arguments['report']->addCSVCell(
-                $Location->id
-            );
-            unset($Location);
-        }
-        unset($Locations);
-    }
-    /**
-     * Removes location when host is destroyed.
-     *
-     * @param mixed $arguments The arguments to change.
-     *
-     * @return void
-     */
-    public function hostDestroy($arguments)
-    {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        self::getClass('LocationAssociationManager')->destroy(
-            array(
-                'hostID' => $arguments['Host']->get('id')
-            )
-        );
-    }
-    /**
-     * Adds the location to host email stuff.
-     *
-     * @param mixed $arguments The arguments to change.
-     *
-     * @return void
-     */
-    public function hostEmailHook($arguments)
-    {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        $Locations = self::getSubObjectIDs(
-            'LocationAssociation',
-            array(
-                'hostID' => $arguments['Host']->get('id')
-            ),
-            'locationID'
-        );
-        $cnt = self::getClass('LocationManager')
-            ->count(array('id' => $Locations));
-        if ($cnt !== 1) {
-            $locName = '';
-        } else {
-            foreach ((array)self::getClass('LocationManager')
-                ->find(array('id' => $Locations)) as $Location
-            ) {
-                $locName = $Location->get('name');
-                unset($Location);
-                break;
-            }
-        }
-        self::arrayInsertAfter(
-            "\nSnapin Used: ",
-            $arguments['email'],
-            "\nImaged From (Location): ",
-            $locName
-        );
-        self::arrayInsertAfter(
-            "\nImaged From (Location): ",
-            $arguments['email'],
-            "\nImagingLocation=",
-            $locName
-        );
-    }
-    /**
-     * Adds lcoation to host register.
-     *
-     * @param mixed $arguments The arguments to change.
-     *
-     * @return void
-     */
-    public function hostRegister($arguments)
-    {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        $cnt = self::getClass('LocationManager')
-            ->count(array('id' => $_REQUEST['location']));
-        if ($cnt !== 1) {
-            return;
-        }
-        self::getClass('LocationAssociation')
-            ->set('hostID', $arguments['Host']->get('id'))
-            ->set('locationID', $_REQUEST['location'])
-            ->save();
+            . '</label>' => &$locationSelector
+        ];
         self::$HookManager
             ->processEvent(
-                'HOST_REGISTER_LOCATION',
-                array(
-                    'Host' => $Host,
-                    'Location' => &$_REQUEST['location']
-                )
+                'HOST_LOCATION_FIELDS',
+                [
+                    'fields' => &$fields,
+                    'Host' => &$obj
+                ]
             );
+        $rendered = FOGPage::formFields($fields);
+        echo '<div class="box box-solid">';
+        echo '<div class="box-body">';
+        echo '<form id="host-location-form" class="form-horizontal" method="post" action="'
+            . FOGPage::makeTabUpdateURL('host-location', $obj->get('id'))
+            . '" novalidate>';
+        echo $rendered;
+        echo '</form>';
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo '<button class="btn btn-primary" id="location-send">'
+            . _('Update')
+            . '</button>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
-     * Exposes location during host info request.
+     * The location updater element.
+     *
+     * @param object $obj The object we're working with.
+     *
+     * @return void
+     */
+    public function hostLocationPost($obj)
+    {
+        $locationID = trim(
+            (int)filter_input(
+                INPUT_POST,
+                'location'
+            )
+        );
+        $Location = new Location($locationID);
+        if (!$Location->isValid() && is_numeric($locationID)) {
+            throw new Exception(_('Select a valid location'));
+        }
+        $insert_fields = ['hostID', 'locationID'];
+        $insert_values = [];
+        $hosts = [$obj->get('id')];
+        if (count($hosts) > 0) {
+            self::getClass('LocationAssociationManager')->destroy(
+                ['hostID' => $hosts]
+            );
+            foreach ((array)$hosts as $ind => &$hostID) {
+                $insert_values[] = [$hostID, $locationID];
+                unset($hostID);
+            }
+        }
+        if (count($insert_values) > 0) {
+            self::getClass('LocationAssociationManager')
+                ->insertBatch(
+                    $insert_fields,
+                    $insert_values
+                );
+        }
+    }
+    /**
+     * The host location selector.
      *
      * @param mixed $arguments The arguments to change.
      *
      * @return void
      */
-    public function hostInfoExpose($arguments)
+    public function hostAddLocationEdit($arguments)
     {
+        global $tab;
+        global $node;
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
-        $Locations = self::getSubObjectIDs(
-            'LocationAssociation',
-            array(
-                'hostID' => $arguments['Host']->get('id')
-            ),
-            'locationID'
-        );
-        $cnt = self::getClass('LocationManager')
-            ->count(array('id' => $Locations));
-        if ($cnt !== 1) {
-            $arguments['repFields']['location'] = '';
+        if ($node != 'host') {
             return;
         }
-        foreach ((array)self::getClass('LocationManager')
-            ->find(array('id' => $Locations)) as &$Location
-        ) {
-            $arguments['repFields']['location'] = $Location
-                ->get('name');
-            unset($Location);
+        $obj = $arguments['obj'];
+        try {
+            switch($tab) {
+            case 'host-location':
+                $this->hostLocationPost($obj);
+                break;
+            }
+            $arguments['code'] = 201;
+            $arguments['hook'] = 'HOST_EDIT_LOCATION_SUCCESS';
+            $arguments['msg'] = json_encode(
+                [
+                    'msg' => _('Host Location Updated!'),
+                    'title' => _('Host Location Update Success')
+                ]
+            );
+        } catch (Exception $e) {
+            $arguments['code'] = 400;
+            $arguments['hook'] = 'HOST_EDIT_LOCATION_FAIL';
+            $arguments['msg'] = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Host Update Location Fail')
+                ]
+            );
         }
+    }
+    /**
+     * The host location field for function add.
+     *
+     * @param mixed $arguments The arguments to change.
+     *
+     * @return void
+     */
+    public function hostAddLocationField($arguments)
+    {
+        global $node;
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
+            return;
+        }
+        if ($node != 'host') {
+            return;
+        }
+        $locationID = (int)filter_input(INPUT_POST, 'location');
+        $arguments['fields'][
+            '<label for="location" class="col-sm-2 control-label">'
+            . _('Host Location')
+            . '</label>'] = self::getClass('LocationManager')
+            ->buildSelectBox($locationID, 'location');
     }
 }

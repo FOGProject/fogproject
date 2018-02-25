@@ -415,7 +415,13 @@ class StorageNodeManagementPage extends FOGPage
         self::$HookManager
             ->processEvent(
                 $hook,
-                ['StorageNode' => &$StorageNode]
+                [
+                    'StorageNode' => &$StorageNode,
+                    'hook' => &$hook,
+                    'code' => &$code,
+                    'msg' => &$msg,
+                    'serverFault' => &$serverFault
+                ]
             );
         unset($StorageNode);
         echo $msg;
@@ -687,10 +693,10 @@ class StorageNodeManagementPage extends FOGPage
         ];
         self::$HookManager
             ->processEvent(
-                'STORAGENODE_EDIT_FIELDS',
+                'STORAGENODE_GENERAL_FIELDS',
                 [
                     'fields' => &$fields,
-                    'obj' => &$this->obj
+                    'StorageNode' => &$this->obj
                 ]
             );
         $rendered = self::formFields($fields);
@@ -881,12 +887,18 @@ class StorageNodeManagementPage extends FOGPage
                 ]
             );
         }
-        http_response_code($code);
         self::$HookManager
             ->processEvent(
                 $hook,
-                ['StorageNode' => &$this->obj]
+                [
+                    'StorageNode' => &$this->obj,
+                    'hook' => &$hook,
+                    'code' => &$code,
+                    'msg' => &$msg,
+                    'serverFault' => &$serverFault
+                ]
             );
+        http_response_code($code);
         echo $msg;
         exit;
     }

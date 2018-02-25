@@ -426,13 +426,19 @@ class HostManagementPage extends FOGPage
                 ]
             );
         }
-        http_response_code($code);
         //header('Location: ../management/index.php?node=host&sub=edit&id=' . $Host->get('id'));
         self::$HookManager
             ->processEvent(
                 $hook,
-                ['Host' => &$Host]
+                [
+                    'Host' => &$Host,
+                    'hook' => &$hook,
+                    'code' => &$code,
+                    'msg' => &$msg,
+                    'serverFault' => &$serverFault
+                ]
             );
+        http_response_code($code);
         unset($Host);
         echo $msg;
         exit;
@@ -543,7 +549,7 @@ class HostManagementPage extends FOGPage
             'HOST_GENERAL_FIELDS',
             [
                 'fields' => &$fields,
-                'obj' => &$this->obj
+                'Host' => &$this->obj
             ]
         );
         $rendered = self::formFields($fields);
@@ -1537,7 +1543,7 @@ class HostManagementPage extends FOGPage
                 'HOST_INVENTORY_FIELDS',
                 [
                     'fields' => &$fields,
-                    'obj' => &$this->obj
+                    'Host' => &$this->obj
                 ]
             );
         $rendered = self::formFields($fields);
@@ -2516,12 +2522,18 @@ class HostManagementPage extends FOGPage
                 ]
             );
         }
-        http_response_code($code);
         self::$HookManager
             ->processEvent(
                 $hook,
-                ['Host' => &$this->obj]
+                [
+                    'Host' => &$this->obj,
+                    'hook' => &$hook,
+                    'code' => &$code,
+                    'msg' => &$msg,
+                    'serverFault' => &$serverFault
+                ]
             );
+        http_response_code($code);
         echo $msg;
         exit;
     }

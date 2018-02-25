@@ -34,9 +34,9 @@ class AddLocationGroup extends Hook
      *
      * @var string
      */
-    public $description = 'Add menu items to the management page';
+    public $description = 'Add Location to Groups';
     /**
-     * The active flag (always true but for posterity
+     * The active flag (always true but for posterity)
      *
      * @var bool
      */
@@ -57,13 +57,6 @@ class AddLocationGroup extends Hook
         parent::__construct();
         self::$HookManager
             ->register(
-                'GROUP_EDIT_EXTRA',
-                array(
-                    $this,
-                    'groupFields'
-                )
-            )
-            ->register(
                 'TABDATA_HOOK',
                 array(
                     $this,
@@ -74,7 +67,14 @@ class AddLocationGroup extends Hook
                 'GROUP_EDIT_SUCCESS',
                 array(
                     $this,
-                    'groupAddLocation'
+                    'groupAddLocationEdit'
+                )
+            )
+            ->register(
+                'GROUP_ADD_FIELDS',
+                array(
+                    $this,
+                    'groupAddLocationField'
                 )
             );
     }
@@ -195,10 +195,10 @@ class AddLocationGroup extends Hook
      *
      * @return void
      */
-    public function groupAddLocation($arguments)
+    public function groupAddLocationEdit($arguments)
     {
-        global $node;
         global $tab;
+        global $node;
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
@@ -230,5 +230,28 @@ class AddLocationGroup extends Hook
                 ]
             );
         }
+    }
+    /**
+     * The group location field for function add.
+     *
+     * @param mixed $arguments The arguments to change.
+     *
+     * @return void
+     */
+    public function groupAddLocationField($arguments)
+    {
+        global $node;
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
+            return;
+        }
+        if ($node != 'group') {
+            return;
+        }
+        $locationID = (int)filter_input(INPUT_POST, 'location');
+        $arguments['fields'][
+            '<label for="location" class="col-sm-2 control-label">'
+            . _('Group Location')
+            . '</label>'] = self::getClass('LocationManager')
+            ->buildSelectBox($locationID, 'location');
     }
 }

@@ -678,13 +678,19 @@ class SnapinManagementPage extends FOGPage
                 ]
             );
         }
-        http_response_code($code);
         //header('Location: ../management/index.php?node=snapin&sub=edit&id=' . $Snapin->get('id'));
         self::$HookManager
             ->processEvent(
                 $hook,
-                ['Snapin' => &$Snapin]
+                [
+                    'Snapin' => &$Snapin,
+                    'hook' => &$hook,
+                    'code' => &$code,
+                    'msg' => &$msg,
+                    'serverFault' => &$serverFault
+                ]
             );
+        http_response_code($code);
         unset($Snapin);
         echo $msg;
         exit;
@@ -928,7 +934,7 @@ class SnapinManagementPage extends FOGPage
                 'SNAPIN_GENERAL_FIELDS',
                 [
                     'fields' => &$fields,
-                    'obj' => &$this->obj
+                    'Snapin' => &$this->obj
                 ]
             );
         $rendered = self::formFields($fields);
@@ -1395,11 +1401,18 @@ class SnapinManagementPage extends FOGPage
                 ]
             );
         }
+        self::$HookManager
+            ->processEvent(
+                $hook,
+                [
+                    'Snapin' => &$this->obj,
+                    'hook' => &$hook,
+                    'code' => &$code,
+                    'msg' => &$msg,
+                    'serverFault' => &$serverFault
+                ]
+            );
         http_response_code($code);
-        self::$HookManager->processEvent(
-            $hook,
-            ['obj' => &$this->obj]
-        );
         echo $msg;
         exit;
     }

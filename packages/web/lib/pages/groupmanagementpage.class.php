@@ -252,13 +252,19 @@ class GroupManagementPage extends FOGPage
                 ]
             );
         }
-        http_response_code($code);
         //header('Location: ../management/index.php?node=group&sub=edit&id=' . $Group->get('id'));
         self::$HookManager
             ->processEvent(
                 $hook,
-                ['Group' => &$Group]
+                [
+                    'Group' => &$Group,
+                    'hook' => &$hook,
+                    'code' => &$code,
+                    'msg' => &$msg,
+                    'serverFault' => &$serverFault
+                ]
             );
+        http_response_code($code);
         unset($Group);
         echo $msg;
         exit;
@@ -425,10 +431,10 @@ class GroupManagementPage extends FOGPage
             . '</label>' => $exitEfi
         ];
         self::$HookManager->processEvent(
-            'GROUP_EDIT_FIELDS',
+            'GROUP_GENERAL_FIELDS',
             [
                 'fields' => &$fields,
-                'obj' => &$this->obj
+                'Group' => &$this->obj
             ]
         );
         $rendered = self::formFields($fields);
@@ -556,7 +562,7 @@ class GroupManagementPage extends FOGPage
                 'GROUP_IMAGE_FIELDS',
                 [
                     'fields' => &$fields,
-                    'obj' => &$this->obj
+                    'Group' => &$this->obj
                 ]
             );
         $rendered = self::formFields($fields);

@@ -118,7 +118,8 @@ class UserManagementPage extends FOGPage
             ->processEvent(
                 'USER_ADD_FIELDS',
                 [
-                    'fields' => &$fields
+                    'fields' => &$fields,
+                    'User' => self::getClass('User')
                 ]
             );
         $rendered = self::formFields($fields);
@@ -234,12 +235,18 @@ class UserManagementPage extends FOGPage
                 ]
             );
         }
-        http_response_code($code);
         self::$HookManager
             ->processEvent(
                 $hook,
-                ['User' => &$User]
+                [
+                    'User' => &$User,
+                    'hook' => &$hook,
+                    'code' => &$code,
+                    'msg' => &$msg,
+                    'serverFault' => &$serverFault
+                ]
             );
+        http_response_code($code);
         unset($User);
         echo $msg;
         exit;
@@ -279,10 +286,10 @@ class UserManagementPage extends FOGPage
             . '"/>'
         ];
         self::$HookManager->processEvent(
-            'USER_EDIT_FIELDS',
+            'USER_GENERAL_FIELDS',
             [
                 'fields' => &$fields,
-                'obj' => &$this->obj
+                'User' => &$this->obj
             ]
         );
         $rendered = self::formFields($fields);
@@ -338,10 +345,10 @@ class UserManagementPage extends FOGPage
             . '" type="password" value="" name="password_confirm" beEqualTo="password" required/></div>'
         ];
         self::$HookManager->processEvent(
-            'USER_PW_EDIT_FIELDS',
+            'USER_CHANGEPW_FIELDS',
             [
                 'fields' => &$fields,
-                'obj' => &$this->obj
+                'User' => &$this->obj
             ]
         );
         $rendered = self::formFields($fields);
@@ -416,10 +423,10 @@ class UserManagementPage extends FOGPage
             . '</div>'
         ];
         self::$HookManager->processEvent(
-            'USER_API_EDIT_FIELDS',
+            'USER_API_FIELDS',
             [
                 'fields' => &$fields,
-                'obj' => &$this->obj
+                'User' => &$this->obj
             ]
         );
         $rendered = self::formFields($fields);
@@ -607,12 +614,18 @@ class UserManagementPage extends FOGPage
                 ]
             );
         }
-        http_response_code($code);
         self::$HookManager
             ->processEvent(
                 $hook,
-                ['User' => &$this->obj]
+                [
+                    'User' => &$this->obj,
+                    'hook' => &$hook,
+                    'code' => &$code,
+                    'msg' => &$msg,
+                    'serverFault' => &$serverFault
+                ]
             );
+        http_response_code($code);
         echo $msg;
         exit;
     }
