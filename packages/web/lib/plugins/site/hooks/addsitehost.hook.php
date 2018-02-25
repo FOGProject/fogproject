@@ -172,7 +172,7 @@ class AddSiteHost extends Hook
         if ($sub == 'pending') {
             return;
         }
-        if (!in_array('accesscontrol', (array)selfy5y::$pluginsinstalled)) {
+        if (!in_array('accesscontrol', (array)self::$pluginsinstalled)) {
             $insertIndex = 4;
         } else {
             $insertIndex = 5;
@@ -342,7 +342,7 @@ class AddSiteHost extends Hook
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
-        if (!in_array('accesscontrol', (array)selfy5y::$pluginsinstalled)) {
+        if (!in_array('accesscontrol', (array)self::$pluginsinstalled)) {
             $insertIndex = 5;
         } else {
             $insertIndex = 6;
