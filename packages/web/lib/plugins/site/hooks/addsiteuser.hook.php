@@ -169,7 +169,7 @@ class AddSiteUser extends Hook
         $insert_values = [];
         $users = [$obj->get('id')];
         if (count($users) > 0) {
-            self::getClass('SiteAssociationManager')->destroy(
+            self::getClass('SiteUserAssociationManager')->destroy(
                 ['userID' => $users]
             );
             foreach ((array)$users as $ind => &$userID) {
@@ -178,7 +178,7 @@ class AddSiteUser extends Hook
             }
         }
         if (count($insert_values) > 0) {
-            self::getClass('SiteAssociationManager')
+            self::getClass('SiteUserAssociationManager')
                 ->insertBatch(
                     $insert_fields,
                     $insert_values
@@ -219,7 +219,7 @@ class AddSiteUser extends Hook
             );
         } catch (Exception $e) {
             $arguments['code'] = 400;
-            $arguments['hook'] = 'USer_EDIT_SITE_FAIL';
+            $arguments['hook'] = 'USER_EDIT_SITE_FAIL';
             $arguments['msg'] = json_encode(
                 [
                     'error' => $e->getMessage(),
