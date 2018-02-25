@@ -1,7 +1,7 @@
 var runInterval;
 (function($) {
     runDBCheck();
-    $('form').submit(function(e) {
+    $('form').on('submit',function(e) {
         clearInterval(runInterval);
     });
 })(jQuery);

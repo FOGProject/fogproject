@@ -24,7 +24,7 @@ $(function() {
         }
     };
     setupTimeoutElement('#add, #update', '[name="name"], [name="address"], [name="searchDN"], [name="port"], [name="userNamAttr"], [name="grpMemberAttr"]', 1000);
-    $('.action-boxes').submit(function() {
+    $('.action-boxes').on('submit',function() {
         var checked = $('input.toggle-action:checked');
         var ldapIDArray = [];
         for (var i = 0,len = checked.size();i < len;i++) {
@@ -32,11 +32,11 @@ $(function() {
         }
         $('input[name="ldapIDArray"]').val(ldapIDArray.join(','));
     });
-    $('#inittemplate').change(function(e) {
+    $('#inittemplate').on('change',function(e) {
         e.preventDefault();
         ldapSetFields(this.options[this.selectedIndex].value);
     });
-    $('#useGroupMatch').change(function(e) {
+    $('#useGroupMatch').on('change',function(e) {
         e.preventDefault();
         ldapUseGroupToggle(this.options[this.selectedIndex].value);
     }).trigger('change');

@@ -116,14 +116,14 @@ var clientinterval = false;
     GraphBandwidthMaxDataPoints = $('.time-filters.active').prop('rel');
     UpdateBandwidth();
     UpdateClientCount();
-    $('#diskusage-selector select').change(function(e) {
+    $('#diskusage-selector select').on('change',function(e) {
         if (diskinterval) {
             clearTimeout(diskinterval);
         }
         GraphDiskUsageUpdate();
         e.preventDefault();
     });
-    $('#graph-activity-selector select').change(function(e) {
+    $('#graph-activity-selector select').on('change',function(e) {
         if (clientinterval) {
             clearTimeout(clientinterval);
         }

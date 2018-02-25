@@ -10,7 +10,7 @@ $(function() {
     };
     if (sub == 'membership') return;
     setupTimeoutElement('#add, #updategen', '.sitename-input', 1000);
-    $('.action-boxes.del').submit(function() {
+    $('.action-boxes.del').on('submit',function() {
         var checked = $('input.toggle-action:checked');
         var accesscontrolIDArray = new Array();
         for (var i = 0,len = checked.size();i < len;i++) {
@@ -18,7 +18,7 @@ $(function() {
         }
         $('input[name="accesscontrolIDArray"]').val(accesscontrolIDArray.join(','));
     });
-    $('.action-boxes.host').submit(function() {
+    $('.action-boxes.host').on('submit',function() {
         var checked = $('input.toggle-action:checked');
         var accesscontrolruleIDArray = new Array();
         for (var i = 0,len = checked.size();i < len;i++) {
@@ -26,7 +26,7 @@ $(function() {
         }
         $('input[name="accesscontrolruleIDArray"]').val(accesscontrolruleIDArray.join(','));
     });
-    $('#hostMeShow:checkbox').change(function(e) {
+    $('#hostMeShow:checkbox').on('change',function(e) {
         if ($(this).is(':checked')) $('#hostNotInMe').show();
         else $('#hostNotInMe').hide();
         e.preventDefault();

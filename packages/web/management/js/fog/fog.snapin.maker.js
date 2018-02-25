@@ -7,7 +7,7 @@
     if ($('#snapinpack-version').val().length < 1) $('#snapinpack-version').attr('placeholder',version);
     if ($('#snapinpack-file').val().length < 1) $('#snapinpack-file').attr('placeholder',file);
     if ($('#snapinpack-arguments').val().length < 1) $('#snapinpack-arguments').attr('placeholder',argument);
-    $('#argTypes').change(function() {
+    $('#argTypes').on('change',function() {
         $('#snapinpack-file').val($('option:selected',this).attr('file'));
         $('#snapinpack-arguments').val($('option:selected',this).attr('args'));
     });

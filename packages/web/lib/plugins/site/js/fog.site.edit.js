@@ -1,5 +1,5 @@
 $(function() {
-    $('#userMeShow:checkbox').change(function(e) {
+    $('#userMeShow:checkbox').on('change',function(e) {
         if ($(this).is(':checked')) $('#userNotInMe').show();
         else $('#userNotInMe').hide();
         e.preventDefault();
