@@ -1,19 +1,19 @@
 <?php
 /**
- * Associate Users to a Site.
+ * Associate user to a Site.
  *
- * PHP version 5
+ * PHP version 7
  *
- * @category AddSiteUSer
+ * @category AddSiteUser
  * @package  FOGProject
  * @author   Fernando Gietz <fernando.gietz@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
 /**
- * Associate Users to a Site.
+ * Associate user to a Site.
  *
- * @category AddSiteUSer
+ * @category AddSiteUser
  * @package  FOGProject
  * @author   Fernando Gietz <fernando.gietz@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
@@ -21,9 +21,29 @@
  */
 class AddSiteUser extends Hook
 {
+    /**
+     * The name of this hook.
+     *
+     * @var string
+     */
     public $name = 'AddSiteUser';
-    public $description = 'Add Users to a Site';
+    /**
+     * The description of this hook.
+     *
+     * @var string
+     */
+    public $description = 'Add users to a Site';
+    /**
+     * For posterity.
+     *
+     * @var bool
+     */
     public $active = true;
+    /**
+     * The plugin this hook works on.
+     *
+     * @return void
+     */
     public $node = 'site';
     /**
      * Initializes object.
@@ -35,323 +55,200 @@ class AddSiteUser extends Hook
         parent::__construct();
         self::$HookManager
             ->register(
-                'USER_HEADER_DATA',
+                'TABDATA_HOOK',
                 array(
                     $this,
-                    'userTableHeader'
+                    'userTabData'
                 )
             )
             ->register(
-                'USER_DATA',
+                'USER_EDIT_SUCCESS',
                 array(
                     $this,
-                    'userData'
+                    'userAddSiteEdit'
                 )
             )
             ->register(
-                'USER_FIELDS',
+                'USER_ADD_FIELDS',
                 array(
                     $this,
-                    'userFields'
-                )
-            )
-            ->register(
-                'USER_ADD_SUCCESS',
-                array(
-                    $this,
-                    'userAddSite'
-                )
-            )
-            ->register(
-                'USER_UPDATE_SUCCESS',
-                array(
-                    $this,
-                    'userAddSite'
-                )
-            )
-            ->register(
-                'SUB_MENULINK_DATA',
-                array(
-                    $this,
-                    'addNotes'
+                    'userAddSiteField'
                 )
             );
     }
     /**
-     * This function modifies the header of the user page.
-     * Add one column calls 'Associated Sites'
+     * The user tab data.
      *
-     * @param mixed $arguments The arguments to modify.
+     * @param mixed $arguments The arguments to change.
      *
      * @return void
      */
-    public function userTableHeader($arguments)
+    public function userTabData($arguments)
     {
         global $node;
-        global $sub;
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         if ($node != 'user') {
             return;
         }
-        if ($sub == 'pending') {
-            return;
-        }
-        if (!in_array('accesscontrol', (array)self::$pluginsinstalled)) {
-            $insertIndex = 3;
-        } else {
-            $insertIndex = 4;
-        }
-        $insertIndexRestricted = $insertIndex + 1;
-        foreach ((array)$arguments['headerData'] as $index => &$str) {
-            if ($index == $insertIndex) {
-                $arguments['headerData'][$index] = _('Associated Sites');
-                $arguments['headerData'][] = $str;
+        $obj = $arguments['obj'];
+        $arguments['tabData'][] = [
+            'name' => _('Site Association'),
+            'id' => 'user-site',
+            'generator' => function() use ($obj) {
+                $this->userSite($obj);
             }
-            unset($str);
-        }
-        foreach ((array)$arguments['headerData'] as $index => &$str) {
-            if ($index == $insertIndexRestricted) {
-                $arguments['headerData'][$index] = _('Is restricted');
-                $arguments['headerData'][] = $str;
-            }
-            unset($str);
-        }
+        ];
     }
     /**
-     * This function modifies the data of the user page.
-     * Add one column calls 'Associated Sites'
+     * The user site display
      *
-     * @param mixed $arguments The arguments to modify.
+     * @param object $obj The user object we're working with.
      *
      * @return void
      */
-    public function userData($arguments)
+    public function userSite($obj)
     {
-        global $node;
-        global $sub;
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        if ($node != 'user') {
-            return;
-        }
-        if ($sub == 'pending') {
-            return;
-        }
-        if (!in_array('accesscontrol', (array)self::$pluginsinstalled)) {
-            $insertIndex = 3;
-        } else {
-            $insertIndex = 4;
-        }
-        $insertIndexRestricted = $insertIndex + 1;
-        foreach ((array)$arguments['attributes'] as $index => &$str) {
-            if ($index == $insertIndex || $index == $insertIndex + 1) {
-                $arguments['attributes'][$index] = array();
-                $arguments['attributes'][] = $str;
-            }
-            unset($str);
-        }
-        foreach ((array)$arguments['attributes'] as $index => &$str) {
-            if ($index == $insertIndexRestricted || $index == $insertIndex + 1) {
-                $arguments['attributes'][$index] = array();
-                $arguments['attributes'][] = $str;
-            }
-            unset($str);
-        }
-        foreach ((array)$arguments['templates'] as $index => &$str) {
-            if ($index == $insertIndex) {
-                $arguments['templates'][$index] = '${site}';
-                $arguments['templates'][] = $str;
-            }
-            unset($str);
-        }
-        foreach ((array)$arguments['templates'] as $index => &$str) {
-            if ($index == $insertIndexRestricted) {
-                $arguments['templates'][$index] = '${isRestricted}';
-                $arguments['templates'][] = $str;
-            }
-            unset($str);
-        }
-        foreach ((array)$arguments['data'] as $index => &$vals) {
-            $find = array(
-                'userID' => $vals['id']
+        $siteID = (int)filter_input(
+            INPUT_POST,
+            'site'
+        );
+        // User sites
+        $siteSelector = self::getClass('SiteManager')
+            ->buildSelectBox($siteID, 'site');
+        $fields = [
+            '<label for="site" class="col-sm-2 control-label">'
+            . _('User Site')
+            . '</label>' => &$siteSelector
+        ];
+        self::$HookManager
+            ->processEvent(
+                'USER_SITE_FIELDS',
+                [
+                    'fields' => &$fields,
+                    'User' => &$obj
+                ]
             );
-            $Sites = self::getSubObjectIDs(
-                'SiteUserAssociation',
-                $find,
-                'siteID'
+        $rendered = FOGPage::formFields($fields);
+        echo '<div class="box box-solid">';
+        echo '<div class="box-body">';
+        echo '<form id="user-site-form" class="form-horizontal" method="post" action="'
+            . FOGPage::makeTabUpdateURL('user-site', $obj->get('id'))
+            . '" novalidate>';
+        echo $rendered;
+        echo '</form>';
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo '<button class="btn btn-primary" id="site-send">'
+            . _('Update')
+            . '</button>';
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * The site updater element.
+     *
+     * @param object $obj The object we're working with.
+     *
+     * @return void
+     */
+    public function userSitePost($obj)
+    {
+        $siteID = trim(
+            (int)filter_input(
+                INPUT_POST,
+                'site'
+            )
+        );
+        $Site = new Site($siteID);
+        if (!$Site->isValid() && is_numeric($siteID)) {
+            throw new Exception(_('Select a valid site'));
+        }
+        $insert_fields = ['userID', 'siteID'];
+        $insert_values = [];
+        $users = [$obj->get('id')];
+        if (count($users) > 0) {
+            self::getClass('SiteAssociationManager')->destroy(
+                ['userID' => $users]
             );
-            $isRestricted = self::getSubObjectIDs(
-                'SiteUserRestriction',
-                $find,
-                'isRestricted'
-            );
-            $cnt = count($Sites);
-            if ($cnt == 0) {
-                $arguments['data'][$index]['site'] = _('No site');
-            } else {
-                $SiteNames = array_values(
-                    array_unique(
-                        array_filter(
-                            self::getSubObjectIDs(
-                                'Site',
-                                array('id' => $Sites),
-                                'name'
-                            )
-                        )
-                    )
+            foreach ((array)$users as $ind => &$userID) {
+                $insert_values[] = [$userID, $siteID];
+                unset($userID);
+            }
+        }
+        if (count($insert_values) > 0) {
+            self::getClass('SiteAssociationManager')
+                ->insertBatch(
+                    $insert_fields,
+                    $insert_values
                 );
-                foreach ($SiteNames as $name) {
-                    $sitenames .= $name.",";
-                    unset($name);
-                }
-
-                $arguments['data'][$index]['site'] = substr(
-                    $sitenames,
-                    0,
-                    strlen($sitenames)-1
-                );
+        }
+    }
+    /**
+     * The user site selector.
+     *
+     * @param mixed $arguments The arguments to change.
+     *
+     * @return void
+     */
+    public function userAddSiteEdit($arguments)
+    {
+        global $tab;
+        global $node;
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
+            return;
+        }
+        if ($node != 'user') {
+            return;
+        }
+        $obj = $arguments['obj'];
+        try {
+            switch ($tab) {
+            case 'user-site':
+                $this->userSitePost($obj);
+                break;
             }
-            $arguments['data'][$index]['isRestricted'] = (
-                $isRestricted[0] ?
-                _('Yes') :
-                _('No')
+            $arguments['code'] = 201;
+            $argumetns['hook'] = 'USER_EDIT_SITE_SUCCESS';
+            $arguments['msg'] = json_encode(
+                [
+                    'msg' => _('User Site Updated!'),
+                    'title' => _('User Site Update Success')
+                ]
             );
-            unset($vals);
-            unset($Sites, $SiteNames, $sitenames);
-        }
-    }
-    /**
-     * This function adds a new column in the result table.
-     *
-     * @param mixed $arguments The arguments to modify.
-     *
-     * @return void
-     */
-    public function userFields($arguments)
-    {
-        global $node;
-        global $sub;
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        if ($node != 'user') {
-            return;
-        }
-        $isRestricted = self::getSubObjectIDs(
-            'SiteUserRestriction',
-            array(
-                'userID' => $arguments['User']->get('id')
-            ),
-            'isRestricted'
-        );
-        if (empty($isRestricted)) {
-            $isRestricted = 0;
-        } else {
-            $isRestricted = $isRestricted[0];
-        }
-        self::arrayInsertAfter(
-            _('User Name'),
-            $arguments['fields'],
-            _('Is Restricted User '),
-            sprintf(
-                '<input type="checkbox" name="isRestricted" id="isRestricted"%s/>'
-                . '<label for="isRestricted"></label>',
-                (
-                    $isRestricted ?
-                    ' checked' :
-                    ''
-                )
-            )
-        );
-    }
-    /**
-     * This function adds one entry in the siteUserAssoc table in the DB
-     *
-     * @param mixed $arguments The arguments to modify.
-     *
-     * @return void
-     */
-    public function userAddSite($arguments)
-    {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        global $node;
-        global $sub;
-        $subs = array(
-            'add',
-            'edit',
-            'addPost',
-            'editPost'
-        );
-        if ($node != 'user') {
-            return;
-        }
-        if (!in_array($sub, $subs)) {
-            return;
-        }
-        self::getClass('SiteUserRestrictionManager')->destroy(
-            array(
-                'userID' => $arguments['User']->get('id')
-            )
-        );
-
-        self::getClass('SiteUserRestriction')
-            ->set('userID', $arguments['User']->get('id'))
-            ->load('userID')
-            ->set('isRestricted', isset($_REQUEST['isRestricted'])?1:0)
-            ->save();
-    }
-    /**
-     * This function adds role to notes
-     *
-     * @param mixed $arguments The arguments to modify.
-     *
-     * @return void
-     */
-    public function addNotes($arguments)
-    {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        global $node;
-        global $sub;
-        if ($node != 'user') {
-            return;
-        }
-        if (count($arguments['notes']) < 1) {
-            return;
-        }
-        $SiteIDs = self::getSubObjectIDs(
-            'SiteUserAssociation',
-            array(
-                'userID' => $arguments['object']->get('id')
-            ),
-            'siteID'
-        );
-        $cnt = count($SiteIDs);
-        if ($cnt == 0) {
-            $sitenames = _('No Site');
-        } else {
-            $Sites = array_values(
-                array_unique(
-                    array_filter(
-                        self::getSubObjectIDs(
-                            'Site',
-                            array('id' => $SiteIDs),
-                            'name'
-                        )
-                    )
-                )
+        } catch (Exception $e) {
+            $arguments['code'] = 400;
+            $arguments['hook'] = 'USer_EDIT_SITE_FAIL';
+            $arguments['msg'] = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('User Update Site Fail')
+                ]
             );
-            foreach ($Sites as $index) {
-                $sitenames .= $index." ";
-                unset($index);
-            }
         }
-        $arguments['notes'][_('Sites')] = $sitenames;
+    }
+    /**
+     * The user site field for function add.
+     *
+     * @param mixed $arguments The arguments to change.
+     *
+     * @return void
+     */
+    public function userAddSiteField($arguments)
+    {
+        global $node;
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
+            return;
+        }
+        if ($node != 'user') {
+            return;
+        }
+        $siteID = (int)filter_input(INPUT_POST, 'site');
+        $arguments['fields'][
+            '<label for="site" class="col-sm-2 control-label">'
+            . _('User Site')
+            . '</label>'] = self::getClass('SiteManager')
+            ->buildSelectBox($siteID, 'site');
     }
 }

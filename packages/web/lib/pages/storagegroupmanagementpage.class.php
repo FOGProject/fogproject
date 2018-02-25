@@ -161,13 +161,19 @@ class StorageGroupManagementPage extends FOGPage
                 ]
             );
         }
-        http_response_code($code);
         //header('Location: ../management/index.php?node=storagegroup&sub=edit&id=' . $StorageGroup->get('id'));
         self::$HookManager
             ->processEvent(
                 $hook,
-                ['StorageGroup' => &$StorageGroup]
+                [
+                    'StorageGroup' => &$StorageGroup,
+                    'hook' => &$hook,
+                    'code' => &$code,
+                    'msg' => &$msg,
+                    'serverFault' => &$serverFault
+                ]
             );
+        http_response_code($code);
         unset($StorageGroup);
         echo $msg;
         exit;
@@ -204,7 +210,7 @@ class StorageGroupManagementPage extends FOGPage
                 'STORAGEGROUP_GENERAL_FIELDS',
                 [
                     'fields' => &$fields,
-                    'obj' => &$this->obj
+                    'StorageGroup' => &$this->obj
                 ]
             );
         $rendered = self::formFields($fields);
@@ -456,11 +462,18 @@ class StorageGroupManagementPage extends FOGPage
                 ]
             );
         }
+        self::$HookManager
+            ->processEvent(
+                $hook,
+                [
+                    'StorageGroup' => &$this->obj,
+                    'hook' => &$hook,
+                    'code' => &$code,
+                    'msg' => &$msg,
+                    'serverFault' => &$serverFault
+                ]
+            );
         http_response_code($code);
-        self::$HookManager->processEvent(
-            $hook,
-            ['StorageGroup' => &$this->obj]
-        );
         echo $msg;
         exit;
     }

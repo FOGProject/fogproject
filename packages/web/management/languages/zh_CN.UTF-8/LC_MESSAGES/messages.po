@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-21 11:19-0500\n"
+"POT-Creation-Date: 2018-02-25 15:28-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1302,14 +1302,28 @@ msgstr ""
 msgid "Default is disabled"
 msgstr "捐款将被禁用"
 
-msgid "Location/Deployed"
-msgstr "位置/部署"
-
-msgid "Host Product Key"
-msgstr "主机产品密钥"
+#, fuzzy
+msgid "Location Association"
+msgstr "图像协会"
 
 msgid "Host Location"
 msgstr "主机位置"
+
+#, fuzzy
+msgid "Select a valid location"
+msgstr "选择一个有效的图像"
+
+#, fuzzy
+msgid "Host Location Updated!"
+msgstr "更新位置"
+
+#, fuzzy
+msgid "Host Location Update Success"
+msgstr "安装/升级成功！"
+
+#, fuzzy
+msgid "Host Update Location Fail"
+msgstr "主机更新失败"
 
 #, fuzzy
 msgid "Snapin Locations"
@@ -1332,8 +1346,20 @@ msgid "Enable location Sending"
 msgstr ""
 
 #, fuzzy
-msgid "Location Association"
-msgstr "图像协会"
+msgid "Group Location"
+msgstr "主机位置"
+
+#, fuzzy
+msgid "Group Location Updated!"
+msgstr "更新位置"
+
+#, fuzzy
+msgid "Group Location Update Success"
+msgstr "安装/升级成功！"
+
+#, fuzzy
+msgid "Group Update Location Fail"
+msgstr "集团创建失败"
 
 #, fuzzy
 msgid "Export Locations"
@@ -1436,45 +1462,60 @@ msgid "between different sites"
 msgstr ""
 
 #, fuzzy
-msgid "Associated Sites"
-msgstr "预估FOG网站"
-
-msgid "Associate Host to a Site "
-msgstr ""
-
-#, fuzzy
-msgid "No Site"
-msgstr "没有设置"
-
-#, fuzzy
-msgid "Site"
-msgstr "最大尺寸"
-
-#, fuzzy
 msgid "Site Association"
 msgstr "图像协会"
 
 #, fuzzy
-msgid "Site Association for"
-msgstr "图像协会"
+msgid "Host Site"
+msgstr "主机列表"
 
 #, fuzzy
-msgid "Update Sites"
-msgstr "更新打印机"
+msgid "Select a valid site"
+msgstr "选择一个有效的图像"
 
 #, fuzzy
-msgid "Is restricted"
-msgstr "任务开始"
+msgid "Host Site Updated!"
+msgstr "服务更新！"
 
 #, fuzzy
-msgid "No site"
-msgstr "没有设置"
+msgid "Host Site Update Success"
+msgstr "安装/升级成功！"
 
-msgid "User Name"
-msgstr "用户名"
+#, fuzzy
+msgid "Host Update Site Fail"
+msgstr "主机更新失败"
 
-msgid "Is Restricted User "
-msgstr ""
+#, fuzzy
+msgid "Group Site"
+msgstr "出口Snapins"
+
+#, fuzzy
+msgid "Group Site Updated!"
+msgstr "集团补充"
+
+#, fuzzy
+msgid "Group Site Update Success"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "Group Update Site Fail"
+msgstr "集团创建失败"
+
+#, fuzzy
+msgid "User Site"
+msgstr "添加新的管理单元"
+
+#, fuzzy
+msgid "User Site Updated!"
+msgstr "服务更新！"
+
+#, fuzzy
+msgid "User Site Update Success"
+msgstr "安装/升级成功！"
+
+#, fuzzy
+msgid "User Update Site Fail"
+msgstr "用户更新失败"
 
 #, fuzzy
 msgid "Sites"
@@ -1491,6 +1532,10 @@ msgstr "进口打印机"
 #, fuzzy
 msgid "Hosts Associated"
 msgstr "没有snapins相关"
+
+#, fuzzy
+msgid "Site"
+msgstr "最大尺寸"
 
 #, fuzzy
 msgid "Host Associated"
@@ -1825,6 +1870,9 @@ msgstr "所有访问控制"
 #, fuzzy
 msgid "Role"
 msgstr "去掉"
+
+msgid "User Name"
+msgstr "用户名"
 
 #, fuzzy
 msgid "User Access Control"
@@ -2565,6 +2613,9 @@ msgstr "数据无效"
 
 #, fuzzy
 msgid "Host Product Keys"
+msgstr "主机产品密钥"
+
+msgid "Host Product Key"
 msgstr "主机产品密钥"
 
 #, fuzzy

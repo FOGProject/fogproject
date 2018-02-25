@@ -21,9 +21,29 @@
  */
 class AddSiteHost extends Hook
 {
+    /**
+     * The name of this hook.
+     *
+     * @var string
+     */
     public $name = 'AddSiteHost';
+    /**
+     * The description of this hook.
+     *
+     * @var string
+     */
     public $description = 'Add Hosts to a Site';
+    /**
+     * For posterity.
+     *
+     * @var bool
+     */
     public $active = true;
+    /**
+     * The node this hook enacts with.
+     *
+     * @var string
+     */
     public $node = 'site';
     /**
      * Initializes object.
@@ -35,298 +55,200 @@ class AddSiteHost extends Hook
         parent::__construct();
         self::$HookManager
             ->register(
-                'HOST_HEADER_DATA',
+                'TABDATA_HOOK',
                 array(
                     $this,
-                    'hostTableHeader'
-                )
-            )
-            ->register(
-                'HOST_DATA',
-                array(
-                    $this,
-                    'hostData'
-                )
-            )
-            ->register(
-                'HOST_FIELDS',
-                array(
-                    $this,
-                    'hostFields'
-                )
-            )
-            ->register(
-                'HOST_ADD_SUCCESS',
-                array(
-                    $this,
-                    'hostAddSite'
+                    'hostTabData'
                 )
             )
             ->register(
                 'HOST_EDIT_SUCCESS',
                 array(
                     $this,
-                    'hostAddSite'
+                    'hostAddSiteEdit'
                 )
             )
             ->register(
-                'SUB_MENULINK_DATA',
+                'HOST_ADD_FIELDS',
                 array(
                     $this,
-                    'addNotes'
+                    'hostAddSiteField'
                 )
             );
     }
     /**
-     * This function modifies the header of the user page.
-     * Add one column calls 'Associated Sites'
+     * The host tab data.
      *
-     * @param mixed $arguments The arguments to modify.
+     * @param mixed $arguments The arguments to change.
      *
      * @return void
      */
-    public function hostTableHeader($arguments)
+    public function hostTabData($arguments)
     {
+        global $node;
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
-        global $node;
-        global $sub;
         if ($node != 'host') {
             return;
         }
-        if ($sub == 'pending') {
-            return;
-        }
-        if (!in_array('accesscontrol', (array)self::$pluginsinstalled)) {
-            $insertIndex = 4;
-        } else {
-            $insertIndex = 5;
-        }
-        foreach ((array)$arguments['headerData'] as $index => &$str) {
-            if ($index == $insertIndex) {
-                $arguments['headerData'][$index] = _('Associated Sites');
-                $arguments['headerData'][] = $str;
+        $obj = $arguments['obj'];
+        $arguments['tabData'][] = [
+            'name' => _('Site Association'),
+            'id' => 'host-site',
+            'generator' => function() use ($obj) {
+                $this->hostSite($obj);
             }
-            unset($str);
-        }
+        ];
     }
     /**
-     * This function modifies the data of the user page.
-     * Add one column calls 'Associated Sites'
+     * The host site display
      *
-     * @param mixed $arguments The arguments to modify.
-     *
-     * @return void
-     */
-    public function hostData($arguments)
-    {
-        global $node;
-        global $sub;
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        if ($node != 'host') {
-            return;
-        }
-        if ($sub == 'pending') {
-            return;
-        }
-        if (!in_array('accesscontrol', (array)self::$pluginsinstalled)) {
-            $insertIndex = 4;
-        } else {
-            $insertIndex = 5;
-        }
-        foreach ((array)$arguments['attributes'] as $index => &$str) {
-            if ($index == $insertIndex) {
-                $arguments['attributes'][$index] = array();
-                $arguments['attributes'][] = $str;
-            }
-            unset($str);
-        }
-        foreach ((array)$arguments['templates'] as $index => &$str) {
-            if ($index == $insertIndex) {
-                $arguments['templates'][$index] = '${site}';
-                $arguments['templates'][] = $str;
-            }
-            unset($str);
-        }
-        foreach ((array)$arguments['data'] as $index => &$vals) {
-            $find = array(
-                'hostID' => $vals['id']
-            );
-            $Sites = self::getSubObjectIDs(
-                'SiteHostAssociation',
-                $find,
-                'siteID'
-            );
-            $cnt = count($Sites);
-            if ($cnt !== 1) {
-                $arguments['data'][$index]['site'] = '';
-                continue;
-            }
-            $SiteNames = array_values(
-                array_unique(
-                    array_filter(
-                        self::getSubObjectIDs(
-                            'Site',
-                            array('id' => $Sites),
-                            'name'
-                        )
-                    )
-                )
-            );
-            $arguments['data'][$index]['site'] = $SiteNames[0];
-            unset($vals);
-            unset($Sites, $SiteNames);
-        }
-    }
-    /**
-     * This function adds a new column in the result table.
-     *
-     * @param mixed $arguments The arguments to modify.
+     * @param object $obj The host object we're working with.
      *
      * @return void
      */
-    public function hostFields($arguments)
+    public function hostSite($obj)
     {
-        global $node;
-        global $sub;
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        if ($node != 'host') {
-            return;
-        }
-        $SiteIDs = self::getSubObjectIDs(
-            'SiteHostAssociation',
-            array(
-                'hostID' => $arguments['Host']->get('id')
-            ),
-            'siteID'
+        $siteID = (int)filter_input(
+            INPUT_POST,
+            'site'
         );
-        $cnt = self::getClass('SiteManager')->count(
-            array(
-                'id' => $SiteIDs
+        // Host Sites
+        $siteSelector = self::getClass('SiteManager')
+            ->buildSelectBox($siteID, 'site');
+        $fields = [
+            '<label for="site" class="col-sm-2 control-label">'
+            . _('Host Site')
+            . '</label>' => &$siteSelector
+        ];
+        self::$HookManager
+            ->processEvent(
+                'HOST_SITE_FIELDS',
+                [
+                    'fields' => &$fields,
+                    'Host' => &$obj
+                ]
+            );
+        $rendered = FOGPage::formFields($fields);
+        echo '<div class="box box-solid">';
+        echo '<div class="box-body">';
+        echo '<form id="host-site-form" class="form-horizontal" method="post" action="'
+            . FOGPage::makeTabUpdateURL('host-site', $obj->get('id'))
+            . '" novalidate>';
+        echo $rendered;
+        echo '</form>';
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo '<button class="btn btn-primary" id="site-send">'
+            . _('Update')
+            . '</button>';
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * The site updater element.
+     *
+     * @param object $obj The object we're working with.
+     *
+     * @return void
+     */
+    public function hostSitePost($obj)
+    {
+        $siteID = trim(
+            (int)filter_input(
+                INPUT_POST,
+                'site'
             )
         );
-        if ($cnt !== 1) {
-            $sID = 0;
-        } else {
-            $Sites = self::getSubObjectIDs(
-                'Site',
-                array('id' => $SiteIDs)
-            );
-            $sID = $Sites[0];
+        $Site = new Site($siteID);
+        if (!$Site->isValid() && is_numeric($siteID)) {
+            throw new Exception(_('Select a valid site'));
         }
-        self::arrayInsertAfter(
-            _('Host Product Key'),
-            $arguments['fields'],
-            _('Associate Host to a Site '),
-            self::getClass('SiteManager')->buildSelectBox(
-                $sID
-            )
-        );
+        $insert_fields = ['hostID', 'siteID'];
+        $insert_values = [];
+        $hosts = [$obj->get('id')];
+        if (count($hosts) > 0) {
+            self::getClass('SiteHostAssociationManager')->destroy(
+                ['hostID' => $hosts]
+            );
+            foreach ((array)$hosts as $ind => &$hostID) {
+                $insert_values[] = [$hostID, $siteID];
+                unset($hostID);
+            }
+        }
+        if (count($insert_values) > 0) {
+            self::getClass('SiteHostAssociationManager')
+                ->insertBatch(
+                    $insert_fields,
+                    $insert_values
+                );
+        }
     }
     /**
-     * This function adds one entry in the siteUserAssoc table in the DB
+     * The host site selector.
      *
-     * @param mixed $arguments The arguments to modify.
+     * @param mixed $arguments The arguments to change.
      *
      * @return void
      */
-    public function hostAddSite($arguments)
+    public function hostAddSiteEdit($arguments)
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        global $node;
-        global $sub;
         global $tab;
-        $subs = array(
-            'add',
-            'edit',
-            'addPost',
-            'editPost'
-        );
-        if ($node != 'host') {
-            return;
-        }
-        if (!in_array($sub, $subs)) {
-            return;
-        }
-        self::getClass('SiteHostAssociationManager')->destroy(
-            array(
-                'hostID' => $arguments['Host']->get('id')
-            )
-        );
-        $cnt = self::getClass('SiteManager')
-            ->count(
-                array('id' => $_REQUEST['site'])
-            );
-        if ($cnt !== 1) {
-            return;
-        }
-        $Site = new Site($_REQUEST['site']);
-        self::getClass('SiteHostAssociation')
-            ->set('hostID', $arguments['Host']->get('id'))
-            ->load('hostID')
-            ->set('siteID', $_REQUEST['site'])
-            ->set(
-                'name',
-                sprintf(
-                    '%s-%s',
-                    $Site->get('name'),
-                    $arguments['Host']->get('name')
-                )
-            )
-            ->save();
-    }
-    /**
-     * This function adds role to notes
-     *
-     * @param mixed $arguments The arguments to modify.
-     *
-     * @return void
-     */
-    public function addNotes($arguments)
-    {
+        global $node;
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
-        global $node;
-        global $sub;
-        global $tab;
         if ($node != 'host') {
             return;
         }
-        if (count($arguments['notes']) < 1) {
+        $obj = $arguments['obj'];
+        try{
+            switch ($tab) {
+            case 'host-site':
+                $this->hostSitePost($obj);
+                break;
+            }
+            $arguments['code'] = 201;
+            $arguments['hook'] = 'HOST_EDIT_SITE_SUCCESS';
+            $arguments['msg'] = json_encode(
+                [
+                    'msg' => _('Host Site Updated!'),
+                    'title' => _('Host Site Update Success')
+                ]
+            );
+        } catch (Exception $e) {
+            $arguments['code'] = 400;
+            $arguments['hook'] = 'HOST_EDIT_SITE_FAIL';
+            $arguments['msg'] = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Host Update Site Fail')
+                ]
+            );
+        }
+    }
+    /**
+     * The host site field for function add.
+     *
+     * @param mixed $arguments The arguments to change.
+     *
+     * @return void
+     */
+    public function hostAddSiteField($arguments)
+    {
+        global $node;
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
-        $SiteIDs = self::getSubObjectIDs(
-            'SiteHostAssociation',
-            array(
-                'hostID' => $arguments['object']->get('id')
-            ),
-            'siteID'
-        );
-        $cnt = count($SiteIDs);
-        if ($cnt !== 1) {
-            $sID = _('No Site');
-        } else {
-            $Sites = array_values(
-                array_unique(
-                    array_filter(
-                        self::getSubObjectIDs(
-                            'Site',
-                            array('id' => $SiteIDs),
-                            'name'
-                        )
-                    )
-                )
-            );
-            $sID = $Sites[0];
+        if ($node != 'host') {
+            return;
         }
-        $arguments['notes'][_('Site')] = $sID;
+        $siteID = (int)filter_input(INPUT_POST, 'site');
+        $arguments['fields'][
+            '<label for="site" class="col-sm-2 control-label">'
+            . _('Host Site')
+            . '</label>'] = self::getClass('SiteManager')
+            ->buildSelectBox($siteID, 'site');
     }
 }

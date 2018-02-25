@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-21 11:19-0500\n"
+"POT-Creation-Date: 2018-02-25 15:28-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1307,14 +1307,28 @@ msgstr ""
 msgid "Default is disabled"
 msgstr "Les dons sont désactivés"
 
-msgid "Location/Deployed"
-msgstr "Lieu / Déployé"
-
-msgid "Host Product Key"
-msgstr "Hôte clé de produit"
+#, fuzzy
+msgid "Location Association"
+msgstr "Association Image"
 
 msgid "Host Location"
 msgstr "hôte Lieu"
+
+#, fuzzy
+msgid "Select a valid location"
+msgstr "Sélectionnez une image valide"
+
+#, fuzzy
+msgid "Host Location Updated!"
+msgstr "Emplacement Mise à jour"
+
+#, fuzzy
+msgid "Host Location Update Success"
+msgstr "Installation / Mise à jour réussie!"
+
+#, fuzzy
+msgid "Host Update Location Fail"
+msgstr "Mise à jour de l'hôte a échoué"
 
 #, fuzzy
 msgid "Snapin Locations"
@@ -1337,8 +1351,20 @@ msgid "Enable location Sending"
 msgstr ""
 
 #, fuzzy
-msgid "Location Association"
-msgstr "Association Image"
+msgid "Group Location"
+msgstr "hôte Lieu"
+
+#, fuzzy
+msgid "Group Location Updated!"
+msgstr "Emplacement Mise à jour"
+
+#, fuzzy
+msgid "Group Location Update Success"
+msgstr "Installation / Mise à jour réussie!"
+
+#, fuzzy
+msgid "Group Update Location Fail"
+msgstr "Groupe create a échoué"
 
 #, fuzzy
 msgid "Export Locations"
@@ -1442,45 +1468,60 @@ msgid "between different sites"
 msgstr ""
 
 #, fuzzy
-msgid "Associated Sites"
-msgstr "Sites FOG estimés"
-
-msgid "Associate Host to a Site "
-msgstr ""
-
-#, fuzzy
-msgid "No Site"
-msgstr "Pas encore défini"
-
-#, fuzzy
-msgid "Site"
-msgstr "Max Taille"
-
-#, fuzzy
 msgid "Site Association"
 msgstr "Association Image"
 
 #, fuzzy
-msgid "Site Association for"
-msgstr "Association d'image pour"
+msgid "Host Site"
+msgstr "Liste des hôtes"
 
 #, fuzzy
-msgid "Update Sites"
-msgstr "Mise à jour de l'imprimante"
+msgid "Select a valid site"
+msgstr "Sélectionnez une image valide"
 
 #, fuzzy
-msgid "Is restricted"
-msgstr "Tâche Started"
+msgid "Host Site Updated!"
+msgstr "Service de mise à jour!"
 
 #, fuzzy
-msgid "No site"
-msgstr "Pas encore défini"
+msgid "Host Site Update Success"
+msgstr "Installation / Mise à jour réussie!"
 
-msgid "User Name"
-msgstr "Nom d'utilisateur"
+#, fuzzy
+msgid "Host Update Site Fail"
+msgstr "Mise à jour de l'hôte a échoué"
 
-msgid "Is Restricted User "
-msgstr ""
+#, fuzzy
+msgid "Group Site"
+msgstr "Export SnapIns"
+
+#, fuzzy
+msgid "Group Site Updated!"
+msgstr "Groupe ajouté"
+
+#, fuzzy
+msgid "Group Site Update Success"
+msgstr "utilisateur créé"
+
+#, fuzzy
+msgid "Group Update Site Fail"
+msgstr "Groupe create a échoué"
+
+#, fuzzy
+msgid "User Site"
+msgstr "Ajouter New Snapin"
+
+#, fuzzy
+msgid "User Site Updated!"
+msgstr "Service de mise à jour!"
+
+#, fuzzy
+msgid "User Site Update Success"
+msgstr "Installation / Mise à jour réussie!"
+
+#, fuzzy
+msgid "User Update Site Fail"
+msgstr "mise à jour de l'utilisateur a échoué"
 
 #, fuzzy
 msgid "Sites"
@@ -1497,6 +1538,10 @@ msgstr "Imprimantes d'importation"
 #, fuzzy
 msgid "Hosts Associated"
 msgstr "Aucun snapins associés"
+
+#, fuzzy
+msgid "Site"
+msgstr "Max Taille"
 
 #, fuzzy
 msgid "Host Associated"
@@ -1831,6 +1876,9 @@ msgstr "Tous les contrôles d'accès"
 #, fuzzy
 msgid "Role"
 msgstr "Retirer"
+
+msgid "User Name"
+msgstr "Nom d'utilisateur"
 
 #, fuzzy
 msgid "User Access Control"
@@ -2571,6 +2619,9 @@ msgstr "Données invalides"
 
 #, fuzzy
 msgid "Host Product Keys"
+msgstr "Hôte clé de produit"
+
+msgid "Host Product Key"
 msgstr "Hôte clé de produit"
 
 #, fuzzy

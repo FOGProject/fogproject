@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-21 11:19-0500\n"
+"POT-Creation-Date: 2018-02-25 15:28-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -1258,14 +1258,27 @@ msgstr "la posizione definita dall'host, se disponibile"
 msgid "Default is disabled"
 msgstr "Il valore predefinito è disabilitato"
 
-msgid "Location/Deployed"
-msgstr "Posizione / Distribuzione"
-
-msgid "Host Product Key"
-msgstr "Host Product Key"
+msgid "Location Association"
+msgstr "Associazione Posizione"
 
 msgid "Host Location"
 msgstr "Host Luoghi"
+
+#, fuzzy
+msgid "Select a valid location"
+msgstr "Selezionare un'immagine valida"
+
+#, fuzzy
+msgid "Host Location Updated!"
+msgstr "Posizione aggiornata!"
+
+#, fuzzy
+msgid "Host Location Update Success"
+msgstr "Modifica posizione riuscita"
+
+#, fuzzy
+msgid "Host Update Location Fail"
+msgstr "Aggiornamento Host completato"
 
 msgid "Snapin Locations"
 msgstr "Snapin Luoghi"
@@ -1285,8 +1298,21 @@ msgstr "Il principale e l'host"
 msgid "Enable location Sending"
 msgstr "Abilita invio posizione "
 
-msgid "Location Association"
-msgstr "Associazione Posizione"
+#, fuzzy
+msgid "Group Location"
+msgstr "Host Luoghi"
+
+#, fuzzy
+msgid "Group Location Updated!"
+msgstr "Posizione aggiornata!"
+
+#, fuzzy
+msgid "Group Location Update Success"
+msgstr "Modifica posizione riuscita"
+
+#, fuzzy
+msgid "Group Update Location Fail"
+msgstr "Aggiornamento gruppo non riuscito"
 
 msgid "Export Locations"
 msgstr "Esporta luoghi"
@@ -1377,38 +1403,60 @@ msgstr "siti con client che si muovono avanti e indietro"
 msgid "between different sites"
 msgstr "tra diversi siti"
 
-msgid "Associated Sites"
-msgstr "Siti Associati"
-
-msgid "Associate Host to a Site "
-msgstr "Associa Host a un Sito"
-
-msgid "No Site"
-msgstr "Nessun Sito"
-
-msgid "Site"
-msgstr "Sito"
-
 msgid "Site Association"
 msgstr "Associazione Sito"
 
-msgid "Site Association for"
-msgstr "Associazione Sito per"
+#, fuzzy
+msgid "Host Site"
+msgstr "Lista Host"
 
-msgid "Update Sites"
-msgstr "Aggiornamento Siti"
+#, fuzzy
+msgid "Select a valid site"
+msgstr "Selezionare un'immagine valida"
 
-msgid "Is restricted"
-msgstr "È limitato"
+#, fuzzy
+msgid "Host Site Updated!"
+msgstr "Sito aggiornato!"
 
-msgid "No site"
-msgstr "Nessun sito"
+#, fuzzy
+msgid "Host Site Update Success"
+msgstr "Aggiornamento host completato!"
 
-msgid "User Name"
-msgstr "Nome utente"
+#, fuzzy
+msgid "Host Update Site Fail"
+msgstr "Aggiornamento Host completato"
 
-msgid "Is Restricted User "
-msgstr "È Utente Limitato"
+#, fuzzy
+msgid "Group Site"
+msgstr "Gruppo Snapins"
+
+#, fuzzy
+msgid "Group Site Updated!"
+msgstr "Gruppo aggiornato!"
+
+#, fuzzy
+msgid "Group Site Update Success"
+msgstr "Aggiornamento del gruppo completato"
+
+#, fuzzy
+msgid "Group Update Site Fail"
+msgstr "Aggiornamento gruppo non riuscito"
+
+#, fuzzy
+msgid "User Site"
+msgstr "Nuovo Sito"
+
+#, fuzzy
+msgid "User Site Updated!"
+msgstr "Sito aggiornato!"
+
+#, fuzzy
+msgid "User Site Update Success"
+msgstr "Utente aggiornato con successo"
+
+#, fuzzy
+msgid "User Update Site Fail"
+msgstr "Aggiornamento utente non riuscita"
 
 msgid "Sites"
 msgstr "Siti"
@@ -1421,6 +1469,9 @@ msgstr "importa Siti"
 
 msgid "Hosts Associated"
 msgstr "Host Associati"
+
+msgid "Site"
+msgstr "Sito"
 
 msgid "Host Associated"
 msgstr "Host associato"
@@ -1691,6 +1742,9 @@ msgstr "Controllo accessi"
 
 msgid "Role"
 msgstr "Regola"
+
+msgid "User Name"
+msgstr "Nome utente"
 
 msgid "User Access Control"
 msgstr "User Access Control"
@@ -2329,6 +2383,9 @@ msgstr "Non valido"
 
 msgid "Host Product Keys"
 msgstr "Tasti del prodotto host"
+
+msgid "Host Product Key"
+msgstr "Host Product Key"
 
 #, fuzzy
 msgid "Full History Export"

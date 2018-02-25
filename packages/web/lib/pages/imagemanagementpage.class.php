@@ -422,13 +422,18 @@ class ImageManagementPage extends FOGPage
                 ]
             );
         }
-        http_response_code($code);
         //header('Location: ../management/index.php?node=host&sub=edit&id=' . $Image->get('id'));
-        self::$HookManager
-            ->processEvent(
-                $hook,
-                ['Image' => &$Image]
-            );
+        self::$HookManager->processEvent(
+            $hook,
+            [
+                'Image' => &$Image,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ]
+        );
+        http_response_code($code);
         unset($Image);
         echo $msg;
         exit;
@@ -651,7 +656,7 @@ class ImageManagementPage extends FOGPage
                 'IMAGE_GENERAL_FIELDS',
                 [
                     'fields' => &$fields,
-                    'obj' => &$this->obj
+                    'Image' => &$this->obj
                 ]
             );
         $rendered = self::formFields($fields);
@@ -993,11 +998,17 @@ class ImageManagementPage extends FOGPage
                 ]
             );
         }
-        http_response_code($code);
         self::$HookManager->processEvent(
             $hook,
-            ['obj' => &$this->obj]
+            [
+                'Image' => &$this->obj,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ]
         );
+        http_response_code($code);
         echo $msg;
         exit;
     }

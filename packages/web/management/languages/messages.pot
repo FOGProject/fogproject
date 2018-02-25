@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-21 18:44-0500\n"
+"POT-Creation-Date: 2018-02-25 15:28-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1237,13 +1237,22 @@ msgstr ""
 msgid "Default is disabled"
 msgstr ""
 
-msgid "Location/Deployed"
-msgstr ""
-
-msgid "Host Product Key"
+msgid "Location Association"
 msgstr ""
 
 msgid "Host Location"
+msgstr ""
+
+msgid "Select a valid location"
+msgstr ""
+
+msgid "Host Location Updated!"
+msgstr ""
+
+msgid "Host Location Update Success"
+msgstr ""
+
+msgid "Host Update Location Fail"
 msgstr ""
 
 msgid "Snapin Locations"
@@ -1264,7 +1273,16 @@ msgstr ""
 msgid "Enable location Sending"
 msgstr ""
 
-msgid "Location Association"
+msgid "Group Location"
+msgstr ""
+
+msgid "Group Location Updated!"
+msgstr ""
+
+msgid "Group Location Update Success"
+msgstr ""
+
+msgid "Group Update Location Fail"
 msgstr ""
 
 msgid "Export Locations"
@@ -1354,37 +1372,46 @@ msgstr ""
 msgid "between different sites"
 msgstr ""
 
-msgid "Associated Sites"
-msgstr ""
-
-msgid "Associate Host to a Site "
-msgstr ""
-
-msgid "No Site"
-msgstr ""
-
-msgid "Site"
-msgstr ""
-
 msgid "Site Association"
 msgstr ""
 
-msgid "Site Association for"
+msgid "Host Site"
 msgstr ""
 
-msgid "Update Sites"
+msgid "Select a valid site"
 msgstr ""
 
-msgid "Is restricted"
+msgid "Host Site Updated!"
 msgstr ""
 
-msgid "No site"
+msgid "Host Site Update Success"
 msgstr ""
 
-msgid "User Name"
+msgid "Host Update Site Fail"
 msgstr ""
 
-msgid "Is Restricted User "
+msgid "Group Site"
+msgstr ""
+
+msgid "Group Site Updated!"
+msgstr ""
+
+msgid "Group Site Update Success"
+msgstr ""
+
+msgid "Group Update Site Fail"
+msgstr ""
+
+msgid "User Site"
+msgstr ""
+
+msgid "User Site Updated!"
+msgstr ""
+
+msgid "User Site Update Success"
+msgstr ""
+
+msgid "User Update Site Fail"
 msgstr ""
 
 msgid "Sites"
@@ -1397,6 +1424,9 @@ msgid "Import Sites"
 msgstr ""
 
 msgid "Hosts Associated"
+msgstr ""
+
+msgid "Site"
 msgstr ""
 
 msgid "Host Associated"
@@ -1667,6 +1697,9 @@ msgid "Access Controls"
 msgstr ""
 
 msgid "Role"
+msgstr ""
+
+msgid "User Name"
 msgstr ""
 
 msgid "User Access Control"
@@ -2305,6 +2338,9 @@ msgid "Not Valid"
 msgstr ""
 
 msgid "Host Product Keys"
+msgstr ""
+
+msgid "Host Product Key"
 msgstr ""
 
 msgid "Full History Export"

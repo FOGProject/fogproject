@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-21 11:19-0500\n"
+"POT-Creation-Date: 2018-02-25 15:28-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -1302,14 +1302,28 @@ msgstr "Speicherort herunterzuladen, sofern verfügbar."
 msgid "Default is disabled"
 msgstr "Standard ist deaktiviert"
 
-msgid "Location/Deployed"
-msgstr "Standort / Verteilt"
-
-msgid "Host Product Key"
-msgstr "Host Produktschlüssel"
+#, fuzzy
+msgid "Location Association"
+msgstr "Standort Zugehörigkeiten"
 
 msgid "Host Location"
 msgstr "Host Standort"
+
+#, fuzzy
+msgid "Select a valid location"
+msgstr "Wählen Sie ein gültiges Abbild"
+
+#, fuzzy
+msgid "Host Location Updated!"
+msgstr "Standort aktualisiert"
+
+#, fuzzy
+msgid "Host Location Update Success"
+msgstr "Standort erfolgreich aktualisiert"
+
+#, fuzzy
+msgid "Host Update Location Fail"
+msgstr "Host-Update fehlgeschlagen"
 
 #, fuzzy
 msgid "Snapin Locations"
@@ -1332,8 +1346,20 @@ msgid "Enable location Sending"
 msgstr "Standort senden aktivieren"
 
 #, fuzzy
-msgid "Location Association"
-msgstr "Standort Zugehörigkeiten"
+msgid "Group Location"
+msgstr "Host Standort"
+
+#, fuzzy
+msgid "Group Location Updated!"
+msgstr "Standort aktualisiert"
+
+#, fuzzy
+msgid "Group Location Update Success"
+msgstr "Standort erfolgreich aktualisiert"
+
+#, fuzzy
+msgid "Group Update Location Fail"
+msgstr "Gruppe aktualisieren fehlgeschlagen"
 
 #, fuzzy
 msgid "Export Locations"
@@ -1437,45 +1463,60 @@ msgid "between different sites"
 msgstr "Stellen hin und her wechseln."
 
 #, fuzzy
-msgid "Associated Sites"
-msgstr "zugehörige Sites"
-
-msgid "Associate Host to a Site "
-msgstr "Host einer Site zuordnen"
-
-#, fuzzy
-msgid "No Site"
-msgstr "Keine Site"
-
-#, fuzzy
-msgid "Site"
-msgstr "Site"
-
-#, fuzzy
 msgid "Site Association"
 msgstr "Site Zugehörigkeit"
 
 #, fuzzy
-msgid "Site Association for"
-msgstr "Sitezugehörigkeit für"
+msgid "Host Site"
+msgstr "Hostliste"
 
 #, fuzzy
-msgid "Update Sites"
-msgstr "Sites aktualisieren"
+msgid "Select a valid site"
+msgstr "Wählen Sie ein gültiges Abbild"
 
 #, fuzzy
-msgid "Is restricted"
-msgstr "ist eingeschränkt"
+msgid "Host Site Updated!"
+msgstr "Site aktualisiert!"
 
 #, fuzzy
-msgid "No site"
-msgstr "keine Site"
+msgid "Host Site Update Success"
+msgstr "Host Aktualisierung erfolgreich!"
 
-msgid "User Name"
-msgstr "Benutzername"
+#, fuzzy
+msgid "Host Update Site Fail"
+msgstr "Host-Update fehlgeschlagen"
 
-msgid "Is Restricted User "
-msgstr "ist ein eingeschränkter Benutzer"
+#, fuzzy
+msgid "Group Site"
+msgstr "Gruppen-Snapins"
+
+#, fuzzy
+msgid "Group Site Updated!"
+msgstr "Gruppe aktualisiert"
+
+#, fuzzy
+msgid "Group Site Update Success"
+msgstr "Gruppe erfolgreich aktualisiert"
+
+#, fuzzy
+msgid "Group Update Site Fail"
+msgstr "Gruppe aktualisieren fehlgeschlagen"
+
+#, fuzzy
+msgid "User Site"
+msgstr "Neue Site"
+
+#, fuzzy
+msgid "User Site Updated!"
+msgstr "Site aktualisiert!"
+
+#, fuzzy
+msgid "User Site Update Success"
+msgstr "Benutzeraktualisierung erfolgreich!"
+
+#, fuzzy
+msgid "User Update Site Fail"
+msgstr "Benutzer-Update fehlgeschlagen"
 
 #, fuzzy
 msgid "Sites"
@@ -1492,6 +1533,10 @@ msgstr "Sites importieren"
 #, fuzzy
 msgid "Hosts Associated"
 msgstr "zugeordnete Hosts"
+
+#, fuzzy
+msgid "Site"
+msgstr "Site"
 
 #, fuzzy
 msgid "Host Associated"
@@ -1828,6 +1873,9 @@ msgstr "Zugriffskontrollen"
 #, fuzzy
 msgid "Role"
 msgstr "Rolle"
+
+msgid "User Name"
+msgstr "Benutzername"
 
 #, fuzzy
 msgid "User Access Control"
@@ -2570,6 +2618,9 @@ msgstr "nicht gültig"
 #, fuzzy
 msgid "Host Product Keys"
 msgstr "Host-Produkt-Schlüssel"
+
+msgid "Host Product Key"
+msgstr "Host Produktschlüssel"
 
 #, fuzzy
 msgid "Full History Export"

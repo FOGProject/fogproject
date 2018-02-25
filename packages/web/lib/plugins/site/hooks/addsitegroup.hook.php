@@ -21,9 +21,29 @@
  */
 class AddSiteGroup extends Hook
 {
+    /**
+     * The name of this hook.
+     *
+     * @var string
+     */
     public $name = 'AddSiteGroup';
+    /**
+     * The description of this hook.
+     *
+     * @var string
+     */
     public $description = 'Add the hosts of a group to a Site';
+    /**
+     * For posterity.
+     *
+     * @var bool
+     */
     public $active = true;
+    /**
+     * The plugin this hook works on.
+     *
+     * @return void
+     */
     public $node = 'site';
     /**
      * Initializes object.
@@ -35,36 +55,35 @@ class AddSiteGroup extends Hook
         parent::__construct();
         self::$HookManager
             ->register(
-                'SUB_MENULINK_DATA',
+                'TABDATA_HOOK',
                 array(
                     $this,
-                    'groupSideMenu'
-                )
-            )
-            ->register(
-                'GROUP_GENERAL_EXTRA',
-                array(
-                    $this,
-                    'groupFields'
+                    'groupTabData'
                 )
             )
             ->register(
                 'GROUP_EDIT_SUCCESS',
                 array(
                     $this,
-                    'groupAddSite'
+                    'groupAddSiteEdit'
+                )
+            )
+            ->register(
+                'GROUP_ADD_FIELDS',
+                array(
+                    $this,
+                    'groupAddSiteField'
                 )
             );
     }
     /**
-     * This function add a side menu entry on the group page.
-     * Add one entry calls 'Site association'
+     * The group tab data.
      *
-     * @param mixed $arguments The arguments to modify.
+     * @param mixed $arguments The arguments to change.
      *
      * @return void
      */
-    public function groupSideMenu($arguments)
+    public function groupTabData($arguments)
     {
         global $node;
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
@@ -73,112 +92,163 @@ class AddSiteGroup extends Hook
         if ($node != 'group') {
             return;
         }
-        return;
-        $link = $arguments['linkformat'];
-        $this->arrayInsertAfter(
-            "$link#group-image",
-            $arguments['submenu'],
-            "$link#group-site",
-            _('Site Association')
-        );
+        $obj = $arguments['obj'];
+        $arguments['tabData'][] = [
+            'name' => _('Site Association'),
+            'id' => 'group-site',
+            'generator' => function() use ($obj) {
+                $this->groupSite($obj);
+            }
+        ];
     }
     /**
-     * Group fields.
+     * The group site display
      *
-     * @param mixed $arguments THe arguments to modify.
+     * @param object $obj The group object we're working with.
      *
      * @return void
      */
-    public function groupFields($arguments)
+    public function groupSite($obj)
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        global $node;
-        if ($node != 'group') {
-            return;
-        }
-        $restricted = self::getClass('AddSiteFilterSearch')
-            ->isRestricted(
-                self::$FOGUser->get('id')
+        $siteID = (int)filter_input(
+            INPUT_POST,
+            'site'
+        );
+        // Group sites
+        $siteSelector = self::getClass('SiteManager')
+            ->buildSelectBox($siteID, 'site');
+        $fields = [
+            '<label for="site" class="col-sm-2 control-label">'
+            . _('Group Site')
+            . '</label>' => &$siteSelector
+        ];
+        self::$HookManager
+            ->processEvent(
+                'GROUP_SITE_FIELDS',
+                [
+                    'fields' => &$fields,
+                    'Group' => &$obj
+                ]
             );
-        if (!$restricted) {
-            $siteID = self::getClass('AddSiteFilterSearch')
-                ->getSiteIDbyUser(self::$FOGUser->get('id'));
-        } else {
-            $siteID = '';
-        }
-        echo '<!-- Site --><div id="group-site">';
-        printf(
-            '<h2>%s: %s</h2>',
-            _('Site Association for'),
-            $arguments['Group']->get('name')
-        );
-        printf(
-            '<form method="post" action="%s&tab=group-site">',
-            $arguments['formAction']
-        );
-        unset($arguments['headerData']);
-        $arguments['attributes'] = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
-        );
-        $arguments['templates'] = array(
-            '${field}',
-            '${input}',
-        );
-        $arguments['data'][] = array(
-            'field' => self::getClass('SiteManager')->buildSelectBox($siteID),
-            'input' => sprintf(
-                '<input type="submit" value="%s"/>',
-                _('Update Sites')
-            )
-        );
-        $arguments['render']->render();
-        echo '</form></div>';
+        $rendered = FOGPage::formFields($fields);
+        echo '<div class="box box-solid">';
+        echo '<div class="box-body">';
+        echo '<form id="group-site-form" class="form-horizontal" method="post" action="'
+            . FOGPage::makeTabUpdateURL('group-site', $obj->get('id'))
+            . '" novalidate>';
+        echo $rendered;
+        echo '</form>';
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo '<button class="btn btn-primary" id="site-send">'
+            . _('Update')
+            . '</button>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
-     * Group add site.
+     * The site updater element.
      *
-     * @param mixed $arguments The arguments to modify.
+     * @param object $obj The object we're working with.
      *
      * @return void
      */
-    public function groupAddSite($arguments)
+    public function groupSitePost($obj)
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        global $node;
-        global $tab;
-        if ($node != 'group') {
-            return;
-        }
-        if ($tab != 'group-site') {
-            return;
-        }
-        self::getClass('SiteHostAssociationManager')->destroy(
-            array(
-                'hostID' => $arguments['Group']->get('hosts')
+        $siteID = trim(
+            (int)filter_input(
+                INPUT_POST,
+                'site'
             )
         );
-        if ($_REQUEST['site']
-            && is_numeric($_REQUEST['site'])
-            && $_REQUEST['site'] > 0
-        ) {
-            $insert_fields = array('siteID','hostID');
-            $insert_values = array();
-            foreach ((array)$arguments['Group']->get('hosts') as &$hostID) {
-                $insert_values[] = array($_REQUEST['site'], $hostID);
+        $Site = new Site($siteID);
+        if (!$Site->isValid() && is_numeric($siteID)) {
+            throw new Exception(_('Select a valid site'));
+        }
+        $insert_fields = ['hostID', 'siteID'];
+        $insert_values = [];
+        $hosts = $obj->get('hosts');
+        if (count($hosts) > 0) {
+            self::getClass('SiteHostAssociationManager')->destroy(
+                ['hostID' => $hosts]
+            );
+            foreach ((array)$hosts as $ind => &$hostID) {
+                $insert_values[] = [$hostID, $siteID];
                 unset($hostID);
             }
-            if (count($insert_values) > 0) {
-                self::getClass('SiteHostAssociationManager')
-                    ->insertBatch(
-                        $insert_fields,
-                        $insert_values
-                    );
-            }
         }
+        if (count($insert_values) > 0) {
+            self::getClass('SiteHostAssociationManager')
+                ->insertBatch(
+                    $insert_fields,
+                    $insert_values
+                );
+        }
+    }
+    /**
+     * The group site selector.
+     *
+     * @param mixed $arguments The arguments to change.
+     *
+     * @return void
+     */
+    public function groupAddSiteEdit($arguments)
+    {
+        global $tab;
+        global $node;
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
+            return;
+        }
+        if ($node != 'group') {
+            return;
+        }
+        $obj = $arguments['obj'];
+        try {
+            switch ($tab) {
+            case 'group-site':
+                $this->groupSitePost($obj);
+                break;
+            }
+            $arguments['code'] = 201;
+            $argumetns['hook'] = 'GROUP_EDIT_SITE_SUCCESS';
+            $arguments['msg'] = json_encode(
+                [
+                    'msg' => _('Group Site Updated!'),
+                    'title' => _('Group Site Update Success')
+                ]
+            );
+        } catch (Exception $e) {
+            $arguments['code'] = 400;
+            $arguments['hook'] = 'GROUP_EDIT_SITE_FAIL';
+            $arguments['msg'] = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Group Update Site Fail')
+                ]
+            );
+        }
+    }
+    /**
+     * The group site field for function add.
+     *
+     * @param mixed $arguments The arguments to change.
+     *
+     * @return void
+     */
+    public function groupAddSiteField($arguments)
+    {
+        global $node;
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
+            return;
+        }
+        if ($node != 'group') {
+            return;
+        }
+        $siteID = (int)filter_input(INPUT_POST, 'site');
+        $arguments['fields'][
+            '<label for="site" class="col-sm-2 control-label">'
+            . _('Group Site')
+            . '</label>'] = self::getClass('SiteManager')
+            ->buildSelectBox($siteID, 'site');
     }
 }
