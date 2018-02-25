@@ -1061,7 +1061,9 @@ class AccessControlManagementPage extends FOGPage
      */
     public function editRule()
     {
-        $this->title = _('New Rule');
+        $this->title = _('Edit')
+            . ': '
+            . $this->obj->get('name');
         unset($this->headerData);
         $this->attributes = array(
             array('class' => 'col-xs-4'),
@@ -1109,6 +1111,14 @@ class AccessControlManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control rulenodeparent-input" '
             . 'type="text" name="nodeParent" id="nodeParent" value="'
+            . $node
+            . '"/>'
+            . '</div>',
+            '<label for="value">'
+            . _('Rule Value')
+            . '</label>' => '<div class="input-group">'
+            . '<input class="form-control rulevalue-input" '
+            . 'type="text" name="value" id="value" required value="'
             . $value
             . '"/>'
             . '</div>',
@@ -1245,7 +1255,7 @@ class AccessControlManagementPage extends FOGPage
         $this->title = sprintf(
             '%s: %s',
             self::$foglang['Remove'],
-            $this->obj->get('value')
+            $this->obj->get('name')
         );
         unset($this->headerData);
         $this->attributes = array(
@@ -1276,7 +1286,13 @@ class AccessControlManagementPage extends FOGPage
                     'AccessControlRule' => &$this->obj
                 )
             );
-        array_walk($fields, $this->fieldsToData);
+        foreach ((array)$fields as $field => &$input) {
+            $this->data[] = array(
+                'field' => $field,
+                'input' => $input
+            );
+            unset($input);
+        }
         self::$HookManager->processEvent(
             'RULE_DEL',
             array(
@@ -1313,7 +1329,7 @@ class AccessControlManagementPage extends FOGPage
     public function deleteRulePost()
     {
         if (self::getSetting('FOG_REAUTH_ON_DELETE')) {
-            $validate = self::getUser('User')
+            $validate = self::getClass('User')
                 ->passwordValidate(
                     $_POST['fogguiuser'],
                     $_POST['fogguipass'],
