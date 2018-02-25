@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-24 16:22-0500\n"
+"POT-Creation-Date: 2018-02-24 23:36-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2025,80 +2025,114 @@ msgid "Create Rule?"
 msgstr "创建用户"
 
 #, fuzzy
-msgid "Rule already Exists, please try again."
-msgstr "位置已经存在，请重试。"
+msgid "A rule already exists with this name."
+msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
-msgid "Please enter a value for this rule."
-msgstr "这个地址输入名称。"
+msgid "Add rule failed!"
+msgstr "添加管理单元失败！"
 
 #, fuzzy
-msgid "Rule Added, editing!"
-msgstr "位置添加，编辑！"
+msgid "Rule added!"
+msgstr "打印机名称"
+
+#, fuzzy
+msgid "Rule Create Success"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "Rule Create Fail"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "Access Control Rule General"
+msgstr "所有访问控制"
 
 msgid "Failed to update"
 msgstr "无法更新"
 
 #, fuzzy
-msgid "Rule Updated"
+msgid "Rule updated!"
 msgstr "客户端更新"
 
 #, fuzzy
-msgid "Fail to delete rule"
-msgstr "无法删除文件"
+msgid "Rule Update Success"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "Rule Update Fail"
+msgstr "集团创建失败"
+
+#, fuzzy
+msgid "Fail to destroy"
+msgstr "未能摧毁"
+
+#, fuzzy
+msgid "Rule deleted successfully!"
+msgstr "安装/升级成功！"
 
 msgid "Rule Delete Success"
 msgstr ""
 
 #, fuzzy
-msgid "Rule name"
-msgstr "模块名称"
-
-#, fuzzy
-msgid "Check here to see rules not within this"
-msgstr "请查看这里以组未分配此图片"
-
-#, fuzzy
-msgid "Modify Rule Membership for"
-msgstr "修改为会员"
-
-#, fuzzy
-msgid "rule"
-msgstr "结果"
-
-#, fuzzy
-msgid "to"
-msgstr "汽车"
+msgid "Rule Delete Fail"
+msgstr "删除的文件数据"
 
 #, fuzzy
 msgid "Rule Name"
 msgstr "模块名称"
 
 #, fuzzy
-msgid "from"
-msgstr "从"
+msgid "Rule Membership"
+msgstr "籍"
 
 #, fuzzy
-msgid "Not role selected"
-msgstr "没有选定主机"
+msgid "Check here to see what rules can be added"
+msgstr "请查看这里以可以添加哪些打印机"
 
 #, fuzzy
-msgid "Not rule selected"
-msgstr "没有选定主机"
+msgid "Add Rules"
+msgstr "添加用户"
 
 #, fuzzy
-msgid "Check here to see users not within this"
-msgstr "请查看这里以组未分配此图片"
-
-msgid "Modify Membership for"
-msgstr "修改为会员"
+msgid "Add selected rules"
+msgstr "打印机"
 
 #, fuzzy
-msgid "user"
-msgstr "用户"
+msgid "Remove Accesscontrol Rules"
+msgstr "所有访问控制"
 
-msgid "saved successfully"
-msgstr "保存成功"
+#, fuzzy
+msgid "Remove selected rules"
+msgstr "删除选定snapins"
+
+#, fuzzy
+msgid "No role selected"
+msgstr "删除所选"
+
+#, fuzzy
+msgid "No rule selected"
+msgstr "删除所选"
+
+#, fuzzy
+msgid "Associate rule failed!"
+msgstr "添加管理单元失败！"
+
+#, fuzzy
+msgid "Rule associate success!"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "Rule Associate Success"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "Rule Associate Fail"
+msgstr "图像协会"
+
+#, fuzzy
+msgid "User name"
+msgstr "用户名"
 
 #, fuzzy
 msgid "LDAP Servers"
@@ -3376,6 +3410,10 @@ msgstr ""
 
 msgid "see the forums or lookup the commands and scripts available"
 msgstr ""
+
+#, fuzzy
+msgid "from"
+msgstr "从"
 
 #, fuzzy
 msgid "Menu Item"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-24 16:22-0500\n"
+"POT-Creation-Date: 2018-02-24 23:36-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -1874,65 +1874,114 @@ msgstr "Valore regola"
 msgid "Create Rule?"
 msgstr "Crea ruolo?"
 
-msgid "Rule already Exists, please try again."
-msgstr "La regola esiste già, riprova."
+#, fuzzy
+msgid "A rule already exists with this name."
+msgstr "Esiste già un ruolo con questo nome!"
 
-msgid "Please enter a value for this rule."
-msgstr "Inserisci un valore per questa regola."
+#, fuzzy
+msgid "Add rule failed!"
+msgstr "Aggiunta ruolo non riuscita!"
 
-msgid "Rule Added, editing!"
-msgstr "Regola Aggiunta, modifica!"
+#, fuzzy
+msgid "Rule added!"
+msgstr "Ruolo aggiunto!"
+
+#, fuzzy
+msgid "Rule Create Success"
+msgstr "Creazione ruolo riuscita"
+
+#, fuzzy
+msgid "Rule Create Fail"
+msgstr "Creazione ruolo fallita"
+
+#, fuzzy
+msgid "Access Control Rule General"
+msgstr "Ruolo controllo accessi Generale"
 
 msgid "Failed to update"
 msgstr "Impossibile aggiornare"
 
-msgid "Rule Updated"
-msgstr "Regola aggiornata"
+#, fuzzy
+msgid "Rule updated!"
+msgstr "Ruolo aggiornato!"
 
-msgid "Fail to delete rule"
-msgstr "Impossibile eliminare la regola"
+#, fuzzy
+msgid "Rule Update Success"
+msgstr "Aggiornamento ruolo completato"
+
+#, fuzzy
+msgid "Rule Update Fail"
+msgstr "Aggiornamento ruolo non riuscito"
+
+#, fuzzy
+msgid "Fail to destroy"
+msgstr "Impossibile per distruggere"
+
+#, fuzzy
+msgid "Rule deleted successfully!"
+msgstr "Regola eliminazione del successo"
 
 msgid "Rule Delete Success"
 msgstr "Regola eliminazione del successo"
 
-msgid "Rule name"
-msgstr "Nome regola"
-
-msgid "Check here to see rules not within this"
-msgstr "Controlla qui per vedere le regole non all'interno di questo"
-
-msgid "Modify Rule Membership for"
-msgstr "Modificare l'appartenenza alle regole per"
-
-msgid "rule"
-msgstr "regola"
-
-msgid "to"
-msgstr "a"
+#, fuzzy
+msgid "Rule Delete Fail"
+msgstr "Cancellare i file"
 
 msgid "Rule Name"
 msgstr "Nome regola"
 
-msgid "from"
-msgstr "da"
+#, fuzzy
+msgid "Rule Membership"
+msgstr "membri"
 
-msgid "Not role selected"
-msgstr "Nessun ruolo selezionato"
+#, fuzzy
+msgid "Check here to see what rules can be added"
+msgstr "Controllare qui per vedere cosa è possibile aggiungere stampanti"
 
-msgid "Not rule selected"
-msgstr "Nessuna regola selezionata"
+#, fuzzy
+msgid "Add Rules"
+msgstr "Aggiungi utente"
 
-msgid "Check here to see users not within this"
-msgstr "Controlla qui per vedere gli utenti non all'interno di questo"
+#, fuzzy
+msgid "Add selected rules"
+msgstr "Aggiungi stampanti selezionate"
 
-msgid "Modify Membership for"
-msgstr "Modificare l'appartenenza per"
+#, fuzzy
+msgid "Remove Accesscontrol Rules"
+msgstr "Regole controllo accessi"
 
-msgid "user"
-msgstr "utente"
+#, fuzzy
+msgid "Remove selected rules"
+msgstr "Rimuovi i selezionati"
 
-msgid "saved successfully"
-msgstr "Salvato con successo"
+#, fuzzy
+msgid "No role selected"
+msgstr "Cancella selezionato"
+
+#, fuzzy
+msgid "No rule selected"
+msgstr "Cancella selezionato"
+
+#, fuzzy
+msgid "Associate rule failed!"
+msgstr "Aggiunta ruolo non riuscita!"
+
+#, fuzzy
+msgid "Rule associate success!"
+msgstr "Regola eliminazione del successo"
+
+#, fuzzy
+msgid "Rule Associate Success"
+msgstr "Regola eliminazione del successo"
+
+#, fuzzy
+msgid "Rule Associate Fail"
+msgstr "Regole di associazione"
+
+#, fuzzy
+msgid "User name"
+msgstr "Nome utente"
 
 msgid "LDAP Servers"
 msgstr "LDAP Servers"
@@ -3085,6 +3134,9 @@ msgstr ""
 
 msgid "see the forums or lookup the commands and scripts available"
 msgstr "Vedere i forum o la ricerca dei comandi e degli script disponibili"
+
+msgid "from"
+msgstr "da"
 
 msgid "Menu Item"
 msgstr "Elemento del menu:"
