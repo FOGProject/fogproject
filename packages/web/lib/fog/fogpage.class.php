@@ -4003,11 +4003,27 @@ abstract class FOGPage extends FOGBase
     /**
      * Build our nav-tabs elements.
      *
-     * @param mixed $tabData The tabs we are going to build out.
+     * @param mixed      $tabData The tabs we are going to build out.
+     * @param int|object $obj     The object to pass in, -1 = current node + id.
      *
      * @return string
      */
-    public static function tabFields($tabData) {
+    public static function tabFields($tabData, $obj = -1) {
+        // Allow commonized tab data hooks.
+        global $node;
+        global $id;
+        // Set the obj to the current node and id field if
+        // -1 is the value
+        if ($obj === -1) {
+            $obj = self::getClass($node, $id);
+        }
+        self::$HookManager->processEvent(
+            'TABDATA_HOOK',
+            [
+                'tabData' => &$tabData,
+                'obj' => &$obj
+            ]
+        );
         ob_start();
         $activeId = '';
         echo '<div class="nav-tabs-custom">';

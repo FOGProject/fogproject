@@ -73,6 +73,7 @@ class AddSiteGroup extends Hook
         if ($node != 'group') {
             return;
         }
+        return;
         $link = $arguments['linkformat'];
         $this->arrayInsertAfter(
             "$link#group-image",
