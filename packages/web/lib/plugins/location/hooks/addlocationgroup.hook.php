@@ -64,10 +64,10 @@ class AddLocationGroup extends Hook
                 )
             )
             ->register(
-                'SUB_MENULINK_DATA',
+                'TABDATA_HOOK',
                 array(
                     $this,
-                    'groupSideMenu'
+                    'groupTabData'
                 )
             )
             ->register(
@@ -79,13 +79,13 @@ class AddLocationGroup extends Hook
             );
     }
     /**
-     * The group side menu
+     * The group tab data.
      *
      * @param mixed $arguments The arguments to change.
      *
      * @return void
      */
-    public function groupSideMenu($arguments)
+    public function groupTabData($arguments)
     {
         global $node;
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
@@ -94,91 +94,99 @@ class AddLocationGroup extends Hook
         if ($node != 'group') {
             return;
         }
-        $link = $arguments['linkformat'];
-        self::arrayInsertAfter(
-            "$link#group-image",
-            $arguments['submenu'],
-            "$link#group-location",
-            _('Location Association')
-        );
+        $obj = $arguments['obj'];
+
+        $arguments['tabData'][] = [
+            'name' => _('Location Association'),
+            'id' => 'group-location',
+            'generator' => function() use ($obj) {
+                $this->groupLocation($obj);
+            }
+        ];
     }
     /**
-     * The group fields.
+     * The group location display
      *
-     * @param mixed $arguments The arguments to change.
+     * @param object $obj The group object we're working with.
      *
      * @return void
      */
-    public function groupFields($arguments)
+    public function groupLocation($obj)
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        global $node;
-        if ($node != 'group') {
-            return;
-        }
-        $Locations = self::getSubObjectIDs(
-            'LocationAssociation',
-            array(
-                'hostID' => $arguments['Group']->get('hosts')
-            ),
-            'locationID'
+        $locationID = (int)filter_input(
+            INPUT_POST,
+            'location'
         );
-        $cnt = count($Locations);
-        if ($cnt !== 1) {
-            $locID = 0;
-        } else {
-            $locID = array_shift($Locations);
-        }
-        unset($Locations);
-        unset($arguments['headerData']);
-        $arguments['attributes'] = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
-        );
-        $arguments['templates'] = array(
-            '${field}',
-            '${input}',
-        );
-        $fields = array(
-            '<label for="location">'
-            . _('Location')
-            . '</label>' => self::getClass('LocationManager')->buildSelectBox(
-                $locID
-            ),
-            '<label for="updateloc">'
-            . _('Make Changes?')
-            . '</label>' => '<button type="submit" class="btn btn-info btn-block" '
-            . 'id="updateloc">'
-            . _('Update')
-            . '</button>'
-        );
-        foreach ((array)$fields as $field => &$input) {
-            $arguments['data'][] = array(
-                'field' => $field,
-                'input' => $input
+        // Group Locations
+        $locationSelector = self::getClass('LocationManager')
+            ->buildSelectBox($locationID, 'location');
+        $fields = [
+            '<label for="location" class="col-sm-2 control-label">'
+            . _('Group Location')
+            . '</label>' => &$locationSelector
+        ];
+        self::$HookManager
+            ->processEvent(
+                'GROUP_LOCATION_FIELDS',
+                [
+                    'fields' => &$fields,
+                    'obj' => &$obj
+                ]
             );
-            unset($input);
-        }
-        unset($fields);
-        echo '<!-- Location -->';
-        echo '<div id="group-location" class="tab-pane fade">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Location Association');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $arguments['formAction']
-            . '&tab=group-location">';
-        $arguments['render']->render(12);
+        $rendered = FOGPage::formFields($fields);
+        echo '<div class="box box-solid">';
+        echo '<div class="box-body">';
+        echo '<form id="group-location-form" class="form-horizontal" method="post" action="'
+            . FOGPage::makeTabUpdateURL('group-location', $obj->get('id'))
+            . '" novalidate>';
+        echo $rendered;
         echo '</form>';
         echo '</div>';
+        echo '<div class="box-footer">';
+        echo '<button class="btn btn-primary" id="location-send">'
+            . _('Update')
+            . '</button>';
         echo '</div>';
         echo '</div>';
+    }
+    /**
+     * The location updater element.
+     *
+     * @param object $obj The object we're working with.
+     *
+     * @return void
+     */
+    public function groupLocationPost($obj)
+    {
+        $locationID = trim(
+            (int)filter_input(
+                INPUT_POST,
+                'location'
+            )
+        );
+        $Location = new Location($locationID);
+        if (!$Location->isValid() && is_numeric($locationID)) {
+            throw new Exception(_('Select a valid location'));
+        }
+        $insert_fields = ['hostID', 'locationID'];
+        $insert_values = [];
+        $hosts = $obj->get('hosts');
+        if (count($hosts) > 0) {
+            self::getClass('LocationAssociationManager')->destroy(
+                    ['hostID' => $hosts]
+            );
+            foreach ((array)$hosts as $ind => &$hostID) {
+                $insert_values[] = [$hostID, $locationID];
+                unset($hostID);
+            }
+        }
+        if (count($insert_values) > 0) {
+            self::getClass('LocationAssociationManager')
+                ->insertBatch(
+                    $insert_fields,
+                    $insert_values
+                );
+        }
     }
     /**
      * The group location selector.
@@ -197,35 +205,30 @@ class AddLocationGroup extends Hook
         if ($node != 'group') {
             return;
         }
-        if ($tab != 'group-location') {
-            return;
-        }
-        self::getClass('LocationAssociationManager')->destroy(
-            array(
-                'hostID' => $arguments['Group']->get('hosts')
-            )
-        );
-        $location = (int)filter_input(INPUT_POST, 'location');
-        if ($location) {
-            $insert_fields = array(
-                'locationID',
-                'hostID'
+        $obj = $arguments['obj'];
+        try {
+            switch($tab) {
+            case 'group-location':
+                $this->groupLocationPost($obj);
+                break;
+            }
+            $arguments['code'] = 201;
+            $arguments['hook'] = 'GROUP_EDIT_LOCATION_SUCCESS';
+            $arguments['msg'] = json_encode(
+                [
+                    'msg' => _('Group Location Updated!'),
+                    'title' => _('Group Location Update Success')
+                ]
             );
-            $insert_values = array();
-            foreach ((array)$arguments['Group']->get('hosts') as &$hostID) {
-                $insert_values[] = array(
-                    $location,
-                    $hostID
-                );
-                unset($hostID);
-            }
-            if (count($insert_values) > 0) {
-                self::getClass('LocationAssociationManager')
-                    ->insertBatch(
-                        $insert_fields,
-                        $insert_values
-                    );
-            }
+        } catch (Exception $e) {
+            $arguments['code'] = 400;
+            $arguments['hook'] = 'GROUP_EDIT_LOCATION_FAIL';
+            $arguments['msg'] = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Group Update Location Fail')
+                ]
+            );
         }
     }
 }

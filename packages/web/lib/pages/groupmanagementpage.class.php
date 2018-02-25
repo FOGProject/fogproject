@@ -1277,6 +1277,10 @@ class GroupManagementPage extends FOGPage
             $biosExit,
             $efiExit
         ) = self::$_common;
+        self::$HookManager->processEvent(
+            'GROUP_COMMON_HOOK',
+            ['common' => &self::$_common]
+        );
         $hostids = $this->obj->get('hosts');
         self::$Host = new Host(@max($hostids));
         echo '<input type="hidden" name="hostID" value="'
@@ -1494,12 +1498,18 @@ class GroupManagementPage extends FOGPage
                 ]
             );
         }
-        http_response_code($code);
         self::$HookManager
             ->processEvent(
                 $hook,
-                ['Group' => &$this->obj]
+                [
+                    'Group' => &$this->obj,
+                    'hook' => &$hook,
+                    'code' => &$code,
+                    'msg' => &$msg,
+                    'serverFault' => &$serverFault
+                ]
             );
+        http_response_code($code);
         echo $msg;
         exit;
     }
