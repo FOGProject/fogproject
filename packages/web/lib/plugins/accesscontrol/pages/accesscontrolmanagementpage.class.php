@@ -667,7 +667,56 @@ class AccessControlManagementPage extends FOGPage
                 )
             );
         echo '<div class="col-xs-9">';
-        $this->indexDivDisplay(true);
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 clas="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        $this->render(12);
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="action-boxes del hiddeninitially">';
+        echo '<div class="panel panel-warning">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Delete Selected');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        $formAction = $this->formAction;
+        $components = parse_url($formAction);
+        parse_str($components['query'], $vars);
+        $vars['sub'] = 'deletemultiRule';
+        $formAction = '?'.http_build_query($vars);
+        echo '<form class="form-horizontal" method="post" action="'
+            . $formAction
+            . '">';
+        echo '<div class="form-group">';
+        echo '<label class="control-label col-xs-4" for="del-'
+            . $this->node
+            . 'rule">';
+        echo _('Delete Selected');
+        echo ' ';
+        echo $this->node . 'rules';
+        echo '</label>';
+        echo '<div class="col-xs-8">';
+        echo '<input type="hidden" name="'
+            . $this->node
+            . 'ruleIDArray"/>';
+        echo '<button type="submit" class='
+            . '"btn btn-danger btn-block" id="'
+            . 'del-'
+            . $this->node
+            . 'rule">';
+        echo _('Delete');
+        echo '</button>';
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
         echo '</div>';
         unset(
             $this->data,
@@ -676,6 +725,154 @@ class AccessControlManagementPage extends FOGPage
             $this->templates,
             $this->attributes
         );
+    }
+    /**
+     * Presents the en-mass delete elements.
+     *
+     * @return void
+     */
+    public function deletemultiRule()
+    {
+        global $sub;
+        global $node;
+        $this->title = sprintf(
+            "%s's to remove",
+            _('Access Control Rule')
+        );
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
+        $this->templates = array(
+            '${field}',
+            '${input}'
+        );
+        $this->attributes = array(
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group')
+        );
+        $reqID = $node
+            . 'ruleIDArray';
+        $items = filter_input(
+            INPUT_POST,
+            $reqID
+        );
+        $reqID = array_values(
+            array_filter(
+                array_unique(
+                    explode(',', $items)
+                )
+            )
+        );
+        Route::listem('accesscontrolrule');
+        $items = json_decode(
+            Route::getData()
+        );
+        $items = $items->accesscontrolrules;
+        foreach ((array)$items as &$object) {
+            if (!in_array($object->id, $reqID)) {
+                continue;
+            }
+            $this->data[] = array(
+                'field' => '<input type="hidden" value="'
+                . $object->id
+                . '" name="remitems[]"/>',
+                'input' => '<a href="?node='
+                . $node
+                . '&sub=editRule&id='
+                . $object->id
+                . '">'
+                . $object->name
+                . '</a>'
+            );
+            unset($object);
+        }
+        if (count($this->data) < 1) {
+            self::redirect('?node=' . $node . '&sub=ruleList');
+        }
+        $this->data[] = array(
+            'field' => '<label for="delete">'
+            . _('Remove these items?')
+            . '</label>',
+            'input' => '<button class="btn btn-danger btn-block" type="submit" '
+            . 'name="delete" id="delete">'
+            . _('Delete')
+            . '</button>'
+        );
+        echo '<!-- Delete Items -->';
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-warning">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<div id="deleteDiv"></div>';
+        echo '<form class="form-horizontal" action="'
+            . $this->formAction
+            . '">';
+        $this->render(12);
+        echo '<input type="hidden" name="storagegroup" value="0"/>';
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Actually performs the deletion actions.
+     *
+     * @return void
+     */
+    public function deletemultiRuleAjax()
+    {
+        if (self::getSetting('FOG_REAUTH_ON_DELETE')) {
+            $user = filter_input(INPUT_POST, 'fogguiuser');
+            $pass = filter_input(INPUT_POST, 'fogguipass');
+            $validate = self::getClass('User')
+                ->passwordValidate(
+                    $user,
+                    $pass,
+                    true
+                );
+            if (!$validate) {
+                echo json_encode(
+                    array(
+                        'error' => self::$foglang['InvalidLogin'],
+                        'title' => _('Unable to Authenticate')
+                    )
+                );
+                exit;
+            }
+        }
+        $remitems = filter_input_array(
+            INPUT_POST,
+            array(
+                'remitems' => array(
+                    'flags' => FILTER_REQUIRE_ARRAY
+                )
+            )
+        );
+        $remitems = $remitems['remitems'];
+        self::$HookManager->processEvent(
+            'MULTI_REMOVE',
+            array('removing' => &$remitems)
+        );
+        self::getClass('AccessControlRule')
+            ->getManager()
+            ->destroy(
+                array('id' => $remitems)
+            );
+        echo json_encode(
+            array(
+                'msg' => _('Successfully deleted'),
+                'title' => _('Delete Success')
+            )
+        );
+        exit;
     }
     /**
      * Add rule.
@@ -731,7 +928,7 @@ class AccessControlManagementPage extends FOGPage
             . _('Node Parent')
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control rulenodeparent-input" '
-            . 'type="text" name="nodeParent" id="nodeParent" required value="'
+            . 'type="text" name="nodeParent" id="nodeParent" value="'
             . $node
             . '"/>'
             . '</div>',
@@ -911,7 +1108,7 @@ class AccessControlManagementPage extends FOGPage
             . _('Node Parent')
             . '</label>' => '<div class="input-group">'
             . '<input class="form-control rulenodeparent-input" '
-            . 'type="text" name="nodeParent" id="nodeParent" required value="'
+            . 'type="text" name="nodeParent" id="nodeParent" value="'
             . $value
             . '"/>'
             . '</div>',
@@ -1420,13 +1617,13 @@ class AccessControlManagementPage extends FOGPage
             INPUT_POST,
             array(
                 'accesscontrol',
-                'accesscontrolruleIDArray'
+                'accesscontrolIDArray'
             )
         );
         $accesscontrol = $reqitems['accesscontrol'];
         $accesscontrolrules = array_unique(
             array_filter(
-                explode(',', $reqitems['accesscontrolruleIDArray'])
+                explode(',', $reqitems['accesscontrolIDArray'])
             )
         );
         try {

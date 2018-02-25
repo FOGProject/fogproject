@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-24 23:36-0500\n"
+"POT-Creation-Date: 2018-02-25 01:37-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -1858,6 +1858,24 @@ msgstr "Valore"
 
 msgid "Parent"
 msgstr "Superiore"
+
+#, fuzzy
+msgid "Access Control Rule"
+msgstr "Regole controllo accessi"
+
+msgid "Remove these items?"
+msgstr "Rimuovere questi elementi?"
+
+#, fuzzy
+msgid "Unable to Authenticate"
+msgstr "Impossibile contattare il server"
+
+#, fuzzy
+msgid "Successfully deleted"
+msgstr "Creato con successo"
+
+msgid "Delete Success"
+msgstr "Eliminato con successo"
 
 msgid "New Rule"
 msgstr "Nuova regola"
@@ -6187,20 +6205,6 @@ msgstr "Creato con successo"
 
 msgid "Created Tasks For"
 msgstr "Create attività per"
-
-msgid "Remove these items?"
-msgstr "Rimuovere questi elementi?"
-
-#, fuzzy
-msgid "Unable to Authenticate"
-msgstr "Impossibile contattare il server"
-
-#, fuzzy
-msgid "Successfully deleted"
-msgstr "Creato con successo"
-
-msgid "Delete Success"
-msgstr "Eliminato con successo"
 
 msgid "View advanced tasks for this"
 msgstr "Visualizza attività avanzate di questo"

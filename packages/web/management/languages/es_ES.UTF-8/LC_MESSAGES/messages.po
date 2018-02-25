@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-24 23:36-0500\n"
+"POT-Creation-Date: 2018-02-25 01:37-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2192,6 +2192,26 @@ msgstr "Valor"
 #, fuzzy
 msgid "Parent"
 msgstr "Por ciento"
+
+#, fuzzy
+msgid "Access Control Rule"
+msgstr "impresora iPrint"
+
+#, fuzzy
+msgid "Remove these items?"
+msgstr "Eliminar todos los seleccionados %s s"
+
+#, fuzzy
+msgid "Unable to Authenticate"
+msgstr "servidor de ponerse en contacto con el error"
+
+#, fuzzy
+msgid "Successfully deleted"
+msgstr "actualizado exitosamente"
+
+#, fuzzy
+msgid "Delete Success"
+msgstr "creado por el usuario"
 
 #, fuzzy
 msgid "New Rule"
@@ -7215,22 +7235,6 @@ msgstr "actualizado exitosamente"
 #, fuzzy
 msgid "Created Tasks For"
 msgstr "Crear usuario"
-
-#, fuzzy
-msgid "Remove these items?"
-msgstr "Eliminar todos los seleccionados %s s"
-
-#, fuzzy
-msgid "Unable to Authenticate"
-msgstr "servidor de ponerse en contacto con el error"
-
-#, fuzzy
-msgid "Successfully deleted"
-msgstr "actualizado exitosamente"
-
-#, fuzzy
-msgid "Delete Success"
-msgstr "creado por el usuario"
 
 msgid "View advanced tasks for this"
 msgstr "Ver las tareas avanzadas de este"

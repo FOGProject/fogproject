@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-25 00:29-0500\n"
+"POT-Creation-Date: 2018-02-25 01:37-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1810,6 +1810,21 @@ msgid "Value"
 msgstr ""
 
 msgid "Parent"
+msgstr ""
+
+msgid "Access Control Rule"
+msgstr ""
+
+msgid "Remove these items?"
+msgstr ""
+
+msgid "Unable to Authenticate"
+msgstr ""
+
+msgid "Successfully deleted"
+msgstr ""
+
+msgid "Delete Success"
 msgstr ""
 
 msgid "New Rule"
@@ -6080,18 +6095,6 @@ msgid "Successfully created"
 msgstr ""
 
 msgid "Created Tasks For"
-msgstr ""
-
-msgid "Remove these items?"
-msgstr ""
-
-msgid "Unable to Authenticate"
-msgstr ""
-
-msgid "Successfully deleted"
-msgstr ""
-
-msgid "Delete Success"
 msgstr ""
 
 msgid "View advanced tasks for this"
