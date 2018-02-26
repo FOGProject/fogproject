@@ -83,6 +83,7 @@ var Graph30Day = $('#graph-30day'),
         }
     },
     bandwidth_plot,
+    bandwidthajax,
     // Client Count
     updateClientCountData = [[0,0]],
     updateClientCountOpts = {
@@ -235,7 +236,7 @@ var Graph30Day = $('#graph-30day'),
         var urls = $('#bandwidthUrls').val().split(','),
             names = $('#nodeNames').val().split(',');
         Pace.ignore(function() {
-            $.ajax({
+            bandwidthajax = $.ajax({
                 url: '../management/index.php?node=home&sub=bandwidth',
                 type: 'post',
                 data: {
@@ -243,31 +244,24 @@ var Graph30Day = $('#graph-30day'),
                     names: names
                 },
                 dataType: 'json',
-                success: function(data) {
+                beforeSend: function() {
+                    if (bandwidthajax) {
+                        bandwidthajax.abort();
+                    }
                     // If we are already running, clear it out.
                     if (bandwidthinterval || realtime !== 'on') {
                         clearTimeout(bandwidthinterval);
                     }
-                    updateBandwidthGraph(data);
                     if (realtime === 'on') {
                         bandwidthinterval = setTimeout(
                             updateBandwidth,
-                            10
+                            5000
                         );
                     }
                 },
+                success: updateBandwidthGraph,
                 error: function(jqXHR, textStatus, errorThrown) {
-                    // If we are already running, clear it out.
-                    if (bandwidthinterval || realtime !== 'on') {
-                        clearTimeout(bandwidthinterval);
-                    }
                     updateBandwidthGraph('');
-                    if (realtime === 'on') {
-                        bandwidthinterval = setTimeout(
-                            updateBandwidth,
-                            10
-                        );
-                    }
                 },
                 complete: function() {
                     $('#graph-bandwidth').addClass('loaded');
@@ -277,18 +271,6 @@ var Graph30Day = $('#graph-30day'),
     };
     // Graph the bandwidth data
     var updateBandwidthGraph = function(data) {
-        // Return in Mbps, from Bytes
-        var retval = function(d) {
-            if (parseInt(d) < 1) {
-                return 0;
-            } else {
-                var val = Math.round(d / 1000 / 1024 * 8, 2);
-                if (val < 1) {
-                    val = 0;
-                }
-                return val;
-            }
-        };
         // Date information and GraphData initialization.
         var d = new Date(),
             Now = d.getTime() - (d.getTimezoneOffset() * 60000),
@@ -318,7 +300,7 @@ var Graph30Day = $('#graph-30day'),
             GraphBandwidthData[index].rx.push([Now, value.rx])
             // If our tx/rx data is greater than our max points
             // strip the excess data.
-            while (GraphBandwidthData[index].tx.length > GraphBandwidthMaxDataPoints) {
+            while (GraphBandwidthData[index].tx.length > GraphBandwidthMaxDataPoints / 5) {
                 GraphBandwidthData[index].tx.slice(1);
                 GraphBandwidthData[index].rx.slice(1);
             }
@@ -345,12 +327,14 @@ var Graph30Day = $('#graph-30day'),
     $('.type-filters').on('click', function(e) {
         $('#graph-bandwidth-title > span').text($(this).text());
         $(this).blur().addClass('active').siblings('a').removeClass('active');
+        updateBandwidth();
         e.preventDefault();
     });
     $('.time-filters').on('click', function(e) {
         $('#graph-bandwidth-time-title > span').text($(this).text());
         $(this).blur().addClass('active').siblings('a').removeClass('active');
         GraphBandwidthMaxDataPoints = $(this).prop('rel');
+        updateBandwidth();
         e.preventDefault();
     });
     GraphBandwidthMaxDataPoints = $('.time-filters.active').prop('rel');
