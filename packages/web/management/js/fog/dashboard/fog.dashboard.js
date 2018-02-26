@@ -243,9 +243,31 @@ var Graph30Day = $('#graph-30day'),
                     names: names
                 },
                 dataType: 'json',
-                success: updateBandwidthGraph,
+                success: function(data) {
+                    // If we are already running, clear it out.
+                    if (bandwidthinterval || realtime !== 'on') {
+                        clearTimeout(bandwidthinterval);
+                    }
+                    updateBandwidthGraph(data);
+                    if (realtime === 'on') {
+                        bandwidthinterval = setTimeout(
+                            updateBandwidth,
+                            10
+                        );
+                    }
+                },
                 error: function(jqXHR, textStatus, errorThrown) {
+                    // If we are already running, clear it out.
+                    if (bandwidthinterval || realtime !== 'on') {
+                        clearTimeout(bandwidthinterval);
+                    }
                     updateBandwidthGraph('');
+                    if (realtime === 'on') {
+                        bandwidthinterval = setTimeout(
+                            updateBandwidth,
+                            10
+                        );
+                    }
                 },
                 complete: function() {
                     $('#graph-bandwidth').addClass('loaded');
@@ -255,10 +277,6 @@ var Graph30Day = $('#graph-30day'),
     };
     // Graph the bandwidth data
     var updateBandwidthGraph = function(data) {
-        // If we are already running, clear it out.
-        if (bandwidthinterval || realtime !== 'on') {
-            clearTimeout(bandwidthinterval);
-        }
         // Return in Mbps, from Bytes
         var retval = function(d) {
             if (parseInt(d) < 1) {
@@ -322,12 +340,6 @@ var Graph30Day = $('#graph-30day'),
             bandwidth_plot.draw();
         } else {
             bandwidth_plot = $.plot($('#graph-bandwidth'), GraphData, GraphBandwidthOpts);
-        }
-        if (realtime === 'on') {
-            bandwidthinterval = setTimeout(
-                updateBandwidth,
-                10
-            );
         }
     };
     $('.type-filters').on('click', function(e) {

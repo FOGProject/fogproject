@@ -210,6 +210,12 @@ abstract class FOGBase
      */
     protected static $FOGSubMenu;
     /**
+     * Current request uri.
+     *
+     * @var string
+     */
+    public static $requesturi;
+    /**
      * Current requests script name.
      *
      * @var string
@@ -341,6 +347,7 @@ abstract class FOGBase
         global $sub;
         $scriptPattern = 'service';
         $queryPattern = 'sub=requestClientInfo';
+        self::$requesturi = filter_input(INPUT_SERVER, 'REQUEST_URI');
         self::$querystring = filter_input(INPUT_SERVER, 'QUERY_STRING');
         self::$scriptname = filter_input(INPUT_SERVER, 'SCRIPT_NAME');
         self::$httpreqwith = filter_input(INPUT_SERVER, 'HTTP_X_REQUESTED_WITH');

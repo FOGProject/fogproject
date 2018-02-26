@@ -27,6 +27,7 @@ echo '<head>';
 echo '<meta charset="utf-8"/>';
 echo '<meta http-equiv="X-UA-Compatible" content="IE=edge"/>';
 echo '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport"/>';
+echo '<meta name="theme-color" content="#367fa9"/>';
 echo '<title>' . $this->pageTitle . '</title>';
 
 self::$HookManager

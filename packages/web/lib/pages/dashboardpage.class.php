@@ -125,7 +125,7 @@ class DashboardPage extends FOGPage
             );
             self::$_nodeNames[] = $StorageNode->name;
             self::$_nodeURLs[] = sprintf(
-                '%sstatus/bandwidth.php?dev=%s',
+                '%sfog/bandwidth/%s',
                 $url,
                 $StorageNode->interface
             );
