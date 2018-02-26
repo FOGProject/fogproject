@@ -756,7 +756,7 @@ class PrinterManagementPage extends FOGPage
             }
         ];
 
-        echo self::tabFields($tabData);
+        echo self::tabFields($tabData, $this->obj);
     }
     /**
      * Printer General Post

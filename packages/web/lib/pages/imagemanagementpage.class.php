@@ -948,7 +948,7 @@ class ImageManagementPage extends FOGPage
             }
         ];
 
-        echo self::tabFields($tabData);
+        echo self::tabFields($tabData, $this->obj);
     }
     /**
      * Submit save/update the image.

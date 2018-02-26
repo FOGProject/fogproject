@@ -506,7 +506,7 @@ class UserManagementPage extends FOGPage
             ]
         );
 
-        echo self::tabFields($tabData);
+        echo self::tabFields($tabData, $this->obj);
     }
     /**
      * User General Post
@@ -597,7 +597,7 @@ class UserManagementPage extends FOGPage
                 throw new Exception(_('User update failed!'));
             }
             $code = 201;
-            $hook = 'USER_UPDATE_SUCCESS';
+            $hook = 'USER_EDIT_SUCCESS';
             $msg = json_encode(
                 [
                     'msg' => _('User updated!'),
@@ -606,7 +606,7 @@ class UserManagementPage extends FOGPage
             );
         } catch (Exception $e) {
             $code = ($serverFault ? 500 : 400);
-            $hook = 'USER_UPDATE_FAIL';
+            $hook = 'USER_EDIT_FAIL';
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),

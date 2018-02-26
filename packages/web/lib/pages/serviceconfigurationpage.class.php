@@ -1142,7 +1142,7 @@ class ServiceConfigurationPage extends FOGPage
             ];
         }
 
-        echo self::tabFields($tabData);
+        echo self::tabFields($tabData, false);
     }
     /**
      * Updates the contents as needed.

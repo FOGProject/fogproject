@@ -92,7 +92,7 @@ class AddSiteUser extends Hook
         if ($node != 'user') {
             return;
         }
-        $obj = $arguments['User'];
+        $obj = $arguments['obj'];
         $arguments['tabData'][] = [
             'name' => _('Site Association'),
             'id' => 'user-site',
@@ -175,9 +175,6 @@ class AddSiteUser extends Hook
             )
         );
         $Site = new Site($siteID);
-        if (!$Site->isValid() && is_numeric($siteID)) {
-            throw new Exception(_('Select a valid site'));
-        }
         $insert_fields = ['userID', 'siteID'];
         $insert_values = [];
         $users = [$obj->get('id')];
@@ -185,9 +182,11 @@ class AddSiteUser extends Hook
             self::getClass('SiteUserAssociationManager')->destroy(
                 ['userID' => $users]
             );
-            foreach ((array)$users as $ind => &$userID) {
-                $insert_values[] = [$userID, $siteID];
-                unset($userID);
+            if ($siteID > 0) {
+                foreach ((array)$users as $ind => &$userID) {
+                    $insert_values[] = [$userID, $siteID];
+                    unset($userID);
+                }
             }
         }
         if (count($insert_values) > 0) {

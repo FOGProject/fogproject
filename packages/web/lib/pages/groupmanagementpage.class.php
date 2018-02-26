@@ -1426,7 +1426,7 @@ class GroupManagementPage extends FOGPage
             }
         ];
 
-        echo self::tabFields($tabData);
+        echo self::tabFields($tabData, $this->obj);
     }
     /**
      * Display inventory page, separated as groups can contain
