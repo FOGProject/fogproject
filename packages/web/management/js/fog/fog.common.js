@@ -14,6 +14,10 @@ var $_GET = getQueryParams(document.location.search),
     };
 
 (function($) {
+    Pace.options = {
+        ajax: false,
+        restartOnRequestAfter: false
+    };
     PNotify.prototype.options.styling = "fontawesome";
 
     // Extending input mask to add our types

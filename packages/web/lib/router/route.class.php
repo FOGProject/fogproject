@@ -44,7 +44,7 @@ class Route extends FOGBase
      *
      * @var array
      */
-    public static $matches = array();
+    public static $matches = [];
     /**
      * Stores the data to print.
      *
@@ -56,7 +56,7 @@ class Route extends FOGBase
      *
      * @var array
      */
-    public static $validClasses = array(
+    public static $validClasses = [
         'group',
         'groupassociation',
         'history',
@@ -101,13 +101,13 @@ class Route extends FOGBase
         'tasktype',
         'user',
         'usertracking',
-    );
+    ];
     /**
      * Valid Tasking classes.
      *
      * @var array
      */
-    public static $validTaskingClasses = array(
+    public static $validTaskingClasses = [
         'group',
         'host',
         'multicastsession',
@@ -115,19 +115,19 @@ class Route extends FOGBase
         'snapinjob',
         'snapintask',
         'task'
-    );
+    ];
     /**
      * Valid active tasking classes.
      *
      * @var array
      */
-    public static $validActiveTasks = array(
+    public static $validActiveTasks = [
         'multicastsession',
         'scheduledtask',
         'snapinjob',
         'snapintask',
         'task'
-    );
+    ];
     /**
      * Initialize element.
      *
@@ -140,12 +140,12 @@ class Route extends FOGBase
             self::$_token
         ) = self::getSubObjectIDs(
             'Service',
-            array(
-                'name' => array(
+            [
+                'name' => [
                     'FOG_API_ENABLED',
                     'FOG_API_TOKEN'
-                )
-            ),
+                ]
+            ],
             'value'
         );
         /**
@@ -161,7 +161,14 @@ class Route extends FOGBase
             );
             exit;
         }
-        if (!self::$FOGUser->isValid()) {
+        $unauthqueries = [
+            '/fog/system',
+            '/fog/bandwidth'
+        ];
+        $requribase = dirname(self::$requesturi);
+        if (!self::$FOGUser->isValid()
+            && !in_array($requribase, $unauthqueries)
+        ) {
             /**
              * Test our token.
              */
@@ -183,23 +190,17 @@ class Route extends FOGBase
         self::$HookManager
             ->processEvent(
                 'API_VALID_CLASSES',
-                array(
-                    'validClasses' => &self::$validClasses
-                )
+                ['validClasses' => &self::$validClasses]
             );
         self::$HookManager
             ->processEvent(
                 'API_TASKING_CLASSES',
-                array(
-                    'validTaskingClasses' => &self::$validTaskingClasses
-                )
+                ['validTaskingClasses' => &self::$validTaskingClasses]
             );
         self::$HookManager
             ->processEvent(
                 'API_ACTIVE_TASK_CLASSES',
-                array(
-                    'validActiveTasks' => &self::$validActiveTasks
-                )
+                ['validActiveTasks' => &self::$validActiveTasks]
             );
         /**
          * If the router is already defined,
@@ -209,7 +210,7 @@ class Route extends FOGBase
             return;
         }
         self::$router = new AltoRouter(
-            array(),
+            [],
             rtrim(
                 self::getSetting('FOG_WEB_ROOT'),
                 '/'
@@ -243,58 +244,63 @@ class Route extends FOGBase
             ->map(
                 'HEAD|GET',
                 '/system/[status|info]',
-                array(self, 'status'),
+                [self, 'status'],
                 'status'
             )
             ->map(
                 'GET|POST',
                 '/[search|unisearch]/[*:item]/[i:limit]?',
-                array(self, 'unisearch'),
+                [self, 'unisearch'],
                 'unisearch'
             )
             ->get(
                 "${expandeda}/[current|active]",
-                array(self, 'active'),
+                [self, 'active'],
                 'active'
             )
             ->get(
+                '/bandwidth/[*:dev]',
+                [self, 'bandwidth'],
+                'bandwidth'
+            )
+            ->get(
                 "${expanded}/search/[*:item]",
-                array(self, 'search'),
+                [self, 'search'],
                 'search'
             )
             ->get(
                 "${expanded}/[list|all]?",
-                array(self, 'listem'),
+                [self, 'listem'],
                 'list'
             )
             ->get(
                 "${expanded}/[i:id]",
-                array(self, 'indiv'),
+                [self, 'indiv'],
                 'indiv'
             )
             ->put(
                 "${expanded}/[i:id]/[update|edit]?",
-                array(self, 'edit'),
+                [self, 'edit'],
                 'update'
             )
             ->post(
                 "${expandedt}/[i:id]/[task]",
-                array(self, 'task'),
+                [self, 'task'],
                 'task'
             )
             ->post(
                 "${expanded}/[create|new]?",
-                array(self, 'create'),
+                [self, 'create'],
                 'create'
             )
             ->delete(
                 "${expandedt}/[i:id]?/[cancel]",
-                array(self, 'cancel'),
+                [self, 'cancel'],
                 'cancel'
             )
             ->delete(
                 "${expanded}/[i:id]/[delete|remove]?",
-                array(self, 'delete'),
+                [self, 'delete'],
                 'delete'
             );
     }
@@ -431,9 +437,9 @@ class Route extends FOGBase
         $class,
         $sortby = 'name',
         $bypass = false,
-        $find = array()
+        $find = []
     ) {
-        self::$data = array();
+        self::$data = [];
         $classname = strtolower($class);
         $classman = self::getClass($class)->getManager();
         $table = $classman->getTable();
@@ -441,30 +447,30 @@ class Route extends FOGBase
         $fltrstr = $classman->getFilterStr();
         $ttlstr = $classman->getTotalStr();
         $tmpcolumns = $classman->getColumns();
-        $columns = array();
+        $columns = [];
         /**
          * Any custom fields that we need removed
          */
         switch ($classname) {
         case 'user':
             self::arrayRemove(
-                array(
+                [
                     'password',
                     'token'
-                ),
+                ],
                 $tmpcolumns
             );
             break;
         case 'host':
             self::arrayRemove(
-                array(
+                [
                     'sec_tok',
                     'ADPass',
                     'ADPassLegacy',
                     'ADOU',
                     'ADDomain',
                     'useAD'
-                ),
+                ],
                 $tmpcolumns
             );
             break;
@@ -472,45 +478,43 @@ class Route extends FOGBase
             break;
         }
         foreach ((array)$tmpcolumns as $common => &$real) {
-            $columns[] = array('db' => $real, 'dt' => $common);
+            $columns[] = ['db' => $real, 'dt' => $common];
             //if ($common == 'id') {
-            //    $columns[] = array(
+            //    $columns[] = [
             //        'db' => $real,
             //        'dt' => 'DT_RowId',
             //        'formatter' => function($d, $row) {
             //            return 'row_'.$d;
             //        }
-            //    );
+            //    ];
             //}
             unset($real);
         }
         // Any extra columns not in the db fields.
         switch ($classname) {
         case 'host':
-            $columns[] = array('db' => 'imageName', 'dt' => 'imagename');
-            $columns[] = array('db' => 'hmMAC', 'dt' => 'primac');
-            $columns[] = array('db' => 'iSysserial', 'dt' => 'sysserial');
-            $columns[] = array('db' => 'iSysproduct', 'dt' => 'sysproduct');
+            $columns[] = ['db' => 'imageName', 'dt' => 'imagename'];
+            $columns[] = ['db' => 'hmMAC', 'dt' => 'primac'];
+            $columns[] = ['db' => 'iSysserial', 'dt' => 'sysserial'];
+            $columns[] = ['db' => 'iSysproduct', 'dt' => 'sysproduct'];
             break;
         case 'group':
-            $columns[] = array('db' => 'gmMembers', 'dt' => 'members', 'removeFromQuery' => true);
+            $columns[] = ['db' => 'gmMembers', 'dt' => 'members', 'removeFromQuery' => true];
             break;
         case 'storagegroup':
-            $columns[] = array('db' => 'totalclients', 'dt' => 'totalclients', 'removeFromQuery' => true);
+            $columns[] = ['db' => 'totalclients', 'dt' => 'totalclients', 'removeFromQuery' => true];
             break;
         case 'storagenode':
-            $columns[] = array('db' => 'ngID', 'dt' => 'storagegroupID');
-            $columns[] = array('db' => 'ngName', 'dt' => 'storagegroupName');
+            $columns[] = ['db' => 'ngID', 'dt' => 'storagegroupID'];
+            $columns[] = ['db' => 'ngName', 'dt' => 'storagegroupName'];
             break;
         }
         self::$HookManager->processEvent(
             'CUSTOMIZE_DT_COLUMNS',
-            array(
-                'columns' => &$columns
-            )
+            ['columns' => &$columns]
         );
         self::$data['count'] = 0;
-        self::$data[$classname.'s'] = array();
+        self::$data[$classname.'s'] = [];
         parse_str(
             file_get_contents('php://input'),
             $pass_vars
@@ -557,11 +561,11 @@ class Route extends FOGBase
         self::$HookManager
             ->processEvent(
                 'API_MASSDATA_MAPPING',
-                array(
+                [
                     'data' => &self::$data,
                     'classname' => &$classname,
                     'classman' => &$classman
-                )
+                ]
             );
     }
     /**
@@ -579,7 +583,7 @@ class Route extends FOGBase
             $limit = 0;
         }
         $item = trim($item);
-        $data = array();
+        $data = [];
         foreach (self::$searchPages as &$search) {
             if ($search == 'task') {
                 continue;
@@ -596,12 +600,12 @@ class Route extends FOGBase
                 $item,
                 $limit
             );
-            $data[$search] = array();
+            $data[$search] = [];
             foreach ((array)$items as &$obj) {
-                $data[$search][] = array(
+                $data[$search][] = [
                     'id' => $obj->get('id'),
                     'name' => $obj->get('name')
-                );
+                ];
                 unset($obj);
             }
             unset($items);
@@ -610,9 +614,7 @@ class Route extends FOGBase
         self::$HookManager
             ->processEvent(
                 'API_UNISEARCH_RESULTS',
-                array(
-                    'data' => &$data
-                )
+                ['data' => &$data]
             );
         echo json_encode($data);
         unset($data);
@@ -629,7 +631,7 @@ class Route extends FOGBase
     public static function search($class, $item)
     {
         $classname = strtolower($class);
-        self::$data = array();
+        self::$data = [];
         self::$data['_lang'] = $classname;
         self::$data['_count'] = 0;
         $items = self::allsearch(
@@ -650,11 +652,11 @@ class Route extends FOGBase
         self::$HookManager
             ->processEvent(
                 'API_MASSDATA_MAPPING',
-                array(
+                [
                     'data' => &self::$data,
                     'classname' => &$classname,
                     'classman' => &$classman
-                )
+                ]
             );
     }
     /**
@@ -674,7 +676,7 @@ class Route extends FOGBase
                 HTTPResponseCodes::HTTP_NOT_FOUND
             );
         }
-        self::$data = array();
+        self::$data = [];
         self::$data = self::getter(
             $classname,
             $class
@@ -682,11 +684,11 @@ class Route extends FOGBase
         self::$HookManager
             ->processEvent(
                 'API_INDIVDATA_MAPPING',
-                array(
+                [
                     'data' => &self::$data,
                     'classname' => &$classname,
                     'class' => &$class
-                )
+                ]
             );
     }
     /**
@@ -1046,7 +1048,7 @@ class Route extends FOGBase
                 );
             }
             foreach (self::getClass('HostManager')
-                ->find(array('id' => $class->get('hosts'))) as &$Host
+                ->find(['id' => $class->get('hosts')]) as &$Host
             ) {
                 if ($Host->get('task') instanceof Task) {
                     $Host->get('task')->cancel();
@@ -1102,7 +1104,7 @@ class Route extends FOGBase
         $vars = json_decode(
             file_get_contents('php://input')
         );
-        $find = array();
+        $find = [];
         $class = new $class;
         foreach ($classVars['databaseFields'] as &$key) {
             $key = $class->key($key);
@@ -1139,9 +1141,9 @@ class Route extends FOGBase
         case 'task':
             $find['stateID'] = $states;
         }
-        self::$data = array();
+        self::$data = [];
         self::$data['count'] = 0;
-        self::$data[$classname.'s'] = array();
+        self::$data[$classname.'s'] = [];
         foreach ((array)$classman->find($find) as &$class) {
             self::$data[$classname.'s'][] = self::getter(
                 $classname,
@@ -1259,7 +1261,7 @@ class Route extends FOGBase
             }
             $data = FOGCore::fastmerge(
                 $class->get(),
-                array(
+                [
                     'ADPass' => $pass,
                     'productKey' => $productKey,
                     'hostscreen' => $class->get('hostscreen')->get(),
@@ -1272,29 +1274,25 @@ class Route extends FOGBase
                     'imagename' => $class->getImageName(),
                     'primac' => $class->get('mac')->__toString(),
                     'macs' => $class->getMyMacs()
-                )
+                ]
             );
             break;
         case 'inventory':
             $data = FOGCore::fastmerge(
                 $class->get(),
-                array(
-                    'memory' => $class->getMem()
-                )
+                ['memory' => $class->getMem()]
             );
             break;
         case 'group':
             $data = FOGCore::fastmerge(
                 $class->get(),
-                array(
-                    'hostcount' => $class->getHostCount()
-                )
+                ['hostcount' => $class->getHostCount()]
             );
             break;
         case 'image':
             $data = FOGCore::fastmerge(
                 $class->get(),
-                array(
+                [
                     'os' => $class->get('os')->get(),
                     'imagepartitiontype' => $class->get('imagepartitiontype')->get(),
                     'imagetype' => $class->get('imagetype')->get(),
@@ -1304,42 +1302,40 @@ class Route extends FOGBase
                     ),
                     'osname' => $class->getOS()->get('name'),
                     'storagegroupname' => $class->getStorageGroup()->get('name')
-                )
+                ]
             );
             break;
         case 'snapin':
             $data = FOGCore::fastmerge(
                 $class->get(),
-                array(
-                    'storagegroupname' => $class->getStorageGroup()->get('name')
-                )
+                ['storagegroupname' => $class->getStorageGroup()->get('name')]
             );
             break;
         case 'storagenode':
             $data = FOGCore::fastmerge(
                 $class->get(),
-                array(
+                [
                     'logfiles' => $class->get('logfiles'),
                     'snapinfiles' => $class->get('snapinfiles'),
                     'images' => $class->get('images'),
                     'storagegroup' => $class->get('storagegroup')->get()
-                )
+                ]
             );
             break;
         case 'storagegroup':
             $data = FOGCore::fastmerge(
                 $class->get(),
-                array(
+                [
                     'totalsupportedclients' => $class->getTotalSupportedClients(),
                     'masternode' => $class->getMasterStorageNode()->get(),
                     'enablednodes' => $class->get('enablednodes')
-                )
+                ]
             );
             break;
         case 'task':
             $data = FOGCore::fastmerge(
                 $class->get(),
-                array(
+                [
                     'image' => $class->get('image')->get(),
                     'host' => self::getter(
                         'host',
@@ -1349,25 +1345,25 @@ class Route extends FOGBase
                     'state' => $class->get('state')->get(),
                     'storagenode' => $class->get('storagenode')->get(),
                     'storagegroup' => $class->get('storagegroup')->get()
-                )
+                ]
             );
             break;
         case 'plugin':
             $data = FOGCore::fastmerge(
                 $class->get(),
-                array(
+                [
                     'location' => $class->getPath(),
                     'description' => $class->get('description'),
                     'icon' => $class->getIcon(),
                     'runinclude' => $class->getRuninclude(md5($class->get('name'))),
                     'hash' => md5($class->get('name'))
-                )
+                ]
             );
             break;
         case 'imaginglog':
             $data = FOGCore::fastmerge(
                 $class->get(),
-                array(
+                [
                     'host' => self::getter(
                         'host',
                         $class->get('host')
@@ -1377,61 +1373,61 @@ class Route extends FOGBase
                         $class->get('images')->get() :
                         $class->get('image')
                     )
-                )
+                ]
             );
             unset($data['images']);
             break;
         case 'snapintask':
             $data = FOGCore::fastmerge(
                 $class->get(),
-                array(
+                [
                     'snapin' => $class->get('snapin')->get(),
                     'snapinjob' => self::getter(
                         'snapinjob',
                         $class->get('snapinjob')
                     ),
                     'state' => $class->get('state')->get()
-                )
+                ]
             );
             break;
         case 'snapinjob':
             $data = FOGCore::fastmerge(
                 $class->get(),
-                array(
+                [
                     'host' => self::getter(
                         'host',
                         $class->get('host')
                     ),
                     'state' => $class->get('state')->get()
-                )
+                ]
             );
             break;
         case 'usertracking':
             $data = FOGCore::fastmerge(
                 $class->get(),
-                array(
+                [
                     'host' => self::getter(
                         'host',
                         $class->get('host')
                     )
-                )
+                ]
             );
             break;
         case 'multicastsession':
             $data = FOGCore::fastmerge(
                 $class->get(),
-                array(
+                [
                     'imageID' => $class->get('image'),
                     'image' => $class->get('imagename')->get(),
                     'state' => $class->get('state')->get()
-                )
+                ]
             );
             unset($data['imagename']);
             break;
         case 'scheduledtask':
             $data = FOGCore::fastmerge(
                 $class->get(),
-                array(
+                [
                     (
                         $class->isGroupBased() ?
                         'group' :
@@ -1449,15 +1445,13 @@ class Route extends FOGBase
                     ),
                     'tasktype' => $class->getTaskType()->get(),
                     'runtime' => $class->getTime()
-                )
+                ]
             );
             break;
         case 'tasktype':
             $data = FOGCore::fastmerge(
                 $class->get(),
-                array(
-                    'isSnapinTasking' => $class->isSnapinTasking()
-                )
+                ['isSnapinTasking' => $class->isSnapinTasking()]
             );
             break;
         default:
@@ -1467,12 +1461,47 @@ class Route extends FOGBase
         self::$HookManager
             ->processEvent(
                 'API_GETTER',
-                array(
+                [
                     'data' => &$data,
                     'classname' => &$classname,
                     'class' => &$class
-                )
+                ]
             );
         return $data;
+    }
+    /**
+     * Returns the current bandwidth.
+     *
+     * @param string $dev The device to get bandwidth from.
+     *
+     * @return mixed
+     */
+    public function bandwidth($dev)
+    {
+        if (!$dev) {
+            echo json_encode(
+                [
+                    'dev' => _('Unknown'),
+                    'rx' => 0,
+                    'tx' => 0
+                ]
+            );
+            exit;
+        }
+        $txlast = file_get_contents("/sys/class/net/$dev/statistics/tx_bytes");
+        $rxlast = file_get_contents("/sys/class/net/$dev/statistics/rx_bytes");
+        usleep(500000);
+        $txcurr = file_get_contents("/sys/class/net/$dev/statistics/tx_bytes");
+        $rxcurr = file_get_contents("/sys/class/net/$dev/statistics/rx_bytes");
+        $tx = round(ceil(($txcurr - $txlast)) / 1024 * 8 / 500, 2);
+        $rx = round(ceil(($rxcurr - $rxlast)) / 1024 * 8 / 500, 2);
+        echo json_encode(
+            [
+                'dev' => $dev,
+                'rx' => $rx,
+                'tx' => $tx
+            ]
+        );
+        exit;
     }
 }
