@@ -1490,11 +1490,11 @@ class Route extends FOGBase
         }
         $txlast = file_get_contents("/sys/class/net/$dev/statistics/tx_bytes");
         $rxlast = file_get_contents("/sys/class/net/$dev/statistics/rx_bytes");
-        usleep(500000);
+        usleep(200000);
         $txcurr = file_get_contents("/sys/class/net/$dev/statistics/tx_bytes");
         $rxcurr = file_get_contents("/sys/class/net/$dev/statistics/rx_bytes");
-        $tx = round(ceil(($txcurr - $txlast)) / 1024 * 8 / 500, 2);
-        $rx = round(ceil(($rxcurr - $rxlast)) / 1024 * 8 / 500, 2);
+        $tx = round(ceil(($txcurr - $txlast)) / 1024 * 8 / 200, 2);
+        $rx = round(ceil(($rxcurr - $rxlast)) / 1024 * 8 / 200, 2);
         echo json_encode(
             [
                 'dev' => $dev,
