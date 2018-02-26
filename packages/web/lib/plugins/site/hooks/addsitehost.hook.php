@@ -92,7 +92,7 @@ class AddSiteHost extends Hook
         if ($node != 'host') {
             return;
         }
-        $obj = $arguments['obj'];
+        $obj = $arguments['Host'];
         $arguments['tabData'][] = [
             'name' => _('Site Association'),
             'id' => 'host-site',
@@ -110,10 +110,23 @@ class AddSiteHost extends Hook
      */
     public function hostSite($obj)
     {
+        Route::listem('sitehostassociation');
+        $items = json_decode(
+            Route::getData()
+        );
+        $site = 0;
+        foreach ((array)$items->data as &$item) {
+            if ($item->hostID == $obj->get('id')) {
+                $site = $item->siteID;
+                unset($item);
+                break;
+            }
+            unset($item);
+        }
         $siteID = (int)filter_input(
             INPUT_POST,
             'site'
-        );
+        ) ?: $site;
         // Host Sites
         $siteSelector = self::getClass('SiteManager')
             ->buildSelectBox($siteID, 'site');
@@ -202,7 +215,7 @@ class AddSiteHost extends Hook
         if ($node != 'host') {
             return;
         }
-        $obj = $arguments['obj'];
+        $obj = $arguments['Host'];
         try{
             switch ($tab) {
             case 'host-site':

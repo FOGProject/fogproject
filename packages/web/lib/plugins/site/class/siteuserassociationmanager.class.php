@@ -38,31 +38,31 @@ class SiteUserAssociationManager extends FOGManagerController
         $sql = Schema::createTable(
             $this->tablename,
             true,
-            array(
+            [
                 'suaID',
                 'suaName',
                 'suaSiteID',
                 'suaUserID',
-            ),
-            array(
+            ],
+            [
                 'INTEGER',
                 'VARCHAR(60)',
                 'INTEGER',
                 'INTEGER',
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
                 false,
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
                 false,
-            ),
-            array(),
+            ],
+            [],
             'MyISAM',
             'utf8',
             'suaID',

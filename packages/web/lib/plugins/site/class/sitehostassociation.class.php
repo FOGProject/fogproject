@@ -32,46 +32,45 @@ class SiteHostAssociation extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'shaID',
         'name' => 'shaName',
         'siteID' => 'shaSiteID',
         'hostID' => 'shaHostID'
-    );
+    ];
     /**
      * The required fields.
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
-        'id',
+    protected $databaseFieldsRequired = [
         'hostID',
         'siteID'
-    );
+    ];
     /**
      * The additional fields.
      *
      * @var array
      */
-    protected $additionalFields = array(
+    protected $additionalFields = [
         'host',
         'site'
-    );
+    ];
     /**
      * Database -> Class field relationships
      *
      * @var array
      */
-    protected $databaseFieldClassRelationships = array(
-        'Host' => array(
+    protected $databaseFieldClassRelationships = [
+        'Host' => [
             'id',
             'hostID',
             'host'
-        ),
-        'Site' => array(
+        ],
+        'Site' => [
             'id',
             'siteID',
             'site'
-        )
-    );
+        ]
+    ];
 }

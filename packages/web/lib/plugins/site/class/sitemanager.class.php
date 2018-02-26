@@ -38,27 +38,27 @@ class SiteManager extends FOGManagerController
         $sql = Schema::createTable(
             $this->tablename,
             true,
-            array(
+            [
                 'sID',
                 'sName',
                 'sDesc'
-            ),
-            array(
+            ],
+            [
                 'INTEGER',
                 'VARCHAR(60)',
                 'VARCHAR(255)',
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false
-            ),
-            array(),
+            ],
+            [],
             'MyISAM',
             'utf8',
             'sID',

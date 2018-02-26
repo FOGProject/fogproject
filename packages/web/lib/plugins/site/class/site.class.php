@@ -32,32 +32,47 @@ class Site extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'sID',
         'name' => 'sName',
         'description' => 'sDesc'
-    );
+    ];
     /**
      * The required fields.
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'id',
         'name',
-    );
+    ];
     /**
      * Additional fields
      *
      * @var array
      */
-    protected $additionalFields = array(
+    protected $additionalFields = [
         'description',
         'users',
         'usersnotinme',
         'hosts',
         'hostsnotinme'
-    );
+    ];
+    protected $sqlQueryStr = "SELECT COUNT(`shaHostID`) `shaMembers`,COUNT(`suaUserID`) `suaMembers`, `%s`
+        FROM `%s`
+        LEFT OUTER JOIN `siteHostAssoc`
+        ON `site`.`sID` = `siteHostAssoc`.`shaSiteID`
+        LEFT OUTER JOIN `siteUserAssoc`
+        ON `site`.`sID` = `siteUserAssoc`.`suaSiteID`
+        %s
+        GROUP BY `sID`,`shaSiteID`
+        %s
+        %s";
+    protected $sqlFilterStr = "SELECT COUNT(`%s`)
+        FROM `%s`
+        %s";
+    protected $sqlTotalStr = "SELECT COUNT(`%s`)
+        FROM `%s`";
     /**
      * Add user to site.
      *
@@ -140,12 +155,12 @@ class Site extends FOGController
     {
         $associds = self::getSubObjectIDs(
             'SiteUserAssociation',
-            array('siteID' => $this->get('id')),
+            ['siteID' => $this->get('id')],
             'userID'
         );
         $userids = self::getSubObjectIDs(
             'User',
-            array('id' => $associds)
+            ['id' => $associds]
         );
         $this->set('users', $userids);
     }
@@ -160,23 +175,29 @@ class Site extends FOGController
             self::getSubObjectIDs('User'),
             $this->get('users')
         );
-        $types = array();
+        $types = [];
         self::$HookManager->processEvent(
             'USER_TYPES_FILTER',
-            array('types' => &$types)
+            ['types' => &$types]
         );
-        $users = array();
-        foreach ((array)self::getClass('UserManager')
-            ->find(array('id' => $userids)) as &$User
-        ) {
-            if (in_array($User->get('type'), $types)) {
+        Route::listem('user');
+        $users = json_decode(
+            Route::getData()
+        );
+        $users = $users->data;
+        $usersnotinme = [];
+        foreach ((array)$users as $user) {
+            if (in_array($user->type, $types)) {
                 continue;
             }
-            $users[] = $User->get('id');
-            unset($User);
+            if (in_array($user->id, $this->get('users'))) {
+                continue;
+            }
+            $usersnotinme[] = $user->id;
+            unset($user);
         }
-        unset($userids, $types);
-        $this->set('usersnotinme', $users);
+        unset($users, $types);
+        $this->set('usersnotinme', $usersnotinme);
     }
     /**
      * Load hosts
@@ -194,12 +215,12 @@ class Site extends FOGController
         }
         $associds = self::getSubObjectIDs(
             'SiteHostAssociation',
-            array('siteID' => $siteIDs),
+            ['siteID' => $siteIDs],
             'hostID'
         );
         $hostids = self::getSubObjectIDs(
             'Host',
-            array('id' => $associds)
+            ['id' => $associds]
         );
         $this->set('hosts', $hostids);
     }
@@ -219,12 +240,12 @@ class Site extends FOGController
         }
         $associds = self::getSubObjectIDs(
             'SiteHostAssociation',
-            array('siteID' => $siteIDs),
+            ['siteID' => $siteIDs],
             'hostID'
         );
         $hostids = self::getSubObjectIDs(
             'Host',
-            array('id' => $associds)
+            ['id' => $associds]
         );
         $hostids = array_diff(
             self::getSubObjectIDs('Host'),

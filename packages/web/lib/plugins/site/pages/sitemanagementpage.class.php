@@ -34,87 +34,32 @@ class SiteManagementPage extends FOGPage
         /**
          * The name to give.
          */
-        $this->name = 'Site Control Management';
+        $this->name = 'Site Management';
         /**
          * Add this page to the PAGES_WITH_OBJECTS hook event.
          */
         self::$HookManager->processEvent(
             'PAGES_WITH_OBJECTS',
-            array('PagesWithObjects' => &$this->PagesWithObjects)
+            ['PagesWithObjects' => &$this->PagesWithObjects]
         );
-        /**
-         * Get our $_GET['node'], $_GET['sub'], and $_GET['id']
-         * in a nicer to use format.
-         */
-        global $node;
-        global $sub;
-        global $id;
         self::$foglang['ExportSite'] = _('Export Sites');
         self::$foglang['ImportSite'] = _('Import Sites');
         parent::__construct($this->name);
-        if ($id) {
-            $this->subMenu = array(
-                "$this->linkformat" => self::$foglang['General'],
-                $this->membership => self::$foglang['Membership'],
-                sprintf(
-                    '?node=%s&sub=%s&id=%s',
-                    $this->node,
-                    'assocHost',
-                    $id
-                ) => _('Hosts Associated'),
-                    "$this->delformat" => self::$foglang['Delete'],
-                );
-            $this->notes = array(
-                _('Site') => $this->obj->get('name'),
-                _('Description') => sprintf(
-                    '%s',
-                    $this->obj->get('description')
-                ),
-                _('Host Associated') => sprintf(
-                    '%s',
-                    count($this->obj->get('hosts'))
-                )
-            );
-        }
-        $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" class='
-            . '"toggle-checkboxAction" checked/>',
-            _('Site Name'),
-            _('Site Description'),
-            _('Hosts')
-        );
-        $this->templates = array(
-            '<input type="checkbox" name="location[]" value='
-            . '"${id}" class="toggle-action" checked/>',
-            '<a href="?node=site&sub=edit&id=${id}" title="Edit">${name}</a>',
-            '${description}',
-            '${hosts}'
-        );
-        $this->attributes = array(
-            array(
-                'class' => 'filter-false',
-                'width' => 16
-            ),
-            array(),
-            array(),
-            array('class' => 'filter-false'),
-        );
-        /**
-         * Lambda function to return data either by list or search.
-         *
-         * @param object $Site the object to use
-         *
-         * @return void
-         */
-        self::$returnData = function (&$Site) {
-            $this->data[] = array(
-                'id' => $Site->id,
-                'name' => $Site->name,
-                'description' => $Site->description,
-                'hosts' => $Site->hostcount
-            );
-            unset($Site);
-        };
+        $this->headerData = [
+            _('Name'),
+            _('Host Count'),
+            _('User Count')
+        ];
+        $this->templates = [
+            '',
+            '',
+            ''
+        ];
+        $this->attributes = [
+            [],
+            ['width' => 5],
+            ['width' => 5]
+        ];
     }
     /**
      * Creates new item.
@@ -123,44 +68,62 @@ class SiteManagementPage extends FOGPage
      */
     public function add()
     {
-        $this->title = _('New Site');
-        unset($this->headerData);
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
-        );
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
+        $this->title = _('Create New Site');
+        // Check all the post fields if they've already been set.
+        $site = filter_input(INPUT_POST, 'site');
+        $description = filter_input(INPUT_POST, 'description');
 
-        $fields = array(
-            _('Site Name') => '<input class="smaller" type="text" name="name"/>',
-            _('Site Description') => sprintf(
-                '<textarea name="description">%s</textarea>',
-                $_REQUEST['description']
-            ),
-            '&nbsp;' => sprintf(
-                '<input name="add" class="smaller" type="submit" value="%s"/>',
-                _('Add')
-            ),
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
+        // The fields to display
+        $fields = [
+            '<label class="col-sm-2 control-label" for="site">'
+            . _('Site Name')
+            . '</label>' => '<input type="text" name="site" '
+            . 'value="'
+            . $site
+            . '" class="sitename-input form-control" '
+            . 'id="site" required/>',
+            '<label class="col-sm-2 control-label" for="description">'
+            . _('Site Description')
+            . '</label>' => '<textarea class="form-control" style="resize:vertical;'
+            . 'min-height: 50px;" '
+            . 'id="description" name="description">'
+            . $description
+            . '</textarea>'
+        ];
         self::$HookManager
             ->processEvent(
-                'SITE_ADD',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
+                'SITE_ADD_FIELDS',
+                [
+                    'fields' => &$fields,
+                    'Site' => self::getClass('Site')
+                ]
             );
-
-        printf('<form method="post" action="%s">', $this->formAction);
-        $this->render();
+        $rendered = self::formFields($fields);
+        unset($fields);
+        echo '<div class="box box-solid" id="site-create">';
+        echo '<form id="site-create-form" class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '" novalidate>';
+        echo '<div class="box-body">';
+        echo '<!-- Site General -->';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header text-center">';
+        echo '<h3 class="box-title">';
+        echo _('Create New Site');
+        echo '</h3>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo $rendered;
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo '<button class="btn btn-primary" id="send">'
+            . _('Create')
+            . '</button>';
+        echo '</div>';
         echo '</form>';
+        echo '</div>';
     }
     /**
      * Add post.
@@ -169,35 +132,145 @@ class SiteManagementPage extends FOGPage
      */
     public function addPost()
     {
-        try {
-            $name = trim($_REQUEST['name']);
-            $exists = self::getClass('SiteManager')
-                ->exists(trim($name));
-            if ($exists) {
-                throw new Exception(_('Site already Exists, please try again.'));
+        header('Content-type: application/json');
+        self::$HookManager->processEvent('SITE_ADD_POST');
+        $site = trim(
+            filter_input(INPUT_POST, 'site')
+        );
+        $description = trim(
+            filter_input(INPUT_POST, 'description')
+        );
+        $serverFault = false;
+        try{
+            if (!$site) {
+                throw new Exception(
+                    _('A site name is required!')
+                );
             }
-            if (!$name) {
-                throw new Exception(_('Please enter a name for this site.'));
+            if (self::getClass('SiteManager')->exists($site)) {
+                throw new Exception(
+                    _('A site already exists with this name!')
+                );
             }
-
-            $description = $_REQUEST['description'];
             $Site = self::getClass('Site')
-                ->set('name', $name)
+                ->set('name', $site)
                 ->set('description', $description);
             if (!$Site->save()) {
-                throw new Exception(_('Failed to create'));
+                $serverFault = true;
+                throw new Exception(_('Add site failed!'));
             }
-            self::setMessage(_('Site Added, editing!'));
-            self::redirect(
-                sprintf(
-                    '?node=site&sub=edit&id=%s',
-                    $Site->get('id')
-                )
+            $code = 201;
+            $hook = 'SITE_ADD_SUCCESS';
+            $msg = json_encode(
+                [
+                    'msg' => _('Site added!'),
+                    'title' => _('Site Create Success')
+                ]
             );
         } catch (Exception $e) {
-            self::setMessage($e->getMessage());
-            self::redirect($this->formAction);
+            $code = ($serverFault ? 500: 400);
+            $hook = 'SITE_ADD_FAIL';
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Site Create Fail')
+                ]
+            );
         }
+        // header('Location: ../management/index.php?node=site&sub=edit&id=' . $Site->get('id'));
+        self::$HookManager
+            ->processEvent(
+                $hook,
+                [
+                    'Site' => &$Site,
+                    'hook' => &$hook,
+                    'code' => &$code,
+                    'msg' => &$msg,
+                    'serverFault' => &$serverFault
+                ]
+            );
+        http_response_code($code);
+        unset($Site);
+        echo $msg;
+        exit;
+    }
+    /**
+     * Displays the site general tab.
+     *
+     * @return void
+     */
+    public function siteGeneral()
+    {
+        $site = (
+            filter_input(INPUT_POST, 'site') ?:
+            $this->obj->get('name')
+        );
+        $description = (
+            filter_input(INPUT_POST, 'description') ?:
+            $this->obj->get('description')
+        );
+        $fields = [
+            '<label for="site" class="col-sm-2 control-label">'
+            . _('Site Name')
+            . '</label>' => '<input id="site" class="form-control" placeholder="'
+            . _('Site Name')
+            . '" type="text" value="'
+            . $site
+            . '" name="site" required/>',
+            '<label for="description" class="col-sm-2 control-label">'
+            . _('Site Description')
+            . '</label>' => '<textarea style="resize:vertical;'
+            . 'min-height:50px;" id="description" name="description" class="form-control">'
+            . $description
+            . '</textarea>'
+        ];
+        self::$HookManager->processEvent(
+            'SITE_GENERAL_FIELDS',
+            [
+                'fields' => &$fields,
+                'Site' => &$this->obj
+            ]
+        );
+        $rendered = self::formFields($fields);
+        echo '<div class="box box-solid">';
+        echo '<form id="site-general-form" class="form-horizontal" method="post" action="'
+            . self::makeTabUpdateURL('site-general', $this->obj->get('id'))
+            . '" novalidate>';
+        echo '<div class="box-body">';
+        echo $rendered;
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo '<button class="btn btn-primary" id="general-send">'
+            . _('Update')
+            . '</button>';
+        echo '<button class="btn btn-danger pull-right" id="general-delete">'
+            . _('Delete')
+            . '</button>';
+        echo '</div>';
+        echo '</form>';
+        echo '</div>';
+    }
+    /**
+     * Site general post element
+     *
+     * @return void
+     */
+    public function siteGeneralPost()
+    {
+        $site = trim(
+            filter_input(INPUT_POST, 'site')
+        );
+        $description = trim(
+            filter_input(INPUT_POST, 'description')
+        );
+        if ($site != $this->obj->get('name')) {
+            if ($this->obj->getManager()->exists($site)) {
+                throw new Exception(_('Please use another site name'));
+            }
+        }
+        $this->obj
+            ->set('name', $site)
+            ->set('description', $description);
     }
     /**
      * Edit.
@@ -211,60 +284,37 @@ class SiteManagementPage extends FOGPage
             _('Edit'),
             $this->obj->get('name')
         );
-        unset($this->headerData);
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
-        );
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
-        $fields = array(
-            _('Site Name') => sprintf(
-                '<input class="smaller" type="text" name="name" value="%s"/>',
-                (
-                    $_REQUEST['name'] ?
-                    $_REQUEST['name'] :
-                    $this->obj->get('name')
-                )
-            ),
-            _('Site Description') => '<textarea name="description">'
-            . (
-                $_REQUEST['description'] ?
-                $_REQUEST['description'] :
-                $this->obj->get('description')
-            )
-            . '</textarea>',
-            '&nbsp;' => sprintf(
-                '<input name="update" class="smaller" type="submit" value="%s"/>',
-                _('Update')
-            ),
-        );
-        foreach ((array)$fields as $field => &$input) {
-            $this->data[] = array(
-                'field'=>$field,
-                'input'=>$input,
-            );
-            unset($input);
-        }
-        unset($fields);
-        self::$HookManager
-            ->processEvent(
-                'SITE_EDIT',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        printf(
-            '<form method="post" action="%s">',
-            $this->formAction
-        );
-        $this->render();
-        echo '</form>';
+
+        $tabData = [];
+
+        // General
+        $tabData[] = [
+            'name' => _('General'),
+            'id' => 'site-general',
+            'generator' => function() {
+                $this->siteGeneral();
+            }
+        ];
+
+        // Site Host Association
+        $tabData[] = [
+            'name' => _('Host Association'),
+            'id' => 'site-host',
+            'generator' => function() {
+                echo 'TODO: Make functional';
+            }
+        ];
+
+        // Site User Association
+        $tabData[] = [
+            'name' => _('User Association'),
+            'id' => 'site-user',
+            'generator' => function() {
+                echo 'TODO: Make functional';
+            }
+        ];
+
+        echo self::tabFields($tabData);
     }
     /**
      * Edit post.
@@ -273,39 +323,61 @@ class SiteManagementPage extends FOGPage
      */
     public function editPost()
     {
+        header('Content-type: application/json');
         self::$HookManager
             ->processEvent(
                 'SITE_EDIT_POST',
-                array(
-                    'Site' => &$this->obj
-                )
+                ['Site' => &$this->obj]
             );
         try {
-            if ($_REQUEST['name'] != $this->obj->get('name')
-                && $this->obj->getManager()->exists($_REQUEST['name'])
-            ) {
-                throw new Exception(_('A site with that name already exists.'));
+            global $tab;
+            switch ($tab) {
+            case 'site-general':
+                $this->siteGeneralPost();
+                break;
+            case 'site-host':
+                $this->siteHostPost();
+                break;
+            case 'site-user':
+                $this->siteUserPost();
+                break;
             }
-            if (isset($_REQUEST['update'])) {
-                $description = $_REQUEST['description'];
-                $this->obj
-                    ->set('name', $_REQUEST['name'])
-                    ->set('description', $_REQUEST['description']);
-                if (!$this->obj->save()) {
-                    throw new Exception(_('Failed to update'));
-                }
-                self::setMessage(_('Site Updated'));
-                self::redirect(
-                    sprintf(
-                        '?node=site&sub=edit&id=%d',
-                        $this->obj->get('id')
-                    )
-                );
+            if (!$this->obj->save()) {
+                $serverFault = true;
+                throw new Exception(_('Site update failed!'));
             }
+            $code = 201;
+            $hook = 'SITE_EDIT_SUCCESS';
+            $msg = json_encode(
+                [
+                    'msg' => _('Site updated!'),
+                    'title' => _('Site Update Success')
+                ]
+            );
         } catch (Exception $e) {
-            self::setMessage($e->getMessage());
-            self::redirect($this->formAction);
+            $code = ($serverFault ? 500 : 400);
+            $hook = 'SITE_EDIT_FAIL';
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Site Update Fail')
+                ]
+            );
         }
+        self::$HookManager
+            ->processEvent(
+                $hook,
+                [
+                    'Site' => &$this->obj,
+                    'hook' => &$hook,
+                    'code' => &$code,
+                    'msg' => &$msg,
+                    'serverFault' => &$serverFault
+                ]
+            );
+        http_response_code($code);
+        echo $msg;
+        exit;
     }
     /**
      * List the hosts which are associated to a site
