@@ -713,13 +713,12 @@ function clearADFields() {
  */
 function setADFields() {
     $('#adEnabled').on('click', function(e) {
-        if (!this.checked) {
-            return this;
+        if (!$(this).is(':checked')) {
+            return;
         }
         $.ajax({
             url: '../management/index.php',
             type: 'post',
-            timeout: 1000,
             data: {
                 sub: 'adInfo'
             },
