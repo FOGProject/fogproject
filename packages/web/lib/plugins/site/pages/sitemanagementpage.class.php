@@ -314,7 +314,7 @@ class SiteManagementPage extends FOGPage
             }
         ];
 
-        echo self::tabFields($tabData);
+        echo self::tabFields($tabData, $this->obj);
     }
     /**
      * Edit post.

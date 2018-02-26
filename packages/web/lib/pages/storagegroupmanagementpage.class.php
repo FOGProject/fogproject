@@ -415,7 +415,7 @@ class StorageGroupManagementPage extends FOGPage
             }
         ];
 
-        echo self::tabFields($tabData);
+        echo self::tabFields($tabData, $this->obj);
     }
     /**
      * Actually submit the changes.

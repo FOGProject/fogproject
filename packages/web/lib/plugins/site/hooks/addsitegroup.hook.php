@@ -92,7 +92,7 @@ class AddSiteGroup extends Hook
         if ($node != 'group') {
             return;
         }
-        $obj = $arguments['Group'];
+        $obj = $arguments['obj'];
         $arguments['tabData'][] = [
             'name' => _('Site Association'),
             'id' => 'group-site',
@@ -162,9 +162,6 @@ class AddSiteGroup extends Hook
             )
         );
         $Site = new Site($siteID);
-        if (!$Site->isValid() && is_numeric($siteID)) {
-            throw new Exception(_('Select a valid site'));
-        }
         $insert_fields = ['hostID', 'siteID'];
         $insert_values = [];
         $hosts = $obj->get('hosts');
@@ -172,9 +169,11 @@ class AddSiteGroup extends Hook
             self::getClass('SiteHostAssociationManager')->destroy(
                 ['hostID' => $hosts]
             );
-            foreach ((array)$hosts as $ind => &$hostID) {
-                $insert_values[] = [$hostID, $siteID];
-                unset($hostID);
+            if ($siteID > 0) {
+                foreach ((array)$hosts as $ind => &$hostID) {
+                    $insert_values[] = [$hostID, $siteID];
+                    unset($hostID);
+                }
             }
         }
         if (count($insert_values) > 0) {

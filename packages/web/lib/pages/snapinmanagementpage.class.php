@@ -1350,7 +1350,7 @@ class SnapinManagementPage extends FOGPage
             }
         ];
 
-        echo self::tabFields($tabData);
+        echo self::tabFields($tabData, $this->obj);
     }
     /**
      * Submit for update.

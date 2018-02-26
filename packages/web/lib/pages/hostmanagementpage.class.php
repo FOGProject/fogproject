@@ -2168,7 +2168,7 @@ class HostManagementPage extends FOGPage
             }
         ];
 
-        echo self::tabFields($tabData);
+        echo self::tabFields($tabData, $this->obj);
         /*$approve = filter_input(INPUT_GET, 'approveHost');
         if ($approve) {
             $this
