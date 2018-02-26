@@ -1,6 +1,5 @@
 // 30 day
 var Graph30Day = $('#graph-30day'),
-    Graph30DayData,
     Graph30DayOpts = {
         colors: ['#3c8dbc', '#0073b7'],
         grid: {
@@ -82,7 +81,6 @@ var Graph30Day = $('#graph-30day'),
             position: 'nw'
         }
     },
-    bandwidth_plot,
     bandwidthajax,
     // Client Count
     updateClientCountData = [[0,0]],
@@ -184,7 +182,7 @@ var Graph30Day = $('#graph-30day'),
                 },
                 dataType: 'json',
                 success: function(data) {
-                    Graph30DayData = [
+                    var Graph30DayData = [
                         {
                             label: 'Computers Imaged',
                             data: data
@@ -233,15 +231,13 @@ var Graph30Day = $('#graph-30day'),
 
     // Bandwidth chart
     var updateBandwidth = function() {
-        var urls = $('#bandwidthUrls').val().split(','),
-            names = $('#nodeNames').val().split(',');
         Pace.ignore(function() {
             bandwidthajax = $.ajax({
                 url: '../management/index.php?node=home&sub=bandwidth',
                 type: 'post',
                 data: {
-                    url: urls,
-                    names: names
+                    url: $('#bandwidthUrls').val().split(','),
+                    names: $('#nodeNames').val().split(',')
                 },
                 dataType: 'json',
                 beforeSend: function() {
@@ -255,17 +251,11 @@ var Graph30Day = $('#graph-30day'),
                     if (realtime === 'on') {
                         bandwidthinterval = setTimeout(
                             updateBandwidth,
-                            5000
+                            1500
                         );
                     }
                 },
-                success: updateBandwidthGraph,
-                error: function(jqXHR, textStatus, errorThrown) {
-                    updateBandwidthGraph('');
-                },
-                complete: function() {
-                    $('#graph-bandwidth').addClass('loaded');
-                }
+                success: updateBandwidthGraph
             });
         });
     };
@@ -300,9 +290,9 @@ var Graph30Day = $('#graph-30day'),
             GraphBandwidthData[index].rx.push([Now, value.rx])
             // If our tx/rx data is greater than our max points
             // strip the excess data.
-            while (GraphBandwidthData[index].tx.length > GraphBandwidthMaxDataPoints / 5) {
-                GraphBandwidthData[index].tx.slice(1);
-                GraphBandwidthData[index].rx.slice(1);
+            while (GraphBandwidthData[index].tx.length > GraphBandwidthMaxDataPoints / 1.5) {
+                GraphBandwidthData[index].tx.shift();
+                GraphBandwidthData[index].rx.shift();
             }
             GraphData[index] = {
                 label: GraphBandwidthData[index].name
@@ -321,7 +311,7 @@ var Graph30Day = $('#graph-30day'),
             bandwidth_plot.setupGrid();
             bandwidth_plot.draw();
         } else {
-            bandwidth_plot = $.plot($('#graph-bandwidth'), GraphData, GraphBandwidthOpts);
+            var bandwidth_plot = $.plot($('#graph-bandwidth'), GraphData, GraphBandwidthOpts);
         }
     };
     $('.type-filters').on('click', function(e) {
