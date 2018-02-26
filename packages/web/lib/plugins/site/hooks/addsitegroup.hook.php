@@ -92,7 +92,7 @@ class AddSiteGroup extends Hook
         if ($node != 'group') {
             return;
         }
-        $obj = $arguments['obj'];
+        $obj = $arguments['Group'];
         $arguments['tabData'][] = [
             'name' => _('Site Association'),
             'id' => 'group-site',
@@ -202,7 +202,7 @@ class AddSiteGroup extends Hook
         if ($node != 'group') {
             return;
         }
-        $obj = $arguments['obj'];
+        $obj = $arguments['Group'];
         try {
             switch ($tab) {
             case 'group-site':

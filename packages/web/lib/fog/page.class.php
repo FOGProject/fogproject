@@ -179,11 +179,11 @@ class Page extends FOGBase
                 '-',
                 $subset
             );
-            $filepaths = array();
+            $filepaths = [];
             if (empty($subset)) {
-                $filepaths = array("js/fog/{$node}/fog.{$node}.js");
+                $filepaths = ["js/fog/{$node}/fog.{$node}.js"];
             } else {
-                $filepaths = array("js/fog/{$node}/fog.{$node}.{$subset}.js");
+                $filepaths = ["js/fog/{$node}/fog.{$node}.{$subset}.js"];
             }
         }
         array_map(
@@ -194,19 +194,6 @@ class Page extends FOGBase
                 unset($jsFilepath);
             },
             (array)$filepaths
-        );
-        $pluginfilepaths = array(
-            "../lib/plugins/{$node}/js/fog.{$node}.js",
-            "../lib/plugins/{$node}/js/fog.{$node}.{$subset}.js",
-        );
-        array_map(
-            function (&$pluginfilepath) use (&$files) {
-                if (file_exists($pluginfilepath)) {
-                    array_push($files, $pluginfilepath);
-                }
-                unset($pluginfilepath);
-            },
-            (array)$pluginfilepaths
         );
         if ($this->isHomepage
             && self::$FOGUser->isValid()
@@ -228,6 +215,10 @@ class Page extends FOGBase
         if ($node === 'schema') {
             array_push($files, 'js/fog/schema/fog.schema.js');
         }
+        self::$HookManager->processEvent(
+            'PAGE_JS_FILES',
+            ['files' => &$files]
+        );
         $files = array_unique((array)$files);
         array_map(
             function (&$path) {

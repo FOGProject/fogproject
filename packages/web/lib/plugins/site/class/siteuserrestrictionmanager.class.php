@@ -38,27 +38,27 @@ class SiteUserRestrictionManager extends FOGManagerController
         $sql = Schema::createTable(
             $this->tablename,
             true,
-            array(
+            [
                 'surID',
                 'surUserID',
                 'surRestricted'
-            ),
-            array(
+            ],
+            [
                 'INTEGER',
                 'INTEGER',
                 "ENUM('0', '1')"
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false
-            ),
-            array(),
+            ],
+            [],
             'MyISAM',
             'utf8',
             'surID',

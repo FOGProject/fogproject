@@ -61,7 +61,37 @@ class AddSiteAPI extends Hook
                     $this,
                     'adjustMassInfo'
                 )
+            )
+            ->register(
+                'CUSTOMIZE_DT_COLUMNS',
+                array(
+                    $this,
+                    'customizeDT'
+                )
             );
+    }
+    /**
+     * This adjusts our DT columns for display.
+     *
+     * @param mixed $arguments The arguments to modify.
+     *
+     * @return void
+     */
+    public function customizeDT($arguments)
+    {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
+            return;
+        }
+        $arguments['columns'][] = [
+            'db' => 'shaMembers',
+            'dt' => 'hostcount',
+            'removeFromQuery' => true
+        ];
+        $arguments['columns'][] = [
+            'db' => 'suaMembers',
+            'dt' => 'usercount',
+            'removeFromQuery' => true
+        ];
     }
     /**
      * This function injects site elements for

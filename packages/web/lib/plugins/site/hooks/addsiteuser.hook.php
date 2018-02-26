@@ -92,7 +92,7 @@ class AddSiteUser extends Hook
         if ($node != 'user') {
             return;
         }
-        $obj = $arguments['obj'];
+        $obj = $arguments['User'];
         $arguments['tabData'][] = [
             'name' => _('Site Association'),
             'id' => 'user-site',
@@ -110,10 +110,23 @@ class AddSiteUser extends Hook
      */
     public function userSite($obj)
     {
+        Route::listem('siteuserassociation');
+        $items = json_decode(
+            Route::getData()
+        );
+        $site = 0;
+        foreach ((array)$items->data as &$item) {
+            if ($item->userID == $obj->get('id')) {
+                $site = $item->siteID;
+                unset($item);
+                break;
+            }
+            unset($item);
+        }
         $siteID = (int)filter_input(
             INPUT_POST,
             'site'
-        );
+        ) ?: $site;
         // User sites
         $siteSelector = self::getClass('SiteManager')
             ->buildSelectBox($siteID, 'site');
@@ -202,7 +215,7 @@ class AddSiteUser extends Hook
         if ($node != 'user') {
             return;
         }
-        $obj = $arguments['obj'];
+        $obj = $arguments['User'];
         try {
             switch ($tab) {
             case 'user-site':

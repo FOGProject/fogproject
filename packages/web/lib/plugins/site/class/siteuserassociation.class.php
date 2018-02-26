@@ -32,46 +32,45 @@ class SiteUserAssociation extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'suaID',
         'name' => 'suaName',
         'siteID' => 'suaSiteID',
         'userID' => 'suaUserID',
-    );
+    ];
     /**
      * The required fields.
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
-        'id',
+    protected $databaseFieldsRequired = [
         'userID',
         'siteID'
-    );
+    ];
     /**
      * The additional fields.
      *
      * @var array
      */
-    protected $additionalFields = array(
+    protected $additionalFields = [
         'user',
         'site'
-    );
+    ];
     /**
      * Database -> Class field relationships
      *
      * @var array
      */
-    protected $databaseFieldClassRelationships = array(
-        'User' => array(
+    protected $databaseFieldClassRelationships = [
+        'User' => [
             'id',
             'userID',
             'user'
-        ),
-        'Site' => array(
+        ],
+        'Site' => [
             'id',
             'siteID',
             'site'
-        )
-    );
+        ]
+    ];
 }
