@@ -163,7 +163,9 @@ class Route extends FOGBase
         }
         $unauthqueries = [
             '/fog/system',
-            '/fog/bandwidth'
+            '/fog/bandwidth',
+            '/fog/storagegroupid',
+            '/fog/storagenodeid'
         ];
         $requribase = dirname(self::$requesturi);
         if (!self::$FOGUser->isValid()
@@ -1328,7 +1330,8 @@ class Route extends FOGBase
                 [
                     'totalsupportedclients' => $class->getTotalSupportedClients(),
                     'masternode' => $class->getMasterStorageNode()->get(),
-                    'enablednodes' => $class->get('enablednodes')
+                    'enablednodes' => $class->get('enablednodes'),
+                    'allnodes' => $class->get('allnodes')
                 ]
             );
             break;

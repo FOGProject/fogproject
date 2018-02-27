@@ -187,14 +187,14 @@
                 storagegroupsTable.rows({selected: true}).deselect();
                 // Unset the primary radio from disabled.
                 $('#snapin-storagegroups-table').find('.primary').each(function() {
-                    if (toAdd.indexOf($(this).val()) != -1) {
+                    if ($.inArray($(this).val(), toAdd) != -1) {
                         $(this).prop('disabled', false);
                         Common.iCheck(this);
                     }
                 });
                 // Check the associated checkbox.
                 $('#snapin-storagegroups-table').find('.associated').each(function() {
-                    if (toAdd.indexOf($(this).val()) != -1) {
+                    if ($.inArray($(this).val(), toAdd) != -1) {
                         $(this).iCheck('check');
                     }
                 });
@@ -219,7 +219,7 @@
                 storagegroupsTable.rows({selected: true}).deselect();
                 // Set the primary radio as disabled
                 $('#snapin-storagegroups-table').find('.primary').each(function() {
-                    if (toRemove.indexOf($(this).val()) != -1) {
+                    if ($.inArray($(this).val(), toRemove) != -1) {
                         $(this).iCheck('uncheck');
                         $(this).prop('disabled', true);
                         Common.iCheck(this);
@@ -227,7 +227,7 @@
                 });
                 // Uncheck the associated checkbox.
                 $('#snapin-storagegroup-table').find('.associated').each(function() {
-                    if (toRemove.indexOf($(this).val()) != -1) {
+                    if ($.inArray($(this).val(), toRemove) != -1) {
                         $(this).iCheck('uncheck');
                     }
                 });
@@ -312,7 +312,7 @@
                 membershipTable.draw(false);
                 membershipTable.rows({selected: true}).deselect();
                 $('#snapin-membership-table').find('.associated').each(function() {
-                    if (toAdd.indexOf($(this).val()) != -1) {
+                    if ($.inArray($(this).val(), toAdd) != -1) {
                         $(this).iCheck('check');
                     }
                 });
@@ -336,7 +336,7 @@
                 membershipTable.draw(false);
                 membershipTable.rows({selected: true}).deselect();
                 $('#snapin-membership-table').find('.associated').each(function() {
-                    if (toRemove.indexOf($(this).val()) != -1) {
+                    if ($.inArray($(this).val(), toRemove) != -1) {
                         $(this).iCheck('uncheck');
                     }
                 });

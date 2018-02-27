@@ -59,18 +59,37 @@ class AddLocationAPI extends Hook
         self::$HookManager
             ->register(
                 'API_VALID_CLASSES',
-                array(
-                    $this,
-                    'injectAPIElements'
-                )
+                [$this, 'injectAPIElements']
             )
             ->register(
                 'API_GETTER',
-                array(
-                    $this,
-                    'adjustGetter'
-                )
+                [$this, 'adjustGetter']
+            )
+            ->register(
+                'CUSTOMIZE_DT_COLUMNS',
+                [$this, 'customizeDT']
             );
+    }
+    /**
+     * Customize our new columns.
+     *
+     * @param mixed $arguments The arguments to modify.
+     *
+     * @return void
+     */
+    public function customizeDT($arguments)
+    {
+        if (false == strpos(self::$requesturi, $this->node)) {
+            return;
+        }
+        $arguments['columns'][] = [
+            'db' => 'ngmMemberName',
+            'dt' => 'storagenodename'
+        ];
+        $arguments['columns'][] = [
+            'db' => 'ngName',
+            'dt' => 'storagegroupname'
+        ];
     }
     /**
      * This function injects location elements for
@@ -104,12 +123,13 @@ class AddLocationAPI extends Hook
             $arguments['data'] = FOGCore::fastmerge(
                 $arguments['class']->get(),
                 array(
-                    'storagenode' => $arguments['class']
-                    ->get('storagenode')
-                    ->get(),
-                    'storagegroup' => $arguments['class']
-                    ->get('storagegroup')
-                    ->get()
+                    'storagenode' => Route::getter(
+                        'storagenode',
+                        $arguments['class']->get('storagenode')
+                    ),
+                    'storagegroup' => Route::getter(
+                        $arguments['class']->get('storagegroup')
+                    )
                 )
             );
             break;

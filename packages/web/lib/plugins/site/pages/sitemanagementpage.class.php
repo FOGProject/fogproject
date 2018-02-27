@@ -107,7 +107,7 @@ class SiteManagementPage extends FOGPage
         echo '<div class="box-body">';
         echo '<!-- Site General -->';
         echo '<div class="box box-primary">';
-        echo '<div class="box-header text-center">';
+        echo '<div class="box-header with-border">';
         echo '<h3 class="box-title">';
         echo _('Create New Site');
         echo '</h3>';
@@ -265,7 +265,7 @@ class SiteManagementPage extends FOGPage
         );
         if ($site != $this->obj->get('name')) {
             if ($this->obj->getManager()->exists($site)) {
-                throw new Exception(_('Please use another site name'));
+                throw new Exception(_('A site already exists with this name!'));
             }
         }
         $this->obj
@@ -329,6 +329,7 @@ class SiteManagementPage extends FOGPage
                 'SITE_EDIT_POST',
                 ['Site' => &$this->obj]
             );
+        $serverFault = false;
         try {
             global $tab;
             switch ($tab) {
