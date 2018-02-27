@@ -112,10 +112,23 @@ class AddLocationHost extends Hook
      */
     public function hostLocation($obj)
     {
+        Route::listem('locationassociation');
+        $items = json_decode(
+            Route::getData()
+        );
+        $location = 0;
+        foreach ((array)$items->data as &$item) {
+            if ($item->hostID == $obj->get('id')) {
+                $location = $item->locationID;
+                unset($item);
+                break;
+            }
+            unset($item);
+        }
         $locationID = (int)filter_input(
             INPUT_POST,
             'location'
-        );
+        ) ?: $location;
         // Host Locations
         $locationSelector = self::getClass('LocationManager')
             ->buildSelectBox($locationID, 'location');

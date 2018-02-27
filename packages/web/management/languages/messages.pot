@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-27 01:34-0500\n"
+"POT-Creation-Date: 2018-02-27 02:39-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -608,6 +608,18 @@ msgid "Export Printers"
 msgstr ""
 
 msgid "Import Printers"
+msgstr ""
+
+msgid "Export Storage Nodes"
+msgstr ""
+
+msgid "Import Storage Nodes"
+msgstr ""
+
+msgid "Export Storage Groups"
+msgstr ""
+
+msgid "Import Storage Groups"
 msgstr ""
 
 msgid "Equipment Loan"
