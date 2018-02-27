@@ -98,12 +98,12 @@ class LocationManagementPage extends FOGPage
             '<label class="col-sm-2 control-label" for="storagenode">'
             . _('Storage Node')
             . '</label>' => $storagenodeSelector,
-            '<label class="col-sm-2 control-label" for="isen">'
+            '<label class="col-sm-2 control-label" for="bootfrom">'
             . _('Location Sends Boot')
             . '<br/>('
             . _('Location sends the inits and kernels')
             . ')</label>' => '<input type="checkbox" name="bootfrom" '
-            . 'class="bootfrom" checked/>'
+            . 'class="bootfrom" id="bootfrom" checked/>'
         ];
         self::$HookManager
             ->processEvent(
@@ -284,12 +284,12 @@ class LocationManagementPage extends FOGPage
             '<label class="col-sm-2 control-label" for="storagenode">'
             . _('Storage Node')
             . '</label>' => $storagenodeSelector,
-            '<label class="col-sm-2 control-label" for="isen">'
+            '<label class="col-sm-2 control-label" for="bootfrom">'
             . _('Location Sends Boot')
             . '<br/>('
             . _('Location sends the inits and kernels')
             . ')</label>' => '<input type="checkbox" name="bootfrom" '
-            . 'class="bootfrom"'
+            . 'class="bootfrom" id="bootfrom"'
             . $bootfrom
             . '/>'
         ];
