@@ -272,7 +272,7 @@ class LocationManagementPage extends FOGPage
             . '" class="locationname-input form-control" '
             . 'id="location" required/>',
             '<label class="col-sm-2 control-label" for="description">'
-            . _('Location Name')
+            . _('Location Description')
             . '</label>' => '<textarea class="form-control" style="resize:vertical;'
             . 'min-height:50px;" '
             . 'id="description" name="description">'
