@@ -669,6 +669,89 @@
     // ---------------------------------------------------------------
     // POWER MANAGMENT TAB
 
+    // The form Control elements of Power Management.
+    var powermanagementForm = $('#host-powermanagement-cron-form'),
+        powermanagementFormBtn = $('#powermanagement-send'),
+        // Insert Form cron elements.
+        minutes = $('.scheduleCronMin', powermanagementForm),
+        hours = $('.scheduleCronHour', powermanagementForm),
+        dom = $('.scheduleCronDOM', powermanagementForm),
+        month = $('.scheduleCronMonth', powermanagementForm),
+        dow = $('.scheduleCronDOW', powermanagementForm),
+        ondemand = $('#scheduleOnDemand', powermanagementForm),
+        specialCrons = $('.specialCrons', powermanagementForm),
+        action = $('.pmaction', powermanagementForm);
+
+    powermanagementForm.on('submit', function(e) {
+        e.preventDefault();
+    });
+    powermanagementFormBtn.on('click', function() {
+        powermanagementFormBtn.prop('disabled', true);
+        Common.processForm(powermanagementForm, function(err) {
+            powermanagementFormBtn.prop('disabled', false);
+            if (err) {
+                return;
+            }
+            minutes.val('');
+            hours.val('');
+            dom.val('');
+            month.val('');
+            dow.val('');
+            action.val('');
+            specialCrons.val('');
+            ondemand.iCheck('uncheck');
+        });
+    });
+    specialCrons.on('change focus focusout', function(e) {
+        e.preventDefault();
+        switch (this.value) {
+            case 'hourly':
+                minutes.val('0');
+                hours.val('*');
+                dom.val('*');
+                month.val('*');
+                dow.val('*');
+                break;
+            case 'daily':
+                minutes.val('0');
+                hours.val('0');
+                dom.val('*');
+                month.val('*');
+                dow.val('*');
+                break;
+            case 'weekly':
+                minutes.val('0');
+                hours.val('0');
+                dom.val('*');
+                month.val('*');
+                dow.val('0');
+                break;
+            case 'monthy':
+                minutes.val('0');
+                hours.val('0');
+                dom.val('1');
+                month.val('*');
+                dow.val('*');
+                break;
+            case 'yearly':
+                minutes.val('0');
+                hours.val('0');
+                dom.val('1');
+                month.val('1');
+                dow.val('*');
+                break;
+            default:
+                minutes.val('');
+                hours.val('');
+                dom.val('');
+                month.val('');
+                dow.val('');
+                break;
+        }
+    });
+
+    // The Power Management List element.
+
     // ---------------------------------------------------------------
     // GROUP MEMBERSHIP TAB
 

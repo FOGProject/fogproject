@@ -55,6 +55,9 @@ class AddLocationTasks extends Hook
     public function __construct()
     {
         parent::__construct();
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
+            return;
+        }
         self::$HookManager
             ->register(
                 'HOST_DATA',
@@ -81,9 +84,6 @@ class AddLocationTasks extends Hook
     public function tasksActiveTableHeader($arguments)
     {
         global $node;
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         if ($node != 'task') {
             return;
         }
@@ -99,9 +99,6 @@ class AddLocationTasks extends Hook
     public function tasksActiveData($arguments)
     {
         global $node;
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         if ($node != 'task') {
             return;
         }

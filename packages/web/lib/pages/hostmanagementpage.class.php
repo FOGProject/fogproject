@@ -1334,6 +1334,194 @@ class HostManagementPage extends FOGPage
         echo '</div>';
     }
     /**
+     * Update the actual thing.
+     *
+     * @return void
+     */
+    public function hostServicePost()
+    {
+        if (isset($_POST['enablemodulessel'])) {
+            $enablemodules = filter_input_array(
+                INPUT_POST,
+                [
+                    'enablemodules' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $enablemodules = $enablemodules['enablemodules'];
+            $this->obj->addModule($enablemodules);
+        }
+        if (isset($_POST['disablemodulessel'])) {
+            $disablemodules = filter_input_array(
+                INPUT_POST,
+                [
+                    'disablemodules' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $disablemodules = $disablemodules['disablemodules'];
+            $this->obj->removeModule($disablemodules);
+        }
+        if (isset($_POST['dispmansend'])) {
+            $x = filter_input(INPUT_POST, 'x');
+            $y = filter_input(INPUT_POST, 'y');
+            $r = filter_input(INPUT_POST, 'r');
+            $this->obj->setDisp($x, $y, $r);
+        }
+        if (isset($_POST['alosend'])) {
+            $tme = (int)filter_input(INPUT_POST, 'tme');
+            if (!(is_numeric($tme) && $tme > 4)) {
+                $tme = 0;
+            }
+            $this->obj->setAlo($tme);
+        }
+    }
+    /**
+     * Generates the powermanagement display items.
+     *
+     * @return void
+     */
+    public function hostPowermanagement()
+    {
+        echo '<!-- Power Management -->';
+        echo $this->newPMDisplay();
+    }
+    /**
+     * Host power management post.
+     *
+     * @return void
+     */
+    public function hostPowermanagementPost()
+    {
+        if (isset($_POST['pmupdate'])) {
+            $onDemand = (int)isset($_POST['onDemand']);
+            $items = [];
+            $flags = ['flags' => FILTER_REQUIRE_ARRAY];
+            if (isset($_POST['pmupdate'])) {
+                $items = filter_input_array(
+                    INPUT_POST,
+                    [
+                        'scheduleCronMin' => $flags,
+                        'scheduleCronHour' => $flags,
+                        'scheduleCronDOM' => $flags,
+                        'scheduleCronMonth' => $flags,
+                        'scheduleCronDOW' => $flags,
+                        'pmid' => $flags,
+                        'action' => $flags
+                    ]
+                );
+                extract($items);
+                if (!$action) {
+                    throw new Exception(
+                        _('You must select an action to perform')
+                    );
+                }
+                $items = [];
+                foreach ((array)$pmid as $index => &$pm) {
+                    $onDemandItem = array_search(
+                        $pm,
+                        $onDemand
+                    );
+                    $items[] = [
+                        $pm,
+                        $this->obj->get('id'),
+                        $scheduleCronMin[$index],
+                        $scheduleCronHour[$index],
+                        $scheduleCronDOM[$index],
+                        $scheduleCronMonth[$index],
+                        $scheduleCronDOW[$index],
+                        $onDemandItem !== -1
+                        && $onDemand[$onDemandItem] === $pm ?
+                        1 :
+                        0,
+                        $action[$index]
+                    ];
+                    unset($pm);
+                }
+                self::getClass('PowerManagementManager')
+                    ->insertBatch(
+                        [
+                            'id',
+                            'hostID',
+                            'min',
+                            'hour',
+                            'dom',
+                            'month',
+                            'dow',
+                            'onDemand',
+                            'action'
+                        ],
+                        $items
+                    );
+            }
+        }
+        if (isset($_POST['pmadd'])) {
+            $min = trim(
+                filter_input(
+                    INPUT_POST,
+                    'scheduleCronMin'
+                )
+            );
+            $hour = trim(
+                filter_input(
+                    INPUT_POST,
+                    'scheduleCronHour'
+                )
+            );
+            $dom = trim(
+                filter_input(
+                    INPUT_POST,
+                    'scheduleCronDOM'
+                )
+            );
+            $month = trim(
+                filter_input(
+                    INPUT_POST,
+                    'scheduleCronMonth'
+                )
+            );
+            $dow = trim(
+                filter_input(
+                    INPUT_POST,
+                    'scheduleCronDOW'
+                )
+            );
+            $action = trim(
+                filter_input(
+                    INPUT_POST,
+                    'action'
+                )
+            );
+            if ($onDemand && $action === 'wol') {
+                $this->obj->wakeOnLAN();
+                return;
+            }
+            self::getClass('PowerManagement')
+                ->set('hostID', $this->obj->get('id'))
+                ->set('min', $min)
+                ->set('hour', $hour)
+                ->set('dom', $dom)
+                ->set('month', $month)
+                ->set('dow', $dow)
+                ->set('onDemand', $onDemand)
+                ->set('action', $action)
+                ->save();
+        }
+        if (isset($_POST['pmdelete'])) {
+            $pmid = filter_input_array(
+                INPUT_POST,
+                ['rempowermanagements' => $flags]
+            );
+            $pmid = $pmid['rempowermanagements'];
+            self::getClass('PowerManagementManager')
+                ->destroy(
+                    ['id' => $pmid]
+                );
+        }
+    }
+    /**
      * Displays Host Inventory
      *
      * @return void
@@ -1567,6 +1755,11 @@ class HostManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
     }
+    /**
+     * Actually submit inventory data.
+     *
+     * @return void
+     */
     public function hostInventoryPost()
     {
         if (isset($_POST['updateinv'])) {
@@ -2114,8 +2307,7 @@ class HostManagementPage extends FOGPage
             'name' => _('Power Management'),
             'id' => 'host-powermanagement',
             'generator' => function() {
-                //$this->hostPowermanagement();
-                echo 'TODO: Make functional';
+                $this->hostPowermanagement();
             }
         ];
 
@@ -2257,182 +2449,6 @@ class HostManagementPage extends FOGPage
         }*/
     }
     /**
-     * Host power management post.
-     *
-     * @return void
-     */
-    public function hostPowermanagementPost()
-    {
-        $onDemand = (int)isset($_POST['onDemand']);
-        $items = [];
-        $flags = ['flags' => FILTER_REQUIRE_ARRAY];
-        if (isset($_POST['pmupdate'])) {
-            $items = filter_input_array(
-                INPUT_POST,
-                [
-                    'scheduleCronMin' => $flags,
-                    'scheduleCronHour' => $flags,
-                    'scheduleCronDOM' => $flags,
-                    'scheduleCronMonth' => $flags,
-                    'scheduleCronDOW' => $flags,
-                    'pmid' => $flags,
-                    'action' => $flags
-                ]
-            );
-            extract($items);
-            if (!$action) {
-                throw new Exception(
-                    _('You must select an action to perform')
-                );
-            }
-            $items = [];
-            foreach ((array)$pmid as $index => &$pm) {
-                $onDemandItem = array_search(
-                    $pm,
-                    $onDemand
-                );
-                $items[] = [
-                    $pm,
-                    $this->obj->get('id'),
-                    $scheduleCronMin[$index],
-                    $scheduleCronHour[$index],
-                    $scheduleCronDOM[$index],
-                    $scheduleCronMonth[$index],
-                    $scheduleCronDOW[$index],
-                    $onDemandItem !== -1
-                    && $onDemand[$onDemandItem] === $pm ?
-                    1 :
-                    0,
-                    $action[$index]
-                ];
-                unset($pm);
-            }
-            self::getClass('PowerManagementManager')
-                ->insertBatch(
-                    [
-                        'id',
-                        'hostID',
-                        'min',
-                        'hour',
-                        'dom',
-                        'month',
-                        'dow',
-                        'onDemand',
-                        'action'
-                    ],
-                    $items
-                );
-        }
-        if (isset($_POST['pmsubmit'])) {
-            $min = trim(
-                filter_input(
-                    INPUT_POST,
-                    'scheduleCronMin'
-                )
-            );
-            $hour = trim(
-                filter_input(
-                    INPUT_POST,
-                    'scheduleCronHour'
-                )
-            );
-            $dom = trim(
-                filter_input(
-                    INPUT_POST,
-                    'scheduleCronDOM'
-                )
-            );
-            $month = trim(
-                filter_input(
-                    INPUT_POST,
-                    'scheduleCronMonth'
-                )
-            );
-            $dow = trim(
-                filter_input(
-                    INPUT_POST,
-                    'scheduleCronDOW'
-                )
-            );
-            $action = trim(
-                filter_input(
-                    INPUT_POST,
-                    'action'
-                )
-            );
-            if ($onDemand && $action === 'wol') {
-                $this->obj->wakeOnLAN();
-                return;
-            }
-            self::getClass('PowerManagement')
-                ->set('hostID', $this->obj->get('id'))
-                ->set('min', $min)
-                ->set('hour', $hour)
-                ->set('dom', $dom)
-                ->set('month', $month)
-                ->set('dow', $dow)
-                ->set('onDemand', $onDemand)
-                ->set('action', $action)
-                ->save();
-        }
-        if (isset($_POST['pmdelete'])) {
-            $pmid = filter_input_array(
-                INPUT_POST,
-                ['rempowermanagements' => $flags]
-            );
-            $pmid = $pmid['rempowermanagements'];
-            self::getClass('PowerManagementManager')
-                ->destroy(
-                    ['id' => $pmid]
-                );
-        }
-    }
-    /**
-     * Update the actual thing.
-     *
-     * @return void
-     */
-    public function hostServicePost()
-    {
-        if (isset($_POST['enablemodulessel'])) {
-            $enablemodules = filter_input_array(
-                INPUT_POST,
-                [
-                    'enablemodules' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $enablemodules = $enablemodules['enablemodules'];
-            $this->obj->addModule($enablemodules);
-        }
-        if (isset($_POST['disablemodulessel'])) {
-            $disablemodules = filter_input_array(
-                INPUT_POST,
-                [
-                    'disablemodules' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $disablemodules = $disablemodules['disablemodules'];
-            $this->obj->removeModule($disablemodules);
-        }
-        if (isset($_POST['dispmansend'])) {
-            $x = filter_input(INPUT_POST, 'x');
-            $y = filter_input(INPUT_POST, 'y');
-            $r = filter_input(INPUT_POST, 'r');
-            $this->obj->setDisp($x, $y, $r);
-        }
-        if (isset($_POST['alosend'])) {
-            $tme = (int)filter_input(INPUT_POST, 'tme');
-            if (!(is_numeric($tme) && $tme > 4)) {
-                $tme = 0;
-            }
-            $this->obj->setAlo($tme);
-        }
-    }
-    /**
      * Updates the host when form is submitted
      *
      * @return void
@@ -2485,7 +2501,7 @@ class HostManagementPage extends FOGPage
             }
             if (!$this->obj->save()) {
                 $serverFault = true;
-                throw new Exception(_('Host Update Failed'));
+                throw new Exception(_('Host update failed!'));
             }
             $this->obj->setAD();
             if ($tab == 'host-general') {
@@ -2878,168 +2894,5 @@ class HostManagementPage extends FOGPage
             )
         );
         exit;
-    }
-    /**
-     * Generates the powermanagement display items.
-     *
-     * @return void
-     */
-    public function hostPowermanagement()
-    {
-        echo '<!-- Power Management Items -->';
-        echo '<div class="tab-pane fade" id="host-powermanagement">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Power Management');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        $this->newPMDisplay();
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
-        // PowerManagement
-        $this->headerData = [
-            '<div class="checkbox">'
-            . '<label for="rempowerselectors">'
-            . '<input type="checkbox" id="rempowerselectors"/>'
-            . '</label>'
-            . '</div>',
-            _('Cron Schedule'),
-            _('Action'),
-        ];
-        $this->templates = [
-            '<input type="checkbox" name="rempowermanagements[]" '
-            . 'class="rempoweritems" value="${id}" id="rmpm-${id}"/>'
-            . '<label for="rmpm-${id}"></label>',
-            '<div class="cronOptions input-group">'
-            . FOGCron::buildSpecialCron()
-            . '</div>'
-            . '<div class="col-xs-12">'
-            . '<div class="cronInputs">'
-            . '<div class="col-xs-2">'
-            . '<input type="hidden" name="pmid[]" value="${id}"/>'
-            . '<div class="input-group">'
-            . '<input type="text" name="scheduleCronMin[]" '
-            . 'class="scheduleCronMin form-control cronInput" value="${min}" '
-            . 'id="scheduleCronMin"/>'
-            . '</div>'
-            . '</div>'
-            . '<div class="col-xs-2">'
-            . '<div class="input-group">'
-            . '<input type="text" name="scheduleCronHour[]" '
-            . 'class="scheduleCronHour form-control cronInput" value="${hour}" '
-            . 'id="scheduleCronHour"/>'
-            . '</div>'
-            . '</div>'
-            . '<div class="col-xs-2">'
-            . '<div class="input-group">'
-            . '<input type="text" name="scheduleCronDOM[]" '
-            . 'class="scheduleCronDOM form-control cronInput" value="${dom}" '
-            . 'id="scheduleCronDOM"/>'
-            . '</div>'
-            . '</div>'
-            . '<div class="col-xs-2">'
-            . '<div class="input-group">'
-            . '<input type="text" name="scheduleCronMonth[]" '
-            . 'class="scheduleCronMonth form-control cronInput" value="${month}" '
-            . 'id="scheduleCronMonth"/>'
-            . '</div>'
-            . '</div>'
-            . '<div class="col-xs-2">'
-            . '<div class="input-group">'
-            . '<input type="text" name="scheduleCronDOW[]" '
-            . 'class="scheduleCronDOW form-control cronInput" value="${dow}" '
-            . 'id="scheduleCronDOW"/>'
-            . '</div>'
-            . '</div>'
-            . '</div>'
-            . '</div>',
-            '${action}',
-        ];
-        $this->attributes = [
-            [],
-            [],
-            []
-        ];
-        Route::listem('powermanagement');
-        $PowerManagements = json_decode(
-            Route::getData()
-        );
-        $PowerManagements = $PowerManagements->powermanagements;
-        foreach ((array)$PowerManagements as &$PowerManagement) {
-            $mine = in_array(
-                $PowerManagement->id,
-                $this->obj->get('powermanagementtasks')
-            );
-            if (!$mine) {
-                continue;
-            }
-            if ($PowerManagement->onDemand) {
-                continue;
-            }
-            $this->data[] = [
-                'id' => $PowerManagement->id,
-                'min' => $PowerManagement->min,
-                'hour' => $PowerManagement->hour,
-                'dom' => $PowerManagement->dom,
-                'month' => $PowerManagement->month,
-                'dow' => $PowerManagement->dow,
-                'action' => self::getClass('PowerManagementManager')
-                ->getActionSelect(
-                    $PowerManagement->action,
-                    true
-                )
-            ];
-            unset($PowerManagement);
-        }
-        // Current data.
-        if (count($this->data) > 0) {
-            echo '<div class="panel panel-info">';
-            echo '<div class="panel-heading text-center">';
-            echo '<h4 class="title">';
-            echo _('Current Power Management settings');
-            echo '</h4>';
-            echo '</div>';
-            echo '<div class="body">';
-            echo '<form class="deploy-container form-horizontal" '
-                . 'method="post" action="'
-                . $this->formAction
-                . '&tab=host-powermanagement" novalidate>';
-            $this->render(12);
-            echo '<div class="form-group">';
-            echo '<label class="col-xs-4 control-label" for="pmupdate">';
-            echo _('Update PM Values');
-            echo '</label>';
-            echo '<div class="col-xs-8">';
-            echo '<button type="submit" name="pmupdate" class='
-                . '"btn btn-info btn-block" id="pmupdate">';
-            echo _('Update');
-            echo '</button>';
-            echo '</div>';
-            echo '</div>';
-            echo '<div class="form-group">';
-            echo '<label class="col-xs-4 control-label" for="pmdelete">';
-            echo _('Delete selected');
-            echo '</label>';
-            echo '<div class="col-xs-8">';
-            echo '<button type="submit" name="pmdelete" class='
-                . '"btn btn-danger btn-block" id="pmdelete">';
-            echo _('Remove');
-            echo '</button>';
-            echo '</div>';
-            echo '</div>';
-            echo '</form>';
-            echo '</div>';
-            echo '</div>';
-        }
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
     }
 }

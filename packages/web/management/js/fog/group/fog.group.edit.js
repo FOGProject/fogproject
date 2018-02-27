@@ -585,4 +585,98 @@
     if (Common.search && Common.search.length > 0) {
         modulesTable.search(Common.search).draw();
     }
+
+    // ---------------------------------------------------------------
+    // POWER MANAGEMENT TAB
+    var powermanagementForm = $('#group-powermanagement-cron-form'),
+        powermanagementFormBtn = $('#powermanagement-send'),
+        powermanagementDeleteBtn = $('#powermanagement-delete'),
+        powermanagementDeleteModal = $('#deletepowermanagementmodal'),
+        powermanagementDeleteCancelBtn = $('#deletepowermanagementCancel'),
+        powermanagementDeleteConfirmBtn = $('#deletepowermanagementConfirm'),
+        // Insert Form cron elements.
+        minutes = $('.scheduleCronMin', powermanagementForm),
+        hours = $('.scheduleCronHour', powermanagementForm),
+        dom = $('.scheduleCronDOM', powermanagementForm),
+        month = $('.scheduleCronMonth', powermanagementForm),
+        dow = $('.scheduleCronDOW', powermanagementForm),
+        ondemand = $('#scheduleOnDemand', powermanagementForm),
+        specialCrons = $('.specialCrons', powermanagementForm),
+        action = $('.pmaction', powermanagementForm);
+
+    powermanagementForm.on('submit', function(e) {
+        e.preventDefault();
+    });
+    powermanagementFormBtn.on('click', function() {
+        powermanagementFormBtn.prop('disabled', true);
+        Common.processForm(powermanagementForm, function(err) {
+            powermanagementFormBtn.prop('disabled', false);
+            if (err) {
+                return;
+            }
+            minutes.val('');
+            hours.val('');
+            dom.val('');
+            month.val('');
+            dow.val('');
+            action.val('');
+            specialCrons.val('');
+            ondemand.iCheck('uncheck');
+        });
+    });
+    // Powermanagement delete confirmation modal.
+    powermanagementDeleteBtn.on('click', function(e) {
+        e.preventDefault();
+        // Set our powermanagement form buttons disabled.
+        $(this).prop('disabled', true);
+        powermanagementFormBtn.prop('disabled', true);
+
+        // Enable our modal buttons.
+        powermanagementDeleteConfirmBtn.prop('disabled', false);
+        powermanagementDeleteCancelBtn.prop('disabled', false);
+
+        // Display the delete power management modal
+        powermanagementDeleteModal.modal('show');
+    });
+
+    // Modal cancelled
+    powermanagementDeleteCancelBtn.on('click', function(e) {
+        e.preventDefault();
+
+        // Set our modal buttons disabled.
+        $(this).prop('disabled', true);
+        powermanagementDeleteConfirmBtn.prop('disabled', true);
+
+        // Enable our powermanagements form buttons.
+        powermanagementFormBtn.prop('disabled', false);
+        powermanagementDeleteBtn.prop('disabled', false);
+
+        // Hide the modal
+        powermanagementDeleteModal.modal('hide');
+    });
+
+    // Modal Confirmed
+    powermanagementDeleteConfirmBtn.on('click', function(e) {
+        e.preventDefault();
+
+        // Set our modal buttons disabled.
+        $(this).prop('disabled', true);
+        powermanagementFormBtn.prop('disabled', true);
+        powermanagementDeleteCancelBtn.prop('disabled', true);
+
+        // Our Powermanagement Items.
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            opts = {
+                pmdelete: 1
+            };
+        Common.apiCall(method,action,opts,function(err) {
+            if (!err) {
+                // Enable our powermanagement form buttons.
+                powermanagementFormBtn.prop('disabled', false);
+                powermanagementDeleteBtn.prop('disabled', false);
+                powermanagementDeleteModal.modal('hide');
+            }
+        });
+    });
 })(jQuery)

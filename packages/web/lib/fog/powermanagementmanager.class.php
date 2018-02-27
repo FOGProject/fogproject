@@ -135,7 +135,7 @@ class PowerManagementManager extends FOGManagerController
         }
 
         return sprintf(
-            '<select class="form-control" name="action%s"%s>%s%s</select>',
+            '<select class="pmaction form-control" name="action%s"%s>%s%s</select>',
             (
                 $array !== false ?
                 '[]' :

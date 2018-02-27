@@ -1208,7 +1208,8 @@ class GroupManagementPage extends FOGPage
      */
     public function groupPowermanagement()
     {
-        echo 'TODO: Make Functional';
+        echo '<!-- Power Management -->';
+        echo $this->newPMDisplay();
     }
     /**
      * Modify the power management stuff.
@@ -1217,23 +1218,23 @@ class GroupManagementPage extends FOGPage
      */
     public function groupPowermanagementPost()
     {
-        $onDemand = (int)isset($_POST['onDemand']);
-        $min = filter_input(INPUT_POST, 'scheduleCronMin');
-        $hour = filter_input(INPUT_POST, 'scheduleCronHour');
-        $dom = filter_input(INPUT_POST, 'scheduleCronDOM');
-        $month = filter_input(INPUT_POST, 'scheduleCronMonth');
-        $dow = filter_input(INPUT_POST, 'scheduleCronDOW');
-        $action = filter_input(INPUT_POST, 'action');
-        if (!$action) {
-            throw new Exception(_('You must select an action to perform'));
-        }
-        $items = [];
-        if (isset($_POST['pmsubmit'])) {
+        $hostIDs = (array)$this->obj->get('hosts');
+        if (isset($_POST['pmadd'])) {
+            $onDemand = (int)isset($_POST['onDemand']);
+            $min = filter_input(INPUT_POST, 'scheduleCronMin');
+            $hour = filter_input(INPUT_POST, 'scheduleCronHour');
+            $dom = filter_input(INPUT_POST, 'scheduleCronDOM');
+            $month = filter_input(INPUT_POST, 'scheduleCronMonth');
+            $dow = filter_input(INPUT_POST, 'scheduleCronDOW');
+            $action = filter_input(INPUT_POST, 'action');
+            if (!$action) {
+                throw new Exception(_('You must select an action to perform'));
+            }
+            $items = [];
             if ($onDemand && $action === 'wol') {
                 $this->obj->wakeOnLAN();
                 return;
             }
-            $hostIDs = (array)$this->obj->get('hosts');
             foreach ((array)$hostIDs as &$hostID) {
                 $items[] = [
                     $hostID,
@@ -1261,6 +1262,11 @@ class GroupManagementPage extends FOGPage
                 self::getClass('PowerManagementManager')
                     ->insertBatch($fields, $items);
             }
+        }
+        if (isset($_POST['pmdelete'])) {
+            self::getClass('PowerManagementManager')->destroy(
+                ['hostID' => $hostIDs]
+            );
         }
     }
     /**
@@ -1436,11 +1442,6 @@ class GroupManagementPage extends FOGPage
      */
     public function groupInventory()
     {
-        $this->title = sprintf(
-            '%s %s',
-            _('Group'),
-            self::$foglang['Inventory']
-        );
         echo 'TODO: Make Functional';
     }
     /**
@@ -1451,11 +1452,10 @@ class GroupManagementPage extends FOGPage
     public function editPost()
     {
         header('Content-type: appication/json');
-        self::$HookManager
-            ->processEvent(
-                'GROUP_EDIT_POST',
-                ['Group' => &$this->obj]
-            );
+        self::$HookManager->processEvent(
+            'GROUP_EDIT_POST',
+            ['Group' => &$this->obj]
+        );
         $serverFault = false;
         try {
             global $tab;

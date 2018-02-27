@@ -3793,68 +3793,50 @@ abstract class FOGPage extends FOGBase
      */
     public function newPMDisplay()
     {
+        global $node;
         // New data
-        unset(
-            $this->headerData,
-            $this->templates,
-            $this->attributes,
-            $this->data
-        );
-        $this->templates = [
-            '${field}',
-            '${input}',
-        ];
-        $this->attributes = [
-            ['class' => 'col-xs-4'],
-            ['class' => 'col-xs-8'],
-        ];
         $fields = [
-            '<label for="specialCrons">'
+            '<label class="col-sm-2 control-label">'
             . _('Schedule Power')
-            . '</label>' => '<div class="cronOptions input-group">'
+            . '</label>' => '<div class="cronOptions">'
             . FOGCron::buildSpecialCron('specialCrons')
             . '</div>'
-            . '<div class="col-xs-12">'
+            . '<div class="col-sm-12">'
             . '<div class="cronInputs">'
-            . '<div class="col-xs-2">'
-            . '<div class="input-group">'
+            . '<div class="col-sm-2">'
             . '<input type="text" name="scheduleCronMin" '
-            . 'placeholder="min" autocomplete="off" '
-            . 'class="form-control scheduleCronMin cronInput"/>'
+            . 'placeholder="'
+            . _('minutes')
+            . '" autocomplete="off" class="form-control scheduleCronMin cronInput"/>'
             . '</div>'
-            . '</div>'
-            . '<div class="col-xs-2">'
-            . '<div class="input-group">'
+            . '<div class="col-sm-2">'
             . '<input type="text" name="scheduleCronHour" '
-            . 'placeholder="hour" autocomplete="off" '
-            . 'class="form-control scheduleCronHour cronInput"/>'
+            . 'placeholder="'
+            . _('hours')
+            . '" autocomplete="off" class="form-control scheduleCronHour cronInput"/>'
             . '</div>'
-            . '</div>'
-            . '<div class="col-xs-2">'
-            . '<div class="input-group">'
+            . '<div class="col-sm-2">'
             . '<input type="text" name="scheduleCronDOM" '
-            . 'placeholder="dom" autocomplete="off" '
-            . 'class="form-control scheduleCronDOM cronInput"/>'
+            . 'placeholder="'
+            . _('dayOfMonth')
+            . '" autocomplete="off" class="form-control scheduleCronDOM cronInput"/>'
             . '</div>'
-            . '</div>'
-            . '<div class="col-xs-2">'
-            . '<div class="input-group">'
+            . '<div class="col-sm-2">'
             . '<input type="text" name="scheduleCronMonth" '
-            . 'placeholder="month" autocomplete="off" '
-            . 'class="form-control scheduleCronMonth cronInput"/>'
+            . 'placeholder="'
+            . _('month')
+            . '" autocomplete="off" class="form-control scheduleCronMonth cronInput"/>'
             . '</div>'
-            . '</div>'
-            . '<div class="col-xs-2">'
-            . '<div class="input-group">'
+            . '<div class="col-sm-2">'
             . '<input type="text" name="scheduleCronDOW" '
-            . 'placeholder="dow" autocomplete="off" '
-            . 'class="form-control scheduleCronDOW cronInput"/>'
-            . '</div>'
+            . 'placeholder="'
+            . _('dayOfWeek')
+            . '" autocomplete="off" class="form-control scheduleCronDOW cronInput"/>'
             . '</div>'
             . '</div>'
             . '</div>',
-            '<label for="scheduleOnDemand">'
-            . _('Perform Immediately?')
+            '<label for="scheduleOnDemand" class="col-sm-2 control-label">'
+            . _('On Demand')
             . '</label>' => '<input type="checkbox" name="onDemand" id='
             . '"scheduleOnDemand"'
             . (
@@ -3863,7 +3845,7 @@ abstract class FOGPage extends FOGBase
                 ''
             )
             . '/>',
-            '<label for="action">'
+            '<label for="action" class="col-sm-2 control-label">'
             . _('Action')
             . '</label>' => self::getClass(
                 'PowerManagementManager'
@@ -3871,32 +3853,71 @@ abstract class FOGPage extends FOGBase
                 filter_input(INPUT_POST, 'action'),
                 false,
                 'action'
-            ),
-            '<label for="pmsubmit">'
-            . _('Create new PM Schedule')
-            . '</label>' => '<button type="submit" name="pmsubmit" id='
-            . '"pmsubmit" class="btn btn-info btn-block">'
-            . _('Add')
-            . '</button>'
+            )
         ];
-        self::formFields($fields);
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('New power management task');
-        echo '</h4>';
+        self::$HookManager->processEvent(
+            sprintf('%s_POWERMANAGEMENT_CRON_FIELDS', strtoupper($this->node)),
+            array(
+                'fields' => &$fields,
+                'obj' => $this->obj
+            )
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
+        echo '<form id="'
+            . $node
+            . '-powermanagement-cron-form" '
+            . 'class="form-horizontal" method="post" action="'
+            . self::makeTabUpdateURL(
+                $node
+                . '-powermanagement',
+                $this->obj->get('id')
+            )
+            . '" novalidate>';
+        echo '<div class="box box-primary">';
+        if ($this->obj instanceof Host) {
+            echo '<div class="box-header with-border">';
+            echo '<h4 class="box-title">';
+            echo _('New Power Management Task');
+            echo '</h4>';
+            echo '</div>';
+        }
+        echo '<div class="box-body">';
+        echo $rendered;
         echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="deploy-container form-horizontal" '
-            . 'method="post" action="'
-            . $this->formAction
-            . '&tab='
-            . $this->node
-            . '-powermanagement">';
-        $this->render(12);
+        echo '<div class="box-footer">';
+        echo '<input name="pmadd" type="hidden" value="1"/>';
+        echo '<button class="btn btn-primary" id="powermanagement-send">'
+            . _('Add')
+            . '</button>';
+        if ($this->obj instanceof Group) {
+            $modaldeleteBtns = self::makeButton(
+                'deletepowermanagementConfirm',
+                _('Confirm'),
+                'btn btn-primary',
+                ' method="post" action="'
+                . $this->formAction
+                . '&tab=group-powermanagement" '
+            );
+            $modaldeleteBtns .= self::makeButton(
+                'deletepowermanagementCancel',
+                _('Cancel'),
+                'btn btn-danger pull-right'
+            );
+            $modaldelete = self::makeModal(
+                'deletepowermanagementmodal',
+                _('Delete All Powermanagement Items'),
+                _('This will delete all powermanagement items from all hosts in this group'),
+                $modaldeleteBtns
+            );
+            echo '<button class="btn btn-danger pull-right" id="powermanagement-delete">'
+                . _('Delete All')
+                . '</button>';
+            echo $modaldelete;
+        }
+        echo '</div>';
+        echo '</div>';
         echo '</form>';
-        echo '</div>';
-        echo '</div>';
     }
     /**
      * Index page is already common, but other pages

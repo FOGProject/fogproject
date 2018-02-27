@@ -53,6 +53,9 @@ class AddSiteHost extends Hook
     public function __construct()
     {
         parent::__construct();
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
+            return;
+        }
         self::$HookManager
             ->register(
                 'TABDATA_HOOK',
@@ -86,9 +89,6 @@ class AddSiteHost extends Hook
     public function hostTabData($arguments)
     {
         global $node;
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         if ($node != 'host') {
             return;
         }
@@ -208,9 +208,6 @@ class AddSiteHost extends Hook
     {
         global $tab;
         global $node;
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         if ($node != 'host') {
             return;
         }
@@ -220,6 +217,8 @@ class AddSiteHost extends Hook
             case 'host-site':
                 $this->hostSitePost($obj);
                 break;
+            default:
+                return;
             }
             $arguments['code'] = 201;
             $arguments['hook'] = 'HOST_EDIT_SITE_SUCCESS';
@@ -250,9 +249,6 @@ class AddSiteHost extends Hook
     public function hostAddSiteField($arguments)
     {
         global $node;
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         if ($node != 'host') {
             return;
         }
