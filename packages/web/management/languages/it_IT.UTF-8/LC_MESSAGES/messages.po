@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-27 03:08-0500\n"
+"POT-Creation-Date: 2018-02-27 04:00-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -1259,6 +1259,12 @@ msgstr "Quando il plugin viene rimosso, il tasto assegnato rimarrà"
 msgid "with the host"
 msgstr "con l'host"
 
+msgid "Export Locations"
+msgstr "Esporta luoghi"
+
+msgid "Import Locations"
+msgstr "Importa luoghi"
+
 msgid "This setting defines sending the"
 msgstr "Questa impostazione definisce l'invio"
 
@@ -1325,12 +1331,6 @@ msgstr "Modifica posizione riuscita"
 #, fuzzy
 msgid "Group Update Location Fail"
 msgstr "Aggiornamento gruppo non riuscito"
-
-msgid "Export Locations"
-msgstr "Esporta luoghi"
-
-msgid "Import Locations"
-msgstr "Importa luoghi"
 
 msgid "Location Name"
 msgstr "Nome del luogo"
@@ -1480,14 +1480,14 @@ msgstr "Utente aggiornato con successo"
 msgid "User Update Site Fail"
 msgstr "Aggiornamento utente non riuscita"
 
-msgid "Sites"
-msgstr "Siti"
-
 msgid "Export Sites"
 msgstr "Esporta Siti"
 
 msgid "Import Sites"
 msgstr "importa Siti"
+
+msgid "Sites"
+msgstr "Siti"
 
 #, fuzzy
 msgid "Host Count"

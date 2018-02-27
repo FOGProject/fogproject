@@ -61,25 +61,35 @@ class AddLocationMenuItem extends Hook
         self::$HookManager
             ->register(
                 'MAIN_MENU_DATA',
-                array(
-                    $this,
-                    'menuData'
-                )
+                [$this, 'menuData']
             )
             ->register(
                 'SEARCH_PAGES',
-                array(
-                    $this,
-                    'addSearch'
-                )
+                [$this, 'addSearch']
             )
             ->register(
                 'PAGES_WITH_OBJECTS',
-                array(
-                    $this,
-                    'addPageWithObject'
-                )
+                [$this, 'addPageWithObject']
+            )
+            ->register(
+                'SUB_MENULINK_DATA',
+                [$this, 'menuUpdate']
             );
+    }
+    /**
+     * Add the new items beyond list/create.
+     *
+     * @param mixed $arguments The items to modify.
+     *
+     * @return void
+     */
+    public function menuUpdate($argumetns)
+    {
+        if ($arguments['node'] != $this->node) {
+            return;
+        }
+        $arguments['menu']['export'] = _('Export Locations');
+        $arguments['menu']['import'] = _('Import Locations');
     }
     /**
      * The menu data to change.
@@ -94,10 +104,7 @@ class AddLocationMenuItem extends Hook
             'storagegroup',
             $arguments['main'],
             $this->node,
-            array(
-                _('Locations'),
-                'fa fa-globe'
-            )
+            [_('Locations'), 'fa fa-globe']
         );
         $Service = self::getClass('Service')
             ->set(

@@ -34,7 +34,7 @@ class Location extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'lID',
         'name' => 'lName',
         'description' => 'lDesc',
@@ -42,45 +42,45 @@ class Location extends FOGController
         'createdTime' => 'lCreatedTime',
         'storagegroupID' => 'lStorageGroupID',
         'storagenodeID' => 'lStorageNodeID',
-        'tftp' => 'lTftpEnabled',
-    );
+        'tftp' => 'lTftpEnabled'
+    ];
     /**
      * The required fields
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'name',
         'storagegroupID',
-    );
+    ];
     /**
      * Additional fields.
      *
      * @var array
      */
-    protected $additionalFields = array(
+    protected $additionalFields = [
         'hosts',
         'hostsnotinme',
         'storagenode',
         'storagegroup'
-    );
+    ];
     /**
      * Database -> Class field relationships
      *
      * @var array
      */
-    protected $databaseFieldClassRelationships = array(
-        'StorageNode' => array(
+    protected $databaseFieldClassRelationships = [
+        'StorageNode' => [
             'id',
             'storagenodeID',
             'storagenode'
-        ),
-        'StorageGroup' => array(
+        ],
+        'StorageGroup' => [
             'id',
             'storagegroupID',
             'storagegroup'
-        )
-    );
+        ]
+    ];
     protected $sqlQueryStr = "SELECT `%s`
         FROM `%s`
         LEFT OUTER JOIN `nfsGroups`
@@ -111,11 +111,7 @@ class Location extends FOGController
     public function destroy($key = 'id')
     {
         self::getClass('LocationAssociationManager')
-            ->destroy(
-                array(
-                    'locationID' => $this->get('id')
-                )
-            );
+            ->destroy(['locationID' => $this->get('id')]);
         return parent::destroy($key);
     }
     /**
@@ -190,12 +186,12 @@ class Location extends FOGController
     {
         $hostIDs = self::getSubObjectIDs(
             'LocationAssociation',
-            array('locationID' => $this->get('id')),
+            ['locationID' => $this->get('id')],
             'hostID'
         );
         $hostIDs = self::getSubObjectIDs(
             'Host',
-            array('id' => $hostIDs)
+            ['id' => $hostIDs]
         );
         $this->set(
             'hosts',

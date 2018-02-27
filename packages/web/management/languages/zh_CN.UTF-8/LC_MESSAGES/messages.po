@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-27 03:08-0500\n"
+"POT-Creation-Date: 2018-02-27 04:00-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1302,6 +1302,14 @@ msgid "with the host"
 msgstr "不在此"
 
 #, fuzzy
+msgid "Export Locations"
+msgstr "主机位置"
+
+#, fuzzy
+msgid "Import Locations"
+msgstr "主机位置"
+
+#, fuzzy
 msgid "This setting defines sending the"
 msgstr "此设置定义"
 
@@ -1372,14 +1380,6 @@ msgstr "安装/升级成功！"
 #, fuzzy
 msgid "Group Update Location Fail"
 msgstr "集团创建失败"
-
-#, fuzzy
-msgid "Export Locations"
-msgstr "主机位置"
-
-#, fuzzy
-msgid "Import Locations"
-msgstr "主机位置"
 
 msgid "Location Name"
 msgstr "地点名称"
@@ -1540,16 +1540,16 @@ msgid "User Update Site Fail"
 msgstr "用户更新失败"
 
 #, fuzzy
-msgid "Sites"
-msgstr "分钟"
-
-#, fuzzy
 msgid "Export Sites"
 msgstr "出口打印机"
 
 #, fuzzy
 msgid "Import Sites"
 msgstr "进口打印机"
+
+#, fuzzy
+msgid "Sites"
+msgstr "分钟"
 
 #, fuzzy
 msgid "Host Count"

@@ -32,46 +32,46 @@ class LocationAssociation extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'laID',
         'locationID' => 'laLocationID',
-        'hostID' => 'laHostID',
-    );
+        'hostID' => 'laHostID'
+    ];
     /**
      * The required fields
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'locationID',
-        'hostID',
-    );
+        'hostID'
+    ];
     /**
      * Additional fields
      *
      * @var array
      */
-    protected $additionalFields = array(
+    protected $additionalFields = [
         'host',
         'location'
-    );
+    ];
     /**
      * Database -> Class field relationships
      *
      * @var array
      */
-    protected $databaseFieldClassRelationships = array(
-        'Host' => array(
+    protected $databaseFieldClassRelationships = [
+        'Host' => [
             'id',
             'hostID',
             'host'
-        ),
-        'Location' => array(
+        ],
+        'Location' => [
             'id',
             'locationID',
             'location'
-        )
-    );
+        ]
+    ];
     /**
      * Return the associated location.
      *

@@ -61,24 +61,15 @@ class AddLocationGroup extends Hook
         self::$HookManager
             ->register(
                 'TABDATA_HOOK',
-                array(
-                    $this,
-                    'groupTabData'
-                )
+                [$this, 'groupTabData']
             )
             ->register(
                 'GROUP_EDIT_SUCCESS',
-                array(
-                    $this,
-                    'groupAddLocationEdit'
-                )
+                [$this, 'groupAddLocationEdit']
             )
             ->register(
                 'GROUP_ADD_FIELDS',
-                array(
-                    $this,
-                    'groupAddLocationField'
-                )
+                [$this, 'groupAddLocationField']
             );
     }
     /**

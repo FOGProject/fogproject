@@ -59,10 +59,7 @@ class AddSiteJS extends Hook
         self::$HookManager
             ->register(
                 'PAGE_JS_FILES',
-                [
-                    $this,
-                    'injectJSFiles'
-                ]
+                [$this, 'injectJSFiles']
             );
     }
     /**

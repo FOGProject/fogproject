@@ -40,30 +40,30 @@ class LocationAssociationManager extends FOGManagerController
         $sql = Schema::createTable(
             $this->tablename,
             true,
-            array(
+            [
                 'laID',
                 'laLocationID',
                 'laHostID'
-            ),
-            array(
+            ],
+            [
                 'INTEGER',
                 'INTEGER',
                 'INTEGER'
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 'laID',
                 'laHostID',
-            ),
+            ],
             'MyISAM',
             'utf8',
             'laID',

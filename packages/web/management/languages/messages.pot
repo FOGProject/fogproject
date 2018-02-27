@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-27 03:08-0500\n"
+"POT-Creation-Date: 2018-02-27 04:00-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1234,6 +1234,12 @@ msgstr ""
 msgid "with the host"
 msgstr ""
 
+msgid "Export Locations"
+msgstr ""
+
+msgid "Import Locations"
+msgstr ""
+
 msgid "This setting defines sending the"
 msgstr ""
 
@@ -1292,12 +1298,6 @@ msgid "Group Location Update Success"
 msgstr ""
 
 msgid "Group Update Location Fail"
-msgstr ""
-
-msgid "Export Locations"
-msgstr ""
-
-msgid "Import Locations"
 msgstr ""
 
 msgid "Location Name"
@@ -1426,13 +1426,13 @@ msgstr ""
 msgid "User Update Site Fail"
 msgstr ""
 
-msgid "Sites"
-msgstr ""
-
 msgid "Export Sites"
 msgstr ""
 
 msgid "Import Sites"
+msgstr ""
+
+msgid "Sites"
 msgstr ""
 
 msgid "Host Count"

@@ -59,24 +59,15 @@ class AddSiteUser extends Hook
         self::$HookManager
             ->register(
                 'TABDATA_HOOK',
-                array(
-                    $this,
-                    'userTabData'
-                )
+                [$this, 'userTabData']
             )
             ->register(
                 'USER_EDIT_SUCCESS',
-                array(
-                    $this,
-                    'userAddSiteEdit'
-                )
+                [$this, 'userAddSiteEdit']
             )
             ->register(
                 'USER_ADD_FIELDS',
-                array(
-                    $this,
-                    'userAddSiteField'
-                )
+                [$this, 'userAddSiteField']
             );
     }
     /**

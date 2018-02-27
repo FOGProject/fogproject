@@ -61,24 +61,15 @@ class AddServiceConfiguration extends Hook
         self::$HookManager
             ->register(
                 'SNAPIN_CLIENT_SERVICE',
-                array(
-                    $this,
-                    'addServiceCheckbox'
-                )
+                [$this, 'addServiceCheckbox']
             )
             ->register(
                 'SNAPIN_CLIENT_SERVICE_POST',
-                array(
-                    $this,
-                    'updateGlobalSetting'
-                )
+                [$this, 'updateGlobalSetting']
             )
             ->register(
                 'SERVICE_NAMES',
-                array(
-                    $this,
-                    'addServiceNames'
-                )
+                [$this, 'addServiceNames']
             );
     }
     /**
@@ -103,7 +94,7 @@ class AddServiceConfiguration extends Hook
             _('the main and the host')
         );
         echo '<br/><br/>';
-        $fields = array(
+        $fields = [
             _('Enable location Sending') => sprintf(
                 '<input type="checkbox" name="snapinsend" id="snapsend"%s/>'
                 . '<label for="snapsend"></label>',
@@ -121,24 +112,24 @@ class AddServiceConfiguration extends Hook
                 '<input type="submit" name="updateglobal" value="%s"/>',
                 _('Update')
             ),
-        );
+        ];
         unset(
             $arguments['page']->headerData,
             $arguments['page']->data
         );
-        $arguments['page']->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group')
-        );
-        $arguments['page']->templates = array(
+        $arguments['page']->attributes = [
+            ['class' => 'col-xs-4'],
+            ['class' => 'col-xs-8 form-group']
+        ];
+        $arguments['page']->templates = [
             '${field}',
-            '${input}',
-        );
+            '${input}'
+        ];
         foreach ($fields as $field => &$input) {
-            $arguments['page']->data[] = array(
+            $arguments['page']->data[] = [
                 'field' => $field,
-                'input' => $input,
-            );
+                'input' => $input
+            ];
             unset($input);
         }
         printf(

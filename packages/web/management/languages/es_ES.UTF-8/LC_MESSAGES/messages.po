@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-27 03:08-0500\n"
+"POT-Creation-Date: 2018-02-27 04:00-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1472,6 +1472,12 @@ msgstr ""
 msgid "with the host"
 msgstr ""
 
+msgid "Export Locations"
+msgstr ""
+
+msgid "Import Locations"
+msgstr ""
+
 #, fuzzy
 msgid "This setting defines sending the"
 msgstr "Este ajuste define "
@@ -1545,12 +1551,6 @@ msgstr "actualización de servicio no pudo"
 #, fuzzy
 msgid "Group Update Location Fail"
 msgstr "Grupo Error de creación"
-
-msgid "Export Locations"
-msgstr ""
-
-msgid "Import Locations"
-msgstr ""
 
 #, fuzzy
 msgid "Location Name"
@@ -1713,16 +1713,16 @@ msgid "User Update Site Fail"
 msgstr "actualización Valoración falló"
 
 #, fuzzy
-msgid "Sites"
-msgstr "minutos"
-
-#, fuzzy
 msgid "Export Sites"
 msgstr "impresora iPrint"
 
 #, fuzzy
 msgid "Import Sites"
 msgstr "Impresora TCP / IP Port"
+
+#, fuzzy
+msgid "Sites"
+msgstr "minutos"
 
 #, fuzzy
 msgid "Host Count"

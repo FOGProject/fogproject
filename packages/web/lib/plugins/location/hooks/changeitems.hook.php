@@ -61,66 +61,39 @@ class ChangeItems extends Hook
         self::$HookManager
             ->register(
                 'SNAPIN_NODE',
-                array(
-                    $this,
-                    'storageNodeSetting'
-                )
+                [$this, 'storageNodeSetting']
             )
             ->register(
                 'SNAPIN_GROUP',
-                array(
-                    $this,
-                    'storageGroupSetting'
-                )
+                [$this, 'storageGroupSetting']
             )
             ->register(
                 'BOOT_ITEM_NEW_SETTINGS',
-                array(
-                    $this,
-                    'bootItemSettings'
-                )
+                [$this, 'bootItemSettings']
             )
             ->register(
                 'BOOT_TASK_NEW_SETTINGS',
-                array(
-                    $this,
-                    'storageGroupSetting'
-                )
+                [$this, 'storageGroupSetting']
             )
             ->register(
                 'HOST_NEW_SETTINGS',
-                array(
-                    $this,
-                    'storageNodeSetting'
-                )
+                [$this, 'storageNodeSetting']
             )
             ->register(
                 'HOST_NEW_SETTINGS',
-                array(
-                    $this,
-                    'storageGroupSetting'
-                )
+                [$this, 'storageGroupSetting']
             )
             ->register(
                 'BOOT_TASK_NEW_SETTINGS',
-                array(
-                    $this,
-                    'storageNodeSetting'
-                )
+                [$this, 'storageNodeSetting']
             )
             ->register(
                 'CHECK_NODE_MASTERS',
-                array(
-                    $this,
-                    'alterMasters'
-                )
+                [$this, 'alterMasters']
             )
             ->register(
                 'CHECK_NODE_MASTER',
-                array(
-                    $this,
-                    'makeMaster'
-                )
+                [$this, 'makeMaster']
             );
     }
     /**
@@ -136,20 +109,16 @@ class ChangeItems extends Hook
             return;
         }
         $Locations = self::getClass('LocationAssociationManager')->find(
-            array(
-                'hostID' => $arguments['Host']->get('id')
-            )
+            ['hostID' => $arguments['Host']->get('id')]
         );
         $Locations = self::getSubObjectIDs(
             'LocationAssociation',
-            array(
-                'hostID' => $arguments['Host']->get('id')
-            ),
+            ['hostID' => $arguments['Host']->get('id')],
             'locationID'
         );
         $method = false;
         foreach ((array)self::getClass('LocationManager')
-            ->find(array('id' => $Locations)) as $Location
+            ->find(['id' => $Locations]) as $Location
         ) {
             $Host =& $arguments['Host'];
             $Task = $Host->get('task');
@@ -200,13 +169,11 @@ class ChangeItems extends Hook
         }
         $Locations = self::getSubObjectIDs(
             'LocationAssociation',
-            array(
-                'hostID' => $arguments['Host']->get('id')
-            ),
+            ['hostID' => $arguments['Host']->get('id')],
             'locationID'
         );
         foreach ((array)self::getClass('LocationManager')
-            ->find(array('id' => $Locations)) as &$Location
+            ->find(['id' => $Locations]) as &$Location
         ) {
             $StorageGroup = $Location
                 ->getStorageGroup();
@@ -231,21 +198,17 @@ class ChangeItems extends Hook
         }
         $Locations = self::getSubObjectIDs(
             'LocationAssociation',
-            array(
-                'hostID' => $arguments['Host']->get('id')
-            ),
+            ['hostID' => $arguments['Host']->get('id')],
             'locationID'
         );
         $Locations = self::getSubObjectIDs(
             'Location',
-            array(
-                'id' => $Locations
-            )
+            ['id' => $Locations]
         );
-        $find = array(
+        $find = [
             'hostID' => $arguments['Host']->get('id'),
             'locationID' => $Locations
-        );
+        ];
         foreach ((array)self::getClass('LocationAssociationManager')
             ->find($find, 'AND', 'id') as $Location
         ) {
@@ -303,11 +266,7 @@ class ChangeItems extends Hook
         $storagenodeIDs = array_filter($storagenodeIDs);
         $storagenodeIDs = array_unique($storagenodeIDs);
         $arguments['StorageNodes'] = self::getClass('StorageNodeManager')
-            ->find(
-                array(
-                    'id' => $storagenodeIDs
-                )
-            );
+            ->find(['id' => $storagenodeIDs]);
         foreach ($arguments['StorageNodes'] as &$StorageNode) {
             if (!$StorageNode->isValid()) {
                 continue;

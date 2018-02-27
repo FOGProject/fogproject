@@ -61,10 +61,7 @@ class AddLocationType extends Hook
         self::$HookManager
             ->register(
                 'REPORT_TYPES',
-                array(
-                    $this,
-                    'reportTypes'
-                )
+                [$this, 'reportTypes']
             );
     }
 }
