@@ -115,6 +115,179 @@
     });
 
     // ---------------------------------------------------------------
+    // MAC ADDRESS TAB
+    var newmacForm = $('#macaddress-add-form'),
+        newmacAddBtn = $('#newmac-send'),
+        newmacField = $('#newMac'),
+        macTable = $('#host-macaddresses-table'),
+        macUpdateBtn = $('#macaddress-table-update'),
+        macDeleteBtn = $('#macaddress-table-delete'),
+        MAC_PRIMARY_ID = -1;
+
+    macUpdateBtn.prop('disabled', true);
+    macDeleteBtn.prop('disabled', true);
+
+    // Make sure we have masking set for mac add field.
+    newmacField.inputmask({mask: Common.masks.mac});
+    newmacForm.on('submit', function(e) {
+        e.preventDefault();
+    });
+    newmacAddBtn.on('click', function() {
+        $(this).prop('disabled', true);
+        Common.processForm(newmacForm, function(err) {
+            newmacAddBtn.prop('disabled', false);
+            if (err) {
+                return;
+            }
+            newmacField.val('');
+            macsTable.draw(false);
+            macsTable.rows({selected: true}).deselect();
+        });
+    });
+    function onMacsSelect(selected) {
+        var disabled = selected.count() == 0;
+        macUpdateBtn.prop('disabled', disabled);
+        macDeleteBtn.prop('disabled', disabled);
+    }
+
+    var macsTable = Common.registerTable(macTable, onMacsSelect, {
+        order: [
+            [0, 'asc']
+        ],
+        columns: [
+            {data: 'mac'},
+            {data: 'primary'},
+            {data: 'imageIgnore'},
+            {data: 'clientIgnore'},
+            {data: 'pending'}
+        ],
+        rowId: 'id',
+        columnDefs: [
+            {
+                responsivePriority: -1,
+                render: function(data, type, row) {
+                    return data;
+                    return '<input type="text" name="macs[]" macrefid="'
+                        + row.id
+                        + '" value="'
+                        + data
+                        + '" class="form-control macs" required/>';
+                },
+                targets: 0
+            },
+            {
+                render: function(data, type, row) {
+                    var checkval = '';
+                    if (data > 0) {
+                        checkval = ' checked';
+                    }
+                    return '<div class="radio">'
+                        + '<input belongsto="primaryMacs" type="radio" class="primary" name="primary" id="mac_'
+                        + row.id
+                        + '" value="'
+                        + row.id
+                        + ' wasoriginalprimary="'
+                        + checkval
+                        + '" '
+                        + checkval
+                        + '/>'
+                        + '</div>';
+                },
+                targets: 1
+            },
+            {
+                render: function(data, type, row) {
+                    var checkval = '';
+                    if (data > 0) {
+                        checkval = ' checked';
+                    }
+                    return '<div class="checkbox">'
+                        + '<input type="checkbox" class="imageIgnore" name="imageIgnore[]" id="imageIgnore_'
+
+                        + row.id
+                        + '" value="'
+                        + row.id
+                        + '"'
+                        + checkval
+                        + '/>'
+                        + '</div>';
+                },
+                targets: 2
+            },
+            {
+                render: function(data, type, row) {
+                    var checkval = '';
+                    if (data > 0) {
+                        checkval = ' checked';
+                    }
+                    return '<div class="checkbox">'
+                        + '<input type="checkbox" class="clientIgnore" name="clientIgnore[]" id="clientIgnore_'
+
+                        + row.id
+                        + '" value="'
+                        + row.id
+                        + '"'
+                        + checkval
+                        + '/>'
+                        + '</div>';
+                },
+                targets: 3
+            },
+            {
+                render: function(data, type, row) {
+                    var checkval = '';
+                    if (data > 0) {
+                        checkval = ' checked';
+                    }
+                    return '<div class="checkbox">'
+                        + '<input type="checkbox" class="pending" name="pending[]" id="pending_'
+
+                        + row.id
+                        + '" value="'
+                        + row.id
+                        + '"'
+                        + checkval
+                        + '/>'
+                        + '</div>';
+                },
+                targets: 4
+            }
+        ],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '../management/index.php?node='+Common.node+'&sub=getMacaddressesList&id='+Common.id,
+            type: 'post'
+        }
+    });
+
+    // Make our Mac addresses editable, but restricted to MAC Address formats.
+    //macsTable.$('.macs').inputmask({mask: Common.masks.mac});
+    macsTable.on('draw', function() {
+        Common.iCheck('#host-macaddresses-table input');
+        $('#host-macaddresses-table input.primary').on('ifClicked', onMacsRadioSelect);
+    });
+    macUpdateBtn.prop('disabled', true);
+
+    var onMacsRadioSelect = function(event) {
+        if($(this).attr('belongsto') === 'primaryMacs') {
+            var id = parseInt($(this).val());
+            if(MAC_PRIMARY_ID === -1 && $(this).attr('wasoriginaldefault') === ' checked') {
+                MAC_PRIMARY_ID = id;
+            }
+            macUpdateBtn.prop('disabled', false);
+            //macDeleteBtn.prop('disabled', false);
+        }
+    };
+
+    // Setup primary mac watcher
+    $('#host-macaddresses-table input.primary').on('ifClicked', onMacsRadioSelect);
+
+    if (Common.search && Common.search.length > 0) {
+        macsTable.search(Common.search).draw();
+    }
+
+    // ---------------------------------------------------------------
     // ACTIVE DIRECTORY TAB
     var ADForm = $('#active-directory-form'),
         ADFormBtn = $('#ad-send'),
@@ -309,6 +482,11 @@
         printerConfigBtn.prop('disabled', true);
         Common.processForm(printerConfigForm, function(err) {
             printerConfigBtn.prop('disabled', false);
+            if (err) {
+                return;
+            }
+            printersTable.draw(false);
+            printersTable.rows({selected: true}).deselect();
         });
     });
     printerAddBtn.on('click',function() {
@@ -324,23 +502,23 @@
             };
 
         Common.apiCall(method,action,opts,function(err) {
-            if (!err) {
-                printersTable.draw(false);
-                printersTable.rows({selected: true}).deselect();
-                $('#host-printers-table').find('.default:disabled').each(function() {
-                    if ($.inArray($(this).val(), toAdd) != -1) {
-                        $(this).prop('disabled', false);
-                        Common.iCheck(this);
-                    }
-                });
-                $('#host-printers-table').find('.associated').each(function() {
-                    if ($.inArray($(this).val(), toAdd) != -1) {
-                        $(this).iCheck('check');
-                    }
-                });
-            } else {
-                printerAddBtn.prop('disabled', false);
+            printerAddBtn.prop('disabled', false);
+            if (err) {
+                return;
             }
+            $('#host-printers-table').find('.default:disabled').each(function() {
+                if ($.inArray($(this).val(), toAdd) != -1) {
+                    $(this).prop('disabled', false);
+                    Common.iCheck(this);
+                }
+            });
+            $('#host-printers-table').find('.associated').each(function() {
+                if ($.inArray($(this).val(), toAdd) != -1) {
+                    $(this).iCheck('check');
+                }
+            });
+            printersTable.draw(false);
+            printersTable.rows({selected: true}).deselect();
         });
     });
 

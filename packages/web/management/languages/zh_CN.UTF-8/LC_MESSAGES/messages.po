@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-27 04:00-0500\n"
+"POT-Creation-Date: 2018-02-27 17:18-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3819,16 +3819,58 @@ msgstr "请输入一个有效的主机名"
 msgid "Please use another hostname"
 msgstr "请输入主机名"
 
-#, fuzzy
-msgid "Please enter a mac address"
-msgstr "请输入一个有效的IP地址"
-
-#, fuzzy
-msgid "Please enter a valid mac address"
-msgstr "请输入一个有效的IP地址"
-
 msgid "Cannot change image when in tasking"
 msgstr ""
+
+#, fuzzy
+msgid "Add New MAC"
+msgstr "添加新的用户帐户"
+
+#, fuzzy
+msgid "Add New MAC Address"
+msgstr "MAC地址列表"
+
+#, fuzzy
+msgid "Update selected"
+msgstr "打印机"
+
+#, fuzzy
+msgid "Delete selected"
+msgstr "删除所选"
+
+#, fuzzy
+msgid "Primary"
+msgstr "主MAC"
+
+msgid "Ignore Imaging"
+msgstr ""
+
+#, fuzzy
+msgid "Ignore Client"
+msgstr "客户"
+
+#, fuzzy
+msgid "Pending"
+msgstr "待..."
+
+#, fuzzy
+msgid "Update/Remove MAC addresses"
+msgstr "删除选定的打印机"
+
+msgid "Changes will automatically be saved"
+msgstr ""
+
+#, fuzzy
+msgid "MAC Address is required!"
+msgstr "MAC地址是必需的"
+
+#, fuzzy
+msgid "MAC Address is invalid!"
+msgstr "MAC格式无效"
+
+#, fuzzy
+msgid "MAC Address is assigned to another host!"
+msgstr "该MAC属于另一台主机"
 
 #, fuzzy
 msgid "Host Printer Configuration"
@@ -3901,9 +3943,6 @@ msgstr "打印机说明"
 #, fuzzy
 msgid "Update/Remove printers"
 msgstr "删除选定的打印机"
-
-msgid "Changes will automatically be saved"
-msgstr ""
 
 #, fuzzy
 msgid "Snapin Created"
@@ -4098,6 +4137,10 @@ msgstr ""
 #, fuzzy
 msgid "Host Snapin History"
 msgstr "历史管理单元"
+
+#, fuzzy
+msgid "MAC Addresses"
+msgstr "MAC地址列表"
 
 #, fuzzy
 msgid "Service Settings"
@@ -6151,10 +6194,6 @@ msgstr "HD系列"
 #, fuzzy
 msgid "Add selected to group"
 msgstr "打印机"
-
-#, fuzzy
-msgid "Delete selected"
-msgstr "删除所选"
 
 #, fuzzy
 msgid "Confirm password"

@@ -53,9 +53,9 @@ class ServerInfo extends FOGPage
             echo '<div class="col-md-12">';
             echo '<div class="box box-warning">';
             echo '<div class="box-header with-border">';
-            echo '<h3 class="box-title">';
+            echo '<h4 class="box-title">';
             echo $this->title;
-            echo '</h3>';
+            echo '</h4>';
             echo '<div class="box-tools pull-right">';
             echo self::$FOGCollapseBox;
             echo self::$FOGCloseBox;
@@ -79,9 +79,9 @@ class ServerInfo extends FOGPage
             echo '<div class="col-md-12">';
             echo '<div class="box box-warning">';
             echo '<div class="box-header with-border">';
-            echo '<h3 class="box-title">';
+            echo '<h4 class="box-title">';
             echo $this->title;
-            echo '</h3>';
+            echo '</h4>';
             echo '<div class="box-tools pull-right">';
             echo self::$FOGCollapseBox;
             echo self::$FOGCloseBox;
@@ -134,9 +134,9 @@ class ServerInfo extends FOGPage
             echo '<div class="col-md-12">';
             echo '<div class="box box-warning">';
             echo '<div class="box-header with-border">';
-            echo '<h3 class="box-title">';
+            echo '<h4 class="box-title">';
             echo _('General Information');
-            echo '</h3>';
+            echo '</h4>';
             echo '<div class="box-tools pull-right">';
             echo self::$FOGCollapseBox;
             echo self::$FOGCloseBox;
@@ -194,9 +194,9 @@ class ServerInfo extends FOGPage
         $rendered = ob_get_clean();
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
-        echo '<h3 class="box-title">';
+        echo '<h4 class="box-title">';
         echo _('General Information');
-        echo '</h3>';
+        echo '</h4>';
         echo '<div class="box-tools pull-right">';
         echo self::$FOGCollapseBox;
         echo self::$FOGCloseBox;
@@ -229,9 +229,9 @@ class ServerInfo extends FOGPage
         $rendered = ob_get_clean();
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
-        echo '<h3 class="box-title">';
+        echo '<h4 class="box-title">';
         echo _('File System Information');
-        echo '</h3>';
+        echo '</h4>';
         echo '<div class="box-tools pull-right">';
         echo self::$FOGCollapseBox;
         echo self::$FOGCloseBox;
@@ -249,9 +249,9 @@ class ServerInfo extends FOGPage
         // Network Information.
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
-        echo '<h3 class="box-title">';
+        echo '<h4 class="box-title">';
         echo _('Network Information');
-        echo '</h3>';
+        echo '</h4>';
         echo '<div class="box-tools pull-right">';
         echo self::$FOGCollapseBox;
         echo self::$FOGCloseBox;

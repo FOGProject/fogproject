@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-27 04:00-0500\n"
+"POT-Creation-Date: 2018-02-27 17:18-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4057,16 +4057,58 @@ msgstr "Por favor introduce un nombre de sesión"
 msgid "Please use another hostname"
 msgstr "Por favor introduce un nombre de sesión"
 
-#, fuzzy
-msgid "Please enter a mac address"
-msgstr "No hay ninguna tabla de base de datos definida para esta clase"
-
-#, fuzzy
-msgid "Please enter a valid mac address"
-msgstr "Seleccionar una imagen válida"
-
 msgid "Cannot change image when in tasking"
 msgstr ""
+
+#, fuzzy
+msgid "Add New MAC"
+msgstr "Añadir nueva cuenta de usuario"
+
+#, fuzzy
+msgid "Add New MAC Address"
+msgstr "Dirección MAC de lista de origen: "
+
+#, fuzzy
+msgid "Update selected"
+msgstr "Impresora"
+
+#, fuzzy
+msgid "Delete selected"
+msgstr "Eliminar seleccionado"
+
+#, fuzzy
+msgid "Primary"
+msgstr "usuario principal"
+
+msgid "Ignore Imaging"
+msgstr ""
+
+#, fuzzy
+msgid "Ignore Client"
+msgstr "Clientela"
+
+#, fuzzy
+msgid "Pending"
+msgstr "macs pendientes"
+
+#, fuzzy
+msgid "Update/Remove MAC addresses"
+msgstr "Eliminar todos los elementos seleccionados"
+
+msgid "Changes will automatically be saved"
+msgstr ""
+
+#, fuzzy
+msgid "MAC Address is required!"
+msgstr "Dirección MAC de lista de origen: "
+
+#, fuzzy
+msgid "MAC Address is invalid!"
+msgstr "Dirección MAC de lista de origen: "
+
+#, fuzzy
+msgid "MAC Address is assigned to another host!"
+msgstr "Este MAC pertenece a otro host"
 
 #, fuzzy
 msgid "Host Printer Configuration"
@@ -4136,9 +4178,6 @@ msgstr "Descripción de la impresora"
 #, fuzzy
 msgid "Update/Remove printers"
 msgstr "Eliminar todos los elementos seleccionados"
-
-msgid "Changes will automatically be saved"
-msgstr ""
 
 #, fuzzy
 msgid "Snapin Created"
@@ -4342,6 +4381,10 @@ msgstr "Sin grupo seleccionado y ningún nuevo nombre de grupo entró"
 #, fuzzy
 msgid "Host Snapin History"
 msgstr "Camino snapin"
+
+#, fuzzy
+msgid "MAC Addresses"
+msgstr "Dirección MAC de lista de origen: "
 
 #, fuzzy
 msgid "Service Settings"
@@ -6410,10 +6453,6 @@ msgstr "serie HD"
 #, fuzzy
 msgid "Add selected to group"
 msgstr "Impresora"
-
-#, fuzzy
-msgid "Delete selected"
-msgstr "Eliminar seleccionado"
 
 #, fuzzy
 msgid "Confirm password"

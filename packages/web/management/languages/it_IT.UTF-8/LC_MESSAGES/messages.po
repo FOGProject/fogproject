@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-27 04:00-0500\n"
+"POT-Creation-Date: 2018-02-27 17:18-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -3473,14 +3473,57 @@ msgstr "Si prega di inserire un nome host valido"
 msgid "Please use another hostname"
 msgstr "Utilizza un altro hostname"
 
-msgid "Please enter a mac address"
-msgstr "Inserisci un indirizzo MAC"
-
-msgid "Please enter a valid mac address"
-msgstr "Inserisci un indirizzo MAC valido"
-
 msgid "Cannot change image when in tasking"
 msgstr "Impossibile modificare l'immagine durante l'attività"
+
+#, fuzzy
+msgid "Add New MAC"
+msgstr "Aggiungi nuovo ruolo"
+
+#, fuzzy
+msgid "Add New MAC Address"
+msgstr "Indirizzo MAC"
+
+#, fuzzy
+msgid "Update selected"
+msgstr "Aggiungi stampanti selezionate"
+
+msgid "Delete selected"
+msgstr "Cancella selezionato"
+
+#, fuzzy
+msgid "Primary"
+msgstr "MAC primaria"
+
+msgid "Ignore Imaging"
+msgstr ""
+
+#, fuzzy
+msgid "Ignore Client"
+msgstr "Cliente"
+
+#, fuzzy
+msgid "Pending"
+msgstr "In attesa di..."
+
+#, fuzzy
+msgid "Update/Remove MAC addresses"
+msgstr "Aggiorna/Rimuovi stampanti"
+
+msgid "Changes will automatically be saved"
+msgstr ""
+
+#, fuzzy
+msgid "MAC Address is required!"
+msgstr "È necessario un indirizzo MAC!"
+
+#, fuzzy
+msgid "MAC Address is invalid!"
+msgstr "MAC Format non è valido"
+
+#, fuzzy
+msgid "MAC Address is assigned to another host!"
+msgstr "Questo MAC appartiene a un altro host"
 
 #, fuzzy
 msgid "Host Printer Configuration"
@@ -3554,9 +3597,6 @@ msgstr "Associazioni stampanti"
 
 msgid "Update/Remove printers"
 msgstr "Aggiorna/Rimuovi stampanti"
-
-msgid "Changes will automatically be saved"
-msgstr ""
 
 msgid "Snapin Created"
 msgstr "Snapin creato"
@@ -3740,6 +3780,10 @@ msgstr "Nessun tempo completo registrato"
 
 msgid "Host Snapin History"
 msgstr "Storia Snapin Host"
+
+#, fuzzy
+msgid "MAC Addresses"
+msgstr "Indirizzo MAC"
 
 #, fuzzy
 msgid "Service Settings"
@@ -5559,9 +5603,6 @@ msgstr "HD Serial"
 #, fuzzy
 msgid "Add selected to group"
 msgstr "Aggiungi gruppo di archiviazione selezionato"
-
-msgid "Delete selected"
-msgstr "Cancella selezionato"
 
 #, fuzzy
 msgid "Confirm password"

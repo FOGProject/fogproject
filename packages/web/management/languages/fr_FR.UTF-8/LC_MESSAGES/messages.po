@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-27 04:00-0500\n"
+"POT-Creation-Date: 2018-02-27 17:18-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3837,16 +3837,58 @@ msgstr "S'il vous plaît entrer un nom d'hôte valide"
 msgid "Please use another hostname"
 msgstr "S'il vous plaît entrer un nom d'hôte"
 
-#, fuzzy
-msgid "Please enter a mac address"
-msgstr "S'il vous plaît entrer une adresse IP valide"
-
-#, fuzzy
-msgid "Please enter a valid mac address"
-msgstr "S'il vous plaît entrer une adresse IP valide"
-
 msgid "Cannot change image when in tasking"
 msgstr ""
+
+#, fuzzy
+msgid "Add New MAC"
+msgstr "Ajouter un compte d'utilisateur"
+
+#, fuzzy
+msgid "Add New MAC Address"
+msgstr "MAC Address List"
+
+#, fuzzy
+msgid "Update selected"
+msgstr "Imprimante"
+
+#, fuzzy
+msgid "Delete selected"
+msgstr "Supprimer sélectionnée"
+
+#, fuzzy
+msgid "Primary"
+msgstr "MAC primaire"
+
+msgid "Ignore Imaging"
+msgstr ""
+
+#, fuzzy
+msgid "Ignore Client"
+msgstr "Client"
+
+#, fuzzy
+msgid "Pending"
+msgstr "En attendant..."
+
+#, fuzzy
+msgid "Update/Remove MAC addresses"
+msgstr "Supprimer les imprimantes sélectionnées"
+
+msgid "Changes will automatically be saved"
+msgstr ""
+
+#, fuzzy
+msgid "MAC Address is required!"
+msgstr "Adresse MAC est nécessaire"
+
+#, fuzzy
+msgid "MAC Address is invalid!"
+msgstr "MAC Format est invalide"
+
+#, fuzzy
+msgid "MAC Address is assigned to another host!"
+msgstr "Ce MAC Appartient à un autre hôte"
 
 #, fuzzy
 msgid "Host Printer Configuration"
@@ -3922,9 +3964,6 @@ msgstr "Printer description"
 #, fuzzy
 msgid "Update/Remove printers"
 msgstr "Supprimer les imprimantes sélectionnées"
-
-msgid "Changes will automatically be saved"
-msgstr ""
 
 #, fuzzy
 msgid "Snapin Created"
@@ -4119,6 +4158,10 @@ msgstr ""
 #, fuzzy
 msgid "Host Snapin History"
 msgstr "snapin Histoire"
+
+#, fuzzy
+msgid "MAC Addresses"
+msgstr "MAC Address List"
 
 #, fuzzy
 msgid "Service Settings"
@@ -6187,10 +6230,6 @@ msgstr "HD série"
 #, fuzzy
 msgid "Add selected to group"
 msgstr "Imprimante"
-
-#, fuzzy
-msgid "Delete selected"
-msgstr "Supprimer sélectionnée"
 
 #, fuzzy
 msgid "Confirm password"

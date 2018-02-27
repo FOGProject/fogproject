@@ -109,9 +109,9 @@ class FOGConfigurationPage extends FOGPage
         echo '<div class="box-tools pull-right">';
         echo self::$FOGCollapseBox;
         echo '</div>';
-        echo '<h3 class="box-title">';
+        echo '<h4 class="box-title">';
         echo $this->title;
-        echo '</h3>';
+        echo '</h4>';
         echo '</div>';
         echo '<div class="box-body placehere" vers="'
             . FOG_VERSION
@@ -164,9 +164,9 @@ class FOGConfigurationPage extends FOGPage
         echo '<div class="box-tools pull-right">';
         echo self::$FOGCollapseBox;
         echo '</div>';
-        echo '<h3 class="box-title">';
+        echo '<h4 class="box-title">';
         echo $this->title;
-        echo '</h3>';
+        echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
         echo $contents;
@@ -203,9 +203,9 @@ class FOGConfigurationPage extends FOGPage
         echo '<div class="box-tools pull-right">';
         echo self::$FOGCollapseBox;
         echo '</div>';
-        echo '<h3 class="box-title">';
+        echo '<h4 class="box-title">';
         echo $this->title;
-        echo '</h3>';
+        echo '</h4>';
         echo '<div>';
         echo '<p class="help-block">';
         printf(
@@ -278,9 +278,9 @@ class FOGConfigurationPage extends FOGPage
             echo '<div class="box-tools pull-right">';
             echo self::$FOGCollapseBox;
             echo '</div>';
-            echo '<h3 class="box-title">';
+            echo '<h4 class="box-title">';
             echo $this->title;
-            echo '</h3>';
+            echo '</h4>';
             echo '<div>';
             echo '<p class="help-block">';
             echo _('Downloading Kernel');
@@ -336,9 +336,9 @@ class FOGConfigurationPage extends FOGPage
             echo '<div class="box-tools pull-right">';
             echo self::$FOGCollapseBox;
             echo '</div>';
-            echo '<h3 class="box-title">';
+            echo '<h4 class="box-title">';
             echo $this->title;
-            echo '</h3>';
+            echo '</h4>';
             echo '</div>';
             echo '<div class="box-body">';
             echo $rendered;
