@@ -59,17 +59,11 @@ class AddSiteFilterSearch extends Hook
         self::$HookManager
             ->register(
                 'HOST_DATA',
-                array(
-                    $this,
-                    'hostData'
-                )
+                [$this, 'hostData']
             )
             ->register(
                 'GROUP_DATA',
-                array(
-                    $this,
-                    'groupData'
-                )
+                [$this, 'groupData']
             );
     }
     /**
@@ -107,29 +101,29 @@ class AddSiteFilterSearch extends Hook
                 $hostsID = self::getClass('HostManager')->search('');
                 $hosts = self::getSubObjectIDs(
                     'SiteHostAssociation',
-                    array('hostID' => $hostsID,'siteID'=>$siteIDbyUser),
+                    ['hostID' => $hostsID,'siteID'=>$siteIDbyUser],
                     'hostID'
                 );
                 break;
             case 'list':
                 $hosts = self::getSubObjectIDs(
                     'Host',
-                    array('id'=>$siteHosts),
+                    ['id'=>$siteHosts],
                     'id'
                 );
                 break;
             }
-            $arguments['data'] = array();
+            $arguments['data'] = [];
             foreach ($hosts as $HostID) {
                 $HostSiteID = self::getSubObjectIDs(
                     'SiteHostAssociation',
-                    array('hostID' => $HostID),
+                    ['hostID' => $HostID],
                     'siteID'
                 );
                 if ($isLocation) {
                     $locationID = self::getSubObjectIDs(
                         'LocationAssociation',
-                        array('hostID' => $HostID),
+                        ['hostID' => $HostID],
                         'locationID'
                     );
                     $Location = new Location($locationID);
@@ -138,10 +132,10 @@ class AddSiteFilterSearch extends Hook
                     $locationName = '';
                 }
                 $Site = self::getClass('SiteManager')->find(
-                    array('id'=>$HostSiteID)
+                    ['id'=>$HostSiteID]
                 );
                 $Host = new Host($HostID);
-                $arguments['data'][] = array(
+                $arguments['data'][] = [
                     'id' => $Host->get('id'),
                     'deployed' => self::formatTime(
                         $Host->get('deployed'),
@@ -155,7 +149,7 @@ class AddSiteFilterSearch extends Hook
                     'image_id' => $Host->get('imageID'),
                     'image_name' => $Host->getImageName(),
                     'pingstatus' => $Host->getPingCodeStr(),
-                );
+                ];
                 unset($Host, $HostID);
                 unset($HostSiteID, $Site);
             }
@@ -205,18 +199,18 @@ class AddSiteFilterSearch extends Hook
             $groups = self::getClass('GroupManager')->search('', true);
             break;
         case 'list':
-            $groups = self::getClass('GroupManager')->find(array('id'=>$siteGroups));
+            $groups = self::getClass('GroupManager')->find(['id'=>$siteGroups]);
             break;
         }
-        $arguments['data'] = array();
+        $arguments['data'] = [];
         foreach ($groups as $Group) {
             if (in_array($Group->get('id'), $siteGroups)) {
-                $arguments['data'][] = array(
+                $arguments['data'][] = [
                     'id' => $Group->get('id'),
                     'name' => $Group->get('name'),
                     'description' => $Group->get('description'),
                     'count' => $Group->getHostCount(),
-                );
+                ];
             }
             unset($Group);
         }
@@ -233,7 +227,7 @@ class AddSiteFilterSearch extends Hook
     {
         $userRestrictions = self::getSubObjectIDs(
             'SiteUserRestriction',
-            array('userID' => $userid),
+            ['userID' => $userid],
             'isRestricted'
         );
         return $userRestrictions[0];
@@ -247,7 +241,7 @@ class AddSiteFilterSearch extends Hook
      */
     public function getSiteIDbyUser($userID)
     {
-        $find = array('userID' => $userID);
+        $find = ['userID' => $userID];
         return self::getSubObjectIDs(
             'SiteUserAssociation',
             $find,
@@ -264,7 +258,7 @@ class AddSiteFilterSearch extends Hook
      */
     public function getHostIDbySite($siteIDs)
     {
-        $find = array('siteID' => $siteIDs);
+        $find = ['siteID' => $siteIDs];
         return self::getSubObjectIDs(
             'SiteHostAssociation',
             $find,
@@ -283,7 +277,7 @@ class AddSiteFilterSearch extends Hook
         $siteHosts = $this->getHostIDbySite($siteIDbyUser);
         return self::getSubObjectIDs(
             'GroupAssociation',
-            array('hostID' => $siteHosts),
+            ['hostID' => $siteHosts],
             'groupID'
         );
     }

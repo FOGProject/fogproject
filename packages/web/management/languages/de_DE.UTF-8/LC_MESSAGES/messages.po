@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-27 03:08-0500\n"
+"POT-Creation-Date: 2018-02-27 04:00-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -1302,6 +1302,14 @@ msgid "with the host"
 msgstr "Schlüssel beim Host."
 
 #, fuzzy
+msgid "Export Locations"
+msgstr "Standorte exportieren"
+
+#, fuzzy
+msgid "Import Locations"
+msgstr "Standorte importieren"
+
+#, fuzzy
 msgid "This setting defines sending the"
 msgstr "Diese Einstellung definiert das Senden"
 
@@ -1372,14 +1380,6 @@ msgstr "Standort erfolgreich aktualisiert"
 #, fuzzy
 msgid "Group Update Location Fail"
 msgstr "Gruppe aktualisieren fehlgeschlagen"
-
-#, fuzzy
-msgid "Export Locations"
-msgstr "Standorte exportieren"
-
-#, fuzzy
-msgid "Import Locations"
-msgstr "Standorte importieren"
 
 msgid "Location Name"
 msgstr "Name des Standorts"
@@ -1540,16 +1540,16 @@ msgid "User Update Site Fail"
 msgstr "Benutzer-Update fehlgeschlagen"
 
 #, fuzzy
-msgid "Sites"
-msgstr "Sites"
-
-#, fuzzy
 msgid "Export Sites"
 msgstr "Sites exportieren"
 
 #, fuzzy
 msgid "Import Sites"
 msgstr "Sites importieren"
+
+#, fuzzy
+msgid "Sites"
+msgstr "Sites"
 
 #, fuzzy
 msgid "Host Count"

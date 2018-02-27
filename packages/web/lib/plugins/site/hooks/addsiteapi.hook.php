@@ -59,24 +59,15 @@ class AddSiteAPI extends Hook
         self::$HookManager
             ->register(
                 'API_VALID_CLASSES',
-                array(
-                    $this,
-                    'injectAPIElements'
-                )
+                [$this, 'injectAPIElements']
             )
             ->register(
                 'API_GETTER',
-                array(
-                    $this,
-                    'adjustGetter'
-                )
+                [$this, 'adjustGetter']
             )
             ->register(
                 'CUSTOMIZE_DT_COLUMNS',
-                array(
-                    $this,
-                    'customizeDT'
-                )
+                [$this, 'customizeDT']
             );
     }
     /**
@@ -114,10 +105,7 @@ class AddSiteAPI extends Hook
     {
         $arguments['validClasses'] = self::fastmerge(
             $arguments['validClasses'],
-            array(
-                'site',
-                'sitehostassociation'
-            )
+            ['site', 'sitehostassociation']
         );
     }
     /**
@@ -133,10 +121,10 @@ class AddSiteAPI extends Hook
         case 'sitehostassociation':
             $arguments['data'] = FOGCore::fastmerge(
                 $arguments['class']->get(),
-                array(
+                [
                     'site' => $arguments['class']->get('site')->get(),
                     'host' => $arguments['class']->get('host')->get()
-                )
+                ]
             );
             break;
         }

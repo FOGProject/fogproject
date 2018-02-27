@@ -61,17 +61,11 @@ class AddLocationTasks extends Hook
         self::$HookManager
             ->register(
                 'HOST_DATA',
-                array(
-                    $this,
-                    'tasksActiveTableHeader'
-                )
+                [$this, 'tasksActiveTableHeader']
             )
             ->register(
                 'HOST_DATA',
-                array(
-                    $this,
-                    'tasksActiveData'
-                )
+                [$this, 'tasksActiveData']
             );
     }
     /**
@@ -103,23 +97,21 @@ class AddLocationTasks extends Hook
             return;
         }
         $arguments['templates'][4] = '${location}';
-        $arguments['attributes'][4] = array('class'=>'r');
+        $arguments['attributes'][4] = ['class'=>'r'];
         foreach ((array)$arguments['data'] as $i => &$data) {
             $Locations = self::getSubObjectIDs(
                 'LocationAssociation',
-                array(
-                    'hostID' => $data['host_id']
-                ),
+                ['hostID' => $data['host_id']],
                 'locationID'
             );
             $cnt = self::getClass('LocationManager')
-                ->count(array('id' => $Locations));
+                ->count(['id' => $Locations]);
             if ($cnt !== 1) {
                 $arguments['data'][$i]['location'] = '';
                 continue;
             }
             foreach ((array)self::getClass('LocationManager')
-                ->find(array('id' => $Locations)) as &$Location
+                ->find(['id' => $Locations]) as &$Location
             ) {
                 $arguments['data'][$i]['location'] = $Location
                     ->get('name');

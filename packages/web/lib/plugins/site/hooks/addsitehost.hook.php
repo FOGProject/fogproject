@@ -59,24 +59,15 @@ class AddSiteHost extends Hook
         self::$HookManager
             ->register(
                 'TABDATA_HOOK',
-                array(
-                    $this,
-                    'hostTabData'
-                )
+                [$this, 'hostTabData']
             )
             ->register(
                 'HOST_EDIT_SUCCESS',
-                array(
-                    $this,
-                    'hostAddSiteEdit'
-                )
+                [$this, 'hostAddSiteEdit']
             )
             ->register(
                 'HOST_ADD_FIELDS',
-                array(
-                    $this,
-                    'hostAddSiteField'
-                )
+                [$this, 'hostAddSiteField']
             );
     }
     /**

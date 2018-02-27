@@ -38,7 +38,7 @@ class LocationManager extends FOGManagerController
         $sql = Schema::createTable(
             $this->tablename,
             true,
-            array(
+            [
                 'lID',
                 'lName',
                 'lDesc',
@@ -47,8 +47,8 @@ class LocationManager extends FOGManagerController
                 'lCreatedBy',
                 'lCreatedTime',
                 'lTftpEnabled'
-            ),
-            array(
+            ],
+            [
                 'INTEGER',
                 'VARCHAR(255)',
                 'LONGTEXT',
@@ -57,8 +57,8 @@ class LocationManager extends FOGManagerController
                 'VARCHAR(40)',
                 'TIMESTAMP',
                 "ENUM('0', '1')"
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
@@ -67,8 +67,8 @@ class LocationManager extends FOGManagerController
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
@@ -77,15 +77,15 @@ class LocationManager extends FOGManagerController
                 false,
                 'CURRENT_TIMESTAMP',
                 false
-            ),
-            array(
+            ],
+            [
                 'lID',
                 'lName',
-                array(
+                [
                     'lStorageGroupID',
                     'lStorageNodeID'
-                )
-            ),
+                ]
+            ],
             'MyISAM',
             'utf8',
             'lID',
@@ -128,7 +128,7 @@ class LocationManager extends FOGManagerController
      * @return parent::destroy
      */
     public function destroy(
-        $findWhere = array(),
+        $findWhere = [],
         $whereOperator = 'AND',
         $orderBy = 'name',
         $sort = 'ASC',
@@ -146,7 +146,7 @@ class LocationManager extends FOGManagerController
             $not
         );
         if (isset($findWhere['id'])) {
-            $findWhere = array('locationID' => $findWhere['id']);
+            $findWhere = ['locationID' => $findWhere['id']];
         }
         self::getClass('LocationAssociationManager')->destroy($findWhere);
         return true;

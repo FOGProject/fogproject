@@ -61,24 +61,15 @@ class AddLocationHost extends Hook
         self::$HookManager
             ->register(
                 'TABDATA_HOOK',
-                array(
-                    $this,
-                    'hostTabData'
-                )
+                [$this, 'hostTabData']
             )
             ->register(
                 'HOST_EDIT_SUCCESS',
-                array(
-                    $this,
-                    'hostAddLocationEdit'
-                )
+                [$this, 'hostAddLocationEdit']
             )
             ->register(
                 'HOST_ADD_FIELDS',
-                array(
-                    $this,
-                    'hostAddLocationField'
-                )
+                [$this, 'hostAddLocationField']
             );
     }
     /**

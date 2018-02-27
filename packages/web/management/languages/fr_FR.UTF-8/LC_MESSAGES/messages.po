@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-27 03:08-0500\n"
+"POT-Creation-Date: 2018-02-27 04:00-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1307,6 +1307,14 @@ msgid "with the host"
 msgstr "pas dans ce"
 
 #, fuzzy
+msgid "Export Locations"
+msgstr "hôte Lieu"
+
+#, fuzzy
+msgid "Import Locations"
+msgstr "hôte Lieu"
+
+#, fuzzy
 msgid "This setting defines sending the"
 msgstr "Ce paramètre définit "
 
@@ -1377,14 +1385,6 @@ msgstr "Installation / Mise à jour réussie!"
 #, fuzzy
 msgid "Group Update Location Fail"
 msgstr "Groupe create a échoué"
-
-#, fuzzy
-msgid "Export Locations"
-msgstr "hôte Lieu"
-
-#, fuzzy
-msgid "Import Locations"
-msgstr "hôte Lieu"
 
 msgid "Location Name"
 msgstr "Nom de la localisation"
@@ -1545,16 +1545,16 @@ msgid "User Update Site Fail"
 msgstr "mise à jour de l'utilisateur a échoué"
 
 #, fuzzy
-msgid "Sites"
-msgstr "minutes"
-
-#, fuzzy
 msgid "Export Sites"
 msgstr "Imprimantes Export"
 
 #, fuzzy
 msgid "Import Sites"
 msgstr "Imprimantes d'importation"
+
+#, fuzzy
+msgid "Sites"
+msgstr "minutes"
 
 #, fuzzy
 msgid "Host Count"

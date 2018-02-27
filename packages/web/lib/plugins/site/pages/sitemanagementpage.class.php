@@ -42,9 +42,9 @@ class SiteManagementPage extends FOGPage
             'PAGES_WITH_OBJECTS',
             ['PagesWithObjects' => &$this->PagesWithObjects]
         );
+        parent::__construct($this->name);
         self::$foglang['ExportSite'] = _('Export Sites');
         self::$foglang['ImportSite'] = _('Import Sites');
-        parent::__construct($this->name);
         $this->headerData = [
             _('Name'),
             _('Host Count'),
@@ -387,18 +387,18 @@ class SiteManagementPage extends FOGPage
      */
     public function assocHost()
     {
-        $this->data = array();
+        $this->data = [];
         echo '<!-- Host membership -->';
         printf(
             '<div id="%s-membership">',
             $this->node
         );
-        $this->headerData = array(
+        $this->headerData = [
             '<input type="checkbox" name="toggle-checkboxhost"'
             . 'class="toggle-checkboxhost"/>',
             _('Host')
-        );
-        $this->templates = array(
+        ];
+        $this->templates = [
             '<input type="checkbox" name="host[]" value="${host_id}" '
             . 'class="toggle-host"/>',
             sprintf(
@@ -407,35 +407,35 @@ class SiteManagementPage extends FOGPage
                 'host',
                 _('Edit')
             )
-        );
-        $this->attributes = array(
-            array(
+        ];
+        $this->attributes = [
+            [
                 'width' => 16,
                 'class' => 'filter-false',
-            ),
-            array()
-        );
+            ],
+            []
+        ];
         foreach ((array)self::getClass('HostManager')
             ->find(
-                array('id' => $this->obj->get('hostsnotinme'))
+                ['id' => $this->obj->get('hostsnotinme')]
             ) as &$Host
         ) {
-            $this->data[] = array(
+            $this->data[] = [
                 'host_id' => $Host->get('id'),
                 'host_name' => $Host->get('name'),
-            );
+            ];
             unset($Host);
         }
         if (count($this->data) > 0) {
             self::$HookManager
                 ->processEvent(
                     'SITE_ASSOCHOST_NOT_IN_ME',
-                    array(
+                    [
                         'headerData' => &$this->headerData,
                         'data' => &$this->data,
                         'templates' => &$this->templates,
                         'attributes' => &$this->attributes
-                    )
+                    ]
                 );
             printf(
                 '<form method="post" action="%s"><label for="hostMeShow">'
@@ -458,13 +458,13 @@ class SiteManagementPage extends FOGPage
                 $this->node
             );
         }
-        $this->data = array();
-        $this->headerData = array(
+        $this->data = [];
+        $this->headerData = [
             '<input type="checkbox" name="toggle-checkbox" '
             . 'class="toggle-checkboxAction"/>',
             _('Host')
-        );
-        $this->templates = array(
+        ];
+        $this->templates = [
             '<input type="checkbox" name="hostdel[]" value="${host_id}" '
             . 'class="toggle-action"/>',
             sprintf(
@@ -473,27 +473,27 @@ class SiteManagementPage extends FOGPage
                 'host',
                 _('Edit')
             )
-        );
+        ];
         foreach ((array)self::getClass('HostManager')
             ->find(
-                array('id' => $this->obj->get('hosts'))
+                ['id' => $this->obj->get('hosts')]
             ) as &$Host
         ) {
-            $this->data[] = array(
+            $this->data[] = [
                 'host_id' => $Host->get('id'),
                 'host_name' => $Host->get('name'),
-            );
+            ];
             unset($Host);
         }
         self::$HookManager
             ->processEvent(
                 'SITE_ASSOCHOST_DATA',
-                array(
+                [
                     'headerData' => &$this->headerData,
                     'data' => &$this->data,
                     'templates' => &$this->templates,
                     'attributes' => &$this->attributes
-                )
+                ]
             );
         printf(
             '<form method="post" action="%s">',
@@ -510,7 +510,7 @@ class SiteManagementPage extends FOGPage
                 $this->node
             );
         }
-        $this->data = array();
+        $this->data = [];
     }
     /**
      * Post assoc host adjustments.
@@ -528,19 +528,19 @@ class SiteManagementPage extends FOGPage
      */
     public function membership()
     {
-        $this->data = array();
+        $this->data = [];
         echo '<!-- Membership -->';
         printf(
             '<div id="%s-membership">',
             $this->node
         );
-        $this->headerData = array(
+        $this->headerData = [
             '<input type="checkbox" name="toggle-checkboxuser" '
             . 'class="toggle-checkboxuser"/>',
             _('Username'),
             _('Friendly Name')
-        );
-        $this->templates = array(
+        ];
+        $this->templates = [
             sprintf(
                 '<input type="checkbox" name="user[]" value="${user_id}" '
                 . 'class="toggle-%s"/>',
@@ -552,39 +552,36 @@ class SiteManagementPage extends FOGPage
                 'user'
             ),
             '${friendly}'
-        );
-        $this->attributes = array(
-            array(
+        ];
+        $this->attributes = [
+            [
                 'width' => 16,
                 'class' => 'filter-false'
-            ),
-            array(
-            ),
-            array()
-        );
+            ],
+            [],
+            []
+        ];
         foreach ((array)self::getClass('UserManager')
             ->find(
-                array(
-                    'id' => $this->obj->get('usersnotinme'),
-                )
+                ['id' => $this->obj->get('usersnotinme')]
             ) as &$User
         ) {
-            $this->data[] = array(
+            $this->data[] = [
                 'user_id' => $User->get('id'),
                 'user_name' => $User->get('name'),
                 'friendly' => $User->get('display')
-            );
+            ];
             unset($User);
         }
         if (count($this->data) > 0) {
             self::$HookManager->processEvent(
                 'OBJ_USERS_NOT_IN_ME',
-                array(
+                [
                     'headerData' => &$this->headerData,
                     'data' => &$this->data,
                     'templates' => &$this->templates,
                     'attributes' => &$this->attributes
-                )
+                ]
             );
             printf(
                 '<form method="post" action="%s"><label for="userMeShow">'
@@ -607,14 +604,14 @@ class SiteManagementPage extends FOGPage
                 $this->node
             );
         }
-        $this->data = array();
-        $this->headerData = array(
+        $this->data = [];
+        $this->headerData = [
             '<input type="checkbox" name="toggle-checkbox" '
             . 'class="toggle-checkboxAction"/>',
             _('Username'),
             _('Friendly Name')
-        );
-        $this->templates = array(
+        ];
+        $this->templates = [
             '<input type="checkbox" name="userdel[]" '
             . 'value="${user_id}" class="toggle-action"/>',
             sprintf(
@@ -624,30 +621,28 @@ class SiteManagementPage extends FOGPage
                 _('Edit')
             ),
             '${friendly}'
-        );
+        ];
         foreach ((array)self::getClass('UserManager')
             ->find(
-                array(
-                    'id' => $this->obj->get('users'),
-                )
+                ['id' => $this->obj->get('users')]
             ) as &$User
         ) {
-            $this->data[] = array(
+            $this->data[] = [
                 'user_id' => $User->get('id'),
                 'user_name' => $User->get('name'),
                 'friendly' => $User->get('display')
-            );
+            ];
             unset($User);
         }
         self::$HookManager
             ->processEvent(
                 'SITE_USER_DATA',
-                array(
+                [
                     'headerData' => &$this->headerData,
                     'data' => &$this->data,
                     'templates' => &$this->templates,
                     'attributes' => &$this->attributes
-                )
+                ]
             );
         printf(
             '<form method="post" action="%s">',
@@ -664,7 +659,7 @@ class SiteManagementPage extends FOGPage
                 $this->node
             );
         }
-        $this->data = array();
+        $this->data = [];
     }
     /**
      * Customize membership actions
