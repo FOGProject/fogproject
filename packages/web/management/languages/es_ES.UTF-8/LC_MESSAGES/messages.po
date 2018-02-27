@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-25 15:28-0500\n"
+"POT-Creation-Date: 2018-02-27 01:34-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1482,10 +1482,6 @@ msgid "Host Location"
 msgstr "Lista de host"
 
 #, fuzzy
-msgid "Select a valid location"
-msgstr "Seleccionar una imagen válida"
-
-#, fuzzy
 msgid "Host Location Updated!"
 msgstr "información de LDAP actualizado!"
 
@@ -1548,32 +1544,36 @@ msgstr "Nombre de dominio"
 msgid "Kernels/Inits from location"
 msgstr "Información general"
 
-msgid "Yes"
-msgstr "Sí"
-
-msgid "No"
-msgstr "No"
-
-#, fuzzy
-msgid "New Location"
-msgstr "Información de la red"
-
-msgid "Use inits and kernels from this node"
-msgstr ""
-
 #, fuzzy
 msgid "Create New Location"
 msgstr "Crear nuevo grupo"
 
-msgid "Location already Exists, please try again."
-msgstr ""
+#, fuzzy
+msgid "Location Description"
+msgstr "Asociación para la imagen"
 
-msgid "Please enter a name for this location."
+#, fuzzy
+msgid "Location Sends Boot"
+msgstr "Nombre de dominio"
+
+msgid "Location sends the inits and kernels"
 msgstr ""
 
 #, fuzzy
-msgid "Please select the storage group this location relates to."
-msgstr "el uso de la ranura del grupo de almacenamiento del nodo seleccionado"
+msgid "Create New Site"
+msgstr "Crear nuevo grupo"
+
+#, fuzzy
+msgid "A location name is required!"
+msgstr "Se requiere un nombre de imagen!"
+
+#, fuzzy
+msgid "A location already exists with this name!"
+msgstr "Una imagen ya existe con este nombre!"
+
+#, fuzzy
+msgid "A storage group must be selected."
+msgstr "Nombre del grupo de almacenamiento"
 
 #, fuzzy
 msgid "Add location failed!"
@@ -1584,24 +1584,31 @@ msgid "Location added!"
 msgstr "Nombre de dominio"
 
 #, fuzzy
-msgid "Location Create Success"
-msgstr "Nombre snapin"
+msgid "Location Create Succes"
+msgstr "actualización de servicio no pudo"
 
 #, fuzzy
 msgid "Location Create Fail"
 msgstr "Nombre snapin"
 
 #, fuzzy
-msgid "Location General"
-msgstr "Nombre snapin"
+msgid "Add Selected"
+msgstr "Impresora"
 
 #, fuzzy
-msgid "A location with that name already exists."
-msgstr "Sesión con ese nombre ya existe"
+msgid "Remove Selected"
+msgstr "Remoto"
+
+msgid "Host Name"
+msgstr "Nombre de host"
 
 #, fuzzy
-msgid "A group is required for a location"
-msgstr "Un grupo de almacenamiento es necesario!"
+msgid "Host Associated"
+msgstr "No nodo asociado"
+
+#, fuzzy
+msgid "Host Membership"
+msgstr "miembros"
 
 #, fuzzy
 msgid "Location update failed!"
@@ -1644,10 +1651,6 @@ msgstr "Asociación para la imagen"
 #, fuzzy
 msgid "Host Site"
 msgstr "Hospedadores"
-
-#, fuzzy
-msgid "Select a valid site"
-msgstr "Seleccionar una imagen válida"
 
 #, fuzzy
 msgid "Host Site Updated!"
@@ -1706,16 +1709,12 @@ msgid "Import Sites"
 msgstr "Impresora TCP / IP Port"
 
 #, fuzzy
-msgid "Hosts Associated"
-msgstr "No hay snapins asociados"
+msgid "Host Count"
+msgstr "ID de host"
 
 #, fuzzy
-msgid "Site"
-msgstr "Tamaño máximo:"
-
-#, fuzzy
-msgid "Host Associated"
-msgstr "No nodo asociado"
+msgid "User Count"
+msgstr "Contador de la CPU"
 
 #, fuzzy
 msgid "Site Name"
@@ -1726,30 +1725,52 @@ msgid "Site Description"
 msgstr "Descripción de la impresora"
 
 #, fuzzy
-msgid "New Site"
-msgstr "snapin"
-
-msgid "Site already Exists, please try again."
-msgstr ""
+msgid "A site name is required!"
+msgstr "Se requiere un nombre de imagen!"
 
 #, fuzzy
-msgid "Please enter a name for this site."
-msgstr "No hay ninguna tabla de base de datos definida para esta clase"
-
-msgid "Site Added, editing!"
-msgstr ""
+msgid "A site already exists with this name!"
+msgstr "Una imagen ya existe con este nombre!"
 
 #, fuzzy
-msgid "A site with that name already exists."
-msgstr "Sesión con ese nombre ya existe"
+msgid "Add site failed!"
+msgstr "Añadir fallidos SNAPin!"
 
 #, fuzzy
-msgid "Failed to update"
-msgstr "No se ha podido descifrar datos"
+msgid "Site added!"
+msgstr "Nombre de la impresora"
 
 #, fuzzy
-msgid "Site Updated"
-msgstr "Servicio de Actualización!"
+msgid "Site Create Success"
+msgstr "Impresora ya existe"
+
+#, fuzzy
+msgid "Site Create Fail"
+msgstr "actualización de la impresora ha fallado!"
+
+#, fuzzy
+msgid "Host Association"
+msgstr "No nodo asociado"
+
+#, fuzzy
+msgid "User Association"
+msgstr "Asociación para la imagen"
+
+#, fuzzy
+msgid "Site update failed!"
+msgstr "actualización de la impresora ha fallado!"
+
+#, fuzzy
+msgid "Site updated!"
+msgstr "Impresora actualiza!"
+
+#, fuzzy
+msgid "Site Update Success"
+msgstr "actualización Valoración falló"
+
+#, fuzzy
+msgid "Site Update Fail"
+msgstr "actualización de la impresora ha fallado!"
 
 #, fuzzy
 msgid "Check here to see hosts not within this"
@@ -2201,6 +2222,10 @@ msgid "Rule Added, editing!"
 msgstr ""
 
 #, fuzzy
+msgid "Failed to update"
+msgstr "No se ha podido descifrar datos"
+
+#, fuzzy
 msgid "Rule Updated"
 msgstr "Actualizar"
 
@@ -2485,9 +2510,6 @@ msgstr "Descripción de la impresora"
 #, fuzzy
 msgid "FOG Snapin Log"
 msgstr "Snapin del registro de transacciones"
-
-msgid "Host Name"
-msgstr "Nombre de host"
 
 msgid "Snapin Name"
 msgstr "Nombre snapin"
@@ -2780,6 +2802,12 @@ msgstr "Descripción de la imagen"
 #, fuzzy
 msgid "OS Name"
 msgstr "Nombre"
+
+msgid "Yes"
+msgstr "Sí"
+
+msgid "No"
+msgstr "No"
 
 msgid "FOG Imaging Log"
 msgstr ""
@@ -4161,6 +4189,10 @@ msgstr "Configuración Tecla"
 msgid "Minimum time limit for Auto Logout to become active is 5 minutes."
 msgstr ""
 
+#, fuzzy
+msgid "You must select an action to perform"
+msgstr "Debe especificar el alias y el puerto"
+
 msgid "Primary User"
 msgstr "usuario principal"
 
@@ -4308,11 +4340,7 @@ msgid "Imaging History"
 msgstr "Lista de host"
 
 #, fuzzy
-msgid "You must select an action to perform"
-msgstr "Debe especificar el alias y el puerto"
-
-#, fuzzy
-msgid "Host Update Failed"
+msgid "Host update failed!"
 msgstr "actualización Valoración falló"
 
 #, fuzzy
@@ -4342,21 +4370,6 @@ msgstr "actualización Valoración falló"
 #, fuzzy
 msgid "Host Add to Group Fail"
 msgstr "Añadir al grupo"
-
-msgid "Cron Schedule"
-msgstr "cron Horario"
-
-#, fuzzy
-msgid "Current Power Management settings"
-msgstr "Gestión de usuarios"
-
-#, fuzzy
-msgid "Update PM Values"
-msgstr "Actualizar Imágenes"
-
-#, fuzzy
-msgid "Delete selected"
-msgstr "Eliminar seleccionado"
 
 #, fuzzy
 msgid "Create New Group"
@@ -4576,10 +4589,6 @@ msgstr "Impresora ya existe"
 #, fuzzy
 msgid "Printer Create Fail"
 msgstr "actualización de la impresora ha fallado!"
-
-#, fuzzy
-msgid "Host Membership"
-msgstr "miembros"
 
 #, fuzzy
 msgid "Update Default"
@@ -6387,6 +6396,10 @@ msgid "Add selected to group"
 msgstr "Impresora"
 
 #, fuzzy
+msgid "Delete selected"
+msgstr "Eliminar seleccionado"
+
+#, fuzzy
 msgid "Confirm password"
 msgstr "La gestión de contraseñas"
 
@@ -6559,6 +6572,9 @@ msgstr "se ha actualizado correctamente"
 msgid "Failed to start tasking type"
 msgstr "No se pudo iniciar tareas de despliegue"
 
+msgid "Cron Schedule"
+msgstr "cron Horario"
+
 msgid "Delayed Start"
 msgstr "Comienzo demorado"
 
@@ -6727,16 +6743,32 @@ msgstr "Exitoso"
 msgid "Schedule Power"
 msgstr "Programador"
 
-msgid "Perform Immediately?"
+#, fuzzy
+msgid "hours"
+msgstr "1 hora"
+
+msgid "dayOfMonth"
+msgstr ""
+
+msgid "dayOfWeek"
+msgstr ""
+
+msgid "On Demand"
 msgstr ""
 
 #, fuzzy
-msgid "Create new PM Schedule"
-msgstr "Crear nuevo grupo"
+msgid "New Power Management Task"
+msgstr "Gestión de usuarios"
+
+msgid "Delete All Powermanagement Items"
+msgstr ""
+
+msgid "This will delete all powermanagement items from all hosts in this group"
+msgstr ""
 
 #, fuzzy
-msgid "New power management task"
-msgstr "Gestión de usuarios"
+msgid "Delete All"
+msgstr "Eliminar los datos del archivo"
 
 #, fuzzy
 msgid "Table not defined for this class"

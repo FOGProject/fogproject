@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-25 15:28-0500\n"
+"POT-Creation-Date: 2018-02-27 01:34-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1313,10 +1313,6 @@ msgid "Host Location"
 msgstr "Host Location"
 
 #, fuzzy
-msgid "Select a valid location"
-msgstr "Select a valid image"
-
-#, fuzzy
 msgid "Host Location Updated!"
 msgstr "Location Updated"
 
@@ -1378,30 +1374,36 @@ msgstr "Location Name"
 msgid "Kernels/Inits from location"
 msgstr "Kernels/Inits from location"
 
-msgid "Yes"
-msgstr "Yes"
-
-msgid "No"
-msgstr "No"
-
-msgid "New Location"
-msgstr "New Location"
-
-msgid "Use inits and kernels from this node"
-msgstr "Use inits and kernels from this node"
-
 #, fuzzy
 msgid "Create New Location"
 msgstr "Create New %s"
 
-msgid "Location already Exists, please try again."
-msgstr "Location already Exists, please try again."
+#, fuzzy
+msgid "Location Description"
+msgstr "Image Association"
 
-msgid "Please enter a name for this location."
-msgstr "Please enter a name for this location."
+#, fuzzy
+msgid "Location Sends Boot"
+msgstr "Location Name"
 
-msgid "Please select the storage group this location relates to."
-msgstr "Please select the storage group this location relates to."
+msgid "Location sends the inits and kernels"
+msgstr ""
+
+#, fuzzy
+msgid "Create New Site"
+msgstr "Create New %s"
+
+#, fuzzy
+msgid "A location name is required!"
+msgstr "An image name is required!"
+
+#, fuzzy
+msgid "A location already exists with this name!"
+msgstr "An image already exists with this name!"
+
+#, fuzzy
+msgid "A storage group must be selected."
+msgstr "Storage Group deleted"
 
 #, fuzzy
 msgid "Add location failed!"
@@ -1412,23 +1414,31 @@ msgid "Location added!"
 msgstr "Location Name"
 
 #, fuzzy
-msgid "Location Create Success"
-msgstr "Snapin updated"
+msgid "Location Create Succes"
+msgstr "Install / Update Successful!"
 
 #, fuzzy
 msgid "Location Create Fail"
 msgstr "Snapin updated"
 
 #, fuzzy
-msgid "Location General"
-msgstr "Snapin Enabled"
-
-msgid "A location with that name already exists."
-msgstr "A location with that name already exists."
+msgid "Add Selected"
+msgstr "Remove selected printers"
 
 #, fuzzy
-msgid "A group is required for a location"
-msgstr "A Storage Group is required!"
+msgid "Remove Selected"
+msgstr "Remove selected snapins"
+
+msgid "Host Name"
+msgstr "Host Name"
+
+#, fuzzy
+msgid "Host Associated"
+msgstr "No node associated"
+
+#, fuzzy
+msgid "Host Membership"
+msgstr "Membership"
 
 #, fuzzy
 msgid "Location update failed!"
@@ -1471,10 +1481,6 @@ msgstr "Image Association"
 #, fuzzy
 msgid "Host Site"
 msgstr "Host List"
-
-#, fuzzy
-msgid "Select a valid site"
-msgstr "Select a valid image"
 
 #, fuzzy
 msgid "Host Site Updated!"
@@ -1533,16 +1539,12 @@ msgid "Import Sites"
 msgstr "Import Printers"
 
 #, fuzzy
-msgid "Hosts Associated"
-msgstr "No snapins associated"
+msgid "Host Count"
+msgstr "Host List"
 
 #, fuzzy
-msgid "Site"
-msgstr "Max Size"
-
-#, fuzzy
-msgid "Host Associated"
-msgstr "No node associated"
+msgid "User Count"
+msgstr "CPU Count"
 
 #, fuzzy
 msgid "Site Name"
@@ -1553,31 +1555,52 @@ msgid "Site Description"
 msgstr "Printer Description"
 
 #, fuzzy
-msgid "New Site"
-msgstr "Add New Snapin"
+msgid "A site name is required!"
+msgstr "An image name is required!"
 
 #, fuzzy
-msgid "Site already Exists, please try again."
-msgstr "Location already Exists, please try again."
+msgid "A site already exists with this name!"
+msgstr "An image already exists with this name!"
 
 #, fuzzy
-msgid "Please enter a name for this site."
-msgstr "Please enter a name for this address."
+msgid "Add site failed!"
+msgstr "Add snapin failed!"
 
 #, fuzzy
-msgid "Site Added, editing!"
-msgstr "Location Added, editing!"
+msgid "Site added!"
+msgstr "Printer Name"
 
 #, fuzzy
-msgid "A site with that name already exists."
-msgstr "A hostname with that name already exists."
-
-msgid "Failed to update"
-msgstr "Failed to update"
+msgid "Site Create Success"
+msgstr "Printer already exists"
 
 #, fuzzy
-msgid "Site Updated"
-msgstr "Service Updated!"
+msgid "Site Create Fail"
+msgstr "Printer update failed!"
+
+#, fuzzy
+msgid "Host Association"
+msgstr "No node associated"
+
+#, fuzzy
+msgid "User Association"
+msgstr "Image Association"
+
+#, fuzzy
+msgid "Site update failed!"
+msgstr "Printer update failed!"
+
+#, fuzzy
+msgid "Site updated!"
+msgstr "Printer updated!"
+
+#, fuzzy
+msgid "Site Update Success"
+msgstr "Install / Update Successful!"
+
+#, fuzzy
+msgid "Site Update Fail"
+msgstr "Printer update failed!"
 
 #, fuzzy
 msgid "Check here to see hosts not within this"
@@ -2023,6 +2046,9 @@ msgstr "Please enter a name for this address."
 msgid "Rule Added, editing!"
 msgstr "Location Added, editing!"
 
+msgid "Failed to update"
+msgstr "Failed to update"
+
 #, fuzzy
 msgid "Rule Updated"
 msgstr "Client Updater"
@@ -2314,9 +2340,6 @@ msgstr "Plugin Description"
 msgid "FOG Snapin Log"
 msgstr "FOG Snapin Log"
 
-msgid "Host Name"
-msgstr "Host Name"
-
 msgid "Snapin Name"
 msgstr "Snapin Name"
 
@@ -2581,6 +2604,12 @@ msgstr "Image Desc"
 
 msgid "OS Name"
 msgstr "OS Name"
+
+msgid "Yes"
+msgstr "Yes"
+
+msgid "No"
+msgstr "No"
 
 msgid "FOG Imaging Log"
 msgstr "FOG Imaging Log"
@@ -3936,6 +3965,10 @@ msgstr "Settings"
 msgid "Minimum time limit for Auto Logout to become active is 5 minutes."
 msgstr ""
 
+#, fuzzy
+msgid "You must select an action to perform"
+msgstr "You must specify the alias and port"
+
 msgid "Primary User"
 msgstr "Primary User"
 
@@ -4074,11 +4107,8 @@ msgid "Imaging History"
 msgstr "Host Imaging History"
 
 #, fuzzy
-msgid "You must select an action to perform"
-msgstr "You must specify the alias and port"
-
-msgid "Host Update Failed"
-msgstr "Host Update Failed"
+msgid "Host update failed!"
+msgstr "User update failed"
 
 #, fuzzy
 msgid "Host updated!"
@@ -4106,21 +4136,6 @@ msgstr "Install / Update Successful!"
 #, fuzzy
 msgid "Host Add to Group Fail"
 msgstr "Add to group"
-
-msgid "Cron Schedule"
-msgstr "Cron Schedule"
-
-#, fuzzy
-msgid "Current Power Management settings"
-msgstr "User Management"
-
-#, fuzzy
-msgid "Update PM Values"
-msgstr "Update Images"
-
-#, fuzzy
-msgid "Delete selected"
-msgstr "Delete Selected"
 
 #, fuzzy
 msgid "Create New Group"
@@ -4344,10 +4359,6 @@ msgstr "Printer already exists"
 #, fuzzy
 msgid "Printer Create Fail"
 msgstr "Printer update failed!"
-
-#, fuzzy
-msgid "Host Membership"
-msgstr "Membership"
 
 #, fuzzy
 msgid "Update Default"
@@ -6144,6 +6155,10 @@ msgid "Add selected to group"
 msgstr "Remove selected snapins"
 
 #, fuzzy
+msgid "Delete selected"
+msgstr "Delete Selected"
+
+#, fuzzy
 msgid "Confirm password"
 msgstr "Management Password"
 
@@ -6314,6 +6329,9 @@ msgstr "has been successfully updated"
 msgid "Failed to start tasking type"
 msgstr "Failed to start deployment tasking"
 
+msgid "Cron Schedule"
+msgstr "Cron Schedule"
+
 msgid "Delayed Start"
 msgstr "Delayed Start"
 
@@ -6481,16 +6499,32 @@ msgstr "Successful"
 msgid "Schedule Power"
 msgstr "Scheduler"
 
-msgid "Perform Immediately?"
+#, fuzzy
+msgid "hours"
+msgstr "1 hour"
+
+msgid "dayOfMonth"
+msgstr ""
+
+msgid "dayOfWeek"
+msgstr ""
+
+msgid "On Demand"
 msgstr ""
 
 #, fuzzy
-msgid "Create new PM Schedule"
-msgstr "Cron Schedule"
+msgid "New Power Management Task"
+msgstr "User Management"
+
+msgid "Delete All Powermanagement Items"
+msgstr ""
+
+msgid "This will delete all powermanagement items from all hosts in this group"
+msgstr ""
 
 #, fuzzy
-msgid "New power management task"
-msgstr "User Management"
+msgid "Delete All"
+msgstr "Delete file data"
 
 #, fuzzy
 msgid "Table not defined for this class"

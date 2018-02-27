@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-25 15:28-0500\n"
+"POT-Creation-Date: 2018-02-27 01:34-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1243,9 +1243,6 @@ msgstr ""
 msgid "Host Location"
 msgstr ""
 
-msgid "Select a valid location"
-msgstr ""
-
 msgid "Host Location Updated!"
 msgstr ""
 
@@ -1297,28 +1294,28 @@ msgstr ""
 msgid "Kernels/Inits from location"
 msgstr ""
 
-msgid "Yes"
-msgstr ""
-
-msgid "No"
-msgstr ""
-
-msgid "New Location"
-msgstr ""
-
-msgid "Use inits and kernels from this node"
-msgstr ""
-
 msgid "Create New Location"
 msgstr ""
 
-msgid "Location already Exists, please try again."
+msgid "Location Description"
 msgstr ""
 
-msgid "Please enter a name for this location."
+msgid "Location Sends Boot"
 msgstr ""
 
-msgid "Please select the storage group this location relates to."
+msgid "Location sends the inits and kernels"
+msgstr ""
+
+msgid "Create New Site"
+msgstr ""
+
+msgid "A location name is required!"
+msgstr ""
+
+msgid "A location already exists with this name!"
+msgstr ""
+
+msgid "A storage group must be selected."
 msgstr ""
 
 msgid "Add location failed!"
@@ -1327,19 +1324,25 @@ msgstr ""
 msgid "Location added!"
 msgstr ""
 
-msgid "Location Create Success"
+msgid "Location Create Succes"
 msgstr ""
 
 msgid "Location Create Fail"
 msgstr ""
 
-msgid "Location General"
+msgid "Add Selected"
 msgstr ""
 
-msgid "A location with that name already exists."
+msgid "Remove Selected"
 msgstr ""
 
-msgid "A group is required for a location"
+msgid "Host Name"
+msgstr ""
+
+msgid "Host Associated"
+msgstr ""
+
+msgid "Host Membership"
 msgstr ""
 
 msgid "Location update failed!"
@@ -1376,9 +1379,6 @@ msgid "Site Association"
 msgstr ""
 
 msgid "Host Site"
-msgstr ""
-
-msgid "Select a valid site"
 msgstr ""
 
 msgid "Host Site Updated!"
@@ -1423,13 +1423,10 @@ msgstr ""
 msgid "Import Sites"
 msgstr ""
 
-msgid "Hosts Associated"
+msgid "Host Count"
 msgstr ""
 
-msgid "Site"
-msgstr ""
-
-msgid "Host Associated"
+msgid "User Count"
 msgstr ""
 
 msgid "Site Name"
@@ -1438,25 +1435,40 @@ msgstr ""
 msgid "Site Description"
 msgstr ""
 
-msgid "New Site"
+msgid "A site name is required!"
 msgstr ""
 
-msgid "Site already Exists, please try again."
+msgid "A site already exists with this name!"
 msgstr ""
 
-msgid "Please enter a name for this site."
+msgid "Add site failed!"
 msgstr ""
 
-msgid "Site Added, editing!"
+msgid "Site added!"
 msgstr ""
 
-msgid "A site with that name already exists."
+msgid "Site Create Success"
 msgstr ""
 
-msgid "Failed to update"
+msgid "Site Create Fail"
 msgstr ""
 
-msgid "Site Updated"
+msgid "Host Association"
+msgstr ""
+
+msgid "User Association"
+msgstr ""
+
+msgid "Site update failed!"
+msgstr ""
+
+msgid "Site updated!"
+msgstr ""
+
+msgid "Site Update Success"
+msgstr ""
+
+msgid "Site Update Fail"
 msgstr ""
 
 msgid "Check here to see hosts not within this"
@@ -1818,6 +1830,9 @@ msgstr ""
 msgid "Rule Added, editing!"
 msgstr ""
 
+msgid "Failed to update"
+msgstr ""
+
 msgid "Rule Updated"
 msgstr ""
 
@@ -2056,9 +2071,6 @@ msgid "Plugin Description"
 msgstr ""
 
 msgid "FOG Snapin Log"
-msgstr ""
-
-msgid "Host Name"
 msgstr ""
 
 msgid "Snapin Name"
@@ -2305,6 +2317,12 @@ msgid "Image Desc"
 msgstr ""
 
 msgid "OS Name"
+msgstr ""
+
+msgid "Yes"
+msgstr ""
+
+msgid "No"
 msgstr ""
 
 msgid "FOG Imaging Log"
@@ -3468,6 +3486,9 @@ msgstr ""
 msgid "Minimum time limit for Auto Logout to become active is 5 minutes."
 msgstr ""
 
+msgid "You must select an action to perform"
+msgstr ""
+
 msgid "Primary User"
 msgstr ""
 
@@ -3594,10 +3615,7 @@ msgstr ""
 msgid "Imaging History"
 msgstr ""
 
-msgid "You must select an action to perform"
-msgstr ""
-
-msgid "Host Update Failed"
+msgid "Host update failed!"
 msgstr ""
 
 msgid "Host updated!"
@@ -3619,18 +3637,6 @@ msgid "Host Add to Group Success"
 msgstr ""
 
 msgid "Host Add to Group Fail"
-msgstr ""
-
-msgid "Cron Schedule"
-msgstr ""
-
-msgid "Current Power Management settings"
-msgstr ""
-
-msgid "Update PM Values"
-msgstr ""
-
-msgid "Delete selected"
 msgstr ""
 
 msgid "Create New Group"
@@ -3811,9 +3817,6 @@ msgid "Printer Create Success"
 msgstr ""
 
 msgid "Printer Create Fail"
-msgstr ""
-
-msgid "Host Membership"
 msgstr ""
 
 msgid "Update Default"
@@ -5370,6 +5373,9 @@ msgstr ""
 msgid "Add selected to group"
 msgstr ""
 
+msgid "Delete selected"
+msgstr ""
+
 msgid "Confirm password"
 msgstr ""
 
@@ -5506,6 +5512,9 @@ msgid "Scheduled tasks successfully created"
 msgstr ""
 
 msgid "Failed to start tasking type"
+msgstr ""
+
+msgid "Cron Schedule"
 msgstr ""
 
 msgid "Delayed Start"
@@ -5655,13 +5664,28 @@ msgstr ""
 msgid "Schedule Power"
 msgstr ""
 
-msgid "Perform Immediately?"
+msgid "hours"
 msgstr ""
 
-msgid "Create new PM Schedule"
+msgid "dayOfMonth"
 msgstr ""
 
-msgid "New power management task"
+msgid "dayOfWeek"
+msgstr ""
+
+msgid "On Demand"
+msgstr ""
+
+msgid "New Power Management Task"
+msgstr ""
+
+msgid "Delete All Powermanagement Items"
+msgstr ""
+
+msgid "This will delete all powermanagement items from all hosts in this group"
+msgstr ""
+
+msgid "Delete All"
 msgstr ""
 
 msgid "Table not defined for this class"
