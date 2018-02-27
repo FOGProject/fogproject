@@ -3874,13 +3874,15 @@ abstract class FOGPage extends FOGBase
                 $this->obj->get('id')
             )
             . '" novalidate>';
-        echo '<div class="box box-primary">';
         if ($this->obj instanceof Host) {
+            echo '<div class="box box-primary">';
             echo '<div class="box-header with-border">';
             echo '<h4 class="box-title">';
             echo _('New Power Management Task');
             echo '</h4>';
             echo '</div>';
+        } else {
+            echo '<div class="box box-solid">';
         }
         echo '<div class="box-body">';
         echo $rendered;

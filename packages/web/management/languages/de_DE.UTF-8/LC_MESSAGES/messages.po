@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-27 01:34-0500\n"
+"POT-Creation-Date: 2018-02-27 02:17-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -613,6 +613,22 @@ msgstr "Drucker exportieren"
 
 msgid "Import Printers"
 msgstr "Drucker importieren"
+
+#, fuzzy
+msgid "Export Storage Nodes"
+msgstr "Alle Speicherknoten"
+
+#, fuzzy
+msgid "Import Storage Nodes"
+msgstr "Alle Speicherknoten"
+
+#, fuzzy
+msgid "Export Storage Groups"
+msgstr "Speichergruppe"
+
+#, fuzzy
+msgid "Import Storage Groups"
+msgstr "Speichergruppe"
 
 msgid "Equipment Loan"
 msgstr "Equipmentleihe"

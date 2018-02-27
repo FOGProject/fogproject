@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-27 01:34-0500\n"
+"POT-Creation-Date: 2018-02-27 02:17-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -715,6 +715,22 @@ msgstr "impresora iPrint"
 #, fuzzy
 msgid "Import Printers"
 msgstr "Impresora TCP / IP Port"
+
+#, fuzzy
+msgid "Export Storage Nodes"
+msgstr "nodo de almacenamiento"
+
+#, fuzzy
+msgid "Import Storage Nodes"
+msgstr "nodo de almacenamiento"
+
+#, fuzzy
+msgid "Export Storage Groups"
+msgstr "Grupo de almacenamiento"
+
+#, fuzzy
+msgid "Import Storage Groups"
+msgstr "Grupo de almacenamiento"
 
 msgid "Equipment Loan"
 msgstr ""

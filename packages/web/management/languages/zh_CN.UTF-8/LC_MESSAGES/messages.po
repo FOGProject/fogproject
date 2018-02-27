@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-27 01:34-0500\n"
+"POT-Creation-Date: 2018-02-27 02:17-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -616,6 +616,22 @@ msgstr "出口打印机"
 
 msgid "Import Printers"
 msgstr "进口打印机"
+
+#, fuzzy
+msgid "Export Storage Nodes"
+msgstr "所有存储节点"
+
+#, fuzzy
+msgid "Import Storage Nodes"
+msgstr "所有存储节点"
+
+#, fuzzy
+msgid "Export Storage Groups"
+msgstr "存储组"
+
+#, fuzzy
+msgid "Import Storage Groups"
+msgstr "存储组"
 
 msgid "Equipment Loan"
 msgstr "器材信贷"

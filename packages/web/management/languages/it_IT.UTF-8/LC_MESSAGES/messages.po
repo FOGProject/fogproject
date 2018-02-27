@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-27 01:34-0500\n"
+"POT-Creation-Date: 2018-02-27 02:17-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -613,6 +613,22 @@ msgstr "Stampanti Export"
 
 msgid "Import Printers"
 msgstr "Stampanti di importazione"
+
+#, fuzzy
+msgid "Export Storage Nodes"
+msgstr "Tutti i nodi di storage"
+
+#, fuzzy
+msgid "Import Storage Nodes"
+msgstr "Tutti i nodi di storage"
+
+#, fuzzy
+msgid "Export Storage Groups"
+msgstr "gruppo di archiviazione"
+
+#, fuzzy
+msgid "Import Storage Groups"
+msgstr "gruppo di archiviazione"
 
 msgid "Equipment Loan"
 msgstr "attrezzature di prestito"
