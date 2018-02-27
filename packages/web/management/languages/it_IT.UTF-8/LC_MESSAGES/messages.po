@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-27 02:17-0500\n"
+"POT-Creation-Date: 2018-02-27 03:08-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -5819,18 +5819,15 @@ msgstr "Elenca"
 msgid "Import CSV"
 msgstr "Importa CSV"
 
-msgid "Import CSV?"
-msgstr "Importa CSV?"
+#, fuzzy
+msgid "This page allows you to upload a CSV file into fog."
+msgstr "Questa sezione consente di caricare l'utente"
 
-msgid "This page allows you to upload a CSV file into FOG to ease"
+msgid "This should ease migration or mass import new items."
 msgstr ""
-"Questa pagina ti consente di caricare un file CSV in FOG per facilitare"
 
-msgid "migration or mass import new items"
-msgstr "migrazione o importazione di massa nuovi elementi"
-
-msgid "It will operate based on the fields the area typically requires"
-msgstr "Funzionerà in base ai campi che l'area richiede in genere"
+msgid "It will operate based on the fields the area typcially requires."
+msgstr ""
 
 msgid "File must be a csv"
 msgstr "Il file deve essere un csv"

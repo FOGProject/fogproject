@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-27 02:17-0500\n"
+"POT-Creation-Date: 2018-02-27 03:08-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -6471,16 +6471,15 @@ msgid "Import CSV"
 msgstr "Export CSV"
 
 #, fuzzy
-msgid "Import CSV?"
-msgstr "Export CSV"
+msgid "This page allows you to upload a CSV file into fog."
+msgstr ""
+"This section allows you to import known mac address makers into the FOG "
+"Database for easier identification."
 
-msgid "This page allows you to upload a CSV file into FOG to ease"
+msgid "This should ease migration or mass import new items."
 msgstr ""
 
-msgid "migration or mass import new items"
-msgstr ""
-
-msgid "It will operate based on the fields the area typically requires"
+msgid "It will operate based on the fields the area typcially requires."
 msgstr ""
 
 #, fuzzy

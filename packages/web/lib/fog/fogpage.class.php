@@ -3453,82 +3453,58 @@ abstract class FOGPage extends FOGBase
             . $this->childClass
             . ' '
             . _('List');
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
-        $this->attributes = [
-            ['class' => 'col-xs-4'],
-            ['class' => 'col-xs-8'],
-        ];
-        $this->templates = [
-            '${field}',
-            '${input}',
-        ];
-        $this->data[] = [
-            'field' => '<label for="import">'
+        $fields = [
+            '<label class="col-sm-2 control-label" for="importfile">'
             . _('Import CSV')
-            . '<br/>'
-            . '<small>' . _('Max Size')
+            . '<br/>('
+            . _('Max Size')
             . ': '
-            . ini_get('post_max_size') . '</small>'
-            . '</label>',
-            'input' => '<div class="input-group">'
+            . ini_get('post_max_size')
+            . ')</label>' => '<div class="input-group">'
             . '<label class="input-group-btn">'
             . '<span class="btn btn-info">'
             . _('Browse')
-            . '<input type="file" class="hidden" name="file" id="import"/>'
+            . '<input type="file" class="hidden" name="file" id="importfile"/>'
             . '</span>'
             . '</label>'
             . '<input type="text" class="form-control filedisp" readonly/>'
             . '</div>'
         ];
-        $this->data[] = [
-            'field' => '<label for="importbtn">'
-            . _('Import CSV?')
-            . '</label>',
-            'input' => '<button type="submit" name="importbtn" class="'
-            . 'btn btn-info btn-block" id="importbtn">'
-            . _('Import')
-            . '</button>'
-        ];
-        echo '  <div class="box box-primary">';
-        echo '      <div class="box-header with-border">';
-        echo '          <h3 class="box-title">';
-        echo $this->title;
-        echo '          </h3>';
-        echo '          </br>';
-        echo '          <div>';
-        echo '<p class="help-block">';
-        echo _('This page allows you to upload a CSV file into FOG to ease')
-            . ' '
-            . _('migration or mass import new items')
-            . '. '
-            . _('It will operate based on the fields the area typically requires')
-            . '.';
-        echo '</p>';
-        echo '          </div>';
-        echo '      </div>';
-        echo '      <form class="form-horizontal" method="post" action="'
+        self::$HookManager->processEvent(
+            'IMPORT_FIELDS',
+            ['fields' => &$fields]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
+        $buttons = self::makeButton(
+            'import-send',
+            _('Import'),
+            'btn btn-primary'
+        );
+        echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
-            . '" enctype="multipart/form-data">';
-        echo '          <div class="box-body">';
-        echo '                  <label for="import">' . _('Import CSV') . '</label>';
-        echo '                  <input type="file" id="import">';
+            . '" enctype="multipart/form-data" id="import-form">';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h3 class="box-title">';
+        echo $this->title;
+        echo '</h3>';
+        echo '</div>';
+        echo '<div class="box-body">';
         echo '<p class="help-block">';
-        echo _('Max Size') . ' ' . ini_get('post_max_size');
+        echo _('This page allows you to upload a CSV file into fog.');
+        echo ' ';
+        echo _('This should ease migration or mass import new items.');
+        echo ' ';
+        echo _('It will operate based on the fields the area typcially requires.');
         echo '</p>';
-        echo '          </div>';
-        echo '           <div class="box-footer">';
-        echo '               <button type="submit" class="btn btn-primary" name="importbtn" id="importbtn">';
-        echo _('Import');
-        echo '               </button>';
-        echo '           </div>';
-        echo '      </form>';
-        echo '  </div>';
+        echo $rendered;
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $buttons;
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
     }
     /**
      * Perform the import based on the uploaded file
