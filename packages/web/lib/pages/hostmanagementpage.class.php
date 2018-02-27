@@ -237,9 +237,9 @@ class HostManagementPage extends FOGPage
         echo '<!-- Host General -->';
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
-        echo '<h3 class="box-title">';
+        echo '<h4 class="box-title">';
         echo _('Create New Host');
-        echo '</h3>';
+        echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
         echo $rendered;
@@ -264,9 +264,9 @@ class HostManagementPage extends FOGPage
         $rendered = self::formFields($fields);
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
-        echo '<h3 class="box-title">';
+        echo '<h4 class="box-title">';
         echo _('Active Directory');
-        echo '</h3>';
+        echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
         echo $rendered;
@@ -457,9 +457,6 @@ class HostManagementPage extends FOGPage
         $host = (
             filter_input(INPUT_POST, 'host') ?: $this->obj->get('name')
         );
-        $mac = (
-            filter_input(INPUT_POST, 'mac') ?: $this->obj->get('mac')
-        );
         $desc = (
             filter_input(INPUT_POST, 'description') ?: $this->obj->get('description')
         );
@@ -494,11 +491,6 @@ class HostManagementPage extends FOGPage
             . '" type="text" value="'
             . $host
             . '" maxlength="15" name="host" required>',
-            '<label for="mac" class="col-sm-2 control-label">'
-            . _('Primary MAC')
-            . '</label>' => '<input name="mac" id="mac" class="form-control" value="'
-            . $mac
-            . '" maxlength="17" exactlength="12" required>',
             '<label for="description" class="col-sm-2 control-label">'
             . _('Host description')
             . '</label>' => '<textarea style="resize:vertical;'
@@ -605,9 +597,6 @@ class HostManagementPage extends FOGPage
         $host = trim(
             filter_input(INPUT_POST, 'host')
         );
-        $mac = trim(
-            filter_input(INPUT_POST, 'mac')
-        );
         $desc = trim(
             filter_input(INPUT_POST, 'description')
         );
@@ -659,17 +648,6 @@ class HostManagementPage extends FOGPage
                 throw new Exception(_('Please use another hostname'));
             }
         }
-        if (empty($mac)) {
-            throw new Exception(_('Please enter a mac address'));
-        }
-        $mac = self::parseMacList($mac);
-        if (count($mac ?: []) < 1) {
-            throw new Exception(_('Please enter a valid mac address'));
-        }
-        $mac = array_shift($mac);
-        if (!$mac->isValid()) {
-            throw new Exception(_('Please enter a valid mac address'));
-        }
         $Task = $this->obj->get('task');
         if ($Task->isValid()
             && $imageID != $this->obj->get('imageID')
@@ -688,46 +666,159 @@ class HostManagementPage extends FOGPage
             ->set('biosexit', $bte)
             ->set('efiexit', $ebte)
             ->set('productKey', $productKey);
-        $primac = $this->obj->get('mac')->__toString();
-        $setmac = $mac->__toString();
-        if ($primac != $setmac) {
-            $this->obj->addPriMAC($mac->__toString());
-        }
-        $addMACs = filter_input_array(
-            INPUT_POST,
+    }
+    /**
+     * Host MAC Address listing.
+     *
+     * @return void
+     */
+    public function hostMacaddress()
+    {
+        $newMac = (
+            filter_input(INPUT_POST, 'newMac')
+        );
+
+        $props = ' method="post" action="'
+            . $this->formAction
+            . '&tab=host-macaddress" ';
+
+        $fields = [
+            '<label class="col-sm-2 control-label" for="newMac">'
+            . _('Add New MAC')
+            . '</label>' => '<input type="text" name="newMac" value="'
+            . $newMac
+            . '" id="newMac" class="form-control" required/>'
+        ];
+        self::$HookManager->processEvent(
+            'HOST_MACADDRESS_ADD_FIELDS',
             [
-                'additionalMACs' => [
-                    'flags' => FILTER_REQUIRE_ARRAY
-                ]
+                'fields' => &$fields,
+                'Host' => &$this->obj
             ]
         );
-        $addMACs = $addMACs['additionalMACs'];
-        $addmacs = self::parseMacList($addMACs);
-        unset($addMACs);
-        $macs = [];
-        foreach ((array)$addmacs as &$addmac) {
-            if (!$addmac->isValid()) {
-                continue;
-            }
-            $macs[] = $addmac->__toString();
-            unset($addmac);
-        }
-        $removeMACs = array_diff(
-            (array)self::getSubObjectIDs(
-                'MACAddressAssociation',
-                [
-                    'hostID' => $this->obj->get('id'),
-                    'primary' => 0,
-                    'pending' => 0
-                ],
-                'mac'
-            ),
-            $macs
+        $rendered = self::formFields($fields);
+        unset($fields);
+        $buttons = self::makeButton(
+            'newmac-send',
+            _('Add'),
+            'btn btn-primary'
         );
-        $this
-            ->obj
-            ->addAddMAC($macs)
-            ->removeAddMAC($removeMACs);
+
+        // =========================================================
+        // New MAC Address add.
+        echo '<!-- MAC Addresses -->';
+        echo '<div class="box-group" id="macaddresses">';
+        echo '<div class="box box-info">';
+        echo '<div class="box-header with-border">';
+        echo '<div class="box-tools pull-right">';
+        echo self::$FOGCollapseBox;
+        echo '</div>';
+        echo '<h4 class="box-title">';
+        echo _('Add New MAC Address');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div id="newmacadd" class="">';
+        echo '<form id="macaddress-add-form" class="form-horizontal"'
+            . $props
+            . 'novalidate>';
+        echo '<div class="box-body">';
+        echo $rendered;
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo $buttons;
+        echo '</div>';
+        echo '<input type="hidden" name="macadd" value="1"/>';
+        echo '</form>';
+        echo '</div>';
+
+        // MAC Address Table
+        $buttons = self::makeButton(
+            'macaddress-table-update',
+            _('Update selected'),
+            'btn btn-primary',
+            $props
+        );
+        $buttons .= self::makeButton(
+            'macaddress-table-delete',
+            _('Delete selected'),
+            'btn btn-danger pull-right',
+            $props
+        );
+        $this->headerData = [
+            _('MAC Address'),
+            _('Primary'),
+            _('Ignore Imaging'),
+            _('Ignore Client'),
+            _('Pending')
+        ];
+        $this->templates = [
+            '',
+            '',
+            '',
+            '',
+            ''
+        ];
+        $this->attributes = [
+            [],
+            ['width' => 16],
+            ['width' => 16],
+            ['width' => 16],
+            ['width' => 16]
+        ];
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<div class="box-tools pull-right">';
+        echo self::$FOGCollapseBox;
+        echo '</div>';
+        echo '<h4 class="box-title">';
+        echo _('Update/Remove MAC addresses');
+        echo '</h4>';
+        echo '<div>';
+        echo '<p class="help-block">';
+        echo _('Changes will automatically be saved');
+        echo '</p>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div id="updatemacaddresses" class="">';
+        echo '<div class="box-body">';
+        $this->render(12, 'host-macaddresses-table', $buttons);
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Host MAC Address update.
+     *
+     * @return void
+     */
+    public function hostMacaddressPost()
+    {
+        if (isset($_POST['macadd'])) {
+            $mac = trim(
+                filter_input(
+                    INPUT_POST,
+                    'newMac'
+                )
+            );
+            if (!$mac) {
+                throw new Exception(_('MAC Address is required!'));
+            }
+            $mact = new MACAddress($mac);
+            if (!$mact->isValid()) {
+                throw new Exception(_('MAC Address is invalid!'));
+            }
+            $host = $mact->getHost();
+            if ($host->isValid()
+                && $host->get('id') != $this->obj->get('id')
+            ) {
+                throw new Exception(_('MAC Address is assigned to another host!'));
+            }
+            $this->obj->addAddMac($mac);
+        }
+        if (isset($_POST['updatemacs'])) {
+        }
     }
     /**
      * Host active directory post element.
@@ -2248,6 +2339,15 @@ class HostManagementPage extends FOGPage
             }
         ];
 
+        // MAC Addresses
+        $tabData[] = [
+            'name' => _('MAC Addresses'),
+            'id' => 'host-macaddress',
+            'generator' => function() {
+                $this->hostMacaddress();
+            }
+        ];
+
         // Active Directory
         $tabData[] = [
             'name' =>  _('Active Directory'),
@@ -2466,6 +2566,9 @@ class HostManagementPage extends FOGPage
             switch ($tab) {
             case 'host-general':
                 $this->hostGeneralPost();
+                break;
+            case 'host-macaddress':
+                $this->hostMacaddressPost();
                 break;
             case 'host-active-directory':
                 $this->hostADPost();
@@ -2890,6 +2993,57 @@ class HostManagementPage extends FOGPage
                 $modulesSqlStr,
                 $modulesFilterStr,
                 $modulesTotalStr,
+                $where
+            )
+        );
+        exit;
+    }
+    /**
+     * Get's the hosts mac address list.
+     *
+     * @return void
+     */
+    public function getMacaddressesList()
+    {
+        $where = "`hostMAC`.`hmHostID` = '"
+            . $this->obj->get('id')
+            . "'";
+
+        // Workable queries
+        $macaddressesSqlStr = "SELECT `%s`
+            FROM `%s`
+            LEFT OUTER JOIN `hosts`
+            ON `hostMAC`.`hmHostID` = `hosts`.`hostID`
+            %s
+            %s
+            %s";
+        $macaddressesFilterStr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            LEFT OUTER JOIN `hosts`
+            ON `hostMAC`.`hmHostID` = `hosts`.`hostID`
+            %s";
+        $macaddressesTotalStr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            WHERE $where";
+
+        foreach (self::getClass('MACAddressAssociationManager')
+            ->getColumns() as $common => &$real
+        ) {
+            $columns[] = [
+                'db' => $real,
+                'dt' => $common
+            ];
+            unset($real);
+        }
+        echo json_encode(
+            FOGManagerController::complex(
+                $pass_vars,
+                'hostMAC',
+                'hmID',
+                $columns,
+                $macaddressesSqlStr,
+                $macaddressesFilterStr,
+                $macaddressesTotalStr,
                 $where
             )
         );

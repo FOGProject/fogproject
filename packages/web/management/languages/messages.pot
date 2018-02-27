@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-27 04:00-0500\n"
+"POT-Creation-Date: 2018-02-27 17:23-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3371,13 +3371,46 @@ msgstr ""
 msgid "Please use another hostname"
 msgstr ""
 
-msgid "Please enter a mac address"
-msgstr ""
-
-msgid "Please enter a valid mac address"
-msgstr ""
-
 msgid "Cannot change image when in tasking"
+msgstr ""
+
+msgid "Add New MAC"
+msgstr ""
+
+msgid "Add New MAC Address"
+msgstr ""
+
+msgid "Update selected"
+msgstr ""
+
+msgid "Delete selected"
+msgstr ""
+
+msgid "Primary"
+msgstr ""
+
+msgid "Ignore Imaging"
+msgstr ""
+
+msgid "Ignore Client"
+msgstr ""
+
+msgid "Pending"
+msgstr ""
+
+msgid "Update/Remove MAC addresses"
+msgstr ""
+
+msgid "Changes will automatically be saved"
+msgstr ""
+
+msgid "MAC Address is required!"
+msgstr ""
+
+msgid "MAC Address is invalid!"
+msgstr ""
+
+msgid "MAC Address is assigned to another host!"
 msgstr ""
 
 msgid "Host Printer Configuration"
@@ -3439,9 +3472,6 @@ msgid "Printer Associated"
 msgstr ""
 
 msgid "Update/Remove printers"
-msgstr ""
-
-msgid "Changes will automatically be saved"
 msgstr ""
 
 msgid "Snapin Created"
@@ -3616,6 +3646,9 @@ msgid "No complete time recorded"
 msgstr ""
 
 msgid "Host Snapin History"
+msgstr ""
+
+msgid "MAC Addresses"
 msgstr ""
 
 msgid "Service Settings"
@@ -5383,9 +5416,6 @@ msgid "HD Serial"
 msgstr ""
 
 msgid "Add selected to group"
-msgstr ""
-
-msgid "Delete selected"
 msgstr ""
 
 msgid "Confirm password"

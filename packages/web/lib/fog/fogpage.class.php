@@ -3425,9 +3425,9 @@ abstract class FOGPage extends FOGBase
             . '" id="export-form">';
         echo '<div class="box box-solid">';
         echo '<div class="box-header">';
-        echo '<h3 class="box-title">';
+        echo '<h4 class="box-title">';
         echo $this->title;
-        echo '</h3>';
+        echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
         echo _('Export the items as a CSV?');
@@ -3486,9 +3486,9 @@ abstract class FOGPage extends FOGBase
             . '" enctype="multipart/form-data" id="import-form">';
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
-        echo '<h3 class="box-title">';
+        echo '<h4 class="box-title">';
         echo $this->title;
-        echo '</h3>';
+        echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
         echo '<p class="help-block">';
@@ -3918,9 +3918,9 @@ abstract class FOGPage extends FOGBase
         ob_start();
         echo '<div class="box box-solid">';
         echo '<div class="box-header with-border">';
-        echo '<h3 class="box-title">';
+        echo '<h4 class="box-title">';
         echo $this->title;
-        echo '</h3>';
+        echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
         // Render does not need echo, it's rendering.

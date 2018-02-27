@@ -47,9 +47,7 @@
             {data: 'primac'},
             {
                 data: 'pingstatus',
-                defaultContent: function(data, type, row) {
-                    return pingstring[6];
-                }
+                defaultContent: pingstring[6]
             },
             {data: 'deployed'},
             {data: 'imagename'},
@@ -69,11 +67,8 @@
                 targets: 1
             },
             {
-                searching: false,
+                //searching: false,
                 render: function (data, type, row) {
-                    if (!data) {
-                        return '';
-                    }
                     return pingstring[data];
                 },
                 targets: 2

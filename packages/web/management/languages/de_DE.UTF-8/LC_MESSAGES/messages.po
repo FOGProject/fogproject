@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-27 04:00-0500\n"
+"POT-Creation-Date: 2018-02-27 17:18-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -3830,16 +3830,58 @@ msgstr "Bitte geben Sie einen gültigen Hostnamen ein"
 msgid "Please use another hostname"
 msgstr "Bitte geben Sie einen anderen Hostnamen ein"
 
-#, fuzzy
-msgid "Please enter a mac address"
-msgstr "Bitte geben Sie eine MAC-Adresse an"
-
-#, fuzzy
-msgid "Please enter a valid mac address"
-msgstr "Bitte geben Sie eine gültige MAC-Adresse an"
-
 msgid "Cannot change image when in tasking"
 msgstr "Das Image kann während eines Tasks nicht geändert werden"
+
+#, fuzzy
+msgid "Add New MAC"
+msgstr "Neue Rolle hinzufügen"
+
+#, fuzzy
+msgid "Add New MAC Address"
+msgstr "MAC-Adresse"
+
+#, fuzzy
+msgid "Update selected"
+msgstr "ausgewählte Images hinzufügen"
+
+#, fuzzy
+msgid "Delete selected"
+msgstr "Ausgewählte löschen"
+
+#, fuzzy
+msgid "Primary"
+msgstr "Primäre MAC"
+
+msgid "Ignore Imaging"
+msgstr ""
+
+#, fuzzy
+msgid "Ignore Client"
+msgstr "Client"
+
+#, fuzzy
+msgid "Pending"
+msgstr "Ausstehend..."
+
+#, fuzzy
+msgid "Update/Remove MAC addresses"
+msgstr "Drucker Aktualisieren/Entfernen"
+
+msgid "Changes will automatically be saved"
+msgstr ""
+
+#, fuzzy
+msgid "MAC Address is required!"
+msgstr "MAC-Adresse ist erforderlich"
+
+#, fuzzy
+msgid "MAC Address is invalid!"
+msgstr "MAC-Format ist ungültig"
+
+#, fuzzy
+msgid "MAC Address is assigned to another host!"
+msgstr "Diese MAC gehört zu einem anderen Host"
 
 #, fuzzy
 msgid "Host Printer Configuration"
@@ -3916,9 +3958,6 @@ msgstr "Druckerzugehörigkeiten"
 #, fuzzy
 msgid "Update/Remove printers"
 msgstr "Drucker Aktualisieren/Entfernen"
-
-msgid "Changes will automatically be saved"
-msgstr ""
 
 #, fuzzy
 msgid "Snapin Created"
@@ -4113,6 +4152,10 @@ msgstr "Keine vollständige Zeit aufgezeichnet"
 #, fuzzy
 msgid "Host Snapin History"
 msgstr "Host Snapinverlauf"
+
+#, fuzzy
+msgid "MAC Addresses"
+msgstr "MAC-Adresse"
 
 #, fuzzy
 msgid "Service Settings"
@@ -6174,10 +6217,6 @@ msgstr "HDD-Seriennummer"
 #, fuzzy
 msgid "Add selected to group"
 msgstr "Ausgewählte Speichergruppen hinzufügen"
-
-#, fuzzy
-msgid "Delete selected"
-msgstr "Ausgewählte löschen"
 
 #, fuzzy
 msgid "Confirm password"

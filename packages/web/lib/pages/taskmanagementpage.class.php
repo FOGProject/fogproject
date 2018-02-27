@@ -292,9 +292,9 @@ class TaskManagementPage extends FOGPage
         echo '<!-- Active Tasks -->';
         echo '<div class="box box-solid">';
         echo '<div class="box-header with-border">';
-        echo '<h3 class="box-title">';
+        echo '<h4 class="box-title">';
         echo $this->title;
-        echo '</h3>';
+        echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
         $this->render(12, 'tasks-active-table');
@@ -385,9 +385,9 @@ class TaskManagementPage extends FOGPage
         echo '<!-- Active Multi-cast Tasks -->';
         echo '<div class="box box-solid">';
         echo '<div class="box-header with-border">';
-        echo '<h3 class="box-title">';
+        echo '<h4 class="box-title">';
         echo $this->title;
-        echo '</h3>';
+        echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
         $this->render(12, 'tasks-active-table');

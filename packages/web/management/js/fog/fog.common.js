@@ -26,6 +26,10 @@ var $_GET = getQueryParams(document.location.search),
             validator: "[A-Za-z0-9\_\.]",
             cardinality: 1
         },
+        '#': {
+            validator: "[A-Fa-f0-9]",
+            cardinality: 1
+        }
     });
 
 

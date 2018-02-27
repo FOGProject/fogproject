@@ -323,9 +323,9 @@ class PrinterManagementPage extends FOGPage
         echo '<!-- Printer General -->';
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
-        echo '<h3 class="box-title">';
+        echo '<h4 class="box-title">';
         echo _('Create New Printer');
-        echo '</h3>';
+        echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
         echo $printerCopy;

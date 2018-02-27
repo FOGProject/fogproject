@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-27 04:00-0500\n"
+"POT-Creation-Date: 2018-02-27 17:18-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3828,16 +3828,58 @@ msgstr "Please enter a valid hostname"
 msgid "Please use another hostname"
 msgstr "Please enter a hostname"
 
-#, fuzzy
-msgid "Please enter a mac address"
-msgstr "Please enter a valid IP address"
-
-#, fuzzy
-msgid "Please enter a valid mac address"
-msgstr "Please enter a valid IP address"
-
 msgid "Cannot change image when in tasking"
 msgstr ""
+
+#, fuzzy
+msgid "Add New MAC"
+msgstr "Add new user account"
+
+#, fuzzy
+msgid "Add New MAC Address"
+msgstr "MAC Address List"
+
+#, fuzzy
+msgid "Update selected"
+msgstr "Remove selected printers"
+
+#, fuzzy
+msgid "Delete selected"
+msgstr "Delete Selected"
+
+#, fuzzy
+msgid "Primary"
+msgstr "Primary MAC"
+
+msgid "Ignore Imaging"
+msgstr ""
+
+#, fuzzy
+msgid "Ignore Client"
+msgstr "Client"
+
+#, fuzzy
+msgid "Pending"
+msgstr "Pending..."
+
+#, fuzzy
+msgid "Update/Remove MAC addresses"
+msgstr "Update Printer"
+
+msgid "Changes will automatically be saved"
+msgstr ""
+
+#, fuzzy
+msgid "MAC Address is required!"
+msgstr "MAC Address is required"
+
+#, fuzzy
+msgid "MAC Address is invalid!"
+msgstr "MAC Format is invalid"
+
+#, fuzzy
+msgid "MAC Address is assigned to another host!"
+msgstr "This MAC Belongs to another host"
 
 #, fuzzy
 msgid "Host Printer Configuration"
@@ -3913,9 +3955,6 @@ msgstr "Printer Description"
 #, fuzzy
 msgid "Update/Remove printers"
 msgstr "Update Printer"
-
-msgid "Changes will automatically be saved"
-msgstr ""
 
 #, fuzzy
 msgid "Snapin Created"
@@ -4109,6 +4148,10 @@ msgstr ""
 #, fuzzy
 msgid "Host Snapin History"
 msgstr "Snapin History"
+
+#, fuzzy
+msgid "MAC Addresses"
+msgstr "MAC Address List"
 
 #, fuzzy
 msgid "Service Settings"
@@ -6169,10 +6212,6 @@ msgstr "HD Serial"
 #, fuzzy
 msgid "Add selected to group"
 msgstr "Remove selected snapins"
-
-#, fuzzy
-msgid "Delete selected"
-msgstr "Delete Selected"
 
 #, fuzzy
 msgid "Confirm password"
