@@ -66,7 +66,7 @@
             {
                 render: function(data, type, row) {
                     var enabled = '<span class="label label-success"><i class="fa fa-check-circle"></i></span>',
-                        disabled = '<span class="label label-success"><i class="fa fa-times-circle"></i></span>';
+                        disabled = '<span class="label label-danger"><i class="fa fa-times-circle"></i></span>';
                     if (row.tftp > 0) {
                         return enabled;
                     }

@@ -273,8 +273,6 @@ class StorageGroupManagementPage extends FOGPage
 
         echo '<!-- Storage Nodes -->';
         echo '<div class="box-group" id="membership">';
-        // =================================================================
-        // Associated Storage Nodes
         $buttons = self::makeButton(
             'membership-master',
             _('Update Master Node'),

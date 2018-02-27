@@ -1236,10 +1236,6 @@ class SnapinManagementPage extends FOGPage
             . $this->formAction
             . '&tab=snapin-membership" ';
 
-        echo '<!-- Host Membership -->';
-        echo '<div class="box-group" id="membership">';
-        // =================================================================
-        // Associated Hosts
         $buttons = self::makeButton(
             'membership-add',
             _('Add selected'),
@@ -1265,6 +1261,8 @@ class SnapinManagementPage extends FOGPage
             []
         ];
 
+        echo '<!-- Host Membership -->';
+        echo '<div class="box-group" id="membership">';
         echo '<div class="box box-solid">';
         echo '<div class="updatemembership" class="">';
         echo '<div class="box-body">';

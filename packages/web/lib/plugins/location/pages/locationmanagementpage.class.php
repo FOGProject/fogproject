@@ -318,7 +318,7 @@ class LocationManagementPage extends FOGPage
             . '</button>';
         echo '</div>';
         echo '</form>';
-        echo '</div.';
+        echo '</div>';
     }
     /**
      * Actually update the general information.
@@ -364,6 +364,92 @@ class LocationManagementPage extends FOGPage
             ->set('tftp', $bootfrom);
     }
     /**
+     * Present the host membership tab.
+     *
+     * @return void
+     */
+    public function locationMembership()
+    {
+        global $id;
+        $props = ' method="post" action="'
+            . $this->formAction
+            . '&tab=location-membership" ';
+
+        $buttons = self::makeButton(
+            'membership-add',
+            _('Add Selected'),
+            'btn btn-primary',
+            $props
+        );
+        $buttons .= self::makeButton(
+            'membership-remove',
+            _('Remove Selected'),
+            'btn btn-danger',
+            $props
+        );
+
+        $this->headerData = [
+            _('Host Name'),
+            _('Host Associated')
+        ];
+        $this->templates = [
+            '',
+            ''
+        ];
+        $this->attributes = [
+            [],
+            []
+        ];
+
+        echo '<!-- Host Membership -->';
+        echo '<div class="box-group" id="membership">';
+        echo '<div class="box box-solid">';
+        echo '<div class="updatemembership" class="">';
+        echo '<div class="box-body">';
+        $this->render(12, 'location-membership-table', $buttons);
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Update host membership.
+     *
+     * @return void
+     */
+    public function locationMembershipPost()
+    {
+        if (isset($_POST['updatemembership'])) {
+            $membership = filter_input_array(
+                INPUT_POST,
+                [
+                    'membership' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $membership = $membership['membership'];
+            $this->obj->addHost($membership);
+        }
+        if (isset($_POST['membershipdel'])) {
+            $membership = filter_input_array(
+                INPUT_POST,
+                [
+                    'membershipRemove' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $membership = $membership['membershipRemove'];
+            self::getClass('LocationAssociationManager')->destroy(
+                [
+                    'locationID' => $this->obj->get('id'),
+                    'hostID' => $membership
+                ]
+            );
+        }
+    }
+    /**
      * Present the location to edit the page.
      *
      * @return void
@@ -384,6 +470,15 @@ class LocationManagementPage extends FOGPage
             'id' => 'location-general',
             'generator' => function() {
                 $this->locationGeneral();
+            }
+        ];
+
+        // Membership
+        $tabData[] = [
+            'name' => _('Host Membership'),
+            'id' => 'location-membership',
+            'generator' => function() {
+                $this->locationMembership();
             }
         ];
 
@@ -408,6 +503,9 @@ class LocationManagementPage extends FOGPage
             switch ($tab) {
             case 'location-general':
                 $this->locationGeneralPost();
+                break;
+            case 'location-membership':
+                $this->locationMembershipPost();
                 break;
             }
             if (!$this->obj->save()) {
@@ -445,6 +543,69 @@ class LocationManagementPage extends FOGPage
             );
         http_response_code($code);
         echo $msg;
+        exit;
+    }
+    /**
+     * Location -> host membership list
+     *
+     * @return void
+     */
+    public function getHostsList()
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
+        $hostsSqlStr = "SELECT `%s`,"
+            . "IF(`laLocationID` = '"
+            . $this->obj->get('id')
+            . "','associated','dissociated') as `laLocationID`
+            FROM `%s`
+            CROSS JOIN `location`
+            LEFT OUTER JOIN `locationAssoc`
+            ON `location`.`lID` = `locationAssoc`.`laLocationID`
+            AND `hosts`.`hostID` = `locationAssoc`.`laHostID`
+            %s
+            %s
+            %s";
+        $hostsFilterStr = "SELECT COUNT(`%s`),"
+            . "IF(`laLocationID` = '"
+            . $this->obj->get('id')
+            . "','associated','dissociated') as `laLocationID`
+            FROM `%s`
+            CROSS JOIN `location`
+            LEFT OUTER JOIN `locationAssoc`
+            ON `location`.`lID` = `locationAssoc`.`laLocationID`
+            AND `hosts`.`hostID` = `locationAssoc`.`laHostID`
+            %s";
+        $hostsTotalStr = "SELECT COUNT(`%s`)
+            FROM `%s`";
+
+        foreach (self::getClass('HostManager')
+            ->getColumns() as $common => &$real
+        ) {
+            $columns[] = [
+                'db' => $real,
+                'dt' => $common
+            ];
+        }
+        $columns[] = [
+            'db' => 'laLocationID',
+            'dt' => 'association'
+        ];
+        echo json_encode(
+            FOGManagerController::complex(
+                $pass_vars,
+                'hosts',
+                'hostID',
+                $columns,
+                $hostsSqlStr,
+                $hostsFilterStr,
+                $hostsTotalStr
+            )
+        );
         exit;
     }
 }
