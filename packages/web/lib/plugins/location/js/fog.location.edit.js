@@ -12,7 +12,9 @@ $(function() {
 
     var generalForm = $('#location-general-form'),
         generalFormBtn = $('#general-send'),
-        generalDeleteBtn = $('#general-delete');
+        generalDeleteBtn = $('#general-delete'),
+        nodeSelector = $('#storagenode'),
+        groupSelector = $('#storagegroup');
 
     generalForm.on('submit',function(e) {
         e.preventDefault();
