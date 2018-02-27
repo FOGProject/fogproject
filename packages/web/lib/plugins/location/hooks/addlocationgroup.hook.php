@@ -55,6 +55,9 @@ class AddLocationGroup extends Hook
     public function __construct()
     {
         parent::__construct();
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
+            return;
+        }
         self::$HookManager
             ->register(
                 'TABDATA_HOOK',
@@ -88,9 +91,6 @@ class AddLocationGroup extends Hook
     public function groupTabData($arguments)
     {
         global $node;
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         if ($node != 'group') {
             return;
         }
@@ -199,9 +199,6 @@ class AddLocationGroup extends Hook
     {
         global $tab;
         global $node;
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         if ($node != 'group') {
             return;
         }
@@ -211,6 +208,8 @@ class AddLocationGroup extends Hook
             case 'group-location':
                 $this->groupLocationPost($obj);
                 break;
+            default:
+                return;
             }
             $arguments['code'] = 201;
             $arguments['hook'] = 'GROUP_EDIT_LOCATION_SUCCESS';
@@ -241,9 +240,6 @@ class AddLocationGroup extends Hook
     public function groupAddLocationField($arguments)
     {
         global $node;
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         if ($node != 'group') {
             return;
         }

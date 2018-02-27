@@ -55,6 +55,9 @@ class ChangeItems extends Hook
     public function __construct()
     {
         parent::__construct();
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
+            return;
+        }
         self::$HookManager
             ->register(
                 'SNAPIN_NODE',
@@ -129,9 +132,6 @@ class ChangeItems extends Hook
      */
     public function storageNodeSetting($arguments)
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         if (!$arguments['Host']->isValid()) {
             return;
         }
@@ -195,9 +195,6 @@ class ChangeItems extends Hook
      */
     public function storageGroupSetting($arguments)
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         if (!$arguments['Host']->isValid()) {
             return;
         }
@@ -229,9 +226,6 @@ class ChangeItems extends Hook
      */
     public function bootItemSettings($arguments)
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         if (!$arguments['Host']->isValid()) {
             return;
         }
@@ -294,9 +288,6 @@ class ChangeItems extends Hook
      */
     public function alterMasters($arguments)
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         if (!$arguments['FOGServiceClass'] instanceof MulticastManager) {
             return;
         }
@@ -336,9 +327,6 @@ class ChangeItems extends Hook
      */
     public function makeMaster($arguments)
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         if (!$arguments['FOGServiceClass'] instanceof MulticastTask) {
             return;
         }

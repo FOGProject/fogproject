@@ -53,6 +53,9 @@ class AddSiteGroup extends Hook
     public function __construct()
     {
         parent::__construct();
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
+            return;
+        }
         self::$HookManager
             ->register(
                 'TABDATA_HOOK',
@@ -86,9 +89,6 @@ class AddSiteGroup extends Hook
     public function groupTabData($arguments)
     {
         global $node;
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         if ($node != 'group') {
             return;
         }
@@ -195,9 +195,6 @@ class AddSiteGroup extends Hook
     {
         global $tab;
         global $node;
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         if ($node != 'group') {
             return;
         }
@@ -207,6 +204,8 @@ class AddSiteGroup extends Hook
             case 'group-site':
                 $this->groupSitePost($obj);
                 break;
+            default:
+                return;
             }
             $arguments['code'] = 201;
             $argumetns['hook'] = 'GROUP_EDIT_SITE_SUCCESS';
@@ -237,9 +236,6 @@ class AddSiteGroup extends Hook
     public function groupAddSiteField($arguments)
     {
         global $node;
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         if ($node != 'group') {
             return;
         }

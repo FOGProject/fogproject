@@ -55,6 +55,9 @@ class AddLocationHost extends Hook
     public function __construct()
     {
         parent::__construct();
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
+            return;
+        }
         self::$HookManager
             ->register(
                 'TABDATA_HOOK',
@@ -88,9 +91,6 @@ class AddLocationHost extends Hook
     public function hostTabData($arguments)
     {
         global $node;
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         if ($node != 'host') {
             return;
         }
@@ -198,9 +198,6 @@ class AddLocationHost extends Hook
     {
         global $tab;
         global $node;
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         if ($node != 'host') {
             return;
         }
@@ -210,6 +207,8 @@ class AddLocationHost extends Hook
             case 'host-location':
                 $this->hostLocationPost($obj);
                 break;
+            default:
+                return;
             }
             $arguments['code'] = 201;
             $arguments['hook'] = 'HOST_EDIT_LOCATION_SUCCESS';
@@ -240,9 +239,6 @@ class AddLocationHost extends Hook
     public function hostAddLocationField($arguments)
     {
         global $node;
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         if ($node != 'host') {
             return;
         }

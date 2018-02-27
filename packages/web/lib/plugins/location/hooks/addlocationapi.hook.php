@@ -32,7 +32,7 @@ class AddLocationAPI extends Hook
      *
      * @var string
      */
-    public $description = 'Add Site stuff into the api system.';
+    public $description = 'Add Location stuff into the api system.';
     /**
      * For posterity.
      *
@@ -53,6 +53,9 @@ class AddLocationAPI extends Hook
     public function __construct()
     {
         parent::__construct();
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
+            return;
+        }
         self::$HookManager
             ->register(
                 'API_VALID_CLASSES',
@@ -67,24 +70,10 @@ class AddLocationAPI extends Hook
                     $this,
                     'adjustGetter'
                 )
-            )
-            ->register(
-                'API_INDIVDATA_MAPPING',
-                array(
-                    $this,
-                    'adjustIndivInfoUpdate'
-                )
-            )
-            ->register(
-                'API_MASSDATA_MAPPING',
-                array(
-                    $this,
-                    'adjustMassInfo'
-                )
             );
     }
     /**
-     * This function injects site elements for
+     * This function injects location elements for
      * api access.
      *
      * @param mixed $arguments The arguments to modify.
@@ -93,9 +82,6 @@ class AddLocationAPI extends Hook
      */
     public function injectAPIElements($arguments)
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         $arguments['validClasses'] = self::fastmerge(
             $arguments['validClasses'],
             array(
@@ -103,32 +89,6 @@ class AddLocationAPI extends Hook
                 'locationassociation'
             )
         );
-    }
-    /**
-     * This function changes the api data map as needed.
-     *
-     * @param mixed $arguments The arguments to modify.
-     *
-     * @return void
-     */
-    public function adjustIndivInfoUpdate($arguments)
-    {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-    }
-    /**
-     * This function changes the api data map as needed.
-     *
-     * @param mixed $arguments The arguments to modify.
-     *
-     * @return void
-     */
-    public function adjustMassInfo($arguments)
-    {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
     }
     /**
      * This function changes the getter to enact on this particular item.
@@ -139,9 +99,6 @@ class AddLocationAPI extends Hook
      */
     public function adjustGetter($arguments)
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         switch ($arguments['classname']) {
         case 'location':
             $arguments['data'] = FOGCore::fastmerge(

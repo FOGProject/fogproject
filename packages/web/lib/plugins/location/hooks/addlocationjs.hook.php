@@ -1,38 +1,40 @@
 <?php
 /**
- * Sets the javascript files up for this hook.
+ * Sets the javascript files up for this plugin.
  *
  * PHP version 5
  *
  * @category AddSiteJS
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @author   Lee Rowlett <nah@nah.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
 /**
- * Sets the javascript files up for this hook.
+ * Sets the javascript files up for this plugin.
  *
  * @category AddSiteJS
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @author   Lee Rowlett <nah@nah.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class AddSiteJS extends Hook
+class AddLocationJS extends Hook
 {
     /**
      * The name of this hook.
      *
      * @var string
      */
-    public $name = 'AddSiteJS';
+    public $name = 'AddLocationJS';
     /**
      * The description.
      *
      * @var string
      */
-    public $description = 'Add Site JS files.';
+    public $description = 'Add Location JS files.';
     /**
      * For posterity.
      *
@@ -44,7 +46,7 @@ class AddSiteJS extends Hook
      *
      * @var string
      */
-    public $node = 'site';
+    public $node = 'location';
     /**
      * Initialize object.
      *
@@ -91,16 +93,15 @@ class AddSiteJS extends Hook
             $subset
         );
         switch ($node) {
-        case 'site':
+        case 'location':
             if (empty($subset)) {
                 $filepaths = ["../lib/plugins/{$this->node}/js/fog.{$node}.js"];
             } else {
                 $filepaths = ["../lib/plugins/{$this->node}/js/fog.{$node}.{$subset}.js"];
             }
             break;
-        case 'user':
         case 'host':
-        case  'group':
+        case 'group':
             if (empty($subset)) {
                 $filepaths = ["../lib/plugins/{$this->node}/js/fog.{$this->node}.{$node}.js"];
             } else {

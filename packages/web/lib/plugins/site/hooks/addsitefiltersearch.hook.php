@@ -21,11 +21,30 @@
  */
 class AddSiteFilterSearch extends Hook
 {
+    /**
+     * The name of this hook.
+     *
+     * @var string
+     */
     public $name = 'AddSiteFilterSearch';
+    /**
+     * The description of this hook.
+     *
+     * @var string
+     */
     public $description = 'Add search filters by site';
+    /**
+     * For posterity.
+     *
+     * @var bool
+     */
     public $active = true;
+    /**
+     * The node this hook works with.
+     *
+     * @var string
+     */
     public $node = 'site';
-
     /**
      * Initializes object
      *
@@ -34,6 +53,9 @@ class AddSiteFilterSearch extends Hook
     public function __construct()
     {
         parent::__construct();
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
+            return;
+        }
         self::$HookManager
             ->register(
                 'HOST_DATA',
@@ -62,9 +84,6 @@ class AddSiteFilterSearch extends Hook
         global $node;
         global $sub;
         if ($sub == 'pending') {
-            return;
-        }
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
         if (!in_array('accesscontrol', (array)self::$pluginsinstalled)) {

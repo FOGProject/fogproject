@@ -55,6 +55,9 @@ class AddServiceConfiguration extends Hook
     public function __construct()
     {
         parent::__construct();
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
+            return;
+        }
         self::$HookManager
             ->register(
                 'SNAPIN_CLIENT_SERVICE',
@@ -88,9 +91,6 @@ class AddServiceConfiguration extends Hook
     public function addServiceCheckbox($arguments)
     {
         global $node;
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         if ($node != 'service') {
             return;
         }
@@ -158,9 +158,6 @@ class AddServiceConfiguration extends Hook
     public function updateGlobalSetting($arguments)
     {
         global $node;
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         if ($node != 'service') {
             return;
         }
@@ -186,9 +183,6 @@ class AddServiceConfiguration extends Hook
     {
         global $node;
         global $sub;
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         if ($node != 'about') {
             return;
         }

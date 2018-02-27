@@ -53,6 +53,9 @@ class AddSiteUser extends Hook
     public function __construct()
     {
         parent::__construct();
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
+            return;
+        }
         self::$HookManager
             ->register(
                 'TABDATA_HOOK',
@@ -86,9 +89,6 @@ class AddSiteUser extends Hook
     public function userTabData($arguments)
     {
         global $node;
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         if ($node != 'user') {
             return;
         }
@@ -208,9 +208,6 @@ class AddSiteUser extends Hook
     {
         global $tab;
         global $node;
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         if ($node != 'user') {
             return;
         }
@@ -220,6 +217,8 @@ class AddSiteUser extends Hook
             case 'user-site':
                 $this->userSitePost($obj);
                 break;
+            default:
+                return;
             }
             $arguments['code'] = 201;
             $argumetns['hook'] = 'USER_EDIT_SITE_SUCCESS';
@@ -250,9 +249,6 @@ class AddSiteUser extends Hook
     public function userAddSiteField($arguments)
     {
         global $node;
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         if ($node != 'user') {
             return;
         }
