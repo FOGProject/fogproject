@@ -522,7 +522,7 @@
         Common.apiCall(method,action,opts,function(err) {
             if (!err) {
                 $('#modules-to-update').find('.associated').each(function() {
-                    if (toEnable.indexOf($(this).val()) != -1) {
+                    if ($.inArray($(this).val(), toEnable) != -1) {
                         $(this).iCheck('check');
                     }
                 });
@@ -555,7 +555,7 @@
         Common.apiCall(method,action,opts,function(err) {
             if (!err) {
                 $('#modules-to-update').find('.associated').each(function() {
-                    if (toDisable.indexOf($(this).val()) != -1) {
+                    if ($.inArray($(this).val(), toDisable) != -1) {
                         $(this).iCheck('uncheck');
                     }
                 });

@@ -181,13 +181,13 @@
                 membershipTable.draw(false);
                 membershipTable.rows({selected: true}).deselect();
                 $('#printer-membership-table').find('.default:disabled').each(function() {
-                    if (toAdd.indexOf($(this).val()) != -1) {
+                    if ($.inArray($(this).val(), toAdd) != -1) {
                         $(this).prop('disabled', false);
                         Common.iCheck(this);
                     }
                 });
                 $('#printer-membership-table').find('.associated').each(function() {
-                    if (toAdd.indexOf($(this).val()) != -1) {
+                    if ($.inArray($(this).val(), toAdd) != -1) {
                         $(this).iCheck('check');
                     }
                 });
@@ -211,14 +211,14 @@
                 membershipTable.draw(false);
                 membershipTable.rows({selected: true}).deselect();
                 $('#printer-membership-table').find('.default').each(function() {
-                    if (toRemove.indexOf($(this).val()) != -1) {
+                    if ($.inArray($(this).val(), toRemove) != -1) {
                         $(this).iCheck('uncheck');
                         $(this).prop('disabled', true);
                         Common.iCheck(this);
                     }
                 });
                 $('#printer-membership-table').find('.associated').each(function() {
-                    if (toRemove.indexOf($(this).val()) != -1) {
+                    if ($.inArray($(this).val(), toRemove) != -1) {
                         $(this).iCheck('uncheck');
                     }
                 });

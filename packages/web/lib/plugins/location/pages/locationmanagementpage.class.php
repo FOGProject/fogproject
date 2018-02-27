@@ -38,180 +38,107 @@ class LocationManagementPage extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = _('Location Management');
+        $this->name = 'Location Management';
         self::$foglang['ExportLocation'] = _('Export Locations');
         self::$foglang['ImportLocation'] = _('Import Locations');
         parent::__construct($this->name);
-        global $id;
-        if ($id) {
-            $this->subMenu = array(
-                "$this->linkformat#location-gen" => self::$foglang['General'],
-                $this->membership => self::$foglang['Membership'],
-                "$this->delformat" => self::$foglang['Delete'],
-            );
-            $this->notes = array(
-                self::$foglang['Location'] => $this->obj->get('name'),
-                sprintf(
-                    '%s %s',
-                    self::$foglang['Storage'],
-                    self::$foglang['Group']
-                ) => $this->obj->getStorageGroup()->get('name')
-            );
-            if ($this->obj->getStorageNode()->isValid()) {
-                $this->notes[
-                    sprintf(
-                        '%s %s',
-                        self::$foglang['Storage'],
-                        self::$foglang['Node']
-                    )
-                ] = $this->obj->getStorageNode()->get('name');
-            }
-        }
-        $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" class='
-            . '"toggle-checkboxAction"/>',
+        $this->headerData = [
             _('Location Name'),
             _('Storage Group'),
             _('Storage Node'),
-            _('Kernels/Inits from location'),
-        );
-        $this->templates = array(
-            '<input type="checkbox" name="location[]" value='
-            . '"${id}" class="toggle-action" checked/>',
-            '<a href="?node=location&sub=edit&id=${id}" data-toggle="tooltip" '
-            . 'data-placement="right" title="'
-            . _('Edit')
-            . ' '
-            . '${name}">${name}</a>',
-            '${storageGroup}',
-            '${storageNode}',
-            '${tftp}',
-        );
-        $this->attributes = array(
-            array(
-                'class' => 'filter-false',
-                'width' => 16
-            ),
-            array(),
-            array(),
-            array(),
-            array()
-        );
-        /**
-         * Lambda function to return data either by list or search.
-         *
-         * @param object $Location the object to use
-         *
-         * @return void
-         */
-        self::$returnData = function (&$Location) {
-            $this->data[] = array(
-                'id' => $Location->id,
-                'name' => $Location->name,
-                'storageGroup' => $Location->storagegroup->name,
-                'storageNode' => $Location->storagenode->name,
-                'tftp' => $Location->tftp ? _('Yes') : _('No'),
-            );
-            unset($Location);
-        };
+            _('Kernels/Inits from location')
+        ];
+        $this->templates = [
+            '',
+            '',
+            '',
+            ''
+        ];
+        $this->attributes = [
+            [],
+            [],
+            [],
+            []
+        ];
     }
     /**
-     * Show form for creating a new location entry.
+     * Creates new item.
      *
      * @return void
      */
     public function add()
     {
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->attributes,
-            $this->templates
-        );
-        $this->title = _('New Location');
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
-        );
-        $storagegroup = filter_input(
-            INPUT_POST,
-            'storagegroup'
-        );
-        $storagenode = filter_input(
-            INPUT_POST,
-            'storagenode'
-        );
-        $name = filter_input(
-            INPUT_POST,
-            'name'
-        );
-        $sgbuild = self::getClass('StorageGroupManager')->buildSelectBox(
-            $storagegroup
-        );
-        $snbuild = self::getClass('StorageNodeManager')->buildSelectBox(
-            $storagenode
-        );
-        $tftp = isset($_POST['tftp']) ? ' checked' : '';
-        $fields = array(
-            '<label for="name">'
+        $this->title = _('Create New Location');
+        $location = filter_input(INPUT_POST, 'location');
+        $description = filter_input(INPUT_POST, 'description');
+        $storagegroup = filter_input(INPUT_POST, 'storagegroup');
+        $storagenode = filter_input(INPUT_POST, 'storagenode');
+        $storagegroupSelector = self::getClass('StorageGroupManager')
+            ->buildSelectBox($storagegroup);
+        $storagenodeSelector = self::getClass('StorageNodeManager')
+            ->buildSelectBox($storagenode);
+        $fields = [
+            '<label class="col-sm-2 control-label" for="location">'
             . _('Location Name')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" class="'
-            . 'form-control locationname-input" name='
-            . '"name" value="'
-            . $name
-            . '" autocomplete="off" id="name" required/>'
-            . '</div>',
-            '<label for="storagegroup">'
+            . '</label>' => '<input type="text" name="location" '
+            . 'value="'
+            . $location
+            . '" class="locationname-input form-control" '
+            . 'id="location" required/>',
+            '<label class="col-sm-2 control-label" for="description">'
+            . _('Location Description')
+            . '</label>' => '<textarea class="form-control" style="resize:vertical;'
+            . 'min-height:50px;" '
+            . 'id="description" name="description">'
+            . $description
+            . '</textarea>',
+            '<label class="col-sm-2 control-label" for="storagegroup">'
             . _('Storage Group')
-            . '</label>' => $sgbuild,
-            '<label for="storagenode">'
+            . '</label>' => $storagegroupSelector,
+            '<label class="col-sm-2 control-label" for="storagenode">'
             . _('Storage Node')
-            . '</label>' => $snbuild,
-            '<label for="isen">'
-            . _('Use inits and kernels from this node')
-            . '</label>' => '<input type="checkbox" name="tftp" '
-            . 'class="tftpenabled" id="isen"'
-            . $tftp
-            . '/>',
-            '<label for="add">'
-            . _('Create New Location')
-            . '</label>' => '<button type="submit" name="add" id="add" '
-            . 'class="btn btn-info btn-block">'
-            . _('Add')
-            . '</button>'
-        );
-        $rendered = self::formFields($fields);
+            . '</label>' => $storagenodeSelector,
+            '<label class="col-sm-2 control-label" for="isen">'
+            . _('Location Sends Boot')
+            . '<br/>('
+            . _('Location sends the inits and kernels')
+            . ')</label>' => '<input type="checkbox" name="bootfrom" '
+            . 'class="bootfrom" checked/>'
+        ];
         self::$HookManager
             ->processEvent(
-                'LOCATION_ADD',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
+                'LOCATION_ADD_FIELDS',
+                [
+                    'fields' => &$fields,
+                    'Location' => self::getClass('Location')
+                ]
             );
-        echo '<div class="col-xs-9">';
-        echo '<form class="form-horizontal" method="post" action="'
+        $rendered = self::formFields($fields);
+        unset($fields);
+        echo '<div class="box box-solid" id="location-create">';
+        echo '<form id="location-create-form" class="form-horizontal" method="post" action="'
             . $this->formAction
-            . '">';
-        $this->indexDivDisplay();
+            . '" novalidate>';
+        echo '<div class="box-body">';
+        echo '<!-- Location General -->';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h3 class="box-title">';
+        echo _('Create New Site');
+        echo '</h3>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo $rendered;
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo '<button class="btn btn-primary" id="send">'
+            . _('Create')
+            . '</button>';
+        echo '</div>';
         echo '</form>';
         echo '</div>';
-        unset(
-            $fields,
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->attributes,
-            $this->templates
-        );
     }
     /**
      * Actually create the location.
@@ -220,66 +147,221 @@ class LocationManagementPage extends FOGPage
      */
     public function addPost()
     {
+        header('Content-type: application/json');
         self::$HookManager->processEvent('LOCATION_ADD_POST');
-        $name = filter_input(INPUT_POST, 'name');
-        $storagegroup = filter_input(INPUT_POST, 'storagegroup');
-        $storagenode = filter_input(INPUT_POST, 'storagenode');
-        $tftp = isset($_POST['tftp']);
+        $location = trim(
+            filter_input(INPUT_POST, 'location')
+        );
+        $description = trim(
+            filter_input(INPUT_POST, 'description')
+        );
+        $storagegroup = trim(
+            filter_input(INPUT_POST, 'storagegroup')
+        );
+        $storagenode = trim(
+            filter_input(INPUT_POST, 'storagenode')
+        );
+        $bootfrom = (int)isset($_POST['bootfrom']);
+        $serverFault = false;
         try {
-            if (self::getClass('LocationManager')->exists($name)) {
+            if (!$location) {
                 throw new Exception(
-                    _('Location already Exists, please try again.')
+                    _('A location name is required!')
                 );
             }
-            if (!$name) {
+            if (self::getClass('LocationManager')->exists($location)) {
                 throw new Exception(
-                    _('Please enter a name for this location.')
+                    _('A location already exists with this name!')
                 );
             }
-            if (!$storagegroup) {
+            if (!$storagegroup && !$storagenode) {
                 throw new Exception(
-                    _('Please select the storage group this location relates to.')
+                    _('A storage group must be selected.')
                 );
             }
-            $sgID = $storagegroup;
-            $sn = new StorageNode($storagenode);
-            if ($sn->isValid()) {
-                $sgID = $sn->getStorageGroup()->get('id');
+            if ($storagenode) {
+                $storagegroup = self::getClass('StorageNode', $storagenode)
+                    ->get('storagegroupID');
             }
             $Location = self::getClass('Location')
-                ->set('name', $name)
-                ->set('storagegroupID', $sgID)
+                ->set('name', $location)
+                ->set('storagegroupID', $storagegroup)
                 ->set('storagenodeID', $storagenode)
-                ->set('tftp', (int)$tftp);
+                ->set('tftp', $bootfrom);
             if (!$Location->save()) {
-                throw new Exception(
-                    _('Add location failed!')
-                );
+                $serverFault = false;
+                throw new Exception(_('Add location failed!'));
             }
+            $code = 201;
             $hook = 'LOCATION_ADD_SUCCESS';
             $msg = json_encode(
-                array(
+                [
                     'msg' => _('Location added!'),
-                    'title' => _('Location Create Success')
-                )
+                    'title' => _('Location Create Succes')
+                ]
             );
         } catch (Exception $e) {
+            $code = ($serverFault ? 500 : 400);
             $hook = 'LOCATION_ADD_FAIL';
             $msg = json_encode(
-                array(
+                [
                     'error' => $e->getMessage(),
                     'title' => _('Location Create Fail')
-                )
+                ]
             );
         }
+        // header('Location: ../management/index.php?node=location&sub=edit&id=' . $Location->get('id'));
         self::$HookManager
             ->processEvent(
                 $hook,
-                array('Location' => &$Location)
+                [
+                    'Location' => &$Location,
+                    'hook' => &$hook,
+                    'code' => &$code,
+                    'msg' => &$msg,
+                    'serverFault' => &$serverFault
+                ]
             );
+        http_response_code($code);
         unset($Location);
         echo $msg;
         exit;
+    }
+    /**
+     * Displays the location general tab.
+     *
+     * @return void
+     */
+    public function locationGeneral()
+    {
+        $location = (
+            filter_input(INPUT_POST, 'location') ?:
+            $this->obj->get('name')
+        );
+        $description = (
+            filter_input(INPUT_POST, 'description') ?:
+            $this->obj->get('description')
+        );
+        $storagegroup = (
+            filter_input(INPUT_POST, 'storagegroup') ?:
+            $this->obj->get('storagegroupID')
+        );
+        $storagenode = (
+            filter_input(INPUT_POST, 'storagenode') ?:
+            $this->obj->get('storagenodeID')
+        );
+        $storagegroupSelector = self::getClass('StorageGroupManager')
+            ->buildSelectBox($storagegroup);
+        $storagenodeSelector = self::getClass('StorageNodeManager')
+            ->buildSelectBox($storagenode);
+        $bootfrom = (
+            isset($_POST['bootfrom']) ?
+            ' checked' :
+            (
+                $this->obj->get('tftp') ?
+                ' checked' :
+                ''
+            )
+        );
+        $fields = [
+            '<label class="col-sm-2 control-label" for="location">'
+            . _('Location Name')
+            . '</label>' => '<input type="text" name="location" '
+            . 'value="'
+            . $location
+            . '" class="locationname-input form-control" '
+            . 'id="location" required/>',
+            '<label class="col-sm-2 control-label" for="description">'
+            . _('Location Name')
+            . '</label>' => '<textarea class="form-control" style="resize:vertical;'
+            . 'min-height:50px;" '
+            . 'id="description" name="description">'
+            . $description
+            . '</textarea>',
+            '<label class="col-sm-2 control-label" for="storagegroup">'
+            . _('Storage Group')
+            . '</label>' => $storagegroupSelector,
+            '<label class="col-sm-2 control-label" for="storagenode">'
+            . _('Storage Node')
+            . '</label>' => $storagenodeSelector,
+            '<label class="col-sm-2 control-label" for="isen">'
+            . _('Location Sends Boot')
+            . '<br/>('
+            . _('Location sends the inits and kernels')
+            . ')</label>' => '<input type="checkbox" name="bootfrom" '
+            . 'class="bootfrom"'
+            . $bootfrom
+            . '/>'
+        ];
+        self::$HookManager
+            ->processEvent(
+                'LOCATION_GENERAL_FIELDS',
+                [
+                    'fields' => &$fields,
+                    'Location' => self::getClass('Location')
+                ]
+            );
+        $rendered = self::formFields($fields);
+        echo '<div class="box box-solid">';
+        echo '<form id="location-general-form" class="form-horizontal" method="post" action="'
+            . self::makeTabUpdateURL('location-general', $this->obj->get('id'))
+            . '" novalidate>';
+        echo '<div class="box-body">';
+        echo $rendered;
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo '<button class="btn btn-primary" id="general-send">'
+            . _('Update')
+            . '</button>';
+        echo '<button class="btn btn-danger pull-right" id="general-delete">'
+            . _('Delete')
+            . '</button>';
+        echo '</div>';
+        echo '</form>';
+        echo '</div.';
+    }
+    /**
+     * Actually update the general information.
+     *
+     * @return void
+     */
+    public function locationGeneralPost()
+    {
+        $location = trim(
+            filter_input(INPUT_POST, 'location')
+        );
+        $description = trim(
+            filter_input(INPUT_POST, 'description')
+        );
+        $storagegroup = trim(
+            filter_input(INPUT_POST, 'storagegroup')
+        );
+        $storagenode = trim(
+            filter_input(INPUT_POST, 'storagenode')
+        );
+        $bootfrom = (int)isset($_POST['bootfrom']);
+        if ($location != $this->obj->get('name')) {
+            if ($this->obj->getManager()->exists($location)) {
+                throw new Exception(
+                    _('A location already exists with this name!')
+                );
+            }
+        }
+        if (!$storagegroup && !$storagenode) {
+            throw new Exception(
+                _('A storage group must be selected.')
+            );
+        }
+        if ($storagenode) {
+            $storagegroup = self::getClass('StorageNode', $storagenode)
+                ->get('storagegroupID');
+        }
+        $this->obj
+            ->set('name', $location)
+            ->set('description', $description)
+            ->set('storagegroupID', $storagegroup)
+            ->set('storagenodeID', $storagenode)
+            ->set('tftp', $bootfrom);
     }
     /**
      * Present the location to edit the page.
@@ -288,111 +370,24 @@ class LocationManagementPage extends FOGPage
      */
     public function edit()
     {
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->attributes,
-            $this->templates
+        $this->title = sprintf(
+            '%s: %s',
+            _('Edit'),
+            $this->obj->get('name')
         );
-        $this->title = _('Location General');
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
-        );
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
-        $name = filter_input(
-            INPUT_POST,
-            'name'
-        ) ?: $this->obj->get('name');
-        $storagegroup = filter_input(
-            INPUT_POST,
-            'storagegroup'
-        ) ?: $this->obj->get('storagegroupID');
-        $storagenode = filter_input(
-            INPUT_POST,
-            'storagenode'
-        ) ?: $this->obj->get('storagenodeID');
-        $sgbuild = self::getClass('StorageGroupManager')->buildSelectBox(
-            $storagegroup
-        );
-        $snbuild = self::getClass('StorageNodeManager')->buildSelectBox(
-            $storagenode
-        );
-        $tftp = isset($_POST['tftp']) ? ' checked' : '';
-        if (!$tftp) {
-            $tftp = $this->obj->get('tftp') ? ' checked' : '';
-        }
-        $fields = array(
-            '<label for="name">'
-            . _('Location Name')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" class="'
-            . 'form-control locationname-input" name='
-            . '"name" value="'
-            . $name
-            . '" autocomplete="off" id="name" required/>'
-            . '</div>',
-            '<label for="storagegroup">'
-            . _('Storage Group')
-            . '</label>' => $sgbuild,
-            '<label for="storagenode">'
-            . _('Storage Node')
-            . '</label>' => $snbuild,
-            '<label for="isen">'
-            . _('Use inits and kernels from this node')
-            . '</label>' => '<input type="checkbox" name="tftp" '
-            . 'class="tftpenabled" id="isen"'
-            . $tftp
-            . '/>',
-            '<label for="update">'
-            . _('Make Changes?')
-            . '</label>' => '<button type="submit" name="update" id="update" '
-            . 'class="btn btn-info btn-block">'
-            . _('Update')
-            . '</button>'
-        );
-        $rendered = self::formFields($fields);
-        self::$HookManager
-            ->processEvent(
-                'LOCATION_EDIT',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        echo '<div class="col-xs-9 tab-content">';
-        echo '<!-- General -->';
-        echo '<div class="tab-pane fade in active" id="location-gen">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo $this->title;
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '&tab=location-gen">';
-        $this->render(12);
-        echo '</form>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        unset(
-            $fields,
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->attributes,
-            $this->templates
-        );
+
+        $tabData = [];
+
+        // General
+        $tabData[] = [
+            'name' => _('General'),
+            'id' => 'location-general',
+            'generator' => function() {
+                $this->locationGeneral();
+            }
+        ];
+
+        echo self::tabFields($tabData, $this->obj);
     }
     /**
      * Actually update the location.
@@ -401,68 +396,54 @@ class LocationManagementPage extends FOGPage
      */
     public function editPost()
     {
+        header('Content-type: application/json');
         self::$HookManager
             ->processEvent(
                 'LOCATION_EDIT_POST',
-                array(
-                    'Location' => &$this->obj
-                )
+                ['Location' => &$this->obj]
             );
-        $name = filter_input(INPUT_POST, 'name');
-        $storagegroup = filter_input(INPUT_POST, 'storagegroup');
-        $storagenode = filter_input(INPUT_POST, 'storagenode');
-        $tftp = isset($_POST['tftp']);
+        $serverFault = false;
         try {
-            if ($name != $this->obj->get('name')
-                && $this->obj->getManager()->exists($name)
-            ) {
-                throw new Exception(
-                    _('A location with that name already exists.')
-                );
+            global $tab;
+            switch ($tab) {
+            case 'location-general':
+                $this->locationGeneralPost();
+                break;
             }
-            if (isset($_POST['update'])) {
-                if (!$storagegroup) {
-                    throw new Exception(
-                        _('A group is required for a location')
-                    );
-                }
-                $sn = new StorageNode($storagenode);
-                $sgID = $storagegroup;
-                if ($sn->isValid()) {
-                    $sgID = $sn->getStorageGroup()->get('id');
-                }
-                $this->obj
-                    ->set('name', $name)
-                    ->set('storagegroupID', $sgID)
-                    ->set('storagenodeID', $storagenode)
-                    ->set('tftp', (int)$tftp);
-                if (!$this->obj->save()) {
-                    throw new Exception(
-                        _('Location update failed!')
-                    );
-                }
-                $hook = 'LOCATION_UPDATE_SUCCESS';
-                $msg = json_encode(
-                    array(
-                        'msg' => _('Location updated!'),
-                        'title' => _('Location Update Success')
-                    )
-                );
+            if (!$this->obj->save()) {
+                $serverFault = true;
+                throw new Exception(_('Location update failed!'));
             }
-        } catch (Exception $e) {
-            $hook = 'LOCATION_UPDATE_FAIL';
+            $code = 201;
+            $hook = 'LOCATION_EDIT_SUCCESS';
             $msg = json_encode(
-                array(
+                [
+                    'msg' => _('Location updated!'),
+                    'title' => _('Location Update Success')
+                ]
+            );
+        } catch (Exception $e) {
+            $code = ($serverFault ? 500 : 400);
+            $hook = 'LOCATION_EDIT_FAIL';
+            $msg = json_encode(
+                [
                     'error' => $e->getMessage(),
                     'title' => _('Location Update Fail')
-                )
+                ]
             );
         }
         self::$HookManager
             ->processEvent(
                 $hook,
-                array('Location' => &$this->obj)
+                [
+                    'Location' => &$this->obj,
+                    'hook' => &$hook,
+                    'code' => &$code,
+                    'msg' => &$msg,
+                    'serverFault' => &$serverFault
+                ]
             );
+        http_response_code($code);
         echo $msg;
         exit;
     }

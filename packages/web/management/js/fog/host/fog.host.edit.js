@@ -328,13 +328,13 @@
                 printersTable.draw(false);
                 printersTable.rows({selected: true}).deselect();
                 $('#host-printers-table').find('.default:disabled').each(function() {
-                    if (toAdd.indexOf($(this).val()) != -1) {
+                    if ($.inArray($(this).val(), toAdd) != -1) {
                         $(this).prop('disabled', false);
                         Common.iCheck(this);
                     }
                 });
                 $('#host-printers-table').find('.associated').each(function() {
-                    if (toAdd.indexOf($(this).val()) != -1) {
+                    if ($.inArray($(this).val(), toAdd) != -1) {
                         $(this).iCheck('check');
                     }
                 });
@@ -364,14 +364,14 @@
                 printersTable.draw(false);
                 printersTable.rows({selected: true}).deselect();
                 $('#host-printers-table').find('.default').each(function() {
-                    if (toRemove.indexOf($(this).val()) != -1) {
+                    if ($.inArray($(this).val(), toRemove) != -1) {
                         $(this).iCheck('uncheck');
                         $(this).prop('disabled', true);
                         Common.iCheck(this);
                     }
                 });
                 $('#host-printers-table').find('.associated').each(function() {
-                    if (toRemove.indexOf($(this).val()) != -1) {
+                    if ($.inArray($(this).val(), toRemove) != -1) {
                         $(this).iCheck('uncheck');
                     }
                 });
@@ -460,7 +460,7 @@
                 snapinsTable.draw(false);
                 snapinsTable.rows({selected: true}).deselect();
                 $('#host-snapins-table').find('.associated').each(function() {
-                    if (toAdd.indexOf($(this).val()) != -1) {
+                    if ($.inArray($(this).val(), toAdd) != -1) {
                         $(this).iCheck('check');
                     }
                 });
@@ -485,7 +485,7 @@
                 snapinsTable.draw(false);
                 snapinsTable.rows({selected: true}).deselect();
                 $('#host-snapins-table').find('.associated').each(function() {
-                    if (toRemove.indexOf($(this).val()) != -1) {
+                    if ($.inArray($(this).val(), toRemove) != -1) {
                         $(this).iCheck('uncheck');
                     }
                 });
@@ -603,7 +603,7 @@
         Common.apiCall(method,action,opts,function(err) {
             if (!err) {
                 $('#modules-to-update').find('.associated').each(function() {
-                    if (toEnable.indexOf($(this).val()) != -1) {
+                    if ($.inArray($(this).val(), toEnable) != -1) {
                         $(this).iCheck('check');
                     }
                 });
@@ -636,7 +636,7 @@
         Common.apiCall(method,action,opts,function(err) {
             if (!err) {
                 $('#modules-to-update').find('.associated').each(function() {
-                    if (toDisable.indexOf($(this).val()) != -1) {
+                    if ($.inArray($(this).val(), toDisable) != -1) {
                         $(this).iCheck('uncheck');
                     }
                 });

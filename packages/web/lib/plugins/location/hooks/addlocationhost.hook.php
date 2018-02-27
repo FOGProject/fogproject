@@ -164,9 +164,6 @@ class AddLocationHost extends Hook
             )
         );
         $Location = new Location($locationID);
-        if (!$Location->isValid() && is_numeric($locationID)) {
-            throw new Exception(_('Select a valid location'));
-        }
         $insert_fields = ['hostID', 'locationID'];
         $insert_values = [];
         $hosts = [$obj->get('id')];
@@ -201,7 +198,7 @@ class AddLocationHost extends Hook
         if ($node != 'host') {
             return;
         }
-        $obj = $arguments['obj'];
+        $obj = $arguments['Host'];
         try {
             switch($tab) {
             case 'host-location':

@@ -81,6 +81,26 @@ class Location extends FOGController
             'storagegroup'
         )
     );
+    protected $sqlQueryStr = "SELECT `%s`
+        FROM `%s`
+        LEFT OUTER JOIN `nfsGroups`
+        ON `location`.`lStorageGroupID` = `nfsGroups`.`ngID`
+        LEFT OUTER JOIN `nfsGroupMembers`
+        ON `location`.`lStorageNodeID` = `nfsGroupMembers`.`ngmID`
+        AND `nfsGroups`.`ngID` = `nfsGroupMembers`.`ngmGroupID`
+        %s
+        %s
+        %s";
+    protected $sqlFilterStr = "SELECT COUNT(`%s`)
+        FROM `%s`
+        LEFT OUTER JOIN `nfsGroups`
+        ON `nfsGroups`.`ngID` = `location`.`lStorageGroupID`
+        LEFT OUTER JOIN `nfsGroupMembers`
+        ON `nfsGroupMembers`.`ngmID` = `location`.`lStorageNodeID`
+        AND `nfsGroups`.`ngID` = `nfsGroupMembers`.`ngmGroupID`
+        %s";
+    protected $sqlTotalStr = "SELECT COUNT(`%s`)
+        FROM `%s`";
     /**
      * Destroy this particular object.
      *

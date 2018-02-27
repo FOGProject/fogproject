@@ -130,7 +130,7 @@ class AddLocationGroup extends Hook
                 'GROUP_LOCATION_FIELDS',
                 [
                     'fields' => &$fields,
-                    'obj' => &$obj
+                    'Group' => &$obj
                 ]
             );
         $rendered = FOGPage::formFields($fields);
@@ -165,9 +165,6 @@ class AddLocationGroup extends Hook
             )
         );
         $Location = new Location($locationID);
-        if (!$Location->isValid() && is_numeric($locationID)) {
-            throw new Exception(_('Select a valid location'));
-        }
         $insert_fields = ['hostID', 'locationID'];
         $insert_values = [];
         $hosts = $obj->get('hosts');
@@ -202,7 +199,7 @@ class AddLocationGroup extends Hook
         if ($node != 'group') {
             return;
         }
-        $obj = $arguments['obj'];
+        $obj = $arguments['Group'];
         try {
             switch($tab) {
             case 'group-location':

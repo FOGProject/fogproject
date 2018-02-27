@@ -20,7 +20,10 @@
             [0, 'asc']
         ],
         columns: [
-            {data: 'name'}
+            {data: 'name'},
+            {data: 'storagegroupname'},
+            {data: 'storagenodename'},
+            {data: 'tftp'}
         ],
         rowId: 'id',
         columnDefs: [
@@ -36,6 +39,40 @@
                         + '</a>';
                 },
                 targets: 0,
+            },
+            {
+                render: function(data, type, row) {
+                    return '<a href="../management/index.php?node=storagegroup&sub=edit&id='
+                        + row.storagegroupID
+                        + '">'
+                        + data
+                        + '</a>';
+                },
+                targets: 1
+            },
+            {
+                render: function(data, type, row) {
+                    if (row.storagenodeID > 0) {
+                        return '<a href="../management/index.php?node=storagenode&sub=edit&id='
+                            + row.storagenodeID
+                            + '">'
+                            + data
+                            + '</a>';
+                    }
+                    return '';
+                },
+                targets: 2
+            },
+            {
+                render: function(data, type, row) {
+                    var enabled = '<span class="label label-success"><i class="fa fa-check-circle"></i></span>',
+                        disabled = '<span class="label label-success"><i class="fa fa-times-circle"></i></span>';
+                    if (row.tftp > 0) {
+                        return enabled;
+                    }
+                    return disabled;
+                },
+                targets: 3
             }
         ],
         processing: true,

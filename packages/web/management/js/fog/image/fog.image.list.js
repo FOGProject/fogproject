@@ -50,9 +50,8 @@
                     var disabled = '<span class="label label-danger"><i class="fa fa-times-circle"></i></span>';
                     if (row.isEnabled > 0) {
                         return enabled;
-                    } else {
-                        return disabled;
                     }
+                    return disabled;
                 },
                 targets: 2
             },
