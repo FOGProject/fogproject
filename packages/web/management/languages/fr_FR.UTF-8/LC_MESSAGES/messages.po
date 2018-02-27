@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-25 15:28-0500\n"
+"POT-Creation-Date: 2018-02-27 01:34-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1315,10 +1315,6 @@ msgid "Host Location"
 msgstr "hôte Lieu"
 
 #, fuzzy
-msgid "Select a valid location"
-msgstr "Sélectionnez une image valide"
-
-#, fuzzy
 msgid "Host Location Updated!"
 msgstr "Emplacement Mise à jour"
 
@@ -1380,31 +1376,36 @@ msgstr "Nom de la localisation"
 msgid "Kernels/Inits from location"
 msgstr "Kernels / INIT de l'emplacement"
 
-msgid "Yes"
-msgstr "Oui"
-
-msgid "No"
-msgstr "Non"
-
-msgid "New Location"
-msgstr "Nouvel emplacement"
-
-msgid "Use inits and kernels from this node"
-msgstr "Utilisez inits et les grains de ce noeud"
-
 #, fuzzy
 msgid "Create New Location"
 msgstr "Créer un nouveau %s"
 
-msgid "Location already Exists, please try again."
-msgstr "Localisation existe déjà, s'il vous plaît essayer à nouveau."
+#, fuzzy
+msgid "Location Description"
+msgstr "Association Image"
 
-msgid "Please enter a name for this location."
-msgstr "S'il vous plaît entrer un nom pour cet emplacement."
+#, fuzzy
+msgid "Location Sends Boot"
+msgstr "Nom de la localisation"
 
-msgid "Please select the storage group this location relates to."
+msgid "Location sends the inits and kernels"
 msgstr ""
-"S'il vous plaît sélectionnez le groupe de stockage ce lieu se rapporte."
+
+#, fuzzy
+msgid "Create New Site"
+msgstr "Créer un nouveau %s"
+
+#, fuzzy
+msgid "A location name is required!"
+msgstr "Un nom de l'image est nécessaire!"
+
+#, fuzzy
+msgid "A location already exists with this name!"
+msgstr "Une image existe déjà avec ce nom!"
+
+#, fuzzy
+msgid "A storage group must be selected."
+msgstr "Groupe de stockage supprimé"
 
 #, fuzzy
 msgid "Add location failed!"
@@ -1415,23 +1416,31 @@ msgid "Location added!"
 msgstr "Nom de la localisation"
 
 #, fuzzy
-msgid "Location Create Success"
-msgstr "snapin mise à jour"
+msgid "Location Create Succes"
+msgstr "Installation / Mise à jour réussie!"
 
 #, fuzzy
 msgid "Location Create Fail"
 msgstr "snapin mise à jour"
 
 #, fuzzy
-msgid "Location General"
-msgstr "snapin Enabled"
-
-msgid "A location with that name already exists."
-msgstr "Un emplacement avec ce nom existe déjà."
+msgid "Add Selected"
+msgstr "Imprimante"
 
 #, fuzzy
-msgid "A group is required for a location"
-msgstr "Un groupe de stockage est nécessaire!"
+msgid "Remove Selected"
+msgstr "Retirer snapins sélectionnés"
+
+msgid "Host Name"
+msgstr "Nom d'hôte"
+
+#, fuzzy
+msgid "Host Associated"
+msgstr "Aucun noeud associé"
+
+#, fuzzy
+msgid "Host Membership"
+msgstr "Adhésion"
 
 #, fuzzy
 msgid "Location update failed!"
@@ -1474,10 +1483,6 @@ msgstr "Association Image"
 #, fuzzy
 msgid "Host Site"
 msgstr "Liste des hôtes"
-
-#, fuzzy
-msgid "Select a valid site"
-msgstr "Sélectionnez une image valide"
 
 #, fuzzy
 msgid "Host Site Updated!"
@@ -1536,16 +1541,12 @@ msgid "Import Sites"
 msgstr "Imprimantes d'importation"
 
 #, fuzzy
-msgid "Hosts Associated"
-msgstr "Aucun snapins associés"
+msgid "Host Count"
+msgstr "Liste des hôtes"
 
 #, fuzzy
-msgid "Site"
-msgstr "Max Taille"
-
-#, fuzzy
-msgid "Host Associated"
-msgstr "Aucun noeud associé"
+msgid "User Count"
+msgstr "Nombre de CPU"
 
 #, fuzzy
 msgid "Site Name"
@@ -1556,31 +1557,52 @@ msgid "Site Description"
 msgstr "Printer description"
 
 #, fuzzy
-msgid "New Site"
-msgstr "Ajouter New Snapin"
+msgid "A site name is required!"
+msgstr "Un nom de l'image est nécessaire!"
 
 #, fuzzy
-msgid "Site already Exists, please try again."
-msgstr "Localisation existe déjà, s'il vous plaît essayer à nouveau."
+msgid "A site already exists with this name!"
+msgstr "Une image existe déjà avec ce nom!"
 
 #, fuzzy
-msgid "Please enter a name for this site."
-msgstr "S'il vous plaît entrer un nom pour cette adresse."
+msgid "Add site failed!"
+msgstr "Ajouter SnapIn a échoué!"
 
 #, fuzzy
-msgid "Site Added, editing!"
-msgstr "Lieu Ajouté, édition!"
+msgid "Site added!"
+msgstr "Nom de l'imprimante"
 
 #, fuzzy
-msgid "A site with that name already exists."
-msgstr "Un nom d'hôte avec ce nom existe déjà."
-
-msgid "Failed to update"
-msgstr "Impossible de mettre à jour"
+msgid "Site Create Success"
+msgstr "Imprimante existe déjà"
 
 #, fuzzy
-msgid "Site Updated"
-msgstr "Service de mise à jour!"
+msgid "Site Create Fail"
+msgstr "mise à jour de l'imprimante a échoué!"
+
+#, fuzzy
+msgid "Host Association"
+msgstr "Aucun noeud associé"
+
+#, fuzzy
+msgid "User Association"
+msgstr "Association Image"
+
+#, fuzzy
+msgid "Site update failed!"
+msgstr "mise à jour de l'imprimante a échoué!"
+
+#, fuzzy
+msgid "Site updated!"
+msgstr "Imprimante mis à jour!"
+
+#, fuzzy
+msgid "Site Update Success"
+msgstr "Installation / Mise à jour réussie!"
+
+#, fuzzy
+msgid "Site Update Fail"
+msgstr "mise à jour de l'imprimante a échoué!"
 
 #, fuzzy
 msgid "Check here to see hosts not within this"
@@ -2026,6 +2048,9 @@ msgstr "S'il vous plaît entrer un nom pour cette adresse."
 msgid "Rule Added, editing!"
 msgstr "Lieu Ajouté, édition!"
 
+msgid "Failed to update"
+msgstr "Impossible de mettre à jour"
+
 #, fuzzy
 msgid "Rule Updated"
 msgstr "Updater Client"
@@ -2317,9 +2342,6 @@ msgstr "Plugin description de"
 msgid "FOG Snapin Log"
 msgstr "FOG Snapin Connexion"
 
-msgid "Host Name"
-msgstr "Nom d'hôte"
-
 msgid "Snapin Name"
 msgstr "Nom snapin"
 
@@ -2584,6 +2606,12 @@ msgstr "image Desc"
 
 msgid "OS Name"
 msgstr "Nom OS"
+
+msgid "Yes"
+msgstr "Oui"
+
+msgid "No"
+msgstr "Non"
 
 msgid "FOG Imaging Log"
 msgstr "FOG Imaging Log"
@@ -3947,6 +3975,10 @@ msgstr "Paramètres"
 msgid "Minimum time limit for Auto Logout to become active is 5 minutes."
 msgstr ""
 
+#, fuzzy
+msgid "You must select an action to perform"
+msgstr "Vous devez spécifier l'alias et le port"
+
 msgid "Primary User"
 msgstr "utilisateur principal"
 
@@ -4085,11 +4117,8 @@ msgid "Imaging History"
 msgstr "Hôte Histoire Imaging"
 
 #, fuzzy
-msgid "You must select an action to perform"
-msgstr "Vous devez spécifier l'alias et le port"
-
-msgid "Host Update Failed"
-msgstr "Mise à jour de l'hôte a échoué"
+msgid "Host update failed!"
+msgstr "mise à jour de l'utilisateur a échoué"
 
 #, fuzzy
 msgid "Host updated!"
@@ -4117,21 +4146,6 @@ msgstr "Installation / Mise à jour réussie!"
 #, fuzzy
 msgid "Host Add to Group Fail"
 msgstr "Ajouter au groupe"
-
-msgid "Cron Schedule"
-msgstr "Cron Schedule"
-
-#, fuzzy
-msgid "Current Power Management settings"
-msgstr "Gestion des utilisateurs"
-
-#, fuzzy
-msgid "Update PM Values"
-msgstr "Mettez à jour les images"
-
-#, fuzzy
-msgid "Delete selected"
-msgstr "Supprimer sélectionnée"
 
 #, fuzzy
 msgid "Create New Group"
@@ -4355,10 +4369,6 @@ msgstr "Imprimante existe déjà"
 #, fuzzy
 msgid "Printer Create Fail"
 msgstr "mise à jour de l'imprimante a échoué!"
-
-#, fuzzy
-msgid "Host Membership"
-msgstr "Adhésion"
 
 #, fuzzy
 msgid "Update Default"
@@ -6163,6 +6173,10 @@ msgid "Add selected to group"
 msgstr "Imprimante"
 
 #, fuzzy
+msgid "Delete selected"
+msgstr "Supprimer sélectionnée"
+
+#, fuzzy
 msgid "Confirm password"
 msgstr "gestion Mot de passe"
 
@@ -6337,6 +6351,9 @@ msgstr "a été mis à jour avec succès"
 msgid "Failed to start tasking type"
 msgstr "Impossible de démarrer le déploiement multitâche"
 
+msgid "Cron Schedule"
+msgstr "Cron Schedule"
+
 msgid "Delayed Start"
 msgstr "Démarrage retardé"
 
@@ -6506,16 +6523,32 @@ msgstr "Réussi"
 msgid "Schedule Power"
 msgstr "Planificateur"
 
-msgid "Perform Immediately?"
+#, fuzzy
+msgid "hours"
+msgstr "1 heure"
+
+msgid "dayOfMonth"
+msgstr ""
+
+msgid "dayOfWeek"
+msgstr ""
+
+msgid "On Demand"
 msgstr ""
 
 #, fuzzy
-msgid "Create new PM Schedule"
-msgstr "Créer un nouveau %s"
+msgid "New Power Management Task"
+msgstr "Gestion des utilisateurs"
+
+msgid "Delete All Powermanagement Items"
+msgstr ""
+
+msgid "This will delete all powermanagement items from all hosts in this group"
+msgstr ""
 
 #, fuzzy
-msgid "New power management task"
-msgstr "Gestion des utilisateurs"
+msgid "Delete All"
+msgstr "Supprimer les données de fichiers"
 
 #, fuzzy
 msgid "Table not defined for this class"

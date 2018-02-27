@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-25 15:28-0500\n"
+"POT-Creation-Date: 2018-02-27 01:34-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1310,10 +1310,6 @@ msgid "Host Location"
 msgstr "主机位置"
 
 #, fuzzy
-msgid "Select a valid location"
-msgstr "选择一个有效的图像"
-
-#, fuzzy
 msgid "Host Location Updated!"
 msgstr "更新位置"
 
@@ -1375,30 +1371,36 @@ msgstr "地点名称"
 msgid "Kernels/Inits from location"
 msgstr "从位置仁/ Inits"
 
-msgid "Yes"
-msgstr "是"
-
-msgid "No"
-msgstr "没有"
-
-msgid "New Location"
-msgstr "新位置"
-
-msgid "Use inits and kernels from this node"
-msgstr "从这个节点inits和内核上使用"
-
 #, fuzzy
 msgid "Create New Location"
 msgstr "新建%s"
 
-msgid "Location already Exists, please try again."
-msgstr "位置已经存在，请重试。"
+#, fuzzy
+msgid "Location Description"
+msgstr "图像协会"
 
-msgid "Please enter a name for this location."
-msgstr "这个位置输入名称。"
+#, fuzzy
+msgid "Location Sends Boot"
+msgstr "地点名称"
 
-msgid "Please select the storage group this location relates to."
-msgstr "请选择此位置涉及存储组。"
+msgid "Location sends the inits and kernels"
+msgstr ""
+
+#, fuzzy
+msgid "Create New Site"
+msgstr "新建%s"
+
+#, fuzzy
+msgid "A location name is required!"
+msgstr "图像名是必需的！"
+
+#, fuzzy
+msgid "A location already exists with this name!"
+msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
+msgid "A storage group must be selected."
+msgstr "存储组中删除"
 
 #, fuzzy
 msgid "Add location failed!"
@@ -1409,23 +1411,31 @@ msgid "Location added!"
 msgstr "地点名称"
 
 #, fuzzy
-msgid "Location Create Success"
-msgstr "更新管理单元"
+msgid "Location Create Succes"
+msgstr "安装/升级成功！"
 
 #, fuzzy
 msgid "Location Create Fail"
 msgstr "更新管理单元"
 
 #, fuzzy
-msgid "Location General"
-msgstr "启用管理单元"
-
-msgid "A location with that name already exists."
-msgstr "具有该名称的位置已经存在。"
+msgid "Add Selected"
+msgstr "打印机"
 
 #, fuzzy
-msgid "A group is required for a location"
-msgstr "存储组是必需的！"
+msgid "Remove Selected"
+msgstr "删除选定snapins"
+
+msgid "Host Name"
+msgstr "主机名"
+
+#, fuzzy
+msgid "Host Associated"
+msgstr "无关联的节点"
+
+#, fuzzy
+msgid "Host Membership"
+msgstr "籍"
 
 #, fuzzy
 msgid "Location update failed!"
@@ -1468,10 +1478,6 @@ msgstr "图像协会"
 #, fuzzy
 msgid "Host Site"
 msgstr "主机列表"
-
-#, fuzzy
-msgid "Select a valid site"
-msgstr "选择一个有效的图像"
 
 #, fuzzy
 msgid "Host Site Updated!"
@@ -1530,16 +1536,12 @@ msgid "Import Sites"
 msgstr "进口打印机"
 
 #, fuzzy
-msgid "Hosts Associated"
-msgstr "没有snapins相关"
+msgid "Host Count"
+msgstr "主机列表"
 
 #, fuzzy
-msgid "Site"
-msgstr "最大尺寸"
-
-#, fuzzy
-msgid "Host Associated"
-msgstr "无关联的节点"
+msgid "User Count"
+msgstr "CPU计数"
 
 #, fuzzy
 msgid "Site Name"
@@ -1550,31 +1552,52 @@ msgid "Site Description"
 msgstr "打印机说明"
 
 #, fuzzy
-msgid "New Site"
-msgstr "添加新的管理单元"
+msgid "A site name is required!"
+msgstr "图像名是必需的！"
 
 #, fuzzy
-msgid "Site already Exists, please try again."
-msgstr "位置已经存在，请重试。"
+msgid "A site already exists with this name!"
+msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
-msgid "Please enter a name for this site."
-msgstr "这个地址输入名称。"
+msgid "Add site failed!"
+msgstr "添加管理单元失败！"
 
 #, fuzzy
-msgid "Site Added, editing!"
-msgstr "位置添加，编辑！"
+msgid "Site added!"
+msgstr "打印机名称"
 
 #, fuzzy
-msgid "A site with that name already exists."
-msgstr "使用此名称的主机名已经存在。"
-
-msgid "Failed to update"
-msgstr "无法更新"
+msgid "Site Create Success"
+msgstr "打印机已经存在"
 
 #, fuzzy
-msgid "Site Updated"
-msgstr "服务更新！"
+msgid "Site Create Fail"
+msgstr "打印机更新失败！"
+
+#, fuzzy
+msgid "Host Association"
+msgstr "无关联的节点"
+
+#, fuzzy
+msgid "User Association"
+msgstr "图像协会"
+
+#, fuzzy
+msgid "Site update failed!"
+msgstr "打印机更新失败！"
+
+#, fuzzy
+msgid "Site updated!"
+msgstr "打印机更新！"
+
+#, fuzzy
+msgid "Site Update Success"
+msgstr "安装/升级成功！"
+
+#, fuzzy
+msgid "Site Update Fail"
+msgstr "打印机更新失败！"
 
 #, fuzzy
 msgid "Check here to see hosts not within this"
@@ -2020,6 +2043,9 @@ msgstr "这个地址输入名称。"
 msgid "Rule Added, editing!"
 msgstr "位置添加，编辑！"
 
+msgid "Failed to update"
+msgstr "无法更新"
+
 #, fuzzy
 msgid "Rule Updated"
 msgstr "客户端更新"
@@ -2311,9 +2337,6 @@ msgstr "插件说明"
 msgid "FOG Snapin Log"
 msgstr "FOG管理单元日志"
 
-msgid "Host Name"
-msgstr "主机名"
-
 msgid "Snapin Name"
 msgstr "管理单元名称"
 
@@ -2578,6 +2601,12 @@ msgstr "图片说明"
 
 msgid "OS Name"
 msgstr "操作系统名称"
+
+msgid "Yes"
+msgstr "是"
+
+msgid "No"
+msgstr "没有"
 
 msgid "FOG Imaging Log"
 msgstr "FOG成像测井"
@@ -3925,6 +3954,10 @@ msgstr "设置"
 msgid "Minimum time limit for Auto Logout to become active is 5 minutes."
 msgstr ""
 
+#, fuzzy
+msgid "You must select an action to perform"
+msgstr "您必须指定别名和端口"
+
 msgid "Primary User"
 msgstr "主要用户"
 
@@ -4063,11 +4096,8 @@ msgid "Imaging History"
 msgstr "主持人成像历史"
 
 #, fuzzy
-msgid "You must select an action to perform"
-msgstr "您必须指定别名和端口"
-
-msgid "Host Update Failed"
-msgstr "主机更新失败"
+msgid "Host update failed!"
+msgstr "用户更新失败"
 
 #, fuzzy
 msgid "Host updated!"
@@ -4095,21 +4125,6 @@ msgstr "安装/升级成功！"
 #, fuzzy
 msgid "Host Add to Group Fail"
 msgstr "添加到组"
-
-msgid "Cron Schedule"
-msgstr "Cron排程"
-
-#, fuzzy
-msgid "Current Power Management settings"
-msgstr "用户管理"
-
-#, fuzzy
-msgid "Update PM Values"
-msgstr "更新映像"
-
-#, fuzzy
-msgid "Delete selected"
-msgstr "删除所选"
 
 #, fuzzy
 msgid "Create New Group"
@@ -4332,10 +4347,6 @@ msgstr "打印机已经存在"
 #, fuzzy
 msgid "Printer Create Fail"
 msgstr "打印机更新失败！"
-
-#, fuzzy
-msgid "Host Membership"
-msgstr "籍"
 
 #, fuzzy
 msgid "Update Default"
@@ -6126,6 +6137,10 @@ msgid "Add selected to group"
 msgstr "打印机"
 
 #, fuzzy
+msgid "Delete selected"
+msgstr "删除所选"
+
+#, fuzzy
 msgid "Confirm password"
 msgstr "管理密码"
 
@@ -6296,6 +6311,9 @@ msgstr "已成功更新"
 msgid "Failed to start tasking type"
 msgstr "无法启动部署任务"
 
+msgid "Cron Schedule"
+msgstr "Cron排程"
+
 msgid "Delayed Start"
 msgstr "延时启动"
 
@@ -6465,16 +6483,32 @@ msgstr "成功"
 msgid "Schedule Power"
 msgstr "调度"
 
-msgid "Perform Immediately?"
+#, fuzzy
+msgid "hours"
+msgstr "1小时"
+
+msgid "dayOfMonth"
+msgstr ""
+
+msgid "dayOfWeek"
+msgstr ""
+
+msgid "On Demand"
 msgstr ""
 
 #, fuzzy
-msgid "Create new PM Schedule"
-msgstr "新建%s"
+msgid "New Power Management Task"
+msgstr "用户管理"
+
+msgid "Delete All Powermanagement Items"
+msgstr ""
+
+msgid "This will delete all powermanagement items from all hosts in this group"
+msgstr ""
 
 #, fuzzy
-msgid "New power management task"
-msgstr "用户管理"
+msgid "Delete All"
+msgstr "删除的文件数据"
 
 #, fuzzy
 msgid "Table not defined for this class"
