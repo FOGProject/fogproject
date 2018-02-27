@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-27 02:39-0500\n"
+"POT-Creation-Date: 2018-02-27 03:08-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5637,16 +5637,13 @@ msgstr ""
 msgid "Import CSV"
 msgstr ""
 
-msgid "Import CSV?"
+msgid "This page allows you to upload a CSV file into fog."
 msgstr ""
 
-msgid "This page allows you to upload a CSV file into FOG to ease"
+msgid "This should ease migration or mass import new items."
 msgstr ""
 
-msgid "migration or mass import new items"
-msgstr ""
-
-msgid "It will operate based on the fields the area typically requires"
+msgid "It will operate based on the fields the area typcially requires."
 msgstr ""
 
 msgid "File must be a csv"
