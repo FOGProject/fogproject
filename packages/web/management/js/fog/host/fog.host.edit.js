@@ -121,8 +121,7 @@
         newmacField = $('#newMac'),
         macTable = $('#host-macaddresses-table'),
         macUpdateBtn = $('#macaddress-table-update'),
-        macDeleteBtn = $('#macaddress-table-delete'),
-        MAC_PRIMARY_ID = -1;
+        macDeleteBtn = $('#macaddress-table-delete');
 
     macUpdateBtn.prop('disabled', true);
     macDeleteBtn.prop('disabled', true);
@@ -186,7 +185,7 @@
                         + row.id
                         + '" value="'
                         + row.id
-                        + ' wasoriginalprimary="'
+                        + '" wasoriginalprimary="'
                         + checkval
                         + '" '
                         + checkval
@@ -264,24 +263,85 @@
     // Make our Mac addresses editable, but restricted to MAC Address formats.
     //macsTable.$('.macs').inputmask({mask: Common.masks.mac});
     macsTable.on('draw', function() {
-        Common.iCheck('#host-macaddresses-table input');
+        Common.iCheck('#host-macaddresses-table input.primary');
+        Common.iCheck('#host-macaddresses-table input.imageIgnore');
+        Common.iCheck('#host-macaddresses-table input.clientIgnore');
+        Common.iCheck('#host-macaddresses-table input.pending');
         $('#host-macaddresses-table input.primary').on('ifClicked', onMacsRadioSelect);
+        $('#host-macaddresses-table input.imageIgnore').on('ifClicked', onMacsCheckboxSelect);
+        $('#host-macaddresses-table input.clientIgnore').on('ifClicked', onMacsCheckboxSelect);
+        $('#host-macaddresses-table input.pending').on('ifClicked', onMacsCheckboxSelect);
     });
     macUpdateBtn.prop('disabled', true);
 
     var onMacsRadioSelect = function(event) {
+        macUpdateBtn.prop('disabled', true);
+        macDeleteBtn.prop('disabled', true);
         if($(this).attr('belongsto') === 'primaryMacs') {
-            var id = parseInt($(this).val());
-            if(MAC_PRIMARY_ID === -1 && $(this).attr('wasoriginaldefault') === ' checked') {
-                MAC_PRIMARY_ID = id;
-            }
-            macUpdateBtn.prop('disabled', false);
-            //macDeleteBtn.prop('disabled', false);
+            var id = parseInt($(this).val()),
+                method = macUpdateBtn.attr('method'),
+                action = macUpdateBtn.attr('action'),
+                opts = {
+                    updateprimary: 1,
+                    primary: id
+                };
+            Common.apiCall(method,action,opts,function(err) {
+                macUpdateBtn.prop('disabled', false);
+                macDeleteBtn.prop('disabled', false);
+                macsTable.rows({selected: true}).deselect();
+                if (err) {
+                    macsTable.draw(false);
+                }
+            });
         }
     };
+    var onMacsCheckboxSelect = function(event) {
+        $(this).prop('checked', !this.checked);
+        macUpdateBtn.prop('disabled', true);
+        macDeleteBtn.prop('disabled', true);
+        var imageIgnore = [],
+            clientIgnore = [],
+            pending = [];
+        $('.imageIgnore').each(function() {
+            if (this.checked) {
+                imageIgnore.push(this.value);
+            }
+        });
+        $('.clientIgnore').each(function() {
+            if (this.checked) {
+                clientIgnore.push(this.value);
+            }
+        });
+        $('.pending').each(function() {
+            if (this.checked) {
+                pending.push(this.value);
+            }
+        });
+        var id = parseInt($(this).val()),
+            method = macUpdateBtn.attr('method'),
+            action = macUpdateBtn.attr('action'),
+            opts = {
+                updatechecks: 1,
+                imageIgnore: imageIgnore,
+                clientIgnore: clientIgnore,
+                pending: pending
+            };
+        Common.apiCall(method,action,opts,function(err) {
+            macUpdateBtn.prop('disabled', false);
+            macDeleteBtn.prop('disabled', false);
+            if (err) {
+                macsTable.draw(false);
+            }
+            macsTable.rows({selected: true}).deselect();
+        });
+    };
 
-    // Setup primary mac watcher
+    // Setup primary mac watcher.
     $('#host-macaddresses-table input.primary').on('ifClicked', onMacsRadioSelect);
+    // Setup checkbox watchers.
+    $('#host-macaddresses-table input.imageIgnore').on('ifClicked', onMacsCheckboxSelect);
+    $('#host-macaddresses-table input.clientIgnore').on('ifClicked', onMacsCheckboxSelect);
+    $('#host-macaddresses-table input.pending').on('ifClicked', onMacsCheckboxSelect);
 
     if (Common.search && Common.search.length > 0) {
         macsTable.search(Common.search).draw();
