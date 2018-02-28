@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-27 17:18-0500\n"
+"POT-Creation-Date: 2018-02-28 04:03-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4875,12 +4875,13 @@ msgstr "新建%s"
 msgid "User Password"
 msgstr "用户密码"
 
-msgid "User Password (confirm)"
-msgstr "用户密码（确认）"
+#, fuzzy
+msgid "confirm"
+msgstr "任务无效"
 
 #, fuzzy
-msgid "User API Enabled"
-msgstr "已启用"
+msgid "User API Enable"
+msgstr "访问令牌"
 
 #, fuzzy
 msgid "A user name is required!"
@@ -4926,15 +4927,15 @@ msgid "User Create Fail"
 msgstr "用户创建"
 
 #, fuzzy
+msgid "A user already exists with this name"
+msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
 msgid "User API Token"
 msgstr "访问令牌"
 
 msgid "API"
 msgstr ""
-
-#, fuzzy
-msgid "A user already exists with this name"
-msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
 msgid "User update failed!"
@@ -5172,9 +5173,12 @@ msgstr "管理单元更新失败"
 msgid "Database Schema Installer / Updater"
 msgstr "数据库模式安装/更新"
 
+msgid "Install/Update now"
+msgstr ""
+
 #, fuzzy
-msgid "Install/Update"
-msgstr "安装/更新失败！"
+msgid "Database Install | Update"
+msgstr "数据库模式安装/更新"
 
 msgid "If you would like to backup your"
 msgstr ""
@@ -5239,20 +5243,12 @@ msgid "previous install if needed"
 msgstr ""
 
 #, fuzzy
-msgid "Are you sure you wish to"
-msgstr "您确定要删除这些项目"
+msgid "Click "
+msgstr "点击"
 
 #, fuzzy
-msgid "install or update the FOG database"
-msgstr "你确定要安装或更新FOG数据库？"
-
-#, fuzzy
-msgid "Install/Update Now"
-msgstr "安装/立即升级"
-
-#, fuzzy
-msgid "Database not available"
-msgstr "数据库更新失败"
+msgid " to login"
+msgstr "登录失败"
 
 msgid "Your database connection appears to be invalid"
 msgstr ""
@@ -5280,22 +5276,33 @@ msgstr "检查数据库运行"
 msgid "check to ensure your filesystem has enough space"
 msgstr ""
 
-msgid "No connection available"
-msgstr "没有可用的连接"
+#, fuzzy
+msgid "Database connection unavailable."
+msgstr "没有可用的散列"
 
-msgid "Update not required!"
-msgstr "更新不需要！"
+#, fuzzy
+msgid "Update not required"
+msgstr "图像名是必需的！"
 
-msgid "ID"
-msgstr "ID"
+#, fuzzy
+msgid "Update Not Required"
+msgstr "高级需要登录"
+
+#, fuzzy
+msgid "Update ID"
+msgstr "更新"
+
+#, fuzzy
+msgid "Function Error"
+msgstr "行动"
 
 #, fuzzy
 msgid "Function"
 msgstr "行动"
 
 #, fuzzy
-msgid "Database"
-msgstr "日期"
+msgid "Database Error"
+msgstr "数据库更新失败"
 
 msgid "Variable contains"
 msgstr ""
@@ -5303,20 +5310,21 @@ msgstr ""
 msgid "Database SQL"
 msgstr ""
 
-msgid "Install / Update Failed!"
-msgstr "安装/更新失败！"
+#, fuzzy
+msgid "Unable to update schema"
+msgstr "无法更新"
 
-msgid "The following errors occurred"
-msgstr "出现以下错误"
-
-msgid "Install / Update Successful!"
+#, fuzzy
+msgid "Schema updated successfully!"
 msgstr "安装/升级成功！"
 
-msgid "to login"
-msgstr "登陆"
+#, fuzzy
+msgid "Schema Update Success"
+msgstr "安装/升级成功！"
 
-msgid "The following errors occured"
-msgstr "下面的错误发生"
+#, fuzzy
+msgid "Schema Update Fail"
+msgstr "打印机更新失败！"
 
 msgid "Failed to connect"
 msgstr "连接失败"
@@ -5617,6 +5625,9 @@ msgstr ""
 #, fuzzy
 msgid "Trying image size for"
 msgstr "管理单元路径"
+
+msgid "ID"
+msgstr "ID"
 
 #, fuzzy
 msgid "Path is unavailable"

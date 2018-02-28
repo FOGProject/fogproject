@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-27 17:18-0500\n"
+"POT-Creation-Date: 2018-02-28 04:03-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -4451,11 +4451,13 @@ msgstr "Crea nuovo %s"
 msgid "User Password"
 msgstr "Password utente"
 
-msgid "User Password (confirm)"
-msgstr "User Password (conferma)"
+#, fuzzy
+msgid "confirm"
+msgstr "Conferma il task"
 
-msgid "User API Enabled"
-msgstr "API Utente abilitate"
+#, fuzzy
+msgid "User API Enable"
+msgstr "API Utente Token"
 
 msgid "A user name is required!"
 msgstr "È richiesto un nome utente!"
@@ -4493,15 +4495,15 @@ msgstr "Creazione utente riuscita"
 msgid "User Create Fail"
 msgstr "Creazione utente fallita"
 
+msgid "A user already exists with this name"
+msgstr "Esiste già un utente con questo nome!"
+
 msgid "User API Token"
 msgstr "API Utente Token"
 
 #, fuzzy
 msgid "API"
 msgstr "API?"
-
-msgid "A user already exists with this name"
-msgstr "Esiste già un utente con questo nome!"
 
 msgid "User update failed!"
 msgstr "Aggiornamento utente non riuscita"
@@ -4711,8 +4713,12 @@ msgstr "Aggiornamento Snapin fallito"
 msgid "Database Schema Installer / Updater"
 msgstr "Database Schema di installazione / aggiornamento"
 
-msgid "Install/Update"
-msgstr "Installa/Aggiorna"
+msgid "Install/Update now"
+msgstr ""
+
+#, fuzzy
+msgid "Database Install | Update"
+msgstr "Database Schema di installazione / aggiornamento"
 
 msgid "If you would like to backup your"
 msgstr "Se vuoi eseguire il backup del tuo"
@@ -4771,17 +4777,13 @@ msgstr "Questo backup vi permetterà di ritornare alla"
 msgid "previous install if needed"
 msgstr "installazione precedente se necessario"
 
-msgid "Are you sure you wish to"
-msgstr "Sei sicuro di voler"
+#, fuzzy
+msgid "Click "
+msgstr "Click"
 
-msgid "install or update the FOG database"
-msgstr "Installare o aggiornare il database FOG"
-
-msgid "Install/Update Now"
-msgstr "Installa/Aggiorna adesso"
-
-msgid "Database not available"
-msgstr "Database non disponibile"
+#, fuzzy
+msgid " to login"
+msgstr "non è riuscito a effettuare il login"
 
 msgid "Your database connection appears to be invalid"
 msgstr "La connessione al database sembra non valida"
@@ -4807,20 +4809,32 @@ msgstr "e se il servizio Database è in esecuzione"
 msgid "check to ensure your filesystem has enough space"
 msgstr "cerificare che il filesystem abbia spazio sufficiente"
 
-msgid "No connection available"
-msgstr "Nessuna connessione disponibile"
+#, fuzzy
+msgid "Database connection unavailable."
+msgstr "Percorso non disponibile"
 
-msgid "Update not required!"
-msgstr "Aggiornamento non richiesto!"
+#, fuzzy
+msgid "Update not required"
+msgstr "È richiesto un nome!"
 
-msgid "ID"
-msgstr "ID"
+#, fuzzy
+msgid "Update Not Required"
+msgstr "Avanzata Login Richiesto"
+
+#, fuzzy
+msgid "Update ID"
+msgstr "Aggiornare"
+
+#, fuzzy
+msgid "Function Error"
+msgstr "Funzione"
 
 msgid "Function"
 msgstr "Funzione"
 
-msgid "Database"
-msgstr "Database"
+#, fuzzy
+msgid "Database Error"
+msgstr "Database SQL"
 
 msgid "Variable contains"
 msgstr "La variabile contiene"
@@ -4828,20 +4842,21 @@ msgstr "La variabile contiene"
 msgid "Database SQL"
 msgstr "Database SQL"
 
-msgid "Install / Update Failed!"
-msgstr "Installare / Aggiornamento non riuscito!"
+#, fuzzy
+msgid "Unable to update schema"
+msgstr "Tra impostazioni host e globali"
 
-msgid "The following errors occurred"
-msgstr "Si sono verificati i seguenti errori"
+#, fuzzy
+msgid "Schema updated successfully!"
+msgstr "Impostazioni iPXE aggiornate correttamente!"
 
-msgid "Install / Update Successful!"
-msgstr "Installare / Aggiornamento di successo!"
+#, fuzzy
+msgid "Schema Update Success"
+msgstr "Aggiornamento host completato!"
 
-msgid "to login"
-msgstr "il login"
-
-msgid "The following errors occured"
-msgstr "I seguenti errori si è verificato"
+#, fuzzy
+msgid "Schema Update Fail"
+msgstr "Aggiornamento della stampante non riuscito"
 
 msgid "Failed to connect"
 msgstr "Connessione fallita"
@@ -5094,6 +5109,9 @@ msgstr "Per aggiornare i valori di dimensione secondo necessità"
 
 msgid "Trying image size for"
 msgstr "Prova della dimensione dell'immagine per"
+
+msgid "ID"
+msgstr "ID"
 
 msgid "Path is unavailable"
 msgstr "Percorso non disponibile"

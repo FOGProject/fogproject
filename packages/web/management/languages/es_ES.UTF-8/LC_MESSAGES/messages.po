@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-27 17:18-0500\n"
+"POT-Creation-Date: 2018-02-28 04:03-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -5127,12 +5127,13 @@ msgstr "Crear nuevo grupo"
 msgid "User Password"
 msgstr "Contraseña de usuario"
 
-msgid "User Password (confirm)"
-msgstr "Contraseña de usuario (confirmar)"
+#, fuzzy
+msgid "confirm"
+msgstr "tarea no válido"
 
 #, fuzzy
-msgid "User API Enabled"
-msgstr "habilitado"
+msgid "User API Enable"
+msgstr "Nombre de usuario"
 
 #, fuzzy
 msgid "A user name is required!"
@@ -5178,15 +5179,15 @@ msgid "User Create Fail"
 msgstr "creado por el usuario"
 
 #, fuzzy
+msgid "A user already exists with this name"
+msgstr "Una imagen ya existe con este nombre!"
+
+#, fuzzy
 msgid "User API Token"
 msgstr "Nombre de usuario"
 
 msgid "API"
 msgstr ""
-
-#, fuzzy
-msgid "A user already exists with this name"
-msgstr "Una imagen ya existe con este nombre!"
 
 #, fuzzy
 msgid "User update failed!"
@@ -5428,9 +5429,12 @@ msgstr "actualización de servicio no pudo"
 msgid "Database Schema Installer / Updater"
 msgstr "Esquema de base de datos del instalador / actualizador"
 
+msgid "Install/Update now"
+msgstr ""
+
 #, fuzzy
-msgid "Install/Update"
-msgstr "actualización de la impresora ha fallado!"
+msgid "Database Install | Update"
+msgstr "Esquema de base de datos del instalador / actualizador"
 
 msgid "If you would like to backup your"
 msgstr ""
@@ -5495,20 +5499,12 @@ msgid "previous install if needed"
 msgstr ""
 
 #, fuzzy
-msgid "Are you sure you wish to"
-msgstr "¿Seguro que desea eliminar estos artículos"
+msgid "Click "
+msgstr "Hacer clic"
 
 #, fuzzy
-msgid "install or update the FOG database"
-msgstr "¿Está seguro que desea instalar o actualizar la base de datos FOG?"
-
-#, fuzzy
-msgid "Install/Update Now"
-msgstr "Instalar / Actualizar ahora"
-
-#, fuzzy
-msgid "Database not available"
-msgstr "actualización de la base no"
+msgid " to login"
+msgstr "el usuario no pudo iniciar sesión"
 
 msgid "Your database connection appears to be invalid"
 msgstr ""
@@ -5536,23 +5532,33 @@ msgstr "Compruebe que la base de datos se está ejecutando"
 msgid "check to ensure your filesystem has enough space"
 msgstr ""
 
-msgid "No connection available"
-msgstr ""
+#, fuzzy
+msgid "Database connection unavailable."
+msgstr "No se dispone de hash"
 
 #, fuzzy
-msgid "Update not required!"
-msgstr "Actualizar impresora"
+msgid "Update not required"
+msgstr "Se requiere un nombre de imagen!"
 
-msgid "ID"
-msgstr "CARNÉ DE IDENTIDAD"
+#, fuzzy
+msgid "Update Not Required"
+msgstr "Avanzada Menú Inicio de sesión"
+
+#, fuzzy
+msgid "Update ID"
+msgstr "Actualizar"
+
+#, fuzzy
+msgid "Function Error"
+msgstr "Acción"
 
 #, fuzzy
 msgid "Function"
 msgstr "Acción"
 
 #, fuzzy
-msgid "Database"
-msgstr "Fecha"
+msgid "Database Error"
+msgstr "actualización de la base no"
 
 msgid "Variable contains"
 msgstr ""
@@ -5561,21 +5567,20 @@ msgid "Database SQL"
 msgstr ""
 
 #, fuzzy
-msgid "Install / Update Failed!"
-msgstr "actualización de la impresora ha fallado!"
+msgid "Unable to update schema"
+msgstr "No se ha podido destruir"
 
 #, fuzzy
-msgid "The following errors occurred"
-msgstr "Se produjo un error de carga desconocida. Código de retorno: "
+msgid "Schema updated successfully!"
+msgstr "actualización de servicio no pudo"
 
-msgid "Install / Update Successful!"
-msgstr ""
+#, fuzzy
+msgid "Schema Update Success"
+msgstr "actualización Valoración falló"
 
-msgid "to login"
-msgstr ""
-
-msgid "The following errors occured"
-msgstr ""
+#, fuzzy
+msgid "Schema Update Fail"
+msgstr "actualización de la impresora ha fallado!"
 
 #, fuzzy
 msgid "Failed to connect"
@@ -5874,6 +5879,9 @@ msgstr ""
 
 msgid "Trying image size for"
 msgstr ""
+
+msgid "ID"
+msgstr "CARNÉ DE IDENTIDAD"
 
 #, fuzzy
 msgid "Path is unavailable"

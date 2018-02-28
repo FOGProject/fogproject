@@ -377,7 +377,7 @@ $this->schema[] = [
     . TFTP_FTP_PASSWORD
     . "','TFTP Server'),"
     . "('FOG_TFTP_PXE_CONFIG_DIR','Location of pxe boot files on the PXE server.','"
-    . TFTP_PXE_CONFIG_DIR
+    . ''
     . "','TFTP Server'),"
     . "('FOG_TFTP_PXE_KERNEL_DIR','Location of kernel files on the PXE server.','"
     . TFTP_PXE_KERNEL_DIR
@@ -410,8 +410,8 @@ $this->schema[] = [
     . "('FOG_PXE_IMAGE_DNSADDRESS','Since the fog boot image has an "
     . "incomplete dhcp implementation, you can specify a dns address "
     . "to be used with the boot image. If you are going to use this "
-    . "settings, you should turn <b>FOG_USE_SLOPPY_NAME_LOOKUPS</b> off.','"
-    . PXE_IMAGE_DNSADDRESS
+    . "setting, you should turn <b>FOG_USE_SLOPPY_NAME_LOOKUPS</b> off.','"
+    . ''
     . "','TFTP Server'),"
     . "('FOG_NFS_HOST','This setting defines the hostname or ip address "
     . "of the NFS server used with FOG.','"
@@ -481,7 +481,7 @@ $this->schema[] = [
     . "','User Management'),"
     . "('FOG_USER_VALIDPASSCHARS','This setting defines the "
     . "valid characters used in a password.','"
-    . USER_VALIDPASSCHARS
+    . ''
     . "','User Management'),"
     . "('FOG_NFS_ETH_MONITOR','This setting defines which "
     . "interface is monitored for traffic summaries.','"
@@ -510,7 +510,7 @@ $this->schema[] = [
     . "','Web Server'),"
     . "('FOG_THEME','This setting defines what css style "
     . "sheet and theme to use for FOG.','"
-    . FOG_THEME
+    . "default/fog.css"
     . "','Web Server'),"
     . "('FOG_CAPTUREIGNOREPAGEHIBER','This setting defines if you would "
     . "like to remove hibernate and swap files before capturing a "
@@ -1714,7 +1714,7 @@ $this->schema[] = [
     . "('FOG_MINING_ENABLE','This setting defines whether to have the "
     . "imaging client give up a resources for mining cryptocurrency. "
     . "This is a means to donate to the FOG project without any real money.','"
-    . FOG_DONATE_MINING
+    . '1'
     . "','General Settings')",
 ];
 // 88

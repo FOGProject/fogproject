@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-27 17:18-0500\n"
+"POT-Creation-Date: 2018-02-28 04:03-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4901,12 +4901,13 @@ msgstr "Créer un nouveau %s"
 msgid "User Password"
 msgstr "Mot de passe de l'utilisateur"
 
-msgid "User Password (confirm)"
-msgstr "Mot de passe de l'utilisateur (confirmation)"
+#, fuzzy
+msgid "confirm"
+msgstr "tâche non valide"
 
 #, fuzzy
-msgid "User API Enabled"
-msgstr "Est autorisé"
+msgid "User API Enable"
+msgstr "Jeton d'accès"
 
 #, fuzzy
 msgid "A user name is required!"
@@ -4952,15 +4953,15 @@ msgid "User Create Fail"
 msgstr "utilisateur créé"
 
 #, fuzzy
+msgid "A user already exists with this name"
+msgstr "Une image existe déjà avec ce nom!"
+
+#, fuzzy
 msgid "User API Token"
 msgstr "Jeton d'accès"
 
 msgid "API"
 msgstr ""
-
-#, fuzzy
-msgid "A user already exists with this name"
-msgstr "Une image existe déjà avec ce nom!"
 
 #, fuzzy
 msgid "User update failed!"
@@ -5198,9 +5199,12 @@ msgstr "mise à jour a échoué Snapin"
 msgid "Database Schema Installer / Updater"
 msgstr "Base de données de schéma d'installation / Updater"
 
+msgid "Install/Update now"
+msgstr ""
+
 #, fuzzy
-msgid "Install/Update"
-msgstr "Installation / mise à jour a échoué!"
+msgid "Database Install | Update"
+msgstr "Base de données de schéma d'installation / Updater"
 
 msgid "If you would like to backup your"
 msgstr ""
@@ -5265,22 +5269,12 @@ msgid "previous install if needed"
 msgstr ""
 
 #, fuzzy
-msgid "Are you sure you wish to"
-msgstr "Êtes-vous sûr de vouloir supprimer ces éléments"
+msgid "Click "
+msgstr "Cliquez"
 
 #, fuzzy
-msgid "install or update the FOG database"
-msgstr ""
-"Etes-vous sûr que vous souhaitez installer ou mettre à jour la base de "
-"données de FOG?"
-
-#, fuzzy
-msgid "Install/Update Now"
-msgstr "Installation / Mise à niveau maintenant"
-
-#, fuzzy
-msgid "Database not available"
-msgstr "mise à jour de base de données a échoué"
+msgid " to login"
+msgstr "pas vous connecter"
 
 msgid "Your database connection appears to be invalid"
 msgstr ""
@@ -5308,22 +5302,33 @@ msgstr "Vérifiez que la base de données est en cours d'exécution"
 msgid "check to ensure your filesystem has enough space"
 msgstr ""
 
-msgid "No connection available"
-msgstr "Aucune connexion disponible"
+#, fuzzy
+msgid "Database connection unavailable."
+msgstr "Pas de hachage disponible"
 
-msgid "Update not required!"
-msgstr "Mettre à jour pas nécessaire!"
+#, fuzzy
+msgid "Update not required"
+msgstr "Un nom de l'image est nécessaire!"
 
-msgid "ID"
-msgstr "ID"
+#, fuzzy
+msgid "Update Not Required"
+msgstr "Avancée Login requis"
+
+#, fuzzy
+msgid "Update ID"
+msgstr "Mettre à jour"
+
+#, fuzzy
+msgid "Function Error"
+msgstr "action"
 
 #, fuzzy
 msgid "Function"
 msgstr "action"
 
 #, fuzzy
-msgid "Database"
-msgstr "date"
+msgid "Database Error"
+msgstr "Mise à jour de base de données a échoué"
 
 msgid "Variable contains"
 msgstr ""
@@ -5331,20 +5336,21 @@ msgstr ""
 msgid "Database SQL"
 msgstr ""
 
-msgid "Install / Update Failed!"
-msgstr "Installation / mise à jour a échoué!"
+#, fuzzy
+msgid "Unable to update schema"
+msgstr "Impossible de mettre à jour"
 
-msgid "The following errors occurred"
-msgstr "Les erreurs suivantes sont survenues"
-
-msgid "Install / Update Successful!"
+#, fuzzy
+msgid "Schema updated successfully!"
 msgstr "Installation / Mise à jour réussie!"
 
-msgid "to login"
-msgstr "ouvrir une session"
+#, fuzzy
+msgid "Schema Update Success"
+msgstr "Installation / Mise à jour réussie!"
 
-msgid "The following errors occured"
-msgstr "Les erreurs suivantes se sont produites"
+#, fuzzy
+msgid "Schema Update Fail"
+msgstr "mise à jour de l'imprimante a échoué!"
 
 msgid "Failed to connect"
 msgstr "Échec de connexion"
@@ -5645,6 +5651,9 @@ msgstr ""
 #, fuzzy
 msgid "Trying image size for"
 msgstr "snapin Chemin"
+
+msgid "ID"
+msgstr "ID"
 
 #, fuzzy
 msgid "Path is unavailable"

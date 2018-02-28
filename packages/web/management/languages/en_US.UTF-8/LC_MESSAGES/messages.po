@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-27 17:18-0500\n"
+"POT-Creation-Date: 2018-02-28 04:03-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4891,12 +4891,13 @@ msgstr "Create New %s"
 msgid "User Password"
 msgstr "User Password"
 
-msgid "User Password (confirm)"
-msgstr "User Password (confirm)"
+#, fuzzy
+msgid "confirm"
+msgstr "Invalid task"
 
 #, fuzzy
-msgid "User API Enabled"
-msgstr "Is Enabled"
+msgid "User API Enable"
+msgstr "Access Token"
 
 #, fuzzy
 msgid "A user name is required!"
@@ -4942,15 +4943,15 @@ msgid "User Create Fail"
 msgstr "User created"
 
 #, fuzzy
+msgid "A user already exists with this name"
+msgstr "An image already exists with this name!"
+
+#, fuzzy
 msgid "User API Token"
 msgstr "Access Token"
 
 msgid "API"
 msgstr ""
-
-#, fuzzy
-msgid "A user already exists with this name"
-msgstr "An image already exists with this name!"
 
 #, fuzzy
 msgid "User update failed!"
@@ -5188,9 +5189,12 @@ msgstr "Snapin update failed"
 msgid "Database Schema Installer / Updater"
 msgstr "Database Schema Installer / Updater"
 
+msgid "Install/Update now"
+msgstr ""
+
 #, fuzzy
-msgid "Install/Update"
-msgstr "Install / Update Failed!"
+msgid "Database Install | Update"
+msgstr "Database Schema Installer / Updater"
 
 msgid "If you would like to backup your"
 msgstr ""
@@ -5255,20 +5259,12 @@ msgid "previous install if needed"
 msgstr ""
 
 #, fuzzy
-msgid "Are you sure you wish to"
-msgstr "Are you sure you wish to remove these items"
+msgid "Click "
+msgstr "Click"
 
 #, fuzzy
-msgid "install or update the FOG database"
-msgstr "Are you sure you wish to install or update the FOG database?"
-
-#, fuzzy
-msgid "Install/Update Now"
-msgstr "Install/Upgrade Now"
-
-#, fuzzy
-msgid "Database not available"
-msgstr "Database update failed"
+msgid " to login"
+msgstr "failed to login"
 
 msgid "Your database connection appears to be invalid"
 msgstr ""
@@ -5296,22 +5292,33 @@ msgstr "Check that database is running"
 msgid "check to ensure your filesystem has enough space"
 msgstr ""
 
-msgid "No connection available"
-msgstr "No connection available"
+#, fuzzy
+msgid "Database connection unavailable."
+msgstr "No hash available"
 
-msgid "Update not required!"
-msgstr "Update not required!"
+#, fuzzy
+msgid "Update not required"
+msgstr "An image name is required!"
 
-msgid "ID"
-msgstr "ID"
+#, fuzzy
+msgid "Update Not Required"
+msgstr "Advanced Login Required"
+
+#, fuzzy
+msgid "Update ID"
+msgstr "Update"
+
+#, fuzzy
+msgid "Function Error"
+msgstr "Action"
 
 #, fuzzy
 msgid "Function"
 msgstr "Action"
 
 #, fuzzy
-msgid "Database"
-msgstr "Date"
+msgid "Database Error"
+msgstr "Database Update Failed"
 
 msgid "Variable contains"
 msgstr ""
@@ -5319,20 +5326,21 @@ msgstr ""
 msgid "Database SQL"
 msgstr ""
 
-msgid "Install / Update Failed!"
-msgstr "Install / Update Failed!"
+#, fuzzy
+msgid "Unable to update schema"
+msgstr "Failed to update"
 
-msgid "The following errors occurred"
-msgstr "The following errors occurred"
-
-msgid "Install / Update Successful!"
+#, fuzzy
+msgid "Schema updated successfully!"
 msgstr "Install / Update Successful!"
 
-msgid "to login"
-msgstr "to login"
+#, fuzzy
+msgid "Schema Update Success"
+msgstr "Install / Update Successful!"
 
-msgid "The following errors occured"
-msgstr "The following errors occured"
+#, fuzzy
+msgid "Schema Update Fail"
+msgstr "Printer update failed!"
 
 msgid "Failed to connect"
 msgstr "Failed to connect"
@@ -5633,6 +5641,9 @@ msgstr ""
 #, fuzzy
 msgid "Trying image size for"
 msgstr "Snapin Path"
+
+msgid "ID"
+msgstr "ID"
 
 #, fuzzy
 msgid "Path is unavailable"

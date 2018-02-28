@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-27 17:18-0500\n"
+"POT-Creation-Date: 2018-02-28 04:03-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4890,12 +4890,13 @@ msgstr "Criar novo %s"
 msgid "User Password"
 msgstr "Senha do usuário"
 
-msgid "User Password (confirm)"
-msgstr "User Password (confirmar)"
+#, fuzzy
+msgid "confirm"
+msgstr "tarefa inválido"
 
 #, fuzzy
-msgid "User API Enabled"
-msgstr "Está ativado"
+msgid "User API Enable"
+msgstr "token de acesso"
 
 #, fuzzy
 msgid "A user name is required!"
@@ -4941,15 +4942,15 @@ msgid "User Create Fail"
 msgstr "usuário criado"
 
 #, fuzzy
+msgid "A user already exists with this name"
+msgstr "Uma imagem já existe com este nome!"
+
+#, fuzzy
 msgid "User API Token"
 msgstr "token de acesso"
 
 msgid "API"
 msgstr ""
-
-#, fuzzy
-msgid "A user already exists with this name"
-msgstr "Uma imagem já existe com este nome!"
 
 #, fuzzy
 msgid "User update failed!"
@@ -5187,9 +5188,12 @@ msgstr "atualização Snapin falhou"
 msgid "Database Schema Installer / Updater"
 msgstr "Banco de dados de esquema Instalador / Updater"
 
+msgid "Install/Update now"
+msgstr ""
+
 #, fuzzy
-msgid "Install/Update"
-msgstr "Instalar / Atualizar Falha!"
+msgid "Database Install | Update"
+msgstr "Banco de dados de esquema Instalador / Updater"
 
 msgid "If you would like to backup your"
 msgstr ""
@@ -5254,20 +5258,12 @@ msgid "previous install if needed"
 msgstr ""
 
 #, fuzzy
-msgid "Are you sure you wish to"
-msgstr "Tem certeza de que deseja remover estes itens"
+msgid "Click "
+msgstr "Clique"
 
 #, fuzzy
-msgid "install or update the FOG database"
-msgstr "Tem certeza de que deseja instalar ou atualizar o banco de dados FOG?"
-
-#, fuzzy
-msgid "Install/Update Now"
-msgstr "Instalar / Atualizar agora"
-
-#, fuzzy
-msgid "Database not available"
-msgstr "atualização de banco de dados falhou"
+msgid " to login"
+msgstr "não conseguiu iniciar sessão"
 
 msgid "Your database connection appears to be invalid"
 msgstr ""
@@ -5295,22 +5291,33 @@ msgstr "Verifique o banco de dados está em execução"
 msgid "check to ensure your filesystem has enough space"
 msgstr ""
 
-msgid "No connection available"
-msgstr "Nenhuma conexão disponível"
+#, fuzzy
+msgid "Database connection unavailable."
+msgstr "Nenhum de hash disponíveis"
 
-msgid "Update not required!"
-msgstr "Atualize não é necessário!"
+#, fuzzy
+msgid "Update not required"
+msgstr "Um nome de imagem é necessário!"
 
-msgid "ID"
-msgstr "identidade"
+#, fuzzy
+msgid "Update Not Required"
+msgstr "Avançada Login obrigatório"
+
+#, fuzzy
+msgid "Update ID"
+msgstr "Atualizar"
+
+#, fuzzy
+msgid "Function Error"
+msgstr "Açao"
 
 #, fuzzy
 msgid "Function"
 msgstr "Açao"
 
 #, fuzzy
-msgid "Database"
-msgstr "Encontro"
+msgid "Database Error"
+msgstr "Atualização de banco de dados falhou"
 
 msgid "Variable contains"
 msgstr ""
@@ -5318,20 +5325,21 @@ msgstr ""
 msgid "Database SQL"
 msgstr ""
 
-msgid "Install / Update Failed!"
-msgstr "Instalar / Atualizar Falha!"
+#, fuzzy
+msgid "Unable to update schema"
+msgstr "Falha ao atualizar"
 
-msgid "The following errors occurred"
-msgstr "Ocorreram os seguintes erros"
-
-msgid "Install / Update Successful!"
+#, fuzzy
+msgid "Schema updated successfully!"
 msgstr "Instalar / Atualizar sucesso!"
 
-msgid "to login"
-msgstr "Entrar"
+#, fuzzy
+msgid "Schema Update Success"
+msgstr "Instalar / Atualizar sucesso!"
 
-msgid "The following errors occured"
-msgstr "Os seguintes erros ocorreram"
+#, fuzzy
+msgid "Schema Update Fail"
+msgstr "atualização da impressora falhou!"
 
 msgid "Failed to connect"
 msgstr "Falhou ao conectar"
@@ -5632,6 +5640,9 @@ msgstr ""
 #, fuzzy
 msgid "Trying image size for"
 msgstr "Caminho Snapin"
+
+msgid "ID"
+msgstr "identidade"
 
 #, fuzzy
 msgid "Path is unavailable"
