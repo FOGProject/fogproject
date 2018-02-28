@@ -55,7 +55,7 @@
         ajax: {
             url: '../management/index.php?node='+Common.node+'&sub=list',
             type: 'post'
-        }
+        },
     });
 
     if (Common.search && Common.search.length > 0) {

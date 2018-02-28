@@ -778,4 +778,123 @@ class UserManagementPage extends FOGPage
         echo $msg;
         exit;
     }
+    /**
+     * Present the export information.
+     *
+     * @return void
+     */
+    public function export()
+    {
+        // The data to use for building our table.
+        $this->headerData = [];
+        $this->templates = [];
+        $this->attributes = [];
+
+        $obj = self::getClass('UserManager');
+
+        foreach ($obj->getColumns() as $common => &$real) {
+            if ('id' == $common) {
+                continue;
+            }
+            array_push($this->headerData, $common);
+            array_push($this->templates, '');
+            array_push($this->attributes, []);
+            unset($real);
+        }
+
+        $this->title = _('Export Users');
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'user-export-form',
+            self::makeTabUpdateURL(
+                'user-export'
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo '<div class="box box-solid">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Export Users');
+        echo '</h4>';
+        echo '<p class="help-block">';
+        echo _('Use the selector to choose how many items you want exported.');
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo '<p class="help-block">';
+        echo _(
+            'All columns less the id field will be exported. Column visibility '
+            . 'does not affect the exported items.'
+        );
+        echo '</p>';
+        echo '<p class="help-block">';
+        echo _(
+            'When you click on the item you want to export, it can only select '
+            . 'what is currently viewable on the screen. This includes searched '
+            . 'and the current page. Please use the selector to choose the amount '
+            . 'of items you would like to export.'
+        );
+        echo '</p>';
+        $this->render(12, 'user-export-table');
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
+    }
+    /**
+     * Present the export list.
+     *
+     * @return void
+     */
+    public function getExportList()
+    {
+        $obj = self::getClass('UserManager');
+        $table = $obj->getTable();
+        $sqlstr = $obj->getQueryStr();
+        $filterstr = $obj->getFilterStr();
+        $totalstr = $obj->getTotalStr();
+        $dbcolumns = $obj->getColumns();
+        $pass_vars = $columns = [];
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+        // Setup our columns for the CSV.
+        // Automatically removes the id column.
+        foreach ($dbcolumns as $common => &$real) {
+            if ('id' == $common) {
+                $tableID = $real;
+                continue;
+            }
+            $columns[] = [
+                'db' => $real,
+                'dt' => $common
+            ];
+            unset($real);
+        }
+        self::$HookManager->processEvent(
+            'USER_EXPORT_ITEMS',
+            [
+                'table' => &$table,
+                'sqlstr' => &$sqlstr,
+                'filterstr' => &$filterstr,
+                'totalstr' => &$totalstr,
+                'columns' => &$columns
+            ]
+        );
+        echo json_encode(
+            FOGManagerController::simple(
+                $pass_vars,
+                $table,
+                $tableID,
+                $columns,
+                $sqlstr,
+                $filterstr,
+                $totalstr
+            )
+        );
+        exit;
+    }
 }
