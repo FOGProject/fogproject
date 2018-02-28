@@ -22,7 +22,6 @@
         resetEncryptionCancelBtn = $('#resetencryptionCancel'),
         resetEncryptionConfirmBtn = $('#resetencryptionConfirm');
 
-
     generalForm.on('submit',function(e) {
         e.preventDefault();
     });
@@ -261,8 +260,7 @@
     });
 
     // Make our Mac addresses editable, but restricted to MAC Address formats.
-    //macsTable.$('.macs').inputmask({mask: Common.masks.mac});
-    macsTable.on('draw', function() {
+    macsTable.on('draw',function() {
         Common.iCheck('#host-macaddresses-table input.primary');
         Common.iCheck('#host-macaddresses-table input.imageIgnore');
         Common.iCheck('#host-macaddresses-table input.clientIgnore');
@@ -351,7 +349,39 @@
     // ACTIVE DIRECTORY TAB
     var ADForm = $('#active-directory-form'),
         ADFormBtn = $('#ad-send'),
-        ADClearBtn = $('#ad-clear');
+        ADClearBtn = $('#ad-clear'),
+        ADJoinDomain = $('#adEnabled');
+
+    ADJoinDomain.on('ifClicked', function(e) {
+        e.preventDefault();
+        $(this).prop('checked', !this.checked);
+        if (!this.checked) {
+            return;
+        }
+        var indomain = $('#adDomain'),
+            inou = $('#adOU'),
+            inuser = $('#adUsername'),
+            inpass = $('#adPassword');
+        if (indomain.val() && inou.val() && inuser.val() && inpass.val()) {
+            return;
+        }
+        Pace.ignore(function() {
+            $.get('../management/index.php?sub=adInfo', function(data) {
+                if (!indomain.val()) {
+                    indomain.val(data.domainname);
+                }
+                if (!inou.val()) {
+                    inou.val(data.ou)
+                }
+                if (!inuser.val()) {
+                    inuser.val(data.domainuser);
+                }
+                if (!inpass.val()) {
+                    inpass.val(data.domainpass);
+                }
+            }, 'json');
+        });
+    });
 
     ADForm.on('submit',function(e) {
         e.preventDefault();
@@ -433,7 +463,7 @@
                 responsivePriority: -1,
                 render: function(data, type, row) {
                     var checkval = '';
-                    if (row.isDefault) {
+                    if (data > 0) {
                         checkval = ' checked';
                     }
                     return '<div class="radio">'
@@ -455,7 +485,6 @@
                     return '<a href="../management/index.php?node=printer&sub=edit&id=' + row.id + '">' + data + '</a>';
                 },
                 targets: 1
-
             },
             {
                 render: function(data, type, row) {
@@ -479,7 +508,6 @@
                 },
                 targets: 3
             }
-
         ],
         processing: true,
         serverSide: true,
@@ -521,10 +549,9 @@
         var method = printerDefaultBtn.attr('method'),
             action = printerDefaultBtn.attr('action'),
             opts = {
-                'defaultsel': '1',
-                'default': DEFAULT_PRINTER_ID
+                defaultsel: 1,
+                default: DEFAULT_PRINTER_ID
             };
-
         Common.apiCall(method,action, opts, function(err) {
             printerDefaultBtn.prop('disabled', !err);
             onPrintersSelect(printersTable.rows({selected: true}));
@@ -557,8 +584,8 @@
             rows = printersTable.rows({selected: true}),
             toAdd = Common.getSelectedIds(printersTable),
             opts = {
-                'updateprinters': '1',
-                'printer': toAdd
+                updateprinters: 1,
+                printer: toAdd
             };
 
         Common.apiCall(method,action,opts,function(err) {
@@ -592,30 +619,18 @@
             rows = printersTable.rows({selected: true}),
             toRemove = Common.getSelectedIds(printersTable),
             opts = {
-                'printdel': '1',
-                'printerRemove': toRemove
+                printdel: 1,
+                printerRemove: toRemove
             };
 
         Common.apiCall(method,action,opts,function(err) {
             printerDefaultBtn.prop('disabled', false);
-            if (!err) {
-                printersTable.draw(false);
-                printersTable.rows({selected: true}).deselect();
-                $('#host-printers-table').find('.default').each(function() {
-                    if ($.inArray($(this).val(), toRemove) != -1) {
-                        $(this).iCheck('uncheck');
-                        $(this).prop('disabled', true);
-                        Common.iCheck(this);
-                    }
-                });
-                $('#host-printers-table').find('.associated').each(function() {
-                    if ($.inArray($(this).val(), toRemove) != -1) {
-                        $(this).iCheck('uncheck');
-                    }
-                });
-            } else {
-                printerRemoveBtn.prop('disabled', false);
+            printerRemoveBtn.prop('disabled', false);
+            if (err) {
+                return;
             }
+            printersTable.draw(false);
+            printersTable.rows({selected: true}).deselect();
         });
     });
 
@@ -651,7 +666,6 @@
                     return '<a href="../management/index.php?node=snapin&sub=edit&id=' + row.id +'">' + data + '</a>';
                 },
                 targets: 0
-
             },
             {
                 render: function(data, type, row) {
@@ -690,21 +704,17 @@
             rows = snapinsTable.rows({selected: true}),
             toAdd = Common.getSelectedIds(snapinsTable),
             opts = {
-                'updatesnapins': '1',
-                'snapin': toAdd
+                updatesnapins: 1,
+                snapin: toAdd
             };
         Common.apiCall(method,action,opts,function(err) {
-            if (!err) {
-                snapinsTable.draw(false);
-                snapinsTable.rows({selected: true}).deselect();
-                $('#host-snapins-table').find('.associated').each(function() {
-                    if ($.inArray($(this).val(), toAdd) != -1) {
-                        $(this).iCheck('check');
-                    }
-                });
-            } else {
-                snapinsAddBtn.prop('disabled', false);
+            snapinsAddBtn.prop('disabled', false);
+            snapinsRemoveBtn.prop('disabled', false);
+            if (err) {
+                return;
             }
+            snapinsTable.draw(false);
+            snapinsTable.rows({selected: true}).deselect();
         });
     });
 
@@ -715,21 +725,17 @@
             rows = snapinsTable.rows({selected: true}),
             toRemove = Common.getSelectedIds(snapinsTable),
             opts = {
-                'snapdel': '1',
-                'snapinRemove': toRemove
+                snapdel: 1,
+                snapinRemove: toRemove
             };
         Common.apiCall(method,action,opts,function(err) {
-            if (!err) {
-                snapinsTable.draw(false);
-                snapinsTable.rows({selected: true}).deselect();
-                $('#host-snapins-table').find('.associated').each(function() {
-                    if ($.inArray($(this).val(), toRemove) != -1) {
-                        $(this).iCheck('uncheck');
-                    }
-                });
-            } else {
-                snapinsRemoveBtn.prop('disabled', false);
+            snapinsAddBtn.prop('disabled', false);
+            snapinsRemoveBtn.prop('disabled', false);
+            if (err) {
+                return;
             }
+            snapinsTable.draw(false);
+            snapinsTble.rows({selected: true}).deselect();
         });
     });
     if (Common.search && Common.search.length > 0) {
@@ -766,7 +772,6 @@
                     return row.name;
                 },
                 targets: 0
-
             },
             {
                 render: function(data, type, row) {
@@ -804,10 +809,10 @@
             toEnable = [],
             toDisable = [],
             opts = {
-                'enablemodulessel': '1',
-                'disablemodulessel': '1',
-                'enablemodules': toEnable,
-                'disablemodules': toDisable
+                enablemodulessel: 1,
+                disablemodulessel: 1,
+                enablemodules: toEnable,
+                disablemodules: toDisable
             };
         $('#modules-to-update').find('.associated').each(function() {
             if ($(this).is(':checked')) {
@@ -818,10 +823,11 @@
         });
         Common.apiCall(method,action,opts,function(err) {
             modulesUpdateBtn.prop('disabled', false);
-            if (!err) {
-                modulesTable.draw(false);
-                modulesTable.rows({selected: true}).deselect();
+            if (err) {
+                return;
             }
+            modulesTable.draw(false);
+            modulesTable.rows({selected: true}).deselect();
         });
     });
     modulesEnableBtn.on('click', function(e) {
@@ -835,18 +841,13 @@
             rows = modulesTable.rows({selected: true}),
             toEnable = Common.getSelectedIds(modulesTable),
             opts = {
-                'enablemodulessel': '1',
-                'enablemodules': toEnable
+                enablemodulessel: 1,
+                enablemodules: toEnable
             };
         Common.apiCall(method,action,opts,function(err) {
-            if (!err) {
-                $('#modules-to-update').find('.associated').each(function() {
-                    if ($.inArray($(this).val(), toEnable) != -1) {
-                        $(this).iCheck('check');
-                    }
-                });
-            } else {
-                modulesEnableBtn.prop('disabled', false);
+            modulesEnableBtn.prop('disabled', false);
+            if (err) {
+                return;
             }
             modulesTable.draw(false);
             modulesTable.rows({selected: true}).deselect();
@@ -863,8 +864,8 @@
             rows = modulesTable.rows({selected: true}),
             toDisable = [],
             opts = {
-                'disablemodulessel': '1',
-                'disablemodules': toDisable
+                disablemodulessel: 1,
+                disablemodules: toDisable
             };
         $('#modules-to-update').find('.associated').each(function() {
             if (!$(this).is(':checked')) {
@@ -872,14 +873,9 @@
             }
         });
         Common.apiCall(method,action,opts,function(err) {
-            if (!err) {
-                $('#modules-to-update').find('.associated').each(function() {
-                    if ($.inArray($(this).val(), toDisable) != -1) {
-                        $(this).iCheck('uncheck');
-                    }
-                });
-            } else {
-                modulesDisableBtn.prop('disabled', false);
+            modulesDisableBtn.prop('disabled', false);
+            if (err) {
+                return;
             }
             modulesTable.draw(false);
             modulesTable.rows({selected: true}).deselect();
@@ -1008,94 +1004,3 @@
     // ---------------------------------------------------------------
     // LOGIN HISTORY TAB
 })(jQuery);
-// var LoginHistory = $('#login-history'),
-//     LoginHistoryDate = $('.loghist-date'),
-//     LoginHistoryData = [],
-//     Labels = [],
-//     LabelData = [],
-//     LoginData = [],
-//     LoginDateMin = [],
-//     LoginDateMax = [];
-// function UpdateLoginGraph() {
-//     url = location.href.replace('edit','hostlogins');
-//     dte = LoginHistoryDate.val();
-//     $.post(
-//         url,
-//         {
-//             dte: dte
-//         },
-//         function(data) {
-//             UpdateLoginGraphPlot(data);
-//         }
-//     );
-// }
-// function UpdateLoginGraphPlot(gdata) {
-//     gdata = $.parseJSON(gdata);
-//     if (gdata === null) {
-//         return;
-//     }
-//     j = 0;
-//     $.each(data, function (index, value) {
-//         min1 = new Date(value.min * 1000).getTime();
-//         max1 = new Date(value.max * 1000).getTime();
-//         min2 = new Date(value.min * 1000).getTimezoneOffset() * 60000;
-//         max2 = new Date(value.max * 1000).getTimezoneOffset() * 60000;
-//         log1 = new Date(value.login * 1000).getTime();
-//         log2 = new Date(value.login * 1000).getTimezoneOffset() * 60000;
-//         loo1 = new Date(value.logout * 1000).getTime();
-//         loo2 = new Date(value.logout * 1000).getTimezoneOffset() * 60000;
-//         now = new Date();
-//         LoginDateMin = new Date(min1 - min2);
-//         LoginDateMax = new Date(max1 - max2);
-//         LoginTime = new Date(log1 - log2);
-//         LogoutTime = new Date(loo1 - loo2);
-//         if (typeof(Labels) == 'undefined') {
-//             Labels = new Array();
-//             LabelData[index] = new Array();
-//             LoginData[index] = new Array();
-//         }
-//         if ($.inArray(value.user,Labels) > -1) {
-//             LoginData[index] = [LoginTime,$.inArray(value.user,Labels)+1,LogoutTime,value.user];
-//         } else {
-//             Labels.push(value.user);
-//             LabelData[index] = [j+1,value.user];
-//             LoginData[index] = [LoginTime,++j,LogoutTime,value.user];
-//         }
-//     });
-//     LoginHistoryData = [{label: 'Logged In Time',data:LoginData}];
-//     var LoginHistoryOpts = {
-//         colors: ['rgb(0,120,0)'],
-//         series: {
-//             gantt: {
-//                 active:true,
-//                 show:true,
-//                 barHeight:.2
-//             }
-//         },
-//         xaxis: {
-//             min: LoginDateMin,
-//             max: LoginDateMax,
-//             tickSize: [2,'hour'],
-//             mode: 'time'
-//         },
-//         yaxis: {
-//             min: 0,
-//             max: LabelData.length + 1,
-//             ticks: LabelData
-//         },
-//         grid: {
-//             hoverable: true,
-//             clickable: true
-//         },
-//         legend: {position: "nw"}
-//     };
-//     $.plot(LoginHistory, LoginHistoryData, LoginHistoryOpts);
-// }
-// (function($) {
-//     LoginHistoryDate.on('change', function(e) {
-//         this.form.submit();
-//     });
-//     $('#resetSecData').val('Reset Encryption Data');
-//     resetEncData('hosts', 'host');
-//     specialCrons();
-// })(jQuery);
