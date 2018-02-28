@@ -817,7 +817,85 @@ class HostManagementPage extends FOGPage
             }
             $this->obj->addAddMac($mac);
         }
-        if (isset($_POST['updatemacs'])) {
+        if (isset($_POST['updateprimary'])) {
+            $primary = (int)filter_input(
+                INPUT_POST,
+                'primary'
+            );
+            self::getClass('MACAddressAssociationManager')
+                ->update(
+                    ['hostID' => $this->obj->get('id')],
+                    '',
+                    ['primary' => 0]
+                );
+            if ($primary) {
+                self::getClass('MACAddressASsociationManager')
+                    ->update(
+                        [
+                            'id' => $primary,
+                            'hostID' => $this->obj->get('id')
+                        ],
+                        '',
+                        ['primary' => 1]
+                    );
+            }
+        }
+        if (isset($_POST['updatechecks'])) {
+            $flags = ['flags' => FILTER_REQUIRE_ARRAY];
+            $items = filter_input_array(
+                INPUT_POST,
+                [
+                    'imageIgnore' => $flags,
+                    'clientIgnore' => $flags,
+                    'pending' => $flags
+                ]
+            );
+            $imageIgnore = $items['imageIgnore'];
+            $clientIgnore = $items['clientIgnore'];
+            $pending = $items['pending'];
+            self::getClass('MACAddressAssociationManager')
+                ->update(
+                    ['hostID' => $this->obj->get('id')],
+                    '',
+                    [
+                        'imageIgnore' => 0,
+                        'clientIgnore' => 0,
+                        'pending' => 0
+                    ]
+                );
+            if (count($imageIgnore) > 0) {
+                self::getClass('MACAddressAssociationManager')
+                    ->update(
+                        [
+                            'id' => $imageIgnore,
+                            'hostID' => $this->obj->get('id')
+                        ],
+                        '',
+                        ['imageIgnore' => 1]
+                    );
+            }
+            if (count($clientIgnore) > 0) {
+                self::getClass('MACAddressAssociationManager')
+                    ->update(
+                        [
+                            'id' => $clientIgnore,
+                            'hostID' => $this->obj->get('id')
+                        ],
+                        '',
+                        ['clientIgnore' => 1]
+                    );
+            }
+            if (count($pending) > 0) {
+                self::getClass('MACAddressAssociationManager')
+                    ->update(
+                        [
+                            'id' => $pending,
+                            'hostID' => $this->obj->get('id')
+                        ],
+                        '',
+                        ['pending' => 1]
+                    );
+            }
         }
     }
     /**
