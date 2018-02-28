@@ -370,49 +370,58 @@ var $_GET = getQueryParams(document.location.search),
         });
     };
     Common.registerTable = function(e, onSelect, opts) {
-        if (opts === undefined)
+        if (opts === undefined) {
             opts = {};
-
-        if (opts.paging === undefined)
+        }
+        if (opts.paging === undefined) {
             opts.paging = true;
-        if (opts.lengthChange === undefined)
+        }
+        if (opts.lengthChange === undefined) {
             opts.lengthChange = true;
-        if (opts.pagingType === undefined)
+        }
+        if (opts.pagingType === undefined) {
             opts.pagingType = "simple_numbers";
-        if (opts.searching === undefined)
+        }
+        if (opts.searching === undefined) {
             opts.searching = true;
-        if (opts.ordering === undefined)
+        }
+        if (opts.ordering === undefined) {
             opts.ordering = true;
-        if (opts.info === undefined)
+        }
+        if (opts.info === undefined) {
             opts.info = true;
-        if (opts.stateSave === undefined)
+        }
+        if (opts.stateSave === undefined) {
             opts.stateSave = false; // MAYBE???
-        if (opts.autoWidth === undefined)
+        }
+        if (opts.autoWidth === undefined) {
             opts.autoWidth = false;
-        if (opts.select === undefined)
+        }
+        if (opts.select === undefined) {
             opts.select = {
                 style: 'multi+shift',
             }
-        if (opts.responsive === undefined)
+        }
+        if (opts.responsive === undefined) {
             opts.responsive = true;
-        if (opts.dom === undefined)
+        }
+        if (opts.dom === undefined) {
              opts.dom = "<'row'<'col-sm-6'l><'col-sm-6'f>>B" +
              "<'row'<'col-sm-12'tr>>" +
              "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        }
         if (opts.buttons === undefined) {
             if (opts.select) {
                 opts.buttons = [
-             //      'copy',
-             //       'excel',
-             //       'pdf',
-             //       'print',
-             //       'selected',
+                    //'copy',
+                    //'excel',
+                    //'pdf',
+                    //'print',
+                    //'selected',
                     'selectAll',
                     'selectNone'
                 ];
             }
-        } else {
-            opts.buttons = [];
         }
         var table = e.DataTable(opts);
 

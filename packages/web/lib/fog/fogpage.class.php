@@ -786,10 +786,21 @@ abstract class FOGPage extends FOGBase
             $serverSide
         );
     }
-
-    public function makeTabUpdateURL($tab, $id) {
+    /**
+     * Makes the action url update with the tab.
+     *
+     * @param string $tab What tab to associate this with.
+     * @param int    $id  The id, if required.
+     *
+     * @return string
+     */
+    public function makeTabUpdateURL($tab, $id = -1) {
         global $node;
-        return '../management/index.php?node='.$node.'&sub=edit&id='.$id.'&tab='.$tab;
+        global $sub;
+        return "../management/index.php?node=$node"
+            . "&sub=$sub"
+            . ($id > 0 ? "&id=$id" : '')
+            . "&tab=$tab";
     }
 
     public function displayAlert($title, $body, $type, $dismissable=true, $isCallout=false) {
