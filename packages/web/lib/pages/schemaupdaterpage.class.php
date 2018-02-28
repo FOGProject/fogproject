@@ -54,16 +54,36 @@ class SchemaUpdaterPage extends FOGPage
         $vals = [
             "\n",
         ];
-        // Success
-        echo '<div class="panel panel-info hiddeninitially" id="dbRunning">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Install/Update');
+
+        $buttons = self::makeButton(
+            'schema-send',
+            _('Install/Update now'),
+            'btn btn-primary hidden runningdb'
+        );
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'schema-update-form',
+            $this->formAction,
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo '<div class="box box-solid" id="schema-modify">';
+        echo '<div class="box-body">';
+        echo '<!-- Schema Update -->';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Database Install | Update');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<div class="panel panel-warning">';
-        echo '<div class="panel-body">';
+
+        echo '<div class="box-body">';
+
+        // DB Running
+        echo '<div class="hidden runningdb" id="runningdb">';
+        echo '<p class="help-block">';
         printf(
             '%s %s %s %s %s (%s->%s->%s), %s %s.',
             _('If you would like to backup your'),
@@ -77,10 +97,9 @@ class SchemaUpdaterPage extends FOGPage
             _('this will save the backup in your home'),
             _('directory')
         );
-        echo '<pre>';
-        echo 'mysqldump --allow-keywords -x -v fog > fogbackup.sql</p</pre>';
-        echo '</div>';
-        echo '</div>';
+        echo '</p>';
+        echo '<hr/>';
+        echo '<p class="help-block">';
         printf(
             '%s, %s %s. %s, %s %s %s. %s, %s %s.',
             _('Your FOG database schema is not up to date'),
@@ -94,36 +113,25 @@ class SchemaUpdaterPage extends FOGPage
             _('this backup will enable you to return to the'),
             _('previous install if needed')
         );
-        echo '<br/>';
-        echo '<br/>';
-        printf(
-            '%s %s?',
-            _('Are you sure you wish to'),
-            _('install or update the FOG database')
-        );
-        echo '<br/>';
-        echo '<br/>';
-        echo '<form class="form-horizontal" action="'
-            . $this->formAction
-            . '" method="post" novalidate>';
-        echo '<div class="col-xs-offset-4 col-xs-4">';
-        echo '<input type="hidden" name="fogverified"/>';
-        echo '<button type="submit" class="btn btn-primary btn-block" name='
-            . '"confirm">';
-        echo _('Install/Update Now');
-        echo '</button>';
+        echo '</p>';
+        echo '<pre>';
+        echo 'mysqldump --allow-keywords -x -v fog > fogbackup.sql';
+        echo '</pre>';
         echo '</div>';
-        echo '</form>';
+
+        // Completed Update.
+        echo '<div class="hidden" id="completed">';
+        echo '<p class="help-block">';
+        echo _('Click ');
+        echo '<a href="../management/index.php">';
+        echo _('here');
+        echo _(' to login');
+        echo '</p>';
         echo '</div>';
-        echo '</div>';
-        // Failure
-        echo '<div class="panel panel-danger hiddeninitially" id="dbNotRunning">';
-        echo '<div class="panel-heading">';
-        echo '<h4 class="title">';
-        echo _('Database not available');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
+
+        // DB Not Running
+        echo '<div class="hidden" id="stoppeddb">';
+        echo '<p class="help-block">';
         printf(
             '%s. %s. %s. %s %s%s%s. %s. %s, %s, %s.',
             _('Your database connection appears to be invalid'),
@@ -138,8 +146,17 @@ class SchemaUpdaterPage extends FOGPage
             _('and if the Database service is running'),
             _('check to ensure your filesystem has enough space')
         );
+        echo '</p>';
+        echo '</div>';
+
         echo '</div>';
         echo '</div>';
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $buttons;
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
     }
     /**
      * When a form is submitted, this function handles it.
@@ -148,12 +165,7 @@ class SchemaUpdaterPage extends FOGPage
      */
     public function indexPost()
     {
-        if (!isset($_POST['fogverified'])) {
-            return;
-        }
-        if (!isset($_POST['confirm'])) {
-            return;
-        }
+        header('Content-type: application/json');
         include sprintf(
             '%s%scommons%sschema.php',
             BASEPATH,
@@ -161,12 +173,20 @@ class SchemaUpdaterPage extends FOGPage
             DS
         );
         $errors = [];
+        $serverFault = false;
         try {
             if (!DatabaseManager::getLink()) {
-                throw new Exception(_('No connection available'));
+                throw new Exception(_('Database connection unavailable.'));
             }
             if (count($this->schema) <= self::$mySchema) {
-                throw new Exception(_('Update not required!'));
+                http_response_code(201);
+                echo json_encode(
+                    [
+                        'msg' => _('Update not required'),
+                        'title' => _('Update Not Required')
+                    ]
+                );
+                exit;
             }
             $items = array_slice(
                 $this->schema,
@@ -184,25 +204,54 @@ class SchemaUpdaterPage extends FOGPage
                         $result = $update();
                         if (is_string($result)) {
                             $errors[] = sprintf(
-                                '<p><b>%s %s:</b>'
-                                . ' %s<br/><br/><b>%s %s:</b>'
-                                . ' <pre>%s</pre></p>'
-                                . '<p><b>%s:</b>'
-                                . ' <pre>%s</pre></p>',
-                                _('Update'),
-                                _('ID'),
-                                $version + 1,
-                                _('Function'),
-                                _('Error'),
-                                $result,
+                                "%s: %s\n",
+                                _('Update ID'),
+                                $version + 1
+                            )
+                            . ' '
+                            . sprintf(
+                                "%s: %s\n",
+                                _('Function Error'),
+                                $result
+                            )
+                            . ' '
+                            . sprintf(
+                                "%s: %s\n",
                                 _('Function'),
                                 print_r($update, 1)
+                            );
+                            error_log(
+                                sprintf(
+                                    "%s: %s\n",
+                                    _('Update ID'),
+                                    $version + 1
+                                ),
+                                3,
+                                BASEPATH . 'fog_schema_update_error.log'
+                            );
+                            error_log(
+                                sprintf(
+                                    "%s: %s\n",
+                                    _('Function Error'),
+                                    $result
+                                ),
+                                3,
+                                BASEPATH . 'fog_schema_update_error.log'
+                            );
+                            error_log(
+                                sprintf(
+                                    "%s: %s\n",
+                                    _('Function'),
+                                    print_r($update, 1)
+                                ),
+                                3,
+                                BASEPATH . 'fog_schema_update_error.log'
                             );
                             unset($update);
                             break 2;
                         }
                     } elseif (false !== self::$DB->query($update)->error) {
-                        $dups = [
+                        $skiperrs = [
                             1050, // Can't drop not exist
                             1054, // Column not found.
                             1060, // Duplicate column name
@@ -211,27 +260,68 @@ class SchemaUpdaterPage extends FOGPage
                             1091  // Table not exist.
                         ];
                         $err = self::$DB->errorCode;
-                        if (in_array(self::$DB->errorCode, $dups)) {
+                        if (in_array($err, $skiperrs)) {
                             continue;
                         }
                         $errors[] = sprintf(
-                            '<p><b>%s %s:</b>'
-                            . ' %s<br/><br/><b>%s %s:</b>'
-                            . ' <pre>%s</pre></p>'
-                            . '<p><b>%s:</b>'
-                            . ' <pre>%s</pre></p>'
-                            . '<p><b>%s:</b>'
-                            . ' <pre>%s</pre></p>',
-                            _('Update'),
-                            _('ID'),
-                            $version + 1,
-                            _('Database'),
-                            _('Error'),
-                            self::$DB->error,
-                            _('Variable contains'),
-                            print_r($this->schema[$version], 1),
-                            _('Database SQL'),
-                            $update
+                                "%s: %s\n",
+                                _('Update ID'),
+                                $version + 1
+                            )
+                            . ' '
+                            . sprintf(
+                                "%s: %s\n",
+                                _('Database Error'),
+                                self::$DB->error
+                            )
+                            . ' '
+                            . sprintf(
+                                "%s: %s\n",
+                                _('Variable contains'),
+                                print_r($this->schema[$version], 1)
+                            )
+                            . ' '
+                            . sprintf(
+                                "%s: %s\n",
+                                _('Database SQL'),
+                                $update
+                            );
+
+                        error_log(
+                            sprintf(
+                                "%s: %s\n",
+                                _('Update ID'),
+                                $version + 1
+                            ),
+                            3,
+                            BASEPATH . 'fog_schema_update_error.log'
+                        );
+                        error_log(
+                            sprintf(
+                                "%s: %s\n",
+                                _('Database Error'),
+                                self::$DB->error
+                            ),
+                            3,
+                            BASEPATH . 'fog_schema_update_error.log'
+                        );
+                        error_log(
+                            sprintf(
+                                "%s: %s\n",
+                                _('Variable contains'),
+                                print_r($this->schema[$version], 1)
+                            ),
+                            3,
+                            BASEPATH . 'fog_schema_update_error.log'
+                        );
+                        error_log(
+                            sprintf(
+                                "%s: %s\n",
+                                _('Database SQL'),
+                                $update
+                            ),
+                            3,
+                            BASEPATH . 'fog_schema_update_error.log'
                         );
                         unset($update);
                         break 2;
@@ -244,44 +334,37 @@ class SchemaUpdaterPage extends FOGPage
             if (!$newSchema->save()
                 || count($errors) > 0
             ) {
-                $fatalerrmsg = '';
-                $fatalerrmsg = sprintf(
-                    '<p>%s</p>',
-                    _('Install / Update Failed!')
-                );
-                if (count($errors)) {
-                    $fatalerrmsg .= sprintf(
-                        '<h2>%s</h2>%s',
-                        _('The following errors occurred'),
-                        implode('<hr/>', $errors)
-                    );
-                }
-                throw new Exception($fatalerrmsg);
+                $serverFault = true;
+                throw new Exception(_('Unable to update schema'));
             }
             $db = self::$DB->returnThis();
             self::$DB->currentDb($db);
-            $text = sprintf(
-                '<p>%s</p><p>%s <a href="index.php">%s</a> %s</p>',
-                _('Install / Update Successful!'),
-                _('Click'),
-                _('here'),
-                _('to login')
+            $code = 201;
+            $msg = json_encode(
+                [
+                    'msg' => _('Schema updated successfully!'),
+                    'title' => _('Schema Update Success')
+                ]
             );
-            if (count($errors)) {
-                $text = sprintf(
-                    '<h2>%s</h2>%s',
-                    _('The following errors occured'),
-                    implode('<hr/>', $errors)
-                );
-            }
-            if (self::$ajax) {
-                echo json_encode($text);
-                exit;
-            }
-            echo $text;
         } catch (Exception $e) {
-            printf('<p>%s</p>', $e->getMessage());
-            http_response_code(404);
+            $code = ($serverFault ? 500 : 400);
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Schema Update Fail')
+                ]
+            );
+            if ($serverfault) {
+                $fatal = implode("\n", $errors);
+                error_log(
+                    $fatal,
+                    3,
+                    BASEPATH . 'fog_schema_update_error.log'
+                );
+            };
         }
+        http_response_code($code);
+        echo $msg;
+        exit;
     }
 }

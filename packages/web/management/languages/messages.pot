@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-27 19:20-0500\n"
+"POT-Creation-Date: 2018-02-28 04:07-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4278,10 +4278,10 @@ msgstr ""
 msgid "User Password"
 msgstr ""
 
-msgid "User Password (confirm)"
+msgid "confirm"
 msgstr ""
 
-msgid "User API Enabled"
+msgid "User API Enable"
 msgstr ""
 
 msgid "A user name is required!"
@@ -4320,13 +4320,13 @@ msgstr ""
 msgid "User Create Fail"
 msgstr ""
 
+msgid "A user already exists with this name"
+msgstr ""
+
 msgid "User API Token"
 msgstr ""
 
 msgid "API"
-msgstr ""
-
-msgid "A user already exists with this name"
 msgstr ""
 
 msgid "User update failed!"
@@ -4527,7 +4527,10 @@ msgstr ""
 msgid "Database Schema Installer / Updater"
 msgstr ""
 
-msgid "Install/Update"
+msgid "Install/Update now"
+msgstr ""
+
+msgid "Database Install | Update"
 msgstr ""
 
 msgid "If you would like to backup your"
@@ -4587,16 +4590,10 @@ msgstr ""
 msgid "previous install if needed"
 msgstr ""
 
-msgid "Are you sure you wish to"
+msgid "Click "
 msgstr ""
 
-msgid "install or update the FOG database"
-msgstr ""
-
-msgid "Install/Update Now"
-msgstr ""
-
-msgid "Database not available"
+msgid " to login"
 msgstr ""
 
 msgid "Your database connection appears to be invalid"
@@ -4623,19 +4620,25 @@ msgstr ""
 msgid "check to ensure your filesystem has enough space"
 msgstr ""
 
-msgid "No connection available"
+msgid "Database connection unavailable."
 msgstr ""
 
-msgid "Update not required!"
+msgid "Update not required"
 msgstr ""
 
-msgid "ID"
+msgid "Update Not Required"
+msgstr ""
+
+msgid "Update ID"
+msgstr ""
+
+msgid "Function Error"
 msgstr ""
 
 msgid "Function"
 msgstr ""
 
-msgid "Database"
+msgid "Database Error"
 msgstr ""
 
 msgid "Variable contains"
@@ -4644,19 +4647,16 @@ msgstr ""
 msgid "Database SQL"
 msgstr ""
 
-msgid "Install / Update Failed!"
+msgid "Unable to update schema"
 msgstr ""
 
-msgid "The following errors occurred"
+msgid "Schema updated successfully!"
 msgstr ""
 
-msgid "Install / Update Successful!"
+msgid "Schema Update Success"
 msgstr ""
 
-msgid "to login"
-msgstr ""
-
-msgid "The following errors occured"
+msgid "Schema Update Fail"
 msgstr ""
 
 msgid "Failed to connect"
@@ -4909,6 +4909,9 @@ msgid "to update size values as needed"
 msgstr ""
 
 msgid "Trying image size for"
+msgstr ""
+
+msgid "ID"
 msgstr ""
 
 msgid "Path is unavailable"

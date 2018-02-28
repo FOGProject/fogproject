@@ -939,10 +939,17 @@ class SnapinManagementPage extends FOGPage
             );
         $rendered = self::formFields($fields);
         unset($fields);
-        echo '<form id="snapin-general-form" class="form-horizontal" '
-            . 'enctype="multipart/form-data" method="post" action="'
-            . self::makeTabUpdateURL('snapin-general', $this->obj->get('id'))
-            . '" novalidate>';
+        echo self::makeFormTag(
+            'form-horizontal',
+            'snapin-general-form',
+            self::makeTabUpdateURL(
+                'snapin-general',
+                $this->obj->get('id')
+            ),
+            'post',
+            'multipart/form-data',
+            true
+        );
         echo '<div class="box box-solid">';
         echo '<div class="box-body">';
         echo $rendered;

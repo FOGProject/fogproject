@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-27 17:18-0500\n"
+"POT-Creation-Date: 2018-02-28 04:03-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -4891,12 +4891,13 @@ msgstr "Neue %s erstellen"
 msgid "User Password"
 msgstr "Benutzerpasswort"
 
-msgid "User Password (confirm)"
-msgstr "Benutzerpasswort (bestätigen)"
+#, fuzzy
+msgid "confirm"
+msgstr "Bestätige Task"
 
 #, fuzzy
-msgid "User API Enabled"
-msgstr "Benutzer-API aktiviert"
+msgid "User API Enable"
+msgstr "API-Zugangstoken"
 
 #, fuzzy
 msgid "A user name is required!"
@@ -4942,16 +4943,16 @@ msgid "User Create Fail"
 msgstr "Benutzer erstellen fehlgeschlagen"
 
 #, fuzzy
+msgid "A user already exists with this name"
+msgstr "Dieser Benutzername ist bereits vorhanden!"
+
+#, fuzzy
 msgid "User API Token"
 msgstr "API-Zugangstoken"
 
 #, fuzzy
 msgid "API"
 msgstr "API?"
-
-#, fuzzy
-msgid "A user already exists with this name"
-msgstr "Dieser Benutzername ist bereits vorhanden!"
 
 #, fuzzy
 msgid "User update failed!"
@@ -5190,9 +5191,12 @@ msgstr "Snapin Update fehlgeschlagen"
 msgid "Database Schema Installer / Updater"
 msgstr "Datenbank-Schema Installer / Updater"
 
+msgid "Install/Update now"
+msgstr ""
+
 #, fuzzy
-msgid "Install/Update"
-msgstr "Installation/Update"
+msgid "Database Install | Update"
+msgstr "Datenbank-Schema Installer / Updater"
 
 msgid "If you would like to backup your"
 msgstr "Wenn Sie die FOG Datenbank"
@@ -5257,20 +5261,12 @@ msgid "previous install if needed"
 msgstr "Installation zurück zu kehren, falls erforderlich."
 
 #, fuzzy
-msgid "Are you sure you wish to"
-msgstr "Sind Sie sicher, dass Sie die Datenbank"
+msgid "Click "
+msgstr "Klicken Sie"
 
 #, fuzzy
-msgid "install or update the FOG database"
-msgstr "installieren oder aktualisieren möchten?"
-
-#, fuzzy
-msgid "Install/Update Now"
-msgstr "Jetzt installieren/aktualisieren"
-
-#, fuzzy
-msgid "Database not available"
-msgstr "Datenbank nicht verfügbar"
+msgid " to login"
+msgstr "Anmelden fehlgeschlagen"
 
 msgid "Your database connection appears to be invalid"
 msgstr "Ihre Datenbankverbindung scheint ungültig zu sein"
@@ -5298,22 +5294,33 @@ msgstr "und die Datenbank läuft,"
 msgid "check to ensure your filesystem has enough space"
 msgstr "prüfen Sie bitte, ob sie genügend Speicherplatz haben."
 
-msgid "No connection available"
-msgstr "Keine Verbindung verfügbar"
+#, fuzzy
+msgid "Database connection unavailable."
+msgstr "Pfad ist nicht verfügbar"
 
-msgid "Update not required!"
-msgstr "Update wird nicht benötigt!"
+#, fuzzy
+msgid "Update not required"
+msgstr "Ein Name ist erforderlich!"
 
-msgid "ID"
-msgstr "ID"
+#, fuzzy
+msgid "Update Not Required"
+msgstr "Erweiterte Anmeldung erforderlich"
+
+#, fuzzy
+msgid "Update ID"
+msgstr "Update"
+
+#, fuzzy
+msgid "Function Error"
+msgstr "Funktion"
 
 #, fuzzy
 msgid "Function"
 msgstr "Funktion"
 
 #, fuzzy
-msgid "Database"
-msgstr "Datenbank"
+msgid "Database Error"
+msgstr "Datenbank SQL"
 
 msgid "Variable contains"
 msgstr "Die Variable enthält"
@@ -5321,20 +5328,21 @@ msgstr "Die Variable enthält"
 msgid "Database SQL"
 msgstr "Datenbank SQL"
 
-msgid "Install / Update Failed!"
-msgstr "Installation / Update fehlgeschlagen!"
+#, fuzzy
+msgid "Unable to update schema"
+msgstr "Host- und globalen Einstellungen gibt,"
 
-msgid "The following errors occurred"
-msgstr "Die folgenden Fehler sind aufgetreten"
+#, fuzzy
+msgid "Schema updated successfully!"
+msgstr "iPXE-Einstellungen erfolgreich aktualisiert!"
 
-msgid "Install / Update Successful!"
-msgstr "Installation / Update erfolgreich!"
+#, fuzzy
+msgid "Schema Update Success"
+msgstr "Host Aktualisierung erfolgreich!"
 
-msgid "to login"
-msgstr "anmelden"
-
-msgid "The following errors occured"
-msgstr "Die folgenden Fehler sind aufgetreten"
+#, fuzzy
+msgid "Schema Update Fail"
+msgstr "Drucker-Update fehlgeschlagen!"
 
 msgid "Failed to connect"
 msgstr "Verbindung nicht möglich"
@@ -5635,6 +5643,9 @@ msgstr "Größenwerte nach Bedarf aktualisieren"
 #, fuzzy
 msgid "Trying image size for"
 msgstr "Versuche Imagegröße für"
+
+msgid "ID"
+msgstr "ID"
 
 #, fuzzy
 msgid "Path is unavailable"

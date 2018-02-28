@@ -20,6 +20,7 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
+header('Content-type: application/json');
 session_write_close();
 ignore_user_abort(true);
 set_time_limit(0);
@@ -33,6 +34,7 @@ $ret = [
     'running' => (bool)$link,
     'redirect' => (bool)$redirect,
 ];
+http_response_code(($ret['running'] ? 201 : 500));
 $ret = json_encode($ret);
 echo $ret;
 exit;

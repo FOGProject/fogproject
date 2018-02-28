@@ -4143,4 +4143,111 @@ abstract class FOGPage extends FOGBase
         );
         exit;
     }
+    /**
+     * Makes a label element.
+     *
+     * @param string $class The class to give the label.
+     * @param string $id    The "fog" identifier.
+     * @param string $str   What the label displays as its string.
+     *
+     * @return string
+     */
+    public static function makeLabel(
+        $class,
+        $id,
+        $str
+    ) {
+        return '<label class="'
+            . $class
+            . '" for="'
+            . $id
+            . '">'
+            . $str
+            . '</label>';
+    }
+    /**
+     * Makes an input element.
+     *
+     * @param string $class        The class to give this input.
+     * @param string $name         The name to give this input.
+     * @param string $placeholder  A placeholder limit.
+     * @param string $type         The type for this input.
+     * @param string $id           The id to give this input.
+     * @param mixed  $value        The value to assign to this input.
+     * @param bool   $required     Is this input required.
+     * @param bool   $autocomplete If autoomplete should be on or off.
+     * @param int    $minlength    Minimum length of field if required.
+     * @param int    $maxlength    Maximum length of field if required.
+     * @param string $extra        Any extra attributes to add. (This is
+     *   just a simple single string of extra information as needed.)
+     * @param bool   $readonly     Is this input to be readonly.
+     * @param bool   $disabled     Is this input to be disabled.
+     *
+     * @return string
+     */
+    public static function makeInput(
+        $class,
+        $name,
+        $placeholder = '',
+        $type = 'text',
+        $id = '',
+        $value = '',
+        $required = false,
+        $autocomplete = false,
+        $minlength = -1,
+        $maxlength = -1,
+        $extra = '',
+        $readonly = false,
+        $disabled = false
+    ) {
+        if (!$id) {
+            $id = $name;
+        }
+        return '<input class="' . $class . '" '
+            . 'name="' . $name . '" '
+            . 'placeholder="' . $placeholder . '" '
+            . 'type="' . $type . '" '
+            . 'id="' . $id . '" '
+            . 'value="' . $value . '" '
+            . ($required ? 'required ' : '')
+            . ($readonly ? 'readonly ' : '')
+            . ($disabled ? 'disabled ' : '')
+            . 'autocomplete="' . ($autocomplete ? 'on' : 'off') . '"'
+            . ($minlength > 0 ? ' minlength="' . $minlength . '"' : '')
+            . ($maxlength > 0 ? ' maxlength="' . $maxlength . '"' : '')
+            . ($extra ? " $extra" : '')
+            . '/>';
+    }
+    /**
+     * Makes the opening form tag.
+     *
+     * @param string $class      The class to associate this form with.
+     * @param string $id         The id to associate this form with.
+     * @param string $action     The action (where is the form being submitted to).
+     * @param string $method     The method to submit this port.
+     * @param string $enctype    Encoding type the form is working with.
+     * @param bool   $novalidate Should we stop natural validation.
+     * @param string $extra      Any extra attributes to add. (This is just a simple
+     *   single string of extra information as needed.)
+     *
+     * @return string
+     */
+    public static function makeFormTag(
+        $class,
+        $id,
+        $action,
+        $method = 'post',
+        $enctype = 'application/x-www-form-urlencoded',
+        $novalidate = false,
+        $extra = ''
+    ) {
+        return '<form class="' . $class . '" '
+            . 'id="' . $id . '" '
+            . 'action="' . $action . '" '
+            . 'method="' . $method . '" '
+            . 'enctype="' . $enctype . '" '
+            . ($novalidate ? 'novalidate' : '')
+            . ($extra ? " $extra" : '')
+            . '>';
+    }
 }
