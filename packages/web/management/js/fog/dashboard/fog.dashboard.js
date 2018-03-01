@@ -9,6 +9,7 @@ var Graph30Day = $('#graph-30day'),
         },
         xaxis: {
             mode: 'time',
+            tickLength: 0,
             show: true
         },
         yaxis: {
@@ -19,6 +20,7 @@ var Graph30Day = $('#graph-30day'),
             },
             min: 0,
             minTickSize: 1,
+            tickLength: 0,
             show: true
         },
         lines: {
@@ -38,50 +40,7 @@ var Graph30Day = $('#graph-30day'),
         }
     },
     // Bandwidth
-    bandwidthinterval,
-    realtime = 'on',
     GraphBandwidthMaxDataPoints,
-    GraphBandwidthData = [],
-    GraphBandwidthOpts = {
-        colors: ['#3c8dbc', '#0073b7'],
-        grid: {
-            borderColor: '#f3f3f3',
-            borderWidth: 1,
-            tickColor: '#f3f3f3'
-        },
-        series: {
-            shadowSize: 0,
-            colors: ['#3c8dbc', '#0073b7'],
-            lines: {
-                show: true
-            }
-        },
-        lines: {
-            fill: false,
-            colors: ['#3c8dbc', '#0073b7']
-        },
-        xaxis: {
-            mode: 'time',
-            show: true
-        },
-        yaxis: {
-            min: 0,
-            tickFormatter: function(v) {
-                return v
-                    + 'Mbps';
-            },
-            show: true
-        },
-        legend: {
-            show: true,
-            noColumns: 5,
-            labelFormatter: function(label, series) {
-                return label.replace('()', '');
-            },
-            position: 'nw'
-        }
-    },
-    bandwidthajax,
     // Client Count
     updateClientCountData = [[0,0]],
     updateClientCountOpts = {
@@ -230,8 +189,91 @@ var Graph30Day = $('#graph-30day'),
     update30day();
 
     // Bandwidth chart
-    var updateBandwidth = function() {
-        Pace.ignore(function() {
+    function updateBandwidth() {
+        var GraphBandwidthOpts = {
+            colors: ['#3c8dbc', '#0073b7'],
+            grid: {
+                borderColor: '#f3f3f3',
+                borderWidth: 1,
+                tickColor: '#f3f3f3'
+            },
+            series: {
+                shadowSize: 0,
+                colors: ['#3c8dbc', '#0073b7'],
+                lines: {
+                    show: true
+                }
+            },
+            lines: {
+                fill: false,
+                colors: ['#3c8dbc', '#0073b7']
+            },
+            xaxis: {
+                mode: 'time',
+                show: true
+            },
+            yaxis: {
+                min: 0,
+                tickFormatter: function(v) {
+                    return v
+                        + 'Mbps';
+                },
+                show: true
+            },
+            legend: {
+                show: true,
+                noColumns: 5,
+                labelFormatter: function(label, series) {
+                    return label.replace('()', '');
+                },
+                position: 'nw'
+            }
+        };
+
+        var GraphData = [],
+            GraphBandwidthData = [],
+            GraphBandwidth = $('#graph-bandwidth'),
+            bandwidthinterval,
+            bandwidthajax;
+
+        $.plot(GraphBandwidth, GraphData, GraphBandwidthOpts);
+
+        function fetchData() {
+
+            function onDataReceived(series) {
+                var d = new Date(),
+                    n = d.getTime() - (d.getTimezoneOffset() * 60000);
+                $.each(series, function(index, value) {
+                    if (typeof GraphBandwidthData[index] == 'undefined') {
+                        GraphBandwidthData[index] = {};
+                        GraphBandwidthData[index].tx = [];
+                        GraphBandwidthData[index].rx = [];
+                        GraphBandwidthData[index].dev = value.dev;
+                        GraphBandwidthData[index].name = value.name;
+                    }
+                    GraphBandwidthData[index].tx.push([n, value.tx]);
+                    GraphBandwidthData[index].rx.push([n, value.rx]);
+                    while (GraphBandwidthData[index].tx.length > GraphBandwidthMaxDataPoints) {
+                        GraphBandwidthData[index].tx.shift();
+                        GraphBandwidthData[index].rx.shift();
+                    }
+
+                    GraphData[index] = {
+                        label: GraphBandwidthData[index].name
+                        + ' ('
+                        + GraphBandwidthData[index].dev
+                        + ')',
+                        data: (
+                            $('#graph-bandwidth-filters-transmit').hasClass('active') ?
+                            GraphBandwidthData[index].tx :
+                            GraphBandwidthData[index].rx
+                        )
+                    };
+                });
+                $.plot(GraphBandwidth, GraphData, GraphBandwidthOpts);
+                bandwidthinterval = setTimeout(fetchData, 1000);
+            }
+
             bandwidthajax = $.ajax({
                 url: '../management/index.php?node=home&sub=bandwidth',
                 type: 'post',
@@ -244,102 +286,48 @@ var Graph30Day = $('#graph-30day'),
                     if (bandwidthajax) {
                         bandwidthajax.abort();
                     }
-                    // If we are already running, clear it out.
-                    if (bandwidthinterval || realtime !== 'on') {
+                    if (bandwidthinterval) {
                         clearTimeout(bandwidthinterval);
                     }
-                    if (realtime === 'on') {
-                        bandwidthinterval = setTimeout(
-                            updateBandwidth,
-                            1500
-                        );
-                    }
                 },
-                success: updateBandwidthGraph
+                success: onDataReceived
             });
-        });
-    };
-    // Graph the bandwidth data
-    var updateBandwidthGraph = function(data) {
-        // Date information and GraphData initialization.
-        var d = new Date(),
-            Now = d.getTime() - (d.getTimezoneOffset() * 60000),
-            GraphData = [];
+        }
 
-        // Cycle each data element.
-        $.each(data, function(index, value) {
-            // If value is null/unset setup default vals.
-            if (value === null) {
-                value = {
-                    dev: 'Unknown',
-                    name: 'Unknown',
-                    rx: 0,
-                    tx: 0
-                };
-            }
-            // If unset setup our data
-            // Initialize the values or push data where needed.
-            if (typeof GraphBandwidthData[index] == 'undefined') {
-                GraphBandwidthData[index] = [];
-                GraphBandwidthData[index].tx = [];
-                GraphBandwidthData[index].rx = [];
-                GraphBandwidthData[index].dev = value.dev;
-                GraphBandwidthData[index].name = value.name;
-            }
-            GraphBandwidthData[index].tx.push([Now, value.tx]);
-            GraphBandwidthData[index].rx.push([Now, value.rx])
-            // If our tx/rx data is greater than our max points
-            // strip the excess data.
-            while (GraphBandwidthData[index].tx.length > GraphBandwidthMaxDataPoints / 1.5) {
-                GraphBandwidthData[index].tx.shift();
-                GraphBandwidthData[index].rx.shift();
-            }
-            GraphData[index] = {
-                label: GraphBandwidthData[index].name
-                + ' ('
-                + GraphBandwidthData[index].dev
-                + ')',
-                data: (
-                    $('#graph-bandwidth-filters-transmit').hasClass('active') ?
-                    GraphBandwidthData[index].tx :
-                    GraphBandwidthData[index].rx
-                )
-            };
+        fetchData();
+
+        $('.type-filters').on('click', function(e) {
+            $('#graph-bandwidth-title > span').text($(this).text());
+            $(this).blur().addClass('active').siblings('a').removeClass('active');
+            fetchData();
+            e.preventDefault();
         });
-        if (bandwidth_plot) {
-            bandwidth_plot.setData(GraphData);
-            bandwidth_plot.setupGrid();
-            bandwidth_plot.draw();
-        } else {
-            var bandwidth_plot = $.plot($('#graph-bandwidth'), GraphData, GraphBandwidthOpts);
-        }
-    };
-    $('.type-filters').on('click', function(e) {
-        $('#graph-bandwidth-title > span').text($(this).text());
-        $(this).blur().addClass('active').siblings('a').removeClass('active');
-        updateBandwidth();
-        e.preventDefault();
-    });
-    $('.time-filters').on('click', function(e) {
-        $('#graph-bandwidth-time-title > span').text($(this).text());
-        $(this).blur().addClass('active').siblings('a').removeClass('active');
-        GraphBandwidthMaxDataPoints = $(this).prop('rel');
-        updateBandwidth();
-        e.preventDefault();
-    });
+
+        $('.time-filters').on('click', function(e) {
+            $('#graph-bandwidth-time-title > span').text($(this).text());
+            $(this).blur().addClass('active').siblings('a').removeClass('active');
+            GraphBandwidthMaxDataPoints = $(this).prop('rel');
+            fetchData();
+            e.preventDefault();
+        });
+
+        $('#realtime .btn').on('click', function(e) {
+            if ($(this).data('toggle') === 'on') {
+                var realtime = 'on';
+                fetchData();
+            } else {
+                clearTimeout(bandwidthinterval);
+                var realtime = 'off';
+            }
+        });
+    }
+
     GraphBandwidthMaxDataPoints = $('.time-filters.active').prop('rel');
-    $('#realtime .btn').on('click', function(e) {
-        if ($(this).data('toggle') === 'on') {
-            realtime = 'on';
-            updateBandwidth();
-        } else {
-            clearTimeout(bandwidthinterval);
-            realtime = 'off';
-        }
-    });
+
     $('#graph-bandwidth').css({
         height: '150px'
     });
+
     updateBandwidth();
 
     // Client Count
