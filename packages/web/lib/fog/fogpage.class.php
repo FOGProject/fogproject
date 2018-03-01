@@ -1155,15 +1155,17 @@ abstract class FOGPage extends FOGBase
             );
         } elseif ($this->obj instanceof Group) {
             $snapselector = self::getClass('SnapinManager')->buildSelectBox();
-            Route::listem('host');
+            Route::listem(
+                'host',
+                'name',
+                false,
+                ['id' => $this->obj->get('hosts')]
+            );
             $Hosts = json_decode(
                 Route::getData()
             );
             $Hosts = $Hosts->hosts;
             foreach ((array)$Hosts as &$Host) {
-                if (!in_array($Host->id, $this->obj->get('hosts'))) {
-                    continue;
-                }
                 $imageID = $imageName = '';
                 if ($TaskType->isImagingTask()) {
                     $Image = $Host->image;
