@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-28 17:03-0500\n"
+"POT-Creation-Date: 2018-02-28 21:54-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4820,6 +4820,16 @@ msgstr "Storage Node Disk Usage"
 
 msgid "Imaging Over the last 30 days"
 msgstr "Imaging Over the last 30 days"
+
+#, fuzzy
+msgid "Real Time"
+msgstr "Host Update Failed"
+
+msgid "On"
+msgstr ""
+
+msgid "Off"
+msgstr ""
 
 msgid "2 Minutes"
 msgstr "2 Minutes"

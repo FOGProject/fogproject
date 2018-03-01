@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-28 17:03-0500\n"
+"POT-Creation-Date: 2018-02-28 21:54-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -4822,6 +4822,16 @@ msgstr "Storage Node Datenträgerverwendung"
 
 msgid "Imaging Over the last 30 days"
 msgstr "Imaging in den letzten 30 Tagen"
+
+#, fuzzy
+msgid "Real Time"
+msgstr "Datum und Zeit"
+
+msgid "On"
+msgstr ""
+
+msgid "Off"
+msgstr ""
 
 msgid "2 Minutes"
 msgstr "2 Minuten"

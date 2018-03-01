@@ -28,12 +28,6 @@ class DashboardPage extends FOGPage
      */
     private static $_tftp = '';
     /**
-     * The bandwidth time variable.
-     *
-     * @var int
-     */
-    private static $_bandwidthtime = 1;
-    /**
      * The node urls
      *
      * @var array
@@ -146,16 +140,10 @@ class DashboardPage extends FOGPage
         }
         self::$_nodeOpts = implode((array)self::$_nodeOpts);
         list(
-            self::$_bandwidthtime,
             self::$_tftp
         ) = self::getSubObjectIDs(
             'Service',
-            [
-                'name' => [
-                    'FOG_BANDWIDTH_TIME',
-                    'FOG_TFTP_HOST'
-                ]
-            ],
+            ['name' => ['FOG_TFTP_HOST']],
             'value'
         );
     }
@@ -304,18 +292,15 @@ class DashboardPage extends FOGPage
         echo '</div>';
         echo '</div>';
         // Bandwidth display
-        $bandwidthtime = self::$_bandwidthtime;
-        $datapointshour = (3600 / $bandwidthtime);
-        $bandwidthtime *= 1000;
-        $datapointshalf = ($datapointshour / 2);
-        $datapointsten = ($datapointshour / 6);
-        $datapointstwo = ($datapointshour / 30);
+        $relhour = 3600;
+        $rel30 = 1800;
+        $rel10 = 600;
+        $rel5 = 300;
+        $rel2 = 120;
         echo '<div class="col-xs-12">';
         printf(
-            '<input type="hidden" id="bandwidthtime" value="%d"/>'
-            . '<input type="hidden" id="bandwidthUrls" type="hidden" value="%s"/>'
+            '<input type="hidden" id="bandwidthUrls" type="hidden" value="%s"/>'
             . '<input type="hidden" id="nodeNames" type="hidden" value="%s"/>',
-            $bandwidthtime,
             implode(',', self::$_nodeURLs),
             implode(',', self::$_nodeNames)
         );
@@ -324,6 +309,23 @@ class DashboardPage extends FOGPage
         echo '<h4 class="box-title">';
         echo self::$foglang['Bandwidth'];
         echo '</h4>';
+        echo '<div class="box-tools" pull-right">';
+        echo _('Real Time');
+        echo '<div class="btn-group" id="realtime" data-toggle="btn-toggle">';
+        echo self::makeButton(
+            'btn-on',
+            _('On'),
+            'btn btn-default btn-xs active',
+            ' data-toggle="on"'
+        );
+        echo self::makeButton(
+            'btn-off',
+            _('Off'),
+            'btn btn-default btn-xs',
+            ' data-toggle="off"'
+        );
+        echo '</div>';
+        echo '</div>';
         echo '<div class="row">';
         echo '<div id="graph-bandwidth-filters-type">';
         echo '<div class="col-md-2">';
@@ -360,11 +362,6 @@ class DashboardPage extends FOGPage
         echo '</a>';
         echo '</div>';
         echo '<div class="col-md-offset-4 col-md-6">';
-        $relhour = (3600 / self::$_bandwidthtime);
-        $relhalf = ($relhour / 2);
-        $rel10 = ($relhour / 6);
-        $rel5 = ($relhour / 12);
-        $rel2 = ($relhour / 30);
         echo '<a href="#" id="graph-bandwidth-time-filters-2min" '
             . 'class="time-filters graph-filters active" rel="' . $rel2 . '">';
         echo _('2 Minutes');

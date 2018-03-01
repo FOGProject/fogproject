@@ -41,6 +41,7 @@ var Graph30Day = $('#graph-30day'),
     },
     // Bandwidth
     GraphBandwidthMaxDataPoints,
+    realtime = 'on',
     // Client Count
     updateClientCountData = [[0,0]],
     updateClientCountOpts = {
@@ -236,14 +237,21 @@ var Graph30Day = $('#graph-30day'),
             bandwidthinterval,
             bandwidthajax;
 
-        $.plot(GraphBandwidth, GraphData, GraphBandwidthOpts);
-
+        // Fetches our data.
         function fetchData() {
 
+            // When ajax recieves data, this updates the graph.
             function onDataReceived(series) {
+
+                // Setup our Time elements.
                 var d = new Date(),
                     n = d.getTime() - (d.getTimezoneOffset() * 60000);
+
+                // Because we can monitor multiple servers, we must iterate
+                // all of our data.
                 $.each(series, function(index, value) {
+
+                    // If the data hasn't been initilized yet, initialize it.
                     if (typeof GraphBandwidthData[index] == 'undefined') {
                         GraphBandwidthData[index] = {};
                         GraphBandwidthData[index].tx = [];
@@ -251,13 +259,28 @@ var Graph30Day = $('#graph-30day'),
                         GraphBandwidthData[index].dev = value.dev;
                         GraphBandwidthData[index].name = value.name;
                     }
+
+                    // Push new data to storage.
                     GraphBandwidthData[index].tx.push([n, value.tx]);
                     GraphBandwidthData[index].rx.push([n, value.rx]);
+
+                    // This is magical. It bases the first tx time as compared
+                    // to the current time. As javascript is milliseconds,
+                    // it takes our relational point (GraphBandwidthMaxDataPoints)
+                    // and multiplies it by 1000. If the time is greater than x
+                    // seconds, shift off the array.
+                    //
+                    // In the past it was just the length of the store, which was
+                    // rather inaccurate. As the data recieved might have taken longer
+                    // to store, you could end up with a 2 minute time spanning over 4-5
+                    // minutes. Imagine how this would play out for 5 minutes, 10 minutes,
+                    // 30 minutes, or an hour.
                     while (n - GraphBandwidthData[index].tx[0][0] > GraphBandwidthMaxDataPoints * 1000) {
                         GraphBandwidthData[index].tx.shift();
                         GraphBandwidthData[index].rx.shift();
                     }
 
+                    // This is how our data is presented to the graph.
                     GraphData[index] = {
                         label: GraphBandwidthData[index].name
                         + ' ('
@@ -270,46 +293,75 @@ var Graph30Day = $('#graph-30day'),
                         )
                     };
                 });
-                $.plot(GraphBandwidth, GraphData, GraphBandwidthOpts);
+
+                // Update our graph if we can.
+                if (realtime === 'on') {
+                    $.plot(GraphBandwidth, GraphData, GraphBandwidthOpts);
+                }
+
+                // Start a new iteration.
                 bandwidthinterval = setTimeout(fetchData, 1000);
             }
 
+            // This gets our data.
             bandwidthajax = $.ajax({
+                // The url
                 url: '../management/index.php?node=home&sub=bandwidth',
+                // How we're sending the request.
                 type: 'post',
+                // The data we want to obtain.
                 data: {
                     url: $('#bandwidthUrls').val().split(','),
                     names: $('#nodeNames').val().split(',')
                 },
+                // The data type.
                 dataType: 'json',
+                // Before we actually send,
                 beforeSend: function() {
+                    // If ajax is already running, abort it.
                     if (bandwidthajax) {
                         bandwidthajax.abort();
                     }
+                    // If the timeout is still running, abore it.
+                    // It shouldn't make it here, but safer is better.
                     if (bandwidthinterval) {
                         clearTimeout(bandwidthinterval);
                     }
                 },
+                // On Success, update our graph and data.
                 success: onDataReceived
             });
         }
 
+        // Actually fetch our data.
         fetchData();
 
-        $('#realtime .btn').on('click', function(e) {
-            if ($(this).data('toggle') === 'on') {
-                var realtime = 'on';
-                fetchData();
-            } else {
-                clearTimeout(bandwidthinterval);
-                var realtime = 'off';
-            }
-        });
     }
+    // If the user presses the off button, we should stop
+    // displaying, notice we still collect data, we just don't
+    // display it. When you press on again, it should update
+    // with your missed data.
+    $('#realtime .btn').on('click', function(e) {
+        // Return if on is already toggled.
+        // Otherwise set our variable back to 'on' if on is pressed.
+        // Otherwise set our variable to 'off' and stop presenting.
+        if ($(this).data('toggle') === 'on' && realtime === 'on') {
+            return;
+        } else if ($(this).data('toggle') === 'on') {
+            realtime = 'on';
+            $('#btn-off').removeClass('active');
+            $('#btn-on').addClass('active');
+        } else {
+            realtime = 'off';
+            $('#btn-on').removeClass('active');
+            $('#btn-off').addClass('active');
+        }
+    });
 
     $('.type-filters').on('click', function(e) {
         $('#graph-bandwidth-title > span').text($(this).text());
         $(this).blur().addClass('active').siblings('a').removeClass('active');
+        $('#btn-on').trigger('click');
         e.preventDefault();
     });
 
@@ -317,8 +369,10 @@ var Graph30Day = $('#graph-30day'),
         $('#graph-bandwidth-time-title > span').text($(this).text());
         $(this).blur().addClass('active').siblings('a').removeClass('active');
         GraphBandwidthMaxDataPoints = $(this).prop('rel');
+        $('#btn-on').trigger('click');
         e.preventDefault();
     });
+
     GraphBandwidthMaxDataPoints = $('.time-filters.active').prop('rel');
 
     $('#graph-bandwidth').css({
