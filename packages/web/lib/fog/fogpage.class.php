@@ -1958,16 +1958,19 @@ abstract class FOGPage extends FOGBase
                 )
             )
         );
-        Route::listem($this->childClass);
+        Route::listem(
+            $this->childClass,
+            'name',
+            false,
+            ['id' => $reqID]
+        );
         $items = json_decode(
             Route::getData()
         );
         $getme = strtolower($this->childClass).'s';
         $items = $items->$getme;
         foreach ((array)$items as &$object) {
-            if (!in_array($object->id, $reqID)
-                || $object->protected
-            ) {
+            if ($object->protected) {
                 continue;
             }
             $this->data[] = array(
