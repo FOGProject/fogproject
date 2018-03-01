@@ -390,6 +390,7 @@ abstract class FOGManagerController extends FOGBase
             $groupBy,
             $orderBy
         );
+        $data = [];
         self::$DB->query(
             $query,
             array(),
