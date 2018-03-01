@@ -253,7 +253,7 @@ var Graph30Day = $('#graph-30day'),
                     }
                     GraphBandwidthData[index].tx.push([n, value.tx]);
                     GraphBandwidthData[index].rx.push([n, value.rx]);
-                    while (GraphBandwidthData[index].tx.length > GraphBandwidthMaxDataPoints) {
+                    while (n - GraphBandwidthData[index].tx[0][0] > GraphBandwidthMaxDataPoints * 1000) {
                         GraphBandwidthData[index].tx.shift();
                         GraphBandwidthData[index].rx.shift();
                     }
@@ -296,21 +296,6 @@ var Graph30Day = $('#graph-30day'),
 
         fetchData();
 
-        $('.type-filters').on('click', function(e) {
-            $('#graph-bandwidth-title > span').text($(this).text());
-            $(this).blur().addClass('active').siblings('a').removeClass('active');
-            fetchData();
-            e.preventDefault();
-        });
-
-        $('.time-filters').on('click', function(e) {
-            $('#graph-bandwidth-time-title > span').text($(this).text());
-            $(this).blur().addClass('active').siblings('a').removeClass('active');
-            GraphBandwidthMaxDataPoints = $(this).prop('rel');
-            fetchData();
-            e.preventDefault();
-        });
-
         $('#realtime .btn').on('click', function(e) {
             if ($(this).data('toggle') === 'on') {
                 var realtime = 'on';
@@ -322,7 +307,21 @@ var Graph30Day = $('#graph-30day'),
         });
     }
 
+    $('.type-filters').on('click', function(e) {
+        $('#graph-bandwidth-title > span').text($(this).text());
+        $(this).blur().addClass('active').siblings('a').removeClass('active');
+        e.preventDefault();
+    });
+
+    $('.time-filters').on('click', function(e) {
+        $('#graph-bandwidth-time-title > span').text($(this).text());
+        $(this).blur().addClass('active').siblings('a').removeClass('active');
+        GraphBandwidthMaxDataPoints = $(this).prop('rel');
+        console.log(GraphBandwidthMaxDataPoints);
+        e.preventDefault();
+    });
     GraphBandwidthMaxDataPoints = $('.time-filters.active').prop('rel');
+    console.log(GraphBandwidthMaxDataPoints);
 
     $('#graph-bandwidth').css({
         height: '150px'
