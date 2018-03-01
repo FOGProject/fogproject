@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-28 17:03-0500\n"
+"POT-Creation-Date: 2018-02-28 21:54-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -4388,6 +4388,16 @@ msgstr "Utilizzo disco nodo di archiviazione"
 
 msgid "Imaging Over the last 30 days"
 msgstr "Imaging Negli ultimi 30 giorni"
+
+#, fuzzy
+msgid "Real Time"
+msgstr "Data e Ora"
+
+msgid "On"
+msgstr ""
+
+msgid "Off"
+msgstr ""
 
 msgid "2 Minutes"
 msgstr "2 minuti"
