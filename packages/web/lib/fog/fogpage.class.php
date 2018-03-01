@@ -1155,15 +1155,17 @@ abstract class FOGPage extends FOGBase
             );
         } elseif ($this->obj instanceof Group) {
             $snapselector = self::getClass('SnapinManager')->buildSelectBox();
-            Route::listem('host');
+            Route::listem(
+                'host',
+                'name',
+                false,
+                ['id' => $this->obj->get('hosts')]
+            );
             $Hosts = json_decode(
                 Route::getData()
             );
             $Hosts = $Hosts->hosts;
             foreach ((array)$Hosts as &$Host) {
-                if (!in_array($Host->id, $this->obj->get('hosts'))) {
-                    continue;
-                }
                 $imageID = $imageName = '';
                 if ($TaskType->isImagingTask()) {
                     $Image = $Host->image;
@@ -1956,16 +1958,19 @@ abstract class FOGPage extends FOGBase
                 )
             )
         );
-        Route::listem($this->childClass);
+        Route::listem(
+            $this->childClass,
+            'name',
+            false,
+            ['id' => $reqID]
+        );
         $items = json_decode(
             Route::getData()
         );
         $getme = strtolower($this->childClass).'s';
         $items = $items->$getme;
         foreach ((array)$items as &$object) {
-            if (!in_array($object->id, $reqID)
-                || $object->protected
-            ) {
+            if ($object->protected) {
                 continue;
             }
             $this->data[] = array(
@@ -3407,26 +3412,32 @@ abstract class FOGPage extends FOGBase
                 . '${host_name}'
             )
         );
-        Route::listem($objType);
-        $items = json_decode(
-            Route::getData()
-        );
         $getType = $objType . 's';
         $getter = $getType . 'notinme';
-        $items = $items->${getType};
-        $returnData = function (&$item) use (&$getter) {
-            $this->obj->get($getter);
-            if (!in_array($item->id, (array)$this->obj->get($getter))) {
-                return;
-            }
-            $this->data[] = array(
-                'host_id' => $item->id,
-                'host_name' => $item->name,
-                'check_num' => 1,
-            );
-            unset($item);
-        };
-        array_walk($items, $returnData);
+        $namesnotinme = array_combine(
+            $this->obj->get($getter),
+            self::getSubObjectIDs(
+                $objType,
+                ['id' => $this->obj->get($getter)],
+                'name'
+            )
+        );
+        $namesinme = array_combine(
+            $this->obj->get($getType),
+            self::getSubObjectIDs(
+                $objType,
+                ['id' => $this->obj->get($getType)],
+                'name'
+            )
+        );
+        foreach ((array)$namesnotinme as $id => &$name) {
+            $this->data[] = [
+                'host_id' => $id,
+                'host_name' => $name,
+                'check_num' => 1
+            ];
+            unset($name);
+        }
         echo '<!-- Membership -->';
         echo '<div class="col-xs-9">';
         echo '<div class="tab-pane fade in active" id="'
@@ -3515,8 +3526,14 @@ abstract class FOGPage extends FOGBase
             . $objType
             . '&sub=edit&id=${host_id}">${host_name}</a>'
         );
-        $getter = $getType;
-        array_walk($items, $returnData);
+        foreach ((array)$namesinme as $id => &$name) {
+            $this->data[] = [
+                'host_id' => $id,
+                'host_name' => $name,
+                'check_num' => 1
+            ];
+            unset($name);
+        }
         if (count($this->data) > 0) {
             echo '<div class="panel panel-warning">';
             echo '<div class="panel-heading text-center">';
